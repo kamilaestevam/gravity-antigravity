@@ -191,15 +191,15 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         ? `/api/v1/pedidos/importacoes-inteligentes/analisar?sheet=${encodeURIComponent(nomePlanilha)}`
         : '/api/v1/pedidos/importacoes-inteligentes/analisar'
 
-      const tenantId =
-        sessionStorage.getItem('gravity_tenant_id') ||
-        import.meta.env.VITE_DEV_TENANT_ID ||
+      const idOrganizacao =
+        sessionStorage.getItem('gravity_id_organizacao') ||
+        import.meta.env.VITE_DEV_ID_ORGANIZACAO ||
         ''
       const res = await fetch(url, {
         method: 'POST',
         body: formData,
         headers: {
-          'x-id-organizacao':    tenantId,
+          'x-id-organizacao':    idOrganizacao,
           'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
         },
       })

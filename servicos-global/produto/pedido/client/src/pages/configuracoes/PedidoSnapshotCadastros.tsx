@@ -15,7 +15,7 @@
  *
  * Persistência (MVP)
  * ──────────────────
- * localStorage, chaveado por tenantId. Quando o backend do Pedido ganhar o
+ * localStorage, chaveado por idOrganizacao. Quando o backend do Pedido ganhar o
  * endpoint dedicado (ver TODO abaixo), trocar `storage` pelo client de API
  * sem mudar a UI — shape é compatível.
  *
@@ -44,7 +44,7 @@ import type { PedidoStatusConfig } from '../../shared/types'
 import './PedidoSnapshotCadastros.css'
 
 // ─── Papéis (rows) ────────────────────────────────────────────────────────────
-// Mesma lista usada em EmpresasParceiros / ModalEditarEmpresa — fonte única de
+// Mesma lista usada em EmpresasEParceiros / ModalEditarEmpresa — fonte única de
 // verdade seria um shared const, mas como a matriz está do lado do Pedido e o
 // cadastro do lado do Cadastros, replicamos local por isolamento de serviço.
 
@@ -105,13 +105,13 @@ function matrizPadrao(statusList: PedidoStatusConfig[]): Matriz {
 
 const STORAGE_PREFIX = 'pedido:matriz-snapshot-cadastros:v1'
 
-function storageKey(tenantId: string | undefined): string {
-  return `${STORAGE_PREFIX}:${tenantId ?? 'anon'}`
+function storageKey(idOrganizacao: string | undefined): string {
+  return `${STORAGE_PREFIX}:${idOrganizacao ?? 'anon'}`
 }
 
-function carregarMatriz(tenantId: string | undefined, statusIds: string[]): Matriz | null {
+function carregarMatriz(idOrganizacao: string | undefined, statusIds: string[]): Matriz | null {
   try {
-    const raw = localStorage.getItem(storageKey(tenantId))
+    const raw = localStorage.getItem(storageKey(idOrganizacao))
     if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<Matriz>
     // Sanitiza contra status removidos / adicionados entre sessões
@@ -128,9 +128,9 @@ function carregarMatriz(tenantId: string | undefined, statusIds: string[]): Matr
   }
 }
 
-function salvarMatriz(tenantId: string | undefined, matriz: Matriz): void {
+function salvarMatriz(idOrganizacao: string | undefined, matriz: Matriz): void {
   try {
-    localStorage.setItem(storageKey(tenantId), JSON.stringify(matriz))
+    localStorage.setItem(storageKey(idOrganizacao), JSON.stringify(matriz))
   } catch { /* quota / modo privado — silencioso */ }
 }
 
@@ -139,7 +139,7 @@ function salvarMatriz(tenantId: string | undefined, matriz: Matriz): void {
 export function PedidoSnapshotCadastros() {
   const currentUser    = useShellStore(s => s.currentUser)
   const addNotification = useShellStore(s => s.addNotification)
-  const tenantId       = currentUser?.tenantId
+  const idOrganizacao       = currentUser?.idOrganizacao
 
   const [statusList, setStatusList] = useState<PedidoStatusConfig[]>([])
   const [matriz, setMatriz]         = useState<Matriz | null>(null)
@@ -159,7 +159,7 @@ export function PedidoSnapshotCadastros() {
         const lista = bruto.slice().sort((a, b) => (a?.ordem ?? 0) - (b?.ordem ?? 0))
         setStatusList(lista)
         const ids = lista.map(s => s.id).filter(Boolean)
-        const salva = carregarMatriz(tenantId, ids) ?? matrizVazia(ids)
+        const salva = carregarMatriz(idOrganizacao, ids) ?? matrizVazia(ids)
         setMatriz(salva)
         setSnapshot(salva)
       })
@@ -172,7 +172,7 @@ export function PedidoSnapshotCadastros() {
       })
       .finally(() => { if (!cancelado) setLoading(false) })
     return () => { cancelado = true }
-  }, [tenantId, addNotification])
+  }, [idOrganizacao, addNotification])
 
   const alterouDesdeCarga = useMemo(() => {
     if (!matriz || !snapshot) return false
@@ -226,7 +226,7 @@ export function PedidoSnapshotCadastros() {
 
   function salvar() {
     if (!matriz) return
-    salvarMatriz(tenantId, matriz)
+    salvarMatriz(idOrganizacao, matriz)
     setSnapshot(matriz)
     addNotification({ type: 'success', message: 'Matriz de snapshot salva.' })
   }

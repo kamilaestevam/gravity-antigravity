@@ -29,16 +29,16 @@ function makeMeResponse(overrides: {
   nome_usuario?: string
   email_usuario?: string
   tipo_usuario?: string
-  id_organizacao_usuario?: string
+  id_organizacao?: string
   nome_organizacao?: string | null
 } = {}) {
   return {
     usuario: {
       id_usuario:             'usr_test',
       nome_usuario:           overrides.nome_usuario ?? 'Gravity Tester',
-      email_usuario:          overrides.email_usuario ?? 'tester@gravity.com.br',
+      email_usuario:          overrides.email_usuario ?? 'tester@usegravity.com.br',
       tipo_usuario:           overrides.tipo_usuario  ?? 'STANDARD',
-      id_organizacao_usuario: overrides.id_organizacao_usuario ?? 'ten_test',
+      id_organizacao: overrides.id_organizacao ?? 'ten_test',
       preferred_company_id:   null,
     },
     organizacao: overrides.nome_organizacao !== undefined
@@ -86,7 +86,7 @@ describe('resolveRole', () => {
 })
 
 // ─── Fluxo principal: tenantName dinâmico ────────────────────────────────────
-describe('useMeSync → currentUser.tenantName', () => {
+describe('useMeSync → currentUser.nomeOrganizacao', () => {
   it('popula tenantName com nome_organizacao retornado pela API', async () => {
     mockAuthSignedIn('clerk_tenant_ok')
     ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
@@ -96,7 +96,7 @@ describe('useMeSync → currentUser.tenantName', () => {
     renderHook(() => useMeSync())
 
     await waitFor(() =>
-      expect(useShellStore.getState().currentUser.tenantName).toBe('Importes Real SA')
+      expect(useShellStore.getState().currentUser.nomeOrganizacao).toBe('Importes Real SA')
     )
   })
 
@@ -113,10 +113,10 @@ describe('useMeSync → currentUser.tenantName', () => {
     )
 
     // Quando undefined, o WorkspaceLayout exibe 'Organização' via ?? operator
-    const { tenantName } = useShellStore.getState().currentUser
-    expect(tenantName).toBeUndefined()
+    const { nomeOrganizacao } = useShellStore.getState().currentUser
+    expect(nomeOrganizacao).toBeUndefined()
     // Simula o ?? do WorkspaceLayout:
-    expect(tenantName ?? 'Organização').toBe('Organização')
+    expect(nomeOrganizacao ?? 'Organização').toBe('Organização')
   })
 
   it('NÃO exibe "Importes SA" — o mock foi removido', async () => {
@@ -128,10 +128,10 @@ describe('useMeSync → currentUser.tenantName', () => {
     renderHook(() => useMeSync())
 
     await waitFor(() =>
-      expect(useShellStore.getState().currentUser.tenantName).toBe('Outra Empresa')
+      expect(useShellStore.getState().currentUser.nomeOrganizacao).toBe('Outra Empresa')
     )
 
-    expect(useShellStore.getState().currentUser.tenantName).not.toBe('Importes SA')
+    expect(useShellStore.getState().currentUser.nomeOrganizacao).not.toBe('Importes SA')
   })
 })
 
@@ -142,7 +142,7 @@ describe('useMeSync → currentUser.name e currentUser.email', () => {
     ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
       new Response(JSON.stringify(makeMeResponse({
         nome_usuario: 'Daniel Tester',
-        email_usuario: 'daniel@gravity.com.br',
+        email_usuario: 'daniel@usegravity.com.br',
       })), { status: 200 })
     )
 
@@ -154,7 +154,7 @@ describe('useMeSync → currentUser.name e currentUser.email', () => {
 
     const { name, email } = useShellStore.getState().currentUser
     expect(name).toBe('Daniel Tester')
-    expect(email).toBe('daniel@gravity.com.br')
+    expect(email).toBe('daniel@usegravity.com.br')
   })
 
   it('name e email ficam como string vazia quando API retorna null — ?? preserva o vazio', async () => {
@@ -175,7 +175,7 @@ describe('useMeSync → currentUser.name e currentUser.email', () => {
     const { name, email } = useShellStore.getState().currentUser
     // ?? preserva empty string — Clerk é fallback externo, não interno
     expect(name ?? 'Usuário').toBe('')
-    expect(email ?? 'usuario@gravity.com.br').toBe('')
+    expect(email ?? 'usuario@usegravity.com.br').toBe('')
   })
 })
 
@@ -261,7 +261,7 @@ describe('useMeSync — cenários de erro', () => {
     await waitFor(() =>
       expect(useShellStore.getState().meStatus).toBe('success')
     )
-    expect(useShellStore.getState().currentUser.tenantName).toBe('Importes Real SA')
+    expect(useShellStore.getState().currentUser.nomeOrganizacao).toBe('Importes Real SA')
 
     // Simula logout
     mockUseAuth.mockReturnValue({
@@ -270,7 +270,7 @@ describe('useMeSync — cenários de erro', () => {
     rerender()
 
     await waitFor(() =>
-      expect(useShellStore.getState().currentUser.tenantName).toBeUndefined()
+      expect(useShellStore.getState().currentUser.nomeOrganizacao).toBeUndefined()
     )
     expect(useShellStore.getState().meStatus).toBe('idle')
   })

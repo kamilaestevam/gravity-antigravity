@@ -106,23 +106,23 @@ export default function Workflow() {
   const [submitting, setSubmitting] = useState(false)
   const [docToDelete, setDocToDelete] = useState<{ id: string; nome: string } | null>(null)
 
-  const tenantId = processo?.id_organizacao ?? ''
+  const idOrganizacao = processo?.id_organizacao ?? ''
   const processoId = processo?.id ?? ''
 
   // ─── Fetch Follow-ups ───────────────────────────────────────────────
 
   const fetchFollowUps = useCallback(async () => {
-    if (!tenantId || !processoId) return
+    if (!idOrganizacao || !processoId) return
     setFollowUpsLoading(true)
     try {
-      const data = await getFollowUps(tenantId, processoId, filter)
+      const data = await getFollowUps(idOrganizacao, processoId, filter)
       setFollowUps(data)
     } catch {
       addNotification({ type: 'danger', message: 'Erro ao carregar follow-ups' })
     } finally {
       setFollowUpsLoading(false)
     }
-  }, [tenantId, processoId, filter, addNotification])
+  }, [idOrganizacao, processoId, filter, addNotification])
 
   useEffect(() => {
     fetchFollowUps()
@@ -134,7 +134,7 @@ export default function Workflow() {
     if (!comment.trim() || submitting) return
     setSubmitting(true)
     try {
-      await createFollowUp(tenantId, processoId, {
+      await createFollowUp(idOrganizacao, processoId, {
         tipo: 'comentario',
         categoria: 'geral',
         titulo: 'Comentario',
@@ -155,7 +155,7 @@ export default function Workflow() {
   const handleConfirmDeleteDoc = async () => {
     if (!docToDelete) return
     try {
-      await deleteDocumento(tenantId, docToDelete.id)
+      await deleteDocumento(idOrganizacao, docToDelete.id)
       addNotification({ type: 'success', message: 'Documento excluido com sucesso' })
       setDocToDelete(null)
       refetch()

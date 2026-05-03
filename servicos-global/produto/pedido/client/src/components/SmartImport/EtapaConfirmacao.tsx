@@ -86,12 +86,12 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
     setRevertendo(true)
     setErroReversao(null)
     try {
-      const tenantId = sessionStorage.getItem('gravity_tenant_id') ?? ''
+      const idOrganizacao = sessionStorage.getItem('gravity_id_organizacao') ?? ''
       const res = await fetch('/api/v1/pedidos/importacoes-inteligentes/reverter', {
         method: 'POST',
         headers: {
           'Content-Type':   'application/json',
-          'x-id-organizacao':    tenantId,
+          'x-id-organizacao':    idOrganizacao,
           'x-internal-key': (import.meta as Record<string, Record<string, string>>).env?.VITE_INTERNAL_SERVICE_KEY || '',
         },
         body: JSON.stringify({ ids_criados: resultado.ids_criados }),

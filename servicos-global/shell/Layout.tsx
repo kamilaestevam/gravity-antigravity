@@ -111,7 +111,7 @@ export function Layout({
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
       {isProcessoRoute ? (
         <ContextualSidebar
-          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
           tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       ) : isProdutoRoute ? (
@@ -119,7 +119,7 @@ export function Layout({
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
-          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
           tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       ) : (
@@ -127,7 +127,7 @@ export function Layout({
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
-          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
           tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       )}

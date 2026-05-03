@@ -103,9 +103,9 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
  */
 accessRouter.get('/organizacao-produtos', async (req, res, next) => {
   try {
-    const id_organizacao = req.query.tenantId as string
+    const id_organizacao = req.query.idOrganizacao as string
     if (!id_organizacao) {
-      throw new AppError('tenantId é obrigatório', 400, 'VALIDATION_ERROR')
+      throw new AppError('idOrganizacao é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
     const products = await productConfigService.listActiveProducts(id_organizacao)
@@ -121,7 +121,7 @@ accessRouter.get('/organizacao-produtos', async (req, res, next) => {
       },
     })
 
-    res.json({ tenant_id: id_organizacao, products: allConfigs })
+    res.json({ id_organizacao, products: allConfigs })
   } catch (err) {
     next(err)
   }

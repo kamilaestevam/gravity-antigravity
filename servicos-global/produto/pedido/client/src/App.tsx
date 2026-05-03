@@ -16,7 +16,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 // IMPORTANTE: só retorna o tenantId autoritativo do store. Nunca mistura com env fallback
 // aqui — caso contrário, quando o store pisca (Clerk refresh), o env sobrescreve
 // o cache com um valor que pode não ser o do usuário atual.
-injectTenantGetter(() => useShellStore.getState().currentUser?.tenantId)
+injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const Pedidos          = lazy(() => import('./pages/Pedidos'))
@@ -113,7 +113,7 @@ export function App() {
 
   // userId/userName não são críticos para auth — atualizados via context quando disponíveis
   useEffect(() => {
-    if (currentUser.id) setApiContext({ tenantId: '', userId: currentUser.id, userName: currentUser.name ?? '' })
+    if (currentUser.id) setApiContext({ idOrganizacao: '', userId: currentUser.id, userName: currentUser.name ?? '' })
   }, [currentUser.id, currentUser.name])
 
   useEffect(() => {
@@ -156,7 +156,7 @@ export function App() {
     <TelaProdutoGlobal
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={currentUser.tenantName ?? 'Minha Empresa'}
+      tenantName={currentUser.nomeOrganizacao ?? 'Minha Empresa'}
       tenantPlan="Pro"
       navItems={navItems}
       workspaces={DEMO_WORKSPACES}
@@ -170,7 +170,7 @@ export function App() {
       onNavigateSettings={() => { navigate('/produto/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
-        workspaceName:    currentUser.tenantName ?? 'Minha Empresa',
+        workspaceName:    currentUser.nomeOrganizacao ?? 'Minha Empresa',
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,

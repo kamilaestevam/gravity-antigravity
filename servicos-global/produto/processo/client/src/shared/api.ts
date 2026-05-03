@@ -22,25 +22,25 @@ import type {
 
 const API_BASE = '/api/v1'
 
-const headers = (tenantId: string) => ({
+const headers = (idOrganizacao: string) => ({
   'Content-Type': 'application/json',
-  'x-id-organizacao': tenantId,
+  'x-id-organizacao': idOrganizacao,
   'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
 })
 
 // ─── Processos ──────────────────────────────────────────────────────────────
 
-export async function getProcessos(tenantId: string): Promise<Processo[]> {
+export async function getProcessos(idOrganizacao: string): Promise<Processo[]> {
   const res = await fetch(`${API_BASE}/processos`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) return []
   return res.json()
 }
 
-export async function getProcesso(tenantId: string, id: string): Promise<ProcessoDetail> {
+export async function getProcesso(idOrganizacao: string, id: string): Promise<ProcessoDetail> {
   const res = await fetch(`${API_BASE}/processos/${id}?include=etapas,pedidos,followUps,documentos,estimativasCusto,dadosTecnicos`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -49,10 +49,10 @@ export async function getProcesso(tenantId: string, id: string): Promise<Process
   return res.json()
 }
 
-export async function createProcesso(tenantId: string, data: CreateProcessoInput): Promise<Processo> {
+export async function createProcesso(idOrganizacao: string, data: CreateProcessoInput): Promise<Processo> {
   const res = await fetch(`${API_BASE}/processos`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify(data),
   })
   if (!res.ok) {
@@ -62,10 +62,10 @@ export async function createProcesso(tenantId: string, data: CreateProcessoInput
   return res.json()
 }
 
-export async function updateProcesso(tenantId: string, id: string, data: Partial<CreateProcessoInput>): Promise<Processo> {
+export async function updateProcesso(idOrganizacao: string, id: string, data: Partial<CreateProcessoInput>): Promise<Processo> {
   const res = await fetch(`${API_BASE}/processos/${id}`, {
     method: 'PATCH',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify(data),
   })
   if (!res.ok) {
@@ -78,7 +78,7 @@ export async function updateProcesso(tenantId: string, id: string, data: Partial
 // ─── Follow-ups ─────────────────────────────────────────────────────────────
 
 export async function getFollowUps(
-  tenantId: string,
+  idOrganizacao: string,
   processoId: string,
   filters?: FilterFollowUp
 ): Promise<FollowUp[]> {
@@ -88,20 +88,20 @@ export async function getFollowUps(
   const qs = params.toString() ? `?${params.toString()}` : ''
 
   const res = await fetch(`${API_BASE}/processos/${processoId}/follow-ups${qs}`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) return []
   return res.json()
 }
 
 export async function createFollowUp(
-  tenantId: string,
+  idOrganizacao: string,
   processoId: string,
   data: CreateFollowUpInput
 ): Promise<FollowUp> {
   const res = await fetch(`${API_BASE}/processos/${processoId}/follow-ups`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify(data),
   })
   if (!res.ok) {
@@ -113,16 +113,16 @@ export async function createFollowUp(
 
 // ─── Documentos ─────────────────────────────────────────────────────────────
 
-export async function getDocumentos(tenantId: string, processoId: string): Promise<Documento[]> {
+export async function getDocumentos(idOrganizacao: string, processoId: string): Promise<Documento[]> {
   const res = await fetch(`${API_BASE}/processos/${processoId}/documentos`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) return []
   return res.json()
 }
 
 export async function uploadDocumento(
-  tenantId: string,
+  idOrganizacao: string,
   processoId: string,
   data: UploadDocumentoInput
 ): Promise<Documento> {
@@ -135,7 +135,7 @@ export async function uploadDocumento(
   const res = await fetch(`${API_BASE}/processos/${processoId}/documentos`, {
     method: 'POST',
     headers: {
-      'x-id-organizacao': tenantId,
+      'x-id-organizacao': idOrganizacao,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
     },
     body: formData,
@@ -147,10 +147,10 @@ export async function uploadDocumento(
   return res.json()
 }
 
-export async function deleteDocumento(tenantId: string, id: string): Promise<void> {
+export async function deleteDocumento(idOrganizacao: string, id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/documentos-processo/${id}`, {
     method: 'DELETE',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -161,7 +161,7 @@ export async function deleteDocumento(tenantId: string, id: string): Promise<voi
 // ─── Pedidos (novo — TabelaVirtualGlobal) ───────────────────────────────────
 
 export async function getPedidos(
-  tenantId: string,
+  idOrganizacao: string,
   params: {
     cursor?: string
     sort?: string
@@ -180,7 +180,7 @@ export async function getPedidos(
   if (params.busca) qs.set('busca', params.busca)
   const query = qs.toString() ? `?${qs.toString()}` : ''
   const res = await fetch(`${API_BASE}/pedidos${query}`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -190,11 +190,11 @@ export async function getPedidos(
 }
 
 export async function getPedidoItens(
-  tenantId: string,
+  idOrganizacao: string,
   pedidoId: string
 ): Promise<PedidoItemRico[]> {
   const res = await fetch(`${API_BASE}/pedidos/${pedidoId}/itens`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -204,14 +204,14 @@ export async function getPedidoItens(
 }
 
 export async function editarCampoPedido(
-  tenantId: string,
+  idOrganizacao: string,
   pedidoId: string,
   campo: string,
   valor: unknown
 ): Promise<PedidoRico> {
   const res = await fetch(`${API_BASE}/pedidos/${pedidoId}/${campo}`, {
     method: 'PATCH',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify({ campo, valor }),
   })
   if (!res.ok) {
@@ -221,9 +221,9 @@ export async function editarCampoPedido(
   return res.json()
 }
 
-export async function getPedidosStatus(tenantId: string): Promise<PedidoStatusConfig[]> {
+export async function getPedidosStatus(idOrganizacao: string): Promise<PedidoStatusConfig[]> {
   const res = await fetch(`${API_BASE}/pedidos/config/status`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -232,9 +232,9 @@ export async function getPedidosStatus(tenantId: string): Promise<PedidoStatusCo
   return res.json()
 }
 
-export async function getPedidosColunas(tenantId: string): Promise<PedidoColunaConfig[]> {
+export async function getPedidosColunas(idOrganizacao: string): Promise<PedidoColunaConfig[]> {
   const res = await fetch(`${API_BASE}/pedidos/config/colunas`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -244,11 +244,11 @@ export async function getPedidosColunas(tenantId: string): Promise<PedidoColunaC
 }
 
 export async function getPreferenciasUsuario(
-  tenantId: string,
+  idOrganizacao: string,
   userId: string
 ): Promise<PedidoPreferencias | null> {
   const res = await fetch(`${API_BASE}/pedidos/config/preferencias/usuario?user_id=${encodeURIComponent(userId)}`, {
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
   })
   if (res.status === 404) return null
   if (!res.ok) {
@@ -259,13 +259,13 @@ export async function getPreferenciasUsuario(
 }
 
 export async function salvarPreferenciasUsuario(
-  tenantId: string,
+  idOrganizacao: string,
   userId: string,
   prefs: PedidoPreferencias
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/pedidos/config/preferencias/usuario`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify({ user_id: userId, ...prefs }),
   })
   if (!res.ok) {
@@ -275,13 +275,13 @@ export async function salvarPreferenciasUsuario(
 }
 
 export async function mudarStatusLotePreview(
-  tenantId: string,
+  idOrganizacao: string,
   ids: string[],
   statusNovo: string
 ): Promise<{ total: number; afetados: PedidoRico[]; bloqueados: { id: string; numero: string; motivo: string }[] }> {
   const res = await fetch(`${API_BASE}/pedidos/lote/status/preview`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify({ ids, status_novo: statusNovo }),
   })
   if (!res.ok) {
@@ -292,13 +292,13 @@ export async function mudarStatusLotePreview(
 }
 
 export async function mudarStatusLoteConfirmar(
-  tenantId: string,
+  idOrganizacao: string,
   ids: string[],
   statusNovo: string
 ): Promise<{ sucesso: number; erros: { id: string; motivo: string }[] }> {
   const res = await fetch(`${API_BASE}/pedidos/lote/status/confirmar`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify({ ids, status_novo: statusNovo }),
   })
   if (!res.ok) {
@@ -309,13 +309,13 @@ export async function mudarStatusLoteConfirmar(
 }
 
 export async function exportarPedidos(
-  tenantId: string,
+  idOrganizacao: string,
   ids: string[],
   formato: 'csv' | 'xlsx' | 'json'
 ): Promise<unknown[]> {
   const res = await fetch(`${API_BASE}/pedidos/lote/exportar`, {
     method: 'POST',
-    headers: headers(tenantId),
+    headers: headers(idOrganizacao),
     body: JSON.stringify({ ids, formato }),
   })
   if (!res.ok) {

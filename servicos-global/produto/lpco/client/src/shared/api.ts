@@ -6,9 +6,9 @@
 
 import type { Lpco, LpcoItem, LpcoExigencia, LpcoVinculo } from './types'
 
-let context = { tenantId: '', userId: '' }
+let context = { idOrganizacao: '', userId: '' }
 
-export function setApiContext(ctx: { tenantId: string; userId: string }): void {
+export function setApiContext(ctx: { idOrganizacao: string; userId: string }): void {
   context = ctx
 }
 
@@ -17,7 +17,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-id-organizacao': context.tenantId,
+      'x-id-organizacao': context.idOrganizacao,
       'x-id-usuario': context.userId,
       'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       ...options?.headers,
@@ -149,7 +149,7 @@ export const smartReadApi = {
     return request<{ jobId: string }>('/api/v1/lpcos/smart-read', {
       method: 'POST',
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
@@ -251,7 +251,7 @@ export const importacaoApi = {
     return request<{ jobId: string; preview: Partial<Lpco>[]; total: number }>('/api/v1/lpcos/import/planilha', {
       method: 'POST',
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },

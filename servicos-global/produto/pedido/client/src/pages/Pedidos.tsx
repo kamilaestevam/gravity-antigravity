@@ -2881,23 +2881,23 @@ export default function Pedidos() {
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
-  const tenantId = useShellStore(s => s.currentUser.tenantId ?? (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ?? '')
+  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   const gabiQuotaFetchOptions = useMemo((): RequestInit => {
     const ctx = getApiContext()
     return {
       headers: {
-        'x-id-organizacao': ctx.tenantId,
+        'x-id-organizacao': ctx.idOrganizacao,
         'x-id-usuario': ctx.userId,
         'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
       },
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // stable: context populated before mount, doesn't change
-  // Conditional fetching: só dispara quando tenantId já está hidratado do store.
+  // Conditional fetching: só dispara quando idOrganizacao já está hidratado do store.
   // Evita requisição prematura no milissegundo 0 do render (que resulta em 400).
-  const { quota: gabiQuota } = useGabiQuota(tenantId ? '/api/v1/pedidos/gabi/quota' : null, gabiQuotaFetchOptions)
+  const { quota: gabiQuota } = useGabiQuota(idOrganizacao ? '/api/v1/pedidos/gabi/quota' : null, gabiQuotaFetchOptions)
 
   // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
   const taxasVenda = useTaxasCambio()
@@ -3441,9 +3441,9 @@ export default function Pedidos() {
     const abasLocal = lerAbasDoLocalStorage(t)
     if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
 
-    // Conditional fetching: aguarda tenantId hidratar antes de chamar as APIs,
+    // Conditional fetching: aguarda idOrganizacao hidratar antes de chamar as APIs,
     // caso contrário /config/preferencias/usuario e afins retornam 400.
-    if (!tenantId) return
+    if (!idOrganizacao) return
 
     pedidoConfigApi.listarStatus()
       .then(res => {
@@ -3499,7 +3499,7 @@ export default function Pedidos() {
 
       setPreferencias({ colunas_visiveis: finalVisible })
     })
-  }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -3513,21 +3513,21 @@ export default function Pedidos() {
     return () => document.removeEventListener('mousedown', handler)
   }, [novoDropdownAberto])
 
-  useEffect(() => { if (!tenantId) return; carregarInicial() }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!idOrganizacao) return; carregarInicial() }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!tenantId) return
+    if (!idOrganizacao) return
     configRegrasApi.obter().then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
-  }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!tenantId) return
+    if (!idOrganizacao) return
     casasDecimaisApi.obter()
       .then(res => {
         if (res.data.formato_data) setFormatoData(res.data.formato_data as import('../shared/useFormatoData').FormatoData)
       })
       .catch(() => { /* silencioso — usa valor do localStorage ou default DD/MM/AAAA */ })
-  }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Mudar página ─────────────────────────────────────────────────────────────
   const handleMudarPagina = useCallback((pagina: number) => {

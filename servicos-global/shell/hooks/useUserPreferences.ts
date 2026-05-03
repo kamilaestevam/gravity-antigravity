@@ -95,7 +95,7 @@ async function savePreferencias(
  *
  * @example
  * // Em WorkspaceLayout ou AdminLayout
- * useUserPreferences({ id_usuario: currentUser.id, id_organizacao: currentUser.tenantId })
+ * useUserPreferences({ id_usuario: currentUser.id, id_organizacao: currentUser.idOrganizacao })
  */
 export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPreferencesOptions) {
   const { getToken } = useAuth()

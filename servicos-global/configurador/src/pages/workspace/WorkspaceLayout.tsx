@@ -71,7 +71,7 @@ export function WorkspaceLayout() {
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
+  const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
   const { role: dbRole, isGravityAdmin } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {

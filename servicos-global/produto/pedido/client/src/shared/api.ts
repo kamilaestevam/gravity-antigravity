@@ -48,9 +48,9 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
-let context = { tenantId: '', userId: '', userName: '' }
+let context = { idOrganizacao: '', userId: '', userName: '' }
 
-const LS_TENANT_KEY = 'gravity:tenantId'
+const LS_TENANT_KEY = 'gravity:idOrganizacao'
 
 function lsGet(): string {
   try { return localStorage.getItem(LS_TENANT_KEY) || '' } catch { return '' }
@@ -69,40 +69,40 @@ export const injectTenantGetter = (fn: () => string | undefined): void => {
     const live = fn()
     // Sempre que o store retorna um valor válido, persiste no context E no localStorage.
     // localStorage sobrevive a F5 — quando o Clerk ainda está carregando na próxima sessão,
-    // o último tenantId conhecido é recuperado sem race condition.
+    // o último idOrganizacao conhecido é recuperado sem race condition.
     if (live) {
-      context.tenantId = live
+      context.idOrganizacao = live
       lsSet(live)
     }
-    return context.tenantId || lsGet() || undefined
+    return context.idOrganizacao || lsGet() || undefined
   }
 }
 
-export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
-  if (ctx.tenantId) {
-    context.tenantId = ctx.tenantId
-    lsSet(ctx.tenantId)
+export function setApiContext(ctx: { idOrganizacao: string; userId: string; userName?: string }): void {
+  if (ctx.idOrganizacao) {
+    context.idOrganizacao = ctx.idOrganizacao
+    lsSet(ctx.idOrganizacao)
   }
   if (ctx.userId)   context.userId   = ctx.userId
   if (ctx.userName) context.userName = ctx.userName
 }
 
-export function getApiContext(): { tenantId: string; userId: string; userName: string } {
+export function getApiContext(): { idOrganizacao: string; userId: string; userName: string } {
   return {
-    tenantId: context.tenantId || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
+    idOrganizacao: context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
     userId:   context.userId,
     userName: context.userName,
   }
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const tenantId = getDynamicTenantId() || context.tenantId || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
 
   const response = await fetch(endpoint, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-id-organizacao': tenantId,
+      'x-id-organizacao': idOrganizacao,
       'x-id-usuario':   context.userId,
       'x-user-name': context.userName,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
@@ -364,7 +364,7 @@ export const importacaoApi = {
     return request<{ preview: Partial<Pedido>[]; total: number }>('/api/v1/pedidos/importar', {
       method: 'POST',
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
@@ -783,7 +783,7 @@ export const smartImportApi = {
     return fetch('/api/v1/pedidos/importacoes-inteligentes/analisar', {
       method: 'POST',
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
@@ -1278,7 +1278,7 @@ export const anexosApi = {
     return fetch('/api/v1/pedidos/anexos', {
       method: 'POST',
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
@@ -1299,7 +1299,7 @@ export const anexosApi = {
   download: (id: string) =>
     fetch(`/api/v1/pedidos/anexos/${id}/download`, {
       headers: {
-        'x-id-organizacao': context.tenantId,
+        'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
@@ -1434,7 +1434,7 @@ function mockAnexosUpload(
   const id = `anx_mock_${Date.now()}`
   const anexo: Anexo = {
     id,
-    tenant_id: context.tenantId,
+    tenant_id: context.idOrganizacao,
     vinculo,
     vinculo_id,
     nome_arquivo: arquivo.name,
@@ -1442,7 +1442,7 @@ function mockAnexosUpload(
     tamanho_bytes: arquivo.size,
     descricao,
     categoria,
-    storage_key: `${context.tenantId}/${vinculo_id}/${id}_${arquivo.name}`,
+    storage_key: `${context.idOrganizacao}/${vinculo_id}/${id}_${arquivo.name}`,
     uploaded_by: context.userId,
     uploaded_at: new Date().toISOString(),
   }

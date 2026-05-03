@@ -34,7 +34,7 @@ import {
 
 // ── Env / IDs ─────────────────────────────────────────────────────────────────
 
-const tenantId = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
+const idOrganizacao = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
 const userId = import.meta.env.VITE_USER_ID ?? 'user-demo'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -67,9 +67,9 @@ export default function Pedidos() {
       setCarregando(true)
       try {
         const [statusData, prefsData, listData] = await Promise.all([
-          getPedidosStatus(tenantId),
-          getPreferenciasUsuario(tenantId, userId),
-          getPedidos(tenantId, { sort: sortCampo, dir: sortDir, limit: 50 }),
+          getPedidosStatus(idOrganizacao),
+          getPreferenciasUsuario(idOrganizacao, userId),
+          getPedidos(idOrganizacao, { sort: sortCampo, dir: sortDir, limit: 50 }),
         ])
         setStatusList(statusData)
         if (prefsData) {
@@ -100,7 +100,7 @@ export default function Pedidos() {
     ) => {
       setCarregando(true)
       try {
-        const resp = await getPedidos(tenantId, {
+        const resp = await getPedidos(idOrganizacao, {
           sort: novoCampo,
           dir: novoDir,
           limit: 50,
@@ -143,14 +143,14 @@ export default function Pedidos() {
   // useCallback com deps estáveis para não disparar o useEffect de
   // auto-revalidação do useGTExpandir em todo render de Pedidos.
   const carregarItens = useCallback(
-    (pedido: PedidoRico): Promise<PedidoItemRico[]> => getPedidoItens(tenantId, pedido.id),
-    [tenantId],
+    (pedido: PedidoRico): Promise<PedidoItemRico[]> => getPedidoItens(idOrganizacao, pedido.id),
+    [idOrganizacao],
   )
 
   // ── Edição inline ─────────────────────────────────────────────────────────
 
   async function handleEditar(id: string, campo: string, valor: unknown): Promise<PedidoRico> {
-    const atualizado = await editarCampoPedido(tenantId, id, campo, valor)
+    const atualizado = await editarCampoPedido(idOrganizacao, id, campo, valor)
     setPedidos(prev => prev.map(p => (p.id === id ? atualizado : p)))
     return atualizado
   }
@@ -159,7 +159,7 @@ export default function Pedidos() {
 
   async function handleSalvarPreferencias(prefs: GTPreferencias) {
     setPreferencias(prefs)
-    await salvarPreferenciasUsuario(tenantId, userId, {
+    await salvarPreferenciasUsuario(idOrganizacao, userId, {
       colunas_visiveis: prefs.colunas_visiveis,
       colunas_largura: prefs.larguras,
     })
@@ -379,7 +379,7 @@ export default function Pedidos() {
       id: 'exportar_lote',
       label: 'Exportar selecionados',
       onClick: async (itens: PedidoRico[]) => {
-        await exportarPedidos(tenantId, itens.map(i => i.id), 'csv')
+        await exportarPedidos(idOrganizacao, itens.map(i => i.id), 'csv')
       },
     },
     {
@@ -398,19 +398,19 @@ export default function Pedidos() {
     {
       label: 'CSV',
       onClick: async () => {
-        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'csv')
+        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'csv')
       },
     },
     {
       label: 'Excel',
       onClick: async () => {
-        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'xlsx')
+        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'xlsx')
       },
     },
     {
       label: 'JSON',
       onClick: async () => {
-        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'json')
+        await exportarPedidos(idOrganizacao, pedidos.map(p => p.id), 'json')
       },
     },
   ]

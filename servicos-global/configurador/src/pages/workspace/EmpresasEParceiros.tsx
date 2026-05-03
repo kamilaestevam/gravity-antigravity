@@ -1,5 +1,5 @@
 /**
- * EmpresasParceiras.tsx — Gaveta do Configurador (Fase 5 DDD).
+ * EmpresasEParceiros.tsx — Gaveta do Configurador (Fase 5 DDD).
  *
  * Tela tenant — NÃO é painel Admin. Só lista/edita Empresas da organização
  * logada (Tenant Isolation via header x-organizacao-id).
@@ -51,7 +51,7 @@ import {
   exportarPDF,
   type ColunasExport,
 } from '../../services/exportService'
-import { ModalEditarEmpresa } from './ModalEmpresaEditar'
+import { ModalEditarEmpresa } from './ModalEditarEmpresa'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 
@@ -146,10 +146,10 @@ function StatusCell({ ativo }: { ativo: boolean }) {
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
-export function EmpresasParceiras() {
+export function EmpresasEParceiros() {
   const addNotification = useShellStore((s) => s.addNotification)
   const currentUser = useShellStore((s) => s.currentUser)
-  const idOrganizacao = currentUser.tenantId
+  const idOrganizacao = currentUser.idOrganizacao
 
   const [empresas, setEmpresas] = useState<Empresa[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -177,7 +177,7 @@ export function EmpresasParceiras() {
       const parsed = listaEmpresasSchema.parse(raw)
       setEmpresas(parsed.itens)
     } catch (err) {
-      console.error('[EmpresasParceiras] erro ao carregar:', err)
+      console.error('[EmpresasEParceiros] erro ao carregar:', err)
       addNotification({
         type: 'error',
         message: 'Erro inesperado ao carregar empresas.',
@@ -223,7 +223,7 @@ export function EmpresasParceiras() {
         message: `Empresa "${atualizada.nome_empresa}" ${atualizada.ativo_empresa ? 'reativada' : 'desativada'}.`,
       })
     } catch (err) {
-      console.error('[EmpresasParceiras] erro ao alternar status:', err)
+      console.error('[EmpresasEParceiros] erro ao alternar status:', err)
       addNotification({ type: 'error', message: 'Erro inesperado ao atualizar empresa.' })
     }
   }
@@ -378,7 +378,7 @@ export function EmpresasParceiras() {
     { header: 'Armador', key: 'pode_ser_armador' },
     { header: 'Ativo', key: 'ativo' },
   ]
-  const OPCOES_EXPORT = { nomeArquivo: 'empresas-parceiros', titulo: 'Empresas e Parceiros' }
+  const OPCOES_EXPORT = { nomeArquivo: 'empresas-e-parceiros', titulo: 'Empresas e Parceiros' }
 
   const ACOES_EXPORT: TabelaExportAcao<Empresa>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -474,7 +474,7 @@ export function EmpresasParceiras() {
           </div>
         ) : (
           <TabelaGlobal<Empresa>
-            id="workspace-empresas-parceiros"
+            id="workspace-empresas-e-parceiros"
             dados={empresas}
             colunas={COLUNAS}
             acoes={ACOES}
@@ -510,4 +510,4 @@ export function EmpresasParceiras() {
   )
 }
 
-export default EmpresasParceiras
+export default EmpresasEParceiros

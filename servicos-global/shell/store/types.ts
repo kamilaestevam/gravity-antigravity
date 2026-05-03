@@ -36,8 +36,8 @@ export interface CurrentUser {
   name: string
   email: string
   avatarUrl?: string
-  tenantId?: string
-  tenantName?: string
+  idOrganizacao?: string
+  nomeOrganizacao?: string
   role?: string
 }
 

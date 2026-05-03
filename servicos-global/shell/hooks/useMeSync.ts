@@ -78,8 +78,8 @@ export function useMeSync() {
           name:       usuario.nome_usuario ?? '',
           email:      usuario.email_usuario ?? '',
           avatarUrl:  user?.imageUrl ?? undefined,
-          tenantId:   usuario.id_organizacao_usuario ?? undefined,
-          tenantName: organizacao?.nome_organizacao ?? undefined,
+          idOrganizacao:   usuario.id_organizacao ?? undefined,
+          nomeOrganizacao: organizacao?.nome_organizacao ?? undefined,
           role:       resolveRole(usuario.tipo_usuario ?? ''),
         })
         setMeStatus('success')

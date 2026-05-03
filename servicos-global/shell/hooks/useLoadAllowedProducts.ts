@@ -9,12 +9,12 @@ const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? ''
 
 /**
- * Hook que busca os produtos ativos do tenant e popula o store do Shell.
+ * Hook que busca os produtos ativos da organização e popula o store do Shell.
  * Deve ser chamado uma vez no Layout principal.
  *
  * Fluxo:
- * 1. Lê tenantId do currentUser no store
- * 2. Chama GET /api/v1/internal/organizacao-produtos?tenantId=X
+ * 1. Lê idOrganizacao do currentUser no store
+ * 2. Chama GET /api/v1/internal/organizacao-produtos?idOrganizacao=X
  * 3. Popula allowedProducts no store
  * 4. Sidebar filtra automaticamente via isProductAllowed()
  */
@@ -22,8 +22,8 @@ export function useLoadAllowedProducts() {
   const { currentUser, setAllowedProducts, productsLoaded } = useShellStore()
 
   useEffect(() => {
-    const tenantId = currentUser.tenantId
-    if (!tenantId || productsLoaded) return
+    const idOrganizacao = currentUser.idOrganizacao
+    if (!idOrganizacao || productsLoaded) return
 
     let cancelled = false
 
@@ -31,7 +31,7 @@ export function useLoadAllowedProducts() {
       try {
         const baseUrl = CONFIGURADOR_URL || ''
         const res = await fetch(
-          `${baseUrl}/api/v1/internal/organizacao-produtos?tenantId=${encodeURIComponent(tenantId!)}`,
+          `${baseUrl}/api/v1/internal/organizacao-produtos?idOrganizacao=${encodeURIComponent(idOrganizacao!)}`,
           {
             headers: {
               'x-internal-key': INTERNAL_KEY,
@@ -63,5 +63,5 @@ export function useLoadAllowedProducts() {
 
     loadProducts()
     return () => { cancelled = true }
-  }, [currentUser.tenantId, productsLoaded, setAllowedProducts])
+  }, [currentUser.idOrganizacao, productsLoaded, setAllowedProducts])
 }

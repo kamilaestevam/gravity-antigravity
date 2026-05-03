@@ -61,11 +61,11 @@ function getTenantId(): string {
 }
 
 function getTenantHeaders(): Record<string, string> {
-  const tenantId = getTenantId()
+  const idOrganizacao = getTenantId()
   const userId = localStorage.getItem('x-id-usuario') ?? ''
   return {
     'Content-Type': 'application/json',
-    ...(tenantId ? { 'x-id-organizacao': tenantId } : {}),
+    ...(idOrganizacao ? { 'x-id-organizacao': idOrganizacao } : {}),
     ...(userId ? { 'x-id-usuario': userId } : {}),
   }
 }
@@ -441,7 +441,7 @@ function QueryBuilderModal({ configId, onClose, onSaved }: QueryBuilderModalProp
 
 export default function Dashboard() {
   const { t } = useTranslation()
-  const tenantId = getTenantId()
+  const idOrganizacao = getTenantId()
 
   // ─── Estado local ────────────────────────────────────────────────────────────
 
@@ -470,7 +470,7 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/v1/bid-cambio/dashboard/widgets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-id-organizacao': tenantId },
+        headers: { 'Content-Type': 'application/json', 'x-id-organizacao': idOrganizacao },
         body: JSON.stringify({
           metrics: ['saving_total', 'valor_operado', 'taxa_resposta'],
           filters: { period: '30d' },
@@ -484,7 +484,7 @@ export default function Dashboard() {
     } finally {
       setLoadingKpis(false)
     }
-  }, [tenantId])
+  }, [idOrganizacao])
 
   // ─── Carregar config do dashboard produto ────────────────────────────────────
 

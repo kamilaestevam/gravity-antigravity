@@ -117,10 +117,10 @@ export default function App() {
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
-    if (currentUser.tenantId) {
-      setApiContext({ tenantId: currentUser.tenantId, userId: currentUser.id })
+    if (currentUser.idOrganizacao) {
+      setApiContext({ idOrganizacao: currentUser.idOrganizacao, idUsuario: currentUser.id })
     }
-  }, [currentUser.tenantId, currentUser.id])
+  }, [currentUser.idOrganizacao, currentUser.id])
 
   useEffect(() => {
     if (!currentUser.name) {
@@ -128,8 +128,8 @@ export default function App() {
         id: 'user-demo',
         name: 'Daniel Silva',
         email: 'dmmltda@gmail.com',
-        tenantId: 'tenant-1',
-        tenantName: 'Gravity Soluções',
+        idOrganizacao: 'organizacao-1',
+        nomeOrganizacao: 'Gravity Soluções',
       })
     }
   }, [currentUser, setCurrentUser])
@@ -160,7 +160,7 @@ export default function App() {
     <TelaProdutoGlobal
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={currentUser.tenantName ?? 'Minha Empresa'}
+      tenantName={currentUser.nomeOrganizacao ?? 'Minha Empresa'}
       tenantPlan="Pro"
       navItems={navItems}
       tooltipsDisabled={tooltipsDisabled}
@@ -168,7 +168,7 @@ export default function App() {
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
       localizador={{
-        workspaceName:    currentUser.tenantName ?? 'Minha Empresa',
+        workspaceName:    currentUser.nomeOrganizacao ?? 'Minha Empresa',
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,

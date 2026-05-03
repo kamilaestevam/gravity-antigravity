@@ -137,8 +137,8 @@ interface NavSection {
   items: NavItem[]
 }
 
-const buildNavSections = (processoId: string, tenantId: string): NavSection[] => {
-  const qs = processoId ? `?id=${processoId}&tenantId=${tenantId}` : ''
+const buildNavSections = (processoId: string, idOrganizacao: string): NavSection[] => {
+  const qs = processoId ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
 
   return [
     {
@@ -204,7 +204,7 @@ export default function ProcessoLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const processoId = searchParams.get('id') ?? ''
-  const tenantId = searchParams.get('tenantId') ?? ''
+  const idOrganizacao = searchParams.get('idOrganizacao') ?? ''
 
   const { currentTheme, tooltipsDisabled, toggleTooltips, setSidebarOpen } = useShellStore()
   const isLight = currentTheme === 'light'
@@ -225,8 +225,8 @@ export default function ProcessoLayout() {
     setLoading(true)
     setError(null)
     try {
-      if (processoId && tenantId) {
-        const data = await getProcesso(tenantId, processoId)
+      if (processoId && idOrganizacao) {
+        const data = await getProcesso(idOrganizacao, processoId)
         setProcesso(data)
       } else {
         // Mock data para preview sem backend
@@ -239,7 +239,7 @@ export default function ProcessoLayout() {
     } finally {
       setLoading(false)
     }
-  }, [processoId, tenantId])
+  }, [processoId, idOrganizacao])
 
   useEffect(() => {
     fetchProcesso()
@@ -264,8 +264,8 @@ export default function ProcessoLayout() {
   }, [tooltipsDisabled])
 
   const navSections = useMemo(
-    () => buildNavSections(processoId, tenantId),
-    [processoId, tenantId]
+    () => buildNavSections(processoId, idOrganizacao),
+    [processoId, idOrganizacao]
   )
 
   // Detecta rota ativa para o breadcrumb

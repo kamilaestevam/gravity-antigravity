@@ -16,14 +16,14 @@ import type {
 
 const API_BASE = '/api/v1'
 
-// Contexto do tenant — setado pelo App.tsx ao montar, lido do Shell store
-let _tenantId = ''
-let _userId = ''
+// Contexto da organização — setado pelo App.tsx ao montar, lido do Shell store
+let _idOrganizacao = ''
+let _idUsuario = ''
 
-/** Chamado pelo App.tsx para injetar o contexto do tenant no módulo de API */
-export function setApiContext(ctx: { tenantId: string; userId: string }) {
-  _tenantId = ctx.tenantId
-  _userId = ctx.userId
+/** Chamado pelo App.tsx para injetar o contexto da organização no módulo de API */
+export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string }) {
+  _idOrganizacao = ctx.idOrganizacao
+  _idUsuario = ctx.idUsuario
 }
 
 const headers = (): Record<string, string> => {
@@ -31,8 +31,8 @@ const headers = (): Record<string, string> => {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
   }
-  if (_tenantId) h['x-id-organizacao'] = _tenantId
-  if (_userId) h['x-id-usuario'] = _userId
+  if (_idOrganizacao) h['x-id-organizacao'] = _idOrganizacao
+  if (_idUsuario) h['x-id-usuario'] = _idUsuario
   return h
 }
 

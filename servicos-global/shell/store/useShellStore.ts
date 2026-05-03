@@ -16,8 +16,8 @@ const DEFAULT_USER: CurrentUser = {
   name: '',
   email: '',
   avatarUrl: undefined,
-  tenantId: undefined,
-  tenantName: undefined,
+  idOrganizacao: undefined,
+  nomeOrganizacao: undefined,
 }
 
 export const useShellStore = create<ShellState>()(

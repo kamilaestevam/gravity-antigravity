@@ -34,7 +34,6 @@ export interface Workspace {
   subdominio: string
   usuarios: number
   status: EmpresaStatus
-  plano: string
   criadaEm: string
   cnpj?: string
   estado?: string
@@ -43,15 +42,17 @@ export interface Workspace {
   site?: string
 }
 
-export interface Tenant extends GlobalTenant {
-  subscriptions: Array<{ plan: string; status: string }>
+export interface Tenant extends Omit<GlobalTenant, 'status'> {
+  status: EmpresaStatus
+  subscriptions: Array<{ status: string }>
+  product_configs: Array<{ product_key: string; is_active: boolean; updated_at: string }>
   workspaces: Workspace[]
 }
 
 interface Stats {
-  totalTenants: number
-  activeTenants: number
-  suspendedTenants: number
+  totalOrganizacoes: number
+  organizacoesAtivas: number
+  organizacoesSuspensas: number
   totalWorkspaces: number
   activeWorkspaces: number
   suspendedWorkspaces: number
@@ -118,17 +119,14 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         status: mapTenantStatus(t.status_organizacao),
         created_at: t.data_criacao_organizacao,
         _count: t._count ?? { users: 0, companies: 0 },
-        subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
-          plan: s.plan,
-          status: s.status,
-        })),
+        subscriptions: (t.subscriptions ?? []).map((s: { status: string }) => ({ status: s.status })),
+        product_configs: t.product_configs ?? [],
         workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }) => ({
           id: c.id,
           nome: c.name,
           subdominio: c.subdomain ?? '',
           status: mapTenantStatus(c.status),
           usuarios: c._count?.memberships ?? 0,
-          plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
           criadaEm: new Date(t.data_criacao_organizacao).toLocaleDateString('pt-BR'),
         })),
       }))
@@ -140,9 +138,9 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       const activeWs = mapped.reduce((sum, t) => sum + t.workspaces.filter(ws => ws.status === 'Ativa').length, 0)
 
       setStats({
-        totalTenants: s.totalTenants,
-        activeTenants: s.activeTenants,
-        suspendedTenants: s.suspendedTenants,
+        totalOrganizacoes: s.totalTenants,
+        organizacoesAtivas: s.activeTenants,
+        organizacoesSuspensas: s.suspendedTenants,
         totalWorkspaces: allWorkspaces,
         activeWorkspaces: activeWs,
         suspendedWorkspaces: allWorkspaces - activeWs,
@@ -162,10 +160,10 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       await adminTenantsApi.updateStatus(id, mapStatusToBackend(status))
       setTenants(prev => prev.map(t => t.id === id ? { ...t, status } : t))
       if (status === 'Suspensa') {
-        setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants - 1, suspendedTenants: prev.suspendedTenants + 1 } : null)
+        setStats(prev => prev ? { ...prev, organizacoesAtivas: prev.organizacoesAtivas - 1, organizacoesSuspensas: prev.organizacoesSuspensas + 1 } : null)
         addNotification({ type: 'warning', message: `Organização suspensa com sucesso.` })
       } else {
-        setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants + 1, suspendedTenants: prev.suspendedTenants - 1 } : null)
+        setStats(prev => prev ? { ...prev, organizacoesAtivas: prev.organizacoesAtivas + 1, organizacoesSuspensas: prev.organizacoesSuspensas - 1 } : null)
         addNotification({ type: 'success', message: `Organização reativada com sucesso.` })
       }
     } catch {
@@ -200,7 +198,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       const { tenant } = await adminTenantsApi.create({
         nome_organizacao: dados.nome,
         subdominio_organizacao: dados.subdominio,
-        plano: dados.plano,
         cnpj_organizacao: dados.cnpj || undefined,
       })
       const novo: Tenant = {
@@ -210,11 +207,12 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         status: mapTenantStatus(tenant.status_organizacao),
         created_at: tenant.data_criacao_organizacao,
         _count: tenant._count ?? { users: 0, companies: 0 },
-        subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ATIVA' }] : [],
+        subscriptions: [],
+        product_configs: [],
         workspaces: [],
       }
       setTenants(prev => [novo, ...prev])
-      setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
+      setStats(prev => prev ? { ...prev, totalOrganizacoes: prev.totalOrganizacoes + 1, organizacoesAtivas: prev.organizacoesAtivas + 1 } : null)
       setShowNovaOrg(false)
       addNotification({ type: 'success', message: `Organização "${tenant.nome_organizacao}" criada com sucesso!` })
     } catch (err) {
@@ -232,7 +230,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       await adminTenantsApi.update(orgEditando.id, {
         nome_organizacao: dados.nome,
         subdominio_organizacao: dados.subdominio,
-        plano: dados.plano,
       })
       setTenants(prev => prev.map(t => {
         if (t.id === orgEditando.id) {
@@ -240,9 +237,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             ...t,
             name: dados.nome || t.name,
             slug: dados.subdominio || t.slug,
-            subscriptions: t.subscriptions.length > 0 && dados.plano
-              ? [{ plan: dados.plano, status: t.subscriptions[0].status }, ...t.subscriptions.slice(1)]
-              : t.subscriptions,
           }
         }
         return t
@@ -272,8 +266,8 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
   const COLUNAS: TabelaGlobalColuna<Tenant>[] = [
     {
       key: 'name', label: 'Organização', tipo: 'texto',
-      tooltipTitulo: 'Nó Raiz de Organização (Clerk Org ID / Supabase Schema)',
-      tooltipDescricao: 'Referência principal do tenant. Isolamento lógico primário (RLS) em todas as tabelas transacionais.',
+      tooltipTitulo: 'Organização',
+      tooltipDescricao: 'Entidade raiz com isolamento lógico (RLS) em todas as tabelas transacionais.',
       render: (_v: unknown, item: Tenant) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <TooltipGlobal titulo={`ID Técnico: ${item.id}`} descricao="Chave UUID primária no cluster">
@@ -293,7 +287,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     {
       key: 'slug', label: 'Subdominio', tipo: 'texto',
       tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
-      tooltipDescricao: 'Alias em uso pelo API Gateway Edge para o Tenant Routing.',
+      tooltipDescricao: 'Alias em uso pelo API Gateway para roteamento da organização.',
       render: (_v: unknown, item: Tenant) => (
         <a 
           href={`${SHELL_URL}/workspace/${item.slug}`}
@@ -313,29 +307,32 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
-      tooltipTitulo: 'Status do Tenant',
-      tooltipDescricao: 'Estado operacional no middleware de borda.',
+      tooltipTitulo: 'Status da Organização',
+      tooltipDescricao: 'Estado operacional da organização na plataforma.',
       render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
     },
     {
-      key: 'subscriptions', label: 'Plano / Produtos', tipo: 'texto',
-      tooltipTitulo: 'Plano Contratado & Serviços',
-      tooltipDescricao: 'Define quota de endpoints, restrições e armazenamento.',
+      key: 'product_configs', label: 'Produtos Gravity', tipo: 'texto',
+      tooltipTitulo: 'Produtos Gravity Ativos',
+      tooltipDescricao: 'Módulos habilitados para esta organização.',
       render: (_v: unknown, item: Tenant) => {
-        const subs = item.subscriptions || []
-        const show = subs.slice(0, 2)
-        const rest = subs.length - show.length
+        const ativos = (item.product_configs ?? []).filter(p => p.is_active)
+        const show = ativos.slice(0, 2)
+        const rest = ativos.length - show.length
 
+        if (ativos.length === 0) {
+          return <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>—</span>
+        }
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-            {show.map((s, i) => (
-              <span key={i} style={{ 
+            {show.map((p, i) => (
+              <span key={i} style={{
                 fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase',
                 background: i === 0 ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
                 color: i === 0 ? '#818cf8' : 'var(--ws-muted)',
                 padding: '0.125rem 0.375rem', borderRadius: '4px', border: i === 0 ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(255,255,255,0.1)'
               }}>
-                {s.plan}
+                {p.product_key}
               </span>
             ))}
             {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest}</span>}
@@ -345,8 +342,8 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     },
     {
       key: '_count', label: 'Usuários', align: 'center', tipo: 'texto',
-      tooltipTitulo: 'Pool de Usuários',
-      tooltipDescricao: 'Registros na tabela Identity associados a este WorkspaceRoot',
+      tooltipTitulo: 'Usuários',
+      tooltipDescricao: 'Total de usuários vinculados a esta organização.',
       render: (_v: unknown, item: Tenant) => <span style={{ fontWeight: 600 }}>{item._count?.users || 0}</span>
     },
   ]
@@ -396,27 +393,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     {
       key: 'status', label: 'Status', tipo: 'texto',
       render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
-    },
-    {
-      key: 'plano', label: 'Plano / Produtos', tipo: 'texto',
-      render: (v: unknown) => {
-        const parts = String(v).split(',').map(p => p.trim())
-        const show = parts.slice(0, 2)
-        const rest = parts.length - show.length
-
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {show.map((p, i) => (
-              <span key={i} style={{ 
-                fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600, 
-                padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)', 
-                borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' 
-              }}>{p}</span>
-            ))}
-            {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest}</span>}
-          </div>
-        )
-      }
     },
     {
       key: 'usuarios', label: 'Usuários', align: 'center', tipo: 'texto',
@@ -499,7 +475,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         <CabecalhoGlobal
           icone={<HardDrives weight="duotone" size={22} color="#6366f1" />}
           titulo="Organizações"
-          subtitulo="Gerencie as organizações e seus workspaces, planos e usuários."
+          subtitulo="Gerencie as organizações e seus workspaces e usuários."
         />
       }
       stats={
@@ -508,13 +484,13 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             <CardBasicoGlobal
               titulo="Total de Organizações"
               icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
-              valor={stats.totalTenants}
+              valor={stats.totalOrganizacoes}
               tooltip={
                 <>
-                  <p className="cg-tooltip__title">Clientes & Tenants</p>
-                  <div className="cg-tooltip__row"><span>Organizações Totais</span> <strong>{stats.totalTenants}</strong></div>
-                  <div className="cg-tooltip__row"><span>Status Ativa</span> <strong style={{ color: '#34d399' }}>{stats.activeTenants}</strong></div>
-                  <div className="cg-tooltip__row"><span>Status Suspensa</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedTenants}</strong></div>
+                  <p className="cg-tooltip__title">Organizações</p>
+                  <div className="cg-tooltip__row"><span>Total</span> <strong>{stats.totalOrganizacoes}</strong></div>
+                  <div className="cg-tooltip__row"><span>Ativas</span> <strong style={{ color: '#34d399' }}>{stats.organizacoesAtivas}</strong></div>
+                  <div className="cg-tooltip__row"><span>Suspensas</span> <strong style={{ color: '#fbbf24' }}>{stats.organizacoesSuspensas}</strong></div>
                 </>
               }
             />
@@ -527,7 +503,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
                   <p className="cg-tooltip__title">Ambientes Lógicos</p>
                   <div className="cg-tooltip__row"><span>Total de Workspaces</span> <strong>{stats.totalWorkspaces}</strong></div>
                   <div className="cg-tooltip__divider" />
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Média de {Math.round(stats.totalWorkspaces / (stats.totalTenants || 1) * 10) / 10} workspaces por organização.</span>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Média de {Math.round(stats.totalWorkspaces / (stats.totalOrganizacoes || 1) * 10) / 10} workspaces por organização.</span>
                 </>
               }
             />

@@ -241,9 +241,21 @@ export type WorkspacesResponse = z.infer<typeof workspacesResponseSchema>
 
 export const workspaceSingleResponseSchema = z.object({
   workspace: workspaceItemSchema,
+  subdominio_solicitado: z.string().optional(),
+  subdominio_ajustado: z.boolean().optional(),
 })
 
 export type WorkspaceSingleResponse = z.infer<typeof workspaceSingleResponseSchema>
+
+// Resposta da rota GET /api/v1/me/sugestoes-subdominio — preview ao vivo
+// do subdomínio que o sistema atribuiria, dado um nome/base.
+export const sugestaoSubdominioResponseSchema = z.object({
+  subdominio_solicitado: z.string(),
+  subdominio_sugerido: z.string(),
+  subdominio_ajustado: z.boolean(),
+})
+
+export type SugestaoSubdominioResponse = z.infer<typeof sugestaoSubdominioResponseSchema>
 
 // ─── Schemas de Usuários da Organização ─────────────────────────────────────
 // Espelham as respostas das rotas /api/v1/usuarios* (ver server/routes/users.ts).
@@ -1008,6 +1020,16 @@ export const workspaceApi = {
 
   async deleteWorkspace(id_workspace: string) {
     return request<void>(`/v1/me/workspaces/${id_workspace}`, { method: 'DELETE' })
+  },
+
+  /**
+   * Preview ao vivo do subdomínio que o sistema atribuiria.
+   * Política: sistema gera (cross-tabela, auto-suffix), usuário não escolhe.
+   */
+  async sugerirSubdominio(base: string) {
+    const qs = new URLSearchParams({ base }).toString()
+    const raw = await request<unknown>(`/v1/me/sugestoes-subdominio?${qs}`)
+    return sugestaoSubdominioResponseSchema.parse(raw)
   },
 }
 

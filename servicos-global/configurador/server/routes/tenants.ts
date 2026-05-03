@@ -154,17 +154,17 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
     const tenant = await tenantService.updateTenant(req.auth.id_organizacao, parsed.data)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      module: 'configuracao',
-      resource_type: 'Organização',
-      resource_id: req.auth.id_organizacao,
-      action: 'UPDATE',
-      action_detail: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
-      before: before ?? undefined,
-      after: tenant,
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Organização',
+      id_recurso_historico_log: req.auth.id_organizacao,
+      acao_historico_log: 'UPDATE',
+      detalhe_acao_historico_log: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
+      estado_anterior_historico_log: before ?? undefined,
+      estado_posterior_historico_log: tenant,
     }).catch(() => {})
 
     // DTO: id_organizacao → id legado do contrato
@@ -208,16 +208,16 @@ tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
     )
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      module: 'configuracao',
-      resource_type: 'Empresa Filha',
-      resource_id: company.id,
-      action: 'CREATE',
-      action_detail: `Criou empresa filha "${company.name}"`,
-      after: company,
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Empresa Filha',
+      id_recurso_historico_log: company.id,
+      acao_historico_log: 'CREATE',
+      detalhe_acao_historico_log: `Criou empresa filha "${company.name}"`,
+      estado_posterior_historico_log: company,
     }).catch(() => {})
 
     res.status(201).json({ company })
@@ -247,16 +247,16 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
     )
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      module: 'configuracao',
-      resource_type: 'Empresa Filha',
-      resource_id: req.params.id_workspace,
-      action: 'UPDATE',
-      action_detail: `Atualizou empresa filha: ${Object.keys(parsed.data).join(', ')}`,
-      after: company,
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Empresa Filha',
+      id_recurso_historico_log: req.params.id_workspace,
+      acao_historico_log: 'UPDATE',
+      detalhe_acao_historico_log: `Atualizou empresa filha: ${Object.keys(parsed.data).join(', ')}`,
+      estado_posterior_historico_log: company,
     }).catch(() => {})
 
     res.json({ company })
@@ -274,15 +274,15 @@ tenantsRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, re
     await tenantService.deleteCompany(req.auth.id_organizacao, req.params.id_workspace)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      module: 'configuracao',
-      resource_type: 'Empresa Filha',
-      resource_id: req.params.id_workspace,
-      action: 'DELETE',
-      action_detail: `Removeu empresa filha ${req.params.id_workspace}`,
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Empresa Filha',
+      id_recurso_historico_log: req.params.id_workspace,
+      acao_historico_log: 'DELETE',
+      detalhe_acao_historico_log: `Removeu empresa filha ${req.params.id_workspace}`,
     }).catch(() => {})
 
     res.status(204).end()

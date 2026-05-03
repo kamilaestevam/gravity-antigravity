@@ -33,6 +33,8 @@ export default defineConfig({
       '@dnd-kit/utilities': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/utilities'),
       // Aliases dos Produtos (para lazy-load dentro do Configurador)
       '@produto': path.resolve(monorepoRoot, 'produto'),
+      // Cadastros — domínio próprio fora de servicos-plataforma
+      '@cadastros': path.resolve(monorepoRoot, 'servicos-global/cadastros'),
     },
   },
   optimizeDeps: {

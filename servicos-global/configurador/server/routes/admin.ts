@@ -273,19 +273,19 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Organizacao',
-      resource_id: tenant.id_organizacao,
-      action: 'TENANT_STATUS_CHANGED',
-      action_detail: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
-      before: { status: existing.status_organizacao },
-      after: { status: tenant.status_organizacao },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Organizacao',
+      id_recurso_historico_log: tenant.id_organizacao,
+      acao_historico_log: 'TENANT_STATUS_CHANGED',
+      detalhe_acao_historico_log: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
+      estado_anterior_historico_log: { status: existing.status_organizacao },
+      estado_posterior_historico_log: { status: tenant.status_organizacao },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_organizacao Prisma → id legado do contrato
@@ -324,18 +324,18 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Organizacao',
-      resource_id: tenant.id_organizacao,
-      action: 'TENANT_CREATED',
-      action_detail: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
-      after: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Organizacao',
+      id_recurso_historico_log: tenant.id_organizacao,
+      acao_historico_log: 'TENANT_CREATED',
+      detalhe_acao_historico_log: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
+      estado_posterior_historico_log: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: mapeia _count e id_organizacao → chaves legadas
@@ -376,19 +376,19 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Workspace',
-      resource_id: company.id_workspace,
-      action: 'WORKSPACE_STATUS_CHANGED',
-      action_detail: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
-      before: { status: existing.status_workspace },
-      after: { status: company.status_workspace },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Workspace',
+      id_recurso_historico_log: company.id_workspace,
+      acao_historico_log: 'WORKSPACE_STATUS_CHANGED',
+      detalhe_acao_historico_log: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
+      estado_anterior_historico_log: { status: existing.status_workspace },
+      estado_posterior_historico_log: { status: company.status_workspace },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_workspace → id, nome_workspace → name, etc.
@@ -502,16 +502,16 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     ])
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Usuario',
-      action: 'USERS_GLOBAL_LIST_VIEWED',
-      action_detail: `Listagem global — ${total} usuários (page=${page}, limit=${limit}${search ? `, search="${search}"` : ''})`,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Usuario',
+      acao_historico_log: 'USERS_GLOBAL_LIST_VIEWED',
+      detalhe_acao_historico_log: `Listagem global — ${total} usuários (page=${page}, limit=${limit}${search ? `, search="${search}"` : ''})`,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
@@ -633,18 +633,18 @@ adminRouter.post('/financeiro-admin', async (req, res, next) => {
     // Audit trail imutável (fire-and-forget) — compliance LGPD/SOC2 pra operações financeiras.
     // O frontend (useHistoricoLogger) é best-effort; audit no backend é a fonte autoritária.
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Invoice',
-      resource_id: invoice.id,
-      action: 'INVOICE_CREATED',
-      action_detail: `Fatura ${invoice.number ?? invoice.id} criada para tenant ${parsed.data.customer_tenant_id} — ${invoice.amount_due_cents} ${invoice.currency}`,
-      after: { customer_tenant_id: parsed.data.customer_tenant_id, amount_due_cents: invoice.amount_due_cents, currency: invoice.currency, auto_finalize: parsed.data.auto_finalize },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Invoice',
+      id_recurso_historico_log: invoice.id,
+      acao_historico_log: 'INVOICE_CREATED',
+      detalhe_acao_historico_log: `Fatura ${invoice.number ?? invoice.id} criada para tenant ${parsed.data.customer_tenant_id} — ${invoice.amount_due_cents} ${invoice.currency}`,
+      estado_posterior_historico_log: { customer_tenant_id: parsed.data.customer_tenant_id, amount_due_cents: invoice.amount_due_cents, currency: invoice.currency, auto_finalize: parsed.data.auto_finalize },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ invoice })
@@ -668,19 +668,19 @@ adminRouter.post('/financeiro-admin/:id_fatura/anular', async (req, res, next) =
     const invoice = await provider.voidInvoice({ id: req.params.id_fatura, reason: parsed.data.reason })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Invoice',
-      resource_id: invoice.id,
-      action: 'INVOICE_VOIDED',
-      action_detail: `Fatura ${invoice.number ?? invoice.id} anulada${parsed.data.reason ? ` — motivo: ${parsed.data.reason}` : ''}`,
-      before: { status: 'OPEN' },
-      after: { status: 'VOID', reason: parsed.data.reason ?? null },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Invoice',
+      id_recurso_historico_log: invoice.id,
+      acao_historico_log: 'INVOICE_VOIDED',
+      detalhe_acao_historico_log: `Fatura ${invoice.number ?? invoice.id} anulada${parsed.data.reason ? ` — motivo: ${parsed.data.reason}` : ''}`,
+      estado_anterior_historico_log: { status: 'OPEN' },
+      estado_posterior_historico_log: { status: 'VOID', reason: parsed.data.reason ?? null },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ invoice })
@@ -699,17 +699,17 @@ adminRouter.post('/financeiro-admin/:id_fatura/enviar', async (req, res, next) =
     const invoice = await provider.sendInvoice(req.params.id_fatura)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Invoice',
-      resource_id: invoice.id,
-      action: 'INVOICE_SENT',
-      action_detail: `Fatura ${invoice.number ?? invoice.id} enviada para ${invoice.customer.email ?? invoice.customer.name}`,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Invoice',
+      id_recurso_historico_log: invoice.id,
+      acao_historico_log: 'INVOICE_SENT',
+      detalhe_acao_historico_log: `Fatura ${invoice.number ?? invoice.id} enviada para ${invoice.customer.email ?? invoice.customer.name}`,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ invoice })
@@ -990,17 +990,17 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
 
     // Audit trail: início do run — quem disparou, com quais planos/módulos
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'TestRun',
-      action: 'RUN_TESTS_STARTED',
-      action_detail: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
-      after: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'TestRun',
+      acao_historico_log: 'RUN_TESTS_STARTED',
+      detalhe_acao_historico_log: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
+      estado_posterior_historico_log: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     pwRunning = true
@@ -1079,17 +1079,17 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
       const reprovados = entries.filter(e => e.result === 'REPROVADO').length
       const erros = entries.filter(e => e.result === 'ERRO').length
       AuditService.log({
-        tenant_id: req.auth.id_organizacao,
-        actor_type: 'USUARIO',
-        actor_id: req.auth.id_usuario,
-        actor_name: req.auth.id_usuario,
-        actor_ip: req.ip,
-        module: 'admin',
-        resource_type: 'TestRun',
-        action: 'RUN_TESTS_COMPLETED',
-        action_detail: `Run concluído — ${entries.length} testes (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
-        after: { total: entries.length, aprovados, reprovados, erros },
-        status: reprovados + erros > 0 ? 'PARCIAL' : 'SUCESSO',
+        id_organizacao: req.auth.id_organizacao,
+        tipo_ator_historico_log: 'USUARIO',
+        id_ator_historico_log: req.auth.id_usuario,
+        nome_ator_historico_log: req.auth.id_usuario,
+        ip_ator_historico_log: req.ip,
+        modulo_historico_log: 'admin',
+        tipo_recurso_historico_log: 'TestRun',
+        acao_historico_log: 'RUN_TESTS_COMPLETED',
+        detalhe_acao_historico_log: `Run concluído — ${entries.length} testes (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
+        estado_posterior_historico_log: { total: entries.length, aprovados, reprovados, erros },
+        status_historico_log: reprovados + erros > 0 ? 'PARCIAL' : 'SUCESSO',
       }).catch(() => { /* fire-and-forget */ })
 
       console.log(`[admin/testes-gerais/run] Run concluído — ${entries.length} entradas salvas`)
@@ -1193,17 +1193,17 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
     const reprovados = entries.filter(e => e.result === 'REPROVADO').length
     const erros = entries.filter(e => e.result === 'ERRO').length
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'TestLogBatch',
-      action: 'TEST_LOGS_INGESTED',
-      action_detail: `${entries.length} test-logs ingeridos (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
-      after: { total: entries.length, aprovados, reprovados, erros, persistedInDb: salvouNoBanco },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'TestLogBatch',
+      acao_historico_log: 'TEST_LOGS_INGESTED',
+      detalhe_acao_historico_log: `${entries.length} test-logs ingeridos (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
+      estado_posterior_historico_log: { total: entries.length, aprovados, reprovados, erros, persistedInDb: salvouNoBanco },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ ok: true, saved: entries.length, banco: salvouNoBanco })
@@ -1250,17 +1250,17 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 
     // Auditoria fire-and-forget — leitura de config de plataforma (REGRA 08 — sem silêncio)
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'PlatformConfig',
-      resource_id: tenant.id_organizacao,
-      action: 'PLATFORM_CONFIG_VIEWED',
-      action_detail: 'Visão Geral Admin consultada',
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'PlatformConfig',
+      id_recurso_historico_log: tenant.id_organizacao,
+      acao_historico_log: 'PLATFORM_CONFIG_VIEWED',
+      detalhe_acao_historico_log: 'Visão Geral Admin consultada',
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_organizacao → id, subscriptions_organizacao → subscriptions
@@ -1399,18 +1399,18 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Usuario',
-      resource_id: user.id_usuario,
-      action: 'USER_INVITED',
-      action_detail: `Convite enviado — role=${role}`,
-      after: { email: user.email_usuario, role: user.tipo_usuario },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Usuario',
+      id_recurso_historico_log: user.id_usuario,
+      acao_historico_log: 'USER_INVITED',
+      detalhe_acao_historico_log: `Convite enviado — role=${role}`,
+      estado_posterior_historico_log: { email: user.email_usuario, role: user.tipo_usuario },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
@@ -1461,19 +1461,19 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'PlatformConfig',
-      resource_id: tenant.id_organizacao,
-      action: 'PLATFORM_CONFIG_UPDATED',
-      action_detail: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
-      before: before ?? undefined,
-      after: parsed.data,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'PlatformConfig',
+      id_recurso_historico_log: tenant.id_organizacao,
+      acao_historico_log: 'PLATFORM_CONFIG_UPDATED',
+      detalhe_acao_historico_log: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
+      estado_anterior_historico_log: before ?? undefined,
+      estado_posterior_historico_log: parsed.data,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_organizacao → id legado do contrato
@@ -1519,18 +1519,18 @@ adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
     const plan = await generateTestPlan(parsed.data)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'TestPlan',
-      resource_id: plan.id,
-      action: 'TEST_PLAN_GENERATED',
-      action_detail: `Plano ${plan.id} gerado — ${plan.passos.length} passos, cobertura ${plan.coberturaPercentual}%`,
-      after: { id: plan.id, passos: plan.passos.length, cobertura: plan.coberturaPercentual },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'TestPlan',
+      id_recurso_historico_log: plan.id,
+      acao_historico_log: 'TEST_PLAN_GENERATED',
+      detalhe_acao_historico_log: `Plano ${plan.id} gerado — ${plan.passos.length} passos, cobertura ${plan.coberturaPercentual}%`,
+      estado_posterior_historico_log: { id: plan.id, passos: plan.passos.length, cobertura: plan.coberturaPercentual },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ plan })
@@ -1582,17 +1582,17 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
     const expanded = await expandTestPlan(existingPlan, parsed.data.componenteFilePath)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'TestPlan',
-      resource_id: expanded.id,
-      action: 'TEST_PLAN_EXPANDED',
-      action_detail: `Plano ${expanded.id} expandido — ${expanded.passos.length} passos (antes: ${existingPlan.passos?.length ?? 0})`,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'TestPlan',
+      id_recurso_historico_log: expanded.id,
+      acao_historico_log: 'TEST_PLAN_EXPANDED',
+      detalhe_acao_historico_log: `Plano ${expanded.id} expandido — ${expanded.passos.length} passos (antes: ${existingPlan.passos?.length ?? 0})`,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ plan: expanded })
@@ -1696,17 +1696,17 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
     updateLogEntryAnalysis(req.params.id_log_teste, analysis)
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Testes',
-      resource_id: req.params.id_log_teste,
-      action: 'TEST_LOG_REANALYZED',
-      action_detail: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Testes',
+      id_recurso_historico_log: req.params.id_log_teste,
+      acao_historico_log: 'TEST_LOG_REANALYZED',
+      detalhe_acao_historico_log: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ analysis })
@@ -1756,19 +1756,19 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
     writeFileSync(filePath, updated, 'utf-8')
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Testes',
-      resource_id: req.params.id_log_teste,
-      action: 'TEST_FIX_APPLIED',
-      action_detail: `Diff aplicado em ${diff.arquivo}`,
-      before: { old: diff.old.slice(0, 200) },
-      after: { new: diff.new.slice(0, 200) },
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Testes',
+      id_recurso_historico_log: req.params.id_log_teste,
+      acao_historico_log: 'TEST_FIX_APPLIED',
+      detalhe_acao_historico_log: `Diff aplicado em ${diff.arquivo}`,
+      estado_anterior_historico_log: { old: diff.old.slice(0, 200) },
+      estado_posterior_historico_log: { new: diff.new.slice(0, 200) },
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ applied: true, arquivo: diff.arquivo })
@@ -1805,17 +1805,17 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, 
     })
 
     AuditService.log({
-      tenant_id: req.auth.id_organizacao,
-      actor_type: 'USUARIO',
-      actor_id: req.auth.id_usuario,
-      actor_name: req.auth.id_usuario,
-      actor_ip: req.ip,
-      module: 'admin',
-      resource_type: 'Testes',
-      resource_id: req.params.id_log_teste,
-      action: 'TEST_ANALYSIS_REJECTED',
-      action_detail: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
-      status: 'SUCESSO',
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Testes',
+      id_recurso_historico_log: req.params.id_log_teste,
+      acao_historico_log: 'TEST_ANALYSIS_REJECTED',
+      detalhe_acao_historico_log: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
+      status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ rejected: true })
@@ -2177,17 +2177,17 @@ adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
 
     zapProcess.on('close', (code) => {
       AuditService.log({
-        tenant_id: req.auth.id_organizacao,
-        actor_type: 'USUARIO',
-        actor_id: req.auth.id_usuario,
-        actor_name: req.auth.id_usuario,
-        actor_ip: req.ip,
-        module: 'admin',
-        resource_type: 'Pentest',
-        action: 'PENTEST_COMPLETED',
-        action_detail: `ZAP ${scanType} scan em ${targetUrl} — exit code ${code}`,
-        after: { targetUrl, scanType, exitCode: code, reportFile },
-        status: code === 0 ? 'SUCESSO' : 'PARCIAL',
+        id_organizacao: req.auth.id_organizacao,
+        tipo_ator_historico_log: 'USUARIO',
+        id_ator_historico_log: req.auth.id_usuario,
+        nome_ator_historico_log: req.auth.id_usuario,
+        ip_ator_historico_log: req.ip,
+        modulo_historico_log: 'admin',
+        tipo_recurso_historico_log: 'Pentest',
+        acao_historico_log: 'PENTEST_COMPLETED',
+        detalhe_acao_historico_log: `ZAP ${scanType} scan em ${targetUrl} — exit code ${code}`,
+        estado_posterior_historico_log: { targetUrl, scanType, exitCode: code, reportFile },
+        status_historico_log: code === 0 ? 'SUCESSO' : 'PARCIAL',
       }).catch(() => { /* fire-and-forget */ })
     })
 

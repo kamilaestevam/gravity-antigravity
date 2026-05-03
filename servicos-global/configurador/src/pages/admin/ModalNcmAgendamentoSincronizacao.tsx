@@ -9,7 +9,7 @@ import { useShellStore } from '@gravity/shell'
 import {
   adminNcmApi,
   type NcmNotificador,
-  type NcmScheduleConfigApi,
+  type NcmAgendamentoConfigApi,
   type NcmExecuteResultado,
 } from '../../services/apiClient'
 
@@ -63,7 +63,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
   const [carregando, setCarregando]     = useState(true)
   const [salvando,   setSalvando]       = useState(false)
   const [isDirty,    setIsDirty]        = useState(false)
-  const [configOriginal, setConfigOriginal] = useState<NcmScheduleConfigApi | null>(null)
+  const [configOriginal, setConfigOriginal] = useState<NcmAgendamentoConfigApi | null>(null)
 
   const [ativo,      setAtivo]      = useState(false)
   const [frequencia, setFrequencia] = useState('Diario')

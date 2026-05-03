@@ -123,17 +123,17 @@ authRouter.post('/clerk', async (req, res, next) => {
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao,
-              actor_type: 'USER',
-              actor_id: user.id_usuario,
-              actor_name: user.nome_usuario ?? user.email_usuario,
-              module: 'auth',
-              resource_type: 'Session',
-              resource_id: data.id,
-              action: 'LOGIN',
-              action_detail: `Login realizado por ${user.nome_usuario ?? user.email_usuario}`,
-              status: 'SUCCESS',
-              user_id: user.id_usuario,
+              id_organizacao: user.id_organizacao,
+              tipo_ator_historico_log: 'USUARIO',
+              id_ator_historico_log: user.id_usuario,
+              nome_ator_historico_log: user.nome_usuario ?? user.email_usuario,
+              modulo_historico_log: 'auth',
+              tipo_recurso_historico_log: 'Session',
+              id_recurso_historico_log: data.id,
+              acao_historico_log: 'LOGIN',
+              detalhe_acao_historico_log: `Login realizado por ${user.nome_usuario ?? user.email_usuario}`,
+              status_historico_log: 'SUCESSO',
+              id_usuario: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -149,17 +149,17 @@ authRouter.post('/clerk', async (req, res, next) => {
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao,
-              actor_type: 'USER',
-              actor_id: user.id_usuario,
-              actor_name: user.nome_usuario ?? user.email_usuario,
-              module: 'auth',
-              resource_type: 'Session',
-              resource_id: data.id,
-              action: 'LOGOUT',
-              action_detail: `Logout de ${user.nome_usuario ?? user.email_usuario}`,
-              status: 'SUCCESS',
-              user_id: user.id_usuario,
+              id_organizacao: user.id_organizacao,
+              tipo_ator_historico_log: 'USUARIO',
+              id_ator_historico_log: user.id_usuario,
+              nome_ator_historico_log: user.nome_usuario ?? user.email_usuario,
+              modulo_historico_log: 'auth',
+              tipo_recurso_historico_log: 'Session',
+              id_recurso_historico_log: data.id,
+              acao_historico_log: 'LOGOUT',
+              detalhe_acao_historico_log: `Logout de ${user.nome_usuario ?? user.email_usuario}`,
+              status_historico_log: 'SUCESSO',
+              id_usuario: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -175,17 +175,17 @@ authRouter.post('/clerk', async (req, res, next) => {
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao,
-              actor_type: 'USER',
-              actor_id: user.id_usuario,
-              actor_name: user.nome_usuario ?? user.email_usuario,
-              module: 'auth',
-              resource_type: 'Session',
-              resource_id: data.id,
-              action: 'SESSION_REVOKED',
-              action_detail: `Sessão revogada de ${user.nome_usuario ?? user.email_usuario}`,
-              status: 'PARTIAL',
-              user_id: user.id_usuario,
+              id_organizacao: user.id_organizacao,
+              tipo_ator_historico_log: 'USUARIO',
+              id_ator_historico_log: user.id_usuario,
+              nome_ator_historico_log: user.nome_usuario ?? user.email_usuario,
+              modulo_historico_log: 'auth',
+              tipo_recurso_historico_log: 'Session',
+              id_recurso_historico_log: data.id,
+              acao_historico_log: 'SESSION_REVOKED',
+              detalhe_acao_historico_log: `Sessão revogada de ${user.nome_usuario ?? user.email_usuario}`,
+              status_historico_log: 'PARCIAL',
+              id_usuario: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }

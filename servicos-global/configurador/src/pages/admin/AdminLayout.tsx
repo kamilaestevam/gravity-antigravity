@@ -52,14 +52,14 @@ export function AdminLayout() {
 
   const navItems = [
     { to: '/admin/visao-geral',  label: t('admin.layout.visao_geral'),      icon: <Crown           weight="duotone" size={18} /> },
-    { to: '/admin/tenants',      label: t('admin.layout.organizacoes'),     icon: <Buildings       weight="duotone" size={18} /> },
+    { to: '/admin/organizacoes', label: t('admin.layout.organizacoes'),     icon: <Buildings       weight="duotone" size={18} /> },
     { to: '/admin/produtos-gravity', label: t('admin.layout.produtos'),         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
     { to: '/admin/usuarios-globais', label: t('admin.layout.usuarios_globais'), icon: <Users        weight="duotone" size={18} /> },
-    { to: '/admin/financeiro-admin', label: t('admin.layout.financeiro'),       icon: <Receipt      weight="duotone" size={18} /> },
+    { to: '/admin/financeiro',       label: t('admin.layout.financeiro'),       icon: <Receipt      weight="duotone" size={18} /> },
     { to: '/admin/historico-global', label: t('admin.layout.historico_global'), icon: <Desktop       weight="duotone" size={18} /> },
     { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },
     { to: '/admin/api-cockpit',  label: t('admin.layout.api-cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
-    { to: '/admin/seguranca-admin', label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
+    { to: '/admin/seguranca',       label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
     { to: '/admin/cadastros-globais', label: t('admin.layout.cadastros_globais', 'Cadastros Globais'), icon: <Database weight="duotone" size={18} /> },
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },

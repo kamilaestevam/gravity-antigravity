@@ -236,16 +236,16 @@ function fetchSecretsSnapshot() {
 function auditPanelAccess(req: Request, action: string): void {
   // Fire-and-forget: registra o acesso ao painel de segurança via AuditService
   AuditService.log({
-    tenant_id: req.auth.id_organizacao,
-    actor_type: 'USUARIO',
-    actor_id: req.auth.id_usuario,
-    actor_name: req.auth.id_usuario,
-    actor_ip: req.ip,
-    module: 'admin',
-    resource_type: 'SecurityPanel',
-    action,
-    action_detail: `Painel de segurança — ${action}`,
-    status: 'SUCESSO',
+    id_organizacao: req.auth.id_organizacao,
+    tipo_ator_historico_log: 'USUARIO',
+    id_ator_historico_log: req.auth.id_usuario,
+    nome_ator_historico_log: req.auth.id_usuario,
+    ip_ator_historico_log: req.ip,
+    modulo_historico_log: 'admin',
+    tipo_recurso_historico_log: 'SecurityPanel',
+    acao_historico_log: action,
+    detalhe_acao_historico_log: `Painel de segurança — ${action}`,
+    status_historico_log: 'SUCESSO',
   }).catch(() => { /* fire-and-forget */ })
 }
 

@@ -122,17 +122,17 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
     })
 
     AuditService.log({
-      tenant_id:     req.auth.id_organizacao,
-      actor_type:    'USUARIO',
-      actor_id:      req.auth.id_usuario,
-      actor_name:    req.auth.id_usuario,
-      actor_ip:      req.ip,
-      module:        'admin',
-      resource_type: 'NcmSync',
-      action:        'NCM_SYNC_MANUAL',
-      action_detail: `Sync OK para tenant ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
-      after:         { id_organizacao, ...result },
-      status:        'SUCESSO',
+      id_organizacao:     req.auth.id_organizacao,
+      tipo_ator_historico_log:    'USUARIO',
+      id_ator_historico_log:      req.auth.id_usuario,
+      nome_ator_historico_log:    req.auth.id_usuario,
+      ip_ator_historico_log:      req.ip,
+      modulo_historico_log:        'admin',
+      tipo_recurso_historico_log: 'NcmSync',
+      acao_historico_log:        'NCM_SYNC_MANUAL',
+      detalhe_acao_historico_log: `Sync OK para tenant ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
+      estado_posterior_historico_log:         { id_organizacao, ...result },
+      status_historico_log:        'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ sucesso: true, ...result, duracaoMs: Date.now() - startMs })
@@ -197,17 +197,17 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
     reagendarJob(cron_expressao, ativo)
 
     AuditService.log({
-      tenant_id:     req.auth.id_organizacao,
-      actor_type:    'USUARIO',
-      actor_id:      req.auth.id_usuario,
-      actor_name:    req.auth.id_usuario,
-      actor_ip:      req.ip,
-      module:        'admin',
-      resource_type: 'NcmSchedule',
-      action:        'NCM_SCHEDULE_UPDATED',
-      action_detail: `Agendamento ${ativo ? 'ativado' : 'desativado'} — cron: ${cron_expressao}`,
-      after:         config,
-      status:        'SUCESSO',
+      id_organizacao:     req.auth.id_organizacao,
+      tipo_ator_historico_log:    'USUARIO',
+      id_ator_historico_log:      req.auth.id_usuario,
+      nome_ator_historico_log:    req.auth.id_usuario,
+      ip_ator_historico_log:      req.ip,
+      modulo_historico_log:        'admin',
+      tipo_recurso_historico_log: 'NcmSchedule',
+      acao_historico_log:        'NCM_SCHEDULE_UPDATED',
+      detalhe_acao_historico_log: `Agendamento ${ativo ? 'ativado' : 'desativado'} — cron: ${cron_expressao}`,
+      estado_posterior_historico_log:         config,
+      status_historico_log:        'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({

@@ -149,18 +149,18 @@ export async function requireAuth(
 function logAuthFailure(req: Request, reason: string): void {
   setImmediate(() => {
     auditLog({
-      tenant_id: (req.headers['x-id-organizacao'] as string) ?? 'unknown',
-      actor_type: 'USER',
-      actor_id: 'anonymous',
-      actor_name: 'anonymous',
-      actor_ip: req.ip,
-      module: 'auth',
-      resource_type: 'Session',
-      action: 'AUTH_FAILURE',
-      action_detail: `Falha de autenticação: ${reason}`,
-      status: 'FAILURE',
-      error_message: reason,
-      actor_metadata: {
+      id_organizacao: (req.headers['x-id-organizacao'] as string) ?? 'unknown',
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: 'anonymous',
+      nome_ator_historico_log: 'anonymous',
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'auth',
+      tipo_recurso_historico_log: 'Session',
+      acao_historico_log: 'AUTH_FAILURE',
+      detalhe_acao_historico_log: `Falha de autenticação: ${reason}`,
+      status_historico_log: 'FALHA',
+      mensagem_erro_historico_log: reason,
+      metadata_ator_historico_log: {
         endpoint: req.originalUrl || req.url,
         method: req.method,
         user_agent: req.headers['user-agent'],

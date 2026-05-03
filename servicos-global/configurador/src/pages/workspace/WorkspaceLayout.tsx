@@ -49,7 +49,7 @@ export function WorkspaceLayout() {
     { to: '/workspace/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
     { to: '/workspace/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/workspace/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
-    { to: '/workspace/empresas-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
+    { to: '/workspace/empresas-e-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
     { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
@@ -64,11 +64,11 @@ export function WorkspaceLayout() {
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.tenantId })
+  useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.idOrganizacao })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 
-  const tenantName = currentUser?.tenantName ?? 'Organização'
+  const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
@@ -107,8 +107,8 @@ export function WorkspaceLayout() {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
-          const { tenant } = await res.json()
-          setTipoEmpresa(tenant.tipo_empresa_organizacao ?? '')
+          const { organizacao } = await res.json()
+          setTipoEmpresa(organizacao?.tipo_organizacao ?? '')
         }
       } catch { /* silencioso */ }
     }
@@ -138,7 +138,7 @@ export function WorkspaceLayout() {
     <div className="ws-shell">
       {/* ── Sidebar ── */}
       <MenuLateralGlobal 
-        tenantName={tenantName}
+        tenantName={nomeOrganizacao}
         tenantPlan={tipoEmpresa}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
@@ -198,7 +198,7 @@ export function WorkspaceLayout() {
           <Notificacoes />
 
           <LocalizadorGlobal
-            workspaceName={tenantName}
+            workspaceName={nomeOrganizacao}
             currentProductId="configurador"
             currentProductLabel="Configurador"
             currentProductColor="#f59e0b"

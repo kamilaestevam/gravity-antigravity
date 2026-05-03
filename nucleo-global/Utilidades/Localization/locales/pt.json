@@ -1581,7 +1581,7 @@
       "opt_client_credentials": "Client Credentials",
       "opt_authorization_code": "Authorization Code"
     },
-    "organization": {
+    "organizacao": {
       "titulo": "Organização",
       "campo_nome": "Nome da Empresa",
       "campo_cnpj": "CNPJ",
@@ -1589,6 +1589,7 @@
       "campo_cidade": "Cidade",
       "campo_segmento": "Segmento",
       "campo_tipo_empresa": "Tipo de Empresa",
+      "campo_site": "Site",
       "aguardando_estado": "Aguardando estado",
       "msg_sucesso": "Organização salva com sucesso!",
       "msg_erro": "Erro ao salvar organização.",
@@ -1596,9 +1597,9 @@
       "subtitulo_carregando": "Carregando dados...",
       "badge_organizacao": "Organização",
       "secao_dados_basicos": "Dados Básicos",
-      "acesso_padrao": "Acesso Padrão",
-      "acesso_padrao_desc": "Defina qual ambiente será carregado automaticamente ao entrar na plataforma.",
-      "acesso_padrao_label": "Workspace"
+      "workspace_preferido": "Workspace Preferido",
+      "workspace_preferido_desc": "Defina qual ambiente será carregado automaticamente ao entrar na plataforma.",
+      "workspace_preferido_label": "Workspace"
     },
     "users": {
       "titulo": "Usuários",

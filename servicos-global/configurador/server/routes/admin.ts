@@ -29,6 +29,8 @@ import { generateTestPlan, expandTestPlan } from '../lib/agente-plano-teste.js'
 import { generateAndSaveSpec } from '../lib/gerador-specs.js'
 import { generateTestidMapping } from '../lib/extrator-testids.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
+import { auditMiddleware } from '../../../servicos-plataforma/historico-global/server/middleware/audit.js'
+import { AcaoExecutadaPor } from '../../../servicos-plataforma/generated/index.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 import { getBillingProvider } from '../lib/billing/index.js'
 import { deployLogService } from '../services/deployLogService.js'
@@ -39,27 +41,48 @@ export const adminRouter = Router()
 // Cadeia obrigatória: auth → gravity_admin check
 adminRouter.use(requireAuth, requireGravityAdmin)
 
+// Auditoria automática de TODAS as ações admin (fire-and-forget).
+// Conforme skills `seguranca/seguranca-5-camadas` (camada 5) e `observabilidade-minima`.
+// Body redatado por DEFAULT_SENSITIVE_FIELDS (password/token/secret/api_key/...).
+// resourceTypeFromPath deriva o tipo de recurso a partir do path para melhor categorização.
+adminRouter.use(auditMiddleware({
+  modulo_historico_log: 'admin',
+  tipo_recurso_historico_log: 'admin_action',
+  acao_historico_log: 'ADMIN_ACTION',
+  tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
+  resourceTypeFromPath: (req) => {
+    const path = req.path.split('/').filter(Boolean)[0] ?? 'admin_action'
+    if (path === 'organizacoes') return 'Organizacao'
+    if (path === 'workspaces') return 'Workspace'
+    if (path === 'usuarios') return 'Usuario'
+    if (path === 'financeiro-admin') return 'Fatura'
+    if (path === 'registros-deploy' || path === 'deploys') return 'RegistroDeploy'
+    if (path === 'painel-visao-geral') return 'PainelVisaoGeral'
+    return path
+  },
+}))
+
 // Rate limit extra-restritivo nas rotas de billing — operações financeiras
 // (create/void/send) disparam calls ao provider externo que tem rate limit próprio,
 // e o /financeiro-admin pode ser usado para enumerar organizações via customer_id.
 // O preset admin (60 req/min por tenant:IP) evita flood.
 adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
 
-const UpdateTenantSchema = z.object({
+const UpdateOrganizacaoSchema = z.object({
   status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
   nome_organizacao: z.string().min(2).max(200).optional(),
   subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
   note: z.string().optional(),
 })
 
-const CreateTenantSchema = z.object({
+const CreateOrganizacaoSchema = z.object({
   nome_organizacao: z.string().min(2).max(200),
   subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
   cnpj_organizacao: z.string().max(20).optional(),
 })
 
-const UpdateWorkspaceSchema = z.object({
-  status: z.enum(['ATIVO', 'INATIVO']),
+const AtualizarWorkspaceAdminSchema = z.object({
+  status_workspace: z.enum(['ATIVO', 'INATIVO']),
 })
 
 /**
@@ -109,15 +132,18 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
       prisma.organizacao.count({ where }),
     ])
 
-    // DTO normalizado: renomeia `companies_organizacao` → `workspaces`
-    // e o `_count` para chaves DDD limpas. Sem tradução de campos.
+    // DTO normalizado: renomeia relations Prisma (em inglês — schema intocável,
+    // Mand. 02) para DDD PT-BR no payload exposto à UI.
     const organizacoesDto = organizacoes.map(({ companies_organizacao, _count, ...rest }) => ({
       ...rest,
       _count: {
-        users_organizacao: _count.users_organizacao,
-        workspaces_organizacao: _count.companies_organizacao,
+        usuarios: _count.users_organizacao,
+        workspaces: _count.companies_organizacao,
       },
-      workspaces: companies_organizacao,
+      workspaces: (companies_organizacao ?? []).map(({ _count: wcount, ...wrest }) => ({
+        ...wrest,
+        _count: { vinculos_workspace: wcount?.memberships ?? 0 },
+      })),
     }))
 
     res.json({
@@ -198,7 +224,7 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
  */
 adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
-    const parsed = UpdateTenantSchema.safeParse(req.body)
+    const parsed = UpdateOrganizacaoSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
@@ -216,7 +242,7 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       where: { id_organizacao: req.params.id_organizacao },
     })
     if (!existing) {
-      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
     }
 
     const tenant = await prisma.organizacao.update({
@@ -236,9 +262,9 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       nome_ator_historico_log: req.auth.id_usuario,
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Organizacao',
+      tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: tenant.id_organizacao,
-      acao_historico_log: 'TENANT_STATUS_CHANGED',
+      acao_historico_log: 'ORGANIZACAO_STATUS_ALTERADO',
       detalhe_acao_historico_log: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
       estado_anterior_historico_log: { status: existing.status_organizacao },
       estado_posterior_historico_log: { status: tenant.status_organizacao },
@@ -258,7 +284,7 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
  */
 adminRouter.post('/organizacoes', async (req, res, next) => {
   try {
-    const parsed = CreateTenantSchema.safeParse(req.body)
+    const parsed = CreateOrganizacaoSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
@@ -286,9 +312,9 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       nome_ator_historico_log: req.auth.id_usuario,
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Organizacao',
+      tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: tenant.id_organizacao,
-      acao_historico_log: 'TENANT_CREATED',
+      acao_historico_log: 'ORGANIZACAO_CRIADA',
       detalhe_acao_historico_log: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
       estado_posterior_historico_log: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
       status_historico_log: 'SUCESSO',
@@ -300,8 +326,8 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       organizacao: {
         ...rest,
         _count: {
-          users_organizacao: _count.users_organizacao,
-          workspaces_organizacao: _count.companies_organizacao,
+          usuarios: _count.users_organizacao,
+          workspaces: _count.companies_organizacao,
         },
       },
     })
@@ -316,64 +342,41 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
  */
 adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
   try {
-    console.log('[PATCH /workspaces/:id_workspace] params=', req.params, 'body=', req.body, 'auth=', { id_organizacao: req.auth?.id_organizacao, id_usuario: req.auth?.id_usuario, tipo_usuario: req.auth?.tipo_usuario })
-
     const idParsed = z.string().min(1).safeParse(req.params.id_workspace)
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
-    const parsed = UpdateWorkspaceSchema.safeParse(req.body)
+    const parsed = AtualizarWorkspaceAdminSchema.safeParse(req.body)
     if (!parsed.success) {
-      console.error('[PATCH /workspaces] Zod falhou:', parsed.error.errors)
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    let existing
-    try {
-      existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
-    } catch (dbErr) {
-      console.error('[PATCH /workspaces] findUnique falhou:', dbErr)
-      throw dbErr
-    }
+    const existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
     if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
 
-    let company
-    try {
-      company = await prisma.workspace.update({
-        where: { id_workspace: idParsed.data },
-        data: { status_workspace: parsed.data.status },
-        select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao: true },
-      })
-    } catch (dbErr) {
-      console.error('[PATCH /workspaces] update falhou:', dbErr)
-      throw dbErr
-    }
+    const workspace = await prisma.workspace.update({
+      where: { id_workspace: idParsed.data },
+      data: { status_workspace: parsed.data.status_workspace },
+      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao: true },
+    })
 
-    // AuditService isolado em try síncrono — protege contra throw na construção do input
-    try {
-      AuditService.log({
-        id_organizacao: req.auth.id_organizacao,
-        tipo_ator_historico_log: 'USUARIO',
-        id_ator_historico_log: req.auth.id_usuario,
-        nome_ator_historico_log: req.auth.id_usuario,
-        ip_ator_historico_log: req.ip,
-        modulo_historico_log: 'admin',
-        tipo_recurso_historico_log: 'Workspace',
-        id_recurso_historico_log: company.id_workspace,
-        acao_historico_log: 'WORKSPACE_STATUS_CHANGED',
-        detalhe_acao_historico_log: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
-        estado_anterior_historico_log: { status: existing.status_workspace },
-        estado_posterior_historico_log: { status: company.status_workspace },
-        status_historico_log: 'SUCESSO',
-      }).catch((err) => { console.error('[PATCH /workspaces] AuditService.log async falhou:', err) })
-    } catch (auditErr) {
-      console.error('[PATCH /workspaces] AuditService.log sync falhou:', auditErr)
-      // Não propaga — auditoria não pode bloquear o update
-    }
+    AuditService.log({
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      ip_ator_historico_log: req.ip,
+      modulo_historico_log: 'admin',
+      tipo_recurso_historico_log: 'Workspace',
+      id_recurso_historico_log: workspace.id_workspace,
+      acao_historico_log: 'WORKSPACE_STATUS_ALTERADO',
+      detalhe_acao_historico_log: `Workspace "${workspace.nome_workspace}" — status alterado de ${existing.status_workspace} para ${workspace.status_workspace}`,
+      estado_anterior_historico_log: { status_workspace: existing.status_workspace },
+      estado_posterior_historico_log: { status_workspace: workspace.status_workspace },
+      status_historico_log: 'SUCESSO',
+    }).catch(() => { /* fire-and-forget */ })
 
-    // PARIDADE ABSOLUTA: retorna nomes Prisma direto.
-    res.json({ workspace: company })
+    res.json({ workspace })
   } catch (err) {
-    console.error('[PATCH /workspaces/:id_workspace] erro final:', err)
     next(err)
   }
 })
@@ -897,6 +900,9 @@ function buildSafeTestEnv(): Record<string, string> {
     // Runtime
     'PATH', 'HOME', 'USER', 'USERNAME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'SYSTEMROOT',
     'NODE_ENV', 'TEMP', 'TMP', 'TZ', 'LANG', 'LC_ALL',
+    // Windows-specific (sem isso o cmd.exe não resolve npx.cmd e o spawn trava
+    // até timeout sem produzir stdout/stderr — bug observado em 03/05/2026):
+    'PATHEXT', 'COMSPEC', 'WINDIR', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramData',
     // Playwright-specific
     'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', 'DEBUG',
     // Portas dos serviços em dev (sem credentials)
@@ -1036,6 +1042,22 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     const dir = join(process.cwd(), 'data', 'test-logs')
     mkdirSync(dir, { recursive: true })
 
+    // DEBUG: arquivo de diagnóstico — captura TUDO do spawn em tempo real.
+    // Usado para diagnosticar por que entries não estão sendo gravadas.
+    const debugPath = join(dir, '_debug-spawn.log')
+    const debugLog = (msg: string) => {
+      try {
+        const line = `[${new Date().toISOString()}] ${msg}\n`
+        writeFileSync(debugPath, line, { flag: 'a' })
+      } catch { /* ignora */ }
+    }
+    debugLog('=== NEW RUN ===')
+    debugLog(`cwd=${monorepoRoot}`)
+    debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
+    debugLog(`specArgs=${JSON.stringify(specArgs)}`)
+    debugLog(`projectArgs=${JSON.stringify(projectArgs)}`)
+    debugLog(`planosSemSpec=${JSON.stringify(planosSemSpec)}`)
+
     const proc = spawn(
       'npx',
       ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
@@ -1048,12 +1070,30 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       }
     )
 
+    debugLog(`spawn pid=${proc.pid}`)
+
     let pwStdout = ''
     let pwStderr = ''
-    proc.stdout?.on('data', (chunk: Buffer) => { pwStdout += chunk.toString() })
-    proc.stderr?.on('data', (chunk: Buffer) => { pwStderr += chunk.toString() })
+    proc.stdout?.on('data', (chunk: Buffer) => {
+      const s = chunk.toString()
+      pwStdout += s
+      debugLog(`STDOUT (${s.length} bytes): ${s.slice(0, 200).replace(/\n/g, '\\n')}`)
+    })
+    proc.stderr?.on('data', (chunk: Buffer) => {
+      const s = chunk.toString()
+      pwStderr += s
+      debugLog(`STDERR (${s.length} bytes): ${s.slice(0, 200).replace(/\n/g, '\\n')}`)
+    })
+
+    proc.on('error', (err) => {
+      debugLog(`PROC ERROR: ${err.message}`)
+    })
+    proc.on('exit', (code, signal) => {
+      debugLog(`PROC EXIT code=${code} signal=${signal}`)
+    })
 
     proc.on('close', () => {
+      debugLog(`PROC CLOSE — pwStdout.length=${pwStdout.length}, pwStderr.length=${pwStderr.length}`)
       pwRunning = false
       const entries: TestLogEntry[] = []
       const created_at = new Date().toISOString()
@@ -1098,7 +1138,12 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         created_at,
         ...e,
       }))
-      writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+      try {
+        writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+        debugLog(`WROTE ${novosLogs.length} entries to ${filePath}`)
+      } catch (writeErr) {
+        debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
+      }
 
       // Audit trail: fim do run — quantos passaram/falharam
       const aprovados = entries.filter(e => e.result === 'APROVADO').length

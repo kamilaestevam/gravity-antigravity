@@ -107,12 +107,13 @@ interface GabiInsight {
   produto?: string
 }
 
-interface CompanyApi {
-  id: string
-  name: string
-  cnpj: string | null
-  status: string
-  _count?: { memberships: number }
+interface WorkspaceFromHub {
+  id_workspace: string
+  nome_workspace: string
+  cnpj_workspace?: string | null
+  status_workspace: string
+  quantidade_usuarios_workspace?: number
+  _count?: { vinculos_workspace: number }
 }
 
 /* ── Paleta de gradientes para workspace cards ── */
@@ -432,23 +433,26 @@ export function SelecionarWorkspace() {
         }
 
         // ── Workspaces ──
-        const tenantUserCount = data.tenant?._count?.users ?? 0
+        const orgUserCount = data.organizacao?._count?.usuarios ?? 0
 
         // ── Workspace preferido (vem do /hub/init) ──
-        // Backend já validou que aponta para company ativa com membership.
+        // Backend já validou que aponta para workspace ativo com membership.
         // Fornecedor sempre recebe null (enforced no backend).
-        const serverPreferredId: string | null = data.preferredCompanyId ?? null
+        const serverPreferredId: string | null = data.idWorkspacePreferido ?? null
         setPreferredId(serverPreferredId)
 
-        if (data.companies && data.companies.length > 0) {
-          const mapeados: Workspace[] = (data.companies as CompanyApi[]).map((c, i) => {
+        if (data.workspaces && data.workspaces.length > 0) {
+          const mapeados: Workspace[] = (data.workspaces as WorkspaceFromHub[]).map((w, i) => {
             const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
-            const membros = (c._count?.memberships || 0) > 0 ? c._count!.memberships : tenantUserCount
+            const vinculos = w.quantidade_usuarios_workspace
+              ?? w._count?.vinculos_workspace
+              ?? 0
+            const membros = vinculos > 0 ? vinculos : orgUserCount
             return {
-              id: c.id,
-              nome: c.name,
-              iniciais: c.name.substring(0, 2).toUpperCase(),
-              role: data.tenant?.tipo_empresa_organizacao ?? '',
+              id: w.id_workspace,
+              nome: w.nome_workspace,
+              iniciais: w.nome_workspace.substring(0, 2).toUpperCase(),
+              role: data.organizacao?.tipo_organizacao ?? '',
               modulos: totalAtivos,
               membros,
               gradientFrom: grad.from,

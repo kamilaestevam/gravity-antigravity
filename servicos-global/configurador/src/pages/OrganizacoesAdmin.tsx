@@ -1,12 +1,13 @@
 // src/pages/OrganizacoesAdmin.tsx
-// Painel exclusivo para gravity_admin — gestão de todas as organizações da plataforma
+// Painel exclusivo para gravity_admin — gestão de todas as organizações da plataforma.
+// Contrato em DDD puro: consome OrganizacaoApi direto sem mappers internos.
 
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Page } from '../App'
-import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck, PencilSimple, Trash } from '@phosphor-icons/react'
+import { HardDrives, Buildings, TreeStructure, ChartPieSlice, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, PencilSimple } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
-import { adminTenantsApi, type TenantApi } from '../services/apiClient'
+import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/apiClient'
 
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -15,87 +16,41 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type Tabe
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalOrganizacaoNova'
-import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalOrganizacaoEditar'
-import { ModalEditarWorkspace } from './workspace/ModalWorkspaceEditar'
-import type { Empresa } from './workspace/Workspaces'
-import type { Organizacao } from '../types/entidades'
+import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
+import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
+import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
+import type { Workspace } from './workspace/Workspaces'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
-
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type EmpresaStatus = 'Ativa' | 'Suspensa' | 'Pendente'
-
-// Espelhado com interface Empresa de Workspaces.tsx
-export interface Workspace {
-  id: string
-  nome: string
-  subdominio: string
-  usuarios: number
-  status: EmpresaStatus
-  criadaEm: string
-  cnpj?: string
-  estado?: string
-  cidade?: string
-  segmento?: string
-  site?: string
-}
-
-// NOTA: este Tenant é um tipo INTERNO de UI (legacy) que mapeia da API DDD
-// (TenantApi/Organizacao) para o formato consumido pelo painel admin.
-// Não confundir com a entidade Organizacao (entidades.ts), que segue Paridade
-// Absoluta com o Prisma. Migração completa pendente — ver ProdutosGravityAdmin
-// e Financeiro para outros consumidores legados de ProdutoCatalogo.
-export interface Tenant {
-  id: string
-  name: string
-  slug: string
-  status: EmpresaStatus
-  created_at: string
-  _count?: { users: number; companies: number }
-  product_configs: Array<{ product_key: string; is_active: boolean; updated_at: string }>
-  workspaces: Workspace[]
-}
-
-// Re-exporta Organizacao para consumidores que precisem do tipo DDD
-export type { Organizacao }
+export type OrganizacaoStatusUI = 'ATIVO' | 'SUSPENSO' | 'CANCELADO' | 'CONFIGURACAO_PENDENTE'
 
 interface Stats {
-  totalOrganizacoes: number
-  organizacoesAtivas: number
+  totalOrganizacoes:    number
+  organizacoesAtivas:   number
   organizacoesSuspensas: number
-  totalWorkspaces: number
-  activeWorkspaces: number
-  suspendedWorkspaces: number
-  totalUsers: number
+  totalWorkspaces:      number
+  workspacesAtivos:     number
+  workspacesSuspensos:  number
+  totalUsuarios:        number
 }
 
-// ─── Status badge em pt-BR (padrão do configurador) ───────────────────────────
+// ─── Status badge / labels canonical PT-BR ────────────────────────────────────
+//
+// Enum no banco (REGRA 7 com dívida documentada): 'ATIVO' | 'SUSPENSO' |
+// 'CANCELADO' | 'CONFIGURACAO_PENDENTE'. Labels exibidos abaixo são apenas para
+// renderização — a chave canonical é o valor do enum.
 
-const STATUS_LABEL: Record<string, string> = {
-  Ativa:    'Ativa',
-  Suspensa: 'Suspensa',
-}
-
-const API = '/api/v1/admin'
-
-// ─── Helper: mapeia status do backend para pt-BR ──────────────────────────────
-
-function mapTenantStatus(status: string): EmpresaStatus {
-  if (status === 'ATIVO' || status === 'Ativa') return 'Ativa'
+function rotuloOrganizacao(status: string): string {
+  if (status === 'ATIVO') return 'Ativa'
   if (status === 'CONFIGURACAO_PENDENTE') return 'Pendente'
+  if (status === 'CANCELADO') return 'Cancelada'
   return 'Suspensa'
 }
 
-function mapStatusToBackend(status: EmpresaStatus): string {
-  if (status === 'Ativa') return 'ATIVO'
-  if (status === 'Pendente') return 'CONFIGURACAO_PENDENTE'
-  return 'SUSPENSO'
-}
-
-function mapWorkspaceStatusToBackend(status: EmpresaStatus): 'ATIVO' | 'INATIVO' {
-  return status === 'Ativa' ? 'ATIVO' : 'INATIVO'
+function rotuloWorkspace(status: string): string {
+  return status === 'ATIVO' ? 'Ativa' : 'Suspensa'
 }
 
 const SHELL_URL = import.meta.env.VITE_SHELL_URL || 'http://localhost:8010'
@@ -104,13 +59,13 @@ const SHELL_URL = import.meta.env.VITE_SHELL_URL || 'http://localhost:8010'
 
 export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void }) {
   const { t } = useTranslation()
-  const [tenants, setTenants] = useState<Tenant[]>([])
+  const [organizacoes, setOrganizacoes] = useState<OrganizacaoApi[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showNovaOrg, setShowNovaOrg] = useState(false)
-  
-  const [orgEditando, setOrgEditando] = useState<Organizacao | null>(null)
+
+  const [orgEditando, setOrgEditando] = useState<OrganizacaoApi | null>(null)
   const [workspaceEditando, setWorkspaceEditando] = useState<Workspace | null>(null)
 
   const addNotification = useShellStore((state) => state.addNotification)
@@ -119,51 +74,30 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     setLoading(true)
     try {
       const [organizacoesRes, statsRes] = await Promise.all([
-        adminTenantsApi.list({ page: 1, limit: 100 }),
-        adminTenantsApi.getStats(),
+        adminOrganizacoesApi.list({ page: 1, limit: 100 }),
+        adminOrganizacoesApi.getStats(),
       ])
 
-      // Mapeia DTO Prisma (backend) → modelo de UI legado (Tenant local).
-      // Quando o componente migrar pra ler campos DDD direto, este mapping morre.
-      const mapped: Tenant[] = organizacoesRes.organizacoes.map((o) => ({
-        id: o.id_organizacao,
-        name: o.nome_organizacao,
-        slug: o.subdominio_organizacao,
-        status: mapTenantStatus(o.status_organizacao),
-        created_at: o.data_criacao_organizacao,
-        _count: {
-          users:     o._count?.users_organizacao ?? 0,
-          companies: o._count?.workspaces_organizacao ?? 0,
-        },
-        product_configs: (o.configuracoes_produto ?? []).map((pc) => ({
-          product_key: pc.chave_produto_configuracao_produto_gravity,
-          is_active:   pc.ativo_configuracao_produto_gravity,
-          updated_at:  pc.data_atualizacao_configuracao_produto_gravity,
-        })),
-        workspaces: (o.workspaces ?? []).map((w) => ({
-          id:         w.id_workspace,
-          nome:       w.nome_workspace,
-          subdominio: w.subdominio_workspace ?? '',
-          status:     mapTenantStatus(w.status_workspace),
-          usuarios:   w._count?.memberships ?? 0,
-          criadaEm:   new Date(o.data_criacao_organizacao).toLocaleDateString('pt-BR'),
-        })),
-      }))
-
-      setTenants(mapped)
+      setOrganizacoes(organizacoesRes.organizacoes)
 
       const s = statsRes.stats
-      const allWorkspaces = mapped.reduce((sum, t) => sum + (t._count?.companies ?? 0), 0)
-      const activeWs = mapped.reduce((sum, t) => sum + t.workspaces.filter(ws => ws.status === 'Ativa').length, 0)
+      const allWorkspaces = organizacoesRes.organizacoes.reduce(
+        (sum, o) => sum + (o._count?.workspaces ?? 0),
+        0,
+      )
+      const activeWs = organizacoesRes.organizacoes.reduce(
+        (sum, o) => sum + (o.workspaces ?? []).filter(w => w.status_workspace === 'ATIVO').length,
+        0,
+      )
 
       setStats({
         totalOrganizacoes:     s.totalOrganizacoes,
         organizacoesAtivas:    s.ativasOrganizacoes,
         organizacoesSuspensas: s.suspensasOrganizacoes,
         totalWorkspaces:       allWorkspaces,
-        activeWorkspaces:      activeWs,
-        suspendedWorkspaces:   allWorkspaces - activeWs,
-        totalUsers:            s.totalUsuarios,
+        workspacesAtivos:      activeWs,
+        workspacesSuspensos:   allWorkspaces - activeWs,
+        totalUsuarios:         s.totalUsuarios,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar os metadados do servidor. Painel rodando em read-only fallback.')
@@ -174,11 +108,13 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
 
   useEffect(() => { fetchData() }, [])
 
-  async function updateStatus(id: string, status: EmpresaStatus) {
+  async function updateStatus(id_organizacao: string, statusBackend: OrganizacaoStatusUI) {
     try {
-      await adminTenantsApi.updateStatus(id, mapStatusToBackend(status))
-      setTenants(prev => prev.map(t => t.id === id ? { ...t, status } : t))
-      if (status === 'Suspensa') {
+      await adminOrganizacoesApi.updateStatus(id_organizacao, statusBackend)
+      setOrganizacoes(prev => prev.map(o =>
+        o.id_organizacao === id_organizacao ? { ...o, status_organizacao: statusBackend } : o
+      ))
+      if (statusBackend === 'SUSPENSO' || statusBackend === 'CANCELADO') {
         setStats(prev => prev ? { ...prev, organizacoesAtivas: prev.organizacoesAtivas - 1, organizacoesSuspensas: prev.organizacoesSuspensas + 1 } : null)
         addNotification({ type: 'warning', message: `Organização suspensa com sucesso.` })
       } else {
@@ -190,22 +126,23 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     }
   }
 
-  async function updateWorkspaceStatus(id: string, status: EmpresaStatus) {
-    const backendStatus = mapWorkspaceStatusToBackend(status)
+  async function updateWorkspaceStatus(id_workspace: string, statusBackend: 'ATIVO' | 'INATIVO') {
     try {
-      await adminTenantsApi.updateWorkspaceStatus(id, backendStatus)
-      setTenants(prev => prev.map(t => ({
-        ...t,
-        workspaces: t.workspaces.map(ws => ws.id === id ? { ...ws, status } : ws),
+      await adminOrganizacoesApi.updateWorkspaceStatus(id_workspace, statusBackend)
+      setOrganizacoes(prev => prev.map(o => ({
+        ...o,
+        workspaces: (o.workspaces ?? []).map(w =>
+          w.id_workspace === id_workspace ? { ...w, status_workspace: statusBackend } : w
+        ),
       })))
-      if (status === 'Suspensa') {
-        setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces - 1, suspendedWorkspaces: prev.suspendedWorkspaces + 1 } : null)
+      if (statusBackend === 'INATIVO') {
+        setStats(prev => prev ? { ...prev, workspacesAtivos: prev.workspacesAtivos - 1, workspacesSuspensos: prev.workspacesSuspensos + 1 } : null)
       } else {
-        setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces + 1, suspendedWorkspaces: prev.suspendedWorkspaces - 1 } : null)
+        setStats(prev => prev ? { ...prev, workspacesAtivos: prev.workspacesAtivos + 1, workspacesSuspensos: prev.workspacesSuspensos - 1 } : null)
       }
       addNotification({
-        type: status === 'Suspensa' ? 'warning' : 'success',
-        message: `Workspace ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.`,
+        type: statusBackend === 'INATIVO' ? 'warning' : 'success',
+        message: `Workspace ${statusBackend === 'INATIVO' ? 'suspenso' : 'reativado'} com sucesso.`,
       })
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao atualizar workspace.' })
@@ -214,25 +151,12 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
 
   async function handleSalvarOrg(dados: DadosNovaOrg) {
     try {
-      const { organizacao } = await adminTenantsApi.create({
+      const { organizacao } = await adminOrganizacoesApi.create({
         nome_organizacao: dados.nome,
         subdominio_organizacao: dados.subdominio,
         cnpj_organizacao: dados.cnpj || undefined,
       })
-      const novo: Tenant = {
-        id: organizacao.id_organizacao,
-        name: organizacao.nome_organizacao,
-        slug: organizacao.subdominio_organizacao,
-        status: mapTenantStatus(organizacao.status_organizacao),
-        created_at: organizacao.data_criacao_organizacao,
-        _count: {
-          users:     organizacao._count?.users_organizacao ?? 0,
-          companies: organizacao._count?.workspaces_organizacao ?? 0,
-        },
-        product_configs: [],
-        workspaces: [],
-      }
-      setTenants(prev => [novo, ...prev])
+      setOrganizacoes(prev => [organizacao, ...prev])
       setStats(prev => prev ? { ...prev, totalOrganizacoes: prev.totalOrganizacoes + 1, organizacoesAtivas: prev.organizacoesAtivas + 1 } : null)
       setShowNovaOrg(false)
       addNotification({ type: 'success', message: `Organização "${organizacao.nome_organizacao}" criada com sucesso!` })
@@ -241,38 +165,22 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     }
   }
 
-  function handleEditOrg(linha: Tenant) {
-    // Converte Tenant (estrutura interna de UI legacy) para Organizacao (DDD/Prisma)
-    // — formato esperado pela ModalEditarOrganizacao.
-    setOrgEditando({
-      id_organizacao:           linha.id,
-      nome_organizacao:         linha.name,
-      subdominio_organizacao:   linha.slug,
-      status_organizacao:       linha.status === 'Ativa' ? 'ATIVO' : linha.status === 'Pendente' ? 'CONFIGURACAO_PENDENTE' : 'SUSPENSO',
-      data_criacao_organizacao: linha.created_at,
-      _count: linha._count
-        ? { users_organizacao: linha._count.users, workspaces_organizacao: linha._count.companies }
-        : undefined,
-    })
+  function handleEditOrg(linha: OrganizacaoApi) {
+    setOrgEditando(linha)
   }
 
   async function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
     if (!orgEditando) return
     try {
-      await adminTenantsApi.update(orgEditando.id_organizacao, {
+      await adminOrganizacoesApi.update(orgEditando.id_organizacao, {
         nome_organizacao:       dados.nome,
         subdominio_organizacao: dados.subdominio,
       })
-      setTenants(prev => prev.map(t => {
-        if (t.id === orgEditando.id_organizacao) {
-          return {
-            ...t,
-            name: dados.nome      || t.name,
-            slug: dados.subdominio || t.slug,
-          }
-        }
-        return t
-      }))
+      setOrganizacoes(prev => prev.map(o =>
+        o.id_organizacao === orgEditando.id_organizacao
+          ? { ...o, nome_organizacao: dados.nome ?? o.nome_organizacao, subdominio_organizacao: dados.subdominio ?? o.subdominio_organizacao }
+          : o
+      ))
       addNotification({ type: 'success', message: 'Organização atualizada com sucesso.' })
       setOrgEditando(null)
     } catch (err) {
@@ -280,49 +188,66 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
     }
   }
 
-  function handleEditWorkspace(linha: Workspace) {
-    setWorkspaceEditando(linha)
+  function handleEditWorkspace(linha: WorkspaceApi) {
+    setWorkspaceEditando({
+      id_workspace: linha.id_workspace,
+      nome_workspace: linha.nome_workspace,
+      subdominio_workspace: linha.subdominio_workspace ?? '',
+      quantidade_usuarios_workspace: linha.quantidade_usuarios_workspace ?? linha._count?.vinculos_workspace ?? 0,
+      status_workspace: (linha.status_workspace === 'ATIVO' ? 'ATIVO' : 'INATIVO'),
+      data_criacao_workspace: linha.data_criacao_workspace ?? '',
+      cnpj_workspace: linha.cnpj_workspace ?? undefined,
+    })
   }
 
-  function handleUpdateWorkspace(dados: Partial<Empresa>) {
+  function handleUpdateWorkspace(dados: Partial<Workspace>) {
     if (!workspaceEditando) return
-    setTenants(prev => prev.map(t => ({
-      ...t,
-      workspaces: t.workspaces.map(ws => ws.id === workspaceEditando.id ? { ...ws, ...dados } : ws)
+    setOrganizacoes(prev => prev.map(o => ({
+      ...o,
+      workspaces: (o.workspaces ?? []).map(w =>
+        w.id_workspace === workspaceEditando.id_workspace
+          ? {
+              ...w,
+              nome_workspace: dados.nome_workspace ?? w.nome_workspace,
+              subdominio_workspace: dados.subdominio_workspace ?? w.subdominio_workspace,
+              cnpj_workspace: dados.cnpj_workspace ?? w.cnpj_workspace,
+            }
+          : w
+      ),
     })))
     addNotification({ type: 'success', message: 'Workspace atualizado com sucesso.' })
     setWorkspaceEditando(null)
   }
 
   // ── Colunas PAI ────────────────────────────────────────────────────────────
-  const COLUNAS: TabelaGlobalColuna<Tenant>[] = [
+  const COLUNAS: TabelaGlobalColuna<OrganizacaoApi>[] = [
     {
-      key: 'name', label: 'Organização', tipo: 'texto',
+      key: 'nome_organizacao', label: 'Organização', tipo: 'texto',
       tooltipTitulo: 'Organização',
       tooltipDescricao: 'Entidade raiz com isolamento lógico (RLS) em todas as tabelas transacionais.',
-      render: (_v: unknown, item: Tenant) => (
+      render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <TooltipGlobal titulo={`ID Técnico: ${item.id}`} descricao="Chave UUID primária no cluster">
+          <TooltipGlobal titulo={`ID Técnico: ${item.id_organizacao}`} descricao="Chave primária no cluster">
             <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1', cursor: 'help' }}>
-              {item.name ? item.name.charAt(0).toUpperCase() : 'T'}
+              {item.nome_organizacao ? item.nome_organizacao.charAt(0).toUpperCase() : 'O'}
             </div>
           </TooltipGlobal>
-          <span style={{ fontWeight: 600 }}>{item.name}</span>
-          {(item._count?.companies ?? 0) > 0 && (
+          <span style={{ fontWeight: 600 }}>{item.nome_organizacao}</span>
+          {(item._count?.workspaces ?? 0) > 0 && (
              <span className="ws-badge ws-badge-surface" style={{ marginLeft: 8, height: 18, fontSize: '0.65rem', padding: '0 6px' }}>
-                {item._count?.companies}
+                {item._count?.workspaces}
              </span>
           )}
         </div>
       )
     },
     {
-      key: 'slug', label: 'Subdominio', tipo: 'texto',
+      key: 'subdominio_organizacao', label: 'Subdomínio', tipo: 'texto',
       tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
       tooltipDescricao: 'Alias em uso pelo API Gateway para roteamento da organização.',
-      render: (_v: unknown, item: Tenant) => (
-        <a 
-          href={`${SHELL_URL}/workspace/${item.slug}`}
+      render: (_v, item) => (
+        <a
+          href={`${SHELL_URL}/workspace/${item.subdominio_organizacao}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
@@ -332,23 +257,23 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
-            {item.slug}.gravity.com.br
+            {item.subdominio_organizacao}.gravity.com.br
           </code>
         </a>
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status_organizacao', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status da Organização',
       tooltipDescricao: 'Estado operacional da organização na plataforma.',
-      render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
+      render: (v) => <StatusBadgeGlobal valor={rotuloOrganizacao(v as string)} />
     },
     {
-      key: 'product_configs', label: 'Produtos Gravity', tipo: 'texto',
+      key: 'configuracoes_produto', label: 'Produtos Gravity', tipo: 'texto',
       tooltipTitulo: 'Produtos Gravity Ativos',
       tooltipDescricao: 'Módulos habilitados para esta organização.',
-      render: (_v: unknown, item: Tenant) => {
-        const ativos = (item.product_configs ?? []).filter(p => p.is_active)
+      render: (_v, item) => {
+        const ativos = (item.configuracoes_produto ?? []).filter(p => p.ativo_configuracao_produto_gravity)
         const show = ativos.slice(0, 2)
         const rest = ativos.length - show.length
 
@@ -364,7 +289,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
                 color: i === 0 ? '#818cf8' : 'var(--ws-muted)',
                 padding: '0.125rem 0.375rem', borderRadius: '4px', border: i === 0 ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(255,255,255,0.1)'
               }}>
-                {p.product_key}
+                {p.chave_produto_configuracao_produto_gravity}
               </span>
             ))}
             {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest}</span>}
@@ -376,21 +301,21 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       key: '_count', label: 'Usuários', align: 'center', tipo: 'texto',
       tooltipTitulo: 'Usuários',
       tooltipDescricao: 'Total de usuários vinculados a esta organização.',
-      render: (_v: unknown, item: Tenant) => <span style={{ fontWeight: 600 }}>{item._count?.users || 0}</span>
+      render: (_v, item) => <span style={{ fontWeight: 600 }}>{item._count?.usuarios ?? 0}</span>
     },
   ]
 
   // ── Colunas FILHAS ──────────────────────────────────────────────────────────
-  const COLUNAS_FILHAS: TabelaGlobalColuna<Workspace>[] = [
+  const COLUNAS_FILHAS: TabelaGlobalColuna<WorkspaceApi>[] = [
     {
-      key: 'nome', label: 'Nome do Workspace', tipo: 'texto',
-      render: (_v: unknown, item: Workspace) => (
+      key: 'nome_workspace', label: 'Nome do Workspace', tipo: 'texto',
+      render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome.charAt(0).toUpperCase()}
+            {item.nome_workspace.charAt(0).toUpperCase()}
           </div>
-          <a 
-            href={`/workspace/workspaces?id=${item.id}`}
+          <a
+            href={`/workspace/workspaces?id=${item.id_workspace}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
@@ -398,17 +323,17 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
             onClick={(ev) => ev.stopPropagation()}
           >
-            {item.nome}
+            {item.nome_workspace}
           </a>
         </div>
       )
     },
     {
-      key: 'subdominio', label: 'Subdominio', tipo: 'texto',
-      render: (_v: unknown, item: Workspace) => (
-        <a 
-          href={item.subdominio ? `${SHELL_URL}/workspace/${item.subdominio}` : '#'}
-          target={item.subdominio ? '_blank' : undefined}
+      key: 'subdominio_workspace', label: 'Subdomínio', tipo: 'texto',
+      render: (_v, item) => (
+        <a
+          href={item.subdominio_workspace ? `${SHELL_URL}/workspace/${item.subdominio_workspace}` : '#'}
+          target={item.subdominio_workspace ? '_blank' : undefined}
           rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
           onClick={ev => ev.stopPropagation()}
@@ -417,39 +342,46 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
-            {item.subdominio}.gravity.com.br
+            {item.subdominio_workspace}.gravity.com.br
           </code>
         </a>
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
-      render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
+      key: 'status_workspace', label: 'Status', tipo: 'texto',
+      render: (v) => <StatusBadgeGlobal valor={rotuloWorkspace(v as string)} />
     },
     {
-      key: 'usuarios', label: 'Usuários', align: 'center', tipo: 'texto',
-      render: (v: unknown) => <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{v as number}</span>
+      key: '_count', label: 'Usuários', align: 'center', tipo: 'texto',
+      render: (_v, item) => (
+        <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>
+          {item.quantidade_usuarios_workspace ?? item._count?.vinculos_workspace ?? 0}
+        </span>
+      )
     },
   ]
 
   // ── Ações PAI ──────────────────────────────────────────────────────────────
-  const ACOES: TabelaGlobalAcao<Tenant>[] = [
+  const ACOES: TabelaGlobalAcao<OrganizacaoApi>[] = [
     {
       id: 'suspend',
-      icone: <PauseCircle size={15} weight="bold" />, // icone desktop padrão, renderCustom faz o override
+      icone: <PauseCircle size={15} weight="bold" />,
       tooltip: 'Alternar Status',
-      onClick: (item) => updateStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa'),
-      renderCustom: (item) => (
-        <button
-          type="button"
-          onClick={e => { e.preventDefault(); e.stopPropagation(); updateStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-        </button>
-      )
+      onClick: (item) => updateStatus(item.id_organizacao, item.status_organizacao === 'ATIVO' ? 'SUSPENSO' : 'ATIVO'),
+      renderCustom: (item) => {
+        const ativo = item.status_organizacao === 'ATIVO'
+        return (
+          <button
+            type="button"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); updateStatus(item.id_organizacao, ativo ? 'SUSPENSO' : 'ATIVO') }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = ativo ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = ativo ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = ativo ? '#fbbf24' : '#34d399' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            {ativo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+          </button>
+        )
+      }
     },
     {
       id: 'edit',
@@ -461,28 +393,31 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       id: 'inspect',
       icone: <MagnifyingGlass size={15} weight="bold" />,
       tooltip: 'Painel de Auditoria',
-      onClick: (item) => navigate({ name: 'tenant-detail', id_organizacao: item.id }),
+      onClick: (item) => navigate({ name: 'tenant-detail', id_organizacao: item.id_organizacao }),
     },
   ]
 
   // ── Ações FILHAS ───────────────────────────────────────────────────────────
-  const ACOES_FILHAS: TabelaGlobalAcao<Workspace>[] = [
+  const ACOES_FILHAS: TabelaGlobalAcao<WorkspaceApi>[] = [
     {
       id: 'suspend-ws',
       icone: <PauseCircle size={14} weight="bold" />,
       tooltip: 'Alternar Status do Workspace',
-      onClick: (item) => updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa'),
-      renderCustom: (item) => (
-        <button
-          type="button"
-          onClick={e => { e.preventDefault(); e.stopPropagation(); updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          {item.status === 'Ativa' ? <PauseCircle size={14} weight="bold" /> : <PlayCircle size={14} weight="bold" />}
-        </button>
-      )
+      onClick: (item) => updateWorkspaceStatus(item.id_workspace, item.status_workspace === 'ATIVO' ? 'INATIVO' : 'ATIVO'),
+      renderCustom: (item) => {
+        const ativo = item.status_workspace === 'ATIVO'
+        return (
+          <button
+            type="button"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); updateWorkspaceStatus(item.id_workspace, ativo ? 'INATIVO' : 'ATIVO') }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = ativo ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = ativo ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = ativo ? '#fbbf24' : '#34d399' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            {ativo ? <PauseCircle size={14} weight="bold" /> : <PlayCircle size={14} weight="bold" />}
+          </button>
+        )
+      }
     },
     {
       id: 'edit',
@@ -493,7 +428,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
   ]
 
   // ── Exportação ─────────────────────────────────────────────────────────────
-  const ACOES_EXPORT: TabelaExportAcao<Tenant>[] = [
+  const ACOES_EXPORT: TabelaExportAcao<OrganizacaoApi>[] = [
     { label: 'Dump PG (Data)', icone: <Database size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Exporta a estrutura completa do banco de dados' },
     { label: 'Logs de Cluster (CSV)', icone: <FileCsv size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Gera planilha com o histórico de eventos do servidor' },
     { label: 'Matriz XML', icone: <FileXls size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Exporta configuração técnica para migração entre ambientes' },
@@ -542,11 +477,11 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             <CardBasicoGlobal
               titulo="Total de Usuários"
               icone={<UsersThree weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
-              valor={stats.totalUsers}
+              valor={stats.totalUsuarios}
               tooltip={
                 <>
                   <p className="cg-tooltip__title">Identidades Globais</p>
-                  <div className="cg-tooltip__row"><span>Usuários Únicos</span> <strong>{stats.totalUsers}</strong></div>
+                  <div className="cg-tooltip__row"><span>Usuários Únicos</span> <strong>{stats.totalUsuarios}</strong></div>
                   <div className="cg-tooltip__row"><span>Sessões Ativas</span> <strong>100%</strong></div>
                 </>
               }
@@ -555,19 +490,19 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
               titulo="Status dos Workspaces"
               icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
               total={stats.totalWorkspaces}
-              valorPrincipal={stats.activeWorkspaces}
+              valorPrincipal={stats.workspacesAtivos}
               corGauge="#34d399"
               legenda={[
-                { label: 'Ativas',    valor: stats.activeWorkspaces,    cor: 'green'  },
-                { label: 'Suspensas', valor: stats.suspendedWorkspaces, cor: 'yellow' },
+                { label: 'Ativas',    valor: stats.workspacesAtivos,    cor: 'green'  },
+                { label: 'Suspensas', valor: stats.workspacesSuspensos, cor: 'yellow' },
               ]}
               tooltip={
                 <>
                   <p className="cg-tooltip__title">Saúde Operacional</p>
-                  <div className="cg-tooltip__row"><span>Workspaces Ativos</span> <strong style={{ color: '#34d399' }}>{stats.activeWorkspaces}</strong></div>
-                  <div className="cg-tooltip__row"><span>Workspaces Suspensos</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedWorkspaces}</strong></div>
+                  <div className="cg-tooltip__row"><span>Workspaces Ativos</span> <strong style={{ color: '#34d399' }}>{stats.workspacesAtivos}</strong></div>
+                  <div className="cg-tooltip__row"><span>Workspaces Suspensos</span> <strong style={{ color: '#fbbf24' }}>{stats.workspacesSuspensos}</strong></div>
                   <div className="cg-tooltip__divider" />
-                  <div className="cg-tooltip__row"><span>Taxa de Disponibilidade</span> <strong style={{ color: '#34d399' }}>{Math.round(stats.activeWorkspaces / (stats.totalWorkspaces || 1) * 100)}%</strong></div>
+                  <div className="cg-tooltip__row"><span>Taxa de Disponibilidade</span> <strong style={{ color: '#34d399' }}>{Math.round(stats.workspacesAtivos / (stats.totalWorkspaces || 1) * 100)}%</strong></div>
                 </>
               }
             />
@@ -591,9 +526,9 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       )}
 
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <TabelaGlobal<Tenant>
+        <TabelaGlobal<OrganizacaoApi>
           id="admin-organizations"
-          dados={tenants}
+          dados={organizacoes}
           colunas={COLUNAS}
           acoes={ACOES}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
@@ -601,23 +536,26 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
           tooltipExpandir="Ver workspaces vinculados à organização"
           tooltipRecolher="Recolher visualização de workspaces"
           tooltipBusca="Localizar instância por nome ou subdomínio"
-          renderExpandido={(tenant) => (
-            <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
-              <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <TreeStructure size={14} /> Workspaces ({tenant.workspaces.length})
+          renderExpandido={(organizacao) => {
+            const lista = organizacao.workspaces ?? []
+            return (
+              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <TreeStructure size={14} /> Workspaces ({lista.length})
+                </div>
+                <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                  <TabelaGlobal<WorkspaceApi>
+                    id={`admin-organizacao-workspaces-${organizacao.id_organizacao}`}
+                    dados={lista}
+                    colunas={COLUNAS_FILHAS}
+                    acoes={ACOES_FILHAS}
+                    mensagemVazio="Nenhum workspace cadastrado."
+                    acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FILHAS, 'dados_tabela', 'Exportação de Dados')}
+                  />
+                </div>
               </div>
-              <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                <TabelaGlobal<Workspace>
-                  id={`admin-org-workspaces-${tenant.id}`}
-                  dados={tenant.workspaces}
-                  colunas={COLUNAS_FILHAS}
-                  acoes={ACOES_FILHAS}
-                  mensagemVazio="Nenhum workspace cadastrado."
-                  acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FILHAS, 'dados_tabela', 'Exportação de Dados')}
-                />
-              </div>
-            </div>
-          )}
+            )
+          }}
         />
       </div>
 
@@ -636,7 +574,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
 
       <ModalEditarWorkspace
         aberto={!!workspaceEditando}
-        empresa={workspaceEditando as Empresa | null}
+        workspace={workspaceEditando}
         aoFechar={() => setWorkspaceEditando(null)}
         aoSalvar={handleUpdateWorkspace}
       />

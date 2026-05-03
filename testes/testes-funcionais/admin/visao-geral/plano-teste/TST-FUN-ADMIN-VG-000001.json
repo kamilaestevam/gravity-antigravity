@@ -15,7 +15,7 @@
   "criticidade": "alta",
   "temDinheiro": false,
 
-  "resumoExecutivo": "Testes funcionais de GET e PUT /api/v1/admin/visao-geral. Camada HTTP completa com Supertest — Zod real, error handler real, AuditService real, Prisma e Clerk mockados. 54 casos cobrindo happy path, validação Zod por campo, auth, tenant resolution, audit trail, erros DB, contrato de resposta. Risco principal: divergência front-back tipo_empresa_organizacao vs tipo_organizacao (REGRA 09 violada — backend ignora silenciosamente).",
+  "resumoExecutivo": "Testes funcionais de GET e PUT /api/v1/admin/visao-geral. Camada HTTP completa com Supertest — Zod real, error handler real, AuditService real, Prisma e Clerk mockados. 54 casos cobrindo happy path, validação Zod por campo, auth, tenant resolution, audit trail, erros DB, contrato de resposta. RESOLVIDO 2026-05-03: divergência front-back tipo_empresa_organizacao vs tipo_organizacao foi eliminada (front e back agora usam `tipo_organizacao`).",
 
   "endpoints": [
     { "metodo": "GET", "rota": "/api/v1/admin/visao-geral", "linha": 1220, "responseShape": "{ config: PlatformConfigApi | null }" },
@@ -115,7 +115,7 @@
     "complementaPlanoE2E": "TST-E2E-ADMIN-000001",
     "gapsConfirmados": [
       "Falta checagem de role/gravity_admin nas rotas GET e PUT",
-      "Schema Zod ignora tipo_empresa_organizacao do front (REGRA 09)",
+      "[RESOLVIDO 2026-05-03] Schema Zod aceita tipo_organizacao corretamente — divergência front-back eliminada",
       "Sem unique constraint em cnpj_organizacao",
       "Sem validação de DV CNPJ",
       "Sem regex de formato CNPJ",

@@ -1621,7 +1621,7 @@
       "opt_client_credentials": "Client Credentials",
       "opt_authorization_code": "Authorization Code"
     },
-    "organization": {
+    "organizacao": {
       "titulo": "Organización",
       "campo_nome": "Nombre de la Empresa",
       "campo_cnpj": "NIF / RUC",
@@ -1637,9 +1637,9 @@
       "subtitulo_carregando": "Cargando datos...",
       "badge_organizacao": "Organización",
       "secao_dados_basicos": "Datos Básicos",
-      "acesso_padrao": "Acceso Predeterminado",
-      "acesso_padrao_desc": "Defina qué entorno se cargará automáticamente al entrar en la plataforma.",
-      "acesso_padrao_label": "Workspace"
+      "workspace_preferido": "Workspace Preferido",
+      "workspace_preferido_desc": "Defina qué entorno se cargará automáticamente al entrar en la plataforma.",
+      "workspace_preferido_label": "Workspace"
     },
     "users": {
       "titulo": "Usuarios",

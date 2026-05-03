@@ -97,6 +97,32 @@
       "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/whatsapp"
     },
+    "configurador-organizacoes": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/organizacoes",
+      "middleware": ["rateLimitPresets.api (via /api/v1)", "requireAuth (exceto POST /)"],
+      "note": "Gestão da Organização (entidade matriz da plataforma Gravity). Workspaces foram relocados para /api/v1/me/workspaces em 2026-05-03 — ver entrada `configurador-me`. Contrato em DDD puro (PT-BR): respostas usam chave raiz `organizacao` e campos espelham o schema Prisma (`id_organizacao`, `nome_organizacao`, `tipo_organizacao` etc.).",
+      "endpoints": {
+        "POST /":          "Cria nova organização + usuário owner via saga Cadastros-primeiro (público — chamado no onboarding após checkout). Body Zod: CreateOrganizacaoSchema { nome_organizacao, subdominio_organizacao, clerkUserId, owner: { email, name }, cnpj_organizacao?, pais? }. Resposta: { organizacao }.",
+        "GET /me":         "Retorna dados da organização autenticada. Inclui assinatura mais recente e _count: { usuarios, workspaces }. Resposta: { organizacao }.",
+        "PATCH /me":       "Atualiza dados cadastrais da organização autenticada. Body Zod: UpdateOrganizacaoSchema { nome_organizacao?, cnpj_organizacao?, estado_organizacao?, cidade_organizacao?, segmento_organizacao?, tipo_organizacao? }. Resposta: { organizacao }."
+      }
+    },
+    "configurador-me": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/me",
+      "middleware": ["rateLimitPresets.api (via /api/v1)", "requireAuth"],
+      "note": "Rotas do usuário autenticado (self). Inclui endpoints de gestão de workspaces da organização — relocados de /api/v1/organizacoes/me/workspaces em 2026-05-03 — pois pertencem semanticamente ao 'self do usuário autenticado'. Schemas Zod: CriarWorkspaceSchema, AtualizarWorkspaceSchema (PT-BR puro).",
+      "endpoints": {
+        "GET /":                                        "Contexto completo do usuário: { usuario, organizacao, workspaces, produtos }. Substitui Clerk publicMetadata como fonte da verdade de autorização (Mand. 01).",
+        "GET /preferencias":                            "Retorna { preferredCompanyId } do usuário (campo Prisma `id_workspace_preferido_usuario`).",
+        "PUT /preferencias":                            "Atualiza workspace preferido (skip pós-login).",
+        "GET /workspaces":                              "Lista workspaces da organização autenticada. Resposta: { workspaces: WorkspaceItem[] }. Cada item inclui `quantidade_usuarios_workspace` e `_count: { vinculos_workspace }`.",
+        "POST /workspaces":                             "Cria workspace na organização autenticada. Body Zod: { nome_workspace, subdominio_workspace?, cnpj_workspace? }. Resposta: { workspace }.",
+        "PATCH /workspaces/:id_workspace":              "Atualiza workspace. Body Zod: { nome_workspace?, subdominio_workspace?, cnpj_workspace?, status_workspace? }. Resposta: { workspace }.",
+        "DELETE /workspaces/:id_workspace":             "Remove workspace da organização autenticada. Resposta: 204."
+      }
+    },
     "admin-security": {
       "baseUrl": "http://localhost:8005",
       "note": "Painel de segurança do configurador — dois routers (admin gravity_admin + interno S2S).",

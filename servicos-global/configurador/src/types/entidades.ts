@@ -106,7 +106,7 @@ export interface Organizacao {
   status_organizacao: string
   data_criacao_organizacao: string
   _count?: {
-    users: number
-    companies: number
+    usuarios: number
+    workspaces: number
   }
 }

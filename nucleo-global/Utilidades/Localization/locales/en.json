@@ -1459,7 +1459,7 @@
       "opt_client_credentials": "Client Credentials",
       "opt_authorization_code": "Authorization Code"
     },
-    "organization": {
+    "organizacao": {
       "titulo": "Organization",
       "campo_nome": "Company Name",
       "campo_cnpj": "Tax ID",
@@ -1467,6 +1467,7 @@
       "campo_cidade": "City",
       "campo_segmento": "Segment",
       "campo_tipo_empresa": "Company Type",
+      "campo_site": "Website",
       "aguardando_estado": "Awaiting state",
       "msg_sucesso": "Organization saved successfully!",
       "msg_erro": "Error saving organization.",
@@ -1474,9 +1475,9 @@
       "subtitulo_carregando": "Loading data...",
       "badge_organizacao": "Organization",
       "secao_dados_basicos": "Basic Data",
-      "acesso_padrao": "Default Access",
-      "acesso_padrao_desc": "Set which environment will be loaded automatically when you access the platform.",
-      "acesso_padrao_label": "Workspace"
+      "workspace_preferido": "Preferred Workspace",
+      "workspace_preferido_desc": "Set which environment will be loaded automatically when you access the platform.",
+      "workspace_preferido_label": "Workspace"
     },
     "users": {
       "titulo": "Users",

@@ -96,14 +96,14 @@ function jsonResponse(body: unknown, status = 201): Response {
 
 // ─── Suite ──────────────────────────────────────────────────────────────────
 
-describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
-  let tenantService: typeof import('../services/organizacaoService.js')['organizacaoService']
+describe('organizacaoService.createOrganizacao — saga Cadastros-primeiro', () => {
+  let organizacaoService: typeof import('../services/organizacaoService.js')['organizacaoService']
 
   beforeEach(async () => {
     vi.clearAllMocks()
     // Import dinâmico APÓS os mocks — garante que o módulo receba os stubs.
     const mod = await import('../services/organizacaoService.js')
-    tenantService = mod.organizacaoService
+    organizacaoService = mod.organizacaoService
 
     // Pré-checks default: sem conflito de slug nem de clerk_user_id.
     prismaMock.organizacao.findUnique.mockResolvedValue(null)
@@ -133,7 +133,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
       return cb(prismaMock)
     })
 
-    const tenant = await tenantService.createTenant({ ...INPUT_BASE })
+    const tenant = await organizacaoService.createOrganizacao({ ...INPUT_BASE })
 
     // Fetch chamado apenas uma vez (cria empresa — SEM compensação)
     expect(fetchMock).toHaveBeenCalledTimes(1)
@@ -160,7 +160,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
       new Response('CNPJ duplicado', { status: 409 }),
     )
 
-    await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
+    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
       /Cadastros rejeitou/,
     )
 
@@ -183,7 +183,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     // Transação local falha (ex: conflito de constraint ao criar Usuario)
     prismaMock.$transaction.mockRejectedValueOnce(new Error('deadlock simulado'))
 
-    await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
+    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
       /deadlock simulado/,
     )
 
@@ -211,7 +211,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
 
     prismaMock.$transaction.mockRejectedValueOnce(new Error('erro local fatal'))
 
-    await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
+    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
       /erro local fatal/,
     )
 
@@ -233,7 +233,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
   it('rejeita cedo quando slug já existe (nenhuma chamada a Cadastros)', async () => {
     prismaMock.organizacao.findUnique.mockResolvedValueOnce({ id: 'existente', subdominio_organizacao: INPUT_BASE.subdominio_organizacao })
 
-    await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
+    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
       /slug já está em uso/,
     )
 
@@ -241,11 +241,11 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     expect(prismaMock.$transaction).not.toHaveBeenCalled()
   })
 
-  it('rejeita cedo quando clerk_user_id já tem tenant (nenhuma chamada a Cadastros)', async () => {
+  it('rejeita cedo quando clerk_user_id já tem organização (nenhuma chamada a Cadastros)', async () => {
     prismaMock.usuario.findFirst.mockResolvedValueOnce({ id: 'user-x' })
 
-    await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
-      /já possui um tenant/,
+    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
+      /já possui uma organização/,
     )
 
     expect(fetchMock).not.toHaveBeenCalled()

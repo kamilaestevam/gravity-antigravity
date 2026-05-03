@@ -1,12 +1,12 @@
 // server/routes/hubInit.ts
 // Endpoint agregado para a tela Hub (SelecionarWorkspace)
-// GET /api/v1/hub/init — retorna companies + tenant + produtos + catálogo em 1 chamada
+// GET /api/v1/hub/init — retorna workspaces + organizacao + produtos + catálogo em 1 chamada
 // GET /api/v1/hub/insights — retorna insights cross-produto da GABI para o carrossel do Hub
 // Elimina 4 round-trips (cada um com verifyToken + DB lookup) → 1 único
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { organizacaoService as tenantService } from '../services/organizacaoService.js'
+import { organizacaoService } from '../services/organizacaoService.js'
 import { prisma } from '../lib/prisma.js'
 import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsService.js'
 
@@ -55,9 +55,9 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const role = req.auth.tipo_usuario
 
     // Tudo em paralelo — 1 único requireAuth
-    const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
-      tenantService.getTenantById(id_organizacao),
-      tenantService.getCompanies(id_organizacao),
+    const [organizacao, workspaces, configs, mergedCatalog, userPref] = await Promise.all([
+      organizacaoService.getOrganizacaoById(id_organizacao),
+      organizacaoService.getWorkspaces(id_organizacao),
       prisma.produtoGravityConfiguracao.findMany({
         where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
         orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },
@@ -99,17 +99,18 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       catalog: catalogMap.get(c.chave_produto_configuracao_produto_gravity) ?? null,
     }))
 
-    // Workspace preferido — valida que ainda aponta para company ATIVA
+    // Workspace preferido — valida que ainda aponta para workspace ATIVO
     // onde o usuário tem membership ativa. Se inválido, retorna null
     // (frontend mostra tela de seleção normalmente).
-    let preferredCompanyId: string | null = null
+    let idWorkspacePreferido: string | null = null
     if (userPref?.id_workspace_preferido_usuario) {
-      const stillValid = companies.some(
-        (c: { id: string; status?: string }) =>
-          c.id === userPref.id_workspace_preferido_usuario && c.status !== 'INATIVO',
+      const stillValid = workspaces.some(
+        (w) =>
+          w.id_workspace === userPref.id_workspace_preferido_usuario &&
+          w.status_workspace !== 'INATIVO',
       )
       if (stillValid) {
-        preferredCompanyId = userPref.id_workspace_preferido_usuario
+        idWorkspacePreferido = userPref.id_workspace_preferido_usuario
       } else {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
         prisma.usuario
@@ -123,29 +124,12 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       }
     }
 
-    // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
-    const tenantDto = tenant
-      ? (() => {
-          const { id_organizacao, _count, subscriptions_organizacao, ...rest } = tenant
-          return {
-            id: id_organizacao,
-            ...rest,
-            _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-            // DTO: AssinaturaProdutoGravity rename → contrato externo legado
-            subscriptions: subscriptions_organizacao.map((s) => ({
-              status: s.status_assinatura_produto_gravity,
-              trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
-            })),
-          }
-        })()
-      : null
-
     res.json({
-      tenant: tenantDto,
-      companies,
+      organizacao,
+      workspaces,
       products,
       catalog: mergedCatalog,
-      preferredCompanyId,
+      idWorkspacePreferido,
     })
   } catch (err) {
     next(err)

@@ -1,9 +1,14 @@
 // server/routes/organizacoes.ts
-// Gestão de organizações e workspaces
-// POST /api/v1/organizacoes              — criar organização (onboarding)
-// GET  /api/v1/organizacoes/me           — dados da organização atual
-// GET  /api/v1/organizacoes/me/workspaces — listar workspaces
-// POST /api/v1/organizacoes/me/workspaces — criar workspace
+// Gestão de organizações.
+// POST   /api/v1/organizacoes        — criar organização (onboarding, público)
+// GET    /api/v1/organizacoes/me     — dados da organização atual
+// PATCH  /api/v1/organizacoes/me     — atualizar organização
+//
+// Workspaces foram relocados para meRouter (/api/v1/me/workspaces) em 2026-05-03 —
+// pertencem semanticamente ao "self do usuário autenticado".
+//
+// Contrato em DDD puro (PT-BR): respostas usam chave raiz `organizacao` e campos
+// espelham o schema Prisma (`id_organizacao`, etc.).
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -19,7 +24,7 @@ export const organizacoesRouter = Router()
 const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
 const isoPaisRegex = /^[A-Z]{2}$/
 
-export const CreateTenantSchema = z
+export const CreateOrganizacaoSchema = z
   .object({
     nome_organizacao: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
     subdominio_organizacao: z
@@ -57,7 +62,7 @@ export const CreateTenantSchema = z
     }
   })
 
-const UpdateTenantSchema = z.object({
+const UpdateOrganizacaoSchema = z.object({
   nome_organizacao: z.string().min(2).optional(),
   cnpj_organizacao: z.string().optional(),
   estado_organizacao: z.string().optional(),
@@ -66,29 +71,16 @@ const UpdateTenantSchema = z.object({
   tipo_organizacao: z.string().optional(),
 })
 
-const CreateCompanySchema = z.object({
-  name: z.string().min(2),
-  subdomain: z.string().optional(),
-  cnpj: z.string().optional(),
-})
-
-const UpdateCompanySchema = z.object({
-  name: z.string().min(2).optional(),
-  subdomain: z.string().optional(),
-  cnpj: z.string().optional(),
-  status: z.enum(['ATIVO', 'INATIVO']).optional(),
-})
-
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
  * POST /api/v1/organizacoes
- * Cria uma nova organização + usuário owner durante o onboarding
- * Público — chamado logo após o checkout do provider de billing
+ * Cria uma nova organização + usuário owner durante o onboarding.
+ * Público — chamado logo após o checkout do provider de billing.
  */
 organizacoesRouter.post('/', async (req, res, next) => {
   try {
-    const parsed = CreateTenantSchema.safeParse(req.body)
+    const parsed = CreateOrganizacaoSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
@@ -97,11 +89,11 @@ organizacoesRouter.post('/', async (req, res, next) => {
       )
     }
 
-    const tenant = await organizacaoService.createTenant({
+    const organizacao = await organizacaoService.createOrganizacao({
       ...parsed.data,
       correlationId: req.correlationId,
     })
-    return res.status(201).json({ tenant })
+    return res.status(201).json({ organizacao })
   } catch (err) {
     next(err)
   }
@@ -109,28 +101,15 @@ organizacoesRouter.post('/', async (req, res, next) => {
 
 /**
  * GET /api/v1/organizacoes/me
- * Retorna dados da organização do usuário autenticado
+ * Retorna dados da organização do usuário autenticado.
  */
 organizacoesRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await organizacaoService.getTenantById(req.auth.id_organizacao)
-    if (!tenant) {
-      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
+    const organizacao = await organizacaoService.getOrganizacaoById(req.auth.id_organizacao)
+    if (!organizacao) {
+      throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
     }
-    // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
-    const { id_organizacao, _count, subscriptions_organizacao, ...rest } = tenant
-    res.json({
-      tenant: {
-        id: id_organizacao,
-        ...rest,
-        _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-        // DTO: AssinaturaProdutoGravity rename → contrato externo legado
-        subscriptions: subscriptions_organizacao.map((s) => ({
-          status: s.status_assinatura_produto_gravity,
-          trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
-        })),
-      },
-    })
+    res.json({ organizacao })
   } catch (err) {
     next(err)
   }
@@ -138,11 +117,11 @@ organizacoesRouter.get('/me', requireAuth, async (req, res, next) => {
 
 /**
  * PATCH /api/v1/organizacoes/me
- * Atualiza dados cadastrais da organização autenticada
+ * Atualiza dados cadastrais da organização autenticada.
  */
 organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
   try {
-    const parsed = UpdateTenantSchema.safeParse(req.body)
+    const parsed = UpdateOrganizacaoSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
@@ -150,8 +129,8 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
-    const before = await organizacaoService.getTenantById(req.auth.id_organizacao)
-    const tenant = await organizacaoService.updateTenant(req.auth.id_organizacao, parsed.data)
+    const before = await organizacaoService.getOrganizacaoById(req.auth.id_organizacao)
+    const organizacao = await organizacaoService.updateOrganizacao(req.auth.id_organizacao, parsed.data)
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -164,129 +143,12 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
       acao_historico_log: 'UPDATE',
       detalhe_acao_historico_log: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
       estado_anterior_historico_log: before ?? undefined,
-      estado_posterior_historico_log: tenant,
+      estado_posterior_historico_log: organizacao,
     }).catch(() => {})
 
-    // DTO: id_organizacao → id legado do contrato
-    const { id_organizacao, ...tenantRest } = tenant
-    res.json({ tenant: { id: id_organizacao, ...tenantRest } })
+    res.json({ organizacao })
   } catch (err) {
     next(err)
   }
 })
 
-/**
- * GET /api/v1/organizacoes/me/workspaces
- * Lista workspaces da organização autenticada
- */
-organizacoesRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
-  try {
-    const companies = await organizacaoService.getCompanies(req.auth.id_organizacao)
-    res.json({ companies })
-  } catch (err) {
-    next(err)
-  }
-})
-
-/**
- * POST /api/v1/organizacoes/me/workspaces
- * Cria um workspace na organização autenticada
- */
-organizacoesRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
-  try {
-    const parsed = CreateCompanySchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(
-        parsed.error.errors[0]?.message ?? 'Dados inválidos',
-        400,
-        'VALIDATION_ERROR'
-      )
-    }
-    const company = await organizacaoService.createCompany(
-      req.auth.id_organizacao,
-      parsed.data
-    )
-
-    AuditService.log({
-      id_organizacao: req.auth.id_organizacao,
-      tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.id_usuario,
-      modulo_historico_log: 'configuracao',
-      tipo_recurso_historico_log: 'Empresa Filha',
-      id_recurso_historico_log: company.id,
-      acao_historico_log: 'CREATE',
-      detalhe_acao_historico_log: `Criou empresa filha "${company.name}"`,
-      estado_posterior_historico_log: company,
-    }).catch(() => {})
-
-    res.status(201).json({ company })
-  } catch (err) {
-    next(err)
-  }
-})
-
-/**
- * PATCH /api/v1/organizacoes/me/workspaces/:id_workspace
- * Atualiza um workspace (nome, subdomain, cnpj, status)
- */
-organizacoesRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
-  try {
-    const parsed = UpdateCompanySchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(
-        parsed.error.errors[0]?.message ?? 'Dados inválidos',
-        400,
-        'VALIDATION_ERROR'
-      )
-    }
-    const company = await organizacaoService.updateCompany(
-      req.auth.id_organizacao,
-      req.params.id_workspace,
-      parsed.data
-    )
-
-    AuditService.log({
-      id_organizacao: req.auth.id_organizacao,
-      tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.id_usuario,
-      modulo_historico_log: 'configuracao',
-      tipo_recurso_historico_log: 'Empresa Filha',
-      id_recurso_historico_log: req.params.id_workspace,
-      acao_historico_log: 'UPDATE',
-      detalhe_acao_historico_log: `Atualizou empresa filha: ${Object.keys(parsed.data).join(', ')}`,
-      estado_posterior_historico_log: company,
-    }).catch(() => {})
-
-    res.json({ company })
-  } catch (err) {
-    next(err)
-  }
-})
-
-/**
- * DELETE /api/v1/organizacoes/me/workspaces/:id_workspace
- * Remove um workspace da organização autenticada
- */
-organizacoesRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
-  try {
-    await organizacaoService.deleteCompany(req.auth.id_organizacao, req.params.id_workspace)
-
-    AuditService.log({
-      id_organizacao: req.auth.id_organizacao,
-      tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.id_usuario,
-      modulo_historico_log: 'configuracao',
-      tipo_recurso_historico_log: 'Empresa Filha',
-      id_recurso_historico_log: req.params.id_workspace,
-      acao_historico_log: 'DELETE',
-      detalhe_acao_historico_log: `Removeu empresa filha ${req.params.id_workspace}`,
-    }).catch(() => {})
-
-    res.status(204).end()
-  } catch (err) {
-    next(err)
-  }
-})

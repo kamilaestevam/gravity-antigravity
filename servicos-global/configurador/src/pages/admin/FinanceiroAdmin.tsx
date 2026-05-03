@@ -20,11 +20,11 @@ import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import {
   adminBillingApi,
-  adminTenantsApi,
+  adminOrganizacoesApi,
   setAuthTokenProvider,
   type GravityInvoiceApi,
   type GravityInvoiceStatus,
-  type TenantApi,
+  type OrganizacaoApi,
 } from '../../services/apiClient'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { extractCatchError } from '../../utils/extractApiError'
@@ -97,7 +97,7 @@ export function FinanceiroAdmin() {
   const { logEvent } = useHistoricoLogger()
 
   const [invoices, setInvoices] = useState<GravityInvoiceApi[]>([])
-  const [tenants, setTenants] = useState<TenantApi[]>([])
+  const [organizacoes, setOrganizacoes] = useState<OrganizacaoApi[]>([])
   const [carregando, setCarregando] = useState(true)
   const [provider, setProvider] = useState<string>('—')
 
@@ -111,15 +111,15 @@ export function FinanceiroAdmin() {
     setAuthTokenProvider(() => getToken())
     setCarregando(true)
     try {
-      const [invResp, tenantResp] = await Promise.all([
+      const [invResp, organizacoesResp] = await Promise.all([
         adminBillingApi.listInvoices({ cursor, limit: LIMIT }),
-        adminTenantsApi.list({ limit: 200 }),
+        adminOrganizacoesApi.list({ limit: 200 }),
       ])
       setInvoices(invResp.invoices)
       setProvider(invResp.provider)
       setNextCursor(invResp.pagination.next_cursor)
       setHasMore(invResp.pagination.has_more)
-      setTenants(tenantResp.organizacoes)
+      setOrganizacoes(organizacoesResp.organizacoes)
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, t('admin.financeiro-admin.msg_erro_carregar')) })
     } finally {
@@ -632,13 +632,13 @@ export function FinanceiroAdmin() {
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <SecaoFormulario titulo="Cliente" icone={<Buildings size={16} />} />
 
-                  <CampoGeralGlobal label="Tenant (Cliente)" obrigatorio>
+                  <CampoGeralGlobal label="Organização (Cliente)" obrigatorio>
                     <SelectGlobal
-                      opcoes={tenants.map(tn => ({ valor: tn.id_organizacao, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
+                      opcoes={organizacoes.map(o => ({ valor: o.id_organizacao, rotulo: `${o.nome_organizacao} (${o.subdominio_organizacao})` }))}
                       valor={formTenantId}
                       aoMudarValor={v => { setFormTenantId(v ? String(v) : null); setFormDirty(true) }}
                       iconeEsquerda={<Buildings size={16} />}
-                      placeholder="Selecionar tenant..."
+                      placeholder="Selecionar organização..."
                       buscavel
                     />
                   </CampoGeralGlobal>

@@ -1,5 +1,6 @@
 // server/services/organizacaoService.ts
 // Lógica de negócio para criação e gestão de organizações e workspaces
+// Contrato de retorno em DDD puro (PT-BR) — sem mapeamento para chaves legadas em inglês.
 
 import { createId } from '@paralleldrive/cuid2'
 import { prisma } from '../lib/prisma.js'
@@ -9,7 +10,7 @@ import { criarEmpresa, compensarEmpresa } from './cadastrosClient.js'
 
 const log = logger.child({ module: 'organizacao-service' })
 
-interface CreateTenantInput {
+interface CreateOrganizacaoInput {
   nome_organizacao: string
   subdominio_organizacao: string
   clerkUserId: string
@@ -19,35 +20,35 @@ interface CreateTenantInput {
   correlationId: string
 }
 
-interface CreateCompanyInput {
-  name: string
-  subdomain?: string
-  cnpj?: string
+interface CreateWorkspaceInput {
+  nome_workspace: string
+  subdominio_workspace?: string
+  cnpj_workspace?: string
+}
+
+interface UpdateWorkspaceInput {
+  nome_workspace?: string
+  subdominio_workspace?: string
+  cnpj_workspace?: string
+  status_workspace?: 'ATIVO' | 'INATIVO'
 }
 
 export const organizacaoService = {
   /**
-   * Cria um novo tenant + usuário owner via saga Cadastros-primeiro.
+   * Cria uma nova organização + usuário owner via saga Cadastros-primeiro.
    * Chamado no onboarding após checkout do provider de billing.
    *
    * Fluxo (saga com compensação):
    *   1. Pré-checks de unicidade (slug, clerk_user_id) — fail fast antes de tocar rede.
-   *   2. Gera Organizacao.id com cuid2 — precisamos do id ANTES de chamar Cadastros
-   *      (Empresa.id_organizacao é REQUIRED no banco de Cadastros).
+   *   2. Gera Organizacao.id_organizacao com cuid2 — precisamos do id ANTES de chamar
+   *      Cadastros (Empresa.id_organizacao é REQUIRED no banco de Cadastros).
    *   3. POST /empresas em Cadastros → recebe SUID.
-   *   4. Abre transação local ($transaction) e cria Organizacao (com id pré-gerado
-   *      e suid_empresa preenchido) + Usuario + Assinatura + Empresa-local.
-   *   5. Se transação local falhar: chama compensarEmpresa(suid) para hard-delete
-   *      a Empresa órfã em Cadastros. Falha dupla → log estruturado de dead-letter.
-   *
-   * Cadastros recebe:
-   *   - nome_empresa = name do tenant
-   *   - cnpj = input.cnpj (somente se pais=BR, validado antes via Zod)
-   *   - pais = input.pais (default 'BR', já aplicado pelo Zod)
-   *   - pode_ser_importador = true (default pragmático — usuário configura depois)
-   *   - demais flags = false
+   *   4. Abre transação local ($transaction) e cria Organizacao (com id pré-gerado e
+   *      suid_empresa preenchido) + Usuario + Assinatura + Workspace inicial.
+   *   5. Se transação local falhar: chama compensarEmpresa(suid) para hard-delete a
+   *      Empresa órfã em Cadastros. Falha dupla → log estruturado de dead-letter.
    */
-  async createTenant(input: CreateTenantInput) {
+  async createOrganizacao(input: CreateOrganizacaoInput) {
     const {
       nome_organizacao,
       subdominio_organizacao,
@@ -67,19 +68,19 @@ export const organizacaoService = {
       where: { id_clerk_usuario: clerkUserId },
     })
     if (existingUser) {
-      throw new AppError('Usuário já possui um tenant', 409, 'CONFLICT')
+      throw new AppError('Usuário já possui uma organização', 409, 'CONFLICT')
     }
 
-    // 2. Gera id da Organizacao para poder registrar id_organizacao em Cadastros
-    const newOrgId = createId()
+    // 2. Gera id_organizacao para poder registrar id_organizacao em Cadastros
+    const novoIdOrganizacao = createId()
     const cadastrosCtx = {
-      id_organizacao: newOrgId,
+      id_organizacao: novoIdOrganizacao,
       correlation_id: correlationId,
     }
 
     log.info('saga.onboarding.start', {
       correlation_id: correlationId,
-      id_organizacao: newOrgId,
+      id_organizacao: novoIdOrganizacao,
       subdominio_organizacao,
       pais,
     })
@@ -87,7 +88,7 @@ export const organizacaoService = {
     // 3. Chamada inter-serviço (FORA do $transaction — não segurar conexão durante HTTP)
     const empresaCadastros = await criarEmpresa(
       {
-        id_organizacao: newOrgId,
+        id_organizacao: novoIdOrganizacao,
         nome_empresa: nome_organizacao,
         cnpj_empresa: pais === 'BR' ? cnpj_organizacao ?? null : null,
         pais_empresa: pais,
@@ -105,10 +106,10 @@ export const organizacaoService = {
 
     // 4. Transação local — se falhar, compensamos a Empresa em Cadastros
     try {
-      const tenant = await prisma.$transaction(async (tx) => {
-        const newTenant = await tx.organizacao.create({
+      const organizacao = await prisma.$transaction(async (tx) => {
+        const novaOrganizacao = await tx.organizacao.create({
           data: {
-            id_organizacao: newOrgId,
+            id_organizacao: novoIdOrganizacao,
             nome_organizacao,
             subdominio_organizacao,
             status_organizacao: 'CONFIGURACAO_PENDENTE',
@@ -119,7 +120,7 @@ export const organizacaoService = {
 
         await tx.usuario.create({
           data: {
-            id_organizacao: newTenant.id_organizacao,
+            id_organizacao: novaOrganizacao.id_organizacao,
             id_clerk_usuario: clerkUserId,
             email_usuario: owner.email,
             nome_usuario:  owner.name,
@@ -130,35 +131,35 @@ export const organizacaoService = {
         const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
         await tx.produtoGravityAssinatura.create({
           data: {
-            id_organizacao: newTenant.id_organizacao,
+            id_organizacao: novaOrganizacao.id_organizacao,
             status_assinatura_produto_gravity: 'EM_TESTE',
             data_fim_teste_assinatura_produto_gravity: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
         })
 
-        // Empresa-local (child workspace legado do Configurador — distinto da Empresa SUID em Cadastros).
+        // Workspace inicial — distinto da Empresa SUID em Cadastros.
         await tx.workspace.create({
           data: {
-            id_organizacao: newTenant.id_organizacao,
+            id_organizacao: novaOrganizacao.id_organizacao,
             nome_workspace: nome_organizacao,
             status_workspace: 'ATIVO',
           },
         })
 
-        return newTenant
+        return novaOrganizacao
       })
 
       log.info('saga.onboarding.success', {
         correlation_id: correlationId,
-        id_organizacao: newOrgId,
+        id_organizacao: novoIdOrganizacao,
         suid_empresa_organizacao: suid,
       })
-      return tenant
+      return organizacao
     } catch (err) {
       const causa = err instanceof Error ? err.message : String(err)
       log.error('saga.onboarding.rollback', {
         correlation_id: correlationId,
-        id_organizacao: newOrgId,
+        id_organizacao: novoIdOrganizacao,
         suid_empresa_organizacao: suid,
         causa,
       })
@@ -169,11 +170,14 @@ export const organizacaoService = {
   },
 
   /**
-   * Busca tenant por ID
+   * Busca organização por id. Inclui assinatura mais recente e contagens.
+   * Retorno em DDD puro: relations Prisma `*_organizacao` mapeadas para nomes PT-BR
+   * no DTO consumido pelas rotas (chaves: `assinaturas`, `_count.usuarios`,
+   * `_count.workspaces`).
    */
-  async getTenantById(id_organizacao: string) {
-    return prisma.organizacao.findUnique({
-      where: { id_organizacao: id_organizacao },
+  async getOrganizacaoById(id_organizacao: string) {
+    const organizacao = await prisma.organizacao.findUnique({
+      where: { id_organizacao },
       include: {
         subscriptions_organizacao: {
           orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
@@ -186,12 +190,23 @@ export const organizacaoService = {
         _count: { select: { users_organizacao: true, companies_organizacao: true } },
       },
     })
+    if (!organizacao) return null
+    // Renomeia relations Prisma (em inglês — schema intocável, Mand. 02) para DDD PT-BR
+    const { subscriptions_organizacao, _count, ...rest } = organizacao
+    return {
+      ...rest,
+      assinaturas: subscriptions_organizacao,
+      _count: {
+        usuarios: _count.users_organizacao,
+        workspaces: _count.companies_organizacao,
+      },
+    }
   },
 
   /**
-   * Atualiza dados cadastrais do tenant
+   * Atualiza dados cadastrais da organização.
    */
-  async updateTenant(id_organizacao: string, data: {
+  async updateOrganizacao(id_organizacao: string, data: {
     nome_organizacao?: string
     cnpj_organizacao?: string
     estado_organizacao?: string
@@ -200,17 +215,20 @@ export const organizacaoService = {
     tipo_organizacao?: string
   }) {
     return prisma.organizacao.update({
-      where: { id_organizacao: id_organizacao },
+      where: { id_organizacao },
       data,
     })
   },
 
   /**
-   * Lista empresas filhas do tenant
+   * Lista workspaces da organização. Retorno em DDD puro.
+   * Renomeia a relation Prisma `memberships` (schema-locked, Mand. 02) para
+   * `vinculos_workspace` no DTO e expõe `quantidade_usuarios_workspace`
+   * derivado para uso direto na UI.
    */
-  async getCompanies(id_organizacao: string) {
-    const empresas = await prisma.workspace.findMany({
-      where: { id_organizacao: id_organizacao },
+  async getWorkspaces(id_organizacao: string) {
+    const workspaces = await prisma.workspace.findMany({
+      where: { id_organizacao },
       select: {
         id_workspace: true,
         nome_workspace: true,
@@ -222,93 +240,84 @@ export const organizacaoService = {
       },
       orderBy: { data_criacao_workspace: 'desc' },
     })
-    // DTO: nomes Prisma `*_workspace` → chaves legadas do contrato (`id`, `name`, etc.)
-    return empresas.map(({ id_workspace, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, ...e }) => ({
-      ...e,
-      id: id_workspace,
-      name: nome_workspace,
-      subdomain: subdominio_workspace,
-      cnpj: cnpj_workspace,
-      status: status_workspace,
-      created_at: data_criacao_workspace,
+    return workspaces.map(({ _count, ...rest }) => ({
+      ...rest,
+      quantidade_usuarios_workspace: _count.memberships,
+      _count: { vinculos_workspace: _count.memberships },
     }))
   },
 
   /**
-   * Cria empresa filha no tenant
+   * Cria workspace na organização.
    */
-  async createCompany(id_organizacao: string, data: CreateCompanyInput) {
-    const created = await prisma.workspace.create({
+  async createWorkspace(id_organizacao: string, data: CreateWorkspaceInput) {
+    const workspace = await prisma.workspace.create({
       data: {
-        id_organizacao: id_organizacao,
-        nome_workspace: data.name,
-        subdominio_workspace: data.subdomain,
-        cnpj_workspace: data.cnpj,
+        id_organizacao,
+        nome_workspace: data.nome_workspace,
+        subdominio_workspace: data.subdominio_workspace,
+        cnpj_workspace: data.cnpj_workspace,
         status_workspace: 'ATIVO',
       },
-    })
-    // DTO: mapeia `*_workspace` → contrato legado
-    const { id_workspace, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, id_organizacao: tenantIdCreated, ...c } = created
-    return {
-      ...c,
-      id: id_workspace,
-      name: nome_workspace,
-      subdomain: subdominio_workspace,
-      cnpj: cnpj_workspace,
-      status: status_workspace,
-      created_at: data_criacao_workspace,
-      tenant_id: tenantIdCreated,
-    }
-  },
-
-  /**
-   * Atualiza empresa filha (verifica que pertence ao tenant)
-   */
-  async updateCompany(id_organizacao: string, id_workspace: string, data: {
-    name?: string
-    subdomain?: string
-    cnpj?: string
-    status?: 'ATIVO' | 'INATIVO'
-  }) {
-    const company = await prisma.workspace.findFirst({
-      where: { id_workspace: id_workspace, id_organizacao: id_organizacao },
-    })
-    if (!company) {
-      throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
-    }
-    // Mapeia chaves do contrato externo (name/subdomain/cnpj/status) → Prisma (`*_workspace`)
-    const updated = await prisma.workspace.update({
-      where: { id_workspace: id_workspace },
-      data: {
-        ...(data.name !== undefined && { nome_workspace: data.name }),
-        ...(data.subdomain !== undefined && { subdominio_workspace: data.subdomain }),
-        ...(data.cnpj !== undefined && { cnpj_workspace: data.cnpj }),
-        ...(data.status !== undefined && { status_workspace: data.status }),
+      select: {
+        id_workspace: true,
+        id_organizacao: true,
+        nome_workspace: true,
+        subdominio_workspace: true,
+        cnpj_workspace: true,
+        status_workspace: true,
+        data_criacao_workspace: true,
       },
     })
-    const { id_workspace: id_ws_updated, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, id_organizacao: tenantIdUpdated, ...c } = updated
     return {
-      ...c,
-      id: id_ws_updated,
-      name: nome_workspace,
-      subdomain: subdominio_workspace,
-      cnpj: cnpj_workspace,
-      status: status_workspace,
-      created_at: data_criacao_workspace,
-      tenant_id: tenantIdUpdated,
+      ...workspace,
+      quantidade_usuarios_workspace: 0,
+      _count: { vinculos_workspace: 0 },
     }
   },
 
   /**
-   * Deleta empresa filha (verifica que pertence ao tenant)
+   * Atualiza workspace (verifica que pertence à organização).
    */
-  async deleteCompany(id_organizacao: string, id_workspace: string) {
-    const company = await prisma.workspace.findFirst({
-      where: { id_workspace: id_workspace, id_organizacao: id_organizacao },
+  async updateWorkspace(id_organizacao: string, id_workspace: string, data: UpdateWorkspaceInput) {
+    const workspace = await prisma.workspace.findFirst({
+      where: { id_workspace, id_organizacao },
     })
-    if (!company) {
-      throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
+    if (!workspace) {
+      throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
     }
-    await prisma.workspace.delete({ where: { id_workspace: id_workspace } })
+    const updated = await prisma.workspace.update({
+      where: { id_workspace },
+      data,
+      select: {
+        id_workspace: true,
+        id_organizacao: true,
+        nome_workspace: true,
+        subdominio_workspace: true,
+        cnpj_workspace: true,
+        status_workspace: true,
+        data_criacao_workspace: true,
+        _count: { select: { memberships: true } },
+      },
+    })
+    const { _count, ...rest } = updated
+    return {
+      ...rest,
+      quantidade_usuarios_workspace: _count.memberships,
+      _count: { vinculos_workspace: _count.memberships },
+    }
+  },
+
+  /**
+   * Deleta workspace (verifica que pertence à organização).
+   */
+  async deleteWorkspace(id_organizacao: string, id_workspace: string) {
+    const workspace = await prisma.workspace.findFirst({
+      where: { id_workspace, id_organizacao },
+    })
+    if (!workspace) {
+      throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
+    }
+    await prisma.workspace.delete({ where: { id_workspace } })
   },
 }

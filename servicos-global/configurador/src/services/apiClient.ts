@@ -2,6 +2,8 @@
 // Cliente HTTP centralizado para o frontend do Configurador.
 // Substitui o catalogService (localStorage) por chamadas reais ao backend.
 
+import { z } from 'zod'
+
 const BASE_URL = '/api'
 
 // ─── Auth token provider (Clerk JWT) ──────────────────────────────────────
@@ -141,14 +143,17 @@ export interface NegotiationApi {
   ilimitado_negociacao_especial_preco_produto_gravity: boolean
 }
 
-// PARIDADE ABSOLUTA: espelha model Organizacao + back-relations renomeadas.
+// PARIDADE ABSOLUTA: espelha model Workspace + back-relations renomeadas.
 // Backend retorna estes nomes diretamente (sem tradução).
 export interface WorkspaceApi {
   id_workspace: string
   nome_workspace: string
   subdominio_workspace: string | null
+  cnpj_workspace?: string | null
   status_workspace: string
-  _count?: { memberships: number }
+  data_criacao_workspace?: string
+  quantidade_usuarios_workspace?: number
+  _count?: { vinculos_workspace: number }
 }
 
 export interface UsuarioOrgApi {
@@ -170,18 +175,138 @@ export interface OrganizacaoApi {
   nome_organizacao: string
   subdominio_organizacao: string
   status_organizacao: string
+  cnpj_organizacao?: string | null
+  estado_organizacao?: string | null
+  cidade_organizacao?: string | null
+  segmento_organizacao?: string | null
+  tipo_organizacao?: string | null
   data_criacao_organizacao: string
-  _count?: { users_organizacao: number; workspaces_organizacao: number }
+  _count?: { usuarios: number; workspaces: number }
   usuarios?: UsuarioOrgApi[]
   workspaces?: WorkspaceApi[]
+  assinaturas?: Array<{
+    status_assinatura_produto_gravity: string
+    data_fim_teste_assinatura_produto_gravity: string | null
+  }>
   configuracoes_produto?: ConfiguracaoProdutoOrgApi[]
 }
 
-/**
- * @deprecated Use OrganizacaoApi. Mantido temporariamente como alias para
- * arquivos legados (FinanceiroAdmin, etc.) ainda não migrados.
- */
-export type TenantApi = OrganizacaoApi
+// ─── Zod schemas bilaterais (Mand. 06 e 09) ─────────────────────────────────
+// Espelham as respostas das rotas /api/v1/organizacoes/me e /api/v1/me/workspaces.
+// Atualizar SEMPRE no mesmo commit em que o backend mudar o payload.
+
+export const meResponseSchema = z.object({
+  organizacao: z.object({
+    id_organizacao: z.string(),
+    nome_organizacao: z.string(),
+    subdominio_organizacao: z.string(),
+    status_organizacao: z.string(),
+    cnpj_organizacao: z.string().nullable().optional(),
+    estado_organizacao: z.string().nullable().optional(),
+    cidade_organizacao: z.string().nullable().optional(),
+    segmento_organizacao: z.string().nullable().optional(),
+    tipo_organizacao: z.string().nullable().optional(),
+    data_criacao_organizacao: z.union([z.string(), z.date()]),
+    _count: z.object({
+      usuarios: z.number(),
+      workspaces: z.number(),
+    }).optional(),
+    assinaturas: z.array(z.object({
+      status_assinatura_produto_gravity: z.string(),
+      data_fim_teste_assinatura_produto_gravity: z.union([z.string(), z.date()]).nullable(),
+    })).optional(),
+  }),
+})
+
+export type MeResponse = z.infer<typeof meResponseSchema>
+
+export const workspaceItemSchema = z.object({
+  id_workspace: z.string(),
+  nome_workspace: z.string(),
+  subdominio_workspace: z.string().nullable().optional(),
+  cnpj_workspace: z.string().nullable().optional(),
+  status_workspace: z.string(),
+  data_criacao_workspace: z.union([z.string(), z.date()]),
+  quantidade_usuarios_workspace: z.number().optional(),
+  _count: z.object({ vinculos_workspace: z.number() }).optional(),
+})
+
+export type WorkspaceItem = z.infer<typeof workspaceItemSchema>
+
+export const workspacesResponseSchema = z.object({
+  workspaces: z.array(workspaceItemSchema),
+})
+
+export type WorkspacesResponse = z.infer<typeof workspacesResponseSchema>
+
+export const workspaceSingleResponseSchema = z.object({
+  workspace: workspaceItemSchema,
+})
+
+export type WorkspaceSingleResponse = z.infer<typeof workspaceSingleResponseSchema>
+
+// ─── Schemas de Usuários da Organização ─────────────────────────────────────
+// Espelham as respostas das rotas /api/v1/usuarios* (ver server/routes/users.ts).
+// Atualizar SEMPRE no mesmo commit em que o backend mudar o payload (Mand. 09).
+
+const tipoUsuarioWorkspaceEnum = z.enum(['MASTER', 'PADRAO', 'FORNECEDOR'])
+const tipoUsuarioEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR'])
+
+export const usuarioWorkspaceItemSchema = z.object({
+  id_usuario_workspace: z.string(),
+  id_workspace: z.string(),
+  tipo_usuario_workspace: tipoUsuarioWorkspaceEnum,
+  ativo_usuario_workspace: z.boolean(),
+})
+export type UsuarioWorkspaceItem = z.infer<typeof usuarioWorkspaceItemSchema>
+
+export const usuarioListItemSchema = z.object({
+  id_usuario: z.string(),
+  nome_usuario: z.string(),
+  email_usuario: z.string().email(),
+  tipo_usuario: tipoUsuarioEnum,
+  data_criacao_usuario: z.union([z.string(), z.date()]),
+  usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
+})
+export type UsuarioListItem = z.infer<typeof usuarioListItemSchema>
+
+export const listarUsuariosResponseSchema = z.object({
+  usuarios: z.array(usuarioListItemSchema),
+})
+
+export const convidarUsuarioResponseSchema = z.object({
+  message: z.string(),
+  usuario: z.object({
+    id_usuario: z.string(),
+    email_usuario: z.string().email(),
+    tipo_usuario: tipoUsuarioWorkspaceEnum,
+  }),
+})
+
+export const usuarioWorkspaceResponseSchema = z.object({
+  usuario_workspace: z.object({
+    id_usuario_workspace: z.string(),
+    id_organizacao: z.string(),
+    id_usuario: z.string(),
+    id_workspace: z.string(),
+    tipo_usuario_workspace: tipoUsuarioWorkspaceEnum,
+    ativo_usuario_workspace: z.boolean(),
+    data_criacao_usuario_workspace: z.union([z.string(), z.date()]),
+    data_atualizacao_usuario_workspace: z.union([z.string(), z.date()]),
+  }),
+})
+
+export const alterarTipoUsuarioResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario: z.string(),
+    email_usuario: z.string().email(),
+    tipo_usuario: tipoUsuarioWorkspaceEnum,
+  }),
+})
+
+export const substituirWorkspacesResponseSchema = z.object({
+  workspaces: z.array(z.string()),
+})
 
 export interface PaginationApi {
   page: number
@@ -294,10 +419,10 @@ export const adminOrganizacoesApi = {
     })
   },
 
-  async updateWorkspaceStatus(id_workspace: string, status: 'ATIVO' | 'INATIVO') {
+  async updateWorkspaceStatus(id_workspace: string, status_workspace: 'ATIVO' | 'INATIVO') {
     return request<{ workspace: WorkspaceApi & { id_organizacao: string } }>(
       `/v1/admin/workspaces/${id_workspace}`,
-      { method: 'PATCH', body: JSON.stringify({ status }) }
+      { method: 'PATCH', body: JSON.stringify({ status_workspace }) }
     )
   },
 
@@ -312,12 +437,6 @@ export const adminOrganizacoesApi = {
     }>('/v1/admin/estatisticas-plataforma')
   },
 }
-
-/**
- * @deprecated Use adminOrganizacoesApi. Mantido temporariamente para arquivos
- * ainda não migrados (FinanceiroAdmin etc.).
- */
-export const adminTenantsApi = adminOrganizacoesApi
 
 // ─── Admin: Usuários Globais ────────────────────────────────────────────────
 
@@ -721,7 +840,7 @@ export interface PlatformConfigApi {
   estado_organizacao: string | null
   cidade_organizacao: string | null
   segmento_organizacao: string | null
-  tipo_empresa_organizacao: string | null
+  tipo_organizacao: string | null
   data_criacao_organizacao: string
 }
 
@@ -736,7 +855,7 @@ export const adminPlatformApi = {
     estado_organizacao?: string
     cidade_organizacao?: string
     segmento_organizacao?: string
-    tipo_empresa_organizacao?: string
+    tipo_organizacao?: string
   }) {
     return request<{ config: PlatformConfigApi }>('/v1/admin/visao-geral', {
       method: 'PUT',
@@ -855,62 +974,92 @@ export const publicCatalogApi = {
   },
 }
 
-// ─── Workspace: Tenants & Users ─────────────────────────────────────────────
+// ─── Workspace: Workspaces da organização autenticada ───────────────────────
 
 export const workspaceApi = {
-  async getMyTenant() {
-    return request<{ tenant: TenantApi }>('/v1/organizacoes/me')
+  async getWorkspaces() {
+    const raw = await request<unknown>('/v1/me/workspaces')
+    return workspacesResponseSchema.parse(raw)
   },
 
-  async getCompanies() {
-    return request<{ companies: Array<{ id: string; name: string; subdomain: string | null; cnpj: string | null; status: string }> }>(
-      '/v1/organizacoes/me/workspaces'
-    )
-  },
-
-  async createCompany(data: { name: string; subdomain?: string; cnpj?: string }) {
-    return request<{ company: { id: string; name: string } }>('/v1/organizacoes/me/workspaces', {
+  async createWorkspace(data: { nome_workspace: string; subdominio_workspace?: string; cnpj_workspace?: string }) {
+    const raw = await request<unknown>('/v1/me/workspaces', {
       method: 'POST',
       body: JSON.stringify(data),
     })
+    return workspaceSingleResponseSchema.parse(raw)
   },
 
-  async getUsers() {
-    return request<{ users: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string; memberships: Array<{ company_id: string; tipo_usuario: string; is_active: boolean }> }> }>(
-      '/v1/usuarios'
-    )
-  },
-
-  async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string } }>('/v1/usuarios/convidar', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  },
-
-  async setUserMembership(userId: string, data: { company_id: string; role: string }) {
-    return request<{ membership: { id: string } }>(`/v1/usuarios/${userId}/vinculos`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  },
-
-  async updateUserRole(userId: string, role: string) {
-    return request<{ user: { id: string; tipo_usuario: string } }>(`/v1/usuarios/${userId}/patente`, {
+  async updateWorkspace(
+    id_workspace: string,
+    data: Partial<{
+      nome_workspace: string
+      subdominio_workspace: string
+      cnpj_workspace: string
+      status_workspace: 'ATIVO' | 'INATIVO'
+    }>,
+  ) {
+    const raw = await request<unknown>(`/v1/me/workspaces/${id_workspace}`, {
       method: 'PATCH',
-      body: JSON.stringify({ role }),
+      body: JSON.stringify(data),
     })
+    return workspaceSingleResponseSchema.parse(raw)
   },
 
-  async getPlans() {
-    return request<{ plans: Array<{ key: string; name: string; price: number; features: string[] }> }>(
-      '/v1/plans'
-    )
+  async deleteWorkspace(id_workspace: string) {
+    return request<void>(`/v1/me/workspaces/${id_workspace}`, { method: 'DELETE' })
+  },
+}
+
+// ─── Usuários da organização autenticada ────────────────────────────────────
+// Espelha server/routes/users.ts. Toda resposta é validada via Zod (Mand. 09).
+
+export const usuariosApi = {
+  async listar() {
+    const raw = await request<unknown>('/v1/usuarios')
+    return listarUsuariosResponseSchema.parse(raw)
   },
 
-  async getActiveProducts(tenantId: string) {
-    return request<{ products: Array<{ product_key: string; config: Record<string, unknown>; updated_at: string }> }>(
-      `/internal/check-access?tenantId=${tenantId}`
-    )
+  async convidar(data: {
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+    workspaces_alvo?: 'all' | string[]
+  }) {
+    const raw = await request<unknown>('/v1/usuarios/convidar', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    return convidarUsuarioResponseSchema.parse(raw)
+  },
+
+  async vincularWorkspace(
+    id_usuario: string,
+    data: { id_workspace: string; tipo_usuario_workspace: 'MASTER' | 'PADRAO' | 'FORNECEDOR' },
+  ) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/vinculos`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    return usuarioWorkspaceResponseSchema.parse(raw)
+  },
+
+  async substituirWorkspaces(id_usuario: string, workspaces: string[]) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/workspaces`, {
+      method: 'PUT',
+      body: JSON.stringify({ workspaces }),
+    })
+    return substituirWorkspacesResponseSchema.parse(raw)
+  },
+
+  async alterarTipoUsuario(
+    id_usuario: string,
+    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+  ) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/patente`, {
+      method: 'PATCH',
+      body: JSON.stringify({ tipo_usuario }),
+    })
+    return alterarTipoUsuarioResponseSchema.parse(raw)
   },
 }

@@ -26,22 +26,24 @@ vi.mock('../lib/prisma.js', () => ({
   prisma: prismaMock,
 }))
 
-// Mock tenantService
-const tenantServiceMock = {
-  getTenantById: vi.fn().mockResolvedValue({
-    id: 'tenant-001',
+// Mock organizacaoService
+const organizacaoServiceMock = {
+  getOrganizacaoById: vi.fn().mockResolvedValue({
+    id_organizacao: 'tenant-001',
     nome_organizacao: 'Acme Corp',
     subdominio_organizacao: 'acme',
     status_organizacao: 'ATIVO',
+    assinaturas: [],
+    _count: { usuarios: 1, workspaces: 2 },
   }),
-  getCompanies: vi.fn().mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
+  getWorkspaces: vi.fn().mockResolvedValue([
+    { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'ATIVO' },
+    { id_workspace: 'comp-002', nome_workspace: 'Filial RJ', status_workspace: 'ATIVO' },
   ]),
 }
 
 vi.mock('../services/organizacaoService.js', () => ({
-  organizacaoService: tenantServiceMock,
+  organizacaoService: organizacaoServiceMock,
 }))
 
 // Mock rate limiter — passthrough em testes
@@ -105,12 +107,17 @@ beforeEach(() => {
   prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([])
   prismaMock.usuario.findUnique.mockResolvedValue(null)
   prismaMock.usuario.update.mockResolvedValue(null)
-  tenantServiceMock.getTenantById.mockResolvedValue({
-    id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
+  organizacaoServiceMock.getOrganizacaoById.mockResolvedValue({
+    id_organizacao: 'tenant-001',
+    nome_organizacao: 'Acme Corp',
+    subdominio_organizacao: 'acme',
+    status_organizacao: 'ATIVO',
+    assinaturas: [],
+    _count: { usuarios: 1, workspaces: 2 },
   })
-  tenantServiceMock.getCompanies.mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
+  organizacaoServiceMock.getWorkspaces.mockResolvedValue([
+    { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'ATIVO' },
+    { id_workspace: 'comp-002', nome_workspace: 'Filial RJ', status_workspace: 'ATIVO' },
   ])
 })
 
@@ -171,25 +178,28 @@ describe('GET /api/v1/hub/init', () => {
   it('retorna 200 com estrutura completa', async () => {
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('tenant')
-    expect(res.body).toHaveProperty('companies')
+    expect(res.body).toHaveProperty('organizacao')
+    expect(res.body).toHaveProperty('workspaces')
     expect(res.body).toHaveProperty('products')
     expect(res.body).toHaveProperty('catalog')
-    expect(res.body).toHaveProperty('preferredCompanyId')
+    expect(res.body).toHaveProperty('idWorkspacePreferido')
   })
 
-  it('retorna tenant do tenantService', async () => {
+  it('retorna organizacao do organizacaoService', async () => {
     const res = await request.get('/api/v1/hub/init')
-    expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-001')
-    expect(res.body.tenant).toEqual({
-      id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
+    expect(organizacaoServiceMock.getOrganizacaoById).toHaveBeenCalledWith('tenant-001')
+    expect(res.body.organizacao).toMatchObject({
+      id_organizacao: 'tenant-001',
+      nome_organizacao: 'Acme Corp',
+      subdominio_organizacao: 'acme',
+      status_organizacao: 'ATIVO',
     })
   })
 
-  it('retorna companies do tenantService', async () => {
+  it('retorna workspaces do organizacaoService', async () => {
     const res = await request.get('/api/v1/hub/init')
-    expect(tenantServiceMock.getCompanies).toHaveBeenCalledWith('tenant-001')
-    expect(res.body.companies).toHaveLength(2)
+    expect(organizacaoServiceMock.getWorkspaces).toHaveBeenCalledWith('tenant-001')
+    expect(res.body.workspaces).toHaveLength(2)
   })
 
   // ── Organizacao isolation ──
@@ -205,17 +215,22 @@ describe('GET /api/v1/hub/init', () => {
 
   it('tenant diferente recebe dados diferentes (cross-tenant)', async () => {
     authOverride = { id_usuario: 'user-999', clerkUserId: 'clerk_999', id_organizacao: 'tenant-999', tipo_usuario: 'ADMIN' }
-    tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-999', name: 'Other Corp' })
-    tenantServiceMock.getCompanies.mockResolvedValue([])
+    organizacaoServiceMock.getOrganizacaoById.mockResolvedValue({
+      id_organizacao: 'tenant-999',
+      nome_organizacao: 'Other Corp',
+      assinaturas: [],
+      _count: { usuarios: 0, workspaces: 0 },
+    })
+    organizacaoServiceMock.getWorkspaces.mockResolvedValue([])
 
     const res = await request.get('/api/v1/hub/init')
-    expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-999')
-    expect(tenantServiceMock.getCompanies).toHaveBeenCalledWith('tenant-999')
+    expect(organizacaoServiceMock.getOrganizacaoById).toHaveBeenCalledWith('tenant-999')
+    expect(organizacaoServiceMock.getWorkspaces).toHaveBeenCalledWith('tenant-999')
     expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id_organizacao_config_produto_gravity: 'tenant-999' } }),
     )
-    expect(res.body.tenant.id).toBe('tenant-999')
-    expect(res.body.companies).toHaveLength(0)
+    expect(res.body.organizacao.id_organizacao).toBe('tenant-999')
+    expect(res.body.workspaces).toHaveLength(0)
   })
 
   // ── Products enrichment ──
@@ -260,44 +275,44 @@ describe('GET /api/v1/hub/init', () => {
   it('retorna preferredCompanyId null quando user não tem preferência', async () => {
     prismaMock.usuario.findUnique.mockResolvedValue(null)
     const res = await request.get('/api/v1/hub/init')
-    expect(res.body.preferredCompanyId).toBeNull()
+    expect(res.body.idWorkspacePreferido).toBeNull()
   })
 
   it('retorna preferredCompanyId quando company é válida e ativa', async () => {
-    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ id_workspace_preferido_usuario: 'comp-001' })
     const res = await request.get('/api/v1/hub/init')
-    expect(res.body.preferredCompanyId).toBe('comp-001')
+    expect(res.body.idWorkspacePreferido).toBe('comp-001')
   })
 
-  it('retorna preferredCompanyId null quando company preferida é INACTIVE', async () => {
-    tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
+  it('retorna idWorkspacePreferido null quando workspace preferido é INATIVO', async () => {
+    organizacaoServiceMock.getWorkspaces.mockResolvedValue([
+      { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'INATIVO' },
     ])
-    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ id_workspace_preferido_usuario: 'comp-001' })
 
     const res = await request.get('/api/v1/hub/init')
-    expect(res.body.preferredCompanyId).toBeNull()
+    expect(res.body.idWorkspacePreferido).toBeNull()
   })
 
-  it('limpa preferred_company_id no banco quando company inválida (fire-and-forget)', async () => {
-    tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
+  it('limpa id_workspace_preferido_usuario no banco quando workspace inválido (fire-and-forget)', async () => {
+    organizacaoServiceMock.getWorkspaces.mockResolvedValue([
+      { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'INATIVO' },
     ])
-    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ id_workspace_preferido_usuario: 'comp-001' })
 
     await request.get('/api/v1/hub/init')
 
     // Fire-and-forget — prisma.usuario.update foi chamado
     expect(prismaMock.usuario.update).toHaveBeenCalledWith({
       where: { id_usuario: 'user-001' },
-      data: { preferred_company_id: null },
+      data: { id_workspace_preferido_usuario: null },
     })
   })
 
   it('retorna preferredCompanyId null quando company não existe nas companies', async () => {
-    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-inexistente' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ id_workspace_preferido_usuario: 'comp-inexistente' })
     const res = await request.get('/api/v1/hub/init')
-    expect(res.body.preferredCompanyId).toBeNull()
+    expect(res.body.idWorkspacePreferido).toBeNull()
   })
 
   // ── Role SUPPLIER ──
@@ -309,7 +324,7 @@ describe('GET /api/v1/hub/init', () => {
     expect(res.status).toBe(200)
     // Não deve chamar prisma.usuario.findUnique para SUPPLIER
     expect(prismaMock.usuario.findUnique).not.toHaveBeenCalled()
-    expect(res.body.preferredCompanyId).toBeNull()
+    expect(res.body.idWorkspacePreferido).toBeNull()
   })
 
   // ── Resiliência ──
@@ -335,11 +350,11 @@ describe('GET /api/v1/hub/init', () => {
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
-    expect(res.body.preferredCompanyId).toBeNull()
+    expect(res.body.idWorkspacePreferido).toBeNull()
   })
 
-  it('retorna 500 quando tenantService.getTenantById falha (erro crítico)', async () => {
-    tenantServiceMock.getTenantById.mockRejectedValue(new Error('fatal'))
+  it('retorna 500 quando organizacaoService.getOrganizacaoById falha (erro crítico)', async () => {
+    organizacaoServiceMock.getOrganizacaoById.mockRejectedValue(new Error('fatal'))
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(500)
@@ -350,12 +365,17 @@ describe('GET /api/v1/hub/init', () => {
   it('executa todas as queries em paralelo (não sequencial)', async () => {
     const callOrder: string[] = []
 
-    tenantServiceMock.getTenantById.mockImplementation(async () => {
-      callOrder.push('tenant')
-      return { id: 'tenant-001', name: 'T' }
+    organizacaoServiceMock.getOrganizacaoById.mockImplementation(async () => {
+      callOrder.push('organizacao')
+      return {
+        id_organizacao: 'tenant-001',
+        nome_organizacao: 'T',
+        assinaturas: [],
+        _count: { usuarios: 0, workspaces: 0 },
+      }
     })
-    tenantServiceMock.getCompanies.mockImplementation(async () => {
-      callOrder.push('companies')
+    organizacaoServiceMock.getWorkspaces.mockImplementation(async () => {
+      callOrder.push('workspaces')
       return []
     })
     prismaMock.produtoGravityConfiguracao.findMany.mockImplementation(async () => {
@@ -375,8 +395,8 @@ describe('GET /api/v1/hub/init', () => {
 
     // Todas as 5 chamadas devem ter sido feitas
     expect(callOrder).toHaveLength(5)
-    expect(callOrder).toContain('tenant')
-    expect(callOrder).toContain('companies')
+    expect(callOrder).toContain('organizacao')
+    expect(callOrder).toContain('workspaces')
     expect(callOrder).toContain('configs')
     expect(callOrder).toContain('catalog')
     expect(callOrder).toContain('userPref')

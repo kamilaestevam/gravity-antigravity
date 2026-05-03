@@ -90,8 +90,8 @@ export function Core() {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
-          const { tenant } = await res.json()
-          setTipoEmpresa(tenant.tipo_empresa_organizacao ?? '')
+          const { organizacao } = await res.json()
+          setTipoEmpresa(organizacao?.tipo_organizacao ?? '')
         }
       } catch { /* silencioso */ }
     }
@@ -100,7 +100,7 @@ export function Core() {
 
   useUserPreferences({
     id_usuario: user?.id,
-    id_organizacao: currentUser.tenantId,
+    id_organizacao: currentUser.idOrganizacao,
   })
 
   const isLight = currentTheme === 'light'

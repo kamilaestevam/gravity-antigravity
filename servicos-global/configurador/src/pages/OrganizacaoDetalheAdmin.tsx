@@ -15,32 +15,11 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@n
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
-import { adminTenantsApi, type TenantApi } from '../services/apiClient'
+import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/apiClient'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-
-interface Workspace {
-  id: string
-  nome: string
-  subdominio: string
-  usuarios: number
-  status: string
-  plano: string
-  criadaEm: string
-}
-
-interface TenantMock {
-  id: string
-  name: string
-  slug: string
-  status: string
-  created_at: string
-  _count: { users: number; companies: number }
-  // NOTA: campo `subscriptions` removido — não existe mais em TenantApi.
-  // A noção de "produtos contratados" agora vem de `product_configs`.
-  workspaces: Workspace[]
-}
+// Painel forense — consome OrganizacaoApi/WorkspaceApi diretos (Paridade Absoluta DDD).
 
 type DiffObj = { campo: string; antes: string; depois: string }
 
@@ -59,10 +38,16 @@ type TabKey = 'auditoria' | 'workspaces' | 'usuarios' | 'billing'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function mapStatus(status: string): string {
+function rotuloOrganizacao(status: string): string {
   if (status === 'ATIVO') return 'Ativa'
   if (status === 'SUSPENSO') return 'Suspensa'
+  if (status === 'CANCELADO') return 'Cancelada'
+  if (status === 'CONFIGURACAO_PENDENTE') return 'Pendente'
   return status
+}
+
+function rotuloWorkspace(status: string): string {
+  return status === 'ATIVO' ? 'Ativa' : 'Suspensa'
 }
 
 // ─── Cores de ação ────────────────────────────────────────────────────────────
@@ -125,40 +110,19 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
   const { t } = useTranslation()
   const [tab, setTab] = useState<TabKey>('auditoria')
   const [loading, setLoading] = useState(true)
-  const [tenant, setTenant] = useState<TenantMock | null>(null)
+  const [organizacao, setOrganizacao] = useState<OrganizacaoApi | null>(null)
   const [logs, setLogs] = useState<LogAuditoria[]>([])
 
   useEffect(() => {
-    async function loadTenant() {
+    async function loadOrganizacao() {
       setLoading(true)
       try {
-        const res = await adminTenantsApi.getById(id_organizacao)
-        const o = res.organizacao
-        const mapped: TenantMock = {
-          id:         o.id_organizacao,
-          name:       o.nome_organizacao,
-          slug:       o.subdominio_organizacao,
-          status:     mapStatus(o.status_organizacao),
-          created_at: o.data_criacao_organizacao,
-          _count: {
-            users:     o._count?.users_organizacao ?? 0,
-            companies: o._count?.workspaces_organizacao ?? 0,
-          },
-          workspaces: (o.workspaces ?? []).map((w) => ({
-            id:         w.id_workspace,
-            nome:       w.nome_workspace,
-            subdominio: w.subdominio_workspace ?? o.subdominio_organizacao,
-            status:     mapStatus(w.status_workspace),
-            usuarios:   0,
-            plano:      'N/A',
-            criadaEm:   new Date(o.data_criacao_organizacao).toLocaleDateString('pt-BR'),
-          })),
-        }
-        setTenant(mapped)
+        const res = await adminOrganizacoesApi.getById(id_organizacao)
+        setOrganizacao(res.organizacao)
 
         // Tentar carregar logs de auditoria do histórico global
         try {
-          const logsRes = await fetch(`/api/v1/admin/historico-global/logs?tenant_id=${id_organizacao}`)
+          const logsRes = await fetch(`/api/v1/admin/historico-global/logs?id_organizacao=${id_organizacao}`)
           if (logsRes.ok) {
             const logsData = await logsRes.json()
             const mappedLogs: LogAuditoria[] = (logsData.data || []).map((dbLog: Record<string, unknown>) => ({
@@ -177,12 +141,12 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
           // Logs not available yet
         }
       } catch {
-        setTenant(null)
+        setOrganizacao(null)
       } finally {
         setLoading(false)
       }
     }
-    loadTenant()
+    loadOrganizacao()
   }, [id_organizacao])
 
   if (loading) {
@@ -194,10 +158,10 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     )
   }
 
-  if (!tenant) {
+  if (!organizacao) {
     return (
       <div style={{ padding: 64, textAlign: 'center', color: '#f87171' }}>
-        <div style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 8 }}>Tenant não encontrado</div>
+        <div style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 8 }}>Organização não encontrada</div>
         <div style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: 24 }}>ID: <code style={{ color: '#818cf8' }}>{id_organizacao}</code></div>
         <button onClick={onBack} style={{ color: '#818cf8', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: '8px', padding: '8px 20px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: '0.875rem', transition: 'all 0.15s' }}>
           ← Voltar ao painel
@@ -206,25 +170,28 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     )
   }
 
-  // NOTA: dados de assinatura não estão mais disponíveis em TenantApi.
-  // Placeholders até a fonte da verdade (product_configs ou billing) ser ligada.
+  // NOTA: dados de assinatura ainda não são renderizados aqui.
+  // Placeholders até a fonte da verdade (configuracoes_produto ou billing) ser ligada.
   const totalProdutosContratados = 0
   const planoPrincipal = 'N/A'
   const statusAssinatura = 'N/A'
-  const totalWs = tenant.workspaces.length
-  const wsAtivos = tenant.workspaces.filter(ws => ws.status === 'Ativa').length
+  const workspacesLista = organizacao.workspaces ?? []
+  const totalWs = workspacesLista.length
+  const wsAtivos = workspacesLista.filter(w => w.status_workspace === 'ATIVO').length
+  const totalUsuarios = organizacao._count?.usuarios ?? 0
+  const totalWorkspacesCount = organizacao._count?.workspaces ?? totalWs
 
   // ── Colunas da Tabela de Auditoria ────────────────────────────────────────
 
   const COLUNAS_AUDIT: TabelaGlobalColuna<LogAuditoria>[] = [
     {
-      key: 'quando', label: t('admin.tenant_detail.audit.quando'), tipo: 'periodo',
+      key: 'quando', label: t('admin.organizacao_detalhe.audit.quando'), tipo: 'periodo',
       tooltipTitulo: 'Timestamp (UTC)',
       tooltipDescricao: 'Data/hora (ISO-8601) em que o evento foi gravado na tabela de auditoria.',
       render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8125rem' }}>{formatDate(v as string)}</span>
     },
     {
-      key: 'quemNome', label: t('admin.tenant_detail.audit.quem'), tipo: 'texto',
+      key: 'quemNome', label: t('admin.organizacao_detalhe.audit.quem'), tipo: 'texto',
       tooltipTitulo: 'Identity Context',
       tooltipDescricao: 'Ator autenticado ou sistema que originou a ação.',
       render: (v, item) => {
@@ -240,7 +207,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       }
     },
     {
-      key: 'acao', label: t('admin.tenant_detail.audit.acao'), tipo: 'texto',
+      key: 'acao', label: t('admin.organizacao_detalhe.audit.acao'), tipo: 'texto',
       tooltipTitulo: 'Event Type',
       tooltipDescricao: 'Taxonomia da operação registrada.',
       render: (v) => {
@@ -257,7 +224,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       }
     },
     {
-      key: 'oQueFoiFeito', label: t('admin.tenant_detail.audit.o_que_foi_feito'), tipo: 'texto',
+      key: 'oQueFoiFeito', label: t('admin.organizacao_detalhe.audit.o_que_foi_feito'), tipo: 'texto',
       tooltipTitulo: 'Event Payload',
       tooltipDescricao: 'Descrição legível do que foi modificado.',
       render: (v, item) => (
@@ -282,7 +249,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       )
     },
     {
-      key: 'entidade', label: t('admin.tenant_detail.audit.entidade'), tipo: 'texto',
+      key: 'entidade', label: t('admin.organizacao_detalhe.audit.entidade'), tipo: 'texto',
       tooltipTitulo: 'Target Entity',
       tooltipDescricao: 'Módulo alvo da ação.',
       render: (v) => <span style={{ color: '#94a3b8' }}>{v as string}</span>
@@ -291,50 +258,46 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
 
   // ── Colunas da Tabela de Workspaces ───────────────────────────────────────
 
-  const COLUNAS_WS: TabelaGlobalColuna<Workspace>[] = [
+  const COLUNAS_WS: TabelaGlobalColuna<WorkspaceApi>[] = [
     {
-      key: 'nome', label: t('admin.tenant_detail.workspaces.workspace'), tipo: 'texto',
+      key: 'nome_workspace', label: t('admin.organizacao_detalhe.workspaces.workspace'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome.charAt(0).toUpperCase()}
+            {item.nome_workspace.charAt(0).toUpperCase()}
           </div>
-          <span style={{ fontWeight: 500 }}>{item.nome}</span>
+          <span style={{ fontWeight: 500 }}>{item.nome_workspace}</span>
         </div>
       )
     },
     {
-      key: 'subdominio', label: t('admin.tenant_detail.workspaces.subdominio'), tipo: 'texto',
+      key: 'subdominio_workspace', label: t('admin.organizacao_detalhe.workspaces.subdominio'), tipo: 'texto',
       render: (v) => <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{v as string}.gravity.com.br</code>
     },
     {
-      key: 'status', label: t('admin.tenant_detail.workspaces.status'), tipo: 'texto',
-      render: (v) => <StatusBadgeGlobal valor={v as string} />
+      key: 'status_workspace', label: t('admin.organizacao_detalhe.workspaces.status'), tipo: 'texto',
+      render: (v) => <StatusBadgeGlobal valor={rotuloWorkspace(v as string)} />
     },
     {
-      key: 'plano', label: t('admin.tenant_detail.workspaces.plano'), tipo: 'texto',
-      render: (v) => <span style={{ color: '#94a3b8', fontSize: '0.8125rem' }}>{v as string}</span>
-    },
-    {
-      key: 'usuarios', label: t('admin.tenant_detail.workspaces.usuarios'), align: 'center', tipo: 'texto',
-      render: (v) => <span style={{ fontWeight: 600 }}>{v as number}</span>
+      key: 'quantidade_usuarios_workspace', label: t('admin.organizacao_detalhe.workspaces.usuarios'), align: 'center', tipo: 'texto',
+      render: (_v, item) => <span style={{ fontWeight: 600 }}>{item.quantidade_usuarios_workspace ?? item._count?.vinculos_workspace ?? 0}</span>
     },
   ]
 
   // ── Ações de exportação ───────────────────────────────────────────────────
 
   const acoesExport: TabelaExportAcao<LogAuditoria>[] = [
-    { label: t('admin.tenant_detail.export.exportar_csv'), icone: <Export size={14} />, onClick: () => {} },
-    { label: t('admin.tenant_detail.export.backup_json'), icone: <DownloadSimple size={14} />, onClick: () => {} },
+    { label: t('admin.organizacao_detalhe.export.exportar_csv'), icone: <Export size={14} />, onClick: () => {} },
+    { label: t('admin.organizacao_detalhe.export.backup_json'), icone: <DownloadSimple size={14} />, onClick: () => {} },
   ]
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
 
   const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-    { key: 'auditoria', label: t('admin.tenant_detail.tabs.auditoria'), icon: <ClockCounterClockwise size={15} weight="bold" /> },
-    { key: 'workspaces', label: `${t('admin.tenant_detail.tabs.workspaces')} (${totalWs})`, icon: <TreeStructure size={15} weight="bold" /> },
-    { key: 'usuarios', label: `${t('admin.tenant_detail.tabs.usuarios')} (${tenant._count.users})`, icon: <UsersThree size={15} weight="bold" /> },
-    { key: 'billing', label: t('admin.tenant_detail.tabs.faturamento'), icon: <CreditCard size={15} weight="bold" /> },
+    { key: 'auditoria', label: t('admin.organizacao_detalhe.tabs.auditoria'), icon: <ClockCounterClockwise size={15} weight="bold" /> },
+    { key: 'workspaces', label: `${t('admin.organizacao_detalhe.tabs.workspaces')} (${totalWs})`, icon: <TreeStructure size={15} weight="bold" /> },
+    { key: 'usuarios', label: `${t('admin.organizacao_detalhe.tabs.usuarios')} (${totalUsuarios})`, icon: <UsersThree size={15} weight="bold" /> },
+    { key: 'billing', label: t('admin.organizacao_detalhe.tabs.faturamento'), icon: <CreditCard size={15} weight="bold" /> },
   ]
 
   return (
@@ -344,8 +307,8 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       cabecalho={
         <CabecalhoGlobal
           icone={<ShieldCheck weight="duotone" size={22} color="#34d399" />}
-          titulo={`Painel de Auditoria — ${tenant.name}`}
-          subtitulo={`Visão forense completa do tenant ${tenant.slug}.gravity.com.br • ID: ${tenant.id}`}
+          titulo={`Painel de Auditoria — ${organizacao.nome_organizacao}`}
+          subtitulo={`Visão forense completa da organização ${organizacao.subdominio_organizacao}.gravity.com.br • ID: ${organizacao.id_organizacao}`}
           acoes={
             <button
               onClick={onBack}
@@ -369,13 +332,13 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
           <CardBasicoGlobal
             titulo="Organização"
             icone={<Buildings weight="duotone" size={16} style={{ color: '#6366f1' }} />}
-            valor={tenant.name}
+            valor={organizacao.nome_organizacao}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Dados do Tenant</p>
-                <div className="cg-tooltip__row"><span>ID</span> <strong>{tenant.id}</strong></div>
-                <div className="cg-tooltip__row"><span>Slug</span> <strong>{tenant.slug}</strong></div>
-                <div className="cg-tooltip__row"><span>Criado em</span> <strong>{new Date(tenant.created_at).toLocaleDateString('pt-BR')}</strong></div>
+                <p className="cg-tooltip__title">Dados da Organização</p>
+                <div className="cg-tooltip__row"><span>ID</span> <strong>{organizacao.id_organizacao}</strong></div>
+                <div className="cg-tooltip__row"><span>Slug</span> <strong>{organizacao.subdominio_organizacao}</strong></div>
+                <div className="cg-tooltip__row"><span>Criado em</span> <strong>{new Date(organizacao.data_criacao_organizacao).toLocaleDateString('pt-BR')}</strong></div>
               </>
             }
           />
@@ -394,11 +357,11 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
           <CardBasicoGlobal
             titulo="Usuários"
             icone={<UsersThree weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
-            valor={tenant._count.users}
+            valor={totalUsuarios}
             tooltip={
               <>
                 <p className="cg-tooltip__title">Pool de Identidades</p>
-                <div className="cg-tooltip__row"><span>Usuários Ativos</span> <strong>{tenant._count.users}</strong></div>
+                <div className="cg-tooltip__row"><span>Usuários Ativos</span> <strong>{totalUsuarios}</strong></div>
               </>
             }
           />
@@ -454,11 +417,11 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       {tab === 'auditoria' && (
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<LogAuditoria>
-            id={`admin-tenant-audit-${tenant.id}`}
+            id={`admin-organizacao-audit-${organizacao.id_organizacao}`}
             dados={logs}
             colunas={COLUNAS_AUDIT}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_AUDIT, 'dados_tabela', 'Exportação de Dados')}
-            mensagemVazio="Nenhuma atividade registrada para este tenant."
+            mensagemVazio="Nenhuma atividade registrada para esta organização."
             renderExpandido={(item) => renderDiffTable(item.diff || [])}
           />
         </div>
@@ -467,11 +430,11 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       {/* ── Tab: Workspaces ────────────────────────────────────────────────── */}
       {tab === 'workspaces' && (
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
-          <TabelaGlobal<Workspace>
-            id={`admin-tenant-workspaces-${tenant.id}`}
-            dados={tenant.workspaces}
+          <TabelaGlobal<WorkspaceApi>
+            id={`admin-organizacao-workspaces-${organizacao.id_organizacao}`}
+            dados={workspacesLista}
             colunas={COLUNAS_WS}
-            mensagemVazio="Nenhum workspace cadastrado para este tenant."
+            mensagemVazio="Nenhum workspace cadastrado para esta organização."
           
         acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_WS, 'dados_tabela', 'Exportação de Dados')}
       />
@@ -483,13 +446,13 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         <div className="ws-fade-up" style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#94a3b8', fontSize: '0.8125rem' }}>
             <Info size={16} weight="duotone" color="#3b82f6" />
-            Dados agregados do tenant. Listagem individual de usuários disponível na seção Usuários Globais.
+            Dados agregados da organização. Listagem individual de usuários disponível na seção Usuários Globais.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[
-              { label: t('admin.tenant_detail.stats.total_usuarios'), value: tenant._count.users },
-              { label: t('admin.tenant_detail.stats.empresas_vinculadas'), value: tenant._count.companies },
-              { label: t('admin.tenant_detail.stats.produtos_contratados'), value: totalProdutosContratados },
+              { label: t('admin.organizacao_detalhe.stats.total_usuarios'), value: totalUsuarios },
+              { label: t('admin.organizacao_detalhe.stats.empresas_vinculadas'), value: totalWorkspacesCount },
+              { label: t('admin.organizacao_detalhe.stats.produtos_contratados'), value: totalProdutosContratados },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>{label}</div>

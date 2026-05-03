@@ -6,13 +6,11 @@ import {
   MapPin,
   Package,
   CheckCircle,
-  FloppyDisk,
 } from '@phosphor-icons/react'
 import { useUser } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
@@ -21,27 +19,32 @@ import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import {
+  meResponseSchema,
+  workspacesResponseSchema,
+  type WorkspaceItem,
+} from '../../services/apiClient'
 
-type DadosMae = {
-  nome:         string
-  cnpj:         string
-  estado:       string
-  cidade:       string
-  segmento:     string
-  tipo_empresa: string
-  subdominio:   string
-  criadaEm:     string
+type DadosOrganizacao = {
+  nome_organizacao:         string
+  cnpj_organizacao:         string
+  estado_organizacao:       string
+  cidade_organizacao:       string
+  segmento_organizacao:     string
+  tipo_organizacao:         string
+  subdominio_organizacao:   string
+  data_criacao_organizacao: string
 }
 
-const dadosVazios: DadosMae = {
-  nome:         '',
-  cnpj:         '',
-  estado:       '',
-  cidade:       '',
-  segmento:     '',
-  tipo_empresa: '',
-  subdominio:   '',
-  criadaEm:     '',
+const dadosVazios: DadosOrganizacao = {
+  nome_organizacao:         '',
+  cnpj_organizacao:         '',
+  estado_organizacao:       '',
+  cidade_organizacao:       '',
+  segmento_organizacao:     '',
+  tipo_organizacao:         '',
+  subdominio_organizacao:   '',
+  data_criacao_organizacao: '',
 }
 
 const ESTADOS_BR = [
@@ -70,7 +73,7 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-const TIPOS_EMPRESA = [
+const TIPOS_ORGANIZACAO = [
   'Importador',
   'Exportador',
   'Importador e Exportador',
@@ -82,16 +85,32 @@ const TIPOS_EMPRESA = [
   'Corretora de Câmbio',
 ]
 
-const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
+const OPCOES_TIPOS_ORGANIZACAO: SelectOpcao[] = [
   { valor: '', rotulo: 'Selecione...' },
-  ...TIPOS_EMPRESA.map(t => ({ valor: t, rotulo: t }))
+  ...TIPOS_ORGANIZACAO.map(t => ({ valor: t, rotulo: t }))
 ]
 
-// As opções de workspaces serão carregadas dinamicamente dentro do componente
-
-/** Chave do localStorage vinculada ao usuário */
+/** Chave do localStorage do workspace preferido vinculada ao usuário. */
+const STORAGE_KEY_NEW = 'gravity:workspace-preferido'
+const STORAGE_KEY_LEGACY = 'gravity:workspace-ativo'
 function storageKey(id_usuario: string | undefined) {
-  return `gravity:workspace-ativo:${id_usuario ?? 'anon'}`
+  return `${STORAGE_KEY_NEW}:${id_usuario ?? 'anon'}`
+}
+function legacyStorageKey(id_usuario: string | undefined) {
+  return `${STORAGE_KEY_LEGACY}:${id_usuario ?? 'anon'}`
+}
+/** Lê do storage novo, com fallback para a chave legada (migração). */
+function readPreferredFromStorage(id_usuario: string | undefined): string {
+  const novo = localStorage.getItem(storageKey(id_usuario))
+  if (novo) return novo
+  const legado = localStorage.getItem(legacyStorageKey(id_usuario))
+  if (legado) {
+    // Migra valor para a chave nova; remove a antiga.
+    localStorage.setItem(storageKey(id_usuario), legado)
+    localStorage.removeItem(legacyStorageKey(id_usuario))
+    return legado
+  }
+  return ''
 }
 
 export function Organizacao() {
@@ -99,21 +118,21 @@ export function Organizacao() {
   const { user, isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
-  // Workspaces (empresas filhas) carregados da API
-  const [espacosLocais, setEspacosLocais] = useState<{ id: string; nome: string; subdominio: string }[]>([])
+  // Workspaces da organização carregados da API
+  const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
 
-  const OPCOES_ESPACOS: SelectOpcao[] = espacosLocais.map(f => ({
-    valor:   f.id,
-    rotulo:  f.nome,
-    descricao: f.subdominio ? `${f.subdominio}.gravity.com.br` : '',
+  const OPCOES_WORKSPACES: SelectOpcao[] = workspaces.map(w => ({
+    valor:     w.id_workspace,
+    rotulo:    w.nome_workspace,
+    descricao: w.subdominio_workspace ? `${w.subdominio_workspace}.gravity.com.br` : '',
   }))
 
-  // dados editáveis diretamente — sem modo "editando"
-  const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosMae>(dadosVazios)
-  const [dados, setDados] = useState<DadosMae>(dadosVazios)
+  // Dados editáveis diretamente — sem modo "editando"
+  const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosOrganizacao>(dadosVazios)
+  const [dados, setDados] = useState<DadosOrganizacao>(dadosVazios)
   const [carregando, setCarregando] = useState(true)
 
-  // ── Carregar dados reais do tenant e companies da API ───────────────────
+  // ── Carregar dados reais da organização e workspaces da API ────────────────
   useEffect(() => {
     if (!userLoaded) return
 
@@ -125,47 +144,41 @@ export function Organizacao() {
         // Pega token do Clerk se disponível
         if (user) {
           try {
-            const session = await (window as any).Clerk?.session
+            const session = await (window as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk?.session
             const token = session ? await session.getToken() : null
             if (token) headers['Authorization'] = `Bearer ${token}`
           } catch { /* sem token — backend tentará DEMO_MODE */ }
         }
 
-        // Busca tenant e companies em paralelo
-        const [tenantRes, companiesRes] = await Promise.all([
+        const [orgRes, workspacesRes] = await Promise.all([
           fetch('/api/v1/organizacoes/me', { headers }),
-          fetch('/api/v1/organizacoes/me/workspaces', { headers }),
+          fetch('/api/v1/me/workspaces', { headers }),
         ])
 
-        if (tenantRes.ok) {
-          const { tenant } = await tenantRes.json()
-          const dadosApi: DadosMae = {
-            nome:       tenant.nome_organizacao ?? '',
-            cnpj:       tenant.cnpj_organizacao ?? '',
-            estado:     tenant.estado_organizacao ?? '',
-            cidade:     tenant.cidade_organizacao ?? '',
-            segmento:     tenant.segmento_organizacao ?? '',
-            tipo_empresa: tenant.tipo_empresa_organizacao ?? '',
-            subdominio: tenant.subdominio_organizacao ?? '',
-            criadaEm:   tenant.data_criacao_organizacao
-              ? new Date(tenant.data_criacao_organizacao).toLocaleDateString('pt-BR')
+        if (orgRes.ok) {
+          const raw = await orgRes.json()
+          const parsed = meResponseSchema.parse(raw)
+          const o = parsed.organizacao
+          const dadosApi: DadosOrganizacao = {
+            nome_organizacao:         o.nome_organizacao,
+            cnpj_organizacao:         o.cnpj_organizacao ?? '',
+            estado_organizacao:       o.estado_organizacao ?? '',
+            cidade_organizacao:       o.cidade_organizacao ?? '',
+            segmento_organizacao:     o.segmento_organizacao ?? '',
+            tipo_organizacao:         o.tipo_organizacao ?? '',
+            subdominio_organizacao:   o.subdominio_organizacao,
+            data_criacao_organizacao: o.data_criacao_organizacao
+              ? new Date(o.data_criacao_organizacao).toLocaleDateString('pt-BR')
               : '',
           }
           setDadosIniciaisLocal(dadosApi)
           setDados(dadosApi)
         }
 
-        if (companiesRes.ok) {
-          const { companies } = await companiesRes.json() as {
-            companies: Array<{ id: string; name: string; subdomain: string | null }>
-          }
-          setEspacosLocais(
-            companies.map(c => ({
-              id: c.id,
-              nome: c.name,
-              subdominio: c.subdomain ?? '',
-            }))
-          )
+        if (workspacesRes.ok) {
+          const raw = await workspacesRes.json()
+          const parsed = workspacesResponseSchema.parse(raw)
+          setWorkspaces(parsed.workspaces)
         }
       } catch (err) {
         console.error('Erro ao carregar dados da organização:', err)
@@ -181,41 +194,35 @@ export function Organizacao() {
   // detecção de alterações para habilitar Salvar / Cancelar
   const { dirty, resetDirty } = useDirty(dadosIniciaisLocal, dados)
 
-  // workspace selecionado para acesso operacional
-  const [espacoInicial, setFilhaInicial] = useState<string>('')
-  const [espacoAtivoId, setFilhaAtivaId] = useState<string>('')
-  
-  const { dirty: dirtyEspaco, resetDirty: resetEspaco } = useDirty(espacoInicial, espacoAtivoId)
-  const isDirty = dirty || dirtyEspaco
+  // Workspace preferido para acesso operacional
+  const [workspacePreferidoInicial, setWorkspacePreferidoInicial] = useState<string>('')
+  const [idWorkspacePreferido, setIdWorkspacePreferido] = useState<string>('')
 
-  // Status de salvamento inline
-  const [salvando, setSalvando] = useState(false)
+  const { dirty: dirtyWorkspace, resetDirty: resetWorkspace } = useDirty(workspacePreferidoInicial, idWorkspacePreferido)
+  const isDirty = dirty || dirtyWorkspace
 
   // lista de cidades do estado (hook compartilhado com cache por UF)
-  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado)
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado_organizacao)
 
   // ── Restaurar preferência salva ao montar ────────────────────────────────
   useEffect(() => {
-    const chave = storageKey(user?.id)
-    const salvoId = localStorage.getItem(chave) || ''
-    setFilhaInicial(salvoId)
-    setFilhaAtivaId(salvoId)
-    resetEspaco(salvoId)
-  }, [user?.id, resetEspaco])
+    const salvoId = readPreferredFromStorage(user?.id)
+    setWorkspacePreferidoInicial(salvoId)
+    setIdWorkspacePreferido(salvoId)
+    resetWorkspace(salvoId)
+  }, [user?.id, resetWorkspace])
 
-  function set(key: keyof DadosMae, value: string) {
+  function set(key: keyof DadosOrganizacao, value: string) {
     setDados(p => ({ ...p, [key]: value }))
   }
 
   // ── Salvar todos os dados da página ──────────────────────────────────────
   async function handleSalvar() {
     try {
-      setSalvando(true)
-
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (user) {
         try {
-          const session = await (window as any).Clerk?.session
+          const session = await (window as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk?.session
           const token = session ? await session.getToken() : null
           if (token) headers['Authorization'] = `Bearer ${token}`
         } catch { /* sem token */ }
@@ -225,12 +232,12 @@ export function Organizacao() {
         method: 'PATCH',
         headers,
         body: JSON.stringify({
-          name: dados.nome,
-          cnpj_organizacao: dados.cnpj,
-          estado_organizacao: dados.estado,
-          cidade_organizacao: dados.cidade,
-          segmento_organizacao: dados.segmento,
-          tipo_empresa_organizacao: dados.tipo_empresa,
+          nome_organizacao:     dados.nome_organizacao,
+          cnpj_organizacao:     dados.cnpj_organizacao,
+          estado_organizacao:   dados.estado_organizacao,
+          cidade_organizacao:   dados.cidade_organizacao,
+          segmento_organizacao: dados.segmento_organizacao,
+          tipo_organizacao:     dados.tipo_organizacao,
         }),
       })
 
@@ -242,26 +249,24 @@ export function Organizacao() {
       setDadosIniciaisLocal(dados)
       resetDirty(dados)
 
-      // Persistir preferência local de workspace ativo
+      // Persistir preferência local de workspace preferido
       const chave = storageKey(user?.id)
-      if (espacoAtivoId) {
-        localStorage.setItem(chave, espacoAtivoId)
+      if (idWorkspacePreferido) {
+        localStorage.setItem(chave, idWorkspacePreferido)
       } else {
         localStorage.removeItem(chave)
       }
-      resetEspaco(espacoAtivoId)
+      resetWorkspace(idWorkspacePreferido)
 
       addNotification({
         type: 'success',
-        message: t('workspace.organization.msg_sucesso')
+        message: t('workspace.organizacao.msg_sucesso')
       })
     } catch (err) {
       addNotification({
         type: 'error',
-        message: err instanceof Error ? err.message : t('workspace.organization.msg_erro')
+        message: err instanceof Error ? err.message : t('workspace.organizacao.msg_erro')
       })
-    } finally {
-      setSalvando(false)
     }
   }
 
@@ -271,11 +276,11 @@ export function Organizacao() {
     resetDirty(dadosIniciaisLocal)
 
     // Restaura preferência local
-    setFilhaAtivaId(espacoInicial)
-    resetEspaco()
+    setIdWorkspacePreferido(workspacePreferidoInicial)
+    resetWorkspace()
   }
 
-  const espacoAtivo = espacosLocais.find(f => f.id === espacoAtivoId)
+  const workspacePreferido = workspaces.find(w => w.id_workspace === idWorkspacePreferido)
 
   if (carregando) {
     return (
@@ -284,8 +289,8 @@ export function Organizacao() {
         cabecalho={
           <CabecalhoGlobal
             icone={<Crown weight="duotone" size={22} />}
-            titulo={t('workspace.organization.titulo')}
-            subtitulo={t('workspace.organization.subtitulo_carregando')}
+            titulo={t('workspace.organizacao.titulo')}
+            subtitulo={t('workspace.organizacao.subtitulo_carregando')}
           />
         }
       >
@@ -303,8 +308,8 @@ export function Organizacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Crown weight="duotone" size={22} />}
-          titulo={t('workspace.organization.titulo')}
-          subtitulo={t('workspace.organization.subtitulo')}
+          titulo={t('workspace.organizacao.titulo')}
+          subtitulo={t('workspace.organizacao.subtitulo')}
         />
       }
     >
@@ -312,14 +317,14 @@ export function Organizacao() {
       {/* ── Identity card — atualiza em tempo real conforme edição ─────── */}
       <div className="em-identity ws-fade-up">
         <div className="em-identity__hero">
-          <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
+          <div className="em-identity__avatar">{dados.nome_organizacao.charAt(0) || '?'}</div>
           <div className="em-identity__text">
             <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os workspaces são as várias empresas operadas dentro dela">
-              <span className="em-identity__badge">{t('workspace.organization.badge_organizacao')}</span>
+              <span className="em-identity__badge">{t('workspace.organizacao.badge_organizacao')}</span>
             </TooltipGlobal>
-            <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
+            <h2 className="em-identity__nome">{dados.nome_organizacao || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
-              {dados.subdominio}.gravity.com.br
+              {dados.subdominio_organizacao}.gravity.com.br
             </p>
           </div>
         </div>
@@ -328,102 +333,102 @@ export function Organizacao() {
       {/* ── Dados Básicos — sempre editáveis ────────────────────────────── */}
       <div className="em-section ws-fade-up ws-fade-up-d1">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo={t('workspace.organization.secao_dados_basicos')} descricao="Informações principais da sua empresa usadas em toda a plataforma">
+          <TooltipGlobal titulo={t('workspace.organizacao.secao_dados_basicos')} descricao="Informações principais da sua empresa usadas em toda a plataforma">
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
-              {t('workspace.organization.secao_dados_basicos')}
+              {t('workspace.organizacao.secao_dados_basicos')}
             </span>
           </TooltipGlobal>
         </p>
         <div className="em-grid">
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_nome')}
+            label={t('workspace.organizacao.campo_nome')}
             obrigatorio
-            tooltipTitulo={t('workspace.organization.campo_nome')}
+            tooltipTitulo={t('workspace.organizacao.campo_nome')}
             tooltipDescricao="Razão social que aparece nos documentos e relatórios"
           >
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
-                value={dados.nome}
+                value={dados.nome_organizacao}
                 placeholder="Ex: Acme Corporation Ltda."
-                onChange={e => set('nome', e.target.value)}
+                onChange={e => set('nome_organizacao', e.target.value)}
               />
             </div>
           </CampoGeralGlobal>
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_cnpj')}
-            tooltipTitulo={t('workspace.organization.campo_cnpj')}
+            label={t('workspace.organizacao.campo_cnpj')}
+            tooltipTitulo={t('workspace.organizacao.campo_cnpj')}
             tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
           >
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input
-                value={dados.cnpj}
+                value={dados.cnpj_organizacao}
                 placeholder="Ex: 00.000.000/0001-00"
-                onChange={e => set('cnpj', e.target.value)}
+                onChange={e => set('cnpj_organizacao', e.target.value)}
               />
             </div>
           </CampoGeralGlobal>
         </div>
         <div className="em-grid em-grid--4">
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_estado')}
-            tooltipTitulo={t('workspace.organization.campo_estado')}
+            label={t('workspace.organizacao.campo_estado')}
+            tooltipTitulo={t('workspace.organizacao.campo_estado')}
             tooltipDescricao="Estado onde a empresa tem sua sede principal"
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={OPCOES_ESTADOS}
-              valor={dados.estado}
+              valor={dados.estado_organizacao}
               aoMudarValor={v => {
-                set('estado', String(v ?? ''))
-                set('cidade', '')
+                set('estado_organizacao', String(v ?? ''))
+                set('cidade_organizacao', '')
               }}
               placeholder="Selecione..."
               buscavel
             />
           </CampoGeralGlobal>
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_cidade')}
-            tooltipTitulo={t('workspace.organization.campo_cidade')}
+            label={t('workspace.organizacao.campo_cidade')}
+            tooltipTitulo={t('workspace.organizacao.campo_cidade')}
             tooltipDescricao="A lista de cidades aparece após você escolher o estado"
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
-              valor={dados.cidade || null}
-              aoMudarValor={v => set('cidade', String(v ?? ''))}
-              placeholder={dados.estado ? "Selecione a cidade..." : t('workspace.organization.aguardando_estado')}
+              valor={dados.cidade_organizacao || null}
+              aoMudarValor={v => set('cidade_organizacao', String(v ?? ''))}
+              placeholder={dados.estado_organizacao ? "Selecione a cidade..." : t('workspace.organizacao.aguardando_estado')}
               buscavel
-              desabilitado={!dados.estado}
+              desabilitado={!dados.estado_organizacao}
               carregando={carregandoCidades}
             />
           </CampoGeralGlobal>
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_segmento')}
-            tooltipTitulo={t('workspace.organization.campo_segmento')}
+            label={t('workspace.organizacao.campo_segmento')}
+            tooltipTitulo={t('workspace.organizacao.campo_segmento')}
             tooltipDescricao="Usado para categorizar a empresa nos relatórios da plataforma"
           >
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
               opcoes={OPCOES_SEGMENTOS}
-              valor={dados.segmento}
-              aoMudarValor={v => set('segmento', String(v ?? ''))}
+              valor={dados.segmento_organizacao}
+              aoMudarValor={v => set('segmento_organizacao', String(v ?? ''))}
               placeholder="Selecione..."
               buscavel
             />
           </CampoGeralGlobal>
           <CampoGeralGlobal
-            label={t('workspace.organization.campo_tipo_empresa')}
-            tooltipTitulo={t('workspace.organization.campo_tipo_empresa')}
+            label={t('workspace.organizacao.campo_tipo_empresa')}
+            tooltipTitulo={t('workspace.organizacao.campo_tipo_empresa')}
             tooltipDescricao="Categoria que define a atuação da empresa no comércio exterior"
           >
             <SelectGlobal
               iconeEsquerda={<Buildings size={16} />}
-              opcoes={OPCOES_TIPOS_EMPRESA}
-              valor={dados.tipo_empresa}
-              aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
+              opcoes={OPCOES_TIPOS_ORGANIZACAO}
+              valor={dados.tipo_organizacao}
+              aoMudarValor={v => set('tipo_organizacao', String(v ?? ''))}
               placeholder="Selecione..."
             />
           </CampoGeralGlobal>
@@ -431,34 +436,34 @@ export function Organizacao() {
       </div>
 
 
-      {/* ── Workspace Padrão ──────────────────────────────────── */}
+      {/* ── Workspace Preferido ──────────────────────────────────── */}
       <ModalSelectGlobal
         icone={<CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />}
         titulo={
-          <TooltipGlobal titulo="Workspace Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
-            <span>{t('workspace.organization.acesso_padrao')}</span>
+          <TooltipGlobal titulo="Workspace Preferido" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
+            <span>{t('workspace.organizacao.workspace_preferido')}</span>
           </TooltipGlobal>
         }
-        descricao={t('workspace.organization.acesso_padrao_desc')}
+        descricao={t('workspace.organizacao.workspace_preferido_desc')}
         labelContext={
-          <TooltipGlobal titulo="Ambiente Padrão" descricao="Escolha o workspace que será seu ambiente principal ao entrar no sistema">
-            <span>{t('workspace.organization.acesso_padrao_label')}</span>
+          <TooltipGlobal titulo="Workspace Preferido" descricao="Escolha o workspace que será seu ambiente principal ao entrar no sistema">
+            <span>{t('workspace.organizacao.workspace_preferido_label')}</span>
           </TooltipGlobal>
         }
         selectElement={
           <SelectGlobal
             iconeEsquerda={<Buildings size={16} />}
-            opcoes={OPCOES_ESPACOS}
-            valor={espacoAtivoId || null}
-            aoMudarValor={v => setFilhaAtivaId(v != null ? String(v) : '')}
+            opcoes={OPCOES_WORKSPACES}
+            valor={idWorkspacePreferido || null}
+            aoMudarValor={v => setIdWorkspacePreferido(v != null ? String(v) : '')}
             placeholder="Selecione..."
             buscavel
           />
         }
-        itemAtivo={espacoAtivo ? {
+        itemAtivo={workspacePreferido ? {
           icone: <CheckCircle weight="fill" size={16} color="#34d399" />,
-          texto: <>Acessando como&nbsp;<strong>{espacoAtivo.nome}</strong></>,
-          subtexto: `(${espacoAtivo.subdominio}.gravity.com.br)`
+          texto: <>Acessando como&nbsp;<strong>{workspacePreferido.nome_workspace}</strong></>,
+          subtexto: workspacePreferido.subdominio_workspace ? `(${workspacePreferido.subdominio_workspace}.gravity.com.br)` : ''
         } : null}
         className="ws-fade-up ws-fade-up-d3"
       />

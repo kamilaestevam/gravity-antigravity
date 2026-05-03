@@ -529,11 +529,11 @@
     "Multi-tenant (categoria 15, passos 297-304): rodar em ambiente com 100+ tenants reais ou stress test de isolamento.",
     "Persistência (categoria 20, passos 383-408): exige acesso DB para SELECT direto + verificar audit logs em historico-global.",
     "Passos com flag 'definirComDono' (~30 passos espalhados): decisão UX/produto pendente — abrir issue antes de habilitar.",
-    "Passos com flag 'gap' (~30 passos): identificam GAPs reais no código atual — gerar tickets de correção (CRÍTICOS: 194/195/388 — campo tipo_empresa_organizacao não persiste; 250 — falta checagem de role no backend; 263 — falta CSRF)."
+    "Passos com flag 'gap' (~30 passos): identificam GAPs reais no código atual — gerar tickets de correção (RESOLVIDO 2026-05-03: 194/195/388 — campo agora é `tipo_organizacao` e persiste; ABERTOS: 250 — falta checagem de role no backend; 263 — falta CSRF)."
   ],
 
   "gapsCriticos": [
-    "GAP CRÍTICO 1: campo tipo_empresa_organizacao do front NÃO está no PlatformConfigSchema do backend (Zod usa tipo_organizacao). Salvar tipo de empresa NÃO persiste no banco — REGRA 09 violada (passos 194, 195, 388).",
+    "[RESOLVIDO 2026-05-03] GAP 1: front passou a enviar `tipo_organizacao` (campo canônico do schema) — Zod aceita e persiste corretamente. Reescrever passos 194, 195, 388 quando regerar a planilha.",
     "GAP CRÍTICO 2: rotas GET e PUT /admin/visao-geral NÃO checam role/gravity_admin no backend. Defesa só no frontend AdminLayout — qualquer usuário logado com clerkUserId válido pode editar HQ via API direta (passo 250).",
     "GAP CRÍTICO 3: política CSRF e CORS para rotas admin não verificadas — risco de cross-site request (passos 263, 264).",
     "GAP CRÍTICO 4: backend não tem unique constraint em cnpj_organizacao — duplicidade entre tenants permitida.",

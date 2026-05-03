@@ -112,7 +112,7 @@ export function VisaoGeralAdmin() {
             estado: c.estado_organizacao || '',
             cidade: c.cidade_organizacao || '',
             segmento: c.segmento_organizacao || '',
-            tipo_empresa: c.tipo_empresa_organizacao || '',
+            tipo_empresa: c.tipo_organizacao || '',
             subdominio: c.subdominio_organizacao || '',
             criadaEm: c.data_criacao_organizacao ? new Date(c.data_criacao_organizacao).toLocaleDateString('pt-BR') : '',
           }
@@ -143,7 +143,7 @@ export function VisaoGeralAdmin() {
         estado_organizacao: dados.estado,
         cidade_organizacao: dados.cidade,
         segmento_organizacao: dados.segmento,
-        tipo_empresa_organizacao: dados.tipo_empresa,
+        tipo_organizacao: dados.tipo_empresa,
       })
 
       setDadosIniciais(dados)

@@ -15,6 +15,7 @@ import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
@@ -614,6 +615,13 @@ export function FinanceiroAdmin() {
         </div>
 
         {/* Modal Lançar Fatura ─────────────────────────────────────────── */}
+        {(() => {
+          const requisitosFatura: RequisitoSalvar[] = [
+            { chave: 'organizacao', ok: !!formTenantId,                  mensagem: 'Selecionar a organização (cliente)' },
+            { chave: 'descricao',   ok: formDescricao.trim().length > 0, mensagem: 'Descrição da fatura' },
+            { chave: 'valor',       ok: !!formValor,                     mensagem: 'Valor (R$)' },
+          ]
+          return (
         <ModalFormularioAbasGlobal
           aberto={modalAberto}
           aoFechar={fecharModal}
@@ -623,7 +631,7 @@ export function FinanceiroAdmin() {
           subtitulo={t('admin.financeiro-admin.modal_subtitulo') ?? `Cria via provider: ${provider}`}
           tamanho="lg"
           dirty={formDirty}
-          podesSalvar={formDirty && !!formTenantId && !!formDescricao.trim() && !!formValor && !salvando}
+          podesSalvar={formDirty && requisitosFatura.every(r => r.ok) && !salvando}
           abas={[
             {
               id: 'dados',
@@ -723,11 +731,15 @@ export function FinanceiroAdmin() {
                       </div>
                     </CampoGeralGlobal>
                   </div>
+
+                  <BannerRequisitosGlobal requisitos={requisitosFatura} />
                 </div>
               ),
             },
           ]}
         />
+          )
+        })()}
 
         {/* Modal Anular Fatura ─────────────────────────────────────────── */}
         <ModalExclusao

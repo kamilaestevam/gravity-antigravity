@@ -29,6 +29,11 @@ import {
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import {
+  BannerRequisitosGlobal,
+  camposComRequisitoPendente,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { formatarCNPJ, formatarCEP, formatarTelefone, validarCNPJ } from '@nucleo/utils'
 import { useShellStore } from '@gravity/shell'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
@@ -268,9 +273,9 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
   )
 
   // Requisitos para salvar — lista visível, sem ponto cego.
-  // Cada item tem `chave` (para destacar o campo correspondente) e `mensagem` (para o banner).
-  const requisitos = useMemo(() => {
-    const lista: Array<{ chave: string; ok: boolean; mensagem: string }> = [
+  // Padrão @nucleo/banner-requisitos-global.
+  const requisitos = useMemo<RequisitoSalvar[]>(() => {
+    const lista: RequisitoSalvar[] = [
       {
         chave: 'nome_empresa',
         ok: form.nome_empresa.trim().length >= 2,
@@ -299,9 +304,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
     return lista
   }, [form.nome_empresa, form.pais, form.cnpj, ehBr, algumaFlagAtiva])
 
-  const requisitosFaltando = requisitos.filter((r) => !r.ok)
-  const camposComRequisitoFaltando = new Set(requisitosFaltando.map((r) => r.chave))
-  const podeSalvar = requisitosFaltando.length === 0 && !enviando
+  const camposComRequisitoFaltando = camposComRequisitoPendente(requisitos)
+  const podeSalvar = requisitos.every((r) => r.ok) && !enviando
 
   function setCampo<K extends keyof FormState>(chave: K, valor: FormState[K]) {
     setForm((prev) => ({ ...prev, [chave]: valor }))
@@ -559,32 +563,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
           </div>
         </div>
 
-        {/* ── Banner de requisitos pendentes ────────────────────────── */}
-        {requisitosFaltando.length > 0 && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              marginTop: '0.5rem',
-              padding: '0.75rem 1rem',
-              borderRadius: 8,
-              background: 'rgba(248, 113, 113, 0.08)',
-              border: '1px solid rgba(248, 113, 113, 0.32)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.375rem',
-            }}
-          >
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: corErro }}>
-              Para salvar, ainda falta:
-            </span>
-            <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--ws-text)', fontSize: '0.8125rem', lineHeight: 1.5 }}>
-              {requisitosFaltando.map((r) => (
-                <li key={r.chave}>{r.mensagem}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* ── Banner de requisitos pendentes (componente global) ─────── */}
+        <BannerRequisitosGlobal requisitos={requisitos} />
       </div>
     </ModalFormularioGlobal>
   )

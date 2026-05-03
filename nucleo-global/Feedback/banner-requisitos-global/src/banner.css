@@ -1,0 +1,36 @@
+/**
+ * @nucleo/banner-requisitos-global — banner.css
+ * Cores casadas com o sistema de erro (corErro = #f87171) e tipografia
+ * coerente com CampoGeralGlobal/ModalFormularioGlobal.
+ */
+
+.banner-requisitos {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.32);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.banner-requisitos__titulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f87171;
+}
+
+.banner-requisitos__lista {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ws-text, #e2e8f0);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.banner-requisitos__lista li + li {
+  margin-top: 0.125rem;
+}

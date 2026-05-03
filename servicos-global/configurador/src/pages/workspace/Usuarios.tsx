@@ -11,6 +11,7 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { useShellStore } from '@gravity/shell'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
@@ -601,6 +602,19 @@ export function Usuarios() {
       </div>
 
       {/* Modal Convidar Usuário */}
+      {(() => {
+        const requisitosConvite: RequisitoSalvar[] = [
+          { chave: 'fNome',  ok: fNome.trim().length > 0,  mensagem: 'Nome completo' },
+          { chave: 'fEmail', ok: fEmail.trim().length > 0, mensagem: 'E-mail válido' },
+        ]
+        if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
+          requisitosConvite.push({
+            chave: 'fWorkspaces',
+            ok: fTodosWorkspaces || fWorkspacesSelecionados.length > 0,
+            mensagem: 'Selecione "Todos os workspaces" ou pelo menos um workspace específico',
+          })
+        }
+        return (
       <ModalFormularioGlobal
         aberto={showForm}
         aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]) }}
@@ -611,7 +625,7 @@ export function Usuarios() {
         tamanho="md"
         altura={(fTipo === 'Standard' || fTipo === 'Fornecedor') ? '600px' : '480px'}
         dirty={!!(fNome || fEmail)}
-        podesSalvar={!!(fNome.trim() && fEmail.trim() && ((fTipo !== 'Standard' && fTipo !== 'Fornecedor') || fTodosWorkspaces || fWorkspacesSelecionados.length > 0))}
+        podesSalvar={requisitosConvite.every(r => r.ok)}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <CampoGeralGlobal label="NOME COMPLETO" obrigatorio>
@@ -741,8 +755,12 @@ export function Usuarios() {
               )}
             </CampoGeralGlobal>
           )}
+
+          <BannerRequisitosGlobal requisitos={requisitosConvite} />
         </div>
       </ModalFormularioGlobal>
+        )
+      })()}
 
       {/* Modal Edição do Usuário */}
       <ModalEditarUsuario

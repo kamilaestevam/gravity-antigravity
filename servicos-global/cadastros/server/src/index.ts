@@ -4,7 +4,8 @@ import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (INTERNAL_SERVICE_KEY etc.) vêm do .env.local da raiz
-dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
+// __dir = cadastros/server/src/ → ../../../../ = raiz do monorepo
+dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../.env') })
 

@@ -3,10 +3,10 @@
  *
  * Scaffold genérico de leitura sobre os 3 catálogos GLOBAIS do serviço
  * Cadastros (porta 8031): NCM, Moedas, Unidades. Essas tabelas não têm
- * `id_organizacao` — são compartilhadas por todos os tenants.
+ * `id_organizacao` — são compartilhadas por todas as organizações.
  *
  * Contrato bilateral (Mandamento 09): schemas Zod vêm de
- * `@tenant/cadastros/shared/schemas`. Divergência aqui = commit incompleto.
+ * `@cadastros/shared/schemas`. Divergência aqui = commit incompleto.
  *
  * Escopo
  * ──────
@@ -124,128 +124,132 @@ export default function CadastrosGlobaisAdmin() {
   // ─── Dados filtrados por aba ──
   const dadosAtivos = useMemo(() => {
     const termo = busca.trim().toLowerCase()
-    const filtraAtivo = <T extends { ativo: boolean }>(arr: T[]) =>
-      apenasAtivos ? arr.filter(i => i.ativo) : arr
 
     if (tab === 'ncm') {
-      return filtraAtivo(ncm).filter(i =>
+      const base = apenasAtivos ? ncm.filter(i => i.ativo_ncm) : ncm
+      return base.filter(i =>
         !termo ||
-        i.codigo.toLowerCase().includes(termo) ||
-        i.descricao.toLowerCase().includes(termo),
+        i.codigo_ncm.toLowerCase().includes(termo) ||
+        i.descricao_ncm.toLowerCase().includes(termo),
       )
     }
     if (tab === 'moedas') {
-      return filtraAtivo(moedas).filter(i =>
+      const base = apenasAtivos ? moedas.filter(i => i.ativo_moeda) : moedas
+      return base.filter(i =>
         !termo ||
-        i.codigo.toLowerCase().includes(termo) ||
-        i.nome.toLowerCase().includes(termo) ||
-        i.simbolo.toLowerCase().includes(termo),
+        i.codigo_moeda.toLowerCase().includes(termo) ||
+        i.nome_moeda.toLowerCase().includes(termo) ||
+        i.simbolo_moeda.toLowerCase().includes(termo),
       )
     }
-    return filtraAtivo(unidades).filter(i =>
+    const base = apenasAtivos ? unidades.filter(i => i.ativo_unidade) : unidades
+    return base.filter(i =>
       !termo ||
-      i.codigo.toLowerCase().includes(termo) ||
-      i.nome.toLowerCase().includes(termo) ||
-      i.tipo.toLowerCase().includes(termo),
+      i.codigo_unidade.toLowerCase().includes(termo) ||
+      i.nome_unidade.toLowerCase().includes(termo) ||
+      i.tipo_unidade.toLowerCase().includes(termo),
     )
   }, [tab, busca, apenasAtivos, moedas, unidades, ncm])
 
   // ─── Colunas por aba ──
   const colunasNcm: TabelaGlobalColuna<NCM>[] = [
-    { key: 'codigo',    label: 'Código NCM', tipo: 'texto',  largura: 140, align: 'left' },
-    { key: 'descricao', label: 'Descrição',  tipo: 'texto',  align: 'left' },
-    { key: 'ii',        label: 'II (%)',     tipo: 'numero', largura: 90,  align: 'right', render: v => v == null ? '—' : Number(v).toFixed(2) },
-    { key: 'ipi',       label: 'IPI (%)',    tipo: 'numero', largura: 90,  align: 'right', render: v => v == null ? '—' : Number(v).toFixed(2) },
-    { key: 'ativo',     label: 'Status',     tipo: 'texto',  largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
+    { key: 'codigo_ncm',    label: 'Código NCM', tipo: 'texto',  largura: 140, align: 'left' },
+    { key: 'descricao_ncm', label: 'Descrição',  tipo: 'texto',  align: 'left' },
+    { key: 'ii_ncm',        label: 'II (%)',     tipo: 'numero', largura: 90,  align: 'right', render: v => v == null ? '—' : Number(v).toFixed(2) },
+    { key: 'ipi_ncm',       label: 'IPI (%)',    tipo: 'numero', largura: 90,  align: 'right', render: v => v == null ? '—' : Number(v).toFixed(2) },
+    { key: 'ativo_ncm',     label: 'Status',     tipo: 'texto',  largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
   ]
 
   const colunasMoedas: TabelaGlobalColuna<Moeda>[] = [
-    { key: 'codigo',  label: 'ISO 4217', tipo: 'texto', largura: 120, align: 'center' },
-    { key: 'nome',    label: 'Nome',     tipo: 'texto', align: 'left' },
-    { key: 'simbolo', label: 'Símbolo',  tipo: 'texto', largura: 110, align: 'center' },
-    { key: 'ativo',   label: 'Status',   tipo: 'texto', largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
+    { key: 'codigo_moeda',  label: 'ISO 4217', tipo: 'texto', largura: 120, align: 'center' },
+    { key: 'nome_moeda',    label: 'Nome',     tipo: 'texto', align: 'left' },
+    { key: 'simbolo_moeda', label: 'Símbolo',  tipo: 'texto', largura: 110, align: 'center' },
+    { key: 'ativo_moeda',   label: 'Status',   tipo: 'texto', largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
   ]
 
   const colunasUnidades: TabelaGlobalColuna<Unidade>[] = [
-    { key: 'codigo', label: 'Código', tipo: 'texto', largura: 120, align: 'center' },
-    { key: 'nome',   label: 'Nome',   tipo: 'texto', align: 'left' },
-    { key: 'tipo',   label: 'Tipo',   tipo: 'texto', largura: 160, align: 'center', render: v => <TipoUnidadeChip tipo={String(v)} /> },
-    { key: 'ativo',  label: 'Status', tipo: 'texto', largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
+    { key: 'codigo_unidade', label: 'Código', tipo: 'texto', largura: 120, align: 'center' },
+    { key: 'nome_unidade',   label: 'Nome',   tipo: 'texto', align: 'left' },
+    { key: 'tipo_unidade',   label: 'Tipo',   tipo: 'texto', largura: 160, align: 'center', render: v => <TipoUnidadeChip tipo={String(v)} /> },
+    { key: 'ativo_unidade',  label: 'Status', tipo: 'texto', largura: 110, align: 'center', render: v => <StatusBadge ativo={!!v} /> },
   ]
 
   // ─── Counts (stats inline no header) ──
-  const countNcm      = ncm.filter(i => i.ativo).length
-  const countMoedas   = moedas.filter(i => i.ativo).length
-  const countUnidades = unidades.filter(i => i.ativo).length
+  const countNcm      = ncm.filter(i => i.ativo_ncm).length
+  const countMoedas   = moedas.filter(i => i.ativo_moeda).length
+  const countUnidades = unidades.filter(i => i.ativo_unidade).length
 
   return (
-    <PaginaGlobal>
-      <CabecalhoGlobal
-        titulo="Cadastros Globais"
-        subtitulo="Catálogos compartilhados por todos os tenants (NCM, Moedas, Unidades). Somente leitura nesta onda."
-        icone={<Database weight="duotone" size={22} />}
-        cor="#10b981"
-        acoesDireita={
-          <TooltipGlobal descricao="Recarregar catálogos">
-            <button
-              type="button"
-              className="cga-refresh-btn"
-              onClick={carregar}
-              disabled={carregando}
-              aria-label="Recarregar"
-            >
-              <ArrowsClockwise size={15} weight="bold" />
-              {carregando ? 'Atualizando…' : 'Atualizar'}
-            </button>
-          </TooltipGlobal>
-        }
-      />
-
-      {/* ── Abas ── */}
-      <div className="cga-tabs">
-        {TABS.map(tdef => {
-          const ativo = tab === tdef.id
-          const count = tdef.id === 'ncm' ? countNcm : tdef.id === 'moedas' ? countMoedas : countUnidades
-          return (
-            <button
-              key={tdef.id}
-              type="button"
-              className={`cga-tab${ativo ? ' cga-tab--ativo' : ''}`}
-              style={ativo ? { borderColor: tdef.cor, color: tdef.cor } : undefined}
-              onClick={() => setTab(tdef.id)}
-            >
-              <span className="cga-tab__icone" style={{ color: tdef.cor }}>{tdef.icone}</span>
-              <span className="cga-tab__label">{tdef.label}</span>
-              <span className="cga-tab__count">{count}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* ── Descrição da aba + Toolbar ── */}
-      <div className="cga-toolbar">
-        <p className="cga-tab-desc">{TABS.find(t => t.id === tab)?.descricao}</p>
-        <div className="cga-toolbar-right">
-          <label className="cga-checkbox">
-            <input
-              type="checkbox"
-              checked={apenasAtivos}
-              onChange={e => setApenasAtivos(e.target.checked)}
-            />
-            <span>Apenas ativos</span>
-          </label>
-          <div className="cga-busca">
-            <MagnifyingGlass size={14} weight="bold" />
-            <input
-              type="text"
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder={`Buscar em ${TABS.find(t => t.id === tab)?.label ?? ''}…`}
-            />
+    <PaginaGlobal
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          titulo="Cadastros Globais"
+          subtitulo="Catálogos compartilhados por todas as organizações (NCM, Moedas, Unidades). Somente leitura nesta onda."
+          icone={<Database weight="duotone" size={22} />}
+        />
+      }
+      toolbar={
+        <>
+          {/* ── Abas ── */}
+          <div className="cga-tabs">
+            {TABS.map(tdef => {
+              const ativo = tab === tdef.id
+              const count = tdef.id === 'ncm' ? countNcm : tdef.id === 'moedas' ? countMoedas : countUnidades
+              return (
+                <button
+                  key={tdef.id}
+                  type="button"
+                  className={`cga-tab${ativo ? ' cga-tab--ativo' : ''}`}
+                  style={ativo ? { borderColor: tdef.cor, color: tdef.cor } : undefined}
+                  onClick={() => setTab(tdef.id)}
+                >
+                  <span className="cga-tab__icone" style={{ color: tdef.cor }}>{tdef.icone}</span>
+                  <span className="cga-tab__label">{tdef.label}</span>
+                  <span className="cga-tab__count">{count}</span>
+                </button>
+              )
+            })}
           </div>
-        </div>
-      </div>
 
+          {/* ── Descrição da aba + filtros + atualizar ── */}
+          <div className="cga-toolbar">
+            <p className="cga-tab-desc">{TABS.find(t => t.id === tab)?.descricao}</p>
+            <div className="cga-toolbar-right">
+              <label className="cga-checkbox">
+                <input
+                  type="checkbox"
+                  checked={apenasAtivos}
+                  onChange={e => setApenasAtivos(e.target.checked)}
+                />
+                <span>Apenas ativos</span>
+              </label>
+              <div className="cga-busca">
+                <MagnifyingGlass size={14} weight="bold" />
+                <input
+                  type="text"
+                  value={busca}
+                  onChange={e => setBusca(e.target.value)}
+                  placeholder={`Buscar em ${TABS.find(t => t.id === tab)?.label ?? ''}…`}
+                />
+              </div>
+              <TooltipGlobal descricao="Recarregar catálogos">
+                <button
+                  type="button"
+                  className="cga-refresh-btn"
+                  onClick={carregar}
+                  disabled={carregando}
+                  aria-label="Recarregar"
+                >
+                  <ArrowsClockwise size={15} weight="bold" />
+                  {carregando ? 'Atualizando…' : 'Atualizar'}
+                </button>
+              </TooltipGlobal>
+            </div>
+          </div>
+        </>
+      }
+    >
       {/* ── Estados ── */}
       {carregando && (
         <div className="cga-loading">
@@ -267,7 +271,7 @@ export default function CadastrosGlobaisAdmin() {
             <TabelaGlobal<NCM>
               dados={dadosAtivos as NCM[]}
               colunas={colunasNcm}
-              idKey="codigo"
+              idKey="codigo_ncm"
               mensagemVazio="Nenhum NCM encontrado com os filtros atuais."
               tooltipBusca="Busca por código ou descrição"
             />
@@ -276,7 +280,7 @@ export default function CadastrosGlobaisAdmin() {
             <TabelaGlobal<Moeda>
               dados={dadosAtivos as Moeda[]}
               colunas={colunasMoedas}
-              idKey="codigo"
+              idKey="codigo_moeda"
               mensagemVazio="Nenhuma moeda encontrada com os filtros atuais."
               tooltipBusca="Busca por código ISO, nome ou símbolo"
             />
@@ -285,7 +289,7 @@ export default function CadastrosGlobaisAdmin() {
             <TabelaGlobal<Unidade>
               dados={dadosAtivos as Unidade[]}
               colunas={colunasUnidades}
-              idKey="codigo"
+              idKey="codigo_unidade"
               mensagemVazio="Nenhuma unidade encontrada com os filtros atuais."
               tooltipBusca="Busca por código, nome ou tipo"
             />

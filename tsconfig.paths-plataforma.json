@@ -23,10 +23,14 @@
         "../../../nucleo-global/*/src/index.ts"
       ],
       "@nucleo/logo-produtos": ["../../../nucleo-global/Logo/produtos/src/index.ts"],
+      "@nucleo/tabelas-base-unidades-peso": ["../../../nucleo-global/Tabelas/tabelas-base/unidades-peso/src/index.ts"],
+      "@nucleo/query-builder-global": ["../../../nucleo-global/Dashboard/dashboard-global/src/QueryBuilder/DashboardConstrutorConsulta.tsx"],
+      "@nucleo/dashboard": ["../../../nucleo-global/Dashboard/dashboard-global/src/index.ts"],
 
       "@shell": ["../../shell/index.ts"],
       "@shell/*": ["../../shell/*"],
       "@gravity/shell": ["../../shell/index.ts"],
+      "@plataforma/historico": ["../historico-global/src/index.ts"],
       "@plataforma/*": ["../*"],
       "@produto/*": ["../../produto/*"]
     }

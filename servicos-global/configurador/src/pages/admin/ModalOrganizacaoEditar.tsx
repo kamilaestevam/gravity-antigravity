@@ -7,7 +7,6 @@ import {
   CalendarBlank,
   MapPin,
   Package,
-  Ticket,
   Warning
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario-global'
@@ -20,7 +19,6 @@ import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 export interface DadosEditarOrg {
   nome: string
   subdominio: string
-  plano: string
   cnpj: string
   estado: string
   cidade: string
@@ -51,8 +49,6 @@ interface ModalEditarOrganizacaoProps {
   aoFechar: () => void
   aoSalvar: (dados: Partial<DadosEditarOrg>) => void
 }
-
-const PLANOS = ['Free', 'Startup', 'Pro', 'Enterprise', 'Trial']
 
 const ESTADOS_BR = [
   'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS',
@@ -102,7 +98,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const [nome, setNome] = useState('')
   const [subdominio, setSubdominio] = useState('')
   const [erroSub, setErroSub] = useState('')
-  const [plano, setPlano] = useState('')
   const [cnpj, setCnpj] = useState('')
   const [estado, setEstado] = useState('')
   const [cidade, setCidade] = useState('')
@@ -117,7 +112,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       setNome(organizacao.name || '')
       setSubdominio(organizacao.slug || '')
       setErroSub('')
-      setPlano(organizacao.subscriptions?.[0]?.plan || PLANOS[0])
       setCnpj('')
       setEstado('')
       setCidade('')
@@ -139,7 +133,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const dirty = !!(
     nome !== (organizacao?.name || '') ||
     subdominio !== (organizacao?.slug || '') ||
-    plano !== (organizacao?.subscriptions?.[0]?.plan || '') ||
     cnpj !== '' ||
     estado !== '' ||
     cidade !== '' ||
@@ -150,7 +143,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
   function handleSalvar() {
     if (!podesSalvar) return
-    aoSalvar({ nome, subdominio, plano, cnpj, estado, cidade, segmento, tipo_empresa: tipoEmpresa })
+    aoSalvar({ nome, subdominio, cnpj, estado, cidade, segmento, tipo_empresa: tipoEmpresa })
     aoFechar()
   }
 
@@ -198,10 +191,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <CalendarBlank size={14} />
                 <span>{t('admin.testes-gerais.org.criado_em')} {organizacao?.created_at}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
-                <Ticket size={14} />
-                <span>{plano}</span>
               </div>
             </div>
           </div>
@@ -287,8 +276,8 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             icone={<Globe size={16} weight="duotone" />}
             titulo={t('admin.testes-gerais.org.secao_acesso_web')}
           />
-          <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div style={{ gridColumn: '1 / -1' }}>
+          <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+            <div>
               <CampoGeralGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
                 <SelectGlobal
                   iconeEsquerda={<Buildings size={16} />}
@@ -300,7 +289,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
               </CampoGeralGlobal>
             </div>
 
-            <div style={{ gridColumn: '1 / -1' }}>
+            <div>
               <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_subdominio')} obrigatorio>
                 <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                   <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
@@ -352,18 +341,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     </strong>
                   </p>
                 )}
-              </CampoGeralGlobal>
-            </div>
-
-            <div>
-              <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_plano')}>
-                <SelectGlobal
-                  iconeEsquerda={<Ticket size={16} />}
-                  opcoes={PLANOS.map(p => ({ valor: p, rotulo: p }))}
-                  valor={plano || null}
-                  aoMudarValor={(v: string | number | null) => setPlano(String(v ?? ''))}
-                  placeholder={t('admin.testes-gerais.org.campo_plano_placeholder')}
-                />
               </CampoGeralGlobal>
             </div>
           </div>

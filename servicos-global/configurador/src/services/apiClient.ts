@@ -146,7 +146,7 @@ export interface TenantApi {
   status_organizacao: string
   data_criacao_organizacao: string
   _count?: { users: number; companies: number }
-  subscriptions?: Array<{ plan: string; status: string }>
+  subscriptions?: Array<{ status: string }>
   users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
   companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
   product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
@@ -242,7 +242,7 @@ export const adminTenantsApi = {
     return request<{ tenant: TenantApi }>(`/v1/admin/tenants/${id}`)
   },
 
-  async create(data: { nome_organizacao: string; subdominio_organizacao: string; plano?: string; cnpj_organizacao?: string }) {
+  async create(data: { nome_organizacao: string; subdominio_organizacao: string; cnpj_organizacao?: string }) {
     return request<{ tenant: TenantApi }>('/v1/admin/tenants', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -256,7 +256,7 @@ export const adminTenantsApi = {
     })
   },
 
-  async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string; plano?: string }) {
+  async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string }) {
     return request<{ tenant: TenantApi }>(`/v1/admin/tenants/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -607,7 +607,6 @@ export interface PlatformConfigApi {
   segmento_organizacao: string | null
   tipo_empresa_organizacao: string | null
   data_criacao_organizacao: string
-  subscriptions?: Array<{ plan: string }>
 }
 
 export const adminPlatformApi = {

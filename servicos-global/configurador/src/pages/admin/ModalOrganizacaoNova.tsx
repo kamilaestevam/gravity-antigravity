@@ -4,28 +4,22 @@ import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-for
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
-import { 
-  Buildings, 
-  Link, 
-  Ticket, 
-  IdentificationCard, 
-  MapPin, 
-  Package, 
+import {
+  Buildings,
+  IdentificationCard,
+  MapPin,
   Globe,
-  CheckCircle,
   Archive
 } from '@phosphor-icons/react'
 
 export interface DadosNovaOrg {
   nome: string
   subdominio: string
-  plano: string
   cnpj: string
   estado: string
   cidade: string
   segmento: string
   tipo_empresa: string
-  espacoPadrao?: string
 }
 
 const TIPOS_EMPRESA = [
@@ -50,8 +44,6 @@ interface ModalNovaOrganizacaoProps {
   aoFechar: () => void
   aoSalvar: (dados: DadosNovaOrg) => void
 }
-
-const PLANOS = ['Startup', 'Pro', 'Enterprise', 'Trial']
 
 const ESTADOS_BR = [
   'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS',
@@ -83,13 +75,11 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [subdominio, setSubdominio] = useState('')
-  const [plano, setPlano] = useState(PLANOS[0])
   const [cnpj, setCnpj] = useState('')
   const [estado, setEstado] = useState('')
   const [cidade, setCidade] = useState('')
   const [segmento, setSegmento] = useState('')
   const [tipoEmpresa, setTipoEmpresa] = useState('')
-  const [espacoPadrao, setEspacoPadrao] = useState('')
 
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
@@ -99,16 +89,14 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const podesSalvar = !!(nome.trim() && subdominio.trim())
 
   function handleSalvar() {
-    aoSalvar({ 
-      nome, 
-      subdominio, 
-      plano,
+    aoSalvar({
+      nome,
+      subdominio,
       cnpj,
       estado,
       cidade,
       segmento,
       tipo_empresa: tipoEmpresa,
-      espacoPadrao
     })
     handleLimpar()
   }
@@ -116,13 +104,11 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   function handleLimpar() {
     setNome('')
     setSubdominio('')
-    setPlano(PLANOS[0])
     setCnpj('')
     setEstado('')
     setCidade('')
     setSegmento('')
     setTipoEmpresa('')
-    setEspacoPadrao('')
   }
 
   function handleFechar() {

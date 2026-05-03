@@ -71,7 +71,6 @@ export interface Tenant {
   slug: string
   status: 'Ativa' | 'Suspensa'
   created_at: string
-  plan?: string // Plano base (Enterprise, Pro, etc)
   _count?: {
     users: number
     companies: number

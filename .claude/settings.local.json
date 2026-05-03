@@ -12,7 +12,10 @@
       "Skill(update-config)",
       "Skill(update-config:*)",
       "Read(//c/Users/danie/.claude/**)",
-      "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node|tsx|vite|prisma\"} | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize)"
+      "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node|tsx|vite|prisma\"} | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize)",
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\danie\\\\gravity-antigravity\\\\testes\\\\testes-e2e\\\\admin\\\\visao-geral\\\\plano-teste\\\\\")",
+      "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -ge 3000 -and $_.LocalPort -le 9000 } | Select-Object LocalPort, OwningProcess | Sort-Object LocalPort -Unique | Format-Table -AutoSize)",
+      "PowerShell(npm run dev)"
     ],
     "defaultMode": "acceptEdits"
   }

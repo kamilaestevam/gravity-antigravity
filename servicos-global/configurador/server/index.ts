@@ -30,7 +30,7 @@ import { errorHandler } from './middleware/errorHandler.js'
 import { requireAuth } from './middleware/requireAuth.js'
 import { requireGravityAdmin } from './middleware/requireGravityAdmin.js'
 import { authRouter } from './routes/auth.js'
-import { tenantsRouter } from './routes/tenants.js'
+import { organizacoesRouter } from './routes/organizacoes.js'
 import { usersRouter } from './routes/users.js'
 import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
@@ -106,7 +106,7 @@ app.use('/api/v1/admin', rateLimitPresets.admin())
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/me', meRouter)
 app.use('/api/v1/hub', hubRouter)
-app.use('/api/v1/organizacoes', tenantsRouter)
+app.use('/api/v1/organizacoes', organizacoesRouter)
 app.use('/api/v1/faturas', billingRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/produtos', productsRouter)

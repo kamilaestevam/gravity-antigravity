@@ -19,7 +19,7 @@ import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalOrganizaca
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalOrganizacaoEditar'
 import { ModalEditarWorkspace } from './workspace/ModalWorkspaceEditar'
 import type { Empresa } from './workspace/Workspaces'
-import { Organizacao as GlobalOrganizacao } from '../types/entidades'
+import type { Organizacao } from '../types/entidades'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
 
 
@@ -59,7 +59,7 @@ export interface Tenant {
 }
 
 // Re-exporta Organizacao para consumidores que precisem do tipo DDD
-export type { GlobalOrganizacao }
+export type { Organizacao }
 
 interface Stats {
   totalOrganizacoes: number
@@ -110,7 +110,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
   const [error, setError] = useState<string | null>(null)
   const [showNovaOrg, setShowNovaOrg] = useState(false)
   
-  const [orgEditando, setOrgEditando] = useState<Tenant | null>(null)
+  const [orgEditando, setOrgEditando] = useState<Organizacao | null>(null)
   const [workspaceEditando, setWorkspaceEditando] = useState<Workspace | null>(null)
 
   const addNotification = useShellStore((state) => state.addNotification)
@@ -118,27 +118,35 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
   async function fetchData() {
     setLoading(true)
     try {
-      const [tenantsRes, statsRes] = await Promise.all([
+      const [organizacoesRes, statsRes] = await Promise.all([
         adminTenantsApi.list({ page: 1, limit: 100 }),
         adminTenantsApi.getStats(),
       ])
 
-      // Mapeia dados do backend para formato do frontend
-      const mapped: Tenant[] = tenantsRes.tenants.map((t: TenantApi) => ({
-        id: t.id,
-        name: t.nome_organizacao,
-        slug: t.subdominio_organizacao,
-        status: mapTenantStatus(t.status_organizacao),
-        created_at: t.data_criacao_organizacao,
-        _count: t._count ?? { users: 0, companies: 0 },
-        product_configs: t.product_configs ?? [],
-        workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }) => ({
-          id: c.id,
-          nome: c.name,
-          subdominio: c.subdomain ?? '',
-          status: mapTenantStatus(c.status),
-          usuarios: c._count?.memberships ?? 0,
-          criadaEm: new Date(t.data_criacao_organizacao).toLocaleDateString('pt-BR'),
+      // Mapeia DTO Prisma (backend) → modelo de UI legado (Tenant local).
+      // Quando o componente migrar pra ler campos DDD direto, este mapping morre.
+      const mapped: Tenant[] = organizacoesRes.organizacoes.map((o) => ({
+        id: o.id_organizacao,
+        name: o.nome_organizacao,
+        slug: o.subdominio_organizacao,
+        status: mapTenantStatus(o.status_organizacao),
+        created_at: o.data_criacao_organizacao,
+        _count: {
+          users:     o._count?.users_organizacao ?? 0,
+          companies: o._count?.workspaces_organizacao ?? 0,
+        },
+        product_configs: (o.configuracoes_produto ?? []).map((pc) => ({
+          product_key: pc.chave_produto_configuracao_produto_gravity,
+          is_active:   pc.ativo_configuracao_produto_gravity,
+          updated_at:  pc.data_atualizacao_configuracao_produto_gravity,
+        })),
+        workspaces: (o.workspaces ?? []).map((w) => ({
+          id:         w.id_workspace,
+          nome:       w.nome_workspace,
+          subdominio: w.subdominio_workspace ?? '',
+          status:     mapTenantStatus(w.status_workspace),
+          usuarios:   w._count?.memberships ?? 0,
+          criadaEm:   new Date(o.data_criacao_organizacao).toLocaleDateString('pt-BR'),
         })),
       }))
 
@@ -149,13 +157,13 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       const activeWs = mapped.reduce((sum, t) => sum + t.workspaces.filter(ws => ws.status === 'Ativa').length, 0)
 
       setStats({
-        totalOrganizacoes: s.totalTenants,
-        organizacoesAtivas: s.activeTenants,
-        organizacoesSuspensas: s.suspendedTenants,
-        totalWorkspaces: allWorkspaces,
-        activeWorkspaces: activeWs,
-        suspendedWorkspaces: allWorkspaces - activeWs,
-        totalUsers: s.totalUsers,
+        totalOrganizacoes:     s.totalOrganizacoes,
+        organizacoesAtivas:    s.ativasOrganizacoes,
+        organizacoesSuspensas: s.suspensasOrganizacoes,
+        totalWorkspaces:       allWorkspaces,
+        activeWorkspaces:      activeWs,
+        suspendedWorkspaces:   allWorkspaces - activeWs,
+        totalUsers:            s.totalUsuarios,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar os metadados do servidor. Painel rodando em read-only fallback.')
@@ -206,46 +214,60 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
 
   async function handleSalvarOrg(dados: DadosNovaOrg) {
     try {
-      const { tenant } = await adminTenantsApi.create({
+      const { organizacao } = await adminTenantsApi.create({
         nome_organizacao: dados.nome,
         subdominio_organizacao: dados.subdominio,
         cnpj_organizacao: dados.cnpj || undefined,
       })
       const novo: Tenant = {
-        id: tenant.id,
-        name: tenant.nome_organizacao,
-        slug: tenant.subdominio_organizacao,
-        status: mapTenantStatus(tenant.status_organizacao),
-        created_at: tenant.data_criacao_organizacao,
-        _count: tenant._count ?? { users: 0, companies: 0 },
+        id: organizacao.id_organizacao,
+        name: organizacao.nome_organizacao,
+        slug: organizacao.subdominio_organizacao,
+        status: mapTenantStatus(organizacao.status_organizacao),
+        created_at: organizacao.data_criacao_organizacao,
+        _count: {
+          users:     organizacao._count?.users_organizacao ?? 0,
+          companies: organizacao._count?.workspaces_organizacao ?? 0,
+        },
         product_configs: [],
         workspaces: [],
       }
       setTenants(prev => [novo, ...prev])
       setStats(prev => prev ? { ...prev, totalOrganizacoes: prev.totalOrganizacoes + 1, organizacoesAtivas: prev.organizacoesAtivas + 1 } : null)
       setShowNovaOrg(false)
-      addNotification({ type: 'success', message: `Organização "${tenant.nome_organizacao}" criada com sucesso!` })
+      addNotification({ type: 'success', message: `Organização "${organizacao.nome_organizacao}" criada com sucesso!` })
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao criar organização.' })
     }
   }
 
   function handleEditOrg(linha: Tenant) {
-    setOrgEditando(linha)
+    // Converte Tenant (estrutura interna de UI legacy) para Organizacao (DDD/Prisma)
+    // — formato esperado pela ModalEditarOrganizacao.
+    setOrgEditando({
+      id_organizacao:           linha.id,
+      nome_organizacao:         linha.name,
+      subdominio_organizacao:   linha.slug,
+      status_organizacao:       linha.status === 'Ativa' ? 'ATIVO' : linha.status === 'Pendente' ? 'CONFIGURACAO_PENDENTE' : 'SUSPENSO',
+      data_criacao_organizacao: linha.created_at,
+      _count: linha._count
+        ? { users_organizacao: linha._count.users, workspaces_organizacao: linha._count.companies }
+        : undefined,
+    })
   }
 
   async function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
     if (!orgEditando) return
     try {
-      await adminTenantsApi.update(orgEditando.id, {
-        nome_organizacao: dados.nome,
+      await adminTenantsApi.update(orgEditando.id_organizacao, {
+        nome_organizacao:       dados.nome,
         subdominio_organizacao: dados.subdominio,
       })
       setTenants(prev => prev.map(t => {
-        if (t.id === orgEditando.id) {
+        if (t.id === orgEditando.id_organizacao) {
           return {
             ...t,
-            name: dados.nome || t.name,
+            name: dados.nome      || t.name,
             slug: dados.subdominio || t.slug,
           }
         }

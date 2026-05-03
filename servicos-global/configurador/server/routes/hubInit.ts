@@ -6,7 +6,7 @@
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { tenantService } from '../services/tenantService.js'
+import { organizacaoService as tenantService } from '../services/organizacaoService.js'
 import { prisma } from '../lib/prisma.js'
 import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsService.js'
 

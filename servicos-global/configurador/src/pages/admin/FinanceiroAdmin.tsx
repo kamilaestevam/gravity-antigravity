@@ -119,7 +119,7 @@ export function FinanceiroAdmin() {
       setProvider(invResp.provider)
       setNextCursor(invResp.pagination.next_cursor)
       setHasMore(invResp.pagination.has_more)
-      setTenants(tenantResp.tenants)
+      setTenants(tenantResp.organizacoes)
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, t('admin.financeiro-admin.msg_erro_carregar')) })
     } finally {
@@ -634,7 +634,7 @@ export function FinanceiroAdmin() {
 
                   <CampoGeralGlobal label="Tenant (Cliente)" obrigatorio>
                     <SelectGlobal
-                      opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
+                      opcoes={tenants.map(tn => ({ valor: tn.id_organizacao, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
                       valor={formTenantId}
                       aoMudarValor={v => { setFormTenantId(v ? String(v) : null); setFormDirty(true) }}
                       iconeEsquerda={<Buildings size={16} />}

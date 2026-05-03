@@ -133,22 +133,25 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
       setLoading(true)
       try {
         const res = await adminTenantsApi.getById(id_organizacao)
-        const t = res.tenant
+        const o = res.organizacao
         const mapped: TenantMock = {
-          id: t.id,
-          name: t.nome_organizacao,
-          slug: t.subdominio_organizacao,
-          status: mapStatus(t.status_organizacao),
-          created_at: t.data_criacao_organizacao,
-          _count: t._count ?? { users: 0, companies: 0 },
-          workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
-            id: c.id,
-            nome: c.name,
-            subdominio: c.subdomain ?? t.subdominio_organizacao,
-            status: mapStatus(c.status),
-            usuarios: 0,
-            plano: 'N/A',
-            criadaEm: new Date(t.data_criacao_organizacao).toLocaleDateString('pt-BR'),
+          id:         o.id_organizacao,
+          name:       o.nome_organizacao,
+          slug:       o.subdominio_organizacao,
+          status:     mapStatus(o.status_organizacao),
+          created_at: o.data_criacao_organizacao,
+          _count: {
+            users:     o._count?.users_organizacao ?? 0,
+            companies: o._count?.workspaces_organizacao ?? 0,
+          },
+          workspaces: (o.workspaces ?? []).map((w) => ({
+            id:         w.id_workspace,
+            nome:       w.nome_workspace,
+            subdominio: w.subdominio_workspace ?? o.subdominio_organizacao,
+            status:     mapStatus(w.status_workspace),
+            usuarios:   0,
+            plano:      'N/A',
+            criadaEm:   new Date(o.data_criacao_organizacao).toLocaleDateString('pt-BR'),
           })),
         }
         setTenant(mapped)

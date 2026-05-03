@@ -40,8 +40,8 @@ const tenantServiceMock = {
   ]),
 }
 
-vi.mock('../services/tenantService.js', () => ({
-  tenantService: tenantServiceMock,
+vi.mock('../services/organizacaoService.js', () => ({
+  organizacaoService: tenantServiceMock,
 }))
 
 // Mock rate limiter — passthrough em testes

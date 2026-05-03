@@ -131,7 +131,7 @@ function getScreenContext(path: string): ScreenContext {
     return {
       welcome: 'Area administrativa. Posso te ajudar a navegar pelas configuracoes globais da plataforma.',
       actions: [
-        { label: 'Como gerenciar tenants?', icon: <Question size={16} /> },
+        { label: 'Como gerenciar organizações?', icon: <Question size={16} /> },
         { label: 'Onde vejo metricas globais?', icon: <ArrowRight size={16} /> },
         { label: 'Como funciona o deploy?', icon: <RocketLaunch size={16} /> },
       ],
@@ -772,7 +772,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
           )
         }
       } else if (m.startsWith('/')) {
-        // Bare route path like /admin/tenants
+        // Bare route path like /admin/organizacoes
         parts.push(
           <a
             key={key++}

@@ -1,4 +1,4 @@
-// server/routes/tenants.ts
+// server/routes/organizacoes.ts
 // Gestão de organizações e workspaces
 // POST /api/v1/organizacoes              — criar organização (onboarding)
 // GET  /api/v1/organizacoes/me           — dados da organização atual
@@ -8,11 +8,11 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { tenantService } from '../services/tenantService.js'
+import { organizacaoService } from '../services/organizacaoService.js'
 import { AppError } from '../lib/appError.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 
-export const tenantsRouter = Router()
+export const organizacoesRouter = Router()
 
 // ─── Schemas de validação ───────────────────────────────────────────────────
 
@@ -86,7 +86,7 @@ const UpdateCompanySchema = z.object({
  * Cria uma nova organização + usuário owner durante o onboarding
  * Público — chamado logo após o checkout do provider de billing
  */
-tenantsRouter.post('/', async (req, res, next) => {
+organizacoesRouter.post('/', async (req, res, next) => {
   try {
     const parsed = CreateTenantSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -97,7 +97,7 @@ tenantsRouter.post('/', async (req, res, next) => {
       )
     }
 
-    const tenant = await tenantService.createTenant({
+    const tenant = await organizacaoService.createTenant({
       ...parsed.data,
       correlationId: req.correlationId,
     })
@@ -111,9 +111,9 @@ tenantsRouter.post('/', async (req, res, next) => {
  * GET /api/v1/organizacoes/me
  * Retorna dados da organização do usuário autenticado
  */
-tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
+organizacoesRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await tenantService.getTenantById(req.auth.id_organizacao)
+    const tenant = await organizacaoService.getTenantById(req.auth.id_organizacao)
     if (!tenant) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
@@ -140,7 +140,7 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
  * PATCH /api/v1/organizacoes/me
  * Atualiza dados cadastrais da organização autenticada
  */
-tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
+organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
   try {
     const parsed = UpdateTenantSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -150,8 +150,8 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
-    const before = await tenantService.getTenantById(req.auth.id_organizacao)
-    const tenant = await tenantService.updateTenant(req.auth.id_organizacao, parsed.data)
+    const before = await organizacaoService.getTenantById(req.auth.id_organizacao)
+    const tenant = await organizacaoService.updateTenant(req.auth.id_organizacao, parsed.data)
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -179,9 +179,9 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
  * GET /api/v1/organizacoes/me/workspaces
  * Lista workspaces da organização autenticada
  */
-tenantsRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
+organizacoesRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
   try {
-    const companies = await tenantService.getCompanies(req.auth.id_organizacao)
+    const companies = await organizacaoService.getCompanies(req.auth.id_organizacao)
     res.json({ companies })
   } catch (err) {
     next(err)
@@ -192,7 +192,7 @@ tenantsRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
  * POST /api/v1/organizacoes/me/workspaces
  * Cria um workspace na organização autenticada
  */
-tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
+organizacoesRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
   try {
     const parsed = CreateCompanySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -202,7 +202,7 @@ tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
-    const company = await tenantService.createCompany(
+    const company = await organizacaoService.createCompany(
       req.auth.id_organizacao,
       parsed.data
     )
@@ -230,7 +230,7 @@ tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
  * PATCH /api/v1/organizacoes/me/workspaces/:id_workspace
  * Atualiza um workspace (nome, subdomain, cnpj, status)
  */
-tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
+organizacoesRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
   try {
     const parsed = UpdateCompanySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -240,7 +240,7 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
         'VALIDATION_ERROR'
       )
     }
-    const company = await tenantService.updateCompany(
+    const company = await organizacaoService.updateCompany(
       req.auth.id_organizacao,
       req.params.id_workspace,
       parsed.data
@@ -269,9 +269,9 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
  * DELETE /api/v1/organizacoes/me/workspaces/:id_workspace
  * Remove um workspace da organização autenticada
  */
-tenantsRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
+organizacoesRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
   try {
-    await tenantService.deleteCompany(req.auth.id_organizacao, req.params.id_workspace)
+    await organizacaoService.deleteCompany(req.auth.id_organizacao, req.params.id_workspace)
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,

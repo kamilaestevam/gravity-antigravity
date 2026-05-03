@@ -1,5 +1,5 @@
-// server/services/tenantService.ts
-// Lógica de negócio para criação e gestão de tenants e empresas filhas
+// server/services/organizacaoService.ts
+// Lógica de negócio para criação e gestão de organizações e workspaces
 
 import { createId } from '@paralleldrive/cuid2'
 import { prisma } from '../lib/prisma.js'
@@ -7,7 +7,7 @@ import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 import { criarEmpresa, compensarEmpresa } from './cadastrosClient.js'
 
-const log = logger.child({ module: 'tenant-service' })
+const log = logger.child({ module: 'organizacao-service' })
 
 interface CreateTenantInput {
   nome_organizacao: string
@@ -25,7 +25,7 @@ interface CreateCompanyInput {
   cnpj?: string
 }
 
-export const tenantService = {
+export const organizacaoService = {
   /**
    * Cria um novo tenant + usuário owner via saga Cadastros-primeiro.
    * Chamado no onboarding após checkout do provider de billing.

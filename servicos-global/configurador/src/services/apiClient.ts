@@ -141,17 +141,47 @@ export interface NegotiationApi {
   ilimitado_negociacao_especial_preco_produto_gravity: boolean
 }
 
-export interface TenantApi {
-  id: string
+// PARIDADE ABSOLUTA: espelha model Organizacao + back-relations renomeadas.
+// Backend retorna estes nomes diretamente (sem tradução).
+export interface WorkspaceApi {
+  id_workspace: string
+  nome_workspace: string
+  subdominio_workspace: string | null
+  status_workspace: string
+  _count?: { memberships: number }
+}
+
+export interface UsuarioOrgApi {
+  id_usuario: string
+  nome_usuario: string
+  email_usuario: string
+  tipo_usuario: string
+  data_criacao_usuario: string
+}
+
+export interface ConfiguracaoProdutoOrgApi {
+  chave_produto_configuracao_produto_gravity: string
+  ativo_configuracao_produto_gravity: boolean
+  data_atualizacao_configuracao_produto_gravity: string
+}
+
+export interface OrganizacaoApi {
+  id_organizacao: string
   nome_organizacao: string
   subdominio_organizacao: string
   status_organizacao: string
   data_criacao_organizacao: string
-  _count?: { users: number; companies: number }
-  users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
-  companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
-  product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
+  _count?: { users_organizacao: number; workspaces_organizacao: number }
+  usuarios?: UsuarioOrgApi[]
+  workspaces?: WorkspaceApi[]
+  configuracoes_produto?: ConfiguracaoProdutoOrgApi[]
 }
+
+/**
+ * @deprecated Use OrganizacaoApi. Mantido temporariamente como alias para
+ * arquivos legados (FinanceiroAdmin, etc.) ainda não migrados.
+ */
+export type TenantApi = OrganizacaoApi
 
 export interface PaginationApi {
   page: number
@@ -225,48 +255,48 @@ export const adminProductsApi = {
   },
 }
 
-// ─── Admin: Tenants ─────────────────────────────────────────────────────────
+// ─── Admin: Organizações ────────────────────────────────────────────────────
 
-export const adminTenantsApi = {
+export const adminOrganizacoesApi = {
   async list(params?: { page?: number; limit?: number; search?: string }) {
     const query = new URLSearchParams()
-    if (params?.page) query.set('page', String(params.page))
-    if (params?.limit) query.set('limit', String(params.limit))
+    if (params?.page)   query.set('page',   String(params.page))
+    if (params?.limit)  query.set('limit',  String(params.limit))
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
-    return request<{ tenants: TenantApi[]; pagination: PaginationApi }>(
+    return request<{ organizacoes: OrganizacaoApi[]; pagination: PaginationApi }>(
       `/v1/admin/organizacoes${qs ? `?${qs}` : ''}`
     )
   },
 
-  async getById(id: string) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`)
+  async getById(id_organizacao: string) {
+    return request<{ organizacao: OrganizacaoApi }>(`/v1/admin/organizacoes/${id_organizacao}`)
   },
 
   async create(data: { nome_organizacao: string; subdominio_organizacao: string; cnpj_organizacao?: string }) {
-    return request<{ tenant: TenantApi }>('/v1/admin/organizacoes', {
+    return request<{ organizacao: OrganizacaoApi }>('/v1/admin/organizacoes', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
-  async updateStatus(id: string, status_organizacao: string) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`, {
+  async updateStatus(id_organizacao: string, status_organizacao: string) {
+    return request<{ organizacao: OrganizacaoApi }>(`/v1/admin/organizacoes/${id_organizacao}`, {
       method: 'PATCH',
       body: JSON.stringify({ status_organizacao }),
     })
   },
 
-  async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string }) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`, {
+  async update(id_organizacao: string, data: { nome_organizacao?: string; subdominio_organizacao?: string }) {
+    return request<{ organizacao: OrganizacaoApi }>(`/v1/admin/organizacoes/${id_organizacao}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
   },
 
-  async updateWorkspaceStatus(id: string, status: 'ATIVO' | 'INATIVO') {
-    return request<{ workspace: { id: string; name: string; status: string; tenant_id: string } }>(
-      `/v1/admin/workspaces/${id}`,
+  async updateWorkspaceStatus(id_workspace: string, status: 'ATIVO' | 'INATIVO') {
+    return request<{ workspace: WorkspaceApi & { id_organizacao: string } }>(
+      `/v1/admin/workspaces/${id_workspace}`,
       { method: 'PATCH', body: JSON.stringify({ status }) }
     )
   },
@@ -274,31 +304,38 @@ export const adminTenantsApi = {
   async getStats() {
     return request<{
       stats: {
-        totalTenants: number
-        activeTenants: number
-        suspendedTenants: number
-        totalUsers: number
+        totalOrganizacoes:     number
+        ativasOrganizacoes:    number
+        suspensasOrganizacoes: number
+        totalUsuarios:         number
       }
     }>('/v1/admin/estatisticas-plataforma')
   },
 }
 
+/**
+ * @deprecated Use adminOrganizacoesApi. Mantido temporariamente para arquivos
+ * ainda não migrados (FinanceiroAdmin etc.).
+ */
+export const adminTenantsApi = adminOrganizacoesApi
+
 // ─── Admin: Usuários Globais ────────────────────────────────────────────────
 
+// PARIDADE ABSOLUTA: espelha model Usuario + relações.
 export interface GlobalUserApi {
-  id: string
-  name: string
-  email: string
+  id_usuario: string
+  nome_usuario: string
+  email_usuario: string
   tipo_usuario: string
-  created_at: string
-  tenant_id: string
-  tenant: { nome_organizacao: string; subdominio_organizacao: string }
+  data_criacao_usuario: string
+  id_organizacao: string
+  organizacao: { nome_organizacao: string; subdominio_organizacao: string }
   memberships: Array<{
-    id: string
-    company_id: string
-    tipo_usuario: string
-    is_active: boolean
-    company: { name: string; subdomain: string | null }
+    id_usuario_workspace: string
+    id_workspace: string
+    tipo_usuario_workspace: string
+    ativo_usuario_workspace: boolean
+    workspace: { nome_workspace: string; subdominio_workspace: string | null }
   }>
 }
 
@@ -308,20 +345,20 @@ export const adminUsersApi = {
     if (params?.page) query.set('page', String(params.page))
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
-    return request<{ users: GlobalUserApi[]; pagination: PaginationApi }>(
+    return request<{ usuarios: GlobalUserApi[]; pagination: PaginationApi }>(
       `/v1/admin/usuarios${qs ? `?${qs}` : ''}`
     )
   },
 
-  async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
-    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
-      `/v1/admin/usuarios/${userId}/promover`,
-      { method: 'POST', body: JSON.stringify({ role }) }
+  async promoteUser(id_usuario: string, tipo_usuario: 'SUPER_ADMIN' | 'ADMIN') {
+    return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
+      `/v1/admin/usuarios/${id_usuario}/promover`,
+      { method: 'POST', body: JSON.stringify({ tipo_usuario }) }
     )
   },
 
-  async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
+  async inviteUser(data: { email_usuario: string; nome_usuario: string; tipo_usuario: string }) {
+    return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
       '/v1/admin/usuarios/convidar',
       { method: 'POST', body: JSON.stringify(data) }
     )

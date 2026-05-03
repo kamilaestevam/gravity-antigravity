@@ -29,7 +29,7 @@ const tenantServiceMock = {
   getCompanies: vi.fn().mockResolvedValue([]),
 }
 
-vi.mock('../services/tenantService.js', () => ({ tenantService: tenantServiceMock }))
+vi.mock('../services/organizacaoService.js', () => ({ organizacaoService: tenantServiceMock }))
 
 // Mock rate limiter
 vi.mock('../middleware/rateLimiter.js', () => ({

@@ -97,13 +97,13 @@ function jsonResponse(body: unknown, status = 201): Response {
 // ─── Suite ──────────────────────────────────────────────────────────────────
 
 describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
-  let tenantService: typeof import('../services/tenantService.js')['tenantService']
+  let tenantService: typeof import('../services/organizacaoService.js')['organizacaoService']
 
   beforeEach(async () => {
     vi.clearAllMocks()
     // Import dinâmico APÓS os mocks — garante que o módulo receba os stubs.
-    const mod = await import('../services/tenantService.js')
-    tenantService = mod.tenantService
+    const mod = await import('../services/organizacaoService.js')
+    tenantService = mod.organizacaoService
 
     // Pré-checks default: sem conflito de slug nem de clerk_user_id.
     prismaMock.organizacao.findUnique.mockResolvedValue(null)

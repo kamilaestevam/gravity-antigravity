@@ -951,7 +951,7 @@
   border-color: rgba(79, 70, 229, 0.3);
 }
 
-/* ── Tenant badge ────────────────────────────────────────────────────────── */
+/* ── Organização badge ──────────────────────────────────────────────────── */
 .hs-tenant-badge {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

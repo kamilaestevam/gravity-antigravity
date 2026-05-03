@@ -294,15 +294,17 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO: mapeia _count e id_organizacao → chaves legadas
-    const { id_organizacao, _count, ...tenantRest } = tenant
-    const tenantDto = {
-      id: id_organizacao,
-      ...tenantRest,
-      _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-    }
-
-    res.status(201).json({ tenant: tenantDto })
+    // PARIDADE ABSOLUTA: nomes Prisma direto. _count renomeado para chaves DDD.
+    const { _count, ...rest } = tenant
+    res.status(201).json({
+      organizacao: {
+        ...rest,
+        _count: {
+          users_organizacao: _count.users_organizacao,
+          workspaces_organizacao: _count.companies_organizacao,
+        },
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -383,10 +385,10 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
 adminRouter.get('/estatisticas-plataforma', async (_req, res, next) => {
   try {
     const [
-      totalTenants,
-      activeTenants,
-      suspendedTenants,
-      totalUsers,
+      totalOrganizacoes,
+      ativasOrganizacoes,
+      suspensasOrganizacoes,
+      totalUsuarios,
     ] = await Promise.all([
       prisma.organizacao.count(),
       prisma.organizacao.count({ where: { status_organizacao: 'ATIVO' } }),
@@ -394,12 +396,13 @@ adminRouter.get('/estatisticas-plataforma', async (_req, res, next) => {
       prisma.usuario.count(),
     ])
 
+    // PARIDADE ABSOLUTA: chaves DDD em PT-BR.
     res.json({
       stats: {
-        totalTenants,
-        activeTenants,
-        suspendedTenants,
-        totalUsers,
+        totalOrganizacoes,
+        ativasOrganizacoes,
+        suspensasOrganizacoes,
+        totalUsuarios,
       },
     })
   } catch (err) {

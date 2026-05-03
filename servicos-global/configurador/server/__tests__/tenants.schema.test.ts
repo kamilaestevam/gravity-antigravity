@@ -1,9 +1,9 @@
-// server/__tests__/tenants.schema.test.ts
+// server/__tests__/organizacoes.schema.test.ts (renomeio pendente em commit separado)
 // Testes unitários do CreateTenantSchema (Fase 3 do PASSO 06 DDD).
 // Foco: regra cross-field BR → CNPJ obrigatório; !BR → CNPJ proibido.
 
 import { describe, it, expect } from 'vitest'
-import { CreateTenantSchema } from '../routes/tenants.js'
+import { CreateTenantSchema } from '../routes/organizacoes.js'
 
 const baseInput = {
   nome_organizacao: 'Empresa Exemplo',

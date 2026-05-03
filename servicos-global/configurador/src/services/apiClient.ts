@@ -234,7 +234,7 @@ export const adminTenantsApi = {
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
     return request<{ tenants: TenantApi[]; pagination: PaginationApi }>(
-      `/admin/tenants${qs ? `?${qs}` : ''}`
+      `/v1/admin/tenants${qs ? `?${qs}` : ''}`
     )
   },
 
@@ -634,20 +634,20 @@ export const adminPlatformApi = {
 export const tenantProductsApi = {
   async listProducts(tenantId: string) {
     return request<{ tenant_id: string; tenant_name: string; products: ConfigProdutoApi[] }>(
-      `/admin/tenants/${tenantId}/products`
+      `/v1/admin/tenants/${tenantId}/products`
     )
   },
 
   async activate(tenantId: string, productKey: string, config?: Record<string, unknown>) {
     return request<{ activated: boolean; config: ConfigProdutoApi }>(
-      `/admin/tenants/${tenantId}/products/${productKey}/activate`,
+      `/v1/admin/tenants/${tenantId}/products/${productKey}/activate`,
       { method: 'POST', body: JSON.stringify({ config: config ?? {} }) }
     )
   },
 
   async deactivate(tenantId: string, productKey: string) {
     return request<{ deactivated: boolean }>(
-      `/admin/tenants/${tenantId}/products/${productKey}/deactivate`,
+      `/v1/admin/tenants/${tenantId}/products/${productKey}/deactivate`,
       { method: 'POST' }
     )
   },

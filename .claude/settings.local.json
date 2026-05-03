@@ -15,7 +15,15 @@
       "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node|tsx|vite|prisma\"} | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize)",
       "PowerShell(cmd /c \"dir C:\\\\Users\\\\danie\\\\gravity-antigravity\\\\testes\\\\testes-e2e\\\\admin\\\\visao-geral\\\\plano-teste\\\\\")",
       "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -ge 3000 -and $_.LocalPort -le 9000 } | Select-Object LocalPort, OwningProcess | Sort-Object LocalPort -Unique | Format-Table -AutoSize)",
-      "PowerShell(npm run dev)"
+      "PowerShell(npm run dev)",
+      "PowerShell(Get-NetTCPConnection -State Listen -LocalPort 8000,8005,8030,8031,3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess,@{Name='Process';Expression={\\(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue\\).ProcessName}})",
+      "PowerShell(Get-NetTCPConnection -State Listen)",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "mcp__Claude_in_Chrome__select_browser",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "PowerShell($proc = Get-Process -Id 44792 -ErrorAction SilentlyContinue; if \\($proc\\) { Write-Host \"Process: $\\($proc.ProcessName\\)\"; Write-Host \"Started: $\\($proc.StartTime\\)\"; Write-Host \"Path: $\\($proc.Path\\)\" } else { Write-Host \"Process 44792 nao existe mais\" })",
+      "PowerShell($env:DATABASE_URL='postgresql://postgres:fiYFCOxiuwVTypUaOShAxROxLPXuicOO@gondola.proxy.rlwy.net:57584/railway'; cd servicos-global\\\\servicos-plataforma; \"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND \\(table_name ILIKE '%historico%' OR table_name ILIKE '%alerta%' OR table_name ILIKE '%notificacoes%'\\);\" | npx prisma db execute --schema=.\\\\generated\\\\schema.prisma --stdin 2>&1 | Select-Object -First 30)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | ForEach-Object { try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction Stop; \"killed PID $\\($_.OwningProcess\\) on port $\\($_.LocalPort\\)\" } catch { \"could not kill $\\($_.OwningProcess\\): $_\" } }; Start-Sleep -Seconds 1; \"--- portas após kill ---\"; Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess)"
     ],
     "defaultMode": "acceptEdits"
   }

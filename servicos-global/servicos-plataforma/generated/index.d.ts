@@ -209,21 +209,6 @@ export type GabiPersonalizacaoOrganizacao = $Result.DefaultSelection<Prisma.$Gab
  */
 export type WorkspacePreferenciaUsuario = $Result.DefaultSelection<Prisma.$WorkspacePreferenciaUsuarioPayload>
 /**
- * Model NcmItem
- * 
- */
-export type NcmItem = $Result.DefaultSelection<Prisma.$NcmItemPayload>
-/**
- * Model NcmLog
- * 
- */
-export type NcmLog = $Result.DefaultSelection<Prisma.$NcmLogPayload>
-/**
- * Model NCMAgendamento
- * 
- */
-export type NCMAgendamento = $Result.DefaultSelection<Prisma.$NCMAgendamentoPayload>
-/**
  * Model NotificacoesTituloCorpo
  * 
  */
@@ -354,23 +339,6 @@ export const AlertaStatus: {
 
 export type AlertaStatus = (typeof AlertaStatus)[keyof typeof AlertaStatus]
 
-
-export const NCMStatusSincronizacao: {
-  EXECUTANDO: 'EXECUTANDO',
-  SUCESSO: 'SUCESSO',
-  ERRO: 'ERRO'
-};
-
-export type NCMStatusSincronizacao = (typeof NCMStatusSincronizacao)[keyof typeof NCMStatusSincronizacao]
-
-
-export const NCMOrigemSincronizacao: {
-  JOB: 'JOB',
-  MANUAL: 'MANUAL'
-};
-
-export type NCMOrigemSincronizacao = (typeof NCMOrigemSincronizacao)[keyof typeof NCMOrigemSincronizacao]
-
 }
 
 export type EmailThreadAtiva = $Enums.EmailThreadAtiva
@@ -416,14 +384,6 @@ export const EventoStatus: typeof $Enums.EventoStatus
 export type AlertaStatus = $Enums.AlertaStatus
 
 export const AlertaStatus: typeof $Enums.AlertaStatus
-
-export type NCMStatusSincronizacao = $Enums.NCMStatusSincronizacao
-
-export const NCMStatusSincronizacao: typeof $Enums.NCMStatusSincronizacao
-
-export type NCMOrigemSincronizacao = $Enums.NCMOrigemSincronizacao
-
-export const NCMOrigemSincronizacao: typeof $Enums.NCMOrigemSincronizacao
 
 /**
  * ##  Prisma Client ʲˢ
@@ -939,36 +899,6 @@ export class PrismaClient<
   get workspacePreferenciaUsuario(): Prisma.WorkspacePreferenciaUsuarioDelegate<ExtArgs>;
 
   /**
-   * `prisma.ncmItem`: Exposes CRUD operations for the **NcmItem** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more NcmItems
-    * const ncmItems = await prisma.ncmItem.findMany()
-    * ```
-    */
-  get ncmItem(): Prisma.NcmItemDelegate<ExtArgs>;
-
-  /**
-   * `prisma.ncmLog`: Exposes CRUD operations for the **NcmLog** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more NcmLogs
-    * const ncmLogs = await prisma.ncmLog.findMany()
-    * ```
-    */
-  get ncmLog(): Prisma.NcmLogDelegate<ExtArgs>;
-
-  /**
-   * `prisma.nCMAgendamento`: Exposes CRUD operations for the **NCMAgendamento** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more NCMAgendamentos
-    * const nCMAgendamentos = await prisma.nCMAgendamento.findMany()
-    * ```
-    */
-  get nCMAgendamento(): Prisma.NCMAgendamentoDelegate<ExtArgs>;
-
-  /**
    * `prisma.notificacoesTituloCorpo`: Exposes CRUD operations for the **NotificacoesTituloCorpo** model.
     * Example usage:
     * ```ts
@@ -1477,9 +1407,6 @@ export namespace Prisma {
     GabiTokenOrganizacao: 'GabiTokenOrganizacao',
     GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
     WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
-    NcmItem: 'NcmItem',
-    NcmLog: 'NcmLog',
-    NCMAgendamento: 'NCMAgendamento',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
     ContatoExterno: 'ContatoExterno',
     ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'
@@ -1498,7 +1425,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "ncmItem" | "ncmLog" | "nCMAgendamento" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4229,216 +4156,6 @@ export namespace Prisma {
           count: {
             args: Prisma.WorkspacePreferenciaUsuarioCountArgs<ExtArgs>
             result: $Utils.Optional<WorkspacePreferenciaUsuarioCountAggregateOutputType> | number
-          }
-        }
-      }
-      NcmItem: {
-        payload: Prisma.$NcmItemPayload<ExtArgs>
-        fields: Prisma.NcmItemFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.NcmItemFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.NcmItemFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          findFirst: {
-            args: Prisma.NcmItemFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.NcmItemFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          findMany: {
-            args: Prisma.NcmItemFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>[]
-          }
-          create: {
-            args: Prisma.NcmItemCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          createMany: {
-            args: Prisma.NcmItemCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.NcmItemCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>[]
-          }
-          delete: {
-            args: Prisma.NcmItemDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          update: {
-            args: Prisma.NcmItemUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          deleteMany: {
-            args: Prisma.NcmItemDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.NcmItemUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.NcmItemUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
-          }
-          aggregate: {
-            args: Prisma.NcmItemAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNcmItem>
-          }
-          groupBy: {
-            args: Prisma.NcmItemGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NcmItemGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.NcmItemCountArgs<ExtArgs>
-            result: $Utils.Optional<NcmItemCountAggregateOutputType> | number
-          }
-        }
-      }
-      NcmLog: {
-        payload: Prisma.$NcmLogPayload<ExtArgs>
-        fields: Prisma.NcmLogFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.NcmLogFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.NcmLogFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          findFirst: {
-            args: Prisma.NcmLogFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.NcmLogFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          findMany: {
-            args: Prisma.NcmLogFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>[]
-          }
-          create: {
-            args: Prisma.NcmLogCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          createMany: {
-            args: Prisma.NcmLogCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.NcmLogCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>[]
-          }
-          delete: {
-            args: Prisma.NcmLogDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          update: {
-            args: Prisma.NcmLogUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          deleteMany: {
-            args: Prisma.NcmLogDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.NcmLogUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.NcmLogUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
-          }
-          aggregate: {
-            args: Prisma.NcmLogAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNcmLog>
-          }
-          groupBy: {
-            args: Prisma.NcmLogGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NcmLogGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.NcmLogCountArgs<ExtArgs>
-            result: $Utils.Optional<NcmLogCountAggregateOutputType> | number
-          }
-        }
-      }
-      NCMAgendamento: {
-        payload: Prisma.$NCMAgendamentoPayload<ExtArgs>
-        fields: Prisma.NCMAgendamentoFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.NCMAgendamentoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.NCMAgendamentoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          findFirst: {
-            args: Prisma.NCMAgendamentoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.NCMAgendamentoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          findMany: {
-            args: Prisma.NCMAgendamentoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>[]
-          }
-          create: {
-            args: Prisma.NCMAgendamentoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          createMany: {
-            args: Prisma.NCMAgendamentoCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.NCMAgendamentoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>[]
-          }
-          delete: {
-            args: Prisma.NCMAgendamentoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          update: {
-            args: Prisma.NCMAgendamentoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          deleteMany: {
-            args: Prisma.NCMAgendamentoDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.NCMAgendamentoUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.NCMAgendamentoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMAgendamentoPayload>
-          }
-          aggregate: {
-            args: Prisma.NCMAgendamentoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNCMAgendamento>
-          }
-          groupBy: {
-            args: Prisma.NCMAgendamentoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NCMAgendamentoGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.NCMAgendamentoCountArgs<ExtArgs>
-            result: $Utils.Optional<NCMAgendamentoCountAggregateOutputType> | number
           }
         }
       }
@@ -28431,9 +28148,9 @@ export namespace Prisma {
 
   export type HistoricoLogMinAggregateOutputType = {
     id_historico_log: string | null
-    id_organizacao_historico_log: string | null
+    id_organizacao: string | null
     id_produto_historico_log: string | null
-    id_usuario_historico_log: string | null
+    id_usuario: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor | null
     id_ator_historico_log: string | null
     nome_ator_historico_log: string | null
@@ -28451,9 +28168,9 @@ export namespace Prisma {
 
   export type HistoricoLogMaxAggregateOutputType = {
     id_historico_log: string | null
-    id_organizacao_historico_log: string | null
+    id_organizacao: string | null
     id_produto_historico_log: string | null
-    id_usuario_historico_log: string | null
+    id_usuario: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor | null
     id_ator_historico_log: string | null
     nome_ator_historico_log: string | null
@@ -28471,9 +28188,9 @@ export namespace Prisma {
 
   export type HistoricoLogCountAggregateOutputType = {
     id_historico_log: number
-    id_organizacao_historico_log: number
+    id_organizacao: number
     id_produto_historico_log: number
-    id_usuario_historico_log: number
+    id_usuario: number
     tipo_ator_historico_log: number
     id_ator_historico_log: number
     nome_ator_historico_log: number
@@ -28496,9 +28213,9 @@ export namespace Prisma {
 
   export type HistoricoLogMinAggregateInputType = {
     id_historico_log?: true
-    id_organizacao_historico_log?: true
+    id_organizacao?: true
     id_produto_historico_log?: true
-    id_usuario_historico_log?: true
+    id_usuario?: true
     tipo_ator_historico_log?: true
     id_ator_historico_log?: true
     nome_ator_historico_log?: true
@@ -28516,9 +28233,9 @@ export namespace Prisma {
 
   export type HistoricoLogMaxAggregateInputType = {
     id_historico_log?: true
-    id_organizacao_historico_log?: true
+    id_organizacao?: true
     id_produto_historico_log?: true
-    id_usuario_historico_log?: true
+    id_usuario?: true
     tipo_ator_historico_log?: true
     id_ator_historico_log?: true
     nome_ator_historico_log?: true
@@ -28536,9 +28253,9 @@ export namespace Prisma {
 
   export type HistoricoLogCountAggregateInputType = {
     id_historico_log?: true
-    id_organizacao_historico_log?: true
+    id_organizacao?: true
     id_produto_historico_log?: true
-    id_usuario_historico_log?: true
+    id_usuario?: true
     tipo_ator_historico_log?: true
     id_ator_historico_log?: true
     nome_ator_historico_log?: true
@@ -28632,9 +28349,9 @@ export namespace Prisma {
 
   export type HistoricoLogGroupByOutputType = {
     id_historico_log: string
-    id_organizacao_historico_log: string
+    id_organizacao: string
     id_produto_historico_log: string | null
-    id_usuario_historico_log: string | null
+    id_usuario: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor
     id_ator_historico_log: string
     nome_ator_historico_log: string
@@ -28672,9 +28389,9 @@ export namespace Prisma {
 
   export type HistoricoLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_historico_log?: boolean
-    id_organizacao_historico_log?: boolean
+    id_organizacao?: boolean
     id_produto_historico_log?: boolean
-    id_usuario_historico_log?: boolean
+    id_usuario?: boolean
     tipo_ator_historico_log?: boolean
     id_ator_historico_log?: boolean
     nome_ator_historico_log?: boolean
@@ -28695,9 +28412,9 @@ export namespace Prisma {
 
   export type HistoricoLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_historico_log?: boolean
-    id_organizacao_historico_log?: boolean
+    id_organizacao?: boolean
     id_produto_historico_log?: boolean
-    id_usuario_historico_log?: boolean
+    id_usuario?: boolean
     tipo_ator_historico_log?: boolean
     id_ator_historico_log?: boolean
     nome_ator_historico_log?: boolean
@@ -28718,9 +28435,9 @@ export namespace Prisma {
 
   export type HistoricoLogSelectScalar = {
     id_historico_log?: boolean
-    id_organizacao_historico_log?: boolean
+    id_organizacao?: boolean
     id_produto_historico_log?: boolean
-    id_usuario_historico_log?: boolean
+    id_usuario?: boolean
     tipo_ator_historico_log?: boolean
     id_ator_historico_log?: boolean
     nome_ator_historico_log?: boolean
@@ -28745,9 +28462,9 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_historico_log: string
-      id_organizacao_historico_log: string
+      id_organizacao: string
       id_produto_historico_log: string | null
-      id_usuario_historico_log: string | null
+      id_usuario: string | null
       tipo_ator_historico_log: $Enums.AcaoExecutadaPor
       id_ator_historico_log: string
       nome_ator_historico_log: string
@@ -29158,9 +28875,9 @@ export namespace Prisma {
    */ 
   interface HistoricoLogFieldRefs {
     readonly id_historico_log: FieldRef<"HistoricoLog", 'String'>
-    readonly id_organizacao_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_organizacao: FieldRef<"HistoricoLog", 'String'>
     readonly id_produto_historico_log: FieldRef<"HistoricoLog", 'String'>
-    readonly id_usuario_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_usuario: FieldRef<"HistoricoLog", 'String'>
     readonly tipo_ator_historico_log: FieldRef<"HistoricoLog", 'AcaoExecutadaPor'>
     readonly id_ator_historico_log: FieldRef<"HistoricoLog", 'String'>
     readonly nome_ator_historico_log: FieldRef<"HistoricoLog", 'String'>
@@ -29489,9 +29206,9 @@ export namespace Prisma {
 
   export type AlertaRegraMinAggregateOutputType = {
     id_regra_alerta: string | null
-    id_organizacao_regra_alerta: string | null
+    id_organizacao: string | null
     id_produto_regra_alerta: string | null
-    id_usuario_regra_alerta: string | null
+    id_usuario: string | null
     nome_regra_alerta: string | null
     descricao_regra_alerta: string | null
     habilitada_regra_alerta: boolean | null
@@ -29510,9 +29227,9 @@ export namespace Prisma {
 
   export type AlertaRegraMaxAggregateOutputType = {
     id_regra_alerta: string | null
-    id_organizacao_regra_alerta: string | null
+    id_organizacao: string | null
     id_produto_regra_alerta: string | null
-    id_usuario_regra_alerta: string | null
+    id_usuario: string | null
     nome_regra_alerta: string | null
     descricao_regra_alerta: string | null
     habilitada_regra_alerta: boolean | null
@@ -29531,9 +29248,9 @@ export namespace Prisma {
 
   export type AlertaRegraCountAggregateOutputType = {
     id_regra_alerta: number
-    id_organizacao_regra_alerta: number
+    id_organizacao: number
     id_produto_regra_alerta: number
-    id_usuario_regra_alerta: number
+    id_usuario: number
     nome_regra_alerta: number
     descricao_regra_alerta: number
     habilitada_regra_alerta: number
@@ -29567,9 +29284,9 @@ export namespace Prisma {
 
   export type AlertaRegraMinAggregateInputType = {
     id_regra_alerta?: true
-    id_organizacao_regra_alerta?: true
+    id_organizacao?: true
     id_produto_regra_alerta?: true
-    id_usuario_regra_alerta?: true
+    id_usuario?: true
     nome_regra_alerta?: true
     descricao_regra_alerta?: true
     habilitada_regra_alerta?: true
@@ -29588,9 +29305,9 @@ export namespace Prisma {
 
   export type AlertaRegraMaxAggregateInputType = {
     id_regra_alerta?: true
-    id_organizacao_regra_alerta?: true
+    id_organizacao?: true
     id_produto_regra_alerta?: true
-    id_usuario_regra_alerta?: true
+    id_usuario?: true
     nome_regra_alerta?: true
     descricao_regra_alerta?: true
     habilitada_regra_alerta?: true
@@ -29609,9 +29326,9 @@ export namespace Prisma {
 
   export type AlertaRegraCountAggregateInputType = {
     id_regra_alerta?: true
-    id_organizacao_regra_alerta?: true
+    id_organizacao?: true
     id_produto_regra_alerta?: true
-    id_usuario_regra_alerta?: true
+    id_usuario?: true
     nome_regra_alerta?: true
     descricao_regra_alerta?: true
     habilitada_regra_alerta?: true
@@ -29720,9 +29437,9 @@ export namespace Prisma {
 
   export type AlertaRegraGroupByOutputType = {
     id_regra_alerta: string
-    id_organizacao_regra_alerta: string | null
+    id_organizacao: string | null
     id_produto_regra_alerta: string | null
-    id_usuario_regra_alerta: string | null
+    id_usuario: string | null
     nome_regra_alerta: string
     descricao_regra_alerta: string | null
     habilitada_regra_alerta: boolean
@@ -29763,9 +29480,9 @@ export namespace Prisma {
 
   export type AlertaRegraSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_regra_alerta?: boolean
-    id_organizacao_regra_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_regra_alerta?: boolean
-    id_usuario_regra_alerta?: boolean
+    id_usuario?: boolean
     nome_regra_alerta?: boolean
     descricao_regra_alerta?: boolean
     habilitada_regra_alerta?: boolean
@@ -29789,9 +29506,9 @@ export namespace Prisma {
 
   export type AlertaRegraSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_regra_alerta?: boolean
-    id_organizacao_regra_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_regra_alerta?: boolean
-    id_usuario_regra_alerta?: boolean
+    id_usuario?: boolean
     nome_regra_alerta?: boolean
     descricao_regra_alerta?: boolean
     habilitada_regra_alerta?: boolean
@@ -29813,9 +29530,9 @@ export namespace Prisma {
 
   export type AlertaRegraSelectScalar = {
     id_regra_alerta?: boolean
-    id_organizacao_regra_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_regra_alerta?: boolean
-    id_usuario_regra_alerta?: boolean
+    id_usuario?: boolean
     nome_regra_alerta?: boolean
     descricao_regra_alerta?: boolean
     habilitada_regra_alerta?: boolean
@@ -29848,9 +29565,9 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id_regra_alerta: string
-      id_organizacao_regra_alerta: string | null
+      id_organizacao: string | null
       id_produto_regra_alerta: string | null
-      id_usuario_regra_alerta: string | null
+      id_usuario: string | null
       nome_regra_alerta: string
       descricao_regra_alerta: string | null
       habilitada_regra_alerta: boolean
@@ -30263,9 +29980,9 @@ export namespace Prisma {
    */ 
   interface AlertaRegraFieldRefs {
     readonly id_regra_alerta: FieldRef<"AlertaRegra", 'String'>
-    readonly id_organizacao_regra_alerta: FieldRef<"AlertaRegra", 'String'>
+    readonly id_organizacao: FieldRef<"AlertaRegra", 'String'>
     readonly id_produto_regra_alerta: FieldRef<"AlertaRegra", 'String'>
-    readonly id_usuario_regra_alerta: FieldRef<"AlertaRegra", 'String'>
+    readonly id_usuario: FieldRef<"AlertaRegra", 'String'>
     readonly nome_regra_alerta: FieldRef<"AlertaRegra", 'String'>
     readonly descricao_regra_alerta: FieldRef<"AlertaRegra", 'String'>
     readonly habilitada_regra_alerta: FieldRef<"AlertaRegra", 'Boolean'>
@@ -30655,9 +30372,9 @@ export namespace Prisma {
 
   export type AlertaDataMinAggregateOutputType = {
     id_evento_alerta: string | null
-    id_organizacao_evento_alerta: string | null
+    id_organizacao: string | null
     id_produto_evento_alerta: string | null
-    id_usuario_evento_alerta: string | null
+    id_usuario: string | null
     id_regra_evento_alerta: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor | null
     id_ator_evento_alerta: string | null
@@ -30675,9 +30392,9 @@ export namespace Prisma {
 
   export type AlertaDataMaxAggregateOutputType = {
     id_evento_alerta: string | null
-    id_organizacao_evento_alerta: string | null
+    id_organizacao: string | null
     id_produto_evento_alerta: string | null
-    id_usuario_evento_alerta: string | null
+    id_usuario: string | null
     id_regra_evento_alerta: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor | null
     id_ator_evento_alerta: string | null
@@ -30695,9 +30412,9 @@ export namespace Prisma {
 
   export type AlertaDataCountAggregateOutputType = {
     id_evento_alerta: number
-    id_organizacao_evento_alerta: number
+    id_organizacao: number
     id_produto_evento_alerta: number
-    id_usuario_evento_alerta: number
+    id_usuario: number
     id_regra_evento_alerta: number
     tipo_ator_evento_alerta: number
     id_ator_evento_alerta: number
@@ -30728,9 +30445,9 @@ export namespace Prisma {
 
   export type AlertaDataMinAggregateInputType = {
     id_evento_alerta?: true
-    id_organizacao_evento_alerta?: true
+    id_organizacao?: true
     id_produto_evento_alerta?: true
-    id_usuario_evento_alerta?: true
+    id_usuario?: true
     id_regra_evento_alerta?: true
     tipo_ator_evento_alerta?: true
     id_ator_evento_alerta?: true
@@ -30748,9 +30465,9 @@ export namespace Prisma {
 
   export type AlertaDataMaxAggregateInputType = {
     id_evento_alerta?: true
-    id_organizacao_evento_alerta?: true
+    id_organizacao?: true
     id_produto_evento_alerta?: true
-    id_usuario_evento_alerta?: true
+    id_usuario?: true
     id_regra_evento_alerta?: true
     tipo_ator_evento_alerta?: true
     id_ator_evento_alerta?: true
@@ -30768,9 +30485,9 @@ export namespace Prisma {
 
   export type AlertaDataCountAggregateInputType = {
     id_evento_alerta?: true
-    id_organizacao_evento_alerta?: true
+    id_organizacao?: true
     id_produto_evento_alerta?: true
-    id_usuario_evento_alerta?: true
+    id_usuario?: true
     id_regra_evento_alerta?: true
     tipo_ator_evento_alerta?: true
     id_ator_evento_alerta?: true
@@ -30876,9 +30593,9 @@ export namespace Prisma {
 
   export type AlertaDataGroupByOutputType = {
     id_evento_alerta: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta: string | null
-    id_usuario_evento_alerta: string | null
+    id_usuario: string | null
     id_regra_evento_alerta: string
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
@@ -30916,9 +30633,9 @@ export namespace Prisma {
 
   export type AlertaDataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_evento_alerta?: boolean
-    id_organizacao_evento_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_evento_alerta?: boolean
-    id_usuario_evento_alerta?: boolean
+    id_usuario?: boolean
     id_regra_evento_alerta?: boolean
     tipo_ator_evento_alerta?: boolean
     id_ator_evento_alerta?: boolean
@@ -30940,9 +30657,9 @@ export namespace Prisma {
 
   export type AlertaDataSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_evento_alerta?: boolean
-    id_organizacao_evento_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_evento_alerta?: boolean
-    id_usuario_evento_alerta?: boolean
+    id_usuario?: boolean
     id_regra_evento_alerta?: boolean
     tipo_ator_evento_alerta?: boolean
     id_ator_evento_alerta?: boolean
@@ -30962,9 +30679,9 @@ export namespace Prisma {
 
   export type AlertaDataSelectScalar = {
     id_evento_alerta?: boolean
-    id_organizacao_evento_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_evento_alerta?: boolean
-    id_usuario_evento_alerta?: boolean
+    id_usuario?: boolean
     id_regra_evento_alerta?: boolean
     tipo_ator_evento_alerta?: boolean
     id_ator_evento_alerta?: boolean
@@ -30998,9 +30715,9 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id_evento_alerta: string
-      id_organizacao_evento_alerta: string
+      id_organizacao: string
       id_produto_evento_alerta: string | null
-      id_usuario_evento_alerta: string | null
+      id_usuario: string | null
       id_regra_evento_alerta: string
       tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
       id_ator_evento_alerta: string
@@ -31411,9 +31128,9 @@ export namespace Prisma {
    */ 
   interface AlertaDataFieldRefs {
     readonly id_evento_alerta: FieldRef<"AlertaData", 'String'>
-    readonly id_organizacao_evento_alerta: FieldRef<"AlertaData", 'String'>
+    readonly id_organizacao: FieldRef<"AlertaData", 'String'>
     readonly id_produto_evento_alerta: FieldRef<"AlertaData", 'String'>
-    readonly id_usuario_evento_alerta: FieldRef<"AlertaData", 'String'>
+    readonly id_usuario: FieldRef<"AlertaData", 'String'>
     readonly id_regra_evento_alerta: FieldRef<"AlertaData", 'String'>
     readonly tipo_ator_evento_alerta: FieldRef<"AlertaData", 'AcaoExecutadaPor'>
     readonly id_ator_evento_alerta: FieldRef<"AlertaData", 'String'>
@@ -31802,9 +31519,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMinAggregateOutputType = {
     id_notificacao_alerta: string | null
-    id_organizacao_notificacao_alerta: string | null
+    id_organizacao: string | null
     id_produto_notificacao_alerta: string | null
-    id_usuario_notificacao_alerta: string | null
+    id_usuario: string | null
     id_evento_notificacao_alerta: string | null
     canal_notificacao_alerta: string | null
     destinatario_notificacao_alerta: string | null
@@ -31817,9 +31534,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMaxAggregateOutputType = {
     id_notificacao_alerta: string | null
-    id_organizacao_notificacao_alerta: string | null
+    id_organizacao: string | null
     id_produto_notificacao_alerta: string | null
-    id_usuario_notificacao_alerta: string | null
+    id_usuario: string | null
     id_evento_notificacao_alerta: string | null
     canal_notificacao_alerta: string | null
     destinatario_notificacao_alerta: string | null
@@ -31832,9 +31549,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCountAggregateOutputType = {
     id_notificacao_alerta: number
-    id_organizacao_notificacao_alerta: number
+    id_organizacao: number
     id_produto_notificacao_alerta: number
-    id_usuario_notificacao_alerta: number
+    id_usuario: number
     id_evento_notificacao_alerta: number
     canal_notificacao_alerta: number
     destinatario_notificacao_alerta: number
@@ -31857,9 +31574,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMinAggregateInputType = {
     id_notificacao_alerta?: true
-    id_organizacao_notificacao_alerta?: true
+    id_organizacao?: true
     id_produto_notificacao_alerta?: true
-    id_usuario_notificacao_alerta?: true
+    id_usuario?: true
     id_evento_notificacao_alerta?: true
     canal_notificacao_alerta?: true
     destinatario_notificacao_alerta?: true
@@ -31872,9 +31589,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMaxAggregateInputType = {
     id_notificacao_alerta?: true
-    id_organizacao_notificacao_alerta?: true
+    id_organizacao?: true
     id_produto_notificacao_alerta?: true
-    id_usuario_notificacao_alerta?: true
+    id_usuario?: true
     id_evento_notificacao_alerta?: true
     canal_notificacao_alerta?: true
     destinatario_notificacao_alerta?: true
@@ -31887,9 +31604,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCountAggregateInputType = {
     id_notificacao_alerta?: true
-    id_organizacao_notificacao_alerta?: true
+    id_organizacao?: true
     id_produto_notificacao_alerta?: true
-    id_usuario_notificacao_alerta?: true
+    id_usuario?: true
     id_evento_notificacao_alerta?: true
     canal_notificacao_alerta?: true
     destinatario_notificacao_alerta?: true
@@ -31989,9 +31706,9 @@ export namespace Prisma {
 
   export type AlertaRegistroGroupByOutputType = {
     id_notificacao_alerta: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta: string | null
-    id_usuario_notificacao_alerta: string | null
+    id_usuario: string | null
     id_evento_notificacao_alerta: string
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
@@ -32023,9 +31740,9 @@ export namespace Prisma {
 
   export type AlertaRegistroSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_notificacao_alerta?: boolean
-    id_organizacao_notificacao_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_notificacao_alerta?: boolean
-    id_usuario_notificacao_alerta?: boolean
+    id_usuario?: boolean
     id_evento_notificacao_alerta?: boolean
     canal_notificacao_alerta?: boolean
     destinatario_notificacao_alerta?: boolean
@@ -32039,9 +31756,9 @@ export namespace Prisma {
 
   export type AlertaRegistroSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_notificacao_alerta?: boolean
-    id_organizacao_notificacao_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_notificacao_alerta?: boolean
-    id_usuario_notificacao_alerta?: boolean
+    id_usuario?: boolean
     id_evento_notificacao_alerta?: boolean
     canal_notificacao_alerta?: boolean
     destinatario_notificacao_alerta?: boolean
@@ -32055,9 +31772,9 @@ export namespace Prisma {
 
   export type AlertaRegistroSelectScalar = {
     id_notificacao_alerta?: boolean
-    id_organizacao_notificacao_alerta?: boolean
+    id_organizacao?: boolean
     id_produto_notificacao_alerta?: boolean
-    id_usuario_notificacao_alerta?: boolean
+    id_usuario?: boolean
     id_evento_notificacao_alerta?: boolean
     canal_notificacao_alerta?: boolean
     destinatario_notificacao_alerta?: boolean
@@ -32082,9 +31799,9 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id_notificacao_alerta: string
-      id_organizacao_notificacao_alerta: string
+      id_organizacao: string
       id_produto_notificacao_alerta: string | null
-      id_usuario_notificacao_alerta: string | null
+      id_usuario: string | null
       id_evento_notificacao_alerta: string
       canal_notificacao_alerta: string
       destinatario_notificacao_alerta: string
@@ -32488,9 +32205,9 @@ export namespace Prisma {
    */ 
   interface AlertaRegistroFieldRefs {
     readonly id_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
-    readonly id_organizacao_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
+    readonly id_organizacao: FieldRef<"AlertaRegistro", 'String'>
     readonly id_produto_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
-    readonly id_usuario_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
+    readonly id_usuario: FieldRef<"AlertaRegistro", 'String'>
     readonly id_evento_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
     readonly canal_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
     readonly destinatario_notificacao_alerta: FieldRef<"AlertaRegistro", 'String'>
@@ -32853,9 +32570,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMinAggregateOutputType = {
     id_exportar_resultado: string | null
-    id_organizacao_exportar_resultado: string | null
+    id_organizacao: string | null
     id_produto_exportar_resultado: string | null
-    id_usuario_exportar_resultado: string | null
+    id_usuario: string | null
     formato_exportar_resultado: string | null
     conteudo_exportar_resultado: string | null
     status_exportar_resultado: string | null
@@ -32867,9 +32584,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMaxAggregateOutputType = {
     id_exportar_resultado: string | null
-    id_organizacao_exportar_resultado: string | null
+    id_organizacao: string | null
     id_produto_exportar_resultado: string | null
-    id_usuario_exportar_resultado: string | null
+    id_usuario: string | null
     formato_exportar_resultado: string | null
     conteudo_exportar_resultado: string | null
     status_exportar_resultado: string | null
@@ -32881,9 +32598,9 @@ export namespace Prisma {
 
   export type ExportarResultadoCountAggregateOutputType = {
     id_exportar_resultado: number
-    id_organizacao_exportar_resultado: number
+    id_organizacao: number
     id_produto_exportar_resultado: number
-    id_usuario_exportar_resultado: number
+    id_usuario: number
     formato_exportar_resultado: number
     conteudo_exportar_resultado: number
     status_exportar_resultado: number
@@ -32906,9 +32623,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMinAggregateInputType = {
     id_exportar_resultado?: true
-    id_organizacao_exportar_resultado?: true
+    id_organizacao?: true
     id_produto_exportar_resultado?: true
-    id_usuario_exportar_resultado?: true
+    id_usuario?: true
     formato_exportar_resultado?: true
     conteudo_exportar_resultado?: true
     status_exportar_resultado?: true
@@ -32920,9 +32637,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMaxAggregateInputType = {
     id_exportar_resultado?: true
-    id_organizacao_exportar_resultado?: true
+    id_organizacao?: true
     id_produto_exportar_resultado?: true
-    id_usuario_exportar_resultado?: true
+    id_usuario?: true
     formato_exportar_resultado?: true
     conteudo_exportar_resultado?: true
     status_exportar_resultado?: true
@@ -32934,9 +32651,9 @@ export namespace Prisma {
 
   export type ExportarResultadoCountAggregateInputType = {
     id_exportar_resultado?: true
-    id_organizacao_exportar_resultado?: true
+    id_organizacao?: true
     id_produto_exportar_resultado?: true
-    id_usuario_exportar_resultado?: true
+    id_usuario?: true
     formato_exportar_resultado?: true
     conteudo_exportar_resultado?: true
     status_exportar_resultado?: true
@@ -33036,9 +32753,9 @@ export namespace Prisma {
 
   export type ExportarResultadoGroupByOutputType = {
     id_exportar_resultado: string
-    id_organizacao_exportar_resultado: string
+    id_organizacao: string
     id_produto_exportar_resultado: string | null
-    id_usuario_exportar_resultado: string | null
+    id_usuario: string | null
     formato_exportar_resultado: string
     conteudo_exportar_resultado: string
     status_exportar_resultado: string
@@ -33070,9 +32787,9 @@ export namespace Prisma {
 
   export type ExportarResultadoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_exportar_resultado?: boolean
-    id_organizacao_exportar_resultado?: boolean
+    id_organizacao?: boolean
     id_produto_exportar_resultado?: boolean
-    id_usuario_exportar_resultado?: boolean
+    id_usuario?: boolean
     formato_exportar_resultado?: boolean
     conteudo_exportar_resultado?: boolean
     status_exportar_resultado?: boolean
@@ -33085,9 +32802,9 @@ export namespace Prisma {
 
   export type ExportarResultadoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_exportar_resultado?: boolean
-    id_organizacao_exportar_resultado?: boolean
+    id_organizacao?: boolean
     id_produto_exportar_resultado?: boolean
-    id_usuario_exportar_resultado?: boolean
+    id_usuario?: boolean
     formato_exportar_resultado?: boolean
     conteudo_exportar_resultado?: boolean
     status_exportar_resultado?: boolean
@@ -33100,9 +32817,9 @@ export namespace Prisma {
 
   export type ExportarResultadoSelectScalar = {
     id_exportar_resultado?: boolean
-    id_organizacao_exportar_resultado?: boolean
+    id_organizacao?: boolean
     id_produto_exportar_resultado?: boolean
-    id_usuario_exportar_resultado?: boolean
+    id_usuario?: boolean
     formato_exportar_resultado?: boolean
     conteudo_exportar_resultado?: boolean
     status_exportar_resultado?: boolean
@@ -33119,9 +32836,9 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_exportar_resultado: string
-      id_organizacao_exportar_resultado: string
+      id_organizacao: string
       id_produto_exportar_resultado: string | null
-      id_usuario_exportar_resultado: string | null
+      id_usuario: string | null
       formato_exportar_resultado: string
       conteudo_exportar_resultado: string
       status_exportar_resultado: string
@@ -33524,9 +33241,9 @@ export namespace Prisma {
    */ 
   interface ExportarResultadoFieldRefs {
     readonly id_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
-    readonly id_organizacao_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly id_organizacao: FieldRef<"ExportarResultado", 'String'>
     readonly id_produto_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
-    readonly id_usuario_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly id_usuario: FieldRef<"ExportarResultado", 'String'>
     readonly formato_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
     readonly conteudo_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
     readonly status_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
@@ -44717,2946 +44434,6 @@ export namespace Prisma {
 
 
   /**
-   * Model NcmItem
-   */
-
-  export type AggregateNcmItem = {
-    _count: NcmItemCountAggregateOutputType | null
-    _min: NcmItemMinAggregateOutputType | null
-    _max: NcmItemMaxAggregateOutputType | null
-  }
-
-  export type NcmItemMinAggregateOutputType = {
-    id_ncm_item: string | null
-    id_organizacao_ncm_item: string | null
-    id_produto_ncm_item: string | null
-    id_usuario_ncm_item: string | null
-    codigo_ncm_item: string | null
-    descricao_ncm_item: string | null
-    ativo_ncm_item: boolean | null
-    data_inicio_ncm_item: Date | null
-    data_fim_ncm_item: Date | null
-    id_sincronizacao_ncm_item: string | null
-    data_criacao_ncm_item: Date | null
-    data_atualizacao_ncm_item: Date | null
-  }
-
-  export type NcmItemMaxAggregateOutputType = {
-    id_ncm_item: string | null
-    id_organizacao_ncm_item: string | null
-    id_produto_ncm_item: string | null
-    id_usuario_ncm_item: string | null
-    codigo_ncm_item: string | null
-    descricao_ncm_item: string | null
-    ativo_ncm_item: boolean | null
-    data_inicio_ncm_item: Date | null
-    data_fim_ncm_item: Date | null
-    id_sincronizacao_ncm_item: string | null
-    data_criacao_ncm_item: Date | null
-    data_atualizacao_ncm_item: Date | null
-  }
-
-  export type NcmItemCountAggregateOutputType = {
-    id_ncm_item: number
-    id_organizacao_ncm_item: number
-    id_produto_ncm_item: number
-    id_usuario_ncm_item: number
-    codigo_ncm_item: number
-    descricao_ncm_item: number
-    ativo_ncm_item: number
-    data_inicio_ncm_item: number
-    data_fim_ncm_item: number
-    id_sincronizacao_ncm_item: number
-    data_criacao_ncm_item: number
-    data_atualizacao_ncm_item: number
-    _all: number
-  }
-
-
-  export type NcmItemMinAggregateInputType = {
-    id_ncm_item?: true
-    id_organizacao_ncm_item?: true
-    id_produto_ncm_item?: true
-    id_usuario_ncm_item?: true
-    codigo_ncm_item?: true
-    descricao_ncm_item?: true
-    ativo_ncm_item?: true
-    data_inicio_ncm_item?: true
-    data_fim_ncm_item?: true
-    id_sincronizacao_ncm_item?: true
-    data_criacao_ncm_item?: true
-    data_atualizacao_ncm_item?: true
-  }
-
-  export type NcmItemMaxAggregateInputType = {
-    id_ncm_item?: true
-    id_organizacao_ncm_item?: true
-    id_produto_ncm_item?: true
-    id_usuario_ncm_item?: true
-    codigo_ncm_item?: true
-    descricao_ncm_item?: true
-    ativo_ncm_item?: true
-    data_inicio_ncm_item?: true
-    data_fim_ncm_item?: true
-    id_sincronizacao_ncm_item?: true
-    data_criacao_ncm_item?: true
-    data_atualizacao_ncm_item?: true
-  }
-
-  export type NcmItemCountAggregateInputType = {
-    id_ncm_item?: true
-    id_organizacao_ncm_item?: true
-    id_produto_ncm_item?: true
-    id_usuario_ncm_item?: true
-    codigo_ncm_item?: true
-    descricao_ncm_item?: true
-    ativo_ncm_item?: true
-    data_inicio_ncm_item?: true
-    data_fim_ncm_item?: true
-    id_sincronizacao_ncm_item?: true
-    data_criacao_ncm_item?: true
-    data_atualizacao_ncm_item?: true
-    _all?: true
-  }
-
-  export type NcmItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NcmItem to aggregate.
-     */
-    where?: NcmItemWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmItems to fetch.
-     */
-    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: NcmItemWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmItems from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmItems.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned NcmItems
-    **/
-    _count?: true | NcmItemCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: NcmItemMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: NcmItemMaxAggregateInputType
-  }
-
-  export type GetNcmItemAggregateType<T extends NcmItemAggregateArgs> = {
-        [P in keyof T & keyof AggregateNcmItem]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateNcmItem[P]>
-      : GetScalarType<T[P], AggregateNcmItem[P]>
-  }
-
-
-
-
-  export type NcmItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NcmItemWhereInput
-    orderBy?: NcmItemOrderByWithAggregationInput | NcmItemOrderByWithAggregationInput[]
-    by: NcmItemScalarFieldEnum[] | NcmItemScalarFieldEnum
-    having?: NcmItemScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: NcmItemCountAggregateInputType | true
-    _min?: NcmItemMinAggregateInputType
-    _max?: NcmItemMaxAggregateInputType
-  }
-
-  export type NcmItemGroupByOutputType = {
-    id_ncm_item: string
-    id_organizacao_ncm_item: string
-    id_produto_ncm_item: string | null
-    id_usuario_ncm_item: string | null
-    codigo_ncm_item: string
-    descricao_ncm_item: string
-    ativo_ncm_item: boolean
-    data_inicio_ncm_item: Date | null
-    data_fim_ncm_item: Date | null
-    id_sincronizacao_ncm_item: string
-    data_criacao_ncm_item: Date
-    data_atualizacao_ncm_item: Date
-    _count: NcmItemCountAggregateOutputType | null
-    _min: NcmItemMinAggregateOutputType | null
-    _max: NcmItemMaxAggregateOutputType | null
-  }
-
-  type GetNcmItemGroupByPayload<T extends NcmItemGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<NcmItemGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof NcmItemGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], NcmItemGroupByOutputType[P]>
-            : GetScalarType<T[P], NcmItemGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type NcmItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_item?: boolean
-    id_organizacao_ncm_item?: boolean
-    id_produto_ncm_item?: boolean
-    id_usuario_ncm_item?: boolean
-    codigo_ncm_item?: boolean
-    descricao_ncm_item?: boolean
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: boolean
-    data_fim_ncm_item?: boolean
-    id_sincronizacao_ncm_item?: boolean
-    data_criacao_ncm_item?: boolean
-    data_atualizacao_ncm_item?: boolean
-  }, ExtArgs["result"]["ncmItem"]>
-
-  export type NcmItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_item?: boolean
-    id_organizacao_ncm_item?: boolean
-    id_produto_ncm_item?: boolean
-    id_usuario_ncm_item?: boolean
-    codigo_ncm_item?: boolean
-    descricao_ncm_item?: boolean
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: boolean
-    data_fim_ncm_item?: boolean
-    id_sincronizacao_ncm_item?: boolean
-    data_criacao_ncm_item?: boolean
-    data_atualizacao_ncm_item?: boolean
-  }, ExtArgs["result"]["ncmItem"]>
-
-  export type NcmItemSelectScalar = {
-    id_ncm_item?: boolean
-    id_organizacao_ncm_item?: boolean
-    id_produto_ncm_item?: boolean
-    id_usuario_ncm_item?: boolean
-    codigo_ncm_item?: boolean
-    descricao_ncm_item?: boolean
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: boolean
-    data_fim_ncm_item?: boolean
-    id_sincronizacao_ncm_item?: boolean
-    data_criacao_ncm_item?: boolean
-    data_atualizacao_ncm_item?: boolean
-  }
-
-
-  export type $NcmItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NcmItem"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id_ncm_item: string
-      id_organizacao_ncm_item: string
-      id_produto_ncm_item: string | null
-      id_usuario_ncm_item: string | null
-      codigo_ncm_item: string
-      descricao_ncm_item: string
-      ativo_ncm_item: boolean
-      data_inicio_ncm_item: Date | null
-      data_fim_ncm_item: Date | null
-      id_sincronizacao_ncm_item: string
-      data_criacao_ncm_item: Date
-      data_atualizacao_ncm_item: Date
-    }, ExtArgs["result"]["ncmItem"]>
-    composites: {}
-  }
-
-  type NcmItemGetPayload<S extends boolean | null | undefined | NcmItemDefaultArgs> = $Result.GetResult<Prisma.$NcmItemPayload, S>
-
-  type NcmItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NcmItemFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NcmItemCountAggregateInputType | true
-    }
-
-  export interface NcmItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmItem'], meta: { name: 'NcmItem' } }
-    /**
-     * Find zero or one NcmItem that matches the filter.
-     * @param {NcmItemFindUniqueArgs} args - Arguments to find a NcmItem
-     * @example
-     * // Get one NcmItem
-     * const ncmItem = await prisma.ncmItem.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends NcmItemFindUniqueArgs>(args: SelectSubset<T, NcmItemFindUniqueArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one NcmItem that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {NcmItemFindUniqueOrThrowArgs} args - Arguments to find a NcmItem
-     * @example
-     * // Get one NcmItem
-     * const ncmItem = await prisma.ncmItem.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends NcmItemFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first NcmItem that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemFindFirstArgs} args - Arguments to find a NcmItem
-     * @example
-     * // Get one NcmItem
-     * const ncmItem = await prisma.ncmItem.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends NcmItemFindFirstArgs>(args?: SelectSubset<T, NcmItemFindFirstArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first NcmItem that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemFindFirstOrThrowArgs} args - Arguments to find a NcmItem
-     * @example
-     * // Get one NcmItem
-     * const ncmItem = await prisma.ncmItem.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends NcmItemFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more NcmItems that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all NcmItems
-     * const ncmItems = await prisma.ncmItem.findMany()
-     * 
-     * // Get first 10 NcmItems
-     * const ncmItems = await prisma.ncmItem.findMany({ take: 10 })
-     * 
-     * // Only select the `id_ncm_item`
-     * const ncmItemWithId_ncm_itemOnly = await prisma.ncmItem.findMany({ select: { id_ncm_item: true } })
-     * 
-     */
-    findMany<T extends NcmItemFindManyArgs>(args?: SelectSubset<T, NcmItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a NcmItem.
-     * @param {NcmItemCreateArgs} args - Arguments to create a NcmItem.
-     * @example
-     * // Create one NcmItem
-     * const NcmItem = await prisma.ncmItem.create({
-     *   data: {
-     *     // ... data to create a NcmItem
-     *   }
-     * })
-     * 
-     */
-    create<T extends NcmItemCreateArgs>(args: SelectSubset<T, NcmItemCreateArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many NcmItems.
-     * @param {NcmItemCreateManyArgs} args - Arguments to create many NcmItems.
-     * @example
-     * // Create many NcmItems
-     * const ncmItem = await prisma.ncmItem.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends NcmItemCreateManyArgs>(args?: SelectSubset<T, NcmItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many NcmItems and returns the data saved in the database.
-     * @param {NcmItemCreateManyAndReturnArgs} args - Arguments to create many NcmItems.
-     * @example
-     * // Create many NcmItems
-     * const ncmItem = await prisma.ncmItem.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many NcmItems and only return the `id_ncm_item`
-     * const ncmItemWithId_ncm_itemOnly = await prisma.ncmItem.createManyAndReturn({ 
-     *   select: { id_ncm_item: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends NcmItemCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a NcmItem.
-     * @param {NcmItemDeleteArgs} args - Arguments to delete one NcmItem.
-     * @example
-     * // Delete one NcmItem
-     * const NcmItem = await prisma.ncmItem.delete({
-     *   where: {
-     *     // ... filter to delete one NcmItem
-     *   }
-     * })
-     * 
-     */
-    delete<T extends NcmItemDeleteArgs>(args: SelectSubset<T, NcmItemDeleteArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one NcmItem.
-     * @param {NcmItemUpdateArgs} args - Arguments to update one NcmItem.
-     * @example
-     * // Update one NcmItem
-     * const ncmItem = await prisma.ncmItem.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends NcmItemUpdateArgs>(args: SelectSubset<T, NcmItemUpdateArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more NcmItems.
-     * @param {NcmItemDeleteManyArgs} args - Arguments to filter NcmItems to delete.
-     * @example
-     * // Delete a few NcmItems
-     * const { count } = await prisma.ncmItem.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends NcmItemDeleteManyArgs>(args?: SelectSubset<T, NcmItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more NcmItems.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many NcmItems
-     * const ncmItem = await prisma.ncmItem.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends NcmItemUpdateManyArgs>(args: SelectSubset<T, NcmItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one NcmItem.
-     * @param {NcmItemUpsertArgs} args - Arguments to update or create a NcmItem.
-     * @example
-     * // Update or create a NcmItem
-     * const ncmItem = await prisma.ncmItem.upsert({
-     *   create: {
-     *     // ... data to create a NcmItem
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the NcmItem we want to update
-     *   }
-     * })
-     */
-    upsert<T extends NcmItemUpsertArgs>(args: SelectSubset<T, NcmItemUpsertArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of NcmItems.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemCountArgs} args - Arguments to filter NcmItems to count.
-     * @example
-     * // Count the number of NcmItems
-     * const count = await prisma.ncmItem.count({
-     *   where: {
-     *     // ... the filter for the NcmItems we want to count
-     *   }
-     * })
-    **/
-    count<T extends NcmItemCountArgs>(
-      args?: Subset<T, NcmItemCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], NcmItemCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a NcmItem.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends NcmItemAggregateArgs>(args: Subset<T, NcmItemAggregateArgs>): Prisma.PrismaPromise<GetNcmItemAggregateType<T>>
-
-    /**
-     * Group by NcmItem.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmItemGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends NcmItemGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NcmItemGroupByArgs['orderBy'] }
-        : { orderBy?: NcmItemGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, NcmItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the NcmItem model
-   */
-  readonly fields: NcmItemFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for NcmItem.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__NcmItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the NcmItem model
-   */ 
-  interface NcmItemFieldRefs {
-    readonly id_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly id_organizacao_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly id_produto_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly id_usuario_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly codigo_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly descricao_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly ativo_ncm_item: FieldRef<"NcmItem", 'Boolean'>
-    readonly data_inicio_ncm_item: FieldRef<"NcmItem", 'DateTime'>
-    readonly data_fim_ncm_item: FieldRef<"NcmItem", 'DateTime'>
-    readonly id_sincronizacao_ncm_item: FieldRef<"NcmItem", 'String'>
-    readonly data_criacao_ncm_item: FieldRef<"NcmItem", 'DateTime'>
-    readonly data_atualizacao_ncm_item: FieldRef<"NcmItem", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * NcmItem findUnique
-   */
-  export type NcmItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmItem to fetch.
-     */
-    where: NcmItemWhereUniqueInput
-  }
-
-  /**
-   * NcmItem findUniqueOrThrow
-   */
-  export type NcmItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmItem to fetch.
-     */
-    where: NcmItemWhereUniqueInput
-  }
-
-  /**
-   * NcmItem findFirst
-   */
-  export type NcmItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmItem to fetch.
-     */
-    where?: NcmItemWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmItems to fetch.
-     */
-    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NcmItems.
-     */
-    cursor?: NcmItemWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmItems from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmItems.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NcmItems.
-     */
-    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
-  }
-
-  /**
-   * NcmItem findFirstOrThrow
-   */
-  export type NcmItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmItem to fetch.
-     */
-    where?: NcmItemWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmItems to fetch.
-     */
-    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NcmItems.
-     */
-    cursor?: NcmItemWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmItems from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmItems.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NcmItems.
-     */
-    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
-  }
-
-  /**
-   * NcmItem findMany
-   */
-  export type NcmItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmItems to fetch.
-     */
-    where?: NcmItemWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmItems to fetch.
-     */
-    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing NcmItems.
-     */
-    cursor?: NcmItemWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmItems from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmItems.
-     */
-    skip?: number
-    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
-  }
-
-  /**
-   * NcmItem create
-   */
-  export type NcmItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * The data needed to create a NcmItem.
-     */
-    data: XOR<NcmItemCreateInput, NcmItemUncheckedCreateInput>
-  }
-
-  /**
-   * NcmItem createMany
-   */
-  export type NcmItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many NcmItems.
-     */
-    data: NcmItemCreateManyInput | NcmItemCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NcmItem createManyAndReturn
-   */
-  export type NcmItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many NcmItems.
-     */
-    data: NcmItemCreateManyInput | NcmItemCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NcmItem update
-   */
-  export type NcmItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * The data needed to update a NcmItem.
-     */
-    data: XOR<NcmItemUpdateInput, NcmItemUncheckedUpdateInput>
-    /**
-     * Choose, which NcmItem to update.
-     */
-    where: NcmItemWhereUniqueInput
-  }
-
-  /**
-   * NcmItem updateMany
-   */
-  export type NcmItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update NcmItems.
-     */
-    data: XOR<NcmItemUpdateManyMutationInput, NcmItemUncheckedUpdateManyInput>
-    /**
-     * Filter which NcmItems to update
-     */
-    where?: NcmItemWhereInput
-  }
-
-  /**
-   * NcmItem upsert
-   */
-  export type NcmItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * The filter to search for the NcmItem to update in case it exists.
-     */
-    where: NcmItemWhereUniqueInput
-    /**
-     * In case the NcmItem found by the `where` argument doesn't exist, create a new NcmItem with this data.
-     */
-    create: XOR<NcmItemCreateInput, NcmItemUncheckedCreateInput>
-    /**
-     * In case the NcmItem was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<NcmItemUpdateInput, NcmItemUncheckedUpdateInput>
-  }
-
-  /**
-   * NcmItem delete
-   */
-  export type NcmItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-    /**
-     * Filter which NcmItem to delete.
-     */
-    where: NcmItemWhereUniqueInput
-  }
-
-  /**
-   * NcmItem deleteMany
-   */
-  export type NcmItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NcmItems to delete
-     */
-    where?: NcmItemWhereInput
-  }
-
-  /**
-   * NcmItem without action
-   */
-  export type NcmItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmItem
-     */
-    select?: NcmItemSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Model NcmLog
-   */
-
-  export type AggregateNcmLog = {
-    _count: NcmLogCountAggregateOutputType | null
-    _avg: NcmLogAvgAggregateOutputType | null
-    _sum: NcmLogSumAggregateOutputType | null
-    _min: NcmLogMinAggregateOutputType | null
-    _max: NcmLogMaxAggregateOutputType | null
-  }
-
-  export type NcmLogAvgAggregateOutputType = {
-    total_ncm_log: number | null
-    adicionados_ncm_log: number | null
-    alterados_ncm_log: number | null
-    removidos_ncm_log: number | null
-  }
-
-  export type NcmLogSumAggregateOutputType = {
-    total_ncm_log: number | null
-    adicionados_ncm_log: number | null
-    alterados_ncm_log: number | null
-    removidos_ncm_log: number | null
-  }
-
-  export type NcmLogMinAggregateOutputType = {
-    id_ncm_log: string | null
-    id_organizacao_ncm_log: string | null
-    id_produto_ncm_log: string | null
-    id_usuario_ncm_log: string | null
-    data_inicio_ncm_log: Date | null
-    data_conclusao_ncm_log: Date | null
-    status_ncm_log: $Enums.NCMStatusSincronizacao | null
-    total_ncm_log: number | null
-    adicionados_ncm_log: number | null
-    alterados_ncm_log: number | null
-    removidos_ncm_log: number | null
-    origem_ncm_log: $Enums.NCMOrigemSincronizacao | null
-    disparado_por_ncm_log: string | null
-    mensagem_erro_ncm_log: string | null
-    data_criacao_ncm_log: Date | null
-    data_atualizacao_ncm_log: Date | null
-  }
-
-  export type NcmLogMaxAggregateOutputType = {
-    id_ncm_log: string | null
-    id_organizacao_ncm_log: string | null
-    id_produto_ncm_log: string | null
-    id_usuario_ncm_log: string | null
-    data_inicio_ncm_log: Date | null
-    data_conclusao_ncm_log: Date | null
-    status_ncm_log: $Enums.NCMStatusSincronizacao | null
-    total_ncm_log: number | null
-    adicionados_ncm_log: number | null
-    alterados_ncm_log: number | null
-    removidos_ncm_log: number | null
-    origem_ncm_log: $Enums.NCMOrigemSincronizacao | null
-    disparado_por_ncm_log: string | null
-    mensagem_erro_ncm_log: string | null
-    data_criacao_ncm_log: Date | null
-    data_atualizacao_ncm_log: Date | null
-  }
-
-  export type NcmLogCountAggregateOutputType = {
-    id_ncm_log: number
-    id_organizacao_ncm_log: number
-    id_produto_ncm_log: number
-    id_usuario_ncm_log: number
-    data_inicio_ncm_log: number
-    data_conclusao_ncm_log: number
-    status_ncm_log: number
-    total_ncm_log: number
-    adicionados_ncm_log: number
-    alterados_ncm_log: number
-    removidos_ncm_log: number
-    origem_ncm_log: number
-    disparado_por_ncm_log: number
-    mensagem_erro_ncm_log: number
-    data_criacao_ncm_log: number
-    data_atualizacao_ncm_log: number
-    _all: number
-  }
-
-
-  export type NcmLogAvgAggregateInputType = {
-    total_ncm_log?: true
-    adicionados_ncm_log?: true
-    alterados_ncm_log?: true
-    removidos_ncm_log?: true
-  }
-
-  export type NcmLogSumAggregateInputType = {
-    total_ncm_log?: true
-    adicionados_ncm_log?: true
-    alterados_ncm_log?: true
-    removidos_ncm_log?: true
-  }
-
-  export type NcmLogMinAggregateInputType = {
-    id_ncm_log?: true
-    id_organizacao_ncm_log?: true
-    id_produto_ncm_log?: true
-    id_usuario_ncm_log?: true
-    data_inicio_ncm_log?: true
-    data_conclusao_ncm_log?: true
-    status_ncm_log?: true
-    total_ncm_log?: true
-    adicionados_ncm_log?: true
-    alterados_ncm_log?: true
-    removidos_ncm_log?: true
-    origem_ncm_log?: true
-    disparado_por_ncm_log?: true
-    mensagem_erro_ncm_log?: true
-    data_criacao_ncm_log?: true
-    data_atualizacao_ncm_log?: true
-  }
-
-  export type NcmLogMaxAggregateInputType = {
-    id_ncm_log?: true
-    id_organizacao_ncm_log?: true
-    id_produto_ncm_log?: true
-    id_usuario_ncm_log?: true
-    data_inicio_ncm_log?: true
-    data_conclusao_ncm_log?: true
-    status_ncm_log?: true
-    total_ncm_log?: true
-    adicionados_ncm_log?: true
-    alterados_ncm_log?: true
-    removidos_ncm_log?: true
-    origem_ncm_log?: true
-    disparado_por_ncm_log?: true
-    mensagem_erro_ncm_log?: true
-    data_criacao_ncm_log?: true
-    data_atualizacao_ncm_log?: true
-  }
-
-  export type NcmLogCountAggregateInputType = {
-    id_ncm_log?: true
-    id_organizacao_ncm_log?: true
-    id_produto_ncm_log?: true
-    id_usuario_ncm_log?: true
-    data_inicio_ncm_log?: true
-    data_conclusao_ncm_log?: true
-    status_ncm_log?: true
-    total_ncm_log?: true
-    adicionados_ncm_log?: true
-    alterados_ncm_log?: true
-    removidos_ncm_log?: true
-    origem_ncm_log?: true
-    disparado_por_ncm_log?: true
-    mensagem_erro_ncm_log?: true
-    data_criacao_ncm_log?: true
-    data_atualizacao_ncm_log?: true
-    _all?: true
-  }
-
-  export type NcmLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NcmLog to aggregate.
-     */
-    where?: NcmLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmLogs to fetch.
-     */
-    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: NcmLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned NcmLogs
-    **/
-    _count?: true | NcmLogCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: NcmLogAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: NcmLogSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: NcmLogMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: NcmLogMaxAggregateInputType
-  }
-
-  export type GetNcmLogAggregateType<T extends NcmLogAggregateArgs> = {
-        [P in keyof T & keyof AggregateNcmLog]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateNcmLog[P]>
-      : GetScalarType<T[P], AggregateNcmLog[P]>
-  }
-
-
-
-
-  export type NcmLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NcmLogWhereInput
-    orderBy?: NcmLogOrderByWithAggregationInput | NcmLogOrderByWithAggregationInput[]
-    by: NcmLogScalarFieldEnum[] | NcmLogScalarFieldEnum
-    having?: NcmLogScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: NcmLogCountAggregateInputType | true
-    _avg?: NcmLogAvgAggregateInputType
-    _sum?: NcmLogSumAggregateInputType
-    _min?: NcmLogMinAggregateInputType
-    _max?: NcmLogMaxAggregateInputType
-  }
-
-  export type NcmLogGroupByOutputType = {
-    id_ncm_log: string
-    id_organizacao_ncm_log: string
-    id_produto_ncm_log: string | null
-    id_usuario_ncm_log: string | null
-    data_inicio_ncm_log: Date
-    data_conclusao_ncm_log: Date | null
-    status_ncm_log: $Enums.NCMStatusSincronizacao
-    total_ncm_log: number
-    adicionados_ncm_log: number
-    alterados_ncm_log: number
-    removidos_ncm_log: number
-    origem_ncm_log: $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log: string | null
-    mensagem_erro_ncm_log: string | null
-    data_criacao_ncm_log: Date
-    data_atualizacao_ncm_log: Date
-    _count: NcmLogCountAggregateOutputType | null
-    _avg: NcmLogAvgAggregateOutputType | null
-    _sum: NcmLogSumAggregateOutputType | null
-    _min: NcmLogMinAggregateOutputType | null
-    _max: NcmLogMaxAggregateOutputType | null
-  }
-
-  type GetNcmLogGroupByPayload<T extends NcmLogGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<NcmLogGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof NcmLogGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], NcmLogGroupByOutputType[P]>
-            : GetScalarType<T[P], NcmLogGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type NcmLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_log?: boolean
-    id_organizacao_ncm_log?: boolean
-    id_produto_ncm_log?: boolean
-    id_usuario_ncm_log?: boolean
-    data_inicio_ncm_log?: boolean
-    data_conclusao_ncm_log?: boolean
-    status_ncm_log?: boolean
-    total_ncm_log?: boolean
-    adicionados_ncm_log?: boolean
-    alterados_ncm_log?: boolean
-    removidos_ncm_log?: boolean
-    origem_ncm_log?: boolean
-    disparado_por_ncm_log?: boolean
-    mensagem_erro_ncm_log?: boolean
-    data_criacao_ncm_log?: boolean
-    data_atualizacao_ncm_log?: boolean
-  }, ExtArgs["result"]["ncmLog"]>
-
-  export type NcmLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_log?: boolean
-    id_organizacao_ncm_log?: boolean
-    id_produto_ncm_log?: boolean
-    id_usuario_ncm_log?: boolean
-    data_inicio_ncm_log?: boolean
-    data_conclusao_ncm_log?: boolean
-    status_ncm_log?: boolean
-    total_ncm_log?: boolean
-    adicionados_ncm_log?: boolean
-    alterados_ncm_log?: boolean
-    removidos_ncm_log?: boolean
-    origem_ncm_log?: boolean
-    disparado_por_ncm_log?: boolean
-    mensagem_erro_ncm_log?: boolean
-    data_criacao_ncm_log?: boolean
-    data_atualizacao_ncm_log?: boolean
-  }, ExtArgs["result"]["ncmLog"]>
-
-  export type NcmLogSelectScalar = {
-    id_ncm_log?: boolean
-    id_organizacao_ncm_log?: boolean
-    id_produto_ncm_log?: boolean
-    id_usuario_ncm_log?: boolean
-    data_inicio_ncm_log?: boolean
-    data_conclusao_ncm_log?: boolean
-    status_ncm_log?: boolean
-    total_ncm_log?: boolean
-    adicionados_ncm_log?: boolean
-    alterados_ncm_log?: boolean
-    removidos_ncm_log?: boolean
-    origem_ncm_log?: boolean
-    disparado_por_ncm_log?: boolean
-    mensagem_erro_ncm_log?: boolean
-    data_criacao_ncm_log?: boolean
-    data_atualizacao_ncm_log?: boolean
-  }
-
-
-  export type $NcmLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NcmLog"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id_ncm_log: string
-      id_organizacao_ncm_log: string
-      id_produto_ncm_log: string | null
-      id_usuario_ncm_log: string | null
-      data_inicio_ncm_log: Date
-      data_conclusao_ncm_log: Date | null
-      status_ncm_log: $Enums.NCMStatusSincronizacao
-      total_ncm_log: number
-      adicionados_ncm_log: number
-      alterados_ncm_log: number
-      removidos_ncm_log: number
-      origem_ncm_log: $Enums.NCMOrigemSincronizacao
-      disparado_por_ncm_log: string | null
-      mensagem_erro_ncm_log: string | null
-      data_criacao_ncm_log: Date
-      data_atualizacao_ncm_log: Date
-    }, ExtArgs["result"]["ncmLog"]>
-    composites: {}
-  }
-
-  type NcmLogGetPayload<S extends boolean | null | undefined | NcmLogDefaultArgs> = $Result.GetResult<Prisma.$NcmLogPayload, S>
-
-  type NcmLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NcmLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NcmLogCountAggregateInputType | true
-    }
-
-  export interface NcmLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmLog'], meta: { name: 'NcmLog' } }
-    /**
-     * Find zero or one NcmLog that matches the filter.
-     * @param {NcmLogFindUniqueArgs} args - Arguments to find a NcmLog
-     * @example
-     * // Get one NcmLog
-     * const ncmLog = await prisma.ncmLog.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends NcmLogFindUniqueArgs>(args: SelectSubset<T, NcmLogFindUniqueArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one NcmLog that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {NcmLogFindUniqueOrThrowArgs} args - Arguments to find a NcmLog
-     * @example
-     * // Get one NcmLog
-     * const ncmLog = await prisma.ncmLog.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends NcmLogFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first NcmLog that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogFindFirstArgs} args - Arguments to find a NcmLog
-     * @example
-     * // Get one NcmLog
-     * const ncmLog = await prisma.ncmLog.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends NcmLogFindFirstArgs>(args?: SelectSubset<T, NcmLogFindFirstArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first NcmLog that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogFindFirstOrThrowArgs} args - Arguments to find a NcmLog
-     * @example
-     * // Get one NcmLog
-     * const ncmLog = await prisma.ncmLog.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends NcmLogFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more NcmLogs that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all NcmLogs
-     * const ncmLogs = await prisma.ncmLog.findMany()
-     * 
-     * // Get first 10 NcmLogs
-     * const ncmLogs = await prisma.ncmLog.findMany({ take: 10 })
-     * 
-     * // Only select the `id_ncm_log`
-     * const ncmLogWithId_ncm_logOnly = await prisma.ncmLog.findMany({ select: { id_ncm_log: true } })
-     * 
-     */
-    findMany<T extends NcmLogFindManyArgs>(args?: SelectSubset<T, NcmLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a NcmLog.
-     * @param {NcmLogCreateArgs} args - Arguments to create a NcmLog.
-     * @example
-     * // Create one NcmLog
-     * const NcmLog = await prisma.ncmLog.create({
-     *   data: {
-     *     // ... data to create a NcmLog
-     *   }
-     * })
-     * 
-     */
-    create<T extends NcmLogCreateArgs>(args: SelectSubset<T, NcmLogCreateArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many NcmLogs.
-     * @param {NcmLogCreateManyArgs} args - Arguments to create many NcmLogs.
-     * @example
-     * // Create many NcmLogs
-     * const ncmLog = await prisma.ncmLog.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends NcmLogCreateManyArgs>(args?: SelectSubset<T, NcmLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many NcmLogs and returns the data saved in the database.
-     * @param {NcmLogCreateManyAndReturnArgs} args - Arguments to create many NcmLogs.
-     * @example
-     * // Create many NcmLogs
-     * const ncmLog = await prisma.ncmLog.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many NcmLogs and only return the `id_ncm_log`
-     * const ncmLogWithId_ncm_logOnly = await prisma.ncmLog.createManyAndReturn({ 
-     *   select: { id_ncm_log: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends NcmLogCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a NcmLog.
-     * @param {NcmLogDeleteArgs} args - Arguments to delete one NcmLog.
-     * @example
-     * // Delete one NcmLog
-     * const NcmLog = await prisma.ncmLog.delete({
-     *   where: {
-     *     // ... filter to delete one NcmLog
-     *   }
-     * })
-     * 
-     */
-    delete<T extends NcmLogDeleteArgs>(args: SelectSubset<T, NcmLogDeleteArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one NcmLog.
-     * @param {NcmLogUpdateArgs} args - Arguments to update one NcmLog.
-     * @example
-     * // Update one NcmLog
-     * const ncmLog = await prisma.ncmLog.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends NcmLogUpdateArgs>(args: SelectSubset<T, NcmLogUpdateArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more NcmLogs.
-     * @param {NcmLogDeleteManyArgs} args - Arguments to filter NcmLogs to delete.
-     * @example
-     * // Delete a few NcmLogs
-     * const { count } = await prisma.ncmLog.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends NcmLogDeleteManyArgs>(args?: SelectSubset<T, NcmLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more NcmLogs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many NcmLogs
-     * const ncmLog = await prisma.ncmLog.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends NcmLogUpdateManyArgs>(args: SelectSubset<T, NcmLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one NcmLog.
-     * @param {NcmLogUpsertArgs} args - Arguments to update or create a NcmLog.
-     * @example
-     * // Update or create a NcmLog
-     * const ncmLog = await prisma.ncmLog.upsert({
-     *   create: {
-     *     // ... data to create a NcmLog
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the NcmLog we want to update
-     *   }
-     * })
-     */
-    upsert<T extends NcmLogUpsertArgs>(args: SelectSubset<T, NcmLogUpsertArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of NcmLogs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogCountArgs} args - Arguments to filter NcmLogs to count.
-     * @example
-     * // Count the number of NcmLogs
-     * const count = await prisma.ncmLog.count({
-     *   where: {
-     *     // ... the filter for the NcmLogs we want to count
-     *   }
-     * })
-    **/
-    count<T extends NcmLogCountArgs>(
-      args?: Subset<T, NcmLogCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], NcmLogCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a NcmLog.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends NcmLogAggregateArgs>(args: Subset<T, NcmLogAggregateArgs>): Prisma.PrismaPromise<GetNcmLogAggregateType<T>>
-
-    /**
-     * Group by NcmLog.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmLogGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends NcmLogGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NcmLogGroupByArgs['orderBy'] }
-        : { orderBy?: NcmLogGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, NcmLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the NcmLog model
-   */
-  readonly fields: NcmLogFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for NcmLog.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__NcmLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the NcmLog model
-   */ 
-  interface NcmLogFieldRefs {
-    readonly id_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly id_organizacao_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly id_produto_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly id_usuario_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly data_inicio_ncm_log: FieldRef<"NcmLog", 'DateTime'>
-    readonly data_conclusao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
-    readonly status_ncm_log: FieldRef<"NcmLog", 'NCMStatusSincronizacao'>
-    readonly total_ncm_log: FieldRef<"NcmLog", 'Int'>
-    readonly adicionados_ncm_log: FieldRef<"NcmLog", 'Int'>
-    readonly alterados_ncm_log: FieldRef<"NcmLog", 'Int'>
-    readonly removidos_ncm_log: FieldRef<"NcmLog", 'Int'>
-    readonly origem_ncm_log: FieldRef<"NcmLog", 'NCMOrigemSincronizacao'>
-    readonly disparado_por_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly mensagem_erro_ncm_log: FieldRef<"NcmLog", 'String'>
-    readonly data_criacao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
-    readonly data_atualizacao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * NcmLog findUnique
-   */
-  export type NcmLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmLog to fetch.
-     */
-    where: NcmLogWhereUniqueInput
-  }
-
-  /**
-   * NcmLog findUniqueOrThrow
-   */
-  export type NcmLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmLog to fetch.
-     */
-    where: NcmLogWhereUniqueInput
-  }
-
-  /**
-   * NcmLog findFirst
-   */
-  export type NcmLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmLog to fetch.
-     */
-    where?: NcmLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmLogs to fetch.
-     */
-    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NcmLogs.
-     */
-    cursor?: NcmLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NcmLogs.
-     */
-    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
-  }
-
-  /**
-   * NcmLog findFirstOrThrow
-   */
-  export type NcmLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmLog to fetch.
-     */
-    where?: NcmLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmLogs to fetch.
-     */
-    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NcmLogs.
-     */
-    cursor?: NcmLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NcmLogs.
-     */
-    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
-  }
-
-  /**
-   * NcmLog findMany
-   */
-  export type NcmLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter, which NcmLogs to fetch.
-     */
-    where?: NcmLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NcmLogs to fetch.
-     */
-    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing NcmLogs.
-     */
-    cursor?: NcmLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NcmLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NcmLogs.
-     */
-    skip?: number
-    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
-  }
-
-  /**
-   * NcmLog create
-   */
-  export type NcmLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * The data needed to create a NcmLog.
-     */
-    data: XOR<NcmLogCreateInput, NcmLogUncheckedCreateInput>
-  }
-
-  /**
-   * NcmLog createMany
-   */
-  export type NcmLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many NcmLogs.
-     */
-    data: NcmLogCreateManyInput | NcmLogCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NcmLog createManyAndReturn
-   */
-  export type NcmLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many NcmLogs.
-     */
-    data: NcmLogCreateManyInput | NcmLogCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NcmLog update
-   */
-  export type NcmLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * The data needed to update a NcmLog.
-     */
-    data: XOR<NcmLogUpdateInput, NcmLogUncheckedUpdateInput>
-    /**
-     * Choose, which NcmLog to update.
-     */
-    where: NcmLogWhereUniqueInput
-  }
-
-  /**
-   * NcmLog updateMany
-   */
-  export type NcmLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update NcmLogs.
-     */
-    data: XOR<NcmLogUpdateManyMutationInput, NcmLogUncheckedUpdateManyInput>
-    /**
-     * Filter which NcmLogs to update
-     */
-    where?: NcmLogWhereInput
-  }
-
-  /**
-   * NcmLog upsert
-   */
-  export type NcmLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * The filter to search for the NcmLog to update in case it exists.
-     */
-    where: NcmLogWhereUniqueInput
-    /**
-     * In case the NcmLog found by the `where` argument doesn't exist, create a new NcmLog with this data.
-     */
-    create: XOR<NcmLogCreateInput, NcmLogUncheckedCreateInput>
-    /**
-     * In case the NcmLog was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<NcmLogUpdateInput, NcmLogUncheckedUpdateInput>
-  }
-
-  /**
-   * NcmLog delete
-   */
-  export type NcmLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-    /**
-     * Filter which NcmLog to delete.
-     */
-    where: NcmLogWhereUniqueInput
-  }
-
-  /**
-   * NcmLog deleteMany
-   */
-  export type NcmLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NcmLogs to delete
-     */
-    where?: NcmLogWhereInput
-  }
-
-  /**
-   * NcmLog without action
-   */
-  export type NcmLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NcmLog
-     */
-    select?: NcmLogSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Model NCMAgendamento
-   */
-
-  export type AggregateNCMAgendamento = {
-    _count: NCMAgendamentoCountAggregateOutputType | null
-    _min: NCMAgendamentoMinAggregateOutputType | null
-    _max: NCMAgendamentoMaxAggregateOutputType | null
-  }
-
-  export type NCMAgendamentoMinAggregateOutputType = {
-    id_ncm_agendamento: string | null
-    id_organizacao_ncm_agendamento: string | null
-    id_produto_ncm_agendamento: string | null
-    id_usuario_ncm_agendamento: string | null
-    ativo_ncm_agendamento: boolean | null
-    cron_expressao_ncm_agendamento: string | null
-    data_criacao_ncm_agendamento: Date | null
-    data_atualizacao_ncm_agendamento: Date | null
-  }
-
-  export type NCMAgendamentoMaxAggregateOutputType = {
-    id_ncm_agendamento: string | null
-    id_organizacao_ncm_agendamento: string | null
-    id_produto_ncm_agendamento: string | null
-    id_usuario_ncm_agendamento: string | null
-    ativo_ncm_agendamento: boolean | null
-    cron_expressao_ncm_agendamento: string | null
-    data_criacao_ncm_agendamento: Date | null
-    data_atualizacao_ncm_agendamento: Date | null
-  }
-
-  export type NCMAgendamentoCountAggregateOutputType = {
-    id_ncm_agendamento: number
-    id_organizacao_ncm_agendamento: number
-    id_produto_ncm_agendamento: number
-    id_usuario_ncm_agendamento: number
-    ativo_ncm_agendamento: number
-    cron_expressao_ncm_agendamento: number
-    notificadores_ncm_agendamento: number
-    data_criacao_ncm_agendamento: number
-    data_atualizacao_ncm_agendamento: number
-    _all: number
-  }
-
-
-  export type NCMAgendamentoMinAggregateInputType = {
-    id_ncm_agendamento?: true
-    id_organizacao_ncm_agendamento?: true
-    id_produto_ncm_agendamento?: true
-    id_usuario_ncm_agendamento?: true
-    ativo_ncm_agendamento?: true
-    cron_expressao_ncm_agendamento?: true
-    data_criacao_ncm_agendamento?: true
-    data_atualizacao_ncm_agendamento?: true
-  }
-
-  export type NCMAgendamentoMaxAggregateInputType = {
-    id_ncm_agendamento?: true
-    id_organizacao_ncm_agendamento?: true
-    id_produto_ncm_agendamento?: true
-    id_usuario_ncm_agendamento?: true
-    ativo_ncm_agendamento?: true
-    cron_expressao_ncm_agendamento?: true
-    data_criacao_ncm_agendamento?: true
-    data_atualizacao_ncm_agendamento?: true
-  }
-
-  export type NCMAgendamentoCountAggregateInputType = {
-    id_ncm_agendamento?: true
-    id_organizacao_ncm_agendamento?: true
-    id_produto_ncm_agendamento?: true
-    id_usuario_ncm_agendamento?: true
-    ativo_ncm_agendamento?: true
-    cron_expressao_ncm_agendamento?: true
-    notificadores_ncm_agendamento?: true
-    data_criacao_ncm_agendamento?: true
-    data_atualizacao_ncm_agendamento?: true
-    _all?: true
-  }
-
-  export type NCMAgendamentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NCMAgendamento to aggregate.
-     */
-    where?: NCMAgendamentoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NCMAgendamentos to fetch.
-     */
-    orderBy?: NCMAgendamentoOrderByWithRelationInput | NCMAgendamentoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: NCMAgendamentoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NCMAgendamentos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NCMAgendamentos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned NCMAgendamentos
-    **/
-    _count?: true | NCMAgendamentoCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: NCMAgendamentoMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: NCMAgendamentoMaxAggregateInputType
-  }
-
-  export type GetNCMAgendamentoAggregateType<T extends NCMAgendamentoAggregateArgs> = {
-        [P in keyof T & keyof AggregateNCMAgendamento]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateNCMAgendamento[P]>
-      : GetScalarType<T[P], AggregateNCMAgendamento[P]>
-  }
-
-
-
-
-  export type NCMAgendamentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NCMAgendamentoWhereInput
-    orderBy?: NCMAgendamentoOrderByWithAggregationInput | NCMAgendamentoOrderByWithAggregationInput[]
-    by: NCMAgendamentoScalarFieldEnum[] | NCMAgendamentoScalarFieldEnum
-    having?: NCMAgendamentoScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: NCMAgendamentoCountAggregateInputType | true
-    _min?: NCMAgendamentoMinAggregateInputType
-    _max?: NCMAgendamentoMaxAggregateInputType
-  }
-
-  export type NCMAgendamentoGroupByOutputType = {
-    id_ncm_agendamento: string
-    id_organizacao_ncm_agendamento: string
-    id_produto_ncm_agendamento: string | null
-    id_usuario_ncm_agendamento: string | null
-    ativo_ncm_agendamento: boolean
-    cron_expressao_ncm_agendamento: string
-    notificadores_ncm_agendamento: JsonValue
-    data_criacao_ncm_agendamento: Date
-    data_atualizacao_ncm_agendamento: Date
-    _count: NCMAgendamentoCountAggregateOutputType | null
-    _min: NCMAgendamentoMinAggregateOutputType | null
-    _max: NCMAgendamentoMaxAggregateOutputType | null
-  }
-
-  type GetNCMAgendamentoGroupByPayload<T extends NCMAgendamentoGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<NCMAgendamentoGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof NCMAgendamentoGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], NCMAgendamentoGroupByOutputType[P]>
-            : GetScalarType<T[P], NCMAgendamentoGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type NCMAgendamentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_agendamento?: boolean
-    id_organizacao_ncm_agendamento?: boolean
-    id_produto_ncm_agendamento?: boolean
-    id_usuario_ncm_agendamento?: boolean
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: boolean
-    notificadores_ncm_agendamento?: boolean
-    data_criacao_ncm_agendamento?: boolean
-    data_atualizacao_ncm_agendamento?: boolean
-  }, ExtArgs["result"]["nCMAgendamento"]>
-
-  export type NCMAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_ncm_agendamento?: boolean
-    id_organizacao_ncm_agendamento?: boolean
-    id_produto_ncm_agendamento?: boolean
-    id_usuario_ncm_agendamento?: boolean
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: boolean
-    notificadores_ncm_agendamento?: boolean
-    data_criacao_ncm_agendamento?: boolean
-    data_atualizacao_ncm_agendamento?: boolean
-  }, ExtArgs["result"]["nCMAgendamento"]>
-
-  export type NCMAgendamentoSelectScalar = {
-    id_ncm_agendamento?: boolean
-    id_organizacao_ncm_agendamento?: boolean
-    id_produto_ncm_agendamento?: boolean
-    id_usuario_ncm_agendamento?: boolean
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: boolean
-    notificadores_ncm_agendamento?: boolean
-    data_criacao_ncm_agendamento?: boolean
-    data_atualizacao_ncm_agendamento?: boolean
-  }
-
-
-  export type $NCMAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NCMAgendamento"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id_ncm_agendamento: string
-      id_organizacao_ncm_agendamento: string
-      id_produto_ncm_agendamento: string | null
-      id_usuario_ncm_agendamento: string | null
-      ativo_ncm_agendamento: boolean
-      cron_expressao_ncm_agendamento: string
-      notificadores_ncm_agendamento: Prisma.JsonValue
-      data_criacao_ncm_agendamento: Date
-      data_atualizacao_ncm_agendamento: Date
-    }, ExtArgs["result"]["nCMAgendamento"]>
-    composites: {}
-  }
-
-  type NCMAgendamentoGetPayload<S extends boolean | null | undefined | NCMAgendamentoDefaultArgs> = $Result.GetResult<Prisma.$NCMAgendamentoPayload, S>
-
-  type NCMAgendamentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NCMAgendamentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NCMAgendamentoCountAggregateInputType | true
-    }
-
-  export interface NCMAgendamentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NCMAgendamento'], meta: { name: 'NCMAgendamento' } }
-    /**
-     * Find zero or one NCMAgendamento that matches the filter.
-     * @param {NCMAgendamentoFindUniqueArgs} args - Arguments to find a NCMAgendamento
-     * @example
-     * // Get one NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends NCMAgendamentoFindUniqueArgs>(args: SelectSubset<T, NCMAgendamentoFindUniqueArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one NCMAgendamento that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {NCMAgendamentoFindUniqueOrThrowArgs} args - Arguments to find a NCMAgendamento
-     * @example
-     * // Get one NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends NCMAgendamentoFindUniqueOrThrowArgs>(args: SelectSubset<T, NCMAgendamentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first NCMAgendamento that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoFindFirstArgs} args - Arguments to find a NCMAgendamento
-     * @example
-     * // Get one NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends NCMAgendamentoFindFirstArgs>(args?: SelectSubset<T, NCMAgendamentoFindFirstArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first NCMAgendamento that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoFindFirstOrThrowArgs} args - Arguments to find a NCMAgendamento
-     * @example
-     * // Get one NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends NCMAgendamentoFindFirstOrThrowArgs>(args?: SelectSubset<T, NCMAgendamentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more NCMAgendamentos that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all NCMAgendamentos
-     * const nCMAgendamentos = await prisma.nCMAgendamento.findMany()
-     * 
-     * // Get first 10 NCMAgendamentos
-     * const nCMAgendamentos = await prisma.nCMAgendamento.findMany({ take: 10 })
-     * 
-     * // Only select the `id_ncm_agendamento`
-     * const nCMAgendamentoWithId_ncm_agendamentoOnly = await prisma.nCMAgendamento.findMany({ select: { id_ncm_agendamento: true } })
-     * 
-     */
-    findMany<T extends NCMAgendamentoFindManyArgs>(args?: SelectSubset<T, NCMAgendamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a NCMAgendamento.
-     * @param {NCMAgendamentoCreateArgs} args - Arguments to create a NCMAgendamento.
-     * @example
-     * // Create one NCMAgendamento
-     * const NCMAgendamento = await prisma.nCMAgendamento.create({
-     *   data: {
-     *     // ... data to create a NCMAgendamento
-     *   }
-     * })
-     * 
-     */
-    create<T extends NCMAgendamentoCreateArgs>(args: SelectSubset<T, NCMAgendamentoCreateArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many NCMAgendamentos.
-     * @param {NCMAgendamentoCreateManyArgs} args - Arguments to create many NCMAgendamentos.
-     * @example
-     * // Create many NCMAgendamentos
-     * const nCMAgendamento = await prisma.nCMAgendamento.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends NCMAgendamentoCreateManyArgs>(args?: SelectSubset<T, NCMAgendamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many NCMAgendamentos and returns the data saved in the database.
-     * @param {NCMAgendamentoCreateManyAndReturnArgs} args - Arguments to create many NCMAgendamentos.
-     * @example
-     * // Create many NCMAgendamentos
-     * const nCMAgendamento = await prisma.nCMAgendamento.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many NCMAgendamentos and only return the `id_ncm_agendamento`
-     * const nCMAgendamentoWithId_ncm_agendamentoOnly = await prisma.nCMAgendamento.createManyAndReturn({ 
-     *   select: { id_ncm_agendamento: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends NCMAgendamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, NCMAgendamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a NCMAgendamento.
-     * @param {NCMAgendamentoDeleteArgs} args - Arguments to delete one NCMAgendamento.
-     * @example
-     * // Delete one NCMAgendamento
-     * const NCMAgendamento = await prisma.nCMAgendamento.delete({
-     *   where: {
-     *     // ... filter to delete one NCMAgendamento
-     *   }
-     * })
-     * 
-     */
-    delete<T extends NCMAgendamentoDeleteArgs>(args: SelectSubset<T, NCMAgendamentoDeleteArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one NCMAgendamento.
-     * @param {NCMAgendamentoUpdateArgs} args - Arguments to update one NCMAgendamento.
-     * @example
-     * // Update one NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends NCMAgendamentoUpdateArgs>(args: SelectSubset<T, NCMAgendamentoUpdateArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more NCMAgendamentos.
-     * @param {NCMAgendamentoDeleteManyArgs} args - Arguments to filter NCMAgendamentos to delete.
-     * @example
-     * // Delete a few NCMAgendamentos
-     * const { count } = await prisma.nCMAgendamento.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends NCMAgendamentoDeleteManyArgs>(args?: SelectSubset<T, NCMAgendamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more NCMAgendamentos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many NCMAgendamentos
-     * const nCMAgendamento = await prisma.nCMAgendamento.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends NCMAgendamentoUpdateManyArgs>(args: SelectSubset<T, NCMAgendamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one NCMAgendamento.
-     * @param {NCMAgendamentoUpsertArgs} args - Arguments to update or create a NCMAgendamento.
-     * @example
-     * // Update or create a NCMAgendamento
-     * const nCMAgendamento = await prisma.nCMAgendamento.upsert({
-     *   create: {
-     *     // ... data to create a NCMAgendamento
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the NCMAgendamento we want to update
-     *   }
-     * })
-     */
-    upsert<T extends NCMAgendamentoUpsertArgs>(args: SelectSubset<T, NCMAgendamentoUpsertArgs<ExtArgs>>): Prisma__NCMAgendamentoClient<$Result.GetResult<Prisma.$NCMAgendamentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of NCMAgendamentos.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoCountArgs} args - Arguments to filter NCMAgendamentos to count.
-     * @example
-     * // Count the number of NCMAgendamentos
-     * const count = await prisma.nCMAgendamento.count({
-     *   where: {
-     *     // ... the filter for the NCMAgendamentos we want to count
-     *   }
-     * })
-    **/
-    count<T extends NCMAgendamentoCountArgs>(
-      args?: Subset<T, NCMAgendamentoCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], NCMAgendamentoCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a NCMAgendamento.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends NCMAgendamentoAggregateArgs>(args: Subset<T, NCMAgendamentoAggregateArgs>): Prisma.PrismaPromise<GetNCMAgendamentoAggregateType<T>>
-
-    /**
-     * Group by NCMAgendamento.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAgendamentoGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends NCMAgendamentoGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NCMAgendamentoGroupByArgs['orderBy'] }
-        : { orderBy?: NCMAgendamentoGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, NCMAgendamentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNCMAgendamentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the NCMAgendamento model
-   */
-  readonly fields: NCMAgendamentoFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for NCMAgendamento.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__NCMAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the NCMAgendamento model
-   */ 
-  interface NCMAgendamentoFieldRefs {
-    readonly id_ncm_agendamento: FieldRef<"NCMAgendamento", 'String'>
-    readonly id_organizacao_ncm_agendamento: FieldRef<"NCMAgendamento", 'String'>
-    readonly id_produto_ncm_agendamento: FieldRef<"NCMAgendamento", 'String'>
-    readonly id_usuario_ncm_agendamento: FieldRef<"NCMAgendamento", 'String'>
-    readonly ativo_ncm_agendamento: FieldRef<"NCMAgendamento", 'Boolean'>
-    readonly cron_expressao_ncm_agendamento: FieldRef<"NCMAgendamento", 'String'>
-    readonly notificadores_ncm_agendamento: FieldRef<"NCMAgendamento", 'Json'>
-    readonly data_criacao_ncm_agendamento: FieldRef<"NCMAgendamento", 'DateTime'>
-    readonly data_atualizacao_ncm_agendamento: FieldRef<"NCMAgendamento", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * NCMAgendamento findUnique
-   */
-  export type NCMAgendamentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter, which NCMAgendamento to fetch.
-     */
-    where: NCMAgendamentoWhereUniqueInput
-  }
-
-  /**
-   * NCMAgendamento findUniqueOrThrow
-   */
-  export type NCMAgendamentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter, which NCMAgendamento to fetch.
-     */
-    where: NCMAgendamentoWhereUniqueInput
-  }
-
-  /**
-   * NCMAgendamento findFirst
-   */
-  export type NCMAgendamentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter, which NCMAgendamento to fetch.
-     */
-    where?: NCMAgendamentoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NCMAgendamentos to fetch.
-     */
-    orderBy?: NCMAgendamentoOrderByWithRelationInput | NCMAgendamentoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NCMAgendamentos.
-     */
-    cursor?: NCMAgendamentoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NCMAgendamentos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NCMAgendamentos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NCMAgendamentos.
-     */
-    distinct?: NCMAgendamentoScalarFieldEnum | NCMAgendamentoScalarFieldEnum[]
-  }
-
-  /**
-   * NCMAgendamento findFirstOrThrow
-   */
-  export type NCMAgendamentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter, which NCMAgendamento to fetch.
-     */
-    where?: NCMAgendamentoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NCMAgendamentos to fetch.
-     */
-    orderBy?: NCMAgendamentoOrderByWithRelationInput | NCMAgendamentoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for NCMAgendamentos.
-     */
-    cursor?: NCMAgendamentoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NCMAgendamentos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NCMAgendamentos.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of NCMAgendamentos.
-     */
-    distinct?: NCMAgendamentoScalarFieldEnum | NCMAgendamentoScalarFieldEnum[]
-  }
-
-  /**
-   * NCMAgendamento findMany
-   */
-  export type NCMAgendamentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter, which NCMAgendamentos to fetch.
-     */
-    where?: NCMAgendamentoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of NCMAgendamentos to fetch.
-     */
-    orderBy?: NCMAgendamentoOrderByWithRelationInput | NCMAgendamentoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing NCMAgendamentos.
-     */
-    cursor?: NCMAgendamentoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` NCMAgendamentos from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` NCMAgendamentos.
-     */
-    skip?: number
-    distinct?: NCMAgendamentoScalarFieldEnum | NCMAgendamentoScalarFieldEnum[]
-  }
-
-  /**
-   * NCMAgendamento create
-   */
-  export type NCMAgendamentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * The data needed to create a NCMAgendamento.
-     */
-    data: XOR<NCMAgendamentoCreateInput, NCMAgendamentoUncheckedCreateInput>
-  }
-
-  /**
-   * NCMAgendamento createMany
-   */
-  export type NCMAgendamentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many NCMAgendamentos.
-     */
-    data: NCMAgendamentoCreateManyInput | NCMAgendamentoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NCMAgendamento createManyAndReturn
-   */
-  export type NCMAgendamentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many NCMAgendamentos.
-     */
-    data: NCMAgendamentoCreateManyInput | NCMAgendamentoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * NCMAgendamento update
-   */
-  export type NCMAgendamentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * The data needed to update a NCMAgendamento.
-     */
-    data: XOR<NCMAgendamentoUpdateInput, NCMAgendamentoUncheckedUpdateInput>
-    /**
-     * Choose, which NCMAgendamento to update.
-     */
-    where: NCMAgendamentoWhereUniqueInput
-  }
-
-  /**
-   * NCMAgendamento updateMany
-   */
-  export type NCMAgendamentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update NCMAgendamentos.
-     */
-    data: XOR<NCMAgendamentoUpdateManyMutationInput, NCMAgendamentoUncheckedUpdateManyInput>
-    /**
-     * Filter which NCMAgendamentos to update
-     */
-    where?: NCMAgendamentoWhereInput
-  }
-
-  /**
-   * NCMAgendamento upsert
-   */
-  export type NCMAgendamentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * The filter to search for the NCMAgendamento to update in case it exists.
-     */
-    where: NCMAgendamentoWhereUniqueInput
-    /**
-     * In case the NCMAgendamento found by the `where` argument doesn't exist, create a new NCMAgendamento with this data.
-     */
-    create: XOR<NCMAgendamentoCreateInput, NCMAgendamentoUncheckedCreateInput>
-    /**
-     * In case the NCMAgendamento was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<NCMAgendamentoUpdateInput, NCMAgendamentoUncheckedUpdateInput>
-  }
-
-  /**
-   * NCMAgendamento delete
-   */
-  export type NCMAgendamentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-    /**
-     * Filter which NCMAgendamento to delete.
-     */
-    where: NCMAgendamentoWhereUniqueInput
-  }
-
-  /**
-   * NCMAgendamento deleteMany
-   */
-  export type NCMAgendamentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which NCMAgendamentos to delete
-     */
-    where?: NCMAgendamentoWhereInput
-  }
-
-  /**
-   * NCMAgendamento without action
-   */
-  export type NCMAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NCMAgendamento
-     */
-    select?: NCMAgendamentoSelect<ExtArgs> | null
-  }
-
-
-  /**
    * Model NotificacoesTituloCorpo
    */
 
@@ -47668,9 +44445,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMinAggregateOutputType = {
     id_notificacoes_titulo_corpo: string | null
-    id_organizacao_notificacoes_titulo_corpo: string | null
-    id_produto_notificacoes_titulo_corpo: string | null
-    id_usuario_notificacoes_titulo_corpo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
     tipo_notificacoes_titulo_corpo: string | null
     titulo_notificacoes_titulo_corpo: string | null
     mensagem_notificacoes_titulo_corpo: string | null
@@ -47685,9 +44462,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMaxAggregateOutputType = {
     id_notificacoes_titulo_corpo: string | null
-    id_organizacao_notificacoes_titulo_corpo: string | null
-    id_produto_notificacoes_titulo_corpo: string | null
-    id_usuario_notificacoes_titulo_corpo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
     tipo_notificacoes_titulo_corpo: string | null
     titulo_notificacoes_titulo_corpo: string | null
     mensagem_notificacoes_titulo_corpo: string | null
@@ -47702,9 +44479,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoCountAggregateOutputType = {
     id_notificacoes_titulo_corpo: number
-    id_organizacao_notificacoes_titulo_corpo: number
-    id_produto_notificacoes_titulo_corpo: number
-    id_usuario_notificacoes_titulo_corpo: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
     tipo_notificacoes_titulo_corpo: number
     titulo_notificacoes_titulo_corpo: number
     mensagem_notificacoes_titulo_corpo: number
@@ -47721,9 +44498,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMinAggregateInputType = {
     id_notificacoes_titulo_corpo?: true
-    id_organizacao_notificacoes_titulo_corpo?: true
-    id_produto_notificacoes_titulo_corpo?: true
-    id_usuario_notificacoes_titulo_corpo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     tipo_notificacoes_titulo_corpo?: true
     titulo_notificacoes_titulo_corpo?: true
     mensagem_notificacoes_titulo_corpo?: true
@@ -47738,9 +44515,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMaxAggregateInputType = {
     id_notificacoes_titulo_corpo?: true
-    id_organizacao_notificacoes_titulo_corpo?: true
-    id_produto_notificacoes_titulo_corpo?: true
-    id_usuario_notificacoes_titulo_corpo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     tipo_notificacoes_titulo_corpo?: true
     titulo_notificacoes_titulo_corpo?: true
     mensagem_notificacoes_titulo_corpo?: true
@@ -47755,9 +44532,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoCountAggregateInputType = {
     id_notificacoes_titulo_corpo?: true
-    id_organizacao_notificacoes_titulo_corpo?: true
-    id_produto_notificacoes_titulo_corpo?: true
-    id_usuario_notificacoes_titulo_corpo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     tipo_notificacoes_titulo_corpo?: true
     titulo_notificacoes_titulo_corpo?: true
     mensagem_notificacoes_titulo_corpo?: true
@@ -47845,9 +44622,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoGroupByOutputType = {
     id_notificacoes_titulo_corpo: string
-    id_organizacao_notificacoes_titulo_corpo: string
-    id_produto_notificacoes_titulo_corpo: string | null
-    id_usuario_notificacoes_titulo_corpo: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string
     tipo_notificacoes_titulo_corpo: string
     titulo_notificacoes_titulo_corpo: string | null
     mensagem_notificacoes_titulo_corpo: string
@@ -47879,9 +44656,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_notificacoes_titulo_corpo?: boolean
-    id_organizacao_notificacoes_titulo_corpo?: boolean
-    id_produto_notificacoes_titulo_corpo?: boolean
-    id_usuario_notificacoes_titulo_corpo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     tipo_notificacoes_titulo_corpo?: boolean
     titulo_notificacoes_titulo_corpo?: boolean
     mensagem_notificacoes_titulo_corpo?: boolean
@@ -47896,9 +44673,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_notificacoes_titulo_corpo?: boolean
-    id_organizacao_notificacoes_titulo_corpo?: boolean
-    id_produto_notificacoes_titulo_corpo?: boolean
-    id_usuario_notificacoes_titulo_corpo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     tipo_notificacoes_titulo_corpo?: boolean
     titulo_notificacoes_titulo_corpo?: boolean
     mensagem_notificacoes_titulo_corpo?: boolean
@@ -47913,9 +44690,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoSelectScalar = {
     id_notificacoes_titulo_corpo?: boolean
-    id_organizacao_notificacoes_titulo_corpo?: boolean
-    id_produto_notificacoes_titulo_corpo?: boolean
-    id_usuario_notificacoes_titulo_corpo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     tipo_notificacoes_titulo_corpo?: boolean
     titulo_notificacoes_titulo_corpo?: boolean
     mensagem_notificacoes_titulo_corpo?: boolean
@@ -47934,9 +44711,9 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_notificacoes_titulo_corpo: string
-      id_organizacao_notificacoes_titulo_corpo: string
-      id_produto_notificacoes_titulo_corpo: string | null
-      id_usuario_notificacoes_titulo_corpo: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string
       tipo_notificacoes_titulo_corpo: string
       titulo_notificacoes_titulo_corpo: string | null
       mensagem_notificacoes_titulo_corpo: string
@@ -48341,9 +45118,9 @@ export namespace Prisma {
    */ 
   interface NotificacoesTituloCorpoFieldRefs {
     readonly id_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly id_organizacao_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly id_produto_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly id_usuario_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_organizacao: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_produto_gravity: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_usuario: FieldRef<"NotificacoesTituloCorpo", 'String'>
     readonly tipo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
     readonly titulo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
     readonly mensagem_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
@@ -48654,9 +45431,9 @@ export namespace Prisma {
 
   export type ContatoExternoMinAggregateOutputType = {
     id_contato_externo: string | null
-    id_organizacao_contato_externo: string | null
-    id_produto_contato_externo: string | null
-    id_usuario_contato_externo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
     nome_contato_externo: string | null
     email_contato_externo: string | null
     whatsapp_telefone_contato_externo: string | null
@@ -48668,9 +45445,9 @@ export namespace Prisma {
 
   export type ContatoExternoMaxAggregateOutputType = {
     id_contato_externo: string | null
-    id_organizacao_contato_externo: string | null
-    id_produto_contato_externo: string | null
-    id_usuario_contato_externo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
     nome_contato_externo: string | null
     email_contato_externo: string | null
     whatsapp_telefone_contato_externo: string | null
@@ -48682,9 +45459,9 @@ export namespace Prisma {
 
   export type ContatoExternoCountAggregateOutputType = {
     id_contato_externo: number
-    id_organizacao_contato_externo: number
-    id_produto_contato_externo: number
-    id_usuario_contato_externo: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
     nome_contato_externo: number
     email_contato_externo: number
     whatsapp_telefone_contato_externo: number
@@ -48698,9 +45475,9 @@ export namespace Prisma {
 
   export type ContatoExternoMinAggregateInputType = {
     id_contato_externo?: true
-    id_organizacao_contato_externo?: true
-    id_produto_contato_externo?: true
-    id_usuario_contato_externo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     nome_contato_externo?: true
     email_contato_externo?: true
     whatsapp_telefone_contato_externo?: true
@@ -48712,9 +45489,9 @@ export namespace Prisma {
 
   export type ContatoExternoMaxAggregateInputType = {
     id_contato_externo?: true
-    id_organizacao_contato_externo?: true
-    id_produto_contato_externo?: true
-    id_usuario_contato_externo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     nome_contato_externo?: true
     email_contato_externo?: true
     whatsapp_telefone_contato_externo?: true
@@ -48726,9 +45503,9 @@ export namespace Prisma {
 
   export type ContatoExternoCountAggregateInputType = {
     id_contato_externo?: true
-    id_organizacao_contato_externo?: true
-    id_produto_contato_externo?: true
-    id_usuario_contato_externo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
     nome_contato_externo?: true
     email_contato_externo?: true
     whatsapp_telefone_contato_externo?: true
@@ -48813,9 +45590,9 @@ export namespace Prisma {
 
   export type ContatoExternoGroupByOutputType = {
     id_contato_externo: string
-    id_organizacao_contato_externo: string
-    id_produto_contato_externo: string | null
-    id_usuario_contato_externo: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string
     nome_contato_externo: string
     email_contato_externo: string | null
     whatsapp_telefone_contato_externo: string | null
@@ -48844,9 +45621,9 @@ export namespace Prisma {
 
   export type ContatoExternoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_contato_externo?: boolean
-    id_organizacao_contato_externo?: boolean
-    id_produto_contato_externo?: boolean
-    id_usuario_contato_externo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     nome_contato_externo?: boolean
     email_contato_externo?: boolean
     whatsapp_telefone_contato_externo?: boolean
@@ -48858,9 +45635,9 @@ export namespace Prisma {
 
   export type ContatoExternoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_contato_externo?: boolean
-    id_organizacao_contato_externo?: boolean
-    id_produto_contato_externo?: boolean
-    id_usuario_contato_externo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     nome_contato_externo?: boolean
     email_contato_externo?: boolean
     whatsapp_telefone_contato_externo?: boolean
@@ -48872,9 +45649,9 @@ export namespace Prisma {
 
   export type ContatoExternoSelectScalar = {
     id_contato_externo?: boolean
-    id_organizacao_contato_externo?: boolean
-    id_produto_contato_externo?: boolean
-    id_usuario_contato_externo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
     nome_contato_externo?: boolean
     email_contato_externo?: boolean
     whatsapp_telefone_contato_externo?: boolean
@@ -48890,9 +45667,9 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_contato_externo: string
-      id_organizacao_contato_externo: string
-      id_produto_contato_externo: string | null
-      id_usuario_contato_externo: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string
       nome_contato_externo: string
       email_contato_externo: string | null
       whatsapp_telefone_contato_externo: string | null
@@ -49294,9 +46071,9 @@ export namespace Prisma {
    */ 
   interface ContatoExternoFieldRefs {
     readonly id_contato_externo: FieldRef<"ContatoExterno", 'String'>
-    readonly id_organizacao_contato_externo: FieldRef<"ContatoExterno", 'String'>
-    readonly id_produto_contato_externo: FieldRef<"ContatoExterno", 'String'>
-    readonly id_usuario_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly id_organizacao: FieldRef<"ContatoExterno", 'String'>
+    readonly id_produto_gravity: FieldRef<"ContatoExterno", 'String'>
+    readonly id_usuario: FieldRef<"ContatoExterno", 'String'>
     readonly nome_contato_externo: FieldRef<"ContatoExterno", 'String'>
     readonly email_contato_externo: FieldRef<"ContatoExterno", 'String'>
     readonly whatsapp_telefone_contato_externo: FieldRef<"ContatoExterno", 'String'>
@@ -49603,71 +46380,71 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoCanalOrganizacaoMinAggregateOutputType = {
-    id_configuracao_canal_tenant: string | null
-    id_organizacao_configuracao_canal_tenant: string | null
-    id_produto_configuracao_canal_tenant: string | null
-    id_usuario_configuracao_canal_tenant: string | null
-    email_habilitado_configuracao_canal_tenant: boolean | null
-    whatsapp_habilitado_configuracao_canal_tenant: boolean | null
-    data_criacao_configuracao_canal_tenant: Date | null
-    data_atualizacao_configuracao_canal_tenant: Date | null
+    id_configuracao_canal_organizacao: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    email_habilitado_configuracao_canal_organizacao: boolean | null
+    whatsapp_habilitado_configuracao_canal_organizacao: boolean | null
+    data_criacao_configuracao_canal_organizacao: Date | null
+    data_atualizacao_configuracao_canal_organizacao: Date | null
   }
 
   export type ConfiguracaoCanalOrganizacaoMaxAggregateOutputType = {
-    id_configuracao_canal_tenant: string | null
-    id_organizacao_configuracao_canal_tenant: string | null
-    id_produto_configuracao_canal_tenant: string | null
-    id_usuario_configuracao_canal_tenant: string | null
-    email_habilitado_configuracao_canal_tenant: boolean | null
-    whatsapp_habilitado_configuracao_canal_tenant: boolean | null
-    data_criacao_configuracao_canal_tenant: Date | null
-    data_atualizacao_configuracao_canal_tenant: Date | null
+    id_configuracao_canal_organizacao: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    email_habilitado_configuracao_canal_organizacao: boolean | null
+    whatsapp_habilitado_configuracao_canal_organizacao: boolean | null
+    data_criacao_configuracao_canal_organizacao: Date | null
+    data_atualizacao_configuracao_canal_organizacao: Date | null
   }
 
   export type ConfiguracaoCanalOrganizacaoCountAggregateOutputType = {
-    id_configuracao_canal_tenant: number
-    id_organizacao_configuracao_canal_tenant: number
-    id_produto_configuracao_canal_tenant: number
-    id_usuario_configuracao_canal_tenant: number
-    email_habilitado_configuracao_canal_tenant: number
-    whatsapp_habilitado_configuracao_canal_tenant: number
-    data_criacao_configuracao_canal_tenant: number
-    data_atualizacao_configuracao_canal_tenant: number
+    id_configuracao_canal_organizacao: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    email_habilitado_configuracao_canal_organizacao: number
+    whatsapp_habilitado_configuracao_canal_organizacao: number
+    data_criacao_configuracao_canal_organizacao: number
+    data_atualizacao_configuracao_canal_organizacao: number
     _all: number
   }
 
 
   export type ConfiguracaoCanalOrganizacaoMinAggregateInputType = {
-    id_configuracao_canal_tenant?: true
-    id_organizacao_configuracao_canal_tenant?: true
-    id_produto_configuracao_canal_tenant?: true
-    id_usuario_configuracao_canal_tenant?: true
-    email_habilitado_configuracao_canal_tenant?: true
-    whatsapp_habilitado_configuracao_canal_tenant?: true
-    data_criacao_configuracao_canal_tenant?: true
-    data_atualizacao_configuracao_canal_tenant?: true
+    id_configuracao_canal_organizacao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    email_habilitado_configuracao_canal_organizacao?: true
+    whatsapp_habilitado_configuracao_canal_organizacao?: true
+    data_criacao_configuracao_canal_organizacao?: true
+    data_atualizacao_configuracao_canal_organizacao?: true
   }
 
   export type ConfiguracaoCanalOrganizacaoMaxAggregateInputType = {
-    id_configuracao_canal_tenant?: true
-    id_organizacao_configuracao_canal_tenant?: true
-    id_produto_configuracao_canal_tenant?: true
-    id_usuario_configuracao_canal_tenant?: true
-    email_habilitado_configuracao_canal_tenant?: true
-    whatsapp_habilitado_configuracao_canal_tenant?: true
-    data_criacao_configuracao_canal_tenant?: true
-    data_atualizacao_configuracao_canal_tenant?: true
+    id_configuracao_canal_organizacao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    email_habilitado_configuracao_canal_organizacao?: true
+    whatsapp_habilitado_configuracao_canal_organizacao?: true
+    data_criacao_configuracao_canal_organizacao?: true
+    data_atualizacao_configuracao_canal_organizacao?: true
   }
 
   export type ConfiguracaoCanalOrganizacaoCountAggregateInputType = {
-    id_configuracao_canal_tenant?: true
-    id_organizacao_configuracao_canal_tenant?: true
-    id_produto_configuracao_canal_tenant?: true
-    id_usuario_configuracao_canal_tenant?: true
-    email_habilitado_configuracao_canal_tenant?: true
-    whatsapp_habilitado_configuracao_canal_tenant?: true
-    data_criacao_configuracao_canal_tenant?: true
-    data_atualizacao_configuracao_canal_tenant?: true
+    id_configuracao_canal_organizacao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    email_habilitado_configuracao_canal_organizacao?: true
+    whatsapp_habilitado_configuracao_canal_organizacao?: true
+    data_criacao_configuracao_canal_organizacao?: true
+    data_atualizacao_configuracao_canal_organizacao?: true
     _all?: true
   }
 
@@ -49744,14 +46521,14 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoCanalOrganizacaoGroupByOutputType = {
-    id_configuracao_canal_tenant: string
-    id_organizacao_configuracao_canal_tenant: string
-    id_produto_configuracao_canal_tenant: string | null
-    id_usuario_configuracao_canal_tenant: string | null
-    email_habilitado_configuracao_canal_tenant: boolean
-    whatsapp_habilitado_configuracao_canal_tenant: boolean
-    data_criacao_configuracao_canal_tenant: Date
-    data_atualizacao_configuracao_canal_tenant: Date
+    id_configuracao_canal_organizacao: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    email_habilitado_configuracao_canal_organizacao: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao: boolean
+    data_criacao_configuracao_canal_organizacao: Date
+    data_atualizacao_configuracao_canal_organizacao: Date
     _count: ConfiguracaoCanalOrganizacaoCountAggregateOutputType | null
     _min: ConfiguracaoCanalOrganizacaoMinAggregateOutputType | null
     _max: ConfiguracaoCanalOrganizacaoMaxAggregateOutputType | null
@@ -49772,36 +46549,36 @@ export namespace Prisma {
 
 
   export type ConfiguracaoCanalOrganizacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_configuracao_canal_tenant?: boolean
-    id_organizacao_configuracao_canal_tenant?: boolean
-    id_produto_configuracao_canal_tenant?: boolean
-    id_usuario_configuracao_canal_tenant?: boolean
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: boolean
-    data_atualizacao_configuracao_canal_tenant?: boolean
+    id_configuracao_canal_organizacao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: boolean
+    data_atualizacao_configuracao_canal_organizacao?: boolean
   }, ExtArgs["result"]["configuracaoCanalOrganizacao"]>
 
   export type ConfiguracaoCanalOrganizacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_configuracao_canal_tenant?: boolean
-    id_organizacao_configuracao_canal_tenant?: boolean
-    id_produto_configuracao_canal_tenant?: boolean
-    id_usuario_configuracao_canal_tenant?: boolean
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: boolean
-    data_atualizacao_configuracao_canal_tenant?: boolean
+    id_configuracao_canal_organizacao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: boolean
+    data_atualizacao_configuracao_canal_organizacao?: boolean
   }, ExtArgs["result"]["configuracaoCanalOrganizacao"]>
 
   export type ConfiguracaoCanalOrganizacaoSelectScalar = {
-    id_configuracao_canal_tenant?: boolean
-    id_organizacao_configuracao_canal_tenant?: boolean
-    id_produto_configuracao_canal_tenant?: boolean
-    id_usuario_configuracao_canal_tenant?: boolean
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: boolean
-    data_atualizacao_configuracao_canal_tenant?: boolean
+    id_configuracao_canal_organizacao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: boolean
+    data_atualizacao_configuracao_canal_organizacao?: boolean
   }
 
 
@@ -49809,14 +46586,14 @@ export namespace Prisma {
     name: "ConfiguracaoCanalOrganizacao"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_configuracao_canal_tenant: string
-      id_organizacao_configuracao_canal_tenant: string
-      id_produto_configuracao_canal_tenant: string | null
-      id_usuario_configuracao_canal_tenant: string | null
-      email_habilitado_configuracao_canal_tenant: boolean
-      whatsapp_habilitado_configuracao_canal_tenant: boolean
-      data_criacao_configuracao_canal_tenant: Date
-      data_atualizacao_configuracao_canal_tenant: Date
+      id_configuracao_canal_organizacao: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      email_habilitado_configuracao_canal_organizacao: boolean
+      whatsapp_habilitado_configuracao_canal_organizacao: boolean
+      data_criacao_configuracao_canal_organizacao: Date
+      data_atualizacao_configuracao_canal_organizacao: Date
     }, ExtArgs["result"]["configuracaoCanalOrganizacao"]>
     composites: {}
   }
@@ -49900,8 +46677,8 @@ export namespace Prisma {
      * // Get first 10 ConfiguracaoCanalOrganizacaos
      * const configuracaoCanalOrganizacaos = await prisma.configuracaoCanalOrganizacao.findMany({ take: 10 })
      * 
-     * // Only select the `id_configuracao_canal_tenant`
-     * const configuracaoCanalOrganizacaoWithId_configuracao_canal_tenantOnly = await prisma.configuracaoCanalOrganizacao.findMany({ select: { id_configuracao_canal_tenant: true } })
+     * // Only select the `id_configuracao_canal_organizacao`
+     * const configuracaoCanalOrganizacaoWithId_configuracao_canal_organizacaoOnly = await prisma.configuracaoCanalOrganizacao.findMany({ select: { id_configuracao_canal_organizacao: true } })
      * 
      */
     findMany<T extends ConfiguracaoCanalOrganizacaoFindManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalOrganizacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoCanalOrganizacaoPayload<ExtArgs>, T, "findMany">>
@@ -49945,9 +46722,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ConfiguracaoCanalOrganizacaos and only return the `id_configuracao_canal_tenant`
-     * const configuracaoCanalOrganizacaoWithId_configuracao_canal_tenantOnly = await prisma.configuracaoCanalOrganizacao.createManyAndReturn({ 
-     *   select: { id_configuracao_canal_tenant: true },
+     * // Create many ConfiguracaoCanalOrganizacaos and only return the `id_configuracao_canal_organizacao`
+     * const configuracaoCanalOrganizacaoWithId_configuracao_canal_organizacaoOnly = await prisma.configuracaoCanalOrganizacao.createManyAndReturn({ 
+     *   select: { id_configuracao_canal_organizacao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -50210,14 +46987,14 @@ export namespace Prisma {
    * Fields of the ConfiguracaoCanalOrganizacao model
    */ 
   interface ConfiguracaoCanalOrganizacaoFieldRefs {
-    readonly id_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
-    readonly id_organizacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
-    readonly id_produto_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
-    readonly id_usuario_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
-    readonly email_habilitado_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'Boolean'>
-    readonly whatsapp_habilitado_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'Boolean'>
-    readonly data_criacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'DateTime'>
-    readonly data_atualizacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalOrganizacao", 'DateTime'>
+    readonly id_configuracao_canal_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
+    readonly id_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
+    readonly id_produto_gravity: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
+    readonly id_usuario: FieldRef<"ConfiguracaoCanalOrganizacao", 'String'>
+    readonly email_habilitado_configuracao_canal_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'Boolean'>
+    readonly whatsapp_habilitado_configuracao_canal_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'Boolean'>
+    readonly data_criacao_configuracao_canal_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'DateTime'>
+    readonly data_atualizacao_configuracao_canal_organizacao: FieldRef<"ConfiguracaoCanalOrganizacao", 'DateTime'>
   }
     
 
@@ -50959,9 +47736,9 @@ export namespace Prisma {
 
   export const HistoricoLogScalarFieldEnum: {
     id_historico_log: 'id_historico_log',
-    id_organizacao_historico_log: 'id_organizacao_historico_log',
+    id_organizacao: 'id_organizacao',
     id_produto_historico_log: 'id_produto_historico_log',
-    id_usuario_historico_log: 'id_usuario_historico_log',
+    id_usuario: 'id_usuario',
     tipo_ator_historico_log: 'tipo_ator_historico_log',
     id_ator_historico_log: 'id_ator_historico_log',
     nome_ator_historico_log: 'nome_ator_historico_log',
@@ -50985,9 +47762,9 @@ export namespace Prisma {
 
   export const AlertaRegraScalarFieldEnum: {
     id_regra_alerta: 'id_regra_alerta',
-    id_organizacao_regra_alerta: 'id_organizacao_regra_alerta',
+    id_organizacao: 'id_organizacao',
     id_produto_regra_alerta: 'id_produto_regra_alerta',
-    id_usuario_regra_alerta: 'id_usuario_regra_alerta',
+    id_usuario: 'id_usuario',
     nome_regra_alerta: 'nome_regra_alerta',
     descricao_regra_alerta: 'descricao_regra_alerta',
     habilitada_regra_alerta: 'habilitada_regra_alerta',
@@ -51012,9 +47789,9 @@ export namespace Prisma {
 
   export const AlertaDataScalarFieldEnum: {
     id_evento_alerta: 'id_evento_alerta',
-    id_organizacao_evento_alerta: 'id_organizacao_evento_alerta',
+    id_organizacao: 'id_organizacao',
     id_produto_evento_alerta: 'id_produto_evento_alerta',
-    id_usuario_evento_alerta: 'id_usuario_evento_alerta',
+    id_usuario: 'id_usuario',
     id_regra_evento_alerta: 'id_regra_evento_alerta',
     tipo_ator_evento_alerta: 'tipo_ator_evento_alerta',
     id_ator_evento_alerta: 'id_ator_evento_alerta',
@@ -51036,9 +47813,9 @@ export namespace Prisma {
 
   export const AlertaRegistroScalarFieldEnum: {
     id_notificacao_alerta: 'id_notificacao_alerta',
-    id_organizacao_notificacao_alerta: 'id_organizacao_notificacao_alerta',
+    id_organizacao: 'id_organizacao',
     id_produto_notificacao_alerta: 'id_produto_notificacao_alerta',
-    id_usuario_notificacao_alerta: 'id_usuario_notificacao_alerta',
+    id_usuario: 'id_usuario',
     id_evento_notificacao_alerta: 'id_evento_notificacao_alerta',
     canal_notificacao_alerta: 'canal_notificacao_alerta',
     destinatario_notificacao_alerta: 'destinatario_notificacao_alerta',
@@ -51054,9 +47831,9 @@ export namespace Prisma {
 
   export const ExportarResultadoScalarFieldEnum: {
     id_exportar_resultado: 'id_exportar_resultado',
-    id_organizacao_exportar_resultado: 'id_organizacao_exportar_resultado',
+    id_organizacao: 'id_organizacao',
     id_produto_exportar_resultado: 'id_produto_exportar_resultado',
-    id_usuario_exportar_resultado: 'id_usuario_exportar_resultado',
+    id_usuario: 'id_usuario',
     formato_exportar_resultado: 'formato_exportar_resultado',
     conteudo_exportar_resultado: 'conteudo_exportar_resultado',
     status_exportar_resultado: 'status_exportar_resultado',
@@ -51244,66 +48021,11 @@ export namespace Prisma {
   export type WorkspacePreferenciaUsuarioScalarFieldEnum = (typeof WorkspacePreferenciaUsuarioScalarFieldEnum)[keyof typeof WorkspacePreferenciaUsuarioScalarFieldEnum]
 
 
-  export const NcmItemScalarFieldEnum: {
-    id_ncm_item: 'id_ncm_item',
-    id_organizacao_ncm_item: 'id_organizacao_ncm_item',
-    id_produto_ncm_item: 'id_produto_ncm_item',
-    id_usuario_ncm_item: 'id_usuario_ncm_item',
-    codigo_ncm_item: 'codigo_ncm_item',
-    descricao_ncm_item: 'descricao_ncm_item',
-    ativo_ncm_item: 'ativo_ncm_item',
-    data_inicio_ncm_item: 'data_inicio_ncm_item',
-    data_fim_ncm_item: 'data_fim_ncm_item',
-    id_sincronizacao_ncm_item: 'id_sincronizacao_ncm_item',
-    data_criacao_ncm_item: 'data_criacao_ncm_item',
-    data_atualizacao_ncm_item: 'data_atualizacao_ncm_item'
-  };
-
-  export type NcmItemScalarFieldEnum = (typeof NcmItemScalarFieldEnum)[keyof typeof NcmItemScalarFieldEnum]
-
-
-  export const NcmLogScalarFieldEnum: {
-    id_ncm_log: 'id_ncm_log',
-    id_organizacao_ncm_log: 'id_organizacao_ncm_log',
-    id_produto_ncm_log: 'id_produto_ncm_log',
-    id_usuario_ncm_log: 'id_usuario_ncm_log',
-    data_inicio_ncm_log: 'data_inicio_ncm_log',
-    data_conclusao_ncm_log: 'data_conclusao_ncm_log',
-    status_ncm_log: 'status_ncm_log',
-    total_ncm_log: 'total_ncm_log',
-    adicionados_ncm_log: 'adicionados_ncm_log',
-    alterados_ncm_log: 'alterados_ncm_log',
-    removidos_ncm_log: 'removidos_ncm_log',
-    origem_ncm_log: 'origem_ncm_log',
-    disparado_por_ncm_log: 'disparado_por_ncm_log',
-    mensagem_erro_ncm_log: 'mensagem_erro_ncm_log',
-    data_criacao_ncm_log: 'data_criacao_ncm_log',
-    data_atualizacao_ncm_log: 'data_atualizacao_ncm_log'
-  };
-
-  export type NcmLogScalarFieldEnum = (typeof NcmLogScalarFieldEnum)[keyof typeof NcmLogScalarFieldEnum]
-
-
-  export const NCMAgendamentoScalarFieldEnum: {
-    id_ncm_agendamento: 'id_ncm_agendamento',
-    id_organizacao_ncm_agendamento: 'id_organizacao_ncm_agendamento',
-    id_produto_ncm_agendamento: 'id_produto_ncm_agendamento',
-    id_usuario_ncm_agendamento: 'id_usuario_ncm_agendamento',
-    ativo_ncm_agendamento: 'ativo_ncm_agendamento',
-    cron_expressao_ncm_agendamento: 'cron_expressao_ncm_agendamento',
-    notificadores_ncm_agendamento: 'notificadores_ncm_agendamento',
-    data_criacao_ncm_agendamento: 'data_criacao_ncm_agendamento',
-    data_atualizacao_ncm_agendamento: 'data_atualizacao_ncm_agendamento'
-  };
-
-  export type NCMAgendamentoScalarFieldEnum = (typeof NCMAgendamentoScalarFieldEnum)[keyof typeof NCMAgendamentoScalarFieldEnum]
-
-
   export const NotificacoesTituloCorpoScalarFieldEnum: {
     id_notificacoes_titulo_corpo: 'id_notificacoes_titulo_corpo',
-    id_organizacao_notificacoes_titulo_corpo: 'id_organizacao_notificacoes_titulo_corpo',
-    id_produto_notificacoes_titulo_corpo: 'id_produto_notificacoes_titulo_corpo',
-    id_usuario_notificacoes_titulo_corpo: 'id_usuario_notificacoes_titulo_corpo',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
     tipo_notificacoes_titulo_corpo: 'tipo_notificacoes_titulo_corpo',
     titulo_notificacoes_titulo_corpo: 'titulo_notificacoes_titulo_corpo',
     mensagem_notificacoes_titulo_corpo: 'mensagem_notificacoes_titulo_corpo',
@@ -51321,9 +48043,9 @@ export namespace Prisma {
 
   export const ContatoExternoScalarFieldEnum: {
     id_contato_externo: 'id_contato_externo',
-    id_organizacao_contato_externo: 'id_organizacao_contato_externo',
-    id_produto_contato_externo: 'id_produto_contato_externo',
-    id_usuario_contato_externo: 'id_usuario_contato_externo',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
     nome_contato_externo: 'nome_contato_externo',
     email_contato_externo: 'email_contato_externo',
     whatsapp_telefone_contato_externo: 'whatsapp_telefone_contato_externo',
@@ -51337,14 +48059,14 @@ export namespace Prisma {
 
 
   export const ConfiguracaoCanalOrganizacaoScalarFieldEnum: {
-    id_configuracao_canal_tenant: 'id_configuracao_canal_tenant',
-    id_organizacao_configuracao_canal_tenant: 'id_organizacao_configuracao_canal_tenant',
-    id_produto_configuracao_canal_tenant: 'id_produto_configuracao_canal_tenant',
-    id_usuario_configuracao_canal_tenant: 'id_usuario_configuracao_canal_tenant',
-    email_habilitado_configuracao_canal_tenant: 'email_habilitado_configuracao_canal_tenant',
-    whatsapp_habilitado_configuracao_canal_tenant: 'whatsapp_habilitado_configuracao_canal_tenant',
-    data_criacao_configuracao_canal_tenant: 'data_criacao_configuracao_canal_tenant',
-    data_atualizacao_configuracao_canal_tenant: 'data_atualizacao_configuracao_canal_tenant'
+    id_configuracao_canal_organizacao: 'id_configuracao_canal_organizacao',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    email_habilitado_configuracao_canal_organizacao: 'email_habilitado_configuracao_canal_organizacao',
+    whatsapp_habilitado_configuracao_canal_organizacao: 'whatsapp_habilitado_configuracao_canal_organizacao',
+    data_criacao_configuracao_canal_organizacao: 'data_criacao_configuracao_canal_organizacao',
+    data_atualizacao_configuracao_canal_organizacao: 'data_atualizacao_configuracao_canal_organizacao'
   };
 
   export type ConfiguracaoCanalOrganizacaoScalarFieldEnum = (typeof ConfiguracaoCanalOrganizacaoScalarFieldEnum)[keyof typeof ConfiguracaoCanalOrganizacaoScalarFieldEnum]
@@ -51638,34 +48360,6 @@ export namespace Prisma {
    * Reference to a field of type 'AlertaStatus[]'
    */
   export type ListEnumAlertaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertaStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'NCMStatusSincronizacao'
-   */
-  export type EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao'>
-    
-
-
-  /**
-   * Reference to a field of type 'NCMStatusSincronizacao[]'
-   */
-  export type ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'NCMOrigemSincronizacao'
-   */
-  export type EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao'>
-    
-
-
-  /**
-   * Reference to a field of type 'NCMOrigemSincronizacao[]'
-   */
-  export type ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao[]'>
     
   /**
    * Deep Input Types
@@ -53854,9 +50548,9 @@ export namespace Prisma {
     OR?: HistoricoLogWhereInput[]
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     id_historico_log?: StringFilter<"HistoricoLog"> | string
-    id_organizacao_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_organizacao?: StringFilter<"HistoricoLog"> | string
     id_produto_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
-    id_usuario_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    id_usuario?: StringNullableFilter<"HistoricoLog"> | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFilter<"HistoricoLog"> | string
     nome_ator_historico_log?: StringFilter<"HistoricoLog"> | string
@@ -53877,9 +50571,9 @@ export namespace Prisma {
 
   export type HistoricoLogOrderByWithRelationInput = {
     id_historico_log?: SortOrder
-    id_organizacao_historico_log?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_historico_log?: SortOrderInput | SortOrder
-    id_usuario_historico_log?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     tipo_ator_historico_log?: SortOrder
     id_ator_historico_log?: SortOrder
     nome_ator_historico_log?: SortOrder
@@ -53903,9 +50597,9 @@ export namespace Prisma {
     AND?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     OR?: HistoricoLogWhereInput[]
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
-    id_organizacao_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_organizacao?: StringFilter<"HistoricoLog"> | string
     id_produto_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
-    id_usuario_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    id_usuario?: StringNullableFilter<"HistoricoLog"> | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFilter<"HistoricoLog"> | string
     nome_ator_historico_log?: StringFilter<"HistoricoLog"> | string
@@ -53926,9 +50620,9 @@ export namespace Prisma {
 
   export type HistoricoLogOrderByWithAggregationInput = {
     id_historico_log?: SortOrder
-    id_organizacao_historico_log?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_historico_log?: SortOrderInput | SortOrder
-    id_usuario_historico_log?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     tipo_ator_historico_log?: SortOrder
     id_ator_historico_log?: SortOrder
     nome_ator_historico_log?: SortOrder
@@ -53955,9 +50649,9 @@ export namespace Prisma {
     OR?: HistoricoLogScalarWhereWithAggregatesInput[]
     NOT?: HistoricoLogScalarWhereWithAggregatesInput | HistoricoLogScalarWhereWithAggregatesInput[]
     id_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    id_organizacao_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    id_organizacao?: StringWithAggregatesFilter<"HistoricoLog"> | string
     id_produto_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    id_usuario_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorWithAggregatesFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
     nome_ator_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
@@ -53981,9 +50675,9 @@ export namespace Prisma {
     OR?: AlertaRegraWhereInput[]
     NOT?: AlertaRegraWhereInput | AlertaRegraWhereInput[]
     id_regra_alerta?: StringFilter<"AlertaRegra"> | string
-    id_organizacao_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
+    id_organizacao?: StringNullableFilter<"AlertaRegra"> | string | null
     id_produto_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
-    id_usuario_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaRegra"> | string | null
     nome_regra_alerta?: StringFilter<"AlertaRegra"> | string
     descricao_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
     habilitada_regra_alerta?: BoolFilter<"AlertaRegra"> | boolean
@@ -54006,9 +50700,9 @@ export namespace Prisma {
 
   export type AlertaRegraOrderByWithRelationInput = {
     id_regra_alerta?: SortOrder
-    id_organizacao_regra_alerta?: SortOrderInput | SortOrder
+    id_organizacao?: SortOrderInput | SortOrder
     id_produto_regra_alerta?: SortOrderInput | SortOrder
-    id_usuario_regra_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     nome_regra_alerta?: SortOrder
     descricao_regra_alerta?: SortOrderInput | SortOrder
     habilitada_regra_alerta?: SortOrder
@@ -54034,9 +50728,9 @@ export namespace Prisma {
     AND?: AlertaRegraWhereInput | AlertaRegraWhereInput[]
     OR?: AlertaRegraWhereInput[]
     NOT?: AlertaRegraWhereInput | AlertaRegraWhereInput[]
-    id_organizacao_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
+    id_organizacao?: StringNullableFilter<"AlertaRegra"> | string | null
     id_produto_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
-    id_usuario_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaRegra"> | string | null
     nome_regra_alerta?: StringFilter<"AlertaRegra"> | string
     descricao_regra_alerta?: StringNullableFilter<"AlertaRegra"> | string | null
     habilitada_regra_alerta?: BoolFilter<"AlertaRegra"> | boolean
@@ -54059,9 +50753,9 @@ export namespace Prisma {
 
   export type AlertaRegraOrderByWithAggregationInput = {
     id_regra_alerta?: SortOrder
-    id_organizacao_regra_alerta?: SortOrderInput | SortOrder
+    id_organizacao?: SortOrderInput | SortOrder
     id_produto_regra_alerta?: SortOrderInput | SortOrder
-    id_usuario_regra_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     nome_regra_alerta?: SortOrder
     descricao_regra_alerta?: SortOrderInput | SortOrder
     habilitada_regra_alerta?: SortOrder
@@ -54091,9 +50785,9 @@ export namespace Prisma {
     OR?: AlertaRegraScalarWhereWithAggregatesInput[]
     NOT?: AlertaRegraScalarWhereWithAggregatesInput | AlertaRegraScalarWhereWithAggregatesInput[]
     id_regra_alerta?: StringWithAggregatesFilter<"AlertaRegra"> | string
-    id_organizacao_regra_alerta?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
+    id_organizacao?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
     id_produto_regra_alerta?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
-    id_usuario_regra_alerta?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
     nome_regra_alerta?: StringWithAggregatesFilter<"AlertaRegra"> | string
     descricao_regra_alerta?: StringNullableWithAggregatesFilter<"AlertaRegra"> | string | null
     habilitada_regra_alerta?: BoolWithAggregatesFilter<"AlertaRegra"> | boolean
@@ -54118,9 +50812,9 @@ export namespace Prisma {
     OR?: AlertaDataWhereInput[]
     NOT?: AlertaDataWhereInput | AlertaDataWhereInput[]
     id_evento_alerta?: StringFilter<"AlertaData"> | string
-    id_organizacao_evento_alerta?: StringFilter<"AlertaData"> | string
+    id_organizacao?: StringFilter<"AlertaData"> | string
     id_produto_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
-    id_usuario_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaData"> | string | null
     id_regra_evento_alerta?: StringFilter<"AlertaData"> | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"AlertaData"> | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFilter<"AlertaData"> | string
@@ -54141,9 +50835,9 @@ export namespace Prisma {
 
   export type AlertaDataOrderByWithRelationInput = {
     id_evento_alerta?: SortOrder
-    id_organizacao_evento_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_evento_alerta?: SortOrderInput | SortOrder
-    id_usuario_evento_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     id_regra_evento_alerta?: SortOrder
     tipo_ator_evento_alerta?: SortOrder
     id_ator_evento_alerta?: SortOrder
@@ -54167,9 +50861,9 @@ export namespace Prisma {
     AND?: AlertaDataWhereInput | AlertaDataWhereInput[]
     OR?: AlertaDataWhereInput[]
     NOT?: AlertaDataWhereInput | AlertaDataWhereInput[]
-    id_organizacao_evento_alerta?: StringFilter<"AlertaData"> | string
+    id_organizacao?: StringFilter<"AlertaData"> | string
     id_produto_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
-    id_usuario_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaData"> | string | null
     id_regra_evento_alerta?: StringFilter<"AlertaData"> | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"AlertaData"> | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFilter<"AlertaData"> | string
@@ -54190,9 +50884,9 @@ export namespace Prisma {
 
   export type AlertaDataOrderByWithAggregationInput = {
     id_evento_alerta?: SortOrder
-    id_organizacao_evento_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_evento_alerta?: SortOrderInput | SortOrder
-    id_usuario_evento_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     id_regra_evento_alerta?: SortOrder
     tipo_ator_evento_alerta?: SortOrder
     id_ator_evento_alerta?: SortOrder
@@ -54219,9 +50913,9 @@ export namespace Prisma {
     OR?: AlertaDataScalarWhereWithAggregatesInput[]
     NOT?: AlertaDataScalarWhereWithAggregatesInput | AlertaDataScalarWhereWithAggregatesInput[]
     id_evento_alerta?: StringWithAggregatesFilter<"AlertaData"> | string
-    id_organizacao_evento_alerta?: StringWithAggregatesFilter<"AlertaData"> | string
+    id_organizacao?: StringWithAggregatesFilter<"AlertaData"> | string
     id_produto_evento_alerta?: StringNullableWithAggregatesFilter<"AlertaData"> | string | null
-    id_usuario_evento_alerta?: StringNullableWithAggregatesFilter<"AlertaData"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"AlertaData"> | string | null
     id_regra_evento_alerta?: StringWithAggregatesFilter<"AlertaData"> | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorWithAggregatesFilter<"AlertaData"> | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringWithAggregatesFilter<"AlertaData"> | string
@@ -54243,9 +50937,9 @@ export namespace Prisma {
     OR?: AlertaRegistroWhereInput[]
     NOT?: AlertaRegistroWhereInput | AlertaRegistroWhereInput[]
     id_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
-    id_organizacao_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
+    id_organizacao?: StringFilter<"AlertaRegistro"> | string
     id_produto_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
-    id_usuario_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaRegistro"> | string | null
     id_evento_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     canal_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     destinatario_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
@@ -54259,9 +50953,9 @@ export namespace Prisma {
 
   export type AlertaRegistroOrderByWithRelationInput = {
     id_notificacao_alerta?: SortOrder
-    id_organizacao_notificacao_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_notificacao_alerta?: SortOrderInput | SortOrder
-    id_usuario_notificacao_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     id_evento_notificacao_alerta?: SortOrder
     canal_notificacao_alerta?: SortOrder
     destinatario_notificacao_alerta?: SortOrder
@@ -54278,9 +50972,9 @@ export namespace Prisma {
     AND?: AlertaRegistroWhereInput | AlertaRegistroWhereInput[]
     OR?: AlertaRegistroWhereInput[]
     NOT?: AlertaRegistroWhereInput | AlertaRegistroWhereInput[]
-    id_organizacao_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
+    id_organizacao?: StringFilter<"AlertaRegistro"> | string
     id_produto_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
-    id_usuario_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaRegistro"> | string | null
     id_evento_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     canal_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     destinatario_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
@@ -54294,9 +50988,9 @@ export namespace Prisma {
 
   export type AlertaRegistroOrderByWithAggregationInput = {
     id_notificacao_alerta?: SortOrder
-    id_organizacao_notificacao_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_notificacao_alerta?: SortOrderInput | SortOrder
-    id_usuario_notificacao_alerta?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     id_evento_notificacao_alerta?: SortOrder
     canal_notificacao_alerta?: SortOrder
     destinatario_notificacao_alerta?: SortOrder
@@ -54317,9 +51011,9 @@ export namespace Prisma {
     OR?: AlertaRegistroScalarWhereWithAggregatesInput[]
     NOT?: AlertaRegistroScalarWhereWithAggregatesInput | AlertaRegistroScalarWhereWithAggregatesInput[]
     id_notificacao_alerta?: StringWithAggregatesFilter<"AlertaRegistro"> | string
-    id_organizacao_notificacao_alerta?: StringWithAggregatesFilter<"AlertaRegistro"> | string
+    id_organizacao?: StringWithAggregatesFilter<"AlertaRegistro"> | string
     id_produto_notificacao_alerta?: StringNullableWithAggregatesFilter<"AlertaRegistro"> | string | null
-    id_usuario_notificacao_alerta?: StringNullableWithAggregatesFilter<"AlertaRegistro"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"AlertaRegistro"> | string | null
     id_evento_notificacao_alerta?: StringWithAggregatesFilter<"AlertaRegistro"> | string
     canal_notificacao_alerta?: StringWithAggregatesFilter<"AlertaRegistro"> | string
     destinatario_notificacao_alerta?: StringWithAggregatesFilter<"AlertaRegistro"> | string
@@ -54335,9 +51029,9 @@ export namespace Prisma {
     OR?: ExportarResultadoWhereInput[]
     NOT?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
     id_exportar_resultado?: StringFilter<"ExportarResultado"> | string
-    id_organizacao_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    id_organizacao?: StringFilter<"ExportarResultado"> | string
     id_produto_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
-    id_usuario_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    id_usuario?: StringNullableFilter<"ExportarResultado"> | string | null
     formato_exportar_resultado?: StringFilter<"ExportarResultado"> | string
     conteudo_exportar_resultado?: StringFilter<"ExportarResultado"> | string
     status_exportar_resultado?: StringFilter<"ExportarResultado"> | string
@@ -54350,9 +51044,9 @@ export namespace Prisma {
 
   export type ExportarResultadoOrderByWithRelationInput = {
     id_exportar_resultado?: SortOrder
-    id_organizacao_exportar_resultado?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_exportar_resultado?: SortOrderInput | SortOrder
-    id_usuario_exportar_resultado?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     formato_exportar_resultado?: SortOrder
     conteudo_exportar_resultado?: SortOrder
     status_exportar_resultado?: SortOrder
@@ -54368,9 +51062,9 @@ export namespace Prisma {
     AND?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
     OR?: ExportarResultadoWhereInput[]
     NOT?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
-    id_organizacao_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    id_organizacao?: StringFilter<"ExportarResultado"> | string
     id_produto_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
-    id_usuario_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    id_usuario?: StringNullableFilter<"ExportarResultado"> | string | null
     formato_exportar_resultado?: StringFilter<"ExportarResultado"> | string
     conteudo_exportar_resultado?: StringFilter<"ExportarResultado"> | string
     status_exportar_resultado?: StringFilter<"ExportarResultado"> | string
@@ -54383,9 +51077,9 @@ export namespace Prisma {
 
   export type ExportarResultadoOrderByWithAggregationInput = {
     id_exportar_resultado?: SortOrder
-    id_organizacao_exportar_resultado?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_exportar_resultado?: SortOrderInput | SortOrder
-    id_usuario_exportar_resultado?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
     formato_exportar_resultado?: SortOrder
     conteudo_exportar_resultado?: SortOrder
     status_exportar_resultado?: SortOrder
@@ -54406,9 +51100,9 @@ export namespace Prisma {
     OR?: ExportarResultadoScalarWhereWithAggregatesInput[]
     NOT?: ExportarResultadoScalarWhereWithAggregatesInput | ExportarResultadoScalarWhereWithAggregatesInput[]
     id_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    id_organizacao_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ExportarResultado"> | string
     id_produto_exportar_resultado?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
-    id_usuario_exportar_resultado?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
     formato_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
     conteudo_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
     status_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
@@ -55291,283 +51985,14 @@ export namespace Prisma {
     data_atualizacao_preferencia_workspace?: DateTimeWithAggregatesFilter<"WorkspacePreferenciaUsuario"> | Date | string
   }
 
-  export type NcmItemWhereInput = {
-    AND?: NcmItemWhereInput | NcmItemWhereInput[]
-    OR?: NcmItemWhereInput[]
-    NOT?: NcmItemWhereInput | NcmItemWhereInput[]
-    id_ncm_item?: StringFilter<"NcmItem"> | string
-    id_organizacao_ncm_item?: StringFilter<"NcmItem"> | string
-    id_produto_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
-    id_usuario_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
-    codigo_ncm_item?: StringFilter<"NcmItem"> | string
-    descricao_ncm_item?: StringFilter<"NcmItem"> | string
-    ativo_ncm_item?: BoolFilter<"NcmItem"> | boolean
-    data_inicio_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    data_fim_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    id_sincronizacao_ncm_item?: StringFilter<"NcmItem"> | string
-    data_criacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
-    data_atualizacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
-  }
-
-  export type NcmItemOrderByWithRelationInput = {
-    id_ncm_item?: SortOrder
-    id_organizacao_ncm_item?: SortOrder
-    id_produto_ncm_item?: SortOrderInput | SortOrder
-    id_usuario_ncm_item?: SortOrderInput | SortOrder
-    codigo_ncm_item?: SortOrder
-    descricao_ncm_item?: SortOrder
-    ativo_ncm_item?: SortOrder
-    data_inicio_ncm_item?: SortOrderInput | SortOrder
-    data_fim_ncm_item?: SortOrderInput | SortOrder
-    id_sincronizacao_ncm_item?: SortOrder
-    data_criacao_ncm_item?: SortOrder
-    data_atualizacao_ncm_item?: SortOrder
-  }
-
-  export type NcmItemWhereUniqueInput = Prisma.AtLeast<{
-    id_ncm_item?: string
-    id_organizacao_ncm_item_codigo_ncm_item?: NcmItemId_organizacao_ncm_itemCodigo_ncm_itemCompoundUniqueInput
-    AND?: NcmItemWhereInput | NcmItemWhereInput[]
-    OR?: NcmItemWhereInput[]
-    NOT?: NcmItemWhereInput | NcmItemWhereInput[]
-    id_organizacao_ncm_item?: StringFilter<"NcmItem"> | string
-    id_produto_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
-    id_usuario_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
-    codigo_ncm_item?: StringFilter<"NcmItem"> | string
-    descricao_ncm_item?: StringFilter<"NcmItem"> | string
-    ativo_ncm_item?: BoolFilter<"NcmItem"> | boolean
-    data_inicio_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    data_fim_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    id_sincronizacao_ncm_item?: StringFilter<"NcmItem"> | string
-    data_criacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
-    data_atualizacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
-  }, "id_ncm_item" | "id_organizacao_ncm_item_codigo_ncm_item">
-
-  export type NcmItemOrderByWithAggregationInput = {
-    id_ncm_item?: SortOrder
-    id_organizacao_ncm_item?: SortOrder
-    id_produto_ncm_item?: SortOrderInput | SortOrder
-    id_usuario_ncm_item?: SortOrderInput | SortOrder
-    codigo_ncm_item?: SortOrder
-    descricao_ncm_item?: SortOrder
-    ativo_ncm_item?: SortOrder
-    data_inicio_ncm_item?: SortOrderInput | SortOrder
-    data_fim_ncm_item?: SortOrderInput | SortOrder
-    id_sincronizacao_ncm_item?: SortOrder
-    data_criacao_ncm_item?: SortOrder
-    data_atualizacao_ncm_item?: SortOrder
-    _count?: NcmItemCountOrderByAggregateInput
-    _max?: NcmItemMaxOrderByAggregateInput
-    _min?: NcmItemMinOrderByAggregateInput
-  }
-
-  export type NcmItemScalarWhereWithAggregatesInput = {
-    AND?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
-    OR?: NcmItemScalarWhereWithAggregatesInput[]
-    NOT?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
-    id_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
-    id_organizacao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
-    id_produto_ncm_item?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
-    id_usuario_ncm_item?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
-    codigo_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
-    descricao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
-    ativo_ncm_item?: BoolWithAggregatesFilter<"NcmItem"> | boolean
-    data_inicio_ncm_item?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
-    data_fim_ncm_item?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
-    id_sincronizacao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
-    data_criacao_ncm_item?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
-    data_atualizacao_ncm_item?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
-  }
-
-  export type NcmLogWhereInput = {
-    AND?: NcmLogWhereInput | NcmLogWhereInput[]
-    OR?: NcmLogWhereInput[]
-    NOT?: NcmLogWhereInput | NcmLogWhereInput[]
-    id_ncm_log?: StringFilter<"NcmLog"> | string
-    id_organizacao_ncm_log?: StringFilter<"NcmLog"> | string
-    id_produto_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    id_usuario_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    data_inicio_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-    data_conclusao_ncm_log?: DateTimeNullableFilter<"NcmLog"> | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFilter<"NcmLog"> | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFilter<"NcmLog"> | number
-    adicionados_ncm_log?: IntFilter<"NcmLog"> | number
-    alterados_ncm_log?: IntFilter<"NcmLog"> | number
-    removidos_ncm_log?: IntFilter<"NcmLog"> | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFilter<"NcmLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    mensagem_erro_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    data_criacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-    data_atualizacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-  }
-
-  export type NcmLogOrderByWithRelationInput = {
-    id_ncm_log?: SortOrder
-    id_organizacao_ncm_log?: SortOrder
-    id_produto_ncm_log?: SortOrderInput | SortOrder
-    id_usuario_ncm_log?: SortOrderInput | SortOrder
-    data_inicio_ncm_log?: SortOrder
-    data_conclusao_ncm_log?: SortOrderInput | SortOrder
-    status_ncm_log?: SortOrder
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-    origem_ncm_log?: SortOrder
-    disparado_por_ncm_log?: SortOrderInput | SortOrder
-    mensagem_erro_ncm_log?: SortOrderInput | SortOrder
-    data_criacao_ncm_log?: SortOrder
-    data_atualizacao_ncm_log?: SortOrder
-  }
-
-  export type NcmLogWhereUniqueInput = Prisma.AtLeast<{
-    id_ncm_log?: string
-    AND?: NcmLogWhereInput | NcmLogWhereInput[]
-    OR?: NcmLogWhereInput[]
-    NOT?: NcmLogWhereInput | NcmLogWhereInput[]
-    id_organizacao_ncm_log?: StringFilter<"NcmLog"> | string
-    id_produto_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    id_usuario_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    data_inicio_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-    data_conclusao_ncm_log?: DateTimeNullableFilter<"NcmLog"> | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFilter<"NcmLog"> | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFilter<"NcmLog"> | number
-    adicionados_ncm_log?: IntFilter<"NcmLog"> | number
-    alterados_ncm_log?: IntFilter<"NcmLog"> | number
-    removidos_ncm_log?: IntFilter<"NcmLog"> | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFilter<"NcmLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    mensagem_erro_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
-    data_criacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-    data_atualizacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
-  }, "id_ncm_log">
-
-  export type NcmLogOrderByWithAggregationInput = {
-    id_ncm_log?: SortOrder
-    id_organizacao_ncm_log?: SortOrder
-    id_produto_ncm_log?: SortOrderInput | SortOrder
-    id_usuario_ncm_log?: SortOrderInput | SortOrder
-    data_inicio_ncm_log?: SortOrder
-    data_conclusao_ncm_log?: SortOrderInput | SortOrder
-    status_ncm_log?: SortOrder
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-    origem_ncm_log?: SortOrder
-    disparado_por_ncm_log?: SortOrderInput | SortOrder
-    mensagem_erro_ncm_log?: SortOrderInput | SortOrder
-    data_criacao_ncm_log?: SortOrder
-    data_atualizacao_ncm_log?: SortOrder
-    _count?: NcmLogCountOrderByAggregateInput
-    _avg?: NcmLogAvgOrderByAggregateInput
-    _max?: NcmLogMaxOrderByAggregateInput
-    _min?: NcmLogMinOrderByAggregateInput
-    _sum?: NcmLogSumOrderByAggregateInput
-  }
-
-  export type NcmLogScalarWhereWithAggregatesInput = {
-    AND?: NcmLogScalarWhereWithAggregatesInput | NcmLogScalarWhereWithAggregatesInput[]
-    OR?: NcmLogScalarWhereWithAggregatesInput[]
-    NOT?: NcmLogScalarWhereWithAggregatesInput | NcmLogScalarWhereWithAggregatesInput[]
-    id_ncm_log?: StringWithAggregatesFilter<"NcmLog"> | string
-    id_organizacao_ncm_log?: StringWithAggregatesFilter<"NcmLog"> | string
-    id_produto_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
-    id_usuario_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
-    data_inicio_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
-    data_conclusao_ncm_log?: DateTimeNullableWithAggregatesFilter<"NcmLog"> | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoWithAggregatesFilter<"NcmLog"> | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
-    adicionados_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
-    alterados_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
-    removidos_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoWithAggregatesFilter<"NcmLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
-    mensagem_erro_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
-    data_criacao_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
-    data_atualizacao_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
-  }
-
-  export type NCMAgendamentoWhereInput = {
-    AND?: NCMAgendamentoWhereInput | NCMAgendamentoWhereInput[]
-    OR?: NCMAgendamentoWhereInput[]
-    NOT?: NCMAgendamentoWhereInput | NCMAgendamentoWhereInput[]
-    id_ncm_agendamento?: StringFilter<"NCMAgendamento"> | string
-    id_organizacao_ncm_agendamento?: StringFilter<"NCMAgendamento"> | string
-    id_produto_ncm_agendamento?: StringNullableFilter<"NCMAgendamento"> | string | null
-    id_usuario_ncm_agendamento?: StringNullableFilter<"NCMAgendamento"> | string | null
-    ativo_ncm_agendamento?: BoolFilter<"NCMAgendamento"> | boolean
-    cron_expressao_ncm_agendamento?: StringFilter<"NCMAgendamento"> | string
-    notificadores_ncm_agendamento?: JsonFilter<"NCMAgendamento">
-    data_criacao_ncm_agendamento?: DateTimeFilter<"NCMAgendamento"> | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFilter<"NCMAgendamento"> | Date | string
-  }
-
-  export type NCMAgendamentoOrderByWithRelationInput = {
-    id_ncm_agendamento?: SortOrder
-    id_organizacao_ncm_agendamento?: SortOrder
-    id_produto_ncm_agendamento?: SortOrderInput | SortOrder
-    id_usuario_ncm_agendamento?: SortOrderInput | SortOrder
-    ativo_ncm_agendamento?: SortOrder
-    cron_expressao_ncm_agendamento?: SortOrder
-    notificadores_ncm_agendamento?: SortOrder
-    data_criacao_ncm_agendamento?: SortOrder
-    data_atualizacao_ncm_agendamento?: SortOrder
-  }
-
-  export type NCMAgendamentoWhereUniqueInput = Prisma.AtLeast<{
-    id_ncm_agendamento?: string
-    AND?: NCMAgendamentoWhereInput | NCMAgendamentoWhereInput[]
-    OR?: NCMAgendamentoWhereInput[]
-    NOT?: NCMAgendamentoWhereInput | NCMAgendamentoWhereInput[]
-    id_organizacao_ncm_agendamento?: StringFilter<"NCMAgendamento"> | string
-    id_produto_ncm_agendamento?: StringNullableFilter<"NCMAgendamento"> | string | null
-    id_usuario_ncm_agendamento?: StringNullableFilter<"NCMAgendamento"> | string | null
-    ativo_ncm_agendamento?: BoolFilter<"NCMAgendamento"> | boolean
-    cron_expressao_ncm_agendamento?: StringFilter<"NCMAgendamento"> | string
-    notificadores_ncm_agendamento?: JsonFilter<"NCMAgendamento">
-    data_criacao_ncm_agendamento?: DateTimeFilter<"NCMAgendamento"> | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFilter<"NCMAgendamento"> | Date | string
-  }, "id_ncm_agendamento">
-
-  export type NCMAgendamentoOrderByWithAggregationInput = {
-    id_ncm_agendamento?: SortOrder
-    id_organizacao_ncm_agendamento?: SortOrder
-    id_produto_ncm_agendamento?: SortOrderInput | SortOrder
-    id_usuario_ncm_agendamento?: SortOrderInput | SortOrder
-    ativo_ncm_agendamento?: SortOrder
-    cron_expressao_ncm_agendamento?: SortOrder
-    notificadores_ncm_agendamento?: SortOrder
-    data_criacao_ncm_agendamento?: SortOrder
-    data_atualizacao_ncm_agendamento?: SortOrder
-    _count?: NCMAgendamentoCountOrderByAggregateInput
-    _max?: NCMAgendamentoMaxOrderByAggregateInput
-    _min?: NCMAgendamentoMinOrderByAggregateInput
-  }
-
-  export type NCMAgendamentoScalarWhereWithAggregatesInput = {
-    AND?: NCMAgendamentoScalarWhereWithAggregatesInput | NCMAgendamentoScalarWhereWithAggregatesInput[]
-    OR?: NCMAgendamentoScalarWhereWithAggregatesInput[]
-    NOT?: NCMAgendamentoScalarWhereWithAggregatesInput | NCMAgendamentoScalarWhereWithAggregatesInput[]
-    id_ncm_agendamento?: StringWithAggregatesFilter<"NCMAgendamento"> | string
-    id_organizacao_ncm_agendamento?: StringWithAggregatesFilter<"NCMAgendamento"> | string
-    id_produto_ncm_agendamento?: StringNullableWithAggregatesFilter<"NCMAgendamento"> | string | null
-    id_usuario_ncm_agendamento?: StringNullableWithAggregatesFilter<"NCMAgendamento"> | string | null
-    ativo_ncm_agendamento?: BoolWithAggregatesFilter<"NCMAgendamento"> | boolean
-    cron_expressao_ncm_agendamento?: StringWithAggregatesFilter<"NCMAgendamento"> | string
-    notificadores_ncm_agendamento?: JsonWithAggregatesFilter<"NCMAgendamento">
-    data_criacao_ncm_agendamento?: DateTimeWithAggregatesFilter<"NCMAgendamento"> | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeWithAggregatesFilter<"NCMAgendamento"> | Date | string
-  }
-
   export type NotificacoesTituloCorpoWhereInput = {
     AND?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
     OR?: NotificacoesTituloCorpoWhereInput[]
     NOT?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
     id_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
-    id_organizacao_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
-    id_produto_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_organizacao?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_gravity?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario?: StringFilter<"NotificacoesTituloCorpo"> | string
     tipo_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
     titulo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
     mensagem_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
@@ -55582,9 +52007,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoOrderByWithRelationInput = {
     id_notificacoes_titulo_corpo?: SortOrder
-    id_organizacao_notificacoes_titulo_corpo?: SortOrder
-    id_produto_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
-    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrder
     tipo_notificacoes_titulo_corpo?: SortOrder
     titulo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
     mensagem_notificacoes_titulo_corpo?: SortOrder
@@ -55602,9 +52027,9 @@ export namespace Prisma {
     AND?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
     OR?: NotificacoesTituloCorpoWhereInput[]
     NOT?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
-    id_organizacao_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
-    id_produto_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_organizacao?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_gravity?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario?: StringFilter<"NotificacoesTituloCorpo"> | string
     tipo_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
     titulo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
     mensagem_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
@@ -55619,9 +52044,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoOrderByWithAggregationInput = {
     id_notificacoes_titulo_corpo?: SortOrder
-    id_organizacao_notificacoes_titulo_corpo?: SortOrder
-    id_produto_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
-    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrder
     tipo_notificacoes_titulo_corpo?: SortOrder
     titulo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
     mensagem_notificacoes_titulo_corpo?: SortOrder
@@ -55642,9 +52067,9 @@ export namespace Prisma {
     OR?: NotificacoesTituloCorpoScalarWhereWithAggregatesInput[]
     NOT?: NotificacoesTituloCorpoScalarWhereWithAggregatesInput | NotificacoesTituloCorpoScalarWhereWithAggregatesInput[]
     id_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    id_organizacao_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    id_produto_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    id_organizacao?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
     tipo_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
     titulo_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
     mensagem_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
@@ -55662,9 +52087,9 @@ export namespace Prisma {
     OR?: ContatoExternoWhereInput[]
     NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
     id_contato_externo?: StringFilter<"ContatoExterno"> | string
-    id_organizacao_contato_externo?: StringFilter<"ContatoExterno"> | string
-    id_produto_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
-    id_usuario_contato_externo?: StringFilter<"ContatoExterno"> | string
+    id_organizacao?: StringFilter<"ContatoExterno"> | string
+    id_produto_gravity?: StringNullableFilter<"ContatoExterno"> | string | null
+    id_usuario?: StringFilter<"ContatoExterno"> | string
     nome_contato_externo?: StringFilter<"ContatoExterno"> | string
     email_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
     whatsapp_telefone_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
@@ -55676,9 +52101,9 @@ export namespace Prisma {
 
   export type ContatoExternoOrderByWithRelationInput = {
     id_contato_externo?: SortOrder
-    id_organizacao_contato_externo?: SortOrder
-    id_produto_contato_externo?: SortOrderInput | SortOrder
-    id_usuario_contato_externo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrder
     nome_contato_externo?: SortOrder
     email_contato_externo?: SortOrderInput | SortOrder
     whatsapp_telefone_contato_externo?: SortOrderInput | SortOrder
@@ -55693,9 +52118,9 @@ export namespace Prisma {
     AND?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
     OR?: ContatoExternoWhereInput[]
     NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
-    id_organizacao_contato_externo?: StringFilter<"ContatoExterno"> | string
-    id_produto_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
-    id_usuario_contato_externo?: StringFilter<"ContatoExterno"> | string
+    id_organizacao?: StringFilter<"ContatoExterno"> | string
+    id_produto_gravity?: StringNullableFilter<"ContatoExterno"> | string | null
+    id_usuario?: StringFilter<"ContatoExterno"> | string
     nome_contato_externo?: StringFilter<"ContatoExterno"> | string
     email_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
     whatsapp_telefone_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
@@ -55707,9 +52132,9 @@ export namespace Prisma {
 
   export type ContatoExternoOrderByWithAggregationInput = {
     id_contato_externo?: SortOrder
-    id_organizacao_contato_externo?: SortOrder
-    id_produto_contato_externo?: SortOrderInput | SortOrder
-    id_usuario_contato_externo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrder
     nome_contato_externo?: SortOrder
     email_contato_externo?: SortOrderInput | SortOrder
     whatsapp_telefone_contato_externo?: SortOrderInput | SortOrder
@@ -55727,9 +52152,9 @@ export namespace Prisma {
     OR?: ContatoExternoScalarWhereWithAggregatesInput[]
     NOT?: ContatoExternoScalarWhereWithAggregatesInput | ContatoExternoScalarWhereWithAggregatesInput[]
     id_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
-    id_organizacao_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
-    id_produto_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
-    id_usuario_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    id_usuario?: StringWithAggregatesFilter<"ContatoExterno"> | string
     nome_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
     email_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
     whatsapp_telefone_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
@@ -55743,50 +52168,50 @@ export namespace Prisma {
     AND?: ConfiguracaoCanalOrganizacaoWhereInput | ConfiguracaoCanalOrganizacaoWhereInput[]
     OR?: ConfiguracaoCanalOrganizacaoWhereInput[]
     NOT?: ConfiguracaoCanalOrganizacaoWhereInput | ConfiguracaoCanalOrganizacaoWhereInput[]
-    id_configuracao_canal_tenant?: StringFilter<"ConfiguracaoCanalOrganizacao"> | string
-    id_organizacao_configuracao_canal_tenant?: StringFilter<"ConfiguracaoCanalOrganizacao"> | string
-    id_produto_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    id_usuario_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+    id_configuracao_canal_organizacao?: StringFilter<"ConfiguracaoCanalOrganizacao"> | string
+    id_organizacao?: StringFilter<"ConfiguracaoCanalOrganizacao"> | string
+    id_produto_gravity?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    id_usuario?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoOrderByWithRelationInput = {
-    id_configuracao_canal_tenant?: SortOrder
-    id_organizacao_configuracao_canal_tenant?: SortOrder
-    id_produto_configuracao_canal_tenant?: SortOrderInput | SortOrder
-    id_usuario_configuracao_canal_tenant?: SortOrderInput | SortOrder
-    email_habilitado_configuracao_canal_tenant?: SortOrder
-    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
-    data_criacao_configuracao_canal_tenant?: SortOrder
-    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    id_configuracao_canal_organizacao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    email_habilitado_configuracao_canal_organizacao?: SortOrder
+    whatsapp_habilitado_configuracao_canal_organizacao?: SortOrder
+    data_criacao_configuracao_canal_organizacao?: SortOrder
+    data_atualizacao_configuracao_canal_organizacao?: SortOrder
   }
 
   export type ConfiguracaoCanalOrganizacaoWhereUniqueInput = Prisma.AtLeast<{
-    id_configuracao_canal_tenant?: string
-    id_organizacao_configuracao_canal_tenant?: string
+    id_configuracao_canal_organizacao?: string
+    id_organizacao?: string
     AND?: ConfiguracaoCanalOrganizacaoWhereInput | ConfiguracaoCanalOrganizacaoWhereInput[]
     OR?: ConfiguracaoCanalOrganizacaoWhereInput[]
     NOT?: ConfiguracaoCanalOrganizacaoWhereInput | ConfiguracaoCanalOrganizacaoWhereInput[]
-    id_produto_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    id_usuario_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
-  }, "id_configuracao_canal_tenant" | "id_organizacao_configuracao_canal_tenant">
+    id_produto_gravity?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    id_usuario?: StringNullableFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+  }, "id_configuracao_canal_organizacao" | "id_organizacao">
 
   export type ConfiguracaoCanalOrganizacaoOrderByWithAggregationInput = {
-    id_configuracao_canal_tenant?: SortOrder
-    id_organizacao_configuracao_canal_tenant?: SortOrder
-    id_produto_configuracao_canal_tenant?: SortOrderInput | SortOrder
-    id_usuario_configuracao_canal_tenant?: SortOrderInput | SortOrder
-    email_habilitado_configuracao_canal_tenant?: SortOrder
-    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
-    data_criacao_configuracao_canal_tenant?: SortOrder
-    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    id_configuracao_canal_organizacao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    email_habilitado_configuracao_canal_organizacao?: SortOrder
+    whatsapp_habilitado_configuracao_canal_organizacao?: SortOrder
+    data_criacao_configuracao_canal_organizacao?: SortOrder
+    data_atualizacao_configuracao_canal_organizacao?: SortOrder
     _count?: ConfiguracaoCanalOrganizacaoCountOrderByAggregateInput
     _max?: ConfiguracaoCanalOrganizacaoMaxOrderByAggregateInput
     _min?: ConfiguracaoCanalOrganizacaoMinOrderByAggregateInput
@@ -55796,14 +52221,14 @@ export namespace Prisma {
     AND?: ConfiguracaoCanalOrganizacaoScalarWhereWithAggregatesInput | ConfiguracaoCanalOrganizacaoScalarWhereWithAggregatesInput[]
     OR?: ConfiguracaoCanalOrganizacaoScalarWhereWithAggregatesInput[]
     NOT?: ConfiguracaoCanalOrganizacaoScalarWhereWithAggregatesInput | ConfiguracaoCanalOrganizacaoScalarWhereWithAggregatesInput[]
-    id_configuracao_canal_tenant?: StringWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string
-    id_organizacao_configuracao_canal_tenant?: StringWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string
-    id_produto_configuracao_canal_tenant?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    id_usuario_configuracao_canal_tenant?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+    id_configuracao_canal_organizacao?: StringWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
   }
 
   export type AtividadeDadosCreateInput = {
@@ -58402,9 +54827,9 @@ export namespace Prisma {
 
   export type HistoricoLogCreateInput = {
     id_historico_log?: string
-    id_organizacao_historico_log: string
+    id_organizacao: string
     id_produto_historico_log?: string | null
-    id_usuario_historico_log?: string | null
+    id_usuario?: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor
     id_ator_historico_log: string
     nome_ator_historico_log: string
@@ -58425,9 +54850,9 @@ export namespace Prisma {
 
   export type HistoricoLogUncheckedCreateInput = {
     id_historico_log?: string
-    id_organizacao_historico_log: string
+    id_organizacao: string
     id_produto_historico_log?: string | null
-    id_usuario_historico_log?: string | null
+    id_usuario?: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor
     id_ator_historico_log: string
     nome_ator_historico_log: string
@@ -58448,9 +54873,9 @@ export namespace Prisma {
 
   export type HistoricoLogUpdateInput = {
     id_historico_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFieldUpdateOperationsInput | string
     nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
@@ -58471,9 +54896,9 @@ export namespace Prisma {
 
   export type HistoricoLogUncheckedUpdateInput = {
     id_historico_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFieldUpdateOperationsInput | string
     nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
@@ -58494,9 +54919,9 @@ export namespace Prisma {
 
   export type HistoricoLogCreateManyInput = {
     id_historico_log?: string
-    id_organizacao_historico_log: string
+    id_organizacao: string
     id_produto_historico_log?: string | null
-    id_usuario_historico_log?: string | null
+    id_usuario?: string | null
     tipo_ator_historico_log: $Enums.AcaoExecutadaPor
     id_ator_historico_log: string
     nome_ator_historico_log: string
@@ -58517,9 +54942,9 @@ export namespace Prisma {
 
   export type HistoricoLogUpdateManyMutationInput = {
     id_historico_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFieldUpdateOperationsInput | string
     nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
@@ -58540,9 +54965,9 @@ export namespace Prisma {
 
   export type HistoricoLogUncheckedUpdateManyInput = {
     id_historico_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_historico_log?: StringFieldUpdateOperationsInput | string
     nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
@@ -58563,9 +54988,9 @@ export namespace Prisma {
 
   export type AlertaRegraCreateInput = {
     id_regra_alerta?: string
-    id_organizacao_regra_alerta?: string | null
+    id_organizacao?: string | null
     id_produto_regra_alerta?: string | null
-    id_usuario_regra_alerta?: string | null
+    id_usuario?: string | null
     nome_regra_alerta: string
     descricao_regra_alerta?: string | null
     habilitada_regra_alerta?: boolean
@@ -58588,9 +55013,9 @@ export namespace Prisma {
 
   export type AlertaRegraUncheckedCreateInput = {
     id_regra_alerta?: string
-    id_organizacao_regra_alerta?: string | null
+    id_organizacao?: string | null
     id_produto_regra_alerta?: string | null
-    id_usuario_regra_alerta?: string | null
+    id_usuario?: string | null
     nome_regra_alerta: string
     descricao_regra_alerta?: string | null
     habilitada_regra_alerta?: boolean
@@ -58613,9 +55038,9 @@ export namespace Prisma {
 
   export type AlertaRegraUpdateInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -58638,9 +55063,9 @@ export namespace Prisma {
 
   export type AlertaRegraUncheckedUpdateInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -58663,9 +55088,9 @@ export namespace Prisma {
 
   export type AlertaRegraCreateManyInput = {
     id_regra_alerta?: string
-    id_organizacao_regra_alerta?: string | null
+    id_organizacao?: string | null
     id_produto_regra_alerta?: string | null
-    id_usuario_regra_alerta?: string | null
+    id_usuario?: string | null
     nome_regra_alerta: string
     descricao_regra_alerta?: string | null
     habilitada_regra_alerta?: boolean
@@ -58687,9 +55112,9 @@ export namespace Prisma {
 
   export type AlertaRegraUpdateManyMutationInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -58711,9 +55136,9 @@ export namespace Prisma {
 
   export type AlertaRegraUncheckedUpdateManyInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -58735,9 +55160,9 @@ export namespace Prisma {
 
   export type AlertaDataCreateInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
     nome_ator_evento_alerta: string
@@ -58757,9 +55182,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedCreateInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     id_regra_evento_alerta: string
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
@@ -58779,9 +55204,9 @@ export namespace Prisma {
 
   export type AlertaDataUpdateInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -58801,9 +55226,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedUpdateInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -58823,9 +55248,9 @@ export namespace Prisma {
 
   export type AlertaDataCreateManyInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     id_regra_evento_alerta: string
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
@@ -58844,9 +55269,9 @@ export namespace Prisma {
 
   export type AlertaDataUpdateManyMutationInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -58864,9 +55289,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedUpdateManyInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -58885,9 +55310,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCreateInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
     status_notificacao_alerta?: string
@@ -58900,9 +55325,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedCreateInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     id_evento_notificacao_alerta: string
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
@@ -58915,9 +55340,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUpdateInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -58930,9 +55355,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedUpdateInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     id_evento_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -58945,9 +55370,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCreateManyInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     id_evento_notificacao_alerta: string
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
@@ -58960,9 +55385,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUpdateManyMutationInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -58974,9 +55399,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedUpdateManyInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     id_evento_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -58989,9 +55414,9 @@ export namespace Prisma {
 
   export type ExportarResultadoCreateInput = {
     id_exportar_resultado?: string
-    id_organizacao_exportar_resultado: string
+    id_organizacao: string
     id_produto_exportar_resultado?: string | null
-    id_usuario_exportar_resultado?: string | null
+    id_usuario?: string | null
     formato_exportar_resultado: string
     conteudo_exportar_resultado: string
     status_exportar_resultado?: string
@@ -59004,9 +55429,9 @@ export namespace Prisma {
 
   export type ExportarResultadoUncheckedCreateInput = {
     id_exportar_resultado?: string
-    id_organizacao_exportar_resultado: string
+    id_organizacao: string
     id_produto_exportar_resultado?: string | null
-    id_usuario_exportar_resultado?: string | null
+    id_usuario?: string | null
     formato_exportar_resultado: string
     conteudo_exportar_resultado: string
     status_exportar_resultado?: string
@@ -59019,9 +55444,9 @@ export namespace Prisma {
 
   export type ExportarResultadoUpdateInput = {
     id_exportar_resultado?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
     conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
     status_exportar_resultado?: StringFieldUpdateOperationsInput | string
@@ -59034,9 +55459,9 @@ export namespace Prisma {
 
   export type ExportarResultadoUncheckedUpdateInput = {
     id_exportar_resultado?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
     conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
     status_exportar_resultado?: StringFieldUpdateOperationsInput | string
@@ -59049,9 +55474,9 @@ export namespace Prisma {
 
   export type ExportarResultadoCreateManyInput = {
     id_exportar_resultado?: string
-    id_organizacao_exportar_resultado: string
+    id_organizacao: string
     id_produto_exportar_resultado?: string | null
-    id_usuario_exportar_resultado?: string | null
+    id_usuario?: string | null
     formato_exportar_resultado: string
     conteudo_exportar_resultado: string
     status_exportar_resultado?: string
@@ -59064,9 +55489,9 @@ export namespace Prisma {
 
   export type ExportarResultadoUpdateManyMutationInput = {
     id_exportar_resultado?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
     conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
     status_exportar_resultado?: StringFieldUpdateOperationsInput | string
@@ -59079,9 +55504,9 @@ export namespace Prisma {
 
   export type ExportarResultadoUncheckedUpdateManyInput = {
     id_exportar_resultado?: StringFieldUpdateOperationsInput | string
-    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
     conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
     status_exportar_resultado?: StringFieldUpdateOperationsInput | string
@@ -60091,333 +56516,11 @@ export namespace Prisma {
     data_atualizacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmItemCreateInput = {
-    id_ncm_item?: string
-    id_organizacao_ncm_item: string
-    id_produto_ncm_item?: string | null
-    id_usuario_ncm_item?: string | null
-    codigo_ncm_item: string
-    descricao_ncm_item: string
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: Date | string | null
-    data_fim_ncm_item?: Date | string | null
-    id_sincronizacao_ncm_item: string
-    data_criacao_ncm_item?: Date | string
-    data_atualizacao_ncm_item?: Date | string
-  }
-
-  export type NcmItemUncheckedCreateInput = {
-    id_ncm_item?: string
-    id_organizacao_ncm_item: string
-    id_produto_ncm_item?: string | null
-    id_usuario_ncm_item?: string | null
-    codigo_ncm_item: string
-    descricao_ncm_item: string
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: Date | string | null
-    data_fim_ncm_item?: Date | string | null
-    id_sincronizacao_ncm_item: string
-    data_criacao_ncm_item?: Date | string
-    data_atualizacao_ncm_item?: Date | string
-  }
-
-  export type NcmItemUpdateInput = {
-    id_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
-    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
-    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmItemUncheckedUpdateInput = {
-    id_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
-    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
-    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmItemCreateManyInput = {
-    id_ncm_item?: string
-    id_organizacao_ncm_item: string
-    id_produto_ncm_item?: string | null
-    id_usuario_ncm_item?: string | null
-    codigo_ncm_item: string
-    descricao_ncm_item: string
-    ativo_ncm_item?: boolean
-    data_inicio_ncm_item?: Date | string | null
-    data_fim_ncm_item?: Date | string | null
-    id_sincronizacao_ncm_item: string
-    data_criacao_ncm_item?: Date | string
-    data_atualizacao_ncm_item?: Date | string
-  }
-
-  export type NcmItemUpdateManyMutationInput = {
-    id_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
-    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
-    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmItemUncheckedUpdateManyInput = {
-    id_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
-    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
-    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
-    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmLogCreateInput = {
-    id_ncm_log?: string
-    id_organizacao_ncm_log: string
-    id_produto_ncm_log?: string | null
-    id_usuario_ncm_log?: string | null
-    data_inicio_ncm_log?: Date | string
-    data_conclusao_ncm_log?: Date | string | null
-    status_ncm_log?: $Enums.NCMStatusSincronizacao
-    total_ncm_log?: number
-    adicionados_ncm_log?: number
-    alterados_ncm_log?: number
-    removidos_ncm_log?: number
-    origem_ncm_log?: $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: string | null
-    mensagem_erro_ncm_log?: string | null
-    data_criacao_ncm_log?: Date | string
-    data_atualizacao_ncm_log?: Date | string
-  }
-
-  export type NcmLogUncheckedCreateInput = {
-    id_ncm_log?: string
-    id_organizacao_ncm_log: string
-    id_produto_ncm_log?: string | null
-    id_usuario_ncm_log?: string | null
-    data_inicio_ncm_log?: Date | string
-    data_conclusao_ncm_log?: Date | string | null
-    status_ncm_log?: $Enums.NCMStatusSincronizacao
-    total_ncm_log?: number
-    adicionados_ncm_log?: number
-    alterados_ncm_log?: number
-    removidos_ncm_log?: number
-    origem_ncm_log?: $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: string | null
-    mensagem_erro_ncm_log?: string | null
-    data_criacao_ncm_log?: Date | string
-    data_atualizacao_ncm_log?: Date | string
-  }
-
-  export type NcmLogUpdateInput = {
-    id_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFieldUpdateOperationsInput | number
-    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
-    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
-    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmLogUncheckedUpdateInput = {
-    id_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFieldUpdateOperationsInput | number
-    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
-    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
-    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmLogCreateManyInput = {
-    id_ncm_log?: string
-    id_organizacao_ncm_log: string
-    id_produto_ncm_log?: string | null
-    id_usuario_ncm_log?: string | null
-    data_inicio_ncm_log?: Date | string
-    data_conclusao_ncm_log?: Date | string | null
-    status_ncm_log?: $Enums.NCMStatusSincronizacao
-    total_ncm_log?: number
-    adicionados_ncm_log?: number
-    alterados_ncm_log?: number
-    removidos_ncm_log?: number
-    origem_ncm_log?: $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: string | null
-    mensagem_erro_ncm_log?: string | null
-    data_criacao_ncm_log?: Date | string
-    data_atualizacao_ncm_log?: Date | string
-  }
-
-  export type NcmLogUpdateManyMutationInput = {
-    id_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFieldUpdateOperationsInput | number
-    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
-    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
-    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NcmLogUncheckedUpdateManyInput = {
-    id_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status_ncm_log?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total_ncm_log?: IntFieldUpdateOperationsInput | number
-    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
-    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
-    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
-    origem_ncm_log?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NCMAgendamentoCreateInput = {
-    id_ncm_agendamento?: string
-    id_organizacao_ncm_agendamento?: string
-    id_produto_ncm_agendamento?: string | null
-    id_usuario_ncm_agendamento?: string | null
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: Date | string
-    data_atualizacao_ncm_agendamento?: Date | string
-  }
-
-  export type NCMAgendamentoUncheckedCreateInput = {
-    id_ncm_agendamento?: string
-    id_organizacao_ncm_agendamento?: string
-    id_produto_ncm_agendamento?: string | null
-    id_usuario_ncm_agendamento?: string | null
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: Date | string
-    data_atualizacao_ncm_agendamento?: Date | string
-  }
-
-  export type NCMAgendamentoUpdateInput = {
-    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NCMAgendamentoUncheckedUpdateInput = {
-    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NCMAgendamentoCreateManyInput = {
-    id_ncm_agendamento?: string
-    id_organizacao_ncm_agendamento?: string
-    id_produto_ncm_agendamento?: string | null
-    id_usuario_ncm_agendamento?: string | null
-    ativo_ncm_agendamento?: boolean
-    cron_expressao_ncm_agendamento?: string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: Date | string
-    data_atualizacao_ncm_agendamento?: Date | string
-  }
-
-  export type NCMAgendamentoUpdateManyMutationInput = {
-    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NCMAgendamentoUncheckedUpdateManyInput = {
-    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
-    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
-    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type NotificacoesTituloCorpoCreateInput = {
     id_notificacoes_titulo_corpo?: string
-    id_organizacao_notificacoes_titulo_corpo: string
-    id_produto_notificacoes_titulo_corpo?: string | null
-    id_usuario_notificacoes_titulo_corpo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     tipo_notificacoes_titulo_corpo: string
     titulo_notificacoes_titulo_corpo?: string | null
     mensagem_notificacoes_titulo_corpo: string
@@ -60432,9 +56535,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoUncheckedCreateInput = {
     id_notificacoes_titulo_corpo?: string
-    id_organizacao_notificacoes_titulo_corpo: string
-    id_produto_notificacoes_titulo_corpo?: string | null
-    id_usuario_notificacoes_titulo_corpo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     tipo_notificacoes_titulo_corpo: string
     titulo_notificacoes_titulo_corpo?: string | null
     mensagem_notificacoes_titulo_corpo: string
@@ -60449,9 +56552,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoUpdateInput = {
     id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
     titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
     mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
@@ -60466,9 +56569,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoUncheckedUpdateInput = {
     id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
     titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
     mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
@@ -60483,9 +56586,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoCreateManyInput = {
     id_notificacoes_titulo_corpo?: string
-    id_organizacao_notificacoes_titulo_corpo: string
-    id_produto_notificacoes_titulo_corpo?: string | null
-    id_usuario_notificacoes_titulo_corpo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     tipo_notificacoes_titulo_corpo: string
     titulo_notificacoes_titulo_corpo?: string | null
     mensagem_notificacoes_titulo_corpo: string
@@ -60500,9 +56603,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoUpdateManyMutationInput = {
     id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
     titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
     mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
@@ -60517,9 +56620,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoUncheckedUpdateManyInput = {
     id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
-    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
     titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
     mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
@@ -60534,9 +56637,9 @@ export namespace Prisma {
 
   export type ContatoExternoCreateInput = {
     id_contato_externo?: string
-    id_organizacao_contato_externo: string
-    id_produto_contato_externo?: string | null
-    id_usuario_contato_externo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     nome_contato_externo: string
     email_contato_externo?: string | null
     whatsapp_telefone_contato_externo?: string | null
@@ -60548,9 +56651,9 @@ export namespace Prisma {
 
   export type ContatoExternoUncheckedCreateInput = {
     id_contato_externo?: string
-    id_organizacao_contato_externo: string
-    id_produto_contato_externo?: string | null
-    id_usuario_contato_externo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     nome_contato_externo: string
     email_contato_externo?: string | null
     whatsapp_telefone_contato_externo?: string | null
@@ -60562,9 +56665,9 @@ export namespace Prisma {
 
   export type ContatoExternoUpdateInput = {
     id_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     nome_contato_externo?: StringFieldUpdateOperationsInput | string
     email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60576,9 +56679,9 @@ export namespace Prisma {
 
   export type ContatoExternoUncheckedUpdateInput = {
     id_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     nome_contato_externo?: StringFieldUpdateOperationsInput | string
     email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60590,9 +56693,9 @@ export namespace Prisma {
 
   export type ContatoExternoCreateManyInput = {
     id_contato_externo?: string
-    id_organizacao_contato_externo: string
-    id_produto_contato_externo?: string | null
-    id_usuario_contato_externo: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario: string
     nome_contato_externo: string
     email_contato_externo?: string | null
     whatsapp_telefone_contato_externo?: string | null
@@ -60604,9 +56707,9 @@ export namespace Prisma {
 
   export type ContatoExternoUpdateManyMutationInput = {
     id_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     nome_contato_externo?: StringFieldUpdateOperationsInput | string
     email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60618,9 +56721,9 @@ export namespace Prisma {
 
   export type ContatoExternoUncheckedUpdateManyInput = {
     id_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
-    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: StringFieldUpdateOperationsInput | string
     nome_contato_externo?: StringFieldUpdateOperationsInput | string
     email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
     whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60631,80 +56734,80 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoCanalOrganizacaoCreateInput = {
-    id_configuracao_canal_tenant?: string
-    id_organizacao_configuracao_canal_tenant: string
-    id_produto_configuracao_canal_tenant?: string | null
-    id_usuario_configuracao_canal_tenant?: string | null
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: Date | string
-    data_atualizacao_configuracao_canal_tenant?: Date | string
+    id_configuracao_canal_organizacao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: Date | string
+    data_atualizacao_configuracao_canal_organizacao?: Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoUncheckedCreateInput = {
-    id_configuracao_canal_tenant?: string
-    id_organizacao_configuracao_canal_tenant: string
-    id_produto_configuracao_canal_tenant?: string | null
-    id_usuario_configuracao_canal_tenant?: string | null
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: Date | string
-    data_atualizacao_configuracao_canal_tenant?: Date | string
+    id_configuracao_canal_organizacao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: Date | string
+    data_atualizacao_configuracao_canal_organizacao?: Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoUpdateInput = {
-    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_configuracao_canal_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoUncheckedUpdateInput = {
-    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_configuracao_canal_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoCreateManyInput = {
-    id_configuracao_canal_tenant?: string
-    id_organizacao_configuracao_canal_tenant: string
-    id_produto_configuracao_canal_tenant?: string | null
-    id_usuario_configuracao_canal_tenant?: string | null
-    email_habilitado_configuracao_canal_tenant?: boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: boolean
-    data_criacao_configuracao_canal_tenant?: Date | string
-    data_atualizacao_configuracao_canal_tenant?: Date | string
+    id_configuracao_canal_organizacao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    email_habilitado_configuracao_canal_organizacao?: boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: boolean
+    data_criacao_configuracao_canal_organizacao?: Date | string
+    data_atualizacao_configuracao_canal_organizacao?: Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoUpdateManyMutationInput = {
-    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_configuracao_canal_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoCanalOrganizacaoUncheckedUpdateManyInput = {
-    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
-    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
-    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_configuracao_canal_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_organizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -62487,9 +58590,9 @@ export namespace Prisma {
 
   export type HistoricoLogCountOrderByAggregateInput = {
     id_historico_log?: SortOrder
-    id_organizacao_historico_log?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_historico_log?: SortOrder
-    id_usuario_historico_log?: SortOrder
+    id_usuario?: SortOrder
     tipo_ator_historico_log?: SortOrder
     id_ator_historico_log?: SortOrder
     nome_ator_historico_log?: SortOrder
@@ -62510,9 +58613,9 @@ export namespace Prisma {
 
   export type HistoricoLogMaxOrderByAggregateInput = {
     id_historico_log?: SortOrder
-    id_organizacao_historico_log?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_historico_log?: SortOrder
-    id_usuario_historico_log?: SortOrder
+    id_usuario?: SortOrder
     tipo_ator_historico_log?: SortOrder
     id_ator_historico_log?: SortOrder
     nome_ator_historico_log?: SortOrder
@@ -62530,9 +58633,9 @@ export namespace Prisma {
 
   export type HistoricoLogMinOrderByAggregateInput = {
     id_historico_log?: SortOrder
-    id_organizacao_historico_log?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_historico_log?: SortOrder
-    id_usuario_historico_log?: SortOrder
+    id_usuario?: SortOrder
     tipo_ator_historico_log?: SortOrder
     id_ator_historico_log?: SortOrder
     nome_ator_historico_log?: SortOrder
@@ -62594,9 +58697,9 @@ export namespace Prisma {
 
   export type AlertaRegraCountOrderByAggregateInput = {
     id_regra_alerta?: SortOrder
-    id_organizacao_regra_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_regra_alerta?: SortOrder
-    id_usuario_regra_alerta?: SortOrder
+    id_usuario?: SortOrder
     nome_regra_alerta?: SortOrder
     descricao_regra_alerta?: SortOrder
     habilitada_regra_alerta?: SortOrder
@@ -62623,9 +58726,9 @@ export namespace Prisma {
 
   export type AlertaRegraMaxOrderByAggregateInput = {
     id_regra_alerta?: SortOrder
-    id_organizacao_regra_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_regra_alerta?: SortOrder
-    id_usuario_regra_alerta?: SortOrder
+    id_usuario?: SortOrder
     nome_regra_alerta?: SortOrder
     descricao_regra_alerta?: SortOrder
     habilitada_regra_alerta?: SortOrder
@@ -62644,9 +58747,9 @@ export namespace Prisma {
 
   export type AlertaRegraMinOrderByAggregateInput = {
     id_regra_alerta?: SortOrder
-    id_organizacao_regra_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_regra_alerta?: SortOrder
-    id_usuario_regra_alerta?: SortOrder
+    id_usuario?: SortOrder
     nome_regra_alerta?: SortOrder
     descricao_regra_alerta?: SortOrder
     habilitada_regra_alerta?: SortOrder
@@ -62712,9 +58815,9 @@ export namespace Prisma {
 
   export type AlertaDataCountOrderByAggregateInput = {
     id_evento_alerta?: SortOrder
-    id_organizacao_evento_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_evento_alerta?: SortOrder
-    id_usuario_evento_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_regra_evento_alerta?: SortOrder
     tipo_ator_evento_alerta?: SortOrder
     id_ator_evento_alerta?: SortOrder
@@ -62738,9 +58841,9 @@ export namespace Prisma {
 
   export type AlertaDataMaxOrderByAggregateInput = {
     id_evento_alerta?: SortOrder
-    id_organizacao_evento_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_evento_alerta?: SortOrder
-    id_usuario_evento_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_regra_evento_alerta?: SortOrder
     tipo_ator_evento_alerta?: SortOrder
     id_ator_evento_alerta?: SortOrder
@@ -62758,9 +58861,9 @@ export namespace Prisma {
 
   export type AlertaDataMinOrderByAggregateInput = {
     id_evento_alerta?: SortOrder
-    id_organizacao_evento_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_evento_alerta?: SortOrder
-    id_usuario_evento_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_regra_evento_alerta?: SortOrder
     tipo_ator_evento_alerta?: SortOrder
     id_ator_evento_alerta?: SortOrder
@@ -62798,9 +58901,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCountOrderByAggregateInput = {
     id_notificacao_alerta?: SortOrder
-    id_organizacao_notificacao_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_notificacao_alerta?: SortOrder
-    id_usuario_notificacao_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_evento_notificacao_alerta?: SortOrder
     canal_notificacao_alerta?: SortOrder
     destinatario_notificacao_alerta?: SortOrder
@@ -62817,9 +58920,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMaxOrderByAggregateInput = {
     id_notificacao_alerta?: SortOrder
-    id_organizacao_notificacao_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_notificacao_alerta?: SortOrder
-    id_usuario_notificacao_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_evento_notificacao_alerta?: SortOrder
     canal_notificacao_alerta?: SortOrder
     destinatario_notificacao_alerta?: SortOrder
@@ -62832,9 +58935,9 @@ export namespace Prisma {
 
   export type AlertaRegistroMinOrderByAggregateInput = {
     id_notificacao_alerta?: SortOrder
-    id_organizacao_notificacao_alerta?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_notificacao_alerta?: SortOrder
-    id_usuario_notificacao_alerta?: SortOrder
+    id_usuario?: SortOrder
     id_evento_notificacao_alerta?: SortOrder
     canal_notificacao_alerta?: SortOrder
     destinatario_notificacao_alerta?: SortOrder
@@ -62851,9 +58954,9 @@ export namespace Prisma {
 
   export type ExportarResultadoCountOrderByAggregateInput = {
     id_exportar_resultado?: SortOrder
-    id_organizacao_exportar_resultado?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_exportar_resultado?: SortOrder
-    id_usuario_exportar_resultado?: SortOrder
+    id_usuario?: SortOrder
     formato_exportar_resultado?: SortOrder
     conteudo_exportar_resultado?: SortOrder
     status_exportar_resultado?: SortOrder
@@ -62870,9 +58973,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMaxOrderByAggregateInput = {
     id_exportar_resultado?: SortOrder
-    id_organizacao_exportar_resultado?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_exportar_resultado?: SortOrder
-    id_usuario_exportar_resultado?: SortOrder
+    id_usuario?: SortOrder
     formato_exportar_resultado?: SortOrder
     conteudo_exportar_resultado?: SortOrder
     status_exportar_resultado?: SortOrder
@@ -62884,9 +58987,9 @@ export namespace Prisma {
 
   export type ExportarResultadoMinOrderByAggregateInput = {
     id_exportar_resultado?: SortOrder
-    id_organizacao_exportar_resultado?: SortOrder
+    id_organizacao?: SortOrder
     id_produto_exportar_resultado?: SortOrder
-    id_usuario_exportar_resultado?: SortOrder
+    id_usuario?: SortOrder
     formato_exportar_resultado?: SortOrder
     conteudo_exportar_resultado?: SortOrder
     status_exportar_resultado?: SortOrder
@@ -63439,200 +59542,11 @@ export namespace Prisma {
     data_atualizacao_preferencia_workspace?: SortOrder
   }
 
-  export type NcmItemId_organizacao_ncm_itemCodigo_ncm_itemCompoundUniqueInput = {
-    id_organizacao_ncm_item: string
-    codigo_ncm_item: string
-  }
-
-  export type NcmItemCountOrderByAggregateInput = {
-    id_ncm_item?: SortOrder
-    id_organizacao_ncm_item?: SortOrder
-    id_produto_ncm_item?: SortOrder
-    id_usuario_ncm_item?: SortOrder
-    codigo_ncm_item?: SortOrder
-    descricao_ncm_item?: SortOrder
-    ativo_ncm_item?: SortOrder
-    data_inicio_ncm_item?: SortOrder
-    data_fim_ncm_item?: SortOrder
-    id_sincronizacao_ncm_item?: SortOrder
-    data_criacao_ncm_item?: SortOrder
-    data_atualizacao_ncm_item?: SortOrder
-  }
-
-  export type NcmItemMaxOrderByAggregateInput = {
-    id_ncm_item?: SortOrder
-    id_organizacao_ncm_item?: SortOrder
-    id_produto_ncm_item?: SortOrder
-    id_usuario_ncm_item?: SortOrder
-    codigo_ncm_item?: SortOrder
-    descricao_ncm_item?: SortOrder
-    ativo_ncm_item?: SortOrder
-    data_inicio_ncm_item?: SortOrder
-    data_fim_ncm_item?: SortOrder
-    id_sincronizacao_ncm_item?: SortOrder
-    data_criacao_ncm_item?: SortOrder
-    data_atualizacao_ncm_item?: SortOrder
-  }
-
-  export type NcmItemMinOrderByAggregateInput = {
-    id_ncm_item?: SortOrder
-    id_organizacao_ncm_item?: SortOrder
-    id_produto_ncm_item?: SortOrder
-    id_usuario_ncm_item?: SortOrder
-    codigo_ncm_item?: SortOrder
-    descricao_ncm_item?: SortOrder
-    ativo_ncm_item?: SortOrder
-    data_inicio_ncm_item?: SortOrder
-    data_fim_ncm_item?: SortOrder
-    id_sincronizacao_ncm_item?: SortOrder
-    data_criacao_ncm_item?: SortOrder
-    data_atualizacao_ncm_item?: SortOrder
-  }
-
-  export type EnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
-  }
-
-  export type EnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
-  }
-
-  export type NcmLogCountOrderByAggregateInput = {
-    id_ncm_log?: SortOrder
-    id_organizacao_ncm_log?: SortOrder
-    id_produto_ncm_log?: SortOrder
-    id_usuario_ncm_log?: SortOrder
-    data_inicio_ncm_log?: SortOrder
-    data_conclusao_ncm_log?: SortOrder
-    status_ncm_log?: SortOrder
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-    origem_ncm_log?: SortOrder
-    disparado_por_ncm_log?: SortOrder
-    mensagem_erro_ncm_log?: SortOrder
-    data_criacao_ncm_log?: SortOrder
-    data_atualizacao_ncm_log?: SortOrder
-  }
-
-  export type NcmLogAvgOrderByAggregateInput = {
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-  }
-
-  export type NcmLogMaxOrderByAggregateInput = {
-    id_ncm_log?: SortOrder
-    id_organizacao_ncm_log?: SortOrder
-    id_produto_ncm_log?: SortOrder
-    id_usuario_ncm_log?: SortOrder
-    data_inicio_ncm_log?: SortOrder
-    data_conclusao_ncm_log?: SortOrder
-    status_ncm_log?: SortOrder
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-    origem_ncm_log?: SortOrder
-    disparado_por_ncm_log?: SortOrder
-    mensagem_erro_ncm_log?: SortOrder
-    data_criacao_ncm_log?: SortOrder
-    data_atualizacao_ncm_log?: SortOrder
-  }
-
-  export type NcmLogMinOrderByAggregateInput = {
-    id_ncm_log?: SortOrder
-    id_organizacao_ncm_log?: SortOrder
-    id_produto_ncm_log?: SortOrder
-    id_usuario_ncm_log?: SortOrder
-    data_inicio_ncm_log?: SortOrder
-    data_conclusao_ncm_log?: SortOrder
-    status_ncm_log?: SortOrder
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-    origem_ncm_log?: SortOrder
-    disparado_por_ncm_log?: SortOrder
-    mensagem_erro_ncm_log?: SortOrder
-    data_criacao_ncm_log?: SortOrder
-    data_atualizacao_ncm_log?: SortOrder
-  }
-
-  export type NcmLogSumOrderByAggregateInput = {
-    total_ncm_log?: SortOrder
-    adicionados_ncm_log?: SortOrder
-    alterados_ncm_log?: SortOrder
-    removidos_ncm_log?: SortOrder
-  }
-
-  export type EnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-  }
-
-  export type EnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
-  }
-
-  export type NCMAgendamentoCountOrderByAggregateInput = {
-    id_ncm_agendamento?: SortOrder
-    id_organizacao_ncm_agendamento?: SortOrder
-    id_produto_ncm_agendamento?: SortOrder
-    id_usuario_ncm_agendamento?: SortOrder
-    ativo_ncm_agendamento?: SortOrder
-    cron_expressao_ncm_agendamento?: SortOrder
-    notificadores_ncm_agendamento?: SortOrder
-    data_criacao_ncm_agendamento?: SortOrder
-    data_atualizacao_ncm_agendamento?: SortOrder
-  }
-
-  export type NCMAgendamentoMaxOrderByAggregateInput = {
-    id_ncm_agendamento?: SortOrder
-    id_organizacao_ncm_agendamento?: SortOrder
-    id_produto_ncm_agendamento?: SortOrder
-    id_usuario_ncm_agendamento?: SortOrder
-    ativo_ncm_agendamento?: SortOrder
-    cron_expressao_ncm_agendamento?: SortOrder
-    data_criacao_ncm_agendamento?: SortOrder
-    data_atualizacao_ncm_agendamento?: SortOrder
-  }
-
-  export type NCMAgendamentoMinOrderByAggregateInput = {
-    id_ncm_agendamento?: SortOrder
-    id_organizacao_ncm_agendamento?: SortOrder
-    id_produto_ncm_agendamento?: SortOrder
-    id_usuario_ncm_agendamento?: SortOrder
-    ativo_ncm_agendamento?: SortOrder
-    cron_expressao_ncm_agendamento?: SortOrder
-    data_criacao_ncm_agendamento?: SortOrder
-    data_atualizacao_ncm_agendamento?: SortOrder
-  }
-
   export type NotificacoesTituloCorpoCountOrderByAggregateInput = {
     id_notificacoes_titulo_corpo?: SortOrder
-    id_organizacao_notificacoes_titulo_corpo?: SortOrder
-    id_produto_notificacoes_titulo_corpo?: SortOrder
-    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     tipo_notificacoes_titulo_corpo?: SortOrder
     titulo_notificacoes_titulo_corpo?: SortOrder
     mensagem_notificacoes_titulo_corpo?: SortOrder
@@ -63647,9 +59561,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMaxOrderByAggregateInput = {
     id_notificacoes_titulo_corpo?: SortOrder
-    id_organizacao_notificacoes_titulo_corpo?: SortOrder
-    id_produto_notificacoes_titulo_corpo?: SortOrder
-    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     tipo_notificacoes_titulo_corpo?: SortOrder
     titulo_notificacoes_titulo_corpo?: SortOrder
     mensagem_notificacoes_titulo_corpo?: SortOrder
@@ -63664,9 +59578,9 @@ export namespace Prisma {
 
   export type NotificacoesTituloCorpoMinOrderByAggregateInput = {
     id_notificacoes_titulo_corpo?: SortOrder
-    id_organizacao_notificacoes_titulo_corpo?: SortOrder
-    id_produto_notificacoes_titulo_corpo?: SortOrder
-    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     tipo_notificacoes_titulo_corpo?: SortOrder
     titulo_notificacoes_titulo_corpo?: SortOrder
     mensagem_notificacoes_titulo_corpo?: SortOrder
@@ -63681,9 +59595,9 @@ export namespace Prisma {
 
   export type ContatoExternoCountOrderByAggregateInput = {
     id_contato_externo?: SortOrder
-    id_organizacao_contato_externo?: SortOrder
-    id_produto_contato_externo?: SortOrder
-    id_usuario_contato_externo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     nome_contato_externo?: SortOrder
     email_contato_externo?: SortOrder
     whatsapp_telefone_contato_externo?: SortOrder
@@ -63695,9 +59609,9 @@ export namespace Prisma {
 
   export type ContatoExternoMaxOrderByAggregateInput = {
     id_contato_externo?: SortOrder
-    id_organizacao_contato_externo?: SortOrder
-    id_produto_contato_externo?: SortOrder
-    id_usuario_contato_externo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     nome_contato_externo?: SortOrder
     email_contato_externo?: SortOrder
     whatsapp_telefone_contato_externo?: SortOrder
@@ -63709,9 +59623,9 @@ export namespace Prisma {
 
   export type ContatoExternoMinOrderByAggregateInput = {
     id_contato_externo?: SortOrder
-    id_organizacao_contato_externo?: SortOrder
-    id_produto_contato_externo?: SortOrder
-    id_usuario_contato_externo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
     nome_contato_externo?: SortOrder
     email_contato_externo?: SortOrder
     whatsapp_telefone_contato_externo?: SortOrder
@@ -63722,36 +59636,36 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoCanalOrganizacaoCountOrderByAggregateInput = {
-    id_configuracao_canal_tenant?: SortOrder
-    id_organizacao_configuracao_canal_tenant?: SortOrder
-    id_produto_configuracao_canal_tenant?: SortOrder
-    id_usuario_configuracao_canal_tenant?: SortOrder
-    email_habilitado_configuracao_canal_tenant?: SortOrder
-    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
-    data_criacao_configuracao_canal_tenant?: SortOrder
-    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    id_configuracao_canal_organizacao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    email_habilitado_configuracao_canal_organizacao?: SortOrder
+    whatsapp_habilitado_configuracao_canal_organizacao?: SortOrder
+    data_criacao_configuracao_canal_organizacao?: SortOrder
+    data_atualizacao_configuracao_canal_organizacao?: SortOrder
   }
 
   export type ConfiguracaoCanalOrganizacaoMaxOrderByAggregateInput = {
-    id_configuracao_canal_tenant?: SortOrder
-    id_organizacao_configuracao_canal_tenant?: SortOrder
-    id_produto_configuracao_canal_tenant?: SortOrder
-    id_usuario_configuracao_canal_tenant?: SortOrder
-    email_habilitado_configuracao_canal_tenant?: SortOrder
-    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
-    data_criacao_configuracao_canal_tenant?: SortOrder
-    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    id_configuracao_canal_organizacao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    email_habilitado_configuracao_canal_organizacao?: SortOrder
+    whatsapp_habilitado_configuracao_canal_organizacao?: SortOrder
+    data_criacao_configuracao_canal_organizacao?: SortOrder
+    data_atualizacao_configuracao_canal_organizacao?: SortOrder
   }
 
   export type ConfiguracaoCanalOrganizacaoMinOrderByAggregateInput = {
-    id_configuracao_canal_tenant?: SortOrder
-    id_organizacao_configuracao_canal_tenant?: SortOrder
-    id_produto_configuracao_canal_tenant?: SortOrder
-    id_usuario_configuracao_canal_tenant?: SortOrder
-    email_habilitado_configuracao_canal_tenant?: SortOrder
-    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
-    data_criacao_configuracao_canal_tenant?: SortOrder
-    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    id_configuracao_canal_organizacao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    email_habilitado_configuracao_canal_organizacao?: SortOrder
+    whatsapp_habilitado_configuracao_canal_organizacao?: SortOrder
+    data_criacao_configuracao_canal_organizacao?: SortOrder
+    data_atualizacao_configuracao_canal_organizacao?: SortOrder
   }
 
   export type UsuariosAtividadesCreateNestedManyWithoutAtividade_atividades_participantesInput = {
@@ -64591,14 +60505,6 @@ export namespace Prisma {
     update?: XOR<XOR<GabiConversaCompletaUpdateToOneWithWhereWithoutMensagens_gabi_conversaInput, GabiConversaCompletaUpdateWithoutMensagens_gabi_conversaInput>, GabiConversaCompletaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
   }
 
-  export type EnumNCMStatusSincronizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.NCMStatusSincronizacao
-  }
-
-  export type EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.NCMOrigemSincronizacao
-  }
-
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -65122,40 +61028,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAlertaStatusFilter<$PrismaModel>
     _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
-  }
-
-  export type NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
-  }
-
-  export type NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
-  }
-
-  export type NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-  }
-
-  export type NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
   }
 
   export type UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput = {
@@ -66127,9 +61999,9 @@ export namespace Prisma {
 
   export type AlertaDataCreateWithoutRegra_evento_alertaInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
     nome_ator_evento_alerta: string
@@ -66148,9 +62020,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedCreateWithoutRegra_evento_alertaInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
     nome_ator_evento_alerta: string
@@ -66198,9 +62070,9 @@ export namespace Prisma {
     OR?: AlertaDataScalarWhereInput[]
     NOT?: AlertaDataScalarWhereInput | AlertaDataScalarWhereInput[]
     id_evento_alerta?: StringFilter<"AlertaData"> | string
-    id_organizacao_evento_alerta?: StringFilter<"AlertaData"> | string
+    id_organizacao?: StringFilter<"AlertaData"> | string
     id_produto_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
-    id_usuario_evento_alerta?: StringNullableFilter<"AlertaData"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaData"> | string | null
     id_regra_evento_alerta?: StringFilter<"AlertaData"> | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"AlertaData"> | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFilter<"AlertaData"> | string
@@ -66219,9 +62091,9 @@ export namespace Prisma {
 
   export type AlertaRegraCreateWithoutEventos_regra_alertaInput = {
     id_regra_alerta?: string
-    id_organizacao_regra_alerta?: string | null
+    id_organizacao?: string | null
     id_produto_regra_alerta?: string | null
-    id_usuario_regra_alerta?: string | null
+    id_usuario?: string | null
     nome_regra_alerta: string
     descricao_regra_alerta?: string | null
     habilitada_regra_alerta?: boolean
@@ -66243,9 +62115,9 @@ export namespace Prisma {
 
   export type AlertaRegraUncheckedCreateWithoutEventos_regra_alertaInput = {
     id_regra_alerta?: string
-    id_organizacao_regra_alerta?: string | null
+    id_organizacao?: string | null
     id_produto_regra_alerta?: string | null
-    id_usuario_regra_alerta?: string | null
+    id_usuario?: string | null
     nome_regra_alerta: string
     descricao_regra_alerta?: string | null
     habilitada_regra_alerta?: boolean
@@ -66272,9 +62144,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCreateWithoutEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
     status_notificacao_alerta?: string
@@ -66286,9 +62158,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedCreateWithoutEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
     status_notificacao_alerta?: string
@@ -66321,9 +62193,9 @@ export namespace Prisma {
 
   export type AlertaRegraUpdateWithoutEventos_regra_alertaInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -66345,9 +62217,9 @@ export namespace Prisma {
 
   export type AlertaRegraUncheckedUpdateWithoutEventos_regra_alertaInput = {
     id_regra_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     nome_regra_alerta?: StringFieldUpdateOperationsInput | string
     descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
     habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
@@ -66388,9 +62260,9 @@ export namespace Prisma {
     OR?: AlertaRegistroScalarWhereInput[]
     NOT?: AlertaRegistroScalarWhereInput | AlertaRegistroScalarWhereInput[]
     id_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
-    id_organizacao_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
+    id_organizacao?: StringFilter<"AlertaRegistro"> | string
     id_produto_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
-    id_usuario_notificacao_alerta?: StringNullableFilter<"AlertaRegistro"> | string | null
+    id_usuario?: StringNullableFilter<"AlertaRegistro"> | string | null
     id_evento_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     canal_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
     destinatario_notificacao_alerta?: StringFilter<"AlertaRegistro"> | string
@@ -66403,9 +62275,9 @@ export namespace Prisma {
 
   export type AlertaDataCreateWithoutNotificacoes_evento_alertaInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
     nome_ator_evento_alerta: string
@@ -66424,9 +62296,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedCreateWithoutNotificacoes_evento_alertaInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     id_regra_evento_alerta: string
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
@@ -66461,9 +62333,9 @@ export namespace Prisma {
 
   export type AlertaDataUpdateWithoutNotificacoes_evento_alertaInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -66482,9 +62354,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedUpdateWithoutNotificacoes_evento_alertaInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -67362,9 +63234,9 @@ export namespace Prisma {
 
   export type AlertaDataCreateManyRegra_evento_alertaInput = {
     id_evento_alerta?: string
-    id_organizacao_evento_alerta: string
+    id_organizacao: string
     id_produto_evento_alerta?: string | null
-    id_usuario_evento_alerta?: string | null
+    id_usuario?: string | null
     tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
     id_ator_evento_alerta: string
     nome_ator_evento_alerta: string
@@ -67382,9 +63254,9 @@ export namespace Prisma {
 
   export type AlertaDataUpdateWithoutRegra_evento_alertaInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -67403,9 +63275,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedUpdateWithoutRegra_evento_alertaInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -67424,9 +63296,9 @@ export namespace Prisma {
 
   export type AlertaDataUncheckedUpdateManyWithoutRegra_evento_alertaInput = {
     id_evento_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
     nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
@@ -67444,9 +63316,9 @@ export namespace Prisma {
 
   export type AlertaRegistroCreateManyEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: string
-    id_organizacao_notificacao_alerta: string
+    id_organizacao: string
     id_produto_notificacao_alerta?: string | null
-    id_usuario_notificacao_alerta?: string | null
+    id_usuario?: string | null
     canal_notificacao_alerta: string
     destinatario_notificacao_alerta: string
     status_notificacao_alerta?: string
@@ -67458,9 +63330,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUpdateWithoutEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -67472,9 +63344,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedUpdateWithoutEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -67486,9 +63358,9 @@ export namespace Prisma {
 
   export type AlertaRegistroUncheckedUpdateManyWithoutEvento_notificacao_alertaInput = {
     id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
-    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
     canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
     status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
@@ -67841,18 +63713,6 @@ export namespace Prisma {
      * @deprecated Use WorkspacePreferenciaUsuarioDefaultArgs instead
      */
     export type WorkspacePreferenciaUsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WorkspacePreferenciaUsuarioDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NcmItemDefaultArgs instead
-     */
-    export type NcmItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmItemDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NcmLogDefaultArgs instead
-     */
-    export type NcmLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmLogDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NCMAgendamentoDefaultArgs instead
-     */
-    export type NCMAgendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NCMAgendamentoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NotificacoesTituloCorpoDefaultArgs instead
      */

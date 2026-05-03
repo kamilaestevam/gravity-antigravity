@@ -1,15 +1,14 @@
 /**
- * ncm-sync/server/init.ts — Inicialização e re-agendamento do job NCM
+ * initNcmSync.ts — Inicialização e re-agendamento do job NCM no Cadastros
  *
- * Onda 36 — DDD: campos físicos com sufixo _ncm_log / _ncm_item / _ncm_agendamento;
- * enums em PT (EXECUTANDO/SUCESSO/ERRO).
+ * Catálogo global — sem id_organizacao. Roda 1× para todo o sistema.
  *
- * Chamado pelo super-servidor tenant no bootstrap().
- * Registra o cron diário para sincronizar a tabela NCM de TODOS os tenants.
+ * Chamado pelo bootstrap do servidor cadastros.
+ * Registra o cron diário para sincronizar a tabela NCM com o Portal Único.
  */
 
 import cron, { type ScheduledTask } from 'node-cron'
-import { prisma } from '../../server/lib/prisma.js'
+import { getPrisma } from './lib/prisma.js'
 import { executarSync } from './services/ncmSyncEngine.js'
 
 // ── Estado do job ─────────────────────────────────────────────────────────────
@@ -22,29 +21,13 @@ let cronAtual: string = process.env.NCM_SYNC_CRON ?? '0 2 * * *'
 async function executarJobDiario() {
   console.log('[ncm-sync] Iniciando sincronização diária...')
   try {
-    const tenants = await prisma.ncmItem.findMany({
-      select:   { id_organizacao: true },
-      distinct: ['id_organizacao'],
-    })
-
-    if (tenants.length === 0) {
-      console.log('[ncm-sync] Nenhum tenant com NCMs — aguardando sync manual.')
-      return
-    }
-
-    for (const t of tenants) {
-      const tid = t.id_organizacao
-      try {
-        const result = await executarSync(prisma, tid, { origem: 'JOB' })
-        console.log(
-          `[ncm-sync] tenant=${tid} ✅ total=${result.total} +${result.adicionados} ~${result.alterados} -${result.removidos} (${result.duracaoMs}ms)`
-        )
-      } catch (err) {
-        console.error(`[ncm-sync] tenant=${tid} ❌`, err instanceof Error ? err.message : err)
-      }
-    }
+    const prisma = getPrisma()
+    const result = await executarSync(prisma, { origem: 'JOB' })
+    console.log(
+      `[ncm-sync] ✅ total=${result.total} +${result.adicionados} ~${result.alterados} -${result.removidos} (${result.duracaoMs}ms)`
+    )
   } catch (err) {
-    console.error('[ncm-sync] Erro ao listar tenants para sync:', err)
+    console.error('[ncm-sync] ❌ Erro no job diário:', err instanceof Error ? err.message : err)
   }
 }
 
@@ -52,7 +35,7 @@ async function executarJobDiario() {
 
 /**
  * Cancela o job atual e registra um novo com a expressão cron fornecida.
- * Chamado pelo endpoint PUT /admin/schedule quando o admin altera a configuração.
+ * Chamado pelo endpoint PUT /admin/ncm-sync/agendamento quando o admin altera a configuração.
  * Se `ativo = false`, apenas cancela o job sem criar um novo.
  */
 export function reagendarJob(novoCron: string, ativo: boolean): void {
@@ -85,14 +68,16 @@ export function reagendarJob(novoCron: string, ativo: boolean): void {
 // ── Inicialização ─────────────────────────────────────────────────────────────
 
 export async function initNcmSync(): Promise<void> {
+  const prisma = getPrisma()
+
   // Recuperar jobs EXECUTANDO órfãos (processo morreu antes de finalizar)
   try {
-    const resultado = await prisma.ncmLog.updateMany({
-      where: { status_ncm_log: 'EXECUTANDO' },
+    const resultado = await prisma.ncmSyncLog.updateMany({
+      where: { status_ncm_sync_log: 'EXECUTANDO' },
       data: {
-        status_ncm_log:         'ERRO',
-        data_conclusao_ncm_log: new Date(),
-        mensagem_erro_ncm_log:  'Processo interrompido — servidor reiniciado antes da conclusão.',
+        status_ncm_sync_log:         'ERRO',
+        data_conclusao_ncm_sync_log: new Date(),
+        mensagem_erro_ncm_sync_log:  'Processo interrompido — servidor reiniciado antes da conclusão.',
       },
     })
     if (resultado.count > 0) {
@@ -103,21 +88,21 @@ export async function initNcmSync(): Promise<void> {
   }
 
   // Carregar configuração salva no banco (se existir)
-  let configDb: { ativo_ncm_agendamento: boolean; cron_expressao_ncm_agendamento: string } | null = null
+  let configDb: { ativo_ncm_sync_agendamento: boolean; cron_expressao_ncm_sync_agendamento: string } | null = null
   try {
-    configDb = await prisma.nCMAgendamento.findUnique({
-      where: { id_ncm_agendamento: 'default' },
+    configDb = await prisma.ncmSyncAgendamento.findUnique({
+      where: { id_ncm_sync_agendamento: 'default' },
       select: {
-        ativo_ncm_agendamento: true,
-        cron_expressao_ncm_agendamento: true,
+        ativo_ncm_sync_agendamento: true,
+        cron_expressao_ncm_sync_agendamento: true,
       },
     })
   } catch {
     configDb = null
   }
 
-  const ativo          = configDb?.ativo_ncm_agendamento          ?? false
-  const cronExpressao  = configDb?.cron_expressao_ncm_agendamento ?? (process.env.NCM_SYNC_CRON ?? '0 2 * * *')
+  const ativo          = configDb?.ativo_ncm_sync_agendamento          ?? false
+  const cronExpressao  = configDb?.cron_expressao_ncm_sync_agendamento ?? (process.env.NCM_SYNC_CRON ?? '0 2 * * *')
 
   reagendarJob(cronExpressao, ativo)
 

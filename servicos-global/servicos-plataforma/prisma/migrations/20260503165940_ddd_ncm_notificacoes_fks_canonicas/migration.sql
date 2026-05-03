@@ -1,72 +1,20 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- DDD final — FKs canônicas em NCM Sync e Notificações
+-- DDD final — FKs canônicas em Notificações (escopo reduzido)
 -- ─────────────────────────────────────────────────────────────────────────────
--- Alinhamento com REGRA 03/04 da skill ddd-nomenclatura: as FKs do glossário
--- canônico (Organizacao, Usuario, ProdutoGravity) NÃO têm sufixo de entidade.
--- Renomeia também a tabela `configuracao_canal_tenant` para
--- `configuracao_canal_organizacao` (Tenant abandonado), e os enums
--- `NcmSyncStatus`/`NcmSyncOrigem` para versão DDD em PT.
+-- ESCOPO ATUALIZADO em 2026-05-03:
+--   Originalmente esta migration cobria 6 tabelas (3 NCM + 3 Notificações).
+--   As 3 NCM foram MOVIDAS para o serviço Cadastros — então DROPamos a parte de
+--   NCM (a próxima migration `20260503183803_drop_ncm_models_moved_to_cadastros`
+--   faz o cleanup). Aqui ficou apenas a parte das tabelas de notificações:
+--   `notificacoes_titulo_corpo`, `contato_externo`, `configuracao_canal_tenant`.
 --
--- Escopo: 6 tabelas (ncm_item, ncm_log, ncm_agendamento, notificacoes_titulo_corpo,
--- contato_externo, configuracao_canal_tenant) + 2 enums.
--- Todas as outras tabelas da plataforma (atividades, dashboard, gabi, email,
--- whatsapp, relatórios, agendamento, etc.) ficam para próxima onda.
+-- Alinhamento com REGRA 03/04 da skill ddd-nomenclatura:
+--   - FKs canônicas (Organizacao, Usuario, ProdutoGravity) sem sufixo de entidade
+--   - Tabela `configuracao_canal_tenant` renomeada para `configuracao_canal_organizacao`
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 1. ncm_item
--- ═══════════════════════════════════════════════════════════════════════════
-
-ALTER TABLE "ncm_item" RENAME COLUMN "id"          TO "id_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "tenant_id"   TO "id_organizacao";
-ALTER TABLE "ncm_item" RENAME COLUMN "product_id"  TO "id_produto_gravity";
-ALTER TABLE "ncm_item" RENAME COLUMN "user_id"     TO "id_usuario";
-ALTER TABLE "ncm_item" RENAME COLUMN "codigo"      TO "codigo_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "descricao"   TO "descricao_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "ativo"       TO "ativo_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "data_inicio" TO "data_inicio_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "data_fim"    TO "data_fim_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "sync_id"     TO "id_ncm_log";
-ALTER TABLE "ncm_item" RENAME COLUMN "created_at"  TO "data_criacao_ncm_item";
-ALTER TABLE "ncm_item" RENAME COLUMN "updated_at"  TO "data_atualizacao_ncm_item";
-
--- ═══════════════════════════════════════════════════════════════════════════
--- 2. ncm_log
--- ═══════════════════════════════════════════════════════════════════════════
-
-ALTER TABLE "ncm_log" RENAME COLUMN "id"            TO "id_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "tenant_id"     TO "id_organizacao";
-ALTER TABLE "ncm_log" RENAME COLUMN "product_id"    TO "id_produto_gravity";
-ALTER TABLE "ncm_log" RENAME COLUMN "user_id"       TO "id_usuario";
-ALTER TABLE "ncm_log" RENAME COLUMN "iniciado_em"   TO "data_inicio_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "concluido_em"  TO "data_conclusao_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "status"        TO "status_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "total"         TO "total_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "adicionados"   TO "adicionados_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "alterados"     TO "alterados_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "removidos"     TO "removidos_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "origem"        TO "origem_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "disparado_por" TO "disparado_por_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "erro_msg"      TO "mensagem_erro_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "created_at"    TO "data_criacao_ncm_log";
-ALTER TABLE "ncm_log" RENAME COLUMN "updated_at"    TO "data_atualizacao_ncm_log";
-
--- ═══════════════════════════════════════════════════════════════════════════
--- 3. ncm_agendamento
--- ═══════════════════════════════════════════════════════════════════════════
-
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "id"             TO "id_ncm_agendamento";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "tenant_id"      TO "id_organizacao";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "product_id"     TO "id_produto_gravity";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "user_id"        TO "id_usuario";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "ativo"          TO "ativo_ncm_agendamento";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "cron_expressao" TO "cron_expressao_ncm_agendamento";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "notificadores"  TO "notificadores_ncm_agendamento";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "criado_em"      TO "data_criacao_ncm_agendamento";
-ALTER TABLE "ncm_agendamento" RENAME COLUMN "atualizado_em"  TO "data_atualizacao_ncm_agendamento";
-
--- ═══════════════════════════════════════════════════════════════════════════
--- 4. notificacoes_titulo_corpo
+-- 1. notificacoes_titulo_corpo
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "notificacoes_titulo_corpo" RENAME COLUMN "id"              TO "id_notificacoes_titulo_corpo";
@@ -85,7 +33,7 @@ ALTER TABLE "notificacoes_titulo_corpo" RENAME COLUMN "created_at"      TO "data
 ALTER TABLE "notificacoes_titulo_corpo" RENAME COLUMN "updated_at"      TO "data_atualizacao_notificacoes_titulo_corpo";
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 5. contato_externo
+-- 2. contato_externo
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "contato_externo" RENAME COLUMN "id"                 TO "id_contato_externo";
@@ -104,7 +52,7 @@ ALTER TABLE "contato_externo" RENAME COLUMN "created_at"         TO "data_criaca
 ALTER TABLE "contato_externo" RENAME COLUMN "updated_at"         TO "data_atualizacao_contato_externo";
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 6. configuracao_canal_tenant → configuracao_canal_organizacao
+-- 3. configuracao_canal_tenant → configuracao_canal_organizacao
 --    Renomear tabela inteira + colunas
 -- ═══════════════════════════════════════════════════════════════════════════
 
@@ -120,24 +68,3 @@ ALTER TABLE "configuracao_canal_organizacao" RENAME COLUMN "email_enabled"    TO
 ALTER TABLE "configuracao_canal_organizacao" RENAME COLUMN "whatsapp_enabled" TO "whatsapp_habilitado_configuracao_canal_organizacao";
 ALTER TABLE "configuracao_canal_organizacao" RENAME COLUMN "created_at"       TO "data_criacao_configuracao_canal_organizacao";
 ALTER TABLE "configuracao_canal_organizacao" RENAME COLUMN "updated_at"       TO "data_atualizacao_configuracao_canal_organizacao";
-
--- ═══════════════════════════════════════════════════════════════════════════
--- 7. Enums NCM — renomear tipos e valores para DDD PT
--- ═══════════════════════════════════════════════════════════════════════════
-
--- NcmSyncStatus → NCMStatusSincronizacao
-ALTER TYPE "NcmSyncStatus" RENAME TO "NCMStatusSincronizacao";
-ALTER TYPE "NCMStatusSincronizacao" RENAME VALUE 'RUNNING' TO 'EXECUTANDO';
-ALTER TYPE "NCMStatusSincronizacao" RENAME VALUE 'SUCCESS' TO 'SUCESSO';
-ALTER TYPE "NCMStatusSincronizacao" RENAME VALUE 'ERROR'   TO 'ERRO';
-
--- NcmSyncOrigem → NCMOrigemSincronizacao (valores não mudam: JOB, MANUAL)
-ALTER TYPE "NcmSyncOrigem" RENAME TO "NCMOrigemSincronizacao";
-
--- ═══════════════════════════════════════════════════════════════════════════
--- 8. Renomear default do enum em ncm_log (Prisma escreve o default literal)
---    Sem isso, o ALTER TABLE preserva o default antigo se o nome do enum mudou.
--- ═══════════════════════════════════════════════════════════════════════════
-
-ALTER TABLE "ncm_log" ALTER COLUMN "status_ncm_log" SET DEFAULT 'EXECUTANDO'::"NCMStatusSincronizacao";
-ALTER TABLE "ncm_log" ALTER COLUMN "origem_ncm_log" SET DEFAULT 'JOB'::"NCMOrigemSincronizacao";

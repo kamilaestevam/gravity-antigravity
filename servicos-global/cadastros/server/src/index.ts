@@ -16,7 +16,9 @@ import { moedasRouter } from './routes/moedas.js'
 import { unidadesRouter } from './routes/unidades.js'
 import { ncmRouter } from './routes/ncm.js'
 import { opeRouter } from './routes/ope.js'
+import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
 import { errorHandler } from './lib/app-error.js'
+import { initNcmSync } from './initNcmSync.js'
 
 const app = express()
 // Porta 8031 — alinhada ao Vite proxy '/api/v1/cadastros' do configurador
@@ -41,6 +43,10 @@ app.use('/api/v1/cadastros/unidades', unidadesRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 
+// Admin NCM Sync — chamado pelo configurador via S2S (x-internal-key).
+// Endpoints: /, /historico, /sincronizar, /agendamento, /agendamento/executar
+app.use('/api/v1/cadastros/admin/ncm-sync', adminNcmSyncRouter)
+
 app.get('/health', (_req, res) => {
   res.status(200).json({
     service: '@tenant/cadastros',
@@ -64,6 +70,11 @@ async function bootstrap(): Promise<void> {
     console.log(`[cadastros] Serviço rodando na porta ${PORT}`)
     console.log(`[cadastros] Health check: http://localhost:${PORT}/health`)
   })
+
+  // Inicializa cron NCM Sync (recovery de jobs órfãos + reagendamento)
+  // Não-fatal: se a tabela ainda não existir, apenas loga warning.
+  await initNcmSync().catch((e: unknown) =>
+    console.warn('[cadastros] initNcmSync falhou (não-fatal):', (e as Error).message))
 
   const shutdown = (): void => {
     server.close(() => process.exit(0))

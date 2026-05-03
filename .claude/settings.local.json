@@ -23,7 +23,11 @@
       "mcp__Claude_in_Chrome__browser_batch",
       "PowerShell($proc = Get-Process -Id 44792 -ErrorAction SilentlyContinue; if \\($proc\\) { Write-Host \"Process: $\\($proc.ProcessName\\)\"; Write-Host \"Started: $\\($proc.StartTime\\)\"; Write-Host \"Path: $\\($proc.Path\\)\" } else { Write-Host \"Process 44792 nao existe mais\" })",
       "PowerShell($env:DATABASE_URL='postgresql://postgres:fiYFCOxiuwVTypUaOShAxROxLPXuicOO@gondola.proxy.rlwy.net:57584/railway'; cd servicos-global\\\\servicos-plataforma; \"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND \\(table_name ILIKE '%historico%' OR table_name ILIKE '%alerta%' OR table_name ILIKE '%notificacoes%'\\);\" | npx prisma db execute --schema=.\\\\generated\\\\schema.prisma --stdin 2>&1 | Select-Object -First 30)",
-      "PowerShell(Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | ForEach-Object { try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction Stop; \"killed PID $\\($_.OwningProcess\\) on port $\\($_.LocalPort\\)\" } catch { \"could not kill $\\($_.OwningProcess\\): $_\" } }; Start-Sleep -Seconds 1; \"--- portas após kill ---\"; Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | ForEach-Object { try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction Stop; \"killed PID $\\($_.OwningProcess\\) on port $\\($_.LocalPort\\)\" } catch { \"could not kill $\\($_.OwningProcess\\): $_\" } }; Start-Sleep -Seconds 1; \"--- portas após kill ---\"; Get-NetTCPConnection -LocalPort 8005,3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess)",
+      "PowerShell(Get-NetTCPConnection -State Listen -LocalPort 8031 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId=38796\")",
+      "Bash(rm -f /c/Users/danie/gravity-antigravity/.claude/configurador-debug-errors.log)",
+      "Bash(rm -f /c/Users/danie/gravity-antigravity/.claude/identify-databases.mjs)"
     ],
     "defaultMode": "acceptEdits"
   }

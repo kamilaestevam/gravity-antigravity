@@ -30,14 +30,14 @@ function formatDate(iso: string | null): string {
 }
 
 function formatDuracao(log: NcmSyncLogApi): string {
-  if (!log.data_inicio_ncm_log || !log.data_conclusao_ncm_log) return '—'
-  const ms = new Date(log.data_conclusao_ncm_log).getTime() - new Date(log.data_inicio_ncm_log).getTime()
+  if (!log.data_inicio_ncm_sync_log || !log.data_conclusao_ncm_sync_log) return '—'
+  const ms = new Date(log.data_conclusao_ncm_sync_log).getTime() - new Date(log.data_inicio_ncm_sync_log).getTime()
   if (ms < 1000) return `${ms}ms`
   if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
   return `${Math.round(ms / 60_000)}min`
 }
 
-function StatusBadge({ status }: { status: NcmSyncLogApi['status_ncm_log'] }) {
+function StatusBadge({ status }: { status: NcmSyncLogApi['status_ncm_sync_log'] }) {
   const { t } = useTranslation()
   if (status === 'SUCESSO') return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', color: '#34d399', fontWeight: 600, fontSize: '0.8rem' }}>
@@ -56,7 +56,7 @@ function StatusBadge({ status }: { status: NcmSyncLogApi['status_ncm_log'] }) {
   )
 }
 
-function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem_ncm_log'] }) {
+function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem_ncm_sync_log'] }) {
   const { t } = useTranslation()
   return (
     <span style={{
@@ -124,12 +124,12 @@ export function NcmIntegracaoAdmin() {
     await carregarHistorico(pag)
   }
 
-  // Sync é disparado para a organização padrão do sistema (gravity-hq)
-  // Em produção, o admin seleciona a organização; por ora usa o interno
+  // NCM é catálogo global da Receita Federal — sync é único para todo o sistema
+  // (sem id_organizacao). Backend chama o serviço Cadastros via REST.
   const handleSync = async () => {
     setSincronizando(true)
     try {
-      await adminNcmApi.triggerSync('gravity-hq')
+      await adminNcmApi.triggerSync()
       addNotification({ type: 'success', message: t('admin.ncm.notif_sync_ok') })
       await Promise.all([carregarStatus(), carregarHistorico(pagina)])
     } catch (err) {
@@ -146,7 +146,7 @@ export function NcmIntegracaoAdmin() {
 
   const COLUNAS: TabelaGlobalColuna<NcmSyncLogApi>[] = [
     {
-      key: 'data_inicio_ncm_log',
+      key: 'data_inicio_ncm_sync_log',
       label: t('admin.ncm.col_data'),
       tipo: 'periodo',
       tooltipTitulo: 'Início da sincronização',
@@ -154,28 +154,15 @@ export function NcmIntegracaoAdmin() {
       render: (v) => <span style={{ color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>{formatDate(v)}</span>,
     },
     {
-      key: 'id_organizacao',
-      label: t('admin.ncm.col_tenant'),
-      tipo: 'texto',
-      tooltipTitulo: 'Identificador da organização',
-      tooltipDescricao: 'Organização para a qual a sincronização foi executada.',
-      render: (v) => (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem' }}>
-          <Buildings size={13} weight="bold" />
-          {(v as string).slice(0, 20)}{(v as string).length > 20 ? '…' : ''}
-        </span>
-      ),
-    },
-    {
-      key: 'origem_ncm_log',
+      key: 'origem_ncm_sync_log',
       label: t('admin.ncm.col_origem'),
       tipo: 'texto',
       tooltipTitulo: 'Origem da sincronização',
       tooltipDescricao: 'Indica se foi disparada pelo job automático diário ou manualmente por um administrador.',
-      render: (_v, row) => <OrigemBadge origem={row.origem_ncm_log} />,
+      render: (_v, row) => <OrigemBadge origem={row.origem_ncm_sync_log} />,
     },
     {
-      key: 'total_ncm_log',
+      key: 'total_ncm_sync_log',
       label: t('admin.ncm.col_total'),
       tipo: 'numero',
       tooltipTitulo: 'Total processado',
@@ -183,7 +170,7 @@ export function NcmIntegracaoAdmin() {
       render: (v) => <span style={{ color: '#e2e8f0', fontVariantNumeric: 'tabular-nums' }}>{(v as number).toLocaleString('pt-BR')}</span>,
     },
     {
-      key: 'adicionados_ncm_log',
+      key: 'adicionados_ncm_sync_log',
       label: t('admin.ncm.col_adicionados'),
       tipo: 'numero',
       tooltipTitulo: 'Novos NCMs',
@@ -195,7 +182,7 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'alterados_ncm_log',
+      key: 'alterados_ncm_sync_log',
       label: t('admin.ncm.col_alterados'),
       tipo: 'numero',
       tooltipTitulo: 'NCMs modificados',
@@ -207,7 +194,7 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'removidos_ncm_log',
+      key: 'removidos_ncm_sync_log',
       label: t('admin.ncm.col_removidos'),
       tipo: 'numero',
       tooltipTitulo: 'NCMs removidos',
@@ -219,15 +206,15 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'status_ncm_log',
+      key: 'status_ncm_sync_log',
       label: t('admin.ncm.col_status'),
       tipo: 'texto',
       tooltipTitulo: 'Status da sincronização',
       tooltipDescricao: 'Resultado final da sincronização: Concluído, Erro ou Em andamento.',
-      render: (_v, row) => <StatusBadge status={row.status_ncm_log} />,
+      render: (_v, row) => <StatusBadge status={row.status_ncm_sync_log} />,
     },
     {
-      key: 'data_conclusao_ncm_log',
+      key: 'data_conclusao_ncm_sync_log',
       label: t('admin.ncm.col_duracao'),
       tipo: 'texto',
       tooltipTitulo: 'Tempo de execução',
@@ -291,12 +278,6 @@ export function NcmIntegracaoAdmin() {
             valor={carregando ? '—' : ultimaSyncLabel}
             icone={<Clock size={20} weight="duotone" />}
             cor={statusCorIcone}
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.ncm.card_tenants')}
-            valor={carregando ? '—' : String(status?.total_organizacoes ?? 0)}
-            icone={<Buildings size={20} weight="duotone" />}
-            cor="#6366f1"
           />
           <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_erros')}

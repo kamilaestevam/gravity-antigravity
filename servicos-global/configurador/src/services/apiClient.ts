@@ -746,34 +746,31 @@ export const adminPlatformApi = {
 }
 
 // ─── Admin: NCM Sync (Portal Único Siscomex) ───────────────────────────────
+// Backend: configurador (porta 8005) é proxy para o serviço Cadastros (porta 8031).
+// Tipos refletem o payload do cadastros (sem id_organizacao — catálogo global).
 
 export interface NcmSyncStatusApi {
-  ultima_sync:           string | null
-  status:                'EXECUTANDO' | 'SUCESSO' | 'ERRO' | null
-  total_ativos:          number
-  total_organizacoes:    number
-  organizacoes_com_ncm:  number
-  erros_48h:             number
-  desatualizado:         boolean
+  ultima_sync:   string | null
+  status:        'EXECUTANDO' | 'SUCESSO' | 'ERRO' | null
+  total_ativos:  number
+  erros_48h:     number
+  desatualizado: boolean
 }
 
 export interface NcmSyncLogApi {
-  id_ncm_log:               string
-  id_organizacao:           string
-  id_produto_gravity:       string | null
-  id_usuario:               string | null
-  data_inicio_ncm_log:      string
-  data_conclusao_ncm_log:   string | null
-  status_ncm_log:           'EXECUTANDO' | 'SUCESSO' | 'ERRO'
-  total_ncm_log:            number
-  adicionados_ncm_log:      number
-  alterados_ncm_log:        number
-  removidos_ncm_log:        number
-  origem_ncm_log:           'JOB' | 'MANUAL'
-  disparado_por_ncm_log:    string | null
-  mensagem_erro_ncm_log:    string | null
-  data_criacao_ncm_log:     string
-  data_atualizacao_ncm_log: string
+  id_ncm_sync_log:               string
+  data_inicio_ncm_sync_log:      string
+  data_conclusao_ncm_sync_log:   string | null
+  status_ncm_sync_log:           'EXECUTANDO' | 'SUCESSO' | 'ERRO'
+  total_ncm_sync_log:            number
+  adicionados_ncm_sync_log:      number
+  alterados_ncm_sync_log:        number
+  removidos_ncm_sync_log:        number
+  origem_ncm_sync_log:           'JOB' | 'MANUAL'
+  disparado_por_ncm_sync_log:    string | null
+  mensagem_erro_ncm_sync_log:    string | null
+  data_criacao_ncm_sync_log:     string
+  data_atualizacao_ncm_sync_log: string
 }
 
 // ── Tipos de schedule ──────────────────────────────────────────────────────
@@ -794,15 +791,13 @@ export interface NcmAgendamentoConfigApi {
   atualizado_em:   string | null
 }
 
-export interface NcmExecuteResultado {
-  id_organizacao: string
-  sucesso:        boolean
-  total?:         number
-  adicionados?:   number
-  alterados?:     number
-  removidos?:     number
-  duracaoMs?:     number
-  erro?:          string
+export interface NcmSyncResultado {
+  syncId:      string
+  total:       number
+  adicionados: number
+  alterados:   number
+  removidos:   number
+  duracaoMs:   number
 }
 
 export const adminNcmApi = {
@@ -820,10 +815,10 @@ export const adminNcmApi = {
     )
   },
 
-  async triggerSync(idOrganizacao: string) {
-    return request<{ sucesso: boolean; total: number; adicionados: number; alterados: number; removidos: number; duracaoMs: number }>(
-      `/v1/admin/integracao-ncm/sincronizar/${idOrganizacao}`,
-      { method: 'POST' },
+  async triggerSync() {
+    return request<{ sucesso: boolean } & NcmSyncResultado>(
+      '/v1/admin/integracao-ncm/sincronizar',
+      { method: 'POST', body: JSON.stringify({}) },
     )
   },
 
@@ -840,13 +835,10 @@ export const adminNcmApi = {
     })
   },
 
-  async executeManual(idOrganizacao?: string) {
-    return request<{ sucesso: boolean; organizacoes_executadas: number; resultados: NcmExecuteResultado[]; aviso?: string }>(
+  async executeManual() {
+    return request<{ sucesso: boolean; sincronizacoes_executadas: number; resultado: NcmSyncResultado }>(
       '/v1/admin/integracao-ncm/agendamento/executar',
-      {
-        method: 'POST',
-        body: JSON.stringify(idOrganizacao ? { id_organizacao: idOrganizacao } : {}),
-      },
+      { method: 'POST', body: JSON.stringify({}) },
     )
   },
 }

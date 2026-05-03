@@ -32,7 +32,7 @@ export default defineConfig({
       '@dnd-kit/sortable': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/sortable'),
       '@dnd-kit/utilities': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/utilities'),
       // Aliases dos Produtos (para lazy-load dentro do Configurador)
-      '@produto': path.resolve(monorepoRoot, 'produto'),
+      '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
       // Cadastros — domínio próprio fora de servicos-plataforma
       '@cadastros': path.resolve(monorepoRoot, 'servicos-global/cadastros'),
     },
@@ -70,7 +70,7 @@ export default defineConfig({
     },
     proxy: {
       '/api/v1/gabi': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
@@ -124,7 +124,7 @@ export default defineConfig({
       // historico-global — serviço tenant em porta dedicada
       // Mesma estrutura do proxy 5179: rewrite remove o prefixo antes de repassar ao backend
       '/historico-api': {
-        target: 'http://localhost:8012',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
         configure(proxy) {

@@ -222,7 +222,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 | Servico | Variaveis nao validadas |
 |---------|------------------------|
 | Configurador | INTERNAL_SERVICE_KEY |
-| Notificacoes | TENANT_DATABASE_URL |
+| Notificacoes | ORGANIZACAO_DATABASE_URL |
 | API-Cockpit | ENCRYPTION_KEY |
 
 **Acao**: Adicionar validacao no inicio de cada `index.ts`.
@@ -348,7 +348,7 @@ Criados scripts RLS seguindo o padrao do tenant DB:
 
 Validacao de startup adicionada em 3 servicos:
 - Configurador: `CONFIGURADOR_DATABASE_URL`, `CLERK_SECRET_KEY`, `INTERNAL_SERVICE_KEY`
-- Notificacoes: `TENANT_DATABASE_URL`
+- Notificacoes: `ORGANIZACAO_DATABASE_URL`
 - API Cockpit: `INTERNAL_SERVICE_KEY`, `ENCRYPTION_KEY`
 
 ### 5.7. Fix array header no cronometro (CONCLUIDO)

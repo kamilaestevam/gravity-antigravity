@@ -425,7 +425,7 @@ export async function initPgBoss(databaseUrl: string): Promise<PgBoss> {
 ```ts
 // servicos-global/configurador/server/index.ts — dentro do app.listen(PORT, async () => { ... })
 
-const tenantDbUrl = process.env.TENANT_DATABASE_URL
+const tenantDbUrl = process.env.ORGANIZACAO_DATABASE_URL
 if (tenantDbUrl) {
   const { initPgBoss } = await import('../../tenant/historico-global/server/queue/pg-boss.js')
   const { startAuditWorker } = await import('../../tenant/historico-global/server/queue/audit-worker.js')
@@ -641,7 +641,7 @@ auditLog({
 
 | Variável | Obrigatória | Uso |
 |----------|-------------|-----|
-| `TENANT_DATABASE_URL` | Sim (Configurador) | pg-boss e Prisma para o banco tenant |
+| `ORGANIZACAO_DATABASE_URL` | Sim (Configurador) | pg-boss e Prisma para o banco gravity-servicos (dados operacionais por organização) |
 | `INTERNAL_SERVICE_KEY` | Sim | Autenticação inter-serviço (`x-internal-key`) |
 | `EMAIL_SERVICE_URL` | Não | URL do serviço de email para notificações |
 | `WHATSAPP_SERVICE_URL` | Não | URL do serviço de WhatsApp para notificações |

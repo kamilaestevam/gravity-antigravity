@@ -29,7 +29,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const ROOT_DIR = path.resolve(__dirname, '../..')
-const ORGANIZACAO_DIR = path.join(ROOT_DIR, 'servicos-global', 'organizacao')
+const ORGANIZACAO_DIR = path.join(ROOT_DIR, 'servicos-global', 'servicos-plataforma')
 const OUTPUT_SCHEMA = path.join(ORGANIZACAO_DIR, 'prisma', 'schema.prisma')
 const BASE_SCHEMA = path.join(ORGANIZACAO_DIR, 'prisma', 'schema.base.prisma')
 

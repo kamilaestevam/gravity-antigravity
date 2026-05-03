@@ -132,16 +132,108 @@ model Unidade {
   @@map("unidade")
 }
 
-model Ncm {
-  codigo_ncm    String  @id // 8 dígitos
-  descricao_ncm String
-  ipi_ncm       Float?
-  ii_ncm        Float?
-  pis_ncm       Float?
-  cofins_ncm    Float?
-  ativo_ncm     Boolean @default(true)
+// ---------------------------------------------------------------------
+// NcmSync — catálogo NCM sincronizado do Portal Único Siscomex
+// (renomeado de "Ncm" para evitar confusão com a coluna "ncm_item" das
+// tabelas de produto. O job diário de sync mora aqui no Cadastros).
+// Catálogo global — sem id_organizacao (alíquotas vêm da Receita Federal,
+// iguais para todas as organizações).
+// ---------------------------------------------------------------------
 
-  @@map("ncm")
+model NcmSync {
+  codigo_ncm_sync String @id // 8 dígitos — chave natural
+
+  descricao_ncm_sync String
+  ipi_ncm_sync       Float?
+  ii_ncm_sync        Float?
+  pis_ncm_sync       Float?
+  cofins_ncm_sync    Float?
+  ativo_ncm_sync     Boolean @default(true)
+
+  // Metadados do Portal Único
+  data_inicio_ncm_sync DateTime?
+  data_fim_ncm_sync    DateTime?
+
+  // Referência ao NcmSyncLog que inseriu/atualizou este código
+  id_ncm_sync_log String?
+
+  // Timestamps
+  data_criacao_ncm_sync     DateTime @default(now())
+  data_atualizacao_ncm_sync DateTime @updatedAt
+
+  @@index([ativo_ncm_sync], map: "nsy_ativo_idx")
+  @@index([id_ncm_sync_log], map: "nsy_log_idx")
+  @@map("ncm_sync")
+}
+
+// ---------------------------------------------------------------------
+// NcmSyncLog — histórico de cada sincronização com o Portal Único.
+// Catálogo global — sem id_organizacao (sync é universal).
+// ---------------------------------------------------------------------
+
+model NcmSyncLog {
+  id_ncm_sync_log String @id @default(cuid())
+
+  // Timestamps de execução
+  data_inicio_ncm_sync_log    DateTime  @default(now())
+  data_conclusao_ncm_sync_log DateTime?
+
+  // Status (enum PT)
+  status_ncm_sync_log NcmSyncStatusSincronizacao @default(EXECUTANDO)
+
+  // Totais do diff
+  total_ncm_sync_log       Int @default(0)
+  adicionados_ncm_sync_log Int @default(0)
+  alterados_ncm_sync_log   Int @default(0)
+  removidos_ncm_sync_log   Int @default(0)
+
+  // Origem do trigger
+  origem_ncm_sync_log        NcmSyncOrigemSincronizacao @default(JOB)
+  disparado_por_ncm_sync_log String? // id_usuario que disparou se MANUAL
+
+  // Erro (apenas em caso de falha)
+  mensagem_erro_ncm_sync_log String?
+
+  // Timestamps
+  data_criacao_ncm_sync_log     DateTime @default(now())
+  data_atualizacao_ncm_sync_log DateTime @updatedAt
+
+  @@index([status_ncm_sync_log], map: "nsl_status_idx")
+  @@index([data_inicio_ncm_sync_log], map: "nsl_inicio_idx")
+  @@map("ncm_sync_log")
+}
+
+// ---------------------------------------------------------------------
+// NcmSyncAgendamento — configuração singleton do job de sincronização.
+// id_ncm_sync_agendamento = 'default' — registro único.
+// ---------------------------------------------------------------------
+
+model NcmSyncAgendamento {
+  id_ncm_sync_agendamento String @id @default("default")
+
+  ativo_ncm_sync_agendamento          Boolean @default(false)
+  cron_expressao_ncm_sync_agendamento String  @default("0 2 * * *") // 2am diário (America/Sao_Paulo)
+  notificadores_ncm_sync_agendamento  Json    @default("[]") // Array<NcmNotificador>
+
+  data_criacao_ncm_sync_agendamento     DateTime @default(now())
+  data_atualizacao_ncm_sync_agendamento DateTime @updatedAt
+
+  @@map("ncm_sync_agendamento")
+}
+
+// ---------------------------------------------------------------------
+// Enums NCM Sync (valores em PT-BR)
+// ---------------------------------------------------------------------
+
+enum NcmSyncStatusSincronizacao {
+  EXECUTANDO
+  SUCESSO
+  ERRO
+}
+
+enum NcmSyncOrigemSincronizacao {
+  JOB
+  MANUAL
 }
 
 // ---------------------------------------------------------------------

@@ -71,7 +71,7 @@ app.use(helmet({
 
 app.use(express.json())
 app.use(cors({
-  origin: process.env.FRONTEND_URL || ['http://localhost:8000', 'http://localhost:8003', 'http://localhost:5000'],
+  origin: process.env.FRONTEND_URL || ['http://localhost:8000', 'http://localhost:8001', 'http://localhost:8002', 'http://localhost:8003', 'http://localhost:5000'],
   credentials: true
 }))
 app.use(correlationMiddleware)
@@ -215,9 +215,8 @@ if (process.env.NODE_ENV !== 'test') {
         const { startTaxaCambioSyncWorker } = await import('./queue/taxaCambioSyncWorker.js')
         startTaxaCambioSyncWorker()
 
-        // NCM Siscomex — cron job diário (configura agendamento salvo no banco)
-        const { initNcmSync } = await import('../../servicos-plataforma/ncm-sync/server/init.js')
-        await initNcmSync()
+        // NCM Siscomex — cron job diário roda no bootstrap do serviço Cadastros
+        // (porta 8031). Configurador apenas proxya as chamadas admin via REST.
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }

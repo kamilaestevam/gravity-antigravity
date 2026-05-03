@@ -51,12 +51,13 @@ import { notificacoesServiceRouter } from '@plataforma/notificacoes/server/route
 import { agendamentoServiceRouter } from '@plataforma/agendamento/server/routes.js'
 import { preferenciasServiceRouter } from '@plataforma/preferencias-usuario/server/routes.js'
 import { whatsappServiceRouter }    from '@plataforma/whatsapp/server/routes.js'
-import { ncmSyncServiceRouter }     from '@plataforma/ncm-sync/server/routes.js'
+// ncm-sync removido em 2026-05-03 — movido para o serviço Cadastros (porta 8031).
+// import { ncmSyncServiceRouter } from '@plataforma/ncm-sync/server/routes.js'
 
 // ── Inicializações assíncronas ────────────────────────────────────────────────
 import { initHistorico }     from '@plataforma/historico-global/server/init.js'
 import { initNotificacoes }  from '@plataforma/notificacoes/server/init.js'
-import { initNcmSync }       from '@plataforma/ncm-sync/server/init.js'
+// import { initNcmSync } from '@plataforma/ncm-sync/server/init.js'  // movido para cadastros
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 3001)
@@ -95,7 +96,7 @@ app.get('/health', async (_req, res) => {
       services: [
         'atividades', 'cronometro', 'email', 'gabi',
         'dashboard', 'relatorios', 'historico', 'notificacoes',
-        'agendamento', 'preferencias', 'whatsapp', 'ncm-sync',
+        'agendamento', 'preferencias', 'whatsapp',
       ],
     })
   } catch {
@@ -121,7 +122,7 @@ app.use(notificacoesServiceRouter)
 app.use(agendamentoServiceRouter)
 app.use(preferenciasServiceRouter)
 app.use(whatsappServiceRouter)
-app.use(ncmSyncServiceRouter)
+// ncmSyncServiceRouter removido — NCM Sync agora vive no serviço Cadastros (porta 8031)
 
 // ── 9. Error Handler — sempre o último ───────────────────────────────────────
 app.use(errorHandler)
@@ -135,14 +136,13 @@ async function bootstrap() {
   await initNotificacoes().catch((e: unknown) =>
     console.warn('[tenant-server] initNotificacoes falhou (não-fatal):', (e as Error).message))
 
-  await initNcmSync().catch((e: unknown) =>
-    console.warn('[tenant-server] initNcmSync falhou (não-fatal):', (e as Error).message))
+  // initNcmSync removido — agora roda no bootstrap do serviço Cadastros (porta 8031)
 
   app.listen(PORT, () => {
     console.log(`[tenant-server] rodando na porta ${PORT}`)
     console.log(`[tenant-server] serviços: atividades, cronometro, email, gabi, dashboard,`)
     console.log(`[tenant-server]           relatorios, historico, notificacoes, agendamento,`)
-    console.log(`[tenant-server]           preferencias, whatsapp, ncm-sync`)
+    console.log(`[tenant-server]           preferencias, whatsapp`)
   })
 }
 

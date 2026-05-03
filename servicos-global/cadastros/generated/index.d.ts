@@ -29,10 +29,20 @@ export type Moeda = $Result.DefaultSelection<Prisma.$MoedaPayload>
  */
 export type Unidade = $Result.DefaultSelection<Prisma.$UnidadePayload>
 /**
- * Model Ncm
+ * Model NcmSync
  * 
  */
-export type Ncm = $Result.DefaultSelection<Prisma.$NcmPayload>
+export type NcmSync = $Result.DefaultSelection<Prisma.$NcmSyncPayload>
+/**
+ * Model NcmSyncLog
+ * 
+ */
+export type NcmSyncLog = $Result.DefaultSelection<Prisma.$NcmSyncLogPayload>
+/**
+ * Model NcmSyncAgendamento
+ * 
+ */
+export type NcmSyncAgendamento = $Result.DefaultSelection<Prisma.$NcmSyncAgendamentoPayload>
 /**
  * Model Ope
  * 
@@ -43,6 +53,36 @@ export type Ope = $Result.DefaultSelection<Prisma.$OpePayload>
  * 
  */
 export type OPEHistoricoStatus = $Result.DefaultSelection<Prisma.$OPEHistoricoStatusPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const NcmSyncStatusSincronizacao: {
+  EXECUTANDO: 'EXECUTANDO',
+  SUCESSO: 'SUCESSO',
+  ERRO: 'ERRO'
+};
+
+export type NcmSyncStatusSincronizacao = (typeof NcmSyncStatusSincronizacao)[keyof typeof NcmSyncStatusSincronizacao]
+
+
+export const NcmSyncOrigemSincronizacao: {
+  JOB: 'JOB',
+  MANUAL: 'MANUAL'
+};
+
+export type NcmSyncOrigemSincronizacao = (typeof NcmSyncOrigemSincronizacao)[keyof typeof NcmSyncOrigemSincronizacao]
+
+}
+
+export type NcmSyncStatusSincronizacao = $Enums.NcmSyncStatusSincronizacao
+
+export const NcmSyncStatusSincronizacao: typeof $Enums.NcmSyncStatusSincronizacao
+
+export type NcmSyncOrigemSincronizacao = $Enums.NcmSyncOrigemSincronizacao
+
+export const NcmSyncOrigemSincronizacao: typeof $Enums.NcmSyncOrigemSincronizacao
 
 /**
  * ##  Prisma Client ʲˢ
@@ -198,14 +238,34 @@ export class PrismaClient<
   get unidade(): Prisma.UnidadeDelegate<ExtArgs>;
 
   /**
-   * `prisma.ncm`: Exposes CRUD operations for the **Ncm** model.
+   * `prisma.ncmSync`: Exposes CRUD operations for the **NcmSync** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Ncms
-    * const ncms = await prisma.ncm.findMany()
+    * // Fetch zero or more NcmSyncs
+    * const ncmSyncs = await prisma.ncmSync.findMany()
     * ```
     */
-  get ncm(): Prisma.NcmDelegate<ExtArgs>;
+  get ncmSync(): Prisma.NcmSyncDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ncmSyncLog`: Exposes CRUD operations for the **NcmSyncLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NcmSyncLogs
+    * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+    * ```
+    */
+  get ncmSyncLog(): Prisma.NcmSyncLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ncmSyncAgendamento`: Exposes CRUD operations for the **NcmSyncAgendamento** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NcmSyncAgendamentos
+    * const ncmSyncAgendamentos = await prisma.ncmSyncAgendamento.findMany()
+    * ```
+    */
+  get ncmSyncAgendamento(): Prisma.NcmSyncAgendamentoDelegate<ExtArgs>;
 
   /**
    * `prisma.ope`: Exposes CRUD operations for the **Ope** model.
@@ -670,7 +730,9 @@ export namespace Prisma {
     Empresa: 'Empresa',
     Moeda: 'Moeda',
     Unidade: 'Unidade',
-    Ncm: 'Ncm',
+    NcmSync: 'NcmSync',
+    NcmSyncLog: 'NcmSyncLog',
+    NcmSyncAgendamento: 'NcmSyncAgendamento',
     Ope: 'Ope',
     OPEHistoricoStatus: 'OPEHistoricoStatus'
   };
@@ -688,7 +750,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "moeda" | "unidade" | "ncm" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "moeda" | "unidade" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -902,73 +964,213 @@ export namespace Prisma {
           }
         }
       }
-      Ncm: {
-        payload: Prisma.$NcmPayload<ExtArgs>
-        fields: Prisma.NcmFieldRefs
+      NcmSync: {
+        payload: Prisma.$NcmSyncPayload<ExtArgs>
+        fields: Prisma.NcmSyncFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.NcmFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload> | null
+            args: Prisma.NcmSyncFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.NcmFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           findFirst: {
-            args: Prisma.NcmFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload> | null
+            args: Prisma.NcmSyncFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.NcmFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           findMany: {
-            args: Prisma.NcmFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>[]
+            args: Prisma.NcmSyncFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>[]
           }
           create: {
-            args: Prisma.NcmCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           createMany: {
-            args: Prisma.NcmCreateManyArgs<ExtArgs>
+            args: Prisma.NcmSyncCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.NcmCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>[]
+            args: Prisma.NcmSyncCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>[]
           }
           delete: {
-            args: Prisma.NcmDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           update: {
-            args: Prisma.NcmUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           deleteMany: {
-            args: Prisma.NcmDeleteManyArgs<ExtArgs>
+            args: Prisma.NcmSyncDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.NcmUpdateManyArgs<ExtArgs>
+            args: Prisma.NcmSyncUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.NcmUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
+            args: Prisma.NcmSyncUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncPayload>
           }
           aggregate: {
-            args: Prisma.NcmAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNcm>
+            args: Prisma.NcmSyncAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmSync>
           }
           groupBy: {
-            args: Prisma.NcmGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NcmGroupByOutputType>[]
+            args: Prisma.NcmSyncGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncGroupByOutputType>[]
           }
           count: {
-            args: Prisma.NcmCountArgs<ExtArgs>
-            result: $Utils.Optional<NcmCountAggregateOutputType> | number
+            args: Prisma.NcmSyncCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncCountAggregateOutputType> | number
+          }
+        }
+      }
+      NcmSyncLog: {
+        payload: Prisma.$NcmSyncLogPayload<ExtArgs>
+        fields: Prisma.NcmSyncLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NcmSyncLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          findFirst: {
+            args: Prisma.NcmSyncLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NcmSyncLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          findMany: {
+            args: Prisma.NcmSyncLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+          }
+          create: {
+            args: Prisma.NcmSyncLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          createMany: {
+            args: Prisma.NcmSyncLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NcmSyncLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+          }
+          delete: {
+            args: Prisma.NcmSyncLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          update: {
+            args: Prisma.NcmSyncLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.NcmSyncLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NcmSyncLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NcmSyncLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          aggregate: {
+            args: Prisma.NcmSyncLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmSyncLog>
+          }
+          groupBy: {
+            args: Prisma.NcmSyncLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NcmSyncLogCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      NcmSyncAgendamento: {
+        payload: Prisma.$NcmSyncAgendamentoPayload<ExtArgs>
+        fields: Prisma.NcmSyncAgendamentoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NcmSyncAgendamentoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NcmSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          findFirst: {
+            args: Prisma.NcmSyncAgendamentoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NcmSyncAgendamentoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          findMany: {
+            args: Prisma.NcmSyncAgendamentoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>[]
+          }
+          create: {
+            args: Prisma.NcmSyncAgendamentoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          createMany: {
+            args: Prisma.NcmSyncAgendamentoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NcmSyncAgendamentoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>[]
+          }
+          delete: {
+            args: Prisma.NcmSyncAgendamentoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          update: {
+            args: Prisma.NcmSyncAgendamentoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          deleteMany: {
+            args: Prisma.NcmSyncAgendamentoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NcmSyncAgendamentoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NcmSyncAgendamentoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncAgendamentoPayload>
+          }
+          aggregate: {
+            args: Prisma.NcmSyncAgendamentoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmSyncAgendamento>
+          }
+          groupBy: {
+            args: Prisma.NcmSyncAgendamentoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncAgendamentoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NcmSyncAgendamentoCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncAgendamentoCountAggregateOutputType> | number
           }
         }
       }
@@ -4208,396 +4410,451 @@ export namespace Prisma {
 
 
   /**
-   * Model Ncm
+   * Model NcmSync
    */
 
-  export type AggregateNcm = {
-    _count: NcmCountAggregateOutputType | null
-    _avg: NcmAvgAggregateOutputType | null
-    _sum: NcmSumAggregateOutputType | null
-    _min: NcmMinAggregateOutputType | null
-    _max: NcmMaxAggregateOutputType | null
+  export type AggregateNcmSync = {
+    _count: NcmSyncCountAggregateOutputType | null
+    _avg: NcmSyncAvgAggregateOutputType | null
+    _sum: NcmSyncSumAggregateOutputType | null
+    _min: NcmSyncMinAggregateOutputType | null
+    _max: NcmSyncMaxAggregateOutputType | null
   }
 
-  export type NcmAvgAggregateOutputType = {
-    ipi_ncm: number | null
-    ii_ncm: number | null
-    pis_ncm: number | null
-    cofins_ncm: number | null
+  export type NcmSyncAvgAggregateOutputType = {
+    ipi_ncm_sync: number | null
+    ii_ncm_sync: number | null
+    pis_ncm_sync: number | null
+    cofins_ncm_sync: number | null
   }
 
-  export type NcmSumAggregateOutputType = {
-    ipi_ncm: number | null
-    ii_ncm: number | null
-    pis_ncm: number | null
-    cofins_ncm: number | null
+  export type NcmSyncSumAggregateOutputType = {
+    ipi_ncm_sync: number | null
+    ii_ncm_sync: number | null
+    pis_ncm_sync: number | null
+    cofins_ncm_sync: number | null
   }
 
-  export type NcmMinAggregateOutputType = {
-    codigo_ncm: string | null
-    descricao_ncm: string | null
-    ipi_ncm: number | null
-    ii_ncm: number | null
-    pis_ncm: number | null
-    cofins_ncm: number | null
-    ativo_ncm: boolean | null
+  export type NcmSyncMinAggregateOutputType = {
+    codigo_ncm_sync: string | null
+    descricao_ncm_sync: string | null
+    ipi_ncm_sync: number | null
+    ii_ncm_sync: number | null
+    pis_ncm_sync: number | null
+    cofins_ncm_sync: number | null
+    ativo_ncm_sync: boolean | null
+    data_inicio_ncm_sync: Date | null
+    data_fim_ncm_sync: Date | null
+    id_ncm_sync_log: string | null
+    data_criacao_ncm_sync: Date | null
+    data_atualizacao_ncm_sync: Date | null
   }
 
-  export type NcmMaxAggregateOutputType = {
-    codigo_ncm: string | null
-    descricao_ncm: string | null
-    ipi_ncm: number | null
-    ii_ncm: number | null
-    pis_ncm: number | null
-    cofins_ncm: number | null
-    ativo_ncm: boolean | null
+  export type NcmSyncMaxAggregateOutputType = {
+    codigo_ncm_sync: string | null
+    descricao_ncm_sync: string | null
+    ipi_ncm_sync: number | null
+    ii_ncm_sync: number | null
+    pis_ncm_sync: number | null
+    cofins_ncm_sync: number | null
+    ativo_ncm_sync: boolean | null
+    data_inicio_ncm_sync: Date | null
+    data_fim_ncm_sync: Date | null
+    id_ncm_sync_log: string | null
+    data_criacao_ncm_sync: Date | null
+    data_atualizacao_ncm_sync: Date | null
   }
 
-  export type NcmCountAggregateOutputType = {
-    codigo_ncm: number
-    descricao_ncm: number
-    ipi_ncm: number
-    ii_ncm: number
-    pis_ncm: number
-    cofins_ncm: number
-    ativo_ncm: number
+  export type NcmSyncCountAggregateOutputType = {
+    codigo_ncm_sync: number
+    descricao_ncm_sync: number
+    ipi_ncm_sync: number
+    ii_ncm_sync: number
+    pis_ncm_sync: number
+    cofins_ncm_sync: number
+    ativo_ncm_sync: number
+    data_inicio_ncm_sync: number
+    data_fim_ncm_sync: number
+    id_ncm_sync_log: number
+    data_criacao_ncm_sync: number
+    data_atualizacao_ncm_sync: number
     _all: number
   }
 
 
-  export type NcmAvgAggregateInputType = {
-    ipi_ncm?: true
-    ii_ncm?: true
-    pis_ncm?: true
-    cofins_ncm?: true
+  export type NcmSyncAvgAggregateInputType = {
+    ipi_ncm_sync?: true
+    ii_ncm_sync?: true
+    pis_ncm_sync?: true
+    cofins_ncm_sync?: true
   }
 
-  export type NcmSumAggregateInputType = {
-    ipi_ncm?: true
-    ii_ncm?: true
-    pis_ncm?: true
-    cofins_ncm?: true
+  export type NcmSyncSumAggregateInputType = {
+    ipi_ncm_sync?: true
+    ii_ncm_sync?: true
+    pis_ncm_sync?: true
+    cofins_ncm_sync?: true
   }
 
-  export type NcmMinAggregateInputType = {
-    codigo_ncm?: true
-    descricao_ncm?: true
-    ipi_ncm?: true
-    ii_ncm?: true
-    pis_ncm?: true
-    cofins_ncm?: true
-    ativo_ncm?: true
+  export type NcmSyncMinAggregateInputType = {
+    codigo_ncm_sync?: true
+    descricao_ncm_sync?: true
+    ipi_ncm_sync?: true
+    ii_ncm_sync?: true
+    pis_ncm_sync?: true
+    cofins_ncm_sync?: true
+    ativo_ncm_sync?: true
+    data_inicio_ncm_sync?: true
+    data_fim_ncm_sync?: true
+    id_ncm_sync_log?: true
+    data_criacao_ncm_sync?: true
+    data_atualizacao_ncm_sync?: true
   }
 
-  export type NcmMaxAggregateInputType = {
-    codigo_ncm?: true
-    descricao_ncm?: true
-    ipi_ncm?: true
-    ii_ncm?: true
-    pis_ncm?: true
-    cofins_ncm?: true
-    ativo_ncm?: true
+  export type NcmSyncMaxAggregateInputType = {
+    codigo_ncm_sync?: true
+    descricao_ncm_sync?: true
+    ipi_ncm_sync?: true
+    ii_ncm_sync?: true
+    pis_ncm_sync?: true
+    cofins_ncm_sync?: true
+    ativo_ncm_sync?: true
+    data_inicio_ncm_sync?: true
+    data_fim_ncm_sync?: true
+    id_ncm_sync_log?: true
+    data_criacao_ncm_sync?: true
+    data_atualizacao_ncm_sync?: true
   }
 
-  export type NcmCountAggregateInputType = {
-    codigo_ncm?: true
-    descricao_ncm?: true
-    ipi_ncm?: true
-    ii_ncm?: true
-    pis_ncm?: true
-    cofins_ncm?: true
-    ativo_ncm?: true
+  export type NcmSyncCountAggregateInputType = {
+    codigo_ncm_sync?: true
+    descricao_ncm_sync?: true
+    ipi_ncm_sync?: true
+    ii_ncm_sync?: true
+    pis_ncm_sync?: true
+    cofins_ncm_sync?: true
+    ativo_ncm_sync?: true
+    data_inicio_ncm_sync?: true
+    data_fim_ncm_sync?: true
+    id_ncm_sync_log?: true
+    data_criacao_ncm_sync?: true
+    data_atualizacao_ncm_sync?: true
     _all?: true
   }
 
-  export type NcmAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Ncm to aggregate.
+     * Filter which NcmSync to aggregate.
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Ncms to fetch.
+     * Determine the order of NcmSyncs to fetch.
      */
-    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
+    orderBy?: NcmSyncOrderByWithRelationInput | NcmSyncOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: NcmWhereUniqueInput
+    cursor?: NcmSyncWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Ncms from the position of the cursor.
+     * Take `±n` NcmSyncs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Ncms.
+     * Skip the first `n` NcmSyncs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Ncms
+     * Count returned NcmSyncs
     **/
-    _count?: true | NcmCountAggregateInputType
+    _count?: true | NcmSyncCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: NcmAvgAggregateInputType
+    _avg?: NcmSyncAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: NcmSumAggregateInputType
+    _sum?: NcmSyncSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: NcmMinAggregateInputType
+    _min?: NcmSyncMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: NcmMaxAggregateInputType
+    _max?: NcmSyncMaxAggregateInputType
   }
 
-  export type GetNcmAggregateType<T extends NcmAggregateArgs> = {
-        [P in keyof T & keyof AggregateNcm]: P extends '_count' | 'count'
+  export type GetNcmSyncAggregateType<T extends NcmSyncAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmSync]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateNcm[P]>
-      : GetScalarType<T[P], AggregateNcm[P]>
+        : GetScalarType<T[P], AggregateNcmSync[P]>
+      : GetScalarType<T[P], AggregateNcmSync[P]>
   }
 
 
 
 
-  export type NcmGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NcmWhereInput
-    orderBy?: NcmOrderByWithAggregationInput | NcmOrderByWithAggregationInput[]
-    by: NcmScalarFieldEnum[] | NcmScalarFieldEnum
-    having?: NcmScalarWhereWithAggregatesInput
+  export type NcmSyncGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmSyncWhereInput
+    orderBy?: NcmSyncOrderByWithAggregationInput | NcmSyncOrderByWithAggregationInput[]
+    by: NcmSyncScalarFieldEnum[] | NcmSyncScalarFieldEnum
+    having?: NcmSyncScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: NcmCountAggregateInputType | true
-    _avg?: NcmAvgAggregateInputType
-    _sum?: NcmSumAggregateInputType
-    _min?: NcmMinAggregateInputType
-    _max?: NcmMaxAggregateInputType
+    _count?: NcmSyncCountAggregateInputType | true
+    _avg?: NcmSyncAvgAggregateInputType
+    _sum?: NcmSyncSumAggregateInputType
+    _min?: NcmSyncMinAggregateInputType
+    _max?: NcmSyncMaxAggregateInputType
   }
 
-  export type NcmGroupByOutputType = {
-    codigo_ncm: string
-    descricao_ncm: string
-    ipi_ncm: number | null
-    ii_ncm: number | null
-    pis_ncm: number | null
-    cofins_ncm: number | null
-    ativo_ncm: boolean
-    _count: NcmCountAggregateOutputType | null
-    _avg: NcmAvgAggregateOutputType | null
-    _sum: NcmSumAggregateOutputType | null
-    _min: NcmMinAggregateOutputType | null
-    _max: NcmMaxAggregateOutputType | null
+  export type NcmSyncGroupByOutputType = {
+    codigo_ncm_sync: string
+    descricao_ncm_sync: string
+    ipi_ncm_sync: number | null
+    ii_ncm_sync: number | null
+    pis_ncm_sync: number | null
+    cofins_ncm_sync: number | null
+    ativo_ncm_sync: boolean
+    data_inicio_ncm_sync: Date | null
+    data_fim_ncm_sync: Date | null
+    id_ncm_sync_log: string | null
+    data_criacao_ncm_sync: Date
+    data_atualizacao_ncm_sync: Date
+    _count: NcmSyncCountAggregateOutputType | null
+    _avg: NcmSyncAvgAggregateOutputType | null
+    _sum: NcmSyncSumAggregateOutputType | null
+    _min: NcmSyncMinAggregateOutputType | null
+    _max: NcmSyncMaxAggregateOutputType | null
   }
 
-  type GetNcmGroupByPayload<T extends NcmGroupByArgs> = Prisma.PrismaPromise<
+  type GetNcmSyncGroupByPayload<T extends NcmSyncGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<NcmGroupByOutputType, T['by']> &
+      PickEnumerable<NcmSyncGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof NcmGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NcmSyncGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], NcmGroupByOutputType[P]>
-            : GetScalarType<T[P], NcmGroupByOutputType[P]>
+              : GetScalarType<T[P], NcmSyncGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmSyncGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type NcmSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo_ncm?: boolean
-    descricao_ncm?: boolean
-    ipi_ncm?: boolean
-    ii_ncm?: boolean
-    pis_ncm?: boolean
-    cofins_ncm?: boolean
-    ativo_ncm?: boolean
-  }, ExtArgs["result"]["ncm"]>
+  export type NcmSyncSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_ncm_sync?: boolean
+    descricao_ncm_sync?: boolean
+    ipi_ncm_sync?: boolean
+    ii_ncm_sync?: boolean
+    pis_ncm_sync?: boolean
+    cofins_ncm_sync?: boolean
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: boolean
+    data_fim_ncm_sync?: boolean
+    id_ncm_sync_log?: boolean
+    data_criacao_ncm_sync?: boolean
+    data_atualizacao_ncm_sync?: boolean
+  }, ExtArgs["result"]["ncmSync"]>
 
-  export type NcmSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo_ncm?: boolean
-    descricao_ncm?: boolean
-    ipi_ncm?: boolean
-    ii_ncm?: boolean
-    pis_ncm?: boolean
-    cofins_ncm?: boolean
-    ativo_ncm?: boolean
-  }, ExtArgs["result"]["ncm"]>
+  export type NcmSyncSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_ncm_sync?: boolean
+    descricao_ncm_sync?: boolean
+    ipi_ncm_sync?: boolean
+    ii_ncm_sync?: boolean
+    pis_ncm_sync?: boolean
+    cofins_ncm_sync?: boolean
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: boolean
+    data_fim_ncm_sync?: boolean
+    id_ncm_sync_log?: boolean
+    data_criacao_ncm_sync?: boolean
+    data_atualizacao_ncm_sync?: boolean
+  }, ExtArgs["result"]["ncmSync"]>
 
-  export type NcmSelectScalar = {
-    codigo_ncm?: boolean
-    descricao_ncm?: boolean
-    ipi_ncm?: boolean
-    ii_ncm?: boolean
-    pis_ncm?: boolean
-    cofins_ncm?: boolean
-    ativo_ncm?: boolean
+  export type NcmSyncSelectScalar = {
+    codigo_ncm_sync?: boolean
+    descricao_ncm_sync?: boolean
+    ipi_ncm_sync?: boolean
+    ii_ncm_sync?: boolean
+    pis_ncm_sync?: boolean
+    cofins_ncm_sync?: boolean
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: boolean
+    data_fim_ncm_sync?: boolean
+    id_ncm_sync_log?: boolean
+    data_criacao_ncm_sync?: boolean
+    data_atualizacao_ncm_sync?: boolean
   }
 
 
-  export type $NcmPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Ncm"
+  export type $NcmSyncPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmSync"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      codigo_ncm: string
-      descricao_ncm: string
-      ipi_ncm: number | null
-      ii_ncm: number | null
-      pis_ncm: number | null
-      cofins_ncm: number | null
-      ativo_ncm: boolean
-    }, ExtArgs["result"]["ncm"]>
+      codigo_ncm_sync: string
+      descricao_ncm_sync: string
+      ipi_ncm_sync: number | null
+      ii_ncm_sync: number | null
+      pis_ncm_sync: number | null
+      cofins_ncm_sync: number | null
+      ativo_ncm_sync: boolean
+      data_inicio_ncm_sync: Date | null
+      data_fim_ncm_sync: Date | null
+      id_ncm_sync_log: string | null
+      data_criacao_ncm_sync: Date
+      data_atualizacao_ncm_sync: Date
+    }, ExtArgs["result"]["ncmSync"]>
     composites: {}
   }
 
-  type NcmGetPayload<S extends boolean | null | undefined | NcmDefaultArgs> = $Result.GetResult<Prisma.$NcmPayload, S>
+  type NcmSyncGetPayload<S extends boolean | null | undefined | NcmSyncDefaultArgs> = $Result.GetResult<Prisma.$NcmSyncPayload, S>
 
-  type NcmCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NcmFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NcmCountAggregateInputType | true
+  type NcmSyncCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmSyncFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmSyncCountAggregateInputType | true
     }
 
-  export interface NcmDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Ncm'], meta: { name: 'Ncm' } }
+  export interface NcmSyncDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmSync'], meta: { name: 'NcmSync' } }
     /**
-     * Find zero or one Ncm that matches the filter.
-     * @param {NcmFindUniqueArgs} args - Arguments to find a Ncm
+     * Find zero or one NcmSync that matches the filter.
+     * @param {NcmSyncFindUniqueArgs} args - Arguments to find a NcmSync
      * @example
-     * // Get one Ncm
-     * const ncm = await prisma.ncm.findUnique({
+     * // Get one NcmSync
+     * const ncmSync = await prisma.ncmSync.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends NcmFindUniqueArgs>(args: SelectSubset<T, NcmFindUniqueArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NcmSyncFindUniqueArgs>(args: SelectSubset<T, NcmSyncFindUniqueArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Ncm that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NcmSync that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {NcmFindUniqueOrThrowArgs} args - Arguments to find a Ncm
+     * @param {NcmSyncFindUniqueOrThrowArgs} args - Arguments to find a NcmSync
      * @example
-     * // Get one Ncm
-     * const ncm = await prisma.ncm.findUniqueOrThrow({
+     * // Get one NcmSync
+     * const ncmSync = await prisma.ncmSync.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NcmFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NcmSyncFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmSyncFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Ncm that matches the filter.
+     * Find the first NcmSync that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmFindFirstArgs} args - Arguments to find a Ncm
+     * @param {NcmSyncFindFirstArgs} args - Arguments to find a NcmSync
      * @example
-     * // Get one Ncm
-     * const ncm = await prisma.ncm.findFirst({
+     * // Get one NcmSync
+     * const ncmSync = await prisma.ncmSync.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends NcmFindFirstArgs>(args?: SelectSubset<T, NcmFindFirstArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NcmSyncFindFirstArgs>(args?: SelectSubset<T, NcmSyncFindFirstArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Ncm that matches the filter or
+     * Find the first NcmSync that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmFindFirstOrThrowArgs} args - Arguments to find a Ncm
+     * @param {NcmSyncFindFirstOrThrowArgs} args - Arguments to find a NcmSync
      * @example
-     * // Get one Ncm
-     * const ncm = await prisma.ncm.findFirstOrThrow({
+     * // Get one NcmSync
+     * const ncmSync = await prisma.ncmSync.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends NcmFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NcmSyncFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmSyncFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Ncms that matches the filter.
+     * Find zero or more NcmSyncs that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NcmSyncFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Ncms
-     * const ncms = await prisma.ncm.findMany()
+     * // Get all NcmSyncs
+     * const ncmSyncs = await prisma.ncmSync.findMany()
      * 
-     * // Get first 10 Ncms
-     * const ncms = await prisma.ncm.findMany({ take: 10 })
+     * // Get first 10 NcmSyncs
+     * const ncmSyncs = await prisma.ncmSync.findMany({ take: 10 })
      * 
-     * // Only select the `codigo_ncm`
-     * const ncmWithCodigo_ncmOnly = await prisma.ncm.findMany({ select: { codigo_ncm: true } })
+     * // Only select the `codigo_ncm_sync`
+     * const ncmSyncWithCodigo_ncm_syncOnly = await prisma.ncmSync.findMany({ select: { codigo_ncm_sync: true } })
      * 
      */
-    findMany<T extends NcmFindManyArgs>(args?: SelectSubset<T, NcmFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NcmSyncFindManyArgs>(args?: SelectSubset<T, NcmSyncFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Ncm.
-     * @param {NcmCreateArgs} args - Arguments to create a Ncm.
+     * Create a NcmSync.
+     * @param {NcmSyncCreateArgs} args - Arguments to create a NcmSync.
      * @example
-     * // Create one Ncm
-     * const Ncm = await prisma.ncm.create({
+     * // Create one NcmSync
+     * const NcmSync = await prisma.ncmSync.create({
      *   data: {
-     *     // ... data to create a Ncm
+     *     // ... data to create a NcmSync
      *   }
      * })
      * 
      */
-    create<T extends NcmCreateArgs>(args: SelectSubset<T, NcmCreateArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NcmSyncCreateArgs>(args: SelectSubset<T, NcmSyncCreateArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Ncms.
-     * @param {NcmCreateManyArgs} args - Arguments to create many Ncms.
+     * Create many NcmSyncs.
+     * @param {NcmSyncCreateManyArgs} args - Arguments to create many NcmSyncs.
      * @example
-     * // Create many Ncms
-     * const ncm = await prisma.ncm.createMany({
+     * // Create many NcmSyncs
+     * const ncmSync = await prisma.ncmSync.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends NcmCreateManyArgs>(args?: SelectSubset<T, NcmCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NcmSyncCreateManyArgs>(args?: SelectSubset<T, NcmSyncCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Ncms and returns the data saved in the database.
-     * @param {NcmCreateManyAndReturnArgs} args - Arguments to create many Ncms.
+     * Create many NcmSyncs and returns the data saved in the database.
+     * @param {NcmSyncCreateManyAndReturnArgs} args - Arguments to create many NcmSyncs.
      * @example
-     * // Create many Ncms
-     * const ncm = await prisma.ncm.createManyAndReturn({
+     * // Create many NcmSyncs
+     * const ncmSync = await prisma.ncmSync.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Ncms and only return the `codigo_ncm`
-     * const ncmWithCodigo_ncmOnly = await prisma.ncm.createManyAndReturn({ 
-     *   select: { codigo_ncm: true },
+     * // Create many NcmSyncs and only return the `codigo_ncm_sync`
+     * const ncmSyncWithCodigo_ncm_syncOnly = await prisma.ncmSync.createManyAndReturn({ 
+     *   select: { codigo_ncm_sync: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -4606,28 +4863,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NcmCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NcmSyncCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmSyncCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Ncm.
-     * @param {NcmDeleteArgs} args - Arguments to delete one Ncm.
+     * Delete a NcmSync.
+     * @param {NcmSyncDeleteArgs} args - Arguments to delete one NcmSync.
      * @example
-     * // Delete one Ncm
-     * const Ncm = await prisma.ncm.delete({
+     * // Delete one NcmSync
+     * const NcmSync = await prisma.ncmSync.delete({
      *   where: {
-     *     // ... filter to delete one Ncm
+     *     // ... filter to delete one NcmSync
      *   }
      * })
      * 
      */
-    delete<T extends NcmDeleteArgs>(args: SelectSubset<T, NcmDeleteArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NcmSyncDeleteArgs>(args: SelectSubset<T, NcmSyncDeleteArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Ncm.
-     * @param {NcmUpdateArgs} args - Arguments to update one Ncm.
+     * Update one NcmSync.
+     * @param {NcmSyncUpdateArgs} args - Arguments to update one NcmSync.
      * @example
-     * // Update one Ncm
-     * const ncm = await prisma.ncm.update({
+     * // Update one NcmSync
+     * const ncmSync = await prisma.ncmSync.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -4637,30 +4894,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NcmUpdateArgs>(args: SelectSubset<T, NcmUpdateArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NcmSyncUpdateArgs>(args: SelectSubset<T, NcmSyncUpdateArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Ncms.
-     * @param {NcmDeleteManyArgs} args - Arguments to filter Ncms to delete.
+     * Delete zero or more NcmSyncs.
+     * @param {NcmSyncDeleteManyArgs} args - Arguments to filter NcmSyncs to delete.
      * @example
-     * // Delete a few Ncms
-     * const { count } = await prisma.ncm.deleteMany({
+     * // Delete a few NcmSyncs
+     * const { count } = await prisma.ncmSync.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends NcmDeleteManyArgs>(args?: SelectSubset<T, NcmDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NcmSyncDeleteManyArgs>(args?: SelectSubset<T, NcmSyncDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Ncms.
+     * Update zero or more NcmSyncs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NcmSyncUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Ncms
-     * const ncm = await prisma.ncm.updateMany({
+     * // Update many NcmSyncs
+     * const ncmSync = await prisma.ncmSync.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -4670,56 +4927,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends NcmUpdateManyArgs>(args: SelectSubset<T, NcmUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NcmSyncUpdateManyArgs>(args: SelectSubset<T, NcmSyncUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Ncm.
-     * @param {NcmUpsertArgs} args - Arguments to update or create a Ncm.
+     * Create or update one NcmSync.
+     * @param {NcmSyncUpsertArgs} args - Arguments to update or create a NcmSync.
      * @example
-     * // Update or create a Ncm
-     * const ncm = await prisma.ncm.upsert({
+     * // Update or create a NcmSync
+     * const ncmSync = await prisma.ncmSync.upsert({
      *   create: {
-     *     // ... data to create a Ncm
+     *     // ... data to create a NcmSync
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Ncm we want to update
+     *     // ... the filter for the NcmSync we want to update
      *   }
      * })
      */
-    upsert<T extends NcmUpsertArgs>(args: SelectSubset<T, NcmUpsertArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NcmSyncUpsertArgs>(args: SelectSubset<T, NcmSyncUpsertArgs<ExtArgs>>): Prisma__NcmSyncClient<$Result.GetResult<Prisma.$NcmSyncPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Ncms.
+     * Count the number of NcmSyncs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmCountArgs} args - Arguments to filter Ncms to count.
+     * @param {NcmSyncCountArgs} args - Arguments to filter NcmSyncs to count.
      * @example
-     * // Count the number of Ncms
-     * const count = await prisma.ncm.count({
+     * // Count the number of NcmSyncs
+     * const count = await prisma.ncmSync.count({
      *   where: {
-     *     // ... the filter for the Ncms we want to count
+     *     // ... the filter for the NcmSyncs we want to count
      *   }
      * })
     **/
-    count<T extends NcmCountArgs>(
-      args?: Subset<T, NcmCountArgs>,
+    count<T extends NcmSyncCountArgs>(
+      args?: Subset<T, NcmSyncCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], NcmCountAggregateOutputType>
+          : GetScalarType<T['select'], NcmSyncCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Ncm.
+     * Allows you to perform aggregations operations on a NcmSync.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NcmSyncAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -4739,13 +4996,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends NcmAggregateArgs>(args: Subset<T, NcmAggregateArgs>): Prisma.PrismaPromise<GetNcmAggregateType<T>>
+    aggregate<T extends NcmSyncAggregateArgs>(args: Subset<T, NcmSyncAggregateArgs>): Prisma.PrismaPromise<GetNcmSyncAggregateType<T>>
 
     /**
-     * Group by Ncm.
+     * Group by NcmSync.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmGroupByArgs} args - Group by arguments.
+     * @param {NcmSyncGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -4760,14 +5017,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends NcmGroupByArgs,
+      T extends NcmSyncGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NcmGroupByArgs['orderBy'] }
-        : { orderBy?: NcmGroupByArgs['orderBy'] },
+        ? { orderBy: NcmSyncGroupByArgs['orderBy'] }
+        : { orderBy?: NcmSyncGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -4816,20 +5073,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, NcmGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NcmSyncGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmSyncGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Ncm model
+   * Fields of the NcmSync model
    */
-  readonly fields: NcmFieldRefs;
+  readonly fields: NcmSyncFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Ncm.
+   * The delegate class that acts as a "Promise-like" for NcmSync.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NcmClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NcmSyncClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4857,301 +5114,2212 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Ncm model
+   * Fields of the NcmSync model
    */ 
-  interface NcmFieldRefs {
-    readonly codigo_ncm: FieldRef<"Ncm", 'String'>
-    readonly descricao_ncm: FieldRef<"Ncm", 'String'>
-    readonly ipi_ncm: FieldRef<"Ncm", 'Float'>
-    readonly ii_ncm: FieldRef<"Ncm", 'Float'>
-    readonly pis_ncm: FieldRef<"Ncm", 'Float'>
-    readonly cofins_ncm: FieldRef<"Ncm", 'Float'>
-    readonly ativo_ncm: FieldRef<"Ncm", 'Boolean'>
+  interface NcmSyncFieldRefs {
+    readonly codigo_ncm_sync: FieldRef<"NcmSync", 'String'>
+    readonly descricao_ncm_sync: FieldRef<"NcmSync", 'String'>
+    readonly ipi_ncm_sync: FieldRef<"NcmSync", 'Float'>
+    readonly ii_ncm_sync: FieldRef<"NcmSync", 'Float'>
+    readonly pis_ncm_sync: FieldRef<"NcmSync", 'Float'>
+    readonly cofins_ncm_sync: FieldRef<"NcmSync", 'Float'>
+    readonly ativo_ncm_sync: FieldRef<"NcmSync", 'Boolean'>
+    readonly data_inicio_ncm_sync: FieldRef<"NcmSync", 'DateTime'>
+    readonly data_fim_ncm_sync: FieldRef<"NcmSync", 'DateTime'>
+    readonly id_ncm_sync_log: FieldRef<"NcmSync", 'String'>
+    readonly data_criacao_ncm_sync: FieldRef<"NcmSync", 'DateTime'>
+    readonly data_atualizacao_ncm_sync: FieldRef<"NcmSync", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Ncm findUnique
+   * NcmSync findUnique
    */
-  export type NcmFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter, which Ncm to fetch.
+     * Filter, which NcmSync to fetch.
      */
-    where: NcmWhereUniqueInput
+    where: NcmSyncWhereUniqueInput
   }
 
   /**
-   * Ncm findUniqueOrThrow
+   * NcmSync findUniqueOrThrow
    */
-  export type NcmFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter, which Ncm to fetch.
+     * Filter, which NcmSync to fetch.
      */
-    where: NcmWhereUniqueInput
+    where: NcmSyncWhereUniqueInput
   }
 
   /**
-   * Ncm findFirst
+   * NcmSync findFirst
    */
-  export type NcmFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter, which Ncm to fetch.
+     * Filter, which NcmSync to fetch.
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Ncms to fetch.
+     * Determine the order of NcmSyncs to fetch.
      */
-    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
+    orderBy?: NcmSyncOrderByWithRelationInput | NcmSyncOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Ncms.
+     * Sets the position for searching for NcmSyncs.
      */
-    cursor?: NcmWhereUniqueInput
+    cursor?: NcmSyncWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Ncms from the position of the cursor.
+     * Take `±n` NcmSyncs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Ncms.
+     * Skip the first `n` NcmSyncs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Ncms.
+     * Filter by unique combinations of NcmSyncs.
      */
-    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
+    distinct?: NcmSyncScalarFieldEnum | NcmSyncScalarFieldEnum[]
   }
 
   /**
-   * Ncm findFirstOrThrow
+   * NcmSync findFirstOrThrow
    */
-  export type NcmFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter, which Ncm to fetch.
+     * Filter, which NcmSync to fetch.
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Ncms to fetch.
+     * Determine the order of NcmSyncs to fetch.
      */
-    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
+    orderBy?: NcmSyncOrderByWithRelationInput | NcmSyncOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Ncms.
+     * Sets the position for searching for NcmSyncs.
      */
-    cursor?: NcmWhereUniqueInput
+    cursor?: NcmSyncWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Ncms from the position of the cursor.
+     * Take `±n` NcmSyncs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Ncms.
+     * Skip the first `n` NcmSyncs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Ncms.
+     * Filter by unique combinations of NcmSyncs.
      */
-    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
+    distinct?: NcmSyncScalarFieldEnum | NcmSyncScalarFieldEnum[]
   }
 
   /**
-   * Ncm findMany
+   * NcmSync findMany
    */
-  export type NcmFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter, which Ncms to fetch.
+     * Filter, which NcmSyncs to fetch.
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Ncms to fetch.
+     * Determine the order of NcmSyncs to fetch.
      */
-    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
+    orderBy?: NcmSyncOrderByWithRelationInput | NcmSyncOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Ncms.
+     * Sets the position for listing NcmSyncs.
      */
-    cursor?: NcmWhereUniqueInput
+    cursor?: NcmSyncWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Ncms from the position of the cursor.
+     * Take `±n` NcmSyncs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Ncms.
+     * Skip the first `n` NcmSyncs.
      */
     skip?: number
-    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
+    distinct?: NcmSyncScalarFieldEnum | NcmSyncScalarFieldEnum[]
   }
 
   /**
-   * Ncm create
+   * NcmSync create
    */
-  export type NcmCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * The data needed to create a Ncm.
+     * The data needed to create a NcmSync.
      */
-    data: XOR<NcmCreateInput, NcmUncheckedCreateInput>
+    data: XOR<NcmSyncCreateInput, NcmSyncUncheckedCreateInput>
   }
 
   /**
-   * Ncm createMany
+   * NcmSync createMany
    */
-  export type NcmCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Ncms.
+     * The data used to create many NcmSyncs.
      */
-    data: NcmCreateManyInput | NcmCreateManyInput[]
+    data: NcmSyncCreateManyInput | NcmSyncCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Ncm createManyAndReturn
+   * NcmSync createManyAndReturn
    */
-  export type NcmCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NcmSyncSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Ncms.
+     * The data used to create many NcmSyncs.
      */
-    data: NcmCreateManyInput | NcmCreateManyInput[]
+    data: NcmSyncCreateManyInput | NcmSyncCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Ncm update
+   * NcmSync update
    */
-  export type NcmUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * The data needed to update a Ncm.
+     * The data needed to update a NcmSync.
      */
-    data: XOR<NcmUpdateInput, NcmUncheckedUpdateInput>
+    data: XOR<NcmSyncUpdateInput, NcmSyncUncheckedUpdateInput>
     /**
-     * Choose, which Ncm to update.
+     * Choose, which NcmSync to update.
      */
-    where: NcmWhereUniqueInput
+    where: NcmSyncWhereUniqueInput
   }
 
   /**
-   * Ncm updateMany
+   * NcmSync updateMany
    */
-  export type NcmUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Ncms.
+     * The data used to update NcmSyncs.
      */
-    data: XOR<NcmUpdateManyMutationInput, NcmUncheckedUpdateManyInput>
+    data: XOR<NcmSyncUpdateManyMutationInput, NcmSyncUncheckedUpdateManyInput>
     /**
-     * Filter which Ncms to update
+     * Filter which NcmSyncs to update
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
   }
 
   /**
-   * Ncm upsert
+   * NcmSync upsert
    */
-  export type NcmUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * The filter to search for the Ncm to update in case it exists.
+     * The filter to search for the NcmSync to update in case it exists.
      */
-    where: NcmWhereUniqueInput
+    where: NcmSyncWhereUniqueInput
     /**
-     * In case the Ncm found by the `where` argument doesn't exist, create a new Ncm with this data.
+     * In case the NcmSync found by the `where` argument doesn't exist, create a new NcmSync with this data.
      */
-    create: XOR<NcmCreateInput, NcmUncheckedCreateInput>
+    create: XOR<NcmSyncCreateInput, NcmSyncUncheckedCreateInput>
     /**
-     * In case the Ncm was found with the provided `where` argument, update it with this data.
+     * In case the NcmSync was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<NcmUpdateInput, NcmUncheckedUpdateInput>
+    update: XOR<NcmSyncUpdateInput, NcmSyncUncheckedUpdateInput>
   }
 
   /**
-   * Ncm delete
+   * NcmSync delete
    */
-  export type NcmDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
     /**
-     * Filter which Ncm to delete.
+     * Filter which NcmSync to delete.
      */
-    where: NcmWhereUniqueInput
+    where: NcmSyncWhereUniqueInput
   }
 
   /**
-   * Ncm deleteMany
+   * NcmSync deleteMany
    */
-  export type NcmDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Ncms to delete
+     * Filter which NcmSyncs to delete
      */
-    where?: NcmWhereInput
+    where?: NcmSyncWhereInput
   }
 
   /**
-   * Ncm without action
+   * NcmSync without action
    */
-  export type NcmDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmSyncDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Ncm
+     * Select specific fields to fetch from the NcmSync
      */
-    select?: NcmSelect<ExtArgs> | null
+    select?: NcmSyncSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NcmSyncLog
+   */
+
+  export type AggregateNcmSyncLog = {
+    _count: NcmSyncLogCountAggregateOutputType | null
+    _avg: NcmSyncLogAvgAggregateOutputType | null
+    _sum: NcmSyncLogSumAggregateOutputType | null
+    _min: NcmSyncLogMinAggregateOutputType | null
+    _max: NcmSyncLogMaxAggregateOutputType | null
+  }
+
+  export type NcmSyncLogAvgAggregateOutputType = {
+    total_ncm_sync_log: number | null
+    adicionados_ncm_sync_log: number | null
+    alterados_ncm_sync_log: number | null
+    removidos_ncm_sync_log: number | null
+  }
+
+  export type NcmSyncLogSumAggregateOutputType = {
+    total_ncm_sync_log: number | null
+    adicionados_ncm_sync_log: number | null
+    alterados_ncm_sync_log: number | null
+    removidos_ncm_sync_log: number | null
+  }
+
+  export type NcmSyncLogMinAggregateOutputType = {
+    id_ncm_sync_log: string | null
+    data_inicio_ncm_sync_log: Date | null
+    data_conclusao_ncm_sync_log: Date | null
+    status_ncm_sync_log: $Enums.NcmSyncStatusSincronizacao | null
+    total_ncm_sync_log: number | null
+    adicionados_ncm_sync_log: number | null
+    alterados_ncm_sync_log: number | null
+    removidos_ncm_sync_log: number | null
+    origem_ncm_sync_log: $Enums.NcmSyncOrigemSincronizacao | null
+    disparado_por_ncm_sync_log: string | null
+    mensagem_erro_ncm_sync_log: string | null
+    data_criacao_ncm_sync_log: Date | null
+    data_atualizacao_ncm_sync_log: Date | null
+  }
+
+  export type NcmSyncLogMaxAggregateOutputType = {
+    id_ncm_sync_log: string | null
+    data_inicio_ncm_sync_log: Date | null
+    data_conclusao_ncm_sync_log: Date | null
+    status_ncm_sync_log: $Enums.NcmSyncStatusSincronizacao | null
+    total_ncm_sync_log: number | null
+    adicionados_ncm_sync_log: number | null
+    alterados_ncm_sync_log: number | null
+    removidos_ncm_sync_log: number | null
+    origem_ncm_sync_log: $Enums.NcmSyncOrigemSincronizacao | null
+    disparado_por_ncm_sync_log: string | null
+    mensagem_erro_ncm_sync_log: string | null
+    data_criacao_ncm_sync_log: Date | null
+    data_atualizacao_ncm_sync_log: Date | null
+  }
+
+  export type NcmSyncLogCountAggregateOutputType = {
+    id_ncm_sync_log: number
+    data_inicio_ncm_sync_log: number
+    data_conclusao_ncm_sync_log: number
+    status_ncm_sync_log: number
+    total_ncm_sync_log: number
+    adicionados_ncm_sync_log: number
+    alterados_ncm_sync_log: number
+    removidos_ncm_sync_log: number
+    origem_ncm_sync_log: number
+    disparado_por_ncm_sync_log: number
+    mensagem_erro_ncm_sync_log: number
+    data_criacao_ncm_sync_log: number
+    data_atualizacao_ncm_sync_log: number
+    _all: number
+  }
+
+
+  export type NcmSyncLogAvgAggregateInputType = {
+    total_ncm_sync_log?: true
+    adicionados_ncm_sync_log?: true
+    alterados_ncm_sync_log?: true
+    removidos_ncm_sync_log?: true
+  }
+
+  export type NcmSyncLogSumAggregateInputType = {
+    total_ncm_sync_log?: true
+    adicionados_ncm_sync_log?: true
+    alterados_ncm_sync_log?: true
+    removidos_ncm_sync_log?: true
+  }
+
+  export type NcmSyncLogMinAggregateInputType = {
+    id_ncm_sync_log?: true
+    data_inicio_ncm_sync_log?: true
+    data_conclusao_ncm_sync_log?: true
+    status_ncm_sync_log?: true
+    total_ncm_sync_log?: true
+    adicionados_ncm_sync_log?: true
+    alterados_ncm_sync_log?: true
+    removidos_ncm_sync_log?: true
+    origem_ncm_sync_log?: true
+    disparado_por_ncm_sync_log?: true
+    mensagem_erro_ncm_sync_log?: true
+    data_criacao_ncm_sync_log?: true
+    data_atualizacao_ncm_sync_log?: true
+  }
+
+  export type NcmSyncLogMaxAggregateInputType = {
+    id_ncm_sync_log?: true
+    data_inicio_ncm_sync_log?: true
+    data_conclusao_ncm_sync_log?: true
+    status_ncm_sync_log?: true
+    total_ncm_sync_log?: true
+    adicionados_ncm_sync_log?: true
+    alterados_ncm_sync_log?: true
+    removidos_ncm_sync_log?: true
+    origem_ncm_sync_log?: true
+    disparado_por_ncm_sync_log?: true
+    mensagem_erro_ncm_sync_log?: true
+    data_criacao_ncm_sync_log?: true
+    data_atualizacao_ncm_sync_log?: true
+  }
+
+  export type NcmSyncLogCountAggregateInputType = {
+    id_ncm_sync_log?: true
+    data_inicio_ncm_sync_log?: true
+    data_conclusao_ncm_sync_log?: true
+    status_ncm_sync_log?: true
+    total_ncm_sync_log?: true
+    adicionados_ncm_sync_log?: true
+    alterados_ncm_sync_log?: true
+    removidos_ncm_sync_log?: true
+    origem_ncm_sync_log?: true
+    disparado_por_ncm_sync_log?: true
+    mensagem_erro_ncm_sync_log?: true
+    data_criacao_ncm_sync_log?: true
+    data_atualizacao_ncm_sync_log?: true
+    _all?: true
+  }
+
+  export type NcmSyncLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncLog to aggregate.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NcmSyncLogs
+    **/
+    _count?: true | NcmSyncLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: NcmSyncLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: NcmSyncLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NcmSyncLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NcmSyncLogMaxAggregateInputType
+  }
+
+  export type GetNcmSyncLogAggregateType<T extends NcmSyncLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmSyncLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNcmSyncLog[P]>
+      : GetScalarType<T[P], AggregateNcmSyncLog[P]>
+  }
+
+
+
+
+  export type NcmSyncLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmSyncLogWhereInput
+    orderBy?: NcmSyncLogOrderByWithAggregationInput | NcmSyncLogOrderByWithAggregationInput[]
+    by: NcmSyncLogScalarFieldEnum[] | NcmSyncLogScalarFieldEnum
+    having?: NcmSyncLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NcmSyncLogCountAggregateInputType | true
+    _avg?: NcmSyncLogAvgAggregateInputType
+    _sum?: NcmSyncLogSumAggregateInputType
+    _min?: NcmSyncLogMinAggregateInputType
+    _max?: NcmSyncLogMaxAggregateInputType
+  }
+
+  export type NcmSyncLogGroupByOutputType = {
+    id_ncm_sync_log: string
+    data_inicio_ncm_sync_log: Date
+    data_conclusao_ncm_sync_log: Date | null
+    status_ncm_sync_log: $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log: number
+    adicionados_ncm_sync_log: number
+    alterados_ncm_sync_log: number
+    removidos_ncm_sync_log: number
+    origem_ncm_sync_log: $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log: string | null
+    mensagem_erro_ncm_sync_log: string | null
+    data_criacao_ncm_sync_log: Date
+    data_atualizacao_ncm_sync_log: Date
+    _count: NcmSyncLogCountAggregateOutputType | null
+    _avg: NcmSyncLogAvgAggregateOutputType | null
+    _sum: NcmSyncLogSumAggregateOutputType | null
+    _min: NcmSyncLogMinAggregateOutputType | null
+    _max: NcmSyncLogMaxAggregateOutputType | null
+  }
+
+  type GetNcmSyncLogGroupByPayload<T extends NcmSyncLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NcmSyncLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NcmSyncLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NcmSyncLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_sync_log?: boolean
+    data_inicio_ncm_sync_log?: boolean
+    data_conclusao_ncm_sync_log?: boolean
+    status_ncm_sync_log?: boolean
+    total_ncm_sync_log?: boolean
+    adicionados_ncm_sync_log?: boolean
+    alterados_ncm_sync_log?: boolean
+    removidos_ncm_sync_log?: boolean
+    origem_ncm_sync_log?: boolean
+    disparado_por_ncm_sync_log?: boolean
+    mensagem_erro_ncm_sync_log?: boolean
+    data_criacao_ncm_sync_log?: boolean
+    data_atualizacao_ncm_sync_log?: boolean
+  }, ExtArgs["result"]["ncmSyncLog"]>
+
+  export type NcmSyncLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_sync_log?: boolean
+    data_inicio_ncm_sync_log?: boolean
+    data_conclusao_ncm_sync_log?: boolean
+    status_ncm_sync_log?: boolean
+    total_ncm_sync_log?: boolean
+    adicionados_ncm_sync_log?: boolean
+    alterados_ncm_sync_log?: boolean
+    removidos_ncm_sync_log?: boolean
+    origem_ncm_sync_log?: boolean
+    disparado_por_ncm_sync_log?: boolean
+    mensagem_erro_ncm_sync_log?: boolean
+    data_criacao_ncm_sync_log?: boolean
+    data_atualizacao_ncm_sync_log?: boolean
+  }, ExtArgs["result"]["ncmSyncLog"]>
+
+  export type NcmSyncLogSelectScalar = {
+    id_ncm_sync_log?: boolean
+    data_inicio_ncm_sync_log?: boolean
+    data_conclusao_ncm_sync_log?: boolean
+    status_ncm_sync_log?: boolean
+    total_ncm_sync_log?: boolean
+    adicionados_ncm_sync_log?: boolean
+    alterados_ncm_sync_log?: boolean
+    removidos_ncm_sync_log?: boolean
+    origem_ncm_sync_log?: boolean
+    disparado_por_ncm_sync_log?: boolean
+    mensagem_erro_ncm_sync_log?: boolean
+    data_criacao_ncm_sync_log?: boolean
+    data_atualizacao_ncm_sync_log?: boolean
+  }
+
+
+  export type $NcmSyncLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmSyncLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_ncm_sync_log: string
+      data_inicio_ncm_sync_log: Date
+      data_conclusao_ncm_sync_log: Date | null
+      status_ncm_sync_log: $Enums.NcmSyncStatusSincronizacao
+      total_ncm_sync_log: number
+      adicionados_ncm_sync_log: number
+      alterados_ncm_sync_log: number
+      removidos_ncm_sync_log: number
+      origem_ncm_sync_log: $Enums.NcmSyncOrigemSincronizacao
+      disparado_por_ncm_sync_log: string | null
+      mensagem_erro_ncm_sync_log: string | null
+      data_criacao_ncm_sync_log: Date
+      data_atualizacao_ncm_sync_log: Date
+    }, ExtArgs["result"]["ncmSyncLog"]>
+    composites: {}
+  }
+
+  type NcmSyncLogGetPayload<S extends boolean | null | undefined | NcmSyncLogDefaultArgs> = $Result.GetResult<Prisma.$NcmSyncLogPayload, S>
+
+  type NcmSyncLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmSyncLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmSyncLogCountAggregateInputType | true
+    }
+
+  export interface NcmSyncLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmSyncLog'], meta: { name: 'NcmSyncLog' } }
+    /**
+     * Find zero or one NcmSyncLog that matches the filter.
+     * @param {NcmSyncLogFindUniqueArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NcmSyncLogFindUniqueArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one NcmSyncLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {NcmSyncLogFindUniqueOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NcmSyncLogFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first NcmSyncLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindFirstArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NcmSyncLogFindFirstArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first NcmSyncLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindFirstOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NcmSyncLogFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more NcmSyncLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NcmSyncLogs
+     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+     * 
+     * // Get first 10 NcmSyncLogs
+     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id_ncm_sync_log`
+     * const ncmSyncLogWithId_ncm_sync_logOnly = await prisma.ncmSyncLog.findMany({ select: { id_ncm_sync_log: true } })
+     * 
+     */
+    findMany<T extends NcmSyncLogFindManyArgs>(args?: SelectSubset<T, NcmSyncLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a NcmSyncLog.
+     * @param {NcmSyncLogCreateArgs} args - Arguments to create a NcmSyncLog.
+     * @example
+     * // Create one NcmSyncLog
+     * const NcmSyncLog = await prisma.ncmSyncLog.create({
+     *   data: {
+     *     // ... data to create a NcmSyncLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends NcmSyncLogCreateArgs>(args: SelectSubset<T, NcmSyncLogCreateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many NcmSyncLogs.
+     * @param {NcmSyncLogCreateManyArgs} args - Arguments to create many NcmSyncLogs.
+     * @example
+     * // Create many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NcmSyncLogCreateManyArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NcmSyncLogs and returns the data saved in the database.
+     * @param {NcmSyncLogCreateManyAndReturnArgs} args - Arguments to create many NcmSyncLogs.
+     * @example
+     * // Create many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NcmSyncLogs and only return the `id_ncm_sync_log`
+     * const ncmSyncLogWithId_ncm_sync_logOnly = await prisma.ncmSyncLog.createManyAndReturn({ 
+     *   select: { id_ncm_sync_log: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NcmSyncLogCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a NcmSyncLog.
+     * @param {NcmSyncLogDeleteArgs} args - Arguments to delete one NcmSyncLog.
+     * @example
+     * // Delete one NcmSyncLog
+     * const NcmSyncLog = await prisma.ncmSyncLog.delete({
+     *   where: {
+     *     // ... filter to delete one NcmSyncLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NcmSyncLogDeleteArgs>(args: SelectSubset<T, NcmSyncLogDeleteArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one NcmSyncLog.
+     * @param {NcmSyncLogUpdateArgs} args - Arguments to update one NcmSyncLog.
+     * @example
+     * // Update one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NcmSyncLogUpdateArgs>(args: SelectSubset<T, NcmSyncLogUpdateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more NcmSyncLogs.
+     * @param {NcmSyncLogDeleteManyArgs} args - Arguments to filter NcmSyncLogs to delete.
+     * @example
+     * // Delete a few NcmSyncLogs
+     * const { count } = await prisma.ncmSyncLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NcmSyncLogDeleteManyArgs>(args?: SelectSubset<T, NcmSyncLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NcmSyncLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NcmSyncLogUpdateManyArgs>(args: SelectSubset<T, NcmSyncLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NcmSyncLog.
+     * @param {NcmSyncLogUpsertArgs} args - Arguments to update or create a NcmSyncLog.
+     * @example
+     * // Update or create a NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.upsert({
+     *   create: {
+     *     // ... data to create a NcmSyncLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NcmSyncLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NcmSyncLogUpsertArgs>(args: SelectSubset<T, NcmSyncLogUpsertArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of NcmSyncLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogCountArgs} args - Arguments to filter NcmSyncLogs to count.
+     * @example
+     * // Count the number of NcmSyncLogs
+     * const count = await prisma.ncmSyncLog.count({
+     *   where: {
+     *     // ... the filter for the NcmSyncLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends NcmSyncLogCountArgs>(
+      args?: Subset<T, NcmSyncLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NcmSyncLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NcmSyncLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NcmSyncLogAggregateArgs>(args: Subset<T, NcmSyncLogAggregateArgs>): Prisma.PrismaPromise<GetNcmSyncLogAggregateType<T>>
+
+    /**
+     * Group by NcmSyncLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NcmSyncLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NcmSyncLogGroupByArgs['orderBy'] }
+        : { orderBy?: NcmSyncLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NcmSyncLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmSyncLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NcmSyncLog model
+   */
+  readonly fields: NcmSyncLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NcmSyncLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NcmSyncLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NcmSyncLog model
+   */ 
+  interface NcmSyncLogFieldRefs {
+    readonly id_ncm_sync_log: FieldRef<"NcmSyncLog", 'String'>
+    readonly data_inicio_ncm_sync_log: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly data_conclusao_ncm_sync_log: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly status_ncm_sync_log: FieldRef<"NcmSyncLog", 'NcmSyncStatusSincronizacao'>
+    readonly total_ncm_sync_log: FieldRef<"NcmSyncLog", 'Int'>
+    readonly adicionados_ncm_sync_log: FieldRef<"NcmSyncLog", 'Int'>
+    readonly alterados_ncm_sync_log: FieldRef<"NcmSyncLog", 'Int'>
+    readonly removidos_ncm_sync_log: FieldRef<"NcmSyncLog", 'Int'>
+    readonly origem_ncm_sync_log: FieldRef<"NcmSyncLog", 'NcmSyncOrigemSincronizacao'>
+    readonly disparado_por_ncm_sync_log: FieldRef<"NcmSyncLog", 'String'>
+    readonly mensagem_erro_ncm_sync_log: FieldRef<"NcmSyncLog", 'String'>
+    readonly data_criacao_ncm_sync_log: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly data_atualizacao_ncm_sync_log: FieldRef<"NcmSyncLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NcmSyncLog findUnique
+   */
+  export type NcmSyncLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog findUniqueOrThrow
+   */
+  export type NcmSyncLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog findFirst
+   */
+  export type NcmSyncLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncLogs.
+     */
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog findFirstOrThrow
+   */
+  export type NcmSyncLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncLogs.
+     */
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog findMany
+   */
+  export type NcmSyncLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLogs to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog create
+   */
+  export type NcmSyncLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a NcmSyncLog.
+     */
+    data: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+  }
+
+  /**
+   * NcmSyncLog createMany
+   */
+  export type NcmSyncLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NcmSyncLogs.
+     */
+    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncLog createManyAndReturn
+   */
+  export type NcmSyncLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many NcmSyncLogs.
+     */
+    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncLog update
+   */
+  export type NcmSyncLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a NcmSyncLog.
+     */
+    data: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+    /**
+     * Choose, which NcmSyncLog to update.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog updateMany
+   */
+  export type NcmSyncLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NcmSyncLogs.
+     */
+    data: XOR<NcmSyncLogUpdateManyMutationInput, NcmSyncLogUncheckedUpdateManyInput>
+    /**
+     * Filter which NcmSyncLogs to update
+     */
+    where?: NcmSyncLogWhereInput
+  }
+
+  /**
+   * NcmSyncLog upsert
+   */
+  export type NcmSyncLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the NcmSyncLog to update in case it exists.
+     */
+    where: NcmSyncLogWhereUniqueInput
+    /**
+     * In case the NcmSyncLog found by the `where` argument doesn't exist, create a new NcmSyncLog with this data.
+     */
+    create: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+    /**
+     * In case the NcmSyncLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+  }
+
+  /**
+   * NcmSyncLog delete
+   */
+  export type NcmSyncLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter which NcmSyncLog to delete.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog deleteMany
+   */
+  export type NcmSyncLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncLogs to delete
+     */
+    where?: NcmSyncLogWhereInput
+  }
+
+  /**
+   * NcmSyncLog without action
+   */
+  export type NcmSyncLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NcmSyncAgendamento
+   */
+
+  export type AggregateNcmSyncAgendamento = {
+    _count: NcmSyncAgendamentoCountAggregateOutputType | null
+    _min: NcmSyncAgendamentoMinAggregateOutputType | null
+    _max: NcmSyncAgendamentoMaxAggregateOutputType | null
+  }
+
+  export type NcmSyncAgendamentoMinAggregateOutputType = {
+    id_ncm_sync_agendamento: string | null
+    ativo_ncm_sync_agendamento: boolean | null
+    cron_expressao_ncm_sync_agendamento: string | null
+    data_criacao_ncm_sync_agendamento: Date | null
+    data_atualizacao_ncm_sync_agendamento: Date | null
+  }
+
+  export type NcmSyncAgendamentoMaxAggregateOutputType = {
+    id_ncm_sync_agendamento: string | null
+    ativo_ncm_sync_agendamento: boolean | null
+    cron_expressao_ncm_sync_agendamento: string | null
+    data_criacao_ncm_sync_agendamento: Date | null
+    data_atualizacao_ncm_sync_agendamento: Date | null
+  }
+
+  export type NcmSyncAgendamentoCountAggregateOutputType = {
+    id_ncm_sync_agendamento: number
+    ativo_ncm_sync_agendamento: number
+    cron_expressao_ncm_sync_agendamento: number
+    notificadores_ncm_sync_agendamento: number
+    data_criacao_ncm_sync_agendamento: number
+    data_atualizacao_ncm_sync_agendamento: number
+    _all: number
+  }
+
+
+  export type NcmSyncAgendamentoMinAggregateInputType = {
+    id_ncm_sync_agendamento?: true
+    ativo_ncm_sync_agendamento?: true
+    cron_expressao_ncm_sync_agendamento?: true
+    data_criacao_ncm_sync_agendamento?: true
+    data_atualizacao_ncm_sync_agendamento?: true
+  }
+
+  export type NcmSyncAgendamentoMaxAggregateInputType = {
+    id_ncm_sync_agendamento?: true
+    ativo_ncm_sync_agendamento?: true
+    cron_expressao_ncm_sync_agendamento?: true
+    data_criacao_ncm_sync_agendamento?: true
+    data_atualizacao_ncm_sync_agendamento?: true
+  }
+
+  export type NcmSyncAgendamentoCountAggregateInputType = {
+    id_ncm_sync_agendamento?: true
+    ativo_ncm_sync_agendamento?: true
+    cron_expressao_ncm_sync_agendamento?: true
+    notificadores_ncm_sync_agendamento?: true
+    data_criacao_ncm_sync_agendamento?: true
+    data_atualizacao_ncm_sync_agendamento?: true
+    _all?: true
+  }
+
+  export type NcmSyncAgendamentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncAgendamento to aggregate.
+     */
+    where?: NcmSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncAgendamentos to fetch.
+     */
+    orderBy?: NcmSyncAgendamentoOrderByWithRelationInput | NcmSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NcmSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NcmSyncAgendamentos
+    **/
+    _count?: true | NcmSyncAgendamentoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NcmSyncAgendamentoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NcmSyncAgendamentoMaxAggregateInputType
+  }
+
+  export type GetNcmSyncAgendamentoAggregateType<T extends NcmSyncAgendamentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmSyncAgendamento]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNcmSyncAgendamento[P]>
+      : GetScalarType<T[P], AggregateNcmSyncAgendamento[P]>
+  }
+
+
+
+
+  export type NcmSyncAgendamentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmSyncAgendamentoWhereInput
+    orderBy?: NcmSyncAgendamentoOrderByWithAggregationInput | NcmSyncAgendamentoOrderByWithAggregationInput[]
+    by: NcmSyncAgendamentoScalarFieldEnum[] | NcmSyncAgendamentoScalarFieldEnum
+    having?: NcmSyncAgendamentoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NcmSyncAgendamentoCountAggregateInputType | true
+    _min?: NcmSyncAgendamentoMinAggregateInputType
+    _max?: NcmSyncAgendamentoMaxAggregateInputType
+  }
+
+  export type NcmSyncAgendamentoGroupByOutputType = {
+    id_ncm_sync_agendamento: string
+    ativo_ncm_sync_agendamento: boolean
+    cron_expressao_ncm_sync_agendamento: string
+    notificadores_ncm_sync_agendamento: JsonValue
+    data_criacao_ncm_sync_agendamento: Date
+    data_atualizacao_ncm_sync_agendamento: Date
+    _count: NcmSyncAgendamentoCountAggregateOutputType | null
+    _min: NcmSyncAgendamentoMinAggregateOutputType | null
+    _max: NcmSyncAgendamentoMaxAggregateOutputType | null
+  }
+
+  type GetNcmSyncAgendamentoGroupByPayload<T extends NcmSyncAgendamentoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NcmSyncAgendamentoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NcmSyncAgendamentoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NcmSyncAgendamentoGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmSyncAgendamentoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NcmSyncAgendamentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_sync_agendamento?: boolean
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: boolean
+    notificadores_ncm_sync_agendamento?: boolean
+    data_criacao_ncm_sync_agendamento?: boolean
+    data_atualizacao_ncm_sync_agendamento?: boolean
+  }, ExtArgs["result"]["ncmSyncAgendamento"]>
+
+  export type NcmSyncAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_sync_agendamento?: boolean
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: boolean
+    notificadores_ncm_sync_agendamento?: boolean
+    data_criacao_ncm_sync_agendamento?: boolean
+    data_atualizacao_ncm_sync_agendamento?: boolean
+  }, ExtArgs["result"]["ncmSyncAgendamento"]>
+
+  export type NcmSyncAgendamentoSelectScalar = {
+    id_ncm_sync_agendamento?: boolean
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: boolean
+    notificadores_ncm_sync_agendamento?: boolean
+    data_criacao_ncm_sync_agendamento?: boolean
+    data_atualizacao_ncm_sync_agendamento?: boolean
+  }
+
+
+  export type $NcmSyncAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmSyncAgendamento"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_ncm_sync_agendamento: string
+      ativo_ncm_sync_agendamento: boolean
+      cron_expressao_ncm_sync_agendamento: string
+      notificadores_ncm_sync_agendamento: Prisma.JsonValue
+      data_criacao_ncm_sync_agendamento: Date
+      data_atualizacao_ncm_sync_agendamento: Date
+    }, ExtArgs["result"]["ncmSyncAgendamento"]>
+    composites: {}
+  }
+
+  type NcmSyncAgendamentoGetPayload<S extends boolean | null | undefined | NcmSyncAgendamentoDefaultArgs> = $Result.GetResult<Prisma.$NcmSyncAgendamentoPayload, S>
+
+  type NcmSyncAgendamentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmSyncAgendamentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmSyncAgendamentoCountAggregateInputType | true
+    }
+
+  export interface NcmSyncAgendamentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmSyncAgendamento'], meta: { name: 'NcmSyncAgendamento' } }
+    /**
+     * Find zero or one NcmSyncAgendamento that matches the filter.
+     * @param {NcmSyncAgendamentoFindUniqueArgs} args - Arguments to find a NcmSyncAgendamento
+     * @example
+     * // Get one NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NcmSyncAgendamentoFindUniqueArgs>(args: SelectSubset<T, NcmSyncAgendamentoFindUniqueArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one NcmSyncAgendamento that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {NcmSyncAgendamentoFindUniqueOrThrowArgs} args - Arguments to find a NcmSyncAgendamento
+     * @example
+     * // Get one NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NcmSyncAgendamentoFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first NcmSyncAgendamento that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoFindFirstArgs} args - Arguments to find a NcmSyncAgendamento
+     * @example
+     * // Get one NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NcmSyncAgendamentoFindFirstArgs>(args?: SelectSubset<T, NcmSyncAgendamentoFindFirstArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first NcmSyncAgendamento that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoFindFirstOrThrowArgs} args - Arguments to find a NcmSyncAgendamento
+     * @example
+     * // Get one NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NcmSyncAgendamentoFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmSyncAgendamentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more NcmSyncAgendamentos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NcmSyncAgendamentos
+     * const ncmSyncAgendamentos = await prisma.ncmSyncAgendamento.findMany()
+     * 
+     * // Get first 10 NcmSyncAgendamentos
+     * const ncmSyncAgendamentos = await prisma.ncmSyncAgendamento.findMany({ take: 10 })
+     * 
+     * // Only select the `id_ncm_sync_agendamento`
+     * const ncmSyncAgendamentoWithId_ncm_sync_agendamentoOnly = await prisma.ncmSyncAgendamento.findMany({ select: { id_ncm_sync_agendamento: true } })
+     * 
+     */
+    findMany<T extends NcmSyncAgendamentoFindManyArgs>(args?: SelectSubset<T, NcmSyncAgendamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a NcmSyncAgendamento.
+     * @param {NcmSyncAgendamentoCreateArgs} args - Arguments to create a NcmSyncAgendamento.
+     * @example
+     * // Create one NcmSyncAgendamento
+     * const NcmSyncAgendamento = await prisma.ncmSyncAgendamento.create({
+     *   data: {
+     *     // ... data to create a NcmSyncAgendamento
+     *   }
+     * })
+     * 
+     */
+    create<T extends NcmSyncAgendamentoCreateArgs>(args: SelectSubset<T, NcmSyncAgendamentoCreateArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many NcmSyncAgendamentos.
+     * @param {NcmSyncAgendamentoCreateManyArgs} args - Arguments to create many NcmSyncAgendamentos.
+     * @example
+     * // Create many NcmSyncAgendamentos
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NcmSyncAgendamentoCreateManyArgs>(args?: SelectSubset<T, NcmSyncAgendamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NcmSyncAgendamentos and returns the data saved in the database.
+     * @param {NcmSyncAgendamentoCreateManyAndReturnArgs} args - Arguments to create many NcmSyncAgendamentos.
+     * @example
+     * // Create many NcmSyncAgendamentos
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NcmSyncAgendamentos and only return the `id_ncm_sync_agendamento`
+     * const ncmSyncAgendamentoWithId_ncm_sync_agendamentoOnly = await prisma.ncmSyncAgendamento.createManyAndReturn({ 
+     *   select: { id_ncm_sync_agendamento: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NcmSyncAgendamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmSyncAgendamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a NcmSyncAgendamento.
+     * @param {NcmSyncAgendamentoDeleteArgs} args - Arguments to delete one NcmSyncAgendamento.
+     * @example
+     * // Delete one NcmSyncAgendamento
+     * const NcmSyncAgendamento = await prisma.ncmSyncAgendamento.delete({
+     *   where: {
+     *     // ... filter to delete one NcmSyncAgendamento
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NcmSyncAgendamentoDeleteArgs>(args: SelectSubset<T, NcmSyncAgendamentoDeleteArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one NcmSyncAgendamento.
+     * @param {NcmSyncAgendamentoUpdateArgs} args - Arguments to update one NcmSyncAgendamento.
+     * @example
+     * // Update one NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NcmSyncAgendamentoUpdateArgs>(args: SelectSubset<T, NcmSyncAgendamentoUpdateArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more NcmSyncAgendamentos.
+     * @param {NcmSyncAgendamentoDeleteManyArgs} args - Arguments to filter NcmSyncAgendamentos to delete.
+     * @example
+     * // Delete a few NcmSyncAgendamentos
+     * const { count } = await prisma.ncmSyncAgendamento.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NcmSyncAgendamentoDeleteManyArgs>(args?: SelectSubset<T, NcmSyncAgendamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NcmSyncAgendamentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NcmSyncAgendamentos
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NcmSyncAgendamentoUpdateManyArgs>(args: SelectSubset<T, NcmSyncAgendamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NcmSyncAgendamento.
+     * @param {NcmSyncAgendamentoUpsertArgs} args - Arguments to update or create a NcmSyncAgendamento.
+     * @example
+     * // Update or create a NcmSyncAgendamento
+     * const ncmSyncAgendamento = await prisma.ncmSyncAgendamento.upsert({
+     *   create: {
+     *     // ... data to create a NcmSyncAgendamento
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NcmSyncAgendamento we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NcmSyncAgendamentoUpsertArgs>(args: SelectSubset<T, NcmSyncAgendamentoUpsertArgs<ExtArgs>>): Prisma__NcmSyncAgendamentoClient<$Result.GetResult<Prisma.$NcmSyncAgendamentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of NcmSyncAgendamentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoCountArgs} args - Arguments to filter NcmSyncAgendamentos to count.
+     * @example
+     * // Count the number of NcmSyncAgendamentos
+     * const count = await prisma.ncmSyncAgendamento.count({
+     *   where: {
+     *     // ... the filter for the NcmSyncAgendamentos we want to count
+     *   }
+     * })
+    **/
+    count<T extends NcmSyncAgendamentoCountArgs>(
+      args?: Subset<T, NcmSyncAgendamentoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NcmSyncAgendamentoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NcmSyncAgendamento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NcmSyncAgendamentoAggregateArgs>(args: Subset<T, NcmSyncAgendamentoAggregateArgs>): Prisma.PrismaPromise<GetNcmSyncAgendamentoAggregateType<T>>
+
+    /**
+     * Group by NcmSyncAgendamento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncAgendamentoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NcmSyncAgendamentoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NcmSyncAgendamentoGroupByArgs['orderBy'] }
+        : { orderBy?: NcmSyncAgendamentoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NcmSyncAgendamentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmSyncAgendamentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NcmSyncAgendamento model
+   */
+  readonly fields: NcmSyncAgendamentoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NcmSyncAgendamento.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NcmSyncAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NcmSyncAgendamento model
+   */ 
+  interface NcmSyncAgendamentoFieldRefs {
+    readonly id_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'String'>
+    readonly ativo_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'Boolean'>
+    readonly cron_expressao_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'String'>
+    readonly notificadores_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'Json'>
+    readonly data_criacao_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'DateTime'>
+    readonly data_atualizacao_ncm_sync_agendamento: FieldRef<"NcmSyncAgendamento", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NcmSyncAgendamento findUnique
+   */
+  export type NcmSyncAgendamentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncAgendamento to fetch.
+     */
+    where: NcmSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncAgendamento findUniqueOrThrow
+   */
+  export type NcmSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncAgendamento to fetch.
+     */
+    where: NcmSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncAgendamento findFirst
+   */
+  export type NcmSyncAgendamentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncAgendamento to fetch.
+     */
+    where?: NcmSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncAgendamentos to fetch.
+     */
+    orderBy?: NcmSyncAgendamentoOrderByWithRelationInput | NcmSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncAgendamentos.
+     */
+    cursor?: NcmSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncAgendamentos.
+     */
+    distinct?: NcmSyncAgendamentoScalarFieldEnum | NcmSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncAgendamento findFirstOrThrow
+   */
+  export type NcmSyncAgendamentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncAgendamento to fetch.
+     */
+    where?: NcmSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncAgendamentos to fetch.
+     */
+    orderBy?: NcmSyncAgendamentoOrderByWithRelationInput | NcmSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncAgendamentos.
+     */
+    cursor?: NcmSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncAgendamentos.
+     */
+    distinct?: NcmSyncAgendamentoScalarFieldEnum | NcmSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncAgendamento findMany
+   */
+  export type NcmSyncAgendamentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncAgendamentos to fetch.
+     */
+    where?: NcmSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncAgendamentos to fetch.
+     */
+    orderBy?: NcmSyncAgendamentoOrderByWithRelationInput | NcmSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NcmSyncAgendamentos.
+     */
+    cursor?: NcmSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncAgendamentos.
+     */
+    skip?: number
+    distinct?: NcmSyncAgendamentoScalarFieldEnum | NcmSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncAgendamento create
+   */
+  export type NcmSyncAgendamentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a NcmSyncAgendamento.
+     */
+    data: XOR<NcmSyncAgendamentoCreateInput, NcmSyncAgendamentoUncheckedCreateInput>
+  }
+
+  /**
+   * NcmSyncAgendamento createMany
+   */
+  export type NcmSyncAgendamentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NcmSyncAgendamentos.
+     */
+    data: NcmSyncAgendamentoCreateManyInput | NcmSyncAgendamentoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncAgendamento createManyAndReturn
+   */
+  export type NcmSyncAgendamentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many NcmSyncAgendamentos.
+     */
+    data: NcmSyncAgendamentoCreateManyInput | NcmSyncAgendamentoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncAgendamento update
+   */
+  export type NcmSyncAgendamentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a NcmSyncAgendamento.
+     */
+    data: XOR<NcmSyncAgendamentoUpdateInput, NcmSyncAgendamentoUncheckedUpdateInput>
+    /**
+     * Choose, which NcmSyncAgendamento to update.
+     */
+    where: NcmSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncAgendamento updateMany
+   */
+  export type NcmSyncAgendamentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NcmSyncAgendamentos.
+     */
+    data: XOR<NcmSyncAgendamentoUpdateManyMutationInput, NcmSyncAgendamentoUncheckedUpdateManyInput>
+    /**
+     * Filter which NcmSyncAgendamentos to update
+     */
+    where?: NcmSyncAgendamentoWhereInput
+  }
+
+  /**
+   * NcmSyncAgendamento upsert
+   */
+  export type NcmSyncAgendamentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the NcmSyncAgendamento to update in case it exists.
+     */
+    where: NcmSyncAgendamentoWhereUniqueInput
+    /**
+     * In case the NcmSyncAgendamento found by the `where` argument doesn't exist, create a new NcmSyncAgendamento with this data.
+     */
+    create: XOR<NcmSyncAgendamentoCreateInput, NcmSyncAgendamentoUncheckedCreateInput>
+    /**
+     * In case the NcmSyncAgendamento was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NcmSyncAgendamentoUpdateInput, NcmSyncAgendamentoUncheckedUpdateInput>
+  }
+
+  /**
+   * NcmSyncAgendamento delete
+   */
+  export type NcmSyncAgendamentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter which NcmSyncAgendamento to delete.
+     */
+    where: NcmSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncAgendamento deleteMany
+   */
+  export type NcmSyncAgendamentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncAgendamentos to delete
+     */
+    where?: NcmSyncAgendamentoWhereInput
+  }
+
+  /**
+   * NcmSyncAgendamento without action
+   */
+  export type NcmSyncAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncAgendamento
+     */
+    select?: NcmSyncAgendamentoSelect<ExtArgs> | null
   }
 
 
@@ -7195,17 +9363,53 @@ export namespace Prisma {
   export type UnidadeScalarFieldEnum = (typeof UnidadeScalarFieldEnum)[keyof typeof UnidadeScalarFieldEnum]
 
 
-  export const NcmScalarFieldEnum: {
-    codigo_ncm: 'codigo_ncm',
-    descricao_ncm: 'descricao_ncm',
-    ipi_ncm: 'ipi_ncm',
-    ii_ncm: 'ii_ncm',
-    pis_ncm: 'pis_ncm',
-    cofins_ncm: 'cofins_ncm',
-    ativo_ncm: 'ativo_ncm'
+  export const NcmSyncScalarFieldEnum: {
+    codigo_ncm_sync: 'codigo_ncm_sync',
+    descricao_ncm_sync: 'descricao_ncm_sync',
+    ipi_ncm_sync: 'ipi_ncm_sync',
+    ii_ncm_sync: 'ii_ncm_sync',
+    pis_ncm_sync: 'pis_ncm_sync',
+    cofins_ncm_sync: 'cofins_ncm_sync',
+    ativo_ncm_sync: 'ativo_ncm_sync',
+    data_inicio_ncm_sync: 'data_inicio_ncm_sync',
+    data_fim_ncm_sync: 'data_fim_ncm_sync',
+    id_ncm_sync_log: 'id_ncm_sync_log',
+    data_criacao_ncm_sync: 'data_criacao_ncm_sync',
+    data_atualizacao_ncm_sync: 'data_atualizacao_ncm_sync'
   };
 
-  export type NcmScalarFieldEnum = (typeof NcmScalarFieldEnum)[keyof typeof NcmScalarFieldEnum]
+  export type NcmSyncScalarFieldEnum = (typeof NcmSyncScalarFieldEnum)[keyof typeof NcmSyncScalarFieldEnum]
+
+
+  export const NcmSyncLogScalarFieldEnum: {
+    id_ncm_sync_log: 'id_ncm_sync_log',
+    data_inicio_ncm_sync_log: 'data_inicio_ncm_sync_log',
+    data_conclusao_ncm_sync_log: 'data_conclusao_ncm_sync_log',
+    status_ncm_sync_log: 'status_ncm_sync_log',
+    total_ncm_sync_log: 'total_ncm_sync_log',
+    adicionados_ncm_sync_log: 'adicionados_ncm_sync_log',
+    alterados_ncm_sync_log: 'alterados_ncm_sync_log',
+    removidos_ncm_sync_log: 'removidos_ncm_sync_log',
+    origem_ncm_sync_log: 'origem_ncm_sync_log',
+    disparado_por_ncm_sync_log: 'disparado_por_ncm_sync_log',
+    mensagem_erro_ncm_sync_log: 'mensagem_erro_ncm_sync_log',
+    data_criacao_ncm_sync_log: 'data_criacao_ncm_sync_log',
+    data_atualizacao_ncm_sync_log: 'data_atualizacao_ncm_sync_log'
+  };
+
+  export type NcmSyncLogScalarFieldEnum = (typeof NcmSyncLogScalarFieldEnum)[keyof typeof NcmSyncLogScalarFieldEnum]
+
+
+  export const NcmSyncAgendamentoScalarFieldEnum: {
+    id_ncm_sync_agendamento: 'id_ncm_sync_agendamento',
+    ativo_ncm_sync_agendamento: 'ativo_ncm_sync_agendamento',
+    cron_expressao_ncm_sync_agendamento: 'cron_expressao_ncm_sync_agendamento',
+    notificadores_ncm_sync_agendamento: 'notificadores_ncm_sync_agendamento',
+    data_criacao_ncm_sync_agendamento: 'data_criacao_ncm_sync_agendamento',
+    data_atualizacao_ncm_sync_agendamento: 'data_atualizacao_ncm_sync_agendamento'
+  };
+
+  export type NcmSyncAgendamentoScalarFieldEnum = (typeof NcmSyncAgendamentoScalarFieldEnum)[keyof typeof NcmSyncAgendamentoScalarFieldEnum]
 
 
   export const OpeScalarFieldEnum: {
@@ -7343,9 +9547,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
+   * Reference to a field of type 'NcmSyncStatusSincronizacao'
    */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+  export type EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncStatusSincronizacao[]'
+   */
+  export type ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatusSincronizacao[]'>
     
 
 
@@ -7360,6 +9571,27 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncOrigemSincronizacao'
+   */
+  export type EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigemSincronizacao'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncOrigemSincronizacao[]'
+   */
+  export type ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigemSincronizacao[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
   /**
    * Deep Input Types
@@ -7649,68 +9881,244 @@ export namespace Prisma {
     ativo_unidade?: BoolWithAggregatesFilter<"Unidade"> | boolean
   }
 
-  export type NcmWhereInput = {
-    AND?: NcmWhereInput | NcmWhereInput[]
-    OR?: NcmWhereInput[]
-    NOT?: NcmWhereInput | NcmWhereInput[]
-    codigo_ncm?: StringFilter<"Ncm"> | string
-    descricao_ncm?: StringFilter<"Ncm"> | string
-    ipi_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    ii_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    pis_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    cofins_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    ativo_ncm?: BoolFilter<"Ncm"> | boolean
+  export type NcmSyncWhereInput = {
+    AND?: NcmSyncWhereInput | NcmSyncWhereInput[]
+    OR?: NcmSyncWhereInput[]
+    NOT?: NcmSyncWhereInput | NcmSyncWhereInput[]
+    codigo_ncm_sync?: StringFilter<"NcmSync"> | string
+    descricao_ncm_sync?: StringFilter<"NcmSync"> | string
+    ipi_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    ii_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    pis_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    cofins_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    ativo_ncm_sync?: BoolFilter<"NcmSync"> | boolean
+    data_inicio_ncm_sync?: DateTimeNullableFilter<"NcmSync"> | Date | string | null
+    data_fim_ncm_sync?: DateTimeNullableFilter<"NcmSync"> | Date | string | null
+    id_ncm_sync_log?: StringNullableFilter<"NcmSync"> | string | null
+    data_criacao_ncm_sync?: DateTimeFilter<"NcmSync"> | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFilter<"NcmSync"> | Date | string
   }
 
-  export type NcmOrderByWithRelationInput = {
-    codigo_ncm?: SortOrder
-    descricao_ncm?: SortOrder
-    ipi_ncm?: SortOrderInput | SortOrder
-    ii_ncm?: SortOrderInput | SortOrder
-    pis_ncm?: SortOrderInput | SortOrder
-    cofins_ncm?: SortOrderInput | SortOrder
-    ativo_ncm?: SortOrder
+  export type NcmSyncOrderByWithRelationInput = {
+    codigo_ncm_sync?: SortOrder
+    descricao_ncm_sync?: SortOrder
+    ipi_ncm_sync?: SortOrderInput | SortOrder
+    ii_ncm_sync?: SortOrderInput | SortOrder
+    pis_ncm_sync?: SortOrderInput | SortOrder
+    cofins_ncm_sync?: SortOrderInput | SortOrder
+    ativo_ncm_sync?: SortOrder
+    data_inicio_ncm_sync?: SortOrderInput | SortOrder
+    data_fim_ncm_sync?: SortOrderInput | SortOrder
+    id_ncm_sync_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_sync?: SortOrder
+    data_atualizacao_ncm_sync?: SortOrder
   }
 
-  export type NcmWhereUniqueInput = Prisma.AtLeast<{
-    codigo_ncm?: string
-    AND?: NcmWhereInput | NcmWhereInput[]
-    OR?: NcmWhereInput[]
-    NOT?: NcmWhereInput | NcmWhereInput[]
-    descricao_ncm?: StringFilter<"Ncm"> | string
-    ipi_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    ii_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    pis_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    cofins_ncm?: FloatNullableFilter<"Ncm"> | number | null
-    ativo_ncm?: BoolFilter<"Ncm"> | boolean
-  }, "codigo_ncm">
+  export type NcmSyncWhereUniqueInput = Prisma.AtLeast<{
+    codigo_ncm_sync?: string
+    AND?: NcmSyncWhereInput | NcmSyncWhereInput[]
+    OR?: NcmSyncWhereInput[]
+    NOT?: NcmSyncWhereInput | NcmSyncWhereInput[]
+    descricao_ncm_sync?: StringFilter<"NcmSync"> | string
+    ipi_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    ii_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    pis_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    cofins_ncm_sync?: FloatNullableFilter<"NcmSync"> | number | null
+    ativo_ncm_sync?: BoolFilter<"NcmSync"> | boolean
+    data_inicio_ncm_sync?: DateTimeNullableFilter<"NcmSync"> | Date | string | null
+    data_fim_ncm_sync?: DateTimeNullableFilter<"NcmSync"> | Date | string | null
+    id_ncm_sync_log?: StringNullableFilter<"NcmSync"> | string | null
+    data_criacao_ncm_sync?: DateTimeFilter<"NcmSync"> | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFilter<"NcmSync"> | Date | string
+  }, "codigo_ncm_sync">
 
-  export type NcmOrderByWithAggregationInput = {
-    codigo_ncm?: SortOrder
-    descricao_ncm?: SortOrder
-    ipi_ncm?: SortOrderInput | SortOrder
-    ii_ncm?: SortOrderInput | SortOrder
-    pis_ncm?: SortOrderInput | SortOrder
-    cofins_ncm?: SortOrderInput | SortOrder
-    ativo_ncm?: SortOrder
-    _count?: NcmCountOrderByAggregateInput
-    _avg?: NcmAvgOrderByAggregateInput
-    _max?: NcmMaxOrderByAggregateInput
-    _min?: NcmMinOrderByAggregateInput
-    _sum?: NcmSumOrderByAggregateInput
+  export type NcmSyncOrderByWithAggregationInput = {
+    codigo_ncm_sync?: SortOrder
+    descricao_ncm_sync?: SortOrder
+    ipi_ncm_sync?: SortOrderInput | SortOrder
+    ii_ncm_sync?: SortOrderInput | SortOrder
+    pis_ncm_sync?: SortOrderInput | SortOrder
+    cofins_ncm_sync?: SortOrderInput | SortOrder
+    ativo_ncm_sync?: SortOrder
+    data_inicio_ncm_sync?: SortOrderInput | SortOrder
+    data_fim_ncm_sync?: SortOrderInput | SortOrder
+    id_ncm_sync_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_sync?: SortOrder
+    data_atualizacao_ncm_sync?: SortOrder
+    _count?: NcmSyncCountOrderByAggregateInput
+    _avg?: NcmSyncAvgOrderByAggregateInput
+    _max?: NcmSyncMaxOrderByAggregateInput
+    _min?: NcmSyncMinOrderByAggregateInput
+    _sum?: NcmSyncSumOrderByAggregateInput
   }
 
-  export type NcmScalarWhereWithAggregatesInput = {
-    AND?: NcmScalarWhereWithAggregatesInput | NcmScalarWhereWithAggregatesInput[]
-    OR?: NcmScalarWhereWithAggregatesInput[]
-    NOT?: NcmScalarWhereWithAggregatesInput | NcmScalarWhereWithAggregatesInput[]
-    codigo_ncm?: StringWithAggregatesFilter<"Ncm"> | string
-    descricao_ncm?: StringWithAggregatesFilter<"Ncm"> | string
-    ipi_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
-    ii_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
-    pis_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
-    cofins_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
-    ativo_ncm?: BoolWithAggregatesFilter<"Ncm"> | boolean
+  export type NcmSyncScalarWhereWithAggregatesInput = {
+    AND?: NcmSyncScalarWhereWithAggregatesInput | NcmSyncScalarWhereWithAggregatesInput[]
+    OR?: NcmSyncScalarWhereWithAggregatesInput[]
+    NOT?: NcmSyncScalarWhereWithAggregatesInput | NcmSyncScalarWhereWithAggregatesInput[]
+    codigo_ncm_sync?: StringWithAggregatesFilter<"NcmSync"> | string
+    descricao_ncm_sync?: StringWithAggregatesFilter<"NcmSync"> | string
+    ipi_ncm_sync?: FloatNullableWithAggregatesFilter<"NcmSync"> | number | null
+    ii_ncm_sync?: FloatNullableWithAggregatesFilter<"NcmSync"> | number | null
+    pis_ncm_sync?: FloatNullableWithAggregatesFilter<"NcmSync"> | number | null
+    cofins_ncm_sync?: FloatNullableWithAggregatesFilter<"NcmSync"> | number | null
+    ativo_ncm_sync?: BoolWithAggregatesFilter<"NcmSync"> | boolean
+    data_inicio_ncm_sync?: DateTimeNullableWithAggregatesFilter<"NcmSync"> | Date | string | null
+    data_fim_ncm_sync?: DateTimeNullableWithAggregatesFilter<"NcmSync"> | Date | string | null
+    id_ncm_sync_log?: StringNullableWithAggregatesFilter<"NcmSync"> | string | null
+    data_criacao_ncm_sync?: DateTimeWithAggregatesFilter<"NcmSync"> | Date | string
+    data_atualizacao_ncm_sync?: DateTimeWithAggregatesFilter<"NcmSync"> | Date | string
+  }
+
+  export type NcmSyncLogWhereInput = {
+    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    OR?: NcmSyncLogWhereInput[]
+    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    id_ncm_sync_log?: StringFilter<"NcmSyncLog"> | string
+    data_inicio_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    data_conclusao_ncm_sync_log?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    adicionados_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    alterados_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    removidos_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: StringNullableFilter<"NcmSyncLog"> | string | null
+    mensagem_erro_ncm_sync_log?: StringNullableFilter<"NcmSyncLog"> | string | null
+    data_criacao_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+  }
+
+  export type NcmSyncLogOrderByWithRelationInput = {
+    id_ncm_sync_log?: SortOrder
+    data_inicio_ncm_sync_log?: SortOrder
+    data_conclusao_ncm_sync_log?: SortOrderInput | SortOrder
+    status_ncm_sync_log?: SortOrder
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+    origem_ncm_sync_log?: SortOrder
+    disparado_por_ncm_sync_log?: SortOrderInput | SortOrder
+    mensagem_erro_ncm_sync_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_sync_log?: SortOrder
+    data_atualizacao_ncm_sync_log?: SortOrder
+  }
+
+  export type NcmSyncLogWhereUniqueInput = Prisma.AtLeast<{
+    id_ncm_sync_log?: string
+    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    OR?: NcmSyncLogWhereInput[]
+    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    data_inicio_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    data_conclusao_ncm_sync_log?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    adicionados_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    alterados_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    removidos_ncm_sync_log?: IntFilter<"NcmSyncLog"> | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: StringNullableFilter<"NcmSyncLog"> | string | null
+    mensagem_erro_ncm_sync_log?: StringNullableFilter<"NcmSyncLog"> | string | null
+    data_criacao_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFilter<"NcmSyncLog"> | Date | string
+  }, "id_ncm_sync_log">
+
+  export type NcmSyncLogOrderByWithAggregationInput = {
+    id_ncm_sync_log?: SortOrder
+    data_inicio_ncm_sync_log?: SortOrder
+    data_conclusao_ncm_sync_log?: SortOrderInput | SortOrder
+    status_ncm_sync_log?: SortOrder
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+    origem_ncm_sync_log?: SortOrder
+    disparado_por_ncm_sync_log?: SortOrderInput | SortOrder
+    mensagem_erro_ncm_sync_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_sync_log?: SortOrder
+    data_atualizacao_ncm_sync_log?: SortOrder
+    _count?: NcmSyncLogCountOrderByAggregateInput
+    _avg?: NcmSyncLogAvgOrderByAggregateInput
+    _max?: NcmSyncLogMaxOrderByAggregateInput
+    _min?: NcmSyncLogMinOrderByAggregateInput
+    _sum?: NcmSyncLogSumOrderByAggregateInput
+  }
+
+  export type NcmSyncLogScalarWhereWithAggregatesInput = {
+    AND?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
+    OR?: NcmSyncLogScalarWhereWithAggregatesInput[]
+    NOT?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
+    id_ncm_sync_log?: StringWithAggregatesFilter<"NcmSyncLog"> | string
+    data_inicio_ncm_sync_log?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+    data_conclusao_ncm_sync_log?: DateTimeNullableWithAggregatesFilter<"NcmSyncLog"> | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    adicionados_ncm_sync_log?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    alterados_ncm_sync_log?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    removidos_ncm_sync_log?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    mensagem_erro_ncm_sync_log?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    data_criacao_ncm_sync_log?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+  }
+
+  export type NcmSyncAgendamentoWhereInput = {
+    AND?: NcmSyncAgendamentoWhereInput | NcmSyncAgendamentoWhereInput[]
+    OR?: NcmSyncAgendamentoWhereInput[]
+    NOT?: NcmSyncAgendamentoWhereInput | NcmSyncAgendamentoWhereInput[]
+    id_ncm_sync_agendamento?: StringFilter<"NcmSyncAgendamento"> | string
+    ativo_ncm_sync_agendamento?: BoolFilter<"NcmSyncAgendamento"> | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFilter<"NcmSyncAgendamento"> | string
+    notificadores_ncm_sync_agendamento?: JsonFilter<"NcmSyncAgendamento">
+    data_criacao_ncm_sync_agendamento?: DateTimeFilter<"NcmSyncAgendamento"> | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFilter<"NcmSyncAgendamento"> | Date | string
+  }
+
+  export type NcmSyncAgendamentoOrderByWithRelationInput = {
+    id_ncm_sync_agendamento?: SortOrder
+    ativo_ncm_sync_agendamento?: SortOrder
+    cron_expressao_ncm_sync_agendamento?: SortOrder
+    notificadores_ncm_sync_agendamento?: SortOrder
+    data_criacao_ncm_sync_agendamento?: SortOrder
+    data_atualizacao_ncm_sync_agendamento?: SortOrder
+  }
+
+  export type NcmSyncAgendamentoWhereUniqueInput = Prisma.AtLeast<{
+    id_ncm_sync_agendamento?: string
+    AND?: NcmSyncAgendamentoWhereInput | NcmSyncAgendamentoWhereInput[]
+    OR?: NcmSyncAgendamentoWhereInput[]
+    NOT?: NcmSyncAgendamentoWhereInput | NcmSyncAgendamentoWhereInput[]
+    ativo_ncm_sync_agendamento?: BoolFilter<"NcmSyncAgendamento"> | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFilter<"NcmSyncAgendamento"> | string
+    notificadores_ncm_sync_agendamento?: JsonFilter<"NcmSyncAgendamento">
+    data_criacao_ncm_sync_agendamento?: DateTimeFilter<"NcmSyncAgendamento"> | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFilter<"NcmSyncAgendamento"> | Date | string
+  }, "id_ncm_sync_agendamento">
+
+  export type NcmSyncAgendamentoOrderByWithAggregationInput = {
+    id_ncm_sync_agendamento?: SortOrder
+    ativo_ncm_sync_agendamento?: SortOrder
+    cron_expressao_ncm_sync_agendamento?: SortOrder
+    notificadores_ncm_sync_agendamento?: SortOrder
+    data_criacao_ncm_sync_agendamento?: SortOrder
+    data_atualizacao_ncm_sync_agendamento?: SortOrder
+    _count?: NcmSyncAgendamentoCountOrderByAggregateInput
+    _max?: NcmSyncAgendamentoMaxOrderByAggregateInput
+    _min?: NcmSyncAgendamentoMinOrderByAggregateInput
+  }
+
+  export type NcmSyncAgendamentoScalarWhereWithAggregatesInput = {
+    AND?: NcmSyncAgendamentoScalarWhereWithAggregatesInput | NcmSyncAgendamentoScalarWhereWithAggregatesInput[]
+    OR?: NcmSyncAgendamentoScalarWhereWithAggregatesInput[]
+    NOT?: NcmSyncAgendamentoScalarWhereWithAggregatesInput | NcmSyncAgendamentoScalarWhereWithAggregatesInput[]
+    id_ncm_sync_agendamento?: StringWithAggregatesFilter<"NcmSyncAgendamento"> | string
+    ativo_ncm_sync_agendamento?: BoolWithAggregatesFilter<"NcmSyncAgendamento"> | boolean
+    cron_expressao_ncm_sync_agendamento?: StringWithAggregatesFilter<"NcmSyncAgendamento"> | string
+    notificadores_ncm_sync_agendamento?: JsonWithAggregatesFilter<"NcmSyncAgendamento">
+    data_criacao_ncm_sync_agendamento?: DateTimeWithAggregatesFilter<"NcmSyncAgendamento"> | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeWithAggregatesFilter<"NcmSyncAgendamento"> | Date | string
   }
 
   export type OpeWhereInput = {
@@ -8250,74 +10658,284 @@ export namespace Prisma {
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type NcmCreateInput = {
-    codigo_ncm: string
-    descricao_ncm: string
-    ipi_ncm?: number | null
-    ii_ncm?: number | null
-    pis_ncm?: number | null
-    cofins_ncm?: number | null
-    ativo_ncm?: boolean
+  export type NcmSyncCreateInput = {
+    codigo_ncm_sync: string
+    descricao_ncm_sync: string
+    ipi_ncm_sync?: number | null
+    ii_ncm_sync?: number | null
+    pis_ncm_sync?: number | null
+    cofins_ncm_sync?: number | null
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: Date | string | null
+    data_fim_ncm_sync?: Date | string | null
+    id_ncm_sync_log?: string | null
+    data_criacao_ncm_sync?: Date | string
+    data_atualizacao_ncm_sync?: Date | string
   }
 
-  export type NcmUncheckedCreateInput = {
-    codigo_ncm: string
-    descricao_ncm: string
-    ipi_ncm?: number | null
-    ii_ncm?: number | null
-    pis_ncm?: number | null
-    cofins_ncm?: number | null
-    ativo_ncm?: boolean
+  export type NcmSyncUncheckedCreateInput = {
+    codigo_ncm_sync: string
+    descricao_ncm_sync: string
+    ipi_ncm_sync?: number | null
+    ii_ncm_sync?: number | null
+    pis_ncm_sync?: number | null
+    cofins_ncm_sync?: number | null
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: Date | string | null
+    data_fim_ncm_sync?: Date | string | null
+    id_ncm_sync_log?: string | null
+    data_criacao_ncm_sync?: Date | string
+    data_atualizacao_ncm_sync?: Date | string
   }
 
-  export type NcmUpdateInput = {
-    codigo_ncm?: StringFieldUpdateOperationsInput | string
-    descricao_ncm?: StringFieldUpdateOperationsInput | string
-    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+  export type NcmSyncUpdateInput = {
+    codigo_ncm_sync?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_sync?: StringFieldUpdateOperationsInput | string
+    ipi_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    pis_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm_sync?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmUncheckedUpdateInput = {
-    codigo_ncm?: StringFieldUpdateOperationsInput | string
-    descricao_ncm?: StringFieldUpdateOperationsInput | string
-    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+  export type NcmSyncUncheckedUpdateInput = {
+    codigo_ncm_sync?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_sync?: StringFieldUpdateOperationsInput | string
+    ipi_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    pis_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm_sync?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmCreateManyInput = {
-    codigo_ncm: string
-    descricao_ncm: string
-    ipi_ncm?: number | null
-    ii_ncm?: number | null
-    pis_ncm?: number | null
-    cofins_ncm?: number | null
-    ativo_ncm?: boolean
+  export type NcmSyncCreateManyInput = {
+    codigo_ncm_sync: string
+    descricao_ncm_sync: string
+    ipi_ncm_sync?: number | null
+    ii_ncm_sync?: number | null
+    pis_ncm_sync?: number | null
+    cofins_ncm_sync?: number | null
+    ativo_ncm_sync?: boolean
+    data_inicio_ncm_sync?: Date | string | null
+    data_fim_ncm_sync?: Date | string | null
+    id_ncm_sync_log?: string | null
+    data_criacao_ncm_sync?: Date | string
+    data_atualizacao_ncm_sync?: Date | string
   }
 
-  export type NcmUpdateManyMutationInput = {
-    codigo_ncm?: StringFieldUpdateOperationsInput | string
-    descricao_ncm?: StringFieldUpdateOperationsInput | string
-    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+  export type NcmSyncUpdateManyMutationInput = {
+    codigo_ncm_sync?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_sync?: StringFieldUpdateOperationsInput | string
+    ipi_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    pis_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm_sync?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmUncheckedUpdateManyInput = {
-    codigo_ncm?: StringFieldUpdateOperationsInput | string
-    descricao_ncm?: StringFieldUpdateOperationsInput | string
-    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+  export type NcmSyncUncheckedUpdateManyInput = {
+    codigo_ncm_sync?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_sync?: StringFieldUpdateOperationsInput | string
+    ipi_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    pis_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm_sync?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm_sync?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogCreateInput = {
+    id_ncm_sync_log?: string
+    data_inicio_ncm_sync_log?: Date | string
+    data_conclusao_ncm_sync_log?: Date | string | null
+    status_ncm_sync_log?: $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: number
+    adicionados_ncm_sync_log?: number
+    alterados_ncm_sync_log?: number
+    removidos_ncm_sync_log?: number
+    origem_ncm_sync_log?: $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: string | null
+    mensagem_erro_ncm_sync_log?: string | null
+    data_criacao_ncm_sync_log?: Date | string
+    data_atualizacao_ncm_sync_log?: Date | string
+  }
+
+  export type NcmSyncLogUncheckedCreateInput = {
+    id_ncm_sync_log?: string
+    data_inicio_ncm_sync_log?: Date | string
+    data_conclusao_ncm_sync_log?: Date | string | null
+    status_ncm_sync_log?: $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: number
+    adicionados_ncm_sync_log?: number
+    alterados_ncm_sync_log?: number
+    removidos_ncm_sync_log?: number
+    origem_ncm_sync_log?: $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: string | null
+    mensagem_erro_ncm_sync_log?: string | null
+    data_criacao_ncm_sync_log?: Date | string
+    data_atualizacao_ncm_sync_log?: Date | string
+  }
+
+  export type NcmSyncLogUpdateInput = {
+    id_ncm_sync_log?: StringFieldUpdateOperationsInput | string
+    data_inicio_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_sync_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogUncheckedUpdateInput = {
+    id_ncm_sync_log?: StringFieldUpdateOperationsInput | string
+    data_inicio_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_sync_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogCreateManyInput = {
+    id_ncm_sync_log?: string
+    data_inicio_ncm_sync_log?: Date | string
+    data_conclusao_ncm_sync_log?: Date | string | null
+    status_ncm_sync_log?: $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: number
+    adicionados_ncm_sync_log?: number
+    alterados_ncm_sync_log?: number
+    removidos_ncm_sync_log?: number
+    origem_ncm_sync_log?: $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: string | null
+    mensagem_erro_ncm_sync_log?: string | null
+    data_criacao_ncm_sync_log?: Date | string
+    data_atualizacao_ncm_sync_log?: Date | string
+  }
+
+  export type NcmSyncLogUpdateManyMutationInput = {
+    id_ncm_sync_log?: StringFieldUpdateOperationsInput | string
+    data_inicio_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_sync_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogUncheckedUpdateManyInput = {
+    id_ncm_sync_log?: StringFieldUpdateOperationsInput | string
+    data_inicio_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_sync_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_sync_log?: EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncStatusSincronizacao
+    total_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_sync_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_sync_log?: EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NcmSyncOrigemSincronizacao
+    disparado_por_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_sync_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncAgendamentoCreateInput = {
+    id_ncm_sync_agendamento?: string
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: Date | string
+    data_atualizacao_ncm_sync_agendamento?: Date | string
+  }
+
+  export type NcmSyncAgendamentoUncheckedCreateInput = {
+    id_ncm_sync_agendamento?: string
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: Date | string
+    data_atualizacao_ncm_sync_agendamento?: Date | string
+  }
+
+  export type NcmSyncAgendamentoUpdateInput = {
+    id_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncAgendamentoUncheckedUpdateInput = {
+    id_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncAgendamentoCreateManyInput = {
+    id_ncm_sync_agendamento?: string
+    ativo_ncm_sync_agendamento?: boolean
+    cron_expressao_ncm_sync_agendamento?: string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: Date | string
+    data_atualizacao_ncm_sync_agendamento?: Date | string
+  }
+
+  export type NcmSyncAgendamentoUpdateManyMutationInput = {
+    id_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncAgendamentoUncheckedUpdateManyInput = {
+    id_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OpeCreateInput = {
@@ -8836,48 +11454,74 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NcmCountOrderByAggregateInput = {
-    codigo_ncm?: SortOrder
-    descricao_ncm?: SortOrder
-    ipi_ncm?: SortOrder
-    ii_ncm?: SortOrder
-    pis_ncm?: SortOrder
-    cofins_ncm?: SortOrder
-    ativo_ncm?: SortOrder
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type NcmAvgOrderByAggregateInput = {
-    ipi_ncm?: SortOrder
-    ii_ncm?: SortOrder
-    pis_ncm?: SortOrder
-    cofins_ncm?: SortOrder
+  export type NcmSyncCountOrderByAggregateInput = {
+    codigo_ncm_sync?: SortOrder
+    descricao_ncm_sync?: SortOrder
+    ipi_ncm_sync?: SortOrder
+    ii_ncm_sync?: SortOrder
+    pis_ncm_sync?: SortOrder
+    cofins_ncm_sync?: SortOrder
+    ativo_ncm_sync?: SortOrder
+    data_inicio_ncm_sync?: SortOrder
+    data_fim_ncm_sync?: SortOrder
+    id_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync?: SortOrder
+    data_atualizacao_ncm_sync?: SortOrder
   }
 
-  export type NcmMaxOrderByAggregateInput = {
-    codigo_ncm?: SortOrder
-    descricao_ncm?: SortOrder
-    ipi_ncm?: SortOrder
-    ii_ncm?: SortOrder
-    pis_ncm?: SortOrder
-    cofins_ncm?: SortOrder
-    ativo_ncm?: SortOrder
+  export type NcmSyncAvgOrderByAggregateInput = {
+    ipi_ncm_sync?: SortOrder
+    ii_ncm_sync?: SortOrder
+    pis_ncm_sync?: SortOrder
+    cofins_ncm_sync?: SortOrder
   }
 
-  export type NcmMinOrderByAggregateInput = {
-    codigo_ncm?: SortOrder
-    descricao_ncm?: SortOrder
-    ipi_ncm?: SortOrder
-    ii_ncm?: SortOrder
-    pis_ncm?: SortOrder
-    cofins_ncm?: SortOrder
-    ativo_ncm?: SortOrder
+  export type NcmSyncMaxOrderByAggregateInput = {
+    codigo_ncm_sync?: SortOrder
+    descricao_ncm_sync?: SortOrder
+    ipi_ncm_sync?: SortOrder
+    ii_ncm_sync?: SortOrder
+    pis_ncm_sync?: SortOrder
+    cofins_ncm_sync?: SortOrder
+    ativo_ncm_sync?: SortOrder
+    data_inicio_ncm_sync?: SortOrder
+    data_fim_ncm_sync?: SortOrder
+    id_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync?: SortOrder
+    data_atualizacao_ncm_sync?: SortOrder
   }
 
-  export type NcmSumOrderByAggregateInput = {
-    ipi_ncm?: SortOrder
-    ii_ncm?: SortOrder
-    pis_ncm?: SortOrder
-    cofins_ncm?: SortOrder
+  export type NcmSyncMinOrderByAggregateInput = {
+    codigo_ncm_sync?: SortOrder
+    descricao_ncm_sync?: SortOrder
+    ipi_ncm_sync?: SortOrder
+    ii_ncm_sync?: SortOrder
+    pis_ncm_sync?: SortOrder
+    cofins_ncm_sync?: SortOrder
+    ativo_ncm_sync?: SortOrder
+    data_inicio_ncm_sync?: SortOrder
+    data_fim_ncm_sync?: SortOrder
+    id_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync?: SortOrder
+    data_atualizacao_ncm_sync?: SortOrder
+  }
+
+  export type NcmSyncSumOrderByAggregateInput = {
+    ipi_ncm_sync?: SortOrder
+    ii_ncm_sync?: SortOrder
+    pis_ncm_sync?: SortOrder
+    cofins_ncm_sync?: SortOrder
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8894,6 +11538,215 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumNcmSyncStatusSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatusSincronizacao | EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type EnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncOrigemSincronizacao
+  }
+
+  export type NcmSyncLogCountOrderByAggregateInput = {
+    id_ncm_sync_log?: SortOrder
+    data_inicio_ncm_sync_log?: SortOrder
+    data_conclusao_ncm_sync_log?: SortOrder
+    status_ncm_sync_log?: SortOrder
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+    origem_ncm_sync_log?: SortOrder
+    disparado_por_ncm_sync_log?: SortOrder
+    mensagem_erro_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync_log?: SortOrder
+    data_atualizacao_ncm_sync_log?: SortOrder
+  }
+
+  export type NcmSyncLogAvgOrderByAggregateInput = {
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+  }
+
+  export type NcmSyncLogMaxOrderByAggregateInput = {
+    id_ncm_sync_log?: SortOrder
+    data_inicio_ncm_sync_log?: SortOrder
+    data_conclusao_ncm_sync_log?: SortOrder
+    status_ncm_sync_log?: SortOrder
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+    origem_ncm_sync_log?: SortOrder
+    disparado_por_ncm_sync_log?: SortOrder
+    mensagem_erro_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync_log?: SortOrder
+    data_atualizacao_ncm_sync_log?: SortOrder
+  }
+
+  export type NcmSyncLogMinOrderByAggregateInput = {
+    id_ncm_sync_log?: SortOrder
+    data_inicio_ncm_sync_log?: SortOrder
+    data_conclusao_ncm_sync_log?: SortOrder
+    status_ncm_sync_log?: SortOrder
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+    origem_ncm_sync_log?: SortOrder
+    disparado_por_ncm_sync_log?: SortOrder
+    mensagem_erro_ncm_sync_log?: SortOrder
+    data_criacao_ncm_sync_log?: SortOrder
+    data_atualizacao_ncm_sync_log?: SortOrder
+  }
+
+  export type NcmSyncLogSumOrderByAggregateInput = {
+    total_ncm_sync_log?: SortOrder
+    adicionados_ncm_sync_log?: SortOrder
+    alterados_ncm_sync_log?: SortOrder
+    removidos_ncm_sync_log?: SortOrder
+  }
+
+  export type EnumNcmSyncStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatusSincronizacao | EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigemSincronizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NcmSyncAgendamentoCountOrderByAggregateInput = {
+    id_ncm_sync_agendamento?: SortOrder
+    ativo_ncm_sync_agendamento?: SortOrder
+    cron_expressao_ncm_sync_agendamento?: SortOrder
+    notificadores_ncm_sync_agendamento?: SortOrder
+    data_criacao_ncm_sync_agendamento?: SortOrder
+    data_atualizacao_ncm_sync_agendamento?: SortOrder
+  }
+
+  export type NcmSyncAgendamentoMaxOrderByAggregateInput = {
+    id_ncm_sync_agendamento?: SortOrder
+    ativo_ncm_sync_agendamento?: SortOrder
+    cron_expressao_ncm_sync_agendamento?: SortOrder
+    data_criacao_ncm_sync_agendamento?: SortOrder
+    data_atualizacao_ncm_sync_agendamento?: SortOrder
+  }
+
+  export type NcmSyncAgendamentoMinOrderByAggregateInput = {
+    id_ncm_sync_agendamento?: SortOrder
+    ativo_ncm_sync_agendamento?: SortOrder
+    cron_expressao_ncm_sync_agendamento?: SortOrder
+    data_criacao_ncm_sync_agendamento?: SortOrder
+    data_atualizacao_ncm_sync_agendamento?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type OpeCountOrderByAggregateInput = {
@@ -8958,28 +11811,6 @@ export namespace Prisma {
     ultima_sincronizacao_ope?: SortOrder
     origem_ope?: SortOrder
   }
-  export type JsonFilter<$PrismaModel = never> = 
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type OPEHistoricoStatusCountOrderByAggregateInput = {
     id_ope_historico_status?: SortOrder
@@ -9017,31 +11848,6 @@ export namespace Prisma {
     origem_ope_historico_status?: SortOrder
     registrado_em_ope_historico_status?: SortOrder
   }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> = 
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
-  }
 
   export type StringFieldUpdateOperationsInput = {
     set?: string
@@ -9065,6 +11871,26 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type EnumNcmSyncStatusSincronizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.NcmSyncStatusSincronizacao
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type EnumNcmSyncOrigemSincronizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.NcmSyncOrigemSincronizacao
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -9200,6 +12026,17 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -9214,6 +12051,81 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatusSincronizacao | EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
+  }
+
+  export type NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NcmSyncOrigemSincronizacao
+  }
+
+  export type NestedEnumNcmSyncStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatusSincronizacao | EnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatusSincronizacao[] | ListEnumNcmSyncStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncStatusSincronizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncStatusSincronizacaoFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigemSincronizacao | EnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigemSincronizacao[] | ListEnumNcmSyncOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigemSincronizacao
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncOrigemSincronizacaoFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -9256,9 +12168,17 @@ export namespace Prisma {
      */
     export type UnidadeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UnidadeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use NcmDefaultArgs instead
+     * @deprecated Use NcmSyncDefaultArgs instead
      */
-    export type NcmArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmDefaultArgs<ExtArgs>
+    export type NcmSyncArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NcmSyncLogDefaultArgs instead
+     */
+    export type NcmSyncLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NcmSyncAgendamentoDefaultArgs instead
+     */
+    export type NcmSyncAgendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncAgendamentoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OpeDefaultArgs instead
      */

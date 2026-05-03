@@ -10,7 +10,7 @@ import {
   adminNcmApi,
   type NcmNotificador,
   type NcmAgendamentoConfigApi,
-  type NcmExecuteResultado,
+  type NcmSyncResultado,
 } from '../../services/apiClient'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
 
   // ── Estado de execução manual ─────────────────────────────────────────────
   const [executando,        setExecutando]        = useState(false)
-  const [resultadoExecucao, setResultadoExecucao] = useState<NcmExecuteResultado[] | null>(null)
+  const [resultadoExecucao, setResultadoExecucao] = useState<NcmSyncResultado | null>(null)
   const [erroExecucao,      setErroExecucao]      = useState<string | null>(null)
 
   // ── Carregar config do backend ────────────────────────────────────────────
@@ -145,11 +145,12 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
     setResultadoExecucao(null)
     setErroExecucao(null)
     try {
-      const res = await adminNcmApi.executeManual()  // executa todas as organizações
-      setResultadoExecucao(res.resultados)
+      // NCM é catálogo global — uma única sincronização para todo o sistema
+      const res = await adminNcmApi.executeManual()
+      setResultadoExecucao(res.resultado)
       addNotification({
-        type: res.resultados.every(r => r.sucesso) ? 'success' : 'warning',
-        message: t('admin.ncm_modal.notif_exec_ok', { count: res.organizacoes_executadas }),
+        type: res.sucesso ? 'success' : 'warning',
+        message: t('admin.ncm_modal.notif_exec_ok', { count: res.sincronizacoes_executadas }),
       })
     } catch (err) {
       setErroExecucao(err instanceof Error ? err.message : t('admin.ncm_modal.notif_exec_erro'))
@@ -375,40 +376,28 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
               </div>
             )}
 
-            {resultadoExecucao && resultadoExecucao.length > 0 && (
+            {resultadoExecucao && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  {t('admin.ncm_modal.resultado_label', { count: resultadoExecucao.length })}
+                  {t('admin.ncm_modal.resultado_label', { count: 1 })}
                 </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxHeight: '240px', overflowY: 'auto' }}>
-                  {resultadoExecucao.map((r) => (
-                    <div
-                      key={r.id_organizacao}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
-                        borderRadius: '8px', fontSize: '0.82rem',
-                        background: r.sucesso ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)',
-                        border: `1px solid ${r.sucesso ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`,
-                      }}
-                    >
-                      {r.sucesso
-                        ? <CheckCircle size={14} weight="fill" color="#34d399" />
-                        : <XCircle    size={14} weight="fill" color="#f87171" />
-                      }
-                      <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem', flex: 1 }}>{r.id_organizacao}</span>
-                      {r.sucesso ? (
-                        <span style={{ color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
-                          {(r.total ?? 0).toLocaleString('pt-BR')} NCMs
-                          {r.adicionados ? <span style={{ color: '#34d399' }}> +{r.adicionados}</span> : null}
-                          {r.alterados   ? <span style={{ color: '#fbbf24' }}> ~{r.alterados}</span>   : null}
-                          {r.removidos   ? <span style={{ color: '#f87171' }}> -{r.removidos}</span>   : null}
-                          {' '}({r.duracaoMs}ms)
-                        </span>
-                      ) : (
-                        <span style={{ color: '#f87171' }}>{r.erro}</span>
-                      )}
-                    </div>
-                  ))}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
+                  borderRadius: '8px', fontSize: '0.82rem',
+                  background: 'rgba(16,185,129,0.05)',
+                  border: '1px solid rgba(16,185,129,0.15)',
+                }}>
+                  <CheckCircle size={14} weight="fill" color="#34d399" />
+                  <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem', flex: 1 }}>
+                    Catálogo NCM (Receita Federal)
+                  </span>
+                  <span style={{ color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+                    {(resultadoExecucao.total ?? 0).toLocaleString('pt-BR')} NCMs
+                    {resultadoExecucao.adicionados ? <span style={{ color: '#34d399' }}> +{resultadoExecucao.adicionados}</span> : null}
+                    {resultadoExecucao.alterados   ? <span style={{ color: '#fbbf24' }}> ~{resultadoExecucao.alterados}</span>   : null}
+                    {resultadoExecucao.removidos   ? <span style={{ color: '#f87171' }}> -{resultadoExecucao.removidos}</span>   : null}
+                    {' '}({resultadoExecucao.duracaoMs}ms)
+                  </span>
                 </div>
               </div>
             )}

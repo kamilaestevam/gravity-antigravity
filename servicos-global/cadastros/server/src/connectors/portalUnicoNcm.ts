@@ -12,7 +12,7 @@
  */
 
 import axios from 'axios'
-import { AppError } from '../../../middleware/appError.js'
+import { AppError } from '../lib/app-error.js'
 
 // ── Constantes ───────────────────────────────────────────────────────────────
 

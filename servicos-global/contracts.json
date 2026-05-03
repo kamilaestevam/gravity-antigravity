@@ -191,6 +191,30 @@
     "taxas-cambio": {
       "baseUrl": "http://localhost:8031",
       "pathPrefix": "/api/v1/taxas-cambio"
+    },
+    "cadastros": {
+      "baseUrl": "http://localhost:8031",
+      "pathPrefix": "/api/v1/cadastros",
+      "note": "Cadastros globais (catálogos da Receita Federal) — Empresa, Moeda, Unidade, Ncm (catálogo `ncm_sync`), Operações COMEX. Inclui NCM Sync (sincronização diária com Portal Único Siscomex) e endpoints admin acessados pelo configurador via S2S (x-internal-key). Catálogos sem id_organizacao — universais.",
+      "endpoints": {
+        "moedas":      "GET/POST/PUT/DELETE /moedas",
+        "unidades":    "GET/POST/PUT/DELETE /unidades",
+        "ncm":         "GET/POST/PUT/DELETE /ncm — CRUD do catálogo NcmSync (tabela física `ncm_sync`)",
+        "ope":         "GET/POST/PUT/DELETE /operacoes-comex",
+        "admin-ncm-sync": {
+          "pathPrefix": "/admin/ncm-sync",
+          "middleware": ["requireInternalKey (S2S)"],
+          "note": "Chamado pelo configurador (porta 8005) que valida JWT Clerk + role gravity_admin antes de proxy.",
+          "endpoints": {
+            "GET /":              "Status geral (ultima_sync, total_ativos, erros_48h, desatualizado)",
+            "GET /historico":     "Lista paginada de NcmSyncLog (?pagina, ?por_page)",
+            "POST /sincronizar":  "Dispara sync manual (origem=MANUAL). Body: { id_usuario? }",
+            "GET /agendamento":   "Configuração singleton do cron (NcmSyncAgendamento id='default')",
+            "PUT /agendamento":   "Atualiza cron + notificadores. Body: { ativo, cron_expressao, notificadores[] }",
+            "POST /agendamento/executar": "Alias de /sincronizar para compatibilidade com UI"
+          }
+        }
+      }
     }
   }
 }

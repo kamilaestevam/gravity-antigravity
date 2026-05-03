@@ -56,5 +56,5 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("TENANT_DATABASE_URL")
+  url      = env("ORGANIZACAO_DATABASE_URL")
 }

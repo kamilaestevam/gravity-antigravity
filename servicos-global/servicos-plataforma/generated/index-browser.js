@@ -492,9 +492,9 @@ exports.Prisma.RelatorioExportarScalarFieldEnum = {
 
 exports.Prisma.HistoricoLogScalarFieldEnum = {
   id_historico_log: 'id_historico_log',
-  id_organizacao_historico_log: 'id_organizacao_historico_log',
+  id_organizacao: 'id_organizacao',
   id_produto_historico_log: 'id_produto_historico_log',
-  id_usuario_historico_log: 'id_usuario_historico_log',
+  id_usuario: 'id_usuario',
   tipo_ator_historico_log: 'tipo_ator_historico_log',
   id_ator_historico_log: 'id_ator_historico_log',
   nome_ator_historico_log: 'nome_ator_historico_log',
@@ -515,9 +515,9 @@ exports.Prisma.HistoricoLogScalarFieldEnum = {
 
 exports.Prisma.AlertaRegraScalarFieldEnum = {
   id_regra_alerta: 'id_regra_alerta',
-  id_organizacao_regra_alerta: 'id_organizacao_regra_alerta',
+  id_organizacao: 'id_organizacao',
   id_produto_regra_alerta: 'id_produto_regra_alerta',
-  id_usuario_regra_alerta: 'id_usuario_regra_alerta',
+  id_usuario: 'id_usuario',
   nome_regra_alerta: 'nome_regra_alerta',
   descricao_regra_alerta: 'descricao_regra_alerta',
   habilitada_regra_alerta: 'habilitada_regra_alerta',
@@ -539,9 +539,9 @@ exports.Prisma.AlertaRegraScalarFieldEnum = {
 
 exports.Prisma.AlertaDataScalarFieldEnum = {
   id_evento_alerta: 'id_evento_alerta',
-  id_organizacao_evento_alerta: 'id_organizacao_evento_alerta',
+  id_organizacao: 'id_organizacao',
   id_produto_evento_alerta: 'id_produto_evento_alerta',
-  id_usuario_evento_alerta: 'id_usuario_evento_alerta',
+  id_usuario: 'id_usuario',
   id_regra_evento_alerta: 'id_regra_evento_alerta',
   tipo_ator_evento_alerta: 'tipo_ator_evento_alerta',
   id_ator_evento_alerta: 'id_ator_evento_alerta',
@@ -560,9 +560,9 @@ exports.Prisma.AlertaDataScalarFieldEnum = {
 
 exports.Prisma.AlertaRegistroScalarFieldEnum = {
   id_notificacao_alerta: 'id_notificacao_alerta',
-  id_organizacao_notificacao_alerta: 'id_organizacao_notificacao_alerta',
+  id_organizacao: 'id_organizacao',
   id_produto_notificacao_alerta: 'id_produto_notificacao_alerta',
-  id_usuario_notificacao_alerta: 'id_usuario_notificacao_alerta',
+  id_usuario: 'id_usuario',
   id_evento_notificacao_alerta: 'id_evento_notificacao_alerta',
   canal_notificacao_alerta: 'canal_notificacao_alerta',
   destinatario_notificacao_alerta: 'destinatario_notificacao_alerta',
@@ -575,9 +575,9 @@ exports.Prisma.AlertaRegistroScalarFieldEnum = {
 
 exports.Prisma.ExportarResultadoScalarFieldEnum = {
   id_exportar_resultado: 'id_exportar_resultado',
-  id_organizacao_exportar_resultado: 'id_organizacao_exportar_resultado',
+  id_organizacao: 'id_organizacao',
   id_produto_exportar_resultado: 'id_produto_exportar_resultado',
-  id_usuario_exportar_resultado: 'id_usuario_exportar_resultado',
+  id_usuario: 'id_usuario',
   formato_exportar_resultado: 'formato_exportar_resultado',
   conteudo_exportar_resultado: 'conteudo_exportar_resultado',
   status_exportar_resultado: 'status_exportar_resultado',
@@ -729,57 +729,11 @@ exports.Prisma.WorkspacePreferenciaUsuarioScalarFieldEnum = {
   data_atualizacao_preferencia_workspace: 'data_atualizacao_preferencia_workspace'
 };
 
-exports.Prisma.NcmItemScalarFieldEnum = {
-  id_ncm_item: 'id_ncm_item',
-  id_organizacao_ncm_item: 'id_organizacao_ncm_item',
-  id_produto_ncm_item: 'id_produto_ncm_item',
-  id_usuario_ncm_item: 'id_usuario_ncm_item',
-  codigo_ncm_item: 'codigo_ncm_item',
-  descricao_ncm_item: 'descricao_ncm_item',
-  ativo_ncm_item: 'ativo_ncm_item',
-  data_inicio_ncm_item: 'data_inicio_ncm_item',
-  data_fim_ncm_item: 'data_fim_ncm_item',
-  id_sincronizacao_ncm_item: 'id_sincronizacao_ncm_item',
-  data_criacao_ncm_item: 'data_criacao_ncm_item',
-  data_atualizacao_ncm_item: 'data_atualizacao_ncm_item'
-};
-
-exports.Prisma.NcmLogScalarFieldEnum = {
-  id_ncm_log: 'id_ncm_log',
-  id_organizacao_ncm_log: 'id_organizacao_ncm_log',
-  id_produto_ncm_log: 'id_produto_ncm_log',
-  id_usuario_ncm_log: 'id_usuario_ncm_log',
-  data_inicio_ncm_log: 'data_inicio_ncm_log',
-  data_conclusao_ncm_log: 'data_conclusao_ncm_log',
-  status_ncm_log: 'status_ncm_log',
-  total_ncm_log: 'total_ncm_log',
-  adicionados_ncm_log: 'adicionados_ncm_log',
-  alterados_ncm_log: 'alterados_ncm_log',
-  removidos_ncm_log: 'removidos_ncm_log',
-  origem_ncm_log: 'origem_ncm_log',
-  disparado_por_ncm_log: 'disparado_por_ncm_log',
-  mensagem_erro_ncm_log: 'mensagem_erro_ncm_log',
-  data_criacao_ncm_log: 'data_criacao_ncm_log',
-  data_atualizacao_ncm_log: 'data_atualizacao_ncm_log'
-};
-
-exports.Prisma.NCMAgendamentoScalarFieldEnum = {
-  id_ncm_agendamento: 'id_ncm_agendamento',
-  id_organizacao_ncm_agendamento: 'id_organizacao_ncm_agendamento',
-  id_produto_ncm_agendamento: 'id_produto_ncm_agendamento',
-  id_usuario_ncm_agendamento: 'id_usuario_ncm_agendamento',
-  ativo_ncm_agendamento: 'ativo_ncm_agendamento',
-  cron_expressao_ncm_agendamento: 'cron_expressao_ncm_agendamento',
-  notificadores_ncm_agendamento: 'notificadores_ncm_agendamento',
-  data_criacao_ncm_agendamento: 'data_criacao_ncm_agendamento',
-  data_atualizacao_ncm_agendamento: 'data_atualizacao_ncm_agendamento'
-};
-
 exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
   id_notificacoes_titulo_corpo: 'id_notificacoes_titulo_corpo',
-  id_organizacao_notificacoes_titulo_corpo: 'id_organizacao_notificacoes_titulo_corpo',
-  id_produto_notificacoes_titulo_corpo: 'id_produto_notificacoes_titulo_corpo',
-  id_usuario_notificacoes_titulo_corpo: 'id_usuario_notificacoes_titulo_corpo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
   tipo_notificacoes_titulo_corpo: 'tipo_notificacoes_titulo_corpo',
   titulo_notificacoes_titulo_corpo: 'titulo_notificacoes_titulo_corpo',
   mensagem_notificacoes_titulo_corpo: 'mensagem_notificacoes_titulo_corpo',
@@ -794,9 +748,9 @@ exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
 
 exports.Prisma.ContatoExternoScalarFieldEnum = {
   id_contato_externo: 'id_contato_externo',
-  id_organizacao_contato_externo: 'id_organizacao_contato_externo',
-  id_produto_contato_externo: 'id_produto_contato_externo',
-  id_usuario_contato_externo: 'id_usuario_contato_externo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
   nome_contato_externo: 'nome_contato_externo',
   email_contato_externo: 'email_contato_externo',
   whatsapp_telefone_contato_externo: 'whatsapp_telefone_contato_externo',
@@ -807,14 +761,14 @@ exports.Prisma.ContatoExternoScalarFieldEnum = {
 };
 
 exports.Prisma.ConfiguracaoCanalOrganizacaoScalarFieldEnum = {
-  id_configuracao_canal_tenant: 'id_configuracao_canal_tenant',
-  id_organizacao_configuracao_canal_tenant: 'id_organizacao_configuracao_canal_tenant',
-  id_produto_configuracao_canal_tenant: 'id_produto_configuracao_canal_tenant',
-  id_usuario_configuracao_canal_tenant: 'id_usuario_configuracao_canal_tenant',
-  email_habilitado_configuracao_canal_tenant: 'email_habilitado_configuracao_canal_tenant',
-  whatsapp_habilitado_configuracao_canal_tenant: 'whatsapp_habilitado_configuracao_canal_tenant',
-  data_criacao_configuracao_canal_tenant: 'data_criacao_configuracao_canal_tenant',
-  data_atualizacao_configuracao_canal_tenant: 'data_atualizacao_configuracao_canal_tenant'
+  id_configuracao_canal_organizacao: 'id_configuracao_canal_organizacao',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  email_habilitado_configuracao_canal_organizacao: 'email_habilitado_configuracao_canal_organizacao',
+  whatsapp_habilitado_configuracao_canal_organizacao: 'whatsapp_habilitado_configuracao_canal_organizacao',
+  data_criacao_configuracao_canal_organizacao: 'data_criacao_configuracao_canal_organizacao',
+  data_atualizacao_configuracao_canal_organizacao: 'data_atualizacao_configuracao_canal_organizacao'
 };
 
 exports.Prisma.SortOrder = {
@@ -925,17 +879,6 @@ exports.AlertaStatus = exports.$Enums.AlertaStatus = {
   ESCALADO: 'ESCALADO'
 };
 
-exports.NCMStatusSincronizacao = exports.$Enums.NCMStatusSincronizacao = {
-  EXECUTANDO: 'EXECUTANDO',
-  SUCESSO: 'SUCESSO',
-  ERRO: 'ERRO'
-};
-
-exports.NCMOrigemSincronizacao = exports.$Enums.NCMOrigemSincronizacao = {
-  JOB: 'JOB',
-  MANUAL: 'MANUAL'
-};
-
 exports.Prisma.ModelName = {
   AtividadeDados: 'AtividadeDados',
   UsuariosAtividades: 'UsuariosAtividades',
@@ -976,9 +919,6 @@ exports.Prisma.ModelName = {
   GabiTokenOrganizacao: 'GabiTokenOrganizacao',
   GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
-  NcmItem: 'NcmItem',
-  NcmLog: 'NcmLog',
-  NCMAgendamento: 'NCMAgendamento',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',
   ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'

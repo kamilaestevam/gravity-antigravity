@@ -1,7 +1,7 @@
 @echo off
 :: Inicia o backend do configurador (porta 8005)
 :: Usa node para pre-carregar o .env ANTES do tsx iniciar os imports ESM.
-:: Sem isso, CLERK_SECRET_KEY e TENANT_DATABASE_URL chegam undefined porque
+:: Sem isso, CLERK_SECRET_KEY e ORGANIZACAO_DATABASE_URL chegam undefined porque
 :: imports estaticos ESM rodam ANTES de qualquer dotenv.config() no corpo
 :: do modulo — clerk.ts dispara throw imediatamente se a chave nao existir.
 

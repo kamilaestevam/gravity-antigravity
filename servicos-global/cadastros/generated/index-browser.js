@@ -171,14 +171,44 @@ exports.Prisma.UnidadeScalarFieldEnum = {
   ativo_unidade: 'ativo_unidade'
 };
 
-exports.Prisma.NcmScalarFieldEnum = {
-  codigo_ncm: 'codigo_ncm',
-  descricao_ncm: 'descricao_ncm',
-  ipi_ncm: 'ipi_ncm',
-  ii_ncm: 'ii_ncm',
-  pis_ncm: 'pis_ncm',
-  cofins_ncm: 'cofins_ncm',
-  ativo_ncm: 'ativo_ncm'
+exports.Prisma.NcmSyncScalarFieldEnum = {
+  codigo_ncm_sync: 'codigo_ncm_sync',
+  descricao_ncm_sync: 'descricao_ncm_sync',
+  ipi_ncm_sync: 'ipi_ncm_sync',
+  ii_ncm_sync: 'ii_ncm_sync',
+  pis_ncm_sync: 'pis_ncm_sync',
+  cofins_ncm_sync: 'cofins_ncm_sync',
+  ativo_ncm_sync: 'ativo_ncm_sync',
+  data_inicio_ncm_sync: 'data_inicio_ncm_sync',
+  data_fim_ncm_sync: 'data_fim_ncm_sync',
+  id_ncm_sync_log: 'id_ncm_sync_log',
+  data_criacao_ncm_sync: 'data_criacao_ncm_sync',
+  data_atualizacao_ncm_sync: 'data_atualizacao_ncm_sync'
+};
+
+exports.Prisma.NcmSyncLogScalarFieldEnum = {
+  id_ncm_sync_log: 'id_ncm_sync_log',
+  data_inicio_ncm_sync_log: 'data_inicio_ncm_sync_log',
+  data_conclusao_ncm_sync_log: 'data_conclusao_ncm_sync_log',
+  status_ncm_sync_log: 'status_ncm_sync_log',
+  total_ncm_sync_log: 'total_ncm_sync_log',
+  adicionados_ncm_sync_log: 'adicionados_ncm_sync_log',
+  alterados_ncm_sync_log: 'alterados_ncm_sync_log',
+  removidos_ncm_sync_log: 'removidos_ncm_sync_log',
+  origem_ncm_sync_log: 'origem_ncm_sync_log',
+  disparado_por_ncm_sync_log: 'disparado_por_ncm_sync_log',
+  mensagem_erro_ncm_sync_log: 'mensagem_erro_ncm_sync_log',
+  data_criacao_ncm_sync_log: 'data_criacao_ncm_sync_log',
+  data_atualizacao_ncm_sync_log: 'data_atualizacao_ncm_sync_log'
+};
+
+exports.Prisma.NcmSyncAgendamentoScalarFieldEnum = {
+  id_ncm_sync_agendamento: 'id_ncm_sync_agendamento',
+  ativo_ncm_sync_agendamento: 'ativo_ncm_sync_agendamento',
+  cron_expressao_ncm_sync_agendamento: 'cron_expressao_ncm_sync_agendamento',
+  notificadores_ncm_sync_agendamento: 'notificadores_ncm_sync_agendamento',
+  data_criacao_ncm_sync_agendamento: 'data_criacao_ncm_sync_agendamento',
+  data_atualizacao_ncm_sync_agendamento: 'data_atualizacao_ncm_sync_agendamento'
 };
 
 exports.Prisma.OpeScalarFieldEnum = {
@@ -239,13 +269,24 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.NcmSyncStatusSincronizacao = exports.$Enums.NcmSyncStatusSincronizacao = {
+  EXECUTANDO: 'EXECUTANDO',
+  SUCESSO: 'SUCESSO',
+  ERRO: 'ERRO'
+};
 
+exports.NcmSyncOrigemSincronizacao = exports.$Enums.NcmSyncOrigemSincronizacao = {
+  JOB: 'JOB',
+  MANUAL: 'MANUAL'
+};
 
 exports.Prisma.ModelName = {
   Empresa: 'Empresa',
   Moeda: 'Moeda',
   Unidade: 'Unidade',
-  Ncm: 'Ncm',
+  NcmSync: 'NcmSync',
+  NcmSyncLog: 'NcmSyncLog',
+  NcmSyncAgendamento: 'NcmSyncAgendamento',
   Ope: 'Ope',
   OPEHistoricoStatus: 'OPEHistoricoStatus'
 };

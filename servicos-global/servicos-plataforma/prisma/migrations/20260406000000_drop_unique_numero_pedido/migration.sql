@@ -4,6 +4,12 @@
 
 DO $$
 BEGIN
+  -- Skip se a tabela não existe neste banco (foi movida para outro serviço)
+  IF to_regclass('pedidos_comerciais') IS NULL THEN
+    RAISE NOTICE 'Tabela pedidos_comerciais não existe — migration sem efeito (tabela vive em outro banco/serviço)';
+    RETURN;
+  END IF;
+
   -- Tenta dropar pelo nome gerado pelo Prisma
   IF EXISTS (
     SELECT 1 FROM pg_constraint

@@ -42,24 +42,27 @@
     { "categoria": 2,  "nome": "Identidade visual",               "status": "coberta",       "passosAssociados": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17] },
     { "categoria": 3,  "nome": "Navegação lateral / breadcrumb",  "status": "coberta",       "passosAssociados": [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30] },
     { "categoria": 4,  "nome": "Read / Visualização",             "status": "coberta",       "passosAssociados": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40] },
-    { "categoria": 5,  "nome": "Update / Edição",                 "status": "coberta",       "passosAssociados": [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70] },
+    { "categoria": 5,  "nome": "Update / Edição",                 "status": "coberta",       "totalPassos": 80, "intervalos": ["41-70 (originais)", "146-195 (Lote 1: granularidade exaustiva por campo, NOME 16 passos, CNPJ 12 passos, Selects 22 passos)"] },
     { "categoria": 6,  "nome": "Create / Criação",                "status": "nao_aplicavel", "justificativa": "Visão Geral edita o singleton HQ — não há criação. Provisionamento de novas organizações (tenants) é feito em /admin/tenants → modal Nova Organização (TST-E2E-ADMIN-000002)." },
     { "categoria": 7,  "nome": "Delete / Exclusão",               "status": "nao_aplicavel", "justificativa": "Gravity HQ é a organização raiz, não pode ser deletada. Exclusão de tenants comuns é coberta em TST-E2E-ADMIN-000002." },
-    { "categoria": 8,  "nome": "Validações de campo",             "status": "coberta",       "passosAssociados": [71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82] },
-    { "categoria": 9,  "nome": "Estados de erro",                 "status": "coberta",       "passosAssociados": [83, 84, 85, 86, 87, 88] },
-    { "categoria": 10, "nome": "Estados vazios",                  "status": "coberta",       "passosAssociados": [89, 90] },
-    { "categoria": 11, "nome": "Estados de loading",              "status": "coberta",       "passosAssociados": [91, 92, 93, 94] },
+    { "categoria": 8,  "nome": "Validações de campo (incl. adversariais)", "status": "coberta", "totalPassos": 48, "intervalos": ["71-82 (originais)", "196-231 (Lote 2: SQLi, XSS, prototype pollution, payload DoS, headers manipulados, body malformado, a11y de erro)"] },
+    { "categoria": 9,  "nome": "Estados de erro",                 "status": "coberta",       "totalPassos": 18, "intervalos": ["83-88 (originais)", "267-278 (Lote 4: 422, 503, DNS, CORS, retry, abort, network flake, stress test)"] },
+    { "categoria": 10, "nome": "Estados vazios",                  "status": "coberta",       "totalPassos": 10, "intervalos": ["89-90 (originais)", "279-286 (Lote 4: sem JWT, offline, role transitando, config null, sem subscriptions, vírgula órfã)"] },
+    { "categoria": 11, "nome": "Estados de loading",              "status": "coberta",       "totalPassos": 14, "intervalos": ["91-94 (originais)", "287-296 (Lote 4: skeletons, FCP, troca idioma, IBGE, aria-busy)"] },
     { "categoria": 12, "nome": "Filtros e busca",                 "status": "nao_aplicavel", "justificativa": "Tela exibe apenas o singleton HQ — não há lista para filtrar." },
     { "categoria": 13, "nome": "Ordenação",                       "status": "nao_aplicavel", "justificativa": "Tela exibe apenas o singleton HQ — não há lista para ordenar." },
-    { "categoria": 14, "nome": "Permissões / RBAC",               "status": "coberta",       "passosAssociados": [95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119], "notas": "25 passos dedicados — 5 deles P0 bloqueantes (acesso negado por URL direta para 5 perfis sem privilégio + defesa em profundidade do AdminLayout)." },
-    { "categoria": 15, "nome": "Multi-tenant / isolamento",       "status": "coberta",       "passosAssociados": [120, 121, 122], "notas": "HQ não tem schema de tenant — verificar que usuário de outro tenant não consegue ler/editar config HQ." },
-    { "categoria": 16, "nome": "Acessibilidade (a11y)",           "status": "coberta",       "passosAssociados": [123, 124, 125, 126, 127, 128, 129, 130] },
-    { "categoria": 17, "nome": "Responsividade",                  "status": "coberta",       "passosAssociados": [131, 132, 133, 134] },
-    { "categoria": 18, "nome": "Internacionalização (i18n)",      "status": "coberta",       "passosAssociados": [135, 136, 137, 138] },
-    { "categoria": 19, "nome": "Performance",                     "status": "coberta",       "passosAssociados": [139, 140, 141] },
-    { "categoria": 20, "nome": "Persistência e refresh",          "status": "coberta",       "passosAssociados": [142, 143, 144, 145] }
+    { "categoria": 14, "nome": "Permissões / RBAC",               "status": "coberta",       "totalPassos": 60, "intervalos": ["95-119 (originais — 9 perfis, RBAC negativo P0)", "232-266 (Lote 3: subdomínio, runtime promotion/demotion, JWT tampering, alg=none, refresh token, 2FA, impersonação, gravity_admin global vs per-tenant, CSRF, CORS, X-Frame, CSP)"], "notas": "60 passos dedicados — 7+ deles P0 bloqueantes." },
+    { "categoria": 15, "nome": "Multi-tenant / isolamento",       "status": "coberta",       "totalPassos": 11, "intervalos": ["120-122 (originais)", "297-304 (Lote 4: 100 tenants paralelos, pool não vaza, audit/schema/cache isolation, backup scoped)"] },
+    { "categoria": 16, "nome": "Acessibilidade (a11y) WCAG 2.1 AA","status": "coberta",       "totalPassos": 32, "intervalos": ["123-130 (originais)", "305-328 (Lote 5: aria-required/invalid/describedby, labels, combobox/listbox roles, landmarks, h1, heading hierarchy, skip link, lang attr, color independence, focus trap, zoom 200%/400%, high contrast, axe full scan, NVDA/VoiceOver, tooltips keyboard)"] },
+    { "categoria": 17, "nome": "Responsividade + Tema",           "status": "coberta",       "totalPassos": 21, "intervalos": ["131-134 (originais)", "329-345 (Lote 5: viewports 1920/1440/1366/1024/768/375/320, dark/light, FOUC, persist cross-tab/device, alternar 10x, print, Retina, viewport durante uso)"] },
+    { "categoria": 18, "nome": "Internacionalização (i18n)",      "status": "coberta",       "totalPassos": 21, "intervalos": ["135-138 (originais)", "346-362 (Lote 5: paridade chaves PT/EN/ES, tooltips ≤90 chars, datas/números por locale, opções de selects traduzidas, fallback locale, lazy load, sync cross-device, plurais, RTL futuro, layout com textos longos)"] },
+    { "categoria": 19, "nome": "Performance + SLA",               "status": "coberta",       "totalPassos": 23, "intervalos": ["139-141 (originais)", "363-382 (Lote 6: LCP/TTI/CLS/TBT, bundle size, memory leak, render keypress, dropdowns, debounce, troca tema/idioma, Lighthouse scores, SLA backend p95, 50k req/dia, auto-scaling, uptime 99.9%)"] },
+    { "categoria": 20, "nome": "Persistência e refresh",          "status": "coberta",       "totalPassos": 30, "intervalos": ["142-145 (originais)", "383-408 (Lote 6: SELECT por campo, gap tipo_organizacao confirmado, UTF-8 round-trip, audit completo, transacao atômica, RPO/RTO, backup criptografado S3, pool, cache cliente, Sentry)"] }
   ],
-  "coberturaPercentual": 85,
+  "coberturaPercentual": 100,
+  "totalPassos": 408,
+  "totalCategorias": 16,
+  "totalNaoAplicaveis": 4,
 
   "passos": [
     { "numero": 1,  "acao": "Subir backend http://localhost:8005",                          "categoria": 1, "interacao": { "tipo": "verificacao" }, "assercao": { "tipo": "apiResponse", "rota": "http://localhost:8005/health", "status": 200 }, "resultadoEsperado": "Servidor backend up", "screenshot": null, "tiposAplicaveis": ["E2E"] },
@@ -510,16 +513,39 @@
   ],
 
   "resumoPriorizacao": {
-    "P0_bloqueante_release": [3, 95, 96, 97, 98, 99, 100, 101, 102, 106, 107, 108, 109, 110, 116, 117, 118, 119, 121, 122],
-    "P1_alto_risco": [43, 44, 69, 75, 84, 86, 103, 104, 111, 112, 113, 115, 120, 145],
-    "P2_defesa_em_profundidade": "demais"
+    "P0_bloqueante_release": [3, 95, 96, 97, 98, 99, 100, 101, 102, 106, 107, 108, 109, 110, 116, 117, 118, 119, 121, 122, 196, 198, 202, 215, 233, 235, 236, 237, 238, 239, 241, 242, 243, 250, 251, 252, 261, 263, 264, 274, 297, 298, 299, 300, 301, 388, 401],
+    "P1_alto_risco": [43, 44, 69, 75, 84, 86, 103, 104, 111, 112, 113, 115, 120, 145, 197, 199, 200, 201, 207, 208, 209, 210, 222, 232, 234, 244, 246, 247, 248, 253, 254, 255, 258, 259, 260, 265, 266, 302, 303, 304, 308, 309, 317, 324, 343, 367, 380, 381, 382, 390, 391, 392, 395, 400],
+    "P2_defesa_em_profundidade": "demais (~280 passos cobrindo granularidade exaustiva por campo, a11y completa, i18n, performance, persistência, edge cases)"
   },
 
   "recomendacoesExecucao": [
     "Antes de rodar: PR de instrumentação adicionando todos os data-testid listados em testids-necessarios.json — sem isso, o spec falha imediatamente.",
-    "Suíte P0 (~20 passos) deve rodar em TODA PR que toque pages/admin/* ou apiClient.ts adminPlatformApi ou middleware de auth.",
-    "Suíte completa (145 passos) por release ou nightly em staging.",
-    "RBAC negativo (95-119) requer 6 fixtures de usuário (Master, SuperAdmin, ADMIN, MANAGER, STANDARD, VIEWER) — preparar em _fixtures/users.ts antes de habilitar a suíte.",
-    "Passos com 'definirComportamento' (68, 89, 114, 120) precisam decisão de UX/produto antes de rodar — abrir issue para o dono."
+    "Suíte P0 (~47 passos) deve rodar em TODA PR que toque pages/admin/* ou apiClient.ts adminPlatformApi ou middleware de auth.",
+    "Suíte completa (408 passos, 16 categorias cobertas + 4 não-aplicáveis com justificativa) por release ou nightly em staging.",
+    "Adversariais (categoria 8, passos 196-231): rodar em PR de segurança ou trimestralmente — XSS, SQLi, prototype pollution, payload DoS, CSRF, CORS, headers manipulados.",
+    "RBAC expandido (categoria 14, passos 95-119 + 232-266) requer fixtures de 9 perfis: Master, SuperAdmin, ADMIN, MANAGER, STANDARD, VIEWER, DESATIVADO, anônimo, token-expirado. Preparar em _fixtures/users.ts antes de habilitar.",
+    "A11y WCAG AA (categoria 16, passos 305-328): rodar com axe-core + NVDA/VoiceOver em ambiente desktop. Lighthouse a11y ≥ 90 obrigatório.",
+    "Performance + SLA (categoria 19, passos 363-382): integrar com monitoramento contínuo (UptimeRobot, Sentry, Lighthouse CI). Backend GET <200ms p95 e PUT <500ms p95 são bloqueantes.",
+    "Multi-tenant (categoria 15, passos 297-304): rodar em ambiente com 100+ tenants reais ou stress test de isolamento.",
+    "Persistência (categoria 20, passos 383-408): exige acesso DB para SELECT direto + verificar audit logs em historico-global.",
+    "Passos com flag 'definirComDono' (~30 passos espalhados): decisão UX/produto pendente — abrir issue antes de habilitar.",
+    "Passos com flag 'gap' (~30 passos): identificam GAPs reais no código atual — gerar tickets de correção (CRÍTICOS: 194/195/388 — campo tipo_empresa_organizacao não persiste; 250 — falta checagem de role no backend; 263 — falta CSRF)."
+  ],
+
+  "gapsCriticos": [
+    "GAP CRÍTICO 1: campo tipo_empresa_organizacao do front NÃO está no PlatformConfigSchema do backend (Zod usa tipo_organizacao). Salvar tipo de empresa NÃO persiste no banco — REGRA 09 violada (passos 194, 195, 388).",
+    "GAP CRÍTICO 2: rotas GET e PUT /admin/visao-geral NÃO checam role/gravity_admin no backend. Defesa só no frontend AdminLayout — qualquer usuário logado com clerkUserId válido pode editar HQ via API direta (passo 250).",
+    "GAP CRÍTICO 3: política CSRF e CORS para rotas admin não verificadas — risco de cross-site request (passos 263, 264).",
+    "GAP CRÍTICO 4: backend não tem unique constraint em cnpj_organizacao — duplicidade entre tenants permitida.",
+    "GAP CRÍTICO 5: schema Zod não tem z.enum nos UFs, segmentos ou tipos de empresa — qualquer string passa (passos 212, 213).",
+    "GAP UX: frontend não tem máscara CNPJ, sem validação DV, sem inputMode='numeric', sem autocomplete='off'.",
+    "GAP DATA: data_criacao_organizacao formatada hardcoded em pt-BR (linha 119 VisaoGeralAdmin.tsx) — não respeita locale ativo (passos 350, 351).",
+    "GAP UX: vírgula órfã na seção infra quando cidade vazia + estado preenchido (passo 286).",
+    "GAP UX: texto 'Operando desde ' (espaço solto) quando data_criacao é null (passo 285).",
+    "GAP UX: texto '.gravity.com.br' (ponto solto) quando subdomínio é vazio.",
+    "GAP RESILIÊNCIA: useCidadesIBGE não tem retry com backoff em caso de 429 IBGE (passo 188).",
+    "GAP RESILIÊNCIA: apiClient não tem AbortController para cancelar requests (passo 276).",
+    "GAP A11Y: provavelmente falta aria-required no asterisco, aria-invalid + aria-describedby nos inputs com erro, role='alert' nas mensagens de erro, skip link, tooltips keyboard-accessible (passos 305-328).",
+    "GAP I18N: opções de Segmento e Tipo de Empresa são strings literais hardcoded sem chaves i18n — não traduzem em EN/ES (passos 353, 354)."
   ]
 }

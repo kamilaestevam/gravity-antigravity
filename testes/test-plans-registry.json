@@ -1,7 +1,7 @@
 {
   "$schema": "./test-plans-registry.schema.json",
   "versao": "1.0.0",
-  "atualizadoEm": "2026-05-03T00:02:48.053Z",
+  "atualizadoEm": "2026-05-03T00:36:42.007Z",
   "totalPlanos": 20,
   "totalPorTipo": {
     "UNI": 5,
@@ -388,8 +388,8 @@
       "planoFile": "testes-e2e/admin/visao-geral/plano-teste/TST-E2E-ADMIN-000001.json",
       "specFile": "testes/testes-e2e/admin/visao-geral/TST-E2E-ADMIN-000001.spec.ts",
       "componenteFile": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx",
-      "casosTotal": 145,
-      "coberturaPercentual": 85,
+      "casosTotal": 408,
+      "coberturaPercentual": 100,
       "status": "pendente_validacao",
       "criadoEm": "2026-05-02T00:00:00Z",
       "ultimaExecucao": null,

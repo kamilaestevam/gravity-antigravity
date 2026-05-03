@@ -5,7 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { adminTestesApi } from '../../services/apiClient'
+import { adminPlanosTesteApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 
 interface PlanoResumo {
@@ -29,8 +29,8 @@ export function PlanosTesteAdmin() {
   async function loadPlanos() {
     try {
       setCarregando(true)
-      const res = await adminTestesApi.listPlans()
-      setPlanos((res.plans as unknown as PlanoResumo[]) ?? [])
+      const res = await adminPlanosTesteApi.listar()
+      setPlanos((res.planos as unknown as PlanoResumo[]) ?? [])
     } catch {
       // Registry vazio
       setPlanos([])
@@ -113,7 +113,7 @@ export function PlanosTesteAdmin() {
           dados={planos}
           colunas={colunas}
           idKey="id"
-          mensagemVazio="Nenhum plano de teste registrado. Use POST /admin/testes-gerais/plans/generate para criar."
+          mensagemVazio="Nenhum plano de teste registrado. Use POST /admin/planos-teste/gerar para criar."
         />
       </div>
     </PaginaGlobal>

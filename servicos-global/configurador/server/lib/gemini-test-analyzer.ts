@@ -247,7 +247,7 @@ function toFullAnalysis(heuristic: ReturnType<typeof fallbackHeuristic>): AiAnal
   }
 }
 
-// ─── Metricas expostas via /admin/testes-gerais/gemini-metrics ───────────────
+// ─── Metricas expostas via /admin/metricas-llm (model LLMMetricas) ───────────
 
 export function getMetrics(): {
   cacheSize: number

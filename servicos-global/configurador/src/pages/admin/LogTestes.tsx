@@ -10,7 +10,7 @@ import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, type TestesApi } from '../../services/apiClient'
+import { adminTestesApi, adminAgendamentosTesteApi, type TesteApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 
 
@@ -43,7 +43,7 @@ interface LogTeste {
 }
 
 // Helper: mapeia dados do backend para o formato do frontend
-function mapTestesToLocal(log: TestesApi): LogTeste {
+function mapTestesToLocal(log: TesteApi): LogTeste {
   const created = new Date(log.created_at)
   const pad = (n: number) => n.toString().padStart(2, '0')
   return {
@@ -85,7 +85,7 @@ export function LogTestes() {
   async function loadLogs(): Promise<LogTeste[]> {
     try {
       setCarregando(true)
-      const res = await adminTestesApi.list()
+      const res = await adminTestesApi.listar()
       const novos = res.logs.map(mapTestesToLocal)
       setDados(novos)
       return novos
@@ -101,7 +101,7 @@ export function LogTestes() {
 
   // Carrega status do agendamento na montagem
   useEffect(() => {
-    adminTestesApi.listSchedules()
+    adminAgendamentosTesteApi.listar()
       .then(({ schedules }) => {
         if (schedules.length) {
           const s = schedules[0] as Record<string, unknown>
@@ -116,7 +116,7 @@ export function LogTestes() {
     let cancelled = false
     ;(async () => {
       try {
-        const status = await adminTestesApi.runStatus()
+        const status = await adminTestesApi.status()
         if (!cancelled && status.running) setRodandoTestes(true)
       } catch { /* offline / erro — ignora */ }
     })()
@@ -163,7 +163,7 @@ export function LogTestes() {
     async function tick() {
       if (stopped) return
       try {
-        const status = await adminTestesApi.runStatus()
+        const status = await adminTestesApi.status()
         if (!status.running) {
           stopped = true
           setRodandoTestes(false)
@@ -186,7 +186,7 @@ export function LogTestes() {
   // Handlers para os botões de ação Gemini
   const handleReanalyze = async (id: string) => {
     try {
-      const res = await adminTestesApi.reanalyze(id)
+      const res = await adminTestesApi.reanalisar(id)
       addNotification({ type: 'success', message: 'Re-análise concluída' })
       await loadLogs()
     } catch (err) {
@@ -196,7 +196,7 @@ export function LogTestes() {
 
   const handleApplyFix = async (id: string) => {
     try {
-      const res = await adminTestesApi.applyFix(id)
+      const res = await adminTestesApi.aplicarCorrecao(id)
       addNotification({ type: 'success', message: `Correção aplicada em ${res.arquivo}` })
       await loadLogs()
     } catch (err) {
@@ -208,7 +208,7 @@ export function LogTestes() {
     const motivo = window.prompt('Motivo da rejeição (min 10 chars):')
     if (!motivo || motivo.length < 10) return
     try {
-      await adminTestesApi.reject(id, motivo)
+      await adminTestesApi.rejeitar(id, motivo)
       addNotification({ type: 'success', message: 'Análise rejeitada — feedback registrado' })
       await loadLogs()
     } catch (err) {
@@ -701,7 +701,7 @@ export function LogTestes() {
           aberto={modalAgendamentoAberto}
           aoFechar={() => {
             setModalAgendamentoAberto(false)
-            adminTestesApi.listSchedules()
+            adminAgendamentosTesteApi.listar()
               .then(({ schedules }) => {
                 if (schedules.length) {
                   const s = schedules[0] as Record<string, unknown>

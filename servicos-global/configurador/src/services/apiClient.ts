@@ -128,15 +128,17 @@ export interface FaixaPrecoApi {
   currency: string
 }
 
+// NegotiationApi — espelha model ProdutoGravityNegociacaoEspecial do Prisma
+// Paridade Absoluta: nomes idênticos ao schema (configurador/prisma/schema.prisma)
 export interface NegotiationApi {
-  id: string
-  product_id: string
-  tenant_id: string
-  tenant_name: string
-  agreement: string
-  starts_at: string | null
-  ends_at: string | null
-  is_unlimited: boolean
+  id_negociacao_especial_preco_produto_gravity: string
+  id_produto_gravity: string
+  id_organizacao: string
+  nome_organizacao_negociacao_especial_preco_produto_gravity: string
+  acordo_negociacao_especial_preco_produto_gravity: string
+  data_inicio_negociacao_especial_preco_produto_gravity: string | null
+  data_fim_negociacao_especial_preco_produto_gravity: string | null
+  ilimitado_negociacao_especial_preco_produto_gravity: boolean
 }
 
 export interface TenantApi {
@@ -146,7 +148,6 @@ export interface TenantApi {
   status_organizacao: string
   data_criacao_organizacao: string
   _count?: { users: number; companies: number }
-  subscriptions?: Array<{ status: string }>
   users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
   companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
   product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
@@ -180,7 +181,7 @@ export const adminProductsApi = {
     if (params?.status) query.set('status', params.status)
     const qs = query.toString()
     return request<{ products: ProductApi[]; pagination: PaginationApi }>(
-      `/admin/produtos-gravity${qs ? `?${qs}` : ''}`
+      `/v1/admin/produtos-gravity${qs ? `?${qs}` : ''}`
     )
   },
 
@@ -214,7 +215,7 @@ export const adminProductsApi = {
     if (opts?.ackNegotiations) query.set('ack_negotiations', 'true')
     const qs = query.toString()
     return request<{ deleted: boolean; id: string; mode: 'hard' | 'soft' }>(
-      `/admin/produtos-gravity/${id}${qs ? `?${qs}` : ''}`,
+      `/v1/admin/produtos-gravity/${id}${qs ? `?${qs}` : ''}`,
       { method: 'DELETE' },
     )
   },
@@ -234,30 +235,30 @@ export const adminTenantsApi = {
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
     return request<{ tenants: TenantApi[]; pagination: PaginationApi }>(
-      `/v1/admin/tenants${qs ? `?${qs}` : ''}`
+      `/v1/admin/organizacoes${qs ? `?${qs}` : ''}`
     )
   },
 
   async getById(id: string) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/tenants/${id}`)
+    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`)
   },
 
   async create(data: { nome_organizacao: string; subdominio_organizacao: string; cnpj_organizacao?: string }) {
-    return request<{ tenant: TenantApi }>('/v1/admin/tenants', {
+    return request<{ tenant: TenantApi }>('/v1/admin/organizacoes', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async updateStatus(id: string, status_organizacao: string) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/tenants/${id}`, {
+    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status_organizacao }),
     })
   },
 
   async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string }) {
-    return request<{ tenant: TenantApi }>(`/v1/admin/tenants/${id}`, {
+    return request<{ tenant: TenantApi }>(`/v1/admin/organizacoes/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
@@ -265,7 +266,7 @@ export const adminTenantsApi = {
 
   async updateWorkspaceStatus(id: string, status: 'ATIVO' | 'INATIVO') {
     return request<{ workspace: { id: string; name: string; status: string; tenant_id: string } }>(
-      `/admin/workspaces/${id}`,
+      `/v1/admin/workspaces/${id}`,
       { method: 'PATCH', body: JSON.stringify({ status }) }
     )
   },
@@ -278,7 +279,7 @@ export const adminTenantsApi = {
         suspendedTenants: number
         totalUsers: number
       }
-    }>('/v1/admin/stats')
+    }>('/v1/admin/estatisticas-plataforma')
   },
 }
 
@@ -412,29 +413,29 @@ export const adminBillingApi = {
     if (params?.status) query.set('status', params.status)
     if (params?.customer_id) query.set('customer_id', params.customer_id)
     const qs = query.toString()
-    return request<ListInvoicesResponseApi>(`/v1/admin/financeiro-admin/invoices${qs ? `?${qs}` : ''}`)
+    return request<ListInvoicesResponseApi>(`/v1/admin/financeiro-admin${qs ? `?${qs}` : ''}`)
   },
 
   async getInvoice(id: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/invoices/${id}`)
+    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/${id}`)
   },
 
   async createInvoice(data: CreateInvoiceRequest) {
-    return request<{ invoice: GravityInvoiceApi }>('/v1/admin/financeiro-admin/invoices', {
+    return request<{ invoice: GravityInvoiceApi }>('/v1/admin/financeiro-admin', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async voidInvoice(id: string, reason?: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/invoices/${id}/void`, {
+    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/${id}/anular`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     })
   },
 
   async sendInvoice(id: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/invoices/${id}/send`, {
+    return request<{ invoice: GravityInvoiceApi }>(`/v1/admin/financeiro-admin/${id}/enviar`, {
       method: 'POST',
     })
   },
@@ -512,9 +513,14 @@ export const adminDeploysApi = {
   },
 }
 
-// ─── Admin: Test Logs ───────────────────────────────────────────────────────
+// ─── Admin: Testes (model Teste, tabela `teste`) ────────────────────────────
+// 4 clients alinhados aos models do Prisma:
+//   - adminTestesApi          → model Teste            (recurso /testes)
+//   - adminAgendamentosTesteApi → model TesteAgendamento (recurso /agendamentos-teste)
+//   - adminPlanosTesteApi     → model TestePlano       (recurso /planos-teste)
+//   - adminMetricasLlmApi     → model LLMMetricas      (recurso /metricas-llm)
 
-export interface TestesApi {
+export interface TesteApi {
   id: string
   created_at: string
   type: string
@@ -526,72 +532,145 @@ export interface TestesApi {
   ai_analysis: Record<string, unknown> | null
 }
 
-export interface TestePlanoApi {
-  id: string
-  name: string
-  product: string
-  description: string
-  specFile: string
-  url: string
-  steps: string[]
+/** Plano de teste — espelha colunas do model TestePlano + atalhos do registry. */
+export interface PlanoTesteApi {
+  id: string                 // id_plano_teste
+  tipo: string               // tipo_plano_teste — UNI | CON | FUN | CRO | E2E | PEN
+  escopo: string             // escopo_plano_teste — ADMIN | CONFIG | PEDIDO | ...
+  sublocal: string           // sublocal_plano_teste
+  modulo?: string
+  tela?: string
+  criticidade?: string       // criticidade_plano_teste
+  planoFile?: string
+  specFile?: string
+  componenteFile?: string
+  passosTotal?: number       // passos_total_plano_teste
+  casosTotal?: number
+  coberturaPercentual?: number  // cobertura_pct_plano_teste
+  status?: string            // status_plano_teste
+  criadoEm?: string
 }
 
+/** Recurso /testes — model Teste */
 export const adminTestesApi = {
-  async list() {
-    return request<{ logs: TestesApi[] }>('/v1/admin/testes-gerais/logs')
+  /** GET /api/v1/admin/testes */
+  async listar() {
+    return request<{ logs: TesteApi[] }>('/v1/admin/testes')
   },
-  async runTests(opts?: { planos?: string[]; modulos?: string[] }) {
-    return request<{ started: boolean }>('/v1/admin/testes-gerais/run', {
+  /** POST /api/v1/admin/testes/disparar */
+  async disparar(opts?: { planos?: string[]; modulos?: string[] }) {
+    return request<{ started: boolean }>('/v1/admin/testes/disparar', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(opts ?? {}),
     })
   },
-  async runStatus() {
-    return request<{ running: boolean }>('/v1/admin/testes-gerais/run/status')
+  /** GET /api/v1/admin/testes/status */
+  async status() {
+    return request<{ running: boolean }>('/v1/admin/testes/status')
   },
-  async listPlans(product?: string) {
-    const qs = product ? `?product=${encodeURIComponent(product)}` : ''
-    return request<{ plans: TestePlanoApi[] }>(`/v1/admin/testes-gerais/plans${qs}`)
+  /** POST /api/v1/admin/testes/:id_teste/reanalisar */
+  async reanalisar(id_teste: string) {
+    return request<{ analysis: Record<string, unknown> }>(`/v1/admin/testes/${id_teste}/reanalisar`, { method: 'POST' })
   },
-  async reanalyze(id: string) {
-    return request<{ analysis: Record<string, unknown> }>(`/v1/admin/testes-gerais/logs/${id}/reanalyze`, { method: 'POST' })
+  /** POST /api/v1/admin/testes/:id_teste/aplicar-correcao */
+  async aplicarCorrecao(id_teste: string) {
+    return request<{ applied: boolean; arquivo: string }>(`/v1/admin/testes/${id_teste}/aplicar-correcao`, { method: 'POST' })
   },
-  async applyFix(id: string) {
-    return request<{ applied: boolean; arquivo: string }>(`/v1/admin/testes-gerais/logs/${id}/apply-fix`, { method: 'POST' })
-  },
-  async reject(id: string, motivo: string) {
-    return request<{ rejected: boolean }>(`/v1/admin/testes-gerais/logs/${id}/reject`, {
+  /** POST /api/v1/admin/testes/:id_teste/rejeitar */
+  async rejeitar(id_teste: string, motivo: string) {
+    return request<{ rejected: boolean }>(`/v1/admin/testes/${id_teste}/rejeitar`, {
       method: 'POST',
       body: JSON.stringify({ motivo }),
     })
   },
-  async generatePlan(data: { escopo: string; sublocal: string; tela: string; rota: string; componenteFilePath: string; criticidade: string; temDinheiro?: boolean }) {
-    return request<{ plan: Record<string, unknown> }>('/v1/admin/testes-gerais/plans/generate', {
+  /** POST /api/v1/admin/testes/pentest */
+  async dispararPentest(payload: { targetUrl: string; scanType?: 'baseline' | 'full' | 'api' }) {
+    return request<{ scanId: string }>('/v1/admin/testes/pentest', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+}
+
+// ─── Admin: Agendamentos de Teste (model TesteAgendamento) ──────────────────
+
+export const adminAgendamentosTesteApi = {
+  /** GET /api/v1/admin/agendamentos-teste */
+  async listar() {
+    return request<{ schedules: Array<Record<string, unknown>> }>('/v1/admin/agendamentos-teste')
+  },
+  /** POST /api/v1/admin/agendamentos-teste */
+  async criar(data: Record<string, unknown>) {
+    return request<{ schedule: Record<string, unknown> }>('/v1/admin/agendamentos-teste', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
-  async geminiMetrics() {
-    return request<{ cache: Record<string, unknown>; daily: Array<Record<string, unknown>> }>('/v1/admin/testes-gerais/gemini-metrics')
-  },
-  async listSchedules() {
-    return request<{ schedules: Array<Record<string, unknown>> }>('/v1/admin/testes-gerais/schedules')
-  },
-  async createSchedule(data: Record<string, unknown>) {
-    return request<{ schedule: Record<string, unknown> }>('/v1/admin/testes-gerais/schedules', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  },
-  async updateSchedule(id: string, data: Record<string, unknown>) {
-    return request<{ schedule: Record<string, unknown> }>(`/v1/admin/testes-gerais/schedules/${id}`, {
+  /** PATCH /api/v1/admin/agendamentos-teste/:id_agendamento_teste */
+  async atualizar(id_agendamento_teste: string, data: Record<string, unknown>) {
+    return request<{ schedule: Record<string, unknown> }>(`/v1/admin/agendamentos-teste/${id_agendamento_teste}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
   },
-  async deleteSchedule(id: string) {
-    return request<{ deleted: boolean }>(`/v1/admin/testes-gerais/schedules/${id}`, { method: 'DELETE' })
+  /** DELETE /api/v1/admin/agendamentos-teste/:id_agendamento_teste */
+  async deletar(id_agendamento_teste: string) {
+    return request<{ deleted: boolean }>(`/v1/admin/agendamentos-teste/${id_agendamento_teste}`, { method: 'DELETE' })
+  },
+}
+
+// ─── Admin: Planos de Teste (model TestePlano) ──────────────────────────────
+
+export const adminPlanosTesteApi = {
+  /** GET /api/v1/admin/planos-teste?escopo=X */
+  async listar(escopo?: string) {
+    const qs = escopo ? `?escopo=${encodeURIComponent(escopo)}` : ''
+    return request<{ planos: PlanoTesteApi[] }>(`/v1/admin/planos-teste${qs}`)
+  },
+  /** POST /api/v1/admin/planos-teste/gerar */
+  async gerar(data: {
+    escopo: string
+    sublocal: string
+    tela: string
+    rota: string
+    componenteFilePath: string
+    criticidade: string
+    temDinheiro?: boolean
+  }) {
+    return request<{ plan: Record<string, unknown> }>('/v1/admin/planos-teste/gerar', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+  /** POST /api/v1/admin/planos-teste/:id_plano_teste/expandir */
+  async expandir(id_plano_teste: string, payload: { componenteFilePath: string }) {
+    return request<{ plan: Record<string, unknown> }>(`/v1/admin/planos-teste/${id_plano_teste}/expandir`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  /** POST /api/v1/admin/planos-teste/:id_plano_teste/gerar-spec */
+  async gerarSpec(id_plano_teste: string) {
+    return request<{ specPath: string }>(`/v1/admin/planos-teste/${id_plano_teste}/gerar-spec`, { method: 'POST' })
+  },
+  /** POST /api/v1/admin/planos-teste/extrair-testids */
+  async extrairTestids(payload: { componenteFilePath: string; escopo: string; sublocal: string }) {
+    return request<{ mapping: Record<string, unknown> }>('/v1/admin/planos-teste/extrair-testids', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+}
+
+// ─── Admin: Métricas LLM (model LLMMetricas) ────────────────────────────────
+
+export const adminMetricasLlmApi = {
+  /** GET /api/v1/admin/metricas-llm */
+  async listar() {
+    return request<{
+      cache: Record<string, unknown>
+      daily: Array<Record<string, unknown>>
+    }>('/v1/admin/metricas-llm')
   },
 }
 
@@ -629,55 +708,33 @@ export const adminPlatformApi = {
   },
 }
 
-// ─── Admin: Ativação de produtos por tenant ─────────────────────────────────
-
-export const tenantProductsApi = {
-  async listProducts(tenantId: string) {
-    return request<{ tenant_id: string; tenant_name: string; products: ConfigProdutoApi[] }>(
-      `/v1/admin/tenants/${tenantId}/products`
-    )
-  },
-
-  async activate(tenantId: string, productKey: string, config?: Record<string, unknown>) {
-    return request<{ activated: boolean; config: ConfigProdutoApi }>(
-      `/v1/admin/tenants/${tenantId}/products/${productKey}/activate`,
-      { method: 'POST', body: JSON.stringify({ config: config ?? {} }) }
-    )
-  },
-
-  async deactivate(tenantId: string, productKey: string) {
-    return request<{ deactivated: boolean }>(
-      `/v1/admin/tenants/${tenantId}/products/${productKey}/deactivate`,
-      { method: 'POST' }
-    )
-  },
-}
-
 // ─── Admin: NCM Sync (Portal Único Siscomex) ───────────────────────────────
 
 export interface NcmSyncStatusApi {
-  ultima_sync:   string | null
-  status:        'RUNNING' | 'SUCCESS' | 'ERROR' | null
-  total_ativos:  number
-  total_tenants: number
-  erros_48h:     number
-  desatualizado: boolean
+  ultima_sync:           string | null
+  status:                'EXECUTANDO' | 'SUCESSO' | 'ERRO' | null
+  total_ativos:          number
+  total_organizacoes:    number
+  organizacoes_com_ncm:  number
+  erros_48h:             number
+  desatualizado:         boolean
 }
 
 export interface NcmSyncLogApi {
-  id:           string
-  tenant_id:    string
-  iniciado_em:  string
-  concluido_em: string | null
-  status:       'RUNNING' | 'SUCCESS' | 'ERROR'
-  total:        number
-  adicionados:  number
-  alterados:    number
-  removidos:    number
-  origem:       'JOB' | 'MANUAL'
-  disparado_por: string | null
-  erro_msg:     string | null
-  created_at:   string
+  id_ncm_log:               string
+  id_organizacao_ncm_log:   string
+  data_inicio_ncm_log:      string
+  data_conclusao_ncm_log:   string | null
+  status_ncm_log:           'EXECUTANDO' | 'SUCESSO' | 'ERRO'
+  total_ncm_log:            number
+  adicionados_ncm_log:      number
+  alterados_ncm_log:        number
+  removidos_ncm_log:        number
+  origem_ncm_log:           'JOB' | 'MANUAL'
+  disparado_por_ncm_log:    string | null
+  mensagem_erro_ncm_log:    string | null
+  data_criacao_ncm_log:     string
+  data_atualizacao_ncm_log: string
 }
 
 // ── Tipos de schedule ──────────────────────────────────────────────────────
@@ -699,14 +756,14 @@ export interface NcmAgendamentoConfigApi {
 }
 
 export interface NcmExecuteResultado {
-  tenant_id:   string
-  sucesso:     boolean
-  total?:      number
-  adicionados?: number
-  alterados?:  number
-  removidos?:  number
-  duracaoMs?:  number
-  erro?:       string
+  id_organizacao: string
+  sucesso:        boolean
+  total?:         number
+  adicionados?:   number
+  alterados?:     number
+  removidos?:     number
+  duracaoMs?:     number
+  erro?:          string
 }
 
 export const adminNcmApi = {
@@ -724,9 +781,9 @@ export const adminNcmApi = {
     )
   },
 
-  async triggerSync(tenantId: string) {
+  async triggerSync(idOrganizacao: string) {
     return request<{ sucesso: boolean; total: number; adicionados: number; alterados: number; removidos: number; duracaoMs: number }>(
-      `/v1/admin/integracao-ncm/sincronizar/${tenantId}`,
+      `/v1/admin/integracao-ncm/sincronizar/${idOrganizacao}`,
       { method: 'POST' },
     )
   },
@@ -744,12 +801,12 @@ export const adminNcmApi = {
     })
   },
 
-  async executeManual(tenantId?: string) {
-    return request<{ sucesso: boolean; tenants_executados: number; resultados: NcmExecuteResultado[]; aviso?: string }>(
+  async executeManual(idOrganizacao?: string) {
+    return request<{ sucesso: boolean; organizacoes_executadas: number; resultados: NcmExecuteResultado[]; aviso?: string }>(
       '/v1/admin/integracao-ncm/agendamento/executar',
       {
         method: 'POST',
-        body: JSON.stringify(tenantId ? { tenant_id: tenantId } : {}),
+        body: JSON.stringify(idOrganizacao ? { id_organizacao: idOrganizacao } : {}),
       },
     )
   },

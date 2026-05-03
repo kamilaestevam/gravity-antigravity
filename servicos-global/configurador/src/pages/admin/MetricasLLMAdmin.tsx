@@ -5,7 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { adminTestesApi } from '../../services/apiClient'
+import { adminMetricasLlmApi } from '../../services/apiClient'
 
 interface DailyMetric {
   date: string
@@ -26,7 +26,7 @@ export function MetricasLLMAdmin() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await adminTestesApi.geminiMetrics()
+        const res = await adminMetricasLlmApi.listar()
         setDaily((res.daily as unknown as DailyMetric[]) ?? [])
         setCache(res.cache as typeof cache)
       } catch { /* metrics not available */ }

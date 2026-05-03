@@ -75,7 +75,7 @@ export function AdminLayout() {
   // Precisa rodar no layout (e não nas páginas individuais) senão qualquer
   // página admin acessada diretamente sem passar por /admin/produtos fica
   // sem token e recebe 401 em todas as chamadas — inclusive o runner de
-  // testes (POST /admin/testes-gerais/run, GET /admin/testes-gerais/run/status).
+  // testes (POST /admin/testes/disparar, GET /admin/testes/status).
   useEffect(() => {
     setAuthTokenProvider(() => getToken())
   }, [getToken])

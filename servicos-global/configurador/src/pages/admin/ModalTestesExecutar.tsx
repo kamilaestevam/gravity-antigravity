@@ -6,14 +6,24 @@
  *
  * Historicamente esse conteúdo era uma aba ("Execução Manual") dentro do ModalAgendamentoTestes,
  * mas foi extraído para não poluir o modal de agendamento (que só cuida de configurar cron/alertas).
+ *
+ * Mapeamento Produto → Escopo (Prisma TestePlano.escopo_plano_teste):
+ *   admin           → ADMIN
+ *   configurador    → CONFIG
+ *   pedido          → PEDIDO
+ *   bid-frete       → BIDFRT
+ *   bid-cambio      → BIDCAM
+ *   lpco            → LPCO
+ *   nf-importacao   → NFIMP
+ *   simula-custo    → SIMCUS
  */
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { Play, CheckSquare, Square, Flask } from '@phosphor-icons/react'
-import { adminTestesApi, type TestePlanoApi } from '../../services/apiClient'
+import { Play, CheckSquare, Square, Flask, Funnel } from '@phosphor-icons/react'
+import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/apiClient'
 
 export interface ModalExecutarTestesProps {
   aberto: boolean
@@ -22,15 +32,29 @@ export interface ModalExecutarTestesProps {
   aoIniciarRun?: (planos: string[]) => void
 }
 
+/** Produto/Local — primeira opção é Admin (singleton do Gravity HQ). */
 const PRODUTOS = [
-  { valor: 'configurador', rotulo: 'Configurador' },
-  { valor: 'pedido',       rotulo: 'Pedido' },
-  { valor: 'bid-frete',    rotulo: 'Bid Frete' },
-  { valor: 'bid-cambio',   rotulo: 'Bid Câmbio' },
-  { valor: 'lpco',         rotulo: 'LPCO' },
-  { valor: 'nf-importacao',rotulo: 'NF Importação' },
-  { valor: 'simula-custo', rotulo: 'SimulaCusto' },
+  { valor: 'admin',         rotulo: 'Admin' },
+  { valor: 'configurador',  rotulo: 'Configurador' },
+  { valor: 'pedido',        rotulo: 'Pedido' },
+  { valor: 'bid-frete',     rotulo: 'Bid Frete' },
+  { valor: 'bid-cambio',    rotulo: 'Bid Câmbio' },
+  { valor: 'lpco',          rotulo: 'LPCO' },
+  { valor: 'nf-importacao', rotulo: 'NF Importação' },
+  { valor: 'simula-custo',  rotulo: 'SimulaCusto' },
 ]
+
+/** Mapeamento produto → TestePlano.escopo_plano_teste (campo Prisma). */
+const PRODUTO_PARA_ESCOPO: Record<string, string> = {
+  'admin':          'ADMIN',
+  'configurador':   'CONFIG',
+  'pedido':         'PEDIDO',
+  'bid-frete':      'BIDFRT',
+  'bid-cambio':     'BIDCAM',
+  'lpco':           'LPCO',
+  'nf-importacao':  'NFIMP',
+  'simula-custo':   'SIMCUS',
+}
 
 const opcoesAmbiente = [
   { valor: 'Local',    rotulo: 'Local' },
@@ -38,14 +62,28 @@ const opcoesAmbiente = [
   { valor: 'Producao', rotulo: 'Produção' },
 ]
 
+/** Tipos de teste (TestePlano.tipo_plano_teste). CRO = cross-organização. */
+type TipoTeste = 'UNI' | 'FUN' | 'E2E' | 'CRO'
+const TIPOS_TESTE: Array<{ valor: TipoTeste; rotulo: string; descricao: string }> = [
+  { valor: 'UNI', rotulo: 'Unitário',     descricao: 'Vitest — função/hook isolado' },
+  { valor: 'FUN', rotulo: 'Funcional',    descricao: 'Vitest+Supertest — rota/fluxo HTTP' },
+  { valor: 'E2E', rotulo: 'End-to-End',   descricao: 'Playwright — fluxo no navegador' },
+  { valor: 'CRO', rotulo: 'Cross-Org',    descricao: 'Isolamento entre organizações' },
+]
+
 export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExecutarTestesProps) {
   const { t } = useTranslation()
   const [dadosManual, setDadosManual] = useState({
-    produto: 'configurador',
+    produto: 'admin',
     ambiente: 'Local',
   })
 
-  const [planosDisponiveis, setPlanosDisponiveis] = useState<TestePlanoApi[]>([])
+  /** Tipos de teste selecionados (filtro). Default: todos os 4 ativos. */
+  const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(
+    new Set<TipoTeste>(['UNI', 'FUN', 'E2E', 'CRO'])
+  )
+
+  const [planosDisponiveis, setPlanosDisponiveis] = useState<PlanoTesteApi[]>([])
   const [planosSelecionados, setPlanosSelecionados] = useState<Set<string>>(new Set())
   const [carregandoPlanos, setCarregandoPlanos] = useState(false)
   const [rodando, setRodando] = useState(false)
@@ -54,14 +92,18 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   useEffect(() => {
     if (!aberto) return
     setCarregandoPlanos(true)
-    adminTestesApi.listPlans(dadosManual.produto)
+    const escopo = PRODUTO_PARA_ESCOPO[dadosManual.produto]
+    adminPlanosTesteApi.listar(escopo)
       .then(res => {
-        setPlanosDisponiveis(res.plans)
-        setPlanosSelecionados(new Set(res.plans.map(p => p.id)))
+        setPlanosDisponiveis(res.planos)
+        setPlanosSelecionados(new Set(res.planos.map(p => p.id)))
       })
       .catch(() => setPlanosDisponiveis([]))
       .finally(() => setCarregandoPlanos(false))
   }, [dadosManual.produto, aberto])
+
+  /** Filtra os planos pelos tipos ativos no momento. */
+  const planosFiltrados = planosDisponiveis.filter(p => tiposAtivos.has(p.tipo as TipoTeste))
 
   function togglePlano(id: string) {
     setPlanosSelecionados(prev => {
@@ -72,12 +114,25 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     })
   }
 
+  function toggleTipo(tipo: TipoTeste) {
+    setTiposAtivos(prev => {
+      const next = new Set(prev)
+      if (next.has(tipo)) next.delete(tipo)
+      else next.add(tipo)
+      return next
+    })
+  }
+
   async function handleExecutar() {
     if (planosSelecionados.size === 0) return
     setRodando(true)
     try {
-      await adminTestesApi.runTests({ planos: Array.from(planosSelecionados) })
-      if (aoIniciarRun) aoIniciarRun(Array.from(planosSelecionados))
+      // Só dispara os planos que estão selecionados E que passam no filtro de tipo
+      const idsAExecutar = Array.from(planosSelecionados).filter(id =>
+        planosFiltrados.some(p => p.id === id)
+      )
+      await adminTestesApi.disparar({ planos: idsAExecutar })
+      if (aoIniciarRun) aoIniciarRun(idsAExecutar)
       aoFechar()
     } catch {
       // erro silencioso — o run já iniciou
@@ -115,26 +170,69 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
             </CampoGeralGlobal>
           </div>
 
+          {/* Filtro por tipo de teste */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#a78bfa', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Funnel size={13} weight="fill" />
+              Tipos de Teste Ativos (Filtro)
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {TIPOS_TESTE.map(tipo => {
+                const ativo = tiposAtivos.has(tipo.valor)
+                return (
+                  <button
+                    key={tipo.valor}
+                    type="button"
+                    onClick={() => toggleTipo(tipo.valor)}
+                    title={tipo.descricao}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                      padding: '0.4rem 0.75rem', borderRadius: '8px',
+                      background: ativo ? 'rgba(167, 139, 250, 0.12)' : 'rgba(15, 23, 42, 0.4)',
+                      border: `1px solid ${ativo ? 'rgba(167, 139, 250, 0.4)' : 'rgba(255,255,255,0.08)'}`,
+                      color: ativo ? '#c4b5fd' : '#64748b',
+                      fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {ativo ? <CheckSquare size={14} weight="fill" /> : <Square size={14} />}
+                    <span style={{ letterSpacing: '0.05em' }}>{tipo.valor}</span>
+                    <span style={{ fontWeight: 500, opacity: 0.85 }}>· {tipo.rotulo}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Lista de Planos — flex:1 absorve altura restante */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minHeight: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
               <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#6366f1', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Flask size={13} weight="fill" />
                 Planos disponíveis — {PRODUTOS.find(p => p.valor === dadosManual.produto)?.rotulo ?? dadosManual.produto}
+                {planosDisponiveis.length > 0 && (
+                  <span style={{ fontWeight: 500, color: '#64748b' }}>
+                    · {planosFiltrados.length}/{planosDisponiveis.length} após filtro
+                  </span>
+                )}
               </span>
-              {planosDisponiveis.length > 0 && (
+              {planosFiltrados.length > 0 && (
                 <button
                   type="button"
                   onClick={() => {
-                    if (planosSelecionados.size === planosDisponiveis.length) {
-                      setPlanosSelecionados(new Set())
+                    const idsFiltrados = planosFiltrados.map(p => p.id)
+                    const todosSelecionados = idsFiltrados.every(id => planosSelecionados.has(id))
+                    if (todosSelecionados) {
+                      const next = new Set(planosSelecionados)
+                      idsFiltrados.forEach(id => next.delete(id))
+                      setPlanosSelecionados(next)
                     } else {
-                      setPlanosSelecionados(new Set(planosDisponiveis.map(p => p.id)))
+                      setPlanosSelecionados(new Set([...planosSelecionados, ...idsFiltrados]))
                     }
                   }}
                   style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
                 >
-                  {planosSelecionados.size === planosDisponiveis.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                  {planosFiltrados.every(p => planosSelecionados.has(p.id)) ? 'Desmarcar todos' : 'Selecionar todos'}
                 </button>
               )}
             </div>
@@ -143,14 +241,16 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
               <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
                 Carregando planos...
               </div>
-            ) : planosDisponiveis.length === 0 ? (
+            ) : planosFiltrados.length === 0 ? (
               <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem',
                 border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>
-                Nenhum plano de teste cadastrado para este produto.
+                {planosDisponiveis.length === 0
+                  ? 'Nenhum plano de teste cadastrado para este produto.'
+                  : `Nenhum plano cadastrado para os tipos selecionados (${planosDisponiveis.length} ocultados pelo filtro).`}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-                {planosDisponiveis.map(plano => {
+                {planosFiltrados.map(plano => {
                   const selecionado = planosSelecionados.has(plano.id)
                   return (
                     <div
@@ -171,7 +271,15 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                         }
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <span style={{
+                            fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.06em',
+                            padding: '2px 5px', borderRadius: '3px',
+                            background: 'rgba(167, 139, 250, 0.15)', color: '#c4b5fd',
+                            border: '1px solid rgba(167, 139, 250, 0.3)',
+                          }}>
+                            {plano.tipo}
+                          </span>
                           <span style={{
                             fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.06em',
                             padding: '2px 6px', borderRadius: '4px',
@@ -181,28 +289,15 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                             {plano.id}
                           </span>
                           <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>
-                            {plano.name}
+                            {plano.tela ?? plano.modulo ?? plano.sublocal}
                           </span>
                         </div>
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.775rem', color: '#64748b', lineHeight: 1.4 }}>
-                          {plano.description}
+                          {plano.sublocal}
+                          {plano.criticidade && ` · criticidade ${plano.criticidade}`}
+                          {typeof plano.passosTotal === 'number' && ` · ${plano.passosTotal} passos`}
+                          {typeof plano.casosTotal === 'number' && ` · ${plano.casosTotal} casos`}
                         </p>
-                        <div style={{ marginTop: '0.35rem', display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
-                          {plano.steps.slice(0, 4).map((step, i) => (
-                            <span key={i} style={{
-                              fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px',
-                              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
-                              color: '#94a3b8',
-                            }}>
-                              {step}
-                            </span>
-                          ))}
-                          {plano.steps.length > 4 && (
-                            <span style={{ fontSize: '0.65rem', color: '#475569' }}>
-                              +{plano.steps.length - 4} passos
-                            </span>
-                          )}
-                        </div>
                       </div>
                     </div>
                   )

@@ -5,7 +5,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Clock, Info, EnvelopeSimple, List } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { adminTestesApi } from '../../services/apiClient'
+import { adminAgendamentosTesteApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 
 export interface ModalAgendamentoTestesProps {
@@ -60,7 +60,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
 
   useEffect(() => {
     if (!aberto) return
-    adminTestesApi.listSchedules().then(({ schedules }) => {
+    adminAgendamentosTesteApi.listar().then(({ schedules }) => {
       if (!schedules.length) return
       const s = schedules[0] as Record<string, unknown>
       const config = typeof s.config === 'string'
@@ -134,9 +134,9 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
 
     try {
       if (scheduleId) {
-        await adminTestesApi.updateSchedule(scheduleId, payload)
+        await adminAgendamentosTesteApi.atualizar(scheduleId, payload)
       } else {
-        const res = await adminTestesApi.createSchedule(payload)
+        const res = await adminAgendamentosTesteApi.criar(payload)
         const newId = (res.schedule as Record<string, unknown>)?.id
         if (newId) setScheduleId(String(newId))
       }

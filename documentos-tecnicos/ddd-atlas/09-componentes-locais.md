@@ -1,6 +1,6 @@
 # Atlas DDD - Aba 9: Componentes Locais
 
-> Gerado de planilha v52 em 2026-04-28 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
+> Gerado de planilha v52 em 2026-05-03 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
 > NAO edite manualmente. Re-execute o script apos mudanca na planilha mestre.
 
 ## Como ler
@@ -24,7 +24,7 @@ Convencoes:
 | Produto      | Pasta      | Arquivo DDD              | Componente DDD | Paginas que usam | Path completo                                                                   | Descricao                                                                                  | Alias historico                                      |
 | ------------ | ---------- | ------------------------ | -------------- | ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
 | Configurador | components | GabiOnboardingWidget.tsx |                |                  | servicos-global/configurador/src/components/GabiOnboardingWidget.tsx            | Widget de onboarding da Gabi exibido no Hub/Core — guia interativo do usuário.             | GabiOnboardingWidget.tsx \| GabiOnboardingWidget     |
-| Configurador | components | HubBotao.tsx             |                | Core.tsx         | servicos-global/configurador/src/components/HubBotao.tsx                        | Botão do Hub que lança um produto do catálogo no Shell.                                    | HubBotao.tsx \| HubBotao                             |
+| Configurador | components | HubBotao.tsx             |                | Core.tsx         | servicos-global/configurador/src/components/HubButton.tsx                       | Botão do Hub que lança um produto do catálogo no Shell.                                    | HubButton.tsx \| HubButton                           |
 | Configurador | components | EcossistemaPremium.tsx   |                |                  | servicos-global/configurador/src/components/PremiumEcosystemPuzzle.tsx          | Visualização do ecossistema Premium (puzzle de produtos integrados).                       | PremiumEcosystemPuzzle.tsx \| PremiumEcosystemPuzzle |
 | Configurador | layout     | AdminLayout.tsx          |                |                  | servicos-global/configurador/src/pages/admin/AdminLayout.tsx                    | Layout das telas administrativas (sidebar + outlet).                                       | AdminLayout.tsx \| AdminLayout                       |
 | Configurador | layout     | WorkspaceLayout.tsx      |                |                  | servicos-global/configurador/src/pages/workspace/WorkspaceLayout.tsx            | Layout das telas do workspace (sidebar + outlet).                                          | WorkspaceLayout.tsx \| WorkspaceLayout               |

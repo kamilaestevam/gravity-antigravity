@@ -812,37 +812,41 @@ adminRouter.delete('/registros-deploy/:id_deploy', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/admin/testes-gerais/planos
- * Lista os planos de teste disponíveis, opcionalmente filtrados por produto.
- * Query: ?product=configurador
+ * GET /api/v1/admin/planos-teste
+ * Lista os planos de teste disponíveis, opcionalmente filtrados por escopo (TestePlano.escopo_plano_teste).
+ * Query: ?escopo=ADMIN
+ *
+ * Fonte: testes/test-plans-registry.json (arquivo gerado automaticamente).
+ * Formato esperado: { planos: TestePlano[] } onde cada TestePlano tem { id, escopo, ... }
  */
-adminRouter.get('/testes-gerais/planos', (_req, res, next) => {
+adminRouter.get('/planos-teste', (req, res, next) => {
   try {
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'testes-e2e', 'test-plans-registry.json')
-    let plans: unknown[] = []
+    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
+    let planos: Array<{ id: string; escopo: string; tipo: string }> = []
     try {
-      plans = JSON.parse(readFileSync(registryPath, 'utf-8'))
+      const raw = JSON.parse(readFileSync(registryPath, 'utf-8')) as { planos?: typeof planos }
+      planos = Array.isArray(raw.planos) ? raw.planos : []
     } catch {
       // Registry ainda não existe — retorna vazio
     }
 
-    const product = _req.query.product as string | undefined
-    if (product) {
-      plans = (plans as Array<{ product: string }>).filter(p => p.product === product)
+    const escopo = req.query.escopo as string | undefined
+    if (escopo) {
+      planos = planos.filter(p => p.escopo === escopo)
     }
 
-    res.json({ plans })
+    res.json({ planos })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * GET /api/v1/admin/testes-gerais/logs
- * Lista logs de testes — lê da tabela Testes se existir;
+ * GET /api/v1/admin/testes
+ * Lista testes (model Teste) — lê da tabela `teste` se existir;
  * fallback: lê todos os arquivos JSON em data/test-logs/
  */
-adminRouter.get('/testes-gerais/logs', async (_req, res, next) => {
+adminRouter.get('/testes', async (_req, res, next) => {
   try {
     const byId = new Map<string, Record<string, unknown>>()
 
@@ -885,12 +889,19 @@ adminRouter.get('/testes-gerais/logs', async (_req, res, next) => {
       // Tabela não existe — ok
     }
 
-    // 3. Ordena por created_at DESC (mais recentes primeiro) para a UI renderizar
-    //    a execução atual no topo da tabela e da paginação.
+    // 3. Ordena por created_at DESC (mais recentes primeiro), com id DESC como
+    //    tiebreaker — IDs são da forma "${Date.now()}-${i}", então id DESC dentro
+    //    do mesmo created_at coloca o último teste do batch no topo.
+    //    Sem tiebreaker, todas as 300+ entradas de um run em lote ficavam na
+    //    ordem alfabética do nome do teste (ordem de execução do Playwright).
     const logs = Array.from(byId.values()).sort((a, b) => {
       const ta = String(a.created_at ?? '')
       const tb = String(b.created_at ?? '')
-      return tb.localeCompare(ta)
+      const cmp = tb.localeCompare(ta)
+      if (cmp !== 0) return cmp
+      const ida = String(a.id ?? '')
+      const idb = String(b.id ?? '')
+      return idb.localeCompare(ida, undefined, { numeric: true })
     })
 
     res.json({ logs })
@@ -913,7 +924,7 @@ const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
  * (CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY, INTERNAL_SERVICE_KEY).
  * Se um teste falhasse e logasse `process.env` no
  * stack trace, esses valores iam parar nos arquivos data/test-logs/*.json
- * que são expostos via GET /admin/testes-gerais/logs.
+ * que são expostos via GET /admin/testes.
  *
  * Agora só passamos env vars estritamente necessárias para o Playwright rodar
  * nos ambientes de teste locais/CI. Em dev, o test runner usa o .env.test
@@ -939,7 +950,7 @@ function buildSafeTestEnv(): Record<string, string> {
 }
 
 /**
- * POST /api/v1/admin/testes-gerais/executar
+ * POST /api/v1/admin/testes/disparar
  * Dispara os testes Playwright em background e persiste os resultados.
  * Retorna imediatamente com { started: true }.
  * Requer SUPER_ADMIN: dispara spawn pesado com acesso ao monorepo.
@@ -949,7 +960,7 @@ const RunTestsSchema = z.object({
   planos:  z.array(z.string().max(100)).optional(),
 })
 
-adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
+adminRouter.post('/testes/disparar', async (req, res, next) => {
   try {
     // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
     // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
@@ -972,18 +983,54 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
     const { modulos, planos } = parsed.data
     let specArgs: string[] = []
     let projectArgs: string[] = []
+    const planosSemSpec: string[] = []
 
     if (Array.isArray(planos) && planos.length > 0) {
-      // Modo por plano: resolve spec files do registry
+      // Modo por plano: resolve spec files do registry.
+      // Path correto: testes/test-plans-registry.json (NÃO testes/testes-e2e/...).
+      // Formato: { planos: [{ id, specFile, ... }] } — não array direto.
+      const registryPath2 = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
+      let registryPlanos: Array<{ id: string; specFile?: string }> = []
       try {
-        const registryPath2 = resolve(monorepoRoot, 'testes', 'testes-e2e', 'test-plans-registry.json')
-        const registry = JSON.parse(readFileSync(registryPath2, 'utf-8')) as Array<{
-          id: string; specFile: string
-        }>
-        specArgs = planos
-          .map(planId => registry.find(p => p.id === planId)?.specFile)
-          .filter((f): f is string => !!f)
-      } catch { /* registry não existe */ }
+        const raw = JSON.parse(readFileSync(registryPath2, 'utf-8')) as { planos?: typeof registryPlanos }
+        registryPlanos = Array.isArray(raw.planos) ? raw.planos : []
+      } catch (err) {
+        throw new AppError(
+          `Registry não encontrado em ${registryPath2}: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+          500,
+          'REGISTRY_READ_ERROR',
+        )
+      }
+
+      // Para cada plano selecionado, resolve o specFile e verifica que o arquivo existe.
+      // Mandamento 08: erro alto, sem fallback silencioso.
+      for (const planId of planos) {
+        const entry = registryPlanos.find(p => p.id === planId)
+        if (!entry) {
+          planosSemSpec.push(`${planId} (não consta no registry)`)
+          continue
+        }
+        if (!entry.specFile) {
+          planosSemSpec.push(`${planId} (sem campo specFile no registry)`)
+          continue
+        }
+        const specPath = resolve(monorepoRoot, entry.specFile)
+        if (!existsSync(specPath)) {
+          planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe — gerar via POST /admin/planos-teste/${planId}/gerar-spec)`)
+          continue
+        }
+        specArgs.push(entry.specFile)
+      }
+
+      if (planosSemSpec.length > 0 && specArgs.length === 0) {
+        // Nenhum plano selecionado tem spec executável. Bloqueia o run com erro
+        // explícito — antes engolíamos o erro e Playwright rodava todos os specs.
+        throw new AppError(
+          `Nenhum plano selecionado tem spec executável:\n  • ${planosSemSpec.join('\n  • ')}`,
+          400,
+          'NO_SPEC_FILES',
+        )
+      }
     } else if (Array.isArray(modulos) && modulos.length > 0) {
       projectArgs = modulos.flatMap((m: string) => ['--project', m])
     }
@@ -1092,7 +1139,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
         status_historico_log: reprovados + erros > 0 ? 'PARCIAL' : 'SUCESSO',
       }).catch(() => { /* fire-and-forget */ })
 
-      console.log(`[admin/testes-gerais/run] Run concluído — ${entries.length} entradas salvas`)
+      console.log(`[admin/testes/disparar] Run concluído — ${entries.length} entradas salvas`)
     })
 
   } catch (err) {
@@ -1102,17 +1149,17 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/admin/testes-gerais/executar/status
+ * GET /api/v1/admin/testes/status
  * Verifica se há um run em andamento.
  */
-adminRouter.get('/testes-gerais/executar/status', (_req, res) => {
+adminRouter.get('/testes/status', (_req, res) => {
   res.json({ running: pwRunning })
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/logs
+ * POST /api/v1/admin/testes
  * Registra resultados de um run de testes (Playwright, Vitest, etc.)
- * Tenta salvar no banco; se Testes não existir, salva em arquivo JSON local.
+ * Tenta salvar no model Teste; se tabela `teste` não existir, salva em arquivo JSON local.
  */
 const AiAnalysisSchema = z.object({
   erroResumo:       z.string(),
@@ -1137,7 +1184,7 @@ const TestLogBatchSchema = z.object({
   entries: z.array(TestLogEntrySchema).min(1).max(500),
 })
 
-adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
+adminRouter.post('/testes', async (req, res, next) => {
   try {
     const parse = TestLogBatchSchema.safeParse(req.body)
     if (!parse.success) {
@@ -1501,11 +1548,11 @@ const GeneratePlanSchema = z.object({
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/planos/gerar
+ * POST /api/v1/admin/planos-teste/gerar
  * Gera um plano de teste 20/20 para uma tela via Gemini.
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
+adminRouter.post('/planos-teste/gerar', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar planos', 403, 'FORBIDDEN')
@@ -1540,7 +1587,7 @@ adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/expandir
+ * POST /api/v1/admin/planos-teste/:id_plano_teste/expandir
  * Expande um plano existente preservando passos humano-original.
  * Requer SUPER_ADMIN.
  */
@@ -1548,7 +1595,7 @@ const ExpandPlanSchema = z.object({
   componenteFilePath: z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, res, next) => {
+adminRouter.post('/planos-teste/:id_plano_teste/expandir', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode expandir planos', 403, 'FORBIDDEN')
@@ -1602,10 +1649,10 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/gerar-spec
+ * POST /api/v1/admin/planos-teste/:id_plano_teste/gerar-spec
  * Gera arquivo .spec.ts a partir do plano JSON.
  */
-adminRouter.post('/testes-gerais/planos/:id_plano_teste/gerar-spec', async (req, res, next) => {
+adminRouter.post('/planos-teste/:id_plano_teste/gerar-spec', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
@@ -1635,7 +1682,7 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/gerar-spec', async (req,
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/planos/extrair-testids
+ * POST /api/v1/admin/planos-teste/extrair-testids
  * Extrai data-testid de um componente e gera mapeamento.
  */
 const ExtractTestidsSchema = z.object({
@@ -1644,7 +1691,7 @@ const ExtractTestidsSchema = z.object({
   sublocal:           z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/planos/extrair-testids', async (req, res, next) => {
+adminRouter.post('/planos-teste/extrair-testids', async (req, res, next) => {
   try {
     const parsed = ExtractTestidsSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -1663,22 +1710,23 @@ adminRouter.post('/testes-gerais/planos/extrair-testids', async (req, res, next)
   }
 })
 
-// ─── Test Logs — Gemini Re-analysis ─────────────────────────────────────────
+// ─── Teste — Gemini Re-analysis ─────────────────────────────────────────────
 
 /**
- * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/reanalisar
+ * POST /api/v1/admin/testes/:id_teste/reanalisar
  * Re-analisa uma falha com Gemini (forceRefresh: true, bypassa cache).
+ * Atualiza Teste.analise_ia_teste (campo Json).
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res, next) => {
+adminRouter.post('/testes/:id_teste/reanalisar', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_log_teste)
+    const logEntry = findLogEntry(req.params.id_teste)
     if (!logEntry) {
-      throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
+      throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
     if (logEntry.result === 'APROVADO') {
       throw new AppError('Não é possível reanalisar teste aprovado', 400, 'INVALID')
@@ -1693,7 +1741,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
       forceRefresh:    true,
     })
 
-    updateLogEntryAnalysis(req.params.id_log_teste, analysis)
+    updateLogEntryAnalysis(req.params.id_teste, analysis)
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -1702,9 +1750,9 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
       nome_ator_historico_log: req.auth.id_usuario,
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Testes',
-      id_recurso_historico_log: req.params.id_log_teste,
-      acao_historico_log: 'TEST_LOG_REANALYZED',
+      tipo_recurso_historico_log: 'Teste',
+      id_recurso_historico_log: req.params.id_teste,
+      acao_historico_log: 'TESTE_REANALISADO',
       detalhe_acao_historico_log: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
@@ -1716,19 +1764,19 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/aplicar-correcao
+ * POST /api/v1/admin/testes/:id_teste/aplicar-correcao
  * Aplica o codigoDiff sugerido pelo Gemini no arquivo fonte.
  * Requer SUPER_ADMIN. Gemini é sugestor, humano valida antes de aplicar.
  */
-adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (req, res, next) => {
+adminRouter.post('/testes/:id_teste/aplicar-correcao', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_log_teste)
+    const logEntry = findLogEntry(req.params.id_teste)
     if (!logEntry) {
-      throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
+      throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
 
     const analysis = logEntry.ai_analysis as Record<string, unknown> | null
@@ -1762,9 +1810,9 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
       nome_ator_historico_log: req.auth.id_usuario,
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Testes',
-      id_recurso_historico_log: req.params.id_log_teste,
-      acao_historico_log: 'TEST_FIX_APPLIED',
+      tipo_recurso_historico_log: 'Teste',
+      id_recurso_historico_log: req.params.id_teste,
+      acao_historico_log: 'TESTE_CORRECAO_APLICADA',
       detalhe_acao_historico_log: `Diff aplicado em ${diff.arquivo}`,
       estado_anterior_historico_log: { old: diff.old.slice(0, 200) },
       estado_posterior_historico_log: { new: diff.new.slice(0, 200) },
@@ -1778,27 +1826,27 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/rejeitar
- * Marca a análise como ruim (feedback loop para melhorar o prompt).
+ * POST /api/v1/admin/testes/:id_teste/rejeitar
+ * Marca a análise IA como ruim (feedback loop para melhorar o prompt).
  */
 const RejectSchema = z.object({
   motivo: z.string().min(10).max(500),
 })
 
-adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, next) => {
+adminRouter.post('/testes/:id_teste/rejeitar', async (req, res, next) => {
   try {
     const parsed = RejectSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Motivo é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const logEntry = findLogEntry(req.params.id_log_teste)
+    const logEntry = findLogEntry(req.params.id_teste)
     if (!logEntry) {
-      throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
+      throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
 
-    // Marca no log que a análise foi rejeitada
-    updateLogEntryField(req.params.id_log_teste, 'ai_rejected', {
+    // Marca no Teste que a análise foi rejeitada
+    updateLogEntryField(req.params.id_teste, 'ai_rejected', {
       rejeitadoEm: new Date().toISOString(),
       rejeitadoPor: req.auth.id_usuario,
       motivo: parsed.data.motivo,
@@ -1811,9 +1859,9 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, 
       nome_ator_historico_log: req.auth.id_usuario,
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Testes',
-      id_recurso_historico_log: req.params.id_log_teste,
-      acao_historico_log: 'TEST_ANALYSIS_REJECTED',
+      tipo_recurso_historico_log: 'Teste',
+      id_recurso_historico_log: req.params.id_teste,
+      acao_historico_log: 'TESTE_ANALISE_REJEITADA',
       detalhe_acao_historico_log: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
@@ -1909,10 +1957,10 @@ const CreateScheduleSchema = z.object({
 const UpdateScheduleSchema = CreateScheduleSchema.partial()
 
 /**
- * GET /api/v1/admin/testes-gerais/agendamentos
- * Lista todos os agendamentos de testes.
+ * GET /api/v1/admin/agendamentos-teste
+ * Lista todos os agendamentos de testes (model TesteAgendamento).
  */
-adminRouter.get('/testes-gerais/agendamentos', async (_req, res, next) => {
+adminRouter.get('/agendamentos-teste', async (_req, res, next) => {
   try {
     let schedules: unknown[] = []
     try {
@@ -1929,10 +1977,10 @@ adminRouter.get('/testes-gerais/agendamentos', async (_req, res, next) => {
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/agendamentos
- * Cria um novo agendamento de testes.
+ * POST /api/v1/admin/agendamentos-teste
+ * Cria um novo agendamento de testes (model TesteAgendamento).
  */
-adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
+adminRouter.post('/agendamentos-teste', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode criar agendamentos', 403, 'FORBIDDEN')
@@ -1983,10 +2031,10 @@ adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
+ * PATCH /api/v1/admin/agendamentos-teste/:id_agendamento_teste
  * Atualiza um agendamento existente.
  */
-adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
+adminRouter.patch('/agendamentos-teste/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamentos', 403, 'FORBIDDEN')
@@ -2026,10 +2074,10 @@ adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (re
 })
 
 /**
- * DELETE /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
+ * DELETE /api/v1/admin/agendamentos-teste/:id_agendamento_teste
  * Remove um agendamento.
  */
-adminRouter.delete('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
+adminRouter.delete('/agendamentos-teste/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode remover agendamentos', 403, 'FORBIDDEN')
@@ -2049,13 +2097,14 @@ adminRouter.delete('/testes-gerais/agendamentos/:id_agendamento_teste', async (r
   }
 })
 
-// ─── Gemini Metrics ─────────────────────────────────────────────────────────
+// ─── Métricas LLM ───────────────────────────────────────────────────────────
 
 /**
- * GET /api/v1/admin/testes-gerais/metricas-gemini
- * Agrega métricas de custo, latência, confiança do Gemini analyzer.
+ * GET /api/v1/admin/metricas-llm
+ * Agrega métricas de custo, latência, confiança dos providers LLM (Gemini etc.).
+ * Model: LLMMetricas (tabela `metricas_llm`).
  */
-adminRouter.get('/testes-gerais/metricas-gemini', async (_req, res, next) => {
+adminRouter.get('/metricas-llm', async (_req, res, next) => {
   try {
     const cacheMetrics = getGeminiMetrics()
 
@@ -2126,11 +2175,11 @@ const RunPentestSchema = z.object({
 })
 
 /**
- * POST /api/v1/admin/testes-gerais/pentest
- * Dispara container ZAP contra URL alvo.
+ * POST /api/v1/admin/testes/pentest
+ * Dispara container ZAP contra URL alvo (cria Teste com tipo_teste='PEN').
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
+adminRouter.post('/testes/pentest', async (req, res, next) => {
   try {
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode disparar pentest', 403, 'FORBIDDEN')

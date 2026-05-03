@@ -96,8 +96,8 @@ interface EventsResponse {
 }
 
 /**
- * Resposta consolidada do /api/v1/admin/eventos-seguranca/overview — elimina 5 requests
- * em paralelo por tick de polling. O endpoint /events continua separado porque
+ * Resposta consolidada do /api/v1/admin/eventos-seguranca/visao-geral — elimina 5 requests
+ * em paralelo por tick de polling. O endpoint raiz (/) continua separado porque
  * depende dos filtros da UI e é pesado demais para bundlar no overview.
  */
 interface OverviewResponse {
@@ -226,17 +226,17 @@ export function SegurancaAdmin() {
       setErroCarregar(null)
 
       // 1 request consolidada em vez de 4 em paralelo
-      const overview = await fetchJSON<OverviewResponse>('/overview')
+      const overview = await fetchJSON<OverviewResponse>('/visao-geral')
       setStats(overview.stats)
       setHealth(overview.health)
       setRateMetrics(overview.ratelimit.metrics)
       setSecrets(overview.secrets.secrets)
 
-      // /events é separado porque depende dos filtros da UI
+      // / (raiz) é separado porque depende dos filtros da UI
       const params = new URLSearchParams({ limit: '50' })
       if (filtroSeveridade !== 'TODOS') params.set('severity', filtroSeveridade)
       if (filtroAction !== 'TODOS') params.set('action', filtroAction)
-      const eventsRes = await fetchJSON<EventsResponse>(`/events?${params.toString()}`)
+      const eventsRes = await fetchJSON<EventsResponse>(`/?${params.toString()}`)
       setEvents(eventsRes.events)
 
       setLastUpdate(new Date().toLocaleTimeString('pt-BR'))
@@ -324,7 +324,7 @@ export function SegurancaAdmin() {
     { key: 'action', label: t('admin.seguranca-admin.tabela.tipo'), tipo: 'texto', largura: '200px',
       tooltipTitulo: 'Tipo', tooltipDescricao: 'Classificação do evento: login, acesso negado, rate limit, etc' },
     { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '120px',
-      tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa associada a este evento de segurança' },
+      tooltipTitulo: 'Organização', tooltipDescricao: 'Organização associada a este evento de segurança' },
     { key: 'actor_id', label: t('admin.seguranca-admin.tabela.ator'), tipo: 'texto', largura: '110px',
       tooltipTitulo: 'Ator', tooltipDescricao: 'Usuário ou serviço que originou o evento' },
     { key: 'description', label: t('admin.seguranca-admin.tabela.descricao'), tipo: 'texto',
@@ -371,7 +371,7 @@ export function SegurancaAdmin() {
 
   const colunasRateLimit: TabelaGlobalColuna<RateLimitEntry>[] = [
     { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '140px',
-      tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa que atingiu o limite de requisições',
+      tooltipTitulo: 'Organização', tooltipDescricao: 'Organização que atingiu o limite de requisições',
       render: (v) => (v as string | null) || 'anonymous' },
     { key: 'ip', label: t('admin.seguranca-admin.tabela.ip'), tipo: 'texto', largura: '130px',
       tooltipTitulo: 'IP', tooltipDescricao: 'Endereço de rede de onde as requisições partiram',
@@ -486,7 +486,7 @@ export function SegurancaAdmin() {
         </button>
       </div>
 
-      {/* ── Estado de erro global (quando /overview falha) ─────────── */}
+      {/* ── Estado de erro global (quando /visao-geral falha) ─────────── */}
       {erroCarregar && !loading && !health && (
         <div
           role="alert"

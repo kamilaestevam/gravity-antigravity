@@ -158,6 +158,20 @@ export const catalogApiService = {
   },
 
   /**
+   * Catálogo público — não requer autenticação Gravity admin.
+   * Usado pela tela /workspace/assinaturas (Master/Standard) e Store.
+   * Endpoint: GET /api/v1/catalogo/produtos
+   */
+  async getCatalogoPublico(): Promise<ProdutoCatalogo[]> {
+    const res = await fetch('/api/v1/catalogo/produtos')
+    if (!res.ok) {
+      throw new Error(`Falha ao carregar catálogo público (HTTP ${res.status})`)
+    }
+    const body = (await res.json()) as { products: ProductApi[] }
+    return (body.products ?? []).map(apiToUi)
+  },
+
+  /**
    * Cria (isNew=true) ou atualiza (isNew=false) um produto.
    * A detecção "novo vs edição" agora é explícita — não há heurística frágil.
    */

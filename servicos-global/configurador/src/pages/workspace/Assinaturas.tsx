@@ -142,7 +142,7 @@ export function Assinaturas() {
         const [allProducts, assinaturasRes, workspacesRes] = await Promise.all([
           catalogService.getProdutos(),
           fetch('/api/v1/organizacoes/me/assinaturas', { headers }).catch(() => null),
-          fetch('/api/v1/organizacoes/me/workspaces', { headers }).catch(() => null),
+          fetch('/api/v1/me/workspaces', { headers }).catch(() => null),
         ])
 
         // Workspaces (DTO ainda em chaves legadas — atualizar em PR separado)

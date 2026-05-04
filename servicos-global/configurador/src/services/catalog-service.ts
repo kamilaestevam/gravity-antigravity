@@ -15,7 +15,9 @@ import type { ProdutoCatalogo, NegociacaoEspecial } from '../types/entidades'
 
 export const catalogService = {
   async getProdutos(): Promise<ProdutoCatalogo[]> {
-    return catalogApiService.getProdutos()
+    // Tela self-service (Master/Standard) NÃO pode chamar /api/v1/admin/*.
+    // Usa catálogo público — mesmos campos via toProductDto do back.
+    return catalogApiService.getCatalogoPublico()
   },
 
   async saveProduto(produto: ProdutoCatalogo, _getToken: () => Promise<string | null>): Promise<void> {

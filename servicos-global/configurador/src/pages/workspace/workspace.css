@@ -1545,7 +1545,10 @@ body.light-theme .ws-profile-dropdown {
   align-items: center;
 }
 
-.ws-input-icon-wrap svg {
+/* Combinador filho direto (`>`) — sem ele a regra atinge SVGs aninhados
+   (ex: o icone do botao de mostrar/ocultar senha) e os arrasta para a
+   esquerda do wrap, ignorando o posicionamento do pai. */
+.ws-input-icon-wrap > svg {
   position: absolute;
   left: 0.875rem;
   color: var(--ws-muted);

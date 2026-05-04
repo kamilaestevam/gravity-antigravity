@@ -18,6 +18,11 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
+import {
+  servicoPermissaoUsuario,
+  permissaoStringSchema,
+  PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+} from '../services/permissao-usuario-servico.js'
 
 export const usersRouter = Router()
 
@@ -615,6 +620,165 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
     }).catch(() => {})
 
     res.json({ usuario: atualizado })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── Permissões granulares (formato canônico <slug>:<secao>:<acao>) ──────────
+
+export const SetPermissoesUsuarioSchema = z.object({
+  id_workspace: z.string().cuid(),
+  id_produto_gravity: z.string().cuid(),
+  permissoes: z
+    .array(permissaoStringSchema)
+    .refine((arr) => new Set(arr).size === arr.length, {
+      message: 'Permissões duplicadas não são permitidas',
+    }),
+})
+
+export const permissaoUsuarioItemSchema = z.object({
+  id_organizacao: z.string(),
+  id_workspace: z.string(),
+  id_usuario: z.string(),
+  id_produto_gravity: z.string(),
+  permissao_usuario: permissaoStringSchema,
+  permissao_usuario_concedido_por: z.string(),
+  data_criacao_permissao_usuario: z.coerce.date(),
+})
+
+export const permissoesResponseSchema = z.object({
+  permissoes: z.array(permissaoUsuarioItemSchema),
+})
+
+/**
+ * GET /api/v1/usuarios/:id_usuario/permissoes
+ * Lista permissões granulares de um usuário (opcionalmente filtradas por workspace).
+ *
+ * Autorização: SUPER_ADMIN (escopo global), ADMIN/MASTER (mesma id_organizacao do alvo).
+ * STANDARD/FORNECEDOR não acessam — bloqueado por requireUserManagementRole.
+ */
+usersRouter.get('/:id_usuario/permissoes', requireUserManagementRole, async (req, res, next) => {
+  try {
+    const id_usuario = req.params.id_usuario
+    const id_workspace = typeof req.query.id_workspace === 'string' ? req.query.id_workspace : undefined
+
+    // SUPER_ADMIN tem escopo global; demais limitam à própria organização
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario },
+          select: { id_organizacao: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_organizacao: true },
+        })
+
+    if (!alvo) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+
+    const permissoes = await servicoPermissaoUsuario.listarPermissoesUsuario(
+      alvo.id_organizacao,
+      id_usuario,
+      id_workspace,
+    )
+
+    res.json({ permissoes })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PUT /api/v1/usuarios/:id_usuario/permissoes
+ * Substitui atomicamente as permissões granulares de um usuário em UM produto/workspace.
+ *
+ * Body: { id_workspace, id_produto_gravity, permissoes: string[] }
+ * Cada string segue o formato canônico `<slug>:<secao>:<acao>` (Mandamento 06).
+ *
+ * Autorização: SUPER_ADMIN (global), ADMIN/MASTER (mesma id_organizacao).
+ * Anti-escalada — ator não pode editar próprias permissões.
+ *
+ * Bypass de alvo: se o alvo for SUPER_ADMIN/ADMIN/MASTER, retorna 400 — esses tipos
+ * têm acesso global (Mandamento 04) e não devem ter linhas em UsuarioPermissao.
+ */
+usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req, res, next) => {
+  try {
+    const parsed = SetPermissoesUsuarioSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const id_usuario = req.params.id_usuario
+
+    // Anti-escalada: ator não altera as próprias permissões
+    if (id_usuario === req.auth.id_usuario) {
+      throw new AppError('Você não pode alterar as próprias permissões', 403, 'FORBIDDEN_SELF_EDIT')
+    }
+
+    // SUPER_ADMIN tem escopo global; demais limitam à própria organização
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+
+    if (!alvo) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+
+    // Mandamento 04 — alvos com bypass não recebem permissões granulares
+    if (alvo.tipo_usuario === 'SUPER_ADMIN' || alvo.tipo_usuario === 'ADMIN' || alvo.tipo_usuario === 'MASTER') {
+      throw new AppError(
+        `Usuário ${alvo.tipo_usuario} tem acesso global automático — não recebe permissões granulares`,
+        400,
+        'INVALID_OPERATION',
+      )
+    }
+
+    // Valida workspace pertence à organização do alvo (defesa IDOR)
+    const ws = await prisma.workspace.findFirst({
+      where: { id_workspace: parsed.data.id_workspace, id_organizacao: alvo.id_organizacao },
+      select: { id_workspace: true },
+    })
+    if (!ws) throw new AppError('Workspace não pertence à organização do usuário', 403, 'FORBIDDEN_WORKSPACE')
+
+    // Valida produto está no Set de "permissões implementadas" (defesa contra
+    // gravar permissões para produtos que ainda não têm UI/middleware)
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { id_produto_gravity: parsed.data.id_produto_gravity },
+      select: { slug_produto_gravity: true, status_produto_gravity: true },
+    })
+    if (!produto) throw new AppError('Produto não encontrado', 404, 'PRODUCT_NOT_FOUND')
+    if (!PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(produto.slug_produto_gravity)) {
+      throw new AppError(
+        `Produto "${produto.slug_produto_gravity}" ainda não tem permissões granulares implementadas`,
+        400,
+        'PRODUCT_PERMISSIONS_NOT_IMPLEMENTED',
+      )
+    }
+
+    const result = await servicoPermissaoUsuario.configurarPermissoes({
+      id_organizacao: alvo.id_organizacao,
+      id_workspace: parsed.data.id_workspace,
+      id_usuario,
+      id_produto_gravity: parsed.data.id_produto_gravity,
+      permissoes: parsed.data.permissoes,
+      concedido_por_clerk_id: req.auth.clerkUserId,
+    })
+
+    securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
+      targetUserId: id_usuario,
+      permission: `${produto.slug_produto_gravity}:${parsed.data.id_workspace}`,
+      action: result.total_inseridas >= result.total_removidas ? 'GRANTED' : 'REVOKED',
+    }).catch(() => {})
+
+    res.json({
+      permissoes: parsed.data.permissoes,
+      total_inseridas: result.total_inseridas,
+      total_removidas: result.total_removidas,
+    })
   } catch (err) {
     next(err)
   }

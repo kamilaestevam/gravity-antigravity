@@ -98,27 +98,8 @@ if (usuario.tipo_usuario === 'ADMIN') {
 - **Pertence a:** cliente (organização) — tipo especial para acesso externo
 - **Acesso:** conforme permissões definidas pelo Master — **permissões granulares são obrigatórias** (nunca acesso amplo)
 - **Escopo:** apenas os recursos explicitamente liberados
-- **Característica especial:** pode ter vínculos com múltiplas organizações (cross-organização) com e-mail único
+- **Característica especial:** pode ter vínculos com múltiplas organizações (cross-organização) com e-mail único — modelado via `UsuarioWorkspace` (Bulk Insert por Workspace selecionado), exatamente como STANDARD. **Não existe model `AcessoFornecedorOrganizacao` no schema** — vínculo cross-organização vem do conjunto de linhas em `UsuarioWorkspace` referenciando o mesmo `id_usuario` em `id_organizacao` distintos.
 - **Quem atribui:** Master da organização
-
-```prisma
-// Acesso de fornecedor a múltiplas organizações
-// id_workspace NÃO é nullable — acesso global nunca é representado por FK null
-// O acesso a todos os Workspaces é feito via Bulk Insert explícito no convite
-model AcessoFornecedorOrganizacao {
-  id              String @id @default(cuid())
-  id_usuario      String   // CUID do Usuario (não clerkId)
-  id_organizacao  String
-  id_workspace    String   // Workspace específico — obrigatório
-  status          String @default("active")
-  created_at      DateTime @default(now())
-
-  @@unique([id_usuario, id_organizacao, id_workspace])
-  @@index([id_usuario])
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_workspace])
-}
-```
 
 ---
 
@@ -144,80 +125,136 @@ model AcessoFornecedorOrganizacao {
 
 ### Princípio
 
-Cada produto criado no Gravity expõe um **conjunto padrão de permissões granulares**. O Master da organização atribui essas permissões para usuários Standard e Fornecedor.
+Cada produto contratado pela organização (presente em `ProdutoGravityConfiguracao` com `ativo_configuracao_produto_gravity = true`) expõe **5 seções fixas × 2 ações fixas** de permissão granular. O Master atribui essas permissões a usuários `STANDARD` e `FORNECEDOR`.
 
-**Usuários Master têm acesso total a todas as permissões** — as granulares não se aplicam à role Master.
+**Usuários `MASTER`, `SUPER_ADMIN`, `ADMIN` e `gravity_admin = true` têm bypass total** — as granulares não se aplicam (Mandamento 04).
 
 ---
 
-### Módulos com Permissão de Acesso e/ou Edição (padrão de todo produto)
+### Formato Canônico — `<slug>:<secao>:<acao>` (FONTE ÚNICA DE VERDADE)
 
-Cada módulo abaixo tem duas permissões distintas:
+> **Decisão arquitetural — 2026-05-04** (aprovada por Líder Técnico + Coordenador):
+> Toda string gravada em `UsuarioPermissao.permissao_usuario` segue o formato `<slug_produto>:<secao>:<acao>`.
+> Validar com Zod **na escrita** (Mandamento 06). Sem variações, sem prefixos legados.
 
-| Permissão | Código | O que permite |
+**Componentes:**
+
+| Componente | Valores válidos | Origem |
 |:---|:---|:---|
-| Acesso | `READ` | Ver / consultar o módulo |
-| Edição | `WRITE` | Criar, editar, executar ações no módulo |
+| `<slug>` | `slug_produto_gravity` da tabela `ProdutoGravity` (ex: `pedido`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`) | Banco — `productCatalogService.list()` |
+| `<secao>` | `dashboard` \| `kanban` \| `lista` \| `configuracao` \| `relatorios` | **Const fixa** em `permissao-usuario-service.ts` |
+| `<acao>` | `ver` \| `editar` | **Const fixa** em `permissao-usuario-service.ts` |
 
----
+**Exemplos válidos:** `pedido:dashboard:ver`, `pedido:configuracao:editar`, `simula-custo:lista:ver`
 
-#### Módulos Universais (presentes em todo produto)
-
-| Módulo | Permissão READ | Permissão WRITE | Descrição |
-|:---|:---|:---|:---|
-| **Minhas Atividades** | `atividades:read` | `atividades:write` | Ver e criar atividades/tarefas |
-| **Email** | `email:read` | `email:write` | Ver histórico de e-mails e enviar |
-| **WhatsApp** | `whatsapp:read` | `whatsapp:write` | Ver conversas e enviar mensagens |
-| **Relatórios** | `relatorios:read` | `relatorios:write` | Ver relatórios e gerar novos |
-| **Gabi (IA)** | `gabi:read` | `gabi:write` | Consultar e interagir com a IA |
-
----
-
-#### Módulos de Produto (específicos por produto)
-
-Cada produto registra suas próprias permissões ao ser criado. Exemplos:
-
-**SimulaCusto (Estimativa de Custo DUIMP):**
-
-| Módulo | Permissão READ | Permissão WRITE | Descrição |
-|:---|:---|:---|:---|
-| Estimativa de Custo | `simulacusto:read` | `simulacusto:write` | Ver simulações e criar novas |
-| DUIMP | `duimp:read` | `duimp:write` | Consultar e gerar declarações |
-
-**NF Importação (Nota Fiscal):**
-
-| Módulo | Permissão READ | Permissão WRITE | Descrição |
-|:---|:---|:---|:---|
-| Nota Fiscal | `nf:read` | `nf:write` | Consultar e emitir notas fiscais |
-
----
-
-### Como Registrar Permissões de um Produto
-
-Cada produto define suas permissões em um arquivo `permissions.ts` dentro do produto:
+**Schema Zod (compartilhado entre back e front — Mandamento 09):**
 
 ```typescript
-// produto/simula-custo/server/config/permissions.ts
-export const PRODUCT_PERMISSIONS = [
-  // Módulos universais (copiados para todo produto)
-  { key: 'atividades:read',   label: 'Ver Atividades',        group: 'Atividades' },
-  { key: 'atividades:write',  label: 'Criar/Editar Atividades', group: 'Atividades' },
-  { key: 'email:read',        label: 'Ver Emails',             group: 'Email' },
-  { key: 'email:write',       label: 'Enviar Emails',          group: 'Email' },
-  { key: 'whatsapp:read',     label: 'Ver WhatsApp',           group: 'WhatsApp' },
-  { key: 'whatsapp:write',    label: 'Enviar WhatsApp',        group: 'WhatsApp' },
-  { key: 'relatorios:read',   label: 'Ver Relatórios',         group: 'Relatórios' },
-  { key: 'relatorios:write',  label: 'Gerar Relatórios',       group: 'Relatórios' },
-  { key: 'gabi:read',         label: 'Consultar Gabi',         group: 'Gabi IA' },
-  { key: 'gabi:write',        label: 'Interagir com Gabi',     group: 'Gabi IA' },
+export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios'] as const
+export const ACOES_PRODUTO  = ['ver', 'editar'] as const
 
-  // Módulos específicos do SimulaCusto
-  { key: 'simulacusto:read',  label: 'Ver Simulações',         group: 'SimulaCusto' },
-  { key: 'simulacusto:write', label: 'Criar Simulações',       group: 'SimulaCusto' },
-  { key: 'duimp:read',        label: 'Consultar DUIMP',        group: 'DUIMP' },
-  { key: 'duimp:write',       label: 'Gerar DUIMP',            group: 'DUIMP' },
-]
+export const permissaoStringSchema = z.string().regex(
+  /^[a-z][a-z0-9-]*:(dashboard|kanban|lista|configuracao|relatorios):(ver|editar)$/,
+  'Formato inválido — esperado <slug>:<secao>:<acao>'
+)
 ```
+
+**Cada combinação `(usuario, workspace, produto, "secao:acao")` é uma linha distinta em `UsuarioPermissao`** — isso permite revogar `editar` mantendo `ver` e vice-versa, sem perder histórico via `permissao_usuario_concedido_por`.
+
+---
+
+### Set `PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS`
+
+Nem todo produto do catálogo já tem o sistema de permissões granulares funcionando. O modal de permissões precisa renderizar **opaco "Em breve"** os produtos que ainda não migraram.
+
+```typescript
+// servicos-global/configurador/server/services/permissao-usuario-service.ts
+// TODO[ARQ]: migrar para coluna `permissoes_granulares_habilitadas` em ProdutoGravity
+// quando houver janela de schema (Mandamento 02 — só Coordenador).
+export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
+  'pedido',  // único produto com 5×2 toggles ativos em 2026-05-04
+])
+```
+
+**Teste-guardião bloqueante de CI** (`testes/testes-funcionais/configurador/usuarios/permissoes-guarda.test.ts`):
+
+```typescript
+it('todo produto no Set tem rotas/middleware reais (não pode entrar no Set sem implementação)', async () => {
+  for (const slug of PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS) {
+    const temMiddleware = await produtoUsaRequirePermissao(slug)
+    expect(temMiddleware, `Produto "${slug}" está no Set mas não usa requirePermissao`).toBe(true)
+  }
+})
+
+it('produto ATIVO sem permissões implementadas precisa de decisão explícita (proteção contra esquecimento)', async () => {
+  const produtosAtivos = await prisma.produtoGravity.findMany({
+    where: { status_produto_gravity: 'ATIVO', data_remocao_produto_gravity: null },
+    select: { slug_produto_gravity: true }
+  })
+  const ausentes = produtosAtivos
+    .map(p => p.slug_produto_gravity)
+    .filter(s => !PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(s))
+  // Lista esperada — atualizar quando produto migrar
+  const ausentesEsperados = ['simula-custo', 'bid-frete', 'bid-cambio', 'nf-importacao']
+  expect(ausentes.sort()).toEqual(ausentesEsperados.sort())
+})
+```
+
+**Proibido pular o teste com `.skip` ou `xit`.** O teste é a única defesa contra produto novo entrando ATIVO sem alguém decidir o que fazer com permissões.
+
+---
+
+### Bypass Mandamento 04 — Função Utilitária Única
+
+> **Crítico:** middleware backend, hook frontend e service de leitura DEVEM importar a MESMA função. Duplicar a lógica = bug em uma das pontas.
+
+```typescript
+// shared (back+front) — local definitivo a definir no commit
+// O conceito "gravity_admin" é equivalente a tipo_usuario IN (SUPER_ADMIN, ADMIN).
+// Não existe coluna gravity_admin no schema (Mandamento 02) — é derivado.
+export function temBypassPermissao(usuario: { tipo_usuario: UsuarioTipo }): boolean {
+  return (
+    usuario.tipo_usuario === 'SUPER_ADMIN' ||
+    usuario.tipo_usuario === 'ADMIN' ||
+    usuario.tipo_usuario === 'MASTER'
+  )
+}
+```
+
+Esquecer qualquer um dos 3 casos prende o usuário em "sem acesso" (regressão do Mandamento 04).
+
+---
+
+### Seções fixas — Aplicam-se a TODOS os produtos
+
+| Seção | `ver` | `editar` |
+|:---|:---|:---|
+| Dashboard | `<slug>:dashboard:ver` | `<slug>:dashboard:editar` |
+| Kanban | `<slug>:kanban:ver` | `<slug>:kanban:editar` |
+| Lista | `<slug>:lista:ver` | `<slug>:lista:editar` |
+| Configuração * | `<slug>:configuracao:ver` | `<slug>:configuracao:editar` |
+| Relatórios | `<slug>:relatorios:ver` | `<slug>:relatorios:editar` |
+
+\* **Configuração**: `MASTER`/`SUPER_ADMIN`/`ADMIN`/`gravity_admin` sempre podem (bypass `temBypassPermissao`). `STANDARD`/`FORNECEDOR` só com toggle marcado explicitamente.
+
+---
+
+### Módulos Universais — HUB e CORE
+
+HUB e CORE são **acessíveis por padrão** a todo usuário autenticado — **sem toggle**. Filtragem natural:
+
+- **HUB**: o usuário só vê os Workspaces aos quais está vinculado em `UsuarioWorkspace` (ou todos, se tem bypass).
+- **CORE**: o usuário só vê os dados aos quais tem permissão por seção/produto.
+
+Comunicação (Email/WhatsApp/Gabi) ficou **opaca "Em breve"** no modal — modelagem futura.
+
+---
+
+### Endpoint canônico do catálogo (Mandamento 07 — contratos)
+
+Para listar produtos contratados pela organização logada, **reutilizar** `GET /api/v1/workspaces/:id_workspace/produtos` (em `produto-gravity-workspace.ts`). DTO inclui `slug_produto_gravity` e `status_produto_gravity` para o front decidir entre toggles ativos vs. card opaco "Em breve".
+
+**Não criar rota nova `/produto-gravity/contratados`** — duplicação. Estender o DTO existente se faltar campo. Atualizar `servicos-global/configurador/contracts.json` no MESMO commit (Mandamento 07/09).
 
 ---
 

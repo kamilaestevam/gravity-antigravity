@@ -568,7 +568,7 @@ export function UsuariosAdmin() {
         aoFechar={() => setUsuarioPermissoes(null)}
         aoSalvar={() => {
           // TODO: persistir permissões via PUT /admin/usuarios-globais/:id/permissions
-          // quando endpoint for criado pelo Coordenador (permissionsService.setPermissions).
+          // quando endpoint for criado pelo Coordenador (servicoPermissaoUsuario.configurarPermissoes).
           // Enquanto isso, o modal exibe banner de preview (contextoAdmin=true).
           addNotification({
             type: 'info',

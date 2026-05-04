@@ -12,7 +12,13 @@ import { z } from 'zod'
 import { requireInternalKey } from '../middleware/requireInternalKey.js'
 import { prisma } from '../lib/prisma.js'
 import { productConfigService } from '../services/produto-gravity-configuracao-service.js'
-import { permissionsService } from '../services/permissao-usuario-service.js'
+import {
+  servicoPermissaoUsuario,
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  type SecaoProduto,
+  type AcaoProduto,
+} from '../services/permissao-usuario-servico.js'
 import { AppError } from '../lib/appError.js'
 
 export const accessRouter = Router()
@@ -23,11 +29,14 @@ accessRouter.use(requireInternalKey)
 const CheckAccessSchema = z.object({
   tenantId: z.string(),
   userId: z.string(),
-  productId: z.string().optional(),
+  /** id_workspace onde a ação está sendo executada (obrigatório para checagem granular) */
   companyId: z.string().optional(),
+  /** slug do produto — ex: 'pedido' */
   productKey: z.string(),
-  resource: z.string().optional(),
-  action: z.string().optional(),
+  /** seção dentro do produto — convenção <slug>:<secao>:<acao> (Mandamento 06) */
+  secao: z.enum(SECOES_PRODUTO).optional(),
+  /** ação solicitada */
+  acao: z.enum(ACOES_PRODUTO).optional(),
 })
 
 const ProductPermissionsSchema = z.object({
@@ -52,7 +61,7 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
       )
     }
 
-    const { tenantId: id_organizacao, userId: id_usuario, productId, companyId: id_workspace, productKey, resource, action } = parsed.data
+    const { tenantId: id_organizacao, userId: id_usuario, companyId: id_workspace, productKey: slug_produto, secao, acao } = parsed.data
 
     // 1. Verifica se a organização está ativa
     const tenant = await prisma.organizacao.findUnique({
@@ -65,21 +74,28 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
     }
 
     // 2. Verifica se o produto está habilitado para a organização
-    const productConfig = await productConfigService.getConfig(id_organizacao, productKey)
+    const productConfig = await productConfigService.getConfig(id_organizacao, slug_produto)
     if (!productConfig?.ativo_configuracao_produto_gravity) {
       res.json({ allowed: false, reason: 'PRODUCT_NOT_ENABLED' })
       return
     }
 
     // 3. Verifica permissão granular (se solicitado)
-    if (productId && resource && action) {
-      const hasPermission = await permissionsService.checkPermission({
-        id_organizacao: id_organizacao,
-        id_usuario: id_usuario,
-        id_produto: productId,
-        id_workspace: id_workspace,
-        resource,
-        action: action || '',
+    if (secao && acao) {
+      if (!id_workspace) {
+        throw new AppError(
+          'companyId (id_workspace) é obrigatório para checagem granular',
+          400,
+          'WORKSPACE_REQUIRED',
+        )
+      }
+      const hasPermission = await servicoPermissaoUsuario.verificarPermissao({
+        id_organizacao,
+        id_usuario,
+        slug_produto,
+        secao: secao as SecaoProduto,
+        acao: acao as AcaoProduto,
+        id_workspace,
       })
       if (!hasPermission) {
         res.json({ allowed: false, reason: 'PERMISSION_DENIED' })

@@ -143,6 +143,21 @@
         "DELETE /workspaces/:id_workspace":             "Remove workspace da organização autenticada. Resposta: 204."
       }
     },
+    "configurador-usuarios": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/usuarios",
+      "middleware": ["rateLimitPresets.api (via /api/v1)", "requireAuth"],
+      "note": "Gestão de usuários e permissões granulares da organização autenticada. Permissões granulares (decisão arquitetural 2026-05-04): convenção canônica `<slug_produto>:<secao>:<acao>` (ex: 'pedido:dashboard:ver'). Bypass total para SUPER_ADMIN/ADMIN/MASTER (Mandamento 04). PADRAO/FORNECEDOR exigem linha em UsuarioPermissao (Mandamento 08). Set `PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS` em permissao-usuario-service.ts controla quais produtos aceitam toggles ativos no modal — produto fora do Set retorna 400 PRODUCT_PERMISSIONS_NOT_IMPLEMENTED. Schema Zod compartilhado: SetPermissoesUsuarioSchema, permissoesResponseSchema (Mandamento 09).",
+      "endpoints": {
+        "GET /":                                       "Lista usuários da organização.",
+        "POST /convidar":                              "Convida novo usuário (Master/SAdmin/Admin). Body: ConvidarUsuarioSchema { email_usuario, nome_usuario, tipo_usuario, workspaces_alvo? }.",
+        "POST /:id_usuario/vinculos":                  "Habilita usuário em workspace.",
+        "PUT /:id_usuario/workspaces":                 "Substitui atomicamente vínculos de workspace (PADRAO/FORNECEDOR). Master rejeitado (400) — acesso global por tipo_usuario.",
+        "PATCH /:id_usuario/patente":                  "Altera tipo_usuario com whitelist por ator + anti-escalada + anti-bricking ($transaction Serializable).",
+        "GET /:id_usuario/permissoes":                 "Lista permissões granulares do usuário. Query: ?id_workspace=<cuid> (opcional). Resposta: { permissoes: PermissaoUsuarioItem[] } cada item { id_organizacao, id_workspace, id_usuario, id_produto_gravity, permissao_usuario, permissao_usuario_concedido_por, data_criacao_permissao_usuario }.",
+        "PUT /:id_usuario/permissoes":                 "Substitui atomicamente permissões em UM produto/workspace. Body Zod: SetPermissoesUsuarioSchema { id_workspace, id_produto_gravity, permissoes: string[] (formato '<slug>:<secao>:<acao>') }. Rejeita alvo SAdmin/Admin/Master (400 — bypass Mand. 04). Rejeita produto fora do Set PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS (400 PRODUCT_PERMISSIONS_NOT_IMPLEMENTED). Anti-escalada (FORBIDDEN_SELF_EDIT). Audit via securityAudit.permissionChanged."
+      }
+    },
     "admin-security": {
       "baseUrl": "http://localhost:8005",
       "note": "Painel de segurança do configurador — dois routers (admin gravity_admin + interno S2S).",

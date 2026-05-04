@@ -2,6 +2,21 @@
 
 **Total:** 640 hits em 59 arquivos
 
+## Renomeações concluídas (registro manual — sweep ainda não regerado)
+
+| Data | De | Para |
+|---|---|---|
+| 2026-05-04 | `server/services/permissionsService.ts` | `server/services/permissao-usuario-servico.ts` |
+| 2026-05-04 | export `permissionsService` | export `servicoPermissaoUsuario` |
+| 2026-05-04 | `setPermissions(...)` | `configurarPermissoes(...)` |
+| 2026-05-04 | `checkPermission(...)` | `verificarPermissao(...)` |
+| 2026-05-04 | `getUserPermissions(...)` | `listarPermissoesUsuario(...)` |
+| 2026-05-04 | função `temBypassPermissao` extraída para `shared/permissao-bypass.ts` (back+front importam do mesmo lugar — Mand. 04 + 07) |
+
+> Linhas legadas referenciando `permissionsService.ts` abaixo neste documento estão **obsoletas** — manter por contexto histórico até o sweep ser regerado.
+
+
+
 Gerado por sweep automatico. Cada linha mostra:
 
 - **Como esta** (linha atual no arquivo)

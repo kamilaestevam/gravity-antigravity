@@ -6,7 +6,8 @@
   },
   "include": [
     "src/**/*",
-    "server/**/*"
+    "server/**/*",
+    "shared/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

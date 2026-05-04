@@ -24,6 +24,54 @@ export interface AuditMiddlewareOptions {
    *   fetchBefore: (req) => prisma.order.findUnique({ where: { id: req.params.id } })
    */
   fetchBefore?: (req: Request) => Promise<unknown>
+  /**
+   * Lista de chaves a redatar no body antes de logar.
+   * Default: DEFAULT_SENSITIVE_FIELDS (password, senha, token, secret, api_key, apiKey,
+   * authorization, webhook_secret, webhookSecret, chave_api, clerk_secret, clerkSecret).
+   * Match case-insensitive, recursivo em objetos aninhados e arrays.
+   * Conforme skill `seguranca/seguranca-5-camadas` (camada 5).
+   */
+  sensitiveFields?: readonly string[]
+  /**
+   * Se false, omite estado_posterior_historico_log (loga só metadata: ator, IP, status, etc).
+   * Default: true (loga body redatado).
+   */
+  captureBody?: boolean
+  /**
+   * Quando o middleware é montado num router que cobre múltiplos recursos,
+   * derive o tipo_recurso a partir do path (ex: /organizacoes/:id → 'Organizacao').
+   * Tem precedência sobre `tipo_recurso_historico_log` estático.
+   */
+  resourceTypeFromPath?: (req: Request) => string
+}
+
+export const DEFAULT_SENSITIVE_FIELDS = [
+  'password', 'senha',
+  'token', 'apiToken', 'api_token', 'authorization',
+  'secret', 'webhookSecret', 'webhook_secret',
+  'apiKey', 'api_key', 'chave_api',
+  'clerk_secret', 'clerkSecret',
+] as const
+
+/**
+ * Redação recursiva de campos sensíveis em qualquer estrutura JSON-like.
+ * Substitui valores cujas chaves casem (case-insensitive) com `fields` por '***'.
+ * Aplica-se a objetos aninhados e arrays. Ignora primitivos e null/undefined.
+ */
+export function redactSensitive(value: unknown, fields: readonly string[]): unknown {
+  if (value === null || value === undefined) return value
+  if (Array.isArray(value)) return value.map((v) => redactSensitive(v, fields))
+  if (typeof value !== 'object') return value
+  const lowered = fields.map((f) => f.toLowerCase())
+  const result: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (lowered.includes(k.toLowerCase())) {
+      result[k] = '***'
+    } else {
+      result[k] = redactSensitive(v, fields)
+    }
+  }
+  return result
 }
 
 /**
@@ -63,6 +111,15 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
         const isSuccess = statusCode >= 200 && statusCode < 300
         const isFailure = statusCode >= 400
 
+        const sensitiveFields = opts.sensitiveFields ?? DEFAULT_SENSITIVE_FIELDS
+        const captureBody = opts.captureBody !== false
+        const safeBody = captureBody && isSuccess ? redactSensitive(body, sensitiveFields) : undefined
+        const safeError = isFailure ? redactSensitive(body, sensitiveFields) : undefined
+
+        const tipoRecurso = opts.resourceTypeFromPath
+          ? opts.resourceTypeFromPath(req)
+          : opts.tipo_recurso_historico_log
+
         AuditService.log({
           id_organizacao: auth.id_organizacao ?? (req.headers['x-id-organizacao'] as string) ?? 'unknown',
           tipo_ator_historico_log,
@@ -72,16 +129,18 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
           metadata_ator_historico_log: {
             user_agent: req.headers['user-agent'],
             correlation_id: req.headers['x-correlation-id'],
+            method: req.method,
+            path: req.originalUrl ?? req.url,
           },
           modulo_historico_log: opts.modulo_historico_log,
-          tipo_recurso_historico_log: opts.tipo_recurso_historico_log,
+          tipo_recurso_historico_log: tipoRecurso,
           id_recurso_historico_log: (body as any)?.id ?? req.params?.id,
           acao_historico_log: opts.acao_historico_log,
-          detalhe_acao_historico_log: opts.detalhe_acao_historico_log ?? `${opts.acao_historico_log} em ${opts.tipo_recurso_historico_log}`,
+          detalhe_acao_historico_log: opts.detalhe_acao_historico_log ?? `${opts.acao_historico_log} em ${tipoRecurso}`,
           estado_anterior_historico_log: beforeState,
-          estado_posterior_historico_log: isSuccess ? body : undefined,
+          estado_posterior_historico_log: safeBody,
           status_historico_log: isFailure ? 'FALHA' : isSuccess ? 'SUCESSO' : 'PARCIAL',
-          mensagem_erro_historico_log: isFailure ? (body as any)?.message : undefined,
+          mensagem_erro_historico_log: isFailure ? (safeError as any)?.message : undefined,
           id_produto_historico_log: (auth as any).id_produto_historico_log,
           id_usuario: tipo_ator_historico_log === AcaoExecutadaPor.USUARIO ? id_ator_historico_log : undefined,
         }).catch((err) => console.error('[auditMiddleware]', err))

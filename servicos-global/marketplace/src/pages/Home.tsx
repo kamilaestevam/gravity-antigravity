@@ -50,7 +50,7 @@ export function Home() {
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [paywallOpen, setPaywallOpen] = useState(false)
 
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   return (
     <div className="home">

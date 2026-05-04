@@ -63,25 +63,32 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
     adminAgendamentosTesteApi.listar().then(({ schedules }) => {
       if (!schedules.length) return
       const s = schedules[0] as Record<string, unknown>
-      const config = typeof s.config === 'string'
-        ? (JSON.parse(s.config) as Record<string, unknown>)
-        : (s.config as Record<string, unknown> ?? {})
-      const modulos = (config.modulos as string[] | undefined) ?? []
-      const ambientes = (config.ambientes as string[] | undefined) ?? ['Local']
-      const cronData = cronParaDados(String(s.cron ?? ''))
-      setScheduleId(String(s.id))
+      const tipos = (s.tipos_agendamento_teste as Record<string, boolean> | undefined) ?? {}
+      const horaNum   = Number(s.hora_agendamento_teste   ?? 0)
+      const minutoNum = Number(s.minuto_agendamento_teste ?? 0)
+      const alertasDb = (s.alertas_agendamento_teste as Array<Record<string, string>> | undefined) ?? []
+      setScheduleId(String(s.id_agendamento_teste))
       setDados({
-        agendamentoAutomatico: s.is_active ? 'Ativado' : 'Desativado',
-        frequencia: cronData.frequencia,
-        hora: cronData.hora,
-        minuto: cronData.minuto,
+        agendamentoAutomatico: s.ativo_agendamento_teste ? 'Ativado' : 'Desativado',
+        frequencia:            (s.frequencia_agendamento_teste as DadosAgendamento['frequencia']) ?? 'Manual',
+        hora:                  `${String(horaNum).padStart(2, '0')}h`,
+        minuto:                `${String(minutoNum).padStart(2, '0')}min`,
         tipos: {
-          unitarios: modulos.includes('unitarios'),
-          funcionais: modulos.includes('funcionais'),
-          e2e: modulos.includes('e2e'),
+          unitarios:  Boolean(tipos.uni),
+          funcionais: Boolean(tipos.fun),
+          e2e:        Boolean(tipos.e2e),
         },
-        ambiente: (ambientes[0] as DadosAgendamento['ambiente']) ?? 'Local',
+        ambiente: (s.ambiente_agendamento_teste as DadosAgendamento['ambiente']) ?? 'Local',
       })
+      if (alertasDb.length) {
+        setAlertas(alertasDb.map((a, i) => ({
+          id:       a.id ?? String(i),
+          nome:     a.nome ?? '',
+          contato:  a.contato ?? '',
+          condicao: a.condicao ?? 'Apenas Falhas',
+          canal:    a.canal ?? 'E-mail',
+        })))
+      }
       setIsDirty(false)
     }).catch(() => { /* ignora — mantém defaults */ })
   }, [aberto])
@@ -108,28 +115,32 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
   const handleSalvar = async () => {
     const ativo = dados.agendamentoAutomatico === 'Ativado'
 
-    const horaNum   = parseInt(dados.hora.replace('h', ''), 10)
+    const horaNum   = parseInt(dados.hora.replace('h', ''),    10)
     const minutoNum = parseInt(dados.minuto.replace('min', ''), 10)
     const horaVal   = isNaN(horaNum)   ? 0 : horaNum
     const minVal    = isNaN(minutoNum) ? 0 : minutoNum
-    const cronMap: Record<string, string> = {
-      Manual:  '0 0 31 2 *',
-      Diario:  `${minVal} ${horaVal} * * *`,
-      Semanal: `${minVal} ${horaVal} * * 1`,
-    }
-    const cron = cronMap[dados.frequencia] ?? cronMap.Manual
 
+    // Payload no formato do schema TesteAgendamento (DDD final 2026-05-03):
+    // frequencia/hora/minuto separados, tipos como objeto, ambiente único.
     const payload = {
-      name: `Agendamento ${dados.frequencia} - ${dados.ambiente}`,
-      cron,
-      modulos: [
-        ...(dados.tipos.unitarios ? ['unitarios'] : []),
-        ...(dados.tipos.funcionais ? ['funcionais'] : []),
-        ...(dados.tipos.e2e ? ['e2e'] : []),
-      ],
-      ambientes: [dados.ambiente],
       ativo,
-      notificar: true,
+      frequencia: dados.frequencia,
+      hora:       horaVal,
+      minuto:     minVal,
+      tipos: {
+        uni: dados.tipos.unitarios,
+        fun: dados.tipos.funcionais,
+        e2e: dados.tipos.e2e,
+      },
+      escopos:  [],
+      ambiente: dados.ambiente,
+      alertas:  alertas.map(a => ({
+        id:       a.id,
+        nome:     a.nome,
+        contato:  a.contato,
+        condicao: a.condicao,
+        canal:    a.canal,
+      })),
     }
 
     try {
@@ -137,7 +148,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
         await adminAgendamentosTesteApi.atualizar(scheduleId, payload)
       } else {
         const res = await adminAgendamentosTesteApi.criar(payload)
-        const newId = (res.schedule as Record<string, unknown>)?.id
+        const newId = (res.schedule as Record<string, unknown>)?.id_agendamento_teste
         if (newId) setScheduleId(String(newId))
       }
       addNotification({ type: 'success', message: 'Agendamento salvo com sucesso' })

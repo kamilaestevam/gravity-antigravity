@@ -402,3 +402,17 @@ Sim, desde que esses produtos estejam instrumentados para enviar eventos ao hist
 | Diff visual funciona apenas para objetos JSON simples | Melhorar para diffs de arrays e objetos aninhados profundos |
 | Não há relatório de resumo automático (ex: "resumo semanal") | Integrar com serviço de relatórios |
 | `actor_name` é registrado no momento da ação — não atualiza se o usuário mudar de nome | Comportamento intencional para imutabilidade; o `actor_id` permite busca pelo usuário atual |
+
+---
+
+## 2026-05-03 — Política de subdomínio: sistema gera, unicidade global cross-tabela
+
+**Decisão:** ver [ADR 0002](../decisoes-arquiteturais/0002-subdominio-system-generated-cross-tabela.md).
+
+**Resumo:**
+- Subdomínio (`<sub>.usegravity.com.br`) é **gerado pelo sistema** a partir do nome — usuário não escolhe.
+- **Unicidade GLOBAL cross-tabela**: helper `proximoSubdominioDisponivel` em `organizacaoService.ts` consulta `organizacao.subdominio_organizacao` E `workspace.subdominio_workspace`. Auto-suffix `-2`, `-3`, ... (teto 100).
+- **Race-safe** via captura de `P2002` (Prisma unique violation) com retry.
+- **Imutável após criação** — PATCH não aceita `subdominio_workspace` no body.
+- **Preview ao vivo** no modal: `GET /api/v1/me/sugestoes-subdominio?base=<slug>` com debounce 400ms.
+- **Domínio canônico:** `usegravity.com.br` (substituiu `gravity.com.br` em 73 ocorrências do código).

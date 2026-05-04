@@ -42,7 +42,7 @@
     "identidade-badge-hq-owner": { "tipo": "feedback", "descricao": "Badge 'HQ Owner' (nível super)" },
     "identidade-nome-organizacao": { "tipo": "outro", "descricao": "Nome da organização exibido em destaque" },
     "identidade-tag-plano": { "tipo": "feedback", "descricao": "Tag verde com nome do plano (ex: Free)" },
-    "identidade-subdominio": { "tipo": "outro", "descricao": "Subdomínio.gravity.com.br" },
+    "identidade-subdominio": { "tipo": "outro", "descricao": "Subdomínio.usegravity.com.br" },
 
     "secao-institucional": { "tipo": "outro", "descricao": "Seção 'Dados Registrados' (institucional)" },
     "input-nome-empresa": { "tipo": "input", "descricao": "Campo Nome da Empresa", "label": "Empresa", "required": true },
@@ -57,7 +57,7 @@
 
     "secao-infra": { "tipo": "outro", "descricao": "Seção 'Infra' (dados do plano e infraestrutura)" },
     "infra-plano-nome": { "tipo": "outro", "descricao": "Nome da instância/plano atual" },
-    "infra-subdominio": { "tipo": "outro", "descricao": "URL completa: subdominio.gravity.com.br" },
+    "infra-subdominio": { "tipo": "outro", "descricao": "URL completa: subdominio.usegravity.com.br" },
     "infra-data-criacao": { "tipo": "outro", "descricao": "Data 'Operando desde dd/mm/aaaa'" },
     "infra-localizacao": { "tipo": "outro", "descricao": "Cidade, Estado da operação" },
 

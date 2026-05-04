@@ -28,6 +28,7 @@ const prismaMock = {
     create: vi.fn(),
   },
   workspace: {
+    findUnique: vi.fn().mockResolvedValue(null), // Helper proximoSubdominioDisponivel consulta cross-tabela
     create: vi.fn(),
   },
   $transaction: vi.fn(),
@@ -62,28 +63,28 @@ const INPUT_BASE = {
 
 function empresaResponse(suid: string, idOrganizacao: string) {
   return {
-    suid,
+    suid_empresa: suid,
     id_organizacao: idOrganizacao,
     nome_empresa: 'Empresa Teste',
-    cnpj: '12.345.678/0001-99',
-    tin: null,
-    pais: 'BR',
-    estado: null,
-    cidade: null,
-    endereco: null,
-    zipcode: null,
-    email: null,
-    telefone: null,
-    whatsapp: null,
-    pode_ser_importador: true,
-    pode_ser_exportador: false,
-    pode_ser_fabricante: false,
-    pode_ser_agente: false,
-    pode_ser_despachante: false,
-    pode_ser_armador: false,
-    ativo: true,
-    criado_em: '2026-04-22T00:00:00.000Z',
-    atualizado_em: '2026-04-22T00:00:00.000Z',
+    cnpj_empresa: '12.345.678/0001-99',
+    tin_empresa: null,
+    pais_empresa: 'BR',
+    estado_empresa: null,
+    cidade_empresa: null,
+    endereco_empresa: null,
+    zipcode_empresa: null,
+    email_empresa: null,
+    telefone_empresa: null,
+    whatsapp_empresa: null,
+    pode_ser_importador_empresa: true,
+    pode_ser_exportador_empresa: false,
+    pode_ser_fabricante_empresa: false,
+    pode_ser_agente_empresa: false,
+    pode_ser_despachante_empresa: false,
+    pode_ser_armador_empresa: false,
+    ativo_empresa: true,
+    criado_em_empresa: '2026-04-22T00:00:00.000Z',
+    atualizado_em_empresa: '2026-04-22T00:00:00.000Z',
   }
 }
 
@@ -230,15 +231,37 @@ describe('organizacaoService.createOrganizacao — saga Cadastros-primeiro', () 
     expect(deadLetterCall?.[1].acao_manual).toMatch(/Remover fisicamente/)
   })
 
-  it('rejeita cedo quando slug já existe (nenhuma chamada a Cadastros)', async () => {
-    prismaMock.organizacao.findUnique.mockResolvedValueOnce({ id: 'existente', subdominio_organizacao: INPUT_BASE.subdominio_organizacao })
+  it('quando slug já existe, sistema auto-ajusta com sufixo numérico (cross-tabela)', async () => {
+    // Política 2026-05-03: sistema gera subdomínio, usuário não escolhe.
+    // Em colisão, helper proximoSubdominioDisponivel retorna `<base>-2`, etc.
+    // Primeiro probe (base) → ocupado em organizacao.
+    // Segundo probe (base-2) → livre.
+    prismaMock.organizacao.findUnique
+      .mockResolvedValueOnce({ id_organizacao: 'existente' }) // base ocupado
+      .mockResolvedValueOnce(null) // base-2 livre em org
+      .mockResolvedValueOnce(null) // workspace inicial: probe livre em org
+    prismaMock.workspace.findUnique
+      .mockResolvedValue(null) // todos livres em workspace
 
-    await expect(organizacaoService.createOrganizacao({ ...INPUT_BASE })).rejects.toThrow(
-      /slug já está em uso/,
-    )
+    // Configura saga feliz para verificar que o ajuste passa
+    fetchMock.mockResolvedValueOnce(jsonResponse(empresaResponse('suid-ok', 'novo')))
+    prismaMock.$transaction.mockImplementationOnce(async (cb: (tx: typeof prismaMock) => unknown) => {
+      prismaMock.organizacao.create.mockResolvedValueOnce({
+        id_organizacao: 'novo',
+        subdominio_organizacao: `${INPUT_BASE.subdominio_organizacao}-2`,
+      })
+      prismaMock.usuario.create.mockResolvedValueOnce({})
+      prismaMock.produtoGravityAssinatura.create.mockResolvedValueOnce({})
+      prismaMock.workspace.create.mockResolvedValueOnce({})
+      return cb(prismaMock)
+    })
 
-    expect(fetchMock).not.toHaveBeenCalled()
-    expect(prismaMock.$transaction).not.toHaveBeenCalled()
+    const result = await organizacaoService.createOrganizacao({ ...INPUT_BASE })
+
+    // Saga prossegue normalmente — Cadastros foi chamado, transação executou.
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1)
+    expect(result).toMatchObject({ subdominio_ajustado: true })
   })
 
   it('rejeita cedo quando clerk_user_id já tem organização (nenhuma chamada a Cadastros)', async () => {

@@ -7,6 +7,7 @@ import { logger } from '../logger.js'
 import type { BillingProvider } from './types.js'
 import { ContaAzulProvider } from './contaAzulProvider.js'
 import { ItauProvider } from './itauProvider.js'
+import { ProvedorFaturaProdutoGravity } from './provedorFaturaProdutoGravity.js'
 import { SantanderProvider } from './santanderProvider.js'
 
 export * from './types.js'
@@ -23,9 +24,12 @@ let cachedProvider: BillingProvider | null = null
 export function getBillingProvider(): BillingProvider {
   if (cachedProvider) return cachedProvider
 
-  const choice = (process.env.BILLING_PROVIDER ?? 'conta_azul').toLowerCase()
+  const choice = (process.env.BILLING_PROVIDER ?? 'gravity').toLowerCase()
 
   switch (choice) {
+    case 'gravity':
+      cachedProvider = new ProvedorFaturaProdutoGravity()
+      break
     case 'conta_azul':
       cachedProvider = new ContaAzulProvider()
       break
@@ -36,8 +40,8 @@ export function getBillingProvider(): BillingProvider {
       cachedProvider = new SantanderProvider()
       break
     default:
-      log.warn('BILLING_PROVIDER desconhecido — usando Conta Azul como fallback', { choice })
-      cachedProvider = new ContaAzulProvider()
+      log.warn('BILLING_PROVIDER desconhecido — usando Gravity como fallback', { choice })
+      cachedProvider = new ProvedorFaturaProdutoGravity()
       break
   }
 

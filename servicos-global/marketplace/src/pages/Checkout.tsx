@@ -43,7 +43,7 @@ export function Checkout() {
   const [searchParams] = useSearchParams()
   const produto = searchParams.get('produto') ?? 'simulador-comex'
   const plano = searchParams.get('plano') ?? 'profissional'
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   const SECURITY_BADGES = [
     { icon: <LockSimple size={14} weight="bold" />, label: t('marketplace.checkout.seguranca.ssl') },

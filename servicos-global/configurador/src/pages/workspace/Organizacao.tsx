@@ -124,7 +124,7 @@ export function Organizacao() {
   const OPCOES_WORKSPACES: SelectOpcao[] = workspaces.map(w => ({
     valor:     w.id_workspace,
     rotulo:    w.nome_workspace,
-    descricao: w.subdominio_workspace ? `${w.subdominio_workspace}.gravity.com.br` : '',
+    descricao: w.subdominio_workspace ? `${w.subdominio_workspace}.usegravity.com.br` : '',
   }))
 
   // Dados editáveis diretamente — sem modo "editando"
@@ -324,7 +324,7 @@ export function Organizacao() {
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome_organizacao || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
-              {dados.subdominio_organizacao}.gravity.com.br
+              {dados.subdominio_organizacao}.usegravity.com.br
             </p>
           </div>
         </div>
@@ -463,7 +463,7 @@ export function Organizacao() {
         itemAtivo={workspacePreferido ? {
           icone: <CheckCircle weight="fill" size={16} color="#34d399" />,
           texto: <>Acessando como&nbsp;<strong>{workspacePreferido.nome_workspace}</strong></>,
-          subtexto: workspacePreferido.subdominio_workspace ? `(${workspacePreferido.subdominio_workspace}.gravity.com.br)` : ''
+          subtexto: workspacePreferido.subdominio_workspace ? `(${workspacePreferido.subdominio_workspace}.usegravity.com.br)` : ''
         } : null}
         className="ws-fade-up ws-fade-up-d3"
       />

@@ -17,9 +17,9 @@ import { useShellStore } from '@gravity/shell'
 
 // ── Tipos ─────────────────────────────────────────────────────────
 
-type ActorType = 'USER' | 'API' | 'AI' | 'JOB' | 'INTEGRATION'
-type EventStatus = 'SUCCESS' | 'FAILURE' | 'PARTIAL'
-type AlertStatus = 'PENDING' | 'REVIEWED' | 'ESCALATED'
+type ActorType = 'USUARIO' | 'API' | 'IA' | 'JOB' | 'INTEGRACAO'
+type EventStatus = 'SUCESSO' | 'FALHA' | 'PARCIAL'
+type AlertStatus = 'PENDENTE' | 'REVISADO' | 'ESCALADO'
 
 type AuditLog = {
   id: string
@@ -63,30 +63,30 @@ type AlertEvent = {
 // ── Helpers ───────────────────────────────────────────────────────
 
 const COR_ATOR: Record<ActorType, { cor: string; bg: string }> = {
-  USER:        { cor: '#818cf8', bg: 'rgba(129,140,248,0.1)' },
-  API:         { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
-  AI:          { cor: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
-  JOB:         { cor: '#2dd4bf', bg: 'rgba(45,212,191,0.1)' },
-  INTEGRATION: { cor: '#fb923c', bg: 'rgba(251,146,60,0.1)' },
+  USUARIO:    { cor: '#818cf8', bg: 'rgba(129,140,248,0.1)' },
+  API:        { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
+  IA:         { cor: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
+  JOB:        { cor: '#2dd4bf', bg: 'rgba(45,212,191,0.1)' },
+  INTEGRACAO: { cor: '#fb923c', bg: 'rgba(251,146,60,0.1)' },
 }
 
 const COR_STATUS: Record<EventStatus, { cor: string; bg: string }> = {
-  SUCCESS: { cor: '#34d399', bg: 'rgba(52,211,153,0.1)' },
-  FAILURE: { cor: '#f87171', bg: 'rgba(248,113,113,0.1)' },
-  PARTIAL: { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
+  SUCESSO: { cor: '#34d399', bg: 'rgba(52,211,153,0.1)' },
+  FALHA:   { cor: '#f87171', bg: 'rgba(248,113,113,0.1)' },
+  PARCIAL: { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
 }
 
 function IconeAtor({ tipo }: { tipo: ActorType }) {
   const props = { size: 14, weight: 'bold' as const }
-  if (tipo === 'AI') return <Robot {...props} />
+  if (tipo === 'IA') return <Robot {...props} />
   if (tipo === 'JOB') return <Gear {...props} />
   if (tipo === 'API') return <Globe {...props} />
-  if (tipo === 'INTEGRATION') return <Cpu {...props} />
+  if (tipo === 'INTEGRACAO') return <Cpu {...props} />
   return <User {...props} />
 }
 
 function BadgeAtorType({ tipo }: { tipo: ActorType }) {
-  const { cor, bg } = COR_ATOR[tipo] ?? COR_ATOR.USER
+  const { cor, bg } = COR_ATOR[tipo] ?? COR_ATOR.USUARIO
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -100,7 +100,7 @@ function BadgeAtorType({ tipo }: { tipo: ActorType }) {
 }
 
 function BadgeStatus({ status }: { status: EventStatus }) {
-  const { cor, bg } = COR_STATUS[status]
+  const { cor, bg } = COR_STATUS[status] ?? COR_STATUS.PARCIAL
   return (
     <span style={{
       display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
@@ -262,7 +262,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    apiFetch('/api/v1/admin/historico-global/alerts?status=PENDING')
+    apiFetch('/api/v1/admin/historico-global/alerts?status=PENDENTE')
       .then((r) => r.json())
       .then((d) => setAlertas(d.data ?? []))
       .catch(() => {})
@@ -274,7 +274,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
       await apiFetch(`/api/v1/admin/historico-global/alerts/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REVIEWED' }),
+        body: JSON.stringify({ status: 'REVISADO' }),
       })
       setAlertas((prev) => prev.filter((a) => a.id !== id))
       addNotification({ type: 'success', message: 'Alerta marcado como revisado.' })
@@ -284,9 +284,9 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
   }
 
   const COR_ALERT: Record<AlertStatus, string> = {
-    PENDING: '#fbbf24',
-    REVIEWED: '#34d399',
-    ESCALATED: '#f87171',
+    PENDENTE: '#fbbf24',
+    REVISADO: '#34d399',
+    ESCALADO: '#f87171',
   }
 
   return (
@@ -354,7 +354,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
                   await apiFetch(`/api/v1/admin/historico-global/alerts/${alerta.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'ESCALATED' }),
+                    body: JSON.stringify({ status: 'ESCALADO' }),
                   })
                   setAlertas((prev) => prev.filter((a) => a.id !== alerta.id))
                 }}
@@ -439,7 +439,7 @@ export function HistoricoGlobalAdmin() {
   // Polling de alertas pendentes a cada 30s (além do carregamento inicial)
   useEffect(() => {
     const fetchAlertas = () => {
-      apiFetch('/api/v1/admin/historico-global/alerts?status=PENDING&limit=1')
+      apiFetch('/api/v1/admin/historico-global/alerts?status=PENDENTE&limit=1')
         .then((r) => r.json())
         .then((d) => setAlertasPendentes(d.data?.length ?? 0))
         .catch(() => { /* silencioso — indicador não-crítico */ })
@@ -548,18 +548,18 @@ export function HistoricoGlobalAdmin() {
 
   const opcoesAtorType = [
     { valor: 'todos', rotulo: 'Todos os atores' },
-    { valor: 'USER', rotulo: 'Usuário' },
-    { valor: 'AI', rotulo: 'IA / GABI' },
+    { valor: 'USUARIO', rotulo: 'Usuário' },
+    { valor: 'IA', rotulo: 'IA / GABI' },
     { valor: 'API', rotulo: 'API Externa' },
     { valor: 'JOB', rotulo: 'Job Interno' },
-    { valor: 'INTEGRATION', rotulo: 'Integração' },
+    { valor: 'INTEGRACAO', rotulo: 'Integração' },
   ]
 
   const opcoesStatus = [
     { valor: 'todos', rotulo: 'Todos os status' },
-    { valor: 'SUCCESS', rotulo: 'Sucesso' },
-    { valor: 'FAILURE', rotulo: 'Falha' },
-    { valor: 'PARTIAL', rotulo: 'Parcial' },
+    { valor: 'SUCESSO', rotulo: 'Sucesso' },
+    { valor: 'FALHA', rotulo: 'Falha' },
+    { valor: 'PARCIAL', rotulo: 'Parcial' },
   ]
 
   return (

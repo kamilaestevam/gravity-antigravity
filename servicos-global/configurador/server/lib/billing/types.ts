@@ -90,6 +90,7 @@ export interface VoidInvoiceParams {
 
 export type BillingProviderName =
   | 'manual'
+  | 'gravity'
   | 'conta_azul'
   | 'asaas'
   | 'iugu'

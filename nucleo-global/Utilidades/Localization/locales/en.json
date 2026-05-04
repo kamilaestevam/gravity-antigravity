@@ -83,7 +83,7 @@
     "pagina_nao_encontrada": "Page not found",
     "fechar_notificacao": "Close notification",
     "usuario_padrao": "User",
-    "email_padrao": "user@gravity.com.br",
+    "email_padrao": "user@usegravity.com.br",
     "papel_membro": "Member",
     "organizacao_padrao": "Organization",
     "plano_padrao": "Professional Plan",
@@ -1591,9 +1591,12 @@
       "aba_faturas": "Invoice History",
       "aba_produtos": "Products & Pricing",
       "status": {
-        "pago": "Paid",
-        "pendente": "Pending",
-        "atrasado": "Overdue"
+        "draft": "Draft",
+        "open": "Pending",
+        "paid": "Paid",
+        "void": "Void",
+        "overdue": "Overdue",
+        "uncollectible": "Uncollectible"
       },
       "proximo_vencimento": "Next Due Date",
       "valor_pagar": "Amount Due",

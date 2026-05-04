@@ -223,6 +223,10 @@ body.light-theme .sg-btn-limpar:hover {
   overflow: hidden;
   animation: sg-dropdown-in .14s cubic-bezier(.16,1,.3,1);
   box-sizing: border-box;
+  /* Garante espaço mínimo para conteúdo + busca + scrollbar mesmo quando o
+     trigger é estreito (ex: select de hora "02h"). Sem isso, a scrollbar e
+     o padding interno cortavam o primeiro caractere do texto das opções. */
+  min-width: 8rem;
 }
 
 /* Quando abre para cima: animação invertida */

@@ -70,7 +70,7 @@ const PLANS = [
 export function Precos() {
   const { t } = useTranslation()
   const [billing, setBilling] = useState<Billing>('anual')
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   return (
     <div>

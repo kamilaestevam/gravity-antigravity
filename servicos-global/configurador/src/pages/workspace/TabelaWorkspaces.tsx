@@ -501,10 +501,10 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
     { header: 'Criado em',   key: 'criadaEm'   },
   ]
 
-  // Adapta o campo subdomínio para exibir com .gravity.com.br
+  // Adapta o campo subdomínio para exibir com .usegravity.com.br
   const dadosExport = resultado.map(e => ({
     ...e,
-    subdominio: `${e.subdominio}.gravity.com.br`,
+    subdominio: `${e.subdominio}.usegravity.com.br`,
   })) as unknown as Record<string, unknown>[]
 
   const OPCOES_EXPORT = { nomeArquivo: 'workspaces', titulo: 'Workspaces' }
@@ -667,9 +667,9 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                   </div>
                 </td>
                 <td style={{ padding: '0.875rem 1rem' }}>
-                  <TooltipGlobal descricao={`Abrir ${e.subdominio}.gravity.com.br`}>
+                  <TooltipGlobal descricao={`Abrir ${e.subdominio}.usegravity.com.br`}>
                     <a
-                      href={`https://${e.subdominio}.gravity.com.br`}
+                      href={`https://${e.subdominio}.usegravity.com.br`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={ev => ev.stopPropagation()}
@@ -679,7 +679,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                         onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
                         onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
                       >
-                        {e.subdominio}.gravity.com.br
+                        {e.subdominio}.usegravity.com.br
                       </code>
                     </a>
                   </TooltipGlobal>

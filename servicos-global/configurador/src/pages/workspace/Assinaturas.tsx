@@ -9,7 +9,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalConfirmarExclusao'
-import { ModalEditarAssinatura } from './ModalEditarAssinaturaProdutoGravity'
+import { ModalEditarAssinatura } from './ModalEditarAssinatura'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
 import type { FaixaPreco } from '../../types/entidades'
@@ -73,19 +73,19 @@ export function Assinaturas() {
         setCarregando(true)
         const headers = await getAuthHeaders()
 
-        const [allProducts, subRes, companiesRes] = await Promise.all([
+        const [allProducts, subRes, workspacesRes] = await Promise.all([
           catalogService.getProdutos(),
           fetch('/api/v1/assinaturas', { headers }).catch(() => null),
-          fetch('/api/v1/organizacoes/me/workspaces', { headers }).catch(() => null),
+          fetch('/api/v1/me/workspaces', { headers }).catch(() => null),
         ])
 
         // Carregar workspaces reais
-        if (companiesRes && companiesRes.ok) {
-          const { companies } = await companiesRes.json()
-          setWorkspaces(companies.map((c: Record<string, unknown>) => ({
-            id: c.id,
-            nome: c.name ?? '',
-            status: c.status === 'ATIVO' ? 'Ativa' : 'Suspensa',
+        if (workspacesRes && workspacesRes.ok) {
+          const { workspaces } = await workspacesRes.json()
+          setWorkspaces(workspaces.map((w: Record<string, unknown>) => ({
+            id: w.id_workspace,
+            nome: w.nome_workspace ?? '',
+            status: w.status_workspace === 'ATIVO' ? 'Ativa' : 'Suspensa',
           })))
         }
 

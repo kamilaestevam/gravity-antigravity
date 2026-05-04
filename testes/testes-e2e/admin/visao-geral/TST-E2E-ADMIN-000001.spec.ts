@@ -193,8 +193,8 @@ test.describe('TST-E2E-ADMIN-000001 — Visão Geral (HQ Owner)', () => {
     await expect(page.getByTestId('identidade-tag-plano')).toBeVisible()
   })
 
-  test('33. Subdomínio exibe padrão {sub}.gravity.com.br', async ({ page }) => {
-    await expect(page.getByTestId('identidade-subdominio')).toContainText('.gravity.com.br')
+  test('33. Subdomínio exibe padrão {sub}.usegravity.com.br', async ({ page }) => {
+    await expect(page.getByTestId('identidade-subdominio')).toContainText('.usegravity.com.br')
   })
 
   test('34. Campo Empresa preenchido com valor da API', async ({ page }) => {

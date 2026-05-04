@@ -24,7 +24,7 @@ const PEDIDO_OPENAPI_SPEC = {
       'Autenticar com token Bearer gv_live_sk_* (produção) ou gv_test_sk_* (sandbox).',
     contact: {
       name: 'Gravity Platform',
-      url: 'https://gravity.com.br',
+      url: 'https://usegravity.com.br',
     },
   },
   servers: [

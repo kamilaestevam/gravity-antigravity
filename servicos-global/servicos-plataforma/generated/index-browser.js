@@ -771,6 +771,78 @@ exports.Prisma.ConfiguracaoCanalOrganizacaoScalarFieldEnum = {
   data_atualizacao_configuracao_canal_organizacao: 'data_atualizacao_configuracao_canal_organizacao'
 };
 
+exports.Prisma.ApiTokenScalarFieldEnum = {
+  id_api_token: 'id_api_token',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  nome_api_token: 'nome_api_token',
+  hash_api_token: 'hash_api_token',
+  prefixo_api_token: 'prefixo_api_token',
+  escopo_api_token: 'escopo_api_token',
+  validade_api_token: 'validade_api_token',
+  data_expiracao_api_token: 'data_expiracao_api_token',
+  limite_requisicoes_minuto_api_token: 'limite_requisicoes_minuto_api_token',
+  revogado_api_token: 'revogado_api_token',
+  data_revogacao_api_token: 'data_revogacao_api_token',
+  data_criacao_api_token: 'data_criacao_api_token',
+  data_atualizacao_api_token: 'data_atualizacao_api_token'
+};
+
+exports.Prisma.WebhookConfiguracaoScalarFieldEnum = {
+  id_webhook_configuracao: 'id_webhook_configuracao',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  url_webhook_configuracao: 'url_webhook_configuracao',
+  segredo_webhook_configuracao: 'segredo_webhook_configuracao',
+  eventos_webhook_configuracao: 'eventos_webhook_configuracao',
+  ativo_webhook_configuracao: 'ativo_webhook_configuracao',
+  data_criacao_webhook_configuracao: 'data_criacao_webhook_configuracao',
+  data_atualizacao_webhook_configuracao: 'data_atualizacao_webhook_configuracao'
+};
+
+exports.Prisma.WebhookLogScalarFieldEnum = {
+  id_webhook_log: 'id_webhook_log',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  id_webhook_configuracao: 'id_webhook_configuracao',
+  evento_webhook_log: 'evento_webhook_log',
+  codigo_resposta_http_webhook_log: 'codigo_resposta_http_webhook_log',
+  latencia_ms_webhook_log: 'latencia_ms_webhook_log',
+  quantidade_tentativas_webhook_log: 'quantidade_tentativas_webhook_log',
+  payload_webhook_log: 'payload_webhook_log',
+  erro_webhook_log: 'erro_webhook_log',
+  data_criacao_webhook_log: 'data_criacao_webhook_log',
+  data_atualizacao_webhook_log: 'data_atualizacao_webhook_log'
+};
+
+exports.Prisma.LogConsumoScalarFieldEnum = {
+  id_log_consumo: 'id_log_consumo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  id_api_token: 'id_api_token',
+  endpoint_log_consumo: 'endpoint_log_consumo',
+  metodo_http_log_consumo: 'metodo_http_log_consumo',
+  codigo_resposta_http_log_consumo: 'codigo_resposta_http_log_consumo',
+  latencia_ms_log_consumo: 'latencia_ms_log_consumo',
+  data_criacao_log_consumo: 'data_criacao_log_consumo',
+  data_atualizacao_log_consumo: 'data_atualizacao_log_consumo'
+};
+
+exports.Prisma.ApiIntegracaoErpScalarFieldEnum = {
+  id_api_integracao_erp: 'id_api_integracao_erp',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  credenciais_criptografadas_api_integracao_erp: 'credenciais_criptografadas_api_integracao_erp',
+  protocolo_api_integracao_erp: 'protocolo_api_integracao_erp',
+  data_criacao_api_integracao_erp: 'data_criacao_api_integracao_erp',
+  data_atualizacao_api_integracao_erp: 'data_atualizacao_api_integracao_erp'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -879,6 +951,26 @@ exports.AlertaStatus = exports.$Enums.AlertaStatus = {
   ESCALADO: 'ESCALADO'
 };
 
+exports.EscopoApiToken = exports.$Enums.EscopoApiToken = {
+  LEITURA: 'LEITURA',
+  ESCRITA: 'ESCRITA',
+  EXCLUSAO: 'EXCLUSAO'
+};
+
+exports.ValidadeApiToken = exports.$Enums.ValidadeApiToken = {
+  NUNCA: 'NUNCA',
+  DIAS_30: 'DIAS_30',
+  DIAS_90: 'DIAS_90',
+  CUSTOMIZADO: 'CUSTOMIZADO'
+};
+
+exports.ProtocoloApiIntegracaoErp = exports.$Enums.ProtocoloApiIntegracaoErp = {
+  ODATA: 'ODATA',
+  SAP_HANA: 'SAP_HANA',
+  REST: 'REST',
+  JDBC: 'JDBC'
+};
+
 exports.Prisma.ModelName = {
   AtividadeDados: 'AtividadeDados',
   UsuariosAtividades: 'UsuariosAtividades',
@@ -921,7 +1013,12 @@ exports.Prisma.ModelName = {
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',
-  ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'
+  ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao',
+  ApiToken: 'ApiToken',
+  WebhookConfiguracao: 'WebhookConfiguracao',
+  WebhookLog: 'WebhookLog',
+  LogConsumo: 'LogConsumo',
+  ApiIntegracaoErp: 'ApiIntegracaoErp'
 };
 
 /**

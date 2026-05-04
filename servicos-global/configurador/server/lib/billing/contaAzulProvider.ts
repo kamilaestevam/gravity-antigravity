@@ -51,7 +51,7 @@
 //
 //   CONTA_AZUL_CLIENT_ID
 //   CONTA_AZUL_CLIENT_SECRET
-//   CONTA_AZUL_REDIRECT_URI         (ex: https://configurador.gravity.com.br/api/v1/financeiro/conta-azul/oauth-callback)
+//   CONTA_AZUL_REDIRECT_URI         (ex: https://configurador.usegravity.com.br/api/v1/financeiro/conta-azul/oauth-callback)
 //   CONTA_AZUL_REFRESH_TOKEN        (obtido no fluxo OAuth — armazenar em DB depois)
 //   CONTA_AZUL_ENVIRONMENT          ('sandbox' | 'production')
 //

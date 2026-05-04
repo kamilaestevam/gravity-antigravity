@@ -1,119 +1,191 @@
-// servicos-global/tenant/api-cockpit/prisma/fragment.prisma
+// servicos-global/servicos-plataforma/api-cockpit/prisma/fragment.prisma
+// SERVIÇO API-COCKPIT — DDD final (FKs canônicas sem sufixo de entidade — REGRA 3/4)
+//
+// ApiToken               — tokens de API emitidos por organização
+// WebhookConfiguracao    — webhooks cadastrados por organização
+// WebhookLog             — histórico de entregas de webhooks
+// LogConsumo             — log de consumo de endpoints da API pública
+// ApiIntegracaoErp       — credenciais de integração com ERP (singleton por organização)
 
-enum TokenEscopo {
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EscopoApiToken {
   LEITURA
   ESCRITA
   EXCLUSAO
 }
 
-enum TokenValidade {
+enum ValidadeApiToken {
   NUNCA
   DIAS_30
   DIAS_90
   CUSTOMIZADO
 }
 
-model APIToken {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
-
-  name       String
-  hash       String   @unique
-  prefix     String   // gv_live_sk_ or gv_test_sk_
-  scope      TokenEscopo @default(LEITURA)
-  expiration TokenValidade @default(NUNCA)
-  expires_at DateTime?
-  rate_limit Int      @default(60)
-  
-  is_revoked Boolean  @default(false)
-  revoked_at DateTime?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+enum ProtocoloApiIntegracaoErp {
+  ODATA
+  SAP_HANA
+  REST
+  JDBC
 }
+
+// ---------------------------------------------------------------------------
+// ApiToken — tokens de API emitidos a usuários da organização
+// ---------------------------------------------------------------------------
+
+model ApiToken {
+  id_api_token String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
+
+  // Identificação do token
+  nome_api_token     String
+  hash_api_token     String @unique
+  prefixo_api_token  String // gv_live_sk_ ou gv_test_sk_
+
+  // Configuração
+  escopo_api_token                    EscopoApiToken   @default(LEITURA)
+  validade_api_token                  ValidadeApiToken @default(NUNCA)
+  data_expiracao_api_token            DateTime?
+  limite_requisicoes_minuto_api_token Int              @default(60)
+
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  revogado_api_token       Boolean   @default(false)
+  data_revogacao_api_token DateTime?
+
+  // Timestamps
+  data_criacao_api_token     DateTime @default(now())
+  data_atualizacao_api_token DateTime @updatedAt
+
+  @@index([id_organizacao],                                map: "apitk_org_idx")
+  @@index([id_organizacao, id_produto_gravity],            map: "apitk_org_prd_idx")
+  @@index([id_organizacao, id_usuario],                    map: "apitk_org_usr_idx")
+  @@map("api_token")
+}
+
+// ---------------------------------------------------------------------------
+// WebhookConfiguracao — webhooks cadastrados pela organização para receber eventos
+// ---------------------------------------------------------------------------
 
 model WebhookConfiguracao {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_webhook_configuracao String @id @default(cuid())
 
-  url        String
-  secret     String   // HMAC key
-  events     String[] // e.g. ["simulacao.criada", "cotacao.aprovada"]
-  is_active  Boolean  @default(true)
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String? // criador
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  // Configuração
+  url_webhook_configuracao      String
+  segredo_webhook_configuracao  String   // chave HMAC para assinatura
+  eventos_webhook_configuracao  String[] // ex: ["simulacao.criada", "cotacao.aprovada"]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  ativo_webhook_configuracao Boolean @default(true)
+
+  // Timestamps
+  data_criacao_webhook_configuracao     DateTime @default(now())
+  data_atualizacao_webhook_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao],                     map: "whkc_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "whkc_org_prd_idx")
+  @@index([id_organizacao, id_usuario],         map: "whkc_org_usr_idx")
+  @@map("webhook_configuracao")
 }
+
+// ---------------------------------------------------------------------------
+// WebhookLog — histórico de entregas de webhooks (sucessos e falhas)
+// ---------------------------------------------------------------------------
 
 model WebhookLog {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_webhook_log String @id @default(cuid())
 
-  webhook_id String
-  event      String
-  status     Int      // HTTP status code e.g. 200, 500
-  latency_ms Int
-  attempts   Int
-  payload    Json?
-  error      String?
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  // Relação
+  id_webhook_configuracao String
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([webhook_id])
+  // Conteúdo
+  evento_webhook_log                String
+  codigo_resposta_http_webhook_log  Int    // 200, 404, 500, etc.
+  latencia_ms_webhook_log           Int
+  quantidade_tentativas_webhook_log Int
+  payload_webhook_log               Json?
+  erro_webhook_log                  String?
+
+  // Timestamps
+  data_criacao_webhook_log     DateTime @default(now())
+  data_atualizacao_webhook_log DateTime @updatedAt
+
+  @@index([id_organizacao],                     map: "whkl_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "whkl_org_prd_idx")
+  @@index([id_organizacao, id_usuario],         map: "whkl_org_usr_idx")
+  @@index([id_webhook_configuracao],            map: "whkl_whkc_idx")
+  @@map("webhook_log")
 }
+
+// ---------------------------------------------------------------------------
+// LogConsumo — log de consumo da API pública (1 linha por requisição)
+// ---------------------------------------------------------------------------
 
 model LogConsumo {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_log_consumo String @id @default(cuid())
 
-  token_id   String
-  endpoint   String
-  method     String
-  status     Int
-  latency_ms Int
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  // Relação
+  id_api_token String
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([token_id])
+  // Conteúdo da requisição
+  endpoint_log_consumo             String
+  metodo_http_log_consumo          String // GET, POST, PUT, DELETE, etc.
+  codigo_resposta_http_log_consumo Int    // 200, 404, 500, etc.
+  latencia_ms_log_consumo          Int
+
+  // Timestamps
+  data_criacao_log_consumo     DateTime @default(now())
+  data_atualizacao_log_consumo DateTime @updatedAt
+
+  @@index([id_organizacao],                     map: "lcon_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "lcon_org_prd_idx")
+  @@index([id_organizacao, id_usuario],         map: "lcon_org_usr_idx")
+  @@index([id_api_token],                       map: "lcon_apitk_idx")
+  @@map("log_consumo")
 }
 
-model APIIntegracaoERP {
-  id                    String   @id @default(cuid())
-  tenant_id             String   @unique
-  product_id            String?
-  user_id               String?
+// ---------------------------------------------------------------------------
+// ApiIntegracaoErp — credenciais de integração com ERP (singleton por organização)
+// ---------------------------------------------------------------------------
 
-  credentials_encrypted String
-  protocol              String   @default("ODATA") // ODATA, SAP_HANA, REST, JDBC
+model ApiIntegracaoErp {
+  id_api_integracao_erp String @id @default(cuid())
 
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  // Identificação organização — FKs canônicas (REGRA 3/4); única por organização
+  id_organizacao     String  @unique
+  id_produto_gravity String?
+  id_usuario         String?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  // Credenciais e protocolo
+  credenciais_criptografadas_api_integracao_erp String                    // AES-256-GCM
+  protocolo_api_integracao_erp                  ProtocoloApiIntegracaoErp @default(ODATA)
+
+  // Timestamps
+  data_criacao_api_integracao_erp     DateTime @default(now())
+  data_atualizacao_api_integracao_erp DateTime @updatedAt
+
+  @@index([id_organizacao],                     map: "aierp_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "aierp_org_prd_idx")
+  @@index([id_organizacao, id_usuario],         map: "aierp_org_usr_idx")
+  @@map("api_integracao_erp")
 }

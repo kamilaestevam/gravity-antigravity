@@ -116,7 +116,7 @@ export function AdminLayout() {
 
   const userName = user?.fullName ?? user?.firstName ?? 'Gravity Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'admin@gravity.com.br'
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'admin@usegravity.com.br'
 
   useEffect(() => {
     if (isLight) {

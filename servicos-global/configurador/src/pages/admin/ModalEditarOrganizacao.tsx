@@ -6,8 +6,7 @@ import {
   IdentificationCard,
   CalendarBlank,
   MapPin,
-  Package,
-  Warning
+  Package
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -76,14 +75,6 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-function slugify(v: string) {
-  return v
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
 function formatarCNPJ(v: string) {
   const digits = v.replace(/\D/g, '').slice(0, 14)
   if (digits.length <= 2) return digits
@@ -96,13 +87,15 @@ function formatarCNPJ(v: string) {
 export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar }: ModalEditarOrganizacaoProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
-  const [subdominio, setSubdominio] = useState('')
-  const [erroSub, setErroSub] = useState('')
   const [cnpj, setCnpj] = useState('')
   const [estado, setEstado] = useState('')
   const [cidade, setCidade] = useState('')
   const [segmento, setSegmento] = useState('')
   const [tipoEmpresa, setTipoEmpresa] = useState('')
+
+  // Subdomínio é gerado pelo sistema na criação e é IMUTÁVEL na edição
+  // (URLs já em uso por usuários, integrações e webhooks dependem dele).
+  const subdominio = organizacao?.subdominio_organizacao ?? ''
 
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
@@ -110,8 +103,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   useEffect(() => {
     if (aberto && organizacao) {
       setNome(organizacao.nome_organizacao || '')
-      setSubdominio(organizacao.subdominio_organizacao || '')
-      setErroSub('')
       setCnpj('')
       setEstado('')
       setCidade('')
@@ -120,26 +111,15 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     }
   }, [aberto, organizacao])
 
-  function handleSubChange(v: string) {
-    const clean = slugify(v)
-    setSubdominio(clean)
-    if (clean && !/^[a-z][a-z0-9-]*$/.test(clean)) {
-      setErroSub(t('admin.testes-gerais.org.subdominio_erro'))
-    } else {
-      setErroSub('')
-    }
-  }
-
   const dirty = !!(
     nome !== (organizacao?.nome_organizacao || '') ||
-    subdominio !== (organizacao?.subdominio_organizacao || '') ||
     cnpj !== '' ||
     estado !== '' ||
     cidade !== '' ||
     segmento !== '' ||
     tipoEmpresa !== ''
   )
-  const podesSalvar = !!nome.trim() && !!subdominio.trim() && !erroSub
+  const podesSalvar = !!nome.trim()
 
   function handleSalvar() {
     if (!podesSalvar) return
@@ -290,57 +270,28 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_subdominio')} obrigatorio>
-                <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
-                  <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
-                    <Globe size={16} />
-                    <input
-                      value={subdominio}
-                      placeholder={t('admin.testes-gerais.org.campo_subdominio_placeholder')}
-                      onChange={e => handleSubChange(e.target.value)}
-                      style={{ borderRadius: '8px 0 0 8px', borderRight: 'none', width: '100%', height: '100%' }}
-                    />
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '0 0.875rem',
-                    background: 'var(--ws-surface)',
-                    border: '1px solid var(--ws-accent-border)',
-                    borderLeft: 'none',
-                    borderRadius: '0 8px 8px 0',
-                    color: 'var(--ws-muted)',
-                    fontSize: '0.8125rem',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    height: '40px',
-                  }}>
-                    .gravity.com.br
-                  </div>
+              <CampoGeralGlobal
+                label={t('admin.testes-gerais.org.campo_subdominio')}
+                tooltipTitulo="Subdomínio gerado pelo sistema"
+                tooltipDescricao="Subdomínio é gerado pela plataforma na criação e não pode ser alterado depois — URLs já em uso por usuários, integrações e webhooks dependem dele."
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 0.875rem',
+                  background: 'var(--ws-surface)',
+                  border: '1px solid var(--ws-accent-border)',
+                  borderRadius: '8px',
+                  height: '40px',
+                  fontSize: '0.8125rem',
+                  fontFamily: 'monospace',
+                  opacity: 0.85,
+                }}>
+                  <Globe size={16} style={{ marginRight: '0.5rem', color: 'var(--ws-muted)' }} />
+                  <strong style={{ color: 'var(--ws-accent)' }}>
+                    {subdominio}<span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>.usegravity.com.br</span>
+                  </strong>
                 </div>
-
-                {erroSub && (
-                  <p style={{
-                    fontSize: '0.75rem',
-                    color: '#f87171',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    margin: '0.375rem 0 0',
-                  }}>
-                    <Warning size={12} weight="bold" />
-                    {erroSub}
-                  </p>
-                )}
-
-                {subdominio && !erroSub && (
-                  <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', margin: '0.375rem 0 0' }}>
-                    URL:{' '}
-                    <strong style={{ color: 'var(--ws-accent)' }}>
-                      {subdominio}.gravity.com.br
-                    </strong>
-                  </p>
-                )}
               </CampoGeralGlobal>
             </div>
           </div>

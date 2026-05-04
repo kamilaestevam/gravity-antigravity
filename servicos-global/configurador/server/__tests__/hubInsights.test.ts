@@ -25,8 +25,8 @@ vi.mock('../lib/prisma.js', () => ({ prisma: prismaMock }))
 
 // Mock tenantService
 const tenantServiceMock = {
-  getTenantById: vi.fn().mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' }),
-  getCompanies: vi.fn().mockResolvedValue([]),
+  getOrganizacaoById: vi.fn().mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' }),
+  getWorkspaces: vi.fn().mockResolvedValue([]),
 }
 
 vi.mock('../services/organizacaoService.js', () => ({ organizacaoService: tenantServiceMock }))
@@ -84,8 +84,8 @@ beforeEach(() => {
   prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([])
   prismaMock.user.findUnique.mockResolvedValue(null)
   prismaMock.user.update.mockResolvedValue(null)
-  tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' })
-  tenantServiceMock.getCompanies.mockResolvedValue([])
+  tenantServiceMock.getOrganizacaoById.mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' })
+  tenantServiceMock.getWorkspaces.mockResolvedValue([])
 
   // Default: all product fetches fail (resilience test)
   fetchMock.mockRejectedValue(new Error('service unavailable'))

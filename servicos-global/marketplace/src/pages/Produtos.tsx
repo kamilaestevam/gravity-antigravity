@@ -71,7 +71,7 @@ const PRODUCTS = [
 
 export function Produtos() {
   const { t } = useTranslation()
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   return (
     <div>

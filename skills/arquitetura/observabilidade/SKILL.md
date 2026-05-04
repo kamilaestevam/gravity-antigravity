@@ -335,6 +335,28 @@ auditLog({
 
 Para registrar automaticamente todas as mutações HTTP (POST/PUT/PATCH/DELETE) sem mexer em cada rota, use o `createProductAuditPlugin` do `@gravity/historico/product-audit-plugin`. Aplica antes do `app.use(routes)` e captura o `res.json()` para emitir audit.
 
+Para routers Express já protegidos por `requireAuth`/`requireGravityAdmin` (ex.: `/api/v1/admin/*`), use o `auditMiddleware` de `historico-global/server/middleware/audit.ts` — recebe `req.auth` populado e captura ator/IP/método/status/body redatado.
+
+#### `auditMiddleware` — sanitização obrigatória (atualizado 2026-05-03)
+
+A interface aceita `sensitiveFields?: readonly string[]` e `captureBody?: boolean`. Sem `sensitiveFields`, aplica `DEFAULT_SENSITIVE_FIELDS` (password, senha, token, secret, api_key, apiKey, authorization, webhook_secret, webhookSecret, chave_api, clerk_secret, clerkSecret) — match case-insensitive, recursivo em objetos aninhados e arrays. Conforme skill `seguranca/seguranca-5-camadas` (camada 5).
+
+```ts
+adminRouter.use(auditMiddleware({
+  modulo_historico_log: 'admin',
+  tipo_recurso_historico_log: 'admin_action',   // fallback
+  acao_historico_log: 'ADMIN_ACTION',
+  tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
+  resourceTypeFromPath: (req) => deriveResource(req.path), // opcional, precedência sobre o estático
+  // sensitiveFields: ['cpf', ...DEFAULT_SENSITIVE_FIELDS], // estender se necessário
+  // captureBody: false,  // omite estado_posterior_historico_log
+}))
+```
+
+Para passar lista customizada **somando** ao default, espalhar `[...DEFAULT_SENSITIVE_FIELDS, 'cpf']`. Se passar lista nova, ela substitui o default — atenção a regressão.
+
+Implementação de referência: `servicos-global/configurador/server/routes/admin.ts` (mount em `/api/v1/admin/*`).
+
 ---
 
 ## Checklist — Ao Criar um Novo Servidor

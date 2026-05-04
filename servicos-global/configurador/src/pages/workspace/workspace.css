@@ -128,28 +128,29 @@ body.light-theme .em-identity__sep {
   color: rgba(0, 0, 0, 0.25);
 }
 
-/* Subdomínio na tabela — visível no claro */
+/* Subdomínio na tabela — herda o fundo da linha (sem chip/quadrado) */
 .ws-subdominio-code {
   font-size: 0.8125rem;
-  padding: 0.125rem 0.4rem;
-  border-radius: 4px;
+  padding: 0;
+  border-radius: 0;
   color: #c7d2fe;
-  background: rgba(199, 210, 254, 0.1);
-  transition: background 0.15s, color 0.15s;
+  background: transparent;
+  transition: color 0.15s;
   cursor: pointer;
 }
 
 .ws-subdominio-code:hover {
-  background: rgba(199, 210, 254, 0.2);
+  color: #e0e7ff;
+  text-decoration: underline;
 }
 
 body.light-theme .ws-subdominio-code {
   color: #4338ca;
-  background: rgba(79, 70, 229, 0.08);
+  background: transparent;
 }
 
 body.light-theme .ws-subdominio-code:hover {
-  background: rgba(79, 70, 229, 0.14);
+  color: #3730a3;
 }
 
 /* Tooltip no claro */

@@ -34,7 +34,7 @@ A nomenclatura DDD vale para **todo artefato nomeável** do projeto:
 | **Tabelas/Models** | `Organizacao`, `PedidoItem`, `AssinaturaProdutoGravity` |
 | **Campos/Colunas** | `id_organizacao`, `data_criacao_pedido`, `tipo_usuario` |
 | **Relations Prisma** | `usuarios`, `workspaces`, `assinaturas` |
-| **Enums (nome)** | `UsuarioTipo`, `OrganizacaoStatus`, `FaturaStatusGravity` |
+| **Enums (nome)** | `UsuarioTipo`, `OrganizacaoStatus`, `StatusFaturaProdutoGravity` |
 | **Rotas/Endpoints** | `/organizacoes`, `/usuarios/:id_usuario/permissoes` |
 | **Schemas Zod** | `OrganizacaoSchema`, `ConvidarUsuarioSchema` |
 | **Funções/Métodos** | `criarOrganizacao()`, `validarPermissoes()` |
@@ -202,7 +202,7 @@ Em dúvida → **traduz literal**.
 
 ### REGRA 7 — Enums
 
-- **Nome do enum:** PascalCase em PT-BR (`UsuarioTipo`, `OrganizacaoStatus`, `FaturaStatusGravity`).
+- **Nome do enum:** PascalCase em PT-BR (`UsuarioTipo`, `OrganizacaoStatus`, `StatusFaturaProdutoGravity`).
 - **Valores do enum:** **mantém em inglês UPPER_SNAKE** (`ACTIVE`, `SUSPENDED`, `MASTER`, `STANDARD`).
 
 **Por que valores em inglês:** são constantes técnicas armazenadas no banco, não labels de UI. Tradução para o usuário final vai no i18n.

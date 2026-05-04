@@ -453,18 +453,32 @@ exports.Prisma.TestePlanoScalarFieldEnum = {
 };
 
 exports.Prisma.ProdutoGravityFaturaScalarFieldEnum = {
-  id_fatura_produtos_gravity: 'id_fatura_produtos_gravity',
-  id_organizacao_fatura_produtos_gravity: 'id_organizacao_fatura_produtos_gravity',
-  numero_fatura_produtos_gravity: 'numero_fatura_produtos_gravity',
-  status_fatura_produtos_gravity: 'status_fatura_produtos_gravity',
-  nome_organizacao_fatura_produtos_gravity: 'nome_organizacao_fatura_produtos_gravity',
-  email_organizacao_fatura_produtos_gravity: 'email_organizacao_fatura_produtos_gravity',
-  valor_total_fatura_produtos_gravity: 'valor_total_fatura_produtos_gravity',
-  moeda_fatura_produtos_gravity: 'moeda_fatura_produtos_gravity',
-  competencia_fatura_produtos_gravity: 'competencia_fatura_produtos_gravity',
-  data_fatura_produtos_gravity: 'data_fatura_produtos_gravity',
-  data_criacao_fatura_produtos_gravity: 'data_criacao_fatura_produtos_gravity',
-  data_atualizacao_fatura_produtos_gravity: 'data_atualizacao_fatura_produtos_gravity'
+  id_fatura_produto_gravity: 'id_fatura_produto_gravity',
+  id_organizacao: 'id_organizacao',
+  numero_fatura_produto_gravity: 'numero_fatura_produto_gravity',
+  status_fatura_produto_gravity: 'status_fatura_produto_gravity',
+  nome_organizacao_fatura_produto_gravity: 'nome_organizacao_fatura_produto_gravity',
+  email_organizacao_fatura_produto_gravity: 'email_organizacao_fatura_produto_gravity',
+  valor_total_fatura_produto_gravity: 'valor_total_fatura_produto_gravity',
+  moeda_fatura_produto_gravity: 'moeda_fatura_produto_gravity',
+  competencia_fatura_produto_gravity: 'competencia_fatura_produto_gravity',
+  data_fatura_produto_gravity: 'data_fatura_produto_gravity',
+  data_criacao_fatura_produto_gravity: 'data_criacao_fatura_produto_gravity',
+  data_atualizacao_fatura_produto_gravity: 'data_atualizacao_fatura_produto_gravity'
+};
+
+exports.Prisma.ProdutoGravityFaturaItemScalarFieldEnum = {
+  id_fatura_item_produto_gravity: 'id_fatura_item_produto_gravity',
+  id_organizacao: 'id_organizacao',
+  id_fatura_produto_gravity: 'id_fatura_produto_gravity',
+  id_produto_gravity: 'id_produto_gravity',
+  descricao_fatura_item_produto_gravity: 'descricao_fatura_item_produto_gravity',
+  quantidade_fatura_item_produto_gravity: 'quantidade_fatura_item_produto_gravity',
+  valor_unitario_fatura_item_produto_gravity: 'valor_unitario_fatura_item_produto_gravity',
+  valor_total_fatura_item_produto_gravity: 'valor_total_fatura_item_produto_gravity',
+  moeda_fatura_item_produto_gravity: 'moeda_fatura_item_produto_gravity',
+  data_criacao_fatura_item_produto_gravity: 'data_criacao_fatura_item_produto_gravity',
+  data_atualizacao_fatura_item_produto_gravity: 'data_atualizacao_fatura_item_produto_gravity'
 };
 
 exports.Prisma.LLMMetricasScalarFieldEnum = {
@@ -584,7 +598,7 @@ exports.DeployStatus = exports.$Enums.DeployStatus = {
   EM_ANDAMENTO: 'EM_ANDAMENTO'
 };
 
-exports.FaturaStatusGravity = exports.$Enums.FaturaStatusGravity = {
+exports.StatusFaturaProdutoGravity = exports.$Enums.StatusFaturaProdutoGravity = {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',
   PAID: 'PAID',
@@ -616,6 +630,7 @@ exports.Prisma.ModelName = {
   TesteAgendamento: 'TesteAgendamento',
   TestePlano: 'TestePlano',
   ProdutoGravityFatura: 'ProdutoGravityFatura',
+  ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
   LLMMetricas: 'LLMMetricas'
 };
 

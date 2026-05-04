@@ -272,7 +272,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     },
     {
       key: 'subdominio_workspace', label: t('admin.organizacao_detalhe.workspaces.subdominio'), tipo: 'texto',
-      render: (v) => <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{v as string}.gravity.com.br</code>
+      render: (v) => <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{v as string}.usegravity.com.br</code>
     },
     {
       key: 'status_workspace', label: t('admin.organizacao_detalhe.workspaces.status'), tipo: 'texto',
@@ -308,7 +308,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         <CabecalhoGlobal
           icone={<ShieldCheck weight="duotone" size={22} color="#34d399" />}
           titulo={`Painel de Auditoria — ${organizacao.nome_organizacao}`}
-          subtitulo={`Visão forense completa da organização ${organizacao.subdominio_organizacao}.gravity.com.br • ID: ${organizacao.id_organizacao}`}
+          subtitulo={`Visão forense completa da organização ${organizacao.subdominio_organizacao}.usegravity.com.br • ID: ${organizacao.id_organizacao}`}
           acoes={
             <button
               onClick={onBack}

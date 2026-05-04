@@ -39,7 +39,7 @@ function makeMeResponse(tipoUsuario: string) {
     usuario: {
       id_usuario:             'usr_badge_test',
       nome_usuario:           'Badge Tester',
-      email_usuario:          'badge@gravity.com.br',
+      email_usuario:          'badge@usegravity.com.br',
       tipo_usuario:           tipoUsuario,
       id_organizacao_usuario: 'ten_badge',
       preferred_company_id:   null,

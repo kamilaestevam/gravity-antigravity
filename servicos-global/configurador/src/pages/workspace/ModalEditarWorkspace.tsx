@@ -7,7 +7,6 @@ import {
   Warning,
   CalendarBlank,
   MapPin,
-  Tag,
   Link,
   Package
 } from '@phosphor-icons/react'
@@ -16,8 +15,9 @@ import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import type { Empresa } from './Workspaces'
+import type { Workspace } from './Workspaces'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
 
 // ─── Constantes ─────────────────────────────────────────────────────────────
 
@@ -47,15 +47,9 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-// ─── Helper ─────────────────────────────────────────────────────────────────
-
-function slugify(v: string) {
-  return v
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
+// ─── Helpers ────────────────────────────────────────────────────────────────
+// Slugify foi removido — o sistema gera o subdomínio (rota /me/sugestoes-subdominio)
+// e o usuário não edita o campo. Política central definida em organizacaoService.ts.
 
 function formatarCNPJ(v: string) {
   const digits = v.replace(/\D/g, '').slice(0, 14)
@@ -66,31 +60,35 @@ function formatarCNPJ(v: string) {
   return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
 }
 
-// ─── Aba: Informações (campos editáveis) ──────────────────────────────────────
+// ─── Aba: Informações ──────────────────────────────────────────────────────
 
 function AbaInformacoes({
-  empresa,
-  nome,
-  subdominio,
-  erroSub,
+  workspace,
+  nome_workspace,
+  subdominio_workspace,
+  subdominioCarregando,
+  subdominioAjustado,
+  subdominioSolicitado,
+  subdominioErro,
   onNome,
-  onSub,
-  onDadoExtend,
+  onCampoExtra,
   cidades,
   carregandoCidades
 }: {
-  empresa: Partial<Empresa>
-  nome: string
-  subdominio: string
-  erroSub: string
+  workspace: Partial<Workspace>
+  nome_workspace: string
+  subdominio_workspace: string
+  subdominioCarregando: boolean
+  subdominioAjustado: boolean
+  subdominioSolicitado: string
+  subdominioErro: string | null
   onNome: (v: string) => void
-  onSub: (v: string) => void
-  onDadoExtend: (key: string, v: string) => void
+  onCampoExtra: (key: keyof Workspace, v: string) => void
   cidades: SelectOpcao[]
   carregandoCidades: boolean
 }) {
   const { t } = useTranslation()
-  const ehNovo = !empresa.id
+  const ehNovo = !workspace.id_workspace
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -115,30 +113,30 @@ function AbaInformacoes({
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
-                border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                background: workspace.status_workspace === 'ATIVO' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                color: workspace.status_workspace === 'ATIVO' ? '#34d399' : '#f87171',
+                border: `1px solid ${workspace.status_workspace === 'ATIVO' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
               }}>
-                {empresa.status}
+                {workspace.status_workspace === 'ATIVO' ? 'Ativa' : 'Suspensa'}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <CalendarBlank size={14} />
-                <span>Criado em {empresa.criadaEm}</span>
+                <span>Criado em {workspace.data_criacao_workspace}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <Buildings size={14} />
-                <span>{empresa.organizacao || 'Gravity Principal'}</span>
+                <span>{workspace.nome_organizacao || 'Gravity Principal'}</span>
               </div>
             </div>
           )}
         </div>
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <CampoGeralGlobal label={t('workspace.organization.campo_nome')} obrigatorio>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_nome')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
-                  value={nome}
+                  value={nome_workspace}
                   placeholder="Ex: Acme Logística SP"
                   onChange={e => onNome(e.target.value)}
                   style={{ width: '100%' }}
@@ -149,13 +147,13 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <CampoGeralGlobal label={t('workspace.organization.campo_cnpj')}>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_cnpj')}>
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
-                  value={empresa.cnpj || ''}
+                  value={workspace.cnpj_workspace || ''}
                   placeholder="00.000.000/0000-00"
-                  onChange={e => onDadoExtend('cnpj', formatarCNPJ(e.target.value))}
+                  onChange={e => onCampoExtra('cnpj_workspace', formatarCNPJ(e.target.value))}
                   style={{ width: '100%' }}
                 />
               </div>
@@ -163,12 +161,12 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <CampoGeralGlobal label={t('workspace.organization.campo_segmento')}>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Package size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
-                valor={empresa.segmento || null}
-                aoMudarValor={(v: string | number | null) => onDadoExtend('segmento', String(v ?? ''))}
+                valor={workspace.segmento_workspace || null}
+                aoMudarValor={(v: string | number | null) => onCampoExtra('segmento_workspace', String(v ?? ''))}
                 placeholder="Selecione..."
                 buscavel
               />
@@ -176,14 +174,14 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <CampoGeralGlobal label={t('workspace.organization.campo_estado')}>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
-                valor={empresa.estado || null}
+                valor={workspace.estado_workspace || null}
                 aoMudarValor={(v: string | number | null) => {
-                  onDadoExtend('estado', String(v ?? ''))
-                  onDadoExtend('cidade', '')
+                  onCampoExtra('estado_workspace', String(v ?? ''))
+                  onCampoExtra('cidade_workspace', '')
                 }}
                 placeholder="Ex: SP"
                 buscavel
@@ -192,15 +190,15 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <CampoGeralGlobal label={t('workspace.organization.campo_cidade')}>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
-                valor={empresa.cidade || null}
-                aoMudarValor={v => onDadoExtend('cidade', String(v ?? ''))}
-                placeholder={empresa.estado ? "Ex: São Paulo" : "Selecione o estado..."}
+                valor={workspace.cidade_workspace || null}
+                aoMudarValor={v => onCampoExtra('cidade_workspace', String(v ?? ''))}
+                placeholder={workspace.estado_workspace ? "Ex: São Paulo" : "Selecione o estado..."}
                 buscavel
-                desabilitado={!empresa.estado}
+                desabilitado={!workspace.estado_workspace}
                 carregando={carregandoCidades}
               />
             </CampoGeralGlobal>
@@ -216,13 +214,13 @@ function AbaInformacoes({
         />
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <CampoGeralGlobal label={t('workspace.organization.campo_site')}>
+            <CampoGeralGlobal label={t('workspace.organizacao.campo_site')}>
               <div className="ws-input-icon-wrap">
                 <Link size={16} />
                 <input
-                  value={empresa.site || ''}
+                  value={workspace.site_workspace || ''}
                   placeholder="Ex: https://www.acme.com.br"
-                  onChange={e => onDadoExtend('site', e.target.value)}
+                  onChange={e => onCampoExtra('site_workspace', e.target.value)}
                   style={{ width: '100%' }}
                 />
               </div>
@@ -230,38 +228,38 @@ function AbaInformacoes({
           </div>
 
           <div style={{ gridColumn: '1 / -1' }}>
-            <CampoGeralGlobal label={t('workspace.workspaces.campo_subdominio')} obrigatorio>
-              <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
-                <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
-                  <Globe size={16} />
-                  <input
-                    value={subdominio}
-                    placeholder="Ex: acme-logistica-sp"
-                    onChange={e => onSub(slugify(e.target.value))}
-                    disabled={ehNovo}
-                    style={{ borderRadius: '8px 0 0 8px', borderRight: 'none', width: '100%', height: '100%', cursor: ehNovo ? 'not-allowed' : 'text', opacity: ehNovo ? 0.7 : 1 }}
-                  />
-                </div>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 0.875rem',
-                  background: 'var(--ws-surface)',
-                  border: '1px solid var(--ws-accent-border)',
-                  borderLeft: 'none',
-                  borderRadius: '0 8px 8px 0',
-                  color: 'var(--ws-muted)',
-                  fontSize: '0.8125rem',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  height: '40px',
-                }}>
-                  .gravity.com.br
-                </div>
+            <CampoGeralGlobal
+              label={t('workspace.workspaces.campo_subdominio')}
+              tooltipTitulo="Subdomínio gerado pelo sistema"
+              tooltipDescricao="A plataforma gera automaticamente um subdomínio único a partir do nome do workspace. Você não precisa escolher — se já existir, o sistema adiciona um sufixo numérico (-2, -3...)."
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 0.875rem',
+                background: 'var(--ws-surface)',
+                border: '1px solid var(--ws-accent-border)',
+                borderRadius: '8px',
+                height: '40px',
+                color: 'var(--ws-text)',
+                fontSize: '0.8125rem',
+                fontFamily: 'monospace',
+              }}>
+                <Globe size={16} style={{ marginRight: '0.5rem', color: 'var(--ws-muted)' }} />
+                {subdominioCarregando ? (
+                  <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>gerando…</span>
+                ) : subdominio_workspace ? (
+                  <strong style={{ color: 'var(--ws-accent)' }}>
+                    {subdominio_workspace}<span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>.usegravity.com.br</span>
+                  </strong>
+                ) : (
+                  <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>
+                    {ehNovo ? 'Digite o nome para gerar o subdomínio' : '—'}
+                  </span>
+                )}
               </div>
 
-              {/* Erro de validação */}
-              {erroSub && (
+              {subdominioErro && (
                 <p style={{
                   fontSize: '0.75rem',
                   color: '#f87171',
@@ -271,17 +269,21 @@ function AbaInformacoes({
                   margin: '0.375rem 0 0',
                 }}>
                   <Warning size={12} weight="bold" />
-                  {erroSub}
+                  {subdominioErro}
                 </p>
               )}
 
-              {/* Preview da URL */}
-              {subdominio && !erroSub && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', margin: '0.375rem 0 0' }}>
-                  URL:{' '}
-                  <strong style={{ color: 'var(--ws-accent)' }}>
-                    {subdominio}.gravity.com.br
-                  </strong>
+              {ehNovo && subdominioAjustado && !subdominioErro && subdominio_workspace && (
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: '#fbbf24',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  margin: '0.375rem 0 0',
+                }}>
+                  <Warning size={12} weight="bold" />
+                  Subdomínio <code>{subdominioSolicitado}</code> já estava em uso. Ajustamos para <code>{subdominio_workspace}</code>.
                 </p>
               )}
             </CampoGeralGlobal>
@@ -293,74 +295,69 @@ function AbaInformacoes({
   )
 }
 
-// ─── Modal principal ───────────────────────────────────────────────────────────
+// ─── Modal principal ───────────────────────────────────────────────────────
 
 export interface ModalEditarWorkspaceProps {
-  empresa: Empresa | null // Se id sumir, vira criação
+  workspace: Workspace | null // Se id_workspace ausente, vira criação
   aberto: boolean
   aoFechar: () => void
-  aoSalvar: (dados: Partial<Empresa>) => void
+  aoSalvar: (dados: Partial<Workspace>) => void
 }
 
 export function ModalEditarWorkspace({
-  empresa,
+  workspace,
   aberto,
   aoFechar,
   aoSalvar,
 }: ModalEditarWorkspaceProps) {
   const { t } = useTranslation()
-  const [nome, setNome]         = useState('')
-  const [sub, setSub]           = useState('')
-  const [erroSub, setErroSub]   = useState('')
-  const [extendData, setExtendData] = useState<Partial<Empresa>>({})
-  const [manualSub, setManualSub] = useState(false)
-  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(extendData.estado ?? '')
+  const [nome, setNome]           = useState('')
+  const [extraData, setExtraData] = useState<Partial<Workspace>>({})
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(extraData.estado_workspace ?? '')
+
+  const ehNovo = !workspace?.id_workspace
+
+  // Hook de sugestão de subdomínio (sistema gera; usuário não escolhe).
+  // Em CRIAÇÃO: pede ao backend o subdomínio que seria atribuído baseado no nome.
+  // Em EDIÇÃO: usa o subdomínio existente do workspace (read-only, sem regerar).
+  const sug = useSugerirSubdominio(nome, { enabled: ehNovo })
+  const subExibido = ehNovo ? sug.sugestao : (workspace?.subdominio_workspace || '')
 
   // Preenche os campos ao abrir
   useEffect(() => {
     if (aberto) {
-      if (empresa) {
-        setNome(empresa.nome || '')
-        setSub(empresa.subdominio || '')
-        setErroSub('')
-        setExtendData(empresa)
+      if (workspace) {
+        setNome(workspace.nome_workspace || '')
+        setExtraData(workspace)
       } else {
         setNome('')
-        setSub('')
-        setErroSub('')
-        setExtendData({})
-        setManualSub(false)
+        setExtraData({})
       }
     }
-  }, [aberto, empresa?.id])
+  }, [aberto, workspace?.id_workspace])
 
-  function handleSubChange(v: string) {
-    const clean = slugify(v)
-    setSub(clean)
-    if (clean && !/^[a-z][a-z0-9-]*$/.test(clean)) {
-      setErroSub('Use apenas letras minúsculas e hífens.')
-    } else {
-      setErroSub('')
-    }
-  }
-
-  const ehNovo = !empresa?.id
-  const dirty = ehNovo 
-    ? (nome.trim().length > 0 || sub.trim().length > 0)
+  const dirty = ehNovo
+    ? nome.trim().length > 0
     : (
-      nome.trim() !== empresa?.nome ||
-      sub.trim()  !== empresa?.subdominio ||
-      ['cnpj', 'estado', 'cidade', 'segmento', 'site'].some(k => extendData[k as keyof Empresa] !== empresa?.[k as keyof Empresa])
+      nome.trim() !== workspace?.nome_workspace ||
+      (['cnpj_workspace', 'estado_workspace', 'cidade_workspace', 'segmento_workspace', 'site_workspace'] as Array<keyof Workspace>)
+        .some(k => extraData[k] !== workspace?.[k])
     )
-    
-  const podesSalvar = !!nome.trim() && !!sub.trim() && !erroSub
+
+  const podesSalvar = ehNovo
+    ? !!nome.trim() && !!sug.sugestao && !sug.carregando && !sug.erro
+    : !!nome.trim()
 
   function handleSalvar() {
     if (!podesSalvar) return
-    aoSalvar({ 
-      ...extendData,
-      nome: nome.trim(), 
-      subdominio: sub.trim()
+    aoSalvar({
+      ...extraData,
+      nome_workspace: nome.trim(),
+      // Em criação envia o subdomínio sugerido como base. Em edição, mantém o
+      // existente (não enviamos para evitar regeneração indevida).
+      ...(ehNovo
+        ? { subdominio_workspace: sug.sugestao }
+        : {}),
     })
   }
 
@@ -370,27 +367,21 @@ export function ModalEditarWorkspace({
       rotulo: t('workspace.workspaces.aba_informacoes_gerais'),
       conteudo: (
         <AbaInformacoes
-          empresa={{...extendData, id: empresa?.id, nome, subdominio: sub}}
-          nome={nome}
-          subdominio={sub}
-          erroSub={erroSub}
-          onNome={(v) => {
-            setNome(v)
-            if (ehNovo && !manualSub) {
-              handleSubChange(v)
-            }
-          }}
-          onSub={(v) => {
-            setManualSub(true)
-            handleSubChange(v)
-          }}
-          onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
+          workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
+          nome_workspace={nome}
+          subdominio_workspace={subExibido}
+          subdominioCarregando={ehNovo && sug.carregando}
+          subdominioAjustado={ehNovo && sug.ajustado}
+          subdominioSolicitado={ehNovo ? sug.solicitado : ''}
+          subdominioErro={ehNovo ? sug.erro : null}
+          onNome={(v) => setNome(v)}
+          onCampoExtra={(k, v) => setExtraData(p => ({ ...p, [k]: v }))}
           cidades={cidades}
           carregandoCidades={carregandoCidades}
         />
       )
     }
-  ], [extendData, empresa?.id, nome, sub, erroSub, cidades, carregandoCidades])
+  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo])
 
   return (
     <>
@@ -399,7 +390,7 @@ export function ModalEditarWorkspace({
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings weight="duotone" size={24} />}
-      titulo={ehNovo ? (nome || t('workspace.workspaces.novo_workspace')) : (empresa?.nome ?? '')}
+      titulo={ehNovo ? (nome || t('workspace.workspaces.novo_workspace')) : (workspace?.nome_workspace ?? '')}
       subtitulo={ehNovo ? t('workspace.workspaces.modal_novo_subtitulo') : t('workspace.workspaces.modal_editar_subtitulo')}
       dirty={!!dirty}
       podesSalvar={podesSalvar}

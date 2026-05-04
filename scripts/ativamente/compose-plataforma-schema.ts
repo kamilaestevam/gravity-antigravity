@@ -53,6 +53,7 @@ const SERVICOS_ORGANIZACAO: string[] = [
   'processos-core',  // Pedido, PedidoItem, Processo, PedidoStatus, PedidoColuna, PedidoPreferencias
   'ncm-sync',        // NcmItem, NcmSyncLog — tabela NCM Portal Único Siscomex
   'notificacoes',    // Notification, NotificationPreferences — sininho do header
+  'api-cockpit',     // ApiToken, WebhookConfiguracao, WebhookLog, LogConsumo, ApiIntegracaoErp
 ]
 
 // ---------------------------------------------------------------------------

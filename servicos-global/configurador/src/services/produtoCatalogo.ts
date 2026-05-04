@@ -43,7 +43,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'dash',
     nome: 'Dashboard Global',
     descricao: 'Indicadores consolidados, KPIs e widgets de performance em tempo real para o workspace.',
-    baseUrl: 'https://api.gravity.com.br/dashboard/v1',
+    baseUrl: 'https://api.usegravity.com.br/dashboard/v1',
     versao: 'v1',
     cor: '#818cf8',
     endpoints: [
@@ -91,7 +91,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'ativ',
     nome: 'Gestão de Atividades',
     descricao: 'Criação, consulta e atualização de processos e tarefas dentro do workspace.',
-    baseUrl: 'https://api.gravity.com.br/atividades/v2',
+    baseUrl: 'https://api.usegravity.com.br/atividades/v2',
     versao: 'v2',
     cor: '#a78bfa',
     endpoints: [
@@ -149,7 +149,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'simcusto',
     nome: 'SimulaCusto',
     descricao: 'Motor de simulação tributária para importações — calcula II, IPI, PIS, COFINS e ICMS com base no NCM e origem.',
-    baseUrl: 'https://api.gravity.com.br/sim-custo/v1',
+    baseUrl: 'https://api.usegravity.com.br/sim-custo/v1',
     versao: 'v1',
     cor: '#34d399',
     endpoints: [
@@ -213,7 +213,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'gabi',
     nome: 'Gabi IA Assistant',
     descricao: 'Assistente de IA para análise de documentos de importação, classificação NCM e geração de relatórios.',
-    baseUrl: 'https://api.gravity.com.br/gabi/v1',
+    baseUrl: 'https://api.usegravity.com.br/gabi/v1',
     versao: 'v1',
     cor: '#f59e0b',
     endpoints: [
@@ -256,7 +256,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'nf-import',
     nome: 'NF Import',
     descricao: 'Emissão automática de NF-e e NF de serviço vinculada ao processo de importação, com integração à SEFAZ e geração de DANFE.',
-    baseUrl: 'https://api.gravity.com.br/nf-import/v1',
+    baseUrl: 'https://api.usegravity.com.br/nf-import/v1',
     versao: 'v1',
     cor: '#fb923c',
     endpoints: [
@@ -282,7 +282,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
   "chave_nfe": "35260312345678000195550010000012341234567890",
   "protocolo": "135260012345678",
   "status": "autorizado",
-  "danfe_url": "https://storage.gravity.com.br/danfe/35260...pdf"
+  "danfe_url": "https://storage.usegravity.com.br/danfe/35260...pdf"
 }`,
       },
       {
@@ -323,7 +323,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
           { nome: 'chave', tipo: 'string (44 dígitos)', descricao: 'Chave de acesso da NF-e', obrigatorio: true },
         ],
         responseBody: `{
-  "danfe_url": "https://storage.gravity.com.br/danfe/35260...pdf",
+  "danfe_url": "https://storage.usegravity.com.br/danfe/35260...pdf",
   "expira_em": "2026-03-26T10:00:00Z"
 }`,
       },
@@ -335,7 +335,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'bid-frete',
     nome: 'BID Frete Internacional',
     descricao: 'Licitação inteligente de fretes internacionais. Solicite, compare e aprove cotações de múltiplos fornecedores.',
-    baseUrl: 'https://api.gravity.com.br/bid-frete/v1',
+    baseUrl: 'https://api.usegravity.com.br/bid-frete/v1',
     versao: 'v1',
     cor: '#34d399',
     endpoints: [
@@ -474,7 +474,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
     id: 'bid-cambio',
     nome: 'BID Cambio',
     descricao: 'Gestão e cotação de câmbio comercial para operações de COMEX',
-    baseUrl: 'https://api.gravity.com.br/bid-cambio/v1',
+    baseUrl: 'https://api.usegravity.com.br/bid-cambio/v1',
     versao: 'v1',
     cor: '#22c55e',
     endpoints: [

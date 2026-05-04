@@ -33,6 +33,54 @@ interface UpdateWorkspaceInput {
   status_workspace?: 'ATIVO' | 'INATIVO'
 }
 
+// ─── Geração de subdomínio cross-tabela ─────────────────────────────────────
+// Política de unicidade global (decisão 2026-05-03): subdomínio é único across
+// `organizacao.subdominio_organizacao` E `workspace.subdominio_workspace`.
+// O usuário não escolhe — o sistema gera a partir do nome via slugify e
+// auto-suffix `-2`, `-3`, ... até atingir um candidato disponível em ambas as
+// tabelas. Teto de 100 tentativas para evitar loop infinito em prefixos
+// extremamente populares.
+
+const TETO_TENTATIVAS_SUBDOMINIO = 100
+
+function slugifySubdominio(v: string): string {
+  return (v || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60)
+}
+
+/**
+ * Gera próximo subdomínio disponível a partir de uma base.
+ * Verifica colisão em AMBAS as tabelas (organizacao + workspace) — unicidade global.
+ *
+ * Race-safe: o create real captura P2002 e retenta com este helper. O probe
+ * inicial é otimização (90% dos casos não há colisão); a autoridade final é o
+ * `@unique` do Prisma.
+ */
+async function proximoSubdominioDisponivel(base: string): Promise<string> {
+  const slugBase = slugifySubdominio(base)
+  if (!slugBase) {
+    throw new AppError('Nome inválido para gerar subdomínio', 400, 'VALIDATION_ERROR')
+  }
+
+  for (let i = 0; i < TETO_TENTATIVAS_SUBDOMINIO; i++) {
+    const candidato = i === 0 ? slugBase : `${slugBase}-${i + 1}`
+    const [colideOrg, colideWs] = await Promise.all([
+      prisma.organizacao.findUnique({ where: { subdominio_organizacao: candidato }, select: { id_organizacao: true } }),
+      prisma.workspace.findUnique({ where: { subdominio_workspace: candidato }, select: { id_workspace: true } }),
+    ])
+    if (!colideOrg && !colideWs) return candidato
+  }
+
+  throw new AppError('Não foi possível gerar subdomínio único — escolha outro nome', 409, 'CONFLICT')
+}
+
+export { proximoSubdominioDisponivel, slugifySubdominio }
+
 export const organizacaoService = {
   /**
    * Cria uma nova organização + usuário owner via saga Cadastros-primeiro.
@@ -51,7 +99,7 @@ export const organizacaoService = {
   async createOrganizacao(input: CreateOrganizacaoInput) {
     const {
       nome_organizacao,
-      subdominio_organizacao,
+      subdominio_organizacao: subdominio_solicitado_raw,
       clerkUserId,
       owner,
       cnpj_organizacao,
@@ -60,16 +108,20 @@ export const organizacaoService = {
     } = input
 
     // 1. Pré-checks fora da transação (fail fast)
-    const existingSlug = await prisma.organizacao.findUnique({ where: { subdominio_organizacao } })
-    if (existingSlug) {
-      throw new AppError('Este slug já está em uso', 409, 'CONFLICT')
-    }
     const existingUser = await prisma.usuario.findFirst({
       where: { id_clerk_usuario: clerkUserId },
     })
     if (existingUser) {
       throw new AppError('Usuário já possui uma organização', 409, 'CONFLICT')
     }
+
+    // 1.b Resolve subdomínio via política central (cross-tabela + auto-suffix).
+    // Usa `subdominio_solicitado_raw` (vindo do frontend após slugify) como base;
+    // se não vier ou vier vazio, deriva do `nome_organizacao`.
+    const baseSubdominio = subdominio_solicitado_raw?.trim() || nome_organizacao
+    const subdominio_solicitado = slugifySubdominio(baseSubdominio)
+    const subdominio_organizacao = await proximoSubdominioDisponivel(baseSubdominio)
+    const subdominio_ajustado = subdominio_organizacao !== subdominio_solicitado
 
     // 2. Gera id_organizacao para poder registrar id_organizacao em Cadastros
     const novoIdOrganizacao = createId()
@@ -82,6 +134,8 @@ export const organizacaoService = {
       correlation_id: correlationId,
       id_organizacao: novoIdOrganizacao,
       subdominio_organizacao,
+      subdominio_solicitado,
+      subdominio_ajustado,
       pais,
     })
 
@@ -104,7 +158,10 @@ export const organizacaoService = {
     )
     const suid = empresaCadastros.suid_empresa
 
-    // 4. Transação local — se falhar, compensamos a Empresa em Cadastros
+    // 4. Transação local — se falhar, compensamos a Empresa em Cadastros.
+    // Workspace inicial recebe seu próprio subdomínio cross-tabela único (probe
+    // separado para evitar colisão com o subdomínio da própria organização).
+    const subdominio_workspace_inicial = await proximoSubdominioDisponivel(nome_organizacao)
     try {
       const organizacao = await prisma.$transaction(async (tx) => {
         const novaOrganizacao = await tx.organizacao.create({
@@ -142,6 +199,7 @@ export const organizacaoService = {
           data: {
             id_organizacao: novaOrganizacao.id_organizacao,
             nome_workspace: nome_organizacao,
+            subdominio_workspace: subdominio_workspace_inicial,
             status_workspace: 'ATIVO',
           },
         })
@@ -154,7 +212,11 @@ export const organizacaoService = {
         id_organizacao: novoIdOrganizacao,
         suid_empresa_organizacao: suid,
       })
-      return organizacao
+      // Anota metadados de subdomínio para a rota expor ao frontend.
+      return Object.assign(organizacao, {
+        subdominio_solicitado,
+        subdominio_ajustado,
+      })
     } catch (err) {
       const causa = err instanceof Error ? err.message : String(err)
       log.error('saga.onboarding.rollback', {
@@ -249,31 +311,68 @@ export const organizacaoService = {
 
   /**
    * Cria workspace na organização.
+   * Subdomínio gerado pelo sistema (cross-tabela único). Usa o nome do
+   * workspace como base; auto-suffix se houver colisão. Race-safe via captura
+   * de P2002 no `@unique`.
    */
   async createWorkspace(id_organizacao: string, data: CreateWorkspaceInput) {
-    const workspace = await prisma.workspace.create({
-      data: {
-        id_organizacao,
-        nome_workspace: data.nome_workspace,
-        subdominio_workspace: data.subdominio_workspace,
-        cnpj_workspace: data.cnpj_workspace,
-        status_workspace: 'ATIVO',
-      },
-      select: {
-        id_workspace: true,
-        id_organizacao: true,
-        nome_workspace: true,
-        subdominio_workspace: true,
-        cnpj_workspace: true,
-        status_workspace: true,
-        data_criacao_workspace: true,
-      },
-    })
-    return {
-      ...workspace,
-      quantidade_usuarios_workspace: 0,
-      _count: { vinculos_workspace: 0 },
+    const baseSub = data.subdominio_workspace?.trim() || data.nome_workspace
+    const subdominio_solicitado = slugifySubdominio(baseSub)
+
+    // Retry externo P2002: 2 tentativas. O helper interno já cobre 100
+    // candidatos sequenciais; o retry externo só serve para race condition
+    // rara (probe livre + outra request criou no mesmo nome entre probe e
+    // create). Mais que isso é cenário patológico que merece 409.
+    let tentativas = 0
+    let ultimoErro: unknown = null
+    while (tentativas < 2) {
+      const candidato = await proximoSubdominioDisponivel(baseSub)
+      try {
+        const workspace = await prisma.workspace.create({
+          data: {
+            id_organizacao,
+            nome_workspace: data.nome_workspace,
+            subdominio_workspace: candidato,
+            cnpj_workspace: data.cnpj_workspace,
+            status_workspace: 'ATIVO',
+          },
+          select: {
+            id_workspace: true,
+            id_organizacao: true,
+            nome_workspace: true,
+            subdominio_workspace: true,
+            cnpj_workspace: true,
+            status_workspace: true,
+            data_criacao_workspace: true,
+          },
+        })
+        return {
+          ...workspace,
+          quantidade_usuarios_workspace: 0,
+          _count: { vinculos_workspace: 0 },
+          subdominio_solicitado,
+          subdominio_ajustado: candidato !== subdominio_solicitado,
+        }
+      } catch (err) {
+        ultimoErro = err
+        // P2002 = unique constraint failed. Retenta com novo probe.
+        if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === 'P2002') {
+          tentativas++
+          continue
+        }
+        throw err
+      }
     }
+    log.error('createWorkspace.colisao_persistente', {
+      id_organizacao,
+      base: baseSub,
+      causa: ultimoErro instanceof Error ? ultimoErro.message : String(ultimoErro),
+    })
+    throw new AppError(
+      'Não foi possível criar workspace — colisão de subdomínio após retentativas',
+      409,
+      'CONFLICT',
+    )
   },
 
   /**

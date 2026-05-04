@@ -23,7 +23,7 @@ export function ExitIntentDrawer() {
     e.preventDefault()
     if (!email.trim()) return
     // Redireciona para o Configurador com email e sessão salva
-    const configuradorUrl = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+    const configuradorUrl = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
     setSent(true)
     setTimeout(() => {
       window.location.href = `${configuradorUrl}/trial?email=${encodeURIComponent(email)}&from=exit-intent`

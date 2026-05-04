@@ -354,7 +354,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
 
               <TooltipGlobal descricao={t('marketplace.onboarding.tooltip_iniciar_trial')}>
                 <a
-                  href={`${import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'}/trial?trial=true&profile=${profile?.toLowerCase()}`}
+                  href={`${import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'}/trial?trial=true&profile=${profile?.toLowerCase()}`}
                   className="btn btn-gradient"
                   id="onboarding-start-trial"
                   style={{ width: '100%', justifyContent: 'center' }}

@@ -20,6 +20,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
+import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacaoService.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
 import { join, resolve } from 'path'
@@ -289,21 +290,52 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.organizacao.findUnique({ where: { subdominio_organizacao: parsed.data.subdominio_organizacao } })
-    if (existing) throw new AppError('Subdomínio já está em uso', 409, 'CONFLICT')
+    // Sistema gera subdomínio (cross-tabela único, auto-suffix) — usuário não escolhe.
+    // O input do admin é tratado como base/hint (slug do nome se não vier).
+    const baseSub = parsed.data.subdominio_organizacao?.trim() || parsed.data.nome_organizacao
+    const subdominio_solicitado = slugifySubdominio(baseSub)
 
-    const tenant = await prisma.organizacao.create({
-      data: {
-        nome_organizacao: parsed.data.nome_organizacao.trim(),
-        subdominio_organizacao: parsed.data.subdominio_organizacao,
-        status_organizacao: 'ATIVO',
-        ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
-      },
-      select: {
-        id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
-        _count: { select: { users_organizacao: true, companies_organizacao: true } },
-      },
-    })
+    type TenantCriado = {
+      id_organizacao: string
+      nome_organizacao: string
+      subdominio_organizacao: string
+      status_organizacao: string
+      data_criacao_organizacao: Date
+      _count: { users_organizacao: number; companies_organizacao: number }
+    }
+    // Retry externo P2002: 2 tentativas (helper já cobre 100). Race rara.
+    let tentativas = 0
+    let tenant: TenantCriado | null = null
+    let subdominio_atribuido = ''
+    while (tentativas < 2 && !tenant) {
+      const candidato = await proximoSubdominioDisponivel(baseSub)
+      try {
+        tenant = await prisma.organizacao.create({
+          data: {
+            nome_organizacao: parsed.data.nome_organizacao.trim(),
+            subdominio_organizacao: candidato,
+            status_organizacao: 'ATIVO',
+            ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
+          },
+          select: {
+            id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
+            _count: { select: { users_organizacao: true, companies_organizacao: true } },
+          },
+        }) as TenantCriado
+        subdominio_atribuido = candidato
+      } catch (err) {
+        if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === 'P2002') {
+          tentativas++
+          continue
+        }
+        throw err
+      }
+    }
+    if (!tenant) {
+      throw new AppError('Não foi possível alocar subdomínio único — tente outro nome', 409, 'CONFLICT')
+    }
+
+    const subdominio_ajustado = subdominio_atribuido !== subdominio_solicitado
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -315,7 +347,7 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: tenant.id_organizacao,
       acao_historico_log: 'ORGANIZACAO_CRIADA',
-      detalhe_acao_historico_log: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
+      detalhe_acao_historico_log: `Organização "${tenant.nome_organizacao}" criada — subdomínio ${subdominio_ajustado ? `ajustado de ${subdominio_solicitado} para ${tenant.subdominio_organizacao}` : tenant.subdominio_organizacao}`,
       estado_posterior_historico_log: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
@@ -330,6 +362,8 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
           workspaces: _count.companies_organizacao,
         },
       },
+      subdominio_solicitado,
+      subdominio_ajustado,
     })
   } catch (err) {
     next(err)
@@ -1966,16 +2000,46 @@ function readSpecFileContent(logEntry: Record<string, unknown>): string {
   return ''
 }
 
-// ─── Test Schedules (CRUD) ──────────────────────────────────────────────────
+// ─── Agendamentos de Teste (CRUD) — model TesteAgendamento ──────────────────
+//
+// Schema Zod alinhado ao model Prisma `TesteAgendamento` (DDD final 2026-05-03):
+//   - frequencia/hora/minuto separados (não cron string)
+//   - tipos como objeto { uni, con, fun, cro, e2e, pen }
+//   - ambiente: string única
+//   - alertas: array de objetos completos
+//   - ativo: bool (mapeia para coluna `ativo_agendamento_teste`)
+//
+// Anteriormente o handler usava `prisma.testSchedule` (model legacy que não
+// existe mais) com optional chaining + `?? []` — falhava silenciosamente e
+// retornava sempre `[]`, fazendo o botão "Agendamento" do frontend ficar
+// sempre INATIVO mesmo após salvar.
+
+const TestesTiposSchema = z.object({
+  uni: z.boolean().optional(),
+  con: z.boolean().optional(),
+  fun: z.boolean().optional(),
+  cro: z.boolean().optional(),
+  e2e: z.boolean().optional(),
+  pen: z.boolean().optional(),
+})
+
+const TestesAlertaSchema = z.object({
+  id:       z.string().optional(),
+  nome:     z.string().min(1).max(200),
+  contato:  z.string().min(1).max(200),
+  condicao: z.string().max(50),
+  canal:    z.string().max(50),
+})
 
 const CreateScheduleSchema = z.object({
-  name:        z.string().min(1).max(200),
-  cron:        z.string().min(1).max(100),
-  planos:      z.array(z.string()).optional(),
-  modulos:     z.array(z.string()).optional(),
-  ambientes:   z.array(z.string()).optional(),
-  ativo:       z.boolean().default(true),
-  notificar:   z.boolean().default(true),
+  ativo:      z.boolean().default(false),
+  frequencia: z.enum(['Manual', 'Diario', 'Semanal']).default('Manual'),
+  hora:       z.coerce.number().int().min(0).max(23).default(0),
+  minuto:     z.coerce.number().int().min(0).max(59).default(0),
+  tipos:      TestesTiposSchema.default({}),
+  escopos:    z.array(z.string()).default([]),
+  ambiente:   z.enum(['Local', 'Staging', 'Producao']).default('Local'),
+  alertas:    z.array(TestesAlertaSchema).default([]),
 })
 
 const UpdateScheduleSchema = CreateScheduleSchema.partial()
@@ -1986,14 +2050,9 @@ const UpdateScheduleSchema = CreateScheduleSchema.partial()
  */
 adminRouter.get('/agendamentos-teste', async (_req, res, next) => {
   try {
-    let schedules: unknown[] = []
-    try {
-      schedules = await (prisma as any).testSchedule?.findMany?.({
-        orderBy: { created_at: 'desc' },
-      }) ?? []
-    } catch {
-      // Tabela não existe — retorna vazio
-    }
+    const schedules = await prisma.testeAgendamento.findMany({
+      orderBy: { data_criacao_agendamento_teste: 'desc' },
+    })
     res.json({ schedules })
   } catch (err) {
     next(err)
@@ -2002,7 +2061,7 @@ adminRouter.get('/agendamentos-teste', async (_req, res, next) => {
 
 /**
  * POST /api/v1/admin/agendamentos-teste
- * Cria um novo agendamento de testes (model TesteAgendamento).
+ * Cria um novo agendamento de testes.
  */
 adminRouter.post('/agendamentos-teste', async (req, res, next) => {
   try {
@@ -2015,38 +2074,18 @@ adminRouter.post('/agendamentos-teste', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    let schedule: unknown = null
-    try {
-      schedule = await (prisma as any).testSchedule?.create?.({
-        data: {
-          tenant_id: 'platform',
-          name:      parsed.data.name,
-          cron:      parsed.data.cron,
-          config:    JSON.stringify({
-            planos:    parsed.data.planos ?? [],
-            modulos:   parsed.data.modulos ?? [],
-            ambientes: parsed.data.ambientes ?? ['Local'],
-            notificar: parsed.data.notificar,
-          }),
-          is_active: parsed.data.ativo,
-        },
-      })
-    } catch {
-      // Fallback: persiste em arquivo JSON
-      const schedDir = join(process.cwd(), 'data', 'test-schedules')
-      mkdirSync(schedDir, { recursive: true })
-      const schedFile = join(schedDir, 'schedules.json')
-      const existing: unknown[] = existsSync(schedFile)
-        ? JSON.parse(readFileSync(schedFile, 'utf-8'))
-        : []
-      schedule = {
-        id: `sched-${Date.now()}`,
-        created_at: new Date().toISOString(),
-        ...parsed.data,
-      }
-      existing.push(schedule)
-      writeFileSync(schedFile, JSON.stringify(existing, null, 2))
-    }
+    const schedule = await prisma.testeAgendamento.create({
+      data: {
+        ativo_agendamento_teste:      parsed.data.ativo,
+        frequencia_agendamento_teste: parsed.data.frequencia,
+        hora_agendamento_teste:       parsed.data.hora,
+        minuto_agendamento_teste:     parsed.data.minuto,
+        tipos_agendamento_teste:      parsed.data.tipos as object,
+        escopos_agendamento_teste:    parsed.data.escopos,
+        ambiente_agendamento_teste:   parsed.data.ambiente,
+        alertas_agendamento_teste:    parsed.data.alertas as object[],
+      },
+    })
 
     res.status(201).json({ schedule })
   } catch (err) {
@@ -2069,26 +2108,24 @@ adminRouter.patch('/agendamentos-teste/:id_agendamento_teste', async (req, res, 
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    let schedule: unknown = null
+    const updateData: Record<string, unknown> = {}
+    if (parsed.data.ativo      !== undefined) updateData.ativo_agendamento_teste      = parsed.data.ativo
+    if (parsed.data.frequencia !== undefined) updateData.frequencia_agendamento_teste = parsed.data.frequencia
+    if (parsed.data.hora       !== undefined) updateData.hora_agendamento_teste       = parsed.data.hora
+    if (parsed.data.minuto     !== undefined) updateData.minuto_agendamento_teste     = parsed.data.minuto
+    if (parsed.data.tipos      !== undefined) updateData.tipos_agendamento_teste      = parsed.data.tipos as object
+    if (parsed.data.escopos    !== undefined) updateData.escopos_agendamento_teste    = parsed.data.escopos
+    if (parsed.data.ambiente   !== undefined) updateData.ambiente_agendamento_teste   = parsed.data.ambiente
+    if (parsed.data.alertas    !== undefined) updateData.alertas_agendamento_teste    = parsed.data.alertas as object[]
+
+    let schedule
     try {
-      const updateData: Record<string, unknown> = {}
-      if (parsed.data.name !== undefined) updateData.name = parsed.data.name
-      if (parsed.data.cron !== undefined) updateData.cron = parsed.data.cron
-      if (parsed.data.ativo !== undefined) updateData.is_active = parsed.data.ativo
-      if (parsed.data.planos || parsed.data.modulos || parsed.data.ambientes || parsed.data.notificar !== undefined) {
-        updateData.config = JSON.stringify({
-          planos:    parsed.data.planos,
-          modulos:   parsed.data.modulos,
-          ambientes: parsed.data.ambientes,
-          notificar: parsed.data.notificar,
-        })
-      }
-      schedule = await (prisma as any).testSchedule?.update?.({
-        where: { id: req.params.id_agendamento_teste },
-        data: updateData,
+      schedule = await prisma.testeAgendamento.update({
+        where: { id_agendamento_teste: req.params.id_agendamento_teste },
+        data:  updateData,
       })
     } catch {
-      throw new AppError('Schedule não encontrado ou tabela não existe', 404, 'NOT_FOUND')
+      throw new AppError('Agendamento não encontrado', 404, 'NOT_FOUND')
     }
 
     res.json({ schedule })
@@ -2108,11 +2145,11 @@ adminRouter.delete('/agendamentos-teste/:id_agendamento_teste', async (req, res,
     }
 
     try {
-      await (prisma as any).testSchedule?.delete?.({
-        where: { id: req.params.id_agendamento_teste },
+      await prisma.testeAgendamento.delete({
+        where: { id_agendamento_teste: req.params.id_agendamento_teste },
       })
     } catch {
-      throw new AppError('Schedule não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Agendamento não encontrado', 404, 'NOT_FOUND')
     }
 
     res.json({ deleted: true, id: req.params.id_agendamento_teste })

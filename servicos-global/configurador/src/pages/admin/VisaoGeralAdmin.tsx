@@ -191,7 +191,7 @@ export function VisaoGeralAdmin() {
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome}</h2>
             <p className="em-identity__sub">
-              {dados.subdominio}.gravity.com.br
+              {dados.subdominio}.usegravity.com.br
             </p>
           </div>
         </div>
@@ -317,7 +317,7 @@ export function VisaoGeralAdmin() {
             <div className="em-plan-meta-item">
               <TooltipGlobal descricao={t('admin.visao-geral.infra_url_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.gravity.com.br</span>
+                  <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.usegravity.com.br</span>
                 </span>
               </TooltipGlobal>
             </div>

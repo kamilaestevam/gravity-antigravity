@@ -192,6 +192,35 @@ model UsuarioWorkspace {
 
 ---
 
+## Política de Subdomínio (decisão 2026-05-03 — ADR 0002)
+
+**Domínio público:** `usegravity.com.br`. Cada Organização e cada Workspace tem seu próprio subdomínio canônico (`<sub>.usegravity.com.br`) usado em e-mails, integrações, webhooks.
+
+**Regras absolutas:**
+
+1. **Sistema gera, usuário NÃO escolhe.** O frontend deriva um slug do `nome_organizacao`/`nome_workspace`; o backend é a autoridade final.
+2. **Unicidade GLOBAL cross-tabela.** Helper `proximoSubdominioDisponivel(base)` em [`organizacaoService.ts`](../../../servicos-global/configurador/server/services/organizacaoService.ts) consulta **ambas** `organizacao.subdominio_organizacao` E `workspace.subdominio_workspace`. Workspace `acme` na Org A bloqueia `acme` em qualquer outra org/workspace.
+3. **Auto-suffix em colisão:** `<base>` → `<base>-2` → `<base>-3` → ... (teto 100; esgotou → 409).
+4. **Race-safe:** `prisma.create` envolto em try/catch capturando `P2002`; retry externo até 2× (helper já cobre 100 candidatos por chamada).
+5. **Imutabilidade pós-criação:** `PATCH /me/workspaces/:id` usa `z.object().strict()` e **rejeita** `subdominio_workspace` no body. URLs em uso dependem dele.
+6. **Preview ao vivo:** `GET /api/v1/me/sugestoes-subdominio?base=<slug>` — frontend chama com debounce 400ms via hook `useSugerirSubdominio` e exibe `<sub>.usegravity.com.br` em tempo real durante a digitação do nome. Usuário **vê o subdomínio antes** de clicar Criar.
+7. **Transparência:** payload de criação retorna `{ workspace | organizacao, subdominio_solicitado, subdominio_ajustado }`. Quando ajustado, frontend exibe banner amarelo informando.
+
+**`slugifySubdominio(base)`:** lowercase → NFD (remove acentos) → troca `[^a-z0-9-]` por `-` → colapsa repetidos → tira pontas → trunca em 60 chars.
+
+**Endpoints afetados:**
+- `POST /api/v1/organizacoes` (onboarding) — saga Cadastros-primeiro; helper resolve antes da chamada Cadastros.
+- `POST /api/v1/admin/organizacoes` (admin) — helper + retry P2002.
+- `POST /api/v1/me/workspaces` — helper + retry P2002.
+- `GET /api/v1/me/sugestoes-subdominio` — preview público para o modal de criação.
+- `PATCH /api/v1/me/workspaces/:id` — `strict()` sem subdomínio (imutável).
+
+**Testes:** [`server/__tests__/subdominio.helper.test.ts`](../../../servicos-global/configurador/server/__tests__/subdominio.helper.test.ts) — 11 casos cobrindo slugify, cross-tabela, auto-suffix, teto, edge cases.
+
+**Ver:** [ADR 0002](../../../documentos-tecnicos/decisoes-arquiteturais/0002-subdominio-system-generated-cross-tabela.md) para detalhes da decisão e pareceres.
+
+---
+
 ## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
 
 > O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.

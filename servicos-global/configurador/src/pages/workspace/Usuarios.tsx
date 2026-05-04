@@ -538,13 +538,61 @@ export function Usuarios() {
           renderExpandido={(usuario) => {
             const acessoTotal = temAcessoTotalAosWorkspaces(usuario.tipo_usuario)
             const vinculados = acessoTotal ? workspaces : workspacesDoUsuario(usuario.id_usuario)
+            const nivelLabel = mapRole(usuario.tipo_usuario)
             return (
               <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
                 <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
                 </div>
 
-                {vinculados.length > 0 ? (
+                {acessoTotal ? (
+                  // Acesso implícito (Master/Super Admin/Admin) — Mandamento 04 LIMBO.
+                  // Não há vínculos formais para alternar; mostramos apenas a lista
+                  // informativa, sem checkbox e sem coluna "Acesso" ambígua.
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                    <div
+                      role="note"
+                      aria-label={`Acesso implícito de ${nivelLabel}`}
+                      style={{
+                        padding: '0.875rem 1rem', borderRadius: '10px',
+                        background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.25)',
+                        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                      }}
+                    >
+                      <ShieldCheck size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
+                      <div>
+                        <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#c7d2fe' }}>
+                          Acesso implícito a todos os workspaces ({vinculados.length})
+                        </p>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                          Como <strong>{nivelLabel}</strong>, <strong>{usuario.nome_usuario}</strong> tem acesso a todos os workspaces da organização sem necessidade de vínculo individual. Para revogar o acesso, altere o tipo do usuário.
+                        </p>
+                      </div>
+                    </div>
+
+                    {vinculados.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                        {vinculados.map((w) => (
+                          <a
+                            key={w.id_workspace}
+                            href={`/workspace/workspaces?id=${w.id_workspace}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(ev) => ev.stopPropagation()}
+                            style={{
+                              padding: '0.25rem 0.625rem', borderRadius: '9999px',
+                              background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
+                              color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 500,
+                              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                            }}
+                          >
+                            <Buildings size={12} weight="duotone" /> {w.nome_workspace}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : vinculados.length > 0 ? (
                   <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
                     <TabelaGlobal<WorkspaceItem>
                       id={`usuario-workspaces-drilldown-${usuario.id_usuario}`}
@@ -575,14 +623,17 @@ export function Usuarios() {
                           key: 'id_workspace', label: t('workspace.users.privilegio'), tipo: 'texto',
                           render: () => (
                             <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                              {acessoTotal ? 'Acesso Total' : 'Acesso Padrão'}
+                              Acesso Padrão
                             </span>
                           ),
                         },
                         {
-                          key: 'id_workspace', label: t('workspace.users.status_workspace'), tipo: 'texto', align: 'right',
+                          // Status do VÍNCULO do usuário com o workspace (não o status do workspace).
+                          key: 'id_workspace', label: 'ACESSO', tipo: 'texto', align: 'right',
                           render: () => (
-                            <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
+                            <TooltipGlobal descricao="Vínculo ativo: este usuário pode acessar este workspace">
+                              <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700, letterSpacing: '0.04em' }}>VINCULADO</span>
+                            </TooltipGlobal>
                           ),
                         },
                       ]}

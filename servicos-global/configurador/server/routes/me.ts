@@ -1,15 +1,22 @@
 // server/routes/me.ts
 // Rotas do usuário autenticado (self).
 //
-// GET  /api/v1/me                → contexto completo: user + tenant + workspaces + produtos
-// GET  /api/v1/me/preferencias   → { preferredCompanyId: string | null }
-// PUT  /api/v1/me/preferencias   → atualiza workspace preferido (skip pós-login)
+// GET    /api/v1/me                                → contexto completo: usuario + organizacao + workspaces + produtos
+// GET    /api/v1/me/preferencias                   → { preferredCompanyId: string | null }
+// PUT    /api/v1/me/preferencias                   → atualiza workspace preferido (skip pós-login)
+// GET    /api/v1/me/workspaces                     → lista workspaces da organização
+// POST   /api/v1/me/workspaces                     → cria workspace
+// PATCH  /api/v1/me/workspaces/:id_workspace       → atualiza workspace
+// DELETE /api/v1/me/workspaces/:id_workspace       → remove workspace
+// GET    /api/v1/me/sugestoes-subdominio           → preview do subdomínio que o sistema atribuiria
 
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
+import { organizacaoService, proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacaoService.js'
+import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Schema de resposta — contrato exportável para testes e consumidores
@@ -311,6 +318,176 @@ meRouter.put('/preferencias', async (req, res, next) => {
     })
 
     res.json({ data: { preferredCompanyId } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Workspaces da organização autenticada
+// Schemas Zod e endpoints relocados de organizacoesRouter (decisão DDD 2026-05-03):
+// path canonical é /api/v1/me/workspaces — operação sobre os workspaces "do
+// usuário/organização atual", o que pertence semanticamente ao meRouter.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CriarWorkspaceSchema = z.object({
+  nome_workspace: z.string().min(2),
+  subdominio_workspace: z.string().optional(),
+  cnpj_workspace: z.string().optional(),
+})
+
+// Subdomínio é IMUTÁVEL após criação (decisão 2026-05-03) — URLs já em uso
+// por usuários, integrações e webhooks dependem dele. PATCH NÃO aceita
+// `subdominio_workspace` no body. Mudanças exigem migração de contas e estão
+// fora do escopo desta rota.
+const AtualizarWorkspaceSchema = z.object({
+  nome_workspace: z.string().min(2).optional(),
+  cnpj_workspace: z.string().optional(),
+  status_workspace: z.enum(['ATIVO', 'INATIVO']).optional(),
+}).strict()
+
+/**
+ * GET /api/v1/me/sugestoes-subdominio?base=<slug>
+ * Preview do subdomínio que o sistema atribuiria, dado um nome/base.
+ * Usado pelo modal de criação para mostrar ao usuário, em tempo real, o
+ * subdomínio final antes do `Criar` (o sistema gera, usuário não escolhe).
+ *
+ * Política de unicidade: cross-tabela (organizacao + workspace).
+ * Auto-suffix: -2, -3, ... até disponível.
+ */
+meRouter.get('/sugestoes-subdominio', async (req, res, next) => {
+  try {
+    const base = typeof req.query.base === 'string' ? req.query.base : ''
+    if (!base.trim()) {
+      throw new AppError('Parâmetro `base` obrigatório', 400, 'VALIDATION_ERROR')
+    }
+    const subdominio_solicitado = slugifySubdominio(base)
+    if (!subdominio_solicitado) {
+      throw new AppError('Base inválida — informe pelo menos uma letra', 400, 'VALIDATION_ERROR')
+    }
+    const subdominio_sugerido = await proximoSubdominioDisponivel(base)
+    res.json({
+      subdominio_solicitado,
+      subdominio_sugerido,
+      subdominio_ajustado: subdominio_sugerido !== subdominio_solicitado,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * GET /api/v1/me/workspaces
+ * Lista workspaces da organização autenticada.
+ */
+meRouter.get('/workspaces', async (req, res, next) => {
+  try {
+    const workspaces = await organizacaoService.getWorkspaces(req.auth.id_organizacao)
+    res.json({ workspaces })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/v1/me/workspaces
+ * Cria um workspace na organização autenticada.
+ */
+meRouter.post('/workspaces', async (req, res, next) => {
+  try {
+    const parsed = CriarWorkspaceSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Dados inválidos',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const created = await organizacaoService.createWorkspace(
+      req.auth.id_organizacao,
+      parsed.data,
+    )
+    const { subdominio_solicitado, subdominio_ajustado, ...workspace } = created
+
+    AuditService.log({
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Workspace',
+      id_recurso_historico_log: workspace.id_workspace,
+      acao_historico_log: 'CREATE',
+      detalhe_acao_historico_log: `Criou workspace "${workspace.nome_workspace}" (subdomínio ${subdominio_ajustado ? `ajustado de ${subdominio_solicitado} para ${workspace.subdominio_workspace}` : workspace.subdominio_workspace})`,
+      estado_posterior_historico_log: workspace,
+    }).catch(() => {})
+
+    res.status(201).json({ workspace, subdominio_solicitado, subdominio_ajustado })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PATCH /api/v1/me/workspaces/:id_workspace
+ * Atualiza um workspace.
+ */
+meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
+  try {
+    const parsed = AtualizarWorkspaceSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Dados inválidos',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const workspace = await organizacaoService.updateWorkspace(
+      req.auth.id_organizacao,
+      req.params.id_workspace,
+      parsed.data,
+    )
+
+    AuditService.log({
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Workspace',
+      id_recurso_historico_log: req.params.id_workspace,
+      acao_historico_log: 'UPDATE',
+      detalhe_acao_historico_log: `Atualizou workspace: ${Object.keys(parsed.data).join(', ')}`,
+      estado_posterior_historico_log: workspace,
+    }).catch(() => {})
+
+    res.json({ workspace })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/me/workspaces/:id_workspace
+ * Remove um workspace da organização autenticada.
+ */
+meRouter.delete('/workspaces/:id_workspace', async (req, res, next) => {
+  try {
+    await organizacaoService.deleteWorkspace(req.auth.id_organizacao, req.params.id_workspace)
+
+    AuditService.log({
+      id_organizacao: req.auth.id_organizacao,
+      tipo_ator_historico_log: 'USUARIO',
+      id_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.id_usuario,
+      modulo_historico_log: 'configuracao',
+      tipo_recurso_historico_log: 'Workspace',
+      id_recurso_historico_log: req.params.id_workspace,
+      acao_historico_log: 'DELETE',
+      detalhe_acao_historico_log: `Removeu workspace ${req.params.id_workspace}`,
+    }).catch(() => {})
+
+    res.status(204).end()
   } catch (err) {
     next(err)
   }

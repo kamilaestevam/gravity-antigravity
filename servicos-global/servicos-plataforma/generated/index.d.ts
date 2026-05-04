@@ -223,6 +223,31 @@ export type ContatoExterno = $Result.DefaultSelection<Prisma.$ContatoExternoPayl
  * 
  */
 export type ConfiguracaoCanalOrganizacao = $Result.DefaultSelection<Prisma.$ConfiguracaoCanalOrganizacaoPayload>
+/**
+ * Model ApiToken
+ * 
+ */
+export type ApiToken = $Result.DefaultSelection<Prisma.$ApiTokenPayload>
+/**
+ * Model WebhookConfiguracao
+ * 
+ */
+export type WebhookConfiguracao = $Result.DefaultSelection<Prisma.$WebhookConfiguracaoPayload>
+/**
+ * Model WebhookLog
+ * 
+ */
+export type WebhookLog = $Result.DefaultSelection<Prisma.$WebhookLogPayload>
+/**
+ * Model LogConsumo
+ * 
+ */
+export type LogConsumo = $Result.DefaultSelection<Prisma.$LogConsumoPayload>
+/**
+ * Model ApiIntegracaoErp
+ * 
+ */
+export type ApiIntegracaoErp = $Result.DefaultSelection<Prisma.$ApiIntegracaoErpPayload>
 
 /**
  * Enums
@@ -339,6 +364,35 @@ export const AlertaStatus: {
 
 export type AlertaStatus = (typeof AlertaStatus)[keyof typeof AlertaStatus]
 
+
+export const EscopoApiToken: {
+  LEITURA: 'LEITURA',
+  ESCRITA: 'ESCRITA',
+  EXCLUSAO: 'EXCLUSAO'
+};
+
+export type EscopoApiToken = (typeof EscopoApiToken)[keyof typeof EscopoApiToken]
+
+
+export const ValidadeApiToken: {
+  NUNCA: 'NUNCA',
+  DIAS_30: 'DIAS_30',
+  DIAS_90: 'DIAS_90',
+  CUSTOMIZADO: 'CUSTOMIZADO'
+};
+
+export type ValidadeApiToken = (typeof ValidadeApiToken)[keyof typeof ValidadeApiToken]
+
+
+export const ProtocoloApiIntegracaoErp: {
+  ODATA: 'ODATA',
+  SAP_HANA: 'SAP_HANA',
+  REST: 'REST',
+  JDBC: 'JDBC'
+};
+
+export type ProtocoloApiIntegracaoErp = (typeof ProtocoloApiIntegracaoErp)[keyof typeof ProtocoloApiIntegracaoErp]
+
 }
 
 export type EmailThreadAtiva = $Enums.EmailThreadAtiva
@@ -384,6 +438,18 @@ export const EventoStatus: typeof $Enums.EventoStatus
 export type AlertaStatus = $Enums.AlertaStatus
 
 export const AlertaStatus: typeof $Enums.AlertaStatus
+
+export type EscopoApiToken = $Enums.EscopoApiToken
+
+export const EscopoApiToken: typeof $Enums.EscopoApiToken
+
+export type ValidadeApiToken = $Enums.ValidadeApiToken
+
+export const ValidadeApiToken: typeof $Enums.ValidadeApiToken
+
+export type ProtocoloApiIntegracaoErp = $Enums.ProtocoloApiIntegracaoErp
+
+export const ProtocoloApiIntegracaoErp: typeof $Enums.ProtocoloApiIntegracaoErp
 
 /**
  * ##  Prisma Client ʲˢ
@@ -927,6 +993,56 @@ export class PrismaClient<
     * ```
     */
   get configuracaoCanalOrganizacao(): Prisma.ConfiguracaoCanalOrganizacaoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.apiToken`: Exposes CRUD operations for the **ApiToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ApiTokens
+    * const apiTokens = await prisma.apiToken.findMany()
+    * ```
+    */
+  get apiToken(): Prisma.ApiTokenDelegate<ExtArgs>;
+
+  /**
+   * `prisma.webhookConfiguracao`: Exposes CRUD operations for the **WebhookConfiguracao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebhookConfiguracaos
+    * const webhookConfiguracaos = await prisma.webhookConfiguracao.findMany()
+    * ```
+    */
+  get webhookConfiguracao(): Prisma.WebhookConfiguracaoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.webhookLog`: Exposes CRUD operations for the **WebhookLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebhookLogs
+    * const webhookLogs = await prisma.webhookLog.findMany()
+    * ```
+    */
+  get webhookLog(): Prisma.WebhookLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.logConsumo`: Exposes CRUD operations for the **LogConsumo** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LogConsumos
+    * const logConsumos = await prisma.logConsumo.findMany()
+    * ```
+    */
+  get logConsumo(): Prisma.LogConsumoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.apiIntegracaoErp`: Exposes CRUD operations for the **ApiIntegracaoErp** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ApiIntegracaoErps
+    * const apiIntegracaoErps = await prisma.apiIntegracaoErp.findMany()
+    * ```
+    */
+  get apiIntegracaoErp(): Prisma.ApiIntegracaoErpDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1409,7 +1525,12 @@ export namespace Prisma {
     WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
     ContatoExterno: 'ContatoExterno',
-    ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'
+    ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao',
+    ApiToken: 'ApiToken',
+    WebhookConfiguracao: 'WebhookConfiguracao',
+    WebhookLog: 'WebhookLog',
+    LogConsumo: 'LogConsumo',
+    ApiIntegracaoErp: 'ApiIntegracaoErp'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1425,7 +1546,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logConsumo" | "apiIntegracaoErp"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4366,6 +4487,356 @@ export namespace Prisma {
           count: {
             args: Prisma.ConfiguracaoCanalOrganizacaoCountArgs<ExtArgs>
             result: $Utils.Optional<ConfiguracaoCanalOrganizacaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ApiToken: {
+        payload: Prisma.$ApiTokenPayload<ExtArgs>
+        fields: Prisma.ApiTokenFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApiTokenFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApiTokenFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          findFirst: {
+            args: Prisma.ApiTokenFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApiTokenFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          findMany: {
+            args: Prisma.ApiTokenFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>[]
+          }
+          create: {
+            args: Prisma.ApiTokenCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          createMany: {
+            args: Prisma.ApiTokenCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApiTokenCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>[]
+          }
+          delete: {
+            args: Prisma.ApiTokenDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          update: {
+            args: Prisma.ApiTokenUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          deleteMany: {
+            args: Prisma.ApiTokenDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApiTokenUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ApiTokenUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiTokenPayload>
+          }
+          aggregate: {
+            args: Prisma.ApiTokenAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApiToken>
+          }
+          groupBy: {
+            args: Prisma.ApiTokenGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApiTokenGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApiTokenCountArgs<ExtArgs>
+            result: $Utils.Optional<ApiTokenCountAggregateOutputType> | number
+          }
+        }
+      }
+      WebhookConfiguracao: {
+        payload: Prisma.$WebhookConfiguracaoPayload<ExtArgs>
+        fields: Prisma.WebhookConfiguracaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookConfiguracaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookConfiguracaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookConfiguracaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookConfiguracaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookConfiguracaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookConfiguracaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookConfiguracaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookConfiguracaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookConfiguracaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          update: {
+            args: Prisma.WebhookConfiguracaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookConfiguracaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookConfiguracaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.WebhookConfiguracaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookConfiguracaoPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookConfiguracaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhookConfiguracao>
+          }
+          groupBy: {
+            args: Prisma.WebhookConfiguracaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookConfiguracaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookConfiguracaoCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookConfiguracaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      WebhookLog: {
+        payload: Prisma.$WebhookLogPayload<ExtArgs>
+        fields: Prisma.WebhookLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          update: {
+            args: Prisma.WebhookLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.WebhookLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookLogPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhookLog>
+          }
+          groupBy: {
+            args: Prisma.WebhookLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookLogCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      LogConsumo: {
+        payload: Prisma.$LogConsumoPayload<ExtArgs>
+        fields: Prisma.LogConsumoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LogConsumoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LogConsumoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          findFirst: {
+            args: Prisma.LogConsumoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LogConsumoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          findMany: {
+            args: Prisma.LogConsumoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>[]
+          }
+          create: {
+            args: Prisma.LogConsumoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          createMany: {
+            args: Prisma.LogConsumoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LogConsumoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>[]
+          }
+          delete: {
+            args: Prisma.LogConsumoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          update: {
+            args: Prisma.LogConsumoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          deleteMany: {
+            args: Prisma.LogConsumoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LogConsumoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.LogConsumoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+          }
+          aggregate: {
+            args: Prisma.LogConsumoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLogConsumo>
+          }
+          groupBy: {
+            args: Prisma.LogConsumoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LogConsumoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LogConsumoCountArgs<ExtArgs>
+            result: $Utils.Optional<LogConsumoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ApiIntegracaoErp: {
+        payload: Prisma.$ApiIntegracaoErpPayload<ExtArgs>
+        fields: Prisma.ApiIntegracaoErpFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApiIntegracaoErpFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApiIntegracaoErpFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          findFirst: {
+            args: Prisma.ApiIntegracaoErpFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApiIntegracaoErpFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          findMany: {
+            args: Prisma.ApiIntegracaoErpFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>[]
+          }
+          create: {
+            args: Prisma.ApiIntegracaoErpCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          createMany: {
+            args: Prisma.ApiIntegracaoErpCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApiIntegracaoErpCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>[]
+          }
+          delete: {
+            args: Prisma.ApiIntegracaoErpDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          update: {
+            args: Prisma.ApiIntegracaoErpUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          deleteMany: {
+            args: Prisma.ApiIntegracaoErpDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApiIntegracaoErpUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ApiIntegracaoErpUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiIntegracaoErpPayload>
+          }
+          aggregate: {
+            args: Prisma.ApiIntegracaoErpAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApiIntegracaoErp>
+          }
+          groupBy: {
+            args: Prisma.ApiIntegracaoErpGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApiIntegracaoErpGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApiIntegracaoErpCountArgs<ExtArgs>
+            result: $Utils.Optional<ApiIntegracaoErpCountAggregateOutputType> | number
           }
         }
       }
@@ -47284,6 +47755,4886 @@ export namespace Prisma {
 
 
   /**
+   * Model ApiToken
+   */
+
+  export type AggregateApiToken = {
+    _count: ApiTokenCountAggregateOutputType | null
+    _avg: ApiTokenAvgAggregateOutputType | null
+    _sum: ApiTokenSumAggregateOutputType | null
+    _min: ApiTokenMinAggregateOutputType | null
+    _max: ApiTokenMaxAggregateOutputType | null
+  }
+
+  export type ApiTokenAvgAggregateOutputType = {
+    limite_requisicoes_minuto_api_token: number | null
+  }
+
+  export type ApiTokenSumAggregateOutputType = {
+    limite_requisicoes_minuto_api_token: number | null
+  }
+
+  export type ApiTokenMinAggregateOutputType = {
+    id_api_token: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    nome_api_token: string | null
+    hash_api_token: string | null
+    prefixo_api_token: string | null
+    escopo_api_token: $Enums.EscopoApiToken | null
+    validade_api_token: $Enums.ValidadeApiToken | null
+    data_expiracao_api_token: Date | null
+    limite_requisicoes_minuto_api_token: number | null
+    revogado_api_token: boolean | null
+    data_revogacao_api_token: Date | null
+    data_criacao_api_token: Date | null
+    data_atualizacao_api_token: Date | null
+  }
+
+  export type ApiTokenMaxAggregateOutputType = {
+    id_api_token: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    nome_api_token: string | null
+    hash_api_token: string | null
+    prefixo_api_token: string | null
+    escopo_api_token: $Enums.EscopoApiToken | null
+    validade_api_token: $Enums.ValidadeApiToken | null
+    data_expiracao_api_token: Date | null
+    limite_requisicoes_minuto_api_token: number | null
+    revogado_api_token: boolean | null
+    data_revogacao_api_token: Date | null
+    data_criacao_api_token: Date | null
+    data_atualizacao_api_token: Date | null
+  }
+
+  export type ApiTokenCountAggregateOutputType = {
+    id_api_token: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    nome_api_token: number
+    hash_api_token: number
+    prefixo_api_token: number
+    escopo_api_token: number
+    validade_api_token: number
+    data_expiracao_api_token: number
+    limite_requisicoes_minuto_api_token: number
+    revogado_api_token: number
+    data_revogacao_api_token: number
+    data_criacao_api_token: number
+    data_atualizacao_api_token: number
+    _all: number
+  }
+
+
+  export type ApiTokenAvgAggregateInputType = {
+    limite_requisicoes_minuto_api_token?: true
+  }
+
+  export type ApiTokenSumAggregateInputType = {
+    limite_requisicoes_minuto_api_token?: true
+  }
+
+  export type ApiTokenMinAggregateInputType = {
+    id_api_token?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    nome_api_token?: true
+    hash_api_token?: true
+    prefixo_api_token?: true
+    escopo_api_token?: true
+    validade_api_token?: true
+    data_expiracao_api_token?: true
+    limite_requisicoes_minuto_api_token?: true
+    revogado_api_token?: true
+    data_revogacao_api_token?: true
+    data_criacao_api_token?: true
+    data_atualizacao_api_token?: true
+  }
+
+  export type ApiTokenMaxAggregateInputType = {
+    id_api_token?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    nome_api_token?: true
+    hash_api_token?: true
+    prefixo_api_token?: true
+    escopo_api_token?: true
+    validade_api_token?: true
+    data_expiracao_api_token?: true
+    limite_requisicoes_minuto_api_token?: true
+    revogado_api_token?: true
+    data_revogacao_api_token?: true
+    data_criacao_api_token?: true
+    data_atualizacao_api_token?: true
+  }
+
+  export type ApiTokenCountAggregateInputType = {
+    id_api_token?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    nome_api_token?: true
+    hash_api_token?: true
+    prefixo_api_token?: true
+    escopo_api_token?: true
+    validade_api_token?: true
+    data_expiracao_api_token?: true
+    limite_requisicoes_minuto_api_token?: true
+    revogado_api_token?: true
+    data_revogacao_api_token?: true
+    data_criacao_api_token?: true
+    data_atualizacao_api_token?: true
+    _all?: true
+  }
+
+  export type ApiTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiToken to aggregate.
+     */
+    where?: ApiTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiTokens to fetch.
+     */
+    orderBy?: ApiTokenOrderByWithRelationInput | ApiTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApiTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ApiTokens
+    **/
+    _count?: true | ApiTokenCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ApiTokenAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ApiTokenSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApiTokenMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApiTokenMaxAggregateInputType
+  }
+
+  export type GetApiTokenAggregateType<T extends ApiTokenAggregateArgs> = {
+        [P in keyof T & keyof AggregateApiToken]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApiToken[P]>
+      : GetScalarType<T[P], AggregateApiToken[P]>
+  }
+
+
+
+
+  export type ApiTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApiTokenWhereInput
+    orderBy?: ApiTokenOrderByWithAggregationInput | ApiTokenOrderByWithAggregationInput[]
+    by: ApiTokenScalarFieldEnum[] | ApiTokenScalarFieldEnum
+    having?: ApiTokenScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApiTokenCountAggregateInputType | true
+    _avg?: ApiTokenAvgAggregateInputType
+    _sum?: ApiTokenSumAggregateInputType
+    _min?: ApiTokenMinAggregateInputType
+    _max?: ApiTokenMaxAggregateInputType
+  }
+
+  export type ApiTokenGroupByOutputType = {
+    id_api_token: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    nome_api_token: string
+    hash_api_token: string
+    prefixo_api_token: string
+    escopo_api_token: $Enums.EscopoApiToken
+    validade_api_token: $Enums.ValidadeApiToken
+    data_expiracao_api_token: Date | null
+    limite_requisicoes_minuto_api_token: number
+    revogado_api_token: boolean
+    data_revogacao_api_token: Date | null
+    data_criacao_api_token: Date
+    data_atualizacao_api_token: Date
+    _count: ApiTokenCountAggregateOutputType | null
+    _avg: ApiTokenAvgAggregateOutputType | null
+    _sum: ApiTokenSumAggregateOutputType | null
+    _min: ApiTokenMinAggregateOutputType | null
+    _max: ApiTokenMaxAggregateOutputType | null
+  }
+
+  type GetApiTokenGroupByPayload<T extends ApiTokenGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApiTokenGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApiTokenGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApiTokenGroupByOutputType[P]>
+            : GetScalarType<T[P], ApiTokenGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApiTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_api_token?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    nome_api_token?: boolean
+    hash_api_token?: boolean
+    prefixo_api_token?: boolean
+    escopo_api_token?: boolean
+    validade_api_token?: boolean
+    data_expiracao_api_token?: boolean
+    limite_requisicoes_minuto_api_token?: boolean
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: boolean
+    data_criacao_api_token?: boolean
+    data_atualizacao_api_token?: boolean
+  }, ExtArgs["result"]["apiToken"]>
+
+  export type ApiTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_api_token?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    nome_api_token?: boolean
+    hash_api_token?: boolean
+    prefixo_api_token?: boolean
+    escopo_api_token?: boolean
+    validade_api_token?: boolean
+    data_expiracao_api_token?: boolean
+    limite_requisicoes_minuto_api_token?: boolean
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: boolean
+    data_criacao_api_token?: boolean
+    data_atualizacao_api_token?: boolean
+  }, ExtArgs["result"]["apiToken"]>
+
+  export type ApiTokenSelectScalar = {
+    id_api_token?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    nome_api_token?: boolean
+    hash_api_token?: boolean
+    prefixo_api_token?: boolean
+    escopo_api_token?: boolean
+    validade_api_token?: boolean
+    data_expiracao_api_token?: boolean
+    limite_requisicoes_minuto_api_token?: boolean
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: boolean
+    data_criacao_api_token?: boolean
+    data_atualizacao_api_token?: boolean
+  }
+
+
+  export type $ApiTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ApiToken"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_api_token: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      nome_api_token: string
+      hash_api_token: string
+      prefixo_api_token: string
+      escopo_api_token: $Enums.EscopoApiToken
+      validade_api_token: $Enums.ValidadeApiToken
+      data_expiracao_api_token: Date | null
+      limite_requisicoes_minuto_api_token: number
+      revogado_api_token: boolean
+      data_revogacao_api_token: Date | null
+      data_criacao_api_token: Date
+      data_atualizacao_api_token: Date
+    }, ExtArgs["result"]["apiToken"]>
+    composites: {}
+  }
+
+  type ApiTokenGetPayload<S extends boolean | null | undefined | ApiTokenDefaultArgs> = $Result.GetResult<Prisma.$ApiTokenPayload, S>
+
+  type ApiTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ApiTokenFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ApiTokenCountAggregateInputType | true
+    }
+
+  export interface ApiTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ApiToken'], meta: { name: 'ApiToken' } }
+    /**
+     * Find zero or one ApiToken that matches the filter.
+     * @param {ApiTokenFindUniqueArgs} args - Arguments to find a ApiToken
+     * @example
+     * // Get one ApiToken
+     * const apiToken = await prisma.apiToken.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApiTokenFindUniqueArgs>(args: SelectSubset<T, ApiTokenFindUniqueArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ApiToken that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ApiTokenFindUniqueOrThrowArgs} args - Arguments to find a ApiToken
+     * @example
+     * // Get one ApiToken
+     * const apiToken = await prisma.apiToken.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApiTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, ApiTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ApiToken that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenFindFirstArgs} args - Arguments to find a ApiToken
+     * @example
+     * // Get one ApiToken
+     * const apiToken = await prisma.apiToken.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApiTokenFindFirstArgs>(args?: SelectSubset<T, ApiTokenFindFirstArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ApiToken that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenFindFirstOrThrowArgs} args - Arguments to find a ApiToken
+     * @example
+     * // Get one ApiToken
+     * const apiToken = await prisma.apiToken.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApiTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, ApiTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ApiTokens that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ApiTokens
+     * const apiTokens = await prisma.apiToken.findMany()
+     * 
+     * // Get first 10 ApiTokens
+     * const apiTokens = await prisma.apiToken.findMany({ take: 10 })
+     * 
+     * // Only select the `id_api_token`
+     * const apiTokenWithId_api_tokenOnly = await prisma.apiToken.findMany({ select: { id_api_token: true } })
+     * 
+     */
+    findMany<T extends ApiTokenFindManyArgs>(args?: SelectSubset<T, ApiTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ApiToken.
+     * @param {ApiTokenCreateArgs} args - Arguments to create a ApiToken.
+     * @example
+     * // Create one ApiToken
+     * const ApiToken = await prisma.apiToken.create({
+     *   data: {
+     *     // ... data to create a ApiToken
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApiTokenCreateArgs>(args: SelectSubset<T, ApiTokenCreateArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ApiTokens.
+     * @param {ApiTokenCreateManyArgs} args - Arguments to create many ApiTokens.
+     * @example
+     * // Create many ApiTokens
+     * const apiToken = await prisma.apiToken.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApiTokenCreateManyArgs>(args?: SelectSubset<T, ApiTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ApiTokens and returns the data saved in the database.
+     * @param {ApiTokenCreateManyAndReturnArgs} args - Arguments to create many ApiTokens.
+     * @example
+     * // Create many ApiTokens
+     * const apiToken = await prisma.apiToken.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ApiTokens and only return the `id_api_token`
+     * const apiTokenWithId_api_tokenOnly = await prisma.apiToken.createManyAndReturn({ 
+     *   select: { id_api_token: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApiTokenCreateManyAndReturnArgs>(args?: SelectSubset<T, ApiTokenCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ApiToken.
+     * @param {ApiTokenDeleteArgs} args - Arguments to delete one ApiToken.
+     * @example
+     * // Delete one ApiToken
+     * const ApiToken = await prisma.apiToken.delete({
+     *   where: {
+     *     // ... filter to delete one ApiToken
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApiTokenDeleteArgs>(args: SelectSubset<T, ApiTokenDeleteArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ApiToken.
+     * @param {ApiTokenUpdateArgs} args - Arguments to update one ApiToken.
+     * @example
+     * // Update one ApiToken
+     * const apiToken = await prisma.apiToken.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApiTokenUpdateArgs>(args: SelectSubset<T, ApiTokenUpdateArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ApiTokens.
+     * @param {ApiTokenDeleteManyArgs} args - Arguments to filter ApiTokens to delete.
+     * @example
+     * // Delete a few ApiTokens
+     * const { count } = await prisma.apiToken.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApiTokenDeleteManyArgs>(args?: SelectSubset<T, ApiTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApiTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ApiTokens
+     * const apiToken = await prisma.apiToken.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApiTokenUpdateManyArgs>(args: SelectSubset<T, ApiTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ApiToken.
+     * @param {ApiTokenUpsertArgs} args - Arguments to update or create a ApiToken.
+     * @example
+     * // Update or create a ApiToken
+     * const apiToken = await prisma.apiToken.upsert({
+     *   create: {
+     *     // ... data to create a ApiToken
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ApiToken we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApiTokenUpsertArgs>(args: SelectSubset<T, ApiTokenUpsertArgs<ExtArgs>>): Prisma__ApiTokenClient<$Result.GetResult<Prisma.$ApiTokenPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ApiTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenCountArgs} args - Arguments to filter ApiTokens to count.
+     * @example
+     * // Count the number of ApiTokens
+     * const count = await prisma.apiToken.count({
+     *   where: {
+     *     // ... the filter for the ApiTokens we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApiTokenCountArgs>(
+      args?: Subset<T, ApiTokenCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApiTokenCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ApiToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApiTokenAggregateArgs>(args: Subset<T, ApiTokenAggregateArgs>): Prisma.PrismaPromise<GetApiTokenAggregateType<T>>
+
+    /**
+     * Group by ApiToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiTokenGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApiTokenGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApiTokenGroupByArgs['orderBy'] }
+        : { orderBy?: ApiTokenGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApiTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApiTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ApiToken model
+   */
+  readonly fields: ApiTokenFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ApiToken.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApiTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ApiToken model
+   */ 
+  interface ApiTokenFieldRefs {
+    readonly id_api_token: FieldRef<"ApiToken", 'String'>
+    readonly id_organizacao: FieldRef<"ApiToken", 'String'>
+    readonly id_produto_gravity: FieldRef<"ApiToken", 'String'>
+    readonly id_usuario: FieldRef<"ApiToken", 'String'>
+    readonly nome_api_token: FieldRef<"ApiToken", 'String'>
+    readonly hash_api_token: FieldRef<"ApiToken", 'String'>
+    readonly prefixo_api_token: FieldRef<"ApiToken", 'String'>
+    readonly escopo_api_token: FieldRef<"ApiToken", 'EscopoApiToken'>
+    readonly validade_api_token: FieldRef<"ApiToken", 'ValidadeApiToken'>
+    readonly data_expiracao_api_token: FieldRef<"ApiToken", 'DateTime'>
+    readonly limite_requisicoes_minuto_api_token: FieldRef<"ApiToken", 'Int'>
+    readonly revogado_api_token: FieldRef<"ApiToken", 'Boolean'>
+    readonly data_revogacao_api_token: FieldRef<"ApiToken", 'DateTime'>
+    readonly data_criacao_api_token: FieldRef<"ApiToken", 'DateTime'>
+    readonly data_atualizacao_api_token: FieldRef<"ApiToken", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ApiToken findUnique
+   */
+  export type ApiTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiToken to fetch.
+     */
+    where: ApiTokenWhereUniqueInput
+  }
+
+  /**
+   * ApiToken findUniqueOrThrow
+   */
+  export type ApiTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiToken to fetch.
+     */
+    where: ApiTokenWhereUniqueInput
+  }
+
+  /**
+   * ApiToken findFirst
+   */
+  export type ApiTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiToken to fetch.
+     */
+    where?: ApiTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiTokens to fetch.
+     */
+    orderBy?: ApiTokenOrderByWithRelationInput | ApiTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiTokens.
+     */
+    cursor?: ApiTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiTokens.
+     */
+    distinct?: ApiTokenScalarFieldEnum | ApiTokenScalarFieldEnum[]
+  }
+
+  /**
+   * ApiToken findFirstOrThrow
+   */
+  export type ApiTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiToken to fetch.
+     */
+    where?: ApiTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiTokens to fetch.
+     */
+    orderBy?: ApiTokenOrderByWithRelationInput | ApiTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiTokens.
+     */
+    cursor?: ApiTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiTokens.
+     */
+    distinct?: ApiTokenScalarFieldEnum | ApiTokenScalarFieldEnum[]
+  }
+
+  /**
+   * ApiToken findMany
+   */
+  export type ApiTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiTokens to fetch.
+     */
+    where?: ApiTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiTokens to fetch.
+     */
+    orderBy?: ApiTokenOrderByWithRelationInput | ApiTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ApiTokens.
+     */
+    cursor?: ApiTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiTokens.
+     */
+    skip?: number
+    distinct?: ApiTokenScalarFieldEnum | ApiTokenScalarFieldEnum[]
+  }
+
+  /**
+   * ApiToken create
+   */
+  export type ApiTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ApiToken.
+     */
+    data: XOR<ApiTokenCreateInput, ApiTokenUncheckedCreateInput>
+  }
+
+  /**
+   * ApiToken createMany
+   */
+  export type ApiTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ApiTokens.
+     */
+    data: ApiTokenCreateManyInput | ApiTokenCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApiToken createManyAndReturn
+   */
+  export type ApiTokenCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ApiTokens.
+     */
+    data: ApiTokenCreateManyInput | ApiTokenCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApiToken update
+   */
+  export type ApiTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ApiToken.
+     */
+    data: XOR<ApiTokenUpdateInput, ApiTokenUncheckedUpdateInput>
+    /**
+     * Choose, which ApiToken to update.
+     */
+    where: ApiTokenWhereUniqueInput
+  }
+
+  /**
+   * ApiToken updateMany
+   */
+  export type ApiTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ApiTokens.
+     */
+    data: XOR<ApiTokenUpdateManyMutationInput, ApiTokenUncheckedUpdateManyInput>
+    /**
+     * Filter which ApiTokens to update
+     */
+    where?: ApiTokenWhereInput
+  }
+
+  /**
+   * ApiToken upsert
+   */
+  export type ApiTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ApiToken to update in case it exists.
+     */
+    where: ApiTokenWhereUniqueInput
+    /**
+     * In case the ApiToken found by the `where` argument doesn't exist, create a new ApiToken with this data.
+     */
+    create: XOR<ApiTokenCreateInput, ApiTokenUncheckedCreateInput>
+    /**
+     * In case the ApiToken was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApiTokenUpdateInput, ApiTokenUncheckedUpdateInput>
+  }
+
+  /**
+   * ApiToken delete
+   */
+  export type ApiTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+    /**
+     * Filter which ApiToken to delete.
+     */
+    where: ApiTokenWhereUniqueInput
+  }
+
+  /**
+   * ApiToken deleteMany
+   */
+  export type ApiTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiTokens to delete
+     */
+    where?: ApiTokenWhereInput
+  }
+
+  /**
+   * ApiToken without action
+   */
+  export type ApiTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiToken
+     */
+    select?: ApiTokenSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WebhookConfiguracao
+   */
+
+  export type AggregateWebhookConfiguracao = {
+    _count: WebhookConfiguracaoCountAggregateOutputType | null
+    _min: WebhookConfiguracaoMinAggregateOutputType | null
+    _max: WebhookConfiguracaoMaxAggregateOutputType | null
+  }
+
+  export type WebhookConfiguracaoMinAggregateOutputType = {
+    id_webhook_configuracao: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    url_webhook_configuracao: string | null
+    segredo_webhook_configuracao: string | null
+    ativo_webhook_configuracao: boolean | null
+    data_criacao_webhook_configuracao: Date | null
+    data_atualizacao_webhook_configuracao: Date | null
+  }
+
+  export type WebhookConfiguracaoMaxAggregateOutputType = {
+    id_webhook_configuracao: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    url_webhook_configuracao: string | null
+    segredo_webhook_configuracao: string | null
+    ativo_webhook_configuracao: boolean | null
+    data_criacao_webhook_configuracao: Date | null
+    data_atualizacao_webhook_configuracao: Date | null
+  }
+
+  export type WebhookConfiguracaoCountAggregateOutputType = {
+    id_webhook_configuracao: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    url_webhook_configuracao: number
+    segredo_webhook_configuracao: number
+    eventos_webhook_configuracao: number
+    ativo_webhook_configuracao: number
+    data_criacao_webhook_configuracao: number
+    data_atualizacao_webhook_configuracao: number
+    _all: number
+  }
+
+
+  export type WebhookConfiguracaoMinAggregateInputType = {
+    id_webhook_configuracao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    url_webhook_configuracao?: true
+    segredo_webhook_configuracao?: true
+    ativo_webhook_configuracao?: true
+    data_criacao_webhook_configuracao?: true
+    data_atualizacao_webhook_configuracao?: true
+  }
+
+  export type WebhookConfiguracaoMaxAggregateInputType = {
+    id_webhook_configuracao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    url_webhook_configuracao?: true
+    segredo_webhook_configuracao?: true
+    ativo_webhook_configuracao?: true
+    data_criacao_webhook_configuracao?: true
+    data_atualizacao_webhook_configuracao?: true
+  }
+
+  export type WebhookConfiguracaoCountAggregateInputType = {
+    id_webhook_configuracao?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    url_webhook_configuracao?: true
+    segredo_webhook_configuracao?: true
+    eventos_webhook_configuracao?: true
+    ativo_webhook_configuracao?: true
+    data_criacao_webhook_configuracao?: true
+    data_atualizacao_webhook_configuracao?: true
+    _all?: true
+  }
+
+  export type WebhookConfiguracaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookConfiguracao to aggregate.
+     */
+    where?: WebhookConfiguracaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookConfiguracaos to fetch.
+     */
+    orderBy?: WebhookConfiguracaoOrderByWithRelationInput | WebhookConfiguracaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookConfiguracaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookConfiguracaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookConfiguracaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebhookConfiguracaos
+    **/
+    _count?: true | WebhookConfiguracaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookConfiguracaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookConfiguracaoMaxAggregateInputType
+  }
+
+  export type GetWebhookConfiguracaoAggregateType<T extends WebhookConfiguracaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhookConfiguracao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhookConfiguracao[P]>
+      : GetScalarType<T[P], AggregateWebhookConfiguracao[P]>
+  }
+
+
+
+
+  export type WebhookConfiguracaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookConfiguracaoWhereInput
+    orderBy?: WebhookConfiguracaoOrderByWithAggregationInput | WebhookConfiguracaoOrderByWithAggregationInput[]
+    by: WebhookConfiguracaoScalarFieldEnum[] | WebhookConfiguracaoScalarFieldEnum
+    having?: WebhookConfiguracaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookConfiguracaoCountAggregateInputType | true
+    _min?: WebhookConfiguracaoMinAggregateInputType
+    _max?: WebhookConfiguracaoMaxAggregateInputType
+  }
+
+  export type WebhookConfiguracaoGroupByOutputType = {
+    id_webhook_configuracao: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    url_webhook_configuracao: string
+    segredo_webhook_configuracao: string
+    eventos_webhook_configuracao: string[]
+    ativo_webhook_configuracao: boolean
+    data_criacao_webhook_configuracao: Date
+    data_atualizacao_webhook_configuracao: Date
+    _count: WebhookConfiguracaoCountAggregateOutputType | null
+    _min: WebhookConfiguracaoMinAggregateOutputType | null
+    _max: WebhookConfiguracaoMaxAggregateOutputType | null
+  }
+
+  type GetWebhookConfiguracaoGroupByPayload<T extends WebhookConfiguracaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookConfiguracaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookConfiguracaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookConfiguracaoGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookConfiguracaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookConfiguracaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_configuracao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    url_webhook_configuracao?: boolean
+    segredo_webhook_configuracao?: boolean
+    eventos_webhook_configuracao?: boolean
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: boolean
+    data_atualizacao_webhook_configuracao?: boolean
+  }, ExtArgs["result"]["webhookConfiguracao"]>
+
+  export type WebhookConfiguracaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_configuracao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    url_webhook_configuracao?: boolean
+    segredo_webhook_configuracao?: boolean
+    eventos_webhook_configuracao?: boolean
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: boolean
+    data_atualizacao_webhook_configuracao?: boolean
+  }, ExtArgs["result"]["webhookConfiguracao"]>
+
+  export type WebhookConfiguracaoSelectScalar = {
+    id_webhook_configuracao?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    url_webhook_configuracao?: boolean
+    segredo_webhook_configuracao?: boolean
+    eventos_webhook_configuracao?: boolean
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: boolean
+    data_atualizacao_webhook_configuracao?: boolean
+  }
+
+
+  export type $WebhookConfiguracaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebhookConfiguracao"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_webhook_configuracao: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      url_webhook_configuracao: string
+      segredo_webhook_configuracao: string
+      eventos_webhook_configuracao: string[]
+      ativo_webhook_configuracao: boolean
+      data_criacao_webhook_configuracao: Date
+      data_atualizacao_webhook_configuracao: Date
+    }, ExtArgs["result"]["webhookConfiguracao"]>
+    composites: {}
+  }
+
+  type WebhookConfiguracaoGetPayload<S extends boolean | null | undefined | WebhookConfiguracaoDefaultArgs> = $Result.GetResult<Prisma.$WebhookConfiguracaoPayload, S>
+
+  type WebhookConfiguracaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<WebhookConfiguracaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: WebhookConfiguracaoCountAggregateInputType | true
+    }
+
+  export interface WebhookConfiguracaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebhookConfiguracao'], meta: { name: 'WebhookConfiguracao' } }
+    /**
+     * Find zero or one WebhookConfiguracao that matches the filter.
+     * @param {WebhookConfiguracaoFindUniqueArgs} args - Arguments to find a WebhookConfiguracao
+     * @example
+     * // Get one WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookConfiguracaoFindUniqueArgs>(args: SelectSubset<T, WebhookConfiguracaoFindUniqueArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one WebhookConfiguracao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {WebhookConfiguracaoFindUniqueOrThrowArgs} args - Arguments to find a WebhookConfiguracao
+     * @example
+     * // Get one WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookConfiguracaoFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookConfiguracaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first WebhookConfiguracao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoFindFirstArgs} args - Arguments to find a WebhookConfiguracao
+     * @example
+     * // Get one WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookConfiguracaoFindFirstArgs>(args?: SelectSubset<T, WebhookConfiguracaoFindFirstArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first WebhookConfiguracao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoFindFirstOrThrowArgs} args - Arguments to find a WebhookConfiguracao
+     * @example
+     * // Get one WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookConfiguracaoFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookConfiguracaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more WebhookConfiguracaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebhookConfiguracaos
+     * const webhookConfiguracaos = await prisma.webhookConfiguracao.findMany()
+     * 
+     * // Get first 10 WebhookConfiguracaos
+     * const webhookConfiguracaos = await prisma.webhookConfiguracao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_webhook_configuracao`
+     * const webhookConfiguracaoWithId_webhook_configuracaoOnly = await prisma.webhookConfiguracao.findMany({ select: { id_webhook_configuracao: true } })
+     * 
+     */
+    findMany<T extends WebhookConfiguracaoFindManyArgs>(args?: SelectSubset<T, WebhookConfiguracaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a WebhookConfiguracao.
+     * @param {WebhookConfiguracaoCreateArgs} args - Arguments to create a WebhookConfiguracao.
+     * @example
+     * // Create one WebhookConfiguracao
+     * const WebhookConfiguracao = await prisma.webhookConfiguracao.create({
+     *   data: {
+     *     // ... data to create a WebhookConfiguracao
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookConfiguracaoCreateArgs>(args: SelectSubset<T, WebhookConfiguracaoCreateArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many WebhookConfiguracaos.
+     * @param {WebhookConfiguracaoCreateManyArgs} args - Arguments to create many WebhookConfiguracaos.
+     * @example
+     * // Create many WebhookConfiguracaos
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookConfiguracaoCreateManyArgs>(args?: SelectSubset<T, WebhookConfiguracaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WebhookConfiguracaos and returns the data saved in the database.
+     * @param {WebhookConfiguracaoCreateManyAndReturnArgs} args - Arguments to create many WebhookConfiguracaos.
+     * @example
+     * // Create many WebhookConfiguracaos
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WebhookConfiguracaos and only return the `id_webhook_configuracao`
+     * const webhookConfiguracaoWithId_webhook_configuracaoOnly = await prisma.webhookConfiguracao.createManyAndReturn({ 
+     *   select: { id_webhook_configuracao: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookConfiguracaoCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookConfiguracaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a WebhookConfiguracao.
+     * @param {WebhookConfiguracaoDeleteArgs} args - Arguments to delete one WebhookConfiguracao.
+     * @example
+     * // Delete one WebhookConfiguracao
+     * const WebhookConfiguracao = await prisma.webhookConfiguracao.delete({
+     *   where: {
+     *     // ... filter to delete one WebhookConfiguracao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookConfiguracaoDeleteArgs>(args: SelectSubset<T, WebhookConfiguracaoDeleteArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one WebhookConfiguracao.
+     * @param {WebhookConfiguracaoUpdateArgs} args - Arguments to update one WebhookConfiguracao.
+     * @example
+     * // Update one WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookConfiguracaoUpdateArgs>(args: SelectSubset<T, WebhookConfiguracaoUpdateArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more WebhookConfiguracaos.
+     * @param {WebhookConfiguracaoDeleteManyArgs} args - Arguments to filter WebhookConfiguracaos to delete.
+     * @example
+     * // Delete a few WebhookConfiguracaos
+     * const { count } = await prisma.webhookConfiguracao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookConfiguracaoDeleteManyArgs>(args?: SelectSubset<T, WebhookConfiguracaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookConfiguracaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebhookConfiguracaos
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookConfiguracaoUpdateManyArgs>(args: SelectSubset<T, WebhookConfiguracaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one WebhookConfiguracao.
+     * @param {WebhookConfiguracaoUpsertArgs} args - Arguments to update or create a WebhookConfiguracao.
+     * @example
+     * // Update or create a WebhookConfiguracao
+     * const webhookConfiguracao = await prisma.webhookConfiguracao.upsert({
+     *   create: {
+     *     // ... data to create a WebhookConfiguracao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebhookConfiguracao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookConfiguracaoUpsertArgs>(args: SelectSubset<T, WebhookConfiguracaoUpsertArgs<ExtArgs>>): Prisma__WebhookConfiguracaoClient<$Result.GetResult<Prisma.$WebhookConfiguracaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of WebhookConfiguracaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoCountArgs} args - Arguments to filter WebhookConfiguracaos to count.
+     * @example
+     * // Count the number of WebhookConfiguracaos
+     * const count = await prisma.webhookConfiguracao.count({
+     *   where: {
+     *     // ... the filter for the WebhookConfiguracaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookConfiguracaoCountArgs>(
+      args?: Subset<T, WebhookConfiguracaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookConfiguracaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebhookConfiguracao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookConfiguracaoAggregateArgs>(args: Subset<T, WebhookConfiguracaoAggregateArgs>): Prisma.PrismaPromise<GetWebhookConfiguracaoAggregateType<T>>
+
+    /**
+     * Group by WebhookConfiguracao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookConfiguracaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookConfiguracaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookConfiguracaoGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookConfiguracaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookConfiguracaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookConfiguracaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebhookConfiguracao model
+   */
+  readonly fields: WebhookConfiguracaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebhookConfiguracao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookConfiguracaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebhookConfiguracao model
+   */ 
+  interface WebhookConfiguracaoFieldRefs {
+    readonly id_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly id_organizacao: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly id_produto_gravity: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly id_usuario: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly url_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly segredo_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'String'>
+    readonly eventos_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'String[]'>
+    readonly ativo_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'Boolean'>
+    readonly data_criacao_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'DateTime'>
+    readonly data_atualizacao_webhook_configuracao: FieldRef<"WebhookConfiguracao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebhookConfiguracao findUnique
+   */
+  export type WebhookConfiguracaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookConfiguracao to fetch.
+     */
+    where: WebhookConfiguracaoWhereUniqueInput
+  }
+
+  /**
+   * WebhookConfiguracao findUniqueOrThrow
+   */
+  export type WebhookConfiguracaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookConfiguracao to fetch.
+     */
+    where: WebhookConfiguracaoWhereUniqueInput
+  }
+
+  /**
+   * WebhookConfiguracao findFirst
+   */
+  export type WebhookConfiguracaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookConfiguracao to fetch.
+     */
+    where?: WebhookConfiguracaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookConfiguracaos to fetch.
+     */
+    orderBy?: WebhookConfiguracaoOrderByWithRelationInput | WebhookConfiguracaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookConfiguracaos.
+     */
+    cursor?: WebhookConfiguracaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookConfiguracaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookConfiguracaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookConfiguracaos.
+     */
+    distinct?: WebhookConfiguracaoScalarFieldEnum | WebhookConfiguracaoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookConfiguracao findFirstOrThrow
+   */
+  export type WebhookConfiguracaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookConfiguracao to fetch.
+     */
+    where?: WebhookConfiguracaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookConfiguracaos to fetch.
+     */
+    orderBy?: WebhookConfiguracaoOrderByWithRelationInput | WebhookConfiguracaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookConfiguracaos.
+     */
+    cursor?: WebhookConfiguracaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookConfiguracaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookConfiguracaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookConfiguracaos.
+     */
+    distinct?: WebhookConfiguracaoScalarFieldEnum | WebhookConfiguracaoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookConfiguracao findMany
+   */
+  export type WebhookConfiguracaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookConfiguracaos to fetch.
+     */
+    where?: WebhookConfiguracaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookConfiguracaos to fetch.
+     */
+    orderBy?: WebhookConfiguracaoOrderByWithRelationInput | WebhookConfiguracaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebhookConfiguracaos.
+     */
+    cursor?: WebhookConfiguracaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookConfiguracaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookConfiguracaos.
+     */
+    skip?: number
+    distinct?: WebhookConfiguracaoScalarFieldEnum | WebhookConfiguracaoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookConfiguracao create
+   */
+  export type WebhookConfiguracaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a WebhookConfiguracao.
+     */
+    data: XOR<WebhookConfiguracaoCreateInput, WebhookConfiguracaoUncheckedCreateInput>
+  }
+
+  /**
+   * WebhookConfiguracao createMany
+   */
+  export type WebhookConfiguracaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebhookConfiguracaos.
+     */
+    data: WebhookConfiguracaoCreateManyInput | WebhookConfiguracaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookConfiguracao createManyAndReturn
+   */
+  export type WebhookConfiguracaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many WebhookConfiguracaos.
+     */
+    data: WebhookConfiguracaoCreateManyInput | WebhookConfiguracaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookConfiguracao update
+   */
+  export type WebhookConfiguracaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a WebhookConfiguracao.
+     */
+    data: XOR<WebhookConfiguracaoUpdateInput, WebhookConfiguracaoUncheckedUpdateInput>
+    /**
+     * Choose, which WebhookConfiguracao to update.
+     */
+    where: WebhookConfiguracaoWhereUniqueInput
+  }
+
+  /**
+   * WebhookConfiguracao updateMany
+   */
+  export type WebhookConfiguracaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebhookConfiguracaos.
+     */
+    data: XOR<WebhookConfiguracaoUpdateManyMutationInput, WebhookConfiguracaoUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookConfiguracaos to update
+     */
+    where?: WebhookConfiguracaoWhereInput
+  }
+
+  /**
+   * WebhookConfiguracao upsert
+   */
+  export type WebhookConfiguracaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the WebhookConfiguracao to update in case it exists.
+     */
+    where: WebhookConfiguracaoWhereUniqueInput
+    /**
+     * In case the WebhookConfiguracao found by the `where` argument doesn't exist, create a new WebhookConfiguracao with this data.
+     */
+    create: XOR<WebhookConfiguracaoCreateInput, WebhookConfiguracaoUncheckedCreateInput>
+    /**
+     * In case the WebhookConfiguracao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookConfiguracaoUpdateInput, WebhookConfiguracaoUncheckedUpdateInput>
+  }
+
+  /**
+   * WebhookConfiguracao delete
+   */
+  export type WebhookConfiguracaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+    /**
+     * Filter which WebhookConfiguracao to delete.
+     */
+    where: WebhookConfiguracaoWhereUniqueInput
+  }
+
+  /**
+   * WebhookConfiguracao deleteMany
+   */
+  export type WebhookConfiguracaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookConfiguracaos to delete
+     */
+    where?: WebhookConfiguracaoWhereInput
+  }
+
+  /**
+   * WebhookConfiguracao without action
+   */
+  export type WebhookConfiguracaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookConfiguracao
+     */
+    select?: WebhookConfiguracaoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WebhookLog
+   */
+
+  export type AggregateWebhookLog = {
+    _count: WebhookLogCountAggregateOutputType | null
+    _avg: WebhookLogAvgAggregateOutputType | null
+    _sum: WebhookLogSumAggregateOutputType | null
+    _min: WebhookLogMinAggregateOutputType | null
+    _max: WebhookLogMaxAggregateOutputType | null
+  }
+
+  export type WebhookLogAvgAggregateOutputType = {
+    codigo_resposta_http_webhook_log: number | null
+    latencia_ms_webhook_log: number | null
+    quantidade_tentativas_webhook_log: number | null
+  }
+
+  export type WebhookLogSumAggregateOutputType = {
+    codigo_resposta_http_webhook_log: number | null
+    latencia_ms_webhook_log: number | null
+    quantidade_tentativas_webhook_log: number | null
+  }
+
+  export type WebhookLogMinAggregateOutputType = {
+    id_webhook_log: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_webhook_configuracao: string | null
+    evento_webhook_log: string | null
+    codigo_resposta_http_webhook_log: number | null
+    latencia_ms_webhook_log: number | null
+    quantidade_tentativas_webhook_log: number | null
+    erro_webhook_log: string | null
+    data_criacao_webhook_log: Date | null
+    data_atualizacao_webhook_log: Date | null
+  }
+
+  export type WebhookLogMaxAggregateOutputType = {
+    id_webhook_log: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_webhook_configuracao: string | null
+    evento_webhook_log: string | null
+    codigo_resposta_http_webhook_log: number | null
+    latencia_ms_webhook_log: number | null
+    quantidade_tentativas_webhook_log: number | null
+    erro_webhook_log: string | null
+    data_criacao_webhook_log: Date | null
+    data_atualizacao_webhook_log: Date | null
+  }
+
+  export type WebhookLogCountAggregateOutputType = {
+    id_webhook_log: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    id_webhook_configuracao: number
+    evento_webhook_log: number
+    codigo_resposta_http_webhook_log: number
+    latencia_ms_webhook_log: number
+    quantidade_tentativas_webhook_log: number
+    payload_webhook_log: number
+    erro_webhook_log: number
+    data_criacao_webhook_log: number
+    data_atualizacao_webhook_log: number
+    _all: number
+  }
+
+
+  export type WebhookLogAvgAggregateInputType = {
+    codigo_resposta_http_webhook_log?: true
+    latencia_ms_webhook_log?: true
+    quantidade_tentativas_webhook_log?: true
+  }
+
+  export type WebhookLogSumAggregateInputType = {
+    codigo_resposta_http_webhook_log?: true
+    latencia_ms_webhook_log?: true
+    quantidade_tentativas_webhook_log?: true
+  }
+
+  export type WebhookLogMinAggregateInputType = {
+    id_webhook_log?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_webhook_configuracao?: true
+    evento_webhook_log?: true
+    codigo_resposta_http_webhook_log?: true
+    latencia_ms_webhook_log?: true
+    quantidade_tentativas_webhook_log?: true
+    erro_webhook_log?: true
+    data_criacao_webhook_log?: true
+    data_atualizacao_webhook_log?: true
+  }
+
+  export type WebhookLogMaxAggregateInputType = {
+    id_webhook_log?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_webhook_configuracao?: true
+    evento_webhook_log?: true
+    codigo_resposta_http_webhook_log?: true
+    latencia_ms_webhook_log?: true
+    quantidade_tentativas_webhook_log?: true
+    erro_webhook_log?: true
+    data_criacao_webhook_log?: true
+    data_atualizacao_webhook_log?: true
+  }
+
+  export type WebhookLogCountAggregateInputType = {
+    id_webhook_log?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_webhook_configuracao?: true
+    evento_webhook_log?: true
+    codigo_resposta_http_webhook_log?: true
+    latencia_ms_webhook_log?: true
+    quantidade_tentativas_webhook_log?: true
+    payload_webhook_log?: true
+    erro_webhook_log?: true
+    data_criacao_webhook_log?: true
+    data_atualizacao_webhook_log?: true
+    _all?: true
+  }
+
+  export type WebhookLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookLog to aggregate.
+     */
+    where?: WebhookLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookLogs to fetch.
+     */
+    orderBy?: WebhookLogOrderByWithRelationInput | WebhookLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebhookLogs
+    **/
+    _count?: true | WebhookLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WebhookLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebhookLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookLogMaxAggregateInputType
+  }
+
+  export type GetWebhookLogAggregateType<T extends WebhookLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhookLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhookLog[P]>
+      : GetScalarType<T[P], AggregateWebhookLog[P]>
+  }
+
+
+
+
+  export type WebhookLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookLogWhereInput
+    orderBy?: WebhookLogOrderByWithAggregationInput | WebhookLogOrderByWithAggregationInput[]
+    by: WebhookLogScalarFieldEnum[] | WebhookLogScalarFieldEnum
+    having?: WebhookLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookLogCountAggregateInputType | true
+    _avg?: WebhookLogAvgAggregateInputType
+    _sum?: WebhookLogSumAggregateInputType
+    _min?: WebhookLogMinAggregateInputType
+    _max?: WebhookLogMaxAggregateInputType
+  }
+
+  export type WebhookLogGroupByOutputType = {
+    id_webhook_log: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_webhook_configuracao: string
+    evento_webhook_log: string
+    codigo_resposta_http_webhook_log: number
+    latencia_ms_webhook_log: number
+    quantidade_tentativas_webhook_log: number
+    payload_webhook_log: JsonValue | null
+    erro_webhook_log: string | null
+    data_criacao_webhook_log: Date
+    data_atualizacao_webhook_log: Date
+    _count: WebhookLogCountAggregateOutputType | null
+    _avg: WebhookLogAvgAggregateOutputType | null
+    _sum: WebhookLogSumAggregateOutputType | null
+    _min: WebhookLogMinAggregateOutputType | null
+    _max: WebhookLogMaxAggregateOutputType | null
+  }
+
+  type GetWebhookLogGroupByPayload<T extends WebhookLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookLogGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_log?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_webhook_configuracao?: boolean
+    evento_webhook_log?: boolean
+    codigo_resposta_http_webhook_log?: boolean
+    latencia_ms_webhook_log?: boolean
+    quantidade_tentativas_webhook_log?: boolean
+    payload_webhook_log?: boolean
+    erro_webhook_log?: boolean
+    data_criacao_webhook_log?: boolean
+    data_atualizacao_webhook_log?: boolean
+  }, ExtArgs["result"]["webhookLog"]>
+
+  export type WebhookLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_log?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_webhook_configuracao?: boolean
+    evento_webhook_log?: boolean
+    codigo_resposta_http_webhook_log?: boolean
+    latencia_ms_webhook_log?: boolean
+    quantidade_tentativas_webhook_log?: boolean
+    payload_webhook_log?: boolean
+    erro_webhook_log?: boolean
+    data_criacao_webhook_log?: boolean
+    data_atualizacao_webhook_log?: boolean
+  }, ExtArgs["result"]["webhookLog"]>
+
+  export type WebhookLogSelectScalar = {
+    id_webhook_log?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_webhook_configuracao?: boolean
+    evento_webhook_log?: boolean
+    codigo_resposta_http_webhook_log?: boolean
+    latencia_ms_webhook_log?: boolean
+    quantidade_tentativas_webhook_log?: boolean
+    payload_webhook_log?: boolean
+    erro_webhook_log?: boolean
+    data_criacao_webhook_log?: boolean
+    data_atualizacao_webhook_log?: boolean
+  }
+
+
+  export type $WebhookLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebhookLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_webhook_log: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      id_webhook_configuracao: string
+      evento_webhook_log: string
+      codigo_resposta_http_webhook_log: number
+      latencia_ms_webhook_log: number
+      quantidade_tentativas_webhook_log: number
+      payload_webhook_log: Prisma.JsonValue | null
+      erro_webhook_log: string | null
+      data_criacao_webhook_log: Date
+      data_atualizacao_webhook_log: Date
+    }, ExtArgs["result"]["webhookLog"]>
+    composites: {}
+  }
+
+  type WebhookLogGetPayload<S extends boolean | null | undefined | WebhookLogDefaultArgs> = $Result.GetResult<Prisma.$WebhookLogPayload, S>
+
+  type WebhookLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<WebhookLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: WebhookLogCountAggregateInputType | true
+    }
+
+  export interface WebhookLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebhookLog'], meta: { name: 'WebhookLog' } }
+    /**
+     * Find zero or one WebhookLog that matches the filter.
+     * @param {WebhookLogFindUniqueArgs} args - Arguments to find a WebhookLog
+     * @example
+     * // Get one WebhookLog
+     * const webhookLog = await prisma.webhookLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookLogFindUniqueArgs>(args: SelectSubset<T, WebhookLogFindUniqueArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one WebhookLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {WebhookLogFindUniqueOrThrowArgs} args - Arguments to find a WebhookLog
+     * @example
+     * // Get one WebhookLog
+     * const webhookLog = await prisma.webhookLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookLogFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first WebhookLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogFindFirstArgs} args - Arguments to find a WebhookLog
+     * @example
+     * // Get one WebhookLog
+     * const webhookLog = await prisma.webhookLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookLogFindFirstArgs>(args?: SelectSubset<T, WebhookLogFindFirstArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first WebhookLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogFindFirstOrThrowArgs} args - Arguments to find a WebhookLog
+     * @example
+     * // Get one WebhookLog
+     * const webhookLog = await prisma.webhookLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookLogFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more WebhookLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebhookLogs
+     * const webhookLogs = await prisma.webhookLog.findMany()
+     * 
+     * // Get first 10 WebhookLogs
+     * const webhookLogs = await prisma.webhookLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id_webhook_log`
+     * const webhookLogWithId_webhook_logOnly = await prisma.webhookLog.findMany({ select: { id_webhook_log: true } })
+     * 
+     */
+    findMany<T extends WebhookLogFindManyArgs>(args?: SelectSubset<T, WebhookLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a WebhookLog.
+     * @param {WebhookLogCreateArgs} args - Arguments to create a WebhookLog.
+     * @example
+     * // Create one WebhookLog
+     * const WebhookLog = await prisma.webhookLog.create({
+     *   data: {
+     *     // ... data to create a WebhookLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookLogCreateArgs>(args: SelectSubset<T, WebhookLogCreateArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many WebhookLogs.
+     * @param {WebhookLogCreateManyArgs} args - Arguments to create many WebhookLogs.
+     * @example
+     * // Create many WebhookLogs
+     * const webhookLog = await prisma.webhookLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookLogCreateManyArgs>(args?: SelectSubset<T, WebhookLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WebhookLogs and returns the data saved in the database.
+     * @param {WebhookLogCreateManyAndReturnArgs} args - Arguments to create many WebhookLogs.
+     * @example
+     * // Create many WebhookLogs
+     * const webhookLog = await prisma.webhookLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WebhookLogs and only return the `id_webhook_log`
+     * const webhookLogWithId_webhook_logOnly = await prisma.webhookLog.createManyAndReturn({ 
+     *   select: { id_webhook_log: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookLogCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a WebhookLog.
+     * @param {WebhookLogDeleteArgs} args - Arguments to delete one WebhookLog.
+     * @example
+     * // Delete one WebhookLog
+     * const WebhookLog = await prisma.webhookLog.delete({
+     *   where: {
+     *     // ... filter to delete one WebhookLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookLogDeleteArgs>(args: SelectSubset<T, WebhookLogDeleteArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one WebhookLog.
+     * @param {WebhookLogUpdateArgs} args - Arguments to update one WebhookLog.
+     * @example
+     * // Update one WebhookLog
+     * const webhookLog = await prisma.webhookLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookLogUpdateArgs>(args: SelectSubset<T, WebhookLogUpdateArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more WebhookLogs.
+     * @param {WebhookLogDeleteManyArgs} args - Arguments to filter WebhookLogs to delete.
+     * @example
+     * // Delete a few WebhookLogs
+     * const { count } = await prisma.webhookLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookLogDeleteManyArgs>(args?: SelectSubset<T, WebhookLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebhookLogs
+     * const webhookLog = await prisma.webhookLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookLogUpdateManyArgs>(args: SelectSubset<T, WebhookLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one WebhookLog.
+     * @param {WebhookLogUpsertArgs} args - Arguments to update or create a WebhookLog.
+     * @example
+     * // Update or create a WebhookLog
+     * const webhookLog = await prisma.webhookLog.upsert({
+     *   create: {
+     *     // ... data to create a WebhookLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebhookLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookLogUpsertArgs>(args: SelectSubset<T, WebhookLogUpsertArgs<ExtArgs>>): Prisma__WebhookLogClient<$Result.GetResult<Prisma.$WebhookLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of WebhookLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogCountArgs} args - Arguments to filter WebhookLogs to count.
+     * @example
+     * // Count the number of WebhookLogs
+     * const count = await prisma.webhookLog.count({
+     *   where: {
+     *     // ... the filter for the WebhookLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookLogCountArgs>(
+      args?: Subset<T, WebhookLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebhookLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookLogAggregateArgs>(args: Subset<T, WebhookLogAggregateArgs>): Prisma.PrismaPromise<GetWebhookLogAggregateType<T>>
+
+    /**
+     * Group by WebhookLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookLogGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebhookLog model
+   */
+  readonly fields: WebhookLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebhookLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebhookLog model
+   */ 
+  interface WebhookLogFieldRefs {
+    readonly id_webhook_log: FieldRef<"WebhookLog", 'String'>
+    readonly id_organizacao: FieldRef<"WebhookLog", 'String'>
+    readonly id_produto_gravity: FieldRef<"WebhookLog", 'String'>
+    readonly id_usuario: FieldRef<"WebhookLog", 'String'>
+    readonly id_webhook_configuracao: FieldRef<"WebhookLog", 'String'>
+    readonly evento_webhook_log: FieldRef<"WebhookLog", 'String'>
+    readonly codigo_resposta_http_webhook_log: FieldRef<"WebhookLog", 'Int'>
+    readonly latencia_ms_webhook_log: FieldRef<"WebhookLog", 'Int'>
+    readonly quantidade_tentativas_webhook_log: FieldRef<"WebhookLog", 'Int'>
+    readonly payload_webhook_log: FieldRef<"WebhookLog", 'Json'>
+    readonly erro_webhook_log: FieldRef<"WebhookLog", 'String'>
+    readonly data_criacao_webhook_log: FieldRef<"WebhookLog", 'DateTime'>
+    readonly data_atualizacao_webhook_log: FieldRef<"WebhookLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebhookLog findUnique
+   */
+  export type WebhookLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookLog to fetch.
+     */
+    where: WebhookLogWhereUniqueInput
+  }
+
+  /**
+   * WebhookLog findUniqueOrThrow
+   */
+  export type WebhookLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookLog to fetch.
+     */
+    where: WebhookLogWhereUniqueInput
+  }
+
+  /**
+   * WebhookLog findFirst
+   */
+  export type WebhookLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookLog to fetch.
+     */
+    where?: WebhookLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookLogs to fetch.
+     */
+    orderBy?: WebhookLogOrderByWithRelationInput | WebhookLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookLogs.
+     */
+    cursor?: WebhookLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookLogs.
+     */
+    distinct?: WebhookLogScalarFieldEnum | WebhookLogScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookLog findFirstOrThrow
+   */
+  export type WebhookLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookLog to fetch.
+     */
+    where?: WebhookLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookLogs to fetch.
+     */
+    orderBy?: WebhookLogOrderByWithRelationInput | WebhookLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookLogs.
+     */
+    cursor?: WebhookLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookLogs.
+     */
+    distinct?: WebhookLogScalarFieldEnum | WebhookLogScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookLog findMany
+   */
+  export type WebhookLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookLogs to fetch.
+     */
+    where?: WebhookLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookLogs to fetch.
+     */
+    orderBy?: WebhookLogOrderByWithRelationInput | WebhookLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebhookLogs.
+     */
+    cursor?: WebhookLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookLogs.
+     */
+    skip?: number
+    distinct?: WebhookLogScalarFieldEnum | WebhookLogScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookLog create
+   */
+  export type WebhookLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a WebhookLog.
+     */
+    data: XOR<WebhookLogCreateInput, WebhookLogUncheckedCreateInput>
+  }
+
+  /**
+   * WebhookLog createMany
+   */
+  export type WebhookLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebhookLogs.
+     */
+    data: WebhookLogCreateManyInput | WebhookLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookLog createManyAndReturn
+   */
+  export type WebhookLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many WebhookLogs.
+     */
+    data: WebhookLogCreateManyInput | WebhookLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookLog update
+   */
+  export type WebhookLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a WebhookLog.
+     */
+    data: XOR<WebhookLogUpdateInput, WebhookLogUncheckedUpdateInput>
+    /**
+     * Choose, which WebhookLog to update.
+     */
+    where: WebhookLogWhereUniqueInput
+  }
+
+  /**
+   * WebhookLog updateMany
+   */
+  export type WebhookLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebhookLogs.
+     */
+    data: XOR<WebhookLogUpdateManyMutationInput, WebhookLogUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookLogs to update
+     */
+    where?: WebhookLogWhereInput
+  }
+
+  /**
+   * WebhookLog upsert
+   */
+  export type WebhookLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the WebhookLog to update in case it exists.
+     */
+    where: WebhookLogWhereUniqueInput
+    /**
+     * In case the WebhookLog found by the `where` argument doesn't exist, create a new WebhookLog with this data.
+     */
+    create: XOR<WebhookLogCreateInput, WebhookLogUncheckedCreateInput>
+    /**
+     * In case the WebhookLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookLogUpdateInput, WebhookLogUncheckedUpdateInput>
+  }
+
+  /**
+   * WebhookLog delete
+   */
+  export type WebhookLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+    /**
+     * Filter which WebhookLog to delete.
+     */
+    where: WebhookLogWhereUniqueInput
+  }
+
+  /**
+   * WebhookLog deleteMany
+   */
+  export type WebhookLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookLogs to delete
+     */
+    where?: WebhookLogWhereInput
+  }
+
+  /**
+   * WebhookLog without action
+   */
+  export type WebhookLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookLog
+     */
+    select?: WebhookLogSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LogConsumo
+   */
+
+  export type AggregateLogConsumo = {
+    _count: LogConsumoCountAggregateOutputType | null
+    _avg: LogConsumoAvgAggregateOutputType | null
+    _sum: LogConsumoSumAggregateOutputType | null
+    _min: LogConsumoMinAggregateOutputType | null
+    _max: LogConsumoMaxAggregateOutputType | null
+  }
+
+  export type LogConsumoAvgAggregateOutputType = {
+    codigo_resposta_http_log_consumo: number | null
+    latencia_ms_log_consumo: number | null
+  }
+
+  export type LogConsumoSumAggregateOutputType = {
+    codigo_resposta_http_log_consumo: number | null
+    latencia_ms_log_consumo: number | null
+  }
+
+  export type LogConsumoMinAggregateOutputType = {
+    id_log_consumo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_api_token: string | null
+    endpoint_log_consumo: string | null
+    metodo_http_log_consumo: string | null
+    codigo_resposta_http_log_consumo: number | null
+    latencia_ms_log_consumo: number | null
+    data_criacao_log_consumo: Date | null
+    data_atualizacao_log_consumo: Date | null
+  }
+
+  export type LogConsumoMaxAggregateOutputType = {
+    id_log_consumo: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_api_token: string | null
+    endpoint_log_consumo: string | null
+    metodo_http_log_consumo: string | null
+    codigo_resposta_http_log_consumo: number | null
+    latencia_ms_log_consumo: number | null
+    data_criacao_log_consumo: Date | null
+    data_atualizacao_log_consumo: Date | null
+  }
+
+  export type LogConsumoCountAggregateOutputType = {
+    id_log_consumo: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    id_api_token: number
+    endpoint_log_consumo: number
+    metodo_http_log_consumo: number
+    codigo_resposta_http_log_consumo: number
+    latencia_ms_log_consumo: number
+    data_criacao_log_consumo: number
+    data_atualizacao_log_consumo: number
+    _all: number
+  }
+
+
+  export type LogConsumoAvgAggregateInputType = {
+    codigo_resposta_http_log_consumo?: true
+    latencia_ms_log_consumo?: true
+  }
+
+  export type LogConsumoSumAggregateInputType = {
+    codigo_resposta_http_log_consumo?: true
+    latencia_ms_log_consumo?: true
+  }
+
+  export type LogConsumoMinAggregateInputType = {
+    id_log_consumo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_api_token?: true
+    endpoint_log_consumo?: true
+    metodo_http_log_consumo?: true
+    codigo_resposta_http_log_consumo?: true
+    latencia_ms_log_consumo?: true
+    data_criacao_log_consumo?: true
+    data_atualizacao_log_consumo?: true
+  }
+
+  export type LogConsumoMaxAggregateInputType = {
+    id_log_consumo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_api_token?: true
+    endpoint_log_consumo?: true
+    metodo_http_log_consumo?: true
+    codigo_resposta_http_log_consumo?: true
+    latencia_ms_log_consumo?: true
+    data_criacao_log_consumo?: true
+    data_atualizacao_log_consumo?: true
+  }
+
+  export type LogConsumoCountAggregateInputType = {
+    id_log_consumo?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    id_api_token?: true
+    endpoint_log_consumo?: true
+    metodo_http_log_consumo?: true
+    codigo_resposta_http_log_consumo?: true
+    latencia_ms_log_consumo?: true
+    data_criacao_log_consumo?: true
+    data_atualizacao_log_consumo?: true
+    _all?: true
+  }
+
+  export type LogConsumoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LogConsumo to aggregate.
+     */
+    where?: LogConsumoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LogConsumos to fetch.
+     */
+    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LogConsumoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LogConsumos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LogConsumos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LogConsumos
+    **/
+    _count?: true | LogConsumoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LogConsumoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LogConsumoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LogConsumoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LogConsumoMaxAggregateInputType
+  }
+
+  export type GetLogConsumoAggregateType<T extends LogConsumoAggregateArgs> = {
+        [P in keyof T & keyof AggregateLogConsumo]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLogConsumo[P]>
+      : GetScalarType<T[P], AggregateLogConsumo[P]>
+  }
+
+
+
+
+  export type LogConsumoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LogConsumoWhereInput
+    orderBy?: LogConsumoOrderByWithAggregationInput | LogConsumoOrderByWithAggregationInput[]
+    by: LogConsumoScalarFieldEnum[] | LogConsumoScalarFieldEnum
+    having?: LogConsumoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LogConsumoCountAggregateInputType | true
+    _avg?: LogConsumoAvgAggregateInputType
+    _sum?: LogConsumoSumAggregateInputType
+    _min?: LogConsumoMinAggregateInputType
+    _max?: LogConsumoMaxAggregateInputType
+  }
+
+  export type LogConsumoGroupByOutputType = {
+    id_log_consumo: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    id_api_token: string
+    endpoint_log_consumo: string
+    metodo_http_log_consumo: string
+    codigo_resposta_http_log_consumo: number
+    latencia_ms_log_consumo: number
+    data_criacao_log_consumo: Date
+    data_atualizacao_log_consumo: Date
+    _count: LogConsumoCountAggregateOutputType | null
+    _avg: LogConsumoAvgAggregateOutputType | null
+    _sum: LogConsumoSumAggregateOutputType | null
+    _min: LogConsumoMinAggregateOutputType | null
+    _max: LogConsumoMaxAggregateOutputType | null
+  }
+
+  type GetLogConsumoGroupByPayload<T extends LogConsumoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LogConsumoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LogConsumoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LogConsumoGroupByOutputType[P]>
+            : GetScalarType<T[P], LogConsumoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LogConsumoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_log_consumo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_api_token?: boolean
+    endpoint_log_consumo?: boolean
+    metodo_http_log_consumo?: boolean
+    codigo_resposta_http_log_consumo?: boolean
+    latencia_ms_log_consumo?: boolean
+    data_criacao_log_consumo?: boolean
+    data_atualizacao_log_consumo?: boolean
+  }, ExtArgs["result"]["logConsumo"]>
+
+  export type LogConsumoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_log_consumo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_api_token?: boolean
+    endpoint_log_consumo?: boolean
+    metodo_http_log_consumo?: boolean
+    codigo_resposta_http_log_consumo?: boolean
+    latencia_ms_log_consumo?: boolean
+    data_criacao_log_consumo?: boolean
+    data_atualizacao_log_consumo?: boolean
+  }, ExtArgs["result"]["logConsumo"]>
+
+  export type LogConsumoSelectScalar = {
+    id_log_consumo?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    id_api_token?: boolean
+    endpoint_log_consumo?: boolean
+    metodo_http_log_consumo?: boolean
+    codigo_resposta_http_log_consumo?: boolean
+    latencia_ms_log_consumo?: boolean
+    data_criacao_log_consumo?: boolean
+    data_atualizacao_log_consumo?: boolean
+  }
+
+
+  export type $LogConsumoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LogConsumo"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_log_consumo: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      id_api_token: string
+      endpoint_log_consumo: string
+      metodo_http_log_consumo: string
+      codigo_resposta_http_log_consumo: number
+      latencia_ms_log_consumo: number
+      data_criacao_log_consumo: Date
+      data_atualizacao_log_consumo: Date
+    }, ExtArgs["result"]["logConsumo"]>
+    composites: {}
+  }
+
+  type LogConsumoGetPayload<S extends boolean | null | undefined | LogConsumoDefaultArgs> = $Result.GetResult<Prisma.$LogConsumoPayload, S>
+
+  type LogConsumoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<LogConsumoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: LogConsumoCountAggregateInputType | true
+    }
+
+  export interface LogConsumoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LogConsumo'], meta: { name: 'LogConsumo' } }
+    /**
+     * Find zero or one LogConsumo that matches the filter.
+     * @param {LogConsumoFindUniqueArgs} args - Arguments to find a LogConsumo
+     * @example
+     * // Get one LogConsumo
+     * const logConsumo = await prisma.logConsumo.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LogConsumoFindUniqueArgs>(args: SelectSubset<T, LogConsumoFindUniqueArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one LogConsumo that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {LogConsumoFindUniqueOrThrowArgs} args - Arguments to find a LogConsumo
+     * @example
+     * // Get one LogConsumo
+     * const logConsumo = await prisma.logConsumo.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LogConsumoFindUniqueOrThrowArgs>(args: SelectSubset<T, LogConsumoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first LogConsumo that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoFindFirstArgs} args - Arguments to find a LogConsumo
+     * @example
+     * // Get one LogConsumo
+     * const logConsumo = await prisma.logConsumo.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LogConsumoFindFirstArgs>(args?: SelectSubset<T, LogConsumoFindFirstArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first LogConsumo that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoFindFirstOrThrowArgs} args - Arguments to find a LogConsumo
+     * @example
+     * // Get one LogConsumo
+     * const logConsumo = await prisma.logConsumo.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LogConsumoFindFirstOrThrowArgs>(args?: SelectSubset<T, LogConsumoFindFirstOrThrowArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more LogConsumos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LogConsumos
+     * const logConsumos = await prisma.logConsumo.findMany()
+     * 
+     * // Get first 10 LogConsumos
+     * const logConsumos = await prisma.logConsumo.findMany({ take: 10 })
+     * 
+     * // Only select the `id_log_consumo`
+     * const logConsumoWithId_log_consumoOnly = await prisma.logConsumo.findMany({ select: { id_log_consumo: true } })
+     * 
+     */
+    findMany<T extends LogConsumoFindManyArgs>(args?: SelectSubset<T, LogConsumoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a LogConsumo.
+     * @param {LogConsumoCreateArgs} args - Arguments to create a LogConsumo.
+     * @example
+     * // Create one LogConsumo
+     * const LogConsumo = await prisma.logConsumo.create({
+     *   data: {
+     *     // ... data to create a LogConsumo
+     *   }
+     * })
+     * 
+     */
+    create<T extends LogConsumoCreateArgs>(args: SelectSubset<T, LogConsumoCreateArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many LogConsumos.
+     * @param {LogConsumoCreateManyArgs} args - Arguments to create many LogConsumos.
+     * @example
+     * // Create many LogConsumos
+     * const logConsumo = await prisma.logConsumo.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LogConsumoCreateManyArgs>(args?: SelectSubset<T, LogConsumoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LogConsumos and returns the data saved in the database.
+     * @param {LogConsumoCreateManyAndReturnArgs} args - Arguments to create many LogConsumos.
+     * @example
+     * // Create many LogConsumos
+     * const logConsumo = await prisma.logConsumo.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LogConsumos and only return the `id_log_consumo`
+     * const logConsumoWithId_log_consumoOnly = await prisma.logConsumo.createManyAndReturn({ 
+     *   select: { id_log_consumo: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LogConsumoCreateManyAndReturnArgs>(args?: SelectSubset<T, LogConsumoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a LogConsumo.
+     * @param {LogConsumoDeleteArgs} args - Arguments to delete one LogConsumo.
+     * @example
+     * // Delete one LogConsumo
+     * const LogConsumo = await prisma.logConsumo.delete({
+     *   where: {
+     *     // ... filter to delete one LogConsumo
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LogConsumoDeleteArgs>(args: SelectSubset<T, LogConsumoDeleteArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one LogConsumo.
+     * @param {LogConsumoUpdateArgs} args - Arguments to update one LogConsumo.
+     * @example
+     * // Update one LogConsumo
+     * const logConsumo = await prisma.logConsumo.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LogConsumoUpdateArgs>(args: SelectSubset<T, LogConsumoUpdateArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more LogConsumos.
+     * @param {LogConsumoDeleteManyArgs} args - Arguments to filter LogConsumos to delete.
+     * @example
+     * // Delete a few LogConsumos
+     * const { count } = await prisma.logConsumo.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LogConsumoDeleteManyArgs>(args?: SelectSubset<T, LogConsumoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LogConsumos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LogConsumos
+     * const logConsumo = await prisma.logConsumo.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LogConsumoUpdateManyArgs>(args: SelectSubset<T, LogConsumoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one LogConsumo.
+     * @param {LogConsumoUpsertArgs} args - Arguments to update or create a LogConsumo.
+     * @example
+     * // Update or create a LogConsumo
+     * const logConsumo = await prisma.logConsumo.upsert({
+     *   create: {
+     *     // ... data to create a LogConsumo
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LogConsumo we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LogConsumoUpsertArgs>(args: SelectSubset<T, LogConsumoUpsertArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of LogConsumos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoCountArgs} args - Arguments to filter LogConsumos to count.
+     * @example
+     * // Count the number of LogConsumos
+     * const count = await prisma.logConsumo.count({
+     *   where: {
+     *     // ... the filter for the LogConsumos we want to count
+     *   }
+     * })
+    **/
+    count<T extends LogConsumoCountArgs>(
+      args?: Subset<T, LogConsumoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LogConsumoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LogConsumo.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LogConsumoAggregateArgs>(args: Subset<T, LogConsumoAggregateArgs>): Prisma.PrismaPromise<GetLogConsumoAggregateType<T>>
+
+    /**
+     * Group by LogConsumo.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LogConsumoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LogConsumoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LogConsumoGroupByArgs['orderBy'] }
+        : { orderBy?: LogConsumoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LogConsumoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLogConsumoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LogConsumo model
+   */
+  readonly fields: LogConsumoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LogConsumo.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LogConsumoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LogConsumo model
+   */ 
+  interface LogConsumoFieldRefs {
+    readonly id_log_consumo: FieldRef<"LogConsumo", 'String'>
+    readonly id_organizacao: FieldRef<"LogConsumo", 'String'>
+    readonly id_produto_gravity: FieldRef<"LogConsumo", 'String'>
+    readonly id_usuario: FieldRef<"LogConsumo", 'String'>
+    readonly id_api_token: FieldRef<"LogConsumo", 'String'>
+    readonly endpoint_log_consumo: FieldRef<"LogConsumo", 'String'>
+    readonly metodo_http_log_consumo: FieldRef<"LogConsumo", 'String'>
+    readonly codigo_resposta_http_log_consumo: FieldRef<"LogConsumo", 'Int'>
+    readonly latencia_ms_log_consumo: FieldRef<"LogConsumo", 'Int'>
+    readonly data_criacao_log_consumo: FieldRef<"LogConsumo", 'DateTime'>
+    readonly data_atualizacao_log_consumo: FieldRef<"LogConsumo", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LogConsumo findUnique
+   */
+  export type LogConsumoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter, which LogConsumo to fetch.
+     */
+    where: LogConsumoWhereUniqueInput
+  }
+
+  /**
+   * LogConsumo findUniqueOrThrow
+   */
+  export type LogConsumoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter, which LogConsumo to fetch.
+     */
+    where: LogConsumoWhereUniqueInput
+  }
+
+  /**
+   * LogConsumo findFirst
+   */
+  export type LogConsumoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter, which LogConsumo to fetch.
+     */
+    where?: LogConsumoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LogConsumos to fetch.
+     */
+    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LogConsumos.
+     */
+    cursor?: LogConsumoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LogConsumos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LogConsumos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LogConsumos.
+     */
+    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+  }
+
+  /**
+   * LogConsumo findFirstOrThrow
+   */
+  export type LogConsumoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter, which LogConsumo to fetch.
+     */
+    where?: LogConsumoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LogConsumos to fetch.
+     */
+    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LogConsumos.
+     */
+    cursor?: LogConsumoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LogConsumos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LogConsumos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LogConsumos.
+     */
+    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+  }
+
+  /**
+   * LogConsumo findMany
+   */
+  export type LogConsumoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter, which LogConsumos to fetch.
+     */
+    where?: LogConsumoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LogConsumos to fetch.
+     */
+    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LogConsumos.
+     */
+    cursor?: LogConsumoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LogConsumos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LogConsumos.
+     */
+    skip?: number
+    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+  }
+
+  /**
+   * LogConsumo create
+   */
+  export type LogConsumoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a LogConsumo.
+     */
+    data: XOR<LogConsumoCreateInput, LogConsumoUncheckedCreateInput>
+  }
+
+  /**
+   * LogConsumo createMany
+   */
+  export type LogConsumoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LogConsumos.
+     */
+    data: LogConsumoCreateManyInput | LogConsumoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LogConsumo createManyAndReturn
+   */
+  export type LogConsumoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many LogConsumos.
+     */
+    data: LogConsumoCreateManyInput | LogConsumoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LogConsumo update
+   */
+  export type LogConsumoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a LogConsumo.
+     */
+    data: XOR<LogConsumoUpdateInput, LogConsumoUncheckedUpdateInput>
+    /**
+     * Choose, which LogConsumo to update.
+     */
+    where: LogConsumoWhereUniqueInput
+  }
+
+  /**
+   * LogConsumo updateMany
+   */
+  export type LogConsumoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LogConsumos.
+     */
+    data: XOR<LogConsumoUpdateManyMutationInput, LogConsumoUncheckedUpdateManyInput>
+    /**
+     * Filter which LogConsumos to update
+     */
+    where?: LogConsumoWhereInput
+  }
+
+  /**
+   * LogConsumo upsert
+   */
+  export type LogConsumoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the LogConsumo to update in case it exists.
+     */
+    where: LogConsumoWhereUniqueInput
+    /**
+     * In case the LogConsumo found by the `where` argument doesn't exist, create a new LogConsumo with this data.
+     */
+    create: XOR<LogConsumoCreateInput, LogConsumoUncheckedCreateInput>
+    /**
+     * In case the LogConsumo was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LogConsumoUpdateInput, LogConsumoUncheckedUpdateInput>
+  }
+
+  /**
+   * LogConsumo delete
+   */
+  export type LogConsumoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+    /**
+     * Filter which LogConsumo to delete.
+     */
+    where: LogConsumoWhereUniqueInput
+  }
+
+  /**
+   * LogConsumo deleteMany
+   */
+  export type LogConsumoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LogConsumos to delete
+     */
+    where?: LogConsumoWhereInput
+  }
+
+  /**
+   * LogConsumo without action
+   */
+  export type LogConsumoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LogConsumo
+     */
+    select?: LogConsumoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ApiIntegracaoErp
+   */
+
+  export type AggregateApiIntegracaoErp = {
+    _count: ApiIntegracaoErpCountAggregateOutputType | null
+    _min: ApiIntegracaoErpMinAggregateOutputType | null
+    _max: ApiIntegracaoErpMaxAggregateOutputType | null
+  }
+
+  export type ApiIntegracaoErpMinAggregateOutputType = {
+    id_api_integracao_erp: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    credenciais_criptografadas_api_integracao_erp: string | null
+    protocolo_api_integracao_erp: $Enums.ProtocoloApiIntegracaoErp | null
+    data_criacao_api_integracao_erp: Date | null
+    data_atualizacao_api_integracao_erp: Date | null
+  }
+
+  export type ApiIntegracaoErpMaxAggregateOutputType = {
+    id_api_integracao_erp: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    credenciais_criptografadas_api_integracao_erp: string | null
+    protocolo_api_integracao_erp: $Enums.ProtocoloApiIntegracaoErp | null
+    data_criacao_api_integracao_erp: Date | null
+    data_atualizacao_api_integracao_erp: Date | null
+  }
+
+  export type ApiIntegracaoErpCountAggregateOutputType = {
+    id_api_integracao_erp: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_usuario: number
+    credenciais_criptografadas_api_integracao_erp: number
+    protocolo_api_integracao_erp: number
+    data_criacao_api_integracao_erp: number
+    data_atualizacao_api_integracao_erp: number
+    _all: number
+  }
+
+
+  export type ApiIntegracaoErpMinAggregateInputType = {
+    id_api_integracao_erp?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    credenciais_criptografadas_api_integracao_erp?: true
+    protocolo_api_integracao_erp?: true
+    data_criacao_api_integracao_erp?: true
+    data_atualizacao_api_integracao_erp?: true
+  }
+
+  export type ApiIntegracaoErpMaxAggregateInputType = {
+    id_api_integracao_erp?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    credenciais_criptografadas_api_integracao_erp?: true
+    protocolo_api_integracao_erp?: true
+    data_criacao_api_integracao_erp?: true
+    data_atualizacao_api_integracao_erp?: true
+  }
+
+  export type ApiIntegracaoErpCountAggregateInputType = {
+    id_api_integracao_erp?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_usuario?: true
+    credenciais_criptografadas_api_integracao_erp?: true
+    protocolo_api_integracao_erp?: true
+    data_criacao_api_integracao_erp?: true
+    data_atualizacao_api_integracao_erp?: true
+    _all?: true
+  }
+
+  export type ApiIntegracaoErpAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiIntegracaoErp to aggregate.
+     */
+    where?: ApiIntegracaoErpWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiIntegracaoErps to fetch.
+     */
+    orderBy?: ApiIntegracaoErpOrderByWithRelationInput | ApiIntegracaoErpOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApiIntegracaoErpWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiIntegracaoErps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiIntegracaoErps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ApiIntegracaoErps
+    **/
+    _count?: true | ApiIntegracaoErpCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApiIntegracaoErpMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApiIntegracaoErpMaxAggregateInputType
+  }
+
+  export type GetApiIntegracaoErpAggregateType<T extends ApiIntegracaoErpAggregateArgs> = {
+        [P in keyof T & keyof AggregateApiIntegracaoErp]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApiIntegracaoErp[P]>
+      : GetScalarType<T[P], AggregateApiIntegracaoErp[P]>
+  }
+
+
+
+
+  export type ApiIntegracaoErpGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApiIntegracaoErpWhereInput
+    orderBy?: ApiIntegracaoErpOrderByWithAggregationInput | ApiIntegracaoErpOrderByWithAggregationInput[]
+    by: ApiIntegracaoErpScalarFieldEnum[] | ApiIntegracaoErpScalarFieldEnum
+    having?: ApiIntegracaoErpScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApiIntegracaoErpCountAggregateInputType | true
+    _min?: ApiIntegracaoErpMinAggregateInputType
+    _max?: ApiIntegracaoErpMaxAggregateInputType
+  }
+
+  export type ApiIntegracaoErpGroupByOutputType = {
+    id_api_integracao_erp: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_usuario: string | null
+    credenciais_criptografadas_api_integracao_erp: string
+    protocolo_api_integracao_erp: $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp: Date
+    data_atualizacao_api_integracao_erp: Date
+    _count: ApiIntegracaoErpCountAggregateOutputType | null
+    _min: ApiIntegracaoErpMinAggregateOutputType | null
+    _max: ApiIntegracaoErpMaxAggregateOutputType | null
+  }
+
+  type GetApiIntegracaoErpGroupByPayload<T extends ApiIntegracaoErpGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApiIntegracaoErpGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApiIntegracaoErpGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApiIntegracaoErpGroupByOutputType[P]>
+            : GetScalarType<T[P], ApiIntegracaoErpGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApiIntegracaoErpSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_api_integracao_erp?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    credenciais_criptografadas_api_integracao_erp?: boolean
+    protocolo_api_integracao_erp?: boolean
+    data_criacao_api_integracao_erp?: boolean
+    data_atualizacao_api_integracao_erp?: boolean
+  }, ExtArgs["result"]["apiIntegracaoErp"]>
+
+  export type ApiIntegracaoErpSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_api_integracao_erp?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    credenciais_criptografadas_api_integracao_erp?: boolean
+    protocolo_api_integracao_erp?: boolean
+    data_criacao_api_integracao_erp?: boolean
+    data_atualizacao_api_integracao_erp?: boolean
+  }, ExtArgs["result"]["apiIntegracaoErp"]>
+
+  export type ApiIntegracaoErpSelectScalar = {
+    id_api_integracao_erp?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_usuario?: boolean
+    credenciais_criptografadas_api_integracao_erp?: boolean
+    protocolo_api_integracao_erp?: boolean
+    data_criacao_api_integracao_erp?: boolean
+    data_atualizacao_api_integracao_erp?: boolean
+  }
+
+
+  export type $ApiIntegracaoErpPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ApiIntegracaoErp"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_api_integracao_erp: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_usuario: string | null
+      credenciais_criptografadas_api_integracao_erp: string
+      protocolo_api_integracao_erp: $Enums.ProtocoloApiIntegracaoErp
+      data_criacao_api_integracao_erp: Date
+      data_atualizacao_api_integracao_erp: Date
+    }, ExtArgs["result"]["apiIntegracaoErp"]>
+    composites: {}
+  }
+
+  type ApiIntegracaoErpGetPayload<S extends boolean | null | undefined | ApiIntegracaoErpDefaultArgs> = $Result.GetResult<Prisma.$ApiIntegracaoErpPayload, S>
+
+  type ApiIntegracaoErpCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ApiIntegracaoErpFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ApiIntegracaoErpCountAggregateInputType | true
+    }
+
+  export interface ApiIntegracaoErpDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ApiIntegracaoErp'], meta: { name: 'ApiIntegracaoErp' } }
+    /**
+     * Find zero or one ApiIntegracaoErp that matches the filter.
+     * @param {ApiIntegracaoErpFindUniqueArgs} args - Arguments to find a ApiIntegracaoErp
+     * @example
+     * // Get one ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApiIntegracaoErpFindUniqueArgs>(args: SelectSubset<T, ApiIntegracaoErpFindUniqueArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ApiIntegracaoErp that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ApiIntegracaoErpFindUniqueOrThrowArgs} args - Arguments to find a ApiIntegracaoErp
+     * @example
+     * // Get one ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApiIntegracaoErpFindUniqueOrThrowArgs>(args: SelectSubset<T, ApiIntegracaoErpFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ApiIntegracaoErp that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpFindFirstArgs} args - Arguments to find a ApiIntegracaoErp
+     * @example
+     * // Get one ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApiIntegracaoErpFindFirstArgs>(args?: SelectSubset<T, ApiIntegracaoErpFindFirstArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ApiIntegracaoErp that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpFindFirstOrThrowArgs} args - Arguments to find a ApiIntegracaoErp
+     * @example
+     * // Get one ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApiIntegracaoErpFindFirstOrThrowArgs>(args?: SelectSubset<T, ApiIntegracaoErpFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ApiIntegracaoErps that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ApiIntegracaoErps
+     * const apiIntegracaoErps = await prisma.apiIntegracaoErp.findMany()
+     * 
+     * // Get first 10 ApiIntegracaoErps
+     * const apiIntegracaoErps = await prisma.apiIntegracaoErp.findMany({ take: 10 })
+     * 
+     * // Only select the `id_api_integracao_erp`
+     * const apiIntegracaoErpWithId_api_integracao_erpOnly = await prisma.apiIntegracaoErp.findMany({ select: { id_api_integracao_erp: true } })
+     * 
+     */
+    findMany<T extends ApiIntegracaoErpFindManyArgs>(args?: SelectSubset<T, ApiIntegracaoErpFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ApiIntegracaoErp.
+     * @param {ApiIntegracaoErpCreateArgs} args - Arguments to create a ApiIntegracaoErp.
+     * @example
+     * // Create one ApiIntegracaoErp
+     * const ApiIntegracaoErp = await prisma.apiIntegracaoErp.create({
+     *   data: {
+     *     // ... data to create a ApiIntegracaoErp
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApiIntegracaoErpCreateArgs>(args: SelectSubset<T, ApiIntegracaoErpCreateArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ApiIntegracaoErps.
+     * @param {ApiIntegracaoErpCreateManyArgs} args - Arguments to create many ApiIntegracaoErps.
+     * @example
+     * // Create many ApiIntegracaoErps
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApiIntegracaoErpCreateManyArgs>(args?: SelectSubset<T, ApiIntegracaoErpCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ApiIntegracaoErps and returns the data saved in the database.
+     * @param {ApiIntegracaoErpCreateManyAndReturnArgs} args - Arguments to create many ApiIntegracaoErps.
+     * @example
+     * // Create many ApiIntegracaoErps
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ApiIntegracaoErps and only return the `id_api_integracao_erp`
+     * const apiIntegracaoErpWithId_api_integracao_erpOnly = await prisma.apiIntegracaoErp.createManyAndReturn({ 
+     *   select: { id_api_integracao_erp: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApiIntegracaoErpCreateManyAndReturnArgs>(args?: SelectSubset<T, ApiIntegracaoErpCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ApiIntegracaoErp.
+     * @param {ApiIntegracaoErpDeleteArgs} args - Arguments to delete one ApiIntegracaoErp.
+     * @example
+     * // Delete one ApiIntegracaoErp
+     * const ApiIntegracaoErp = await prisma.apiIntegracaoErp.delete({
+     *   where: {
+     *     // ... filter to delete one ApiIntegracaoErp
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApiIntegracaoErpDeleteArgs>(args: SelectSubset<T, ApiIntegracaoErpDeleteArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ApiIntegracaoErp.
+     * @param {ApiIntegracaoErpUpdateArgs} args - Arguments to update one ApiIntegracaoErp.
+     * @example
+     * // Update one ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApiIntegracaoErpUpdateArgs>(args: SelectSubset<T, ApiIntegracaoErpUpdateArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ApiIntegracaoErps.
+     * @param {ApiIntegracaoErpDeleteManyArgs} args - Arguments to filter ApiIntegracaoErps to delete.
+     * @example
+     * // Delete a few ApiIntegracaoErps
+     * const { count } = await prisma.apiIntegracaoErp.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApiIntegracaoErpDeleteManyArgs>(args?: SelectSubset<T, ApiIntegracaoErpDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApiIntegracaoErps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ApiIntegracaoErps
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApiIntegracaoErpUpdateManyArgs>(args: SelectSubset<T, ApiIntegracaoErpUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ApiIntegracaoErp.
+     * @param {ApiIntegracaoErpUpsertArgs} args - Arguments to update or create a ApiIntegracaoErp.
+     * @example
+     * // Update or create a ApiIntegracaoErp
+     * const apiIntegracaoErp = await prisma.apiIntegracaoErp.upsert({
+     *   create: {
+     *     // ... data to create a ApiIntegracaoErp
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ApiIntegracaoErp we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApiIntegracaoErpUpsertArgs>(args: SelectSubset<T, ApiIntegracaoErpUpsertArgs<ExtArgs>>): Prisma__ApiIntegracaoErpClient<$Result.GetResult<Prisma.$ApiIntegracaoErpPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ApiIntegracaoErps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpCountArgs} args - Arguments to filter ApiIntegracaoErps to count.
+     * @example
+     * // Count the number of ApiIntegracaoErps
+     * const count = await prisma.apiIntegracaoErp.count({
+     *   where: {
+     *     // ... the filter for the ApiIntegracaoErps we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApiIntegracaoErpCountArgs>(
+      args?: Subset<T, ApiIntegracaoErpCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApiIntegracaoErpCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ApiIntegracaoErp.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApiIntegracaoErpAggregateArgs>(args: Subset<T, ApiIntegracaoErpAggregateArgs>): Prisma.PrismaPromise<GetApiIntegracaoErpAggregateType<T>>
+
+    /**
+     * Group by ApiIntegracaoErp.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiIntegracaoErpGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApiIntegracaoErpGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApiIntegracaoErpGroupByArgs['orderBy'] }
+        : { orderBy?: ApiIntegracaoErpGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApiIntegracaoErpGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApiIntegracaoErpGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ApiIntegracaoErp model
+   */
+  readonly fields: ApiIntegracaoErpFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ApiIntegracaoErp.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApiIntegracaoErpClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ApiIntegracaoErp model
+   */ 
+  interface ApiIntegracaoErpFieldRefs {
+    readonly id_api_integracao_erp: FieldRef<"ApiIntegracaoErp", 'String'>
+    readonly id_organizacao: FieldRef<"ApiIntegracaoErp", 'String'>
+    readonly id_produto_gravity: FieldRef<"ApiIntegracaoErp", 'String'>
+    readonly id_usuario: FieldRef<"ApiIntegracaoErp", 'String'>
+    readonly credenciais_criptografadas_api_integracao_erp: FieldRef<"ApiIntegracaoErp", 'String'>
+    readonly protocolo_api_integracao_erp: FieldRef<"ApiIntegracaoErp", 'ProtocoloApiIntegracaoErp'>
+    readonly data_criacao_api_integracao_erp: FieldRef<"ApiIntegracaoErp", 'DateTime'>
+    readonly data_atualizacao_api_integracao_erp: FieldRef<"ApiIntegracaoErp", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ApiIntegracaoErp findUnique
+   */
+  export type ApiIntegracaoErpFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiIntegracaoErp to fetch.
+     */
+    where: ApiIntegracaoErpWhereUniqueInput
+  }
+
+  /**
+   * ApiIntegracaoErp findUniqueOrThrow
+   */
+  export type ApiIntegracaoErpFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiIntegracaoErp to fetch.
+     */
+    where: ApiIntegracaoErpWhereUniqueInput
+  }
+
+  /**
+   * ApiIntegracaoErp findFirst
+   */
+  export type ApiIntegracaoErpFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiIntegracaoErp to fetch.
+     */
+    where?: ApiIntegracaoErpWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiIntegracaoErps to fetch.
+     */
+    orderBy?: ApiIntegracaoErpOrderByWithRelationInput | ApiIntegracaoErpOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiIntegracaoErps.
+     */
+    cursor?: ApiIntegracaoErpWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiIntegracaoErps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiIntegracaoErps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiIntegracaoErps.
+     */
+    distinct?: ApiIntegracaoErpScalarFieldEnum | ApiIntegracaoErpScalarFieldEnum[]
+  }
+
+  /**
+   * ApiIntegracaoErp findFirstOrThrow
+   */
+  export type ApiIntegracaoErpFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiIntegracaoErp to fetch.
+     */
+    where?: ApiIntegracaoErpWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiIntegracaoErps to fetch.
+     */
+    orderBy?: ApiIntegracaoErpOrderByWithRelationInput | ApiIntegracaoErpOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiIntegracaoErps.
+     */
+    cursor?: ApiIntegracaoErpWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiIntegracaoErps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiIntegracaoErps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiIntegracaoErps.
+     */
+    distinct?: ApiIntegracaoErpScalarFieldEnum | ApiIntegracaoErpScalarFieldEnum[]
+  }
+
+  /**
+   * ApiIntegracaoErp findMany
+   */
+  export type ApiIntegracaoErpFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter, which ApiIntegracaoErps to fetch.
+     */
+    where?: ApiIntegracaoErpWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiIntegracaoErps to fetch.
+     */
+    orderBy?: ApiIntegracaoErpOrderByWithRelationInput | ApiIntegracaoErpOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ApiIntegracaoErps.
+     */
+    cursor?: ApiIntegracaoErpWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiIntegracaoErps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiIntegracaoErps.
+     */
+    skip?: number
+    distinct?: ApiIntegracaoErpScalarFieldEnum | ApiIntegracaoErpScalarFieldEnum[]
+  }
+
+  /**
+   * ApiIntegracaoErp create
+   */
+  export type ApiIntegracaoErpCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ApiIntegracaoErp.
+     */
+    data: XOR<ApiIntegracaoErpCreateInput, ApiIntegracaoErpUncheckedCreateInput>
+  }
+
+  /**
+   * ApiIntegracaoErp createMany
+   */
+  export type ApiIntegracaoErpCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ApiIntegracaoErps.
+     */
+    data: ApiIntegracaoErpCreateManyInput | ApiIntegracaoErpCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApiIntegracaoErp createManyAndReturn
+   */
+  export type ApiIntegracaoErpCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ApiIntegracaoErps.
+     */
+    data: ApiIntegracaoErpCreateManyInput | ApiIntegracaoErpCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApiIntegracaoErp update
+   */
+  export type ApiIntegracaoErpUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ApiIntegracaoErp.
+     */
+    data: XOR<ApiIntegracaoErpUpdateInput, ApiIntegracaoErpUncheckedUpdateInput>
+    /**
+     * Choose, which ApiIntegracaoErp to update.
+     */
+    where: ApiIntegracaoErpWhereUniqueInput
+  }
+
+  /**
+   * ApiIntegracaoErp updateMany
+   */
+  export type ApiIntegracaoErpUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ApiIntegracaoErps.
+     */
+    data: XOR<ApiIntegracaoErpUpdateManyMutationInput, ApiIntegracaoErpUncheckedUpdateManyInput>
+    /**
+     * Filter which ApiIntegracaoErps to update
+     */
+    where?: ApiIntegracaoErpWhereInput
+  }
+
+  /**
+   * ApiIntegracaoErp upsert
+   */
+  export type ApiIntegracaoErpUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ApiIntegracaoErp to update in case it exists.
+     */
+    where: ApiIntegracaoErpWhereUniqueInput
+    /**
+     * In case the ApiIntegracaoErp found by the `where` argument doesn't exist, create a new ApiIntegracaoErp with this data.
+     */
+    create: XOR<ApiIntegracaoErpCreateInput, ApiIntegracaoErpUncheckedCreateInput>
+    /**
+     * In case the ApiIntegracaoErp was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApiIntegracaoErpUpdateInput, ApiIntegracaoErpUncheckedUpdateInput>
+  }
+
+  /**
+   * ApiIntegracaoErp delete
+   */
+  export type ApiIntegracaoErpDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+    /**
+     * Filter which ApiIntegracaoErp to delete.
+     */
+    where: ApiIntegracaoErpWhereUniqueInput
+  }
+
+  /**
+   * ApiIntegracaoErp deleteMany
+   */
+  export type ApiIntegracaoErpDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiIntegracaoErps to delete
+     */
+    where?: ApiIntegracaoErpWhereInput
+  }
+
+  /**
+   * ApiIntegracaoErp without action
+   */
+  export type ApiIntegracaoErpDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiIntegracaoErp
+     */
+    select?: ApiIntegracaoErpSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -48072,6 +53423,93 @@ export namespace Prisma {
   export type ConfiguracaoCanalOrganizacaoScalarFieldEnum = (typeof ConfiguracaoCanalOrganizacaoScalarFieldEnum)[keyof typeof ConfiguracaoCanalOrganizacaoScalarFieldEnum]
 
 
+  export const ApiTokenScalarFieldEnum: {
+    id_api_token: 'id_api_token',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    nome_api_token: 'nome_api_token',
+    hash_api_token: 'hash_api_token',
+    prefixo_api_token: 'prefixo_api_token',
+    escopo_api_token: 'escopo_api_token',
+    validade_api_token: 'validade_api_token',
+    data_expiracao_api_token: 'data_expiracao_api_token',
+    limite_requisicoes_minuto_api_token: 'limite_requisicoes_minuto_api_token',
+    revogado_api_token: 'revogado_api_token',
+    data_revogacao_api_token: 'data_revogacao_api_token',
+    data_criacao_api_token: 'data_criacao_api_token',
+    data_atualizacao_api_token: 'data_atualizacao_api_token'
+  };
+
+  export type ApiTokenScalarFieldEnum = (typeof ApiTokenScalarFieldEnum)[keyof typeof ApiTokenScalarFieldEnum]
+
+
+  export const WebhookConfiguracaoScalarFieldEnum: {
+    id_webhook_configuracao: 'id_webhook_configuracao',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    url_webhook_configuracao: 'url_webhook_configuracao',
+    segredo_webhook_configuracao: 'segredo_webhook_configuracao',
+    eventos_webhook_configuracao: 'eventos_webhook_configuracao',
+    ativo_webhook_configuracao: 'ativo_webhook_configuracao',
+    data_criacao_webhook_configuracao: 'data_criacao_webhook_configuracao',
+    data_atualizacao_webhook_configuracao: 'data_atualizacao_webhook_configuracao'
+  };
+
+  export type WebhookConfiguracaoScalarFieldEnum = (typeof WebhookConfiguracaoScalarFieldEnum)[keyof typeof WebhookConfiguracaoScalarFieldEnum]
+
+
+  export const WebhookLogScalarFieldEnum: {
+    id_webhook_log: 'id_webhook_log',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    id_webhook_configuracao: 'id_webhook_configuracao',
+    evento_webhook_log: 'evento_webhook_log',
+    codigo_resposta_http_webhook_log: 'codigo_resposta_http_webhook_log',
+    latencia_ms_webhook_log: 'latencia_ms_webhook_log',
+    quantidade_tentativas_webhook_log: 'quantidade_tentativas_webhook_log',
+    payload_webhook_log: 'payload_webhook_log',
+    erro_webhook_log: 'erro_webhook_log',
+    data_criacao_webhook_log: 'data_criacao_webhook_log',
+    data_atualizacao_webhook_log: 'data_atualizacao_webhook_log'
+  };
+
+  export type WebhookLogScalarFieldEnum = (typeof WebhookLogScalarFieldEnum)[keyof typeof WebhookLogScalarFieldEnum]
+
+
+  export const LogConsumoScalarFieldEnum: {
+    id_log_consumo: 'id_log_consumo',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    id_api_token: 'id_api_token',
+    endpoint_log_consumo: 'endpoint_log_consumo',
+    metodo_http_log_consumo: 'metodo_http_log_consumo',
+    codigo_resposta_http_log_consumo: 'codigo_resposta_http_log_consumo',
+    latencia_ms_log_consumo: 'latencia_ms_log_consumo',
+    data_criacao_log_consumo: 'data_criacao_log_consumo',
+    data_atualizacao_log_consumo: 'data_atualizacao_log_consumo'
+  };
+
+  export type LogConsumoScalarFieldEnum = (typeof LogConsumoScalarFieldEnum)[keyof typeof LogConsumoScalarFieldEnum]
+
+
+  export const ApiIntegracaoErpScalarFieldEnum: {
+    id_api_integracao_erp: 'id_api_integracao_erp',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_usuario: 'id_usuario',
+    credenciais_criptografadas_api_integracao_erp: 'credenciais_criptografadas_api_integracao_erp',
+    protocolo_api_integracao_erp: 'protocolo_api_integracao_erp',
+    data_criacao_api_integracao_erp: 'data_criacao_api_integracao_erp',
+    data_atualizacao_api_integracao_erp: 'data_atualizacao_api_integracao_erp'
+  };
+
+  export type ApiIntegracaoErpScalarFieldEnum = (typeof ApiIntegracaoErpScalarFieldEnum)[keyof typeof ApiIntegracaoErpScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -48360,6 +53798,48 @@ export namespace Prisma {
    * Reference to a field of type 'AlertaStatus[]'
    */
   export type ListEnumAlertaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertaStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EscopoApiToken'
+   */
+  export type EnumEscopoApiTokenFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EscopoApiToken'>
+    
+
+
+  /**
+   * Reference to a field of type 'EscopoApiToken[]'
+   */
+  export type ListEnumEscopoApiTokenFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EscopoApiToken[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ValidadeApiToken'
+   */
+  export type EnumValidadeApiTokenFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ValidadeApiToken'>
+    
+
+
+  /**
+   * Reference to a field of type 'ValidadeApiToken[]'
+   */
+  export type ListEnumValidadeApiTokenFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ValidadeApiToken[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProtocoloApiIntegracaoErp'
+   */
+  export type EnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProtocoloApiIntegracaoErp'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProtocoloApiIntegracaoErp[]'
+   */
+  export type ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProtocoloApiIntegracaoErp[]'>
     
   /**
    * Deep Input Types
@@ -52229,6 +57709,432 @@ export namespace Prisma {
     whatsapp_habilitado_configuracao_canal_organizacao?: BoolWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | boolean
     data_criacao_configuracao_canal_organizacao?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
     data_atualizacao_configuracao_canal_organizacao?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
+  }
+
+  export type ApiTokenWhereInput = {
+    AND?: ApiTokenWhereInput | ApiTokenWhereInput[]
+    OR?: ApiTokenWhereInput[]
+    NOT?: ApiTokenWhereInput | ApiTokenWhereInput[]
+    id_api_token?: StringFilter<"ApiToken"> | string
+    id_organizacao?: StringFilter<"ApiToken"> | string
+    id_produto_gravity?: StringNullableFilter<"ApiToken"> | string | null
+    id_usuario?: StringNullableFilter<"ApiToken"> | string | null
+    nome_api_token?: StringFilter<"ApiToken"> | string
+    hash_api_token?: StringFilter<"ApiToken"> | string
+    prefixo_api_token?: StringFilter<"ApiToken"> | string
+    escopo_api_token?: EnumEscopoApiTokenFilter<"ApiToken"> | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFilter<"ApiToken"> | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: DateTimeNullableFilter<"ApiToken"> | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFilter<"ApiToken"> | number
+    revogado_api_token?: BoolFilter<"ApiToken"> | boolean
+    data_revogacao_api_token?: DateTimeNullableFilter<"ApiToken"> | Date | string | null
+    data_criacao_api_token?: DateTimeFilter<"ApiToken"> | Date | string
+    data_atualizacao_api_token?: DateTimeFilter<"ApiToken"> | Date | string
+  }
+
+  export type ApiTokenOrderByWithRelationInput = {
+    id_api_token?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    nome_api_token?: SortOrder
+    hash_api_token?: SortOrder
+    prefixo_api_token?: SortOrder
+    escopo_api_token?: SortOrder
+    validade_api_token?: SortOrder
+    data_expiracao_api_token?: SortOrderInput | SortOrder
+    limite_requisicoes_minuto_api_token?: SortOrder
+    revogado_api_token?: SortOrder
+    data_revogacao_api_token?: SortOrderInput | SortOrder
+    data_criacao_api_token?: SortOrder
+    data_atualizacao_api_token?: SortOrder
+  }
+
+  export type ApiTokenWhereUniqueInput = Prisma.AtLeast<{
+    id_api_token?: string
+    hash_api_token?: string
+    AND?: ApiTokenWhereInput | ApiTokenWhereInput[]
+    OR?: ApiTokenWhereInput[]
+    NOT?: ApiTokenWhereInput | ApiTokenWhereInput[]
+    id_organizacao?: StringFilter<"ApiToken"> | string
+    id_produto_gravity?: StringNullableFilter<"ApiToken"> | string | null
+    id_usuario?: StringNullableFilter<"ApiToken"> | string | null
+    nome_api_token?: StringFilter<"ApiToken"> | string
+    prefixo_api_token?: StringFilter<"ApiToken"> | string
+    escopo_api_token?: EnumEscopoApiTokenFilter<"ApiToken"> | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFilter<"ApiToken"> | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: DateTimeNullableFilter<"ApiToken"> | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFilter<"ApiToken"> | number
+    revogado_api_token?: BoolFilter<"ApiToken"> | boolean
+    data_revogacao_api_token?: DateTimeNullableFilter<"ApiToken"> | Date | string | null
+    data_criacao_api_token?: DateTimeFilter<"ApiToken"> | Date | string
+    data_atualizacao_api_token?: DateTimeFilter<"ApiToken"> | Date | string
+  }, "id_api_token" | "hash_api_token">
+
+  export type ApiTokenOrderByWithAggregationInput = {
+    id_api_token?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    nome_api_token?: SortOrder
+    hash_api_token?: SortOrder
+    prefixo_api_token?: SortOrder
+    escopo_api_token?: SortOrder
+    validade_api_token?: SortOrder
+    data_expiracao_api_token?: SortOrderInput | SortOrder
+    limite_requisicoes_minuto_api_token?: SortOrder
+    revogado_api_token?: SortOrder
+    data_revogacao_api_token?: SortOrderInput | SortOrder
+    data_criacao_api_token?: SortOrder
+    data_atualizacao_api_token?: SortOrder
+    _count?: ApiTokenCountOrderByAggregateInput
+    _avg?: ApiTokenAvgOrderByAggregateInput
+    _max?: ApiTokenMaxOrderByAggregateInput
+    _min?: ApiTokenMinOrderByAggregateInput
+    _sum?: ApiTokenSumOrderByAggregateInput
+  }
+
+  export type ApiTokenScalarWhereWithAggregatesInput = {
+    AND?: ApiTokenScalarWhereWithAggregatesInput | ApiTokenScalarWhereWithAggregatesInput[]
+    OR?: ApiTokenScalarWhereWithAggregatesInput[]
+    NOT?: ApiTokenScalarWhereWithAggregatesInput | ApiTokenScalarWhereWithAggregatesInput[]
+    id_api_token?: StringWithAggregatesFilter<"ApiToken"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ApiToken"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"ApiToken"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"ApiToken"> | string | null
+    nome_api_token?: StringWithAggregatesFilter<"ApiToken"> | string
+    hash_api_token?: StringWithAggregatesFilter<"ApiToken"> | string
+    prefixo_api_token?: StringWithAggregatesFilter<"ApiToken"> | string
+    escopo_api_token?: EnumEscopoApiTokenWithAggregatesFilter<"ApiToken"> | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenWithAggregatesFilter<"ApiToken"> | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: DateTimeNullableWithAggregatesFilter<"ApiToken"> | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntWithAggregatesFilter<"ApiToken"> | number
+    revogado_api_token?: BoolWithAggregatesFilter<"ApiToken"> | boolean
+    data_revogacao_api_token?: DateTimeNullableWithAggregatesFilter<"ApiToken"> | Date | string | null
+    data_criacao_api_token?: DateTimeWithAggregatesFilter<"ApiToken"> | Date | string
+    data_atualizacao_api_token?: DateTimeWithAggregatesFilter<"ApiToken"> | Date | string
+  }
+
+  export type WebhookConfiguracaoWhereInput = {
+    AND?: WebhookConfiguracaoWhereInput | WebhookConfiguracaoWhereInput[]
+    OR?: WebhookConfiguracaoWhereInput[]
+    NOT?: WebhookConfiguracaoWhereInput | WebhookConfiguracaoWhereInput[]
+    id_webhook_configuracao?: StringFilter<"WebhookConfiguracao"> | string
+    id_organizacao?: StringFilter<"WebhookConfiguracao"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookConfiguracao"> | string | null
+    id_usuario?: StringNullableFilter<"WebhookConfiguracao"> | string | null
+    url_webhook_configuracao?: StringFilter<"WebhookConfiguracao"> | string
+    segredo_webhook_configuracao?: StringFilter<"WebhookConfiguracao"> | string
+    eventos_webhook_configuracao?: StringNullableListFilter<"WebhookConfiguracao">
+    ativo_webhook_configuracao?: BoolFilter<"WebhookConfiguracao"> | boolean
+    data_criacao_webhook_configuracao?: DateTimeFilter<"WebhookConfiguracao"> | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFilter<"WebhookConfiguracao"> | Date | string
+  }
+
+  export type WebhookConfiguracaoOrderByWithRelationInput = {
+    id_webhook_configuracao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    url_webhook_configuracao?: SortOrder
+    segredo_webhook_configuracao?: SortOrder
+    eventos_webhook_configuracao?: SortOrder
+    ativo_webhook_configuracao?: SortOrder
+    data_criacao_webhook_configuracao?: SortOrder
+    data_atualizacao_webhook_configuracao?: SortOrder
+  }
+
+  export type WebhookConfiguracaoWhereUniqueInput = Prisma.AtLeast<{
+    id_webhook_configuracao?: string
+    AND?: WebhookConfiguracaoWhereInput | WebhookConfiguracaoWhereInput[]
+    OR?: WebhookConfiguracaoWhereInput[]
+    NOT?: WebhookConfiguracaoWhereInput | WebhookConfiguracaoWhereInput[]
+    id_organizacao?: StringFilter<"WebhookConfiguracao"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookConfiguracao"> | string | null
+    id_usuario?: StringNullableFilter<"WebhookConfiguracao"> | string | null
+    url_webhook_configuracao?: StringFilter<"WebhookConfiguracao"> | string
+    segredo_webhook_configuracao?: StringFilter<"WebhookConfiguracao"> | string
+    eventos_webhook_configuracao?: StringNullableListFilter<"WebhookConfiguracao">
+    ativo_webhook_configuracao?: BoolFilter<"WebhookConfiguracao"> | boolean
+    data_criacao_webhook_configuracao?: DateTimeFilter<"WebhookConfiguracao"> | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFilter<"WebhookConfiguracao"> | Date | string
+  }, "id_webhook_configuracao">
+
+  export type WebhookConfiguracaoOrderByWithAggregationInput = {
+    id_webhook_configuracao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    url_webhook_configuracao?: SortOrder
+    segredo_webhook_configuracao?: SortOrder
+    eventos_webhook_configuracao?: SortOrder
+    ativo_webhook_configuracao?: SortOrder
+    data_criacao_webhook_configuracao?: SortOrder
+    data_atualizacao_webhook_configuracao?: SortOrder
+    _count?: WebhookConfiguracaoCountOrderByAggregateInput
+    _max?: WebhookConfiguracaoMaxOrderByAggregateInput
+    _min?: WebhookConfiguracaoMinOrderByAggregateInput
+  }
+
+  export type WebhookConfiguracaoScalarWhereWithAggregatesInput = {
+    AND?: WebhookConfiguracaoScalarWhereWithAggregatesInput | WebhookConfiguracaoScalarWhereWithAggregatesInput[]
+    OR?: WebhookConfiguracaoScalarWhereWithAggregatesInput[]
+    NOT?: WebhookConfiguracaoScalarWhereWithAggregatesInput | WebhookConfiguracaoScalarWhereWithAggregatesInput[]
+    id_webhook_configuracao?: StringWithAggregatesFilter<"WebhookConfiguracao"> | string
+    id_organizacao?: StringWithAggregatesFilter<"WebhookConfiguracao"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"WebhookConfiguracao"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"WebhookConfiguracao"> | string | null
+    url_webhook_configuracao?: StringWithAggregatesFilter<"WebhookConfiguracao"> | string
+    segredo_webhook_configuracao?: StringWithAggregatesFilter<"WebhookConfiguracao"> | string
+    eventos_webhook_configuracao?: StringNullableListFilter<"WebhookConfiguracao">
+    ativo_webhook_configuracao?: BoolWithAggregatesFilter<"WebhookConfiguracao"> | boolean
+    data_criacao_webhook_configuracao?: DateTimeWithAggregatesFilter<"WebhookConfiguracao"> | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeWithAggregatesFilter<"WebhookConfiguracao"> | Date | string
+  }
+
+  export type WebhookLogWhereInput = {
+    AND?: WebhookLogWhereInput | WebhookLogWhereInput[]
+    OR?: WebhookLogWhereInput[]
+    NOT?: WebhookLogWhereInput | WebhookLogWhereInput[]
+    id_webhook_log?: StringFilter<"WebhookLog"> | string
+    id_organizacao?: StringFilter<"WebhookLog"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookLog"> | string | null
+    id_usuario?: StringNullableFilter<"WebhookLog"> | string | null
+    id_webhook_configuracao?: StringFilter<"WebhookLog"> | string
+    evento_webhook_log?: StringFilter<"WebhookLog"> | string
+    codigo_resposta_http_webhook_log?: IntFilter<"WebhookLog"> | number
+    latencia_ms_webhook_log?: IntFilter<"WebhookLog"> | number
+    quantidade_tentativas_webhook_log?: IntFilter<"WebhookLog"> | number
+    payload_webhook_log?: JsonNullableFilter<"WebhookLog">
+    erro_webhook_log?: StringNullableFilter<"WebhookLog"> | string | null
+    data_criacao_webhook_log?: DateTimeFilter<"WebhookLog"> | Date | string
+    data_atualizacao_webhook_log?: DateTimeFilter<"WebhookLog"> | Date | string
+  }
+
+  export type WebhookLogOrderByWithRelationInput = {
+    id_webhook_log?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_webhook_configuracao?: SortOrder
+    evento_webhook_log?: SortOrder
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+    payload_webhook_log?: SortOrderInput | SortOrder
+    erro_webhook_log?: SortOrderInput | SortOrder
+    data_criacao_webhook_log?: SortOrder
+    data_atualizacao_webhook_log?: SortOrder
+  }
+
+  export type WebhookLogWhereUniqueInput = Prisma.AtLeast<{
+    id_webhook_log?: string
+    AND?: WebhookLogWhereInput | WebhookLogWhereInput[]
+    OR?: WebhookLogWhereInput[]
+    NOT?: WebhookLogWhereInput | WebhookLogWhereInput[]
+    id_organizacao?: StringFilter<"WebhookLog"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookLog"> | string | null
+    id_usuario?: StringNullableFilter<"WebhookLog"> | string | null
+    id_webhook_configuracao?: StringFilter<"WebhookLog"> | string
+    evento_webhook_log?: StringFilter<"WebhookLog"> | string
+    codigo_resposta_http_webhook_log?: IntFilter<"WebhookLog"> | number
+    latencia_ms_webhook_log?: IntFilter<"WebhookLog"> | number
+    quantidade_tentativas_webhook_log?: IntFilter<"WebhookLog"> | number
+    payload_webhook_log?: JsonNullableFilter<"WebhookLog">
+    erro_webhook_log?: StringNullableFilter<"WebhookLog"> | string | null
+    data_criacao_webhook_log?: DateTimeFilter<"WebhookLog"> | Date | string
+    data_atualizacao_webhook_log?: DateTimeFilter<"WebhookLog"> | Date | string
+  }, "id_webhook_log">
+
+  export type WebhookLogOrderByWithAggregationInput = {
+    id_webhook_log?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_webhook_configuracao?: SortOrder
+    evento_webhook_log?: SortOrder
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+    payload_webhook_log?: SortOrderInput | SortOrder
+    erro_webhook_log?: SortOrderInput | SortOrder
+    data_criacao_webhook_log?: SortOrder
+    data_atualizacao_webhook_log?: SortOrder
+    _count?: WebhookLogCountOrderByAggregateInput
+    _avg?: WebhookLogAvgOrderByAggregateInput
+    _max?: WebhookLogMaxOrderByAggregateInput
+    _min?: WebhookLogMinOrderByAggregateInput
+    _sum?: WebhookLogSumOrderByAggregateInput
+  }
+
+  export type WebhookLogScalarWhereWithAggregatesInput = {
+    AND?: WebhookLogScalarWhereWithAggregatesInput | WebhookLogScalarWhereWithAggregatesInput[]
+    OR?: WebhookLogScalarWhereWithAggregatesInput[]
+    NOT?: WebhookLogScalarWhereWithAggregatesInput | WebhookLogScalarWhereWithAggregatesInput[]
+    id_webhook_log?: StringWithAggregatesFilter<"WebhookLog"> | string
+    id_organizacao?: StringWithAggregatesFilter<"WebhookLog"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"WebhookLog"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"WebhookLog"> | string | null
+    id_webhook_configuracao?: StringWithAggregatesFilter<"WebhookLog"> | string
+    evento_webhook_log?: StringWithAggregatesFilter<"WebhookLog"> | string
+    codigo_resposta_http_webhook_log?: IntWithAggregatesFilter<"WebhookLog"> | number
+    latencia_ms_webhook_log?: IntWithAggregatesFilter<"WebhookLog"> | number
+    quantidade_tentativas_webhook_log?: IntWithAggregatesFilter<"WebhookLog"> | number
+    payload_webhook_log?: JsonNullableWithAggregatesFilter<"WebhookLog">
+    erro_webhook_log?: StringNullableWithAggregatesFilter<"WebhookLog"> | string | null
+    data_criacao_webhook_log?: DateTimeWithAggregatesFilter<"WebhookLog"> | Date | string
+    data_atualizacao_webhook_log?: DateTimeWithAggregatesFilter<"WebhookLog"> | Date | string
+  }
+
+  export type LogConsumoWhereInput = {
+    AND?: LogConsumoWhereInput | LogConsumoWhereInput[]
+    OR?: LogConsumoWhereInput[]
+    NOT?: LogConsumoWhereInput | LogConsumoWhereInput[]
+    id_log_consumo?: StringFilter<"LogConsumo"> | string
+    id_organizacao?: StringFilter<"LogConsumo"> | string
+    id_produto_gravity?: StringNullableFilter<"LogConsumo"> | string | null
+    id_usuario?: StringNullableFilter<"LogConsumo"> | string | null
+    id_api_token?: StringFilter<"LogConsumo"> | string
+    endpoint_log_consumo?: StringFilter<"LogConsumo"> | string
+    metodo_http_log_consumo?: StringFilter<"LogConsumo"> | string
+    codigo_resposta_http_log_consumo?: IntFilter<"LogConsumo"> | number
+    latencia_ms_log_consumo?: IntFilter<"LogConsumo"> | number
+    data_criacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
+    data_atualizacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
+  }
+
+  export type LogConsumoOrderByWithRelationInput = {
+    id_log_consumo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_api_token?: SortOrder
+    endpoint_log_consumo?: SortOrder
+    metodo_http_log_consumo?: SortOrder
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+    data_criacao_log_consumo?: SortOrder
+    data_atualizacao_log_consumo?: SortOrder
+  }
+
+  export type LogConsumoWhereUniqueInput = Prisma.AtLeast<{
+    id_log_consumo?: string
+    AND?: LogConsumoWhereInput | LogConsumoWhereInput[]
+    OR?: LogConsumoWhereInput[]
+    NOT?: LogConsumoWhereInput | LogConsumoWhereInput[]
+    id_organizacao?: StringFilter<"LogConsumo"> | string
+    id_produto_gravity?: StringNullableFilter<"LogConsumo"> | string | null
+    id_usuario?: StringNullableFilter<"LogConsumo"> | string | null
+    id_api_token?: StringFilter<"LogConsumo"> | string
+    endpoint_log_consumo?: StringFilter<"LogConsumo"> | string
+    metodo_http_log_consumo?: StringFilter<"LogConsumo"> | string
+    codigo_resposta_http_log_consumo?: IntFilter<"LogConsumo"> | number
+    latencia_ms_log_consumo?: IntFilter<"LogConsumo"> | number
+    data_criacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
+    data_atualizacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
+  }, "id_log_consumo">
+
+  export type LogConsumoOrderByWithAggregationInput = {
+    id_log_consumo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_api_token?: SortOrder
+    endpoint_log_consumo?: SortOrder
+    metodo_http_log_consumo?: SortOrder
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+    data_criacao_log_consumo?: SortOrder
+    data_atualizacao_log_consumo?: SortOrder
+    _count?: LogConsumoCountOrderByAggregateInput
+    _avg?: LogConsumoAvgOrderByAggregateInput
+    _max?: LogConsumoMaxOrderByAggregateInput
+    _min?: LogConsumoMinOrderByAggregateInput
+    _sum?: LogConsumoSumOrderByAggregateInput
+  }
+
+  export type LogConsumoScalarWhereWithAggregatesInput = {
+    AND?: LogConsumoScalarWhereWithAggregatesInput | LogConsumoScalarWhereWithAggregatesInput[]
+    OR?: LogConsumoScalarWhereWithAggregatesInput[]
+    NOT?: LogConsumoScalarWhereWithAggregatesInput | LogConsumoScalarWhereWithAggregatesInput[]
+    id_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
+    id_organizacao?: StringWithAggregatesFilter<"LogConsumo"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"LogConsumo"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"LogConsumo"> | string | null
+    id_api_token?: StringWithAggregatesFilter<"LogConsumo"> | string
+    endpoint_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
+    metodo_http_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
+    codigo_resposta_http_log_consumo?: IntWithAggregatesFilter<"LogConsumo"> | number
+    latencia_ms_log_consumo?: IntWithAggregatesFilter<"LogConsumo"> | number
+    data_criacao_log_consumo?: DateTimeWithAggregatesFilter<"LogConsumo"> | Date | string
+    data_atualizacao_log_consumo?: DateTimeWithAggregatesFilter<"LogConsumo"> | Date | string
+  }
+
+  export type ApiIntegracaoErpWhereInput = {
+    AND?: ApiIntegracaoErpWhereInput | ApiIntegracaoErpWhereInput[]
+    OR?: ApiIntegracaoErpWhereInput[]
+    NOT?: ApiIntegracaoErpWhereInput | ApiIntegracaoErpWhereInput[]
+    id_api_integracao_erp?: StringFilter<"ApiIntegracaoErp"> | string
+    id_organizacao?: StringFilter<"ApiIntegracaoErp"> | string
+    id_produto_gravity?: StringNullableFilter<"ApiIntegracaoErp"> | string | null
+    id_usuario?: StringNullableFilter<"ApiIntegracaoErp"> | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFilter<"ApiIntegracaoErp"> | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFilter<"ApiIntegracaoErp"> | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFilter<"ApiIntegracaoErp"> | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFilter<"ApiIntegracaoErp"> | Date | string
+  }
+
+  export type ApiIntegracaoErpOrderByWithRelationInput = {
+    id_api_integracao_erp?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    credenciais_criptografadas_api_integracao_erp?: SortOrder
+    protocolo_api_integracao_erp?: SortOrder
+    data_criacao_api_integracao_erp?: SortOrder
+    data_atualizacao_api_integracao_erp?: SortOrder
+  }
+
+  export type ApiIntegracaoErpWhereUniqueInput = Prisma.AtLeast<{
+    id_api_integracao_erp?: string
+    id_organizacao?: string
+    AND?: ApiIntegracaoErpWhereInput | ApiIntegracaoErpWhereInput[]
+    OR?: ApiIntegracaoErpWhereInput[]
+    NOT?: ApiIntegracaoErpWhereInput | ApiIntegracaoErpWhereInput[]
+    id_produto_gravity?: StringNullableFilter<"ApiIntegracaoErp"> | string | null
+    id_usuario?: StringNullableFilter<"ApiIntegracaoErp"> | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFilter<"ApiIntegracaoErp"> | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFilter<"ApiIntegracaoErp"> | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFilter<"ApiIntegracaoErp"> | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFilter<"ApiIntegracaoErp"> | Date | string
+  }, "id_api_integracao_erp" | "id_organizacao">
+
+  export type ApiIntegracaoErpOrderByWithAggregationInput = {
+    id_api_integracao_erp?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    credenciais_criptografadas_api_integracao_erp?: SortOrder
+    protocolo_api_integracao_erp?: SortOrder
+    data_criacao_api_integracao_erp?: SortOrder
+    data_atualizacao_api_integracao_erp?: SortOrder
+    _count?: ApiIntegracaoErpCountOrderByAggregateInput
+    _max?: ApiIntegracaoErpMaxOrderByAggregateInput
+    _min?: ApiIntegracaoErpMinOrderByAggregateInput
+  }
+
+  export type ApiIntegracaoErpScalarWhereWithAggregatesInput = {
+    AND?: ApiIntegracaoErpScalarWhereWithAggregatesInput | ApiIntegracaoErpScalarWhereWithAggregatesInput[]
+    OR?: ApiIntegracaoErpScalarWhereWithAggregatesInput[]
+    NOT?: ApiIntegracaoErpScalarWhereWithAggregatesInput | ApiIntegracaoErpScalarWhereWithAggregatesInput[]
+    id_api_integracao_erp?: StringWithAggregatesFilter<"ApiIntegracaoErp"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ApiIntegracaoErp"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"ApiIntegracaoErp"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"ApiIntegracaoErp"> | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringWithAggregatesFilter<"ApiIntegracaoErp"> | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpWithAggregatesFilter<"ApiIntegracaoErp"> | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeWithAggregatesFilter<"ApiIntegracaoErp"> | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeWithAggregatesFilter<"ApiIntegracaoErp"> | Date | string
   }
 
   export type AtividadeDadosCreateInput = {
@@ -56810,6 +62716,510 @@ export namespace Prisma {
     data_atualizacao_configuracao_canal_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ApiTokenCreateInput = {
+    id_api_token?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    nome_api_token: string
+    hash_api_token: string
+    prefixo_api_token: string
+    escopo_api_token?: $Enums.EscopoApiToken
+    validade_api_token?: $Enums.ValidadeApiToken
+    data_expiracao_api_token?: Date | string | null
+    limite_requisicoes_minuto_api_token?: number
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: Date | string | null
+    data_criacao_api_token?: Date | string
+    data_atualizacao_api_token?: Date | string
+  }
+
+  export type ApiTokenUncheckedCreateInput = {
+    id_api_token?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    nome_api_token: string
+    hash_api_token: string
+    prefixo_api_token: string
+    escopo_api_token?: $Enums.EscopoApiToken
+    validade_api_token?: $Enums.ValidadeApiToken
+    data_expiracao_api_token?: Date | string | null
+    limite_requisicoes_minuto_api_token?: number
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: Date | string | null
+    data_criacao_api_token?: Date | string
+    data_atualizacao_api_token?: Date | string
+  }
+
+  export type ApiTokenUpdateInput = {
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_api_token?: StringFieldUpdateOperationsInput | string
+    hash_api_token?: StringFieldUpdateOperationsInput | string
+    prefixo_api_token?: StringFieldUpdateOperationsInput | string
+    escopo_api_token?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFieldUpdateOperationsInput | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFieldUpdateOperationsInput | number
+    revogado_api_token?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiTokenUncheckedUpdateInput = {
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_api_token?: StringFieldUpdateOperationsInput | string
+    hash_api_token?: StringFieldUpdateOperationsInput | string
+    prefixo_api_token?: StringFieldUpdateOperationsInput | string
+    escopo_api_token?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFieldUpdateOperationsInput | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFieldUpdateOperationsInput | number
+    revogado_api_token?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiTokenCreateManyInput = {
+    id_api_token?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    nome_api_token: string
+    hash_api_token: string
+    prefixo_api_token: string
+    escopo_api_token?: $Enums.EscopoApiToken
+    validade_api_token?: $Enums.ValidadeApiToken
+    data_expiracao_api_token?: Date | string | null
+    limite_requisicoes_minuto_api_token?: number
+    revogado_api_token?: boolean
+    data_revogacao_api_token?: Date | string | null
+    data_criacao_api_token?: Date | string
+    data_atualizacao_api_token?: Date | string
+  }
+
+  export type ApiTokenUpdateManyMutationInput = {
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_api_token?: StringFieldUpdateOperationsInput | string
+    hash_api_token?: StringFieldUpdateOperationsInput | string
+    prefixo_api_token?: StringFieldUpdateOperationsInput | string
+    escopo_api_token?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFieldUpdateOperationsInput | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFieldUpdateOperationsInput | number
+    revogado_api_token?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiTokenUncheckedUpdateManyInput = {
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_api_token?: StringFieldUpdateOperationsInput | string
+    hash_api_token?: StringFieldUpdateOperationsInput | string
+    prefixo_api_token?: StringFieldUpdateOperationsInput | string
+    escopo_api_token?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    validade_api_token?: EnumValidadeApiTokenFieldUpdateOperationsInput | $Enums.ValidadeApiToken
+    data_expiracao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    limite_requisicoes_minuto_api_token?: IntFieldUpdateOperationsInput | number
+    revogado_api_token?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_api_token?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_token?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookConfiguracaoCreateInput = {
+    id_webhook_configuracao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    url_webhook_configuracao: string
+    segredo_webhook_configuracao: string
+    eventos_webhook_configuracao?: WebhookConfiguracaoCreateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: Date | string
+    data_atualizacao_webhook_configuracao?: Date | string
+  }
+
+  export type WebhookConfiguracaoUncheckedCreateInput = {
+    id_webhook_configuracao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    url_webhook_configuracao: string
+    segredo_webhook_configuracao: string
+    eventos_webhook_configuracao?: WebhookConfiguracaoCreateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: Date | string
+    data_atualizacao_webhook_configuracao?: Date | string
+  }
+
+  export type WebhookConfiguracaoUpdateInput = {
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    url_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    segredo_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    eventos_webhook_configuracao?: WebhookConfiguracaoUpdateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookConfiguracaoUncheckedUpdateInput = {
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    url_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    segredo_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    eventos_webhook_configuracao?: WebhookConfiguracaoUpdateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookConfiguracaoCreateManyInput = {
+    id_webhook_configuracao?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    url_webhook_configuracao: string
+    segredo_webhook_configuracao: string
+    eventos_webhook_configuracao?: WebhookConfiguracaoCreateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: boolean
+    data_criacao_webhook_configuracao?: Date | string
+    data_atualizacao_webhook_configuracao?: Date | string
+  }
+
+  export type WebhookConfiguracaoUpdateManyMutationInput = {
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    url_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    segredo_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    eventos_webhook_configuracao?: WebhookConfiguracaoUpdateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookConfiguracaoUncheckedUpdateManyInput = {
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    url_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    segredo_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    eventos_webhook_configuracao?: WebhookConfiguracaoUpdateeventos_webhook_configuracaoInput | string[]
+    ativo_webhook_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookLogCreateInput = {
+    id_webhook_log?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_webhook_configuracao: string
+    evento_webhook_log: string
+    codigo_resposta_http_webhook_log: number
+    latencia_ms_webhook_log: number
+    quantidade_tentativas_webhook_log: number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: string | null
+    data_criacao_webhook_log?: Date | string
+    data_atualizacao_webhook_log?: Date | string
+  }
+
+  export type WebhookLogUncheckedCreateInput = {
+    id_webhook_log?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_webhook_configuracao: string
+    evento_webhook_log: string
+    codigo_resposta_http_webhook_log: number
+    latencia_ms_webhook_log: number
+    quantidade_tentativas_webhook_log: number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: string | null
+    data_criacao_webhook_log?: Date | string
+    data_atualizacao_webhook_log?: Date | string
+  }
+
+  export type WebhookLogUpdateInput = {
+    id_webhook_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    evento_webhook_log?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_webhook_log?: IntFieldUpdateOperationsInput | number
+    latencia_ms_webhook_log?: IntFieldUpdateOperationsInput | number
+    quantidade_tentativas_webhook_log?: IntFieldUpdateOperationsInput | number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookLogUncheckedUpdateInput = {
+    id_webhook_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    evento_webhook_log?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_webhook_log?: IntFieldUpdateOperationsInput | number
+    latencia_ms_webhook_log?: IntFieldUpdateOperationsInput | number
+    quantidade_tentativas_webhook_log?: IntFieldUpdateOperationsInput | number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookLogCreateManyInput = {
+    id_webhook_log?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_webhook_configuracao: string
+    evento_webhook_log: string
+    codigo_resposta_http_webhook_log: number
+    latencia_ms_webhook_log: number
+    quantidade_tentativas_webhook_log: number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: string | null
+    data_criacao_webhook_log?: Date | string
+    data_atualizacao_webhook_log?: Date | string
+  }
+
+  export type WebhookLogUpdateManyMutationInput = {
+    id_webhook_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    evento_webhook_log?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_webhook_log?: IntFieldUpdateOperationsInput | number
+    latencia_ms_webhook_log?: IntFieldUpdateOperationsInput | number
+    quantidade_tentativas_webhook_log?: IntFieldUpdateOperationsInput | number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookLogUncheckedUpdateManyInput = {
+    id_webhook_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_webhook_configuracao?: StringFieldUpdateOperationsInput | string
+    evento_webhook_log?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_webhook_log?: IntFieldUpdateOperationsInput | number
+    latencia_ms_webhook_log?: IntFieldUpdateOperationsInput | number
+    quantidade_tentativas_webhook_log?: IntFieldUpdateOperationsInput | number
+    payload_webhook_log?: NullableJsonNullValueInput | InputJsonValue
+    erro_webhook_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LogConsumoCreateInput = {
+    id_log_consumo?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_api_token: string
+    endpoint_log_consumo: string
+    metodo_http_log_consumo: string
+    codigo_resposta_http_log_consumo: number
+    latencia_ms_log_consumo: number
+    data_criacao_log_consumo?: Date | string
+    data_atualizacao_log_consumo?: Date | string
+  }
+
+  export type LogConsumoUncheckedCreateInput = {
+    id_log_consumo?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_api_token: string
+    endpoint_log_consumo: string
+    metodo_http_log_consumo: string
+    codigo_resposta_http_log_consumo: number
+    latencia_ms_log_consumo: number
+    data_criacao_log_consumo?: Date | string
+    data_atualizacao_log_consumo?: Date | string
+  }
+
+  export type LogConsumoUpdateInput = {
+    id_log_consumo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LogConsumoUncheckedUpdateInput = {
+    id_log_consumo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LogConsumoCreateManyInput = {
+    id_log_consumo?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    id_api_token: string
+    endpoint_log_consumo: string
+    metodo_http_log_consumo: string
+    codigo_resposta_http_log_consumo: number
+    latencia_ms_log_consumo: number
+    data_criacao_log_consumo?: Date | string
+    data_atualizacao_log_consumo?: Date | string
+  }
+
+  export type LogConsumoUpdateManyMutationInput = {
+    id_log_consumo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LogConsumoUncheckedUpdateManyInput = {
+    id_log_consumo?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_api_token?: StringFieldUpdateOperationsInput | string
+    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiIntegracaoErpCreateInput = {
+    id_api_integracao_erp?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    credenciais_criptografadas_api_integracao_erp: string
+    protocolo_api_integracao_erp?: $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: Date | string
+    data_atualizacao_api_integracao_erp?: Date | string
+  }
+
+  export type ApiIntegracaoErpUncheckedCreateInput = {
+    id_api_integracao_erp?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    credenciais_criptografadas_api_integracao_erp: string
+    protocolo_api_integracao_erp?: $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: Date | string
+    data_atualizacao_api_integracao_erp?: Date | string
+  }
+
+  export type ApiIntegracaoErpUpdateInput = {
+    id_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFieldUpdateOperationsInput | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiIntegracaoErpUncheckedUpdateInput = {
+    id_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFieldUpdateOperationsInput | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiIntegracaoErpCreateManyInput = {
+    id_api_integracao_erp?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_usuario?: string | null
+    credenciais_criptografadas_api_integracao_erp: string
+    protocolo_api_integracao_erp?: $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: Date | string
+    data_atualizacao_api_integracao_erp?: Date | string
+  }
+
+  export type ApiIntegracaoErpUpdateManyMutationInput = {
+    id_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFieldUpdateOperationsInput | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiIntegracaoErpUncheckedUpdateManyInput = {
+    id_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    credenciais_criptografadas_api_integracao_erp?: StringFieldUpdateOperationsInput | string
+    protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpFieldUpdateOperationsInput | $Enums.ProtocoloApiIntegracaoErp
+    data_criacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -59668,6 +66078,299 @@ export namespace Prisma {
     data_atualizacao_configuracao_canal_organizacao?: SortOrder
   }
 
+  export type EnumEscopoApiTokenFilter<$PrismaModel = never> = {
+    equals?: $Enums.EscopoApiToken | EnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumEscopoApiTokenFilter<$PrismaModel> | $Enums.EscopoApiToken
+  }
+
+  export type EnumValidadeApiTokenFilter<$PrismaModel = never> = {
+    equals?: $Enums.ValidadeApiToken | EnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumValidadeApiTokenFilter<$PrismaModel> | $Enums.ValidadeApiToken
+  }
+
+  export type ApiTokenCountOrderByAggregateInput = {
+    id_api_token?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    nome_api_token?: SortOrder
+    hash_api_token?: SortOrder
+    prefixo_api_token?: SortOrder
+    escopo_api_token?: SortOrder
+    validade_api_token?: SortOrder
+    data_expiracao_api_token?: SortOrder
+    limite_requisicoes_minuto_api_token?: SortOrder
+    revogado_api_token?: SortOrder
+    data_revogacao_api_token?: SortOrder
+    data_criacao_api_token?: SortOrder
+    data_atualizacao_api_token?: SortOrder
+  }
+
+  export type ApiTokenAvgOrderByAggregateInput = {
+    limite_requisicoes_minuto_api_token?: SortOrder
+  }
+
+  export type ApiTokenMaxOrderByAggregateInput = {
+    id_api_token?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    nome_api_token?: SortOrder
+    hash_api_token?: SortOrder
+    prefixo_api_token?: SortOrder
+    escopo_api_token?: SortOrder
+    validade_api_token?: SortOrder
+    data_expiracao_api_token?: SortOrder
+    limite_requisicoes_minuto_api_token?: SortOrder
+    revogado_api_token?: SortOrder
+    data_revogacao_api_token?: SortOrder
+    data_criacao_api_token?: SortOrder
+    data_atualizacao_api_token?: SortOrder
+  }
+
+  export type ApiTokenMinOrderByAggregateInput = {
+    id_api_token?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    nome_api_token?: SortOrder
+    hash_api_token?: SortOrder
+    prefixo_api_token?: SortOrder
+    escopo_api_token?: SortOrder
+    validade_api_token?: SortOrder
+    data_expiracao_api_token?: SortOrder
+    limite_requisicoes_minuto_api_token?: SortOrder
+    revogado_api_token?: SortOrder
+    data_revogacao_api_token?: SortOrder
+    data_criacao_api_token?: SortOrder
+    data_atualizacao_api_token?: SortOrder
+  }
+
+  export type ApiTokenSumOrderByAggregateInput = {
+    limite_requisicoes_minuto_api_token?: SortOrder
+  }
+
+  export type EnumEscopoApiTokenWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EscopoApiToken | EnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumEscopoApiTokenWithAggregatesFilter<$PrismaModel> | $Enums.EscopoApiToken
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEscopoApiTokenFilter<$PrismaModel>
+    _max?: NestedEnumEscopoApiTokenFilter<$PrismaModel>
+  }
+
+  export type EnumValidadeApiTokenWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ValidadeApiToken | EnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumValidadeApiTokenWithAggregatesFilter<$PrismaModel> | $Enums.ValidadeApiToken
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumValidadeApiTokenFilter<$PrismaModel>
+    _max?: NestedEnumValidadeApiTokenFilter<$PrismaModel>
+  }
+
+  export type WebhookConfiguracaoCountOrderByAggregateInput = {
+    id_webhook_configuracao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    url_webhook_configuracao?: SortOrder
+    segredo_webhook_configuracao?: SortOrder
+    eventos_webhook_configuracao?: SortOrder
+    ativo_webhook_configuracao?: SortOrder
+    data_criacao_webhook_configuracao?: SortOrder
+    data_atualizacao_webhook_configuracao?: SortOrder
+  }
+
+  export type WebhookConfiguracaoMaxOrderByAggregateInput = {
+    id_webhook_configuracao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    url_webhook_configuracao?: SortOrder
+    segredo_webhook_configuracao?: SortOrder
+    ativo_webhook_configuracao?: SortOrder
+    data_criacao_webhook_configuracao?: SortOrder
+    data_atualizacao_webhook_configuracao?: SortOrder
+  }
+
+  export type WebhookConfiguracaoMinOrderByAggregateInput = {
+    id_webhook_configuracao?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    url_webhook_configuracao?: SortOrder
+    segredo_webhook_configuracao?: SortOrder
+    ativo_webhook_configuracao?: SortOrder
+    data_criacao_webhook_configuracao?: SortOrder
+    data_atualizacao_webhook_configuracao?: SortOrder
+  }
+
+  export type WebhookLogCountOrderByAggregateInput = {
+    id_webhook_log?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_webhook_configuracao?: SortOrder
+    evento_webhook_log?: SortOrder
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+    payload_webhook_log?: SortOrder
+    erro_webhook_log?: SortOrder
+    data_criacao_webhook_log?: SortOrder
+    data_atualizacao_webhook_log?: SortOrder
+  }
+
+  export type WebhookLogAvgOrderByAggregateInput = {
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+  }
+
+  export type WebhookLogMaxOrderByAggregateInput = {
+    id_webhook_log?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_webhook_configuracao?: SortOrder
+    evento_webhook_log?: SortOrder
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+    erro_webhook_log?: SortOrder
+    data_criacao_webhook_log?: SortOrder
+    data_atualizacao_webhook_log?: SortOrder
+  }
+
+  export type WebhookLogMinOrderByAggregateInput = {
+    id_webhook_log?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_webhook_configuracao?: SortOrder
+    evento_webhook_log?: SortOrder
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+    erro_webhook_log?: SortOrder
+    data_criacao_webhook_log?: SortOrder
+    data_atualizacao_webhook_log?: SortOrder
+  }
+
+  export type WebhookLogSumOrderByAggregateInput = {
+    codigo_resposta_http_webhook_log?: SortOrder
+    latencia_ms_webhook_log?: SortOrder
+    quantidade_tentativas_webhook_log?: SortOrder
+  }
+
+  export type LogConsumoCountOrderByAggregateInput = {
+    id_log_consumo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_api_token?: SortOrder
+    endpoint_log_consumo?: SortOrder
+    metodo_http_log_consumo?: SortOrder
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+    data_criacao_log_consumo?: SortOrder
+    data_atualizacao_log_consumo?: SortOrder
+  }
+
+  export type LogConsumoAvgOrderByAggregateInput = {
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+  }
+
+  export type LogConsumoMaxOrderByAggregateInput = {
+    id_log_consumo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_api_token?: SortOrder
+    endpoint_log_consumo?: SortOrder
+    metodo_http_log_consumo?: SortOrder
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+    data_criacao_log_consumo?: SortOrder
+    data_atualizacao_log_consumo?: SortOrder
+  }
+
+  export type LogConsumoMinOrderByAggregateInput = {
+    id_log_consumo?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    id_api_token?: SortOrder
+    endpoint_log_consumo?: SortOrder
+    metodo_http_log_consumo?: SortOrder
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+    data_criacao_log_consumo?: SortOrder
+    data_atualizacao_log_consumo?: SortOrder
+  }
+
+  export type LogConsumoSumOrderByAggregateInput = {
+    codigo_resposta_http_log_consumo?: SortOrder
+    latencia_ms_log_consumo?: SortOrder
+  }
+
+  export type EnumProtocoloApiIntegracaoErpFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProtocoloApiIntegracaoErp | EnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    in?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    not?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel> | $Enums.ProtocoloApiIntegracaoErp
+  }
+
+  export type ApiIntegracaoErpCountOrderByAggregateInput = {
+    id_api_integracao_erp?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    credenciais_criptografadas_api_integracao_erp?: SortOrder
+    protocolo_api_integracao_erp?: SortOrder
+    data_criacao_api_integracao_erp?: SortOrder
+    data_atualizacao_api_integracao_erp?: SortOrder
+  }
+
+  export type ApiIntegracaoErpMaxOrderByAggregateInput = {
+    id_api_integracao_erp?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    credenciais_criptografadas_api_integracao_erp?: SortOrder
+    protocolo_api_integracao_erp?: SortOrder
+    data_criacao_api_integracao_erp?: SortOrder
+    data_atualizacao_api_integracao_erp?: SortOrder
+  }
+
+  export type ApiIntegracaoErpMinOrderByAggregateInput = {
+    id_api_integracao_erp?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_usuario?: SortOrder
+    credenciais_criptografadas_api_integracao_erp?: SortOrder
+    protocolo_api_integracao_erp?: SortOrder
+    data_criacao_api_integracao_erp?: SortOrder
+    data_atualizacao_api_integracao_erp?: SortOrder
+  }
+
+  export type EnumProtocoloApiIntegracaoErpWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProtocoloApiIntegracaoErp | EnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    in?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    not?: NestedEnumProtocoloApiIntegracaoErpWithAggregatesFilter<$PrismaModel> | $Enums.ProtocoloApiIntegracaoErp
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
+    _max?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
+  }
+
   export type UsuariosAtividadesCreateNestedManyWithoutAtividade_atividades_participantesInput = {
     create?: XOR<UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput, UsuariosAtividadesUncheckedCreateWithoutAtividade_atividades_participantesInput> | UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput[] | UsuariosAtividadesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
     connectOrCreate?: UsuariosAtividadesCreateOrConnectWithoutAtividade_atividades_participantesInput | UsuariosAtividadesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
@@ -60505,6 +67208,27 @@ export namespace Prisma {
     update?: XOR<XOR<GabiConversaCompletaUpdateToOneWithWhereWithoutMensagens_gabi_conversaInput, GabiConversaCompletaUpdateWithoutMensagens_gabi_conversaInput>, GabiConversaCompletaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
   }
 
+  export type EnumEscopoApiTokenFieldUpdateOperationsInput = {
+    set?: $Enums.EscopoApiToken
+  }
+
+  export type EnumValidadeApiTokenFieldUpdateOperationsInput = {
+    set?: $Enums.ValidadeApiToken
+  }
+
+  export type WebhookConfiguracaoCreateeventos_webhook_configuracaoInput = {
+    set: string[]
+  }
+
+  export type WebhookConfiguracaoUpdateeventos_webhook_configuracaoInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type EnumProtocoloApiIntegracaoErpFieldUpdateOperationsInput = {
+    set?: $Enums.ProtocoloApiIntegracaoErp
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -61028,6 +67752,57 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAlertaStatusFilter<$PrismaModel>
     _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEscopoApiTokenFilter<$PrismaModel = never> = {
+    equals?: $Enums.EscopoApiToken | EnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumEscopoApiTokenFilter<$PrismaModel> | $Enums.EscopoApiToken
+  }
+
+  export type NestedEnumValidadeApiTokenFilter<$PrismaModel = never> = {
+    equals?: $Enums.ValidadeApiToken | EnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumValidadeApiTokenFilter<$PrismaModel> | $Enums.ValidadeApiToken
+  }
+
+  export type NestedEnumEscopoApiTokenWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EscopoApiToken | EnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EscopoApiToken[] | ListEnumEscopoApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumEscopoApiTokenWithAggregatesFilter<$PrismaModel> | $Enums.EscopoApiToken
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEscopoApiTokenFilter<$PrismaModel>
+    _max?: NestedEnumEscopoApiTokenFilter<$PrismaModel>
+  }
+
+  export type NestedEnumValidadeApiTokenWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ValidadeApiToken | EnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    in?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ValidadeApiToken[] | ListEnumValidadeApiTokenFieldRefInput<$PrismaModel>
+    not?: NestedEnumValidadeApiTokenWithAggregatesFilter<$PrismaModel> | $Enums.ValidadeApiToken
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumValidadeApiTokenFilter<$PrismaModel>
+    _max?: NestedEnumValidadeApiTokenFilter<$PrismaModel>
+  }
+
+  export type NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProtocoloApiIntegracaoErp | EnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    in?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    not?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel> | $Enums.ProtocoloApiIntegracaoErp
+  }
+
+  export type NestedEnumProtocoloApiIntegracaoErpWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProtocoloApiIntegracaoErp | EnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    in?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProtocoloApiIntegracaoErp[] | ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel>
+    not?: NestedEnumProtocoloApiIntegracaoErpWithAggregatesFilter<$PrismaModel> | $Enums.ProtocoloApiIntegracaoErp
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
+    _max?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
   }
 
   export type UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput = {
@@ -63725,6 +70500,26 @@ export namespace Prisma {
      * @deprecated Use ConfiguracaoCanalOrganizacaoDefaultArgs instead
      */
     export type ConfiguracaoCanalOrganizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoCanalOrganizacaoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ApiTokenDefaultArgs instead
+     */
+    export type ApiTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ApiTokenDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use WebhookConfiguracaoDefaultArgs instead
+     */
+    export type WebhookConfiguracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WebhookConfiguracaoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use WebhookLogDefaultArgs instead
+     */
+    export type WebhookLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WebhookLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use LogConsumoDefaultArgs instead
+     */
+    export type LogConsumoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LogConsumoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ApiIntegracaoErpDefaultArgs instead
+     */
+    export type ApiIntegracaoErpArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ApiIntegracaoErpDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

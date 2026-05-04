@@ -77,7 +77,7 @@ function makeUsuario(role: string) {
   return {
     id_usuario:           'usr_contract_01',
     name:                 'Contract Tester',
-    email:                'contract@gravity.com.br',
+    email:                'contract@usegravity.com.br',
     role,
     tenant_id:            'ten_contract_01',
     preferred_company_id: null,

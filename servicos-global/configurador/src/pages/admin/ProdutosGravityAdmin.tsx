@@ -1160,16 +1160,16 @@ export function ProdutosGravityAdmin() {
             id: 'tokens',
             rotulo: 'Tokens',
             tooltipTitulo: 'GABI — Tokens on-demand',
-            tooltipDescricao: 'Quota mensal de tokens IA por tenant. Cada chamada GABI consome tokens reais do Gemini.',
+            tooltipDescricao: 'Quota mensal de tokens IA por organização. Cada chamada GABI consome tokens reais do Gemini.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <SecaoFormulario icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por tenant/mês" />
+                <SecaoFormulario icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por organização/mês" />
 
                 {/* Quota Padrão */}
                 <CampoGeralGlobal
-                  label="Token padrão mensal por tenant"
+                  label="Token padrão mensal por organização"
                   tooltipTitulo="QUOTA MENSAL"
-                  tooltipDescricao="Tokens disponíveis por mês para cada tenant deste produto. Aplica-se a todos os tenants, salvo negociação especial. Tokens não usados expiram no dia 1 de cada mês (sem rollover)."
+                  tooltipDescricao="Tokens disponíveis por mês para cada organização deste produto. Aplica-se a todas as organizações, salvo negociação especial. Tokens não usados expiram no dia 1 de cada mês (sem rollover)."
                 >
                   <div className="ws-input-icon-wrap">
                     <Coins size={16} />
@@ -1213,14 +1213,14 @@ export function ProdutosGravityAdmin() {
                 {produtoEditando && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
-                      Consumo este mês (todos os tenants)
+                      Consumo este mês (todas as organizações)
                     </span>
                     {gabiTokenStats ? (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                         {[
                           { label: 'Total consumido', valor: gabiTokenStats.total_consumido.toLocaleString('pt-BR') + ' tk' },
-                          { label: 'Tenants ativos', valor: String(gabiTokenStats.total_tenants) },
-                          { label: 'Média / tenant', valor: gabiTokenStats.media_por_tenant.toLocaleString('pt-BR') + ' tk' },
+                          { label: 'Organizações ativas', valor: String(gabiTokenStats.total_tenants) },
+                          { label: 'Média / organização', valor: gabiTokenStats.media_por_tenant.toLocaleString('pt-BR') + ' tk' },
                         ].map(stat => (
                           <div key={stat.label} style={{ padding: '0.75rem', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                             <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</span>
@@ -1270,7 +1270,7 @@ export function ProdutosGravityAdmin() {
                     'Reset automático: dia 1 de cada mês às 00:05 BRT',
                     'Tokens não usados expiram (sem rollover)',
                     'Ao atingir 80%: badge amarelo no cliente',
-                    'Ao atingir 90%: notificação para o admin do tenant',
+                    'Ao atingir 90%: notificação para o admin da organização',
                     'Ao atingir 100%: GABI desabilitada → opção de compra adicional',
                   ].map(rule => (
                     <span key={rule} style={{ fontSize: '0.8125rem', color: 'var(--ws-text)', display: 'flex', gap: '0.5rem' }}>

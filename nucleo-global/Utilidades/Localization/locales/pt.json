@@ -83,7 +83,7 @@
     "pagina_nao_encontrada": "Página não encontrada",
     "fechar_notificacao": "Fechar notificação",
     "usuario_padrao": "Usuário",
-    "email_padrao": "usuario@gravity.com.br",
+    "email_padrao": "usuario@usegravity.com.br",
     "papel_membro": "Membro",
     "organizacao_padrao": "Organização",
     "plano_padrao": "Plano Profissional",
@@ -1713,9 +1713,12 @@
       "aba_faturas": "Histórico de Faturas",
       "aba_produtos": "Produtos & Valores",
       "status": {
-        "pago": "Pago",
-        "pendente": "Pendente",
-        "atrasado": "Atrasado"
+        "draft": "Rascunho",
+        "open": "Pendente",
+        "paid": "Pago",
+        "void": "Anulada",
+        "overdue": "Atrasado",
+        "uncollectible": "Incobrável"
       },
       "proximo_vencimento": "Próximo Vencimento",
       "valor_pagar": "Valor a Pagar",

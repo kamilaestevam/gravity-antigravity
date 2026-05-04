@@ -53,7 +53,7 @@ const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspace
 const Usuarios = lazy(() => import('./pages/workspace/Usuarios'), 'Usuarios')
 const EmpresasEParceiros = lazy(() => import('./pages/workspace/EmpresasEParceiros'), 'EmpresasEParceiros')
 const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinaturas')
-const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeiro')
+const FinanceiroWorkspace = lazy(() => import('./pages/workspace/FinanceiroWorkspace'), 'FinanceiroWorkspace')
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
 const TaxasCambioPage = lazy(() => import('./pages/workspace/TaxasCambio'), 'TaxasCambio')
@@ -321,7 +321,7 @@ export default function App() {
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
           <Route path="empresas-e-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasEParceiros /></React.Suspense>} />
           <Route path="assinaturas" element={<React.Suspense fallback={<ProductLoading />}><Assinaturas /></React.Suspense>} />
-          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><Financeiro /></React.Suspense>} />
+          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroWorkspace /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
           <Route path="taxas-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxasCambioPage /></React.Suspense>} />

@@ -108,7 +108,7 @@ Gravity, mas a implementação real está bloqueada pelos pré-requisitos abaixo
       https://developers.contaazul.com/
 - [ ] Obter `client_id` + `client_secret`
 - [ ] Definir `redirect_uri` da aplicação (ex:
-      `https://configurador.gravity.com.br/api/v1/faturas/conta-azul/oauth-callback`)
+      `https://configurador.usegravity.com.br/api/v1/faturas/conta-azul/oauth-callback`)
 - [ ] Implementar endpoint callback OAuth no Gravity
       (`server/routes/billing.ts`)
 - [ ] Executar o fluxo OAuth2 Authorization Code **uma vez** manualmente:
@@ -129,7 +129,7 @@ NFSE_PROVIDER=conta_azul
 
 CONTA_AZUL_CLIENT_ID=
 CONTA_AZUL_CLIENT_SECRET=
-CONTA_AZUL_REDIRECT_URI=https://configurador.gravity.com.br/api/v1/faturas/conta-azul/oauth-callback
+CONTA_AZUL_REDIRECT_URI=https://configurador.usegravity.com.br/api/v1/faturas/conta-azul/oauth-callback
 CONTA_AZUL_REFRESH_TOKEN=                # obtido no fluxo OAuth, depois migrar pra DB
 CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 ```

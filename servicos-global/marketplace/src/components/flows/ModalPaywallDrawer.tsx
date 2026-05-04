@@ -43,7 +43,7 @@ export function PaywallDrawer({
 
   const handleConfirm = () => {
     // Redireciona para o Configurador — Marketplace NUNCA processa pagamento
-    const configuradorUrl = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+    const configuradorUrl = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
     window.location.href = `${configuradorUrl}/checkout?produto=${produto}&plano=${plano}`
   }
 

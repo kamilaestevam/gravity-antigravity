@@ -257,7 +257,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
-            {item.subdominio_organizacao}.gravity.com.br
+            {item.subdominio_organizacao}.usegravity.com.br
           </code>
         </a>
       )
@@ -342,7 +342,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
-            {item.subdominio_workspace}.gravity.com.br
+            {item.subdominio_workspace}.usegravity.com.br
           </code>
         </a>
       )

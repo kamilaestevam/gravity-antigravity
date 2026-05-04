@@ -120,7 +120,7 @@ const PRODUCTS: Record<string, {
 export function ProdutoDetalhe() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
+  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   // Redireciona simulador-comex para sua pagina dedicada
   if (id === 'simulador-comex') {

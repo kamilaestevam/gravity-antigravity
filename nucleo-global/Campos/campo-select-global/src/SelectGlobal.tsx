@@ -405,7 +405,11 @@ export function SelectGlobal({
         top: pos.above ? undefined : pos.top,
         bottom: pos.above ? window.innerHeight - pos.top : undefined,
         left: pos.left,
-        width: pos.width,
+        // minWidth (não width) — permite o dropdown crescer quando o trigger é
+        // estreito (ex: select de hora "02h"). O CSS .sg-dropdown define um
+        // min-width absoluto de 8rem; aqui garantimos que pelo menos a largura
+        // do trigger é respeitada.
+        minWidth: pos.width,
         maxHeight: pos.maxHeight ? `${pos.maxHeight}px` : undefined,
         zIndex: 99999,
       }}

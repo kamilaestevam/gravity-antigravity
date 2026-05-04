@@ -57,6 +57,7 @@ export function RecuperarSenhaRedefinirPage() {
   const [senha, setSenha] = useState('')
   const [confirmacao, setConfirmacao] = useState('')
   const [verSenha, setVerSenha] = useState(false)
+  const [verConfirmacao, setVerConfirmacao] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [reenviado, setReenviado] = useState(false)
@@ -240,7 +241,7 @@ export function RecuperarSenhaRedefinirPage() {
                 maxLength={6}
                 placeholder="000000"
                 onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
-                style={{ width: '100%', letterSpacing: '0.5em', fontFamily: 'monospace' }}
+                style={{ width: '100%' }}
                 disabled={enviando}
                 autoFocus
                 autoComplete="one-time-code"
@@ -266,9 +267,9 @@ export function RecuperarSenhaRedefinirPage() {
                 aria-label={verSenha ? 'Ocultar senha' : 'Mostrar senha'}
                 onClick={() => setVerSenha((v) => !v)}
                 style={{
-                  position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)',
+                  position: 'absolute', right: '0.625rem', top: 0, bottom: 0,
                   background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer',
-                  padding: '0.25rem', display: 'flex', alignItems: 'center',
+                  padding: '0 0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
                 {verSenha ? <EyeSlash size={16} /> : <Eye size={16} />}
@@ -295,17 +296,29 @@ export function RecuperarSenhaRedefinirPage() {
 
           {/* Confirmação */}
           <CampoGeralGlobal label={t('recuperar.redefinir.label_confirmar', 'Confirmar nova senha')} obrigatorio>
-            <div className="ws-input-icon-wrap">
+            <div className="ws-input-icon-wrap" style={{ position: 'relative' }}>
               <Lock size={16} />
               <input
                 value={confirmacao}
-                type={verSenha ? 'text' : 'password'}
+                type={verConfirmacao ? 'text' : 'password'}
                 placeholder="Digite a senha novamente"
                 onChange={(e) => setConfirmacao(e.target.value)}
-                style={{ width: '100%' }}
+                style={{ width: '100%', paddingRight: '2.5rem' }}
                 disabled={enviando}
                 autoComplete="new-password"
               />
+              <button
+                type="button"
+                aria-label={verConfirmacao ? 'Ocultar senha' : 'Mostrar senha'}
+                onClick={() => setVerConfirmacao((v) => !v)}
+                style={{
+                  position: 'absolute', right: '0.625rem', top: 0, bottom: 0,
+                  background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer',
+                  padding: '0 0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {verConfirmacao ? <EyeSlash size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </CampoGeralGlobal>
 

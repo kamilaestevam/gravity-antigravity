@@ -65,6 +65,18 @@ async function request<T>(
     throw new Error(body?.error?.message ?? body?.message ?? `HTTP ${res.status}`)
   }
 
+  // 204 No Content / corpo vazio: não tentar parsear JSON (lança SyntaxError em delete bem-sucedido)
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return undefined as T
+  }
+
+  // Defesa extra: se o servidor não declarar JSON, devolve texto ou undefined sem quebrar
+  const contentType = res.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) {
+    const text = await res.text()
+    return (text ? (text as unknown as T) : (undefined as T))
+  }
+
   return res.json()
 }
 

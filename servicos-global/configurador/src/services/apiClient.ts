@@ -1002,11 +1002,14 @@ export const workspaceApi = {
     return workspaceSingleResponseSchema.parse(raw)
   },
 
+  /**
+   * Atualiza workspace. Subdomínio NÃO é aceito no body (imutável após criação,
+   * ADR 0002 — backend rejeita via Zod `.strict()`).
+   */
   async updateWorkspace(
     id_workspace: string,
     data: Partial<{
       nome_workspace: string
-      subdominio_workspace: string
       cnpj_workspace: string
       status_workspace: 'ATIVO' | 'INATIVO'
     }>,

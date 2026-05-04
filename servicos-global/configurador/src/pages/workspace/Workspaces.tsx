@@ -128,9 +128,10 @@ export function Workspaces() {
   async function handleUpdate(dados: Partial<Workspace>) {
     if (!workspaceEditando) return
     try {
+      // Subdomínio é IMUTÁVEL após criação (decisão 2026-05-03 / ADR 0002).
+      // Backend rejeita `subdominio_workspace` no PATCH via Zod `.strict()`.
       await workspaceApi.updateWorkspace(workspaceEditando.id_workspace, {
         nome_workspace: dados.nome_workspace,
-        subdominio_workspace: dados.subdominio_workspace,
         cnpj_workspace: dados.cnpj_workspace,
       })
       setWorkspaces(prev =>

@@ -55,7 +55,7 @@ describe('CreateOrganizacaoSchema — validação BR / CNPJ', () => {
     const parsed = CreateOrganizacaoSchema.safeParse({
       ...baseInput,
       pais: 'BR',
-      cnpj: '12345678000199',
+      cnpj_organizacao: '12345678000199',
     })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {

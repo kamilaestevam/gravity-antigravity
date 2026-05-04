@@ -73,6 +73,15 @@ export function CadastroContinuarPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [oauthCarregando, setOauthCarregando] = useState(false)
 
+  // ─── Detecção de fluxo ────────────────────────────────────────────────────
+  // Dois caminhos chegam nesta tela:
+  //   1) Convite por e-mail — vem com `__clerk_ticket` na URL.
+  //   2) OAuth com campos faltando — pós-Google, signUp já existe no Clerk
+  //      mas falta `password` (ou outro campo exigido pelo Dashboard). Antes
+  //      ia pro Account Portal hospedado (`*.accounts.dev/sign-up/continue`).
+  const isInvitation = !!ticket
+  const isOAuthMissing = !ticket && isLoaded && signUp?.status === 'missing_requirements'
+
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
   // O Clerk preenche signUp.emailAddress / firstName / lastName quando o
   // ticket é processado via signUp.create({ strategy: 'ticket', ticket })
@@ -95,6 +104,17 @@ export function CadastroContinuarPage() {
         setErro(msg)
       })
   }, [isLoaded, signUp, ticket])
+
+  // ─── Pré-popula do OAuth (Google → missing fields) ────────────────────────
+  // Sem ticket, mas o Clerk já tem signUp ativo com email/nome do Google.
+  useEffect(() => {
+    if (!isOAuthMissing || !signUp) return
+    if (signUp.emailAddress) setEmailConvite(signUp.emailAddress)
+    const fn = (signUp.firstName ?? '').trim()
+    const ln = (signUp.lastName ?? '').trim()
+    const completo = [fn, ln].filter(Boolean).join(' ')
+    if (completo) setNome(completo)
+  }, [isOAuthMissing, signUp])
 
   // ─── Validações reativas ──────────────────────────────────────────────────
   const { forca, requisitos: requisitosSenha } = useMemo(() => avaliarSenha(senha), [senha])
@@ -162,8 +182,11 @@ export function CadastroContinuarPage() {
     }
   }
 
-  // ─── Estados de erro pré-form (ticket ausente/inválido) ───────────────────
-  if (!ticket && status !== 'sign_up') {
+  // ─── Estados de erro pré-form (entrada inválida na rota) ──────────────────
+  // Só mostramos "convite não encontrado" depois que o Clerk carregou e
+  // confirmamos que NÃO é nem convite nem OAuth-missing-fields nem retorno
+  // do Clerk (status=sign_up).
+  if (isLoaded && !isInvitation && !isOAuthMissing && status !== 'sign_up') {
     return (
       <div className="auth-root">
         <div className="auth-brand">
@@ -244,7 +267,7 @@ export function CadastroContinuarPage() {
           </p>
         </div>
 
-        {/* Banner do convite — contexto do e-mail */}
+        {/* Banner contextual — convite ou continuação OAuth */}
         {emailConvite && (
           <div
             role="note"
@@ -257,7 +280,11 @@ export function CadastroContinuarPage() {
           >
             <CheckCircle size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0 }} />
             <span style={{ color: '#c7d2fe' }}>
-              Convite recebido para <strong style={{ color: '#fff' }}>{emailConvite}</strong>
+              {isInvitation ? (
+                <>Convite recebido para <strong style={{ color: '#fff' }}>{emailConvite}</strong></>
+              ) : (
+                <>Quase lá — defina uma senha para <strong style={{ color: '#fff' }}>{emailConvite}</strong></>
+              )}
             </span>
           </div>
         )}
@@ -299,9 +326,9 @@ export function CadastroContinuarPage() {
             </div>
           </CampoGeralGlobal>
 
-          {/* E-mail (read-only, vem do convite) */}
+          {/* E-mail (read-only, vem do convite ou do Google) */}
           <CampoGeralGlobal label={t('cadastro.continuar.label_email', 'E-mail')}>
-            <TooltipGlobal descricao="O e-mail veio do convite e não pode ser alterado aqui.">
+            <TooltipGlobal descricao={isInvitation ? 'O e-mail veio do convite e não pode ser alterado aqui.' : 'E-mail confirmado pelo Google. Para usar outro, volte ao login e tente de novo.'}>
               <div className="ws-input-icon-wrap">
                 <EnvelopeSimple size={16} />
                 <input

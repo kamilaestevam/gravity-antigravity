@@ -5196,6 +5196,22 @@
     "padrao_enterprise_titulo": "Padrão Enterprise",
     "padrao_enterprise_desc": "Seus dados são exclusivamente seus. Nenhum outro cliente Gravity vê o que é da sua empresa."
   },
+  "cadastro": {
+    "continuar": {
+      "titulo": "Bem-vindo(a) ao Gravity",
+      "subtitulo": "Complete seu cadastro para acessar a plataforma.",
+      "google": "Continuar com Google",
+      "ou": "ou crie com senha",
+      "label_nome": "Nome completo",
+      "label_email": "E-mail",
+      "label_senha": "Senha",
+      "label_confirmar": "Confirmar senha",
+      "submit": "Criar conta",
+      "criando": "Criando conta…",
+      "ja_conhece": "Já tem uma conta?",
+      "entrar": "Entrar"
+    }
+  },
   "sw": {
     "carregando": "Carregando workspaces...",
     "titulo": "Acessar Workspace",

@@ -5074,6 +5074,22 @@
     "padrao_enterprise_titulo": "Enterprise Standard",
     "padrao_enterprise_desc": "Absolute privacy with full organization isolation in SaaS architecture."
   },
+  "cadastro": {
+    "continuar": {
+      "titulo": "Welcome to Gravity",
+      "subtitulo": "Complete your sign-up to access the platform.",
+      "google": "Continue with Google",
+      "ou": "or sign up with password",
+      "label_nome": "Full name",
+      "label_email": "Email",
+      "label_senha": "Password",
+      "label_confirmar": "Confirm password",
+      "submit": "Create account",
+      "criando": "Creating account…",
+      "ja_conhece": "Already have an account?",
+      "entrar": "Sign in"
+    }
+  },
   "sw": {
     "carregando": "Loading workspaces...",
     "titulo": "Access Workspace",

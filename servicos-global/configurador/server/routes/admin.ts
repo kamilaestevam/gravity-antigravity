@@ -563,6 +563,8 @@ const CreateInvoiceBodySchema = z.object({
     quantity: z.number().int().min(1).default(1),
   })).min(1),
   due_date: z.string().datetime().optional(),
+  competencia: z.string().regex(/^\d{4}-\d{2}$/, 'Competência deve ser YYYY-MM').optional(),
+  customer_email: z.string().email().optional(),
   currency: z.string().length(3).default('brl'),
   metadata: z.record(z.string()).optional(),
   auto_finalize: z.boolean().default(true),
@@ -1487,9 +1489,13 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica).
+    // `redirectUrl` faz o link do e-mail apontar para a tela Gravity-styled
+    // /cadastro/continuar em vez do Account Portal hospedado em *.accounts.dev.
+    const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
+      redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
     })
 
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)

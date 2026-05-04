@@ -4,6 +4,7 @@ import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/
 import { useLoadSystemRole } from './hooks/use-load-system-role'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
+import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
 
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
 const E2ENotificacoesHarness = import.meta.env.DEV
@@ -266,6 +267,8 @@ export default function App() {
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
+        {/* /cadastro/continuar — fluxo de convite Clerk customizado (precede o catch-all /cadastro/*) */}
+        <Route path="/cadastro/continuar" element={<PublicRoute><CadastroContinuarPage /></PublicRoute>} />
         <Route path="/cadastro/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
         <Route path="/recuperar-senha/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
 

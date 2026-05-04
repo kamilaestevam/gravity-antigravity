@@ -252,3 +252,69 @@
     display: none;
   }
 }
+
+/* ============================================================
+   CADASTRO CONTINUAR — fluxo Clerk customizado (UX 10/10)
+   ============================================================ */
+
+.cadastro-google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-radius: 9999px;
+  background: #2d3548;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1.25rem;
+}
+
+.cadastro-google-btn:hover:not(:disabled) {
+  background: #363f54;
+  border-color: rgba(255, 255, 255, 0.65);
+  transform: translateY(-1px);
+}
+
+.cadastro-google-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cadastro-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.25rem;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cadastro-divider::before,
+.cadastro-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cadastro-divider span {
+  white-space: nowrap;
+}
+
+.cadastro-spinner {
+  animation: cadastroSpin 0.8s linear infinite;
+}
+
+@keyframes cadastroSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

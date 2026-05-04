@@ -186,9 +186,13 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       throw new AppError('Usuário já pertence a esta organização', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica).
+    // `redirectUrl` faz o link do e-mail apontar para a tela Gravity-styled
+    // /cadastro/continuar em vez do Account Portal hospedado em *.accounts.dev.
+    const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email_usuario,
+      redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
     })
 
     // Pré-computa workspaces fora da transação — evita lock de longa duração em reads

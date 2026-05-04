@@ -5487,6 +5487,22 @@
     "padrao_enterprise_titulo": "Estándar Enterprise",
     "padrao_enterprise_desc": "Sus datos son exclusivamente suyos. Ningún otro cliente de Gravity ve lo que es de su empresa."
   },
+  "cadastro": {
+    "continuar": {
+      "titulo": "Bienvenido(a) a Gravity",
+      "subtitulo": "Complete su registro para acceder a la plataforma.",
+      "google": "Continuar con Google",
+      "ou": "o cree con contraseña",
+      "label_nome": "Nombre completo",
+      "label_email": "E-mail",
+      "label_senha": "Contraseña",
+      "label_confirmar": "Confirmar contraseña",
+      "submit": "Crear cuenta",
+      "criando": "Creando cuenta…",
+      "ja_conhece": "¿Ya tiene una cuenta?",
+      "entrar": "Iniciar sesión"
+    }
+  },
   "admin": {
     "gemini": {
       "titulo": "Métricas Gemini",

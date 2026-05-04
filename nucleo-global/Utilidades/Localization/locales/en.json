@@ -1494,7 +1494,7 @@
       "aba_dados": "User Data",
       "aba_permissoes": "Permissions",
       "aba_espacos": "Linked Workspaces",
-      "empresa_vinculada": "Linked Company",
+      "workspace_vinculado": "Linked Workspace",
       "plano": "Plan",
       "perfil_workspace": "Workspace Profile",
       "selecionar": "Select",
@@ -1710,7 +1710,7 @@
     "users_modal": {
       "editar_titulo": "Edit User",
       "editar_subtitulo": "Adjust basic data and access permissions to modules",
-      "empresa_vinculada": "Linked Company",
+      "workspace_vinculado": "Linked Workspace",
       "permissoes_admin_subtitulo": "Administrative permissions on the platform",
       "permissoes_cliente_subtitulo": "Permissions and access to modules and products",
       "nome_completo": "Full Name"

@@ -93,10 +93,58 @@ interface AbaDadosProps {
   nome: string
   email: string
   tipo: NivelAcesso
+  workspaces: WorkspaceItem[]
+  workspacesSalvos: string[]
   onValoresChange: (campo: 'nome' | 'email' | 'tipo', valor: string) => void
 }
 
-function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
+// Resumo read-only dos workspaces vinculados, com mesma semântica da coluna
+// ACESSO da tabela /workspace/usuarios:
+// - Master/Super Admin/Admin (LIMBO): chip "✶ Todos os workspaces"
+// - Standard/Fornecedor: chips com nomes de TODOS os workspaces (sem truncar)
+function WorkspacesVinculadosResumo({ tipo, workspaces, workspacesSalvos }: {
+  tipo: NivelAcesso
+  workspaces: WorkspaceItem[]
+  workspacesSalvos: string[]
+}) {
+  const acessoTotal = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
+
+  if (acessoTotal) {
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+        padding: '0.3rem 0.75rem', borderRadius: '9999px',
+        background: 'rgba(129,140,248,0.1)', color: '#818cf8',
+        fontSize: '0.8125rem', fontWeight: 600, fontStyle: 'italic',
+        border: '1px solid rgba(129,140,248,0.2)',
+      }}>
+        ✶ Todos os workspaces
+      </span>
+    )
+  }
+
+  const vinculados = workspaces.filter(w => workspacesSalvos.includes(w.id_workspace))
+
+  if (vinculados.length === 0) {
+    return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>Nenhum workspace vinculado</span>
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
+      {vinculados.map(w => (
+        <span key={w.id_workspace} style={{
+          padding: '0.2rem 0.625rem', borderRadius: '9999px',
+          background: 'var(--ws-surface)', border: '1px solid var(--ws-accent-border)',
+          color: 'var(--ws-text)', fontSize: '0.75rem', fontWeight: 500, whiteSpace: 'nowrap',
+        }}>
+          {w.nome_workspace}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function AbaDados({ nome, email, tipo, workspaces, workspacesSalvos, onValoresChange }: AbaDadosProps) {
   const { t } = useTranslation()
   return (
     <div style={{ padding: '0 0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -149,14 +197,15 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
           </div>
         </CampoGeralGlobal>
 
-        <CampoGeralGlobal label={t('workspace.users.empresa_vinculada')}>
-          <div className="ws-input-icon-wrap">
-            <Buildings size={16} />
-            <input
-              value="Acme Logística SP"
-              disabled
-              style={{ width: '100%', color: 'var(--ws-muted)', cursor: 'not-allowed' }}
-            />
+        <CampoGeralGlobal label={t('workspace.users.workspace_vinculado')}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.625rem',
+            padding: '0.625rem 0.875rem', borderRadius: '8px',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+            minHeight: '2.25rem',
+          }}>
+            <Buildings size={16} style={{ color: 'var(--ws-muted)', flexShrink: 0 }} />
+            <WorkspacesVinculadosResumo tipo={tipo} workspaces={workspaces} workspacesSalvos={workspacesSalvos} />
           </div>
         </CampoGeralGlobal>
       </div>
@@ -412,7 +461,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       icone: 'user',
       conteudo: (
         <>
-          <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />
+          <AbaDados nome={nome} email={email} tipo={tipo} workspaces={workspaces} workspacesSalvos={workspacesSalvos} onValoresChange={handleValoresChange} />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal requisitos={requisitos} />
           </div>
@@ -451,7 +500,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </>
       ),
     },
-  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, carregandoWorkspaces, requisitos])
+  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
 
   const originalPerms = useMemo(() => {
     if (!usuario) return []

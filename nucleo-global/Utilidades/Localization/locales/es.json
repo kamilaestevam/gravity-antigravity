@@ -1656,7 +1656,7 @@
       "aba_dados": "Datos del Usuario",
       "aba_permissoes": "Permisos",
       "aba_espacos": "Workspaces Vinculados",
-      "empresa_vinculada": "Empresa Vinculada",
+      "workspace_vinculado": "Workspace Vinculado",
       "plano": "Plan",
       "perfil_workspace": "Perfil en el Workspace",
       "selecionar": "Seleccionar",
@@ -1872,7 +1872,7 @@
     "users_modal": {
       "editar_titulo": "Editar Usuario",
       "editar_subtitulo": "Ajuste datos básicos y permisos de acceso a los módulos",
-      "empresa_vinculada": "Empresa Vinculada",
+      "workspace_vinculado": "Workspace Vinculado",
       "permissoes_admin_subtitulo": "Permisos administrativos en la plataforma",
       "permissoes_cliente_subtitulo": "Permisos y accesos a módulos y productos",
       "nome_completo": "Nombre Completo"

@@ -13,6 +13,7 @@ import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
@@ -192,6 +193,7 @@ export function FinanceiroAdmin() {
   const [formDescricao, setFormDescricao] = useState('')
   const [formCompetencia, setFormCompetencia] = useState('') // 'YYYY-MM'
   const [formVencimento, setFormVencimento] = useState('')   // 'YYYY-MM-DD'
+  const [formEmail, setFormEmail] = useState('')             // email da org (cobrança)
   const [formValor, setFormValor] = useState('')             // mascarado
   const [formQuantidade, setFormQuantidade] = useState('1')
   const [formAutoFinalize, setFormAutoFinalize] = useState<'sim' | 'nao'>('sim')
@@ -207,6 +209,7 @@ export function FinanceiroAdmin() {
     setFormDescricao('')
     setFormCompetencia('')
     setFormVencimento('')
+    setFormEmail('')
     setFormValor('')
     setFormQuantidade('1')
     setFormAutoFinalize('sim')
@@ -247,6 +250,7 @@ export function FinanceiroAdmin() {
         }],
         due_date: dueDate,
         competencia: formCompetencia || undefined,
+        customer_email: formEmail || undefined,
         currency: 'brl',
         auto_finalize: formAutoFinalize === 'sim',
       })
@@ -539,11 +543,52 @@ export function FinanceiroAdmin() {
         </button>
       ),
     },
+    // Ação "Enviar ao cliente" — só funcional com providers externos (Conta Azul, etc.).
+    // Provider 'gravity' é local: não há integração de email implementada.
+    // Renderizada como botão desabilitado com tooltip explicativo enquanto o provider
+    // externo não for plugado (BILLING_PROVIDER env var).
     {
       id: 'send',
       icone: <PaperPlaneTilt size={15} weight="bold" />,
       tooltip: 'Enviar ao cliente',
       onClick: (item) => setInvoiceParaEnviar(item),
+      renderCustom: (item) => {
+        const habilitado = provider !== 'gravity'
+        return (
+          <TooltipGlobal descricao={habilitado ? 'Enviar ao cliente' : 'Indisponível neste provider — configure Conta Azul para habilitar envio'}>
+            <button
+              type="button"
+              disabled={!habilitado}
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                if (habilitado) setInvoiceParaEnviar(item)
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28, borderRadius: '50%', background: 'transparent',
+                border: '1px solid transparent',
+                color: habilitado ? '#64748b' : 'rgba(100,116,139,0.4)',
+                cursor: habilitado ? 'pointer' : 'not-allowed',
+                transition: 'all 0.15s', flexShrink: 0,
+              }}
+              onMouseEnter={ev => {
+                if (!habilitado) return
+                ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'
+                ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'
+                ev.currentTarget.style.color = '#818cf8'
+              }}
+              onMouseLeave={ev => {
+                ev.currentTarget.style.background = 'transparent'
+                ev.currentTarget.style.borderColor = 'transparent'
+                ev.currentTarget.style.color = habilitado ? '#64748b' : 'rgba(100,116,139,0.4)'
+              }}
+            >
+              <PaperPlaneTilt size={15} weight="bold" />
+            </button>
+          </TooltipGlobal>
+        )
+      },
     },
     {
       id: 'void',
@@ -795,6 +840,16 @@ export function FinanceiroAdmin() {
                       </div>
                     </CampoGeralGlobal>
                   </div>
+
+                  <CampoGeralGlobal label="E-mail da Organização (cobrança)" tooltipDescricao="Email para envio da cobrança ao cliente. Opcional.">
+                    <input
+                      type="email"
+                      className="ws-input"
+                      value={formEmail}
+                      onChange={e => { setFormEmail(e.target.value); setFormDirty(true) }}
+                      placeholder="financeiro@cliente.com"
+                    />
+                  </CampoGeralGlobal>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <CampoGeralGlobal label="Quantidade">

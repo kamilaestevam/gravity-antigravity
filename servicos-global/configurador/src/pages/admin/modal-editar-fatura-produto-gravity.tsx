@@ -5,7 +5,7 @@
 //
 // Mandamentos 06 (Zod) + 09 (contrato bilateral) + REGRA 04 isolamento.
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Receipt, Paperclip, Plus, Trash, DownloadSimple, FilePdf } from '@phosphor-icons/react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
@@ -65,6 +65,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
   const [arquivoNovo,   setArquivoNovo]   = useState<File | null>(null)
   const [enviandoAnexo, setEnviandoAnexo] = useState(false)
   const [erroAnexo,     setErroAnexo]     = useState<string | null>(null)
+  const inputArquivoRef = useRef<HTMLInputElement>(null)
 
   // ── Carrega dados da fatura ao abrir ────────────────────────────────────
   useEffect(() => {
@@ -188,7 +189,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
         throw new Error(erro?.error?.message ?? `HTTP ${res.status}`)
       }
       setArquivoNovo(null)
-      ;(document.getElementById('input-arquivo-fatura') as HTMLInputElement | null)?.value && ((document.getElementById('input-arquivo-fatura') as HTMLInputElement).value = '')
+      if (inputArquivoRef.current) inputArquivoRef.current.value = ''
       await carregarDocumentos(fatura.id_fatura_produto_gravity)
     } catch (err: unknown) {
       setErroAnexo(err instanceof Error ? err.message : 'Erro ao anexar')
@@ -256,14 +257,19 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <CampoGeralGlobal label="Competência" tooltipDescricao="Período de faturamento (mês/ano)">
-                  <input
-                    type="month"
-                    value={competencia}
-                    onChange={e => setCompetencia(e.target.value)}
+                  <CampoCalendarioGlobal
+                    valor={{
+                      inicio: competencia ? new Date(`${competencia}-01T00:00:00`) : null,
+                      fim:    competencia ? new Date(`${competencia}-01T00:00:00`) : null,
+                    }}
+                    aoMudarValor={(v) => {
+                      const d = v.inicio
+                      if (!d) { setCompetencia(''); return }
+                      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                      setCompetencia(ym)
+                    }}
                     disabled={!podeEditarDados}
-                    placeholder="2026-04"
-                    className="ws-input"
-                    pattern="\d{4}-\d{2}"
+                    placeholder="aaaa-mm"
                   />
                 </CampoGeralGlobal>
                 <CampoGeralGlobal label="Data de Vencimento">
@@ -311,58 +317,94 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
 
               <SecaoFormulario icone={<Receipt size={16} weight="duotone" />} titulo="Itens da Fatura" />
 
+              {/* Cabeçalho da grade de itens */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '3fr 1fr 1.5fr 1.5fr 36px', gap: '8px',
+                padding: '0 0.75rem', fontSize: '0.6875rem', textTransform: 'uppercase',
+                letterSpacing: '0.04em', fontWeight: 700, color: 'var(--ws-muted)',
+              }}>
+                <span>Descrição</span>
+                <span>Qtd.</span>
+                <span>Valor unit.</span>
+                <span style={{ textAlign: 'right' }}>Total</span>
+                <span></span>
+              </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {itens.map((it, idx) => (
-                  <div key={it.id_fatura_item_produto_gravity ?? `novo-${idx}`} style={{
-                    display: 'grid', gridTemplateColumns: '3fr 1fr 1.5fr 1.5fr 36px', gap: '8px', alignItems: 'center',
-                    padding: '0.5rem 0.75rem', borderRadius: '8px',
-                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+                {itens.length === 0 && (
+                  <div style={{
+                    padding: '1.25rem', borderRadius: '8px', textAlign: 'center',
+                    background: 'rgba(255,255,255,0.01)', border: '2px dashed rgba(255,255,255,0.04)',
+                    color: 'var(--ws-muted)', fontSize: '0.8125rem',
                   }}>
-                    <input
-                      type="text"
-                      value={it.descricao_fatura_item_produto_gravity}
-                      onChange={e => atualizarItem(idx, { descricao_fatura_item_produto_gravity: e.target.value })}
-                      disabled={!podeEditarDados}
-                      placeholder="Descrição"
-                      className="ws-input"
-                    />
-                    <input
-                      type="number"
-                      step="0.0001"
-                      min="0"
-                      value={it.quantidade_fatura_item_produto_gravity}
-                      onChange={e => atualizarItem(idx, { quantidade_fatura_item_produto_gravity: Number(e.target.value) || 0 })}
-                      disabled={!podeEditarDados}
-                      className="ws-input"
-                    />
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={it.valor_unitario_fatura_item_produto_gravity}
-                      onChange={e => atualizarItem(idx, { valor_unitario_fatura_item_produto_gravity: Number(e.target.value) || 0 })}
-                      disabled={!podeEditarDados}
-                      placeholder="Valor unit."
-                      className="ws-input"
-                    />
-                    <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#818cf8', fontSize: '0.875rem', textAlign: 'right' }}>
-                      {(it.quantidade_fatura_item_produto_gravity * it.valor_unitario_fatura_item_produto_gravity).toFixed(2)}
-                    </span>
-                    <TooltipGlobal descricao="Remover item">
-                      <button
-                        type="button"
-                        onClick={() => removerItem(idx)}
-                        disabled={!podeEditarDados}
-                        style={{
-                          width: 28, height: 28, borderRadius: '50%', border: 'none',
-                          background: 'transparent', color: '#94a3b8', cursor: podeEditarDados ? 'pointer' : 'not-allowed',
-                        }}
-                      >
-                        <Trash size={14} weight="bold" />
-                      </button>
-                    </TooltipGlobal>
+                    Nenhum item cadastrado.{' '}
+                    {podeEditarDados && <>Use <strong style={{ color: '#818cf8' }}>+ Adicionar item</strong> abaixo.</>}
                   </div>
-                ))}
+                )}
+                {itens.map((it, idx) => {
+                  const inputBaseStyle: React.CSSProperties = {
+                    width: '100%',
+                    padding: '0.5rem 0.625rem',
+                    borderRadius: '6px',
+                    background: 'rgba(15,23,42,0.6)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'var(--ws-text)',
+                    fontSize: '0.8125rem',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                  }
+                  return (
+                    <div key={it.id_fatura_item_produto_gravity ?? `novo-${idx}`} style={{
+                      display: 'grid', gridTemplateColumns: '3fr 1fr 1.5fr 1.5fr 36px', gap: '8px', alignItems: 'center',
+                      padding: '0.5rem 0.75rem', borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+                    }}>
+                      <input
+                        type="text"
+                        value={it.descricao_fatura_item_produto_gravity}
+                        onChange={e => atualizarItem(idx, { descricao_fatura_item_produto_gravity: e.target.value })}
+                        disabled={!podeEditarDados}
+                        placeholder="Descrição do item"
+                        style={inputBaseStyle}
+                      />
+                      <input
+                        type="number"
+                        step="0.0001"
+                        min="0"
+                        value={it.quantidade_fatura_item_produto_gravity}
+                        onChange={e => atualizarItem(idx, { quantidade_fatura_item_produto_gravity: Number(e.target.value) || 0 })}
+                        disabled={!podeEditarDados}
+                        style={{ ...inputBaseStyle, textAlign: 'right' }}
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={it.valor_unitario_fatura_item_produto_gravity}
+                        onChange={e => atualizarItem(idx, { valor_unitario_fatura_item_produto_gravity: Number(e.target.value) || 0 })}
+                        disabled={!podeEditarDados}
+                        placeholder="0,00"
+                        style={{ ...inputBaseStyle, textAlign: 'right' }}
+                      />
+                      <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#818cf8', fontSize: '0.875rem', textAlign: 'right' }}>
+                        {(it.quantidade_fatura_item_produto_gravity * it.valor_unitario_fatura_item_produto_gravity).toFixed(2)}
+                      </span>
+                      <TooltipGlobal descricao="Remover item">
+                        <button
+                          type="button"
+                          onClick={() => removerItem(idx)}
+                          disabled={!podeEditarDados}
+                          style={{
+                            width: 28, height: 28, borderRadius: '50%', border: 'none',
+                            background: 'transparent', color: '#94a3b8', cursor: podeEditarDados ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          <Trash size={14} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                  )
+                })}
 
                 {podeEditarDados && (
                   <button
@@ -415,7 +457,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
                 background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
                 display: 'flex', flexDirection: 'column', gap: '0.75rem',
               }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
                   <CampoGeralGlobal label="Tipo do Documento">
                     <SelectGlobal
                       valor={tipoNovo}
@@ -423,14 +465,47 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
                       opcoes={TIPOS_DOCUMENTO.map(t => ({ valor: t.value, rotulo: t.label }))}
                     />
                   </CampoGeralGlobal>
-                  <CampoGeralGlobal label="Arquivo (PDF, PNG, JPG ou XML — até 10 MB)">
+                  <CampoGeralGlobal label="Arquivo" tooltipDescricao="PDF, PNG, JPG ou XML — até 10 MB">
+                    {/* Input nativo escondido + botão estilizado consistente com plataforma */}
                     <input
-                      id="input-arquivo-fatura"
+                      ref={inputArquivoRef}
                       type="file"
                       accept=".pdf,.png,.jpg,.jpeg,.xml,application/pdf,image/png,image/jpeg,application/xml,text/xml"
                       onChange={e => setArquivoNovo(e.target.files?.[0] ?? null)}
-                      className="ws-input"
+                      style={{ display: 'none' }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => inputArquivoRef.current?.click()}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem',
+                        width: '100%', padding: '0.625rem 0.75rem',
+                        borderRadius: '8px',
+                        background: 'rgba(15,23,42,0.6)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: arquivoNovo ? 'var(--ws-text)' : 'var(--ws-muted)',
+                        fontSize: '0.8125rem', fontFamily: 'inherit',
+                        cursor: 'pointer', textAlign: 'left',
+                        minHeight: '38px',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Paperclip size={14} weight="bold" />
+                        {arquivoNovo ? arquivoNovo.name : 'Selecionar arquivo…'}
+                      </span>
+                      {arquivoNovo && (
+                        <span style={{
+                          fontSize: '0.6875rem', fontWeight: 700,
+                          padding: '0.125rem 0.4rem', borderRadius: '4px',
+                          background: 'rgba(52,211,153,0.12)', color: '#34d399',
+                          textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0,
+                        }}>
+                          {(arquivoNovo.size / 1024).toFixed(0)} KB
+                        </span>
+                      )}
+                    </button>
                   </CampoGeralGlobal>
                 </div>
                 <button

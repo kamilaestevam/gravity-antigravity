@@ -11,11 +11,11 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarWorkspace } from './ModalEditarWorkspace'
 import { ModalExclusao } from './ModalConfirmarExclusao'
-import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { extractCatchError } from '../../utils/extractApiError'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/export-service'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { extractCatchError } from '../../utils/extract-api-error'
 import { useShellStore } from '@gravity/shell'
-import { workspaceApi } from '../../services/apiClient'
+import { workspaceApi } from '../../services/api-client'
 
 // Status canonical em DDD: valor do enum no banco é PT-UPPER (ATIVO/INATIVO),
 // dívida documentada para migração futura para EN UPPER_SNAKE (REGRA 7).
@@ -176,7 +176,16 @@ export function Workspaces() {
       setWorkspaces(prev => prev.filter(w => w.id_workspace !== linha.id_workspace))
       addNotification({ type: 'success', message: `Workspace "${linha.nome_workspace}" excluído com sucesso.` })
     } catch (err) {
-      addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao excluir workspace. Verifique sua conexão.') })
+      const msg = extractCatchError(err, 'Erro ao excluir workspace. Verifique sua conexão.')
+      // Backend devolve 404 'Workspace não encontrado' quando o registro já não
+      // existe no banco (ex.: removido em outra aba). Tratamos como "já removido"
+      // — filtra da UI igualmente para o usuário ver o estado correto.
+      if (/n.o\s+encontrado|not\s+found/i.test(msg)) {
+        setWorkspaces(prev => prev.filter(w => w.id_workspace !== linha.id_workspace))
+        addNotification({ type: 'warning', message: `Workspace "${linha.nome_workspace}" já estava removido. Lista atualizada.` })
+      } else {
+        addNotification({ type: 'error', message: msg })
+      }
     } finally {
       setWorkspaceParaExcluir(null)
     }

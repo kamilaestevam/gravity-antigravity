@@ -705,7 +705,7 @@ export function LogTestes() {
               .then(({ schedules }) => {
                 if (schedules.length) {
                   const s = schedules[0] as Record<string, unknown>
-                  setAgendamentoAtivo(Boolean(s.is_active))
+                  setAgendamentoAtivo(Boolean(s.ativo_agendamento_teste))
                 }
               })
               .catch(() => {})

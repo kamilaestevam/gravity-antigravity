@@ -9,7 +9,7 @@ import {
   exportarJSON,
   exportarPDF,
   type ColunasExport,
-} from '../services/exportService'
+} from '../services/export-service'
 
 export function getAcoesExportacaoPadrao<T extends object>(
   colunas: TabelaGlobalColuna<T>[],

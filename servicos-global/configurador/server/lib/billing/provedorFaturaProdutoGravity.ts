@@ -3,7 +3,7 @@
 // como fonte da verdade (model ProdutoGravityFatura). Adapter fininho que delega
 // para faturaProdutoGravityServico. Sem integração externa.
 
-import { faturaProdutoGravityServico } from '../../services/faturaProdutoGravityServico.js'
+import { faturaProdutoGravityServico } from '../../services/fatura-produto-gravity-service.js'
 import type {
   BillingProvider,
   BillingProviderName,

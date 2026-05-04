@@ -1,4 +1,4 @@
-// server/routes/adminNcmIntegracao.ts
+// server/routes/admin-ncm-integracao.ts
 // Proxy admin para o serviço Cadastros (porta 8031) — endpoints de sincronização NCM.
 //
 // Decisão arquitetural (2026-05-03): NCM Sync mora no Cadastros porque NCM é

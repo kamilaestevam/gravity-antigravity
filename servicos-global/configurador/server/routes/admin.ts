@@ -20,7 +20,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
-import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacaoService.js'
+import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
 import { join, resolve } from 'path'
@@ -34,7 +34,7 @@ import { auditMiddleware } from '../../../servicos-plataforma/historico-global/s
 import { AcaoExecutadaPor } from '../../../servicos-plataforma/generated/index.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 import { getBillingProvider } from '../lib/billing/index.js'
-import { deployLogService } from '../services/deployLogService.js'
+import { deployLogService } from '../services/deploy-log-service.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 export const adminRouter = Router()
@@ -719,7 +719,7 @@ adminRouter.post('/financeiro-admin/:id_fatura/enviar', async (req, res, next) =
 
 // ─── Deploy Log ─────────────────────────────────────────────────────────────
 // CRUD manual do histórico de deploys da plataforma Gravity.
-// Ver server/services/deployLogService.ts
+// Ver server/services/deploy-log-service.ts
 
 const DeployEnvironmentEnum = z.enum(['DESENVOLVIMENTO', 'HOMOLOGACAO', 'PRODUCAO', 'TODOS'])
 const DeployStatusEnum = z.enum(['SUCESSO', 'FALHOU', 'REVERTIDO', 'EM_ANDAMENTO'])

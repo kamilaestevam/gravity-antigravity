@@ -44,7 +44,7 @@
 //      f. Daqui pra frente, usa refresh_token pra renovar access_token (expira ~2h)
 //
 //   6. Endpoint de callback OAuth no Gravity — criar em
-//      server/routes/billing.ts:
+//      server/routes/fatura-produto-gravity.ts:
 //      GET /api/v1/financeiro/conta-azul/oauth-callback
 //
 // ─── Env vars necessárias ───────────────────────────────────────────────────

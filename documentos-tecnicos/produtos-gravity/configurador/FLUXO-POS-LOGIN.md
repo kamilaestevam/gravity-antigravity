@@ -198,7 +198,10 @@ App.tsx (Routes)
 │                                     └─ deslogado: Navigate to="/login"
 │
 ├── /login/*                       → <PublicRoute><AutenticacaoPage /></PublicRoute>
+├── /cadastro/continuar            → <PublicRoute><CadastroContinuarPage /></PublicRoute> (convite + OAuth missing-fields)
+├── /cadastro/sso-callback         → <AuthenticateWithRedirectCallback> (intercepta OAuth do Google)
 ├── /cadastro/*                    → <PublicRoute><AutenticacaoPage /></PublicRoute>
+├── /recuperar-senha/redefinir     → <PublicRoute><RecuperarSenhaRedefinirPage /></PublicRoute> (codigo + nova senha)
 ├── /recuperar-senha/*             → <PublicRoute><AutenticacaoPage /></PublicRoute>
 │
 ├── /hub                           → <ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>
@@ -233,6 +236,26 @@ App.tsx (Routes)
 ```
 
 > `Fallback` (não `Force`): se o usuário foi redirecionado para `/login` porque tentou acessar `/admin/visao-geral`, depois de logar volta para `/admin/visao-geral` (não `/hub`). Comportamento UX padrão.
+
+---
+
+## Fluxo de recuperação de senha (reset_password_email_code)
+
+Etapa 1 — `/recuperar-senha` (renderizada por `LoginGlobal` em modo `isForgotPassword`):
+- Usuário informa o e-mail e submete.
+- `useSignIn().create({ strategy: 'reset_password_email_code', identifier: email })` dispara o envio real do código de 6 dígitos pelo Clerk.
+- Estado `success` mostra "Verifique seu e-mail" + botão "Tenho o código" → `/recuperar-senha/redefinir?email=<email>`.
+
+Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
+- Recebe `?email=` na query (apenas para exibição) e usa o `signIn` ativo do contexto Clerk.
+- Form Gravity-styled (split panel) com:
+  - Código de 6 dígitos (validação `/^\d{6}$/`)
+  - Nova senha (`BannerRequisitosGlobal` com 5 requisitos + barra de força)
+  - Confirmação de senha
+- Ao submeter: `signIn.attemptFirstFactor({ strategy: 'reset_password_email_code', code, password })` + `setActive({ session: createdSessionId })` → `navigate('/hub')`.
+- Botão "Não recebi — reenviar código" repete o `signIn.create(...)`.
+
+**Mandamento 08 (sem fallback silencioso):** o componente legado fingia sucesso sem chamar o Clerk (TODO de 03/2026). Corrigido em 04/05/2026 — qualquer falha de rede / e-mail inválido / rate limit agora aparece via `setStatus('error')` + mensagem real do Clerk.
 
 ---
 

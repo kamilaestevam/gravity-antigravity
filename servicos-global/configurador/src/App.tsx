@@ -5,6 +5,7 @@ import { useLoadSystemRole } from './hooks/use-load-system-role'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
+import { RecuperarSenhaRedefinirPage } from './pages/RecuperarSenhaRedefinirPage'
 
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
 const E2ENotificacoesHarness = import.meta.env.DEV
@@ -281,6 +282,9 @@ export default function App() {
           />
         } />
         <Route path="/cadastro/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
+        {/* /recuperar-senha/redefinir — etapa 2 do reset (codigo + nova senha).
+            Precede o catch-all /recuperar-senha/* para nao ser engolida pela AutenticacaoPage. */}
+        <Route path="/recuperar-senha/redefinir" element={<PublicRoute><RecuperarSenhaRedefinirPage /></PublicRoute>} />
         <Route path="/recuperar-senha/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
 
         {/* Onboarding — novos clientes vindos do Marketplace */}

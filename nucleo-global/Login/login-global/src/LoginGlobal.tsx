@@ -1,4 +1,4 @@
-import { SignIn, SignUp } from '@clerk/clerk-react'
+import { SignIn, SignUp, useSignIn } from '@clerk/clerk-react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -157,16 +157,31 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [erroMensagem, setErroMensagem] = useState<string | null>(null)
+  const { isLoaded, signIn } = useSignIn()
   const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !isLoaded || !signIn) return
 
     setStatus('loading')
-    
-    // TODO(daniel, 2026-03): integrar com endpoint real de reset de senha via Clerk
-    setStatus('success')
+    setErroMensagem(null)
+
+    try {
+      // Dispara envio real do código de 6 dígitos via Clerk
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier: email,
+      })
+      setStatus('success')
+    } catch (err) {
+      const msg = (err as { errors?: Array<{ longMessage?: string; message?: string }> })?.errors?.[0]?.longMessage
+        ?? (err as { errors?: Array<{ message?: string }> })?.errors?.[0]?.message
+        ?? (err instanceof Error ? err.message : 'Não foi possível enviar o código. Verifique o e-mail e tente novamente.')
+      setErroMensagem(msg)
+      setStatus('error')
+    }
   }
 
   if (status === 'success') {
@@ -180,7 +195,14 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
           {t('login.verificar_email_desc')}<br />
           <strong>{email}</strong>
         </p>
-        <Link className="forgot-button" to="/login" onClick={onBack}>
+        <Link
+          className="forgot-button"
+          to={`/recuperar-senha/redefinir?email=${encodeURIComponent(email)}`}
+        >
+          {t('login.tenho_codigo', 'Tenho o código')}
+        </Link>
+        <Link className="forgot-back-link" to="/login" onClick={onBack} style={{ marginTop: '1rem' }}>
+          <ArrowLeft size={16} />
           {t('login.voltar_login')}
         </Link>
       </div>
@@ -209,7 +231,7 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         {status === 'error' && (
           <div className="forgot-error-msg">
             <WarningCircle size={18} />
-            <span>{t('login.erro_email_nao_encontrado')}</span>
+            <span>{erroMensagem ?? t('login.erro_email_nao_encontrado')}</span>
           </div>
         )}
 

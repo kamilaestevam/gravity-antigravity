@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 import {
   PlugsConnected,
   ArrowClockwise,
@@ -14,47 +15,53 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 
-// ─── Tipos do backend api-cockpit ────────────────────────────────────────
+// ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
-/** Resposta do GET /api/v1/api-cockpit/admin/servicos */
-interface CockpitServiceResponse {
-  name: string
-  status: 'online' | 'degraded' | 'offline'
-  latency: number
-  version: string
-  lastCheck: string
-  type: 'core' | 'product' | 'gateway'
-}
+const servicoPlataformaSchema = z.object({
+  nome_servico_plataforma:              z.string(),
+  status_servico_plataforma:            z.enum(['ONLINE', 'DEGRADADO', 'OFFLINE']),
+  latencia_ms_servico_plataforma:       z.number(),
+  versao_servico_plataforma:            z.string(),
+  data_ultimo_check_servico_plataforma: z.string(),
+  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'GATEWAY']),
+})
 
-interface ServicesPayload {
-  services?: CockpitServiceResponse[]
-  error?: string
-}
+const servicosResponseSchema = z.object({
+  servicos: z.array(servicoPlataformaSchema),
+  error:    z.string().optional(),
+})
 
-/** Resposta do GET /api/v1/api-cockpit/admin/logs */
-interface CockpitLogResponse {
-  id: string
-  timestamp: string
-  data: string
-  hora: string
-  method: string
-  path: string
-  endpoint: string
-  statusCode: number
-  status: string
-  duracao: string
-  organizacao: string
-  produto: string
-  metodo: string
-}
+const logConsumoSchema = z.object({
+  id_log_consumo:                   z.string(),
+  id_organizacao:                   z.string(),
+  id_produto_gravity:               z.string(),
+  id_usuario:                       z.string().nullable(),
+  id_correlacao:                    z.string().nullable(),
+  endpoint_log_consumo:             z.string(),
+  metodo_http_log_consumo:          z.string(),
+  codigo_resposta_http_log_consumo: z.number(),
+  latencia_ms_log_consumo:          z.number(),
+  data_criacao_log_consumo:         z.string(),
+  data_log_consumo:                 z.string(),
+  hora_log_consumo:                 z.string(),
+  resultado_log_consumo:            z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR']),
+})
 
-interface LogsPayload {
-  logs?: CockpitLogResponse[]
-  pagination?: { page: number; limit: number; total: number; pages: number }
-  error?: string
-}
+const logsResponseSchema = z.object({
+  logs: z.array(logConsumoSchema),
+  paginacao: z.object({
+    pagina:  z.number(),
+    limite:  z.number(),
+    total:   z.number(),
+    paginas: z.number(),
+  }),
+  error: z.string().optional(),
+})
 
-/** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi */
+type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
+type LogConsumo = z.infer<typeof logConsumoSchema>
+
+/** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi (servico GABI — fora do escopo DDD api-cockpit) */
 interface GabiUsagePayload {
   month?: string
   total_calls?: number
@@ -66,55 +73,7 @@ interface GabiUsagePayload {
   error?: string
 }
 
-// ─── Tipos de display (frontend) ─────────────────────────────────────────
-
-interface ApiService {
-  id: string
-  produto: string
-  organizacao: string
-  status: 'Online' | 'Offline' | 'Degradado'
-  tipoCobranca: string
-  consumoAtual: number
-}
-
-interface ApiLog {
-  id: string
-  data: string
-  hora: string
-  organizacao: string
-  produto: string
-  metodo: string
-  endpoint: string
-  statusCode: number
-  duracao: string
-}
-
 const POLLING_INTERVAL_MS = 30_000
-
-function mapServiceResponse(s: CockpitServiceResponse): ApiService {
-  return {
-    id: s.name,
-    produto: s.name,
-    organizacao: 'Gravity',
-    status: s.status === 'online' ? 'Online' : s.status === 'degraded' ? 'Degradado' : 'Offline',
-    tipoCobranca: s.type,
-    consumoAtual: 0,
-  }
-}
-
-function mapLogResponse(l: CockpitLogResponse): ApiLog {
-  return {
-    id: l.id,
-    data: l.data,
-    hora: l.hora,
-    organizacao: l.organizacao,
-    produto: l.produto,
-    metodo: l.metodo || l.method,
-    endpoint: l.endpoint || l.path,
-    statusCode: l.statusCode,
-    duracao: l.duracao,
-  }
-}
 
 const fmtUSD = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(n)
@@ -145,8 +104,8 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
 export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
-  const [servicos, setServicos] = useState<ApiService[]>([])
-  const [logs, setLogs] = useState<ApiLog[]>([])
+  const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
+  const [logs, setLogs] = useState<LogConsumo[]>([])
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
@@ -160,21 +119,27 @@ export function ApiCockpitAdmin() {
       setErroCarregar(null)
       const [svcRes, logsRes] = await Promise.all([
         authedFetch('/api/v1/api-cockpit/admin/servicos', { signal }),
-        authedFetch('/api/v1/api-cockpit/admin/logs?limit=50', { signal }),
+        authedFetch('/api/v1/api-cockpit/admin/logs?limite=50', { signal }),
       ])
 
-      if (!svcRes.ok) throw new Error(`services ${svcRes.status} ${svcRes.statusText}`)
+      if (!svcRes.ok) throw new Error(`servicos ${svcRes.status} ${svcRes.statusText}`)
       if (!logsRes.ok) throw new Error(`logs ${logsRes.status} ${logsRes.statusText}`)
 
-      const svcData: ServicesPayload = await svcRes.json()
-      const logsData: LogsPayload = await logsRes.json()
+      const svcRaw = await svcRes.json()
+      const logsRaw = await logsRes.json()
 
-      // Backend retorna `error` no payload mesmo com 200 quando o api-cockpit está down
-      if (svcData.error) throw new Error(svcData.error)
-      if (logsData.error) throw new Error(logsData.error)
+      // Backend retorna `error` no payload mesmo com 200 quando o api-cockpit esta down
+      if (svcRaw.error) throw new Error(svcRaw.error)
+      if (logsRaw.error) throw new Error(logsRaw.error)
 
-      setServicos((svcData.services ?? []).map(mapServiceResponse))
-      setLogs((logsData.logs ?? []).map(mapLogResponse))
+      const svcParsed = servicosResponseSchema.safeParse(svcRaw)
+      const logsParsed = logsResponseSchema.safeParse(logsRaw)
+
+      if (!svcParsed.success) throw new Error('Payload de servicos invalido')
+      if (!logsParsed.success) throw new Error('Payload de logs invalido')
+
+      setServicos(svcParsed.data.servicos)
+      setLogs(logsParsed.data.logs)
     } catch (err) {
       // Ignora AbortError (cleanup do useEffect no StrictMode)
       if (err instanceof DOMException && err.name === 'AbortError') return
@@ -221,9 +186,9 @@ export function ApiCockpitAdmin() {
     }
   }, [carregarMonitor, carregarGabiUsage])
 
-  // KPIs memoizados — recalcular só quando servicos/logs mudam
+  // KPIs memoizados — recalcular so quando servicos/logs mudam
   const apisOnline = useMemo(
-    () => servicos.filter((s) => s.status === 'Online').length,
+    () => servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length,
     [servicos],
   )
   const totalRequisicoes = useMemo(() => logs.length, [logs])
@@ -233,21 +198,31 @@ export function ApiCockpitAdmin() {
   const gabiCost = gabiUsage?.total_cost_usd ?? 0
   const gabiTokens = (gabiUsage?.total_tokens_input ?? 0) + (gabiUsage?.total_tokens_output ?? 0)
 
-  const colunasInventario: TabelaGlobalColuna<ApiService>[] = [
+  const colunasInventario: TabelaGlobalColuna<ServicoPlataforma>[] = [
     {
-      key: 'produto', label: t('admin.api-cockpit.tabela.servico'), tipo: 'texto',
-      tooltipTitulo: 'Serviço', tooltipDescricao: 'Produto ou integração monitorada pela plataforma',
+      key: 'nome_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.servico'),
+      tipo: 'texto',
+      tooltipTitulo: 'Serviço',
+      tooltipDescricao: 'Produto ou integração monitorada pela plataforma',
     },
     {
-      key: 'organizacao', label: t('admin.api-cockpit.tabela.organizacao'), tipo: 'texto',
-      tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa associada a este serviço',
+      key: 'tipo_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.tipo'),
+      tipo: 'texto',
+      tooltipTitulo: 'Tipo',
+      tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou gateway',
+      render: (val) => <span style={{ textTransform: 'capitalize' }}>{(val as string).toLowerCase().replace('_', ' ')}</span>,
     },
     {
-      key: 'status', label: t('admin.api-cockpit.tabela.status'), tipo: 'texto', align: 'center',
+      key: 'status_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.status'),
+      tipo: 'texto',
+      align: 'center',
       render: (val) => {
-        const v = String(val).toLowerCase()
-        const isOnline = v === 'online'
-        const isOffline = v === 'offline'
+        const v = String(val)
+        const isOnline = v === 'ONLINE'
+        const isOffline = v === 'OFFLINE'
         const cor = isOnline ? '#34d399' : isOffline ? '#f87171' : '#fbbf24'
         const bg  = isOnline ? 'rgba(52,211,153,0.12)' : isOffline ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)'
         return (
@@ -255,41 +230,63 @@ export function ApiCockpitAdmin() {
             display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
             fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
             background: bg, color: cor, border: `1px solid ${bg}`,
-          }}>{String(val)}</span>
+          }}>{v}</span>
         )
       },
       tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o serviço está operando normalmente',
     },
     {
-      key: 'consumoAtual', label: t('admin.api-cockpit.tabela.consumo'), tipo: 'texto',
-      tooltipTitulo: 'Consumo', tooltipDescricao: 'Volume de requisições processadas no período atual',
+      key: 'latencia_ms_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.consumo'),
+      tipo: 'texto',
+      tooltipTitulo: 'Latência',
+      tooltipDescricao: 'Tempo de resposta do último health-check em milissegundos',
+      render: (val) => `${val as number}ms`,
     },
   ]
 
-  const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
+  const colunasLogs: TabelaGlobalColuna<LogConsumo>[] = [
     {
-      key: 'data', label: t('admin.api-cockpit.tabela.data'), tipo: 'texto',
-      tooltipTitulo: 'Data', tooltipDescricao: 'Data em que a requisição foi registrada',
+      key: 'data_log_consumo',
+      label: t('admin.api-cockpit.tabela.data'),
+      tipo: 'texto',
+      tooltipTitulo: 'Data',
+      tooltipDescricao: 'Data em que a requisição foi registrada',
     },
     {
-      key: 'hora', label: t('admin.api-cockpit.tabela.hora'), tipo: 'texto',
-      tooltipTitulo: 'Hora', tooltipDescricao: 'Hora exata em que a requisição ocorreu',
+      key: 'hora_log_consumo',
+      label: t('admin.api-cockpit.tabela.hora'),
+      tipo: 'texto',
+      tooltipTitulo: 'Hora',
+      tooltipDescricao: 'Hora exata em que a requisição ocorreu',
     },
     {
-      key: 'organizacao', label: t('admin.api-cockpit.tabela.org'), tipo: 'texto',
-      tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa que originou esta chamada à API',
+      key: 'id_organizacao',
+      label: t('admin.api-cockpit.tabela.org'),
+      tipo: 'texto',
+      tooltipTitulo: 'Organização',
+      tooltipDescricao: 'Empresa que originou esta chamada à API',
     },
     {
-      key: 'metodo', label: t('admin.api-cockpit.tabela.metodo'), tipo: 'texto',
-      tooltipTitulo: 'Método', tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE',
+      key: 'metodo_http_log_consumo',
+      label: t('admin.api-cockpit.tabela.metodo'),
+      tipo: 'texto',
+      tooltipTitulo: 'Método',
+      tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE',
     },
     {
-      key: 'endpoint', label: t('admin.api-cockpit.tabela.endpoint'), tipo: 'texto',
-      tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota da API que recebeu a chamada',
+      key: 'endpoint_log_consumo',
+      label: t('admin.api-cockpit.tabela.endpoint'),
+      tipo: 'texto',
+      tooltipTitulo: 'Endpoint',
+      tooltipDescricao: 'Rota da API que recebeu a chamada',
     },
     {
-      key: 'statusCode', label: t('admin.api-cockpit.tabela.status'), tipo: 'texto',
-      tooltipTitulo: 'Status', tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso',
+      key: 'codigo_resposta_http_log_consumo',
+      label: t('admin.api-cockpit.tabela.status'),
+      tipo: 'texto',
+      tooltipTitulo: 'Status',
+      tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso',
     },
   ]
 

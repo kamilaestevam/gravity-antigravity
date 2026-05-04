@@ -123,16 +123,24 @@ Para produtos que precisam se conectar ao sistema do cliente (SAP, ERP, WMS, etc
 ```typescript
 async function saveCredentials(idOrganizacao: string, creds: ErpCredentials) {
   const encrypted = await encrypt(JSON.stringify(creds), process.env.ENCRYPTION_KEY!)
-  await prisma.erpConnection.upsert({
+  await prisma.apiIntegracaoErp.upsert({
     where:  { id_organizacao: idOrganizacao },
-    create: { id_organizacao: idOrganizacao, credentials_encrypted: encrypted },
-    update: { credentials_encrypted: encrypted }
+    create: {
+      id_organizacao: idOrganizacao,
+      credenciais_criptografadas_api_integracao_erp: encrypted,
+      protocolo_api_integracao_erp: 'ODATA',
+    },
+    update: { credenciais_criptografadas_api_integracao_erp: encrypted },
   })
 }
 
 async function executeErpQuery(idOrganizacao: string, query: string) {
-  const conn = await prisma.erpConnection.findUnique({ where: { id_organizacao: idOrganizacao } })
-  const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.ENCRYPTION_KEY!))
+  const conn = await prisma.apiIntegracaoErp.findUnique({
+    where: { id_organizacao: idOrganizacao },
+  })
+  const creds = JSON.parse(
+    await decrypt(conn!.credenciais_criptografadas_api_integracao_erp, process.env.ENCRYPTION_KEY!),
+  )
   return await fetchOData(creds.baseUrl, creds.username, creds.password, query)
 }
 ```
@@ -152,27 +160,79 @@ Usuário: "Quantos rolamentos importei esse mês?"
 
 ---
 
+## Models DDD (Prisma)
+
+> Vivem em `servicos-global/servicos-plataforma/api-cockpit/prisma/fragment.prisma` e são compostos no schema unificado `servicos-plataforma`.
+
+| Model | Tabela (`@@map`) | Propósito |
+|---|---|---|
+| `ApiToken` | `api_token` | tokens de API emitidos por organização |
+| `WebhookConfiguracao` | `webhook_configuracao` | webhooks cadastrados por organização |
+| `WebhookLog` | `webhook_log` | histórico de entregas de webhooks |
+| `LogConsumo` | `log_consumo` | log de consumo da API pública (1 linha/req) |
+| `ApiIntegracaoErp` | `api_integracao_erp` | credenciais ERP (singleton por organização) |
+
+**Campos canônicos comuns** (REGRA 3/4 da `ddd-nomenclatura`):
+- FKs: `id_organizacao`, `id_produto_gravity` (produto Gravity), `id_usuario`
+- PK: `id_<entidade>` (ex: `id_api_token`)
+- Audit: `data_criacao_<entidade>`, `data_atualizacao_<entidade>`
+- Boolean sem prefixo `is_`: `revogado_api_token`, `ativo_webhook_configuracao`
+
+**Campos específicos relevantes:**
+- `LogConsumo`: `endpoint_log_consumo`, `metodo_http_log_consumo`, `codigo_resposta_http_log_consumo`, `latencia_ms_log_consumo`, `id_api_token` (FK)
+- `WebhookLog`: `id_webhook_configuracao` (FK), `evento_webhook_log`, `codigo_resposta_http_webhook_log`, `latencia_ms_webhook_log`, `quantidade_tentativas_webhook_log`
+- `ApiToken`: `nome_api_token`, `hash_api_token` (único), `prefixo_api_token`, `escopo_api_token`, `validade_api_token`, `data_expiracao_api_token`, `limite_requisicoes_minuto_api_token`
+- `ApiIntegracaoErp`: `credenciais_criptografadas_api_integracao_erp` (AES-256-GCM), `protocolo_api_integracao_erp`
+
+## Enums
+
+| Enum | Valores | Uso |
+|---|---|---|
+| `EscopoApiToken` | `LEITURA`, `ESCRITA`, `EXCLUSAO` | `ApiToken.escopo_api_token` |
+| `ValidadeApiToken` | `NUNCA`, `DIAS_30`, `DIAS_90`, `CUSTOMIZADO` | `ApiToken.validade_api_token` |
+| `ProtocoloApiIntegracaoErp` | `ODATA`, `SAP_HANA`, `REST`, `JDBC` | `ApiIntegracaoErp.protocolo_api_integracao_erp` |
+
+## Tipo runtime — ServicoPlataforma (não persistido)
+
+Inventário de serviços (visto na tela `/workspace/api-cockpit` aba **Inventário**) é gerado em runtime via health-check; não há tabela `servico_plataforma`.
+
+Campos do payload:
+- `nome_servico_plataforma`, `tipo_servico_plataforma` (`NUCLEO`/`PRODUTO_GRAVITY`/`GATEWAY`)
+- `status_servico_plataforma` (`ONLINE`/`DEGRADADO`/`OFFLINE`)
+- `latencia_ms_servico_plataforma`, `versao_servico_plataforma`, `data_ultimo_check_servico_plataforma`
+
 ## Rotas da API
 
 ```
-# API Cockpit
-GET    /api/v1/cockpit/tokens              ← listar tokens
-POST   /api/v1/cockpit/tokens              ← gerar token
-DELETE /api/v1/cockpit/tokens/:id          ← revogar token
-GET    /api/v1/cockpit/docs                ← OpenAPI JSON
-GET    /api/v1/cockpit/usage               ← consumo da organização
-GET    /api/v1/cockpit/webhooks            ← listar webhooks
-POST   /api/v1/cockpit/webhooks            ← criar webhook
-PUT    /api/v1/cockpit/webhooks/:id        ← atualizar webhook
-POST   /api/v1/cockpit/webhooks/:id/test   ← testar webhook
-DELETE /api/v1/cockpit/webhooks/:id        ← deletar webhook
+# Backend api-cockpit (porta 8016) — observability (in-memory hoje)
+POST   /api/v1/cockpit/observability/ingest     ← S2S: batch de metricas
+GET    /api/v1/cockpit/observability/servicos   ← health check de todos os servicos
+GET    /api/v1/cockpit/observability/logs       ← logs de requisicao (paginado)
+GET    /api/v1/cockpit/observability/stats      ← KPIs agregados (24h)
 
-# Conector ERP
-GET    /api/v1/erp/connection              ← status da conexão
-POST   /api/v1/erp/connection              ← salvar credenciais
-POST   /api/v1/erp/connection/test         ← testar conexão
-POST   /api/v1/erp/query                   ← executar query OData/SQL
-GET    /api/v1/erp/query/logs              ← histórico de queries
+# Proxy no Configurador (workspace) — montado em /api/v1/api-cockpit
+GET    /api/v1/api-cockpit/servicos             ← health check (org do JWT)
+GET    /api/v1/api-cockpit/logs                 ← logs (filtrados por id_organizacao)
+GET    /api/v1/api-cockpit/stats                ← KPIs (org do JWT)
+
+# Proxy admin (gravity_admin) — /api/v1/api-cockpit/admin
+GET    /api/v1/api-cockpit/admin/servicos       ← health check global
+GET    /api/v1/api-cockpit/admin/logs           ← logs (todas as organizacoes)
+GET    /api/v1/api-cockpit/admin/estatisticas   ← KPIs globais
+GET    /api/v1/api-cockpit/admin/uso-gabi       ← consumo IA agregado
+GET    /api/v1/api-cockpit/admin/uso-gabi/historico
+
+# Planejado (rotas desabilitadas no momento — schema ja existe)
+GET    /api/v1/api-cockpit/api-tokens           ← listar tokens (model ApiToken)
+POST   /api/v1/api-cockpit/api-tokens           ← gerar token
+DELETE /api/v1/api-cockpit/api-tokens/:id       ← revogar token
+GET    /api/v1/api-cockpit/webhooks             ← listar webhooks (model WebhookConfiguracao)
+POST   /api/v1/api-cockpit/webhooks             ← criar webhook
+PUT    /api/v1/api-cockpit/webhooks/:id         ← atualizar webhook
+DELETE /api/v1/api-cockpit/webhooks/:id         ← deletar webhook
+GET    /api/v1/api-cockpit/erp/connection       ← status (model ApiIntegracaoErp)
+POST   /api/v1/api-cockpit/erp/connection       ← salvar credenciais
+POST   /api/v1/api-cockpit/erp/query            ← executar query OData/SQL
 ```
 
 ---
@@ -186,3 +246,9 @@ GET    /api/v1/erp/query/logs              ← histórico de queries
 - [ ] Playground com execução ao vivo e exportar como cURL/código?
 - [ ] Fluxo Gabi → query OData → resultado em linguagem natural?
 - [ ] Middleware de observabilidade em todas as rotas públicas?
+
+---
+
+## Histórico
+
+- **2026-05-04** — Refatoração DDD final aplicada: 5 models criados no banco (`api_token`, `webhook_configuracao`, `webhook_log`, `log_consumo`, `api_integracao_erp`), backend e telas migrados para nomenclatura canônica. Antes do commit `8f0e041d`, o `fragment.prisma` era órfão (nunca composto, nunca migrado, backend rodava in-memory).

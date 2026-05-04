@@ -5,16 +5,20 @@
  * O frontend NAO fala diretamente com o api-cockpit; passa pelo Configurador.
  *
  * Rotas workspace (qualquer usuario autenticado — montadas em /api/v1/api-cockpit):
- *   GET /api/v1/api-cockpit/services    — Health check dos servicos
- *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por tenant)
- *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por tenant)
+ *   GET /api/v1/api-cockpit/servicos    — Health check dos servicos
+ *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por organizacao)
+ *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por organizacao)
  *
  * Rotas admin (gravity_admin — montadas em /api/v1/api-cockpit/admin):
  *   GET /api/v1/api-cockpit/admin/servicos          — Health check (todos)
- *   GET /api/v1/api-cockpit/admin/logs              — Logs (todas as organizações)
+ *   GET /api/v1/api-cockpit/admin/logs              — Logs (todas as organizacoes)
  *   GET /api/v1/api-cockpit/admin/estatisticas      — KPIs (globais)
  *   GET /api/v1/api-cockpit/admin/uso-gabi          — Custos GABI IA agregados
- *   GET /api/v1/api-cockpit/admin/uso-gabi/historico — Histórico de uso GABI (6 meses)
+ *   GET /api/v1/api-cockpit/admin/uso-gabi/historico — Historico de uso GABI (6 meses)
+ *
+ * NOMENCLATURA DDD (REGRA 3/4):
+ *   - Query params: id_organizacao, id_produto_gravity, pagina, limite
+ *   - id_organizacao SEMPRE extraido do JWT (sem fallback de header — Mandamento 08)
  */
 
 import { Router } from 'express'
@@ -31,10 +35,8 @@ export const apiCockpitRouter = Router()
 export const apiCockpitAdminRouter = Router()
 
 /**
- * Tipo genérico da resposta do api-cockpit proxy.
- * Em produção, err.message é mascarada para evitar vazar URLs internas,
- * timeouts ou stack traces. Em dev, o err.message real é mantido para
- * debugging.
+ * Em producao, err.message e mascarada para evitar vazar URLs internas,
+ * timeouts ou stack traces. Em dev, o err.message real e mantido.
  */
 function maskError(err: unknown): string {
   if (IS_DEV && err instanceof Error) return err.message
@@ -66,31 +68,51 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
   return response.json()
 }
 
-// ─── Workspace Routes (tenant-scoped) ───────────────────────────────────
+// ─── Fallback shapes (alinhadas com payload DDD do backend) ─────────────
+
+const STATS_FALLBACK = {
+  quantidade_requisicoes_log_consumo: 0,
+  quantidade_erros_log_consumo:       0,
+  latencia_media_log_consumo:         0,
+  percentual_uptime_log_consumo:      100,
+  por_id_produto_gravity:             {},
+  por_faixa_codigo_resposta_http:     { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 },
+}
+
+const LOGS_FALLBACK = {
+  logs: [] as unknown[],
+  paginacao: { pagina: 1, limite: 50, total: 0, paginas: 0 },
+}
+
+// ─── Workspace Routes (organizacao-scoped) ──────────────────────────────
 
 apiCockpitRouter.use(rateLimitPresets.internal(), requireAuth)
 
-apiCockpitRouter.get('/services', async (_req, res) => {
+apiCockpitRouter.get('/servicos', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/services')
+    const data = await proxyToCockpit('/servicos')
     res.json(data)
   } catch (err) {
-    res.json({ services: [], error: maskError(err) })
+    res.json({ servicos: [], error: maskError(err) })
   }
 })
 
 apiCockpitRouter.get('/logs', async (req, res) => {
   try {
-    const tenantId = req.auth?.id_organizacao || (req.headers['x-id-organizacao'] as string) || ''
+    // Mandamento 08 — sem fallback de header. id_organizacao SOMENTE do JWT.
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) {
+      return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    }
     const data = await proxyToCockpit('/logs', {
-      tenant_id: tenantId,
-      product_id: (req.query.product_id as string) || '',
-      page: (req.query.page as string) || '1',
-      limit: (req.query.limit as string) || '50',
+      id_organizacao:     idOrganizacao,
+      id_produto_gravity: (req.query.id_produto_gravity as string) || '',
+      pagina:             (req.query.pagina as string) || '1',
+      limite:             (req.query.limite as string) || '50',
     })
     res.json(data)
   } catch (err) {
-    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: maskError(err) })
+    res.json({ ...LOGS_FALLBACK, error: maskError(err) })
   }
 })
 
@@ -99,34 +121,34 @@ apiCockpitRouter.get('/stats', async (_req, res) => {
     const data = await proxyToCockpit('/stats')
     res.json(data)
   } catch {
-    res.json({ requisicoes_24h: 0, erros_24h: 0, latencia_media_ms: 0, uptime_24h: '100.0%' })
+    res.json(STATS_FALLBACK)
   }
 })
 
-// ─── Admin Routes (gravity_admin — todos os tenants) ────────────────────
+// ─── Admin Routes (gravity_admin — todas as organizacoes) ───────────────
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
 apiCockpitAdminRouter.get('/servicos', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/services')
+    const data = await proxyToCockpit('/servicos')
     res.json(data)
   } catch (err) {
-    res.json({ services: [], error: maskError(err) })
+    res.json({ servicos: [], error: maskError(err) })
   }
 })
 
 apiCockpitAdminRouter.get('/logs', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
-      tenant_id: (req.query.tenant_id as string) || '',
-      product_id: (req.query.product_id as string) || '',
-      page: (req.query.page as string) || '1',
-      limit: (req.query.limit as string) || '50',
+      id_organizacao:     (req.query.id_organizacao as string) || '',
+      id_produto_gravity: (req.query.id_produto_gravity as string) || '',
+      pagina:             (req.query.pagina as string) || '1',
+      limite:             (req.query.limite as string) || '50',
     })
     res.json(data)
   } catch (err) {
-    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: maskError(err) })
+    res.json({ ...LOGS_FALLBACK, error: maskError(err) })
   }
 })
 
@@ -135,7 +157,7 @@ apiCockpitAdminRouter.get('/estatisticas', async (_req, res) => {
     const data = await proxyToCockpit('/stats')
     res.json(data)
   } catch {
-    res.json({ requisicoes_24h: 0, erros_24h: 0, latencia_media_ms: 0, uptime_24h: '100.0%' })
+    res.json(STATS_FALLBACK)
   }
 })
 
@@ -143,8 +165,8 @@ apiCockpitAdminRouter.get('/estatisticas', async (_req, res) => {
 
 /**
  * GET /api/v1/api-cockpit/admin/uso-gabi
- * Proxy para GET /api/v1/gabi/uso do serviço Gabi (tenant super-server).
- * Quando id_organizacao não é informado, retorna uso global (sem filtro).
+ * Proxy para GET /api/v1/gabi/uso do servico Gabi.
+ * Quando id_organizacao nao e informado, retorna uso global (sem filtro).
  */
 apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
   try {
@@ -156,9 +178,9 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-internal-key':  INTERNAL_SERVICE_KEY,
         'x-id-organizacao': id_organizacao || '__admin_global__',
-        'Content-Type': 'application/json',
+        'Content-Type':    'application/json',
       },
       signal: AbortSignal.timeout(5_000),
     })
@@ -182,7 +204,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 
 /**
  * GET /api/v1/api-cockpit/admin/uso-gabi/historico
- * Proxy para GET /api/v1/gabi/uso/historico — últimos 6 meses.
+ * Proxy para GET /api/v1/gabi/uso/historico — ultimos 6 meses.
  */
 apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
   try {
@@ -192,9 +214,9 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-internal-key':  INTERNAL_SERVICE_KEY,
         'x-id-organizacao': id_organizacao || '__admin_global__',
-        'Content-Type': 'application/json',
+        'Content-Type':    'application/json',
       },
       signal: AbortSignal.timeout(5_000),
     })

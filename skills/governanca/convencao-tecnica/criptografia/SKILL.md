@@ -12,9 +12,9 @@ description: "Use esta skill sempre que for implementar geração ou armazenamen
 
 | Dado | Algoritmo | Onde aplica |
 |:---|:---|:---|
-| **Token de API** | **SHA-256** (hash unidirecional) | `key_hash` em `ApiKey`; nunca plain text |
-| **Credenciais ERP/SAP** | **AES-256-GCM** (criptografia simétrica) | `credentials_encrypted` em `ErpConnection` |
-| **Secret de webhook** | **HMAC-SHA256** (assinatura) | `X-Gravity-Signature` no header de cada disparo |
+| **Token de API** | **SHA-256** (hash unidirecional) | `hash_api_token` em `ApiToken`; nunca plain text |
+| **Credenciais ERP/SAP** | **AES-256-GCM** (criptografia simétrica) | `credenciais_criptografadas_api_integracao_erp` em `ApiIntegracaoErp` |
+| **Secret de webhook** | **HMAC-SHA256** (assinatura) | `segredo_webhook_configuracao` em `WebhookConfiguracao`; header `X-Gravity-Signature` em cada disparo |
 
 ---
 
@@ -25,7 +25,7 @@ description: "Use esta skill sempre que for implementar geração ou armazenamen
 3. **Prefixo obrigatório:**
    - `gv_live_sk_` para produção
    - `gv_test_sk_` para sandbox
-4. **Preview de últimos 4 chars** (`key_preview`) salvo para identificação na UI.
+4. **Preview de últimos 4 chars** (`prefixo_api_token`) salvo para identificação na UI.
 5. **Revogação imediata** disponível a qualquer momento (mata o token sem grace period).
 
 ---
@@ -40,9 +40,11 @@ description: "Use esta skill sempre que for implementar geração ou armazenamen
 ```typescript
 // Padrão mínimo de uso (referência)
 const encrypted = await encrypt(JSON.stringify(creds), process.env.ENCRYPTION_KEY!)
-// Persistir `encrypted` em coluna credentials_encrypted
+// Persistir `encrypted` em coluna credenciais_criptografadas_api_integracao_erp (ApiIntegracaoErp)
 
-const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.ENCRYPTION_KEY!))
+const creds = JSON.parse(
+  await decrypt(conn.credenciais_criptografadas_api_integracao_erp, process.env.ENCRYPTION_KEY!),
+)
 // Usar `creds` no escopo da query e descartar
 ```
 
@@ -63,4 +65,4 @@ const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.E
 - **Telas de gestão de tokens, modal de criação, escopo, rate limit, expiração** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
 - **Playground, histórico de disparos de webhook, regenerar secret** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
 - **Conector ERP (OData/SAP/JDBC), fluxo Gabi → query OData** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
-- **Schema Prisma de `ApiKey` e `ErpConnection`** → [Configurador Admin](../../../produtos-gravity/configurador/admin/SKILL.md)
+- **Schema Prisma `ApiToken`, `WebhookConfiguracao`, `WebhookLog`, `LogConsumo`, `ApiIntegracaoErp`** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md) (seção Models DDD)

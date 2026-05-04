@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
-import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { useLoadSystemRole } from './hooks/use-load-system-role'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
@@ -269,6 +269,17 @@ export default function App() {
         <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
         {/* /cadastro/continuar — fluxo de convite Clerk customizado (precede o catch-all /cadastro/*) */}
         <Route path="/cadastro/continuar" element={<PublicRoute><CadastroContinuarPage /></PublicRoute>} />
+        {/* /cadastro/sso-callback — intercepta retorno do OAuth (Google) do <SignUp> embutido.
+            Sem esta rota, o Clerk joga o usuario com 'missing_requirements' no Account Portal
+            hospedado em *.accounts.dev (tela branca). continueSignUpUrl manda o usuario para
+            a CadastroContinuarPage Gravity-styled quando faltam campos (ex: senha pos-Google). */}
+        <Route path="/cadastro/sso-callback" element={
+          <AuthenticateWithRedirectCallback
+            continueSignUpUrl="/cadastro/continuar"
+            signUpFallbackRedirectUrl="/hub"
+            signInFallbackRedirectUrl="/hub"
+          />
+        } />
         <Route path="/cadastro/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
         <Route path="/recuperar-senha/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
 

@@ -235,6 +235,16 @@ export function Usuarios() {
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioOrg | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
 
+  // Whitelist de tipos que o ator atual pode atribuir ao usuário em edição.
+  // Hook chamado incondicionalmente; quando usuarioEditando=null, retorna lista
+  // vazia. Convertemos enum (BackendUserRole) → label UI (NivelAcesso) para o modal.
+  const gatingEdicao = usePodeEditarUsuario(
+    usuarioEditando
+      ? { id_usuario: usuarioEditando.id_usuario, tipo_usuario: usuarioEditando.tipo_usuario as TipoUsuarioBackend }
+      : null,
+  )
+  const tiposPermitidosUI: NivelAcesso[] = gatingEdicao.tiposPermitidosParaPatente.map(mapRole)
+
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     try {
@@ -891,6 +901,7 @@ export function Usuarios() {
         workspaces={workspaces}
         workspacesSalvos={usuarioEditando ? (vinculosMap[usuarioEditando.id_usuario] ?? []) : []}
         carregandoWorkspaces={carregando}
+        tiposPermitidos={tiposPermitidosUI}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, _permissoes, workspaceIds) => {
           // Estado original para rollback de UI em caso de erro

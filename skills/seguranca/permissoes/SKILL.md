@@ -388,7 +388,7 @@ Master é convidado para a organização (Mandamento 04 — acesso global)
 
 Após o convite, um Master pode alterar quais Workspaces um Standard ou Supplier acessa via:
 
-**`PUT /api/v1/usuarios/:id/workspaces`** (`requireMasterRole`)
+**`PUT /api/v1/usuarios/:id/workspaces`** (`requireUserManagementRole` desde 2026-05-04 — antes era `requireMasterRole`)
 
 ### Regras de Negócio
 
@@ -411,6 +411,53 @@ z.object({
     .refine(ids => new Set(ids).size === ids.length, 'Workspaces duplicados não são permitidos'),
 })
 ```
+
+## Edição de patente (`tipo_usuario`)
+
+**`PATCH /api/v1/usuarios/:id_usuario/patente`** (`requireUserManagementRole`)
+
+### Matriz de autorização
+
+| Ator (`req.auth.tipo_usuario`) | Pode editar alvo... | Pode atribuir | Bloqueios |
+|---|---|---|---|
+| **SUPER_ADMIN** | Qualquer (escopo global) | Qualquer (`SUPER_ADMIN`/`ADMIN`/`MASTER`/`PADRAO`/`FORNECEDOR`) | Anti-escalada (próprio id), anti-bricking |
+| **ADMIN** | Qualquer EXCETO `SUPER_ADMIN` | `ADMIN`/`MASTER`/`PADRAO`/`FORNECEDOR` | Não promove a `SUPER_ADMIN`, anti-escalada, anti-bricking |
+| **MASTER** | Mesmo `id_organizacao`, EXCETO outros `MASTER`/`SUPER_ADMIN`/`ADMIN` | `MASTER`/`PADRAO`/`FORNECEDOR` (incluindo promover `PADRAO` a `MASTER`) | Anti-escalada, anti-bricking |
+| **PADRAO / FORNECEDOR** | Ninguém | — | Bloqueado por `requireUserManagementRole` (`403`) |
+
+### Defesas (server-side)
+
+| Defesa | Implementação | Erro |
+|---|---|---|
+| **Anti-escalada** | `req.auth.id_usuario === alvo.id_usuario` → bloqueia | `403 FORBIDDEN_SELF_EDIT` |
+| **Anti-bricking** | Dentro de `$transaction(isolationLevel: 'Serializable')`: `count(MASTER em id_organizacao do alvo) <= 1` ao rebaixar MASTER → bloqueia | `409 CONFLICT_LAST_MASTER` |
+| **IDOR cross-organização** | MASTER/ADMIN: `findFirst({ id_organizacao: req.auth.id_organizacao })`; SUPER_ADMIN: escopo global | `404 NOT_FOUND` (não vaza existência) |
+| **Whitelist por ator** | `autorizarAlteracaoPatente()` valida combinação ator×alvo×novoTipo antes de qualquer escrita | `403 FORBIDDEN_<código_específico>` |
+| **Auditoria** | `securityAudit.roleChanged(id_organizacao, ator_id, { targetUserId, oldRole, newRole })` após update | log estruturado |
+
+### Códigos de erro específicos
+
+- `FORBIDDEN_SELF_EDIT` — ator editando próprio tipo
+- `FORBIDDEN_ADMIN_VS_SUPER_ADMIN` — ADMIN tentando editar SUPER_ADMIN
+- `FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN` — ADMIN tentando promover a SUPER_ADMIN
+- `FORBIDDEN_MASTER_VS_MASTER` — MASTER tentando editar outro MASTER
+- `FORBIDDEN_MASTER_VS_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN
+- `FORBIDDEN_MASTER_INVALID_TARGET_TYPE` — MASTER tentando atribuir SUPER_ADMIN/ADMIN
+- `CONFLICT_LAST_MASTER` — rebaixaria último MASTER da organização
+
+### Frontend — Hook `usePodeEditarUsuario`
+
+`servicos-global/configurador/src/hooks/use-pode-editar-usuario.ts` replica a matriz para gating de UI (esconder lápis, filtrar select de tipo). **Defesa em profundidade** — backend continua sendo a fonte da verdade.
+
+### Edição de `nome_usuario` / `email_usuario`
+
+Atualmente **read-only** no modal. Não existe endpoint dedicado:
+- `nome_usuario`: edição via Clerk (perfil do próprio usuário) ou suporte
+- `email_usuario`: credencial de autenticação — fluxo de re-verificação Clerk (Mandamento 01)
+
+PR separado criará `PATCH /api/v1/usuarios/:id_usuario` quando o fluxo de sync com Clerk estiver definido.
+
+---
 
 ### MASTER vs. Standard/Supplier — Vínculos com Workspace
 

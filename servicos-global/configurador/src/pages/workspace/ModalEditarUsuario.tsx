@@ -19,6 +19,12 @@ interface ModalEditarUsuarioProps {
   workspaces: WorkspaceItem[]
   workspacesSalvos: string[]
   carregandoWorkspaces?: boolean
+  /**
+   * Lista de tipos (UI label NivelAcesso) que o ator atual pode atribuir ao
+   * alvo. Vem do hook `usePodeEditarUsuario` na tela. Vazio ⇒ select de tipo
+   * fica desabilitado (somente leitura).
+   */
+  tiposPermitidos?: NivelAcesso[]
   aoFechar: () => void
   aoSalvar: (dados: UsuarioOrg, permissoes: string[], workspaceIds: string[]) => void
 }
@@ -215,9 +221,9 @@ function AbaDados({ nome, email, tipo, tiposPermitidos, workspaces, workspacesSa
                 height: '100%'
               }}
             >
-              <option value="Standard">Standard — Acesso conf. permissões</option>
-              <option value="Master">Master — Acesso total</option>
-              <option value="Fornecedor">Fornecedor — Acesso restrito</option>
+              {opcoesTipo.map((op) => (
+                <option key={op} value={op}>{LABEL_TIPO_USUARIO[op] ?? op}</option>
+              ))}
             </select>
             <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
           </div>
@@ -419,7 +425,7 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: AbaPermi
   )
 }
 
-export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, tiposPermitidos = [], aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -443,10 +449,11 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     }
   }, [usuario, workspacesSalvos])
 
-  const handleValoresChange = (campo: 'nome' | 'email' | 'tipo', valor: string) => {
-    if (campo === 'nome') setNome(valor)
-    if (campo === 'email') setEmail(valor)
-    if (campo === 'tipo') setTipo(valor as NivelAcesso)
+  // Nome/email são read-only (sem endpoint backend); apenas `tipo` é editável.
+  // Mantemos os setters de nome/email para o useEffect que carrega o usuário —
+  // o handleValoresChange só é chamado pelo `<select>` do tipo.
+  const handleValoresChange = (_campo: 'tipo', valor: string) => {
+    setTipo(valor as NivelAcesso)
   }
 
   const handleTogglePermissao = (id: string, checked: boolean) => {
@@ -487,7 +494,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       icone: 'user',
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
-          <AbaDados nome={nome} email={email} tipo={tipo} workspaces={workspaces} workspacesSalvos={workspacesSalvos} onValoresChange={handleValoresChange} />
+          <AbaDados nome={nome} email={email} tipo={tipo} tiposPermitidos={tiposPermitidos} workspaces={workspaces} workspacesSalvos={workspacesSalvos} onValoresChange={handleValoresChange} />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>

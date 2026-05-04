@@ -1,4 +1,4 @@
-// server/routes/serviceToken.ts
+// server/routes/token-servico.ts
 // Emissão de machine tokens para S2S assíncrono (Fluxo 2 S2S)
 // POST /api/v1/internal/tokens-servico — emite token de serviço
 

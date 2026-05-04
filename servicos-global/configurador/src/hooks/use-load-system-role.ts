@@ -1,4 +1,4 @@
-// src/hooks/useLoadSystemRole.ts
+// src/hooks/use-load-system-role.ts
 // Carrega o role canônico do usuário a partir do banco (via /api/v1/me).
 // Fonte de verdade para autorização no frontend — não usa Clerk publicMetadata.
 //

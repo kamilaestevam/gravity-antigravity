@@ -1,4 +1,4 @@
-// server/routes/users.ts
+// server/routes/usuario.ts
 // Gestão de usuários e vínculos com workspaces da organização autenticada.
 // Contrato em DDD puro (PT-BR) — chaves espelham o schema Prisma; respostas exportam
 // schemas Zod (Mand. 09) para validação bilateral no frontend.
@@ -13,6 +13,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireMasterRole } from '../middleware/requireMasterRole.js'
+import { requireUserManagementRole } from '../middleware/requireUserManagementRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
@@ -53,8 +54,13 @@ export const SubstituirWorkspacesUsuarioSchema = z.object({
     }),
 })
 
+// PATCH /patente aceita o conjunto completo de tipos. A whitelist por ator
+// (SAdmin pode tudo, Admin não pode promover a SAdmin, etc.) é validada em
+// runtime para preservar mensagens específicas.
+const TipoUsuarioPatenteEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR'])
+
 const AlterarTipoUsuarioSchema = z.object({
-  tipo_usuario: TipoUsuarioEnum,
+  tipo_usuario: TipoUsuarioPatenteEnum,
 })
 
 // ─── Schemas Zod de resposta (Mand. 09) ─────────────────────────────────────
@@ -106,7 +112,7 @@ export const alterarTipoUsuarioResponseSchema = z.object({
   usuario: z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
-    tipo_usuario: TipoUsuarioEnum,
+    tipo_usuario: TipoUsuarioPatenteEnum,
   }),
 })
 
@@ -355,9 +361,12 @@ async function substituirWorkspacesAtomicamente(
 
 /**
  * PUT /api/v1/usuarios/:id_usuario/workspaces
- * Substitui atomicamente os workspaces vinculados a um usuário STANDARD/SUPPLIER
+ * Substitui atomicamente os workspaces vinculados a um usuário PADRAO/FORNECEDOR.
+ *
+ * Autorização: SUPER_ADMIN (escopo global), ADMIN/MASTER (escopo da própria
+ * id_organizacao). Anti-escalada — ator não pode editar próprios vínculos.
  */
-usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, next) => {
+usersRouter.put('/:id_usuario/workspaces', requireUserManagementRole, async (req, res, next) => {
   try {
     const parsed = SubstituirWorkspacesUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -367,11 +376,28 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
     const { workspaces: workspaceIds } = parsed.data
     const id_usuario = req.params.id_usuario
 
-    const usuario = await prisma.usuario.findFirst({
-      where: { id_usuario, id_organizacao: req.auth.id_organizacao },
-      select: { id_usuario: true, tipo_usuario: true },
-    })
+    // Anti-escalada: ator não altera os próprios vínculos
+    if (id_usuario === req.auth.id_usuario) {
+      throw new AppError(
+        'Você não pode alterar os próprios vínculos de workspace',
+        403,
+        'FORBIDDEN_SELF_EDIT',
+      )
+    }
+
+    // SUPER_ADMIN tem escopo global; demais limitam à própria organização
+    const usuario = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+
     if (!usuario) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+
     if (usuario.tipo_usuario === 'MASTER') {
       throw new AppError('Usuário Master tem acesso a todos os workspaces automaticamente', 400, 'INVALID_OPERATION')
     }
@@ -380,24 +406,24 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
       throw new AppError('Tipo de usuário não vincula a workspaces', 400, 'INVALID_OPERATION')
     }
 
-    await validarWorkspacesDoTenant(req.auth.id_organizacao, workspaceIds)
+    // Validação dos workspaces: SUPER_ADMIN usa a organização do alvo,
+    // demais usam a própria organização do ator (já é a mesma do alvo).
+    const idOrganizacaoAlvo = usuario.id_organizacao
+    await validarWorkspacesDoTenant(idOrganizacaoAlvo, workspaceIds)
 
     const antesIds = await prisma.usuarioWorkspace
       .findMany({
-        where: {
-          id_organizacao: req.auth.id_organizacao,
-          id_usuario,
-        },
+        where: { id_organizacao: idOrganizacaoAlvo, id_usuario },
         select: { id_workspace: true },
       })
       .then((ws) => ws.map((w) => w.id_workspace))
 
-    await substituirWorkspacesAtomicamente(req.auth.id_organizacao, id_usuario, workspaceIds, usuario.tipo_usuario)
+    await substituirWorkspacesAtomicamente(idOrganizacaoAlvo, id_usuario, workspaceIds, usuario.tipo_usuario)
 
     const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
     const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
     if (adicionados.length > 0 || removidos.length > 0) {
-      securityAudit.permissionChanged(req.auth.id_organizacao, req.auth.id_usuario, {
+      securityAudit.permissionChanged(idOrganizacaoAlvo, req.auth.id_usuario, {
         targetUserId: id_usuario,
         permission: 'workspace_access',
         action: adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
@@ -410,11 +436,101 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
   }
 })
 
+// ─── PATCH /:id_usuario/patente — regras de autorização ─────────────────────
+// Documentadas em skills/seguranca/permissoes/SKILL.md. Resumo:
+// - SUPER_ADMIN: edita qualquer um para qualquer valor (escopo global)
+// - ADMIN: edita qualquer um exceto SUPER_ADMIN; não promove a SUPER_ADMIN
+// - MASTER: edita usuários da própria id_organizacao exceto outros MASTERs;
+//   pode promover PADRAO/FORNECEDOR para MASTER; só seta MASTER/PADRAO/FORNECEDOR
+// - Ator ≠ alvo (anti-escalada)
+// - Último MASTER da org NÃO pode ser rebaixado (anti-bricking) — checagem
+//   serializada via $transaction(isolationLevel: Serializable)
+// - Cross-organização → 404 (não vaza existência)
+
+type TipoUsuarioPatente = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+
+function autorizarAlteracaoPatente(
+  ator: { id_usuario: string; tipo_usuario: string; id_organizacao: string },
+  alvo: { id_usuario: string; tipo_usuario: string; id_organizacao: string },
+  novoTipo: TipoUsuarioPatente,
+): void {
+  // Anti-escalada: ninguém edita o próprio tipo
+  if (ator.id_usuario === alvo.id_usuario) {
+    throw new AppError(
+      'Você não pode alterar o próprio tipo de usuário',
+      403,
+      'FORBIDDEN_SELF_EDIT',
+    )
+  }
+
+  if (ator.tipo_usuario === 'SUPER_ADMIN') {
+    // SUPER_ADMIN tem escopo global e pode tudo
+    return
+  }
+
+  if (ator.tipo_usuario === 'ADMIN') {
+    // ADMIN não pode mexer em SUPER_ADMIN nem promover ninguém a SUPER_ADMIN
+    if (alvo.tipo_usuario === 'SUPER_ADMIN') {
+      throw new AppError(
+        'Admin não pode editar Super Admin',
+        403,
+        'FORBIDDEN_ADMIN_VS_SUPER_ADMIN',
+      )
+    }
+    if (novoTipo === 'SUPER_ADMIN') {
+      throw new AppError(
+        'Admin não pode promover usuário a Super Admin',
+        403,
+        'FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN',
+      )
+    }
+    return
+  }
+
+  if (ator.tipo_usuario === 'MASTER') {
+    // MASTER tem escopo da própria organização (já validado pelo findFirst)
+    if (alvo.tipo_usuario === 'MASTER') {
+      throw new AppError(
+        'Master não pode editar outro Master',
+        403,
+        'FORBIDDEN_MASTER_VS_MASTER',
+      )
+    }
+    if (alvo.tipo_usuario === 'SUPER_ADMIN' || alvo.tipo_usuario === 'ADMIN') {
+      throw new AppError(
+        'Master não pode editar usuários Gravity (Super Admin/Admin)',
+        403,
+        'FORBIDDEN_MASTER_VS_GRAVITY',
+      )
+    }
+    if (novoTipo !== 'MASTER' && novoTipo !== 'PADRAO' && novoTipo !== 'FORNECEDOR') {
+      throw new AppError(
+        'Master só pode atribuir Master, Standard ou Fornecedor',
+        403,
+        'FORBIDDEN_MASTER_INVALID_TARGET_TYPE',
+      )
+    }
+    return
+  }
+
+  // Defesa em profundidade — middleware já bloqueou, mas evita falso positivo
+  throw new AppError(
+    'Tipo de usuário do ator não permite gestão',
+    403,
+    'FORBIDDEN',
+  )
+}
+
 /**
  * PATCH /api/v1/usuarios/:id_usuario/patente
- * Atualiza a patente (tipo_usuario) de um usuário na organização.
+ * Atualiza a patente (tipo_usuario) de um usuário.
+ *
+ * Autorização: ver `autorizarAlteracaoPatente`.
+ * Anti-bricking: rebaixar o último MASTER da organização é proibido — checagem
+ * dentro de $transaction Serializable para evitar race condition entre dois
+ * Masters se rebaixando simultaneamente.
  */
-usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, next) => {
+usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req, res, next) => {
   try {
     const parsed = AlterarTipoUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -425,24 +541,73 @@ usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, ne
       )
     }
 
-    const usuario = await prisma.usuario.findFirst({
-      where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
-      select: { id_usuario: true, id_clerk_usuario: true, tipo_usuario: true },
-    })
-    if (!usuario) {
+    const novoTipo = parsed.data.tipo_usuario as TipoUsuarioPatente
+
+    // Busca alvo. Para MASTER/ADMIN o filtro inclui id_organizacao; para
+    // SUPER_ADMIN o escopo é global (qualquer organização).
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: {
+            id_usuario: req.params.id_usuario,
+            id_organizacao: req.auth.id_organizacao,
+          },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+
+    if (!alvo) {
+      // 404 sem vazar existência cross-org (IDOR defense)
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const atualizado = await prisma.usuario.update({
-      where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
-      data: { tipo_usuario: parsed.data.tipo_usuario },
-      select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
+    autorizarAlteracaoPatente(
+      {
+        id_usuario: req.auth.id_usuario,
+        tipo_usuario: req.auth.tipo_usuario,
+        id_organizacao: req.auth.id_organizacao,
+      },
+      alvo,
+      novoTipo,
+    )
+
+    // Atualização + check anti-bricking dentro de transação Serializable.
+    // Se duas requisições rebaixarem dois Masters distintos da mesma org
+    // simultaneamente, a serialização garante que a 2ª vê o estado pós-1ª.
+    const atualizado = await prisma.$transaction(async (tx) => {
+      // Anti-bricking só se aplica quando o alvo é MASTER e o novo tipo deixa
+      // de ser MASTER, dentro da MESMA organização do alvo.
+      if (alvo.tipo_usuario === 'MASTER' && novoTipo !== 'MASTER') {
+        const totalMasters = await tx.usuario.count({
+          where: {
+            id_organizacao: alvo.id_organizacao,
+            tipo_usuario: 'MASTER',
+          },
+        })
+        if (totalMasters <= 1) {
+          throw new AppError(
+            'Não é possível rebaixar o último Master da organização',
+            409,
+            'CONFLICT_LAST_MASTER',
+          )
+        }
+      }
+
+      return tx.usuario.update({
+        where: { id_usuario: alvo.id_usuario },
+        data: { tipo_usuario: novoTipo },
+        select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
+      })
+    }, {
+      isolationLevel: 'Serializable',
     })
 
     securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
-      targetUserId: req.params.id_usuario,
-      oldRole: usuario.tipo_usuario,
-      newRole: parsed.data.tipo_usuario,
+      targetUserId: alvo.id_usuario,
+      oldRole: alvo.tipo_usuario,
+      newRole: novoTipo,
     }).catch(() => {})
 
     res.json({ usuario: atualizado })

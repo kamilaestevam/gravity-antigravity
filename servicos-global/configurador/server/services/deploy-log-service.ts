@@ -1,4 +1,4 @@
-// server/services/deployLogService.ts
+// server/services/deploy-log-service.ts
 // CRUD do histórico manual de deploys da plataforma Gravity.
 // Global (não tenant-scoped) — exclusivo gravity_admin.
 

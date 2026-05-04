@@ -5,7 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { adminMetricasLlmApi } from '../../services/apiClient'
+import { adminMetricasLlmApi } from '../../services/api-client'
 
 interface DailyMetric {
   date: string

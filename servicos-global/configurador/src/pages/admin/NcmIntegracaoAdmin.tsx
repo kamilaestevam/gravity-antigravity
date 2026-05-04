@@ -17,7 +17,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
-import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/apiClient'
+import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/api-client'
 import { ModalAgendamentoSincronizacaoNcm } from './ModalNcmAgendamentoSincronizacao'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

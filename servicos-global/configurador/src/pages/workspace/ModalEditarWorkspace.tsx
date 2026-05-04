@@ -24,8 +24,8 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { validarCNPJ } from '@nucleo/utils'
 import type { Workspace } from './Workspaces'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
-import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
+import { useSugerirSubdominio } from '../../hooks/use-sugerir-subdominio'
 
 // ─── Constantes ─────────────────────────────────────────────────────────────
 

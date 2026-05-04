@@ -38,7 +38,7 @@ import { PrismaClient } from '../../configurador/generated/index.js'
 import {
   criarEmpresa,
   listarEmpresasPorOrganizacao,
-} from '../../servicos-global/configurador/server/services/cadastrosClient.js'
+} from '../../servicos-global/configurador/server/services/cadastros-client.js'
 
 interface BackfillArgs {
   dryRun: boolean

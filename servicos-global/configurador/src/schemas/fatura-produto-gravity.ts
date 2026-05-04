@@ -1,6 +1,6 @@
 // schemas/faturaProdutoGravity.ts
 // Contratos Zod para as rotas /api/v1/faturas* — espelho do payload DDD-PT
-// devolvido pelo backend ([servicos-global/configurador/server/routes/billing.ts]).
+// devolvido pelo backend ([servicos-global/configurador/server/routes/fatura-produto-gravity.ts]).
 //
 // Segue Mandamentos 06 + 09: validação obrigatória + bilateralidade. Qualquer
 // rename no backend exige rename aqui no MESMO commit.
@@ -91,3 +91,53 @@ export const itensFaturaProdutoGravitySchema = z.object({
 })
 
 export type ItensFaturaProdutoGravity = z.infer<typeof itensFaturaProdutoGravitySchema>
+
+// ─── Tipo de documento (anexo de fatura) ─────────────────────────────────────
+// Valores idênticos ao enum Prisma `TipoDocumentoFaturaProdutoGravity`.
+
+export const tipoDocumentoFaturaProdutoGravitySchema = z.enum([
+  'BOLETO',
+  'NFE',
+  'RECIBO',
+  'PDF_GENERICO',
+  'OUTRO',
+])
+
+export type TipoDocumentoFaturaProdutoGravity = z.infer<typeof tipoDocumentoFaturaProdutoGravitySchema>
+
+// ─── Documento persistido (anexo) ────────────────────────────────────────────
+
+export const documentoAnexoFaturaProdutoGravitySchema = z.object({
+  id_documento_fatura_produto_gravity:           z.string(),
+  tipo_documento_fatura_produto_gravity:         tipoDocumentoFaturaProdutoGravitySchema,
+  nome_documento_fatura_produto_gravity:         z.string(),
+  url_documento_fatura_produto_gravity:          z.string(),
+  tamanho_documento_fatura_produto_gravity:      z.number().nullable(),
+  mime_documento_fatura_produto_gravity:         z.string().nullable(),
+  data_criacao_documento_fatura_produto_gravity: z.string(),
+})
+
+export type DocumentoAnexoFaturaProdutoGravity = z.infer<typeof documentoAnexoFaturaProdutoGravitySchema>
+
+export const listaDocumentosFaturaProdutoGravitySchema = z.object({
+  documentos_fatura_produto_gravity: z.array(documentoAnexoFaturaProdutoGravitySchema),
+})
+
+// ─── Request PATCH /api/v1/faturas/:id ───────────────────────────────────────
+
+export const atualizarFaturaProdutoGravitySchema = z.object({
+  competencia_fatura_produto_gravity:       z.string().nullable().optional(),
+  data_vencimento_fatura_produto_gravity:   z.string().datetime().nullable().optional(),
+  email_organizacao_fatura_produto_gravity: z.string().email().nullable().optional(),
+  moeda_fatura_produto_gravity:             z.string().optional(),
+  itens_fatura_produto_gravity: z.array(z.object({
+    id_fatura_item_produto_gravity:             z.string().optional(),
+    id_produto_gravity:                         z.string().nullable().optional(),
+    descricao_fatura_item_produto_gravity:      z.string().min(1),
+    quantidade_fatura_item_produto_gravity:     z.number().positive(),
+    valor_unitario_fatura_item_produto_gravity: z.number().nonnegative(),
+    moeda_fatura_item_produto_gravity:          z.string().optional(),
+  })).optional(),
+})
+
+export type AtualizarFaturaProdutoGravity = z.infer<typeof atualizarFaturaProdutoGravitySchema>

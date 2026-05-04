@@ -16,17 +16,20 @@ import {
   BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
-import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/export-service'
 import { useShellStore } from '@gravity/shell'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, mapRole, nivelToRole } from '../../types/niveis-acesso'
-import { extractCatchError } from '../../utils/extractApiError'
+import { extractCatchError } from '../../utils/extract-api-error'
 import {
   usuariosApi,
   workspaceApi,
   type UsuarioListItem,
   type WorkspaceItem,
-} from '../../services/apiClient'
+} from '../../services/api-client'
+import { usePodeEditarUsuario, type TipoUsuarioBackend } from '../../hooks/use-pode-editar-usuario'
+import { useLoadSystemRole } from '../../hooks/use-load-system-role'
+import { useAuth } from '@clerk/clerk-react'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -50,6 +53,43 @@ export type TipoUsuarioConvidavel = 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 // os workspaces da organização, independentemente de vínculo formal em UsuarioWorkspace.
 function temAcessoTotalAosWorkspaces(tipo_usuario: string): boolean {
   return tipo_usuario === 'MASTER' || tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN'
+}
+
+// ─── Botão de ação condicional ───────────────────────────────────────────────
+// Hook usePodeEditarUsuario precisa rodar por linha — sub-componente respeita
+// regras dos hooks (top level). Retorna `null` quando o ator não pode editar
+// (defesa em profundidade — backend ainda valida).
+interface BotaoAcaoUsuarioProps {
+  alvo: UsuarioOrg
+  /** id_usuario do ator logado — usado para anti-escalada (não editar a si mesmo). */
+  idUsuarioAtor: string | null
+  icone: React.ReactNode
+  tooltip: string
+  onClick: (u: UsuarioOrg) => void
+}
+
+function BotaoAcaoUsuario({ alvo, idUsuarioAtor, icone, tooltip, onClick }: BotaoAcaoUsuarioProps) {
+  const gating = usePodeEditarUsuario({
+    id_usuario: alvo.id_usuario,
+    tipo_usuario: alvo.tipo_usuario as TipoUsuarioBackend,
+  })
+  // Anti-escalada por id_usuario — hook só compara por tipo_usuario
+  const ehProprio = idUsuarioAtor !== null && idUsuarioAtor === alvo.id_usuario
+  if (!gating.podeEditar || ehProprio) return null
+
+  return (
+    <TooltipGlobal descricao={tooltip}>
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClick(alvo) }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+        onMouseEnter={(ev) => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+        onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+      >
+        {icone}
+      </button>
+    </TooltipGlobal>
+  )
 }
 
 // ── Chips de workspaces vinculados com overflow via TooltipGlobal ─────────────
@@ -130,13 +170,39 @@ const OPCOES_TIPO: SelectOpcao[] = [
 
 export function Usuarios() {
   const { t } = useTranslation()
-  const { isLoaded: userLoaded } = useUser()
+  const { isLoaded: userLoaded, user: clerkUser } = useUser()
   const addNotification = useShellStore((s) => s.addNotification)
   const [usuarios, setUsuarios] = useState<UsuarioOrg[]>([])
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
   // Vínculos ativos: id_usuario → id_workspace[] (derivado da relation usuario_workspaces)
   const [vinculosMap, setVinculosMap] = useState<Record<string, string[]>>({})
   const [carregando, setCarregando] = useState(true)
+  // id_usuario do ator (banco) — usado para gating anti-escalada por id (hook
+  // checa por tipo). Resolvido via match clerkUser.id ↔ id_clerk_usuario carregado
+  // pela rota /me; aqui derivamos do usuários carregados.
+  const idUsuarioAtor =
+    usuarios.find((u) => clerkUser?.primaryEmailAddress?.emailAddress === u.email_usuario)?.id_usuario ?? null
+
+  async function recarregarUsuarios(): Promise<void> {
+    const [usuariosResp, workspacesResp] = await Promise.all([
+      usuariosApi.listar(),
+      workspaceApi.getWorkspaces(),
+    ])
+    const usuariosUI: UsuarioOrg[] = usuariosResp.usuarios.map((u) => ({
+      ...u,
+      status_usuario: 'ATIVO',
+    }))
+    setUsuarios(usuariosUI)
+    const mapa: Record<string, string[]> = {}
+    for (const u of usuariosResp.usuarios) {
+      const ativos = u.usuario_workspaces
+        .filter((uw) => uw.ativo_usuario_workspace)
+        .map((uw) => uw.id_workspace)
+      if (ativos.length > 0) mapa[u.id_usuario] = ativos
+    }
+    setVinculosMap(mapa)
+    setWorkspaces(workspacesResp.workspaces)
+  }
 
   // Carregar usuários e workspaces da API real
   useEffect(() => {
@@ -144,30 +210,7 @@ export function Usuarios() {
     async function fetchData() {
       try {
         setCarregando(true)
-
-        const [usuariosResp, workspacesResp] = await Promise.all([
-          usuariosApi.listar(),
-          workspaceApi.getWorkspaces(),
-        ])
-
-        // Status do usuário é UI-only — placeholder até o schema persistir.
-        const usuariosUI: UsuarioOrg[] = usuariosResp.usuarios.map((u) => ({
-          ...u,
-          status_usuario: 'ATIVO',
-        }))
-        setUsuarios(usuariosUI)
-
-        // Mapa de vínculos ativos: id_usuario → id_workspace[]
-        const mapa: Record<string, string[]> = {}
-        for (const u of usuariosResp.usuarios) {
-          const ativos = u.usuario_workspaces
-            .filter((uw) => uw.ativo_usuario_workspace)
-            .map((uw) => uw.id_workspace)
-          if (ativos.length > 0) mapa[u.id_usuario] = ativos
-        }
-        setVinculosMap(mapa)
-
-        setWorkspaces(workspacesResp.workspaces)
+        await recarregarUsuarios()
       } catch (err) {
         console.error('Erro ao carregar usuários:', err)
         addNotification({
@@ -179,7 +222,8 @@ export function Usuarios() {
       }
     }
     fetchData()
-  }, [userLoaded, addNotification])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLoaded])
 
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
@@ -311,12 +355,24 @@ export function Usuarios() {
     },
   ]
 
+  // Ações da linha — `permissions` e `edit` usam gating via BotaoAcaoUsuario
+  // (renderCustom retornando null quando ator não pode editar). `suspend`
+  // segue como ação UI-only (status local).
   const ACOES: TabelaGlobalAcao<UsuarioOrg>[] = [
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
       tooltip: 'Permissões do Usuário',
       onClick: (u) => { setUsuarioEditando(u); setAbaEditando('permissoes') },
+      renderCustom: (item) => (
+        <BotaoAcaoUsuario
+          alvo={item}
+          idUsuarioAtor={idUsuarioAtor}
+          icone={<Key size={15} weight="bold" />}
+          tooltip="Permissões do Usuário"
+          onClick={(u) => { setUsuarioEditando(u); setAbaEditando('permissoes') }}
+        />
+      ),
     },
     {
       id: 'suspend',
@@ -345,6 +401,15 @@ export function Usuarios() {
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar',
       onClick: (u) => { setUsuarioEditando(u); setAbaEditando('dados') },
+      renderCustom: (item) => (
+        <BotaoAcaoUsuario
+          alvo={item}
+          idUsuarioAtor={idUsuarioAtor}
+          icone={<PencilSimple size={15} weight="bold" />}
+          tooltip="Editar"
+          onClick={(u) => { setUsuarioEditando(u); setAbaEditando('dados') }}
+        />
+      ),
     }
   ]
 
@@ -828,30 +893,48 @@ export function Usuarios() {
         carregandoWorkspaces={carregando}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, _permissoes, workspaceIds) => {
-          setUsuarios((prev) => prev.map((u) => u.id_usuario === uEditado.id_usuario ? uEditado : u))
+          // Estado original para rollback de UI em caso de erro
+          const original = usuarios.find((u) => u.id_usuario === uEditado.id_usuario) ?? null
+          const tipoMudou = original !== null && original.tipo_usuario !== uEditado.tipo_usuario
+          const ehVinculavel = uEditado.tipo_usuario === 'PADRAO' || uEditado.tipo_usuario === 'FORNECEDOR'
 
-          if (uEditado.tipo_usuario !== 'MASTER' && workspaceIds.length > 0) {
-            try {
-              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
-              setVinculosMap((prev) => ({ ...prev, [uEditado.id_usuario]: workspaceIds }))
-              addNotification({
-                type: 'success',
-                message: `Workspaces de "${uEditado.nome_usuario}" atualizados.`,
-              })
-              setUsuarioEditando(null)
-            } catch (err) {
-              addNotification({
-                type: 'error',
-                message: extractCatchError(err, 'Falha ao salvar workspaces.'),
-              })
-              // modal permanece aberto para o usuário corrigir e tentar de novo
+          try {
+            // 1. Persiste alteração de tipo_usuario (se mudou) — Mand. 08: falha em
+            //    autorização não é silenciosa, lança erro com mensagem do backend.
+            if (tipoMudou) {
+              const novoTipoBackend = uEditado.tipo_usuario as 'MASTER' | 'PADRAO' | 'FORNECEDOR' | 'ADMIN' | 'SUPER_ADMIN'
+              // Backend só aceita MASTER/PADRAO/FORNECEDOR via /patente vindo do
+              // modal — SAdmin/Admin via tela admin global. Defesa em prof.
+              if (novoTipoBackend === 'SUPER_ADMIN' || novoTipoBackend === 'ADMIN') {
+                throw new Error('Tipo Super Admin/Admin só pode ser atribuído pelo painel global Gravity')
+              }
+              await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, novoTipoBackend)
             }
-          } else {
+
+            // 2. Persiste vínculos de workspace — só faz sentido para PADRAO/FORNECEDOR
+            //    e quando há pelo menos um workspace selecionado (Zod min(1) no backend).
+            if (ehVinculavel && workspaceIds.length > 0) {
+              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+            }
+
+            // 3. Refetch — fonte da verdade é o servidor após qualquer mutação
+            await recarregarUsuarios()
+
             addNotification({
               type: 'success',
               message: `Usuário "${uEditado.nome_usuario}" atualizado.`,
             })
             setUsuarioEditando(null)
+          } catch (err) {
+            // Rollback UI: restaura o usuário original no estado para refletir o
+            // que está realmente persistido (modal permanece aberto para retry).
+            if (original) {
+              setUsuarios((prev) => prev.map((u) => u.id_usuario === uEditado.id_usuario ? original : u))
+            }
+            addNotification({
+              type: 'error',
+              message: extractCatchError(err, 'Falha ao salvar alterações do usuário.'),
+            })
           }
         }}
       />

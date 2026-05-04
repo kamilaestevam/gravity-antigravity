@@ -8,8 +8,8 @@ import {
   BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
-import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
+import { useSugerirSubdominio } from '../../hooks/use-sugerir-subdominio'
 import {
   Buildings,
   IdentificationCard,

@@ -28,17 +28,21 @@ import './select.css'
 
 type DropdownPos = { top: number; left: number; width: number; above: boolean; maxHeight?: number }
 
-function calcPos(trigger: HTMLElement): DropdownPos {
+function calcPos(trigger: HTMLElement, forcarBaixo = false): DropdownPos {
   const rect = trigger.getBoundingClientRect()
   const spaceBelow = window.innerHeight - rect.bottom
   const spaceAbove = rect.top
-  const above = spaceBelow < 260 && spaceAbove > spaceBelow
+  const above = forcarBaixo
+    ? false
+    : spaceBelow < 260 && spaceAbove > spaceBelow
   return {
     top: above ? rect.top : rect.bottom + 4,
     left: rect.left,
     width: rect.width,
     above,
-    maxHeight: above ? Math.min(260, spaceAbove - 16) : Math.min(260, spaceBelow - 16)
+    maxHeight: above
+      ? Math.min(260, spaceAbove - 16)
+      : Math.min(260, spaceBelow - 16)
   }
 }
 
@@ -138,6 +142,7 @@ export function SelectGlobal({
   label,
   hint,
   iconeEsquerda,
+  posicao = 'auto',
   renderizarOpcao,
   renderizarValorSelecionado,
   id: idExterno,
@@ -162,11 +167,12 @@ export function SelectGlobal({
 
   useEffect(() => {
     if (!aberto || !campoRef.current) return
-    setPos(calcPos(campoRef.current))
+    const forcarBaixo = posicao === 'baixo'
+    setPos(calcPos(campoRef.current, forcarBaixo))
 
     // Recalcular se a janela rolar ou redimensionar enquanto aberto
     const update = () => {
-      if (campoRef.current) setPos(calcPos(campoRef.current))
+      if (campoRef.current) setPos(calcPos(campoRef.current, forcarBaixo))
     }
     window.addEventListener('scroll', update, true)
     window.addEventListener('resize', update)
@@ -174,7 +180,7 @@ export function SelectGlobal({
       window.removeEventListener('scroll', update, true)
       window.removeEventListener('resize', update)
     }
-  }, [aberto])
+  }, [aberto, posicao])
 
   // ─── Fechar ao clicar fora ────────────────────────────────────────────────
 

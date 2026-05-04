@@ -1,4 +1,4 @@
-// server/routes/hubInit.ts
+// server/routes/hub-init.ts
 // Endpoint agregado para a tela Hub (SelecionarWorkspace)
 // GET /api/v1/hub/init — retorna workspaces + organizacao + produtos + catálogo em 1 chamada
 // GET /api/v1/hub/insights — retorna insights cross-produto da GABI para o carrossel do Hub
@@ -6,9 +6,9 @@
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { organizacaoService } from '../services/organizacaoService.js'
+import { organizacaoService } from '../services/organizacao-service.js'
 import { prisma } from '../lib/prisma.js'
-import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsService.js'
+import { generateHubInsights, normalizeHubRole } from '../services/hub-insights-service.js'
 
 export const hubRouter = Router()
 

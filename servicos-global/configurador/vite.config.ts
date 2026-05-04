@@ -169,6 +169,51 @@ export default defineConfig({
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      // Health checks para monitoramento de servidores em dev (useServerHealth)
+      // Cada rota reescreve para /health no backend correspondente.
+      // Devem vir APÓS o fallback /api para não interferir com rotas de produto.
+      '/dev-health/configurador': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+        rewrite: () => '/health',
+        onError(_err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/dev-health/historico': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: () => '/health',
+        onError(_err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/dev-health/pedido': {
+        target: 'http://localhost:8030',
+        changeOrigin: true,
+        rewrite: () => '/health',
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(_err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/dev-health/cadastros': {
+        target: 'http://localhost:8031',
+        changeOrigin: true,
+        rewrite: () => '/health',
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(_err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
     },
   },
 })

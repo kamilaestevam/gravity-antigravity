@@ -19,7 +19,7 @@ import {
   useLoadSystemRole,
   invalidateRoleCache,
   type SystemRole,
-} from '../../../servicos-global/configurador/src/hooks/useLoadSystemRole.js'
+} from '../../../servicos-global/configurador/src/hooks/use-load-system-role.js'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function makeMeResponse(tipoUsuario: string) {

@@ -1,10 +1,10 @@
-// server/routes/publicCatalog.ts
+// server/routes/catalogo-publico.ts
 // Catálogo público de produtos — sem autenticação
 // Usado pelo Store, Marketplace e landing pages
 // GET /api/v1/catalogo/produtos — lista produtos disponíveis
 
 import { Router } from 'express'
-import { productCatalogService } from '../services/productCatalogService.js'
+import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
 
 export const publicCatalogRouter = Router()
 

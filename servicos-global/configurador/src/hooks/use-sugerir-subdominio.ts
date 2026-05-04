@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { workspaceApi } from '../services/apiClient'
+import { workspaceApi } from '../services/api-client'
 
 /**
  * Hook que pede ao backend o subdomínio que o sistema atribuiria, dado um

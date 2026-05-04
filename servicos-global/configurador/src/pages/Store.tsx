@@ -38,7 +38,7 @@ import {
 } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
+import { useLoadSystemRole } from '../hooks/use-load-system-role'
 import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'

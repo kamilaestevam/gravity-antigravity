@@ -23,7 +23,7 @@ import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-for
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Play, CheckSquare, Square, Flask, Funnel } from '@phosphor-icons/react'
-import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/apiClient'
+import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 export interface ModalExecutarTestesProps {

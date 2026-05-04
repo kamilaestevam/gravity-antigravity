@@ -29,7 +29,7 @@ const tenantServiceMock = {
   getWorkspaces: vi.fn().mockResolvedValue([]),
 }
 
-vi.mock('../services/organizacaoService.js', () => ({ organizacaoService: tenantServiceMock }))
+vi.mock('../services/organizacao-service.js', () => ({ organizacaoService: tenantServiceMock }))
 
 // Mock rate limiter
 vi.mock('../middleware/rateLimiter.js', () => ({
@@ -62,7 +62,7 @@ let app: express.Express
 let request: ReturnType<typeof supertest>
 
 beforeAll(async () => {
-  const { hubRouter } = await import('../routes/hubInit.js')
+  const { hubRouter } = await import('../routes/hub-init.js')
   app = express()
   app.use(express.json())
   app.use('/api/v1/hub', hubRouter)
@@ -93,7 +93,7 @@ beforeEach(() => {
 
 afterEach(async () => {
   // Clear the insights cache between tests
-  const { _testExports } = await import('../services/hubInsightsService.js')
+  const { _testExports } = await import('../services/hub-insights-service.js')
   _testExports.insightsCache.clear()
 })
 
@@ -343,39 +343,39 @@ describe('GET /api/v1/hub/insights', () => {
 describe('hubInsightsService', () => {
   describe('normalizeHubRole', () => {
     it('normaliza SUPER_ADMIN para admin', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole('SUPER_ADMIN')).toBe('admin')
     })
 
     it('normaliza ADMIN para admin', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole('ADMIN')).toBe('admin')
     })
 
     it('normaliza PADRAO para operador', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole('PADRAO')).toBe('operador')
     })
 
     it('normaliza undefined para default', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole(undefined)).toBe('default')
     })
 
     it('normaliza gerente para gerente', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole('gerente')).toBe('gerente')
     })
 
     it('normaliza DIRECTOR para diretor', async () => {
-      const { normalizeHubRole } = await import('../services/hubInsightsService.js')
+      const { normalizeHubRole } = await import('../services/hub-insights-service.js')
       expect(normalizeHubRole('DIRECTOR')).toBe('diretor')
     })
   })
 
   describe('cache isolation', () => {
     it('cache key inclui tenant_id (isolamento)', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       _testExports.setCache('tenant-A', 'user-1', [{ id: 'a', variante: 'default', tag: 'A', texto: 'A', score: 1 }])
       _testExports.setCache('tenant-B', 'user-1', [{ id: 'b', variante: 'default', tag: 'B', texto: 'B', score: 1 }])
 
@@ -389,13 +389,13 @@ describe('hubInsightsService', () => {
     })
 
     it('cache retorna null para tenant inexistente', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const result = _testExports.getCached('tenant-inexistente', 'user-1')
       expect(result).toBeNull()
     })
 
     it('cache expira após TTL', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       _testExports.setCache('tenant-ttl', 'user-1', [{ id: 'ttl', variante: 'default', tag: 'TTL', texto: 'T', score: 1 }])
 
       // Manually expire by modifying the entry timestamp
@@ -411,7 +411,7 @@ describe('hubInsightsService', () => {
 
   describe('feature discovery', () => {
     it('gera cards para produtos não ativos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildHubFeatureDiscovery(new Set())
       // Com nenhum produto ativo, deve ter feature discovery para todos
       expect(cards.length).toBeGreaterThan(0)
@@ -419,7 +419,7 @@ describe('hubInsightsService', () => {
     })
 
     it('não gera card para produto já ativo', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildHubFeatureDiscovery(new Set(['simula-custo', 'bid-cambio', 'bid-frete', 'pedido']))
       // Nenhum card para produtos já ativos
       expect(cards.find(c => c.id === 'feat_simula_custo')).toBeFalsy()
@@ -431,7 +431,7 @@ describe('hubInsightsService', () => {
 
   describe('role weights', () => {
     it('admin tem todos os pesos em 100', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const adminWeights = _testExports.HUB_ROLE_WEIGHTS.admin
       for (const value of Object.values(adminWeights)) {
         expect(value).toBe(100)
@@ -439,14 +439,14 @@ describe('hubInsightsService', () => {
     })
 
     it('operador prioriza atrasados e lpco', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const opWeights = _testExports.HUB_ROLE_WEIGHTS.operador
       expect(opWeights.pedidos_atrasados).toBe(100)
       expect(opWeights.lpco_suspensas).toBe(95)
     })
 
     it('diretor prioriza financeiro e economia', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const dirWeights = _testExports.HUB_ROLE_WEIGHTS.diretor
       expect(dirWeights.pedidos_financeiro).toBe(100)
       expect(dirWeights.cambio_economia).toBe(100)
@@ -455,7 +455,7 @@ describe('hubInsightsService', () => {
 
   describe('context insights', () => {
     it('gera insight de "produtos ativos" quando há produtos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildContextInsights(new Set(['pedido', 'bid-cambio']))
       const prodAtivos = cards.find(c => c.id === 'hub_produtos_ativos')
       expect(prodAtivos).toBeTruthy()
@@ -463,21 +463,21 @@ describe('hubInsightsService', () => {
     })
 
     it('gera insight cross quando simula-custo + bid-cambio ativos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildContextInsights(new Set(['simula-custo', 'bid-cambio']))
       const cross = cards.find(c => c.id === 'hub_cross_simula_cambio')
       expect(cross).toBeTruthy()
     })
 
     it('gera insight cross quando pedido + lpco ativos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildContextInsights(new Set(['pedido', 'lpco']))
       const cross = cards.find(c => c.id === 'hub_cross_pedido_lpco')
       expect(cross).toBeTruthy()
     })
 
     it('não gera nada quando nenhum produto ativo', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const cards = _testExports.buildContextInsights(new Set())
       expect(cards).toHaveLength(0)
     })
@@ -485,12 +485,12 @@ describe('hubInsightsService', () => {
 
   describe('fallback insights', () => {
     it('tem no mínimo 5 fallbacks definidos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       expect(_testExports.FALLBACK_INSIGHTS.length).toBeGreaterThanOrEqual(5)
     })
 
     it('fallbacks têm IDs únicos', async () => {
-      const { _testExports } = await import('../services/hubInsightsService.js')
+      const { _testExports } = await import('../services/hub-insights-service.js')
       const ids = _testExports.FALLBACK_INSIGHTS.map(f => f.id)
       expect(new Set(ids).size).toBe(ids.length)
     })

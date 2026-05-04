@@ -47,7 +47,7 @@ let app: express.Express
 let request: ReturnType<typeof supertest>
 
 beforeAll(async () => {
-  const { apiCockpitAdminRouter } = await import('../routes/apiCockpit.js')
+  const { apiCockpitAdminRouter } = await import('../routes/api-cockpit.js')
 
   app = express()
   app.use(express.json())

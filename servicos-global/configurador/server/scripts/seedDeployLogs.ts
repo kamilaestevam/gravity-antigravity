@@ -6,7 +6,7 @@
  */
 
 import 'dotenv/config'
-import { deployLogService } from '../services/deployLogService.js'
+import { deployLogService } from '../services/deploy-log-service.js'
 import { prisma } from '../lib/prisma.js'
 import { logger } from '../lib/logger.js'
 

@@ -9,7 +9,7 @@
  */
 
 import axios from 'axios'
-import { persistirCotacao, classificarBoletim, MOEDAS_SUPORTADAS } from '../routes/taxaCambio.js'
+import { persistirCotacao, classificarBoletim, MOEDAS_SUPORTADAS } from '../routes/taxa-cambio.js'
 
 const BID_CAMBIO_URL = process.env.BID_CAMBIO_URL ?? 'http://localhost:8025'
 

@@ -55,7 +55,7 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireGravi
 }))
 
 // productConfigService — apenas rotas admin usam; mock preventivo
-vi.mock('../../../../servicos-global/configurador/server/services/productConfigService.js', () => ({
+vi.mock('../../../../servicos-global/configurador/server/services/produto-gravity-configuracao-service.js', () => ({
   productConfigService: {
     upsertConfig:    vi.fn(),
     disableProduct:  vi.fn(),

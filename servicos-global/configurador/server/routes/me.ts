@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
-import { organizacaoService, proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacaoService.js'
+import { organizacaoService, proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 
 // ─────────────────────────────────────────────────────────────────────────────

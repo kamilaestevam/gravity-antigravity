@@ -20,8 +20,8 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { formatarCNPJ, validarCNPJ } from '@nucleo/utils'
-import { adminPlatformApi } from '../../services/apiClient'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import { adminPlatformApi } from '../../services/api-client'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 
 import '../workspace/workspace.css'
 

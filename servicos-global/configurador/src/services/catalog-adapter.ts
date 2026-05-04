@@ -5,7 +5,7 @@
 // backend não retornar Paridade Absoluta — quando isso acontecer, este arquivo
 // pode ser deletado e os componentes consomem ProductApi (=Prisma) direto.
 
-import { adminProductsApi, type ProductApi, type FaixaPrecoApi } from './apiClient'
+import { adminProductsApi, type ProductApi, type FaixaPrecoApi } from './api-client'
 import type {
   ProdutoCatalogo,
   NegociacaoEspecial,

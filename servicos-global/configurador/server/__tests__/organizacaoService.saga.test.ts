@@ -98,12 +98,12 @@ function jsonResponse(body: unknown, status = 201): Response {
 // ─── Suite ──────────────────────────────────────────────────────────────────
 
 describe('organizacaoService.createOrganizacao — saga Cadastros-primeiro', () => {
-  let organizacaoService: typeof import('../services/organizacaoService.js')['organizacaoService']
+  let organizacaoService: typeof import('../services/organizacao-service.js')['organizacaoService']
 
   beforeEach(async () => {
     vi.clearAllMocks()
     // Import dinâmico APÓS os mocks — garante que o módulo receba os stubs.
-    const mod = await import('../services/organizacaoService.js')
+    const mod = await import('../services/organizacao-service.js')
     organizacaoService = mod.organizacaoService
 
     // Pré-checks default: sem conflito de slug nem de clerk_user_id.

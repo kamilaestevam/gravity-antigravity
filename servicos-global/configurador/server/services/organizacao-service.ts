@@ -1,4 +1,4 @@
-// server/services/organizacaoService.ts
+// server/services/organizacao-service.ts
 // Lógica de negócio para criação e gestão de organizações e workspaces
 // Contrato de retorno em DDD puro (PT-BR) — sem mapeamento para chaves legadas em inglês.
 
@@ -6,7 +6,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
-import { criarEmpresa, compensarEmpresa } from './cadastrosClient.js'
+import { criarEmpresa, compensarEmpresa } from './cadastros-client.js'
 
 const log = logger.child({ module: 'organizacao-service' })
 

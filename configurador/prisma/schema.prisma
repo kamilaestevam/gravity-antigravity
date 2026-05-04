@@ -91,8 +91,9 @@ model Organizacao {
   companies_organizacao        Workspace[]
   product_configs_organizacao  ProdutoGravityConfiguracao[]
   ProdutoGravityWorkspace      ProdutoGravityWorkspace[]
-  faturas_organizacao          ProdutoGravityFatura[]
-  fatura_itens_organizacao     ProdutoGravityFaturaItem[]
+  faturas_organizacao            ProdutoGravityFatura[]
+  fatura_itens_organizacao       ProdutoGravityFaturaItem[]
+  fatura_documentos_organizacao  ProdutoGravityFaturaDocumento[]
 
   @@index([status_organizacao], map: "status_organizacao_idx")
   @@index([subdominio_organizacao], map: "subdominio_organizacao_idx")
@@ -818,8 +819,9 @@ model ProdutoGravityFatura {
   data_atualizacao_fatura_produto_gravity  DateTime                   @updatedAt
 
   // Relações
-  itens_fatura_produto_gravity ProdutoGravityFaturaItem[]
-  organizacao                  Organizacao                @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
+  itens_fatura_produto_gravity      ProdutoGravityFaturaItem[]
+  documentos_fatura_produto_gravity ProdutoGravityFaturaDocumento[]
+  organizacao                       Organizacao                    @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
 
   @@index([id_organizacao], map: "fpg_org_idx")
   @@index([id_organizacao, status_fatura_produto_gravity], map: "fpg_org_status_idx")
@@ -854,6 +856,45 @@ model ProdutoGravityFaturaItem {
   @@index([id_organizacao, id_fatura_produto_gravity], map: "fipg_org_fatura_idx")
   @@index([id_organizacao, id_produto_gravity], map: "fipg_org_produto_idx")
   @@map("fatura_item_produto_gravity")
+}
+
+// ---------------------------------------------------------------------------
+// FATURA PRODUTO GRAVITY DOCUMENTO (anexos: boleto, NF-e, recibo, PDF, outro)
+// Soft-delete via data_exclusao_*. Storage abstraído: url_documento_* guarda
+// chave (S3-key ou caminho relativo no volume Railway).
+// ---------------------------------------------------------------------------
+
+enum TipoDocumentoFaturaProdutoGravity {
+  BOLETO
+  NFE
+  RECIBO
+  PDF_GENERICO
+  OUTRO
+}
+
+model ProdutoGravityFaturaDocumento {
+  id_documento_fatura_produto_gravity        String                            @id @default(cuid())
+  id_organizacao                             String
+  id_fatura_produto_gravity                  String
+  tipo_documento_fatura_produto_gravity      TipoDocumentoFaturaProdutoGravity
+  nome_documento_fatura_produto_gravity      String
+  url_documento_fatura_produto_gravity       String
+  tamanho_documento_fatura_produto_gravity   Int?
+  mime_documento_fatura_produto_gravity      String?
+  id_usuario_anexou_documento_fatura_produto_gravity String?
+
+  data_criacao_documento_fatura_produto_gravity     DateTime  @default(now())
+  data_atualizacao_documento_fatura_produto_gravity DateTime  @updatedAt
+  data_exclusao_documento_fatura_produto_gravity    DateTime?
+
+  // Relações
+  fatura      ProdutoGravityFatura @relation(fields: [id_fatura_produto_gravity], references: [id_fatura_produto_gravity], onDelete: Cascade)
+  organizacao Organizacao          @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
+
+  @@index([id_organizacao], map: "fdpg_org_idx")
+  @@index([id_organizacao, id_fatura_produto_gravity], map: "fdpg_org_fatura_idx")
+  @@index([id_organizacao, id_usuario_anexou_documento_fatura_produto_gravity], map: "fdpg_org_usuario_idx")
+  @@map("fatura_documento_produto_gravity")
 }
 
 // ---------------------------------------------------------------------------

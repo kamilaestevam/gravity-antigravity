@@ -167,4 +167,106 @@ export const faturaProdutoGravityServico = {
       orderBy: { data_criacao_fatura_item_produto_gravity: 'asc' },
     })
   },
+
+  /**
+   * Atualiza fatura + itens em uma única transação Prisma.
+   * Bloqueia se status for terminal (PAID/VOID/UNCOLLECTIBLE) — Coordenador exigiu
+   * validação no backend, não só no front.
+   */
+  async atualizar(params: {
+    id_fatura_produto_gravity: string
+    id_organizacao:            string
+    competencia?:              string | null
+    data_vencimento?:          Date | null
+    email_organizacao?:        string | null
+    moeda?:                    string
+    itens?: Array<{
+      id_fatura_item_produto_gravity?: string
+      id_produto_gravity?:             string | null
+      descricao_fatura_item_produto_gravity:      string
+      quantidade_fatura_item_produto_gravity:     number
+      valor_unitario_fatura_item_produto_gravity: number
+      moeda_fatura_item_produto_gravity?:         string
+    }>
+  }): Promise<GravityInvoice> {
+    const { id_fatura_produto_gravity, id_organizacao, itens } = params
+
+    return prisma.$transaction(async (tx) => {
+      const atual = await tx.produtoGravityFatura.findFirst({
+        where: { id_fatura_produto_gravity, id_organizacao },
+      })
+      if (!atual) {
+        throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+      }
+      const terminais: GravityInvoiceStatus[] = ['PAID', 'VOID', 'UNCOLLECTIBLE']
+      if (terminais.includes(atual.status_fatura_produto_gravity as GravityInvoiceStatus)) {
+        throw new AppError(
+          `Fatura em status ${atual.status_fatura_produto_gravity} não pode ser editada`,
+          409,
+          'INVALID_STATE',
+        )
+      }
+
+      const dadosUpdate: Record<string, unknown> = {}
+      if (params.competencia !== undefined) dadosUpdate.competencia_fatura_produto_gravity = params.competencia
+      if (params.data_vencimento !== undefined) dadosUpdate.data_fatura_produto_gravity = params.data_vencimento ?? new Date()
+      if (params.email_organizacao !== undefined) dadosUpdate.email_organizacao_fatura_produto_gravity = params.email_organizacao
+      if (params.moeda !== undefined) dadosUpdate.moeda_fatura_produto_gravity = params.moeda
+
+      if (itens) {
+        const idsExistentes = itens.map(i => i.id_fatura_item_produto_gravity).filter((x): x is string => Boolean(x))
+        await tx.produtoGravityFaturaItem.deleteMany({
+          where: {
+            id_organizacao,
+            id_fatura_produto_gravity,
+            id_fatura_item_produto_gravity: { notIn: idsExistentes.length > 0 ? idsExistentes : ['__nenhum__'] },
+          },
+        })
+
+        for (const item of itens) {
+          const valor_total = item.quantidade_fatura_item_produto_gravity * item.valor_unitario_fatura_item_produto_gravity
+          const moeda = item.moeda_fatura_item_produto_gravity ?? params.moeda ?? atual.moeda_fatura_produto_gravity
+          if (item.id_fatura_item_produto_gravity) {
+            await tx.produtoGravityFaturaItem.update({
+              where: { id_fatura_item_produto_gravity: item.id_fatura_item_produto_gravity },
+              data: {
+                id_produto_gravity:                         item.id_produto_gravity ?? null,
+                descricao_fatura_item_produto_gravity:      item.descricao_fatura_item_produto_gravity,
+                quantidade_fatura_item_produto_gravity:     item.quantidade_fatura_item_produto_gravity,
+                valor_unitario_fatura_item_produto_gravity: item.valor_unitario_fatura_item_produto_gravity,
+                valor_total_fatura_item_produto_gravity:    valor_total,
+                moeda_fatura_item_produto_gravity:          moeda,
+              },
+            })
+          } else {
+            await tx.produtoGravityFaturaItem.create({
+              data: {
+                id_organizacao,
+                id_fatura_produto_gravity,
+                id_produto_gravity:                         item.id_produto_gravity ?? null,
+                descricao_fatura_item_produto_gravity:      item.descricao_fatura_item_produto_gravity,
+                quantidade_fatura_item_produto_gravity:     item.quantidade_fatura_item_produto_gravity,
+                valor_unitario_fatura_item_produto_gravity: item.valor_unitario_fatura_item_produto_gravity,
+                valor_total_fatura_item_produto_gravity:    valor_total,
+                moeda_fatura_item_produto_gravity:          moeda,
+              },
+            })
+          }
+        }
+
+        const itensFinais = await tx.produtoGravityFaturaItem.findMany({
+          where: { id_fatura_produto_gravity, id_organizacao },
+          select: { valor_total_fatura_item_produto_gravity: true },
+        })
+        const total = itensFinais.reduce((s, i) => s + Number(i.valor_total_fatura_item_produto_gravity), 0)
+        dadosUpdate.valor_total_fatura_produto_gravity = total
+      }
+
+      const atualizada = await tx.produtoGravityFatura.update({
+        where: { id_fatura_produto_gravity },
+        data: dadosUpdate,
+      })
+      return paraFaturaDto(atualizada)
+    })
+  },
 }

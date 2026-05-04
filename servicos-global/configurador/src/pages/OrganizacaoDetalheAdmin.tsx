@@ -14,8 +14,8 @@ import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
-import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/apiClient'
+import { getAcoesExportacaoPadrao } from '../utils/export-helper'
+import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/api-client'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────

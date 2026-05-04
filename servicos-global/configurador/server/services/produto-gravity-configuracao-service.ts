@@ -1,4 +1,4 @@
-// server/services/productConfigService.ts
+// server/services/produto-gravity-configuracao-service.ts
 // Gestão do PRODUCT_CONFIG por tenant — persistência no banco
 
 import { prisma } from '../lib/prisma.js'

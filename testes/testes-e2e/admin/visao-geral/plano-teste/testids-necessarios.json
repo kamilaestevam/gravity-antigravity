@@ -91,7 +91,7 @@
   ],
 
   "apisDependentes": [
-    { "metodo": "GET",  "rota": "/api/v1/admin/visao-geral", "uso": "Carregar configuração da plataforma (HQ)", "implementacao": "adminPlatformApi.getConfig() em servicos-global/configurador/src/services/apiClient.ts" },
+    { "metodo": "GET",  "rota": "/api/v1/admin/visao-geral", "uso": "Carregar configuração da plataforma (HQ)", "implementacao": "adminPlatformApi.getConfig() em servicos-global/configurador/src/services/api-client.ts" },
     { "metodo": "PUT",  "rota": "/api/v1/admin/visao-geral", "uso": "Salvar alterações de nome/cnpj/estado/cidade/segmento/tipo_empresa", "implementacao": "adminPlatformApi.updateConfig()" },
     { "metodo": "GET",  "rota": "/api/v1/me", "uso": "Validar role do usuário (defesa em profundidade no AdminLayout)" },
     { "metodo": "GET",  "rota": "external IBGE", "uso": "Carregar lista de cidades por UF (useCidadesIBGE)" }

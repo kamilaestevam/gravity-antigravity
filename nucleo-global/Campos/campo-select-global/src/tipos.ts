@@ -74,6 +74,15 @@ export interface SelectProps {
   hint?: string
   /** Ícone à esquerda do campo */
   iconeEsquerda?: ReactNode
+  /**
+   * Posicionamento do dropdown.
+   * - `'auto'` (padrão): abre para baixo, mas faz flip para cima quando não há
+   *   espaço suficiente abaixo do trigger.
+   * - `'baixo'`: força o dropdown a sempre abrir para baixo, sem flip.
+   *   Útil quando o campo fica perto do final do viewport e o flip-up
+   *   prejudica a UX (ex: ModalSelectGlobal em formulários longos).
+   */
+  posicao?: 'auto' | 'baixo'
   /** Renderizador customizado de opção na lista */
   renderizarOpcao?: (opcao: SelectOpcao) => ReactNode
   /** Renderizador customizado do valor selecionado */

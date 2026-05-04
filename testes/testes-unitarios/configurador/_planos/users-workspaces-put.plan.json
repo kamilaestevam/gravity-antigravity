@@ -6,7 +6,7 @@
   "escopo": "CONFIG",
   "modulo": "UpdateWorkspacesSchema + computarDiff",
   "tipoModulo": "schema_zod",
-  "arquivoFilePath": "servicos-global/configurador/server/routes/users.ts",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/usuario.ts",
   "ambiente": "node",
   "criticidade": "alta",
   "coberturaMinima": 70,

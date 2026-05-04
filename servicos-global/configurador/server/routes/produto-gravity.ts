@@ -1,4 +1,4 @@
-// server/routes/products.ts
+// server/routes/produto-gravity.ts
 // GET /api/v1/produtos — Catálogo público de produtos (leitura)
 // CRUD exclusivo de admin via /api/v1/admin/produtos-gravity (adminProducts.ts)
 

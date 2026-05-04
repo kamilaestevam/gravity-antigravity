@@ -18,12 +18,12 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 import {
   meResponseSchema,
   workspacesResponseSchema,
   type WorkspaceItem,
-} from '../../services/apiClient'
+} from '../../services/api-client'
 
 type DadosOrganizacao = {
   nome_organizacao:         string
@@ -458,6 +458,7 @@ export function Organizacao() {
             aoMudarValor={v => setIdWorkspacePreferido(v != null ? String(v) : '')}
             placeholder="Selecione..."
             buscavel
+            posicao="baixo"
           />
         }
         itemAtivo={workspacePreferido ? {

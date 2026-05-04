@@ -206,17 +206,21 @@ Para erros de validação Zod, o campo `details` é incluído:
 | Contexto | Convenção | Exemplo |
 |:---|:---|:---|
 | Componentes React | PascalCase | `TabelaGlobal`, `ModalCriacao` |
-| Arquivos de Componentes | PascalCase | `TabelaGlobal.tsx`, `InputTexto.tsx` |
-| Hooks | camelCase (prefixo `use`) | `useAuth.ts`, `useFetchVendas.ts` |
+| Arquivos de Componentes React | PascalCase | `TabelaGlobal.tsx`, `InputTexto.tsx` |
+| Arquivos de routes/services/schemas/hooks/utils | **kebab-case + nome DDD completo** | `assinatura-produto-gravity.ts`, `produto-gravity-catalogo-service.ts`, `use-organizacao-atual.ts` |
+| Hooks (identificador) | camelCase (prefixo `use`) | `useOrganizacaoAtual()`, `useFetchVendas()` |
 | Funções e Variáveis | camelCase | `buscarDados()`, `totalVendas` |
 | Constantes Globais | UPPER_SNAKE_CASE | `API_URL`, `MAX_RETRY_ATTEMPTS` |
 | Interfaces/Types | PascalCase | `Usuario`, `RelatorioFisico` |
 | Pastas | kebab-case | `nucleo-global`, `servicos-global` |
-| Models Prisma | PascalCase | `Activity`, `Pedido` |
-| Campos de banco | snake_case | `created_at`, `numero_pedido` |
+| Models Prisma | PascalCase | `Organizacao`, `Pedido`, `ProdutoGravity` |
+| Campos de banco | snake_case | `data_criacao_pedido`, `numero_pedido` |
 | Schemas de organizacao (Postgres) | `tenant_<cuid>` | `tenant_cl4abc123def0g0h1i2j3k4l5` |
-| Arquivos de server | kebab-case | `tenant-isolation.ts` |
 | Aliases de import | camelCase com `@` | `@nucleo`, `@tenant`, `@produto` |
+
+> **Regra detalhada de nome de arquivo:** ver `skills/governanca/lei/ddd-nomenclatura/SKILL.md` REGRA 13.
+> - Identificadores TS dentro do arquivo continuam `camelCase`/`PascalCase` (hífen é inválido em JS).
+> - Exceções permitidas: `auth.ts`, `me.ts`, `admin.ts`, `index.ts` (convenções REST/projeto).
 
 ---
 

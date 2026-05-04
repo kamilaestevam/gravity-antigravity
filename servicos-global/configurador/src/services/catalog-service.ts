@@ -10,7 +10,7 @@
  * tipos legados — substituído pelo wrapper que retorna nomes Prisma.
  */
 
-import { catalogApiService } from './catalogAdapter'
+import { catalogApiService } from './catalog-adapter'
 import type { ProdutoCatalogo, NegociacaoEspecial } from '../types/entidades'
 
 export const catalogService = {

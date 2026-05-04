@@ -20,13 +20,13 @@ import {
   BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
-import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
+import { adminUsersApi, type GlobalUserApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
+import { useLoadSystemRole } from '../../hooks/use-load-system-role'
 import { workspaceUrl } from '../../config/constants'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */

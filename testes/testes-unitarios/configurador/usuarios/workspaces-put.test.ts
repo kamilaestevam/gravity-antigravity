@@ -26,7 +26,7 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireMaste
   requireMasterRole: vi.fn(),
 }))
 
-import { SubstituirWorkspacesUsuarioSchema } from '../../../../servicos-global/configurador/server/routes/users.js'
+import { SubstituirWorkspacesUsuarioSchema } from '../../../../servicos-global/configurador/server/routes/usuario.js'
 
 const CUID_A = 'cld8n2b0j0000mhog1234ws01'
 const CUID_B = 'cld8n2b0j0001mhog1234ws02'

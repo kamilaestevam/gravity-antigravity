@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import type { Page } from '../App'
 import { HardDrives, Buildings, TreeStructure, ChartPieSlice, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, PencilSimple } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
-import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/apiClient'
+import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/api-client'
 
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -20,7 +20,7 @@ import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrgani
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
 import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
 import type { Workspace } from './workspace/Workspaces'
-import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
+import { getAcoesExportacaoPadrao } from '../utils/export-helper'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

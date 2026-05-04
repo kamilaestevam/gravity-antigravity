@@ -52,7 +52,7 @@ vi.mock('../lib/billing/index.js', () => ({
 }))
 
 // Mock do deploy log service
-vi.mock('../services/deployLogService.js', () => ({
+vi.mock('../services/deploy-log-service.js', () => ({
   deployLogService: {
     list: vi.fn().mockResolvedValue({ deploys: [], pagination: {} }),
     create: vi.fn(),

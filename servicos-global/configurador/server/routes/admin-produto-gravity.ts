@@ -1,4 +1,4 @@
-// server/routes/adminProducts.ts
+// server/routes/admin-produto-gravity.ts
 // CRUD do catálogo master de produtos — exclusivo para gravity_admin.
 // Montado em /api/v1/admin/produtos-gravity pelo index.ts.
 
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
-import { productCatalogService } from '../services/productCatalogService.js'
+import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 

@@ -62,7 +62,7 @@ vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server
 
 import express, { type Request, type Response, type NextFunction } from 'express'
 import request from 'supertest'
-import { usersRouter } from '../../../../servicos-global/configurador/server/routes/users.js'
+import { usersRouter } from '../../../../servicos-global/configurador/server/routes/usuario.js'
 import { AppError } from '../../../../servicos-global/configurador/server/lib/appError.js'
 
 // ─── App de teste ─────────────────────────────────────────────────────────────

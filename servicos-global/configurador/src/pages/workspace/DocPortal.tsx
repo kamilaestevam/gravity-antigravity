@@ -25,7 +25,7 @@ import {
   type ProdutoDoc,
   type DocEndpoint,
   type HttpMethod,
-} from '../../services/produtoCatalogo'
+} from '../../services/produto-catalogo'
 import type { Produto } from './Assinaturas'
 
 // ─── Tipos e helpers ─────────────────────────────────────────────────────────

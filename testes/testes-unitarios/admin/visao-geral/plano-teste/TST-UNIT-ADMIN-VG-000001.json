@@ -14,7 +14,7 @@
 
   "arquivosTestados": [
     { "tipo": "componente", "path": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx", "exports": ["VisaoGeralAdmin"] },
-    { "tipo": "hook", "path": "servicos-global/configurador/src/hooks/useCidadesIBGE.ts", "exports": ["useCidadesIBGE"] },
+    { "tipo": "hook", "path": "servicos-global/configurador/src/hooks/use-cidades-ibge.ts", "exports": ["useCidadesIBGE"] },
     { "tipo": "schema_zod", "path": "servicos-global/configurador/server/routes/admin.ts (PlatformConfigSchema, linha 1281)", "exports": ["PlatformConfigSchema"] },
     { "tipo": "constantes", "path": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx (linhas 51-86)", "exports": ["TIPOS_EMPRESA", "OPCOES_TIPOS_EMPRESA", "ESTADOS_BR", "OPCOES_ESTADOS", "SEGMENTOS", "OPCOES_SEGMENTOS"] }
   ],
@@ -26,8 +26,8 @@
   "mocksNecessarios": [
     { "modulo": "@clerk/clerk-react useUser", "como": "vi.hoisted() + vi.mock — retornar { user: { id, fullName, primaryEmailAddress } }" },
     { "modulo": "react-i18next useTranslation", "como": "vi.mock retornando t = (key) => key" },
-    { "modulo": "../../services/apiClient (adminPlatformApi)", "como": "vi.mock mockando getConfig e updateConfig" },
-    { "modulo": "../../hooks/useCidadesIBGE", "como": "vi.mock no teste do componente; testar hook isoladamente em outro arquivo" },
+    { "modulo": "../../services/api-client (adminPlatformApi)", "como": "vi.mock mockando getConfig e updateConfig" },
+    { "modulo": "../../hooks/use-cidades-ibge", "como": "vi.mock no teste do componente; testar hook isoladamente em outro arquivo" },
     { "modulo": "@gravity/shell useShellStore", "como": "vi.mock retornando { addNotification: vi.fn() }" },
     { "modulo": "fetch global (para teste do useCidadesIBGE)", "como": "vi.stubGlobal('fetch', vi.fn())" }
   ],

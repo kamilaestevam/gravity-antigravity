@@ -481,6 +481,21 @@ exports.Prisma.ProdutoGravityFaturaItemScalarFieldEnum = {
   data_atualizacao_fatura_item_produto_gravity: 'data_atualizacao_fatura_item_produto_gravity'
 };
 
+exports.Prisma.ProdutoGravityFaturaDocumentoScalarFieldEnum = {
+  id_documento_fatura_produto_gravity: 'id_documento_fatura_produto_gravity',
+  id_organizacao: 'id_organizacao',
+  id_fatura_produto_gravity: 'id_fatura_produto_gravity',
+  tipo_documento_fatura_produto_gravity: 'tipo_documento_fatura_produto_gravity',
+  nome_documento_fatura_produto_gravity: 'nome_documento_fatura_produto_gravity',
+  url_documento_fatura_produto_gravity: 'url_documento_fatura_produto_gravity',
+  tamanho_documento_fatura_produto_gravity: 'tamanho_documento_fatura_produto_gravity',
+  mime_documento_fatura_produto_gravity: 'mime_documento_fatura_produto_gravity',
+  id_usuario_anexou_documento_fatura_produto_gravity: 'id_usuario_anexou_documento_fatura_produto_gravity',
+  data_criacao_documento_fatura_produto_gravity: 'data_criacao_documento_fatura_produto_gravity',
+  data_atualizacao_documento_fatura_produto_gravity: 'data_atualizacao_documento_fatura_produto_gravity',
+  data_exclusao_documento_fatura_produto_gravity: 'data_exclusao_documento_fatura_produto_gravity'
+};
+
 exports.Prisma.LLMMetricasScalarFieldEnum = {
   id_metricas_llm: 'id_metricas_llm',
   nome_metricas_llm: 'nome_metricas_llm',
@@ -607,6 +622,14 @@ exports.StatusFaturaProdutoGravity = exports.$Enums.StatusFaturaProdutoGravity =
   UNCOLLECTIBLE: 'UNCOLLECTIBLE'
 };
 
+exports.TipoDocumentoFaturaProdutoGravity = exports.$Enums.TipoDocumentoFaturaProdutoGravity = {
+  BOLETO: 'BOLETO',
+  NFE: 'NFE',
+  RECIBO: 'RECIBO',
+  PDF_GENERICO: 'PDF_GENERICO',
+  OUTRO: 'OUTRO'
+};
+
 exports.Prisma.ModelName = {
   Organizacao: 'Organizacao',
   Usuario: 'Usuario',
@@ -631,6 +654,7 @@ exports.Prisma.ModelName = {
   TestePlano: 'TestePlano',
   ProdutoGravityFatura: 'ProdutoGravityFatura',
   ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
+  ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',
   LLMMetricas: 'LLMMetricas'
 };
 

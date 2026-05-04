@@ -25,7 +25,7 @@ import {
 import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
+import { useLoadSystemRole } from '../hooks/use-load-system-role'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'

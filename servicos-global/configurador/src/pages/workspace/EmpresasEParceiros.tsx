@@ -50,7 +50,7 @@ import {
   exportarJSON,
   exportarPDF,
   type ColunasExport,
-} from '../../services/exportService'
+} from '../../services/export-service'
 import { ModalEditarEmpresa } from './ModalEditarEmpresa'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────

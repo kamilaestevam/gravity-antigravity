@@ -11,7 +11,7 @@ import {
   type NcmNotificador,
   type NcmAgendamentoConfigApi,
   type NcmSyncResultado,
-} from '../../services/apiClient'
+} from '../../services/api-client'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -8,9 +8,9 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, type TesteApi } from '../../services/apiClient'
+import { adminTestesApi, adminAgendamentosTesteApi, type TesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 

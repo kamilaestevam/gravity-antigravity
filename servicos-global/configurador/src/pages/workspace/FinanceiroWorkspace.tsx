@@ -14,19 +14,19 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { exportarExcel } from '../../services/exportService'
-import { catalogApiService } from '../../services/catalogAdapter'
+import { exportarExcel } from '../../services/export-service'
+import { catalogApiService } from '../../services/catalog-adapter'
 import { ProdutoCatalogo, NegociacaoEspecial } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { apiFetch } from '../../services/apiClient'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { apiFetch } from '../../services/api-client'
 import {
   listaFaturasProdutoGravitySchema,
   itensFaturaProdutoGravitySchema,
   type FaturaProdutoGravity,
   type FaturaItemProdutoGravity,
   type StatusFaturaProdutoGravity,
-} from '../../schemas/faturaProdutoGravity'
+} from '../../schemas/fatura-produto-gravity'
 
 // ─── Mapa de status → classe de badge ────────────────────────────────────────
 
@@ -109,7 +109,9 @@ export function FinanceiroWorkspace() {
         }
 
         if (orgRes.ok) {
-          const orgRaw: unknown = await orgRes.json().catch(() => null)
+          const orgRaw = await orgRes.json().catch(() => null) as
+            | null
+            | { organizacao?: { id_organizacao?: string; nome_organizacao?: string }; id_organizacao?: string; nome_organizacao?: string }
           const o = orgRaw?.organizacao ?? orgRaw
           if (o?.id_organizacao && o?.nome_organizacao) {
             setOrganizacaoAtual({
@@ -581,10 +583,44 @@ export function FinanceiroWorkspace() {
                 {
                   id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto',
                   onClick: (f) => abrirDocumento(f, 'boleto'),
+                  renderCustom: (f) => {
+                    const disponivel = f.documentos_fatura_produto_gravity.some(d => d.tipo_documento_fatura_produto_gravity === 'boleto')
+                    return (
+                      <TooltipGlobal descricao={disponivel ? 'Baixar Boleto' : 'Boleto ainda não disponível'}>
+                        <button
+                          type="button"
+                          disabled={!disponivel}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (disponivel) abrirDocumento(f, 'boleto') }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: disponivel ? '#64748b' : 'rgba(100,116,139,0.4)', cursor: disponivel ? 'pointer' : 'not-allowed', transition: 'all 0.15s', flexShrink: 0 }}
+                          onMouseEnter={ev => { if (disponivel) { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' } }}
+                          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = disponivel ? '#64748b' : 'rgba(100,116,139,0.4)' }}
+                        >
+                          <DownloadSimple size={15} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    )
+                  },
                 },
                 {
                   id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar NF-e',
                   onClick: (f) => abrirDocumento(f, 'nfe'),
+                  renderCustom: (f) => {
+                    const disponivel = f.documentos_fatura_produto_gravity.some(d => d.tipo_documento_fatura_produto_gravity === 'nfe')
+                    return (
+                      <TooltipGlobal descricao={disponivel ? 'Baixar NF-e' : 'NF-e ainda não disponível'}>
+                        <button
+                          type="button"
+                          disabled={!disponivel}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (disponivel) abrirDocumento(f, 'nfe') }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: disponivel ? '#64748b' : 'rgba(100,116,139,0.4)', cursor: disponivel ? 'pointer' : 'not-allowed', transition: 'all 0.15s', flexShrink: 0 }}
+                          onMouseEnter={ev => { if (disponivel) { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' } }}
+                          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = disponivel ? '#64748b' : 'rgba(100,116,139,0.4)' }}
+                        >
+                          <DownloadSimple size={15} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    )
+                  },
                 },
               ]}
             />

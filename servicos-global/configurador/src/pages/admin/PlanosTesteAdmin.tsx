@@ -5,7 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { adminPlanosTesteApi } from '../../services/apiClient'
+import { adminPlanosTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 interface PlanoResumo {

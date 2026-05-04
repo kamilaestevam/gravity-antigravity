@@ -42,7 +42,7 @@ const organizacaoServiceMock = {
   ]),
 }
 
-vi.mock('../services/organizacaoService.js', () => ({
+vi.mock('../services/organizacao-service.js', () => ({
   organizacaoService: organizacaoServiceMock,
 }))
 
@@ -78,7 +78,7 @@ let request: ReturnType<typeof supertest>
 
 beforeAll(async () => {
   // Import AFTER mocks
-  const { hubRouter } = await import('../routes/hubInit.js')
+  const { hubRouter } = await import('../routes/hub-init.js')
 
   app = express()
   app.use(express.json())

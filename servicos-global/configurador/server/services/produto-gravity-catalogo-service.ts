@@ -1,4 +1,4 @@
-// server/services/productCatalogService.ts
+// server/services/produto-gravity-catalogo-service.ts
 // CRUD do catálogo master de produtos da plataforma Gravity.
 // Gerenciado exclusivamente por gravity_admin.
 

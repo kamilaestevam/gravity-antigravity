@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Receipt, Buildings, DownloadSimple, CalendarBlank, ChartLineUp,
-  Plus, FilePdf, Paperclip, Trash, XCircle, PaperPlaneTilt,
+  Plus, FilePdf, Paperclip, Trash, XCircle, PaperPlaneTilt, PencilSimple,
 } from '@phosphor-icons/react'
+import { ModalEditarFaturaProdutoGravity } from './modal-editar-fatura-produto-gravity'
+import type { FaturaProdutoGravity } from '../../schemas/fatura-produto-gravity'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
@@ -22,7 +24,7 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
-import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
+import { useHistoricoLogger } from '../../hooks/use-historico-logger'
 import {
   adminBillingApi,
   adminOrganizacoesApi,
@@ -30,9 +32,9 @@ import {
   type GravityInvoiceApi,
   type GravityInvoiceStatus,
   type OrganizacaoApi,
-} from '../../services/apiClient'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { extractCatchError } from '../../utils/extractApiError'
+} from '../../services/api-client'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { extractCatchError } from '../../utils/extract-api-error'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -196,6 +198,7 @@ export function FinanceiroAdmin() {
 
   const [invoiceParaAnular, setInvoiceParaAnular] = useState<GravityInvoiceApi | null>(null)
   const [invoiceParaEnviar, setInvoiceParaEnviar] = useState<GravityInvoiceApi | null>(null)
+  const [faturaParaEditar, setFaturaParaEditar] = useState<FaturaProdutoGravity | null>(null)
 
   const resetForm = () => {
     setFormDirty(false)
@@ -461,6 +464,79 @@ export function FinanceiroAdmin() {
         if (pdf) window.open(pdf.url, '_blank', 'noopener,noreferrer')
         else addNotification({ type: 'warning', message: 'Esta fatura não tem PDF disponível' })
       },
+    },
+    {
+      id: 'editar',
+      icone: <PencilSimple size={15} weight="bold" />,
+      tooltip: 'Editar fatura / Gerenciar anexos',
+      onClick: (item) => {
+        // Mapeia GravityInvoiceApi (camada billing) para FaturaProdutoGravity (DDD-PT do modal)
+        const fatura: FaturaProdutoGravity = {
+          id_fatura_produto_gravity:                item.id,
+          numero_fatura_produto_gravity:            item.number,
+          status_fatura_produto_gravity:            item.status as FaturaProdutoGravity['status_fatura_produto_gravity'],
+          id_organizacao:                           item.customer.tenant_id ?? item.customer.id,
+          nome_organizacao_fatura_produto_gravity:  item.customer.name,
+          email_organizacao_fatura_produto_gravity: item.customer.email,
+          valor_total_fatura_produto_gravity:       item.amount_due_cents / 100,
+          valor_pago_fatura_produto_gravity:        item.amount_paid_cents / 100,
+          moeda_fatura_produto_gravity:             item.currency,
+          data_vencimento_fatura_produto_gravity:   item.due_date,
+          competencia_fatura_produto_gravity:       item.competencia,
+          descricao_fatura_produto_gravity:         item.description,
+          url_externa_fatura_produto_gravity:       item.hosted_url,
+          data_criacao_fatura_produto_gravity:      item.created_at,
+          documentos_fatura_produto_gravity:        [],
+          provider_fatura_produto_gravity:          item.provider,
+        }
+        setFaturaParaEditar(fatura)
+      },
+      renderCustom: (item) => (
+        <button
+          type="button"
+          onClick={e => {
+            e.preventDefault()
+            e.stopPropagation()
+            const fatura: FaturaProdutoGravity = {
+              id_fatura_produto_gravity:                item.id,
+              numero_fatura_produto_gravity:            item.number,
+              status_fatura_produto_gravity:            item.status as FaturaProdutoGravity['status_fatura_produto_gravity'],
+              id_organizacao:                           item.customer.tenant_id ?? item.customer.id,
+              nome_organizacao_fatura_produto_gravity:  item.customer.name,
+              email_organizacao_fatura_produto_gravity: item.customer.email,
+              valor_total_fatura_produto_gravity:       item.amount_due_cents / 100,
+              valor_pago_fatura_produto_gravity:        item.amount_paid_cents / 100,
+              moeda_fatura_produto_gravity:             item.currency,
+              data_vencimento_fatura_produto_gravity:   item.due_date,
+              competencia_fatura_produto_gravity:       item.competencia,
+              descricao_fatura_produto_gravity:         item.description,
+              url_externa_fatura_produto_gravity:       item.hosted_url,
+              data_criacao_fatura_produto_gravity:      item.created_at,
+              documentos_fatura_produto_gravity:        [],
+              provider_fatura_produto_gravity:          item.provider,
+            }
+            setFaturaParaEditar(fatura)
+          }}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 28, height: 28, borderRadius: '50%', background: 'transparent',
+            border: '1px solid transparent', color: '#64748b', cursor: 'pointer',
+            transition: 'all 0.15s', flexShrink: 0,
+          }}
+          onMouseEnter={ev => {
+            ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'
+            ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'
+            ev.currentTarget.style.color = '#818cf8'
+          }}
+          onMouseLeave={ev => {
+            ev.currentTarget.style.background = 'transparent'
+            ev.currentTarget.style.borderColor = 'transparent'
+            ev.currentTarget.style.color = '#64748b'
+          }}
+        >
+          <PencilSimple size={15} weight="bold" />
+        </button>
+      ),
     },
     {
       id: 'send',
@@ -780,6 +856,12 @@ export function FinanceiroAdmin() {
           nomeItem={`${invoiceParaEnviar?.number ?? invoiceParaEnviar?.id} — ${invoiceParaEnviar?.customer.email ?? invoiceParaEnviar?.customer.name ?? ''}`}
           aoConfirmar={confirmarEnvio}
           aoCancelar={() => setInvoiceParaEnviar(null)}
+        />
+
+        <ModalEditarFaturaProdutoGravity
+          fatura={faturaParaEditar}
+          aoFechar={() => setFaturaParaEditar(null)}
+          aoSalvarDados={() => { void carregarDados(cursorStack[cursorStack.length - 1]) }}
         />
       </PaginaGlobal>
     </>

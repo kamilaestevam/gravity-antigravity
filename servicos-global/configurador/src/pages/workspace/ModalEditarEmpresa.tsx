@@ -39,7 +39,7 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { formatarCNPJ, formatarCEP, formatarTelefone, validarCNPJ } from '@nucleo/utils'
 import { useShellStore } from '@gravity/shell'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 import {
   criarEmpresaSchema,
   atualizarEmpresaSchema,

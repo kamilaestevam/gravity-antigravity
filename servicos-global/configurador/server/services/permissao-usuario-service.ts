@@ -1,4 +1,4 @@
-// server/services/permissionsService.ts
+// server/services/permissao-usuario-service.ts
 // Gestão granular de permissões por tenant + usuário + recurso
 
 import { prisma } from '../lib/prisma.js'

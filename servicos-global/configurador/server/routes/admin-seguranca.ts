@@ -1,4 +1,4 @@
-// server/routes/adminSecurity.ts
+// server/routes/admin-seguranca.ts
 // Rotas do painel de Seguranca — gravity_admin only + rota interna S2S
 //
 // Admin (/api/v1/admin/eventos-seguranca/*) — requireAuth + requireGravityAdmin:

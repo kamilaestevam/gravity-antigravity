@@ -1,4 +1,4 @@
-// server/routes/companyProducts.ts
+// server/routes/produto-gravity-workspace.ts
 // Gestão de produtos habilitados por workspace
 // GET    /api/v1/workspaces/:id_workspace/produtos                       — Listar produtos do workspace
 // POST   /api/v1/workspaces/:id_workspace/produtos                       — Ativar produto no workspace

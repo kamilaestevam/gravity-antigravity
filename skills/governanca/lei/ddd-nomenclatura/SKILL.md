@@ -40,7 +40,7 @@ A nomenclatura DDD vale para **todo artefato nomeável** do projeto:
 | **Funções/Métodos** | `criarOrganizacao()`, `validarPermissoes()` |
 | **Componentes React** | `TabelaUsuarios`, `ModalEditarOrganizacao` |
 | **Hooks** | `useOrganizacaoAtual`, `useCarregarPermissoes` |
-| **Arquivos/Pastas** | `organizacao.ts`, `tabela-usuarios/`, `useOrganizacaoAtual.ts` |
+| **Arquivos/Pastas** | `assinatura-produto-gravity.ts`, `produto-gravity-workspace.ts`, `tabela-usuarios/`, `use-organizacao-atual.ts` |
 | **Variáveis** | `usuarioAtual`, `organizacaoSelecionada` |
 | **Env vars** | `CONFIGURADOR_DATABASE_URL` |
 | **i18n keys** | `pedido.coluna_pai.numero_pedido` |
@@ -77,7 +77,7 @@ Em código, **só os nomes da coluna direita aparecem**. Os da esquerda não exi
 
 ---
 
-## As 12 Regras
+## As 13 Regras
 
 ### REGRA 1 — Nomes de campos físicos (colunas)
 
@@ -289,6 +289,39 @@ O formato fica em coluna `formato_<entidade>` (enum) ou em metadados do registro
 
 ---
 
+### REGRA 13 — Nomes de arquivo: kebab-case + nome DDD completo
+
+Todos os arquivos `.ts`/`.tsx`/`.js`/`.jsx` (incluindo testes, schemas Zod, services, routes, hooks, componentes) usam **kebab-case PT-BR completo**, com o nome do artefato DDD inteiro — sem abreviar, sem encurtar.
+
+**Convenção:**
+
+| Tipo | Nome do arquivo | Exemplo |
+|---|---|---|
+| Route Express | `<recurso-ddd>.ts` | `assinatura-produto-gravity.ts`, `produto-gravity-workspace.ts`, `historico-organizacao.ts` |
+| Service | `<entidade-ddd>-service.ts` | `produto-gravity-catalogo-service.ts`, `permissao-usuario-service.ts` |
+| Schema Zod | `<entidade-ddd>.ts` | `assinatura-produto-gravity.ts`, `fatura-produto-gravity.ts` |
+| Page React | `<Entidade>.tsx` (PascalCase, segue padrão React) | `Assinaturas.tsx`, `OrganizacoesAdmin.tsx` |
+| Hook | `use-<entidade-ddd>.ts` | `use-organizacao-atual.ts`, `use-carregar-permissoes.ts` |
+| Componente local | `<entidade-ddd>.tsx` ou `<Entidade>.tsx` (PascalCase para componente) | `tabela-usuarios.tsx`, `ModalEditarOrganizacao.tsx` |
+
+**Exceções permitidas (convenção REST/framework universal):**
+
+- `auth.ts`, `me.ts`, `admin.ts` — keywords REST/HTTP universais.
+- `index.ts`, `package.json`, `tsconfig.json` — convenção de projeto.
+- Arquivos gerados (`generated/`, `dist/`) — não tocar.
+
+**Anti-padrões:**
+
+- ❌ camelCase em arquivo: `produtoGravityWorkspace.ts`
+- ❌ Abreviado: `assinatura.ts` quando o conceito é `assinatura-produto-gravity`
+- ❌ Inglês legado: `companyProducts.ts`, `tenantProducts.ts`, `userMembership.ts`
+- ❌ snake_case em arquivo: `produto_gravity_workspace.ts` (snake_case é só para coluna PG e i18n key)
+- ❌ Sufixo `.service.` com ponto: `organizacao.service.ts` — usa `organizacao-service.ts`
+
+**Identificadores TS dentro do arquivo seguem a convenção JS:** `camelCase` para variáveis/funções, `PascalCase` para types/classes/componentes React. Kebab-case **só vale para o nome do arquivo**, porque hífen não é caractere válido em identificador JS.
+
+---
+
 ## Rotas e endpoints (REST)
 
 > **Para regras de design — verbos, paginação, status, erro, headers, hierarquia DDD-aware — ver [`skills/governanca/convencao-tecnica/api-design/SKILL.md`](../../convencao-tecnica/api-design/SKILL.md). Em conflito de naming, esta skill (`ddd-nomenclatura`) prevalece.**
@@ -320,6 +353,8 @@ JSON? → REGRA 8 (PT-BR, mantém)
 Label tela? → REGRA 9 (— ou canonical PT-BR)
 Tabela/Model? → REGRA 10 (Model PascalCase + @@map("snake_case"))
 Calculado? → REGRA 11
+Template (sem extensão)? → REGRA 12
+Nome de arquivo? → REGRA 13 (kebab-case PT-BR completo)
 Rota/Endpoint? → seção "Rotas e endpoints"
 Em dúvida? → consulta glossário canônico
 ```
@@ -342,6 +377,7 @@ Em dúvida? → consulta glossário canônico
 - ❌ Label de UI canonical com inglês (`Created At`) — sempre PT-BR
 - ❌ Trocar nomes de IDs externos (`clerk_user_id`, `stripe_customer_id`)
 - ❌ Misturar inglês e português sem motivo (`nome_user`, `data_creation`)
+- ❌ Arquivo em camelCase ou inglês legado (`companyProducts.ts`, `tenantProducts.ts`, `productCatalogService.ts`) — REGRA 13
 
 ---
 

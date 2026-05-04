@@ -7,7 +7,7 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
-import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
+import { useLoadSystemRole } from '../../hooks/use-load-system-role'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import {
   Crown,

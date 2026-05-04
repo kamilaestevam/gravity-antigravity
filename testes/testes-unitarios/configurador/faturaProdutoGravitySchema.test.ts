@@ -8,7 +8,7 @@ import {
   listaFaturasProdutoGravitySchema,
   itensFaturaProdutoGravitySchema,
   statusFaturaProdutoGravitySchema,
-} from '../../../servicos-global/configurador/src/schemas/faturaProdutoGravity'
+} from '../../../servicos-global/configurador/src/schemas/fatura-produto-gravity'
 
 const faturaValida = {
   id_fatura_produto_gravity:                'cuid_fatura_001',

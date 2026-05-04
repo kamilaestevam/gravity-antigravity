@@ -13,7 +13,7 @@ import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSq
 import {
   exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF,
   type ColunasExport,
-} from '../../services/exportService'
+} from '../../services/export-service'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

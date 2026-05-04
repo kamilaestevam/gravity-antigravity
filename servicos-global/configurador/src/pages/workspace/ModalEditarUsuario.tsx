@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   BannerRequisitosGlobal,
   BannerRequisitosContexto,
@@ -9,7 +10,7 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import type { UsuarioOrg } from './Usuarios'
-import type { WorkspaceItem } from '../../services/apiClient'
+import type { WorkspaceItem } from '../../services/api-client'
 import { mapRole, nivelToRole, type NivelAcesso, type BackendUserRole } from '../../types/niveis-acesso'
 
 interface ModalEditarUsuarioProps {
@@ -97,9 +98,22 @@ interface AbaDadosProps {
   nome: string
   email: string
   tipo: NivelAcesso
+  /**
+   * Lista de tipos (label UI) que o ator pode atribuir ao alvo. Usada para
+   * filtrar o `<select>` de tipo. Vazia = select desabilitado.
+   */
+  tiposPermitidos: NivelAcesso[]
   workspaces: WorkspaceItem[]
   workspacesSalvos: string[]
-  onValoresChange: (campo: 'nome' | 'email' | 'tipo', valor: string) => void
+  onValoresChange: (campo: 'tipo', valor: string) => void
+}
+
+const LABEL_TIPO_USUARIO: Record<NivelAcesso, string> = {
+  'Super Admin': 'Super Admin — Controle total Gravity',
+  'Admin':       'Admin — Administrador Gravity',
+  'Master':      'Master — Acesso total na organização',
+  'Standard':    'Standard — Acesso conforme permissões',
+  'Fornecedor':  'Fornecedor — Acesso externo restrito',
 }
 
 // Resumo read-only dos workspaces vinculados, com mesma semântica da coluna
@@ -148,46 +162,54 @@ function WorkspacesVinculadosResumo({ tipo, workspaces, workspacesSalvos }: {
   )
 }
 
-function AbaDados({ nome, email, tipo, workspaces, workspacesSalvos, onValoresChange }: AbaDadosProps) {
+function AbaDados({ nome, email, tipo, tiposPermitidos, workspaces, workspacesSalvos, onValoresChange }: AbaDadosProps) {
   const { t } = useTranslation()
+  // Inclui o tipo atual nas opções (mesmo que ator não pudesse setá-lo) — assim
+  // o select mostra o valor vigente. Edição é bloqueada se tiposPermitidos vazio.
+  const opcoesTipo: NivelAcesso[] = Array.from(new Set<NivelAcesso>([tipo, ...tiposPermitidos]))
+  const tipoEditavel = tiposPermitidos.length > 0
   return (
     <div style={{ padding: '0 0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-        <CampoGeralGlobal label={t('workspace.users.tabela.nome_completo')} obrigatorio>
-          <div className="ws-input-icon-wrap">
-            <User size={16} />
-            <input
-              value={nome}
-              placeholder="Ex: Ana Paula"
-              onChange={e => onValoresChange('nome', e.target.value)}
-              style={{ width: '100%' }}
-            />
-          </div>
+        <CampoGeralGlobal label={t('workspace.users.tabela.nome_completo')}>
+          <TooltipGlobal descricao="A edição de nome é feita pelo próprio usuário no perfil ou via suporte.">
+            <div className="ws-input-icon-wrap">
+              <User size={16} />
+              <input
+                value={nome}
+                disabled
+                style={{ width: '100%', color: 'var(--ws-muted)', cursor: 'not-allowed' }}
+              />
+            </div>
+          </TooltipGlobal>
         </CampoGeralGlobal>
 
-        <CampoGeralGlobal label={t('comum.email')} obrigatorio>
-          <div className="ws-input-icon-wrap">
-            <EnvelopeSimple size={16} />
-            <input
-              type="email"
-              value={email}
-              placeholder="Ex: usuario@empresa.com"
-              onChange={e => onValoresChange('email', e.target.value)}
-              style={{ width: '100%' }}
-            />
-          </div>
+        <CampoGeralGlobal label={t('comum.email')}>
+          <TooltipGlobal descricao="O e-mail é credencial de autenticação. Alterações exigem fluxo dedicado via suporte.">
+            <div className="ws-input-icon-wrap">
+              <EnvelopeSimple size={16} />
+              <input
+                type="email"
+                value={email}
+                disabled
+                style={{ width: '100%', color: 'var(--ws-muted)', cursor: 'not-allowed' }}
+              />
+            </div>
+          </TooltipGlobal>
         </CampoGeralGlobal>
 
         <CampoGeralGlobal label={t('workspace.users.tabela.tipo')}>
           <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
             <select
               value={tipo}
+              disabled={!tipoEditavel}
               onChange={e => onValoresChange('tipo', e.target.value)}
               style={{
                 width: '100%',
                 background: 'transparent',
                 border: 'none',
-                color: 'var(--ws-text)',
+                color: tipoEditavel ? 'var(--ws-text)' : 'var(--ws-muted)',
+                cursor: tipoEditavel ? 'pointer' : 'not-allowed',
                 padding: '0 1rem 0 2.5rem',
                 appearance: 'none',
                 height: '100%'

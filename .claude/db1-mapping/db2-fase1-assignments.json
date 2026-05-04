@@ -1,7 +1,7 @@
 {
   "agent_1": [
     {
-      "file": "servicos-global/configurador/server/services/hubInsightsService.ts",
+      "file": "servicos-global/configurador/server/services/hub-insights-service.ts",
       "hits": [
         {
           "line": 6,
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/historicoOrganizacao.ts",
+      "file": "servicos-global/configurador/server/routes/historico-organizacao.ts",
       "hits": [
         {
           "line": 68,
@@ -233,7 +233,7 @@
   ],
   "agent_2": [
     {
-      "file": "servicos-global/configurador/server/routes/access.ts",
+      "file": "servicos-global/configurador/server/routes/acesso.ts",
       "hits": [
         {
           "line": 55,
@@ -278,7 +278,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/apiCockpit.ts",
+      "file": "servicos-global/configurador/server/routes/api-cockpit.ts",
       "hits": [
         {
           "line": 147,
@@ -368,7 +368,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/users.ts",
+      "file": "servicos-global/configurador/server/routes/usuario.ts",
       "hits": [
         {
           "line": 206,
@@ -443,7 +443,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/services/lgpdService.ts",
+      "file": "servicos-global/configurador/server/services/lgpd-service.ts",
       "hits": [
         {
           "line": 111,
@@ -510,7 +510,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/adminNcmIntegracao.ts",
+      "file": "servicos-global/configurador/server/routes/admin-ncm-integracao.ts",
       "hits": [
         {
           "line": 40,
@@ -545,7 +545,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/services/permissionsService.ts",
+      "file": "servicos-global/configurador/server/services/permissao-usuario-service.ts",
       "hits": [
         {
           "line": 21,
@@ -595,7 +595,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/companyProducts.ts",
+      "file": "servicos-global/configurador/server/routes/produto-gravity-workspace.ts",
       "hits": [
         {
           "line": 25,
@@ -635,7 +635,7 @@
       ]
     },
     {
-      "file": "servicos-global/configurador/server/routes/serviceToken.ts",
+      "file": "servicos-global/configurador/server/routes/token-servico.ts",
       "hits": [
         {
           "line": 38,

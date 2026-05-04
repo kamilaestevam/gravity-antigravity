@@ -1,7 +1,8 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
-import { useLoadSystemRole } from './hooks/useLoadSystemRole'
+import { useLoadSystemRole } from './hooks/use-load-system-role'
+import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
@@ -229,6 +230,12 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+/** Monitor de saúde dos servidores de dev — dispara toast quando algum cai ou volta */
+function ServerHealthMonitor() {
+  useServerHealth()
+  return null
+}
+
 /** Gabi IA global — aparece em todas as telas autenticadas (lazy-loaded) */
 function GabiGlobal() {
   const { user } = useUser()
@@ -254,6 +261,7 @@ export default function App() {
 
   return (
     <div style={{ height: '100%', background: 'var(--bg-body-dark)' }}>
+      <ServerHealthMonitor />
       <Routes>
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />

@@ -1,4 +1,4 @@
-// server/routes/access.ts
+// server/routes/acesso.ts
 // Verificação de permissões entre serviços (S2S) — montado em /api/v1/internal
 // GET  /api/v1/internal/permissoes-acesso/verificar             — verificar permissão
 // GET  /api/v1/internal/permissoes-acesso/produtos-permitidos   — produtos permitidos
@@ -11,8 +11,8 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { requireInternalKey } from '../middleware/requireInternalKey.js'
 import { prisma } from '../lib/prisma.js'
-import { productConfigService } from '../services/productConfigService.js'
-import { permissionsService } from '../services/permissionsService.js'
+import { productConfigService } from '../services/produto-gravity-configuracao-service.js'
+import { permissionsService } from '../services/permissao-usuario-service.js'
 import { AppError } from '../lib/appError.js'
 
 export const accessRouter = Router()

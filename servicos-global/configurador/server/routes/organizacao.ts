@@ -1,4 +1,4 @@
-// server/routes/organizacoes.ts
+// server/routes/organizacao.ts
 // Gestão de organizações.
 // POST   /api/v1/organizacoes        — criar organização (onboarding, público)
 // GET    /api/v1/organizacoes/me     — dados da organização atual
@@ -13,7 +13,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { organizacaoService } from '../services/organizacaoService.js'
+import { organizacaoService } from '../services/organizacao-service.js'
 import { AppError } from '../lib/appError.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 

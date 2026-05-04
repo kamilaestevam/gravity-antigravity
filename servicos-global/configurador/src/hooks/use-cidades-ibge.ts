@@ -1,4 +1,4 @@
-// src/hooks/useCidadesIBGE.ts
+// src/hooks/use-cidades-ibge.ts
 // Hook compartilhado para carregar municípios do IBGE por UF.
 // Cache em memória por estado — evita refetch entre modais/telas.
 

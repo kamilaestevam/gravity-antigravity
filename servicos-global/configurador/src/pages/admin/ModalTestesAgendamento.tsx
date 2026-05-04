@@ -5,7 +5,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Clock, Info, EnvelopeSimple, List } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { adminAgendamentosTesteApi } from '../../services/apiClient'
+import { adminAgendamentosTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 export interface ModalAgendamentoTestesProps {

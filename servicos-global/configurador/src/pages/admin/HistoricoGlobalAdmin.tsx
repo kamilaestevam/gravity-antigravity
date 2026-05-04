@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
-import { apiFetch, setAuthTokenProvider } from '../../services/apiClient'
+import { apiFetch, setAuthTokenProvider } from '../../services/api-client'
 import {
   Desktop, User, Robot, FileCsv, FileCode,
   Info, Funnel, Warning, CheckCircle, ArrowsClockwise,

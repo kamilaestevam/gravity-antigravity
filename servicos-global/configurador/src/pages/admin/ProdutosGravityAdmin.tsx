@@ -20,12 +20,12 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
-import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
-import { catalogApiService, type ProdutoInput } from '../../services/catalogAdapter'
-import { setAuthTokenProvider } from '../../services/apiClient'
+import { useHistoricoLogger } from '../../hooks/use-historico-logger'
+import { catalogApiService, type ProdutoInput } from '../../services/catalog-adapter'
+import { setAuthTokenProvider } from '../../services/api-client'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { extractCatchError } from '../../utils/extractApiError'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { extractCatchError } from '../../utils/extract-api-error'
 
 
 // Dados iniciais agora vêm do catalogService

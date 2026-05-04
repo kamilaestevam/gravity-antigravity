@@ -1,4 +1,4 @@
-// server/routes/billing.ts
+// server/routes/fatura-produto-gravity.ts
 // Histórico de faturas do tenant via BillingProvider configurado.
 //
 // Contrato HTTP em DDD-PT (Opção A — alinhado à refatoração de nomenclatura):
@@ -11,12 +11,38 @@
 // route handler traduz `GravityInvoice` → resposta DDD-PT antes de devolver ao cliente.
 
 import { Router } from 'express'
+import multer from 'multer'
+import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { getBillingProvider } from '../lib/billing/index.js'
 import type { GravityInvoice, GravityInvoiceLineItem } from '../lib/billing/types.js'
-import { faturaProdutoGravityServico } from '../services/faturaProdutoGravityServico.js'
+import { faturaProdutoGravityServico } from '../services/fatura-produto-gravity-service.js'
+import { faturaDocumentoProdutoGravityServico } from '../services/fatura-documento-produto-gravity-service.js'
+import { getStorageAdapter } from '../lib/storage/storageAdapter.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+
+// Multer em memória — arquivo cai em req.file.buffer; storage adapter persiste depois.
+// Limite 10MB, MIMEs aprovados pelo Coordenador (REGRA backup-policy + segurança).
+const MIMES_PERMITIDOS = new Set([
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'application/xml',
+  'text/xml',
+])
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!MIMES_PERMITIDOS.has(file.mimetype)) {
+      cb(new AppError(`Mime não permitido: ${file.mimetype}`, 400, 'UNSUPPORTED_MIME'))
+      return
+    }
+    cb(null, true)
+  },
+})
 
 export const billingRouter = Router()
 
@@ -161,6 +187,187 @@ billingRouter.get('/:id_fatura_produto_gravity/itens', requireAuth, async (req, 
     res.json({
       itens_fatura_produto_gravity: fatura.line_items.map(paraFaturaItemResposta),
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── PATCH /api/v1/faturas/:id ───────────────────────────────────────────────
+// Editar dados/itens da fatura. Apenas gravity_admin. Bloqueado em status terminal.
+
+const atualizarFaturaSchema = z.object({
+  competencia_fatura_produto_gravity:      z.string().nullable().optional(),
+  data_vencimento_fatura_produto_gravity:  z.string().datetime().nullable().optional(),
+  email_organizacao_fatura_produto_gravity: z.string().email().nullable().optional(),
+  moeda_fatura_produto_gravity:            z.string().optional(),
+  itens_fatura_produto_gravity: z.array(z.object({
+    id_fatura_item_produto_gravity:             z.string().optional(),
+    id_produto_gravity:                         z.string().nullable().optional(),
+    descricao_fatura_item_produto_gravity:      z.string().min(1),
+    quantidade_fatura_item_produto_gravity:     z.number().positive(),
+    valor_unitario_fatura_item_produto_gravity: z.number().nonnegative(),
+    moeda_fatura_item_produto_gravity:          z.string().optional(),
+  })).optional(),
+})
+
+billingRouter.patch('/:id_fatura_produto_gravity', requireAuth, requireGravityAdmin, async (req, res, next) => {
+  try {
+    const body = atualizarFaturaSchema.parse(req.body)
+    const fatura = await prisma.produtoGravityFatura.findUnique({
+      where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+      select: { id_organizacao: true },
+    })
+    if (!fatura) throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+
+    const atualizada = await faturaProdutoGravityServico.atualizar({
+      id_fatura_produto_gravity: req.params.id_fatura_produto_gravity,
+      id_organizacao:            fatura.id_organizacao,
+      competencia:               body.competencia_fatura_produto_gravity,
+      data_vencimento:           body.data_vencimento_fatura_produto_gravity ? new Date(body.data_vencimento_fatura_produto_gravity) : body.data_vencimento_fatura_produto_gravity as null | undefined,
+      email_organizacao:         body.email_organizacao_fatura_produto_gravity,
+      moeda:                     body.moeda_fatura_produto_gravity,
+      itens:                     body.itens_fatura_produto_gravity,
+    })
+    res.json({ fatura: paraFaturaResposta(atualizada) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── GET /api/v1/faturas/:id/documentos ──────────────────────────────────────
+// Lista anexos de uma fatura. Cliente vê os próprios; admin pode ver qualquer.
+
+billingRouter.get('/:id_fatura_produto_gravity/documentos', requireAuth, async (req, res, next) => {
+  try {
+    const fatura = await prisma.produtoGravityFatura.findUnique({
+      where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+      select: { id_organizacao: true },
+    })
+    if (!fatura) throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+
+    const isAdmin = req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+    if (!isAdmin && fatura.id_organizacao !== req.auth.id_organizacao) {
+      throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+    }
+
+    const docs = await faturaDocumentoProdutoGravityServico.listar(
+      fatura.id_organizacao,
+      req.params.id_fatura_produto_gravity,
+    )
+    res.json({
+      documentos_fatura_produto_gravity: docs.map(d => ({
+        id_documento_fatura_produto_gravity:      d.id_documento_fatura_produto_gravity,
+        tipo_documento_fatura_produto_gravity:    d.tipo_documento_fatura_produto_gravity,
+        nome_documento_fatura_produto_gravity:    d.nome_documento_fatura_produto_gravity,
+        url_documento_fatura_produto_gravity:     `/api/v1/faturas/${req.params.id_fatura_produto_gravity}/documentos/${d.id_documento_fatura_produto_gravity}/download`,
+        tamanho_documento_fatura_produto_gravity: d.tamanho_documento_fatura_produto_gravity,
+        mime_documento_fatura_produto_gravity:    d.mime_documento_fatura_produto_gravity,
+        data_criacao_documento_fatura_produto_gravity: d.data_criacao_documento_fatura_produto_gravity.toISOString(),
+      })),
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── POST /api/v1/faturas/:id/documentos ─────────────────────────────────────
+// Upload multipart. Apenas gravity_admin. Multer já validou MIME + tamanho.
+
+const tipoDocumentoSchema = z.enum(['BOLETO', 'NFE', 'RECIBO', 'PDF_GENERICO', 'OUTRO'])
+
+billingRouter.post('/:id_fatura_produto_gravity/documentos', requireAuth, requireGravityAdmin, upload.single('arquivo'), async (req, res, next) => {
+  try {
+    if (!req.file) throw new AppError('Arquivo não enviado (campo "arquivo")', 400, 'BAD_REQUEST')
+    const tipo = tipoDocumentoSchema.parse(req.body.tipo_documento_fatura_produto_gravity)
+
+    const fatura = await prisma.produtoGravityFatura.findUnique({
+      where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+      select: { id_organizacao: true },
+    })
+    if (!fatura) throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+
+    const doc = await faturaDocumentoProdutoGravityServico.anexar({
+      id_organizacao:                                     fatura.id_organizacao,
+      id_fatura_produto_gravity:                          req.params.id_fatura_produto_gravity,
+      tipo_documento_fatura_produto_gravity:              tipo,
+      nome_documento_fatura_produto_gravity:              req.file.originalname,
+      conteudo:                                           req.file.buffer,
+      mime_documento_fatura_produto_gravity:              req.file.mimetype,
+      id_usuario_anexou_documento_fatura_produto_gravity: req.auth.id_usuario,
+    })
+
+    res.status(201).json({
+      documento_fatura_produto_gravity: {
+        id_documento_fatura_produto_gravity:      doc.id_documento_fatura_produto_gravity,
+        tipo_documento_fatura_produto_gravity:    doc.tipo_documento_fatura_produto_gravity,
+        nome_documento_fatura_produto_gravity:    doc.nome_documento_fatura_produto_gravity,
+        tamanho_documento_fatura_produto_gravity: doc.tamanho_documento_fatura_produto_gravity,
+        mime_documento_fatura_produto_gravity:    doc.mime_documento_fatura_produto_gravity,
+        data_criacao_documento_fatura_produto_gravity: doc.data_criacao_documento_fatura_produto_gravity.toISOString(),
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── DELETE /api/v1/faturas/:id/documentos/:id_doc ───────────────────────────
+// Soft-delete. Apenas gravity_admin.
+
+billingRouter.delete('/:id_fatura_produto_gravity/documentos/:id_documento', requireAuth, requireGravityAdmin, async (req, res, next) => {
+  try {
+    const fatura = await prisma.produtoGravityFatura.findUnique({
+      where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+      select: { id_organizacao: true },
+    })
+    if (!fatura) throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+
+    await faturaDocumentoProdutoGravityServico.excluirSoftDelete(
+      fatura.id_organizacao,
+      req.params.id_documento,
+    )
+    res.status(204).send()
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── GET /api/v1/faturas/:id/documentos/:id_doc/download ─────────────────────
+// Download do arquivo. Cliente vê o próprio; admin pode baixar qualquer.
+
+billingRouter.get('/:id_fatura_produto_gravity/documentos/:id_documento/download', requireAuth, async (req, res, next) => {
+  try {
+    const fatura = await prisma.produtoGravityFatura.findUnique({
+      where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+      select: { id_organizacao: true },
+    })
+    if (!fatura) throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+
+    const isAdmin = req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+    if (!isAdmin && fatura.id_organizacao !== req.auth.id_organizacao) {
+      throw new AppError('Documento não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const doc = await faturaDocumentoProdutoGravityServico.obterParaDownload(
+      fatura.id_organizacao,
+      req.params.id_documento,
+    )
+
+    const storage = getStorageAdapter()
+    const path = (await import('node:path')).default
+    const fs = await import('node:fs')
+    const raiz = process.env.STORAGE_ANEXOS_FATURA_ROOT
+      ?? path.resolve(process.cwd(), 'data/anexos-fatura')
+    const caminho = path.join(raiz, doc.url_documento_fatura_produto_gravity)
+
+    if (!fs.existsSync(caminho)) {
+      throw new AppError('Arquivo físico não encontrado', 404, 'NOT_FOUND')
+    }
+
+    res.setHeader('Content-Type', doc.mime_documento_fatura_produto_gravity ?? 'application/octet-stream')
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(doc.nome_documento_fatura_produto_gravity)}"`)
+    fs.createReadStream(caminho).pipe(res)
+    void storage // mantém referência
   } catch (err) {
     next(err)
   }

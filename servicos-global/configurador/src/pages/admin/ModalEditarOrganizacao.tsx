@@ -20,7 +20,7 @@ import {
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { Organizacao } from '../../types/entidades'
-import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
+import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 
 export interface DadosEditarOrg {
   nome: string

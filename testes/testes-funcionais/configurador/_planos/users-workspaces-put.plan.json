@@ -6,7 +6,7 @@
   "escopo": "CONFIG",
   "modulo": "users-workspaces-put",
   "tipoModulo": "rota_crud",
-  "arquivoFilePath": "servicos-global/configurador/server/routes/users.ts",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/usuario.ts",
   "criticidade": "alta",
   "temDinheiro": false,
   "endpoints": [

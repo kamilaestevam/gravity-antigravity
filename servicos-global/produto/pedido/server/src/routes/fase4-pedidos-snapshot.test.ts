@@ -19,7 +19,7 @@ vi.hoisted(() => {
 import {
   buscarEmpresaPorSuid,
   buscarEmpresasPorSuids,
-} from '../../../../../../servicos-global/produto/processos-core/src/services/cadastrosClient.js'
+} from '../../../../../../servicos-global/produto/processos-core/src/services/cadastros-client.js'
 import { montarSnapshotEmpresa } from '../../../../../../servicos-global/produto/processos-core/src/services/pedidoSnapshots.js'
 import { AppError } from '../../../../../../servicos-global/produto/processos-core/src/services/saldoEngine.js'
 

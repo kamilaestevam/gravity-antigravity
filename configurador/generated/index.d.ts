@@ -129,6 +129,11 @@ export type ProdutoGravityFatura = $Result.DefaultSelection<Prisma.$ProdutoGravi
  */
 export type ProdutoGravityFaturaItem = $Result.DefaultSelection<Prisma.$ProdutoGravityFaturaItemPayload>
 /**
+ * Model ProdutoGravityFaturaDocumento
+ * 
+ */
+export type ProdutoGravityFaturaDocumento = $Result.DefaultSelection<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+/**
  * Model LLMMetricas
  * 
  */
@@ -252,6 +257,17 @@ export const StatusFaturaProdutoGravity: {
 
 export type StatusFaturaProdutoGravity = (typeof StatusFaturaProdutoGravity)[keyof typeof StatusFaturaProdutoGravity]
 
+
+export const TipoDocumentoFaturaProdutoGravity: {
+  BOLETO: 'BOLETO',
+  NFE: 'NFE',
+  RECIBO: 'RECIBO',
+  PDF_GENERICO: 'PDF_GENERICO',
+  OUTRO: 'OUTRO'
+};
+
+export type TipoDocumentoFaturaProdutoGravity = (typeof TipoDocumentoFaturaProdutoGravity)[keyof typeof TipoDocumentoFaturaProdutoGravity]
+
 }
 
 export type OrganizacaoStatus = $Enums.OrganizacaoStatus
@@ -297,6 +313,10 @@ export const DeployStatus: typeof $Enums.DeployStatus
 export type StatusFaturaProdutoGravity = $Enums.StatusFaturaProdutoGravity
 
 export const StatusFaturaProdutoGravity: typeof $Enums.StatusFaturaProdutoGravity
+
+export type TipoDocumentoFaturaProdutoGravity = $Enums.TipoDocumentoFaturaProdutoGravity
+
+export const TipoDocumentoFaturaProdutoGravity: typeof $Enums.TipoDocumentoFaturaProdutoGravity
 
 /**
  * ##  Prisma Client ʲˢ
@@ -650,6 +670,16 @@ export class PrismaClient<
     * ```
     */
   get produtoGravityFaturaItem(): Prisma.ProdutoGravityFaturaItemDelegate<ExtArgs>;
+
+  /**
+   * `prisma.produtoGravityFaturaDocumento`: Exposes CRUD operations for the **ProdutoGravityFaturaDocumento** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProdutoGravityFaturaDocumentos
+    * const produtoGravityFaturaDocumentos = await prisma.produtoGravityFaturaDocumento.findMany()
+    * ```
+    */
+  get produtoGravityFaturaDocumento(): Prisma.ProdutoGravityFaturaDocumentoDelegate<ExtArgs>;
 
   /**
    * `prisma.lLMMetricas`: Exposes CRUD operations for the **LLMMetricas** model.
@@ -1124,6 +1154,7 @@ export namespace Prisma {
     TestePlano: 'TestePlano',
     ProdutoGravityFatura: 'ProdutoGravityFatura',
     ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
+    ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',
     LLMMetricas: 'LLMMetricas'
   };
 
@@ -1140,7 +1171,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "lLMMetricas"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2754,6 +2785,76 @@ export namespace Prisma {
           }
         }
       }
+      ProdutoGravityFaturaDocumento: {
+        payload: Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityFaturaDocumentoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProdutoGravityFaturaDocumentoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProdutoGravityFaturaDocumentoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          findFirst: {
+            args: Prisma.ProdutoGravityFaturaDocumentoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProdutoGravityFaturaDocumentoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          findMany: {
+            args: Prisma.ProdutoGravityFaturaDocumentoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>[]
+          }
+          create: {
+            args: Prisma.ProdutoGravityFaturaDocumentoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          createMany: {
+            args: Prisma.ProdutoGravityFaturaDocumentoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProdutoGravityFaturaDocumentoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>[]
+          }
+          delete: {
+            args: Prisma.ProdutoGravityFaturaDocumentoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          update: {
+            args: Prisma.ProdutoGravityFaturaDocumentoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProdutoGravityFaturaDocumentoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProdutoGravityFaturaDocumentoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ProdutoGravityFaturaDocumentoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaDocumentoPayload>
+          }
+          aggregate: {
+            args: Prisma.ProdutoGravityFaturaDocumentoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityFaturaDocumento>
+          }
+          groupBy: {
+            args: Prisma.ProdutoGravityFaturaDocumentoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaturaDocumentoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProdutoGravityFaturaDocumentoCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaturaDocumentoCountAggregateOutputType> | number
+          }
+        }
+      }
       LLMMetricas: {
         payload: Prisma.$LLMMetricasPayload<ExtArgs>
         fields: Prisma.LLMMetricasFieldRefs
@@ -2993,6 +3094,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace: number
     faturas_organizacao: number
     fatura_itens_organizacao: number
+    fatura_documentos_organizacao: number
   }
 
   export type OrganizacaoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3004,6 +3106,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: boolean | OrganizacaoCountOutputTypeCountProdutoGravityWorkspaceArgs
     faturas_organizacao?: boolean | OrganizacaoCountOutputTypeCountFaturas_organizacaoArgs
     fatura_itens_organizacao?: boolean | OrganizacaoCountOutputTypeCountFatura_itens_organizacaoArgs
+    fatura_documentos_organizacao?: boolean | OrganizacaoCountOutputTypeCountFatura_documentos_organizacaoArgs
   }
 
   // Custom InputTypes
@@ -3071,6 +3174,13 @@ export namespace Prisma {
    */
   export type OrganizacaoCountOutputTypeCountFatura_itens_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityFaturaItemWhereInput
+  }
+
+  /**
+   * OrganizacaoCountOutputType without action
+   */
+  export type OrganizacaoCountOutputTypeCountFatura_documentos_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityFaturaDocumentoWhereInput
   }
 
 
@@ -3258,10 +3368,12 @@ export namespace Prisma {
 
   export type ProdutoGravityFaturaCountOutputType = {
     itens_fatura_produto_gravity: number
+    documentos_fatura_produto_gravity: number
   }
 
   export type ProdutoGravityFaturaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     itens_fatura_produto_gravity?: boolean | ProdutoGravityFaturaCountOutputTypeCountItens_fatura_produto_gravityArgs
+    documentos_fatura_produto_gravity?: boolean | ProdutoGravityFaturaCountOutputTypeCountDocumentos_fatura_produto_gravityArgs
   }
 
   // Custom InputTypes
@@ -3280,6 +3392,13 @@ export namespace Prisma {
    */
   export type ProdutoGravityFaturaCountOutputTypeCountItens_fatura_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityFaturaItemWhereInput
+  }
+
+  /**
+   * ProdutoGravityFaturaCountOutputType without action
+   */
+  export type ProdutoGravityFaturaCountOutputTypeCountDocumentos_fatura_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityFaturaDocumentoWhereInput
   }
 
 
@@ -3523,6 +3642,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: boolean | Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>
     faturas_organizacao?: boolean | Organizacao$faturas_organizacaoArgs<ExtArgs>
     fatura_itens_organizacao?: boolean | Organizacao$fatura_itens_organizacaoArgs<ExtArgs>
+    fatura_documentos_organizacao?: boolean | Organizacao$fatura_documentos_organizacaoArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizacao"]>
 
@@ -3567,6 +3687,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: boolean | Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>
     faturas_organizacao?: boolean | Organizacao$faturas_organizacaoArgs<ExtArgs>
     fatura_itens_organizacao?: boolean | Organizacao$fatura_itens_organizacaoArgs<ExtArgs>
+    fatura_documentos_organizacao?: boolean | Organizacao$fatura_documentos_organizacaoArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizacaoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3582,6 +3703,7 @@ export namespace Prisma {
       ProdutoGravityWorkspace: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
       faturas_organizacao: Prisma.$ProdutoGravityFaturaPayload<ExtArgs>[]
       fatura_itens_organizacao: Prisma.$ProdutoGravityFaturaItemPayload<ExtArgs>[]
+      fatura_documentos_organizacao: Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_organizacao: string
@@ -3969,6 +4091,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace<T extends Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     faturas_organizacao<T extends Organizacao$faturas_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$faturas_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findMany"> | Null>
     fatura_itens_organizacao<T extends Organizacao$fatura_itens_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$fatura_itens_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaItemPayload<ExtArgs>, T, "findMany"> | Null>
+    fatura_documentos_organizacao<T extends Organizacao$fatura_documentos_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$fatura_documentos_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4482,6 +4605,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProdutoGravityFaturaItemScalarFieldEnum | ProdutoGravityFaturaItemScalarFieldEnum[]
+  }
+
+  /**
+   * Organizacao.fatura_documentos_organizacao
+   */
+  export type Organizacao$fatura_documentos_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProdutoGravityFaturaDocumentoScalarFieldEnum | ProdutoGravityFaturaDocumentoScalarFieldEnum[]
   }
 
   /**
@@ -25412,6 +25555,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: boolean
     data_atualizacao_fatura_produto_gravity?: boolean
     itens_fatura_produto_gravity?: boolean | ProdutoGravityFatura$itens_fatura_produto_gravityArgs<ExtArgs>
+    documentos_fatura_produto_gravity?: boolean | ProdutoGravityFatura$documentos_fatura_produto_gravityArgs<ExtArgs>
     organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     _count?: boolean | ProdutoGravityFaturaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityFatura"]>
@@ -25449,6 +25593,7 @@ export namespace Prisma {
 
   export type ProdutoGravityFaturaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     itens_fatura_produto_gravity?: boolean | ProdutoGravityFatura$itens_fatura_produto_gravityArgs<ExtArgs>
+    documentos_fatura_produto_gravity?: boolean | ProdutoGravityFatura$documentos_fatura_produto_gravityArgs<ExtArgs>
     organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     _count?: boolean | ProdutoGravityFaturaCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -25460,6 +25605,7 @@ export namespace Prisma {
     name: "ProdutoGravityFatura"
     objects: {
       itens_fatura_produto_gravity: Prisma.$ProdutoGravityFaturaItemPayload<ExtArgs>[]
+      documentos_fatura_produto_gravity: Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>[]
       organizacao: Prisma.$OrganizacaoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -25840,6 +25986,7 @@ export namespace Prisma {
   export interface Prisma__ProdutoGravityFaturaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     itens_fatura_produto_gravity<T extends ProdutoGravityFatura$itens_fatura_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityFatura$itens_fatura_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaItemPayload<ExtArgs>, T, "findMany"> | Null>
+    documentos_fatura_produto_gravity<T extends ProdutoGravityFatura$documentos_fatura_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityFatura$documentos_fatura_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findMany"> | Null>
     organizacao<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -26217,6 +26364,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProdutoGravityFaturaItemScalarFieldEnum | ProdutoGravityFaturaItemScalarFieldEnum[]
+  }
+
+  /**
+   * ProdutoGravityFatura.documentos_fatura_produto_gravity
+   */
+  export type ProdutoGravityFatura$documentos_fatura_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProdutoGravityFaturaDocumentoScalarFieldEnum | ProdutoGravityFaturaDocumentoScalarFieldEnum[]
   }
 
   /**
@@ -27305,6 +27472,1063 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProdutoGravityFaturaItemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProdutoGravityFaturaDocumento
+   */
+
+  export type AggregateProdutoGravityFaturaDocumento = {
+    _count: ProdutoGravityFaturaDocumentoCountAggregateOutputType | null
+    _avg: ProdutoGravityFaturaDocumentoAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaturaDocumentoSumAggregateOutputType | null
+    _min: ProdutoGravityFaturaDocumentoMinAggregateOutputType | null
+    _max: ProdutoGravityFaturaDocumentoMaxAggregateOutputType | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoAvgAggregateOutputType = {
+    tamanho_documento_fatura_produto_gravity: number | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoSumAggregateOutputType = {
+    tamanho_documento_fatura_produto_gravity: number | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoMinAggregateOutputType = {
+    id_documento_fatura_produto_gravity: string | null
+    id_organizacao: string | null
+    id_fatura_produto_gravity: string | null
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity | null
+    nome_documento_fatura_produto_gravity: string | null
+    url_documento_fatura_produto_gravity: string | null
+    tamanho_documento_fatura_produto_gravity: number | null
+    mime_documento_fatura_produto_gravity: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity: string | null
+    data_criacao_documento_fatura_produto_gravity: Date | null
+    data_atualizacao_documento_fatura_produto_gravity: Date | null
+    data_exclusao_documento_fatura_produto_gravity: Date | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoMaxAggregateOutputType = {
+    id_documento_fatura_produto_gravity: string | null
+    id_organizacao: string | null
+    id_fatura_produto_gravity: string | null
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity | null
+    nome_documento_fatura_produto_gravity: string | null
+    url_documento_fatura_produto_gravity: string | null
+    tamanho_documento_fatura_produto_gravity: number | null
+    mime_documento_fatura_produto_gravity: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity: string | null
+    data_criacao_documento_fatura_produto_gravity: Date | null
+    data_atualizacao_documento_fatura_produto_gravity: Date | null
+    data_exclusao_documento_fatura_produto_gravity: Date | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoCountAggregateOutputType = {
+    id_documento_fatura_produto_gravity: number
+    id_organizacao: number
+    id_fatura_produto_gravity: number
+    tipo_documento_fatura_produto_gravity: number
+    nome_documento_fatura_produto_gravity: number
+    url_documento_fatura_produto_gravity: number
+    tamanho_documento_fatura_produto_gravity: number
+    mime_documento_fatura_produto_gravity: number
+    id_usuario_anexou_documento_fatura_produto_gravity: number
+    data_criacao_documento_fatura_produto_gravity: number
+    data_atualizacao_documento_fatura_produto_gravity: number
+    data_exclusao_documento_fatura_produto_gravity: number
+    _all: number
+  }
+
+
+  export type ProdutoGravityFaturaDocumentoAvgAggregateInputType = {
+    tamanho_documento_fatura_produto_gravity?: true
+  }
+
+  export type ProdutoGravityFaturaDocumentoSumAggregateInputType = {
+    tamanho_documento_fatura_produto_gravity?: true
+  }
+
+  export type ProdutoGravityFaturaDocumentoMinAggregateInputType = {
+    id_documento_fatura_produto_gravity?: true
+    id_organizacao?: true
+    id_fatura_produto_gravity?: true
+    tipo_documento_fatura_produto_gravity?: true
+    nome_documento_fatura_produto_gravity?: true
+    url_documento_fatura_produto_gravity?: true
+    tamanho_documento_fatura_produto_gravity?: true
+    mime_documento_fatura_produto_gravity?: true
+    id_usuario_anexou_documento_fatura_produto_gravity?: true
+    data_criacao_documento_fatura_produto_gravity?: true
+    data_atualizacao_documento_fatura_produto_gravity?: true
+    data_exclusao_documento_fatura_produto_gravity?: true
+  }
+
+  export type ProdutoGravityFaturaDocumentoMaxAggregateInputType = {
+    id_documento_fatura_produto_gravity?: true
+    id_organizacao?: true
+    id_fatura_produto_gravity?: true
+    tipo_documento_fatura_produto_gravity?: true
+    nome_documento_fatura_produto_gravity?: true
+    url_documento_fatura_produto_gravity?: true
+    tamanho_documento_fatura_produto_gravity?: true
+    mime_documento_fatura_produto_gravity?: true
+    id_usuario_anexou_documento_fatura_produto_gravity?: true
+    data_criacao_documento_fatura_produto_gravity?: true
+    data_atualizacao_documento_fatura_produto_gravity?: true
+    data_exclusao_documento_fatura_produto_gravity?: true
+  }
+
+  export type ProdutoGravityFaturaDocumentoCountAggregateInputType = {
+    id_documento_fatura_produto_gravity?: true
+    id_organizacao?: true
+    id_fatura_produto_gravity?: true
+    tipo_documento_fatura_produto_gravity?: true
+    nome_documento_fatura_produto_gravity?: true
+    url_documento_fatura_produto_gravity?: true
+    tamanho_documento_fatura_produto_gravity?: true
+    mime_documento_fatura_produto_gravity?: true
+    id_usuario_anexou_documento_fatura_produto_gravity?: true
+    data_criacao_documento_fatura_produto_gravity?: true
+    data_atualizacao_documento_fatura_produto_gravity?: true
+    data_exclusao_documento_fatura_produto_gravity?: true
+    _all?: true
+  }
+
+  export type ProdutoGravityFaturaDocumentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProdutoGravityFaturaDocumento to aggregate.
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProdutoGravityFaturaDocumentos to fetch.
+     */
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProdutoGravityFaturaDocumentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProdutoGravityFaturaDocumentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProdutoGravityFaturaDocumentos
+    **/
+    _count?: true | ProdutoGravityFaturaDocumentoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProdutoGravityFaturaDocumentoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProdutoGravityFaturaDocumentoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProdutoGravityFaturaDocumentoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProdutoGravityFaturaDocumentoMaxAggregateInputType
+  }
+
+  export type GetProdutoGravityFaturaDocumentoAggregateType<T extends ProdutoGravityFaturaDocumentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityFaturaDocumento]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProdutoGravityFaturaDocumento[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityFaturaDocumento[P]>
+  }
+
+
+
+
+  export type ProdutoGravityFaturaDocumentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithAggregationInput | ProdutoGravityFaturaDocumentoOrderByWithAggregationInput[]
+    by: ProdutoGravityFaturaDocumentoScalarFieldEnum[] | ProdutoGravityFaturaDocumentoScalarFieldEnum
+    having?: ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProdutoGravityFaturaDocumentoCountAggregateInputType | true
+    _avg?: ProdutoGravityFaturaDocumentoAvgAggregateInputType
+    _sum?: ProdutoGravityFaturaDocumentoSumAggregateInputType
+    _min?: ProdutoGravityFaturaDocumentoMinAggregateInputType
+    _max?: ProdutoGravityFaturaDocumentoMaxAggregateInputType
+  }
+
+  export type ProdutoGravityFaturaDocumentoGroupByOutputType = {
+    id_documento_fatura_produto_gravity: string
+    id_organizacao: string
+    id_fatura_produto_gravity: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity: number | null
+    mime_documento_fatura_produto_gravity: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity: string | null
+    data_criacao_documento_fatura_produto_gravity: Date
+    data_atualizacao_documento_fatura_produto_gravity: Date
+    data_exclusao_documento_fatura_produto_gravity: Date | null
+    _count: ProdutoGravityFaturaDocumentoCountAggregateOutputType | null
+    _avg: ProdutoGravityFaturaDocumentoAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaturaDocumentoSumAggregateOutputType | null
+    _min: ProdutoGravityFaturaDocumentoMinAggregateOutputType | null
+    _max: ProdutoGravityFaturaDocumentoMaxAggregateOutputType | null
+  }
+
+  type GetProdutoGravityFaturaDocumentoGroupByPayload<T extends ProdutoGravityFaturaDocumentoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProdutoGravityFaturaDocumentoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProdutoGravityFaturaDocumentoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProdutoGravityFaturaDocumentoGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityFaturaDocumentoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProdutoGravityFaturaDocumentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_documento_fatura_produto_gravity?: boolean
+    id_organizacao?: boolean
+    id_fatura_produto_gravity?: boolean
+    tipo_documento_fatura_produto_gravity?: boolean
+    nome_documento_fatura_produto_gravity?: boolean
+    url_documento_fatura_produto_gravity?: boolean
+    tamanho_documento_fatura_produto_gravity?: boolean
+    mime_documento_fatura_produto_gravity?: boolean
+    id_usuario_anexou_documento_fatura_produto_gravity?: boolean
+    data_criacao_documento_fatura_produto_gravity?: boolean
+    data_atualizacao_documento_fatura_produto_gravity?: boolean
+    data_exclusao_documento_fatura_produto_gravity?: boolean
+    fatura?: boolean | ProdutoGravityFaturaDefaultArgs<ExtArgs>
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["produtoGravityFaturaDocumento"]>
+
+  export type ProdutoGravityFaturaDocumentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_documento_fatura_produto_gravity?: boolean
+    id_organizacao?: boolean
+    id_fatura_produto_gravity?: boolean
+    tipo_documento_fatura_produto_gravity?: boolean
+    nome_documento_fatura_produto_gravity?: boolean
+    url_documento_fatura_produto_gravity?: boolean
+    tamanho_documento_fatura_produto_gravity?: boolean
+    mime_documento_fatura_produto_gravity?: boolean
+    id_usuario_anexou_documento_fatura_produto_gravity?: boolean
+    data_criacao_documento_fatura_produto_gravity?: boolean
+    data_atualizacao_documento_fatura_produto_gravity?: boolean
+    data_exclusao_documento_fatura_produto_gravity?: boolean
+    fatura?: boolean | ProdutoGravityFaturaDefaultArgs<ExtArgs>
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["produtoGravityFaturaDocumento"]>
+
+  export type ProdutoGravityFaturaDocumentoSelectScalar = {
+    id_documento_fatura_produto_gravity?: boolean
+    id_organizacao?: boolean
+    id_fatura_produto_gravity?: boolean
+    tipo_documento_fatura_produto_gravity?: boolean
+    nome_documento_fatura_produto_gravity?: boolean
+    url_documento_fatura_produto_gravity?: boolean
+    tamanho_documento_fatura_produto_gravity?: boolean
+    mime_documento_fatura_produto_gravity?: boolean
+    id_usuario_anexou_documento_fatura_produto_gravity?: boolean
+    data_criacao_documento_fatura_produto_gravity?: boolean
+    data_atualizacao_documento_fatura_produto_gravity?: boolean
+    data_exclusao_documento_fatura_produto_gravity?: boolean
+  }
+
+  export type ProdutoGravityFaturaDocumentoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fatura?: boolean | ProdutoGravityFaturaDefaultArgs<ExtArgs>
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+  }
+  export type ProdutoGravityFaturaDocumentoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fatura?: boolean | ProdutoGravityFaturaDefaultArgs<ExtArgs>
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+  }
+
+  export type $ProdutoGravityFaturaDocumentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityFaturaDocumento"
+    objects: {
+      fatura: Prisma.$ProdutoGravityFaturaPayload<ExtArgs>
+      organizacao: Prisma.$OrganizacaoPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id_documento_fatura_produto_gravity: string
+      id_organizacao: string
+      id_fatura_produto_gravity: string
+      tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+      nome_documento_fatura_produto_gravity: string
+      url_documento_fatura_produto_gravity: string
+      tamanho_documento_fatura_produto_gravity: number | null
+      mime_documento_fatura_produto_gravity: string | null
+      id_usuario_anexou_documento_fatura_produto_gravity: string | null
+      data_criacao_documento_fatura_produto_gravity: Date
+      data_atualizacao_documento_fatura_produto_gravity: Date
+      data_exclusao_documento_fatura_produto_gravity: Date | null
+    }, ExtArgs["result"]["produtoGravityFaturaDocumento"]>
+    composites: {}
+  }
+
+  type ProdutoGravityFaturaDocumentoGetPayload<S extends boolean | null | undefined | ProdutoGravityFaturaDocumentoDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload, S>
+
+  type ProdutoGravityFaturaDocumentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityFaturaDocumentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityFaturaDocumentoCountAggregateInputType | true
+    }
+
+  export interface ProdutoGravityFaturaDocumentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityFaturaDocumento'], meta: { name: 'ProdutoGravityFaturaDocumento' } }
+    /**
+     * Find zero or one ProdutoGravityFaturaDocumento that matches the filter.
+     * @param {ProdutoGravityFaturaDocumentoFindUniqueArgs} args - Arguments to find a ProdutoGravityFaturaDocumento
+     * @example
+     * // Get one ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProdutoGravityFaturaDocumentoFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ProdutoGravityFaturaDocumento that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ProdutoGravityFaturaDocumentoFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityFaturaDocumento
+     * @example
+     * // Get one ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProdutoGravityFaturaDocumentoFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ProdutoGravityFaturaDocumento that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoFindFirstArgs} args - Arguments to find a ProdutoGravityFaturaDocumento
+     * @example
+     * // Get one ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProdutoGravityFaturaDocumentoFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ProdutoGravityFaturaDocumento that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityFaturaDocumento
+     * @example
+     * // Get one ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProdutoGravityFaturaDocumentoFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ProdutoGravityFaturaDocumentos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProdutoGravityFaturaDocumentos
+     * const produtoGravityFaturaDocumentos = await prisma.produtoGravityFaturaDocumento.findMany()
+     * 
+     * // Get first 10 ProdutoGravityFaturaDocumentos
+     * const produtoGravityFaturaDocumentos = await prisma.produtoGravityFaturaDocumento.findMany({ take: 10 })
+     * 
+     * // Only select the `id_documento_fatura_produto_gravity`
+     * const produtoGravityFaturaDocumentoWithId_documento_fatura_produto_gravityOnly = await prisma.produtoGravityFaturaDocumento.findMany({ select: { id_documento_fatura_produto_gravity: true } })
+     * 
+     */
+    findMany<T extends ProdutoGravityFaturaDocumentoFindManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ProdutoGravityFaturaDocumento.
+     * @param {ProdutoGravityFaturaDocumentoCreateArgs} args - Arguments to create a ProdutoGravityFaturaDocumento.
+     * @example
+     * // Create one ProdutoGravityFaturaDocumento
+     * const ProdutoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.create({
+     *   data: {
+     *     // ... data to create a ProdutoGravityFaturaDocumento
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProdutoGravityFaturaDocumentoCreateArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoCreateArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ProdutoGravityFaturaDocumentos.
+     * @param {ProdutoGravityFaturaDocumentoCreateManyArgs} args - Arguments to create many ProdutoGravityFaturaDocumentos.
+     * @example
+     * // Create many ProdutoGravityFaturaDocumentos
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProdutoGravityFaturaDocumentoCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProdutoGravityFaturaDocumentos and returns the data saved in the database.
+     * @param {ProdutoGravityFaturaDocumentoCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityFaturaDocumentos.
+     * @example
+     * // Create many ProdutoGravityFaturaDocumentos
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProdutoGravityFaturaDocumentos and only return the `id_documento_fatura_produto_gravity`
+     * const produtoGravityFaturaDocumentoWithId_documento_fatura_produto_gravityOnly = await prisma.produtoGravityFaturaDocumento.createManyAndReturn({ 
+     *   select: { id_documento_fatura_produto_gravity: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProdutoGravityFaturaDocumentoCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ProdutoGravityFaturaDocumento.
+     * @param {ProdutoGravityFaturaDocumentoDeleteArgs} args - Arguments to delete one ProdutoGravityFaturaDocumento.
+     * @example
+     * // Delete one ProdutoGravityFaturaDocumento
+     * const ProdutoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.delete({
+     *   where: {
+     *     // ... filter to delete one ProdutoGravityFaturaDocumento
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProdutoGravityFaturaDocumentoDeleteArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ProdutoGravityFaturaDocumento.
+     * @param {ProdutoGravityFaturaDocumentoUpdateArgs} args - Arguments to update one ProdutoGravityFaturaDocumento.
+     * @example
+     * // Update one ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProdutoGravityFaturaDocumentoUpdateArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ProdutoGravityFaturaDocumentos.
+     * @param {ProdutoGravityFaturaDocumentoDeleteManyArgs} args - Arguments to filter ProdutoGravityFaturaDocumentos to delete.
+     * @example
+     * // Delete a few ProdutoGravityFaturaDocumentos
+     * const { count } = await prisma.produtoGravityFaturaDocumento.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProdutoGravityFaturaDocumentoDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDocumentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProdutoGravityFaturaDocumentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProdutoGravityFaturaDocumentos
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProdutoGravityFaturaDocumentoUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ProdutoGravityFaturaDocumento.
+     * @param {ProdutoGravityFaturaDocumentoUpsertArgs} args - Arguments to update or create a ProdutoGravityFaturaDocumento.
+     * @example
+     * // Update or create a ProdutoGravityFaturaDocumento
+     * const produtoGravityFaturaDocumento = await prisma.produtoGravityFaturaDocumento.upsert({
+     *   create: {
+     *     // ... data to create a ProdutoGravityFaturaDocumento
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProdutoGravityFaturaDocumento we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProdutoGravityFaturaDocumentoUpsertArgs>(args: SelectSubset<T, ProdutoGravityFaturaDocumentoUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaDocumentoClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaDocumentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ProdutoGravityFaturaDocumentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoCountArgs} args - Arguments to filter ProdutoGravityFaturaDocumentos to count.
+     * @example
+     * // Count the number of ProdutoGravityFaturaDocumentos
+     * const count = await prisma.produtoGravityFaturaDocumento.count({
+     *   where: {
+     *     // ... the filter for the ProdutoGravityFaturaDocumentos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProdutoGravityFaturaDocumentoCountArgs>(
+      args?: Subset<T, ProdutoGravityFaturaDocumentoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProdutoGravityFaturaDocumentoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProdutoGravityFaturaDocumento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProdutoGravityFaturaDocumentoAggregateArgs>(args: Subset<T, ProdutoGravityFaturaDocumentoAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityFaturaDocumentoAggregateType<T>>
+
+    /**
+     * Group by ProdutoGravityFaturaDocumento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProdutoGravityFaturaDocumentoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProdutoGravityFaturaDocumentoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProdutoGravityFaturaDocumentoGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityFaturaDocumentoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProdutoGravityFaturaDocumentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityFaturaDocumentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProdutoGravityFaturaDocumento model
+   */
+  readonly fields: ProdutoGravityFaturaDocumentoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityFaturaDocumento.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProdutoGravityFaturaDocumentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    fatura<T extends ProdutoGravityFaturaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityFaturaDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    organizacao<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProdutoGravityFaturaDocumento model
+   */ 
+  interface ProdutoGravityFaturaDocumentoFieldRefs {
+    readonly id_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly id_organizacao: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly id_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly tipo_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'TipoDocumentoFaturaProdutoGravity'>
+    readonly nome_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly url_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly tamanho_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'Int'>
+    readonly mime_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly id_usuario_anexou_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'String'>
+    readonly data_criacao_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'DateTime'>
+    readonly data_atualizacao_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'DateTime'>
+    readonly data_exclusao_documento_fatura_produto_gravity: FieldRef<"ProdutoGravityFaturaDocumento", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProdutoGravityFaturaDocumento findUnique
+   */
+  export type ProdutoGravityFaturaDocumentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProdutoGravityFaturaDocumento to fetch.
+     */
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento findUniqueOrThrow
+   */
+  export type ProdutoGravityFaturaDocumentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProdutoGravityFaturaDocumento to fetch.
+     */
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento findFirst
+   */
+  export type ProdutoGravityFaturaDocumentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProdutoGravityFaturaDocumento to fetch.
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProdutoGravityFaturaDocumentos to fetch.
+     */
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProdutoGravityFaturaDocumentos.
+     */
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProdutoGravityFaturaDocumentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProdutoGravityFaturaDocumentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProdutoGravityFaturaDocumentos.
+     */
+    distinct?: ProdutoGravityFaturaDocumentoScalarFieldEnum | ProdutoGravityFaturaDocumentoScalarFieldEnum[]
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento findFirstOrThrow
+   */
+  export type ProdutoGravityFaturaDocumentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProdutoGravityFaturaDocumento to fetch.
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProdutoGravityFaturaDocumentos to fetch.
+     */
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProdutoGravityFaturaDocumentos.
+     */
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProdutoGravityFaturaDocumentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProdutoGravityFaturaDocumentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProdutoGravityFaturaDocumentos.
+     */
+    distinct?: ProdutoGravityFaturaDocumentoScalarFieldEnum | ProdutoGravityFaturaDocumentoScalarFieldEnum[]
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento findMany
+   */
+  export type ProdutoGravityFaturaDocumentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProdutoGravityFaturaDocumentos to fetch.
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProdutoGravityFaturaDocumentos to fetch.
+     */
+    orderBy?: ProdutoGravityFaturaDocumentoOrderByWithRelationInput | ProdutoGravityFaturaDocumentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProdutoGravityFaturaDocumentos.
+     */
+    cursor?: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProdutoGravityFaturaDocumentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProdutoGravityFaturaDocumentos.
+     */
+    skip?: number
+    distinct?: ProdutoGravityFaturaDocumentoScalarFieldEnum | ProdutoGravityFaturaDocumentoScalarFieldEnum[]
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento create
+   */
+  export type ProdutoGravityFaturaDocumentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProdutoGravityFaturaDocumento.
+     */
+    data: XOR<ProdutoGravityFaturaDocumentoCreateInput, ProdutoGravityFaturaDocumentoUncheckedCreateInput>
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento createMany
+   */
+  export type ProdutoGravityFaturaDocumentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProdutoGravityFaturaDocumentos.
+     */
+    data: ProdutoGravityFaturaDocumentoCreateManyInput | ProdutoGravityFaturaDocumentoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento createManyAndReturn
+   */
+  export type ProdutoGravityFaturaDocumentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ProdutoGravityFaturaDocumentos.
+     */
+    data: ProdutoGravityFaturaDocumentoCreateManyInput | ProdutoGravityFaturaDocumentoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento update
+   */
+  export type ProdutoGravityFaturaDocumentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProdutoGravityFaturaDocumento.
+     */
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateInput, ProdutoGravityFaturaDocumentoUncheckedUpdateInput>
+    /**
+     * Choose, which ProdutoGravityFaturaDocumento to update.
+     */
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento updateMany
+   */
+  export type ProdutoGravityFaturaDocumentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProdutoGravityFaturaDocumentos.
+     */
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateManyMutationInput, ProdutoGravityFaturaDocumentoUncheckedUpdateManyInput>
+    /**
+     * Filter which ProdutoGravityFaturaDocumentos to update
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento upsert
+   */
+  export type ProdutoGravityFaturaDocumentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProdutoGravityFaturaDocumento to update in case it exists.
+     */
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    /**
+     * In case the ProdutoGravityFaturaDocumento found by the `where` argument doesn't exist, create a new ProdutoGravityFaturaDocumento with this data.
+     */
+    create: XOR<ProdutoGravityFaturaDocumentoCreateInput, ProdutoGravityFaturaDocumentoUncheckedCreateInput>
+    /**
+     * In case the ProdutoGravityFaturaDocumento was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProdutoGravityFaturaDocumentoUpdateInput, ProdutoGravityFaturaDocumentoUncheckedUpdateInput>
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento delete
+   */
+  export type ProdutoGravityFaturaDocumentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
+    /**
+     * Filter which ProdutoGravityFaturaDocumento to delete.
+     */
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento deleteMany
+   */
+  export type ProdutoGravityFaturaDocumentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProdutoGravityFaturaDocumentos to delete
+     */
+    where?: ProdutoGravityFaturaDocumentoWhereInput
+  }
+
+  /**
+   * ProdutoGravityFaturaDocumento without action
+   */
+  export type ProdutoGravityFaturaDocumentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityFaturaDocumento
+     */
+    select?: ProdutoGravityFaturaDocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityFaturaDocumentoInclude<ExtArgs> | null
   }
 
 
@@ -28770,6 +29994,24 @@ export namespace Prisma {
   export type ProdutoGravityFaturaItemScalarFieldEnum = (typeof ProdutoGravityFaturaItemScalarFieldEnum)[keyof typeof ProdutoGravityFaturaItemScalarFieldEnum]
 
 
+  export const ProdutoGravityFaturaDocumentoScalarFieldEnum: {
+    id_documento_fatura_produto_gravity: 'id_documento_fatura_produto_gravity',
+    id_organizacao: 'id_organizacao',
+    id_fatura_produto_gravity: 'id_fatura_produto_gravity',
+    tipo_documento_fatura_produto_gravity: 'tipo_documento_fatura_produto_gravity',
+    nome_documento_fatura_produto_gravity: 'nome_documento_fatura_produto_gravity',
+    url_documento_fatura_produto_gravity: 'url_documento_fatura_produto_gravity',
+    tamanho_documento_fatura_produto_gravity: 'tamanho_documento_fatura_produto_gravity',
+    mime_documento_fatura_produto_gravity: 'mime_documento_fatura_produto_gravity',
+    id_usuario_anexou_documento_fatura_produto_gravity: 'id_usuario_anexou_documento_fatura_produto_gravity',
+    data_criacao_documento_fatura_produto_gravity: 'data_criacao_documento_fatura_produto_gravity',
+    data_atualizacao_documento_fatura_produto_gravity: 'data_atualizacao_documento_fatura_produto_gravity',
+    data_exclusao_documento_fatura_produto_gravity: 'data_exclusao_documento_fatura_produto_gravity'
+  };
+
+  export type ProdutoGravityFaturaDocumentoScalarFieldEnum = (typeof ProdutoGravityFaturaDocumentoScalarFieldEnum)[keyof typeof ProdutoGravityFaturaDocumentoScalarFieldEnum]
+
+
   export const LLMMetricasScalarFieldEnum: {
     id_metricas_llm: 'id_metricas_llm',
     nome_metricas_llm: 'nome_metricas_llm',
@@ -29066,6 +30308,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'TipoDocumentoFaturaProdutoGravity'
+   */
+  export type EnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocumentoFaturaProdutoGravity'>
+    
+
+
+  /**
+   * Reference to a field of type 'TipoDocumentoFaturaProdutoGravity[]'
+   */
+  export type ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocumentoFaturaProdutoGravity[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -29107,6 +30363,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
     faturas_organizacao?: ProdutoGravityFaturaListRelationFilter
     fatura_itens_organizacao?: ProdutoGravityFaturaItemListRelationFilter
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoListRelationFilter
   }
 
   export type OrganizacaoOrderByWithRelationInput = {
@@ -29131,6 +30388,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
     faturas_organizacao?: ProdutoGravityFaturaOrderByRelationAggregateInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemOrderByRelationAggregateInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoOrderByRelationAggregateInput
   }
 
   export type OrganizacaoWhereUniqueInput = Prisma.AtLeast<{
@@ -29158,6 +30416,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
     faturas_organizacao?: ProdutoGravityFaturaListRelationFilter
     fatura_itens_organizacao?: ProdutoGravityFaturaItemListRelationFilter
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoListRelationFilter
   }, "id_organizacao" | "subdominio_organizacao" | "clerk_organizacao_id" | "suid_empresa_organizacao">
 
   export type OrganizacaoOrderByWithAggregationInput = {
@@ -31124,6 +32383,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemListRelationFilter
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoListRelationFilter
     organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }
 
@@ -31141,6 +32401,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: SortOrder
     data_atualizacao_fatura_produto_gravity?: SortOrder
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemOrderByRelationAggregateInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoOrderByRelationAggregateInput
     organizacao?: OrganizacaoOrderByWithRelationInput
   }
 
@@ -31161,6 +32422,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemListRelationFilter
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoListRelationFilter
     organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }, "id_fatura_produto_gravity">
 
@@ -31295,6 +32557,101 @@ export namespace Prisma {
     data_atualizacao_fatura_item_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFaturaItem"> | Date | string
   }
 
+  export type ProdutoGravityFaturaDocumentoWhereInput = {
+    AND?: ProdutoGravityFaturaDocumentoWhereInput | ProdutoGravityFaturaDocumentoWhereInput[]
+    OR?: ProdutoGravityFaturaDocumentoWhereInput[]
+    NOT?: ProdutoGravityFaturaDocumentoWhereInput | ProdutoGravityFaturaDocumentoWhereInput[]
+    id_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_organizacao?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFilter<"ProdutoGravityFaturaDocumento"> | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    url_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tamanho_documento_fatura_produto_gravity?: IntNullableFilter<"ProdutoGravityFaturaDocumento"> | number | null
+    mime_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityFaturaDocumento"> | Date | string | null
+    fatura?: XOR<ProdutoGravityFaturaRelationFilter, ProdutoGravityFaturaWhereInput>
+    organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoOrderByWithRelationInput = {
+    id_documento_fatura_produto_gravity?: SortOrder
+    id_organizacao?: SortOrder
+    id_fatura_produto_gravity?: SortOrder
+    tipo_documento_fatura_produto_gravity?: SortOrder
+    nome_documento_fatura_produto_gravity?: SortOrder
+    url_documento_fatura_produto_gravity?: SortOrder
+    tamanho_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    mime_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario_anexou_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    data_criacao_documento_fatura_produto_gravity?: SortOrder
+    data_atualizacao_documento_fatura_produto_gravity?: SortOrder
+    data_exclusao_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    fatura?: ProdutoGravityFaturaOrderByWithRelationInput
+    organizacao?: OrganizacaoOrderByWithRelationInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoWhereUniqueInput = Prisma.AtLeast<{
+    id_documento_fatura_produto_gravity?: string
+    AND?: ProdutoGravityFaturaDocumentoWhereInput | ProdutoGravityFaturaDocumentoWhereInput[]
+    OR?: ProdutoGravityFaturaDocumentoWhereInput[]
+    NOT?: ProdutoGravityFaturaDocumentoWhereInput | ProdutoGravityFaturaDocumentoWhereInput[]
+    id_organizacao?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFilter<"ProdutoGravityFaturaDocumento"> | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    url_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tamanho_documento_fatura_produto_gravity?: IntNullableFilter<"ProdutoGravityFaturaDocumento"> | number | null
+    mime_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityFaturaDocumento"> | Date | string | null
+    fatura?: XOR<ProdutoGravityFaturaRelationFilter, ProdutoGravityFaturaWhereInput>
+    organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
+  }, "id_documento_fatura_produto_gravity">
+
+  export type ProdutoGravityFaturaDocumentoOrderByWithAggregationInput = {
+    id_documento_fatura_produto_gravity?: SortOrder
+    id_organizacao?: SortOrder
+    id_fatura_produto_gravity?: SortOrder
+    tipo_documento_fatura_produto_gravity?: SortOrder
+    nome_documento_fatura_produto_gravity?: SortOrder
+    url_documento_fatura_produto_gravity?: SortOrder
+    tamanho_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    mime_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    id_usuario_anexou_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    data_criacao_documento_fatura_produto_gravity?: SortOrder
+    data_atualizacao_documento_fatura_produto_gravity?: SortOrder
+    data_exclusao_documento_fatura_produto_gravity?: SortOrderInput | SortOrder
+    _count?: ProdutoGravityFaturaDocumentoCountOrderByAggregateInput
+    _avg?: ProdutoGravityFaturaDocumentoAvgOrderByAggregateInput
+    _max?: ProdutoGravityFaturaDocumentoMaxOrderByAggregateInput
+    _min?: ProdutoGravityFaturaDocumentoMinOrderByAggregateInput
+    _sum?: ProdutoGravityFaturaDocumentoSumOrderByAggregateInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput | ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput | ProdutoGravityFaturaDocumentoScalarWhereWithAggregatesInput[]
+    id_documento_fatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_fatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string
+    url_documento_fatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string
+    tamanho_documento_fatura_produto_gravity?: IntNullableWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | number | null
+    mime_documento_fatura_produto_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityFaturaDocumento"> | Date | string | null
+  }
+
   export type LLMMetricasWhereInput = {
     AND?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
     OR?: LLMMetricasWhereInput[]
@@ -31406,6 +32763,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateInput = {
@@ -31430,6 +32788,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUpdateInput = {
@@ -31454,6 +32813,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateInput = {
@@ -31478,6 +32838,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateManyInput = {
@@ -33764,6 +35125,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemCreateNestedManyWithoutFaturaInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutFaturaInput
     organizacao: OrganizacaoCreateNestedOneWithoutFaturas_organizacaoInput
   }
 
@@ -33781,6 +35143,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutFaturaInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutFaturaInput
   }
 
   export type ProdutoGravityFaturaUpdateInput = {
@@ -33796,6 +35159,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUpdateManyWithoutFaturaNestedInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUpdateManyWithoutFaturaNestedInput
     organizacao?: OrganizacaoUpdateOneRequiredWithoutFaturas_organizacaoNestedInput
   }
 
@@ -33813,6 +35177,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutFaturaNestedInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaNestedInput
   }
 
   export type ProdutoGravityFaturaCreateManyInput = {
@@ -33952,6 +35317,109 @@ export namespace Prisma {
     moeda_fatura_item_produto_gravity?: StringFieldUpdateOperationsInput | string
     data_criacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateInput = {
+    id_documento_fatura_produto_gravity?: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+    fatura: ProdutoGravityFaturaCreateNestedOneWithoutDocumentos_fatura_produto_gravityInput
+    organizacao: OrganizacaoCreateNestedOneWithoutFatura_documentos_organizacaoInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedCreateInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_organizacao: string
+    id_fatura_produto_gravity: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fatura?: ProdutoGravityFaturaUpdateOneRequiredWithoutDocumentos_fatura_produto_gravityNestedInput
+    organizacao?: OrganizacaoUpdateOneRequiredWithoutFatura_documentos_organizacaoNestedInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateManyInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_organizacao: string
+    id_fatura_produto_gravity: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateManyMutationInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateManyInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LLMMetricasCreateInput = {
@@ -34155,6 +35623,12 @@ export namespace Prisma {
     none?: ProdutoGravityFaturaItemWhereInput
   }
 
+  export type ProdutoGravityFaturaDocumentoListRelationFilter = {
+    every?: ProdutoGravityFaturaDocumentoWhereInput
+    some?: ProdutoGravityFaturaDocumentoWhereInput
+    none?: ProdutoGravityFaturaDocumentoWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -34189,6 +35663,10 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaturaItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProdutoGravityFaturaDocumentoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -35972,6 +37450,76 @@ export namespace Prisma {
     valor_total_fatura_item_produto_gravity?: SortOrder
   }
 
+  export type EnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFaturaProdutoGravity | EnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel> | $Enums.TipoDocumentoFaturaProdutoGravity
+  }
+
+  export type ProdutoGravityFaturaDocumentoCountOrderByAggregateInput = {
+    id_documento_fatura_produto_gravity?: SortOrder
+    id_organizacao?: SortOrder
+    id_fatura_produto_gravity?: SortOrder
+    tipo_documento_fatura_produto_gravity?: SortOrder
+    nome_documento_fatura_produto_gravity?: SortOrder
+    url_documento_fatura_produto_gravity?: SortOrder
+    tamanho_documento_fatura_produto_gravity?: SortOrder
+    mime_documento_fatura_produto_gravity?: SortOrder
+    id_usuario_anexou_documento_fatura_produto_gravity?: SortOrder
+    data_criacao_documento_fatura_produto_gravity?: SortOrder
+    data_atualizacao_documento_fatura_produto_gravity?: SortOrder
+    data_exclusao_documento_fatura_produto_gravity?: SortOrder
+  }
+
+  export type ProdutoGravityFaturaDocumentoAvgOrderByAggregateInput = {
+    tamanho_documento_fatura_produto_gravity?: SortOrder
+  }
+
+  export type ProdutoGravityFaturaDocumentoMaxOrderByAggregateInput = {
+    id_documento_fatura_produto_gravity?: SortOrder
+    id_organizacao?: SortOrder
+    id_fatura_produto_gravity?: SortOrder
+    tipo_documento_fatura_produto_gravity?: SortOrder
+    nome_documento_fatura_produto_gravity?: SortOrder
+    url_documento_fatura_produto_gravity?: SortOrder
+    tamanho_documento_fatura_produto_gravity?: SortOrder
+    mime_documento_fatura_produto_gravity?: SortOrder
+    id_usuario_anexou_documento_fatura_produto_gravity?: SortOrder
+    data_criacao_documento_fatura_produto_gravity?: SortOrder
+    data_atualizacao_documento_fatura_produto_gravity?: SortOrder
+    data_exclusao_documento_fatura_produto_gravity?: SortOrder
+  }
+
+  export type ProdutoGravityFaturaDocumentoMinOrderByAggregateInput = {
+    id_documento_fatura_produto_gravity?: SortOrder
+    id_organizacao?: SortOrder
+    id_fatura_produto_gravity?: SortOrder
+    tipo_documento_fatura_produto_gravity?: SortOrder
+    nome_documento_fatura_produto_gravity?: SortOrder
+    url_documento_fatura_produto_gravity?: SortOrder
+    tamanho_documento_fatura_produto_gravity?: SortOrder
+    mime_documento_fatura_produto_gravity?: SortOrder
+    id_usuario_anexou_documento_fatura_produto_gravity?: SortOrder
+    data_criacao_documento_fatura_produto_gravity?: SortOrder
+    data_atualizacao_documento_fatura_produto_gravity?: SortOrder
+    data_exclusao_documento_fatura_produto_gravity?: SortOrder
+  }
+
+  export type ProdutoGravityFaturaDocumentoSumOrderByAggregateInput = {
+    tamanho_documento_fatura_produto_gravity?: SortOrder
+  }
+
+  export type EnumTipoDocumentoFaturaProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFaturaProdutoGravity | EnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFaturaProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.TipoDocumentoFaturaProdutoGravity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel>
+  }
+
   export type LLMMetricasCountOrderByAggregateInput = {
     id_metricas_llm?: SortOrder
     nome_metricas_llm?: SortOrder
@@ -36093,6 +37641,13 @@ export namespace Prisma {
     connect?: ProdutoGravityFaturaItemWhereUniqueInput | ProdutoGravityFaturaItemWhereUniqueInput[]
   }
 
+  export type ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput> | ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInputEnvelope
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+  }
+
   export type UsuarioUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -36147,6 +37702,13 @@ export namespace Prisma {
     connectOrCreate?: ProdutoGravityFaturaItemCreateOrConnectWithoutOrganizacaoInput | ProdutoGravityFaturaItemCreateOrConnectWithoutOrganizacaoInput[]
     createMany?: ProdutoGravityFaturaItemCreateManyOrganizacaoInputEnvelope
     connect?: ProdutoGravityFaturaItemWhereUniqueInput | ProdutoGravityFaturaItemWhereUniqueInput[]
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput> | ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInputEnvelope
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -36277,6 +37839,20 @@ export namespace Prisma {
     deleteMany?: ProdutoGravityFaturaItemScalarWhereInput | ProdutoGravityFaturaItemScalarWhereInput[]
   }
 
+  export type ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput> | ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput[]
+    upsert?: ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutOrganizacaoInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInputEnvelope
+    set?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    delete?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    update?: ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutOrganizacaoInput[]
+    updateMany?: ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutOrganizacaoInput[]
+    deleteMany?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
+  }
+
   export type UsuarioUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -36387,6 +37963,20 @@ export namespace Prisma {
     update?: ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutOrganizacaoInput | ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutOrganizacaoInput[]
     updateMany?: ProdutoGravityFaturaItemUpdateManyWithWhereWithoutOrganizacaoInput | ProdutoGravityFaturaItemUpdateManyWithWhereWithoutOrganizacaoInput[]
     deleteMany?: ProdutoGravityFaturaItemScalarWhereInput | ProdutoGravityFaturaItemScalarWhereInput[]
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput> | ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput[]
+    upsert?: ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutOrganizacaoInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInputEnvelope
+    set?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    delete?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    update?: ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutOrganizacaoInput[]
+    updateMany?: ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutOrganizacaoInput | ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutOrganizacaoInput[]
+    deleteMany?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
   }
 
   export type OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput = {
@@ -37124,6 +38714,13 @@ export namespace Prisma {
     connect?: ProdutoGravityFaturaItemWhereUniqueInput | ProdutoGravityFaturaItemWhereUniqueInput[]
   }
 
+  export type ProdutoGravityFaturaDocumentoCreateNestedManyWithoutFaturaInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput> | ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyFaturaInputEnvelope
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+  }
+
   export type OrganizacaoCreateNestedOneWithoutFaturas_organizacaoInput = {
     create?: XOR<OrganizacaoCreateWithoutFaturas_organizacaoInput, OrganizacaoUncheckedCreateWithoutFaturas_organizacaoInput>
     connectOrCreate?: OrganizacaoCreateOrConnectWithoutFaturas_organizacaoInput
@@ -37135,6 +38732,13 @@ export namespace Prisma {
     connectOrCreate?: ProdutoGravityFaturaItemCreateOrConnectWithoutFaturaInput | ProdutoGravityFaturaItemCreateOrConnectWithoutFaturaInput[]
     createMany?: ProdutoGravityFaturaItemCreateManyFaturaInputEnvelope
     connect?: ProdutoGravityFaturaItemWhereUniqueInput | ProdutoGravityFaturaItemWhereUniqueInput[]
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutFaturaInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput> | ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyFaturaInputEnvelope
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
   }
 
   export type EnumStatusFaturaProdutoGravityFieldUpdateOperationsInput = {
@@ -37153,6 +38757,20 @@ export namespace Prisma {
     update?: ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutFaturaInput[]
     updateMany?: ProdutoGravityFaturaItemUpdateManyWithWhereWithoutFaturaInput | ProdutoGravityFaturaItemUpdateManyWithWhereWithoutFaturaInput[]
     deleteMany?: ProdutoGravityFaturaItemScalarWhereInput | ProdutoGravityFaturaItemScalarWhereInput[]
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateManyWithoutFaturaNestedInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput> | ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput[]
+    upsert?: ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutFaturaInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyFaturaInputEnvelope
+    set?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    delete?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    update?: ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutFaturaInput[]
+    updateMany?: ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutFaturaInput[]
+    deleteMany?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutFaturas_organizacaoNestedInput = {
@@ -37175,6 +38793,20 @@ export namespace Prisma {
     update?: ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaItemUpdateWithWhereUniqueWithoutFaturaInput[]
     updateMany?: ProdutoGravityFaturaItemUpdateManyWithWhereWithoutFaturaInput | ProdutoGravityFaturaItemUpdateManyWithWhereWithoutFaturaInput[]
     deleteMany?: ProdutoGravityFaturaItemScalarWhereInput | ProdutoGravityFaturaItemScalarWhereInput[]
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaNestedInput = {
+    create?: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput> | ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput[] | ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput[]
+    connectOrCreate?: ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput | ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput[]
+    upsert?: ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutFaturaInput[]
+    createMany?: ProdutoGravityFaturaDocumentoCreateManyFaturaInputEnvelope
+    set?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    delete?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    connect?: ProdutoGravityFaturaDocumentoWhereUniqueInput | ProdutoGravityFaturaDocumentoWhereUniqueInput[]
+    update?: ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutFaturaInput[]
+    updateMany?: ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutFaturaInput | ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutFaturaInput[]
+    deleteMany?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
   }
 
   export type ProdutoGravityFaturaCreateNestedOneWithoutItens_fatura_produto_gravityInput = {
@@ -37219,6 +38851,38 @@ export namespace Prisma {
     upsert?: OrganizacaoUpsertWithoutFatura_itens_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
     update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutFatura_itens_organizacaoInput, OrganizacaoUpdateWithoutFatura_itens_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutFatura_itens_organizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaCreateNestedOneWithoutDocumentos_fatura_produto_gravityInput = {
+    create?: XOR<ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedCreateWithoutDocumentos_fatura_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityFaturaCreateOrConnectWithoutDocumentos_fatura_produto_gravityInput
+    connect?: ProdutoGravityFaturaWhereUniqueInput
+  }
+
+  export type OrganizacaoCreateNestedOneWithoutFatura_documentos_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutFatura_documentos_organizacaoInput
+    connect?: OrganizacaoWhereUniqueInput
+  }
+
+  export type EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput = {
+    set?: $Enums.TipoDocumentoFaturaProdutoGravity
+  }
+
+  export type ProdutoGravityFaturaUpdateOneRequiredWithoutDocumentos_fatura_produto_gravityNestedInput = {
+    create?: XOR<ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedCreateWithoutDocumentos_fatura_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityFaturaCreateOrConnectWithoutDocumentos_fatura_produto_gravityInput
+    upsert?: ProdutoGravityFaturaUpsertWithoutDocumentos_fatura_produto_gravityInput
+    connect?: ProdutoGravityFaturaWhereUniqueInput
+    update?: XOR<XOR<ProdutoGravityFaturaUpdateToOneWithWhereWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUpdateWithoutDocumentos_fatura_produto_gravityInput>, ProdutoGravityFaturaUncheckedUpdateWithoutDocumentos_fatura_produto_gravityInput>
+  }
+
+  export type OrganizacaoUpdateOneRequiredWithoutFatura_documentos_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutFatura_documentos_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutFatura_documentos_organizacaoInput
+    connect?: OrganizacaoWhereUniqueInput
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutFatura_documentos_organizacaoInput, OrganizacaoUpdateWithoutFatura_documentos_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutFatura_documentos_organizacaoInput>
   }
 
   export type LLMMetricasCreatenome_metricas_llmInput = {
@@ -37716,6 +39380,23 @@ export namespace Prisma {
     _max?: NestedEnumStatusFaturaProdutoGravityFilter<$PrismaModel>
   }
 
+  export type NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFaturaProdutoGravity | EnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel> | $Enums.TipoDocumentoFaturaProdutoGravity
+  }
+
+  export type NestedEnumTipoDocumentoFaturaProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFaturaProdutoGravity | EnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFaturaProdutoGravity[] | ListEnumTipoDocumentoFaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFaturaProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.TipoDocumentoFaturaProdutoGravity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumTipoDocumentoFaturaProdutoGravityFilter<$PrismaModel>
+  }
+
   export type UsuarioCreateWithoutTenantInput = {
     id_usuario?: string
     id_clerk_usuario: string
@@ -37931,6 +39612,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemCreateNestedManyWithoutFaturaInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutFaturaInput
   }
 
   export type ProdutoGravityFaturaUncheckedCreateWithoutOrganizacaoInput = {
@@ -37946,6 +39628,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutFaturaInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutFaturaInput
   }
 
   export type ProdutoGravityFaturaCreateOrConnectWithoutOrganizacaoInput = {
@@ -37991,6 +39674,44 @@ export namespace Prisma {
 
   export type ProdutoGravityFaturaItemCreateManyOrganizacaoInputEnvelope = {
     data: ProdutoGravityFaturaItemCreateManyOrganizacaoInput | ProdutoGravityFaturaItemCreateManyOrganizacaoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+    fatura: ProdutoGravityFaturaCreateNestedOneWithoutDocumentos_fatura_produto_gravityInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_fatura_produto_gravity: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateOrConnectWithoutOrganizacaoInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    create: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInputEnvelope = {
+    data: ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInput | ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInput[]
     skipDuplicates?: boolean
   }
 
@@ -38247,6 +39968,40 @@ export namespace Prisma {
     data_atualizacao_fatura_item_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaItem"> | Date | string
   }
 
+  export type ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutOrganizacaoInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    update: XOR<ProdutoGravityFaturaDocumentoUpdateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutOrganizacaoInput>
+    create: XOR<ProdutoGravityFaturaDocumentoCreateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutOrganizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutOrganizacaoInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateWithoutOrganizacaoInput, ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutOrganizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutOrganizacaoInput = {
+    where: ProdutoGravityFaturaDocumentoScalarWhereInput
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateManyMutationInput, ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoScalarWhereInput = {
+    AND?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
+    OR?: ProdutoGravityFaturaDocumentoScalarWhereInput[]
+    NOT?: ProdutoGravityFaturaDocumentoScalarWhereInput | ProdutoGravityFaturaDocumentoScalarWhereInput[]
+    id_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_organizacao?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    id_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFilter<"ProdutoGravityFaturaDocumento"> | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    url_documento_fatura_produto_gravity?: StringFilter<"ProdutoGravityFaturaDocumento"> | string
+    tamanho_documento_fatura_produto_gravity?: IntNullableFilter<"ProdutoGravityFaturaDocumento"> | number | null
+    mime_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: StringNullableFilter<"ProdutoGravityFaturaDocumento"> | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFilter<"ProdutoGravityFaturaDocumento"> | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityFaturaDocumento"> | Date | string | null
+  }
+
   export type OrganizacaoCreateWithoutUsers_organizacaoInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -38268,6 +40023,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput = {
@@ -38291,6 +40047,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput = {
@@ -38433,6 +40190,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput = {
@@ -38456,6 +40214,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type WorkspaceUpsertWithoutPreferred_by_usersInput = {
@@ -38572,6 +40331,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput = {
@@ -38595,6 +40355,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutSubscriptions_organizacaoInput = {
@@ -38634,6 +40395,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput = {
@@ -38657,6 +40419,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateWithoutUser_permissions_organizacaoInput = {
@@ -38680,6 +40443,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput = {
@@ -38703,6 +40467,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutUser_permissions_organizacaoInput = {
@@ -38773,6 +40538,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput = {
@@ -38796,6 +40562,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioUpsertWithoutUser_permissionsInput = {
@@ -38856,6 +40623,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput = {
@@ -38879,6 +40647,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutCompanies_organizacaoInput = {
@@ -39012,6 +40781,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput = {
@@ -39035,6 +40805,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioWorkspaceUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -39262,6 +41033,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput = {
@@ -39285,6 +41057,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProduct_configs_organizacaoInput = {
@@ -39324,6 +41097,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput = {
@@ -39347,6 +41121,7 @@ export namespace Prisma {
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateWithoutProdutoGravityWorkspaceInput = {
@@ -39370,6 +41145,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
@@ -39393,6 +41169,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput = {
@@ -39548,6 +41325,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
@@ -39571,6 +41349,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type WorkspaceUpsertWithoutCompany_productsInput = {
@@ -40448,6 +42227,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput = {
+    id_documento_fatura_produto_gravity?: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+    organizacao: OrganizacaoCreateNestedOneWithoutFatura_documentos_organizacaoInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_organizacao: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateOrConnectWithoutFaturaInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    create: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateManyFaturaInputEnvelope = {
+    data: ProdutoGravityFaturaDocumentoCreateManyFaturaInput | ProdutoGravityFaturaDocumentoCreateManyFaturaInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizacaoCreateWithoutFaturas_organizacaoInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -40469,6 +42286,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutFaturas_organizacaoInput = {
@@ -40492,6 +42310,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutFaturas_organizacaoInput = {
@@ -40513,6 +42332,22 @@ export namespace Prisma {
   export type ProdutoGravityFaturaItemUpdateManyWithWhereWithoutFaturaInput = {
     where: ProdutoGravityFaturaItemScalarWhereInput
     data: XOR<ProdutoGravityFaturaItemUpdateManyMutationInput, ProdutoGravityFaturaItemUncheckedUpdateManyWithoutFaturaInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpsertWithWhereUniqueWithoutFaturaInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    update: XOR<ProdutoGravityFaturaDocumentoUpdateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutFaturaInput>
+    create: XOR<ProdutoGravityFaturaDocumentoCreateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedCreateWithoutFaturaInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateWithWhereUniqueWithoutFaturaInput = {
+    where: ProdutoGravityFaturaDocumentoWhereUniqueInput
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateWithoutFaturaInput, ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutFaturaInput>
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateManyWithWhereWithoutFaturaInput = {
+    where: ProdutoGravityFaturaDocumentoScalarWhereInput
+    data: XOR<ProdutoGravityFaturaDocumentoUpdateManyMutationInput, ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaInput>
   }
 
   export type OrganizacaoUpsertWithoutFaturas_organizacaoInput = {
@@ -40547,6 +42382,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutFaturas_organizacaoInput = {
@@ -40570,6 +42406,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type ProdutoGravityFaturaCreateWithoutItens_fatura_produto_gravityInput = {
@@ -40584,6 +42421,7 @@ export namespace Prisma {
     data_fatura_produto_gravity?: Date | string
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutFaturaInput
     organizacao: OrganizacaoCreateNestedOneWithoutFaturas_organizacaoInput
   }
 
@@ -40600,6 +42438,7 @@ export namespace Prisma {
     data_fatura_produto_gravity?: Date | string
     data_criacao_fatura_produto_gravity?: Date | string
     data_atualizacao_fatura_produto_gravity?: Date | string
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutFaturaInput
   }
 
   export type ProdutoGravityFaturaCreateOrConnectWithoutItens_fatura_produto_gravityInput = {
@@ -40703,6 +42542,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutFatura_itens_organizacaoInput = {
@@ -40726,6 +42566,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutFatura_itens_organizacaoInput = {
@@ -40756,6 +42597,7 @@ export namespace Prisma {
     data_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUpdateManyWithoutFaturaNestedInput
     organizacao?: OrganizacaoUpdateOneRequiredWithoutFaturas_organizacaoNestedInput
   }
 
@@ -40772,6 +42614,7 @@ export namespace Prisma {
     data_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaNestedInput
   }
 
   export type ProdutoGravityUpsertWithoutItens_fatura_produto_gravityInput = {
@@ -40887,6 +42730,7 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutFatura_itens_organizacaoInput = {
@@ -40910,6 +42754,199 @@ export namespace Prisma {
     product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+  }
+
+  export type ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput = {
+    id_fatura_produto_gravity?: string
+    numero_fatura_produto_gravity: string
+    status_fatura_produto_gravity?: $Enums.StatusFaturaProdutoGravity
+    nome_organizacao_fatura_produto_gravity: string
+    email_organizacao_fatura_produto_gravity?: string | null
+    valor_total_fatura_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_fatura_produto_gravity?: string
+    competencia_fatura_produto_gravity?: string | null
+    data_fatura_produto_gravity?: Date | string
+    data_criacao_fatura_produto_gravity?: Date | string
+    data_atualizacao_fatura_produto_gravity?: Date | string
+    itens_fatura_produto_gravity?: ProdutoGravityFaturaItemCreateNestedManyWithoutFaturaInput
+    organizacao: OrganizacaoCreateNestedOneWithoutFaturas_organizacaoInput
+  }
+
+  export type ProdutoGravityFaturaUncheckedCreateWithoutDocumentos_fatura_produto_gravityInput = {
+    id_fatura_produto_gravity?: string
+    id_organizacao: string
+    numero_fatura_produto_gravity: string
+    status_fatura_produto_gravity?: $Enums.StatusFaturaProdutoGravity
+    nome_organizacao_fatura_produto_gravity: string
+    email_organizacao_fatura_produto_gravity?: string | null
+    valor_total_fatura_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_fatura_produto_gravity?: string
+    competencia_fatura_produto_gravity?: string | null
+    data_fatura_produto_gravity?: Date | string
+    data_criacao_fatura_produto_gravity?: Date | string
+    data_atualizacao_fatura_produto_gravity?: Date | string
+    itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutFaturaInput
+  }
+
+  export type ProdutoGravityFaturaCreateOrConnectWithoutDocumentos_fatura_produto_gravityInput = {
+    where: ProdutoGravityFaturaWhereUniqueInput
+    create: XOR<ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedCreateWithoutDocumentos_fatura_produto_gravityInput>
+  }
+
+  export type OrganizacaoCreateWithoutFatura_documentos_organizacaoInput = {
+    id_organizacao?: string
+    nome_organizacao: string
+    subdominio_organizacao: string
+    status_organizacao?: $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: string | null
+    suid_empresa_organizacao?: string | null
+    cnpj_organizacao?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
+    tipo_organizacao?: string | null
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
+    faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+  }
+
+  export type OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput = {
+    id_organizacao?: string
+    nome_organizacao: string
+    subdominio_organizacao: string
+    status_organizacao?: $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: string | null
+    suid_empresa_organizacao?: string | null
+    cnpj_organizacao?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
+    tipo_organizacao?: string | null
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+  }
+
+  export type OrganizacaoCreateOrConnectWithoutFatura_documentos_organizacaoInput = {
+    where: OrganizacaoWhereUniqueInput
+    create: XOR<OrganizacaoCreateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput>
+  }
+
+  export type ProdutoGravityFaturaUpsertWithoutDocumentos_fatura_produto_gravityInput = {
+    update: XOR<ProdutoGravityFaturaUpdateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedUpdateWithoutDocumentos_fatura_produto_gravityInput>
+    create: XOR<ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedCreateWithoutDocumentos_fatura_produto_gravityInput>
+    where?: ProdutoGravityFaturaWhereInput
+  }
+
+  export type ProdutoGravityFaturaUpdateToOneWithWhereWithoutDocumentos_fatura_produto_gravityInput = {
+    where?: ProdutoGravityFaturaWhereInput
+    data: XOR<ProdutoGravityFaturaUpdateWithoutDocumentos_fatura_produto_gravityInput, ProdutoGravityFaturaUncheckedUpdateWithoutDocumentos_fatura_produto_gravityInput>
+  }
+
+  export type ProdutoGravityFaturaUpdateWithoutDocumentos_fatura_produto_gravityInput = {
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produto_gravity?: EnumStatusFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusFaturaProdutoGravity
+    nome_organizacao_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUpdateManyWithoutFaturaNestedInput
+    organizacao?: OrganizacaoUpdateOneRequiredWithoutFaturas_organizacaoNestedInput
+  }
+
+  export type ProdutoGravityFaturaUncheckedUpdateWithoutDocumentos_fatura_produto_gravityInput = {
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produto_gravity?: EnumStatusFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusFaturaProdutoGravity
+    nome_organizacao_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutFaturaNestedInput
+  }
+
+  export type OrganizacaoUpsertWithoutFatura_documentos_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedUpdateWithoutFatura_documentos_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput>
+    where?: OrganizacaoWhereInput
+  }
+
+  export type OrganizacaoUpdateToOneWithWhereWithoutFatura_documentos_organizacaoInput = {
+    where?: OrganizacaoWhereInput
+    data: XOR<OrganizacaoUpdateWithoutFatura_documentos_organizacaoInput, OrganizacaoUncheckedUpdateWithoutFatura_documentos_organizacaoInput>
+  }
+
+  export type OrganizacaoUpdateWithoutFatura_documentos_organizacaoInput = {
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    nome_organizacao?: StringFieldUpdateOperationsInput | string
+    subdominio_organizacao?: StringFieldUpdateOperationsInput | string
+    status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
+    faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+  }
+
+  export type OrganizacaoUncheckedUpdateWithoutFatura_documentos_organizacaoInput = {
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    nome_organizacao?: StringFieldUpdateOperationsInput | string
+    subdominio_organizacao?: StringFieldUpdateOperationsInput | string
+    status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -41003,6 +43040,20 @@ export namespace Prisma {
     moeda_fatura_item_produto_gravity?: string
     data_criacao_fatura_item_produto_gravity?: Date | string
     data_atualizacao_fatura_item_produto_gravity?: Date | string
+  }
+
+  export type ProdutoGravityFaturaDocumentoCreateManyOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_fatura_produto_gravity: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
   }
 
   export type UsuarioUpdateWithoutTenantInput = {
@@ -41226,6 +43277,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUpdateManyWithoutFaturaNestedInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUpdateManyWithoutFaturaNestedInput
   }
 
   export type ProdutoGravityFaturaUncheckedUpdateWithoutOrganizacaoInput = {
@@ -41241,6 +43293,7 @@ export namespace Prisma {
     data_criacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     itens_fatura_produto_gravity?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutFaturaNestedInput
+    documentos_fatura_produto_gravity?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaNestedInput
   }
 
   export type ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoInput = {
@@ -41294,6 +43347,48 @@ export namespace Prisma {
     moeda_fatura_item_produto_gravity?: StringFieldUpdateOperationsInput | string
     data_criacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateWithoutOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fatura?: ProdutoGravityFaturaUpdateOneRequiredWithoutDocumentos_fatura_produto_gravityNestedInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UsuarioPermissaoCreateManyUserInput = {
@@ -41777,6 +43872,20 @@ export namespace Prisma {
     data_atualizacao_fatura_item_produto_gravity?: Date | string
   }
 
+  export type ProdutoGravityFaturaDocumentoCreateManyFaturaInput = {
+    id_documento_fatura_produto_gravity?: string
+    id_organizacao: string
+    tipo_documento_fatura_produto_gravity: $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity: string
+    url_documento_fatura_produto_gravity: string
+    tamanho_documento_fatura_produto_gravity?: number | null
+    mime_documento_fatura_produto_gravity?: string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: string | null
+    data_criacao_documento_fatura_produto_gravity?: Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: Date | string
+    data_exclusao_documento_fatura_produto_gravity?: Date | string | null
+  }
+
   export type ProdutoGravityFaturaItemUpdateWithoutFaturaInput = {
     id_fatura_item_produto_gravity?: StringFieldUpdateOperationsInput | string
     descricao_fatura_item_produto_gravity?: StringFieldUpdateOperationsInput | string
@@ -41814,6 +43923,48 @@ export namespace Prisma {
     moeda_fatura_item_produto_gravity?: StringFieldUpdateOperationsInput | string
     data_criacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_fatura_item_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProdutoGravityFaturaDocumentoUpdateWithoutFaturaInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizacao?: OrganizacaoUpdateOneRequiredWithoutFatura_documentos_organizacaoNestedInput
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateWithoutFaturaInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutFaturaInput = {
+    id_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_documento_fatura_produto_gravity?: EnumTipoDocumentoFaturaProdutoGravityFieldUpdateOperationsInput | $Enums.TipoDocumentoFaturaProdutoGravity
+    nome_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    url_documento_fatura_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tamanho_documento_fatura_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    mime_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_anexou_documento_fatura_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_documento_fatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_exclusao_documento_fatura_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 
@@ -41937,6 +44088,10 @@ export namespace Prisma {
      * @deprecated Use ProdutoGravityFaturaItemDefaultArgs instead
      */
     export type ProdutoGravityFaturaItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityFaturaItemDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ProdutoGravityFaturaDocumentoDefaultArgs instead
+     */
+    export type ProdutoGravityFaturaDocumentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityFaturaDocumentoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use LLMMetricasDefaultArgs instead
      */

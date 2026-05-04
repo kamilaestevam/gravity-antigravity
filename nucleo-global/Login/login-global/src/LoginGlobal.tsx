@@ -102,12 +102,18 @@ export function LoginGlobal() {
       {isForgotPassword ? (
         <ForgotPasswordFlow onBack={() => navigate('/login')} />
       ) : isSignUp ? (
-        <SignUp
-          routing="hash"
-          afterSignUpUrl="/trial"
-          signInUrl="/login"
-          appearance={clerkAppearance as any}
-        />
+        <>
+          <SignUp
+            routing="hash"
+            afterSignUpUrl="/trial"
+            signInUrl="/login"
+            appearance={clerkAppearance as any}
+          />
+          <Link className="forgot-back-link" to="/login">
+            <ArrowLeft size={16} />
+            {t('login.voltar_login')}
+          </Link>
+        </>
       ) : (
         <>
           <SignIn

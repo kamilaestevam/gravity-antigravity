@@ -64,7 +64,12 @@ export const CreateOrganizacaoSchema = z
 
 const UpdateOrganizacaoSchema = z.object({
   nome_organizacao: z.string().min(2).optional(),
-  cnpj_organizacao: z.string().optional(),
+  // CNPJ é opcional, mas se preenchido precisa respeitar o formato canonical
+  // (XX.XXX.XXX/XXXX-XX). String vazia permitida para limpar o campo.
+  cnpj_organizacao: z.union([
+    z.string().regex(cnpjRegex, 'CNPJ precisa estar no formato XX.XXX.XXX/XXXX-XX'),
+    z.literal(''),
+  ]).optional(),
   estado_organizacao: z.string().optional(),
   cidade_organizacao: z.string().optional(),
   segmento_organizacao: z.string().optional(),

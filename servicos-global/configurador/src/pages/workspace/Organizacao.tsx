@@ -13,12 +13,13 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
+import { BotaoSalvar, BotaoCancelar, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
+import { validarCNPJ } from '@nucleo/utils'
 import {
   meResponseSchema,
   workspacesResponseSchema,
@@ -89,6 +90,16 @@ const OPCOES_TIPOS_ORGANIZACAO: SelectOpcao[] = [
   { valor: '', rotulo: 'Selecione...' },
   ...TIPOS_ORGANIZACAO.map(t => ({ valor: t, rotulo: t }))
 ]
+
+/** Aplica máscara de CNPJ enquanto o usuário digita: 00.000.000/0000-00 */
+function formatarCNPJ(v: string) {
+  const digits = v.replace(/\D/g, '').slice(0, 14)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`
+  if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
+}
 
 /** Chave do localStorage do workspace preferido vinculada ao usuário. */
 const STORAGE_KEY_NEW = 'gravity:workspace-preferido'
@@ -201,6 +212,12 @@ export function Organizacao() {
   const { dirty: dirtyWorkspace, resetDirty: resetWorkspace } = useDirty(workspacePreferidoInicial, idWorkspacePreferido)
   const isDirty = dirty || dirtyWorkspace
 
+  // CNPJ é opcional, mas se preenchido precisa ser válido (DV1 + DV2).
+  // Mesma política aplicada em ModalEditarWorkspace e VisaoGeralAdmin.
+  const cnpjValor = (dados.cnpj_organizacao ?? '').trim()
+  const cnpjValido = cnpjValor.length === 0 || validarCNPJ(cnpjValor)
+  const podesSalvar = isDirty && cnpjValido
+
   // lista de cidades do estado (hook compartilhado com cache por UF)
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado_organizacao)
 
@@ -218,6 +235,10 @@ export function Organizacao() {
 
   // ── Salvar todos os dados da página ──────────────────────────────────────
   async function handleSalvar() {
+    if (!cnpjValido) {
+      addNotification({ type: 'error', message: 'CNPJ inválido (dígito verificador não confere).' })
+      return
+    }
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (user) {
@@ -361,14 +382,23 @@ export function Organizacao() {
             tooltipTitulo={t('workspace.organizacao.campo_cnpj')}
             tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
           >
-            <div className="ws-input-icon-wrap">
+            <div
+              className="ws-input-icon-wrap"
+              style={!cnpjValido ? { borderColor: '#f87171' } : undefined}
+            >
               <IdentificationCard size={16} />
               <input
                 value={dados.cnpj_organizacao}
                 placeholder="Ex: 00.000.000/0001-00"
-                onChange={e => set('cnpj_organizacao', e.target.value)}
+                onChange={e => set('cnpj_organizacao', formatarCNPJ(e.target.value))}
+                aria-invalid={!cnpjValido}
               />
             </div>
+            {!cnpjValido && (
+              <div style={{ marginTop: '0.375rem', color: '#f87171', fontSize: '0.75rem' }}>
+                CNPJ inválido (dígito verificador não confere)
+              </div>
+            )}
           </CampoGeralGlobal>
         </div>
         <div className="em-grid em-grid--4">
@@ -470,12 +500,18 @@ export function Organizacao() {
       />
 
       {/* ── Salvar / Cancelar ──────────────────────────────────────────────── */}
-      <BotoesSalvarGlobal
-        dirty={isDirty}
-        onSalvar={handleSalvar}
-        onCancelar={handleCancelar}
-        alinhamento="direita"
-      />
+      {/* Composição manual: Cancelar fica habilitado enquanto houver mudanças;
+          Salvar só habilita quando CNPJ for válido (DV1 + DV2). */}
+      <div className={`bs-barra bs-barra--direita ${isDirty ? 'bs-barra--dirty' : ''}`}>
+        <span className="bs-hint">
+          <span className="bs-hint__dot" />
+          {!cnpjValido && cnpjValor.length > 0
+            ? <span><strong style={{ color: '#f87171' }}>PARA SALVAR, AINDA FALTA:</strong> CNPJ inválido (dígito verificador não confere)</span>
+            : t('botoes.alteracoes_nao_salvas')}
+        </span>
+        <BotaoCancelar dirty={isDirty} onClick={handleCancelar} />
+        <BotaoSalvar dirty={podesSalvar} onClick={handleSalvar} />
+      </div>
     </PaginaGlobal>
   )
 }

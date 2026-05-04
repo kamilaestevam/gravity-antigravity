@@ -15,7 +15,14 @@ import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  RequisitoMensagem,
+  useRequisitoInput,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
+import { validarCNPJ } from '@nucleo/utils'
 import type { Workspace } from './Workspaces'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
@@ -91,6 +98,10 @@ function AbaInformacoes({
   const { t } = useTranslation()
   const ehNovo = !workspace.id_workspace
 
+  // Props gerenciadas pelo Provider — borda vermelha + aria-invalid quando pendente.
+  const nomeInput = useRequisitoInput('nome_workspace')
+  const cnpjInput = useRequisitoInput('cnpj_workspace')
+
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
@@ -137,10 +148,11 @@ function AbaInformacoes({
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
+                  {...nomeInput}
                   value={nome_workspace}
                   placeholder="Ex: Acme Logística SP"
                   onChange={e => onNome(e.target.value)}
-                  style={{ width: '100%' }}
+                  style={{ width: '100%', ...nomeInput.style }}
                   autoFocus={ehNovo}
                 />
               </div>
@@ -152,12 +164,14 @@ function AbaInformacoes({
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
+                  {...cnpjInput}
                   value={workspace.cnpj_workspace || ''}
                   placeholder="00.000.000/0000-00"
                   onChange={e => onCampoExtra('cnpj_workspace', formatarCNPJ(e.target.value))}
-                  style={{ width: '100%' }}
+                  style={{ width: '100%', ...cnpjInput.style }}
                 />
               </div>
+              <RequisitoMensagem chave="cnpj_workspace" />
             </CampoGeralGlobal>
           </div>
 
@@ -345,14 +359,21 @@ export function ModalEditarWorkspace({
         .some(k => extraData[k] !== workspace?.[k])
     )
 
+  // CNPJ é opcional, mas se preenchido precisa ser válido (DV1 + DV2).
+  // Mesma política aplicada em ModalEditarEmpresa e VisaoGeralAdmin.
+  const cnpjValor = (extraData.cnpj_workspace ?? '').trim()
+  const cnpjValido = cnpjValor.length === 0 || validarCNPJ(cnpjValor)
+
   const requisitos: RequisitoSalvar[] = ehNovo
     ? [
         { chave: 'nome',       ok: !!nome.trim(),       mensagem: 'Nome do workspace' },
         { chave: 'subdominio', ok: !!sug.sugestao && !sug.carregando, mensagem: sug.carregando ? 'Aguardando sugestão de subdomínio…' : 'Subdomínio sugerido' },
         { chave: 'sugErro',    ok: !sug.erro,           mensagem: sug.erro ?? 'Subdomínio válido' },
+        { chave: 'cnpj_workspace', ok: cnpjValido, mensagem: cnpjValor ? 'CNPJ inválido (dígito verificador não confere)' : 'CNPJ (opcional)' },
       ]
     : [
         { chave: 'nome', ok: !!nome.trim(), mensagem: 'Nome do workspace' },
+        { chave: 'cnpj_workspace', ok: cnpjValido, mensagem: cnpjValor ? 'CNPJ inválido (dígito verificador não confere)' : 'CNPJ (opcional)' },
       ]
 
   const podesSalvar = requisitos.every(r => r.ok)
@@ -375,7 +396,7 @@ export function ModalEditarWorkspace({
       id: 'geral',
       rotulo: t('workspace.workspaces.aba_informacoes_gerais'),
       conteudo: (
-        <>
+        <BannerRequisitosProvider requisitos={requisitos}>
           <AbaInformacoes
             workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
             nome_workspace={nome}
@@ -390,9 +411,9 @@ export function ModalEditarWorkspace({
             carregandoCidades={carregandoCidades}
           />
           <div style={{ padding: '0 1.5rem 1rem' }}>
-            <BannerRequisitosGlobal requisitos={requisitos} />
+            <BannerRequisitosGlobal />
           </div>
-        </>
+        </BannerRequisitosProvider>
       )
     }
   ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos])

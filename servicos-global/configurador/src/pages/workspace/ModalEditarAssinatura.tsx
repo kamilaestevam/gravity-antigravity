@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { Package, CurrencyDollar, CalendarBlank, Tag, TreeStructure, CheckCircle, WarningCircle, Check, MagnifyingGlass, SelectionAll, Eraser, Broom } from '@phosphor-icons/react'
 import { getSimboloMoeda } from '../../utils/formatters'
 import type { Produto } from './Assinaturas'
@@ -85,6 +89,7 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
           id: 'dados',
           rotulo: t('workspace.subscriptions.aba_dados'),
           conteudo: (
+            <BannerRequisitosProvider requisitos={requisitos}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingTop: '0.5rem' }}>
               <CampoGeralGlobal label={t('workspace.subscriptions.tabela.produto')} obrigatorio>
                 <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -129,8 +134,9 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
                 </CampoGeralGlobal>
               </div>
 
-              <BannerRequisitosGlobal requisitos={requisitos} />
+              <BannerRequisitosGlobal />
             </div>
+            </BannerRequisitosProvider>
           )
         },
         {

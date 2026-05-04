@@ -34,3 +34,17 @@
 .banner-requisitos__lista li + li {
   margin-top: 0.125rem;
 }
+
+/* Mensagem inline sob o input — usada por <RequisitoMensagem>.
+   Casa com .requisitos-erro-inline informalmente usada em alguns modais. */
+.requisito-mensagem-inline {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ws-text-muted, #94a3b8);
+}
+
+.requisito-mensagem-inline--erro {
+  color: #f87171;
+}

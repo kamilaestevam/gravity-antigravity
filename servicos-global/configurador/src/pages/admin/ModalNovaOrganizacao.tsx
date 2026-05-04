@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
 import {
@@ -134,6 +138,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       tooltipTitulo: t('admin.testes-gerais.org.aba_geral_tooltip'),
       tooltipDescricao: t('admin.testes-gerais.org.aba_geral_desc'),
       conteudo: (
+        <BannerRequisitosProvider requisitos={requisitos}>
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
             <CampoGeralGlobal
@@ -211,8 +216,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             )}
           </CampoGeralGlobal>
 
-          <BannerRequisitosGlobal requisitos={requisitos} />
+          <BannerRequisitosGlobal />
         </div>
+        </BannerRequisitosProvider>
       )
     },
     {

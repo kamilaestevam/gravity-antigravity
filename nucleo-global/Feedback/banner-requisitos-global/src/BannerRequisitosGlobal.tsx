@@ -7,23 +7,38 @@
  *
  * Não renderiza nada quando todos os requisitos estão atendidos.
  *
- * @example
- * const requisitos: RequisitoSalvar[] = [
- *   { chave: 'nome', ok: nome.trim().length >= 2, mensagem: 'Nome com pelo menos 2 caracteres' },
- *   { chave: 'cnpj', ok: validarCNPJ(cnpj),       mensagem: 'CNPJ válido' },
- * ]
- * const podeSalvar = requisitos.every(r => r.ok)
+ * Duas formas de uso:
  *
- * <BannerRequisitosGlobal requisitos={requisitos} />
+ * 1. **Com Provider (recomendado)** — ganhe inline + banner em sincronia:
+ *
+ *    <BannerRequisitosProvider requisitos={requisitos}>
+ *      <input {...useRequisitoInput('cnpj')} />
+ *      <RequisitoMensagem chave="cnpj" />
+ *      ...
+ *      <BannerRequisitosGlobal />
+ *    </BannerRequisitosProvider>
+ *
+ * 2. **Standalone (compat)** — apenas o banner, sem feedback inline:
+ *
+ *    <BannerRequisitosGlobal requisitos={requisitos} />
  */
 import React from 'react'
 import './banner.css'
 import type { BannerRequisitosGlobalProps, RequisitoSalvar } from './tipos.js'
+import { useRequisitosCtxOpcional } from './contexto.js'
 
 export function BannerRequisitosGlobal({
-  requisitos,
+  requisitos: requisitosProp,
   titulo = 'Para salvar, ainda falta:',
 }: BannerRequisitosGlobalProps): React.ReactElement | null {
+  const ctx = useRequisitosCtxOpcional()
+  const requisitos = requisitosProp ?? ctx?.requisitos
+  if (!requisitos) {
+    throw new Error(
+      '<BannerRequisitosGlobal> precisa de prop `requisitos` ou estar dentro de <BannerRequisitosProvider>',
+    )
+  }
+
   const faltando = requisitos.filter((r) => !r.ok)
   if (faltando.length === 0) return null
 
@@ -41,6 +56,9 @@ export function BannerRequisitosGlobal({
 
 /**
  * Helper utilitário para destacar campos pendentes inline (borda vermelha).
+ *
+ * Mantido para compat — em código novo, prefira `useRequisitoInput(chave)`
+ * via contexto, que já devolve as props prontas para spread.
  *
  * @example
  * const camposPendentes = camposComRequisitoPendente(requisitos)

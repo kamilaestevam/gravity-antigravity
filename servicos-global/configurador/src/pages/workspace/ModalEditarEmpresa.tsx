@@ -31,6 +31,9 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  RequisitoMensagem,
+  useRequisitoInput,
   camposComRequisitoPendente,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
@@ -389,6 +392,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       dirty={true}
       podesSalvar={podeSalvar}
     >
+      <BannerRequisitosProvider requisitos={requisitos}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         {/* ── Identificação ────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
@@ -564,8 +568,9 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
         </div>
 
         {/* ── Banner de requisitos pendentes (componente global) ─────── */}
-        <BannerRequisitosGlobal requisitos={requisitos} />
+        <BannerRequisitosGlobal />
       </div>
+      </BannerRequisitosProvider>
     </ModalFormularioGlobal>
   )
 }

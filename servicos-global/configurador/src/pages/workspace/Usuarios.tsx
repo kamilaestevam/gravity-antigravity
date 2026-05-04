@@ -11,7 +11,11 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { useShellStore } from '@gravity/shell'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
@@ -678,6 +682,7 @@ export function Usuarios() {
         dirty={!!(fNome || fEmail)}
         podesSalvar={requisitosConvite.every(r => r.ok)}
       >
+        <BannerRequisitosProvider requisitos={requisitosConvite}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <CampoGeralGlobal label="NOME COMPLETO" obrigatorio>
             <div className="ws-input-icon-wrap">
@@ -807,8 +812,9 @@ export function Usuarios() {
             </CampoGeralGlobal>
           )}
 
-          <BannerRequisitosGlobal requisitos={requisitosConvite} />
+          <BannerRequisitosGlobal />
         </div>
+        </BannerRequisitosProvider>
       </ModalFormularioGlobal>
         )
       })()}

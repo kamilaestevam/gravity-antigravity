@@ -22,9 +22,24 @@ export interface RequisitoSalvar {
 }
 
 export interface BannerRequisitosGlobalProps {
-  /** Lista completa de requisitos. Apenas os com `ok=false` aparecem. */
-  requisitos: RequisitoSalvar[]
+  /**
+   * Lista completa de requisitos. Apenas os com `ok=false` aparecem.
+   * Opcional quando o banner está dentro de `<BannerRequisitosProvider>` —
+   * nesse caso, os requisitos vêm do contexto.
+   */
+  requisitos?: RequisitoSalvar[]
 
   /** Título do banner. Padrão: "Para salvar, ainda falta:" */
   titulo?: string
+}
+
+/**
+ * Status de um requisito específico, retornado pelo hook `useRequisitoInput`.
+ * Uso típico:
+ *   <input {...useRequisitoInput('cnpj_workspace')} />
+ */
+export interface RequisitoInputProps {
+  style?: { borderColor?: string }
+  'aria-invalid'?: boolean
+  'aria-describedby'?: string
 }

@@ -12,7 +12,13 @@ import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  RequisitoMensagem,
+  useRequisitoInput,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { Organizacao } from '../../types/entidades'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
@@ -145,6 +151,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       podesSalvar={podesSalvar}
       textoSalvar={t('admin.testes-gerais.org.editar_btn_salvar')}
     >
+      <BannerRequisitosProvider requisitos={requisitos}>
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
         {/* ── Seção: Identidade ─────────────────────────────────────── */}
@@ -301,8 +308,9 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
           </div>
         </div>
 
-        <BannerRequisitosGlobal requisitos={requisitos} />
+        <BannerRequisitosGlobal />
       </div>
+      </BannerRequisitosProvider>
     </ModalFormularioGlobal>
   )
 }

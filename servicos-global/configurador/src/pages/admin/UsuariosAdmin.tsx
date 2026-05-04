@@ -15,7 +15,11 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
@@ -593,6 +597,7 @@ export function UsuariosAdmin() {
         dirty={!!(fNome || fEmail)}
         podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
       >
+        <BannerRequisitosProvider requisitos={requisitosConviteAdmin}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.nome_completo')}
@@ -688,8 +693,9 @@ export function UsuariosAdmin() {
             )}
           </CampoGeralGlobal>
 
-          <BannerRequisitosGlobal requisitos={requisitosConviteAdmin} />
+          <BannerRequisitosGlobal />
         </div>
+        </BannerRequisitosProvider>
       </ModalFormularioGlobal>
         )
       })()}

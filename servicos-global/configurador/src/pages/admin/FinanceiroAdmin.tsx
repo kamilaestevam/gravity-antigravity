@@ -15,7 +15,11 @@ import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
@@ -637,6 +641,7 @@ export function FinanceiroAdmin() {
               id: 'dados',
               rotulo: 'Dados',
               conteudo: (
+                <BannerRequisitosProvider requisitos={requisitosFatura}>
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <SecaoFormulario titulo="Cliente" icone={<Buildings size={16} />} />
 
@@ -732,8 +737,9 @@ export function FinanceiroAdmin() {
                     </CampoGeralGlobal>
                   </div>
 
-                  <BannerRequisitosGlobal requisitos={requisitosFatura} />
+                  <BannerRequisitosGlobal />
                 </div>
+                </BannerRequisitosProvider>
               ),
             },
           ]}

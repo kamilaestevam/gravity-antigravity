@@ -13,7 +13,11 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import {
+  BannerRequisitosGlobal,
+  BannerRequisitosProvider,
+  type RequisitoSalvar,
+} from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
@@ -710,6 +714,7 @@ export function ProdutosGravityAdmin() {
             tooltipTitulo: 'IDENTIFICAÇÃO',
             tooltipDescricao: 'Dados principais e categoria do produto no catálogo.',
             conteudo: (
+              <BannerRequisitosProvider requisitos={requisitosProduto}>
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormulario icone={<Tag size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_dados_basicos')} tooltip={t('admin.overview.dados_basicos_tooltip')} />
 
@@ -828,8 +833,9 @@ export function ProdutosGravityAdmin() {
                   </CampoGeralGlobal>
                 )}
 
-                <BannerRequisitosGlobal requisitos={requisitosProduto} />
+                <BannerRequisitosGlobal />
               </div>
+              </BannerRequisitosProvider>
             )
           },
           {

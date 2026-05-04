@@ -117,8 +117,11 @@ function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceIte
   const visible = workspaces.slice(0, MAX)
   const rest    = workspaces.slice(MAX)
 
+  // Wrapper inline-flex (não block) para que `text-align: center` da célula
+  // <td> centralize o conjunto de chips. flexWrap continua funcionando em
+  // inline-flex; maxWidth evita overflow quando há muitos chips na linha.
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap', maxWidth: '100%' }}>
       {visible.map(w => (
         <span key={w.id_workspace} style={{
           padding: '0.15rem 0.5rem', borderRadius: '9999px',
@@ -143,7 +146,7 @@ function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceIte
           </span>
         </TooltipGlobal>
       )}
-    </div>
+    </span>
   )
 }
 

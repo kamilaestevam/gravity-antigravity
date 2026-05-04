@@ -145,42 +145,57 @@ function empresaParaForm(empresa: Empresa | null): FormState {
   }
 }
 
+/**
+ * Mapeia os flags `pode_ser_*` do FormState (sem sufixo) para as chaves do
+ * schema Zod (`pode_ser_*_empresa`). Onda 38 DDD — sufixos físicos.
+ */
+function papeisParaPayload(papeis: FormState['papeis']): Record<string, boolean> {
+  return {
+    pode_ser_importador_empresa:  papeis.pode_ser_importador,
+    pode_ser_exportador_empresa:  papeis.pode_ser_exportador,
+    pode_ser_fabricante_empresa:  papeis.pode_ser_fabricante,
+    pode_ser_agente_empresa:      papeis.pode_ser_agente,
+    pode_ser_despachante_empresa: papeis.pode_ser_despachante,
+    pode_ser_armador_empresa:     papeis.pode_ser_armador,
+  }
+}
+
 function formParaPayloadCriar(form: FormState, idOrganizacao: string): Record<string, unknown> {
   const ehBr = form.pais === 'BR'
   return {
-    id_organizacao: idOrganizacao,
-    nome_empresa: form.nome_empresa.trim(),
-    pais: form.pais.trim().toUpperCase(),
-    cnpj: ehBr ? form.cnpj.trim() || null : null,
-    tin: !ehBr ? form.tin.trim() || null : null,
-    estado: form.estado.trim() || null,
-    cidade: form.cidade.trim() || null,
-    endereco: form.endereco.trim() || null,
-    zipcode: form.zipcode.trim() || null,
-    email: form.email.trim() || null,
-    telefone: form.telefone.trim() || null,
-    whatsapp: form.whatsapp.trim() || null,
-    ...form.papeis,
-    ativo: form.ativo,
+    id_organizacao:   idOrganizacao,
+    nome_empresa:     form.nome_empresa.trim(),
+    pais_empresa:     form.pais.trim().toUpperCase(),
+    cnpj_empresa:     ehBr ? form.cnpj.trim() || null : null,
+    tin_empresa:      !ehBr ? form.tin.trim() || null : null,
+    estado_empresa:   form.estado.trim() || null,
+    cidade_empresa:   form.cidade.trim() || null,
+    endereco_empresa: form.endereco.trim() || null,
+    zipcode_empresa:  form.zipcode.trim() || null,
+    email_empresa:    form.email.trim() || null,
+    telefone_empresa: form.telefone.trim() || null,
+    whatsapp_empresa: form.whatsapp.trim() || null,
+    ...papeisParaPayload(form.papeis),
+    ativo_empresa:    form.ativo,
   }
 }
 
 function formParaPayloadAtualizar(form: FormState): Record<string, unknown> {
   const ehBr = form.pais === 'BR'
   return {
-    nome_empresa: form.nome_empresa.trim(),
-    pais: form.pais.trim().toUpperCase(),
-    cnpj: ehBr ? form.cnpj.trim() || null : null,
-    tin: !ehBr ? form.tin.trim() || null : null,
-    estado: form.estado.trim() || null,
-    cidade: form.cidade.trim() || null,
-    endereco: form.endereco.trim() || null,
-    zipcode: form.zipcode.trim() || null,
-    email: form.email.trim() || null,
-    telefone: form.telefone.trim() || null,
-    whatsapp: form.whatsapp.trim() || null,
-    ...form.papeis,
-    ativo: form.ativo,
+    nome_empresa:     form.nome_empresa.trim(),
+    pais_empresa:     form.pais.trim().toUpperCase(),
+    cnpj_empresa:     ehBr ? form.cnpj.trim() || null : null,
+    tin_empresa:      !ehBr ? form.tin.trim() || null : null,
+    estado_empresa:   form.estado.trim() || null,
+    cidade_empresa:   form.cidade.trim() || null,
+    endereco_empresa: form.endereco.trim() || null,
+    zipcode_empresa:  form.zipcode.trim() || null,
+    email_empresa:    form.email.trim() || null,
+    telefone_empresa: form.telefone.trim() || null,
+    whatsapp_empresa: form.whatsapp.trim() || null,
+    ...papeisParaPayload(form.papeis),
+    ativo_empresa:    form.ativo,
   }
 }
 

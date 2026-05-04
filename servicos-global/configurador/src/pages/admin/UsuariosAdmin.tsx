@@ -15,6 +15,7 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
@@ -574,6 +575,12 @@ export function UsuariosAdmin() {
       />
 
       {/* ── Modal Convidar Usuário ────────────────────────────────────────── */}
+      {(() => {
+        const requisitosConviteAdmin: RequisitoSalvar[] = [
+          { chave: 'fNome',  ok: !!fNome.trim(),  mensagem: 'Nome completo' },
+          { chave: 'fEmail', ok: !!fEmail.trim(), mensagem: 'E-mail de acesso' },
+        ]
+        return (
       <ModalFormularioGlobal
         aberto={showForm}
         aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0]) }}
@@ -584,7 +591,7 @@ export function UsuariosAdmin() {
         tamanho="md"
         altura="560px"
         dirty={!!(fNome || fEmail)}
-        podesSalvar={!!(fNome.trim() && fEmail.trim())}
+        podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <CampoGeralGlobal
@@ -680,8 +687,12 @@ export function UsuariosAdmin() {
               />
             )}
           </CampoGeralGlobal>
+
+          <BannerRequisitosGlobal requisitos={requisitosConviteAdmin} />
         </div>
       </ModalFormularioGlobal>
+        )
+      })()}
 
     </PaginaGlobal>
   )

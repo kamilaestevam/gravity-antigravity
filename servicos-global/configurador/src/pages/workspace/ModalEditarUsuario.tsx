@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import type { UsuarioOrg } from './Usuarios'
 import type { WorkspaceItem } from '../../services/apiClient'
@@ -394,34 +395,63 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const master = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
   const countPermissoes = master ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
 
+  const requisitos = useMemo<RequisitoSalvar[]>(() => [
+    { chave: 'nome',  ok: !!nome.trim(),  mensagem: 'Nome do usuário' },
+    { chave: 'email', ok: !!email.trim(), mensagem: 'E-mail do usuário' },
+    {
+      chave: 'workspaces',
+      ok: master || workspacesAtivos.length > 0,
+      mensagem: 'Tipo Master/Admin ou pelo menos um workspace vinculado',
+    },
+  ], [nome, email, master, workspacesAtivos])
+
   const abas = useMemo(() => [
     {
       id: 'dados',
       rotulo: t('workspace.users.aba_dados'),
       icone: 'user',
-      conteudo: <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />,
+      conteudo: (
+        <>
+          <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />
+          <div style={{ padding: '0 1.5rem 1rem' }}>
+            <BannerRequisitosGlobal requisitos={requisitos} />
+          </div>
+        </>
+      ),
     },
     {
       id: 'permissoes',
       rotulo: `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
       icone: 'shield-check',
-      conteudo: <AbaPermissoes master={master} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />,
+      conteudo: (
+        <>
+          <AbaPermissoes master={master} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
+          <div style={{ padding: '0 1.5rem 1rem' }}>
+            <BannerRequisitosGlobal requisitos={requisitos} />
+          </div>
+        </>
+      ),
     },
     {
       id: 'espacos',
       rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
       conteudo: (
-        <AbaWorkspaces
-          master={master}
-          workspaces={workspaces}
-          workspacesAtivos={workspacesAtivos}
-          carregando={carregandoWorkspaces}
-          onToggle={handleToggleWorkspace}
-        />
+        <>
+          <AbaWorkspaces
+            master={master}
+            workspaces={workspaces}
+            workspacesAtivos={workspacesAtivos}
+            carregando={carregandoWorkspaces}
+            onToggle={handleToggleWorkspace}
+          />
+          <div style={{ padding: '0 1.5rem 1rem' }}>
+            <BannerRequisitosGlobal requisitos={requisitos} />
+          </div>
+        </>
       ),
     },
-  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, carregandoWorkspaces])
+  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, carregandoWorkspaces, requisitos])
 
   const originalPerms = useMemo(() => {
     if (!usuario) return []
@@ -473,7 +503,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={dirty}
-      podesSalvar={!!nome && !!email && (master || workspacesAtivos.length > 0)}
+      podesSalvar={requisitos.every(r => r.ok)}
     />
   )
 }

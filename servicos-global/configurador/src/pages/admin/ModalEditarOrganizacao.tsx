@@ -12,6 +12,7 @@ import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { Organizacao } from '../../types/entidades'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
@@ -119,7 +120,10 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     segmento !== '' ||
     tipoEmpresa !== ''
   )
-  const podesSalvar = !!nome.trim()
+  const requisitos: RequisitoSalvar[] = [
+    { chave: 'nome', ok: nome.trim().length >= 2, mensagem: 'Nome da organização (mín. 2 caracteres)' },
+  ]
+  const podesSalvar = requisitos.every(r => r.ok)
 
   function handleSalvar() {
     if (!podesSalvar) return
@@ -297,6 +301,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
           </div>
         </div>
 
+        <BannerRequisitosGlobal requisitos={requisitos} />
       </div>
     </ModalFormularioGlobal>
   )

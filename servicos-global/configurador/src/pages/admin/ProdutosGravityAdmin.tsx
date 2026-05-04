@@ -13,6 +13,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
@@ -460,6 +461,15 @@ export function ProdutosGravityAdmin() {
     }
   ]
 
+  const requisitosProduto: RequisitoSalvar[] = [
+    { chave: 'nome', ok: formNome.trim().length > 0, mensagem: 'Nome do produto' },
+    {
+      chave: 'slug',
+      ok: formStatus === 'em-breve' || !!formSlugSelecionado,
+      mensagem: 'Status "Em breve" ou slug do catálogo selecionado',
+    },
+  ]
+
   return (
     <>
     <PaginaGlobal
@@ -692,7 +702,7 @@ export function ProdutosGravityAdmin() {
         subtitulo={produtoEditando ? t('admin.produtos-gravity.modal_editar_subtitulo') : t('admin.produtos-gravity.modal_novo_subtitulo')}
         tamanho="lg"
         dirty={formDirty}
-        podesSalvar={formDirty && formNome.trim().length > 0 && (formStatus === 'em-breve' || !!formSlugSelecionado)}
+        podesSalvar={formDirty && requisitosProduto.every(r => r.ok)}
         abas={[
           {
             id: 'dados-basicos',
@@ -817,6 +827,8 @@ export function ProdutosGravityAdmin() {
                     )}
                   </CampoGeralGlobal>
                 )}
+
+                <BannerRequisitosGlobal requisitos={requisitosProduto} />
               </div>
             )
           },

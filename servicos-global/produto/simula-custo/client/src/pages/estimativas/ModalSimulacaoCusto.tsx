@@ -11,6 +11,7 @@ import {
 import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import type { SimulacaoInput } from '../../shared/types'
 
 interface ModalSimulacaoCustoProps {
@@ -72,7 +73,12 @@ export function ModalSimulacaoCusto({
     aoSimular(form)
   }
 
-  const podesSimular = !!form.ncm && !!form.paisOrigem && form.valorProduto > 0
+  const requisitos: RequisitoSalvar[] = [
+    { chave: 'ncm',          ok: !!form.ncm,             mensagem: 'NCM (8 dígitos)' },
+    { chave: 'paisOrigem',   ok: !!form.paisOrigem,      mensagem: 'País de origem (ISO-2)' },
+    { chave: 'valorProduto', ok: form.valorProduto > 0, mensagem: 'Valor do produto maior que zero' },
+  ]
+  const podesSimular = requisitos.every(r => r.ok)
 
   return (
     <ModalFormularioGlobal
@@ -301,6 +307,7 @@ export function ModalSimulacaoCusto({
           box-shadow: 0 0 0 2px rgba(129,140,248,0.15);
         }
       `}</style>
+      <BannerRequisitosGlobal requisitos={requisitos} titulo="Para simular, ainda falta:" />
     </ModalFormularioGlobal>
   )
 }

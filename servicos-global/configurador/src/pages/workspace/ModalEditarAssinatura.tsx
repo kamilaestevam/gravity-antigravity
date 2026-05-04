@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { Package, CurrencyDollar, CalendarBlank, Tag, TreeStructure, CheckCircle, WarningCircle, Check, MagnifyingGlass, SelectionAll, Eraser, Broom } from '@phosphor-icons/react'
 import { getSimboloMoeda } from '../../utils/formatters'
 import type { Produto } from './Assinaturas'
@@ -63,6 +64,10 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
     setWorkspaces(prev => prev.includes(ws) ? prev.filter(item => item !== ws) : [...prev, ws])
   }
 
+  const requisitos: RequisitoSalvar[] = [
+    { chave: 'nome', ok: !!nome.trim(), mensagem: 'Nome do produto' },
+  ]
+
   return (
     <ModalFormularioAbasGlobal
       aberto={!!produto}
@@ -72,7 +77,7 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
       titulo={t('workspace.subscriptions.modal_titulo')}
       subtitulo={t('workspace.subscriptions.modal_subtitulo')}
       dirty={dirty}
-      podesSalvar={dirty && !!nome.trim()}
+      podesSalvar={dirty && requisitos.every(r => r.ok)}
       tamanho="md"
       altura="580px"
       abas={[
@@ -123,6 +128,8 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
                   </div>
                 </CampoGeralGlobal>
               </div>
+
+              <BannerRequisitosGlobal requisitos={requisitos} />
             </div>
           )
         },

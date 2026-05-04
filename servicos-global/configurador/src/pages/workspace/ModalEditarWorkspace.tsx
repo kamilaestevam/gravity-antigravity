@@ -15,6 +15,7 @@ import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import type { Workspace } from './Workspaces'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
@@ -344,9 +345,17 @@ export function ModalEditarWorkspace({
         .some(k => extraData[k] !== workspace?.[k])
     )
 
-  const podesSalvar = ehNovo
-    ? !!nome.trim() && !!sug.sugestao && !sug.carregando && !sug.erro
-    : !!nome.trim()
+  const requisitos: RequisitoSalvar[] = ehNovo
+    ? [
+        { chave: 'nome',       ok: !!nome.trim(),       mensagem: 'Nome do workspace' },
+        { chave: 'subdominio', ok: !!sug.sugestao && !sug.carregando, mensagem: sug.carregando ? 'Aguardando sugestão de subdomínio…' : 'Subdomínio sugerido' },
+        { chave: 'sugErro',    ok: !sug.erro,           mensagem: sug.erro ?? 'Subdomínio válido' },
+      ]
+    : [
+        { chave: 'nome', ok: !!nome.trim(), mensagem: 'Nome do workspace' },
+      ]
+
+  const podesSalvar = requisitos.every(r => r.ok)
 
   function handleSalvar() {
     if (!podesSalvar) return
@@ -366,22 +375,27 @@ export function ModalEditarWorkspace({
       id: 'geral',
       rotulo: t('workspace.workspaces.aba_informacoes_gerais'),
       conteudo: (
-        <AbaInformacoes
-          workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
-          nome_workspace={nome}
-          subdominio_workspace={subExibido}
-          subdominioCarregando={ehNovo && sug.carregando}
-          subdominioAjustado={ehNovo && sug.ajustado}
-          subdominioSolicitado={ehNovo ? sug.solicitado : ''}
-          subdominioErro={ehNovo ? sug.erro : null}
-          onNome={(v) => setNome(v)}
-          onCampoExtra={(k, v) => setExtraData(p => ({ ...p, [k]: v }))}
-          cidades={cidades}
-          carregandoCidades={carregandoCidades}
-        />
+        <>
+          <AbaInformacoes
+            workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
+            nome_workspace={nome}
+            subdominio_workspace={subExibido}
+            subdominioCarregando={ehNovo && sug.carregando}
+            subdominioAjustado={ehNovo && sug.ajustado}
+            subdominioSolicitado={ehNovo ? sug.solicitado : ''}
+            subdominioErro={ehNovo ? sug.erro : null}
+            onNome={(v) => setNome(v)}
+            onCampoExtra={(k, v) => setExtraData(p => ({ ...p, [k]: v }))}
+            cidades={cidades}
+            carregandoCidades={carregandoCidades}
+          />
+          <div style={{ padding: '0 1.5rem 1rem' }}>
+            <BannerRequisitosGlobal requisitos={requisitos} />
+          </div>
+        </>
       )
     }
-  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo])
+  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos])
 
   return (
     <>

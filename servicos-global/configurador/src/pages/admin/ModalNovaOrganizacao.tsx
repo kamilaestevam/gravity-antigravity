@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { useSugerirSubdominio } from '../../hooks/useSugerirSubdominio'
 import {
@@ -90,7 +91,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
 
   // Simple dirty tracking
   const dirty = !!(nome || cnpj || estado || cidade || segmento || tipoEmpresa)
-  const podesSalvar = !!nome.trim() && !!subdominioSugerido && !sug.carregando && !sug.erro
+
+  const requisitos: RequisitoSalvar[] = [
+    { chave: 'nome',       ok: !!nome.trim(),         mensagem: 'Nome da organização' },
+    { chave: 'subdominio', ok: !!subdominioSugerido && !sug.carregando, mensagem: sug.carregando ? 'Aguardando sugestão de subdomínio…' : 'Subdomínio gerado pelo sistema' },
+    { chave: 'sugErro',    ok: !sug.erro,             mensagem: sug.erro ?? 'Subdomínio válido' },
+  ]
+  const podesSalvar = requisitos.every(r => r.ok)
 
   function handleSalvar() {
     if (!podesSalvar) return
@@ -203,6 +210,8 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               </p>
             )}
           </CampoGeralGlobal>
+
+          <BannerRequisitosGlobal requisitos={requisitos} />
         </div>
       )
     },

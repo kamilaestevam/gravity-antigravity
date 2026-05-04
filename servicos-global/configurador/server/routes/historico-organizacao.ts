@@ -1,8 +1,19 @@
 /**
- * historicoOrganizacao.ts — Audit trail da organização e workspaces
+ * historico-organizacao.ts — Audit trail da organização e workspaces
  *
- * Proxy para historico-global filtrando por resource_type IN ('Organizacao', 'Workspace', 'PlatformConfig').
- * Página de workspace (requireAuth, sem requireGravityAdmin).
+ * Proxy fino sobre /api/v1/historico-global/logs (mount não-admin).
+ * O upstream se autoescopa por id_organizacao via JWT; admins Gravity
+ * recebem visão global automaticamente (Mandamento 04).
+ *
+ * Responsabilidade do proxy:
+ *  - Aplicar a ACL de campos (Prisma → contrato FE) (Mandamento 06)
+ *  - Estabilizar paginação page-based (best-effort) e expor `nextCursor`
+ *
+ * Limitações conhecidas (best-effort, documentadas no doc técnico):
+ *  - O filtro `tipo_recurso IN (...)` não é suportado pelo upstream e foi
+ *    removido. A página exibe o histórico completo da organização.
+ *  - Paginação cursor-based do upstream é repassada via `cursor`/`nextCursor`;
+ *    o parâmetro `page` é mantido apenas para retrocompatibilidade do FE.
  *
  * GET /api/v1/historico-organizacao — lista logs de auditoria da organização
  */
@@ -56,6 +67,7 @@ function mapPrismaParaContrato(row: HistoricoLogPrisma) {
 const listQuerySchema = z.object({
   page:      z.coerce.number().int().min(1).default(1),
   limit:     z.coerce.number().int().min(1).max(100).default(25),
+  cursor:    z.string().optional(),
   search:    z.string().optional(),
   from_date: z.string().optional(),
   to_date:   z.string().optional(),
@@ -63,7 +75,6 @@ const listQuerySchema = z.object({
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/historico-organizacao
-// Lista audit logs filtrados por resource_type de organização
 // ---------------------------------------------------------------------------
 
 historicoOrganizacaoRouter.get(
@@ -76,42 +87,26 @@ historicoOrganizacaoRouter.get(
         return next(new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR'))
       }
 
-      const { page, limit, search, from_date, to_date } = parsed.data
+      const { page, limit, cursor, search, from_date, to_date } = parsed.data
 
-      // Montar query params para o historico-global interno
       const params = new URLSearchParams()
-      params.set('resource_type', 'Organizacao,Workspace,PlatformConfig')
       params.set('limit', String(limit))
+      if (cursor) params.set('cursor', cursor)
       if (search) params.set('search', search)
       if (from_date) params.set('startDate', from_date)
       if (to_date) params.set('endDate', to_date)
 
-      // Cursor-based pagination: historico-global usa cursor, nós convertemos page→cursor
-      // Para page 1, sem cursor. Para page > 1, usaremos offset via skip (o historico-global
-      // suporta isso internamente). Como alternativa simples, passamos limit + offset no skip.
-      // O historico-global aceita page-based via limit+cursor. Simplificamos: buscamos todos
-      // e fazemos skip client-side se necessário.
+      const authorization = req.headers.authorization
+      if (!authorization) {
+        return next(new AppError('Authorization ausente', 401, 'UNAUTHORIZED'))
+      }
 
-      // Chamada interna ao historico-global (montado no mesmo processo Express)
       const internalBaseUrl = `http://localhost:${process.env.PORT ?? 8005}`
-      const internalKey = process.env.INTERNAL_SERVICE_KEY
+      const fetchUrl = `${internalBaseUrl}/api/v1/historico-global/logs?${params.toString()}`
 
-      if (!internalKey) {
-        return next(new AppError('INTERNAL_SERVICE_KEY não configurada', 500, 'CONFIG_ERROR'))
-      }
-
-      // Extrair id_organizacao e id_usuario do auth
-      const auth = (req as any).auth
-      const id_organizacao = auth?.id_organizacao
-      if (!id_organizacao) {
-        return next(new AppError('id_organizacao obrigatório', 401, 'UNAUTHORIZED'))
-      }
-
-      const fetchUrl = `${internalBaseUrl}/api/v1/admin/historico-global/logs?${params.toString()}`
       const response = await fetch(fetchUrl, {
         headers: {
-          'x-internal-key': internalKey,
-          'x-id-organizacao': id_organizacao,
+          Authorization: authorization,
           'Content-Type': 'application/json',
         },
       })
@@ -126,13 +121,15 @@ historicoOrganizacaoRouter.get(
       const linhasPrisma: HistoricoLogPrisma[] = data.data ?? data.logs ?? []
       const logs = linhasPrisma.map(mapPrismaParaContrato)
       const hasMore = data.meta?.hasMore ?? data.hasMore ?? false
+      const nextCursor: string | null = data.meta?.nextCursor ?? null
 
       res.json({
         page,
         limit,
         logs,
-        total: data.meta?.total ?? data.total ?? logs.length,
+        total: logs.length, // best-effort: upstream é cursor-based, não retorna total
         hasMore,
+        nextCursor,
       })
     } catch (err) {
       next(err)

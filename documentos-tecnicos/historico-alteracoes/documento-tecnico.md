@@ -1,11 +1,16 @@
 # Histórico de Alterações — Documento Técnico
 
-> **Versão:** 1.0 — Onda 2  
+> **Versão:** 1.1 — Onda 2  
 > **Serviço:** `historico-global`  
-> **Porta:** 3001 (super-servidor tenant) — todos os serviços tenant compartilham o mesmo processo  
-> **Path base:** `/api/tenant/historico-global`  
+> **Porta:** 8005 (montado no processo do Configurador)  
+> **Mounts:**
+>  - `/api/v1/admin/historico-global` — superfície completa (ingestão, export, alert-rules, LGPD). Exige `requireAuth + requireGravityAdmin`.
+>  - `/api/v1/historico-global` — sub-router somente leitura (`historicoReadOnlyRouter`: `GET /logs`, `GET /logs/:id`). Exige `requireAuth` apenas. Auto-escopo por `id_organizacao` via `visibilityFilter` no controller; Mandamento 04 honrado para `SUPER_ADMIN`/`ADMIN`.
+>  - `/api/v1/historico-organizacao` — proxy fino para a página workspace, aplica ACL Prisma → contrato FE.
 > **Banco:** tenant-db (PostgreSQL via Prisma)  
 > **Fila:** pg-boss (PostgreSQL-backed job queue)
+
+> **Nota técnica (paginação):** o controller é cursor-based (`cursor`/`nextCursor`). O proxy `historico-organizacao` ainda expõe paginação page-based para retrocompatibilidade do FE; `total` é best-effort (upstream não retorna count). Migrar o FE para cursor é trabalho futuro — abrir tarefa separada.
 
 ---
 

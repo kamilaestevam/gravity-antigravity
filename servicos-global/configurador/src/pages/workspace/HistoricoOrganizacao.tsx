@@ -9,7 +9,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 
 // ---------------------------------------------------------------------------
 // Contrato — mantido em sincronia com a ACL do backend
-// servicos-global/configurador/server/routes/historicoOrganizacao.ts
+// servicos-global/configurador/server/routes/historico-organizacao.ts
 // ---------------------------------------------------------------------------
 
 const historicoLogSchema = z.object({
@@ -25,11 +25,12 @@ const historicoLogSchema = z.object({
 })
 
 const historicoResponseSchema = z.object({
-  page:    z.number(),
-  limit:   z.number(),
-  logs:    z.array(historicoLogSchema),
-  total:   z.number(),
-  hasMore: z.boolean(),
+  page:       z.number(),
+  limit:      z.number(),
+  logs:       z.array(historicoLogSchema),
+  total:      z.number(),
+  hasMore:    z.boolean(),
+  nextCursor: z.string().nullable().optional(),
 })
 
 type HistoricoLog = z.infer<typeof historicoLogSchema>

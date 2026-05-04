@@ -42,9 +42,9 @@
     },
     "historico": {
       "baseUrl": "http://localhost:8005",
-      "pathPrefix": "/api/tenant/historico-global",
+      "pathPrefix": "/api/v1/admin/historico-global",
       "middleware": ["rateLimitPresets.admin", "requireAuth", "requireGravityAdmin"],
-      "note": "Montado pelo configurador (porta 8005) — proxy interno para historico-global. Todas as rotas exigem SUPER_ADMIN ou ADMIN.",
+      "note": "Montado pelo configurador (porta 8005) — superfície completa do historico-global (ingestão, export, alert-rules, lgpd). Todas as rotas exigem SUPER_ADMIN ou ADMIN. Para leitura por usuário comum de workspace ver `historico-leitura`.",
       "endpoints": {
         "logs": {
           "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-internal-key só podem gravar actor_type em {AI, API, JOB, INTEGRATION}.",
@@ -67,6 +67,25 @@
         "lgpd": {
           "POST /lgpd/anonymize": "Anonimizar actor em todos os logs (SUPER_ADMIN/ADMIN/MASTER)"
         }
+      }
+    },
+    "historico-leitura": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/historico-global",
+      "middleware": ["rateLimitPresets.read", "requireAuth"],
+      "note": "Mount não-admin (somente leitura) para qualquer usuário autenticado. Usa o sub-router `historicoReadOnlyRouter`, que expõe APENAS GET /logs e GET /logs/:id. O controller se autoescopa por id_organizacao via visibilityFilter; admins Gravity (SUPER_ADMIN/ADMIN) recebem visão global automaticamente (Mandamento 04). Cross-tenant tentado por usuário comum é bloqueado pelo Ponto Cego 3 do controller. Consumido pelo proxy `historico-organizacao` da página de workspace.",
+      "endpoints": {
+        "GET /logs": "Listar logs (cursor pagination, limit máximo: 100). Filtros: tipo_ator_historico_log, modulo_historico_log, acao_historico_log, status_historico_log, startDate, endDate, search, cursor. Escopo automático por id_organizacao do JWT.",
+        "GET /logs/:id": "Buscar log por ID (cross-tenant bloqueado para usuário comum)."
+      }
+    },
+    "historico-organizacao": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/historico-organizacao",
+      "middleware": ["requireAuth"],
+      "note": "Proxy fino sobre `/api/v1/historico-global/logs`. Aplica ACL Prisma → contrato FE (Mandamento 06): remove o sufixo `_historico_log` dos campos. Encaminha o JWT do usuário no header Authorization (sem x-internal-key). Paginação page-based é best-effort — o cursor real do upstream é exposto via `nextCursor` na resposta.",
+      "endpoints": {
+        "GET /": "Lista logs da organização. Query: page?, limit? (max 100), cursor?, search?, from_date?, to_date?. Resposta: { page, limit, logs, total, hasMore, nextCursor }. `total` é best-effort (upstream é cursor-based, não retorna count)."
       }
     },
     "notificacoes": {

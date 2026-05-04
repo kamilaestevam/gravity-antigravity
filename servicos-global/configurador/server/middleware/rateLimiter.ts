@@ -87,4 +87,5 @@ export const rateLimitPresets = {
   webhook: () => createRateLimiter({ windowMs: 60_000, max: 100, onBlocked: defaultOnBlocked }),
   internal: () => createRateLimiter({ windowMs: 60_000, max: 200, onBlocked: defaultOnBlocked }),
   admin: () => createRateLimiter({ windowMs: 60_000, max: 60, message: 'Admin rate limit exceeded.', onBlocked: defaultOnBlocked }),
+  read:  () => createRateLimiter({ windowMs: 60_000, max: 120, onBlocked: defaultOnBlocked }),
 }

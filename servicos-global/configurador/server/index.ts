@@ -30,21 +30,21 @@ import { errorHandler } from './middleware/errorHandler.js'
 import { requireAuth } from './middleware/requireAuth.js'
 import { requireGravityAdmin } from './middleware/requireGravityAdmin.js'
 import { authRouter } from './routes/auth.js'
-import { organizacoesRouter } from './routes/organizacoes.js'
-import { usersRouter } from './routes/users.js'
-import { billingRouter } from './routes/billing.js'
-import { accessRouter } from './routes/access.js'
+import { organizacoesRouter } from './routes/organizacao.js'
+import { usersRouter } from './routes/usuario.js'
+import { billingRouter } from './routes/fatura-produto-gravity.js'
+import { accessRouter } from './routes/acesso.js'
 import { adminRouter } from './routes/admin.js'
-import { productsRouter } from './routes/products.js'
+import { productsRouter } from './routes/produto-gravity.js'
 import { tenantProductsRouter } from './routes/tenantProducts.js'
-import { companyProductsRouter } from './routes/companyProducts.js'
-import { serviceTokenRouter } from './routes/serviceToken.js'
-import { adminProductsRouter } from './routes/adminProducts.js'
-import { publicCatalogRouter } from './routes/publicCatalog.js'
-import { hubRouter } from './routes/hubInit.js'
+import { companyProductsRouter } from './routes/produto-gravity-workspace.js'
+import { serviceTokenRouter } from './routes/token-servico.js'
+import { adminProductsRouter } from './routes/admin-produto-gravity.js'
+import { publicCatalogRouter } from './routes/catalogo-publico.js'
+import { hubRouter } from './routes/hub-init.js'
 import { meRouter } from './routes/me.js'
-import { taxaCambioRouter } from './routes/taxaCambio.js'
-import { historicoOrganizacaoRouter } from './routes/historicoOrganizacao.js'
+import { taxaCambioRouter } from './routes/taxa-cambio.js'
+import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -122,11 +122,17 @@ app.use('/api/v1/internal', serviceTokenRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
-import { historicoRouter } from '../../servicos-plataforma/historico-global/server/routes.js'
+import { historicoRouter, historicoReadOnlyRouter } from '../../servicos-plataforma/historico-global/server/routes.js'
 // Middleware obrigatório: rate limit + auth Clerk + role check (SUPER_ADMIN/ADMIN)
 // Sem isso, /api/tenant/historico-global/* ficou exposto publicamente — todas as 12 rotas
 // do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
 app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
+
+// Mount não-admin (somente leitura): qualquer usuário autenticado consulta o
+// histórico da própria organização. O controller se autoescopa via
+// visibilityFilter + Ponto Cego 3 (cross-tenant). Admins Gravity recebem
+// visão global pelo próprio buildVisibilityFilter (Mandamento 04).
+app.use('/api/v1/historico-global', rateLimitPresets.read(), requireAuth, historicoReadOnlyRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../servicos-plataforma/notificacoes/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
@@ -145,7 +151,7 @@ app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, pr
 app.use('/api/v1/admin/produtos-gravity', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/v1/admin/organizacoes', tenantProductsRouter)        // ativação por organização (auth chain interna)
 
-import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/adminSecurity.js'
+import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/admin-seguranca.js'
 app.use('/api/v1/admin/eventos-seguranca', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
 // Rota interna S2S para ingestão de eventos de segurança (chamada pelo
 // securityAuditLogger do historico-global). Antes: POST /admin/security/events
@@ -157,8 +163,8 @@ app.use('/api/v1/internal/eventos-seguranca', adminSecurityInternalRouter)
 import { authErrorLogger } from '../../servicos-plataforma/historico-global/server/middleware/auth-error-logger.js'
 app.use(authErrorLogger)
 
-import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
-import { adminNcmIntegracaoRouter } from './routes/adminNcmIntegracao.js'
+import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/api-cockpit.js'
+import { adminNcmIntegracaoRouter } from './routes/admin-ncm-integracao.js'
 app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por organização
 app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
@@ -187,7 +193,7 @@ if (process.env.NODE_ENV !== 'test') {
 
     // Sincronizar catálogo de produtos com a lista canônica a cada startup
     try {
-      const { productCatalogService } = await import('./services/productCatalogService.js')
+      const { productCatalogService } = await import('./services/produto-gravity-catalogo-service.js')
       await productCatalogService.ensureMissingProducts()
       console.log('[configurador] Catálogo de produtos sincronizado')
     } catch (err) {

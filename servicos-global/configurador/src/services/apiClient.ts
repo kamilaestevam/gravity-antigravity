@@ -258,7 +258,7 @@ export const sugestaoSubdominioResponseSchema = z.object({
 export type SugestaoSubdominioResponse = z.infer<typeof sugestaoSubdominioResponseSchema>
 
 // ─── Schemas de Usuários da Organização ─────────────────────────────────────
-// Espelham as respostas das rotas /api/v1/usuarios* (ver server/routes/users.ts).
+// Espelham as respostas das rotas /api/v1/usuarios* (ver server/routes/usuario.ts).
 // Atualizar SEMPRE no mesmo commit em que o backend mudar o payload (Mand. 09).
 
 const tipoUsuarioWorkspaceEnum = z.enum(['MASTER', 'PADRAO', 'FORNECEDOR'])
@@ -1037,7 +1037,7 @@ export const workspaceApi = {
 }
 
 // ─── Usuários da organização autenticada ────────────────────────────────────
-// Espelha server/routes/users.ts. Toda resposta é validada via Zod (Mand. 09).
+// Espelha server/routes/usuario.ts. Toda resposta é validada via Zod (Mand. 09).
 
 export const usuariosApi = {
   async listar() {

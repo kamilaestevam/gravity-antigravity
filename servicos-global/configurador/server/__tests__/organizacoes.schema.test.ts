@@ -3,7 +3,7 @@
 // Foco: regra cross-field BR → CNPJ obrigatório; !BR → CNPJ proibido.
 
 import { describe, it, expect } from 'vitest'
-import { CreateOrganizacaoSchema } from '../routes/organizacoes.js'
+import { CreateOrganizacaoSchema } from '../routes/organizacao.js'
 
 const baseInput = {
   nome_organizacao: 'Empresa Exemplo',

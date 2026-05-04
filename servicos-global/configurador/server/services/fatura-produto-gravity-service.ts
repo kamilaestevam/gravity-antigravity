@@ -44,7 +44,7 @@ function paraFaturaDto(row: FaturaRow): GravityInvoice {
     amount_due_cents:  valor_cents,
     amount_paid_cents: row.status_fatura_produto_gravity === 'PAID' ? valor_cents : 0,
     currency:          row.moeda_fatura_produto_gravity,
-    due_date:          null,
+    due_date:          row.data_fatura_produto_gravity.toISOString(),
     competencia:       row.competencia_fatura_produto_gravity,
     description:       `Fatura ${row.numero_fatura_produto_gravity}`,
     line_items:        [],
@@ -114,12 +114,15 @@ export const faturaProdutoGravityServico = {
 
     const row = await prisma.produtoGravityFatura.create({
       data: {
-        id_organizacao:                          params.customer_tenant_id,
-        numero_fatura_produto_gravity:           numero,
-        status_fatura_produto_gravity:           params.auto_finalize ? 'OPEN' : 'DRAFT',
-        nome_organizacao_fatura_produto_gravity: org.nome_organizacao,
-        valor_total_fatura_produto_gravity:      total_cents / 100,
-        moeda_fatura_produto_gravity:            params.currency ?? 'brl',
+        id_organizacao:                           params.customer_tenant_id,
+        numero_fatura_produto_gravity:            numero,
+        status_fatura_produto_gravity:            params.auto_finalize ? 'OPEN' : 'DRAFT',
+        nome_organizacao_fatura_produto_gravity:  org.nome_organizacao,
+        email_organizacao_fatura_produto_gravity: params.customer_email ?? null,
+        valor_total_fatura_produto_gravity:       total_cents / 100,
+        moeda_fatura_produto_gravity:             params.currency ?? 'brl',
+        competencia_fatura_produto_gravity:       params.competencia ?? null,
+        data_fatura_produto_gravity:              params.due_date ? new Date(params.due_date) : new Date(),
       },
     })
 

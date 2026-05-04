@@ -76,6 +76,8 @@ export interface CreateInvoiceParams {
     quantity: number
   }>
   due_date?: string                // ISO — se omitido, provider decide
+  competencia?: string             // 'YYYY-MM' — período de faturamento
+  customer_email?: string          // email da organização para cobrança
   currency?: string                // default 'brl'
   metadata?: Record<string, string>
   auto_finalize?: boolean          // se true, finaliza draft após criar

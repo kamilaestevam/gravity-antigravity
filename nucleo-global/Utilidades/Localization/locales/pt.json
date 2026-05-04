@@ -5373,5 +5373,28 @@
     "prod_lpco_nome": "LPCO",
     "prod_pedido_nome": "Pedido",
     "prod_simula_custo_nome": "Simula Custo"
+  },
+  "enum": {
+    "tipo_cobranca_produto_gravity": {
+      "MENSAL":         "Mensal",
+      "POR_PROCESSO":   "Por Processo",
+      "POR_DOCUMENTO":  "Por Documento",
+      "POR_ESTIMATIVA": "Por Estimativa",
+      "POR_DI_DUIMP":   "Por DI/DUIMP",
+      "POR_DUE":        "Por DUE",
+      "POR_PRODUTO":    "Por Produto",
+      "POR_FLUXO":      "Por Fluxo",
+      "POR_LPCO":       "Por LPCO"
+    },
+    "status_assinatura_produto_gravity": {
+      "EM_TESTE":  "Em Teste",
+      "ATIVA":     "Ativa",
+      "SUSPENSA":  "Suspensa",
+      "CANCELADA": "Cancelada"
+    },
+    "status_workspace": {
+      "ATIVO":   "Ativo",
+      "INATIVO": "Inativo"
+    }
   }
 }

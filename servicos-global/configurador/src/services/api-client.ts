@@ -580,6 +580,8 @@ export interface CreateInvoiceRequest {
     quantity: number
   }>
   due_date?: string
+  competencia?: string
+  customer_email?: string
   currency?: string
   auto_finalize?: boolean
   metadata?: Record<string, string>

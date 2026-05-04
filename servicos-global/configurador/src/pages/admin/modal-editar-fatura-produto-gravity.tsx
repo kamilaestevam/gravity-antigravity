@@ -11,6 +11,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { apiFetch } from '../../services/api-client'
 import {
@@ -254,23 +255,31 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <CampoGeralGlobal label="Competência (YYYY-MM)">
+                <CampoGeralGlobal label="Competência" tooltipDescricao="Período de faturamento (mês/ano)">
                   <input
-                    type="text"
+                    type="month"
                     value={competencia}
                     onChange={e => setCompetencia(e.target.value)}
                     disabled={!podeEditarDados}
                     placeholder="2026-04"
                     className="ws-input"
+                    pattern="\d{4}-\d{2}"
                   />
                 </CampoGeralGlobal>
                 <CampoGeralGlobal label="Data de Vencimento">
-                  <input
-                    type="date"
-                    value={dataVenc}
-                    onChange={e => setDataVenc(e.target.value)}
+                  <CampoCalendarioGlobal
+                    valor={{
+                      inicio: dataVenc ? new Date(dataVenc + 'T00:00:00') : null,
+                      fim:    dataVenc ? new Date(dataVenc + 'T00:00:00') : null,
+                    }}
+                    aoMudarValor={(v) => {
+                      const d = v.inicio
+                      if (!d) { setDataVenc(''); return }
+                      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                      setDataVenc(iso)
+                    }}
                     disabled={!podeEditarDados}
-                    className="ws-input"
+                    placeholder="dd/mm/aaaa"
                   />
                 </CampoGeralGlobal>
               </div>

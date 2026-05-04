@@ -1,7 +1,8 @@
 // @vitest-environment node
-// TST-UNIT-CONF-STORE-001 — Store — URLs corretas de assinaturas e subscribe
-// Anti-regressão: garante que Store.tsx usa /api/v1/assinaturas e /api/v1/assinaturas/subscribe
-// (impede retorno às URLs quebradas /tenants/products/* — bug corrigido em commit 168d78d).
+// TST-UNIT-CONF-STORE-001 — Store — URLs corretas de assinaturas e assinar-produto
+// Anti-regressão: garante que Store.tsx usa /api/v1/organizacoes/me/assinaturas
+// e /api/v1/organizacoes/me/assinaturas/assinar-produto (DDD pós 2026-05-04).
+// Antes: /assinaturas e /assinaturas/subscribe (legado pré-DDD, removido).
 //
 // Abordagem: leitura estática + extração da lógica de subscribe em isolamento.
 // A renderização completa do componente fica coberta pelo teste E2E (Playwright).
@@ -23,37 +24,35 @@ describe('TST-UNIT-CONF-STORE-001 — Store.tsx: URLs anti-regressão (análise 
     expect(storeSource).toMatch(/const\s+API_URL\s*=\s*['"]\/api\/v1['"]/)
   })
 
-  it('carregamento de assinaturas usa ${API_URL}/assinaturas (sem /tenants/products)', () => {
-    // URL correta deve existir
-    expect(storeSource).toContain('`${API_URL}/assinaturas`')
-    // URL quebrada NÃO deve existir em nenhuma forma
+  it('carregamento de assinaturas usa ${API_URL}/organizacoes/me/assinaturas (sem /tenants/products)', () => {
+    expect(storeSource).toContain('`${API_URL}/organizacoes/me/assinaturas`')
     expect(storeSource).not.toContain('/tenants/products')
   })
 
-  it('endpoint de subscribe usa ${API_URL}/assinaturas/subscribe', () => {
-    expect(storeSource).toContain('`${API_URL}/assinaturas/subscribe`')
+  it('endpoint de subscribe usa ${API_URL}/organizacoes/me/assinaturas/assinar-produto', () => {
+    expect(storeSource).toContain('`${API_URL}/organizacoes/me/assinaturas/assinar-produto`')
   })
 
   it('subscribe usa método POST', () => {
     const subscribeBlock = storeSource.slice(
-      storeSource.indexOf('assinaturas/subscribe'),
-      storeSource.indexOf('assinaturas/subscribe') + 200,
+      storeSource.indexOf('assinaturas/assinar-produto'),
+      storeSource.indexOf('assinaturas/assinar-produto') + 200,
     )
     expect(subscribeBlock).toContain("method: 'POST'")
   })
 
-  it('subscribe envia product_key no body', () => {
+  it('subscribe envia slug_produto_gravity no body', () => {
     const subscribeBlock = storeSource.slice(
-      storeSource.indexOf('assinaturas/subscribe'),
-      storeSource.indexOf('assinaturas/subscribe') + 300,
+      storeSource.indexOf('assinaturas/assinar-produto'),
+      storeSource.indexOf('assinaturas/assinar-produto') + 300,
     )
-    expect(subscribeBlock).toContain('product_key')
+    expect(subscribeBlock).toContain('slug_produto_gravity')
   })
 
   it('subscribe inclui Authorization header com Bearer token', () => {
     const subscribeBlock = storeSource.slice(
-      storeSource.indexOf('assinaturas/subscribe') - 50,
-      storeSource.indexOf('assinaturas/subscribe') + 300,
+      storeSource.indexOf('assinaturas/assinar-produto') - 50,
+      storeSource.indexOf('assinaturas/assinar-produto') + 300,
     )
     expect(subscribeBlock).toMatch(/Authorization.*Bearer/)
   })
@@ -67,8 +66,8 @@ describe('TST-UNIT-CONF-STORE-001 — handleSubscribe: comportamento da lógica'
   let fetchMock: ReturnType<typeof vi.fn>
 
   const SUBSCRIBE_OK = {
-    config:  { tenant_id: 'ten_01', product_key: 'pedido', is_active: true, config: {} },
-    catalog: { id: 'p1', name: 'Pedido', slug: 'pedido' },
+    assinatura:   { id_assinatura_produto_gravity: 'asg_01', id_organizacao: 'ten_01', id_produto_gravity: 'p1', status_assinatura_produto_gravity: 'EM_TESTE' },
+    configuracao: { id_configuracao_produto_gravity: 'cfg_01', ativo_configuracao_produto_gravity: true, configuracao_config_produto_gravity: {} },
   }
 
   beforeEach(() => {
@@ -95,17 +94,17 @@ describe('TST-UNIT-CONF-STORE-001 — handleSubscribe: comportamento da lógica'
     const res = await fetch(`${API_URL}/assinaturas/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ product_key: slug }),
+      body: JSON.stringify({ slug_produto_gravity: slug }),
     })
 
     return { res, calls: fetchMock.mock.calls }
   }
 
-  it('chama /api/v1/assinaturas/subscribe com POST', async () => {
+  it('chama /api/v1/organizacoes/me/assinaturas/assinar-produto com POST', async () => {
     await callSubscribe('pedido', 'jwt-test', SUBSCRIBE_OK, 201)
 
     const [url, opts] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(url).toBe('/api/v1/assinaturas/subscribe')
+    expect(url).toBe('/api/v1/organizacoes/me/assinaturas/assinar-produto')
     expect(opts.method).toBe('POST')
   })
 
@@ -114,7 +113,7 @@ describe('TST-UNIT-CONF-STORE-001 — handleSubscribe: comportamento da lógica'
 
     const [, opts] = fetchMock.mock.calls[0] as [string, RequestInit]
     const body = JSON.parse(opts.body as string)
-    expect(body.product_key).toBe('nf-importacao')
+    expect(body.slug_produto_gravity).toBe('nf-importacao')
   })
 
   it('inclui Bearer token no Authorization header', async () => {

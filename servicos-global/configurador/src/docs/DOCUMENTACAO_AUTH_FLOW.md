@@ -3,7 +3,7 @@
 Esta documentação detalha como o sistema lida com a autenticação de usuários e como resolvemos o problema do "Seletor Interno" do Clerk aparecendo indevidamente.
 
 ## 1. O Problema: Seletor Interno do Clerk
-Anteriormente, se um usuário já autenticado visitasse a página de login (`/sign-in`) ou se a aplicação sofresse um "flash" de carregamento, o Clerk identificava a sessão ativa e mostrava o seu próprio seletor de organizações ("Choose Organization") dentro do card de login.
+Anteriormente, se um usuário já autenticado visitasse a página de login (`/login`) ou se a aplicação sofresse um "flash" de carregamento, o Clerk identificava a sessão ativa e mostrava o seu próprio seletor de organizações ("Choose Organization") dentro do card de login.
 
 Isso causava:
 - **Confusão Visual:** O seletor do Clerk não segue o design system completo da Gravity.
@@ -28,7 +28,7 @@ function PublicRoute({ children }) {
 
 **Principais benefícios:**
 1. **Fim do Flash:** Ao checar `isLoaded`, garantimos que o componente de login nunca seja montado antes do sistema ter certeza se o usuário está logado.
-2. **Redirecionamento Instantâneo:** Usuários logados que tentarem acessar `/sign-in` são imediatamente "empurrados" para o seletor de workspaces da Gravity.
+2. **Redirecionamento Instantâneo:** Usuários logados que tentarem acessar `/login` são imediatamente "empurrados" para o seletor de workspaces da Gravity.
 
 ## 3. Arquitetura do Fluxo
 
@@ -42,7 +42,7 @@ O fluxo de autenticação está distribuído nos seguintes arquivos:
 | `src/pages/SelecionarWorkspace.tsx` | **Destino Pós-Login.** Nossa tela customizada para escolha da empresa. |
 
 ## 4. Como Testar
-- **Logado:** Tente digitar manualmente `http://localhost:8005/sign-in`. Você deve ser redirecionado instantaneamente para o seletor de workspaces.
+- **Logado:** Tente digitar manualmente `http://localhost:8000/login`. Você deve ser redirecionado instantaneamente para o seletor de workspaces.
 - **Deslogado:** Ao acessar a raiz `/`, você deve ver a tela de login normal da Gravity.
 
 ---

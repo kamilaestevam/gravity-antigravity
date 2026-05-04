@@ -38,12 +38,12 @@ type Story = StoryObj<typeof meta>
 
 export const SignIn: Story = {
   parameters: {
-    reactRouter: { location: { pathname: '/sign-in' } },
+    reactRouter: { location: { pathname: '/login' } },
   },
 }
 
 export const SignUp: Story = {
   parameters: {
-    reactRouter: { location: { pathname: '/sign-up' } },
+    reactRouter: { location: { pathname: '/cadastro' } },
   },
 }

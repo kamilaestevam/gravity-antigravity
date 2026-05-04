@@ -147,6 +147,7 @@ model Usuario {
 model ProdutoGravityAssinatura {
   id_assinatura_produto_gravity     String                         @id @default(cuid())
   id_organizacao                    String
+  id_produto_gravity                String
   status_assinatura_produto_gravity StatusAssinaturaProdutoGravity @default(EM_TESTE)
 
   data_fim_teste_assinatura_produto_gravity      DateTime?
@@ -159,12 +160,16 @@ model ProdutoGravityAssinatura {
   data_atualizacao_assinatura_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
+  tenant  Organizacao    @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity], references: [id_produto_gravity], onDelete: Restrict, map: "apg_produto_fkey")
 
+  // Apenas uma assinatura por (organizacao, produto)
+  @@unique([id_organizacao, id_produto_gravity], map: "apg_org_produto_unq")
   // Índices obrigatórios — `map` explícito porque os nomes longos colidem após truncamento PG (63 chars)
   @@index([id_organizacao], map: "apg_org_idx")
   @@index([id_organizacao, data_criacao_assinatura_produto_gravity], map: "apg_org_criacao_idx")
   @@index([id_organizacao, status_assinatura_produto_gravity], map: "apg_org_status_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "apg_org_produto_idx")
   @@map("assinatura_produto_gravity")
 }
 
@@ -428,6 +433,7 @@ model ProdutoGravity {
   faixas_preco_produto_gravity ProdutoGravityFaixaPreco[]
   negociacoes_produto_gravity  ProdutoGravityNegociacaoEspecial[]
   ativacoes_produto_gravity    ProdutoGravityWorkspace[]
+  assinaturas_produto_gravity  ProdutoGravityAssinatura[]
   itens_fatura_produto_gravity ProdutoGravityFaturaItem[]
 
   @@index([status_produto_gravity], map: "pg_status_idx")

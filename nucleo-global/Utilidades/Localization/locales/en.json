@@ -5366,6 +5366,29 @@
       "notif_exec_erro": "Error in manual execution.",
       "notif_exec_falha": "Failed to execute NCM manual sync."
     }
+  },
+  "enum": {
+    "tipo_cobranca_produto_gravity": {
+      "MENSAL":         "Monthly",
+      "POR_PROCESSO":   "Per Process",
+      "POR_DOCUMENTO":  "Per Document",
+      "POR_ESTIMATIVA": "Per Estimate",
+      "POR_DI_DUIMP":   "Per DI/DUIMP",
+      "POR_DUE":        "Per DUE",
+      "POR_PRODUTO":    "Per Product",
+      "POR_FLUXO":      "Per Flow",
+      "POR_LPCO":       "Per LPCO"
+    },
+    "status_assinatura_produto_gravity": {
+      "EM_TESTE":  "Trial",
+      "ATIVA":     "Active",
+      "SUSPENSA":  "Suspended",
+      "CANCELADA": "Cancelled"
+    },
+    "status_workspace": {
+      "ATIVO":   "Active",
+      "INATIVO": "Inactive"
+    }
   }
 
 }

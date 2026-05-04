@@ -36,7 +36,8 @@ import { billingRouter } from './routes/fatura-produto-gravity.js'
 import { accessRouter } from './routes/acesso.js'
 import { adminRouter } from './routes/admin.js'
 import { productsRouter } from './routes/produto-gravity.js'
-import { tenantProductsRouter } from './routes/tenantProducts.js'
+import { assinaturaProdutoGravityRouter } from './routes/assinatura-produto-gravity.js'
+import { adminOrganizacaoProdutoGravityRouter } from './routes/admin-organizacao-produto-gravity.js'
 import { companyProductsRouter } from './routes/produto-gravity-workspace.js'
 import { serviceTokenRouter } from './routes/token-servico.js'
 import { adminProductsRouter } from './routes/admin-produto-gravity.js'
@@ -110,7 +111,7 @@ app.use('/api/v1/organizacoes', organizacoesRouter)
 app.use('/api/v1/faturas', billingRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/produtos', productsRouter)
-app.use('/api/v1/assinaturas', tenantProductsRouter)
+app.use('/api/v1/organizacoes/me/assinaturas', assinaturaProdutoGravityRouter)
 app.use('/api/v1/workspaces/:id_workspace/produtos', companyProductsRouter)
 app.use('/api/v1/usuarios', usersRouter)
 app.use('/api/v1/tokens-servico', serviceTokenRouter)
@@ -149,7 +150,7 @@ import { apiRoutes as preferenciasRouter } from '../../servicos-plataforma/prefe
 app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)
 
 app.use('/api/v1/admin/produtos-gravity', adminProductsRouter)       // CRUD catálogo (auth chain interna)
-app.use('/api/v1/admin/organizacoes', tenantProductsRouter)        // ativação por organização (auth chain interna)
+app.use('/api/v1/admin/organizacoes', adminOrganizacaoProdutoGravityRouter)  // ativação por organização (auth chain interna)
 
 import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/admin-seguranca.js'
 app.use('/api/v1/admin/eventos-seguranca', adminSecurityRouter)        // painel de seguranca (gravity_admin only)

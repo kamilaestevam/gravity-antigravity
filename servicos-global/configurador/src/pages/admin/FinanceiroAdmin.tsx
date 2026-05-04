@@ -6,6 +6,7 @@ import {
 } from '@phosphor-icons/react'
 import { ModalEditarFaturaProdutoGravity } from './modal-editar-fatura-produto-gravity'
 import type { FaturaProdutoGravity } from '../../schemas/fatura-produto-gravity'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
@@ -245,9 +246,9 @@ export function FinanceiroAdmin() {
           quantity,
         }],
         due_date: dueDate,
+        competencia: formCompetencia || undefined,
         currency: 'brl',
         auto_finalize: formAutoFinalize === 'sim',
-        metadata: formCompetencia ? { competencia: formCompetencia } : undefined,
       })
 
       fecharModal()
@@ -746,21 +747,37 @@ export function FinanceiroAdmin() {
                   </CampoGeralGlobal>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                    <CampoGeralGlobal label="Competência">
-                      <input
-                        type="month"
-                        className="ws-input"
-                        value={formCompetencia}
-                        onChange={e => { setFormCompetencia(e.target.value); setFormDirty(true) }}
+                    <CampoGeralGlobal label="Competência" tooltipDescricao="Período de faturamento (mês/ano)">
+                      <CampoCalendarioGlobal
+                        valor={{
+                          inicio: formCompetencia ? new Date(`${formCompetencia}-01T00:00:00`) : null,
+                          fim:    formCompetencia ? new Date(`${formCompetencia}-01T00:00:00`) : null,
+                        }}
+                        aoMudarValor={(v) => {
+                          const d = v.inicio
+                          if (!d) { setFormCompetencia(''); setFormDirty(true); return }
+                          const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                          setFormCompetencia(ym)
+                          setFormDirty(true)
+                        }}
+                        placeholder="aaaa-mm"
                       />
                     </CampoGeralGlobal>
 
                     <CampoGeralGlobal label="Vencimento">
-                      <input
-                        type="date"
-                        className="ws-input"
-                        value={formVencimento}
-                        onChange={e => { setFormVencimento(e.target.value); setFormDirty(true) }}
+                      <CampoCalendarioGlobal
+                        valor={{
+                          inicio: formVencimento ? new Date(`${formVencimento}T00:00:00`) : null,
+                          fim:    formVencimento ? new Date(`${formVencimento}T00:00:00`) : null,
+                        }}
+                        aoMudarValor={(v) => {
+                          const d = v.inicio
+                          if (!d) { setFormVencimento(''); setFormDirty(true); return }
+                          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                          setFormVencimento(iso)
+                          setFormDirty(true)
+                        }}
+                        placeholder="dd/mm/aaaa"
                       />
                     </CampoGeralGlobal>
 

@@ -5617,6 +5617,29 @@
       "notif_exec_erro": "Error en la ejecución manual.",
       "notif_exec_falha": "Error al ejecutar la sincronización NCM manual."
     }
+  },
+  "enum": {
+    "tipo_cobranca_produto_gravity": {
+      "MENSAL":         "Mensual",
+      "POR_PROCESSO":   "Por Proceso",
+      "POR_DOCUMENTO":  "Por Documento",
+      "POR_ESTIMATIVA": "Por Estimación",
+      "POR_DI_DUIMP":   "Por DI/DUIMP",
+      "POR_DUE":        "Por DUE",
+      "POR_PRODUTO":    "Por Producto",
+      "POR_FLUXO":      "Por Flujo",
+      "POR_LPCO":       "Por LPCO"
+    },
+    "status_assinatura_produto_gravity": {
+      "EM_TESTE":  "Prueba",
+      "ATIVA":     "Activa",
+      "SUSPENSA":  "Suspendida",
+      "CANCELADA": "Cancelada"
+    },
+    "status_workspace": {
+      "ATIVO":   "Activo",
+      "INATIVO": "Inactivo"
+    }
   }
 
 }

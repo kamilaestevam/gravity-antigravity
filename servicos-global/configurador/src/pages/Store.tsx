@@ -236,7 +236,7 @@ export function Store() {
       try {
         const [catRes, subRes] = await Promise.all([
           fetch(`${API_URL}/produtos`),
-          fetch(`${API_URL}/assinaturas`, {
+          fetch(`${API_URL}/organizacoes/me/assinaturas`, {
             headers: { Authorization: `Bearer ${await getToken()}` },
           }).catch(() => null),
         ])
@@ -250,7 +250,19 @@ export function Store() {
         if (subRes?.ok) {
           const subData = await subRes.json()
           const map = new Map<string, SubscribedProduct>()
-          subData.products.forEach((p: SubscribedProduct) => map.set(p.product_key, p))
+          // Novo contrato: { assinaturas: [{ produto: { slug_produto_gravity }, configuracao: { ativo_configuracao_produto_gravity } }] }
+          const assinaturas = (subData.assinaturas ?? []) as Array<{
+            produto?: { slug_produto_gravity?: string }
+            configuracao?: { ativo_configuracao_produto_gravity?: boolean } | null
+          }>
+          for (const a of assinaturas) {
+            const slug = a.produto?.slug_produto_gravity
+            if (!slug) continue
+            map.set(slug, {
+              product_key: slug,
+              is_active: !!a.configuracao?.ativo_configuracao_produto_gravity,
+            })
+          }
           setSubscribed(map)
         }
       } catch (err) {
@@ -277,10 +289,10 @@ export function Store() {
     setSubscribing(slug)
     try {
       const token = await getToken()
-      const res = await fetch(`${API_URL}/assinaturas/subscribe`, {
+      const res = await fetch(`${API_URL}/organizacoes/me/assinaturas/assinar-produto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ product_key: slug }),
+        body: JSON.stringify({ slug_produto_gravity: slug }),
       })
       if (res.ok) {
         const id_workspace = sessionStorage.getItem('gravity_company_id')
@@ -288,7 +300,7 @@ export function Store() {
           await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ product_key: slug }),
+            body: JSON.stringify({ slug_produto_gravity: slug }),
           }).catch(err => console.warn('[Store] vínculo workspace falhou', err))
         }
         setSubscribed(prev => {

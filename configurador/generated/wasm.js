@@ -153,6 +153,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
 exports.Prisma.ProdutoGravityAssinaturaScalarFieldEnum = {
   id_assinatura_produto_gravity: 'id_assinatura_produto_gravity',
   id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
   status_assinatura_produto_gravity: 'status_assinatura_produto_gravity',
   data_fim_teste_assinatura_produto_gravity: 'data_fim_teste_assinatura_produto_gravity',
   data_inicio_periodo_assinatura_produto_gravity: 'data_inicio_periodo_assinatura_produto_gravity',

@@ -8,6 +8,10 @@ import {
   listaFaturasProdutoGravitySchema,
   itensFaturaProdutoGravitySchema,
   statusFaturaProdutoGravitySchema,
+  tipoDocumentoFaturaProdutoGravitySchema,
+  documentoAnexoFaturaProdutoGravitySchema,
+  listaDocumentosFaturaProdutoGravitySchema,
+  atualizarFaturaProdutoGravitySchema,
 } from '../../../servicos-global/configurador/src/schemas/fatura-produto-gravity'
 
 const faturaValida = {
@@ -105,5 +109,106 @@ describe('itensFaturaProdutoGravitySchema', () => {
 
   it('aceita lista vazia', () => {
     expect(itensFaturaProdutoGravitySchema.parse({ itens_fatura_produto_gravity: [] }).itens_fatura_produto_gravity).toEqual([])
+  })
+})
+
+describe('tipoDocumentoFaturaProdutoGravitySchema', () => {
+  it('aceita os 5 valores canônicos', () => {
+    const valores = ['BOLETO', 'NFE', 'RECIBO', 'PDF_GENERICO', 'OUTRO'] as const
+    for (const v of valores) {
+      expect(tipoDocumentoFaturaProdutoGravitySchema.parse(v)).toBe(v)
+    }
+  })
+
+  it('rejeita valores legados (PDF, boleto lowercase, etc.)', () => {
+    expect(tipoDocumentoFaturaProdutoGravitySchema.safeParse('PDF').success).toBe(false)
+    expect(tipoDocumentoFaturaProdutoGravitySchema.safeParse('boleto').success).toBe(false)
+    expect(tipoDocumentoFaturaProdutoGravitySchema.safeParse('nfse').success).toBe(false)
+  })
+})
+
+describe('documentoAnexoFaturaProdutoGravitySchema', () => {
+  const docValido = {
+    id_documento_fatura_produto_gravity:           'doc_001',
+    tipo_documento_fatura_produto_gravity:         'BOLETO' as const,
+    nome_documento_fatura_produto_gravity:         'boleto-2026-04.pdf',
+    url_documento_fatura_produto_gravity:          '/api/v1/faturas/x/documentos/doc_001/download',
+    tamanho_documento_fatura_produto_gravity:      52341,
+    mime_documento_fatura_produto_gravity:         'application/pdf',
+    data_criacao_documento_fatura_produto_gravity: '2026-05-04T10:00:00Z',
+  }
+
+  it('aceita documento válido', () => {
+    expect(documentoAnexoFaturaProdutoGravitySchema.parse(docValido)).toEqual(docValido)
+  })
+
+  it('aceita tamanho e mime null', () => {
+    expect(documentoAnexoFaturaProdutoGravitySchema.parse({
+      ...docValido,
+      tamanho_documento_fatura_produto_gravity: null,
+      mime_documento_fatura_produto_gravity:    null,
+    }).tamanho_documento_fatura_produto_gravity).toBeNull()
+  })
+
+  it('lista de documentos aceita vazio', () => {
+    expect(listaDocumentosFaturaProdutoGravitySchema.parse({ documentos_fatura_produto_gravity: [] }).documentos_fatura_produto_gravity).toEqual([])
+  })
+
+  it('rejeita tipo legado em snake_case', () => {
+    const ruim = { ...docValido, tipo_documento_fatura_produto_gravity: 'pdf_generico' as unknown as 'BOLETO' }
+    expect(documentoAnexoFaturaProdutoGravitySchema.safeParse(ruim).success).toBe(false)
+  })
+})
+
+describe('atualizarFaturaProdutoGravitySchema (PATCH body)', () => {
+  it('aceita payload mínimo (todos os campos opcionais)', () => {
+    expect(atualizarFaturaProdutoGravitySchema.parse({}).itens_fatura_produto_gravity).toBeUndefined()
+  })
+
+  it('aceita payload completo com itens', () => {
+    const body = {
+      competencia_fatura_produto_gravity:       '2026-04',
+      data_vencimento_fatura_produto_gravity:   '2026-05-05T00:00:00Z',
+      email_organizacao_fatura_produto_gravity: 'fin@cliente.com',
+      moeda_fatura_produto_gravity:             'brl',
+      itens_fatura_produto_gravity: [{
+        descricao_fatura_item_produto_gravity:      'Mensalidade',
+        quantidade_fatura_item_produto_gravity:     1,
+        valor_unitario_fatura_item_produto_gravity: 2499,
+      }],
+    }
+    const parsed = atualizarFaturaProdutoGravitySchema.parse(body)
+    expect(parsed.itens_fatura_produto_gravity).toHaveLength(1)
+  })
+
+  it('rejeita item com quantidade zero ou negativa', () => {
+    const ruim = {
+      itens_fatura_produto_gravity: [{
+        descricao_fatura_item_produto_gravity:      'X',
+        quantidade_fatura_item_produto_gravity:     0,
+        valor_unitario_fatura_item_produto_gravity: 100,
+      }],
+    }
+    expect(atualizarFaturaProdutoGravitySchema.safeParse(ruim).success).toBe(false)
+  })
+
+  it('rejeita item com valor unitário negativo', () => {
+    const ruim = {
+      itens_fatura_produto_gravity: [{
+        descricao_fatura_item_produto_gravity:      'X',
+        quantidade_fatura_item_produto_gravity:     1,
+        valor_unitario_fatura_item_produto_gravity: -10,
+      }],
+    }
+    expect(atualizarFaturaProdutoGravitySchema.safeParse(ruim).success).toBe(false)
+  })
+
+  it('rejeita email inválido', () => {
+    const ruim = { email_organizacao_fatura_produto_gravity: 'sem-arroba' }
+    expect(atualizarFaturaProdutoGravitySchema.safeParse(ruim).success).toBe(false)
+  })
+
+  it('aceita email null (limpar campo)', () => {
+    expect(atualizarFaturaProdutoGravitySchema.parse({ email_organizacao_fatura_produto_gravity: null }).email_organizacao_fatura_produto_gravity).toBeNull()
   })
 })

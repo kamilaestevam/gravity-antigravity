@@ -29,7 +29,8 @@
       "Bash(rm -f /c/Users/danie/gravity-antigravity/.claude/configurador-debug-errors.log)",
       "Bash(rm -f /c/Users/danie/gravity-antigravity/.claude/identify-databases.mjs)",
       "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in 8000,8001,8005 } | Select-Object LocalPort, OwningProcess | Format-Table)",
-      "PowerShell($ports = @\\(8005, 3001\\); foreach \\($p in $ports\\) { $conns = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; foreach \\($c in $conns\\) { try { Stop-Process -Id $c.OwningProcess -Force -ErrorAction Stop; Write-Output \"killed PID $\\($c.OwningProcess\\) on port $p\" } catch { Write-Output \"fail PID $\\($c.OwningProcess\\): $\\($_.Exception.Message\\)\" } } }; Start-Sleep -Seconds 2; Write-Output \"--- check ---\"; Get-NetTCPConnection -LocalPort 8005,3001 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess)"
+      "PowerShell($ports = @\\(8005, 3001\\); foreach \\($p in $ports\\) { $conns = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; foreach \\($c in $conns\\) { try { Stop-Process -Id $c.OwningProcess -Force -ErrorAction Stop; Write-Output \"killed PID $\\($c.OwningProcess\\) on port $p\" } catch { Write-Output \"fail PID $\\($c.OwningProcess\\): $\\($_.Exception.Message\\)\" } } }; Start-Sleep -Seconds 2; Write-Output \"--- check ---\"; Get-NetTCPConnection -LocalPort 8005,3001 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess)",
+      "PowerShell(npx prisma db execute --schema=servicos-global/servicos-plataforma/prisma/schema.prisma --file=_diag.sql 2>&1)"
     ],
     "defaultMode": "acceptEdits"
   }

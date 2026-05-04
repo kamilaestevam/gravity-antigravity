@@ -10,8 +10,8 @@ export function LoginGlobal() {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const isSignUp = location.pathname.includes('/sign-up')
-  const isForgotPassword = location.pathname.includes('/forgot-password')
+  const isSignUp = location.pathname.includes('/cadastro')
+  const isForgotPassword = location.pathname.includes('/recuperar-senha')
 
   const clerkAppearance = {
     variables: {
@@ -100,24 +100,24 @@ export function LoginGlobal() {
       </div>
 
       {isForgotPassword ? (
-        <ForgotPasswordFlow onBack={() => navigate('/sign-in')} />
+        <ForgotPasswordFlow onBack={() => navigate('/login')} />
       ) : isSignUp ? (
         <SignUp
           routing="hash"
           afterSignUpUrl="/trial"
-          signInUrl="/sign-in"
+          signInUrl="/login"
           appearance={clerkAppearance as any}
         />
       ) : (
         <>
           <SignIn
             routing="hash"
-            signUpUrl="/sign-up"
-            fallbackRedirectUrl="/selecionar-workspace"
+            signUpUrl="/cadastro"
+            fallbackRedirectUrl="/hub"
             appearance={clerkAppearance as any}
           />
           <div className="login-forgot-manual">
-            <Link to="/forgot-password">{t('login.esqueceu_senha')}</Link>
+            <Link to="/recuperar-senha">{t('login.esqueceu_senha')}</Link>
           </div>
         </>
       )}
@@ -127,11 +127,11 @@ export function LoginGlobal() {
           <p className="login-footer-main">
             {isSignUp ? (
               <>
-                {t('login.ja_conhece', 'Possui uma conta?')} <Link to="/sign-in">{t('login.entrar')}</Link>
+                {t('login.ja_conhece', 'Possui uma conta?')} <Link to="/login">{t('login.entrar')}</Link>
               </>
             ) : (
               <>
-                {t('login.sem_conta')} <Link to="/sign-up">{t('login.registrar')}</Link>
+                {t('login.sem_conta')} <Link to="/cadastro">{t('login.registrar')}</Link>
               </>
             )}
           </p>
@@ -174,7 +174,7 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
           {t('login.verificar_email_desc')}<br />
           <strong>{email}</strong>
         </p>
-        <Link className="forgot-button" to="/sign-in" onClick={onBack}>
+        <Link className="forgot-button" to="/login" onClick={onBack}>
           {t('login.voltar_login')}
         </Link>
       </div>
@@ -218,9 +218,9 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         </TooltipGlobal>
       </form>
 
-      <Link 
-        className="forgot-back-link" 
-        to="/sign-in" 
+      <Link
+        className="forgot-back-link"
+        to="/login"
         onClick={onBack}
       >
         <ArrowLeft size={16} />

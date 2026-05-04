@@ -123,9 +123,10 @@ billingRouter.get('/:id_fatura_produto_gravity', requireAuth, async (req, res, n
     if (!fatura) {
       throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
     }
-    // Verifica que a fatura pertence à organização autenticada
+    // Admin vê qualquer; demais só da própria organização (REGRA 04).
+    const isAdmin = req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
     const id_org_fatura = fatura.customer.tenant_id ?? fatura.customer.id
-    if (id_org_fatura !== req.auth.id_organizacao) {
+    if (!isAdmin && id_org_fatura !== req.auth.id_organizacao) {
       throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
     }
     res.json({ fatura: paraFaturaResposta(fatura) })
@@ -146,20 +147,24 @@ billingRouter.get('/:id_fatura_produto_gravity/itens', requireAuth, async (req, 
 
     if (provider.name === 'gravity') {
       // Fonte primária — banco local (ProdutoGravityFaturaItem)
-      const itens = await faturaProdutoGravityServico.listarItens(
-        req.params.id_fatura_produto_gravity,
-        req.auth.id_organizacao,
-      )
-      const fatura = await prisma.produtoGravityFatura.findFirst({
-        where: {
-          id_fatura_produto_gravity: req.params.id_fatura_produto_gravity,
-          id_organizacao:            req.auth.id_organizacao,
-        },
-        select: { id_fatura_produto_gravity: true },
+      // Admin (SUPER_ADMIN/ADMIN) pode listar itens de qualquer org;
+      // demais usuários só da própria organização (REGRA 04 isolamento).
+      const isAdmin = req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+      const fatura = await prisma.produtoGravityFatura.findUnique({
+        where: { id_fatura_produto_gravity: req.params.id_fatura_produto_gravity },
+        select: { id_fatura_produto_gravity: true, id_organizacao: true },
       })
       if (!fatura) {
         throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
       }
+      if (!isAdmin && fatura.id_organizacao !== req.auth.id_organizacao) {
+        throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+      }
+
+      const itens = await faturaProdutoGravityServico.listarItens(
+        req.params.id_fatura_produto_gravity,
+        fatura.id_organizacao,
+      )
       res.json({
         itens_fatura_produto_gravity: itens.map((item, idx) => ({
           id_fatura_item_produto_gravity:             item.id_fatura_item_produto_gravity,

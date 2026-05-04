@@ -17,9 +17,9 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   RequisitoMensagem,
-  useRequisitoInput,
+  useRequisitoCampo,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { validarCNPJ } from '@nucleo/utils'
@@ -99,8 +99,8 @@ function AbaInformacoes({
   const ehNovo = !workspace.id_workspace
 
   // Props gerenciadas pelo Provider — borda vermelha + aria-invalid quando pendente.
-  const nomeInput = useRequisitoInput('nome_workspace')
-  const cnpjInput = useRequisitoInput('cnpj_workspace')
+  const nomeInput = useRequisitoCampo('nome_workspace')
+  const cnpjInput = useRequisitoCampo('cnpj_workspace')
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -396,7 +396,7 @@ export function ModalEditarWorkspace({
       id: 'geral',
       rotulo: t('workspace.workspaces.aba_informacoes_gerais'),
       conteudo: (
-        <BannerRequisitosProvider requisitos={requisitos}>
+        <BannerRequisitosContexto requisitos={requisitos}>
           <AbaInformacoes
             workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
             nome_workspace={nome}
@@ -413,7 +413,7 @@ export function ModalEditarWorkspace({
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       )
     }
   ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos])

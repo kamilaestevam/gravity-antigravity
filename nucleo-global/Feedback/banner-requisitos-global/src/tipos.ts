@@ -24,7 +24,7 @@ export interface RequisitoSalvar {
 export interface BannerRequisitosGlobalProps {
   /**
    * Lista completa de requisitos. Apenas os com `ok=false` aparecem.
-   * Opcional quando o banner está dentro de `<BannerRequisitosProvider>` —
+   * Opcional quando o banner está dentro de `<BannerRequisitosContexto>` —
    * nesse caso, os requisitos vêm do contexto.
    */
   requisitos?: RequisitoSalvar[]
@@ -34,11 +34,11 @@ export interface BannerRequisitosGlobalProps {
 }
 
 /**
- * Status de um requisito específico, retornado pelo hook `useRequisitoInput`.
+ * Status de um requisito específico, retornado pelo hook `useRequisitoCampo`.
  * Uso típico:
- *   <input {...useRequisitoInput('cnpj_workspace')} />
+ *   <input {...useRequisitoCampo('cnpj_workspace')} />
  */
-export interface RequisitoInputProps {
+export interface RequisitoCampoProps {
   style?: { borderColor?: string }
   'aria-invalid'?: boolean
   'aria-describedby'?: string

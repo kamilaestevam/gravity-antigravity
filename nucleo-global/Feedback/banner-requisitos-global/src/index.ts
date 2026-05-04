@@ -8,17 +8,17 @@ export {
   camposComRequisitoPendente,
 } from './BannerRequisitosGlobal.js'
 export {
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   RequisitoMensagem,
-  useRequisitoInput,
+  useRequisitoCampo,
   useRequisitosCtxOpcional,
 } from './contexto.js'
 export type {
   BannerRequisitosGlobalProps,
   RequisitoSalvar,
-  RequisitoInputProps,
+  RequisitoCampoProps,
 } from './tipos.js'
 export type {
-  BannerRequisitosProviderProps,
+  BannerRequisitosContextoProps,
   RequisitoMensagemProps,
 } from './contexto.js'

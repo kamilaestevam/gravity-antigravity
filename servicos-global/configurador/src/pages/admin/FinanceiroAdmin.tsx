@@ -17,7 +17,7 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { useAuth } from '@clerk/clerk-react'
@@ -641,7 +641,7 @@ export function FinanceiroAdmin() {
               id: 'dados',
               rotulo: 'Dados',
               conteudo: (
-                <BannerRequisitosProvider requisitos={requisitosFatura}>
+                <BannerRequisitosContexto requisitos={requisitosFatura}>
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <SecaoFormulario titulo="Cliente" icone={<Buildings size={16} />} />
 
@@ -739,7 +739,7 @@ export function FinanceiroAdmin() {
 
                   <BannerRequisitosGlobal />
                 </div>
-                </BannerRequisitosProvider>
+                </BannerRequisitosContexto>
               ),
             },
           ]}

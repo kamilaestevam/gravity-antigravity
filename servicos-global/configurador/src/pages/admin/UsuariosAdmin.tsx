@@ -17,7 +17,7 @@ import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
@@ -597,7 +597,7 @@ export function UsuariosAdmin() {
         dirty={!!(fNome || fEmail)}
         podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
       >
-        <BannerRequisitosProvider requisitos={requisitosConviteAdmin}>
+        <BannerRequisitosContexto requisitos={requisitosConviteAdmin}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.nome_completo')}
@@ -695,7 +695,7 @@ export function UsuariosAdmin() {
 
           <BannerRequisitosGlobal />
         </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       </ModalFormularioGlobal>
         )
       })()}

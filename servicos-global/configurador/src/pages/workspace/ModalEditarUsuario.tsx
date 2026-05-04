@@ -4,7 +4,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
@@ -464,12 +464,12 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       rotulo: t('workspace.users.aba_dados'),
       icone: 'user',
       conteudo: (
-        <BannerRequisitosProvider requisitos={requisitos}>
+        <BannerRequisitosContexto requisitos={requisitos}>
           <AbaDados nome={nome} email={email} tipo={tipo} workspaces={workspaces} workspacesSalvos={workspacesSalvos} onValoresChange={handleValoresChange} />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       ),
     },
     {
@@ -477,12 +477,12 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       rotulo: `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
       icone: 'shield-check',
       conteudo: (
-        <BannerRequisitosProvider requisitos={requisitos}>
+        <BannerRequisitosContexto requisitos={requisitos}>
           <AbaPermissoes master={master} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       ),
     },
     {
@@ -490,7 +490,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
       conteudo: (
-        <BannerRequisitosProvider requisitos={requisitos}>
+        <BannerRequisitosContexto requisitos={requisitos}>
           <AbaWorkspaces
             master={master}
             workspaces={workspaces}
@@ -501,7 +501,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       ),
     },
   ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])

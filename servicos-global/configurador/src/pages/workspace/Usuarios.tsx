@@ -13,7 +13,7 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
@@ -682,7 +682,7 @@ export function Usuarios() {
         dirty={!!(fNome || fEmail)}
         podesSalvar={requisitosConvite.every(r => r.ok)}
       >
-        <BannerRequisitosProvider requisitos={requisitosConvite}>
+        <BannerRequisitosContexto requisitos={requisitosConvite}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <CampoGeralGlobal label="NOME COMPLETO" obrigatorio>
             <div className="ws-input-icon-wrap">
@@ -814,7 +814,7 @@ export function Usuarios() {
 
           <BannerRequisitosGlobal />
         </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       </ModalFormularioGlobal>
         )
       })()}

@@ -5,7 +5,7 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
@@ -138,7 +138,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       tooltipTitulo: t('admin.testes-gerais.org.aba_geral_tooltip'),
       tooltipDescricao: t('admin.testes-gerais.org.aba_geral_desc'),
       conteudo: (
-        <BannerRequisitosProvider requisitos={requisitos}>
+        <BannerRequisitosContexto requisitos={requisitos}>
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
             <CampoGeralGlobal
@@ -218,7 +218,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
 
           <BannerRequisitosGlobal />
         </div>
-        </BannerRequisitosProvider>
+        </BannerRequisitosContexto>
       )
     },
     {

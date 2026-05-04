@@ -14,9 +14,9 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
   BannerRequisitosGlobal,
-  BannerRequisitosProvider,
+  BannerRequisitosContexto,
   RequisitoMensagem,
-  useRequisitoInput,
+  useRequisitoCampo,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { Organizacao } from '../../types/entidades'
@@ -151,7 +151,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       podesSalvar={podesSalvar}
       textoSalvar={t('admin.testes-gerais.org.editar_btn_salvar')}
     >
-      <BannerRequisitosProvider requisitos={requisitos}>
+      <BannerRequisitosContexto requisitos={requisitos}>
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
         {/* ── Seção: Identidade ─────────────────────────────────────── */}
@@ -310,7 +310,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
         <BannerRequisitosGlobal />
       </div>
-      </BannerRequisitosProvider>
+      </BannerRequisitosContexto>
     </ModalFormularioGlobal>
   )
 }

@@ -9,14 +9,14 @@
  *
  * Duas formas de uso:
  *
- * 1. **Com Provider (recomendado)** — ganhe inline + banner em sincronia:
+ * 1. **Com contexto (recomendado)** — ganhe inline + banner em sincronia:
  *
- *    <BannerRequisitosProvider requisitos={requisitos}>
- *      <input {...useRequisitoInput('cnpj')} />
+ *    <BannerRequisitosContexto requisitos={requisitos}>
+ *      <input {...useRequisitoCampo('cnpj')} />
  *      <RequisitoMensagem chave="cnpj" />
  *      ...
  *      <BannerRequisitosGlobal />
- *    </BannerRequisitosProvider>
+ *    </BannerRequisitosContexto>
  *
  * 2. **Standalone (compat)** — apenas o banner, sem feedback inline:
  *
@@ -35,7 +35,7 @@ export function BannerRequisitosGlobal({
   const requisitos = requisitosProp ?? ctx?.requisitos
   if (!requisitos) {
     throw new Error(
-      '<BannerRequisitosGlobal> precisa de prop `requisitos` ou estar dentro de <BannerRequisitosProvider>',
+      '<BannerRequisitosGlobal> precisa de prop `requisitos` ou estar dentro de <BannerRequisitosContexto>',
     )
   }
 
@@ -57,7 +57,7 @@ export function BannerRequisitosGlobal({
 /**
  * Helper utilitário para destacar campos pendentes inline (borda vermelha).
  *
- * Mantido para compat — em código novo, prefira `useRequisitoInput(chave)`
+ * Mantido para compat — em código novo, prefira `useRequisitoCampo(chave)`
  * via contexto, que já devolve as props prontas para spread.
  *
  * @example

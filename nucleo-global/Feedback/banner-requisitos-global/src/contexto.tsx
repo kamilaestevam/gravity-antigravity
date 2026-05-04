@@ -6,15 +6,15 @@
  * `<span>...</span>`.
  *
  * Uso:
- *   <BannerRequisitosProvider requisitos={requisitos}>
- *     <input {...useRequisitoInput('cnpj_workspace')} />
+ *   <BannerRequisitosContexto requisitos={requisitos}>
+ *     <input {...useRequisitoCampo('cnpj_workspace')} />
  *     <RequisitoMensagem chave="cnpj_workspace" />
  *     ...
  *     <BannerRequisitosGlobal />
- *   </BannerRequisitosProvider>
+ *   </BannerRequisitosContexto>
  */
 import React, { createContext, useContext, useMemo } from 'react'
-import type { RequisitoSalvar, RequisitoInputProps } from './tipos.js'
+import type { RequisitoSalvar, RequisitoCampoProps } from './tipos.js'
 
 interface RequisitosCtx {
   requisitos: RequisitoSalvar[]
@@ -23,12 +23,12 @@ interface RequisitosCtx {
 
 const Contexto = createContext<RequisitosCtx | null>(null)
 
-export interface BannerRequisitosProviderProps {
+export interface BannerRequisitosContextoProps {
   requisitos: RequisitoSalvar[]
   children: React.ReactNode
 }
 
-export function BannerRequisitosProvider({ requisitos, children }: BannerRequisitosProviderProps): React.ReactElement {
+export function BannerRequisitosContexto({ requisitos, children }: BannerRequisitosContextoProps): React.ReactElement {
   const valor = useMemo<RequisitosCtx>(() => ({
     requisitos,
     pendentes: new Set(requisitos.filter((r) => !r.ok).map((r) => r.chave)),
@@ -38,13 +38,13 @@ export function BannerRequisitosProvider({ requisitos, children }: BannerRequisi
 }
 
 /**
- * Acessa o contexto. Lança erro se chamado fora do Provider — falha alta
- * (Mandamento 08), evita o bug silencioso de "renderizei sem feedback".
+ * Acessa o contexto. Lança erro se chamado fora do <BannerRequisitosContexto> —
+ * falha alta (Mandamento 08), evita o bug silencioso de "renderizei sem feedback".
  */
 function useRequisitosCtx(): RequisitosCtx {
   const ctx = useContext(Contexto)
   if (!ctx) {
-    throw new Error('Componente do banner-requisitos-global usado fora de <BannerRequisitosProvider>')
+    throw new Error('Componente do banner-requisitos-global usado fora de <BannerRequisitosContexto>')
   }
   return ctx
 }
@@ -64,9 +64,9 @@ export function useRequisitosCtxOpcional(): RequisitosCtx | null {
  * convencional `requisito-msg-<chave>` (vide `<RequisitoMensagem>`).
  *
  * @example
- *   <input {...useRequisitoInput('cnpj_workspace')} value={cnpj} ... />
+ *   <input {...useRequisitoCampo('cnpj_workspace')} value={cnpj} ... />
  */
-export function useRequisitoInput(chave: string): RequisitoInputProps {
+export function useRequisitoCampo(chave: string): RequisitoCampoProps {
   const { pendentes } = useRequisitosCtx()
   const pendente = pendentes.has(chave)
   if (!pendente) return {}

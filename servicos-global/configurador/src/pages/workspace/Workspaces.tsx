@@ -10,6 +10,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type Tabe
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarWorkspace } from './ModalEditarWorkspace'
+import { ModalExclusao } from './ModalConfirmarExclusao'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { extractCatchError } from '../../utils/extractApiError'
@@ -47,6 +48,7 @@ export function Workspaces() {
   const [carregando, setCarregando] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [workspaceEditando, setWorkspaceEditando] = useState<Workspace | null>(null)
+  const [workspaceParaExcluir, setWorkspaceParaExcluir] = useState<Workspace | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Carrega workspaces da API (Zod parse via workspaceApi — Mand. 06 + 09)
@@ -161,14 +163,22 @@ export function Workspaces() {
     }
   }
 
-  async function handleDelete(linha: Workspace) {
-    if (!confirm(`Tem certeza que deseja excluir "${linha.nome_workspace}"? Esta ação não pode ser desfeita.`)) return
+  // Abre o modal de confirmação. A exclusão real só roda no aoConfirmar do modal.
+  function handleDelete(linha: Workspace) {
+    setWorkspaceParaExcluir(linha)
+  }
+
+  async function confirmarExclusao() {
+    if (!workspaceParaExcluir) return
+    const linha = workspaceParaExcluir
     try {
       await workspaceApi.deleteWorkspace(linha.id_workspace)
       setWorkspaces(prev => prev.filter(w => w.id_workspace !== linha.id_workspace))
       addNotification({ type: 'success', message: `Workspace "${linha.nome_workspace}" excluído com sucesso.` })
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao excluir workspace. Verifique sua conexão.') })
+    } finally {
+      setWorkspaceParaExcluir(null)
     }
   }
 
@@ -437,6 +447,19 @@ export function Workspaces() {
           handleAdd(dados)
         }
       }}
+    />
+
+    <ModalExclusao
+      aberto={!!workspaceParaExcluir}
+      titulo="Excluir Workspace"
+      descricao={
+        <>
+          Tem certeza de que deseja excluir o workspace <strong>{workspaceParaExcluir?.nome_workspace}</strong>?
+        </>
+      }
+      nomeItem="Esta ação é irreversível. O subdomínio será liberado e todos os vínculos de usuários serão removidos."
+      aoConfirmar={confirmarExclusao}
+      aoCancelar={() => setWorkspaceParaExcluir(null)}
     />
     </>
   )

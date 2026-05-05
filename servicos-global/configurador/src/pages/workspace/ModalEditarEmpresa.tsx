@@ -305,13 +305,13 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
         mensagem: 'País em formato ISO-2 (ex: BR, US, CN)',
       },
     ]
-    if (ehBr) {
+    // CNPJ é opcional. Se preenchido, valida dígitos verificadores (CNPJ
+    // inválido ainda bloqueia o save — é tech debt deixar gravar lixo).
+    if (ehBr && form.cnpj.trim().length > 0) {
       lista.push({
         chave: 'cnpj',
-        ok: form.cnpj.trim().length > 0 && validarCNPJ(form.cnpj),
-        mensagem: form.cnpj.trim().length === 0
-          ? 'CNPJ obrigatório para país BR'
-          : 'CNPJ inválido (verifique os dígitos)',
+        ok: validarCNPJ(form.cnpj),
+        mensagem: 'CNPJ inválido (verifique os dígitos)',
       })
     }
     lista.push({
@@ -440,7 +440,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
         </div>
 
         {ehBr ? (
-          <CampoGeralGlobal label="CNPJ" obrigatorio>
+          <CampoGeralGlobal label="CNPJ">
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input

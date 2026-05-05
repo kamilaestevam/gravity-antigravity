@@ -10,9 +10,11 @@ import { z } from 'zod'
  * Regras:
  * - nome_empresa: obrigatório, mínimo 2 caracteres
  * - pais_empresa: obrigatório, ISO-2
- * - if (pais_empresa === 'BR') { cnpj_empresa obrigatório, formato XX.XXX.XXX/XXXX-XX }
- * - if (pais_empresa !== 'BR') { cnpj_empresa deve ser null; tin_empresa opcional }
- * - pelo menos uma flag pode_ser_* deve ser true
+ * - cnpj_empresa: OPCIONAL. Se preenchido, formato XX.XXX.XXX/XXXX-XX. Só
+ *   pode existir quando pais_empresa = BR (semântica fora do BR vai em
+ *   tin_empresa).
+ * - tin_empresa: opcional, usado para empresas estrangeiras
+ * - pelo menos uma flag pode_ser_* deve ser true (regra de negócio)
  * - email_empresa: se preenchido, formato válido
  * - whatsapp_empresa: se preenchido, formato E.164
  */
@@ -46,23 +48,17 @@ const empresaBaseSchema = z.object({
 
 /**
  * Regras condicionais cross-field:
- * - país BR -> cnpj_empresa obrigatório, tin_empresa proibido
- * - país != BR -> cnpj_empresa proibido (não tem semântica fora do Brasil)
- * - pelo menos um pode_ser_* true
+ * - cnpj_empresa é OPCIONAL (não obrigatório quando pais=BR).
+ * - país != BR -> cnpj_empresa proibido (não tem semântica fora do Brasil;
+ *   estrangeiros usam tin_empresa).
+ * - pelo menos um pode_ser_* true (regra de negócio — empresa parceira
+ *   precisa ter pelo menos um papel)
  */
 function aplicarRegrasCondicionais(
   data: z.infer<typeof empresaBaseSchema>,
   ctx: z.RefinementCtx,
 ): void {
-  if (data.pais_empresa === 'BR') {
-    if (!data.cnpj_empresa) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['cnpj_empresa'],
-        message: 'cnpj_empresa é obrigatório quando pais_empresa = BR',
-      })
-    }
-  } else if (data.cnpj_empresa) {
+  if (data.pais_empresa !== 'BR' && data.cnpj_empresa) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['cnpj_empresa'],
@@ -93,13 +89,8 @@ export const criarEmpresaSchema = empresaBaseSchema.superRefine(aplicarRegrasCon
 const empresaAtualizacaoBaseSchema = empresaBaseSchema.partial().omit({ id_organizacao: true, suid_empresa: true })
 
 export const atualizarEmpresaSchema = empresaAtualizacaoBaseSchema.superRefine((data, ctx) => {
-  if (data.pais_empresa === 'BR' && data.cnpj_empresa === null) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['cnpj_empresa'],
-      message: 'cnpj_empresa não pode ser nulo quando pais_empresa = BR',
-    })
-  }
+  // cnpj_empresa é opcional (pode ser null mesmo quando BR).
+  // Restrição mantida: cnpj_empresa só pode existir quando pais_empresa = BR.
   if (data.pais_empresa && data.pais_empresa !== 'BR' && data.cnpj_empresa) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

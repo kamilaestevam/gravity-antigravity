@@ -14,9 +14,9 @@ describe('criarEmpresaSchema — país BR', () => {
     expect(() => criarEmpresaSchema.parse(empresaBR)).not.toThrow()
   })
 
-  it('exige CNPJ quando pais=BR', () => {
+  it('aceita empresa BR sem CNPJ (CNPJ é opcional)', () => {
     const { cnpj_empresa: _drop, ...semCnpj } = empresaBR
-    expect(() => criarEmpresaSchema.parse(semCnpj)).toThrow(/cnpj_empresa é obrigatório/)
+    expect(() => criarEmpresaSchema.parse(semCnpj)).not.toThrow()
   })
 
   it('rejeita CNPJ em formato inválido', () => {

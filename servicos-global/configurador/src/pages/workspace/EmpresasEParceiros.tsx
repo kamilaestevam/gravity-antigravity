@@ -84,8 +84,9 @@ function ChipsPapeis({ empresa }: { empresa: Empresa }) {
   if (ativos.length === 0) {
     return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>—</span>
   }
+  // inline-flex + justifyContent center casa com `text-align: center` da célula <td>.
   return (
-    <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', flexWrap: 'wrap', maxWidth: '100%' }}>
       {ativos.map((p) => (
         <span
           key={p.label}
@@ -104,7 +105,7 @@ function ChipsPapeis({ empresa }: { empresa: Empresa }) {
           {p.label}
         </span>
       ))}
-    </div>
+    </span>
   )
 }
 

@@ -70,6 +70,10 @@ async function getAuthHeaders(idOrganizacao: string | undefined): Promise<Record
 
 // ── Cell renderers ───────────────────────────────────────────────────────────
 
+// Empresa enriquecida com campo derivado `tipos_empresa` para suportar
+// filtro/ordenacao do TabelaGlobal sem duplicar 14 colunas booleanas.
+type EmpresaComTipos = Empresa & { tipos_empresa: string }
+
 const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
   { key: 'pode_ser_importador_empresa', label: 'Importador', cor: '#60a5fa' },
   { key: 'pode_ser_exportador_empresa', label: 'Exportador', cor: '#34d399' },
@@ -87,7 +91,12 @@ const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
   { key: 'pode_ser_seguradora_corretora_cambio_empresa', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
 ]
 
-function ChipsPapeis({ empresa }: { empresa: Empresa }) {
+function derivarTiposEmpresa(empresa: Empresa): string {
+  const ativos = PAPEIS.filter(p => Boolean(empresa[p.key])).map(p => p.label)
+  return ativos.length === 0 ? '—' : ativos.join(' + ')
+}
+
+function ChipsPapeis({ empresa }: { empresa: EmpresaComTipos | Empresa }) {
   const ativos = PAPEIS.filter((p) => Boolean(empresa[p.key]))
   if (ativos.length === 0) {
     return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>—</span>
@@ -239,7 +248,7 @@ export function EmpresasEParceiros() {
 
   // ── Colunas + ações ──────────────────────────────────────────────────────
 
-  const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
+  const COLUNAS: TabelaGlobalColuna<EmpresaComTipos>[] = [
     {
       key: 'nome_empresa',
       label: 'Empresa',
@@ -300,7 +309,7 @@ export function EmpresasEParceiros() {
       ),
     },
     {
-      key: 'pode_ser_importador_empresa',
+      key: 'tipos_empresa',
       label: 'Tipo de Parceiro',
       tipo: 'texto',
       tooltipTitulo: 'Tipo de Parceiro',
@@ -314,10 +323,11 @@ export function EmpresasEParceiros() {
       tooltipTitulo: 'Status',
       tooltipDescricao: 'Empresas inativas não aparecem em dropdowns operacionais',
       render: (_, item) => <StatusCell ativo={item.ativo_empresa} />,
+      renderFiltroLabel: (val) => (val === 'true' ? 'Ativa' : val === 'false' ? 'Inativa' : val),
     },
   ]
 
-  const ACOES: TabelaGlobalAcao<Empresa>[] = [
+  const ACOES: TabelaGlobalAcao<EmpresaComTipos>[] = [
     {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
@@ -398,7 +408,7 @@ export function EmpresasEParceiros() {
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'empresas-e-parceiros', titulo: 'Empresas e Parceiros' }
 
-  const ACOES_EXPORT: TabelaExportAcao<Empresa>[] = [
+  const ACOES_EXPORT: TabelaExportAcao<EmpresaComTipos>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -491,9 +501,9 @@ export function EmpresasEParceiros() {
             Organização ainda não foi carregada no Shell. Tente recarregar a página.
           </div>
         ) : (
-          <TabelaGlobal<Empresa>
+          <TabelaGlobal<EmpresaComTipos>
             id="workspace-empresas-e-parceiros"
-            dados={empresas}
+            dados={empresas.map((e) => ({ ...e, tipos_empresa: derivarTiposEmpresa(e) }))}
             colunas={COLUNAS}
             acoes={ACOES}
             acoesExportacao={ACOES_EXPORT}

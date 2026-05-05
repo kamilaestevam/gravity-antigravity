@@ -459,7 +459,7 @@ export function EmpresasEParceiros() {
               onClick={() => setCriandoNova(true)}
               icone={<Plus size={18} />}
             >
-              Nova empresa
+              Nova Empresa e Parceiro
             </BotaoGlobal>
           </TooltipGlobal>
         </div>
@@ -482,7 +482,7 @@ export function EmpresasEParceiros() {
             acoes={ACOES}
             acoesExportacao={ACOES_EXPORT}
             mensagemVazio="Nenhuma empresa encontrada com esse filtro."
-            mensagemSemFiltro="Você ainda não cadastrou empresas. Use o botão “Nova empresa” acima."
+            mensagemSemFiltro="Você ainda não cadastrou empresas. Use o botão “Nova Empresa e Parceiro” acima."
             tooltipBusca="Localizar empresa por nome, SUID, CNPJ ou TIN"
           />
         )}

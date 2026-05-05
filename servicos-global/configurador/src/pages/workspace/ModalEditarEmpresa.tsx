@@ -413,7 +413,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={20} weight="duotone" />}
-      titulo={modoEdicao ? 'Editar empresa' : 'Nova empresa'}
+      titulo={modoEdicao ? 'Editar Empresa e Parceiro' : 'Nova Empresa e Parceiro'}
       subtitulo={
         modoEdicao
           ? `Ajuste os dados e papéis de ${empresa?.nome_empresa ?? ''}`

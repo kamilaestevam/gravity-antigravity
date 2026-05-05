@@ -46,6 +46,7 @@ import { hubRouter } from './routes/hub-init.js'
 import { meRouter } from './routes/me.js'
 import { taxaCambioRouter } from './routes/taxa-cambio.js'
 import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
+import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -101,6 +102,42 @@ app.get('/health', async (_req, res) => {
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
 app.use('/api/v1/catalogo', rateLimitPresets.public())
 app.use('/api/v1/admin', rateLimitPresets.admin())
+
+// ─── Audit plugin universal — captura mutações nao cobertas por manual ─────
+// Cobre POST/PUT/PATCH/DELETE em todos os mounts da API. Paths que ja tem log
+// manual humanizado em handlers (me.ts, auth.ts, organizacao.ts PATCH /me,
+// admin.ts via auditMiddleware) sao ignorados para nao duplicar — ver ignoreRoutes.
+// Garante o requisito B do dono ("novo produto/aba entra automatico no historico"):
+// qualquer nova rota mutavel num router montado vai logar mesmo sem o handler
+// chamar AuditService.log().
+const configuradorAuditPlugin = createProductAuditPlugin({
+  id_produto_historico_log: 'configurador',
+  modulo_historico_log: 'configurador',
+  getActorFromReq: (req) => {
+    const auth = (req as any).auth
+    if (!auth?.id_usuario) return null
+    return {
+      id_ator_historico_log: auth.id_usuario,
+      nome_ator_historico_log: auth.nome_usuario ?? auth.id_usuario,
+      tipo_ator_historico_log: 'USUARIO',
+      id_organizacao: auth.id_organizacao,
+    }
+  },
+  ignoreRoutes: [
+    // Paths com log manual humanizado (evita duplicacao):
+    /^\/api\/v1\/me\/workspaces(\/|$)/,        // me.ts: CRIAR/ATUALIZAR/EXCLUIR Workspace
+    /^\/api\/v1\/organizacoes\/me(\/|$)/,      // organizacao.ts: ATUALIZAR Organizacao
+    /^\/api\/v1\/auth(\/|$)/,                  // auth.ts: ENTRAR/SAIR/REVOGAR_SESSAO
+    /^\/api\/v1\/admin(\/|$)/,                 // adminRouter: auditMiddleware proprio
+    // Paths nao-acao-de-usuario:
+    /^\/api\/v1\/webhooks(\/|$)/,
+    /^\/api\/v1\/internal(\/|$)/,
+    /^\/api\/v1\/historico/,                   // self-referential
+    /^\/api\/v1\/notificacoes(\/|$)/,
+    /^\/api\/tenant\/preferencias(\/|$)/,      // preferencias-usuario tem audit interno
+  ],
+})
+app.use(configuradorAuditPlugin)
 
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 

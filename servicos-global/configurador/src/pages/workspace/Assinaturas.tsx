@@ -15,7 +15,9 @@ import { useTranslation } from 'react-i18next'
 import {
   CreditCard, FileXls, FileCsv, FileText, FilePdf, Code,
   PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure,
+  FloppyDisk, ArrowCounterClockwise, Lightning, ArrowRight,
 } from '@phosphor-icons/react'
+import '../hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import {
@@ -34,6 +36,7 @@ import {
   type ColunasExport,
 } from '../../services/export-service'
 import { catalogService } from '../../services/catalog-service'
+import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY } from '../../data/product-meta'
 import type { FaixaPreco } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -140,17 +143,23 @@ export function Assinaturas() {
   const [assinaturaEditando, setAssinaturaEditando] = useState<AssinaturaProdutoGravity | null>(null)
 
   // ── Modo edição em lote dos workspaces da assinatura ───────────────────
-  // Decisão dono 2026-05-05: cliques na sub-tabela (toggle play/pause + lixeira)
+  // Decisão dono 2026-05-05: cliques na sub-tabela (toggle play/pause)
   // não disparam HTTP imediatamente. Vão para esse rascunho; o usuário aplica
   // tudo via botão "Salvar alterações" no toolbar da expansão.
-  type EdicaoWorkspacePendente =
-    | { tipo: 'toggle'; ativo: boolean }   // ativar / desativar workspace nesta assinatura
-    | { tipo: 'remover' }                  // remover vínculo do workspace
+  // Decisão dono 2026-05-06: removida a trilha de "remover vínculo" — DELETE
+  // do `produto_gravity_workspace` confundia (não removia o workspace, só o
+  // vínculo). Padrão da plataforma é toggle ATIVA/INATIVA (ver Empresas e
+  // Parceiros). Vínculos antigos ficam com `ativo = false`.
+  type EdicaoWorkspacePendente = { tipo: 'toggle'; ativo: boolean }
   type EdicoesPorAssinatura = Record<string /* id_workspace */, EdicaoWorkspacePendente>
   type EdicoesGlobais = Record<string /* id_assinatura */, EdicoesPorAssinatura>
 
   const [edicoesPendentes, setEdicoesPendentes] = useState<EdicoesGlobais>({})
   const [salvandoEdicoes, setSalvandoEdicoes] = useState<Set<string>>(new Set())
+
+  // Seleção por assinatura — alimenta o toolbar de ações em massa.
+  // Map id_assinatura → Set<id_workspace>. Limpa após Salvar/Descartar.
+  const [selecaoPorAssinatura, setSelecaoPorAssinatura] = useState<Record<string, string[]>>({})
 
   // ── Carregar assinaturas + workspaces + catálogo ────────────────────────
 
@@ -347,8 +356,8 @@ export function Assinaturas() {
   // ── Handlers do modo edição em lote ───────────────────────────────────
 
   /** Stage: alterna o estado pendente "toggle" do workspace nesta assinatura.
-   *  Se já tem um toggle ou remover pendente para esse workspace, REMOVE a
-   *  pendência (volta ao estado servidor). Senão, ADICIONA toggle pendente. */
+   *  Se já tem um toggle pendente para esse workspace, REMOVE a pendência
+   *  (volta ao estado servidor). Senão, ADICIONA toggle pendente. */
   function aoStagedToggleWorkspace(
     a: AssinaturaProdutoGravity,
     id_workspace: string,
@@ -360,32 +369,9 @@ export function Assinaturas() {
       const existente = cur[id_workspace]
       const next: EdicoesPorAssinatura = { ...cur }
       if (existente) {
-        // Já tinha pendência — remove (volta ao servidor)
         delete next[id_workspace]
       } else {
-        // Nova pendência: inverte o ativo do servidor
         next[id_workspace] = { tipo: 'toggle', ativo: !ativo_servidor }
-      }
-      const proximo = { ...prev }
-      if (Object.keys(next).length === 0) delete proximo[idA]
-      else proximo[idA] = next
-      return proximo
-    })
-  }
-
-  /** Stage: marca workspace para remoção pendente. Se já está marcado, remove a pendência. */
-  function aoStagedRemoverWorkspace(
-    a: AssinaturaProdutoGravity,
-    id_workspace: string,
-  ) {
-    const idA = a.id_assinatura_produto_gravity
-    setEdicoesPendentes((prev) => {
-      const cur = prev[idA] ?? {}
-      const next: EdicoesPorAssinatura = { ...cur }
-      if (next[id_workspace]?.tipo === 'remover') {
-        delete next[id_workspace]
-      } else {
-        next[id_workspace] = { tipo: 'remover' }
       }
       const proximo = { ...prev }
       if (Object.keys(next).length === 0) delete proximo[idA]
@@ -398,6 +384,43 @@ export function Assinaturas() {
     setEdicoesPendentes((prev) => {
       const proximo = { ...prev }
       delete proximo[a.id_assinatura_produto_gravity]
+      return proximo
+    })
+    setSelecaoPorAssinatura((prev) => {
+      const proximo = { ...prev }
+      delete proximo[a.id_assinatura_produto_gravity]
+      return proximo
+    })
+  }
+
+  /** Stage em lote: aplica a mesma ação a todos os IDs selecionados.
+   *  Stage inteligente: se um workspace JÁ está no estado-alvo (no servidor),
+   *  pula — evita pendência fantasma que não muda nada de fato. Garante que
+   *  a contagem "X alterações pendentes" reflete só as mudanças reais. */
+  function aoStagedAcaoEmMassa(
+    a: AssinaturaProdutoGravity,
+    ids_workspace: string[],
+    acao: 'habilitar' | 'bloquear',
+  ) {
+    if (ids_workspace.length === 0) return
+    const idA = a.id_assinatura_produto_gravity
+    const ativo_alvo = acao === 'habilitar'
+    setEdicoesPendentes((prev) => {
+      const cur = prev[idA] ?? {}
+      const next: EdicoesPorAssinatura = { ...cur }
+      for (const id_workspace of ids_workspace) {
+        const ativacao = a.ativacoes_produto_gravity.find((x) => x.id_workspace === id_workspace)
+        const ativo_servidor = !!ativacao?.ativo_produto_gravity_workspace
+        if (ativo_servidor === ativo_alvo) {
+          // Já está no estado-alvo — limpa qualquer pendência prévia (não há nada a salvar)
+          delete next[id_workspace]
+          continue
+        }
+        next[id_workspace] = { tipo: 'toggle', ativo: ativo_alvo }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[idA]
+      else proximo[idA] = next
       return proximo
     })
   }
@@ -413,9 +436,6 @@ export function Assinaturas() {
       const headers = await getAuthHeaders()
       const promessas = Object.entries(pendentes).map(([id_workspace, edicao]) => {
         const url = `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`
-        if (edicao.tipo === 'remover') {
-          return fetch(url, { method: 'DELETE', headers })
-        }
         return fetch(url, {
           method: 'PUT', headers,
           body: JSON.stringify({ ativo_produto_gravity_workspace: edicao.ativo }),
@@ -426,16 +446,25 @@ export function Assinaturas() {
       if (falharam > 0) {
         addNotification({
           type: 'error',
-          message: `${falharam} alteração(ões) falharam ao salvar.`,
+          message: falharam === 1
+            ? '1 alteração falhou ao salvar.'
+            : `${falharam} alterações falharam ao salvar.`,
         })
+        await recarregar()
       } else {
         addNotification({
           type: 'success',
           message: `Alterações salvas em "${a.produto.nome_produto_gravity}".`,
         })
+        // Bug fix (2026-05-06): recarregar PRIMEIRO, descartar pendências
+        // DEPOIS — evita flicker do badge HABILITADO/BLOQUEADO. Se descartar
+        // antes, o render mostra o estado antigo do servidor por uns ms até
+        // o reload completar (pendência local sobreescreve o estado do
+        // servidor enquanto há pendência; sem pendência, mostra o estado do
+        // servidor que ainda não foi recarregado).
+        await recarregar()
         descartarEdicoesWorkspaces(a)
       }
-      await recarregar()
     } catch {
       addNotification({ type: 'error', message: 'Erro ao salvar alterações.' })
     } finally {
@@ -670,24 +699,13 @@ export function Assinaturas() {
     <>
     <style>
       {`
-        @keyframes ripplePulse {
-          0% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1); }
-          70% { box-shadow: 0 0 0 8px rgba(129, 140, 248, 0), 0 4px 12px rgba(0, 0, 0, 0.1); }
-          100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0), 0 4px 12px rgba(0, 0, 0, 0.1); }
-        }
-        .ux-pulse-card {
-          background: linear-gradient(145deg, var(--ws-surface) 0%, rgba(129, 140, 248, 0.05) 100%) !important;
-          border: 1px solid rgba(129, 140, 248, 0.35) !important;
-          animation: ripplePulse 2.5s infinite;
-          transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-          position: relative;
-        }
-        .ux-pulse-card:hover {
-          transform: translateY(-2px);
-          border-color: rgba(129, 140, 248, 0.7) !important;
-          background: linear-gradient(145deg, var(--ws-surface) 0%, rgba(129, 140, 248, 0.1) 100%) !important;
-          animation: none;
-          box-shadow: 0 8px 24px rgba(129, 140, 248, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
+        /* Mesmo efeito do botao "Agendamento" em LogTestes — sinaliza estado
+           ativo que pede atenção sem ser intrusivo. Usado no badge de
+           "X alterações pendentes" e no botao "Salvar alterações". */
+        @keyframes ws-pulse-active {
+          0%   { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.6); }
+          70%  { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
         }
       `}
     </style>
@@ -813,19 +831,15 @@ export function Assinaturas() {
               const pendentes = edicoesPendentes[idA] ?? {}
               const totalPendentes = Object.keys(pendentes).length
               const salvando = salvandoEdicoes.has(idA)
+              const idsSelecionados = selecaoPorAssinatura[idA] ?? []
+              const totalSelecionados = idsSelecionados.length
 
               // Calcula o estado EFETIVO de cada workspace (servidor + pending)
-              const efetivoPorWorkspace = (id_workspace: string): {
-                ativo_efetivo: boolean
-                marcado_remover: boolean
-                modificado: boolean
-              } => {
+              const efetivoPorWorkspace = (id_workspace: string): { ativo_efetivo: boolean } => {
                 const ativacao = a.ativacoes_produto_gravity.find((x) => x.id_workspace === id_workspace)
                 const ativoServidor = !!ativacao?.ativo_produto_gravity_workspace
                 const pend = pendentes[id_workspace]
-                if (!pend) return { ativo_efetivo: ativoServidor, marcado_remover: false, modificado: false }
-                if (pend.tipo === 'remover') return { ativo_efetivo: ativoServidor, marcado_remover: true, modificado: true }
-                return { ativo_efetivo: pend.ativo, marcado_remover: false, modificado: true }
+                return { ativo_efetivo: pend ? pend.ativo : ativoServidor }
               }
 
               return (
@@ -834,6 +848,7 @@ export function Assinaturas() {
                     padding: '1rem',
                     borderTop: '1px solid rgba(129,140,248,0.1)',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem',
+                    flexWrap: 'wrap',
                   }}>
                     <span style={{
                       display: 'flex', alignItems: 'center', gap: '0.75rem',
@@ -843,29 +858,65 @@ export function Assinaturas() {
                       <TreeStructure size={14} /> Auditoria de Consumo por Workspace
                     </span>
 
-                    {/* Toolbar Salvar/Descartar — só aparece se há pendentes */}
-                    {totalPendentes > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                        <span style={{
-                          fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24',
-                          padding: '0.25rem 0.625rem', borderRadius: '9999px',
-                          background: 'rgba(251,191,36,0.08)',
-                          border: '1px solid rgba(251,191,36,0.25)',
-                        }}>{totalPendentes} alteração{totalPendentes !== 1 ? 'ões' : ''} pendente{totalPendentes !== 1 ? 's' : ''}</span>
-                        <BotaoGlobal
-                          variante="fantasma"
-                          tamanho="pequeno"
-                          onClick={() => descartarEdicoesWorkspaces(a)}
-                          disabled={salvando}
-                        >Descartar</BotaoGlobal>
-                        <BotaoGlobal
-                          variante="primario"
-                          tamanho="pequeno"
-                          onClick={() => void salvarEdicoesWorkspaces(a)}
-                          disabled={salvando}
-                        >{salvando ? 'Salvando…' : 'Salvar alterações'}</BotaoGlobal>
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
+                      {/* Toolbar de ações em massa — só aparece se há seleção.
+                          Info de seleção (contador + Selecionar todos / Limpar) foi
+                          movida para o slot `bannerSelecaoCustom` da TabelaGlobal,
+                          que renderiza entre busca e cabeçalho — fora deste toolbar. */}
+                      {totalSelecionados > 0 && (
+                        <>
+                          <TooltipGlobal descricao="Habilitar acesso dos workspaces selecionados (rascunho — clique em Salvar)">
+                            <BotaoGlobal
+                              variante="secundario"
+                              tamanho="pequeno"
+                              icone={<PlayCircle size={14} weight="bold" />}
+                              onClick={() => aoStagedAcaoEmMassa(a, idsSelecionados, 'habilitar')}
+                              disabled={salvando}
+                            >Habilitar</BotaoGlobal>
+                          </TooltipGlobal>
+                          <TooltipGlobal descricao="Bloquear acesso dos workspaces selecionados (rascunho — clique em Salvar)">
+                            <BotaoGlobal
+                              variante="secundario"
+                              tamanho="pequeno"
+                              icone={<PauseCircle size={14} weight="bold" />}
+                              onClick={() => aoStagedAcaoEmMassa(a, idsSelecionados, 'bloquear')}
+                              disabled={salvando}
+                            >Bloquear</BotaoGlobal>
+                          </TooltipGlobal>
+                          {totalPendentes > 0 && (
+                            <span style={{
+                              width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)',
+                            }} />
+                          )}
+                        </>
+                      )}
+
+                      {/* Toolbar Salvar/Descartar — só aparece se há pendentes */}
+                      {totalPendentes > 0 && (
+                        <>
+                          <span style={{
+                            fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24',
+                            padding: '0.25rem 0.625rem', borderRadius: '9999px',
+                            background: 'rgba(251,191,36,0.08)',
+                            border: '1px solid rgba(251,191,36,0.25)',
+                            animation: salvando ? 'none' : 'ws-pulse-active 2s infinite',
+                          }}>{totalPendentes === 1 ? '1 alteração pendente' : `${totalPendentes} alterações pendentes`}</span>
+                          <BotaoGlobal
+                            variante="fantasma"
+                            tamanho="pequeno"
+                            onClick={() => descartarEdicoesWorkspaces(a)}
+                            disabled={salvando}
+                          >Descartar</BotaoGlobal>
+                          <BotaoGlobal
+                            variante="primario"
+                            tamanho="pequeno"
+                            onClick={() => void salvarEdicoesWorkspaces(a)}
+                            disabled={salvando}
+                            style={{ animation: salvando ? 'none' : 'ws-pulse-active 2s infinite' }}
+                          >{salvando ? 'Salvando…' : 'Salvar alterações'}</BotaoGlobal>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{
@@ -875,9 +926,82 @@ export function Assinaturas() {
                     <TabelaGlobal<Workspace>
                       id={`workspace-subscription-workspaces-${idA}`}
                       idKey="id_workspace"
-                      ocultarSelecao
+                      ocultarBadgeSelecionados
                       dados={workspaces}
                       tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
+                      selecionadosExternos={idsSelecionados}
+                      onSelecionadosChange={(ids) =>
+                        setSelecaoPorAssinatura((prev) => ({ ...prev, [idA]: ids }))
+                      }
+                      bannerSelecaoCustom={totalSelecionados > 0 ? (
+                        <>
+                          <span style={{
+                            fontSize: '0.75rem', fontWeight: 600, color: '#818cf8',
+                            padding: '0.25rem 0.625rem', borderRadius: '9999px',
+                            background: 'rgba(129,140,248,0.08)',
+                            border: '1px solid rgba(129,140,248,0.25)',
+                          }}>{totalSelecionados === 1 ? '1 selecionado' : `${totalSelecionados} selecionados`}</span>
+                          {totalSelecionados < workspaces.length && (
+                            <TooltipGlobal descricao="Estende a seleção para todos os workspaces da tabela">
+                              <button
+                                type="button"
+                                onClick={() => setSelecaoPorAssinatura((prev) => ({
+                                  ...prev,
+                                  [idA]: workspaces.map((w) => w.id_workspace),
+                                }))}
+                                disabled={salvando}
+                                style={{
+                                  background: 'rgba(129,140,248,0.1)',
+                                  border: '1px solid rgba(129,140,248,0.3)',
+                                  color: '#818cf8',
+                                  fontSize: '0.75rem', fontWeight: 700,
+                                  padding: '0.3rem 0.75rem', borderRadius: '9999px',
+                                  cursor: salvando ? 'not-allowed' : 'pointer',
+                                  fontFamily: 'inherit', transition: 'all 0.15s',
+                                  opacity: salvando ? 0.5 : 1,
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (salvando) return
+                                  e.currentTarget.style.background = 'rgba(129,140,248,0.2)'
+                                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.5)'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(129,140,248,0.1)'
+                                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'
+                                }}
+                              >Selecionar todos os {workspaces.length} da tabela</button>
+                            </TooltipGlobal>
+                          )}
+                          {totalSelecionados === workspaces.length && workspaces.length > 0 && (
+                            <TooltipGlobal descricao="Desmarca todos os workspaces selecionados">
+                              <button
+                                type="button"
+                                onClick={() => setSelecaoPorAssinatura((prev) => ({ ...prev, [idA]: [] }))}
+                                disabled={salvando}
+                                style={{
+                                  background: 'transparent',
+                                  border: '1px solid rgba(148,163,184,0.3)',
+                                  color: '#94a3b8',
+                                  fontSize: '0.75rem', fontWeight: 600,
+                                  padding: '0.3rem 0.75rem', borderRadius: '9999px',
+                                  cursor: salvando ? 'not-allowed' : 'pointer',
+                                  fontFamily: 'inherit', transition: 'all 0.15s',
+                                  opacity: salvando ? 0.5 : 1,
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (salvando) return
+                                  e.currentTarget.style.background = 'rgba(148,163,184,0.1)'
+                                  e.currentTarget.style.color = '#f1f5f9'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'transparent'
+                                  e.currentTarget.style.color = '#94a3b8'
+                                }}
+                              >Limpar seleção</button>
+                            </TooltipGlobal>
+                          )}
+                        </>
+                      ) : null}
                       colunas={[
                         {
                           key: 'nome_workspace',
@@ -885,7 +1009,6 @@ export function Assinaturas() {
                           tipo: 'texto',
                           render: (v, ws) => {
                             const nome = String(v)
-                            const { marcado_remover, modificado } = efetivoPorWorkspace(ws.id_workspace)
                             const subdominio = nome
                               .toLowerCase()
                               .normalize('NFD')
@@ -894,85 +1017,46 @@ export function Assinaturas() {
                               .replace(/-+/g, '-')
                               .replace(/^-|-$/g, '')
                             return (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                <a
-                                  href={`http://localhost:8010/workspace/${subdominio}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    fontWeight: 600,
-                                    color: marcado_remover ? '#f87171' : 'var(--ws-text)',
-                                    textDecoration: marcado_remover ? 'line-through' : 'none',
-                                    transition: 'color 0.15s',
-                                    cursor: 'pointer',
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (!marcado_remover) {
-                                      e.currentTarget.style.color = '#818cf8'
-                                      e.currentTarget.style.textDecoration = 'underline'
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (!marcado_remover) {
-                                      e.currentTarget.style.color = 'var(--ws-text)'
-                                      e.currentTarget.style.textDecoration = 'none'
-                                    }
-                                  }}
-                                  onClick={(ev) => ev.stopPropagation()}
-                                >{ws.nome_workspace}</a>
-                                {modificado && (
-                                  <span style={{
-                                    fontSize: '0.5625rem', fontWeight: 800, letterSpacing: '0.04em',
-                                    padding: '0.1rem 0.4rem', borderRadius: '4px',
-                                    background: 'rgba(251,191,36,0.12)',
-                                    color: '#fbbf24',
-                                    border: '1px solid rgba(251,191,36,0.25)',
-                                    textTransform: 'uppercase',
-                                  }}>Pendente</span>
-                                )}
-                              </span>
+                              <a
+                                href={`http://localhost:8010/workspace/${subdominio}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  fontWeight: 600,
+                                  color: 'var(--ws-text)',
+                                  textDecoration: 'none',
+                                  transition: 'color 0.15s',
+                                  cursor: 'pointer',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = '#818cf8'
+                                  e.currentTarget.style.textDecoration = 'underline'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = 'var(--ws-text)'
+                                  e.currentTarget.style.textDecoration = 'none'
+                                }}
+                                onClick={(ev) => ev.stopPropagation()}
+                              >{ws.nome_workspace}</a>
                             )
                           },
                         },
                         {
                           key: 'status_workspace',
-                          label: t('workspace.subscriptions.subtabela_status_servico'),
+                          label: t('workspace.subscriptions.subtabela_status_produto_gravity'),
                           tipo: 'texto',
+                          align: 'center',
                           render: (_v, ws) => {
-                            const { ativo_efetivo, marcado_remover } = efetivoPorWorkspace(ws.id_workspace)
-                            const suspensa = a.status_assinatura_produto_gravity === 'SUSPENSA'
-                            if (marcado_remover) {
-                              return (
-                                <span style={{
-                                  display: 'inline-flex',
-                                  padding: '0.15rem 0.5rem', borderRadius: '4px',
-                                  fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                                  background: 'rgba(248,113,113,0.1)', color: '#f87171',
-                                  border: '1px solid rgba(248,113,113,0.2)',
-                                }}>VAI SER REMOVIDO</span>
-                              )
-                            }
+                            const { ativo_efetivo } = efetivoPorWorkspace(ws.id_workspace)
                             return (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{
-                                  display: 'inline-flex',
-                                  padding: '0.15rem 0.5rem', borderRadius: '4px',
-                                  fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                                  background: ativo_efetivo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
-                                  color: ativo_efetivo ? '#34d399' : 'var(--ws-muted)',
-                                  border: ativo_efetivo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)',
-                                }}>{ativo_efetivo ? 'HABILITADO' : 'BLOQUEADO'}</span>
-                                {ativo_efetivo && suspensa && (
-                                  <span style={{
-                                    display: 'inline-flex',
-                                    padding: '0.15rem 0.5rem', borderRadius: '4px',
-                                    fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                                    background: 'rgba(248,113,113,0.1)',
-                                    color: '#f87171',
-                                    border: '1px solid rgba(248,113,113,0.2)',
-                                  }}>SUSPENSA</span>
-                                )}
-                              </div>
+                              <span style={{
+                                display: 'inline-flex',
+                                padding: '0.15rem 0.5rem', borderRadius: '4px',
+                                fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                                background: ativo_efetivo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
+                                color: ativo_efetivo ? '#34d399' : 'var(--ws-muted)',
+                                border: ativo_efetivo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)',
+                              }}>{ativo_efetivo ? 'HABILITADO' : 'BLOQUEADO'}</span>
                             )
                           },
                         },
@@ -982,32 +1066,25 @@ export function Assinaturas() {
                           tipo: 'texto',
                           align: 'right',
                           render: (_v, ws) => {
-                            const { ativo_efetivo, marcado_remover } = efetivoPorWorkspace(ws.id_workspace)
+                            const { ativo_efetivo } = efetivoPorWorkspace(ws.id_workspace)
                             const ativacao = a.ativacoes_produto_gravity.find((x) => x.id_workspace === ws.id_workspace)
                             const ativo_servidor = !!ativacao?.ativo_produto_gravity_workspace
                             return (
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                                 <TooltipGlobal descricao={
-                                  marcado_remover
-                                    ? 'Cancelar remoção'
-                                    : ativo_efetivo
-                                      ? 'Bloquear acesso (rascunho — clique em Salvar)'
-                                      : 'Habilitar acesso (rascunho — clique em Salvar)'
+                                  ativo_efetivo
+                                    ? 'Bloquear acesso (rascunho — clique em Salvar)'
+                                    : 'Habilitar acesso (rascunho — clique em Salvar)'
                                 }>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      if (marcado_remover) {
-                                        // Cancela remoção
-                                        aoStagedRemoverWorkspace(a, ws.id_workspace)
-                                      } else {
-                                        aoStagedToggleWorkspace(a, ws.id_workspace, ativo_servidor)
-                                      }
+                                      aoStagedToggleWorkspace(a, ws.id_workspace, ativo_servidor)
                                     }}
                                     disabled={salvando}
                                     style={{
                                       background: 'transparent', border: 'none', cursor: salvando ? 'not-allowed' : 'pointer',
-                                      color: ativo_efetivo && !marcado_remover ? '#34d399' : 'var(--ws-muted)',
+                                      color: ativo_efetivo ? '#34d399' : 'var(--ws-muted)',
                                       opacity: salvando ? 0.4 : 1,
                                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                                       width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
@@ -1015,37 +1092,7 @@ export function Assinaturas() {
                                     onMouseEnter={(e) => { if (!salvando) e.currentTarget.style.background = 'rgba(129,140,248,0.1)' }}
                                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                                   >
-                                    {ativo_efetivo && !marcado_remover ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-                                  </button>
-                                </TooltipGlobal>
-
-                                <TooltipGlobal descricao={marcado_remover ? 'Cancelar remoção' : 'Marcar para remover (rascunho — clique em Salvar)'}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      aoStagedRemoverWorkspace(a, ws.id_workspace)
-                                    }}
-                                    disabled={salvando}
-                                    style={{
-                                      background: marcado_remover ? 'rgba(248,113,113,0.12)' : 'transparent',
-                                      border: 'none', cursor: salvando ? 'not-allowed' : 'pointer',
-                                      color: marcado_remover ? '#f87171' : 'var(--ws-muted)',
-                                      opacity: salvando ? 0.4 : 1,
-                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                      width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      if (salvando) return
-                                      e.currentTarget.style.color = '#f87171'
-                                      e.currentTarget.style.background = 'rgba(248,113,113,0.1)'
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      if (marcado_remover) return
-                                      e.currentTarget.style.color = 'var(--ws-muted)'
-                                      e.currentTarget.style.background = 'transparent'
-                                    }}
-                                  >
-                                    <Trash size={16} weight="bold" />
+                                    {ativo_efetivo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
                                   </button>
                                 </TooltipGlobal>
                               </div>
@@ -1067,133 +1114,154 @@ export function Assinaturas() {
       <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ marginBottom: '0.875rem' }}>
         {t('workspace.subscriptions.secao_disponiveis')}
       </p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '1.25rem',
-        }}
-        className="ws-fade-up ws-fade-up-d2"
-      >
+      <div className="gs-grid ws-fade-up ws-fade-up-d2">
         {catalogoProdutoGravity.map((p) => {
           const tipoCobranca = p.tipo_cobranca_produto_gravity as TipoCobrancaProdutoGravity | undefined
           const tipoCobrancaLabel = tipoCobranca
             ? t(`enum.tipo_cobranca_produto_gravity.${tipoCobranca}`, tipoCobranca.replace('POR_', ''))
             : ''
+          const status = String(p.status_produto_gravity ?? '').toUpperCase()
+          const isSoon = status === 'EM_BREVE'
+          const slug = String(p.slug_produto_gravity ?? '')
+          const meta = PRODUCT_META[slug]
+          const relacionados = RELACAO_ENTRE_PRODUTOS_GRAVITY[slug] ?? []
           return (
-            <div key={String(p.id_produto_gravity)} className="ux-pulse-card" style={{
-              borderRadius: '12px', padding: '1.5rem',
-              display: 'flex', flexDirection: 'column', gap: '0.75rem',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
-              transition: 'all 0.2s',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: 0 }}>
-                  {String(p.nome_produto_gravity)}
-                </p>
-                <span style={{
-                  padding: '0.175rem 0.5rem', borderRadius: '4px',
-                  fontSize: '0.625rem', fontWeight: 800, lineHeight: 1,
-                  background: 'rgba(52,211,153,0.1)',
-                  color: '#34d399',
-                  border: '1px solid rgba(52,211,153,0.2)',
-                  textTransform: 'uppercase',
-                }}>{tipoCobrancaLabel}</span>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>
-                {String(p.descricao_produto_gravity ?? '')}
-              </p>
-              {Array.isArray(p.faixas_preco_produto_gravity) ? (
-                <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.1)' }}>
-                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', marginBottom: '0.375rem', textTransform: 'uppercase' }}>Tabela de Preços</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    {(p.faixas_preco_produto_gravity as FaixaPreco[]).slice(0, 2).map((fx, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                        <span style={{ color: 'var(--ws-muted)' }}>
-                          {fx.faixa_ate_faixa_preco_produto_gravity
-                            ? `${fx.faixa_de_faixa_preco_produto_gravity}-${fx.faixa_ate_faixa_preco_produto_gravity}`
-                            : `Acima de ${fx.faixa_de_faixa_preco_produto_gravity}`}{' '}
-                          {tipoCobrancaLabel}s
-                        </span>
-                        <strong style={{ color: 'var(--ws-text)' }}>
-                          {getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}
-                        </strong>
-                      </div>
-                    ))}
-                    {(p.faixas_preco_produto_gravity as FaixaPreco[]).length > 2 && (
-                      <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', textAlign: 'center', marginTop: '4px' }}>
-                        + {(p.faixas_preco_produto_gravity as FaixaPreco[]).length - 2} faixas disponíveis
-                      </span>
-                    )}
-                  </div>
+            <div
+              key={String(p.id_produto_gravity)}
+              className={`gs-card gs-card--compact${isSoon ? ' gs-card--soon' : ' gs-card--available'}`}
+            >
+              <div className="gs-card__top">
+                <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.15)' }}>
+                  {meta?.icon ?? <Package weight="duotone" size={22} color="#818cf8" />}
                 </div>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }}>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', display: 'block' }}>VALOR UNITÁRIO</span>
-                    <strong style={{ fontSize: '1rem', color: 'var(--ws-text)' }}>
-                      {getSimboloMoeda(String(p.moeda_unitario_produto_gravity ?? 'BRL'))} {String(p.preco_unitario_produto_gravity ?? '')}
-                    </strong>
-                  </div>
-                  {!!p.qtd_usuarios_base_produto_gravity && (
-                    <div style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.05)', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.1)' }}>
-                      <span style={{ fontSize: '0.6875rem', color: '#34d399', display: 'block' }}>FRANQUIA</span>
-                      <strong style={{ fontSize: '1rem', color: '#34d399' }}>{String(p.qtd_usuarios_base_produto_gravity)} Free</strong>
-                    </div>
+                <div className="gs-card__badges">
+                  {isSoon ? (
+                    <span className="gs-badge gs-badge--soon">
+                      <Lightning weight="fill" size={11} /> Em Breve
+                    </span>
+                  ) : (
+                    <span className="gs-badge gs-badge--available">
+                      <span className="gs-badge__dot" /> Disponível
+                    </span>
                   )}
                 </div>
-              )}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                  {p.possui_setup_produto_gravity ? 'Requer Setup' : 'Ativação Instantânea'}
-                </span>
-                <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
-                  <BotaoGlobal
-                    variante="primario"
-                    tamanho="pequeno"
-                    onClick={() => aoAssinarProduto(
-                      String(p.slug_produto_gravity),
-                      String(p.nome_produto_gravity),
+              </div>
+              <div className="gs-card__body">
+                <h3 className="gs-card__name">{meta?.nameKey ? t(meta.nameKey) : String(p.nome_produto_gravity)}</h3>
+                {meta?.categoryKey && (
+                  <span className="gs-card__category" style={{ color: meta.iconColor }}>
+                    {t(meta.categoryKey)}
+                  </span>
+                )}
+                <p className="gs-card__desc">{meta?.descKey ? t(meta.descKey) : String(p.descricao_produto_gravity ?? '')}</p>
+                {meta?.tagKeys && (
+                  <div className="gs-card__tags">
+                    {meta.tagKeys.map(tk => (
+                      <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
+                    ))}
+                  </div>
+                )}
+                {!isSoon && Array.isArray(p.faixas_preco_produto_gravity) && (
+                  <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.12)', marginTop: '0.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
+                      <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tabela de Preços</p>
+                      {tipoCobrancaLabel && (
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          {tipoCobrancaLabel}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {(p.faixas_preco_produto_gravity as FaixaPreco[]).slice(0, 2).map((fx, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                          <span style={{ color: 'var(--sw-text-2)' }}>
+                            {fx.faixa_ate_faixa_preco_produto_gravity
+                              ? `${fx.faixa_de_faixa_preco_produto_gravity}-${fx.faixa_ate_faixa_preco_produto_gravity}`
+                              : `Acima de ${fx.faixa_de_faixa_preco_produto_gravity}`}{' '}
+                            {tipoCobrancaLabel}s
+                          </span>
+                          <strong style={{ color: 'var(--sw-text-1)' }}>
+                            {getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}
+                          </strong>
+                        </div>
+                      ))}
+                      {(p.faixas_preco_produto_gravity as FaixaPreco[]).length > 2 && (
+                        <span style={{ fontSize: '0.625rem', color: 'var(--sw-text-3)', textAlign: 'center', marginTop: '4px' }}>
+                          + {(p.faixas_preco_produto_gravity as FaixaPreco[]).length - 2} faixas disponíveis
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {!isSoon && !Array.isArray(p.faixas_preco_produto_gravity) && (p.preco_unitario_produto_gravity != null) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.25rem' }}>
+                    <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--sw-text-3)', display: 'block' }}>VALOR UNITÁRIO</span>
+                      <strong style={{ fontSize: '1rem', color: 'var(--sw-text-1)' }}>
+                        {getSimboloMoeda(String(p.moeda_unitario_produto_gravity ?? 'BRL'))} {String(p.preco_unitario_produto_gravity)}
+                      </strong>
+                    </div>
+                    {!!p.qtd_usuarios_base_produto_gravity && (
+                      <div style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.05)', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.1)' }}>
+                        <span style={{ fontSize: '0.6875rem', color: '#34d399', display: 'block' }}>FRANQUIA</span>
+                        <strong style={{ fontSize: '1rem', color: '#34d399' }}>{String(p.qtd_usuarios_base_produto_gravity)} Free</strong>
+                      </div>
                     )}
-                  >Assinar</BotaoGlobal>
-                </TooltipGlobal>
+                  </div>
+                )}
+                {relacionados.length > 0 && (
+                  <div className="gs-card__combina">
+                    <span className="gs-card__combina-label">Combina com</span>
+                    <div className="gs-card__combina-chips">
+                      {relacionados.map(relSlug => {
+                        const relMeta = PRODUCT_META[relSlug]
+                        const relProduct = catalogoProdutoGravity.find(cp => cp.slug_produto_gravity === relSlug)
+                        const nomeRelacionado = relMeta?.nameKey
+                          ? t(relMeta.nameKey)
+                          : String(relProduct?.nome_produto_gravity ?? relSlug)
+                        if (!relMeta) return null
+                        return (
+                          <span
+                            key={relSlug}
+                            className="gs-combina-chip"
+                            style={{ color: relMeta.iconColor }}
+                          >
+                            {nomeRelacionado}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="gs-card__footer">
+                <span className="gs-card__users">
+                  {isSoon
+                    ? 'Aguarde liberação'
+                    : (p.possui_setup_produto_gravity ? 'Requer Setup' : 'Ativação Instantânea')}
+                </span>
+                {isSoon ? (
+                  <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
+                    Aguarde
+                  </BotaoGlobal>
+                ) : (
+                  <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
+                    <BotaoGlobal
+                      variante="primario"
+                      tamanho="pequeno"
+                      onClick={() => aoAssinarProduto(
+                        String(p.slug_produto_gravity),
+                        String(p.nome_produto_gravity),
+                      )}
+                    >
+                      Assinar <ArrowRight weight="bold" size={13} />
+                    </BotaoGlobal>
+                  </TooltipGlobal>
+                )}
               </div>
             </div>
           )
         })}
-
-        {/* "Em Breve" mocks */}
-        {[
-          { id: 'mock-1', nome: 'Smart Read', descricao: 'Plataforma de automação (IDP) e IA para extração e validação inteligente de documentos de Comércio Exterior.', tipoCobranca: 'Subscription' },
-          { id: 'mock-2', nome: 'BID Frete Internacional', descricao: 'Centralize cotações marítimas e aéreas, comparando agentes de carga em tempo real.', tipoCobranca: 'Transactional' },
-          { id: 'mock-3', nome: 'BID Câmbio', descricao: 'Otimize transações de fechamento ao competir taxas entre corretoras e bancos em uma única interface.', tipoCobranca: 'Transactional' },
-        ].map((p) => (
-          <div key={p.id} style={{
-            borderRadius: '12px', padding: '1.5rem',
-            display: 'flex', flexDirection: 'column', gap: '0.75rem',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.03)',
-            opacity: 0.55, cursor: 'not-allowed',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-muted)', margin: 0 }}>{p.nome}</p>
-              <span style={{
-                padding: '0.175rem 0.5rem', borderRadius: '4px',
-                fontSize: '0.625rem', fontWeight: 800, lineHeight: 1,
-                background: 'rgba(255,255,255,0.05)',
-                color: 'var(--ws-muted)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                textTransform: 'uppercase',
-              }}>Em Breve</span>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>{p.descricao}</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.tipoCobranca}</span>
-              <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled>Aguarde</BotaoGlobal>
-            </div>
-          </div>
-        ))}
       </div>
     </PaginaGlobal>
 

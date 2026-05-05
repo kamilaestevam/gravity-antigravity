@@ -129,10 +129,26 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
    *  Útil em sub-tabelas onde não há ação em massa via Set selecionados —
    *  usar quando as ações são por linha imediatas ou via modo edição em lote. */
   ocultarSelecao?: boolean
+  /** Esconde APENAS o badge "X selecionado(s)" do toolbar interno, mantendo
+   *  a coluna de checkbox. Útil quando o consumidor já mostra a contagem de
+   *  selecionados em um toolbar custom externo (evita badge duplicado). */
+  ocultarBadgeSelecionados?: boolean
   /** Callback disparado sempre que a seleção muda. Recebe array de IDs
    *  (string) usando idKey. Útil para implementar ações em massa fora da
    *  TabelaGlobal (toolbar customizado, etc). */
   onSelecionadosChange?: (ids: string[]) => void
+  /** Modo CONTROLADO de seleção. Quando definida, a TabelaGlobal usa este
+   *  array como fonte da verdade (em vez do estado interno) e o consumidor
+   *  é responsável por atualizar via `onSelecionadosChange`. Útil quando o
+   *  consumidor implementa ações tipo "Selecionar todos da tabela" fora.
+   *  Quando definida, o banner Gmail-style fica escondido (consumidor
+   *  fornece sua propria UI). */
+  selecionadosExternos?: string[]
+  /** Slot para conteúdo customizado na área de banner de seleção (entre busca
+   *  e cabeçalho da tabela). Quando fornecido, renderiza este conteúdo no
+   *  lugar do banner Gmail-style padrão. Útil pra mostrar contador + ações
+   *  de seleção customizadas (ex: "10 selecionados [Selecionar todos os 12]"). */
+  bannerSelecaoCustom?: React.ReactNode
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -441,7 +457,10 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
     id: tableId, kanban, frozenColunas = 0, ocultarSelecao = false,
+    ocultarBadgeSelecionados = false,
     onSelecionadosChange,
+    selecionadosExternos,
+    bannerSelecaoCustom,
   } = props
 
   const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
@@ -527,7 +546,29 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const [filtros, setFiltros] = useState<Record<string, FiltrosStateVal>>(initialFiltros)
   const [pagina, setPagina] = useState(1)
   const [porPagina, setPorPagina] = useState(itensPorPagina)
-  const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [selecionadosInternos, setSelecionadosInternos] = useState<Set<string>>(new Set())
+  // Ref do callback declarada cedo porque setSelecionados (modo controlado)
+  // precisa dela. O efeito que mantém ela em sincronia roda mais abaixo.
+  const onSelecionadosChangeRef = useRef(onSelecionadosChange)
+  // Modo controlado: se selecionadosExternos foi definido, usa-o como fonte
+  // de verdade (envolve em Set toda render — barato pra arrays pequenos). Senão,
+  // usa o estado interno.
+  const isSelecionadosControlado = selecionadosExternos !== undefined
+  const selecionados = isSelecionadosControlado
+    ? new Set(selecionadosExternos)
+    : selecionadosInternos
+  const setSelecionados: React.Dispatch<React.SetStateAction<Set<string>>> = (next) => {
+    if (isSelecionadosControlado) {
+      // Em modo controlado, NAO atualizamos o state interno — só notificamos
+      // o consumidor via onSelecionadosChange (efeito mais abaixo).
+      const computed = typeof next === 'function'
+        ? (next as (prev: Set<string>) => Set<string>)(selecionados)
+        : next
+      onSelecionadosChangeRef.current?.(Array.from(computed))
+      return
+    }
+    setSelecionadosInternos(next)
+  }
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set(expandidosPadrao))
   const [confirmacaoExclusao, setConfirmacaoExclusao] = useState<{ item: T; acao: TabelaGlobalAcao<T> } | null>(null)
   const [modalVisualizar, setModalVisualizar] = useState<{ item: T; acao: TabelaGlobalAcao<T> } | null>(null)
@@ -696,14 +737,30 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const toggleSel = (id: string) => setSelecionados(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
   const toggleTodos = (checked: boolean) => setSelecionados(checked ? new Set(paginado.map(e => String(e[idKey as string]))) : new Set())
 
-  // Notifica o consumidor sempre que a seleção muda (toolbar de ações em massa
-  // controlado fora da TabelaGlobal). Ref para evitar loop quando o callback
-  // muda de identidade a cada render do parent.
-  const onSelecionadosChangeRef = useRef(onSelecionadosChange)
+  // Banner Gmail-style: quando o usuário marca tudo da página atual e existem
+  // mais itens nas outras páginas, oferece estender a seleção pra tabela inteira.
+  // Estado 1 (page): tudo da pagina marcado, mas nem tudo do filtrado → "X desta pagina | Selecionar todos os Y"
+  // Estado 2 (all):  tudo do filtrado marcado → "Todos os Y selecionados | Limpar"
+  const todosFiltradosSelec = resultado.length > 0
+    && resultado.every(e => selecionados.has(String(e[idKey as string])))
+  const temMaisAlemDaPagina = resultado.length > paginado.length
+  // Banner some em modo controlado: o consumidor é responsável por renderizar
+  // sua própria UI de "Selecionar todos / Limpar seleção".
+  const mostrarBanner = !ocultarSelecao && !isSelecionadosControlado
+    && todosSelec && temMaisAlemDaPagina
+  const selecionarTodosFiltrados = () => setSelecionados(
+    new Set(resultado.map(e => String(e[idKey as string]))),
+  )
+  const limparSelecao = () => setSelecionados(new Set())
+
+  // Notifica o consumidor sempre que a seleção interna muda (toolbar de ações
+  // em massa controlado fora da TabelaGlobal). Em modo controlado, a notificação
+  // já acontece em setSelecionados — não duplicar via efeito.
   useEffect(() => { onSelecionadosChangeRef.current = onSelecionadosChange }, [onSelecionadosChange])
   useEffect(() => {
-    onSelecionadosChangeRef.current?.(Array.from(selecionados))
-  }, [selecionados])
+    if (isSelecionadosControlado) return
+    onSelecionadosChangeRef.current?.(Array.from(selecionadosInternos))
+  }, [selecionadosInternos, isSelecionadosControlado])
 
   // Auto-wire card click para abrir o modal de visualização/edição já configurado em `acoes`
   const handleKanbanCardClick = useCallback((item: T) => {
@@ -745,7 +802,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
               {chips.length === 1 ? t('tabela.filtro_ativo_singular', { count: chips.length }) : t('tabela.filtro_ativo_plural', { count: chips.length })}
             </span>
           )}
-          {!ocultarSelecao && selecionados.size > 0 && (
+          {!ocultarSelecao && !ocultarBadgeSelecionados && selecionados.size > 0 && (
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
               {selecionados.size === 1 ? t('tabela.selecionado_singular', { count: selecionados.size }) : t('tabela.selecionado_plural', { count: selecionados.size })}
             </span>
@@ -826,6 +883,88 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)' }}>
             <X size={11} weight="bold" /> {t('tabela.limpar')}
           </button>
+        </div>
+      )}
+
+      {/* Slot custom: tem prioridade sobre o banner padrão. Útil quando o
+          consumidor (em modo controlado) renderiza sua própria UI de seleção. */}
+      {bannerSelecaoCustom && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.625rem',
+          padding: '0.5rem 1.25rem', borderBottom: '1px solid var(--ws-accent-border)',
+          background: 'rgba(129,140,248,0.05)',
+          fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)',
+          flexWrap: 'wrap',
+        }}>
+          {bannerSelecaoCustom}
+        </div>
+      )}
+
+      {mostrarBanner && !bannerSelecaoCustom && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.625rem',
+          padding: '0.5rem 1.25rem', borderBottom: '1px solid var(--ws-accent-border)',
+          background: todosFiltradosSelec ? 'rgba(52,211,153,0.05)' : 'rgba(129,140,248,0.05)',
+          fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)',
+          flexWrap: 'wrap',
+        }}>
+          {todosFiltradosSelec ? (
+            <>
+              {/* Frase explicativa só quando NÃO há toolbar custom externa
+                  mostrando a contagem (caso contrário a info aparece duas vezes). */}
+              {!ocultarBadgeSelecionados && (
+                <span>{t('tabela.banner_todos_selecionados', { count: resultado.length })}</span>
+              )}
+              <button
+                type="button"
+                onClick={limparSelecao}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(148,163,184,0.3)',
+                  color: '#94a3b8',
+                  fontSize: '0.75rem', fontWeight: 600,
+                  padding: '0.25rem 0.75rem', borderRadius: '9999px', cursor: 'pointer',
+                  fontFamily: 'inherit', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(148,163,184,0.1)'
+                  e.currentTarget.style.color = '#f1f5f9'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = '#94a3b8'
+                }}
+              >{t('tabela.banner_limpar_selecao')}</button>
+            </>
+          ) : (
+            <>
+              {!ocultarBadgeSelecionados && (
+                <span>{paginado.length === 1
+                  ? t('tabela.banner_pagina_selecionada_singular')
+                  : t('tabela.banner_pagina_selecionada_plural', { count: paginado.length })}</span>
+              )}
+              <button
+                type="button"
+                onClick={selecionarTodosFiltrados}
+                style={{
+                  background: 'rgba(129,140,248,0.1)',
+                  border: '1px solid rgba(129,140,248,0.3)',
+                  color: '#818cf8',
+                  fontSize: '0.75rem', fontWeight: 700,
+                  padding: '0.25rem 0.75rem', borderRadius: '9999px', cursor: 'pointer',
+                  fontFamily: 'inherit', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(129,140,248,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.5)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(129,140,248,0.1)'
+                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'
+                }}
+              >{t('tabela.banner_selecionar_todos', { count: resultado.length })}</button>
+            </>
+          )}
         </div>
       )}
 

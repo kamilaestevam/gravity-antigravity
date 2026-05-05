@@ -6,6 +6,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { caminhoParaLocalString } from '@nucleo/audit-locais'
 
 // ---------------------------------------------------------------------------
 // Contrato — paridade DDD direta com Prisma `historico_log`
@@ -13,15 +14,17 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 // ---------------------------------------------------------------------------
 
 const historicoLogSchema = z.object({
-  id_historico_log:           z.string(),
-  data_criacao_historico_log: z.string(),
-  acao_historico_log:         z.string(),
-  detalhe_acao_historico_log: z.string().nullable(),
-  tipo_recurso_historico_log: z.string(),
-  id_recurso_historico_log:   z.string().nullable(),
-  nome_ator_historico_log:    z.string().nullable(),
-  tipo_ator_historico_log:    z.string().nullable(),
-  status_historico_log:       z.string().nullable(),
+  id_historico_log:            z.string(),
+  data_criacao_historico_log:  z.string(),
+  acao_historico_log:          z.string(),
+  detalhe_acao_historico_log:  z.string().nullable(),
+  tipo_recurso_historico_log:  z.string(),
+  id_recurso_historico_log:    z.string().nullable(),
+  nome_ator_historico_log:     z.string().nullable(),
+  tipo_ator_historico_log:     z.string().nullable(),
+  status_historico_log:        z.string().nullable(),
+  modulo_historico_log:        z.string().nullable().optional(),
+  metadata_ator_historico_log: z.record(z.unknown()).nullable().optional(),
 })
 
 const historicoResponseSchema = z.object({
@@ -54,6 +57,74 @@ function formatarData(iso: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Mapa código → particípio passado em PT-BR (humano para o usuário final)
+// Cobertura completa do conjunto canonical de `acao_historico_log` (Mandamento 03).
+// Fallback aplica `humanizar()` para qualquer código novo/legado.
+// ---------------------------------------------------------------------------
+
+const ACAO_PARTICIPIO: Record<string, string> = {
+  // Verbos canonical do glossário (skill arquitetura/observabilidade)
+  CRIAR:       'Criou',
+  ATUALIZAR:   'Atualizou',
+  EXCLUIR:     'Excluiu',
+  ENTRAR:      'Entrou',
+  SAIR:        'Saiu',
+  CONVIDAR:    'Convidou',
+  CONSULTAR:   'Consultou',
+  EXPORTAR:    'Exportou',
+  ANULAR:      'Anulou',
+  ENVIAR:      'Enviou',
+  DUPLICAR:    'Duplicou',
+  TRANSFERIR:  'Transferiu',
+  CONSOLIDAR:  'Consolidou',
+  ANONIMIZAR:  'Anonimizou',
+  // Verbos compostos
+  EXCLUIR_ITENS:                    'Excluiu itens',
+  EXCLUIR_AUTOMATICAMENTE:          'Excluiu automaticamente',
+  EXCLUIR_DADO:                     'Excluiu dado',
+  EDITAR_EM_MASSA:                  'Editou em massa',
+  REVERTER_TRANSFERENCIA:           'Reverteu transferência',
+  ALTERAR_STATUS:                   'Alterou status',
+  ALTERAR_PATENTE:                  'Alterou patente',
+  REVOGAR_SESSAO:                   'Revogou sessão',
+  FALHAR_AUTENTICACAO:              'Falhou autenticação',
+  FALHAR_ASSINATURA_WEBHOOK:        'Falhou assinatura webhook',
+  TENTAR_ACESSO_OUTRA_ORGANIZACAO:  'Tentou acessar outra organização',
+  ATINGIR_LIMITE_TAXA:              'Atingiu limite de taxa',
+  ACESSAR_ADMIN:                    'Acessou área Admin',
+  CHAMAR_API:                       'Chamou API',
+  CONCLUIR_JOB:                     'Concluiu job',
+  FALHAR_JOB:                       'Falhou job',
+  SINCRONIZAR_NCM:                  'Sincronizou NCM',
+  AGENDAR_SINCRONIZACAO_NCM:        'Agendou sincronização NCM',
+  INICIAR_EXECUCAO_TESTES:          'Iniciou execução de testes',
+  CONCLUIR_EXECUCAO_TESTES:         'Concluiu execução de testes',
+  INGERIR_LOGS_TESTE:               'Ingeriu logs de teste',
+  GERAR_PLANO_TESTE:                'Gerou plano de teste',
+  EXPANDIR_PLANO_TESTE:             'Expandiu plano de teste',
+  REANALISAR_TESTE:                 'Reanalisou teste',
+  APLICAR_CORRECAO_TESTE:           'Aplicou correção em teste',
+  REJEITAR_ANALISE_TESTE:           'Rejeitou análise de teste',
+  EXECUTAR_PENTEST:                 'Executou pentest',
+}
+
+/**
+ * Humaniza códigos legados (CREATE, UPDATE, etc) ou desconhecidos.
+ * UPPER_SNAKE → "Capitalize separated by spaces".
+ */
+function humanizar(codigo: string): string {
+  return codigo
+    .split('_')
+    .map((p) => p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : '')
+    .join(' ')
+}
+
+function rotuloAcao(codigo: string | null | undefined): string {
+  if (!codigo) return '—'
+  return ACAO_PARTICIPIO[codigo] ?? humanizar(codigo)
+}
+
+// ---------------------------------------------------------------------------
 // Colunas
 // ---------------------------------------------------------------------------
 
@@ -69,13 +140,22 @@ const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
     key: 'acao_historico_log',
     label: 'Ação',
     tipo: 'texto',
-    largura: '140px',
+    largura: '160px',
+    render: (v) => rotuloAcao(v as string | null),
   },
   {
-    key: 'tipo_recurso_historico_log',
-    label: 'Recurso',
+    key: 'modulo_historico_log',
+    label: 'Local',
     tipo: 'texto',
-    largura: '140px',
+    largura: '220px',
+    render: (_v, item) => {
+      const endpoint = (item.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
+      return caminhoParaLocalString(
+        endpoint,
+        item.modulo_historico_log,
+        item.tipo_recurso_historico_log,
+      )
+    },
   },
   {
     key: 'nome_ator_historico_log',

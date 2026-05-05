@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-import { ArrowLeft, Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise } from '@phosphor-icons/react'
+import { Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -9,6 +8,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { ApiCockpitTabs } from './ApiCockpitTabs'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -74,7 +74,6 @@ const EVENTOS_DISPONIVEIS = [
 ] as const
 
 export function ApiWebhooks() {
-  const navigate = useNavigate()
   const [webhooks, setWebhooks] = useState<WebhookConfiguracao[]>([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
@@ -302,14 +301,8 @@ export function ApiWebhooks() {
         />
       }
       toolbar={
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          <BotaoGlobal
-            variante="secundario"
-            onClick={() => navigate('/workspace/api-cockpit')}
-            icone={<ArrowLeft size={16} />}
-          >
-            Voltar ao API Cockpit
-          </BotaoGlobal>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', gap: '1rem' }}>
+          <ApiCockpitTabs />
           <BotaoGlobal
             variante="primario"
             onClick={() => setModalCriarAberto(true)}

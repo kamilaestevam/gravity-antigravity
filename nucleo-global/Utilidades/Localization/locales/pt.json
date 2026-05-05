@@ -1513,7 +1513,12 @@
       "taxa_sucesso_24h":    "Taxa de Sucesso (24h)",
       "latencia_media_24h":  "Latência Média (24h)",
       "produtos_em_uso":     "Produtos em Uso (24h)",
-      "requisicoes_24h":     "Requisições (24h)"
+      "requisicoes_24h":     "Requisições (24h)",
+      "aba_inventario":      "Inventário",
+      "aba_logs":            "Logs",
+      "aba_tokens":          "Tokens",
+      "aba_webhooks":        "Webhooks",
+      "aba_consumo":         "Consumo"
     },
     "layout": {
       "organizacao": "Organização",

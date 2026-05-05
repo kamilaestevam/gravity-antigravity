@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
-import { ArrowLeft, ChartLineUp, ArrowClockwise } from '@phosphor-icons/react'
+import { ChartLineUp, ArrowClockwise } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { ApiCockpitTabs } from './ApiCockpitTabs'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -70,7 +70,6 @@ function rangeHttpDoFiltro(filtro: FiltroResultado): { minimo?: string; maximo?:
 }
 
 export function ApiConsumo() {
-  const navigate = useNavigate()
   const [logs, setLogs] = useState<LogConsumo[]>([])
   const [paginacao, setPaginacao] = useState<Paginacao | null>(null)
   const [loading, setLoading] = useState(true)
@@ -202,13 +201,7 @@ export function ApiConsumo() {
       }
       toolbar={
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', gap: '1rem' }}>
-          <BotaoGlobal
-            variante="secundario"
-            onClick={() => navigate('/workspace/api-cockpit')}
-            icone={<ArrowLeft size={16} />}
-          >
-            Voltar ao API Cockpit
-          </BotaoGlobal>
+          <ApiCockpitTabs />
           <BotaoGlobal
             variante="primario"
             onClick={() => { setPagina(1); void carregar() }}

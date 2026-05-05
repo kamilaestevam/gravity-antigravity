@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import {
   CheckCircle,
   WarningCircle,
-  Monitor,
   Pulse,
-  TerminalWindow,
-  Key,
-  WebhooksLogo,
-  ChartLineUp,
-  CaretRight,
 } from '@phosphor-icons/react'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { ApiCockpitTabs } from './ApiCockpitTabs'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -78,11 +73,11 @@ type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 
 export function ApiCockpit() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const abaAtiva: 'inventario' | 'logs' = searchParams.get('aba') === 'logs' ? 'logs' : 'inventario'
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
   const [logs, setLogs] = useState<LogConsumo[]>([])
   const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
-  const [abaAtiva, setAbaAtiva] = useState<'geral' | 'logs' | 'config'>('geral')
   const [, setLoading] = useState(true)
 
   useEffect(() => {
@@ -290,108 +285,12 @@ export function ApiCockpit() {
           <CardEstatisticaGlobal titulo={t('workspace.cockpit.requisicoes_24h')}    valor={requisicoes24h}      variante="primario" />
         </div>
 
-        {/* Sub-paginas — navegacao */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-          <button
-            onClick={() => navigate('/workspace/api-cockpit/tokens')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '1rem 1.25rem', borderRadius: '12px',
-              background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)', cursor: 'pointer',
-              fontSize: '0.875rem', textAlign: 'left',
-            }}
-            aria-label="Acessar tokens de API"
-          >
-            <Key size={20} weight="duotone" />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>Tokens de API</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Gerar e revogar tokens</div>
-            </div>
-            <CaretRight size={16} />
-          </button>
-          <button
-            onClick={() => navigate('/workspace/api-cockpit/webhooks')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '1rem 1.25rem', borderRadius: '12px',
-              background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)', cursor: 'pointer',
-              fontSize: '0.875rem', textAlign: 'left',
-            }}
-            aria-label="Acessar webhooks"
-          >
-            <WebhooksLogo size={20} weight="duotone" />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>Webhooks</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Notificacoes em tempo real</div>
-            </div>
-            <CaretRight size={16} />
-          </button>
-          <button
-            onClick={() => navigate('/workspace/api-cockpit/consumo')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '1rem 1.25rem', borderRadius: '12px',
-              background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)', cursor: 'pointer',
-              fontSize: '0.875rem', textAlign: 'left',
-            }}
-            aria-label="Acessar consumo da API"
-          >
-            <ChartLineUp size={20} weight="duotone" />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>Consumo da API</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Logs detalhados de requisicoes</div>
-            </div>
-            <CaretRight size={16} />
-          </button>
-        </div>
+        {/* Tabs unificadas — 5 pills (Inventario, Logs, Tokens, Webhooks, Consumo) */}
+        <ApiCockpitTabs />
 
-        {/* Tabs Control */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', gap: '2rem' }}>
-          <button
-            onClick={() => setAbaAtiva('geral')}
-            style={{
-              padding: '1rem 0.5rem',
-              borderBottom: abaAtiva === 'geral' ? '2px solid var(--brand-primary)' : '2px solid transparent',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: abaAtiva === 'geral' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <Monitor size={20} /> {t('admin.cockpit.aba_inventario')}
-          </button>
-          <button
-            onClick={() => setAbaAtiva('logs')}
-            style={{
-              padding: '1rem 0.5rem',
-              borderBottom: abaAtiva === 'logs' ? '2px solid var(--brand-primary)' : '2px solid transparent',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: abaAtiva === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <TerminalWindow size={20} /> {t('admin.cockpit.aba_logs')}
-          </button>
-        </div>
-
-        {/* Content */}
+        {/* Content da aba ativa (apenas Inventario e Logs ficam nesta rota) */}
         <div style={{ background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))', borderRadius: '12px', padding: '1.5rem', border: '1px solid var(--border-color)' }}>
-          {abaAtiva === 'geral' ? (
+          {abaAtiva === 'inventario' ? (
             <TabelaGlobal
               id="cockpit-services"
               colunas={colunasServicos}

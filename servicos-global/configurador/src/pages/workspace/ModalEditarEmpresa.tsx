@@ -627,7 +627,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
             }}
           >
             <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
-              Funções habilitadas *
+              Tipo de Parceiro *
             </span>
             {!algumaFlagAtiva && (
               <span style={{ fontSize: '0.75rem', color: corErro }}>

@@ -301,9 +301,9 @@ export function EmpresasEParceiros() {
     },
     {
       key: 'pode_ser_importador_empresa',
-      label: 'Funções habilitadas',
+      label: 'Tipo de Parceiro',
       tipo: 'texto',
-      tooltipTitulo: 'Funções habilitadas',
+      tooltipTitulo: 'Tipo de Parceiro',
       tooltipDescricao: 'Papéis que esta empresa pode desempenhar em operações de comércio exterior',
       render: (_, item) => <ChipsPapeis empresa={item} />,
     },

@@ -8,6 +8,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
+import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -221,6 +222,10 @@ export function ApiConsumo() {
           {erro}
         </div>
       )}
+
+      <div style={{ marginTop: '1.5rem' }}>
+        <ApiCockpitKpiCards />
+      </div>
 
       {/* Filtros */}
       <div style={{

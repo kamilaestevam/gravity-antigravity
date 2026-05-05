@@ -7,12 +7,12 @@ import {
   WarningCircle,
   Pulse,
 } from '@phosphor-icons/react'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
+import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -57,19 +57,8 @@ const logsResponseSchema = z.object({
   error: z.string().optional(),
 })
 
-const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo:        z.number(),
-  quantidade_erros_log_consumo:              z.number(),
-  latencia_media_log_consumo:                z.number(),
-  percentual_uptime_log_consumo:             z.number(),
-  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
-  por_id_produto_gravity:                    z.record(z.number()),
-  por_faixa_codigo_resposta_http:            z.record(z.number()),
-})
-
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
 type LogConsumo = z.infer<typeof logConsumoSchema>
-type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 
 export function ApiCockpit() {
   const { t } = useTranslation()
@@ -77,17 +66,13 @@ export function ApiCockpit() {
   const abaAtiva: 'inventario' | 'logs' = searchParams.get('aba') === 'logs' ? 'logs' : 'inventario'
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
   const [logs, setLogs] = useState<LogConsumo[]>([])
-  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
-  const [, setLoading] = useState(true)
 
   useEffect(() => {
     const carregarCockpit = async () => {
-      setLoading(true)
       try {
-        const [svcRes, logsRes, statsRes] = await Promise.all([
+        const [svcRes, logsRes] = await Promise.all([
           requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos'),
           requisicaoAutenticada('/api/v1/api-cockpit/log-consumo?limite=50'),
-          requisicaoAutenticada('/api/v1/api-cockpit/log-consumo/estatisticas'),
         ])
 
         if (svcRes.ok) {
@@ -109,50 +94,12 @@ export function ApiCockpit() {
             console.warn('[ApiCockpit] /log-consumo payload invalido', logsData.error)
           }
         }
-
-        if (statsRes.ok) {
-          const statsRaw = await statsRes.json()
-          const statsData = estatisticasLogConsumoSchema.safeParse(statsRaw)
-          if (statsData.success) {
-            setEstatisticas(statsData.data)
-          } else {
-            console.warn('[ApiCockpit] /log-consumo/estatisticas payload invalido', statsData.error)
-          }
-        }
       } catch (err) {
         console.warn('[ApiCockpit] falha ao carregar cockpit', err)
-      } finally {
-        setLoading(false)
       }
     }
     carregarCockpit()
   }, [])
-
-  // ─── Derivados dos cards (workspace = visao da organizacao) ──────────
-  // Status da Sua Integracao: derivado da taxa de erro 24h da org logada
-  //   <1% erro  → OK (sucesso)
-  //   1-5%      → Atencao (aviso)
-  //   >5%       → Falhando (perigo)
-  //   sem dados → Sem Trafego (padrao)
-  const totalReqOrg     = estatisticas?.quantidade_requisicoes_log_consumo ?? 0
-  const totalErrosOrg   = estatisticas?.quantidade_erros_log_consumo ?? 0
-  const taxaErroPct     = totalReqOrg > 0 ? (totalErrosOrg / totalReqOrg) * 100 : 0
-  const taxaSucessoPct  = totalReqOrg > 0 ? 100 - taxaErroPct : 100
-  const statusIntegracao: 'OK' | 'Atenção' | 'Falhando' | 'Sem Tráfego' =
-    totalReqOrg === 0 ? 'Sem Tráfego'
-    : taxaErroPct < 1 ? 'OK'
-    : taxaErroPct <= 5 ? 'Atenção'
-    : 'Falhando'
-  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
-    statusIntegracao === 'OK'       ? 'sucesso'
-    : statusIntegracao === 'Atenção' ? 'aviso'
-    : statusIntegracao === 'Falhando' ? 'perigo'
-    : 'padrao'
-
-  const taxaSucessoLabel    = estatisticas && totalReqOrg > 0 ? `${taxaSucessoPct.toFixed(1)}%` : '—'
-  const latenciaMediaMs     = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
-  const produtosEmUsoLabel  = estatisticas ? String(estatisticas.quantidade_produtos_distintos_log_consumo) : '—'
-  const requisicoes24h      = estatisticas ? String(totalReqOrg) : '—'
 
   const colunasServicos: TabelaGlobalColuna<ServicoPlataforma>[] = [
     {
@@ -276,14 +223,7 @@ export function ApiCockpit() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
-        {/* KPI Row — 5 cards per-organizacao (visao do workspace) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-          <CardEstatisticaGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} />
-          <CardEstatisticaGlobal titulo={t('workspace.cockpit.taxa_sucesso_24h')}   valor={taxaSucessoLabel}    variante="primario" />
-          <CardEstatisticaGlobal titulo={t('workspace.cockpit.latencia_media_24h')} valor={latenciaMediaMs}     variante="padrao" />
-          <CardEstatisticaGlobal titulo={t('workspace.cockpit.produtos_em_uso')}    valor={produtosEmUsoLabel}  variante="sucesso" />
-          <CardEstatisticaGlobal titulo={t('workspace.cockpit.requisicoes_24h')}    valor={requisicoes24h}      variante="primario" />
-        </div>
+        <ApiCockpitKpiCards />
 
         {/* Tabs unificadas — 5 pills (Inventario, Logs, Tokens, Webhooks, Consumo) */}
         <ApiCockpitTabs />

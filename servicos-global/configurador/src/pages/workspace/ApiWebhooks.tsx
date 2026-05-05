@@ -9,6 +9,7 @@ import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
+import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -322,6 +323,10 @@ export function ApiWebhooks() {
           {erro}
         </div>
       )}
+
+      <div style={{ marginTop: '1.5rem' }}>
+        <ApiCockpitKpiCards />
+      </div>
 
       <div style={{ marginTop: '1.5rem' }}>
         <TabelaGlobal

@@ -498,7 +498,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
         )}
 
         {/* ── Endereço ────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.875rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.4fr 0.9fr', gap: '0.875rem' }}>
           <CampoGeralGlobal label="ESTADO/UF">
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
@@ -517,7 +517,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               opcoes={cidades}
               valor={form.cidade || null}
               aoMudarValor={(v) => setCampo('cidade', String(v ?? ''))}
-              placeholder={form.estado ? 'Selecione a cidade' : 'Selecione o estado primeiro'}
+              placeholder={form.estado ? 'Selecione a cidade' : 'Selecione o estado...'}
               buscavel
               desabilitado={!form.estado}
               carregando={carregandoCidades}

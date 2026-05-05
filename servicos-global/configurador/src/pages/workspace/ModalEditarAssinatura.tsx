@@ -152,57 +152,49 @@ export function ModalEditarAssinatura({
           rotulo: t('workspace.subscriptions.aba_dados'),
           conteudo: (
             <BannerRequisitosContexto requisitos={requisitos}>
+              {/* Aba "Dados" e read-only por design: nome/cobranca/valor/renovacao
+                  vem do catalogo `admin/produtos-gravity` e so admin pode mudar.
+                  Renderiza como display de texto (sem input box) para nao
+                  sugerir editabilidade — decisao dono 2026-05-06. */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingTop: '0.5rem' }}>
                 <CampoGeralGlobal label={t('workspace.subscriptions.tabela.produto')}>
-                  <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 0' }}>
                     <Package size={16} color="var(--ws-muted)" />
-                    <input
-                      readOnly
-                      value={assinatura?.produto.nome_produto_gravity ?? ''}
-                      style={{ width: '100%', fontSize: '0.875rem' }}
-                    />
+                    <span style={{ color: 'var(--ws-text)', fontWeight: 500, fontSize: '0.875rem' }}>
+                      {assinatura?.produto.nome_produto_gravity ?? '—'}
+                    </span>
                   </div>
                 </CampoGeralGlobal>
 
                 <CampoGeralGlobal label={t('workspace.subscriptions.tabela.cobranca')}>
-                  <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 0' }}>
                     <Tag size={16} color="var(--ws-muted)" />
-                    <input
-                      readOnly
-                      value={tipoCobrancaLabel}
-                      style={{ width: '100%', fontSize: '0.875rem' }}
-                    />
+                    <span style={{ color: 'var(--ws-text)', fontWeight: 500, fontSize: '0.875rem' }}>
+                      {tipoCobrancaLabel || '—'}
+                    </span>
                   </div>
                 </CampoGeralGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <CampoGeralGlobal label={t('workspace.subscriptions.tabela.valor')}>
-                    <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 0' }}>
                       <CurrencyDollar size={16} color="var(--ws-muted)" />
-                      <input
-                        readOnly
-                        value={
-                          assinatura
-                            ? `${assinatura.produto.moeda_unitario_produto_gravity} ${assinatura.produto.preco_unitario_produto_gravity}`
-                            : ''
-                        }
-                        style={{ width: '100%', fontSize: '0.875rem' }}
-                      />
+                      <span style={{ color: 'var(--ws-text)', fontWeight: 500, fontSize: '0.875rem' }}>
+                        {assinatura
+                          ? `${assinatura.produto.moeda_unitario_produto_gravity} ${assinatura.produto.preco_unitario_produto_gravity}`
+                          : '—'}
+                      </span>
                     </div>
                   </CampoGeralGlobal>
 
                   <CampoGeralGlobal label={t('workspace.subscriptions.tabela.renovacao')}>
-                    <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 0' }}>
                       <CalendarBlank size={16} color="var(--ws-muted)" />
-                      <input
-                        readOnly
-                        value={
-                          assinatura?.data_fim_periodo_assinatura_produto_gravity
-                            ? new Date(assinatura.data_fim_periodo_assinatura_produto_gravity).toLocaleDateString('pt-BR')
-                            : '—'
-                        }
-                        style={{ width: '100%', fontSize: '0.875rem' }}
-                      />
+                      <span style={{ color: 'var(--ws-text)', fontWeight: 500, fontSize: '0.875rem' }}>
+                        {assinatura?.data_fim_periodo_assinatura_produto_gravity
+                          ? new Date(assinatura.data_fim_periodo_assinatura_produto_gravity).toLocaleDateString('pt-BR')
+                          : '—'}
+                      </span>
                     </div>
                   </CampoGeralGlobal>
                 </div>

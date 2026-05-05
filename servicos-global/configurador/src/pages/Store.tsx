@@ -39,6 +39,7 @@ import {
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/use-load-system-role'
+import { mapRole } from '../types/niveis-acesso'
 import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
@@ -69,8 +70,6 @@ const PRODUCT_META: Record<string, {
   nameKey?: string
   descKey: string
   tagKeys: string[]
-  users: number
-  featured?: boolean
 }> = {
   'bid-frete': {
     iconBg: 'rgba(16, 185, 129, 0.15)',
@@ -81,8 +80,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_bid_frete_nome',
     descKey: 'store.prod_bid_frete_desc',
     tagKeys: ['store.tag_multi_carrier', 'store.tag_tempo_real', 'store.tag_relatorios', 'store.tag_api_integrada'],
-    users: 240,
-    featured: true,
   },
   'bid-cambio': {
     iconBg: 'rgba(16, 185, 129, 0.15)',
@@ -93,7 +90,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_bid_cambio_nome',
     descKey: 'store.prod_bid_cambio_desc',
     tagKeys: ['store.tag_banco_central', 'store.tag_multi_moeda', 'store.tag_historico'],
-    users: 185,
   },
   'nf-importacao': {
     iconBg: 'rgba(99, 102, 241, 0.15)',
@@ -104,7 +100,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_nf_importacao_nome',
     descKey: 'store.prod_nf_importacao_desc',
     tagKeys: ['store.tag_sefaz', 'store.tag_calc_ncm', 'store.tag_xml_pdf'],
-    users: 310,
   },
   'lpco': {
     iconBg: 'rgba(99, 102, 241, 0.15)',
@@ -115,7 +110,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_lpco_nome',
     descKey: 'store.prod_lpco_desc',
     tagKeys: ['store.tag_siscomex', 'store.tag_saldo_auto', 'store.tag_rastreio'],
-    users: 98,
   },
   'pedido': {
     iconBg: 'rgba(245, 158, 11, 0.15)',
@@ -126,7 +120,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_pedido_nome',
     descKey: 'store.prod_pedido_desc',
     tagKeys: ['store.tag_aprov', 'store.tag_rastreamento', 'store.tag_integ_erp'],
-    users: 92,
   },
   'simula-custo': {
     iconBg: 'rgba(99, 102, 241, 0.15)',
@@ -137,7 +130,6 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_simula_custo_nome',
     descKey: 'store.prod_simula_custo_desc',
     tagKeys: ['store.tag_ncm_auto', 'store.tag_impostos', 'store.tag_comparativo'],
-    users: 154,
   },
   'smart-read': {
     iconBg: 'rgba(139, 92, 246, 0.15)',
@@ -148,47 +140,20 @@ const PRODUCT_META: Record<string, {
     nameKey: 'store.prod_smart_read_nome',
     descKey: 'store.prod_smart_read_desc',
     tagKeys: ['store.tag_ocr_ia', 'store.tag_invoice', 'store.tag_aduaneiro'],
-    users: 0,
   },
 }
 
-// Relações entre produtos — quais módulos se complementam
-const PRODUCT_RELATIONS: Record<string, string[]> = {
+// Relação entre produtos Gravity — quais módulos se complementam (chave = slug, valor = slugs relacionados)
+const RELACAO_ENTRE_PRODUTOS_GRAVITY: Record<string, string[]> = {
   'simula-custo':  ['nf-importacao', 'bid-frete'],
-  'nf-importacao': ['simula-custo', 'lpco', 'bid-frete'],
+  'nf-importacao': ['simula-custo', 'bid-frete', 'pedido'],
   'bid-frete':     ['simula-custo', 'nf-importacao', 'pedido'],
-  'bid-cambio':    ['pedido'],
-  'lpco':          ['nf-importacao'],
-  'pedido':        ['bid-cambio', 'bid-frete'],
+  'bid-cambio':    ['pedido', 'nf-importacao'],
+  'pedido':        ['bid-cambio', 'bid-frete', 'nf-importacao'],
 }
 
 // Ordem lógica dos produtos no Stack Visualizer (fluxo de operação)
 const STACK_ORDER = ['simula-custo', 'nf-importacao', 'lpco', 'bid-frete', 'bid-cambio', 'pedido']
-
-const COMING_SOON_CONFIG = [
-  {
-    id: 'cs-smart-read',
-    slug: 'smart-read',
-    nameKey: 'store.prod_smart_read_nome',
-    descKey: 'store.smart_read_desc',
-    categoryKey: 'store.cat_ia',
-    tagKeys: ['store.tag_ocr_ia', 'store.tag_invoice', 'store.tag_aduaneiro'],
-    iconBg: 'rgba(139, 92, 246, 0.15)',
-    icon: <Eye weight="duotone" size={28} color="#a78bfa" />,
-    isPro: false,
-  },
-  {
-    id: 'cs-nf-pro',
-    slug: 'nf-importacao-pro',
-    nameKey: 'store.nf_pro_nome',
-    descKey: 'store.nf_pro_desc',
-    categoryKey: 'store.cat_fiscal_avancado',
-    tagKeys: ['store.tag_siscomex', 'store.tag_drawback', 'store.tag_regime_especial'],
-    iconBg: 'rgba(239, 68, 68, 0.15)',
-    icon: <Package weight="duotone" size={28} color="#f87171" />,
-    isPro: true,
-  },
-]
 
 export function Store() {
   const { t } = useTranslation()
@@ -203,14 +168,7 @@ export function Store() {
   const isLight = currentTheme === 'light'
   const { isGravityAdmin, role: dbRole } = useLoadSystemRole()
 
-  const ROLE_LABELS: Record<string, string> = {
-    SUPER_ADMIN: 'Super Admin',
-    ADMIN:       'Admin',
-    MASTER:      'Master',
-    PADRAO:      'Standard',
-    FORNECEDOR:  'Fornecedor',
-  }
-  const userRoleLabel = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
+  const userRoleLabel = mapRole(dbRole)
 
   useEffect(() => {
     if (isLight) {
@@ -286,6 +244,11 @@ export function Store() {
   }, [loading, searchParams])
 
   const handleSubscribe = async (slug: string) => {
+    const produto = catalog.find(p => p.slug === slug)
+    if (produto?.status !== 'ATIVO' && produto?.status !== 'Ativo') {
+      console.warn('[Store] tentativa de contratar produto não-ATIVO bloqueada', { slug, status: produto?.status })
+      return
+    }
     setSubscribing(slug)
     try {
       const token = await getToken()
@@ -320,11 +283,16 @@ export function Store() {
     }
   }
 
-  const getStatus = (slug: string): 'owned' | 'available' =>
-    subscribed.get(slug)?.is_active ? 'owned' : 'available'
+  const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
+    if (subscribed.get(slug)?.is_active) return 'owned'
+    const produto = catalog.find(p => p.slug === slug)
+    if (produto?.status === 'EM_BREVE') return 'soon'
+    return 'available'
+  }
 
   const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
-  const totalCount = catalog.length + COMING_SOON_CONFIG.length
+  const totalCount = catalog.length
+  const emBreveCount = useMemo(() => catalog.filter(p => p.status === 'EM_BREVE').length, [catalog])
 
   const categoryFilters = useMemo(() => {
     const cats = new Set(catalog.map(p => PRODUCT_META[p.slug]?.categoryFilter).filter(Boolean))
@@ -352,13 +320,12 @@ export function Store() {
         (p.description ?? '').toLowerCase().includes(search.toLowerCase())
       const matchesFilter =
         activeFilter === 'todos' ||
-        activeFilter === 'disponiveis' ||
+        (activeFilter === 'disponiveis' && p.status !== 'EM_BREVE') ||
+        (activeFilter === 'em_breve' && p.status === 'EM_BREVE') ||
         meta?.categoryFilter === activeFilter
       return matchesSearch && matchesFilter
     })
   }, [catalog, search, activeFilter])
-
-  const showComingSoon = activeFilter === 'todos' || activeFilter === 'em_breve'
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history } = useLocalizadorHistory('store')
@@ -535,7 +502,7 @@ export function Store() {
                     <Lightning weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{COMING_SOON_CONFIG.length}</div>
+                    <div className="gs-stat__n">{emBreveCount}</div>
                     <div className="gs-stat__l">{t('store.stat_em_breve')}</div>
                   </div>
                 </div>
@@ -665,7 +632,7 @@ export function Store() {
                   ))}
                 </div>
                 <div className="gs-toolbar__count">
-                  {t('store.contagem_modulos', { count: filteredCatalog.length + (showComingSoon ? COMING_SOON_CONFIG.length : 0) })}
+                  {t('store.contagem_modulos', { count: filteredCatalog.length })}
                 </div>
               </div>
 
@@ -682,14 +649,16 @@ export function Store() {
 
                 {filteredCatalog.map((p, idx) => {
                   const meta = PRODUCT_META[p.slug]
-                  const isOwned = getStatus(p.slug) === 'owned'
+                  const status = getStatus(p.slug)
+                  const isOwned = status === 'owned'
+                  const isSoon = status === 'soon'
                   const isSubscribing = subscribing === p.slug
                   const delayClass = idx < 6 ? `hs-fade-up-d${Math.min(idx + 1, 4)}` : ''
                   return (
                     <div
                       key={p.id}
                       id={`produto-${p.slug}`}
-                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}`}
+                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}`}
                       onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
                       style={isOwned ? { cursor: 'pointer' } : undefined}
                     >
@@ -702,13 +671,14 @@ export function Store() {
                             <span className="gs-badge gs-badge--owned">
                               <CheckCircle weight="fill" size={11} /> {t('store.badge_ativo')}
                             </span>
+                          ) : isSoon ? (
+                            <span className="gs-badge gs-badge--soon">
+                              <Lightning weight="fill" size={11} /> {t('store.badge_em_breve')}
+                            </span>
                           ) : (
                             <span className="gs-badge gs-badge--available">
                               <span className="gs-badge__dot" /> {t('store.badge_disponivel')}
                             </span>
-                          )}
-                          {meta?.featured && (
-                            <span className="gs-badge gs-badge--featured">{t('store.badge_destaque')}</span>
                           )}
                         </div>
                       </div>
@@ -725,16 +695,16 @@ export function Store() {
                         {meta?.tagKeys && (
                           <div className="gs-card__tags">
                             {meta.tagKeys.map(tk => (
-                              <span key={tk} className="gs-tag">{t(tk)}</span>
+                              <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
                             ))}
                           </div>
                         )}
                         {/* Combina com */}
-                        {(PRODUCT_RELATIONS[p.slug]?.length ?? 0) > 0 && (
+                        {(RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug]?.length ?? 0) > 0 && (
                           <div className="gs-card__combina">
                             <span className="gs-card__combina-label">{t('store.combina_com')}</span>
                             <div className="gs-card__combina-chips">
-                              {PRODUCT_RELATIONS[p.slug].map(relSlug => {
+                              {RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug].map(relSlug => {
                                 const relMeta = PRODUCT_META[relSlug]
                                 const relOwned = getStatus(relSlug) === 'owned'
                                 const relProduct = catalog.find(cp => cp.slug === relSlug)
@@ -754,9 +724,7 @@ export function Store() {
                         )}
                       </div>
                       <div className="gs-card__footer">
-                        {meta?.users ? (
-                          <span className="gs-card__users">{t('store.usuarios_usando', { count: meta.users })}</span>
-                        ) : <span />}
+                        <span />
                         {isOwned ? (
                           <BotaoGlobal
                             variante="primario"
@@ -764,6 +732,10 @@ export function Store() {
                             onClick={(e) => { e.stopPropagation(); navigate(`/produto/${p.slug}`) }}
                           >
                             {t('store.btn_acessar')}
+                          </BotaoGlobal>
+                        ) : isSoon ? (
+                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
+                            {t('store.btn_em_breve')}
                           </BotaoGlobal>
                         ) : (
                           <BotaoGlobal
@@ -784,56 +756,6 @@ export function Store() {
                 })}
 
               </div>
-              )}
-
-              {/* Label + Grid — módulos em breve */}
-              {showComingSoon && COMING_SOON_CONFIG.length > 0 && (
-                <>
-                  <div className="gs-section-label" style={{ marginTop: filteredCatalog.length > 0 ? '2rem' : undefined }}>
-                    <span>{t('store.secao_em_breve', { count: COMING_SOON_CONFIG.length })}</span>
-                  </div>
-                  <div className="gs-grid">
-                    {COMING_SOON_CONFIG.map((p, idx) => (
-                      <div
-                        key={p.id}
-                        id={`produto-${p.slug}`}
-                        className={`gs-card gs-card--soon hs-fade-up hs-fade-up-d${Math.min(idx + 1, 4)}`}
-                      >
-                        <div className="gs-card__top">
-                          <div className="gs-card__icon" style={{ background: p.iconBg }}>
-                            {p.icon}
-                          </div>
-                          <div className="gs-card__badges">
-                            <span className="gs-badge gs-badge--soon">
-                              <Lightning weight="fill" size={11} /> {t('store.badge_em_breve')}
-                            </span>
-                            {p.isPro && (
-                              <span className="gs-badge gs-badge--pro">{t('store.badge_pro')}</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="gs-card__body">
-                          <h3 className="gs-card__name" style={{ color: 'var(--sw-text-2)' }}>{t(p.nameKey)}</h3>
-                          <span className="gs-card__category" style={{ color: 'var(--sw-text-3)', opacity: 0.6 }}>
-                            {t(p.categoryKey)}
-                          </span>
-                          <p className="gs-card__desc">{t(p.descKey)}</p>
-                          <div className="gs-card__tags">
-                            {p.tagKeys.map(tk => (
-                              <span key={tk} className="gs-tag gs-tag--muted">{t(tk)}</span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="gs-card__footer">
-                          <span className="gs-card__users" style={{ opacity: 0.5 }}>{t('store.em_desenvolvimento')}</span>
-                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
-                            {t('store.btn_em_breve')}
-                          </BotaoGlobal>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
               )}
 
               {/* Footer */}

@@ -291,6 +291,16 @@ export function Usuarios() {
         type: 'success',
         message: `Usuário "${fNome.trim()}" convidado com sucesso!`,
       })
+
+      // Fase 03 — Standard/Fornecedor sempre nasce sem permissão granular
+      // (least privilege, Mand. 08). Abre o modal de edição na aba Permissões
+      // para o admin configurar agora; se ele cancelar, fica sem acesso a
+      // produtos até alguém abrir o modal manualmente.
+      // Master tem bypass por Mand. 04 — não há toggles para configurar.
+      if (tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR') {
+        setUsuarioEditando(novoUsuario)
+        setAbaEditando('permissoes')
+      }
     } catch (err) {
       addNotification({
         type: 'error',
@@ -906,7 +916,7 @@ export function Usuarios() {
         carregandoWorkspaces={carregando}
         tiposPermitidos={tiposPermitidosUI}
         aoFechar={() => setUsuarioEditando(null)}
-        aoSalvar={async (uEditado, _permissoes, workspaceIds) => {
+        aoSalvar={async (uEditado, permissoesParaPersistir, workspaceIds) => {
           // Estado original para rollback de UI em caso de erro
           const original = usuarios.find((u) => u.id_usuario === uEditado.id_usuario) ?? null
           const tipoMudou = original !== null && original.tipo_usuario !== uEditado.tipo_usuario
@@ -931,7 +941,29 @@ export function Usuarios() {
               await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
             }
 
-            // 3. Refetch — fonte da verdade é o servidor após qualquer mutação
+            // 3. Persiste permissões granulares — uma chamada por (workspace, produto)
+            //    que mudou. O modal já fez o diff e resolveu id_produto_gravity.
+            //    Sequencial para preservar ordem de auditoria e mensagem de erro
+            //    apontar exatamente qual item falhou (Mand. 08).
+            for (const item of permissoesParaPersistir) {
+              try {
+                await usuariosApi.configurarPermissoes(uEditado.id_usuario, {
+                  id_workspace: item.id_workspace,
+                  id_produto_gravity: item.id_produto_gravity,
+                  permissoes: item.permissoes,
+                })
+              } catch (errItem) {
+                // Mand. 08 — enriquece a mensagem com o (workspace, produto) que falhou.
+                // Itens anteriores já foram persistidos: o catch externo dispara refetch
+                // para sincronizar UI com estado real.
+                const baseMsg = extractCatchError(errItem, 'falha desconhecida')
+                throw new Error(
+                  `Permissões do produto ${item.id_produto_gravity} no workspace ${item.id_workspace}: ${baseMsg}`,
+                )
+              }
+            }
+
+            // 4. Refetch — fonte da verdade é o servidor após qualquer mutação
             await recarregarUsuarios()
 
             addNotification({
@@ -944,6 +976,14 @@ export function Usuarios() {
             // que está realmente persistido (modal permanece aberto para retry).
             if (original) {
               setUsuarios((prev) => prev.map((u) => u.id_usuario === uEditado.id_usuario ? original : u))
+            }
+            // Mand. 08 — refetch também no catch: itens anteriores do loop podem ter
+            // sido persistidos antes da falha. Sem o refetch, a UI fica fora de sincronia
+            // com o banco até o usuário recarregar a página.
+            try {
+              await recarregarUsuarios()
+            } catch {
+              // refetch é best-effort no catch — não mascara o erro original.
             }
             addNotification({
               type: 'error',

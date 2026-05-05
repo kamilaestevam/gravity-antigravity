@@ -168,6 +168,10 @@ export function Assinaturas() {
         }
 
         // Assinaturas (Mandamento 06: parse Zod strict)
+        // Decisão dono 2026-05-05: assinaturas CANCELADA (label "Inativa") são
+        // excluídas da view e tambem do set de slugs contratados — assim o
+        // produto reaparece na seção "Disponíveis para contratar" e o usuario
+        // pode re-assinar (POST /assinar-produto faz upsert que reativa).
         const slugsContratados = new Set<string>()
         if (assinaturasRes && assinaturasRes.ok) {
           const raw = await assinaturasRes.json()
@@ -176,8 +180,11 @@ export function Assinaturas() {
             console.error('[Assinaturas] payload de /api/v1/organizacoes/me/assinaturas fora do contrato', parsed.error)
             addNotification({ type: 'error', message: 'Falha de contrato no payload de assinaturas.' })
           } else {
-            setAssinaturas(parsed.data.assinaturas)
-            for (const a of parsed.data.assinaturas) {
+            const visiveis = parsed.data.assinaturas.filter(
+              (a) => a.status_assinatura_produto_gravity !== 'CANCELADA',
+            )
+            setAssinaturas(visiveis)
+            for (const a of visiveis) {
               slugsContratados.add(a.produto.slug_produto_gravity)
             }
           }
@@ -227,7 +234,14 @@ export function Assinaturas() {
     const res = await fetch('/api/v1/organizacoes/me/assinaturas', { headers }).catch(() => null)
     if (!res || !res.ok) return
     const parsed = listaAssinaturasProdutoGravitySchema.safeParse(await res.json())
-    if (parsed.success) setAssinaturas(parsed.data.assinaturas)
+    if (parsed.success) {
+      // Filtra CANCELADA — não aparece na view (decisão dono 2026-05-05)
+      setAssinaturas(
+        parsed.data.assinaturas.filter(
+          (a) => a.status_assinatura_produto_gravity !== 'CANCELADA',
+        ),
+      )
+    }
   }
 
   async function aoSuspenderAssinatura(a: AssinaturaProdutoGravity) {
@@ -655,10 +669,6 @@ export function Assinaturas() {
                 <div className="cg-tooltip__row">
                   <span>Suspensas</span>
                   <strong>{totalAssinaturasSuspensas}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>Inativas</span>
-                  <strong>{assinaturas.filter((a) => a.status_assinatura_produto_gravity === 'CANCELADA').length}</strong>
                 </div>
               </>
             }

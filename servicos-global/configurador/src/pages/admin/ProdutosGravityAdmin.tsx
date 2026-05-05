@@ -469,7 +469,7 @@ export function ProdutosGravityAdmin() {
     { chave: 'nome', ok: formNome.trim().length > 0, mensagem: 'Nome do produto' },
     {
       chave: 'slug',
-      ok: formStatus === 'em-breve' || !!formSlugSelecionado,
+      ok: formStatus === 'EM_BREVE' || !!formSlugSelecionado,
       mensagem: 'Status "Em breve" ou slug do catálogo selecionado',
     },
   ]
@@ -773,11 +773,11 @@ export function ProdutosGravityAdmin() {
                   >
                     <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
                       {([
-                        ['ativo',    t('admin.produtos-gravity.campo_status_ativo')],
-                        ['em-breve', t('admin.produtos-gravity.campo_status_em_breve')],
-                        ['suspenso', 'Suspenso'],
-                        ['legado',   'Legado'],
-                        ['inativo',  'Inativo'],
+                        ['ATIVO',    t('admin.produtos-gravity.campo_status_ativo')],
+                        ['EM_BREVE', t('admin.produtos-gravity.campo_status_em_breve')],
+                        ['SUSPENSO', 'Suspenso'],
+                        ['LEGADO',   'Legado'],
+                        ['INATIVO',  'Inativo'],
                       ] as const).map(([val, label]) => (
                         <TogBtn
                           key={val}
@@ -786,7 +786,7 @@ export function ProdutosGravityAdmin() {
                           set={v => {
                             const novo = v as FormStatus
                             setFormStatus(novo)
-                            if (novo !== 'ativo') setFormSlugSelecionado(null)
+                            if (novo !== 'ATIVO') setFormSlugSelecionado(null)
                           }}
                           label={label}
                         />
@@ -795,7 +795,7 @@ export function ProdutosGravityAdmin() {
                   </CampoGeralGlobal>
                 </div>
 
-                {formStatus === 'ativo' && (
+                {formStatus === 'ATIVO' && (
                   <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_slug')}
                     obrigatorio

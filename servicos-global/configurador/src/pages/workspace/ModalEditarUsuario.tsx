@@ -26,6 +26,21 @@ import {
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
 } from '../../../shared/index.js'
 
+/**
+ * Item da lista de chamadas a `PUT /api/v1/usuarios/:id/permissoes` que o
+ * Usuarios.tsx deve disparar. O modal já fez o diff (originais × atuais) e
+ * resolveu `slug → id_produto_gravity` via cache de `produtosPorWorkspace`.
+ *
+ * Uma chamada por (id_workspace, id_produto_gravity) — substituição atômica.
+ * `permissoes: []` significa "limpar todas as permissões deste produto/workspace".
+ */
+export interface PermissaoSalvar {
+  id_workspace: string
+  id_produto_gravity: string
+  /** Strings completas no formato `<slug>:<secao>:<acao>`. */
+  permissoes: string[]
+}
+
 interface ModalEditarUsuarioProps {
   usuario: UsuarioOrg | null
   abaInicial?: string
@@ -39,7 +54,16 @@ interface ModalEditarUsuarioProps {
    */
   tiposPermitidos?: NivelAcesso[]
   aoFechar: () => void
-  aoSalvar: (dados: UsuarioOrg, permissoes: string[], workspaceIds: string[]) => void
+  /**
+   * Recebe as alterações para persistir. `permissoesParaPersistir` é a lista
+   * mínima de chamadas necessárias (apenas (workspace, produto) que mudaram).
+   * Se vazia, não há mudanças de permissão — apenas patente/workspaces.
+   */
+  aoSalvar: (
+    dados: UsuarioOrg,
+    permissoesParaPersistir: PermissaoSalvar[],
+    workspaceIds: string[],
+  ) => void
 }
 
 /** Mapa rótulo→id para render — derivado de SECOES_PRODUTO (shared). */
@@ -360,6 +384,8 @@ interface AbaPermissoesProps {
   /** Mensagem de erro de carga (Mandamento 08 — UI não silencia). */
   erroCargaPermissoes: string | null
   erroCargaProdutos: string | null
+  /** Mensagem de erro do último save abortado (slug sem id_produto_gravity, etc.). */
+  erroSalvar: string | null
   onSelecionarWorkspace: (id_workspace: string) => void
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
@@ -527,7 +553,7 @@ function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, o
 
 function AbaPermissoes({
   master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
-  carregandoProdutos, erroCargaPermissoes, erroCargaProdutos,
+  carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
   onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto,
 }: AbaPermissoesProps & { tipo: NivelAcesso }) {
   // Bypass — exibe apenas banner informativo
@@ -560,6 +586,9 @@ function AbaPermissoes({
       )}
       {erroCargaProdutos && (
         <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
+      )}
+      {erroSalvar && (
+        <AvisoErroCarga mensagem={erroSalvar} contexto="salvar permissões" />
       )}
 
       {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) */}
@@ -673,6 +702,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   /** Mandamento 08 — rastreia falha de carga para UI exibir aviso (não silenciar). */
   const [erroCargaPermissoes, setErroCargaPermissoes] = useState<string | null>(null)
   const [erroCargaProdutos, setErroCargaProdutos] = useState<string | null>(null)
+  /** Mensagem de erro do save (slug sem id_produto_gravity, etc.). Mand. 08. */
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null)
 
   // Carga inicial: dados do usuário + permissões existentes (Mand. 09 — Zod no client).
   useEffect(() => {
@@ -794,7 +825,18 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       ok: master || workspacesAtivos.length > 0,
       mensagem: 'Tipo Master/Admin ou pelo menos um workspace vinculado',
     },
-  ], [nome, email, master, workspacesAtivos])
+    // Mandamento 08 — bloqueia save se a carga inicial falhou (evita save fantasma).
+    {
+      chave: 'carga_permissoes',
+      ok: !erroCargaPermissoes,
+      mensagem: 'Permissões existentes carregadas com sucesso',
+    },
+    {
+      chave: 'carga_produtos',
+      ok: !erroCargaProdutos,
+      mensagem: 'Produtos do workspace carregados com sucesso',
+    },
+  ], [nome, email, master, workspacesAtivos, erroCargaPermissoes, erroCargaProdutos])
 
   const abas = useMemo(() => [
     {
@@ -828,6 +870,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
             carregandoProdutos={carregandoProdutos}
             erroCargaPermissoes={erroCargaPermissoes}
             erroCargaProdutos={erroCargaProdutos}
+            erroSalvar={erroSalvar}
             onSelecionarWorkspace={setWorkspaceSelecionado}
             onTogglePermissao={handleTogglePermissao}
             onSelecionarTudoProduto={handleSelecionarTudoProduto}
@@ -857,7 +900,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
+  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
 
   // Dirty: comparar mapa atual de permissões com mapa carregado do backend
   // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões
@@ -889,9 +932,97 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const handleSalvar = () => {
     if (!usuario) return
     const tipoBackend: BackendUserRole = nivelToRole(tipo)
-    // Fase 01: passa o map por workspace; Fase 02 implementa o PUT real em Usuarios.tsx.
-    // Achata para array flat (legacy compat) — handler atual de Usuarios.tsx ignora.
-    const permissoesFlat = Object.values(permissoesPorWorkspace).flat()
+
+    // ─── Diff de permissões: produz a lista mínima de PUTs ──────────────────
+    // Para cada (workspace, slug_produto) que tenha conjunto diferente entre
+    // originais e atuais, gera uma chamada. Substituição atômica (Fase 02).
+    // Master/SAdmin/Admin: sem permissões granulares (Mand. 04).
+    const slugsSemId: Array<{ id_workspace: string; slug: string }> = []
+    const permissoesParaPersistir: PermissaoSalvar[] = master ? [] : (() => {
+      const calls: PermissaoSalvar[] = []
+      const wsIds = new Set([
+        ...Object.keys(permissoesOriginaisPorWorkspace),
+        ...Object.keys(permissoesPorWorkspace),
+      ])
+
+      for (const id_workspace of wsIds) {
+        const origens = permissoesOriginaisPorWorkspace[id_workspace] ?? []
+        const atuais = permissoesPorWorkspace[id_workspace] ?? []
+
+        // Agrupa por slug (primeiro segmento da string canônica)
+        const agrupar = (lista: string[]): Map<string, Set<string>> => {
+          const out = new Map<string, Set<string>>()
+          for (const p of lista) {
+            const slug = p.split(':')[0]
+            if (!slug) continue
+            if (!out.has(slug)) out.set(slug, new Set())
+            out.get(slug)!.add(p)
+          }
+          return out
+        }
+
+        const origPorSlug = agrupar(origens)
+        const atuaisPorSlug = agrupar(atuais)
+        const slugsAfetados = new Set([...origPorSlug.keys(), ...atuaisPorSlug.keys()])
+
+        // Cache de produtos do workspace (já populado pelo useEffect lazy).
+        // `product_key` é a chave canônica de slug em ProdutoGravityWorkspace
+        // e bate com `catalog.slug` quando o catálogo está presente. Usar
+        // product_key como fonte primária para tolerar `catalog === null`
+        // (produto soft-deletado mas vínculo ainda ativo).
+        const produtosDoWs = produtosPorWorkspace[id_workspace] ?? []
+        const slugParaId = new Map<string, string>()
+        for (const p of produtosDoWs) {
+          // catalog.id é o id_produto_gravity necessário para o PUT.
+          // Se catalog===null, não há como fazer o PUT — slug fica fora do map
+          // e cai no erro abaixo (Mand. 08).
+          if (p.catalog?.id) {
+            slugParaId.set(p.product_key, p.catalog.id)
+          }
+        }
+
+        for (const slug of slugsAfetados) {
+          const setOrig = origPorSlug.get(slug) ?? new Set<string>()
+          const setNovo = atuaisPorSlug.get(slug) ?? new Set<string>()
+
+          // Sem mudança? pula (não gera PUT inútil)
+          const igual = setOrig.size === setNovo.size && [...setOrig].every(p => setNovo.has(p))
+          if (igual) continue
+
+          const id_produto_gravity = slugParaId.get(slug)
+          if (!id_produto_gravity) {
+            // Mandamento 08 — falha alto. Sem id_produto_gravity, o PUT não pode
+            // ser feito. Acumula para abortar o save inteiro com mensagem clara
+            // (em vez de salvar parcialmente em silêncio).
+            slugsSemId.push({ id_workspace, slug })
+            continue
+          }
+
+          calls.push({
+            id_workspace,
+            id_produto_gravity,
+            permissoes: [...setNovo],
+          })
+        }
+      }
+      return calls
+    })()
+
+    // Mandamento 08 — aborta o save inteiro se houver slug sem id_produto_gravity.
+    // Cenário: produto descontratado entre o open do modal e o save, ou cache stale.
+    // Salvar parcialmente seria pior — o usuário acha que limpou e ficou ativo no banco.
+    if (slugsSemId.length > 0) {
+      const detalhes = slugsSemId.map(s => `${s.slug}@${s.id_workspace}`).join(', ')
+      // eslint-disable-next-line no-console
+      console.warn('[ModalEditarUsuario] Save abortado — produtos sem id_produto_gravity no cache:', detalhes)
+      setErroSalvar(
+        `Não foi possível resolver ${slugsSemId.length} produto(s): ${detalhes}. ` +
+        `Feche e reabra o modal para recarregar o catálogo antes de salvar.`,
+      )
+      return
+    }
+    setErroSalvar(null)
+
     aoSalvar(
       {
         ...usuario,
@@ -899,7 +1030,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         email_usuario: email,
         tipo_usuario: tipoBackend,
       },
-      permissoesFlat,
+      permissoesParaPersistir,
       workspacesAtivos,
     )
   }
@@ -918,7 +1049,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={dirty}
-      podesSalvar={requisitos.every(r => r.ok)}
+      podesSalvar={requisitos.every(r => r.ok) && !erroCargaPermissoes && !erroCargaProdutos}
     />
   )
 }

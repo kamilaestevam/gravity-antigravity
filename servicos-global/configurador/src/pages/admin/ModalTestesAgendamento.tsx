@@ -374,7 +374,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
           )}
 
           <div style={{ border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden' }}>
-            <TabelaGlobal 
+            <TabelaGlobal
               dados={alertas}
               colunas={colunasAlertas}
               idKey="id"

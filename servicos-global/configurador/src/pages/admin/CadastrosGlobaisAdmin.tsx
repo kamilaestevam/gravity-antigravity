@@ -28,6 +28,7 @@ import {
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import {
   TabelaGlobal,
   type TabelaGlobalColuna,
@@ -274,6 +275,7 @@ export default function CadastrosGlobaisAdmin() {
               idKey="codigo_ncm"
               mensagemVazio="Nenhum NCM encontrado com os filtros atuais."
               tooltipBusca="Busca por código ou descrição"
+              acoesExportacao={getAcoesExportacaoPadrao(colunasNcm, 'cadastros-globais-ncm', 'Cadastros Globais — NCM')}
             />
           )}
           {tab === 'moedas' && (
@@ -283,6 +285,7 @@ export default function CadastrosGlobaisAdmin() {
               idKey="codigo_moeda"
               mensagemVazio="Nenhuma moeda encontrada com os filtros atuais."
               tooltipBusca="Busca por código ISO, nome ou símbolo"
+              acoesExportacao={getAcoesExportacaoPadrao(colunasMoedas, 'cadastros-globais-moedas', 'Cadastros Globais — Moedas')}
             />
           )}
           {tab === 'unidades' && (
@@ -292,6 +295,7 @@ export default function CadastrosGlobaisAdmin() {
               idKey="codigo_unidade"
               mensagemVazio="Nenhuma unidade encontrada com os filtros atuais."
               tooltipBusca="Busca por código, nome ou tipo"
+              acoesExportacao={getAcoesExportacaoPadrao(colunasUnidades, 'cadastros-globais-unidades', 'Cadastros Globais — Unidades')}
             />
           )}
         </div>

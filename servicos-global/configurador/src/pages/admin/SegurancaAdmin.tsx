@@ -11,6 +11,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 // ─── Tipos (espelhados do backend) ────────────────────────────────────────
 
@@ -533,7 +534,7 @@ export function SegurancaAdmin() {
               <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.seguranca-admin.health.resumo')}</strong>{' '}
               {health.summary.ok} {t('admin.seguranca-admin.health.ok')} {health.summary.degraded} {t('admin.seguranca-admin.health.degradados')} {health.summary.down} {t('admin.seguranca-admin.health.offline')} {health.summary.total} {t('admin.seguranca-admin.health.servicos')}
             </div>
-            <TabelaGlobal dados={health.services} colunas={colunasHealth} idKey="service" mensagemVazio={t('admin.seguranca-admin.vazio.sem_servicos')} />
+            <TabelaGlobal dados={health.services} colunas={colunasHealth} idKey="service" mensagemVazio={t('admin.seguranca-admin.vazio.sem_servicos')} acoesExportacao={getAcoesExportacaoPadrao(colunasHealth, 'seguranca-health', 'Segurança — Health')} />
           </>
         ) : (
           !erroCarregar && (
@@ -572,6 +573,7 @@ export function SegurancaAdmin() {
             colunas={colunasEventos}
             idKey="id"
             mensagemVazio={loading ? t('admin.seguranca-admin.vazio.carregando_eventos') : t('admin.seguranca-admin.vazio.sem_eventos')}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasEventos, 'seguranca-eventos', 'Eventos de Segurança')}
           />
         </>
       )}
@@ -599,6 +601,7 @@ export function SegurancaAdmin() {
             colunas={colunasRateLimit}
             idKey="id"
             mensagemVazio={loading ? t('comum.carregando') : t('admin.seguranca-admin.vazio.sem_rate_limit')}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasRateLimit, 'seguranca-rate-limit', 'Segurança — Rate Limit')}
           />
         </>
       )}

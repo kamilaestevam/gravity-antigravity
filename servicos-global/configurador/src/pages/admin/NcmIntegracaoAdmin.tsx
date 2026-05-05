@@ -18,6 +18,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/api-client'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ModalAgendamentoSincronizacaoNcm } from './ModalNcmAgendamentoSincronizacao'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -355,6 +356,7 @@ export function NcmIntegracaoAdmin() {
               totalPaginas,
               onPaginaChange: handlePaginaChange,
             } : undefined}
+            acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'ncm-integracao', 'Integração NCM Siscomex')}
           />
         </div>
 

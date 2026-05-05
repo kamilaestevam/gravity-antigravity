@@ -7,6 +7,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { adminPlanosTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 interface PlanoResumo {
   id: string
@@ -114,6 +115,7 @@ export function PlanosTesteAdmin() {
           colunas={colunas}
           idKey="id"
           mensagemVazio="Nenhum plano de teste registrado. Use POST /admin/planos-teste/gerar para criar."
+          acoesExportacao={getAcoesExportacaoPadrao(colunas, 'planos-teste', 'Planos de Teste')}
         />
       </div>
     </PaginaGlobal>

@@ -11,6 +11,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -327,6 +328,7 @@ export function TaxasCambio() {
         carregando={carregando}
         titulo="Cotações Atuais"
         mensagemVazia="Nenhuma cotação armazenada. Clique em Sincronizar PTAX para buscar."
+        acoesExportacao={getAcoesExportacaoPadrao(colunasTaxas, 'taxas-cambio-atuais', 'Taxas de Câmbio — Atuais')}
       />
 
       {/* Histórico */}
@@ -363,6 +365,7 @@ export function TaxasCambio() {
           dados={historico}
           colunas={colunasHistorico}
           mensagemVazia={`Nenhum histórico de ${moedaHistorico} armazenado ainda.`}
+          acoesExportacao={getAcoesExportacaoPadrao(colunasHistorico, 'taxas-cambio-historico', 'Taxas de Câmbio — Histórico')}
         />
       </div>
     </PaginaGlobal>

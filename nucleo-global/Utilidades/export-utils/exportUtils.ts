@@ -6,6 +6,10 @@
  * GTAcaoExport.onClick: () => void — sem parâmetros, dados via closure.
  */
 
+// Re-export do helper que monta as 6 ações padrão de exportação para TabelaGlobal.
+// Promovido do Configurador (`utils/export-helper.tsx`) em 2026-05-05.
+export { getAcoesExportacaoPadrao } from './getAcoesExportacaoPadrao'
+
 export interface ColunasExport {
   header: string
   key:    string

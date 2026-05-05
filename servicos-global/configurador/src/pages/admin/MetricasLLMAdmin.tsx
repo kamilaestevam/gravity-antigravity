@@ -6,6 +6,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { adminMetricasLlmApi } from '../../services/api-client'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 interface DailyMetric {
   date: string
@@ -111,6 +112,7 @@ export function MetricasLLMAdmin() {
           colunas={colunas}
           idKey="date"
           mensagemVazio={t('admin.gemini.vazio')}
+          acoesExportacao={getAcoesExportacaoPadrao(colunas, 'metricas-llm', 'Métricas LLM')}
         />
       </div>
     </PaginaGlobal>

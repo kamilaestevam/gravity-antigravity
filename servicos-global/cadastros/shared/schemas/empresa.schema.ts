@@ -43,6 +43,14 @@ const empresaBaseSchema = z.object({
   pode_ser_agente_empresa: z.boolean().default(false),
   pode_ser_despachante_empresa: z.boolean().default(false),
   pode_ser_armador_empresa: z.boolean().default(false),
+  pode_ser_cia_aerea_empresa: z.boolean().default(false),
+  pode_ser_transportadora_rodoviaria_nacional_empresa: z.boolean().default(false),
+  pode_ser_transportadora_rodoviaria_internacional_empresa: z.boolean().default(false),
+  pode_ser_armazem_alfandegado_empresa: z.boolean().default(false),
+  pode_ser_armazem_nacional_empresa: z.boolean().default(false),
+  pode_ser_banco_empresa: z.boolean().default(false),
+  pode_ser_seguradora_internacional_empresa: z.boolean().default(false),
+  pode_ser_seguradora_corretora_cambio_empresa: z.boolean().default(false),
   ativo_empresa: z.boolean().default(true),
 })
 
@@ -72,7 +80,15 @@ function aplicarRegrasCondicionais(
     data.pode_ser_fabricante_empresa ||
     data.pode_ser_agente_empresa ||
     data.pode_ser_despachante_empresa ||
-    data.pode_ser_armador_empresa
+    data.pode_ser_armador_empresa ||
+    data.pode_ser_cia_aerea_empresa ||
+    data.pode_ser_transportadora_rodoviaria_nacional_empresa ||
+    data.pode_ser_transportadora_rodoviaria_internacional_empresa ||
+    data.pode_ser_armazem_alfandegado_empresa ||
+    data.pode_ser_armazem_nacional_empresa ||
+    data.pode_ser_banco_empresa ||
+    data.pode_ser_seguradora_internacional_empresa ||
+    data.pode_ser_seguradora_corretora_cambio_empresa
 
   if (!algumaFlagAtiva) {
     ctx.addIssue({
@@ -124,6 +140,14 @@ export const empresaSchema = z.object({
   pode_ser_agente_empresa: z.boolean(),
   pode_ser_despachante_empresa: z.boolean(),
   pode_ser_armador_empresa: z.boolean(),
+  pode_ser_cia_aerea_empresa: z.boolean(),
+  pode_ser_transportadora_rodoviaria_nacional_empresa: z.boolean(),
+  pode_ser_transportadora_rodoviaria_internacional_empresa: z.boolean(),
+  pode_ser_armazem_alfandegado_empresa: z.boolean(),
+  pode_ser_armazem_nacional_empresa: z.boolean(),
+  pode_ser_banco_empresa: z.boolean(),
+  pode_ser_seguradora_internacional_empresa: z.boolean(),
+  pode_ser_seguradora_corretora_cambio_empresa: z.boolean(),
   ativo_empresa: z.boolean(),
   criado_em_empresa: z.string(),
   atualizado_em_empresa: z.string(),

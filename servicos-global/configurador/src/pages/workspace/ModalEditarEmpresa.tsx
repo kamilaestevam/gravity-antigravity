@@ -25,6 +25,12 @@ import {
   UserGear,
   ShieldStar,
   Boat,
+  Airplane,
+  TruckTrailer,
+  Warehouse,
+  Bank,
+  ShieldCheck,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -89,6 +95,14 @@ type PapelFlag =
   | 'pode_ser_agente'
   | 'pode_ser_despachante'
   | 'pode_ser_armador'
+  | 'pode_ser_cia_aerea'
+  | 'pode_ser_transportadora_rodoviaria_nacional'
+  | 'pode_ser_transportadora_rodoviaria_internacional'
+  | 'pode_ser_armazem_alfandegado'
+  | 'pode_ser_armazem_nacional'
+  | 'pode_ser_banco'
+  | 'pode_ser_seguradora_internacional'
+  | 'pode_ser_seguradora_corretora_cambio'
 
 interface PapelConfig {
   chave: PapelFlag
@@ -105,6 +119,14 @@ const PAPEIS: PapelConfig[] = [
   { chave: 'pode_ser_agente', label: 'Agente', descricao: 'Representante comercial ou agente de carga', icone: <UserGear weight="duotone" size={18} />, cor: '#c084fc' },
   { chave: 'pode_ser_despachante', label: 'Despachante', descricao: 'Despachante aduaneiro / broker', icone: <ShieldStar weight="duotone" size={18} />, cor: '#f472b6' },
   { chave: 'pode_ser_armador', label: 'Armador', descricao: 'Companhia marítima armadora', icone: <Boat weight="duotone" size={18} />, cor: '#22d3ee' },
+  { chave: 'pode_ser_cia_aerea', label: 'Cia Aérea', descricao: 'Companhia aérea de transporte de carga', icone: <Airplane weight="duotone" size={18} />, cor: '#818cf8' },
+  { chave: 'pode_ser_transportadora_rodoviaria_nacional', label: 'Transp. Rodoviária Nacional', descricao: 'Transportadora rodoviária — trajetos nacionais', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#a3e635' },
+  { chave: 'pode_ser_transportadora_rodoviaria_internacional', label: 'Transp. Rodoviária Internacional', descricao: 'Transportadora rodoviária — trajetos internacionais', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#facc15' },
+  { chave: 'pode_ser_armazem_alfandegado', label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado para armazenagem de carga', icone: <Warehouse weight="duotone" size={18} />, cor: '#fb923c' },
+  { chave: 'pode_ser_armazem_nacional', label: 'Armazém Nacional', descricao: 'Armazém em território nacional não alfandegado', icone: <Warehouse weight="duotone" size={18} />, cor: '#fdba74' },
+  { chave: 'pode_ser_banco', label: 'Banco', descricao: 'Instituição bancária para operações COMEX', icone: <Bank weight="duotone" size={18} />, cor: '#10b981' },
+  { chave: 'pode_ser_seguradora_internacional', label: 'Seguradora Internacional', descricao: 'Seguradora de cargas internacionais', icone: <ShieldCheck weight="duotone" size={18} />, cor: '#06b6d4' },
+  { chave: 'pode_ser_seguradora_corretora_cambio', label: 'Seguradora / Corretora de Câmbio', descricao: 'Corretora de câmbio ou seguradora cambial', icone: <CurrencyCircleDollar weight="duotone" size={18} />, cor: '#14b8a6' },
 ]
 
 // ── Formulário state shape ───────────────────────────────────────────────────
@@ -145,6 +167,14 @@ function empresaParaForm(empresa: Empresa | null): FormState {
       pode_ser_agente: empresa?.pode_ser_agente_empresa ?? false,
       pode_ser_despachante: empresa?.pode_ser_despachante_empresa ?? false,
       pode_ser_armador: empresa?.pode_ser_armador_empresa ?? false,
+      pode_ser_cia_aerea: empresa?.pode_ser_cia_aerea_empresa ?? false,
+      pode_ser_transportadora_rodoviaria_nacional: empresa?.pode_ser_transportadora_rodoviaria_nacional_empresa ?? false,
+      pode_ser_transportadora_rodoviaria_internacional: empresa?.pode_ser_transportadora_rodoviaria_internacional_empresa ?? false,
+      pode_ser_armazem_alfandegado: empresa?.pode_ser_armazem_alfandegado_empresa ?? false,
+      pode_ser_armazem_nacional: empresa?.pode_ser_armazem_nacional_empresa ?? false,
+      pode_ser_banco: empresa?.pode_ser_banco_empresa ?? false,
+      pode_ser_seguradora_internacional: empresa?.pode_ser_seguradora_internacional_empresa ?? false,
+      pode_ser_seguradora_corretora_cambio: empresa?.pode_ser_seguradora_corretora_cambio_empresa ?? false,
     },
     ativo: empresa?.ativo_empresa ?? true,
   }
@@ -156,12 +186,20 @@ function empresaParaForm(empresa: Empresa | null): FormState {
  */
 function papeisParaPayload(papeis: FormState['papeis']): Record<string, boolean> {
   return {
-    pode_ser_importador_empresa:  papeis.pode_ser_importador,
-    pode_ser_exportador_empresa:  papeis.pode_ser_exportador,
-    pode_ser_fabricante_empresa:  papeis.pode_ser_fabricante,
-    pode_ser_agente_empresa:      papeis.pode_ser_agente,
-    pode_ser_despachante_empresa: papeis.pode_ser_despachante,
-    pode_ser_armador_empresa:     papeis.pode_ser_armador,
+    pode_ser_importador_empresa:                              papeis.pode_ser_importador,
+    pode_ser_exportador_empresa:                              papeis.pode_ser_exportador,
+    pode_ser_fabricante_empresa:                              papeis.pode_ser_fabricante,
+    pode_ser_agente_empresa:                                  papeis.pode_ser_agente,
+    pode_ser_despachante_empresa:                             papeis.pode_ser_despachante,
+    pode_ser_armador_empresa:                                 papeis.pode_ser_armador,
+    pode_ser_cia_aerea_empresa:                               papeis.pode_ser_cia_aerea,
+    pode_ser_transportadora_rodoviaria_nacional_empresa:      papeis.pode_ser_transportadora_rodoviaria_nacional,
+    pode_ser_transportadora_rodoviaria_internacional_empresa: papeis.pode_ser_transportadora_rodoviaria_internacional,
+    pode_ser_armazem_alfandegado_empresa:                     papeis.pode_ser_armazem_alfandegado,
+    pode_ser_armazem_nacional_empresa:                        papeis.pode_ser_armazem_nacional,
+    pode_ser_banco_empresa:                                   papeis.pode_ser_banco,
+    pode_ser_seguradora_internacional_empresa:                papeis.pode_ser_seguradora_internacional,
+    pode_ser_seguradora_corretora_cambio_empresa:             papeis.pode_ser_seguradora_corretora_cambio,
   }
 }
 
@@ -428,7 +466,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         {/* ── Identificação ────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
-          <CampoGeralGlobal label="RAZÃO SOCIAL" obrigatorio>
+          <CampoGeralGlobal label="NOME DO PARCEIRO" obrigatorio>
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input

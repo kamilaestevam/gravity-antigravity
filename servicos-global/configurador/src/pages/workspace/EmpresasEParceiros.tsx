@@ -77,6 +77,14 @@ const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
   { key: 'pode_ser_agente_empresa', label: 'Agente', cor: '#c084fc' },
   { key: 'pode_ser_despachante_empresa', label: 'Despachante', cor: '#f472b6' },
   { key: 'pode_ser_armador_empresa', label: 'Armador', cor: '#22d3ee' },
+  { key: 'pode_ser_cia_aerea_empresa', label: 'Cia Aérea', cor: '#818cf8' },
+  { key: 'pode_ser_transportadora_rodoviaria_nacional_empresa', label: 'Transp. Rod. Nacional', cor: '#a3e635' },
+  { key: 'pode_ser_transportadora_rodoviaria_internacional_empresa', label: 'Transp. Rod. Internacional', cor: '#facc15' },
+  { key: 'pode_ser_armazem_alfandegado_empresa', label: 'Armazém Alfandegado', cor: '#fb923c' },
+  { key: 'pode_ser_armazem_nacional_empresa', label: 'Armazém Nacional', cor: '#fdba74' },
+  { key: 'pode_ser_banco_empresa', label: 'Banco', cor: '#10b981' },
+  { key: 'pode_ser_seguradora_internacional_empresa', label: 'Seguradora Internacional', cor: '#06b6d4' },
+  { key: 'pode_ser_seguradora_corretora_cambio_empresa', label: 'Seguradora / Corretora Câmbio', cor: '#14b8a6' },
 ]
 
 function ChipsPapeis({ empresa }: { empresa: Empresa }) {
@@ -378,6 +386,14 @@ export function EmpresasEParceiros() {
     { header: 'Agente', key: 'pode_ser_agente' },
     { header: 'Despachante', key: 'pode_ser_despachante' },
     { header: 'Armador', key: 'pode_ser_armador' },
+    { header: 'Cia Aérea', key: 'pode_ser_cia_aerea' },
+    { header: 'Transp. Rod. Nacional', key: 'pode_ser_transportadora_rodoviaria_nacional' },
+    { header: 'Transp. Rod. Internacional', key: 'pode_ser_transportadora_rodoviaria_internacional' },
+    { header: 'Armazém Alfandegado', key: 'pode_ser_armazem_alfandegado' },
+    { header: 'Armazém Nacional', key: 'pode_ser_armazem_nacional' },
+    { header: 'Banco', key: 'pode_ser_banco' },
+    { header: 'Seguradora Internacional', key: 'pode_ser_seguradora_internacional' },
+    { header: 'Seguradora / Corretora Câmbio', key: 'pode_ser_seguradora_corretora_cambio' },
     { header: 'Ativo', key: 'ativo' },
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'empresas-e-parceiros', titulo: 'Empresas e Parceiros' }

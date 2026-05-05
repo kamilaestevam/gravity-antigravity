@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import {
   CheckCircle,
@@ -7,6 +8,8 @@ import {
   Monitor,
   Pulse,
   TerminalWindow,
+  Key,
+  CaretRight,
 } from '@phosphor-icons/react'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -71,6 +74,7 @@ type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 
 export function ApiCockpit() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
   const [logs, setLogs] = useState<LogConsumo[]>([])
   const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
@@ -274,6 +278,29 @@ export function ApiCockpit() {
           <CardEstatisticaGlobal titulo={t('admin.cockpit.latencia_media')}  valor={latenciaMediaMs}  variante="padrao" />
           <CardEstatisticaGlobal titulo={t('admin.cockpit.apis_online')}     valor={apisOnlineLabel}  variante="sucesso" />
           <CardEstatisticaGlobal titulo={t('admin.cockpit.requisicoes_24h')} valor={requisicoes24h}   variante="primario" />
+        </div>
+
+        {/* Sub-paginas — navegacao */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <button
+            onClick={() => navigate('/workspace/api-cockpit/tokens')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.75rem',
+              padding: '1rem 1.25rem', borderRadius: '12px',
+              background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)', cursor: 'pointer',
+              fontSize: '0.875rem', textAlign: 'left',
+            }}
+            aria-label="Acessar tokens de API"
+          >
+            <Key size={20} weight="duotone" />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600 }}>Tokens de API</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Gerar e revogar tokens</div>
+            </div>
+            <CaretRight size={16} />
+          </button>
         </div>
 
         {/* Tabs Control */}

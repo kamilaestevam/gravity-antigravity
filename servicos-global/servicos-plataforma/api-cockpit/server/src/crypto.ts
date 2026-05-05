@@ -8,12 +8,24 @@ export function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
 }
 
-// Generate new random Token API Key
-export function generateTokenAPIKey(prefix: 'gv_live_sk_' | 'gv_test_sk_'): { token: string; hash: string } {
+// Prefixos DDD canonicos para tokens de API
+export type PrefixoApiToken = 'gravity_token_api_producao_' | 'gravity_token_api_homologacao_'
+
+/** Retorna o prefixo correto para o ambiente atual. */
+export function obterPrefixoApiToken(): PrefixoApiToken {
+  return process.env.NODE_ENV === 'production'
+    ? 'gravity_token_api_producao_'
+    : 'gravity_token_api_homologacao_'
+}
+
+/** Gera um novo token de API com prefixo DDD + 32 bytes hex aleatorios. */
+export function gerarApiToken(
+  prefixo: PrefixoApiToken,
+): { valor_api_token: string; hash_api_token: string } {
   const randomBytes = crypto.randomBytes(32).toString('hex')
-  const token = `${prefix}${randomBytes}`
-  const hash = hashToken(token)
-  return { token, hash }
+  const valor_api_token = `${prefixo}${randomBytes}`
+  const hash_api_token = hashToken(valor_api_token)
+  return { valor_api_token, hash_api_token }
 }
 
 // AES-256-GCM encryption
@@ -50,7 +62,7 @@ export function decryptAES(cipherText: string, encryptionKey: string): string {
     let decrypted = decipher.update(encryptedHex, 'hex', 'utf8')
     decrypted += decipher.final('utf8')
     return decrypted
-  } catch (err: any) {
+  } catch {
     throw new Error('Decryption failed')
   }
 }

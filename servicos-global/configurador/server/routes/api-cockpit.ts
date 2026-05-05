@@ -125,6 +125,88 @@ apiCockpitRouter.get('/log-consumo/estatisticas', async (_req, res) => {
   }
 })
 
+// ─── Workspace: api-tokens (CRUD com isolamento por id_organizacao) ─────
+
+/** Helper proxy para api-tokens (caminho diferente do monitoramento-api) */
+async function proxyToTokens(
+  metodo: 'GET' | 'POST' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<{ status: number; data: unknown }> {
+  const url = `${API_COCKPIT_URL}/api/v1/cockpit/api-tokens${path}`
+  const init: RequestInit = {
+    method: metodo,
+    headers: {
+      'x-internal-key': INTERNAL_SERVICE_KEY,
+      'Content-Type':   'application/json',
+    },
+    signal: AbortSignal.timeout(5_000),
+  }
+  if (body !== undefined) init.body = JSON.stringify(body)
+  const response = await fetch(url, init)
+  const data = response.status === 204 ? null : await response.json().catch(() => null)
+  return { status: response.status, data }
+}
+
+apiCockpitRouter.get('/api-tokens', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) {
+      return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    }
+    const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/api-tokens/`)
+    url.searchParams.set('id_organizacao', idOrganizacao)
+    const response = await fetch(url.toString(), {
+      headers: {
+        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'Content-Type':   'application/json',
+      },
+      signal: AbortSignal.timeout(5_000),
+    })
+    if (!response.ok) throw new Error(`api-tokens listar ${response.status}`)
+    res.json(await response.json())
+  } catch (err) {
+    res.json({ tokens: [], error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.post('/api-tokens', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    const idUsuario     = req.auth?.id_usuario
+    if (!idOrganizacao) {
+      return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    }
+    const body = {
+      ...(req.body || {}),
+      id_organizacao: idOrganizacao,
+      id_usuario:     idUsuario,
+    }
+    const { status, data } = await proxyToTokens('POST', '/', body)
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) {
+      return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    }
+    const { status, data } = await proxyToTokens(
+      'DELETE',
+      `/${encodeURIComponent(req.params.id_api_token)}`,
+      { id_organizacao: idOrganizacao },
+    )
+    if (status === 204) return res.status(204).send()
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
 // ─── Admin Routes (gravity_admin — todas as organizacoes) ───────────────
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
@@ -158,6 +240,30 @@ apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (_req, res) => {
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)
+  }
+})
+
+// ─── Admin: api-tokens (qualquer organizacao via query) ─────────────────
+
+apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
+  try {
+    const idOrganizacao = (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
+    }
+    const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/api-tokens/`)
+    url.searchParams.set('id_organizacao', idOrganizacao)
+    const response = await fetch(url.toString(), {
+      headers: {
+        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'Content-Type':   'application/json',
+      },
+      signal: AbortSignal.timeout(5_000),
+    })
+    if (!response.ok) throw new Error(`api-tokens admin listar ${response.status}`)
+    res.json(await response.json())
+  } catch (err) {
+    res.json({ tokens: [], error: maskError(err) })
   }
 })
 

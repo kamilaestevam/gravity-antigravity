@@ -14,13 +14,13 @@ import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 
-// TODO: tokens/webhooks/erp routes importam middleware (requireAuth, tenantIsolation)
-// de um path que nunca foi implementado. Desabilitados até que o middleware seja criado.
-// import { tokensRouter } from './routes/tokens'
+// TODO Fase 7-9: webhooks/erp ainda usam middleware (requireAuth, tenantIsolation)
+// de um path que nunca foi implementado. Refatorar para padrao S2S como tokens.ts.
 // import { webhooksRouter } from './routes/webhooks'
 // import { erpRouter } from './routes/erp'
 import { documentacaoApiRouter } from './routes/documentacao-api'
 import { monitoramentoApiRouter } from './routes/monitoramento-api'
+import { tokensRouter } from './routes/tokens'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 
@@ -40,11 +40,11 @@ app.get('/health', (req, res) => {
 app.use(rateLimitPresets.internal())
 
 // Routes
-// app.use('/api/v1/api-tokens', tokensRouter)
-// app.use('/api/v1/webhooks', webhooksRouter)
-// app.use('/api/v1/erp', erpRouter)
-app.use('/api/v1/cockpit/documentacao-api', requireInternalKey, documentacaoApiRouter)
-app.use('/api/v1/cockpit/monitoramento-api', monitoramentoApiRouter)
+// app.use('/api/v1/cockpit/webhooks', webhooksRouter)
+// app.use('/api/v1/cockpit/erp', erpRouter)
+app.use('/api/v1/cockpit/api-tokens',         tokensRouter)
+app.use('/api/v1/cockpit/documentacao-api',   requireInternalKey, documentacaoApiRouter)
+app.use('/api/v1/cockpit/monitoramento-api',  monitoramentoApiRouter)
 
 // Error Handler
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

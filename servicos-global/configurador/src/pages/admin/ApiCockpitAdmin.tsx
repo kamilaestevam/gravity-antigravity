@@ -24,7 +24,7 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
-  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'GATEWAY']),
+  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
 })
 
 const servicosResponseSchema = z.object({
@@ -235,7 +235,7 @@ export function ApiCockpitAdmin() {
       label: t('admin.api-cockpit.tabela.tipo'),
       tipo: 'texto',
       tooltipTitulo: 'Tipo',
-      tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou gateway',
+      tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou conector',
       render: (val) => <span style={{ textTransform: 'capitalize' }}>{(val as string).toLowerCase().replace('_', ' ')}</span>,
     },
     {

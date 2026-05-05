@@ -67,7 +67,7 @@ interface LogConsumoInput {
 }
 
 type StatusServicoPlataforma = 'ONLINE' | 'DEGRADADO' | 'OFFLINE'
-type TipoServicoPlataforma = 'NUCLEO' | 'PRODUTO_GRAVITY' | 'GATEWAY'
+type TipoServicoPlataforma = 'NUCLEO' | 'PRODUTO_GRAVITY' | 'CONECTOR'
 
 interface ServicoPlataforma {
   nome_servico_plataforma: string

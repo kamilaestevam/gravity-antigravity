@@ -22,7 +22,7 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
-  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'GATEWAY']),
+  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
 })
 
 const servicosResponseSchema = z.object({
@@ -114,17 +114,18 @@ export function ApiCockpit() {
       label: t('admin.cockpit.tabela.tipo'),
       tipo: 'texto',
       tooltipTitulo: 'Tipo',
-      tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou gateway',
+      tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou conector',
       render: (val) => <span style={{ textTransform: 'capitalize' }}>{(val as string).toLowerCase().replace('_', ' ')}</span>,
     },
     {
       key: 'status_servico_plataforma',
       label: t('admin.cockpit.tabela.status'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Status',
       tooltipDescricao: 'Indica se o serviço está respondendo normalmente',
       render: (val) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: val === 'ONLINE' ? '#10b981' : '#f59e0b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: val === 'ONLINE' ? '#10b981' : '#f59e0b' }}>
           {val === 'ONLINE' ? <CheckCircle size={16} weight="fill" /> : <WarningCircle size={16} weight="fill" />}
           {val as string}
         </div>

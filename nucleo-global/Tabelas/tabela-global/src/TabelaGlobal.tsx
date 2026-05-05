@@ -31,6 +31,12 @@ export interface TabelaGlobalColuna<T> {
   renderFiltroLabel?: (val: string) => string
   /** Renderiza JSX customizado para cada item do filtro (sobrepõe renderFiltroLabel) */
   renderFiltroItem?: (val: string) => React.ReactNode
+  /** Extrai o valor STRING usado em filtro popover, aplicação do filtro,
+   *  busca textual e export. Padrão: `String(item[key])`.
+   *  Use quando `key` aponta para objeto, ID ou campo aninhado e você quer
+   *  que o filtro/export mostre o label legível (ex: nome do produto em vez
+   *  do objeto produto, label do enum em vez do ID). */
+  getValorBruto?: (item: T) => string
 }
 
 export interface TabelaGlobalAcao<T> {
@@ -372,9 +378,11 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   const sortAtivo = ordenacao?.coluna === coluna
 
   const valoresDisponiveis = useMemo(() => {
-    const vals = dados.map(e => String(e[coluna as keyof T] ?? ''))
+    const vals = dados.map(e => col.getValorBruto
+      ? col.getValorBruto(e)
+      : String(e[coluna as keyof T] ?? ''))
     return [...new Set(vals)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
-  }, [dados, coluna])
+  }, [dados, coluna, col])
 
   const stateVal = filtros[coluna]
   const temFiltroAtivo = !stateVal ? false : col.tipo === 'texto' ? (stateVal as Set<string>).size > 0 
@@ -436,6 +444,51 @@ function renderCelulaCamada<T>(coluna: TabelaGlobalColuna<T>, item: T): React.Re
   const valor = (item as any)[coluna.key]
   if (coluna.render) return coluna.render(valor, item)
   return <span>{String(valor ?? '—')}</span>
+}
+
+// ─── CSV helpers (export default) ────────────────────────────────────────────
+
+function escaparCsv(valor: unknown): string {
+  if (valor === null || valor === undefined) return ''
+  const s = typeof valor === 'string' ? valor : String(valor)
+  // Escapa quando há aspas duplas, vírgula, ponto-e-vírgula, quebra de linha ou tab
+  if (/["\n\r,;\t]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`
+  }
+  return s
+}
+
+function gerarCsvDeTabela<T extends Record<string, any>>(
+  dadosVisiveis: T[],
+  colunasVisiveis: TabelaGlobalColuna<T>[],
+): string {
+  const header = colunasVisiveis.map(c => escaparCsv(c.label)).join(',')
+  const linhas = dadosVisiveis.map(item =>
+    colunasVisiveis.map(c => escaparCsv(item[c.key])).join(','),
+  )
+  return [header, ...linhas].join('\r\n')
+}
+
+function baixarCsv(conteudo: string, nomeArquivo: string): void {
+  // BOM UTF-8 para compatibilidade com Excel em Windows
+  const blob = new Blob(['﻿', conteudo], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = nomeArquivo
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function nomeArquivoCsv(tableId: string | undefined): string {
+  const hoje = new Date()
+  const yyyy = hoje.getFullYear()
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0')
+  const dd = String(hoje.getDate()).padStart(2, '0')
+  const base = tableId && tableId.trim() ? tableId : 'tabela'
+  return `${base}-${yyyy}-${mm}-${dd}.csv`
 }
 
 function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
@@ -652,7 +705,10 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
 
     if (busca.trim()) {
       const q = busca.toLowerCase()
-      r = r.filter(e => colunasVisiveis.some(c => String(e[c.key]).toLowerCase().includes(q)))
+      r = r.filter(e => colunasVisiveis.some(c => {
+        const v = c.getValorBruto ? c.getValorBruto(e) : String(e[c.key] ?? '')
+        return v.toLowerCase().includes(q)
+      }))
     }
 
     colunasVisiveis.forEach(c => {
@@ -663,7 +719,10 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
       if (st === undefined) return
       if (c.tipo === 'texto') {
         const s = st as Set<string>
-        if (s.size > 0) r = r.filter(e => s.has(String(e[c.key])))
+        if (s.size > 0) r = r.filter(e => {
+          const v = c.getValorBruto ? c.getValorBruto(e) : String(e[c.key])
+          return s.has(v)
+        })
       } else if (c.tipo === 'numero') {
         const num = st as {min: string, max: string}
         if (num.min !== '') r = r.filter(e => Number(e[c.key]) >= Number(num.min))
@@ -862,15 +921,38 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
               )}
             </div>
           )}
-          {(acoesExportacao && acoesExportacao.length > 0) && (
-            <BotaoCompletoExportar
-              acoes={acoesExportacao.map(a => ({
-                label: a.label,
-                icone: a.icone,
-                onClick: () => a.onClick(resultado),
-              }))}
-            />
-          )}
+          {(() => {
+            // Comportamento de exportação:
+            // - acoesExportacao === undefined  → default ON: mostra "Exportar CSV"
+            // - acoesExportacao === []         → opt-out explícito: nenhum botão
+            // - acoesExportacao = [...]        → consumidor define suas ações
+            if (acoesExportacao === undefined) {
+              return (
+                <BotaoCompletoExportar
+                  acoes={[{
+                    label: t('tabela.exportar_csv', { defaultValue: 'Exportar CSV' }),
+                    icone: <DownloadSimple size={13} weight="bold" />,
+                    onClick: () => {
+                      const csv = gerarCsvDeTabela(resultado, colunasVisiveis)
+                      baixarCsv(csv, nomeArquivoCsv(tableId))
+                    },
+                  }]}
+                />
+              )
+            }
+            if (acoesExportacao.length > 0) {
+              return (
+                <BotaoCompletoExportar
+                  acoes={acoesExportacao.map(a => ({
+                    label: a.label,
+                    icone: a.icone,
+                    onClick: () => a.onClick(resultado),
+                  }))}
+                />
+              )
+            }
+            return null
+          })()}
         </div>
       </div>
 

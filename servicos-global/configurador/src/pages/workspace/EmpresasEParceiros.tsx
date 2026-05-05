@@ -239,8 +239,9 @@ export function EmpresasEParceiros() {
       tooltipTitulo: 'Empresa',
       tooltipDescricao: 'Razão social registrada no Cadastros da organização',
       render: (_, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div
+        // inline-flex + justifyContent center casa com `text-align: center` da célula <td>.
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.625rem' }}>
+          <span
             style={{
               width: 32,
               height: 32,
@@ -248,19 +249,19 @@ export function EmpresasEParceiros() {
               borderRadius: 8,
               background: 'rgba(129,140,248,0.12)',
               border: '1px solid rgba(129,140,248,0.25)',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#818cf8',
             }}
           >
             <Buildings size={16} weight="duotone" />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          </span>
+          <span style={{ display: 'inline-flex', flexDirection: 'column', lineHeight: 1.2, textAlign: 'left' }}>
             <span style={{ fontWeight: 600 }}>{item.nome_empresa}</span>
             <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.suid_empresa}</code>
-          </div>
-        </div>
+          </span>
+        </span>
       ),
     },
     {

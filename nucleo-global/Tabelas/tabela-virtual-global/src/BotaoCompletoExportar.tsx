@@ -1,10 +1,16 @@
 /**
  * BotaoCompletoExportar — botão de exportação com dropdown de formatos.
- * Encapsula estado de abrir/fechar, click-outside e renderização dos itens.
- * Usado internamente pela TabelaVirtualGlobal via prop acoesExportacao.
+ *
+ * O dropdown é renderizado via React Portal no document.body com
+ * position: fixed e coordenadas calculadas a partir do getBoundingClientRect()
+ * do botão. Isso evita clipping por ancestrais com overflow:hidden (comum em
+ * cards de tabela com border-radius).
+ *
+ * Recalcula posição em scroll/resize enquanto o menu está aberto.
  */
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { GTAcaoExport } from './tipos.js'
 import './botao-completo-exportar.css'
 
@@ -32,11 +38,47 @@ export interface BotaoCompletoExportarProps {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
+interface MenuPosicao {
+  top:   number
+  right: number
+}
+
 export function BotaoCompletoExportar({ acoes }: BotaoCompletoExportarProps) {
   const [aberto, setAberto] = useState(false)
+  const [posicao, setPosicao] = useState<MenuPosicao | null>(null)
   const btnRef  = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
+  // Recalcula posicao do menu a partir do bounding rect do botao
+  const recalcularPosicao = () => {
+    const btn = btnRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    setPosicao({
+      top:   rect.bottom + 6,                  // 6px abaixo do botao
+      right: window.innerWidth - rect.right,   // alinhado a direita do botao
+    })
+  }
+
+  // Calcula posicao inicial sincrono com primeiro render do menu (evita flash)
+  useLayoutEffect(() => {
+    if (aberto) recalcularPosicao()
+  }, [aberto])
+
+  // Listeners de scroll/resize enquanto aberto — fechar OU recalcular?
+  // Decisao: recalcular em ambos (UX comum em popovers — segue o botao)
+  useEffect(() => {
+    if (!aberto) return
+    const onScrollResize = () => recalcularPosicao()
+    window.addEventListener('scroll', onScrollResize, true) // capture: pega scroll de ancestrais
+    window.addEventListener('resize', onScrollResize)
+    return () => {
+      window.removeEventListener('scroll', onScrollResize, true)
+      window.removeEventListener('resize', onScrollResize)
+    }
+  }, [aberto])
+
+  // Click outside — fecha quando clica fora do botao e fora do menu
   useEffect(() => {
     if (!aberto) return
     function fora(e: MouseEvent) {
@@ -67,8 +109,12 @@ export function BotaoCompletoExportar({ acoes }: BotaoCompletoExportarProps) {
         Exportar
       </button>
 
-      {aberto && (
-        <div ref={menuRef} className="gtv-export-menu">
+      {aberto && posicao && createPortal(
+        <div
+          ref={menuRef}
+          className="gtv-export-menu"
+          style={{ top: `${posicao.top}px`, right: `${posicao.right}px` }}
+        >
           {acoes.map((acao) => (
             <button
               key={acao.label}
@@ -82,7 +128,8 @@ export function BotaoCompletoExportar({ acoes }: BotaoCompletoExportarProps) {
               {acao.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

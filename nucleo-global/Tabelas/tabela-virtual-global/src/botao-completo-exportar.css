@@ -44,10 +44,10 @@
 }
 
 /* ─── Menu dropdown ───────────────────────────────────────────────────────── */
+/* position: fixed + Portal — top/right setados inline via JS para escapar
+   ancestrais com overflow:hidden (cards de tabela com border-radius). */
 .gtv-export-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  position: fixed;
   z-index: 9999;
   background: var(--bg-base, #1e293b);
   border: 1px solid var(--color-border, #334155);

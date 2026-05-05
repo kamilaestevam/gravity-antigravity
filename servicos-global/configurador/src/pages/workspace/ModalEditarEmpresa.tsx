@@ -31,7 +31,9 @@ import {
   Bank,
   ShieldCheck,
   CurrencyCircleDollar,
+  Info,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
@@ -113,20 +115,20 @@ interface PapelConfig {
 }
 
 const PAPEIS: PapelConfig[] = [
-  { chave: 'pode_ser_importador', label: 'Importador', descricao: 'Pode figurar como importador em processos', icone: <Package weight="duotone" size={18} />, cor: '#60a5fa' },
-  { chave: 'pode_ser_exportador', label: 'Exportador', descricao: 'Pode figurar como exportador em processos', icone: <Truck weight="duotone" size={18} />, cor: '#34d399' },
-  { chave: 'pode_ser_fabricante', label: 'Fabricante', descricao: 'Pode ser indicada como fabricante da mercadoria', icone: <Factory weight="duotone" size={18} />, cor: '#fbbf24' },
-  { chave: 'pode_ser_agente', label: 'Agente', descricao: 'Representante comercial ou agente de carga', icone: <UserGear weight="duotone" size={18} />, cor: '#c084fc' },
-  { chave: 'pode_ser_despachante', label: 'Despachante', descricao: 'Despachante aduaneiro / broker', icone: <ShieldStar weight="duotone" size={18} />, cor: '#f472b6' },
+  { chave: 'pode_ser_importador', label: 'Importador', descricao: 'Pode figurar como importador', icone: <Package weight="duotone" size={18} />, cor: '#60a5fa' },
+  { chave: 'pode_ser_exportador', label: 'Exportador', descricao: 'Pode figurar como exportador', icone: <Truck weight="duotone" size={18} />, cor: '#34d399' },
+  { chave: 'pode_ser_fabricante', label: 'Fabricante', descricao: 'Fabricante da mercadoria', icone: <Factory weight="duotone" size={18} />, cor: '#fbbf24' },
+  { chave: 'pode_ser_agente', label: 'Agente de Carga', descricao: 'Empresa de logística internacional', icone: <UserGear weight="duotone" size={18} />, cor: '#c084fc' },
+  { chave: 'pode_ser_despachante', label: 'Despachante Aduaneiro', descricao: 'Representante legal da empresa', icone: <ShieldStar weight="duotone" size={18} />, cor: '#f472b6' },
   { chave: 'pode_ser_armador', label: 'Armador', descricao: 'Companhia marítima armadora', icone: <Boat weight="duotone" size={18} />, cor: '#22d3ee' },
   { chave: 'pode_ser_cia_aerea', label: 'Cia Aérea', descricao: 'Companhia aérea de transporte de carga', icone: <Airplane weight="duotone" size={18} />, cor: '#818cf8' },
-  { chave: 'pode_ser_transportadora_rodoviaria_nacional', label: 'Transp. Rodoviária Nacional', descricao: 'Transportadora rodoviária — trajetos nacionais', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#a3e635' },
-  { chave: 'pode_ser_transportadora_rodoviaria_internacional', label: 'Transp. Rodoviária Internacional', descricao: 'Transportadora rodoviária — trajetos internacionais', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#facc15' },
-  { chave: 'pode_ser_armazem_alfandegado', label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado para armazenagem de carga', icone: <Warehouse weight="duotone" size={18} />, cor: '#fb923c' },
-  { chave: 'pode_ser_armazem_nacional', label: 'Armazém Nacional', descricao: 'Armazém em território nacional não alfandegado', icone: <Warehouse weight="duotone" size={18} />, cor: '#fdba74' },
+  { chave: 'pode_ser_transportadora_rodoviaria_nacional', label: 'Transp. Rodoviária Nacional', descricao: 'Coletas e entregas internas', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#a3e635' },
+  { chave: 'pode_ser_transportadora_rodoviaria_internacional', label: 'Transp. Rodoviária Internacional', descricao: 'Transportes rodoviários internacionais', icone: <TruckTrailer weight="duotone" size={18} />, cor: '#facc15' },
+  { chave: 'pode_ser_armazem_alfandegado', label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado', icone: <Warehouse weight="duotone" size={18} />, cor: '#fb923c' },
+  { chave: 'pode_ser_armazem_nacional', label: 'Armazém Nacional', descricao: 'Armazém geral não alfandegado', icone: <Warehouse weight="duotone" size={18} />, cor: '#fdba74' },
   { chave: 'pode_ser_banco', label: 'Banco', descricao: 'Instituição bancária para operações COMEX', icone: <Bank weight="duotone" size={18} />, cor: '#10b981' },
   { chave: 'pode_ser_seguradora_internacional', label: 'Seguradora Internacional', descricao: 'Seguradora de cargas internacionais', icone: <ShieldCheck weight="duotone" size={18} />, cor: '#06b6d4' },
-  { chave: 'pode_ser_seguradora_corretora_cambio', label: 'Seguradora / Corretora de Câmbio', descricao: 'Corretora de câmbio ou seguradora cambial', icone: <CurrencyCircleDollar weight="duotone" size={18} />, cor: '#14b8a6' },
+  { chave: 'pode_ser_seguradora_corretora_cambio', label: 'Corretora de Câmbio', descricao: 'Corretora de câmbio para remessas', icone: <CurrencyCircleDollar weight="duotone" size={18} />, cor: '#14b8a6' },
 ]
 
 // ── Formulário state shape ───────────────────────────────────────────────────
@@ -295,12 +297,36 @@ function PapelCheckbox({
         {marcado && <span style={{ color: papel.cor, fontSize: 11, lineHeight: 1, fontWeight: 700 }}>✓</span>}
       </div>
       <div style={{ color: marcado ? papel.cor : 'var(--ws-muted)', flexShrink: 0 }}>{papel.icone}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, minWidth: 0 }}>
-        <span style={{ fontWeight: 600, fontSize: '0.875rem', color: marcado ? 'var(--ws-text)' : 'var(--ws-muted)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3, flex: 1, minWidth: 0 }}>
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            color: marcado ? 'var(--ws-text)' : 'var(--ws-muted)',
+          }}
+        >
           {papel.label}
         </span>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>{papel.descricao}</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', opacity: 0.8 }}>
+          {papel.descricao}
+        </span>
       </div>
+      <TooltipGlobal titulo={papel.label} descricao={papel.descricao}>
+        <span
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: 'var(--ws-muted)',
+            opacity: 0.6,
+            flexShrink: 0,
+            cursor: 'help',
+          }}
+        >
+          <Info size={14} weight="duotone" />
+        </span>
+      </TooltipGlobal>
     </div>
   )
 }
@@ -401,13 +427,26 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       const schema = modoEdicao ? atualizarEmpresaSchema : criarEmpresaSchema
       const pre = schema.safeParse(payload)
       if (!pre.success) {
+        // Mapeia chaves do schema (sufixo _empresa) para chaves curtas usadas no
+        // JSX/erro(): whatsapp_empresa → whatsapp, etc. Sem isso o destaque
+        // visual nunca casa e o usuario fica no escuro (ponto cego).
+        const SUFIXO = '_empresa'
         const campos: Record<string, string> = {}
         for (const issue of pre.error.issues) {
-          const campo = issue.path.join('.') || 'geral'
-          campos[campo] = issue.message
+          const raw = issue.path.join('.') || 'geral'
+          const curto = raw.endsWith(SUFIXO) ? raw.slice(0, -SUFIXO.length) : raw
+          campos[curto] = issue.message
+          // mantem a chave original tambem, caso algum render use o nome cheio
+          campos[raw] = issue.message
         }
         setErroCampos(campos)
-        addNotification({ type: 'error', message: 'Corrija os campos destacados e tente novamente.' })
+        const primeiros = Object.keys(campos).filter((k) => !k.endsWith(SUFIXO)).slice(0, 3).join(', ')
+        addNotification({
+          type: 'error',
+          message: primeiros
+            ? `Corrija os campos: ${primeiros}.`
+            : 'Corrija os campos destacados e tente novamente.',
+        })
         return
       }
 
@@ -631,7 +670,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
             </span>
             {!algumaFlagAtiva && (
               <span style={{ fontSize: '0.75rem', color: corErro }}>
-                marque ao menos uma
+                marque ao menos um
               </span>
             )}
           </div>

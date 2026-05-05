@@ -715,6 +715,57 @@
   position: relative;
 }
 
+/* ── Variante compacta — usada em /workspace/assinaturas (gestão, denso) ── */
+.gs-card--compact {
+  border-radius: 12px;
+}
+.gs-card--compact .gs-card__top {
+  padding: 0.875rem 1rem 0;
+}
+.gs-card--compact .gs-card__icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+}
+.gs-card--compact .gs-card__icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+.gs-card--compact .gs-card__body {
+  padding: 0.6rem 1rem 0.875rem;
+  gap: 0.4rem;
+}
+.gs-card--compact .gs-card__name {
+  font-size: 1rem;
+}
+.gs-card--compact .gs-card__category {
+  font-size: 0.625rem;
+}
+.gs-card--compact .gs-card__desc {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  -webkit-line-clamp: 2;
+}
+.gs-card--compact .gs-card__footer {
+  padding: 0.6rem 1rem;
+}
+.gs-card--compact .gs-card__tags {
+  gap: 0.3rem;
+}
+.gs-card--compact .gs-tag {
+  font-size: 0.625rem;
+  padding: 0.15rem 0.5rem;
+}
+.gs-card--compact .gs-card__combina {
+  margin-top: 0.3rem;
+}
+/* Barra lateral roxa: encolhe um pouco pra acompanhar o card menor */
+.gs-card--compact.gs-card--available::after {
+  top: 10px;
+  bottom: 10px;
+}
+
 /* Footer da página */
 .gs-footer {
   display: flex;

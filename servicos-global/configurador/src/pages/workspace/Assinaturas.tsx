@@ -1132,54 +1132,65 @@ export function Assinaturas() {
                     ))}
                   </div>
                 )}
-                {!isSoon && Array.isArray(p.faixas_preco_produto_gravity) && (
-                  <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.12)', marginTop: '0.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
-                      <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tabela de Preços</p>
-                      {tipoCobrancaLabel && (
-                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                          {tipoCobrancaLabel}
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      {(p.faixas_preco_produto_gravity as FaixaPreco[]).slice(0, 2).map((fx, i) => (
-                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                          <span style={{ color: 'var(--sw-text-2)' }}>
-                            {fx.faixa_ate_faixa_preco_produto_gravity
-                              ? `${fx.faixa_de_faixa_preco_produto_gravity}-${fx.faixa_ate_faixa_preco_produto_gravity}`
-                              : `Acima de ${fx.faixa_de_faixa_preco_produto_gravity}`}{' '}
-                            {tipoCobrancaLabel}s
+                {(() => {
+                  if (isSoon) return null
+                  const faixas = (Array.isArray(p.faixas_preco_produto_gravity) ? p.faixas_preco_produto_gravity : []) as FaixaPreco[]
+                  const temFaixas = faixas.length > 0
+                  const temUnitario = p.preco_unitario_produto_gravity != null && String(p.preco_unitario_produto_gravity).trim() !== ''
+                  const temFranquia = !!p.qtd_usuarios_base_produto_gravity
+                  if (!temFaixas && !temUnitario && !temFranquia) return null
+                  return (
+                    <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.12)', marginTop: '0.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
+                        <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tabela de Preços</p>
+                        {tipoCobrancaLabel && (
+                          <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            {tipoCobrancaLabel}
                           </span>
-                          <strong style={{ color: 'var(--sw-text-1)' }}>
-                            {getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}
-                          </strong>
+                        )}
+                      </div>
+                      {temFaixas ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          {faixas.slice(0, 2).map((fx, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                              <span style={{ color: 'var(--sw-text-2)' }}>
+                                {fx.faixa_ate_faixa_preco_produto_gravity
+                                  ? `${fx.faixa_de_faixa_preco_produto_gravity}-${fx.faixa_ate_faixa_preco_produto_gravity}`
+                                  : `Acima de ${fx.faixa_de_faixa_preco_produto_gravity}`}{' '}
+                                {tipoCobrancaLabel}s
+                              </span>
+                              <strong style={{ color: 'var(--sw-text-1)' }}>
+                                {getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}
+                              </strong>
+                            </div>
+                          ))}
+                          {faixas.length > 2 && (
+                            <span style={{ fontSize: '0.625rem', color: 'var(--sw-text-3)', textAlign: 'center', marginTop: '4px' }}>
+                              + {faixas.length - 2} faixas disponíveis
+                            </span>
+                          )}
                         </div>
-                      ))}
-                      {(p.faixas_preco_produto_gravity as FaixaPreco[]).length > 2 && (
-                        <span style={{ fontSize: '0.625rem', color: 'var(--sw-text-3)', textAlign: 'center', marginTop: '4px' }}>
-                          + {(p.faixas_preco_produto_gravity as FaixaPreco[]).length - 2} faixas disponíveis
-                        </span>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'stretch', gap: '6px' }}>
+                          {temUnitario && (
+                            <div style={{ flex: 1, padding: '5px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}>
+                              <span style={{ fontSize: '0.6rem', color: 'var(--sw-text-3)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>Valor Unitário</span>
+                              <strong style={{ fontSize: '0.95rem', color: 'var(--sw-text-1)' }}>
+                                {getSimboloMoeda(String(p.moeda_unitario_produto_gravity ?? 'BRL'))} {String(p.preco_unitario_produto_gravity)}
+                              </strong>
+                            </div>
+                          )}
+                          {temFranquia && (
+                            <div style={{ flex: 1, padding: '5px 8px', background: 'rgba(52,211,153,0.07)', borderRadius: '6px', border: '1px solid rgba(52,211,153,0.15)' }}>
+                              <span style={{ fontSize: '0.6rem', color: '#34d399', display: 'block', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>Franquia Free</span>
+                              <strong style={{ fontSize: '0.95rem', color: '#34d399' }}>{String(p.qtd_usuarios_base_produto_gravity)}</strong>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
-                )}
-                {!isSoon && !Array.isArray(p.faixas_preco_produto_gravity) && (p.preco_unitario_produto_gravity != null) && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.25rem' }}>
-                    <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }}>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--sw-text-3)', display: 'block' }}>VALOR UNITÁRIO</span>
-                      <strong style={{ fontSize: '1rem', color: 'var(--sw-text-1)' }}>
-                        {getSimboloMoeda(String(p.moeda_unitario_produto_gravity ?? 'BRL'))} {String(p.preco_unitario_produto_gravity)}
-                      </strong>
-                    </div>
-                    {!!p.qtd_usuarios_base_produto_gravity && (
-                      <div style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.05)', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.1)' }}>
-                        <span style={{ fontSize: '0.6875rem', color: '#34d399', display: 'block' }}>FRANQUIA</span>
-                        <strong style={{ fontSize: '1rem', color: '#34d399' }}>{String(p.qtd_usuarios_base_produto_gravity)} Free</strong>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )
+                })()}
                 {relacionados.length > 0 && (
                   <div className="gs-card__combina">
                     <span className="gs-card__combina-label">Combina com</span>

@@ -5211,7 +5211,7 @@
     "usuarios_usando": "+{{count}} using",
     "btn_acessar": "Access",
     "btn_contratando": "Activating...",
-    "btn_ativar": "Activate Module",
+    "btn_ativar": "Subscribe",
     "btn_em_breve": "Coming soon",
     "em_desenvolvimento": "In development",
     "modulo_desc_fallback": "Specialized module for the Gravity platform.",

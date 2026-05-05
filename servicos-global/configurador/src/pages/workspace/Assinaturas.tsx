@@ -14,7 +14,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import {
   CreditCard, FileXls, FileCsv, FileText, FilePdf, Code,
-  PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure,
+  PencilSimple, Trash, PauseCircle, PlayCircle, Package, WarningCircle, TreeStructure,
   FloppyDisk, ArrowCounterClockwise, Lightning, ArrowRight,
 } from '@phosphor-icons/react'
 import '../hub-store.css'
@@ -239,12 +239,6 @@ export function Assinaturas() {
   const totalAssinaturasSuspensas = assinaturas.filter(
     (a) => a.status_assinatura_produto_gravity === 'SUSPENSA',
   ).length
-  const custoMensalAssinaturas = assinaturas
-    .filter((a) =>
-      statusEhAtiva(a.status_assinatura_produto_gravity)
-      && a.produto.tipo_cobranca_produto_gravity === 'MENSAL',
-    )
-    .reduce((acc, a) => acc + Number(a.produto.preco_unitario_produto_gravity || 0), 0)
 
   // ── Handlers ────────────────────────────────────────────────────────────
 
@@ -759,29 +753,6 @@ export function Assinaturas() {
                 <div className="cg-tooltip__row">
                   <span>Em trial</span>
                   <strong>{totalAssinaturasEmTeste}</strong>
-                </div>
-              </>
-            }
-          />
-          <CardEstatisticaGlobal
-            titulo={t('workspace.subscriptions.custo_fixo')}
-            icone={<CurrencyDollar weight="duotone" size={16} />}
-            valor={
-              <span style={{ fontSize: '1.5rem' }}>
-                R$ {custoMensalAssinaturas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            }
-            subtexto="Mensalidade SaaS"
-            tooltip={
-              <>
-                <p className="cg-tooltip__title">COMPOSIÇÃO DO CUSTO</p>
-                <div className="cg-tooltip__row">
-                  <span>Mensal (Trial/Ativa)</span>
-                  <strong>R$ {custoMensalAssinaturas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>Custo por uso</span>
-                  <strong>Variável</strong>
                 </div>
               </>
             }

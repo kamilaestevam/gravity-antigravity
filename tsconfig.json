@@ -34,6 +34,7 @@
         "nucleo-global/Utilidades/*/src/index.ts",
         "nucleo-global/*/src/index.ts"
       ],
+      "@nucleo/export-utils": ["nucleo-global/Utilidades/export-utils/exportUtils.ts"],
       "@shell": ["servicos-global/shell/index.ts"],
       "@shell/*": ["servicos-global/shell/*"],
       "@gravity/shell": ["servicos-global/shell/index.ts"],

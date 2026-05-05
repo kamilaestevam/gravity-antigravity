@@ -103,14 +103,18 @@ function defaultKeyGenerator(req: Request): string {
  * Importacao lazy para evitar circular dependency.
  */
 function defaultOnBlocked(key: string, req: Request): void {
-  const tenantId = (req.headers['x-id-organizacao'] as string) || 'anonymous'
+  const id_organizacao = (req.headers['x-id-organizacao'] as string) || 'anonymous'
   const ip = req.ip || req.socket?.remoteAddress || 'unknown'
   const endpoint = req.originalUrl || req.url || 'unknown'
 
   // Import dinamico para evitar dependencia circular no boot
   import('../historico-global/server/lib/securityAuditLogger.js')
     .then(({ securityAudit }) => {
-      securityAudit.rateLimitHit(tenantId, { ip, endpoint, count: 0 })
+      securityAudit.rateLimitHit(id_organizacao, {
+        ip,
+        endpoint,
+        quantidade_tentativas_rate_limit: 0,
+      })
     })
     .catch(() => {
       // Fallback: log simples se o import falhar

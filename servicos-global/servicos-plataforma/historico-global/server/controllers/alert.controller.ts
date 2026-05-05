@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '../../../generated/index.js'
 import { AppError } from '../lib/errors.js'
 import { AlertRuleSchema, AlertEventUpdateSchema } from '../schemas/history.schema.js'
-import { extractAuthUser } from '../lib/visibility.js'
+import { extrairUsuarioAutenticado } from '../lib/visibility.js'
 
 const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
@@ -12,8 +12,8 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
     const id_organizacao = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.id_organizacao
     if (!id_organizacao) throw AppError.unauthorized('id_organizacao obrigatório')
 
-    const user = extractAuthUser(req)
-    const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+    const usuario = extrairUsuarioAutenticado(req)
+    const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
     const status_evento_alerta = req.query.status as string | undefined
     const limit = Math.min(Number(req.query.limit ?? 50), 100)
@@ -43,7 +43,7 @@ export async function updateAlert(req: Request, res: Response, next: NextFunctio
     const parsed = AlertEventUpdateSchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
-    const user = extractAuthUser(req)
+    const usuario = extrairUsuarioAutenticado(req)
 
     const alert = await prisma.alertaData.findFirst({
       where: { id_evento_alerta: req.params.id, id_organizacao },
@@ -55,7 +55,7 @@ export async function updateAlert(req: Request, res: Response, next: NextFunctio
       data: {
         status_evento_alerta: parsed.data.status_evento_alerta,
         notas_evento_alerta: parsed.data.notas_evento_alerta,
-        revisado_por_evento_alerta: user?.id,
+        revisado_por_evento_alerta: usuario?.id_usuario,
         revisado_em_evento_alerta: new Date(),
       },
     })
@@ -72,8 +72,8 @@ export async function listRules(req: Request, res: Response, next: NextFunction)
     const id_organizacao = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.id_organizacao
     if (!id_organizacao) throw AppError.unauthorized('id_organizacao obrigatório')
 
-    const user = extractAuthUser(req)
-    const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+    const usuario = extrairUsuarioAutenticado(req)
+    const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
     const rules = await prisma.alertaRegra.findMany({
       where: isGravityAdmin
@@ -97,8 +97,8 @@ export async function createRule(req: Request, res: Response, next: NextFunction
     const parsed = AlertRuleSchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
-    const user = extractAuthUser(req)
-    const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+    const usuario = extrairUsuarioAutenticado(req)
+    const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
     const rule = await prisma.alertaRegra.create({
       data: {
@@ -122,8 +122,8 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
     const parsed = AlertRuleSchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
-    const user = extractAuthUser(req)
-    const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+    const usuario = extrairUsuarioAutenticado(req)
+    const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
     const existing = await prisma.alertaRegra.findFirst({
       where: {
@@ -150,8 +150,8 @@ export async function deleteRule(req: Request, res: Response, next: NextFunction
     const id_organizacao = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.id_organizacao
     if (!id_organizacao) throw AppError.unauthorized('id_organizacao obrigatório')
 
-    const user = extractAuthUser(req)
-    const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+    const usuario = extrairUsuarioAutenticado(req)
+    const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
     const existing = await prisma.alertaRegra.findFirst({
       where: {

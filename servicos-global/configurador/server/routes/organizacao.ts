@@ -16,6 +16,10 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { organizacaoService } from '../services/organizacao-service.js'
 import { AppError } from '../lib/appError.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
+import {
+  compararEstadosHistoricoLog,
+  montarDetalheAcaoHistoricoLog,
+} from '@nucleo/montar-detalhe-acao-historico-log'
 
 export const organizacoesRouter = Router()
 
@@ -134,8 +138,17 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
-    const before = await organizacaoService.getOrganizacaoById(req.auth.id_organizacao)
+    const estado_anterior = await organizacaoService.getOrganizacaoById(req.auth.id_organizacao)
     const organizacao = await organizacaoService.updateOrganizacao(req.auth.id_organizacao, parsed.data)
+
+    // Detalhe humanizado: "Atualizou organizacao \"X\" — Nome: \"A\" → \"B\""
+    const diff_campos = compararEstadosHistoricoLog(estado_anterior, organizacao, 'Organizacao')
+    const detalhe_acao_historico_log = montarDetalheAcaoHistoricoLog(
+      'Atualizou',
+      'Organizacao',
+      organizacao.nome_organizacao,
+      diff_campos,
+    )
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -143,11 +156,11 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
       id_ator_historico_log: req.auth.id_usuario,
       nome_ator_historico_log: req.auth.nome_usuario,
       modulo_historico_log: 'configuracao',
-      tipo_recurso_historico_log: 'Organização',
+      tipo_recurso_historico_log: 'Organizacao',
       id_recurso_historico_log: req.auth.id_organizacao,
       acao_historico_log: 'ATUALIZAR',
-      detalhe_acao_historico_log: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
-      estado_anterior_historico_log: before ?? undefined,
+      detalhe_acao_historico_log,
+      estado_anterior_historico_log: estado_anterior ?? undefined,
       estado_posterior_historico_log: organizacao,
     }).catch(() => {})
 

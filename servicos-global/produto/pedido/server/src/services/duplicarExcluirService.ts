@@ -95,12 +95,12 @@ function gerarNumeroPedido(sequencial: number): string {
 
 async function buscarConfig(
   db: Record<string, unknown>,
-  tenantId: string,
+  id_organizacao: string,
 ): Promise<{ duplicar: ConfigDuplicar; excluir: ConfigExcluir }> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = await (db as any).configuracaoPedido.findFirst({
-      where: { tenant_id: tenantId },
+      where: { tenant_id: id_organizacao },
     })
     if (!config) return { duplicar: CONFIG_DUPLICAR_DEFAULT, excluir: CONFIG_EXCLUIR_DEFAULT }
 
@@ -126,17 +126,17 @@ async function buscarConfig(
 export class DuplicarService {
   async preview(
     db: Record<string, unknown>,
-    tenantId: string,
+    id_organizacao: string,
     ids: string[],
   ): Promise<{
     config: { numero_auto: boolean; copiar_datas: boolean; status_inicial: string }
     pedidos: { id: string; numero_pedido: string; total_itens: number }[]
   }> {
-    const { duplicar: config } = await buscarConfig(db, tenantId)
+    const { duplicar: config } = await buscarConfig(db, id_organizacao)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
       include: { itens_pedido: { select: { id_item: true } } },
     })
 
@@ -160,16 +160,17 @@ export class DuplicarService {
 
   async confirmar(
     db: Record<string, unknown>,
-    tenantId: string,
-    companyId: string,
-    userId: string,
+    id_organizacao: string,
+    id_workspace: string,
+    id_usuario: string,
+    nome_usuario: string,
     payload: DuplicarPayload,
   ): Promise<DuplicarResultado> {
-    const { duplicar: config } = await buscarConfig(db, tenantId)
+    const { duplicar: config } = await buscarConfig(db, id_organizacao)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id_pedido: { in: payload.ids }, id_organizacao: tenantId },
+      where: { id_pedido: { in: payload.ids }, id_organizacao: id_organizacao },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
@@ -202,7 +203,7 @@ export class DuplicarService {
           // Definir número do pedido duplicado
           let numeroPedido: string
           if (config.duplicar_numero_auto) {
-            const total = await tx.pedido.count({ where: { id_organizacao: tenantId } })
+            const total = await tx.pedido.count({ where: { id_organizacao: id_organizacao } })
             numeroPedido = gerarNumeroPedido(total + 1)
           } else {
             numeroPedido = payload.numeros![pedido.id_pedido as string]
@@ -210,7 +211,7 @@ export class DuplicarService {
 
           // Verificar se número já existe
           const numeroExistente = await tx.pedido.findFirst({
-            where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
+            where: { numero_pedido: numeroPedido, id_organizacao: id_organizacao },
           })
           if (numeroExistente) {
             erros.push({ id: pedido.id_pedido as string, motivo: `Número "${numeroPedido}" já está em uso` })
@@ -256,8 +257,8 @@ export class DuplicarService {
             return {
               ...itemBase,
               id_item: gerarId('pite'),
-              id_organizacao: tenantId,
-              id_workspace: companyId,
+              id_organizacao: id_organizacao,
+              id_workspace: id_workspace,
               quantidade_atual_item: item.quantidade_inicial_item,
               quantidade_pronta_item: 0,
               quantidade_transferida_item: 0,
@@ -270,8 +271,8 @@ export class DuplicarService {
               ...camposBase,
               ...datas,
               id_pedido: gerarId('pedi'),
-              id_organizacao: tenantId,
-              id_workspace: companyId,
+              id_organizacao: id_organizacao,
+              id_workspace: id_workspace,
               numero_pedido: numeroPedido,
               status_pedido: status,
               itens: { create: itensClonados },
@@ -280,10 +281,10 @@ export class DuplicarService {
 
           // Audit trail via historico-global (fire-and-forget)
           auditLog({
-            id_organizacao:               tenantId,
+            id_organizacao:               id_organizacao,
             tipo_ator_historico_log:      'USUARIO',
-            id_ator_historico_log:        userId,
-            nome_ator_historico_log:      userId,
+            id_ator_historico_log:        id_usuario,
+            nome_ator_historico_log:      nome_usuario,
             modulo_historico_log:         'pedido',
             tipo_recurso_historico_log:   'Pedido',
             id_recurso_historico_log:     novoPedido.id_pedido,
@@ -313,14 +314,14 @@ export class DuplicarService {
 
   async duplicarItens(
     db: Record<string, unknown>,
-    tenantId: string,
-    companyId: string,
+    id_organizacao: string,
+    id_workspace: string,
     payload: DuplicarItemPayload,
   ): Promise<DuplicarResultado> {
     // Verificar que o pedido pertence ao tenant
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
-      where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
+      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
     })
     if (!pedido) {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
@@ -331,7 +332,7 @@ export class DuplicarService {
       where: {
         id_item: { in: payload.item_ids },
         id_pedido: payload.pedido_id,
-        id_organizacao: tenantId,
+        id_organizacao: id_organizacao,
       },
     })
 
@@ -342,7 +343,7 @@ export class DuplicarService {
     // Buscar maior sequencia_item atual para continuar de onde parou
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const todosItens = await (db as any).pedidoItem.findMany({
-      where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
+      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
       select: { sequencia_item_pedido: true },
     })
     const maxSequencia = todosItens.reduce((max: number, i: Record<string, unknown>) => Math.max(max, (i.sequencia_item_pedido as number | undefined) ?? 0), 0)
@@ -372,8 +373,8 @@ export class DuplicarService {
           data: {
             ...itemBase,
             id_item: gerarId('pite'),
-            id_organizacao: tenantId,
-            id_workspace: companyId,
+            id_organizacao: id_organizacao,
+            id_workspace: id_workspace,
             id_pedido: payload.pedido_id,
             sequencia_item_pedido: proximaSequencia++,
             quantidade_atual_item: item.quantidade_inicial_item as number,
@@ -402,14 +403,14 @@ export class DuplicarService {
 export class ExcluirService {
   async preview(
     db: Record<string, unknown>,
-    tenantId: string,
+    id_organizacao: string,
     ids: string[],
   ): Promise<ExcluirPreview> {
-    const { excluir: config } = await buscarConfig(db, tenantId)
+    const { excluir: config } = await buscarConfig(db, id_organizacao)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
       include: { itens_pedido: { select: { id_item: true } } },
     })
 
@@ -445,15 +446,16 @@ export class ExcluirService {
 
   async confirmar(
     db: Record<string, unknown>,
-    tenantId: string,
-    userId: string,
+    id_organizacao: string,
+    id_usuario: string,
+    nome_usuario: string,
     ids: string[],
   ): Promise<ExcluirResultado> {
-    const { excluir: config } = await buscarConfig(db, tenantId)
+    const { excluir: config } = await buscarConfig(db, id_organizacao)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
@@ -483,10 +485,10 @@ export class ExcluirService {
       for (const pedidoRaw of pedidos) {
         const pedido = pedidoRaw as Record<string, unknown>
         auditLog({
-          id_organizacao:               tenantId,
+          id_organizacao:               id_organizacao,
           tipo_ator_historico_log:      'USUARIO',
-          id_ator_historico_log:        userId,
-          nome_ator_historico_log:      userId,
+          id_ator_historico_log:        id_usuario,
+          nome_ator_historico_log:      nome_usuario,
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     pedido.id_pedido as string,
@@ -507,11 +509,11 @@ export class ExcluirService {
 
       // Hard delete: itens primeiro (FK), depois pedidos
       await tx.pedidoItem.deleteMany({
-        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
       })
 
       await tx.pedido.deleteMany({
-        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
       })
     })
 
@@ -524,17 +526,18 @@ export class ExcluirService {
 
   async excluirItens(
     db: Record<string, unknown>,
-    tenantId: string,
-    userId: string,
+    id_organizacao: string,
+    id_usuario: string,
+    nome_usuario: string,
     pedidoId: string,
     itemIds: string[],
   ): Promise<ExcluirResultado> {
-    const { excluir: config } = await buscarConfig(db, tenantId)
+    const { excluir: config } = await buscarConfig(db, id_organizacao)
 
     // Verificar que o pedido pertence ao tenant e está em status permitido
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
-      where: { id_pedido: pedidoId, id_organizacao: tenantId },
+      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
       include: { itens_pedido: { select: { id_item: true } } },
     })
     if (!pedido) {
@@ -551,7 +554,7 @@ export class ExcluirService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const itens = await (db as any).pedidoItem.findMany({
-      where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
+      where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: id_organizacao },
     })
     if (itens.length !== itemIds.length) {
       throw new AppError('Um ou mais itens não encontrados', 404, 'NOT_FOUND')
@@ -564,10 +567,10 @@ export class ExcluirService {
       const tx = tx0 as Tx
       // Audit trail ANTES da exclusão (via historico-global, fire-and-forget)
       auditLog({
-        id_organizacao:               tenantId,
+        id_organizacao:               id_organizacao,
         tipo_ator_historico_log:      'USUARIO',
-        id_ator_historico_log:        userId,
-        nome_ator_historico_log:      userId,
+        id_ator_historico_log:        id_usuario,
+        nome_ator_historico_log:      nome_usuario,
         modulo_historico_log:         'pedido',
         tipo_recurso_historico_log:   'PedidoItem',
         id_recurso_historico_log:     pedidoId,
@@ -585,21 +588,21 @@ export class ExcluirService {
 
       // Hard delete dos itens
       await tx.pedidoItem.deleteMany({
-        where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
+        where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: id_organizacao },
       })
 
       // Verificar itens restantes no pedido
       const itensRestantes = await tx.pedidoItem.count({
-        where: { id_pedido: pedidoId, id_organizacao: tenantId },
+        where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
       })
 
       if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
         // Audit trail do pedido pai antes de excluir (via historico-global)
         auditLog({
-          id_organizacao:               tenantId,
+          id_organizacao:               id_organizacao,
           tipo_ator_historico_log:      'USUARIO',
-          id_ator_historico_log:        userId,
-          nome_ator_historico_log:      userId,
+          id_ator_historico_log:        id_usuario,
+          nome_ator_historico_log:      nome_usuario,
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     pedidoId,

@@ -7,8 +7,17 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 import { criarEmpresa, compensarEmpresa } from './cadastros-client.js'
+import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 
 const log = logger.child({ module: 'organizacao-service' })
+
+/**
+ * Limite de auto-vínculo síncrono no `createWorkspace` (F3 da feature 2026-05-05).
+ * Acima disso, a operação loga warning e registra audit `auto_vinculo_pendente`
+ * para reconciliação posterior — TODO[ARQ]: migrar para BullMQ job pós-commit.
+ * Limite definido pelo Líder Técnico baseado em latência aceitável de UI.
+ */
+const LIMITE_AUTO_VINCULO_INLINE = 200
 
 interface CreateOrganizacaoInput {
   nome_organizacao: string
@@ -352,10 +361,29 @@ export const organizacaoService = {
             data_criacao_workspace: true,
           },
         })
+
+        // ─── F3 — Auto-vínculo de workspaces futuros (decisão arquitetural 2026-05-05) ─
+        // Após o workspace estar persistido, busca usuários PADRAO/FORNECEDOR com
+        // `acesso_workspaces_futuros=true` na organização e cria UsuarioWorkspace para
+        // cada um. Mand. 04: MASTER/SUPER_ADMIN/ADMIN têm bypass — filtro `tipo_usuario IN`
+        // garante que não recebem linhas redundantes.
+        //
+        // Estratégia (Líder Técnico aprovou):
+        //   • ≤200 usuários: createMany inline + audit batch único
+        //   • >200 usuários: log warn + audit "auto_vinculo_pendente" + TODO BullMQ
+        //
+        // Falhas são logadas mas NÃO impedem o retorno do workspace já criado
+        // (Mand. 08: log alto, sem fallback silencioso).
+        const auto_vinculo_count = await this._aplicarAutoVinculoPosCommit(
+          id_organizacao,
+          workspace.id_workspace,
+          workspace.nome_workspace,
+        )
+
         return {
           ...workspace,
-          quantidade_usuarios_workspace: 0,
-          _count: { vinculos_workspace: 0 },
+          quantidade_usuarios_workspace: auto_vinculo_count,
+          _count: { vinculos_workspace: auto_vinculo_count },
           subdominio_solicitado,
           subdominio_ajustado: candidato !== subdominio_solicitado,
         }
@@ -379,6 +407,92 @@ export const organizacaoService = {
       409,
       'CONFLICT',
     )
+  },
+
+  /**
+   * F3 — auto-vínculo pós-commit de workspace para usuários PADRAO/FORNECEDOR
+   * com `acesso_workspaces_futuros=true`. Chamado APÓS o `workspace.create`
+   * (commit já efetuado) — falhas aqui não revertem o workspace.
+   *
+   * Mand. 04: MASTER/SUPER_ADMIN/ADMIN têm bypass — filtro `tipo_usuario IN`
+   * exclui esses tipos para evitar linhas redundantes em UsuarioWorkspace.
+   *
+   * Mand. 08: erros logam alto via `log.error` — não silenciam.
+   *
+   * Retorna a quantidade de usuários efetivamente auto-vinculados (0 se ninguém
+   * com flag ou se acima do limite — neste caso fica para reconciliação).
+   */
+  async _aplicarAutoVinculoPosCommit(
+    id_organizacao: string,
+    id_workspace: string,
+    nome_workspace: string,
+  ): Promise<number> {
+    try {
+      const candidatos = await prisma.usuario.findMany({
+        where: {
+          id_organizacao,
+          acesso_workspaces_futuros: true,
+          tipo_usuario: { in: ['PADRAO', 'FORNECEDOR'] },
+        },
+        select: { id_usuario: true, tipo_usuario: true },
+      })
+
+      if (candidatos.length === 0) return 0
+
+      // >200: TODO[ARQ] migrar para BullMQ. Por ora, log alto + audit pendente.
+      // O workspace fica disponível para uso, mas o auto-vínculo precisa de
+      // reconciliação manual (admin pode usar "Vincular aos atuais agora" da F5).
+      if (candidatos.length > LIMITE_AUTO_VINCULO_INLINE) {
+        log.warn('createWorkspace.auto_vinculo_acima_do_limite', {
+          id_organizacao,
+          id_workspace,
+          candidatos_count: candidatos.length,
+          limite: LIMITE_AUTO_VINCULO_INLINE,
+          motivo: 'pendente_reconciliacao_bullmq',
+        })
+        // Audit batch com count e ids para rastreabilidade
+        securityAudit.workspaceAutoLinkBatch(id_organizacao, 'system_auto_vinculo', {
+          id_workspace_criado:           id_workspace,
+          nome_workspace_criado:         nome_workspace,
+          ids_usuarios_auto_vinculados:  [],
+          motivo_auto_vinculo:           'WORKSPACE_CRIADO_ACESSO_FUTUROS',
+        }).catch(() => {})
+        return 0
+      }
+
+      // ≤200: createMany inline. Cada PADRAO/FORNECEDOR com flag=true recebe
+      // UsuarioWorkspace ATIVO no novo workspace — herda tipo_usuario do próprio
+      // usuário (espelho do convite com workspaces_alvo='all').
+      const result = await prisma.usuarioWorkspace.createMany({
+        data: candidatos.map((u) => ({
+          id_organizacao,
+          id_usuario: u.id_usuario,
+          id_workspace,
+          tipo_usuario_workspace: u.tipo_usuario as 'PADRAO' | 'FORNECEDOR',
+          ativo_usuario_workspace: true,
+        })),
+        skipDuplicates: true,
+      })
+
+      // Audit em batch único (Líder Técnico exigiu — em vez de N eventos)
+      securityAudit.workspaceAutoLinkBatch(id_organizacao, 'system_auto_vinculo', {
+        id_workspace_criado:           id_workspace,
+        nome_workspace_criado:         nome_workspace,
+        ids_usuarios_auto_vinculados:  candidatos.map((u) => u.id_usuario),
+        motivo_auto_vinculo:           'WORKSPACE_CRIADO_ACESSO_FUTUROS',
+      }).catch(() => {})
+
+      return result.count
+    } catch (err) {
+      log.error('createWorkspace.auto_vinculo_falhou', {
+        id_organizacao,
+        id_workspace,
+        causa: err instanceof Error ? err.message : String(err),
+      })
+      // NÃO propaga — workspace já foi criado, falha em vínculos é recuperável
+      // via "Vincular aos atuais agora" da F5. Mand. 08: log alto, sem silenciar.
+      return 0
+    }
   },
 
   /**

@@ -80,13 +80,13 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const preview = await service.preview(tenantId, parse.data, db)
+      const preview = await service.preview(id_organizacao, parse.data, db)
 
       // Detectar divergência de tipo_operacao entre pedido origem e pedidos destino existentes
       const pedidoOrigem = await db.pedido.findFirst({
-        where:  { id_pedido: parse.data.pedido_id, id_organizacao: tenantId },
+        where:  { id_pedido: parse.data.pedido_id, id_organizacao: id_organizacao },
         select: { tipo_operacao_pedido: true },
       })
 
@@ -97,7 +97,7 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
       let aviso_tipo_operacao = false
       if (pedidoOrigem && idsDestinoExistente.length > 0) {
         const pedidosDestino = await db.pedido.findMany({
-          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: tenantId },
+          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: id_organizacao },
           select: { tipo_operacao_pedido: true },
         })
         const todosOsTipos = [
@@ -130,13 +130,14 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
-      const ctx     = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? 'system'
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? 'system'
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
       // Validar divergência de tipo_operacao antes de executar a transação
       const pedidoOrigem = await db.pedido.findFirst({
-        where:  { id_pedido: parse.data.pedido_id, id_organizacao: tenantId },
+        where:  { id_pedido: parse.data.pedido_id, id_organizacao: id_organizacao },
         select: { tipo_operacao_pedido: true },
       })
 
@@ -146,7 +147,7 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       if (pedidoOrigem && idsDestinoExistente.length > 0) {
         const pedidosDestino = await db.pedido.findMany({
-          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: tenantId },
+          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: id_organizacao },
           select: { tipo_operacao_pedido: true },
         })
         const todosOsTipos = [
@@ -159,7 +160,7 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         }
       }
 
-      const resultado = await service.confirmar(tenantId, userId, payloadService, db)
+      const resultado = await service.confirmar(id_organizacao, id_usuario, nome_usuario, payloadService, db)
       res.status(201).json(resultado)
     })
   } catch (err) {
@@ -181,11 +182,12 @@ transferirRouter.post('/:id_transferencia_pedido/reverter', async (req: Request,
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
-      const ctx     = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? 'system'
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? 'system'
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await service.reverter(tenantId, userId, transfer_id, db)
+      const resultado = await service.reverter(id_organizacao, id_usuario, nome_usuario, transfer_id, db)
       res.json(resultado)
     })
   } catch (err) {
@@ -205,9 +207,9 @@ transferirHistoricoRouter.get('/', async (req: Request, res: Response, next: Nex
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const historico = await service.historico(tenantId, pedidoId, db)
+      const historico = await service.historico(id_organizacao, pedidoId, db)
       res.json(historico)
     })
   } catch (err) {

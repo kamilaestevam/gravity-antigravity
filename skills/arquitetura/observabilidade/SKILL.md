@@ -323,9 +323,47 @@ auditLog({
 - **Proibido** criar tabela `<produto>_historico` local. Em 2026-04-30 a tabela órfã `pedido_historico` foi removida — todos os eventos vão pro `historico-global`.
 - **Proibido** aguardar `auditLog()` com `await` em path crítico — perderia o benefício fire-and-forget.
 - **Proibido** usar nomes em inglês na chamada (`tenant_id`, `actor_type`). Refactor 2026-05-02 padronizou tudo em DDD.
+- **Proibido** gravar `nome_ator_historico_log` com o cuid do usuário. Sempre passar `req.auth.nome_usuario` (ou label literal `'system'`/`'webhook'`/`'anonymous'` para atores não-humanos). Mandamento 08 — fix db533a8d (configurador) e Frente A 2026-05-05 (securityAuditLogger + produto/pedido).
+
+### Detalhe da ação — diff X→Y automático (Frente B 2026-05-05)
+
+A partir desta entrega, `detalhe_acao_historico_log` deve ser gerado pelas
+funções utilitárias do nucleo-global em vez de concatenação ad-hoc:
+
+```ts
+import {
+  compararEstadosHistoricoLog,
+  montarDetalheAcaoHistoricoLog,
+} from '@nucleo/montar-detalhe-acao-historico-log'
+
+// Snapshot ANTES da mutação
+const estado_anterior = await prisma.workspace.findUnique({ where: { id_workspace } })
+const workspace = await organizacaoService.updateWorkspace(...)
+
+// Diff X→Y automático: ['Nome: "X" → "Y"', 'Status: "Inativo" → "Ativo"']
+const diff_campos = compararEstadosHistoricoLog(estado_anterior, workspace, 'Workspace')
+
+// Texto final pra coluna "Detalhes" da tela /workspace/historico-organizacao
+const detalhe_acao_historico_log = montarDetalheAcaoHistoricoLog(
+  'Atualizou', 'Workspace', workspace.nome_workspace, diff_campos,
+)
+// → 'Atualizou workspace "CDE Importador" — Nome: "X" → "Y"; Status: "Inativo" → "Ativo"'
+```
+
+**Caller obrigatório:** capturar `estado_anterior` antes da mutação (geralmente
+um `findUnique` antes do `update`) e passar ambos no `AuditService.log`. Os
+módulos `@nucleo/labels-campos-historico-log` e
+`@nucleo/formatar-valor-historico-log` cuidam dos rótulos PT-BR de campo e
+valor (incluindo enum: `PADRAO` → `'Padrão'`, `ATIVO` → `'Ativo'`).
+
+**DEPRECATED:** concatenação manual tipo `\`Atualizou X: ${Object.keys(...).join(', ')}\``
+fica como fallback temporário em rotas que ainda não foram migradas — devem
+ser substituídas pelos utilitários acima.
 
 ### Implementações de referência
 
+- `servicos-global/configurador/server/routes/me.ts` (PATCH workspace — usa diff X→Y)
+- `servicos-global/configurador/server/routes/organizacao.ts` (PATCH /me — usa diff X→Y)
 - `servicos-global/produto/pedido/server/src/services/transferirService.ts`
 - `servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts`
 - `servicos-global/produto/pedido/server/src/services/edicaoEmMassaService.ts`

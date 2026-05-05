@@ -48,8 +48,8 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 // resourceTypeFromPath deriva o tipo de recurso a partir do path para melhor categorização.
 adminRouter.use(auditMiddleware({
   modulo_historico_log: 'admin',
-  tipo_recurso_historico_log: 'admin_action',
-  acao_historico_log: 'ADMIN_ACTION',
+  tipo_recurso_historico_log: 'AreaAdmin',
+  acao_historico_log: 'ACESSAR_ADMIN',
   tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
   resourceTypeFromPath: (req) => {
     const path = req.path.split('/').filter(Boolean)[0] ?? 'admin_action'
@@ -1444,10 +1444,10 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (req, res, next) => {
     })
 
     securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
-      targetUserId: req.params.id_usuario,
-      oldRole: user.tipo_usuario,
-      newRole: updated.tipo_usuario,
-    }).catch(() => { /* fire-and-forget */ })
+      id_usuario_alvo:        req.params.id_usuario,
+      tipo_usuario_anterior:  user.tipo_usuario,
+      tipo_usuario_novo:      updated.tipo_usuario,
+    }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `email_usuario` → `email`, `id_usuario` → `id`
     const { email_usuario, id_usuario, ...updRest } = updated

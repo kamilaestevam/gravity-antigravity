@@ -752,14 +752,18 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     })
 
     if (ordenacao) {
+      // Respeita getValorBruto da coluna (se definido) para ordenar por
+      // label legivel em vez de objeto/ID raw — mesma logica do filtro/busca.
+      const colOrd = colunas.find(c => c.key === ordenacao.coluna)
       r.sort((a, b) => {
-        const va = a[ordenacao.coluna], vb = b[ordenacao.coluna]
+        const va = colOrd?.getValorBruto ? colOrd.getValorBruto(a) : a[ordenacao.coluna]
+        const vb = colOrd?.getValorBruto ? colOrd.getValorBruto(b) : b[ordenacao.coluna]
         if (typeof va === 'number' && typeof vb === 'number') return ordenacao.direcao === 'asc' ? va - vb : vb - va
         return String(va).toLowerCase().localeCompare(String(vb).toLowerCase(), 'pt-BR') * (ordenacao.direcao === 'asc' ? 1 : -1)
       })
     }
     return r
-  }, [dados, busca, filtros, ordenacao, colunasVisiveis])
+  }, [dados, busca, filtros, ordenacao, colunasVisiveis, colunas])
 
   const chips = useMemo(() => {
     const list: { key: string; label: string; onRemover: () => void }[] = []

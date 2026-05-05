@@ -1,7 +1,7 @@
 /**
  * transferirService.ts — Lógica de negócio de transferência de pedidos
  *
- * Todos os métodos recebem tenantId e executam queries com filtro de tenant.
+ * Todos os métodos recebem id_organizacao e executam queries com filtro de tenant.
  * A transação garante atomicidade: ou tudo é gravado, ou nada.
  */
 
@@ -97,9 +97,9 @@ const CENARIOS_IRREVERSIVEIS = new Set<CenarioTransfer>([
 export class TransferirService {
   // ── Pré-visualização (sem alterar banco) ─────────────────────────────────────
 
-  async preview(tenantId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferPreview> {
+  async preview(id_organizacao: string, payload: TransferPayload, db: PrismaClient): Promise<TransferPreview> {
     const pedido = await db.pedido.findFirst({
-      where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
+      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     }) as unknown as { numero_pedido: string; itens_pedido: Array<Record<string, unknown>> } | null
     if (!pedido) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
@@ -126,7 +126,7 @@ export class TransferirService {
 
         if (d.tipo === 'existente' && d.pedido_id) {
           const pedidoDestino = await db.pedido.findFirst({
-            where: { id_pedido: d.pedido_id, id_organizacao: tenantId },
+            where: { id_pedido: d.pedido_id, id_organizacao: id_organizacao },
           })
           if (!pedidoDestino) {
             alertas.push('Pedido destino não encontrado')
@@ -160,9 +160,9 @@ export class TransferirService {
 
   // ── Confirmação (executa em $transaction) ─────────────────────────────────────
 
-  async confirmar(tenantId: string, userId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferResultado> {
+  async confirmar(id_organizacao: string, id_usuario: string, nome_usuario: string, payload: TransferPayload, db: PrismaClient): Promise<TransferResultado> {
     const pedidoOrigem = await db.pedido.findFirst({
-      where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
+      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     }) as unknown as { id_pedido: string; itens_pedido: Array<Record<string, unknown>> } & Record<string, unknown> | null
     if (!pedidoOrigem) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
@@ -175,7 +175,7 @@ export class TransferirService {
     // Validar número do novo pedido antes de iniciar a transação
     if (payload.numero_pedido_novo) {
       const jaExiste = await db.pedido.findFirst({
-        where: { id_organizacao: tenantId, numero_pedido: payload.numero_pedido_novo },
+        where: { id_organizacao: id_organizacao, numero_pedido: payload.numero_pedido_novo },
       })
       if (jaExiste) {
         throw new AppError(
@@ -197,7 +197,7 @@ export class TransferirService {
       for (const destino of payload.destinos) {
         if (destino.tipo === 'novo') {
           const numero = payload.numero_pedido_novo ?? `PO-TRANS-${Date.now()}`
-          const novoPedido = await this.criarPedidoDestino(tenantId, numero, pedidoOrigem, tx)
+          const novoPedido = await this.criarPedidoDestino(id_organizacao, numero, pedidoOrigem, tx)
           pedidosCriados.push(novoPedido.id_pedido)
           pedidosDestinoIds.push(novoPedido.id_pedido)
 
@@ -206,7 +206,7 @@ export class TransferirService {
           await tx.pedidoItem.create({ data: itemData as unknown as Prisma.PedidoItemUncheckedCreateInput })
         } else if (destino.tipo === 'existente' && destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
-            where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
+            where: { id_pedido: destino.pedido_id, id_organizacao: id_organizacao },
             include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
           if (!pedidoDestino) {
@@ -234,7 +234,7 @@ export class TransferirService {
             await tx.pedidoItem.create({ data: itemData as unknown as Prisma.PedidoItemUncheckedCreateInput })
           }
 
-          await this.recalcularAgregados(tenantId, pedidoDestino.id_pedido, tx)
+          await this.recalcularAgregados(id_organizacao, pedidoDestino.id_pedido, tx)
         } else if (destino.tipo === 'mesmo' && payload.cenario === 'substituicao_pura') {
           // Substituição pura — troca o part_number no mesmo pedido
           await tx.pedidoItem.update({
@@ -256,15 +256,15 @@ export class TransferirService {
         })
 
         // Avaliar encerramento por configuração
-        const resultado = await this.avaliarEncerramentoPedido(tenantId, payload.pedido_id, tx)
+        const resultado = await this.avaliarEncerramentoPedido(id_organizacao, payload.pedido_id, tx)
         itensExcluidos.push(...resultado.itensExcluidos)
         pedidosEncerrados.push(...resultado.pedidosEncerrados)
       }
 
-      await this.recalcularAgregados(tenantId, payload.pedido_id, tx)
+      await this.recalcularAgregados(id_organizacao, payload.pedido_id, tx)
 
       // Gravar histórico de transferência
-      await this.gravarHistorico(tenantId, userId, payload, pedidosDestinoIds, tx)
+      await this.gravarHistorico(id_organizacao, id_usuario, nome_usuario, payload, pedidosDestinoIds, tx)
     })
 
     return {
@@ -278,11 +278,11 @@ export class TransferirService {
 
   // ── Reversão ──────────────────────────────────────────────────────────────────
 
-  async reverter(idOrganizacao: string, idUsuario: string, transferId: string, db: PrismaClient): Promise<TransferResultado> {
+  async reverter(id_organizacao: string, id_usuario: string, nome_usuario: string, transferId: string, db: PrismaClient): Promise<TransferResultado> {
     // Tabela: pedido_transferencia (renomeada de tracking_items_transferidos).
     // Model: PedidoTransferencia.
     const historico = await db.pedidoTransferencia.findFirst({
-      where: { id_pedido_transferencia: transferId, id_organizacao: idOrganizacao },
+      where: { id_pedido_transferencia: transferId, id_organizacao: id_organizacao },
     })
     if (!historico) throw new AppError('Registro de transferência não encontrado', 404, 'NOT_FOUND')
     if (historico.revertido_pedido_transferencia) throw new AppError('Esta transferência já foi revertida', 409, 'CONFLICT')
@@ -300,7 +300,7 @@ export class TransferirService {
       const tx: Tx = tx0 as Tx
       // Devolver quantidade ao item de origem
       const itemOrigem = await tx.pedidoItem.findFirst({
-        where: { id_item: historico.id_item_origem, id_organizacao: idOrganizacao },
+        where: { id_item: historico.id_item_origem, id_organizacao: id_organizacao },
       })
       if (itemOrigem) {
         await tx.pedidoItem.update({
@@ -316,7 +316,7 @@ export class TransferirService {
       for (const destino of destinos) {
         if (destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
-            where: { id_pedido: destino.pedido_id, id_organizacao: idOrganizacao },
+            where: { id_pedido: destino.pedido_id, id_organizacao: id_organizacao },
             include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
           if (pedidoDestino) {
@@ -335,12 +335,12 @@ export class TransferirService {
                 })
               }
             }
-            await this.recalcularAgregados(idOrganizacao, pedidoDestino.id_pedido, tx)
+            await this.recalcularAgregados(id_organizacao, pedidoDestino.id_pedido, tx)
           }
         }
       }
 
-      await this.recalcularAgregados(idOrganizacao, historico.id_pedido_origem, tx)
+      await this.recalcularAgregados(id_organizacao, historico.id_pedido_origem, tx)
 
       // Marcar histórico como revertido
       await tx.pedidoTransferencia.update({
@@ -348,16 +348,16 @@ export class TransferirService {
         data: {
           revertido_pedido_transferencia: true,
           data_reversao_pedido_transferencia: new Date(),
-          revertido_por_pedido_transferencia: idUsuario,
+          revertido_por_pedido_transferencia: id_usuario,
         },
       })
 
       // Audit trail via historico-global (fire-and-forget)
       auditLog({
-        id_organizacao:               idOrganizacao,
+        id_organizacao:               id_organizacao,
         tipo_ator_historico_log:      'USUARIO',
-        id_ator_historico_log:        idUsuario,
-        nome_ator_historico_log:      idUsuario,
+        id_ator_historico_log:        id_usuario,
+        nome_ator_historico_log:      nome_usuario,
         modulo_historico_log:         'pedido',
         tipo_recurso_historico_log:   'PedidoTransferencia',
         id_recurso_historico_log:     transferId,
@@ -378,9 +378,9 @@ export class TransferirService {
 
   // ── Histórico ─────────────────────────────────────────────────────────────────
 
-  async historico(idOrganizacao: string, pedidoId: string, db: PrismaClient) {
+  async historico(id_organizacao: string, pedidoId: string, db: PrismaClient) {
     return db.pedidoTransferencia.findMany({
-      where:   { id_pedido_origem: pedidoId, id_organizacao: idOrganizacao },
+      where:   { id_pedido_origem: pedidoId, id_organizacao: id_organizacao },
       orderBy: { data_criacao_pedido_transferencia: 'desc' },
     })
   }
@@ -398,11 +398,11 @@ export class TransferirService {
     }
   }
 
-  private async criarPedidoDestino(tenantId: string, numero: string, base: Record<string, unknown>, tx: Tx) {
+  private async criarPedidoDestino(id_organizacao: string, numero: string, base: Record<string, unknown>, tx: Tx) {
     return tx.pedido.create({
       data: {
         id_pedido: this.gerarId('pedi'),
-        id_organizacao: tenantId,
+        id_organizacao: id_organizacao,
         id_workspace: (base.id_workspace ?? base.company_id) as string,
         tipo_operacao_pedido: (base.tipo_operacao_pedido ?? base.tipo_operacao) as string,
         numero_pedido: numero,
@@ -449,9 +449,9 @@ export class TransferirService {
     }
   }
 
-  private async recalcularAgregados(tenantId: string, pedidoId: string, tx: Tx): Promise<void> {
+  private async recalcularAgregados(id_organizacao: string, pedidoId: string, tx: Tx): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
-      where: { id_pedido: pedidoId, id_organizacao: tenantId },
+      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
       select: { quantidade_atual_item: true },
     })
 
@@ -464,7 +464,7 @@ export class TransferirService {
   }
 
   private async avaliarEncerramentoPedido(
-    tenantId: string,
+    id_organizacao: string,
     pedidoId: string,
     tx: Tx,
   ): Promise<{ itensExcluidos: string[]; pedidosEncerrados: string[] }> {
@@ -472,7 +472,7 @@ export class TransferirService {
     const pedidosEncerrados: string[] = []
 
     const itens = await tx.pedidoItem.findMany({
-      where: { id_pedido: pedidoId, id_organizacao: tenantId },
+      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
     })
 
     // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
@@ -499,8 +499,9 @@ export class TransferirService {
   }
 
   private async gravarHistorico(
-    tenantId: string,
-    userId: string,
+    id_organizacao: string,
+    id_usuario: string,
+    nome_usuario: string,
     payload: TransferPayload,
     pedidosDestinoIds: string[],
     tx: Tx,
@@ -508,7 +509,7 @@ export class TransferirService {
     // Tabela: pedido_transferencia (renomeada de tracking_items_transferidos).
     await tx.pedidoTransferencia.create({
       data: {
-        id_organizacao:                   tenantId,
+        id_organizacao:                   id_organizacao,
         id_pedido_origem:                 payload.pedido_id,
         id_item_origem:                   payload.item_id,
         cenario_pedido_transferencia:     payload.cenario,
@@ -520,16 +521,16 @@ export class TransferirService {
           }))
         ),
         revertido_pedido_transferencia:   false,
-        criado_por_pedido_transferencia:  userId,
+        criado_por_pedido_transferencia:  id_usuario,
       },
     })
 
     // Audit trail via historico-global (fire-and-forget)
     auditLog({
-      id_organizacao:               tenantId,
+      id_organizacao:               id_organizacao,
       tipo_ator_historico_log:      'USUARIO',
-      id_ator_historico_log:        userId,
-      nome_ator_historico_log:      userId,
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
       modulo_historico_log:         'pedido',
       tipo_recurso_historico_log:   'PedidoTransferencia',
       id_recurso_historico_log:     payload.pedido_id,

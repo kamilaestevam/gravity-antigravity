@@ -26,6 +26,7 @@
       "@nucleo/tabelas-base-unidades-peso": ["../../../nucleo-global/Tabelas/tabelas-base/unidades-peso/src/index.ts"],
       "@nucleo/query-builder-global": ["../../../nucleo-global/Dashboard/dashboard-global/src/QueryBuilder/DashboardConstrutorConsulta.tsx"],
       "@nucleo/dashboard": ["../../../nucleo-global/Dashboard/dashboard-global/src/index.ts"],
+      "@nucleo/export-utils": ["../../../nucleo-global/Utilidades/export-utils/exportUtils.ts"],
 
       "@shell": ["../../shell/index.ts"],
       "@shell/*": ["../../shell/*"],

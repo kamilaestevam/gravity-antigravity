@@ -10,7 +10,7 @@ import {
   ExportHistoryQuerySchema,
 } from '../schemas/history.schema.js'
 import { AuditService } from '../services/audit.service.js'
-import { buildVisibilityFilter, extractAuthUser } from '../lib/visibility.js'
+import { montarFiltroVisibilidadeHistoricoLog, extrairUsuarioAutenticado } from '../lib/visibility.js'
 import { securityAudit } from '../lib/securityAuditLogger.js'
 import { getBoss } from '../queue/pg-boss.js'
 import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
@@ -29,6 +29,7 @@ declare global {
         id_organizacao: string
         clerkUserId: string
         tipo_usuario: string
+        nome_usuario: string
       }
     }
   }
@@ -85,10 +86,9 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
       if (!INTERNAL_ALLOWED_ACTOR_TYPES.has(parsed.data.tipo_ator_historico_log)) {
         setImmediate(() => {
           securityAudit.crossTenantAttempt(id_organizacao, 'internal-service', {
-            targetTenantId: id_organizacao,
-            resource: `audit_log:invalid_internal_actor_type:${parsed.data.tipo_ator_historico_log}`,
-            blocked: true,
-          })
+            id_organizacao_alvo: id_organizacao,
+            endpoint: `audit_log:invalid_internal_actor_type:${parsed.data.tipo_ator_historico_log}`,
+          }, 'internal-service')
         })
         throw AppError.forbidden(
           `Chamadas internas só podem gravar tipo_ator_historico_log ∈ {IA, API, JOB, INTEGRACAO} — recebido: ${parsed.data.tipo_ator_historico_log}`
@@ -99,12 +99,12 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
       parsed.data.tipo_ator_historico_log === 'USUARIO' &&
       parsed.data.id_ator_historico_log !== authUserId
     ) {
+      const nome_usuario_atual = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? authUserId
       setImmediate(() => {
         securityAudit.crossTenantAttempt(id_organizacao, authUserId, {
-          targetTenantId: id_organizacao,
-          resource: 'audit_log:actor_id_spoof',
-          blocked: true,
-        })
+          id_organizacao_alvo: id_organizacao,
+          endpoint: 'audit_log:actor_id_spoof',
+        }, nome_usuario_atual)
       })
       throw AppError.forbidden('id_ator_historico_log não corresponde ao usuário autenticado')
     }
@@ -129,29 +129,28 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
     // Cap de segurança: impede payloads gigantes de clientes maliciosos
     const safeLimit = Math.min(q.limit ?? 50, MAX_PAGE_SIZE)
 
-    const user = extractAuthUser(req)
+    const usuario = extrairUsuarioAutenticado(req)
 
     // Ponto Cego 3 — detectar tentativa de ler dados de outra organização explicitamente
     const requestedIdOrganizacao = req.query.id_organizacao as string | undefined
     if (
       requestedIdOrganizacao &&
-      user &&
-      requestedIdOrganizacao !== user.id_organizacao &&
-      user.role !== 'SUPER_ADMIN' &&
-      user.role !== 'ADMIN'
+      usuario &&
+      requestedIdOrganizacao !== usuario.id_organizacao &&
+      usuario.tipo_usuario !== 'SUPER_ADMIN' &&
+      usuario.tipo_usuario !== 'ADMIN'
     ) {
       setImmediate(() => {
-        securityAudit.crossTenantAttempt(user.id_organizacao, user.id, {
-          targetTenantId: requestedIdOrganizacao,
-          resource: 'history_log:list',
-          blocked: true,
-        })
+        securityAudit.crossTenantAttempt(usuario.id_organizacao, usuario.id_usuario, {
+          id_organizacao_alvo: requestedIdOrganizacao,
+          endpoint: 'history_log:list',
+        }, usuario.nome_usuario)
       })
       throw AppError.forbidden('Acesso negado a dados de outra organização')
     }
 
-    const visibilityFilter = user
-      ? buildVisibilityFilter(user)
+    const visibilityFilter = usuario
+      ? montarFiltroVisibilidadeHistoricoLog(usuario)
       : { id_organizacao }
 
     // Construir filtro de data unificado (evita conflito de chave entre cursor e range)
@@ -203,8 +202,8 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
   try {
     const id_organizacao = getIdOrganizacao(req)
 
-    const user = extractAuthUser(req)
-    const visibilityFilter = user ? buildVisibilityFilter(user) : { id_organizacao }
+    const usuario = extrairUsuarioAutenticado(req)
+    const visibilityFilter = usuario ? montarFiltroVisibilidadeHistoricoLog(usuario) : { id_organizacao }
 
     const log = await getPrisma().historicoLog.findFirst({
       where: { id_historico_log: req.params.id, ...visibilityFilter },
@@ -212,15 +211,14 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
 
     if (!log) {
       // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-organizacao)
-      if (user && (user.role === 'STANDARD' || user.role === 'SUPPLIER')) {
+      if (usuario && (usuario.tipo_usuario === 'PADRAO' || usuario.tipo_usuario === 'FORNECEDOR')) {
         const exists = await getPrisma().historicoLog.count({ where: { id_historico_log: req.params.id } })
         if (exists > 0) {
           setImmediate(() => {
-            securityAudit.crossTenantAttempt(user.id_organizacao, user.id, {
-              targetTenantId: 'unknown',
-              resource: `history_log:${req.params.id}`,
-              blocked: true,
-            })
+            securityAudit.crossTenantAttempt(usuario.id_organizacao, usuario.id_usuario, {
+              id_organizacao_alvo: 'unknown',
+              endpoint: `history_log:${req.params.id}`,
+            }, usuario.nome_usuario)
           })
         }
       }
@@ -228,13 +226,13 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
     }
 
     // Ponto Cego 1 — logar acesso a registro individual sensível (assíncrono)
-    if (user) {
+    if (usuario) {
       setImmediate(() => {
         AuditService.log({
           id_organizacao,
           tipo_ator_historico_log: 'USUARIO',
-          id_ator_historico_log: user.id,
-          nome_ator_historico_log: user.id,
+          id_ator_historico_log: usuario.id_usuario,
+          nome_ator_historico_log: usuario.nome_usuario,
           ip_ator_historico_log: req.ip,
           modulo_historico_log: 'historico',
           tipo_recurso_historico_log: 'HistoryLog',
@@ -242,7 +240,7 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
           acao_historico_log: 'CONSULTAR',
           detalhe_acao_historico_log: `Visualizou log de auditoria #${log.id_historico_log} (${log.acao_historico_log} em ${log.modulo_historico_log})`,
           status_historico_log: 'SUCESSO',
-          id_usuario: user.id,
+          id_usuario: usuario.id_usuario,
         }).catch(() => {})
       })
     }
@@ -262,8 +260,8 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
     const q = parsed.data
-    const user = extractAuthUser(req)
-    const visibilityFilter = user ? buildVisibilityFilter(user) : { id_organizacao }
+    const usuario = extrairUsuarioAutenticado(req)
+    const visibilityFilter = usuario ? montarFiltroVisibilidadeHistoricoLog(usuario) : { id_organizacao }
 
     const where: Prisma.HistoricoLogWhereInput = {
       ...visibilityFilter,

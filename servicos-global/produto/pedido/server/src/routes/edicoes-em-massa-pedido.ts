@@ -53,9 +53,9 @@ edicaoEmMassaRouter.post('/preview', async (req: Request, res: Response, next: N
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const result = await service.preview(tenantId, db, parse.data)
+      const result = await service.preview(id_organizacao, db, parse.data)
       res.json(result)
     })
   } catch (err) {
@@ -77,11 +77,12 @@ edicaoEmMassaRouter.post('/confirmar', async (req: Request, res: Response, next:
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? 'system'
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const result = await service.confirmar(tenantId, userId ?? 'system', db, parse.data)
+      const result = await service.confirmar(id_organizacao, id_usuario, nome_usuario, db, parse.data)
       res.json(result)
     })
   } catch (err) {

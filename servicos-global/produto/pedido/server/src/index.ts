@@ -124,16 +124,24 @@ app.use(resolverOrganizacao({
 app.use(apiObservability('pedido'))
 
 // ── 7.1. Audit — registra mutações no histórico global ────────────────────────
+// Alinhado ao DDD canonical (Mandamento 03) — chaves espelham o schema do
+// `historico_log`. `nome_ator_historico_log` lido do header `x-user-name` que
+// o Shell injeta a partir de `req.auth.nome_usuario` do Configurador.
 app.use(createProductAuditPlugin({
-  product_id: 'pedido',
-  module: 'pedido',
+  id_produto_historico_log: 'pedido',
+  modulo_historico_log:     'pedido',
   getActorFromReq: (req) => {
-    const ctx        = (req as { organizacao?: { idOrganizacao?: string; idUsuario?: string } }).organizacao
-    const tenant_id  = ctx?.idOrganizacao
-    const actor_id   = ctx?.idUsuario
-    const actor_name = req.headers['x-user-name'] as string | undefined
-    if (!tenant_id || !actor_id) return null
-    return { tenant_id, actor_id, actor_name: actor_name || actor_id, actor_type: 'USER' }
+    const ctx = (req as { organizacao?: { idOrganizacao?: string; idUsuario?: string } }).organizacao
+    const id_organizacao        = ctx?.idOrganizacao
+    const id_ator_historico_log = ctx?.idUsuario
+    const nome_ator_historico_log = (req.headers['x-user-name'] as string | undefined) ?? id_ator_historico_log
+    if (!id_organizacao || !id_ator_historico_log || !nome_ator_historico_log) return null
+    return {
+      id_organizacao,
+      id_ator_historico_log,
+      nome_ator_historico_log,
+      tipo_ator_historico_log: 'USUARIO',
+    }
   },
 }))
 

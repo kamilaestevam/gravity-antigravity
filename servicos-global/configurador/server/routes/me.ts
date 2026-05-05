@@ -17,6 +17,10 @@ import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 import { organizacaoService, proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
+import {
+  compararEstadosHistoricoLog,
+  montarDetalheAcaoHistoricoLog,
+} from '@nucleo/montar-detalhe-acao-historico-log'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Schema de resposta — contrato exportável para testes e consumidores
@@ -31,6 +35,8 @@ export const meResponseSchema = z.object({
     tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
     id_organizacao: z.string(),
     id_workspace_preferido_usuario:   z.string().nullable(),
+    /** Auto-vínculo a workspaces futuros (Mand. 04: Master/SAdmin/Admin sempre false). */
+    acesso_workspaces_futuros: z.boolean(),
   }),
   organizacao: z.object({
     id_organizacao:         z.string(),
@@ -68,6 +74,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         tipo_usuario: true,
         id_organizacao: true,
         id_workspace_preferido_usuario: true,
+        acesso_workspaces_futuros: true,
         tenant: {
           select: {
             id_organizacao: true,
@@ -108,6 +115,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         tipo_usuario: usuario.tipo_usuario,
         id_organizacao: usuario.id_organizacao,
         id_workspace_preferido_usuario: usuario.id_workspace_preferido_usuario,
+        acesso_workspaces_futuros: usuario.acesso_workspaces_futuros,
       },
       organizacao: usuario.tenant
         ? {
@@ -442,10 +450,25 @@ meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
         'VALIDATION_ERROR',
       )
     }
+
+    // Snapshot ANTES — usado pelo diff X→Y do detalhe da auditoria.
+    const estado_anterior = await prisma.workspace.findFirst({
+      where: { id_workspace: req.params.id_workspace, id_organizacao: req.auth.id_organizacao },
+    })
+
     const workspace = await organizacaoService.updateWorkspace(
       req.auth.id_organizacao,
       req.params.id_workspace,
       parsed.data,
+    )
+
+    // Detalhe humanizado: "Atualizou workspace \"CDE Importador\" — Nome: \"X\" → \"Y\""
+    const diff_campos = compararEstadosHistoricoLog(estado_anterior, workspace, 'Workspace')
+    const detalhe_acao_historico_log = montarDetalheAcaoHistoricoLog(
+      'Atualizou',
+      'Workspace',
+      workspace.nome_workspace,
+      diff_campos,
     )
 
     AuditService.log({
@@ -457,7 +480,8 @@ meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
       tipo_recurso_historico_log: 'Workspace',
       id_recurso_historico_log: req.params.id_workspace,
       acao_historico_log: 'ATUALIZAR',
-      detalhe_acao_historico_log: `Atualizou workspace: ${Object.keys(parsed.data).join(', ')}`,
+      detalhe_acao_historico_log,
+      estado_anterior_historico_log: estado_anterior ?? undefined,
       estado_posterior_historico_log: workspace,
     }).catch(() => {})
 

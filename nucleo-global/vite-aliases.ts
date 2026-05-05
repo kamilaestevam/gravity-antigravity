@@ -52,6 +52,14 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/Utilidades/localization/i18n': path.resolve(nucleoRoot, 'Utilidades/Localization/i18n.ts'),
     '@nucleo/Utilidades/localization/provider': path.resolve(nucleoRoot, 'Utilidades/Localization/provider.tsx'),
     '@nucleo/Utilidades/localization/useLocale': path.resolve(nucleoRoot, 'Utilidades/Localization/useLocale.ts'),
+    // audit-locais — explícito para evitar miss em vite cache durante hot-reload
+    '@nucleo/audit-locais': path.resolve(nucleoRoot, 'Utilidades/audit-locais/src/index.ts'),
+
+    // Trio do histórico (Frente B 2026-05-05) — labels, formatador e diff
+    // que alimentam `detalhe_acao_historico_log` na tela /workspace/historico-organizacao
+    '@nucleo/labels-campos-historico-log':       path.resolve(nucleoRoot, 'Utilidades/labels-campos-historico-log/src/index.ts'),
+    '@nucleo/formatar-valor-historico-log':      path.resolve(nucleoRoot, 'Utilidades/formatar-valor-historico-log/src/index.ts'),
+    '@nucleo/montar-detalhe-acao-historico-log': path.resolve(nucleoRoot, 'Utilidades/montar-detalhe-acao-historico-log/src/index.ts'),
 
     // Dashboard — aponta para src/ (diretório) para sub-paths funcionarem:
     //   @nucleo/dashboard                        → src/index.ts

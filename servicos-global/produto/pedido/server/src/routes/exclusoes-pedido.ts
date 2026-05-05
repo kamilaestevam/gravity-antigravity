@@ -54,9 +54,9 @@ exclusoesPedidoRouter.post('/exclusoes/preview', async (req: Request, res: Respo
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const resultado = await excluirService.preview(db, tenantId, parse.data.ids)
+      const resultado = await excluirService.preview(db, id_organizacao, parse.data.ids)
       res.json(resultado)
     })
   } catch (err) {
@@ -78,11 +78,12 @@ exclusoesPedidoRouter.post('/exclusoes/confirmar', async (req: Request, res: Res
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? ''
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? ''
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await excluirService.confirmar(db, tenantId, userId, parse.data.ids)
+      const resultado = await excluirService.confirmar(db, id_organizacao, id_usuario, nome_usuario, parse.data.ids)
       res.json(resultado)
     })
   } catch (err) {
@@ -104,14 +105,16 @@ exclusoesPedidoRouter.post('/exclusoes/itens', async (req: Request, res: Respons
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? ''
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? ''
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
       const resultado = await excluirService.excluirItens(
         db,
-        tenantId,
-        userId,
+        id_organizacao,
+        id_usuario,
+        nome_usuario,
         parse.data.pedido_id,
         parse.data.item_ids,
       )

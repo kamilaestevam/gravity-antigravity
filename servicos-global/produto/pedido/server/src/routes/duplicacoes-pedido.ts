@@ -55,9 +55,9 @@ duplicacoesPedidoRouter.post('/duplicacoes/preview', async (req: Request, res: R
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const resultado = await duplicarService.preview(db, tenantId, parse.data.ids)
+      const resultado = await duplicarService.preview(db, id_organizacao, parse.data.ids)
       res.json(resultado)
     })
   } catch (err) {
@@ -75,17 +75,18 @@ duplicacoesPedidoRouter.post('/duplicacoes/confirmar', async (req: Request, res:
     })
   }
 
-  const companyId = (req.headers['x-id-workspace'] as string | undefined)
+  const id_workspace = (req.headers['x-id-workspace'] as string | undefined)
 
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? ''
+      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const id_organizacao = ctx.idOrganizacao
+      const id_usuario     = ctx.idUsuario ?? ''
+      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await duplicarService.confirmar(db, tenantId, companyId ?? tenantId, userId, parse.data)
+      const resultado = await duplicarService.confirmar(db, id_organizacao, id_workspace ?? id_organizacao, id_usuario, nome_usuario, parse.data)
       res.status(201).json(resultado)
     })
   } catch (err) {
@@ -103,15 +104,15 @@ duplicacoesPedidoRouter.post('/duplicacoes/itens', async (req: Request, res: Res
     })
   }
 
-  const companyId = (req.headers['x-id-workspace'] as string | undefined)
+  const id_workspace = (req.headers['x-id-workspace'] as string | undefined)
 
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const resultado = await duplicarService.duplicarItens(db, tenantId, companyId ?? tenantId, parse.data)
+      const resultado = await duplicarService.duplicarItens(db, id_organizacao, id_workspace ?? id_organizacao, parse.data)
       res.status(201).json(resultado)
     })
   } catch (err) {

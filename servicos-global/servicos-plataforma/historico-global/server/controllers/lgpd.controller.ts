@@ -19,7 +19,7 @@ import { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { PrismaClient } from '../../../generated/index.js'
 import { AppError } from '../lib/errors.js'
-import { extractAuthUser } from '../lib/visibility.js'
+import { extrairUsuarioAutenticado } from '../lib/visibility.js'
 import { AuditService } from '../services/audit.service.js'
 
 const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
@@ -43,11 +43,11 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     const id_organizacao = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.id_organizacao
     if (!id_organizacao) throw AppError.unauthorized('id_organizacao obrigatório')
 
-    const user = extractAuthUser(req)
-    if (!user) throw AppError.unauthorized('Autenticação obrigatória')
+    const usuario = extrairUsuarioAutenticado(req)
+    if (!usuario) throw AppError.unauthorized('Autenticação obrigatória')
 
-    const isGravityAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN'
-    const isMaster = user.role === 'MASTER'
+    const isGravityAdmin = usuario.tipo_usuario === 'SUPER_ADMIN' || usuario.tipo_usuario === 'ADMIN'
+    const isMaster = usuario.tipo_usuario === 'MASTER'
 
     if (!isGravityAdmin && !isMaster) {
       throw AppError.forbidden('Apenas SUPER_ADMIN, ADMIN ou MASTER podem anonimizar atores')
@@ -85,8 +85,8 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     await AuditService.log({
       id_organizacao,
       tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: user.id,
-      nome_ator_historico_log: user.id, // o executor pode ser anonimizado posteriormente
+      id_ator_historico_log: usuario.id_usuario,
+      nome_ator_historico_log: usuario.nome_usuario, // o executor pode ser anonimizado posteriormente
       modulo_historico_log: 'compliance',
       tipo_recurso_historico_log: 'HistoryLog',
       id_recurso_historico_log: id_ator_historico_log,

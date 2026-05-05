@@ -26,6 +26,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
+import { prisma } from '../lib/prisma.js'
 
 export const historicoOrganizacaoRouter = Router()
 
@@ -89,15 +90,47 @@ historicoOrganizacaoRouter.get(
       }
 
       const data = await response.json()
-      const logs: unknown[] = data.data ?? data.logs ?? []
+      const logs: Array<Record<string, unknown>> = data.data ?? data.logs ?? []
       const hasMore = data.meta?.hasMore ?? data.hasMore ?? false
       const nextCursor: string | null = data.meta?.nextCursor ?? null
+
+      // Enriquecer cada log com `email_ator_historico_log` — lookup em `usuario`
+      // pelo `id_ator_historico_log`. Tabela `usuario` vive no banco do
+      // Configurador (CONFIGURADOR_DATABASE_URL), separado do `historico_log`
+      // (ORGANIZACAO_DATABASE_URL), por isso fazemos JOIN em código (1 query
+      // batch por página, não N+1).
+      const idsAtorUsuario = Array.from(new Set(
+        logs
+          .filter((l) => l.tipo_ator_historico_log === 'USUARIO')
+          .map((l) => l.id_ator_historico_log)
+          .filter((v): v is string => typeof v === 'string' && v.length > 0)
+      ))
+
+      let mapaEmailPorIdUsuario = new Map<string, string>()
+      if (idsAtorUsuario.length > 0) {
+        try {
+          const usuarios = await prisma.usuario.findMany({
+            where: { id_usuario: { in: idsAtorUsuario } },
+            select: { id_usuario: true, email_usuario: true },
+          })
+          mapaEmailPorIdUsuario = new Map(usuarios.map((u) => [u.id_usuario, u.email_usuario]))
+        } catch (lookupErr) {
+          // Falha de lookup não bloqueia a tela do Histórico — só vai sem o email.
+          log.warn('Falha ao enriquecer logs com email_ator_historico_log', { lookupErr })
+        }
+      }
+
+      const logsEnriquecidos = logs.map((l) => {
+        const idAtor = typeof l.id_ator_historico_log === 'string' ? l.id_ator_historico_log : null
+        const email_ator_historico_log = idAtor ? (mapaEmailPorIdUsuario.get(idAtor) ?? null) : null
+        return { ...l, email_ator_historico_log }
+      })
 
       res.json({
         page,
         limit,
-        logs,
-        total: logs.length, // best-effort: upstream é cursor-based, não retorna total
+        logs: logsEnriquecidos,
+        total: logsEnriquecidos.length, // best-effort: upstream é cursor-based, não retorna total
         hasMore,
         nextCursor,
       })

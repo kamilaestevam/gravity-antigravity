@@ -202,14 +202,14 @@ export class EdicaoEmMassaService {
 
   /** Preview — retorna impacto sem alterar o banco */
   async preview(
-    tenantId: string,
+    id_organizacao: string,
     db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaPreview> {
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({
-      where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
+      where: { id_organizacao: id_organizacao, id_pedido: { in: payload.pedido_ids } },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
@@ -266,15 +266,16 @@ export class EdicaoEmMassaService {
 
   /** Confirmar — executa a edição em massa em $transaction */
   async confirmar(
-    tenantId: string,
-    userId: string,
+    id_organizacao: string,
+    id_usuario: string,
+    nome_usuario: string,
     db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaResultado> {
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({
-      where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
+      where: { id_organizacao: id_organizacao, id_pedido: { in: payload.pedido_ids } },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
@@ -369,7 +370,7 @@ export class EdicaoEmMassaService {
                 dadosItem[colDdd] = this.aplicarOperacao(valorAtual, c.operacao, c.valor)
               }
               const resultado = await tx.pedidoItem.update({
-                where: { id_item: item.id_item as string, id_organizacao: tenantId },
+                where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
                 data: dadosItem,
               })
               if (resultado) itensAtualizados++
@@ -378,7 +379,7 @@ export class EdicaoEmMassaService {
 
           // Recalcular agregados se campos de quantidade foram alterados
           if (precisaRecalcularAgregados) {
-            await this.recalcularAgregados(tenantId, pedidoId, tx)
+            await this.recalcularAgregados(id_organizacao, pedidoId, tx)
           }
 
           if (camposPedido.length > 0 || camposItem.length > 0) pedidosAtualizados++
@@ -394,10 +395,10 @@ export class EdicaoEmMassaService {
       const camposAlterados = payload.campos.map(c => c.campo)
       for (const p of pedidos as Array<Record<string, unknown>>) {
         auditLog({
-          id_organizacao:               tenantId,
+          id_organizacao:               id_organizacao,
           tipo_ator_historico_log:      'USUARIO',
-          id_ator_historico_log:        userId,
-          nome_ator_historico_log:      userId,
+          id_ator_historico_log:        id_usuario,
+          nome_ator_historico_log:      nome_usuario,
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     p.id_pedido as string,
@@ -454,12 +455,12 @@ export class EdicaoEmMassaService {
 
   /** Recalcula campos agregados do pedido após edição de quantidades */
   private async recalcularAgregados(
-    tenantId: string,
+    id_organizacao: string,
     pedidoId: string,
     tx: Tx,
   ): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
-      where: { id_organizacao: tenantId, id_pedido: pedidoId },
+      where: { id_organizacao: id_organizacao, id_pedido: pedidoId },
       select: {
         quantidade_inicial_item: true,
         quantidade_transferida_item: true,

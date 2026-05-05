@@ -1,15 +1,23 @@
 /**
  * securityAuditLogger.ts — Logger de eventos de segurança
  *
- * Encaminha todos os eventos de segurança para o AuditService,
- * que os grava via fila PG Boss de forma assíncrona.
+ * Encaminha todos os eventos de segurança para o `AuditService.log()`,
+ * que persiste em `historico_log` via fila PG Boss de forma assíncrona, e
+ * também espelha no painel `/admin/seguranca` do Configurador via rota
+ * interna `/api/v1/internal/eventos-seguranca`.
  *
- * Também persiste na tabela SecurityEvent do Configurador para
- * alimentar o painel /admin/seguranca.
+ * Nomes alinhados ao Atlas DDD e Mandamento 03 (PT-BR + glossário canônico):
+ *  - parâmetros usam `id_usuario`/`nome_usuario` (User→Usuario do glossário)
+ *  - `details` usa `id_usuario_alvo`/`id_organizacao_alvo` (REGRA `_alvo`)
+ *  - mapeia para campos físicos do `historico_log` quando disponível
+ *    (`tipo_recurso_historico_log`, `id_recurso_historico_log`,
+ *    `modulo_historico_log`, `mensagem_erro_historico_log`,
+ *    `ip_ator_historico_log`, `status_historico_log`)
+ *  - resto vai pra `metadata_ator_historico_log` (jsonb) com chaves PT-BR
  *
- * Uso:
- *   import { securityAudit } from '@tenant/historico-global/server/lib/securityAuditLogger'
- *   securityAudit.permissionChanged(idOrganizacao, idAtor, { ... })
+ * Mandamento 08 — `resolverNomeAtor()` falha alto quando `tipo_ator=USUARIO`
+ * mas o caller esqueceu de passar `nome_usuario`. Não cai silenciosamente
+ * no cuid; grava placeholder explícito + console.warn.
  */
 
 import { randomUUID } from 'crypto'
@@ -19,67 +27,131 @@ import { AcaoExecutadaPor, EventoStatus } from '../../../generated/index.js'
 const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL || process.env.CONFIGURADOR_SERVICE_URL || ''
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
 
+type SeveridadeEventoSeguranca = 'INFO' | 'WARNING' | 'CRITICAL'
+
 interface SecurityEventInput {
   id_organizacao: string
   id_ator_historico_log: string
+  /**
+   * Nome humano do ator. Quando o ator é USUARIO real (cuid), DEVE ser
+   * `req.auth.nome_usuario`. Quando ausente em ator USUARIO, `resolverNomeAtor`
+   * grava placeholder explícito (Mandamento 08). Para atores não-humanos
+   * (`'system'`, `'webhook'`, `'anonymous'`, jobName), o id já é label legível.
+   */
+  nome_ator_historico_log?: string
   tipo_ator_historico_log: AcaoExecutadaPor
   acao_historico_log: string
   modulo_historico_log?: string
+  /** PascalCase do recurso afetado (ex: 'Workspace', 'Permissao'). */
+  tipo_recurso_historico_log?: string
+  /** ID do recurso afetado quando aplicável. */
+  id_recurso_historico_log?: string
+  /** Usuário-alvo da ação (quem teve permissão/patente alterada, dado excluído etc). */
   id_usuario?: string
   id_produto_historico_log?: string
   ip_ator_historico_log?: string
-  metadata: Record<string, unknown>
-  severity: 'INFO' | 'WARNING' | 'CRITICAL'
-  correlation_id?: string
+  /** Texto humano final (PT-BR) que vai pra coluna "Detalhes" da tela do Histórico. */
+  detalhe_acao_historico_log: string
+  /** Snapshot ANTES (usado em alteração de patente, permissão etc). */
+  estado_anterior_historico_log?: Record<string, unknown>
+  /** Snapshot DEPOIS. */
+  estado_posterior_historico_log?: Record<string, unknown>
+  status_historico_log?: EventoStatus
+  /** Mensagem de erro técnica quando `status_historico_log = FALHA`. */
+  mensagem_erro_historico_log?: string
+  /**
+   * Metadados livres do evento (jsonb). Chaves SEMPRE em PT-BR.
+   * Já recebe `severidade_evento_seguranca` mesclada por logSecurityEvent.
+   */
+  metadata_ator_historico_log?: Record<string, unknown>
+  severidade_evento_seguranca: SeveridadeEventoSeguranca
+  id_correlacao?: string
+}
+
+/**
+ * Resolve `nome_ator_historico_log` aplicando Mandamento 08 (falha ruidosa em
+ * autorização / dados de identidade).
+ *
+ * Regras:
+ *  - Caller passou nome → usa direto.
+ *  - Ator não-humano (tipo ≠ USUARIO) → fallback para `id_ator_historico_log`
+ *    é correto (id já é label legível: `'system'`, `'webhook'`, `'anonymous'`).
+ *  - Ator USUARIO sem nome → grava placeholder explícito + console.warn em vez
+ *    de cair silenciosamente no cuid.
+ */
+function resolverNomeAtor(event: SecurityEventInput): string {
+  if (event.nome_ator_historico_log) return event.nome_ator_historico_log
+
+  if (event.tipo_ator_historico_log !== AcaoExecutadaPor.USUARIO) {
+    return event.id_ator_historico_log
+  }
+
+  console.warn(
+    '[securityAudit] Mandamento 08: USUARIO sem nome_usuario — caller deve passar `nome_usuario` no 4º argumento.',
+    {
+      acao_historico_log:    event.acao_historico_log,
+      modulo_historico_log:  event.modulo_historico_log,
+      id_ator_historico_log: event.id_ator_historico_log,
+    },
+  )
+  const idCurto = event.id_ator_historico_log.slice(0, 8)
+  return `(nome ausente — id ${idCurto})`
 }
 
 async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
-  // 1. Gravar no audit trail imutável via AuditService (assíncrono)
+  const nome_ator_historico_log = resolverNomeAtor(event)
+  const status_historico_log = event.status_historico_log ?? EventoStatus.SUCESSO
+  const metadata_final: Record<string, unknown> = {
+    severidade_evento_seguranca: event.severidade_evento_seguranca,
+    ...(event.id_correlacao ? { id_correlacao: event.id_correlacao } : {}),
+    ...(event.metadata_ator_historico_log ?? {}),
+  }
+
+  // 1. Gravar no audit trail imutável via AuditService
   await AuditService.log({
-    id_organizacao: event.id_organizacao,
-    tipo_ator_historico_log: event.tipo_ator_historico_log,
-    id_ator_historico_log: event.id_ator_historico_log,
-    nome_ator_historico_log: event.id_ator_historico_log,
-    ip_ator_historico_log: event.ip_ator_historico_log,
-    metadata_ator_historico_log: { severity: event.severity, ...event.metadata },
-    modulo_historico_log: event.modulo_historico_log ?? 'auth',
-    tipo_recurso_historico_log: 'security_event',
-    acao_historico_log: event.acao_historico_log,
-    detalhe_acao_historico_log: `${event.acao_historico_log}: ${JSON.stringify(event.metadata).slice(0, 200)}`,
-    status_historico_log: event.metadata?.blocked ? EventoStatus.FALHA : EventoStatus.SUCESSO,
-    id_usuario: event.id_usuario,
-    id_produto_historico_log: event.id_produto_historico_log,
+    id_organizacao:                 event.id_organizacao,
+    tipo_ator_historico_log:        event.tipo_ator_historico_log,
+    id_ator_historico_log:          event.id_ator_historico_log,
+    nome_ator_historico_log,
+    ip_ator_historico_log:          event.ip_ator_historico_log,
+    metadata_ator_historico_log:    metadata_final,
+    modulo_historico_log:           event.modulo_historico_log ?? 'auth',
+    tipo_recurso_historico_log:     event.tipo_recurso_historico_log ?? 'EventoSeguranca',
+    id_recurso_historico_log:       event.id_recurso_historico_log,
+    acao_historico_log:             event.acao_historico_log,
+    detalhe_acao_historico_log:     event.detalhe_acao_historico_log,
+    estado_anterior_historico_log:  event.estado_anterior_historico_log,
+    estado_posterior_historico_log: event.estado_posterior_historico_log,
+    status_historico_log,
+    mensagem_erro_historico_log:    event.mensagem_erro_historico_log,
+    id_usuario:                     event.id_usuario,
+    id_produto_historico_log:       event.id_produto_historico_log,
   })
 
-  // 2. Persistir na tabela SecurityEvent do Configurador (fire-and-forget)
-  // Usa a rota INTERNA /api/v1/internal/eventos-seguranca que valida x-internal-key.
-  // A rota /api/v1/admin/seguranca-admin (admin) está atrás de requireAuth+
-  // requireGravityAdmin e caía em 401 para esta chamada S2S, quebrando o
-  // audit trail silenciosamente.
+  // 2. Espelhar no painel /admin/seguranca via rota interna do Configurador.
+  // Validada por x-internal-key (withInternalKeyValidation) — sem JWT.
   if (CONFIGURADOR_URL) {
-    const ipFromMetadata = typeof event.metadata?.ip === 'string' ? event.metadata.ip : undefined
-    const endpointFromMetadata = typeof event.metadata?.endpoint === 'string' ? event.metadata.endpoint : undefined
     fetch(`${CONFIGURADOR_URL}/api/v1/internal/eventos-seguranca`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-internal-key': INTERNAL_KEY,
-        'x-correlation-id': event.correlation_id ?? randomUUID(),
+        'Content-Type':       'application/json',
+        'x-internal-key':     INTERNAL_KEY,
+        'x-correlation-id':   event.id_correlacao ?? randomUUID(),
       },
       body: JSON.stringify({
-        id_organizacao: event.id_organizacao,
-        id_ator_historico_log: event.id_ator_historico_log,
-        tipo_ator_historico_log: event.tipo_ator_historico_log,
-        acao_historico_log: event.acao_historico_log,
-        severity: event.severity,
-        status: event.metadata?.blocked ? 'BLOCKED' : 'DETECTED',
-        description: `${event.acao_historico_log}: ${JSON.stringify(event.metadata)}`.slice(0, 500),
-        ip: event.ip_ator_historico_log ?? ipFromMetadata,
-        endpoint: endpointFromMetadata,
-        id_usuario: event.id_usuario,
+        id_organizacao:           event.id_organizacao,
+        id_ator_historico_log:    event.id_ator_historico_log,
+        tipo_ator_historico_log:  event.tipo_ator_historico_log,
+        acao_historico_log:       event.acao_historico_log,
+        severidade_evento_seguranca: event.severidade_evento_seguranca,
+        status:                   status_historico_log === EventoStatus.FALHA ? 'BLOCKED' : 'DETECTED',
+        description:              event.detalhe_acao_historico_log.slice(0, 500),
+        ip:                       event.ip_ator_historico_log,
+        endpoint:                 typeof metadata_final.endpoint === 'string' ? metadata_final.endpoint : undefined,
+        id_usuario:               event.id_usuario,
         id_produto_historico_log: event.id_produto_historico_log,
-        correlation_id: event.correlation_id,
-        metadata: event.metadata,
+        id_correlacao:            event.id_correlacao,
+        metadata_ator_historico_log: metadata_final,
       }),
     }).catch((err: unknown) => {
       const msg = err instanceof Error ? err.message : 'unknown'
@@ -89,171 +161,345 @@ async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
 }
 
 export const securityAudit = {
-  permissionChanged(id_organizacao: string, actorId: string, details: {
-    targetUserId: string
-    permission: string
-    action: 'GRANTED' | 'REVOKED'
-  }) {
+  /**
+   * Permissão concedida ou revogada de um usuário.
+   */
+  permissionChanged(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_usuario_alvo: string
+      nome_permissao:  string
+      acao_permissao:  'GRANTED' | 'REVOKED'
+    },
+    nome_usuario?: string,
+  ) {
+    const verbo = details.acao_permissao === 'GRANTED' ? 'Concedeu' : 'Revogou'
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: actorId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: `PERMISSION_${details.action}`,
-      modulo_historico_log: 'configuracao',
-      id_usuario: details.targetUserId,
-      severity: 'WARNING',
-      metadata: { permission: details.permission, action: details.action },
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           `PERMISSAO_${details.acao_permissao}`,
+      modulo_historico_log:         'configuracao',
+      tipo_recurso_historico_log:   'Permissao',
+      id_usuario:                   details.id_usuario_alvo,
+      detalhe_acao_historico_log:   `${verbo} permissão "${details.nome_permissao}" do usuário ${details.id_usuario_alvo}`,
+      severidade_evento_seguranca:  'WARNING',
+      metadata_ator_historico_log:  { nome_permissao: details.nome_permissao },
     })
   },
 
-  roleChanged(id_organizacao: string, actorId: string, details: {
-    targetUserId: string
-    oldRole: string
-    newRole: string
-  }) {
+  /**
+   * Auto-vínculo em LOTE de usuários PADRAO/FORNECEDOR a um workspace recém-criado
+   * (feature `acesso_workspaces_futuros` — decisão arquitetural 2026-05-05).
+   * Um único evento agregado em vez de N permissionChanged.
+   */
+  workspaceAutoLinkBatch(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_workspace_criado:           string
+      nome_workspace_criado:         string
+      ids_usuarios_auto_vinculados:  string[]
+      motivo_auto_vinculo:           'WORKSPACE_CRIADO_ACESSO_FUTUROS'
+    },
+    nome_usuario?: string,
+  ) {
+    const quantidade = details.ids_usuarios_auto_vinculados.length
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: actorId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: 'ALTERAR_PATENTE',
-      modulo_historico_log: 'configuracao',
-      id_usuario: details.targetUserId,
-      severity: 'CRITICAL',
-      metadata: { oldRole: details.oldRole, newRole: details.newRole },
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           'AUTO_VINCULAR_WORKSPACE_LOTE',
+      modulo_historico_log:         'configuracao',
+      tipo_recurso_historico_log:   'Workspace',
+      id_recurso_historico_log:     details.id_workspace_criado,
+      detalhe_acao_historico_log:   `Auto-vinculou ${quantidade} usuário${quantidade === 1 ? '' : 's'} ao workspace "${details.nome_workspace_criado}"`,
+      severidade_evento_seguranca:  'INFO',
+      metadata_ator_historico_log:  {
+        nome_workspace_criado:        details.nome_workspace_criado,
+        ids_usuarios_auto_vinculados: details.ids_usuarios_auto_vinculados,
+        quantidade_usuarios:          quantidade,
+        motivo_auto_vinculo:          details.motivo_auto_vinculo,
+      },
     })
   },
 
-  crossTenantAttempt(id_organizacao: string, actorId: string, details: {
-    targetTenantId: string
-    resource: string
-    blocked: boolean
-  }) {
+  /**
+   * Patente (`tipo_usuario`) de um usuário foi alterada.
+   * Usa estado_anterior/posterior_historico_log para diff X→Y nativo.
+   */
+  roleChanged(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_usuario_alvo:        string
+      tipo_usuario_anterior:  string
+      tipo_usuario_novo:      string
+    },
+    nome_usuario?: string,
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: actorId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: 'TENTAR_ACESSO_OUTRA_ORGANIZACAO',
-      modulo_historico_log: 'auth',
-      severity: 'CRITICAL',
-      metadata: details,
+      id_ator_historico_log:          id_usuario,
+      nome_ator_historico_log:        nome_usuario,
+      tipo_ator_historico_log:        AcaoExecutadaPor.USUARIO,
+      acao_historico_log:             'ALTERAR_PATENTE',
+      modulo_historico_log:           'configuracao',
+      tipo_recurso_historico_log:     'Usuario',
+      id_recurso_historico_log:       details.id_usuario_alvo,
+      id_usuario:                     details.id_usuario_alvo,
+      detalhe_acao_historico_log:     `Alterou patente do usuário ${details.id_usuario_alvo} de "${details.tipo_usuario_anterior}" para "${details.tipo_usuario_novo}"`,
+      estado_anterior_historico_log:  { tipo_usuario: details.tipo_usuario_anterior },
+      estado_posterior_historico_log: { tipo_usuario: details.tipo_usuario_novo },
+      severidade_evento_seguranca:    'CRITICAL',
     })
   },
 
-  authFailure(id_organizacao: string, details: {
-    ip: string
-    reason: string
-    endpoint: string
-  }) {
+  /**
+   * Tentativa REAL de acesso a outra organização (cross-tenant).
+   * Status sempre FALHA — só é logado quando a tentativa foi bloqueada.
+   */
+  crossTenantAttempt(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_organizacao_alvo: string
+      endpoint:            string
+    },
+    nome_usuario?: string,
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: 'anonymous',
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: 'FALHAR_AUTENTICACAO',
-      modulo_historico_log: 'auth',
-      ip_ator_historico_log: details.ip,
-      severity: 'WARNING',
-      metadata: details,
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           'TENTAR_ACESSO_OUTRA_ORGANIZACAO',
+      modulo_historico_log:         'auth',
+      tipo_recurso_historico_log:   'Organizacao',
+      id_recurso_historico_log:     details.id_organizacao_alvo,
+      detalhe_acao_historico_log:   `Tentou acessar a organização ${details.id_organizacao_alvo} via ${details.endpoint}`,
+      status_historico_log:         EventoStatus.FALHA,
+      severidade_evento_seguranca:  'CRITICAL',
+      metadata_ator_historico_log:  {
+        id_organizacao_alvo: details.id_organizacao_alvo,
+        endpoint:            details.endpoint,
+      },
     })
   },
 
-  rateLimitHit(id_organizacao: string, details: {
-    ip: string
-    endpoint: string
-    count: number
-  }) {
+  /**
+   * Falha de autenticação. Disparado por `requireAuth` em token ausente/inválido.
+   */
+  authFailure(
+    id_organizacao: string,
+    details: {
+      ip:           string
+      motivo_falha: string
+      endpoint:     string
+    },
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: 'system',
-      tipo_ator_historico_log: AcaoExecutadaPor.INTEGRACAO,
-      acao_historico_log: 'ATINGIR_LIMITE_TAXA',
-      modulo_historico_log: 'auth',
-      ip_ator_historico_log: details.ip,
-      severity: 'WARNING',
-      metadata: details,
+      id_ator_historico_log:        'anonymous',
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           'FALHAR_AUTENTICACAO',
+      modulo_historico_log:         'auth',
+      ip_ator_historico_log:        details.ip,
+      tipo_recurso_historico_log:   'Sessao',
+      detalhe_acao_historico_log:   `Falha de autenticação em ${details.endpoint}: ${details.motivo_falha}`,
+      mensagem_erro_historico_log:  details.motivo_falha,
+      status_historico_log:         EventoStatus.FALHA,
+      severidade_evento_seguranca:  'WARNING',
+      metadata_ator_historico_log:  { endpoint: details.endpoint },
     })
   },
 
-  credentialOperation(id_organizacao: string, actorId: string, details: {
-    operation: 'CREATED' | 'REVOKED' | 'ROTATED'
-    credentialType: 'API_KEY' | 'SERVICE_TOKEN' | 'INTERNAL_KEY'
-    credentialId?: string
-  }) {
+  /**
+   * Limite de taxa atingido (rate limiter).
+   */
+  rateLimitHit(
+    id_organizacao: string,
+    details: {
+      ip:                                string
+      endpoint:                          string
+      quantidade_tentativas_rate_limit:  number
+    },
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: actorId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: `CREDENTIAL_${details.operation}`,
-      modulo_historico_log: 'configuracao',
-      severity: 'WARNING',
-      metadata: details,
+      id_ator_historico_log:        'system',
+      tipo_ator_historico_log:      AcaoExecutadaPor.INTEGRACAO,
+      acao_historico_log:           'ATINGIR_LIMITE_TAXA',
+      modulo_historico_log:         'auth',
+      ip_ator_historico_log:        details.ip,
+      tipo_recurso_historico_log:   'LimiteTaxa',
+      detalhe_acao_historico_log:   `Atingiu limite de taxa em ${details.endpoint} (${details.quantidade_tentativas_rate_limit} tentativas)`,
+      status_historico_log:         EventoStatus.FALHA,
+      severidade_evento_seguranca:  'WARNING',
+      metadata_ator_historico_log:  {
+        endpoint:                          details.endpoint,
+        quantidade_tentativas_rate_limit:  details.quantidade_tentativas_rate_limit,
+      },
     })
   },
 
-  adminAccess(id_organizacao: string, adminId: string, details: {
-    targetTenantId: string
-    resource: string
-    action: string
-  }) {
+  /**
+   * Operação em credencial (criar/revogar/rotacionar API key, service token, etc).
+   */
+  credentialOperation(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      tipo_operacao_credencial: 'CRIAR' | 'REVOGAR' | 'ROTACIONAR'
+      tipo_credencial:          'API_KEY' | 'SERVICE_TOKEN' | 'INTERNAL_KEY'
+      id_credencial?:           string
+    },
+    nome_usuario?: string,
+  ) {
+    const verbosPorOperacao: Record<typeof details.tipo_operacao_credencial, string> = {
+      CRIAR:       'Criou',
+      REVOGAR:     'Revogou',
+      ROTACIONAR:  'Rotacionou',
+    }
+    const verbo = verbosPorOperacao[details.tipo_operacao_credencial]
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: adminId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: 'ACESSAR_ADMIN',
-      modulo_historico_log: 'admin',
-      severity: 'INFO',
-      metadata: details,
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           `CREDENCIAL_${details.tipo_operacao_credencial}`,
+      modulo_historico_log:         'configuracao',
+      tipo_recurso_historico_log:   details.tipo_credencial,
+      id_recurso_historico_log:     details.id_credencial,
+      detalhe_acao_historico_log:   `${verbo} credencial ${details.tipo_credencial}${details.id_credencial ? ` (${details.id_credencial})` : ''}`,
+      severidade_evento_seguranca:  'WARNING',
     })
   },
 
-  webhookSignatureFailure(id_organizacao: string, details: {
-    source: 'CLERK' | 'STRIPE' | 'RESEND' | 'WHATSAPP'
-    ip: string
-    reason: string
-  }) {
+  /**
+   * Acesso administrativo (Gravity admin entrando em rota privilegiada).
+   */
+  adminAccess(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_organizacao_alvo: string
+      endpoint:            string
+      tipo_acao_admin:     string
+    },
+    nome_usuario?: string,
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: 'webhook',
-      tipo_ator_historico_log: AcaoExecutadaPor.INTEGRACAO,
-      acao_historico_log: 'FALHAR_ASSINATURA_WEBHOOK',
-      modulo_historico_log: 'auth',
-      ip_ator_historico_log: details.ip,
-      severity: 'CRITICAL',
-      metadata: details,
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           `ACESSAR_ADMIN_${details.tipo_acao_admin}`,
+      modulo_historico_log:         'admin',
+      tipo_recurso_historico_log:   'AreaAdmin',
+      detalhe_acao_historico_log:   `Acessou área admin "${details.tipo_acao_admin}" da organização ${details.id_organizacao_alvo} (${details.endpoint})`,
+      severidade_evento_seguranca:  'INFO',
+      metadata_ator_historico_log:  {
+        id_organizacao_alvo: details.id_organizacao_alvo,
+        endpoint:            details.endpoint,
+        tipo_acao_admin:     details.tipo_acao_admin,
+      },
     })
   },
 
-  dataDeleted(id_organizacao: string, actorId: string, details: {
-    targetUserId: string
-    tablesAffected: string[]
-    recordCount: number
-    reason: 'LGPD_REQUEST' | 'ADMIN_ACTION' | 'ACCOUNT_CLOSURE'
-  }) {
+  /**
+   * Falha de assinatura HMAC em webhook recebido.
+   */
+  webhookSignatureFailure(
+    id_organizacao: string,
+    details: {
+      origem_webhook: 'CLERK' | 'STRIPE' | 'RESEND' | 'WHATSAPP'
+      ip:             string
+      motivo_falha:   string
+    },
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: actorId,
-      tipo_ator_historico_log: AcaoExecutadaPor.USUARIO,
-      acao_historico_log: 'EXCLUIR_DADO',
-      modulo_historico_log: 'admin',
-      id_usuario: details.targetUserId,
-      severity: 'CRITICAL',
-      metadata: details,
+      id_ator_historico_log:        'webhook',
+      tipo_ator_historico_log:      AcaoExecutadaPor.INTEGRACAO,
+      acao_historico_log:           'FALHAR_ASSINATURA_WEBHOOK',
+      modulo_historico_log:         'auth',
+      ip_ator_historico_log:        details.ip,
+      tipo_recurso_historico_log:   'AssinaturaWebhook',
+      detalhe_acao_historico_log:   `Falha de assinatura webhook ${details.origem_webhook}: ${details.motivo_falha}`,
+      mensagem_erro_historico_log:  details.motivo_falha,
+      status_historico_log:         EventoStatus.FALHA,
+      severidade_evento_seguranca:  'CRITICAL',
+      metadata_ator_historico_log:  { origem_webhook: details.origem_webhook },
     })
   },
 
-  apiKeyUsed(id_organizacao: string, apiKeyId: string, details: {
-    module: string
-    endpoint: string
-    ip: string
-  }) {
+  /**
+   * Exclusão de dados (LGPD Art.18, ação admin, fechamento de conta).
+   */
+  dataDeleted(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_usuario_alvo:                string
+      tabelas_afetadas:               string[]
+      quantidade_registros_excluidos: number
+      motivo_exclusao:                'LGPD_REQUEST' | 'ADMIN_ACTION' | 'ACCOUNT_CLOSURE'
+    },
+    nome_usuario?: string,
+  ) {
     return logSecurityEvent({
       id_organizacao,
-      id_ator_historico_log: apiKeyId,
-      tipo_ator_historico_log: AcaoExecutadaPor.API,
-      acao_historico_log: 'CHAMAR_API',
-      modulo_historico_log: details.module,
-      ip_ator_historico_log: details.ip,
-      severity: 'INFO',
-      metadata: details,
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      tipo_ator_historico_log:      AcaoExecutadaPor.USUARIO,
+      acao_historico_log:           'EXCLUIR_DADO',
+      modulo_historico_log:         'admin',
+      tipo_recurso_historico_log:   'DadosUsuario',
+      id_recurso_historico_log:     details.id_usuario_alvo,
+      id_usuario:                   details.id_usuario_alvo,
+      detalhe_acao_historico_log:   `Excluiu ${details.quantidade_registros_excluidos} registros do usuário ${details.id_usuario_alvo} (motivo: ${details.motivo_exclusao})`,
+      severidade_evento_seguranca:  'CRITICAL',
+      metadata_ator_historico_log:  {
+        tabelas_afetadas:               details.tabelas_afetadas,
+        quantidade_registros_excluidos: details.quantidade_registros_excluidos,
+        motivo_exclusao:                details.motivo_exclusao,
+      },
+    })
+  },
+
+  /**
+   * Chamada de API autenticada via API key.
+   * Ator é a chave (`tipo_ator = API`). O id_usuario é do owner da chave.
+   */
+  apiKeyUsed(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_chave_api:    string
+      modulo_acessado: string
+      endpoint:        string
+      ip:              string
+    },
+    nome_usuario?: string,
+  ) {
+    return logSecurityEvent({
+      id_organizacao,
+      id_ator_historico_log:        details.id_chave_api,
+      nome_ator_historico_log:      nome_usuario ?? details.id_chave_api,
+      tipo_ator_historico_log:      AcaoExecutadaPor.API,
+      acao_historico_log:           'CHAMAR_API',
+      modulo_historico_log:         details.modulo_acessado,
+      tipo_recurso_historico_log:   'ChaveApi',
+      id_recurso_historico_log:     details.id_chave_api,
+      ip_ator_historico_log:        details.ip,
+      id_usuario:                   id_usuario,
+      detalhe_acao_historico_log:   `API chamada em ${details.endpoint} via chave ${details.id_chave_api}`,
+      severidade_evento_seguranca:  'INFO',
+      metadata_ator_historico_log:  { endpoint: details.endpoint },
     })
   },
 }

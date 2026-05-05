@@ -1,12 +1,33 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { z } from 'zod'
-import { ClockCounterClockwise } from '@phosphor-icons/react'
+import {
+  ClockCounterClockwise,
+  FileXls,
+  FileCsv,
+  FileText,
+  FileCode,
+  FilePdf,
+  Code,
+} from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import {
+  TabelaGlobal,
+  type TabelaGlobalColuna,
+  type TabelaExportAcao,
+} from '@nucleo/tabela-global'
 import { caminhoParaLocalString } from '@nucleo/audit-locais'
+import {
+  exportarExcel,
+  exportarCSV,
+  exportarTXT,
+  exportarXML,
+  exportarPDF,
+  exportarJSON,
+  type ColunasExport,
+} from '@nucleo/export-utils'
 
 // ---------------------------------------------------------------------------
 // Contrato — paridade DDD direta com Prisma `historico_log`
@@ -25,6 +46,8 @@ const historicoLogSchema = z.object({
   status_historico_log:        z.string().nullable(),
   modulo_historico_log:        z.string().nullable().optional(),
   metadata_ator_historico_log: z.record(z.unknown()).nullable().optional(),
+  /** Email do ator — enriquecido pelo proxy via lookup em `usuario`. Null para atores não-humanos. */
+  email_ator_historico_log:    z.string().nullable().optional(),
 })
 
 const historicoResponseSchema = z.object({
@@ -142,6 +165,9 @@ const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
     tipo: 'texto',
     largura: '160px',
     render: (v) => rotuloAcao(v as string | null),
+    // Filtro mostra label humanizado em vez do código cru (CRIAR → "Criou").
+    // Mantém 1 chip por código pra não mascarar drift legado (CREATE/UPDATE/DELETE).
+    renderFiltroLabel: (v) => rotuloAcao(v),
   },
   {
     key: 'modulo_historico_log',
@@ -156,14 +182,41 @@ const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
         item.tipo_recurso_historico_log,
       )
     },
+    // Filtro usa o mesmo "Sessão | Subsessão" que aparece na célula, não só o
+    // valor cru de modulo_historico_log (admin/auth/configuracao).
+    getValorBruto: (item) => {
+      const endpoint = (item.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
+      return caminhoParaLocalString(
+        endpoint,
+        item.modulo_historico_log,
+        item.tipo_recurso_historico_log,
+      )
+    },
   },
   {
     key: 'nome_ator_historico_log',
     label: 'Usuário',
     tipo: 'texto',
-    largura: '180px',
-    render: (_v, item) =>
-      item.nome_ator_historico_log ?? item.tipo_ator_historico_log ?? '—',
+    largura: '220px',
+    render: (_v, item) => {
+      const nome  = item.nome_ator_historico_log ?? item.tipo_ator_historico_log ?? '—'
+      const email = item.email_ator_historico_log
+      // Atores não-humanos (`'system'`, `'webhook'`, `'anonymous'`) e logs antigos
+      // sem lookup de email caem aqui — exibe só o nome.
+      if (!email) return nome
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
+          <span>{nome}</span>
+          <span style={{
+            fontSize: '0.75rem',
+            color: 'var(--color-text-muted)',
+            opacity: 0.85,
+          }}>
+            {email}
+          </span>
+        </div>
+      )
+    },
   },
   {
     key: 'detalhe_acao_historico_log',
@@ -225,6 +278,84 @@ export function HistoricoOrganizacao() {
     fetchLogs(page)
   }, [page, fetchLogs])
 
+  // ─── Exportação ──────────────────────────────────────────────────────────
+  // Achata o payload do log para o formato consumido pelos utilitários de
+  // export. Preserva os mesmos rótulos vistos na tela (ação humanizada,
+  // local resolvido) para manter paridade visual com a tabela.
+
+  const colunasExport: ColunasExport[] = useMemo(() => [
+    { header: 'Data/Hora',  key: 'data_criacao_historico_log'  },
+    { header: 'Ação',       key: 'acao_historico_log'          },
+    { header: 'Local',      key: 'local'                       },
+    { header: 'Recurso',    key: 'tipo_recurso_historico_log'  },
+    { header: 'ID Recurso', key: 'id_recurso_historico_log'    },
+    { header: 'Usuário',    key: 'nome_ator_historico_log'     },
+    { header: 'Email',      key: 'email_ator_historico_log'    },
+    { header: 'Tipo Ator',  key: 'tipo_ator_historico_log'     },
+    { header: 'Módulo',     key: 'modulo_historico_log'        },
+    { header: 'Detalhes',   key: 'detalhe_acao_historico_log'  },
+    { header: 'Status',     key: 'status_historico_log'        },
+  ], [])
+
+  const dadosExport: Record<string, unknown>[] = useMemo(
+    () => logs.map((log) => {
+      const endpoint = (log.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
+      return {
+        data_criacao_historico_log: formatarData(log.data_criacao_historico_log),
+        acao_historico_log:         rotuloAcao(log.acao_historico_log),
+        local: caminhoParaLocalString(
+          endpoint,
+          log.modulo_historico_log,
+          log.tipo_recurso_historico_log,
+        ),
+        tipo_recurso_historico_log: log.tipo_recurso_historico_log ?? '',
+        id_recurso_historico_log:   log.id_recurso_historico_log ?? '',
+        nome_ator_historico_log:    log.nome_ator_historico_log ?? '',
+        email_ator_historico_log:   log.email_ator_historico_log ?? '',
+        tipo_ator_historico_log:    log.tipo_ator_historico_log ?? '',
+        modulo_historico_log:       log.modulo_historico_log ?? '',
+        detalhe_acao_historico_log: log.detalhe_acao_historico_log ?? '',
+        status_historico_log:       log.status_historico_log ?? '',
+      }
+    }),
+    [logs],
+  )
+
+  const opcoesExport = { nomeArquivo: 'historico-organizacao', titulo: 'Histórico da Organização' }
+
+  const acoesExportacao: TabelaExportAcao<HistoricoLog>[] = useMemo(() => [
+    {
+      label:  'Excel (.xlsx)',
+      icone:  <FileXls   size={14} weight="duotone" />,
+      onClick: () => void exportarExcel(dadosExport, colunasExport, opcoesExport),
+    },
+    {
+      label:  'CSV',
+      icone:  <FileCsv   size={14} weight="duotone" />,
+      onClick: () => exportarCSV(dadosExport, colunasExport, opcoesExport),
+    },
+    {
+      label:  'TXT',
+      icone:  <FileText  size={14} weight="duotone" />,
+      onClick: () => exportarTXT(dadosExport, colunasExport, opcoesExport),
+    },
+    {
+      label:  'XML',
+      icone:  <FileCode  size={14} weight="duotone" />,
+      onClick: () => exportarXML(dadosExport, colunasExport, opcoesExport),
+    },
+    {
+      label:  'PDF',
+      icone:  <FilePdf   size={14} weight="duotone" />,
+      onClick: () => void exportarPDF(dadosExport, colunasExport, opcoesExport),
+    },
+    {
+      label:  'JSON',
+      icone:  <Code      size={14} weight="duotone" />,
+      onClick: () => exportarJSON(dadosExport, colunasExport, opcoesExport),
+    },
+  ], [dadosExport, colunasExport])
+
   return (
     <PaginaGlobal
       className="ws-fade-up"
@@ -240,6 +371,7 @@ export function HistoricoOrganizacao() {
         colunas={colunas}
         dados={logs}
         idKey="id_historico_log"
+        acoesExportacao={acoesExportacao}
         mensagemSemFiltro="Nenhum registro de histórico encontrado"
       />
 

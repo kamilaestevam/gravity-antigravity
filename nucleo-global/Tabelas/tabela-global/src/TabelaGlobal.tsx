@@ -129,6 +129,10 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
    *  Útil em sub-tabelas onde não há ação em massa via Set selecionados —
    *  usar quando as ações são por linha imediatas ou via modo edição em lote. */
   ocultarSelecao?: boolean
+  /** Callback disparado sempre que a seleção muda. Recebe array de IDs
+   *  (string) usando idKey. Útil para implementar ações em massa fora da
+   *  TabelaGlobal (toolbar customizado, etc). */
+  onSelecionadosChange?: (ids: string[]) => void
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -437,6 +441,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
     id: tableId, kanban, frozenColunas = 0, ocultarSelecao = false,
+    onSelecionadosChange,
   } = props
 
   const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
@@ -611,6 +616,10 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
 
     colunasVisiveis.forEach(c => {
       const st = filtros[c.key]
+      // Guarda: filtros e inicializado no mount a partir de colunas. Se o
+      // pai adicionar uma coluna depois (ou HMR preservar state com colunas
+      // novas), st pode ser undefined. Pular a coluna em vez de crashar.
+      if (st === undefined) return
       if (c.tipo === 'texto') {
         const s = st as Set<string>
         if (s.size > 0) r = r.filter(e => s.has(String(e[c.key])))
@@ -685,6 +694,15 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const todosSelec = paginado.length > 0 && paginado.every(e => selecionados.has(String(e[idKey as string])))
   const toggleSel = (id: string) => setSelecionados(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
   const toggleTodos = (checked: boolean) => setSelecionados(checked ? new Set(paginado.map(e => String(e[idKey as string]))) : new Set())
+
+  // Notifica o consumidor sempre que a seleção muda (toolbar de ações em massa
+  // controlado fora da TabelaGlobal). Ref para evitar loop quando o callback
+  // muda de identidade a cada render do parent.
+  const onSelecionadosChangeRef = useRef(onSelecionadosChange)
+  useEffect(() => { onSelecionadosChangeRef.current = onSelecionadosChange }, [onSelecionadosChange])
+  useEffect(() => {
+    onSelecionadosChangeRef.current?.(Array.from(selecionados))
+  }, [selecionados])
 
   // Auto-wire card click para abrir o modal de visualização/edição já configurado em `acoes`
   const handleKanbanCardClick = useCallback((item: T) => {

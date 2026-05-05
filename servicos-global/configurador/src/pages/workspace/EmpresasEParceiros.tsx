@@ -196,7 +196,7 @@ export function EmpresasEParceiros() {
   async function alternarAtivacao(empresa: Empresa) {
     try {
       const headers = await getAuthHeaders(idOrganizacao)
-      // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo: true }.
+      // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo_empresa: true }.
       const res = empresa.ativo_empresa
         ? await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
             method: 'DELETE',
@@ -205,7 +205,7 @@ export function EmpresasEParceiros() {
         : await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
             method: 'PUT',
             headers,
-            body: JSON.stringify({ ativo: true }),
+            body: JSON.stringify({ ativo_empresa: true }),
           })
 
       if (!res.ok) {

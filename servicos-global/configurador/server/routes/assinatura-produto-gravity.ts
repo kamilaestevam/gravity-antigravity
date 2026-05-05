@@ -10,6 +10,7 @@
 // Endpoints:
 //   GET    /                                                  Listar assinaturas + catálogo + workspaces habilitados
 //   POST   /assinar-produto                                   Contratar produto (cria assinatura + configuracao)
+//   PATCH  /:slug_produto_gravity                             Suspender/Reativar (status ATIVA|SUSPENSA|EM_TESTE)
 //   DELETE /:slug_produto_gravity                             Cancelar assinatura (status CANCELADA + ativo=false)
 //   PUT    /:slug_produto_gravity/workspaces/:id_workspace    Habilitar/suspender workspace nesta assinatura
 //   DELETE /:slug_produto_gravity/workspaces/:id_workspace    Remover vínculo do workspace
@@ -34,6 +35,12 @@ const AssinarProdutoSchema = z.object({
 
 const ToggleWorkspaceSchema = z.object({
   ativo_produto_gravity_workspace: z.boolean(),
+})
+
+// PATCH muda status comercial (Suspender/Reativar/etc).
+// Aceita ATIVA, SUSPENSA, EM_TESTE — NÃO aceita CANCELADA (use DELETE).
+const PatchStatusSchema = z.object({
+  status_assinatura_produto_gravity: z.enum(['ATIVA', 'SUSPENSA', 'EM_TESTE']),
 })
 
 // ─── GET / — listar assinaturas ─────────────────────────────────────────────
@@ -175,8 +182,9 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req,
         create: {
           id_organizacao,
           id_produto_gravity: produto.id_produto_gravity,
-          // Self-service: assinatura comeca ATIVA por default. EM_TESTE fica
-          // reservado para fluxos com trial period explicito (futuro).
+          // Self-service: assinatura comeca ATIVA por default. EM_TESTE eh
+          // reservado para teste manual do produto antes do fechamento
+          // contratual (atribuicao explicita por admin, nunca automatica).
           status_assinatura_produto_gravity: StatusAssinaturaProdutoGravity.ATIVA,
           data_inicio_periodo_assinatura_produto_gravity: new Date(),
         },
@@ -211,6 +219,75 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req,
     })
 
     res.status(201).json(resultado)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── PATCH /:slug_produto_gravity — muda status (Suspender/Reativar) ────────
+
+/**
+ * PATCH /api/v1/organizacoes/me/assinaturas/:slug_produto_gravity
+ * Body: { status_assinatura_produto_gravity: 'ATIVA' | 'SUSPENSA' | 'EM_TESTE' }
+ *
+ * Usado pelo botão "Suspender" / "Reativar" da tela. Não cancela —
+ * cancelamento é via DELETE separado, que vira CANCELADA.
+ *
+ * Sincroniza tambem `ativo_configuracao_produto_gravity`:
+ *   ATIVA / EM_TESTE -> ativo=true
+ *   SUSPENSA         -> ativo=false
+ */
+assinaturaProdutoGravityRouter.patch('/:slug_produto_gravity', requireAuth, async (req, res, next) => {
+  try {
+    const parsed = PatchStatusSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'status_assinatura_produto_gravity inválido',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const { slug_produto_gravity } = req.params
+    const id_organizacao = req.auth.id_organizacao
+    const novoStatus = parsed.data.status_assinatura_produto_gravity
+
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity },
+      select: { id_produto_gravity: true },
+    })
+    if (!produto) {
+      throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const ativoNaConfig = novoStatus !== 'SUSPENSA'
+
+    const resultado = await prisma.$transaction(async (tx) => {
+      const assinatura = await tx.produtoGravityAssinatura.update({
+        where: {
+          id_organizacao_id_produto_gravity: {
+            id_organizacao,
+            id_produto_gravity: produto.id_produto_gravity,
+          },
+        },
+        data: {
+          status_assinatura_produto_gravity: novoStatus,
+          // Saiu de cancelada limpa data_cancelamento
+          data_cancelamento_assinatura_produto_gravity: null,
+        },
+      })
+
+      await tx.produtoGravityConfiguracao.updateMany({
+        where: {
+          id_organizacao_configuracao_produto_gravity: id_organizacao,
+          chave_produto_configuracao_produto_gravity: slug_produto_gravity,
+        },
+        data: { ativo_configuracao_produto_gravity: ativoNaConfig },
+      })
+
+      return assinatura
+    })
+
+    res.json({ assinatura: resultado })
   } catch (err) {
     next(err)
   }

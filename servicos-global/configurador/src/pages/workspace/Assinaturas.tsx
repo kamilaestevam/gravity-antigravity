@@ -109,11 +109,13 @@ function formatarData(iso: string | null): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR')
 }
 
-// Regras de domínio (decisão dono 2026-05-04):
-// - "Ativa"   = produto contratado e em uso (status_assinatura = ATIVA)
-// - "Em Teste" = dentro do período de trial (status_assinatura = EM_TESTE)
-// - "Suspensa" = admin suspendeu o produto no catálogo (cascade)
-// - "Inativa"  = usuário cancelou via lixeira (status_assinatura = CANCELADA)
+// Regras de domínio (decisão dono 2026-05-04, atualizada 2026-05-05):
+// - "Ativa"    = produto contratado e em uso (status_assinatura = ATIVA)
+// - "Em Teste" = teste manual do produto antes do fechamento contratual
+//                (status_assinatura = EM_TESTE) — atribuído manualmente,
+//                não vem de onboarding automático.
+// - "Suspensa" = admin suspendeu o produto no catálogo (cascata via toggleStatus)
+// - "Cancelada" = usuário cancelou via lixeira (status_assinatura = CANCELADA)
 //
 // Stats cards contam SOMENTE ATIVA. EM_TESTE tem card próprio.
 function statusEhAtiva(s: StatusAssinaturaProdutoGravity): boolean {
@@ -245,23 +247,20 @@ export function Assinaturas() {
   }
 
   async function aoSuspenderAssinatura(a: AssinaturaProdutoGravity) {
+    // Suspender/Reativar usa PATCH (muda status sem cancelar).
+    // Cancelamento (CANCELADA) é via lixeira → confirmarCancelamentoAssinatura.
+    // Reativar só faz sentido para SUSPENSA (CANCELADA nunca chega na view;
+    // filtrada da lista — decisão dono 2026-05-05).
     const reativando = a.status_assinatura_produto_gravity === 'SUSPENSA'
-       || a.status_assinatura_produto_gravity === 'CANCELADA'
+    const novoStatus: StatusAssinaturaProdutoGravity = reativando ? 'ATIVA' : 'SUSPENSA'
     const slug = a.produto.slug_produto_gravity
     try {
       const headers = await getAuthHeaders()
-      if (reativando) {
-        const res = await fetch('/api/v1/organizacoes/me/assinaturas/assinar-produto', {
-          method: 'POST', headers,
-          body: JSON.stringify({ slug_produto_gravity: slug }),
-        })
-        if (!res.ok) throw new Error('Falha ao reativar')
-      } else {
-        const res = await fetch(`/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}`, {
-          method: 'DELETE', headers,
-        })
-        if (!res.ok) throw new Error('Falha ao suspender')
-      }
+      const res = await fetch(`/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ status_assinatura_produto_gravity: novoStatus }),
+      })
+      if (!res.ok) throw new Error(reativando ? 'Falha ao reativar' : 'Falha ao suspender')
       await recarregar()
       addNotification({
         type: reativando ? 'success' : 'warning',
@@ -494,7 +493,6 @@ export function Assinaturas() {
         const label = t(`enum.status_assinatura_produto_gravity.${status}`, status)
         return (
           <span
-            className={status === 'EM_TESTE' ? 'ux-pulse-trial' : undefined}
             style={{
               display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
               fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase',
@@ -623,14 +621,6 @@ export function Assinaturas() {
           background: linear-gradient(145deg, var(--ws-surface) 0%, rgba(129, 140, 248, 0.1) 100%) !important;
           animation: none;
           box-shadow: 0 8px 24px rgba(129, 140, 248, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        @keyframes ripplePulseTrial {
-          0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
-          70% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
-        }
-        .ux-pulse-trial {
-          animation: ripplePulseTrial 2s infinite !important;
         }
       `}
     </style>

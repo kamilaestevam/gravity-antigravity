@@ -60,6 +60,60 @@ const OPCOES_ESTADOS: SelectOpcao[] = [
   ...ESTADOS_BR.map(uf => ({ valor: uf, rotulo: uf })),
 ]
 
+// ── Lista de Países ISO 3166-1 alpha-2 (PT-BR, foco COMEX) ───────────────────
+// Brasil aparece SEMPRE PRIMEIRO; demais ordenados alfabeticamente em PT-BR.
+// Mesma lista usada em simula-custo/server/routes/masterData.ts (sem Brasil lá
+// porque BR não é país de origem em simulação de importação). Aqui Brasil
+// importa porque empresa parceira pode ser brasileira.
+const PAISES_ISO: Array<{ codigo: string; nome: string }> = [
+  { codigo: 'BR', nome: 'Brasil' },
+  ...[
+    { codigo: 'AR', nome: 'Argentina' },
+    { codigo: 'AU', nome: 'Austrália' },
+    { codigo: 'AT', nome: 'Áustria' },
+    { codigo: 'BE', nome: 'Bélgica' },
+    { codigo: 'BO', nome: 'Bolívia' },
+    { codigo: 'CA', nome: 'Canadá' },
+    { codigo: 'CL', nome: 'Chile' },
+    { codigo: 'CN', nome: 'China' },
+    { codigo: 'CO', nome: 'Colômbia' },
+    { codigo: 'KR', nome: 'Coreia do Sul' },
+    { codigo: 'DK', nome: 'Dinamarca' },
+    { codigo: 'EG', nome: 'Egito' },
+    { codigo: 'ES', nome: 'Espanha' },
+    { codigo: 'US', nome: 'Estados Unidos' },
+    { codigo: 'FR', nome: 'França' },
+    { codigo: 'DE', nome: 'Alemanha' },
+    { codigo: 'IN', nome: 'Índia' },
+    { codigo: 'ID', nome: 'Indonésia' },
+    { codigo: 'IL', nome: 'Israel' },
+    { codigo: 'IT', nome: 'Itália' },
+    { codigo: 'JP', nome: 'Japão' },
+    { codigo: 'MX', nome: 'México' },
+    { codigo: 'NO', nome: 'Noruega' },
+    { codigo: 'NL', nome: 'Países Baixos' },
+    { codigo: 'PY', nome: 'Paraguai' },
+    { codigo: 'PE', nome: 'Peru' },
+    { codigo: 'PL', nome: 'Polônia' },
+    { codigo: 'PT', nome: 'Portugal' },
+    { codigo: 'GB', nome: 'Reino Unido' },
+    { codigo: 'RU', nome: 'Rússia' },
+    { codigo: 'SE', nome: 'Suécia' },
+    { codigo: 'CH', nome: 'Suíça' },
+    { codigo: 'TW', nome: 'Taiwan' },
+    { codigo: 'TH', nome: 'Tailândia' },
+    { codigo: 'TR', nome: 'Turquia' },
+    { codigo: 'UY', nome: 'Uruguai' },
+    { codigo: 'VE', nome: 'Venezuela' },
+    { codigo: 'VN', nome: 'Vietnã' },
+  ].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
+]
+
+const OPCOES_PAISES: SelectOpcao[] = PAISES_ISO.map(p => ({
+  valor: p.codigo,
+  rotulo: `${p.nome} (${p.codigo})`,
+}))
+
 // ── Auth helper ──────────────────────────────────────────────────────────────
 
 async function getAuthHeaders(idOrganizacao: string): Promise<Record<string, string>> {
@@ -424,17 +478,26 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
             {erro('nome_empresa') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_empresa')}</span>}
           </CampoGeralGlobal>
 
-          <CampoGeralGlobal label="PAÍS (ISO-2)" obrigatorio>
-            <div className="ws-input-icon-wrap">
-              <MapPinLine size={16} />
-              <input
-                value={form.pais}
-                onChange={(e) => setCampo('pais', e.target.value.toUpperCase().slice(0, 2))}
-                placeholder="BR"
-                maxLength={2}
-                style={{ width: '100%', textTransform: 'uppercase', borderColor: (erro('pais') || camposComRequisitoFaltando.has('pais')) ? corErro : undefined }}
-              />
-            </div>
+          <CampoGeralGlobal label="PAÍS" obrigatorio>
+            <SelectGlobal
+              iconeEsquerda={<MapPinLine size={16} />}
+              opcoes={OPCOES_PAISES}
+              valor={form.pais || null}
+              aoMudarValor={(v) => {
+                const novoPais = String(v ?? '')
+                // Ao mudar de BR → estrangeiro, limpa CNPJ; ao mudar de
+                // estrangeiro → BR, limpa TIN. Coerência com regra do schema
+                // Zod (cnpj só com país=BR; tin só com país≠BR).
+                setForm((prev) => ({
+                  ...prev,
+                  pais: novoPais,
+                  cnpj: novoPais === 'BR' ? prev.cnpj : '',
+                  tin:  novoPais !== 'BR' ? prev.tin  : '',
+                }))
+              }}
+              placeholder="Selecione o país..."
+              buscavel
+            />
             {erro('pais') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('pais')}</span>}
           </CampoGeralGlobal>
         </div>

@@ -60,12 +60,13 @@ const logsResponseSchema = z.object({
 })
 
 const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo: z.number(),
-  quantidade_erros_log_consumo:       z.number(),
-  latencia_media_log_consumo:         z.number(),
-  percentual_uptime_log_consumo:      z.number(),
-  por_id_produto_gravity:             z.record(z.number()),
-  por_faixa_codigo_resposta_http:     z.record(z.number()),
+  quantidade_requisicoes_log_consumo:        z.number(),
+  quantidade_erros_log_consumo:              z.number(),
+  latencia_media_log_consumo:                z.number(),
+  percentual_uptime_log_consumo:             z.number(),
+  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+  por_id_produto_gravity:                    z.record(z.number()),
+  por_faixa_codigo_resposta_http:            z.record(z.number()),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>

@@ -63,12 +63,13 @@ const logsResponseSchema = z.object({
 })
 
 const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo: z.number(),
-  quantidade_erros_log_consumo:       z.number(),
-  latencia_media_log_consumo:         z.number(),
-  percentual_uptime_log_consumo:      z.number(),
-  por_id_produto_gravity:             z.record(z.number()),
-  por_faixa_codigo_resposta_http:     z.record(z.number()),
+  quantidade_requisicoes_log_consumo:        z.number(),
+  quantidade_erros_log_consumo:              z.number(),
+  latencia_media_log_consumo:                z.number(),
+  percentual_uptime_log_consumo:             z.number(),
+  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+  por_id_produto_gravity:                    z.record(z.number()),
+  por_faixa_codigo_resposta_http:            z.record(z.number()),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
@@ -132,25 +133,31 @@ export function ApiCockpit() {
     carregarCockpit()
   }, [])
 
-  // ─── Derivados dos cards ─────────────────────────────────────────────
-  const servicosOnline   = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
-  const servicosOffline  = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
-  const statusGeral      = servicos.length === 0
-    ? 'Indisponível'
-    : servicosOffline === 0
-      ? 'Operacional'
-      : servicosOffline === servicos.length
-        ? 'Crítico'
-        : 'Degradado'
-  const uptimePercent    = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
-  const latenciaMediaMs  = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
-  const apisOnlineLabel  = `${servicosOnline}/${servicos.length || 0}`
-  const requisicoes24h   = estatisticas ? String(estatisticas.quantidade_requisicoes_log_consumo) : '—'
+  // ─── Derivados dos cards (workspace = visao da organizacao) ──────────
+  // Status da Sua Integracao: derivado da taxa de erro 24h da org logada
+  //   <1% erro  → OK (sucesso)
+  //   1-5%      → Atencao (aviso)
+  //   >5%       → Falhando (perigo)
+  //   sem dados → Sem Trafego (padrao)
+  const totalReqOrg     = estatisticas?.quantidade_requisicoes_log_consumo ?? 0
+  const totalErrosOrg   = estatisticas?.quantidade_erros_log_consumo ?? 0
+  const taxaErroPct     = totalReqOrg > 0 ? (totalErrosOrg / totalReqOrg) * 100 : 0
+  const taxaSucessoPct  = totalReqOrg > 0 ? 100 - taxaErroPct : 100
+  const statusIntegracao: 'OK' | 'Atenção' | 'Falhando' | 'Sem Tráfego' =
+    totalReqOrg === 0 ? 'Sem Tráfego'
+    : taxaErroPct < 1 ? 'OK'
+    : taxaErroPct <= 5 ? 'Atenção'
+    : 'Falhando'
   const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
-    statusGeral === 'Operacional' ? 'sucesso'
-    : statusGeral === 'Degradado' ? 'aviso'
-    : statusGeral === 'Crítico'   ? 'perigo'
+    statusIntegracao === 'OK'       ? 'sucesso'
+    : statusIntegracao === 'Atenção' ? 'aviso'
+    : statusIntegracao === 'Falhando' ? 'perigo'
     : 'padrao'
+
+  const taxaSucessoLabel    = estatisticas && totalReqOrg > 0 ? `${taxaSucessoPct.toFixed(1)}%` : '—'
+  const latenciaMediaMs     = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
+  const produtosEmUsoLabel  = estatisticas ? String(estatisticas.quantidade_produtos_distintos_log_consumo) : '—'
+  const requisicoes24h      = estatisticas ? String(totalReqOrg) : '—'
 
   const colunasServicos: TabelaGlobalColuna<ServicoPlataforma>[] = [
     {
@@ -274,13 +281,13 @@ export function ApiCockpit() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
-        {/* KPI Row — 5 cards dinamicos */}
+        {/* KPI Row — 5 cards per-organizacao (visao do workspace) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.status_geral')}    valor={statusGeral}      variante={statusVariante} />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.uptime_24h')}      valor={uptimePercent}    variante="primario" />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.latencia_media')}  valor={latenciaMediaMs}  variante="padrao" />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.apis_online')}     valor={apisOnlineLabel}  variante="sucesso" />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.requisicoes_24h')} valor={requisicoes24h}   variante="primario" />
+          <CardEstatisticaGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} />
+          <CardEstatisticaGlobal titulo={t('workspace.cockpit.taxa_sucesso_24h')}   valor={taxaSucessoLabel}    variante="primario" />
+          <CardEstatisticaGlobal titulo={t('workspace.cockpit.latencia_media_24h')} valor={latenciaMediaMs}     variante="padrao" />
+          <CardEstatisticaGlobal titulo={t('workspace.cockpit.produtos_em_uso')}    valor={produtosEmUsoLabel}  variante="sucesso" />
+          <CardEstatisticaGlobal titulo={t('workspace.cockpit.requisicoes_24h')}    valor={requisicoes24h}      variante="primario" />
         </div>
 
         {/* Sub-paginas — navegacao */}

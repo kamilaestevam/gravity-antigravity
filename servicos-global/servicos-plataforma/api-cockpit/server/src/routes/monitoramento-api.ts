@@ -298,8 +298,22 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
 
 // ─── GET /stats — KPIs agregados ────────────────────────────────────────
 
-router.get('/estatisticas-log-consumo', (_req: Request, res: Response, next: NextFunction) => {
+/**
+ * GET /estatisticas-log-consumo[?id_organizacao=...]
+ *
+ * Sem filtro: agregado global (uso pelo admin).
+ * Com filtro id_organizacao: agregado per-org (uso pelo workspace).
+ *
+ * Campos calculados sao identicos nos dois casos. Adicional:
+ *   quantidade_produtos_distintos_log_consumo — count distinct id_produto_gravity
+ */
+const EstatisticasQuerySchema = z.object({
+  id_organizacao: z.string().optional(),
+})
+
+router.get('/estatisticas-log-consumo', (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { id_organizacao: filtroIdOrganizacao } = EstatisticasQuerySchema.parse(req.query)
     const h24 = Date.now() - 24 * 60 * 60 * 1000
 
     // Single pass — filter, count, sum, groupBy em 1 loop só (era 4 iterações antes)
@@ -311,6 +325,7 @@ router.get('/estatisticas-log-consumo', (_req: Request, res: Response, next: Nex
 
     for (const e of logConsumoStore) {
       if (e._ts_ms < h24) continue
+      if (filtroIdOrganizacao && e.id_organizacao !== filtroIdOrganizacao) continue
       quantidadeRequisicoes++
       somaLatencia += e.latencia_ms_log_consumo
       if (e.codigo_resposta_http_log_consumo >= 500) quantidadeErros++
@@ -323,14 +338,16 @@ router.get('/estatisticas-log-consumo', (_req: Request, res: Response, next: Nex
     const percentualUptime = quantidadeRequisicoes > 0
       ? Number(((1 - quantidadeErros / quantidadeRequisicoes) * 100).toFixed(1))
       : 100
+    const quantidadeProdutosDistintos = Object.keys(porIdProdutoGravity).length
 
     res.json({
-      quantidade_requisicoes_log_consumo: quantidadeRequisicoes,
-      quantidade_erros_log_consumo:       quantidadeErros,
-      latencia_media_log_consumo:         latenciaMedia,
-      percentual_uptime_log_consumo:      percentualUptime,
-      por_id_produto_gravity:             porIdProdutoGravity,
-      por_faixa_codigo_resposta_http:     porFaixaCodigoRespostaHttp,
+      quantidade_requisicoes_log_consumo:        quantidadeRequisicoes,
+      quantidade_erros_log_consumo:              quantidadeErros,
+      latencia_media_log_consumo:                latenciaMedia,
+      percentual_uptime_log_consumo:             percentualUptime,
+      quantidade_produtos_distintos_log_consumo: quantidadeProdutosDistintos,
+      por_id_produto_gravity:                    porIdProdutoGravity,
+      por_faixa_codigo_resposta_http:            porFaixaCodigoRespostaHttp,
     })
   } catch (err) {
     next(err)

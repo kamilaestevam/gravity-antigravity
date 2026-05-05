@@ -71,12 +71,13 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
 // ─── Fallback shapes (alinhadas com payload DDD do backend) ─────────────
 
 const STATS_FALLBACK = {
-  quantidade_requisicoes_log_consumo: 0,
-  quantidade_erros_log_consumo:       0,
-  latencia_media_log_consumo:         0,
-  percentual_uptime_log_consumo:      100,
-  por_id_produto_gravity:             {},
-  por_faixa_codigo_resposta_http:     { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 },
+  quantidade_requisicoes_log_consumo:        0,
+  quantidade_erros_log_consumo:              0,
+  latencia_media_log_consumo:                0,
+  percentual_uptime_log_consumo:             100,
+  quantidade_produtos_distintos_log_consumo: 0,
+  por_id_produto_gravity:                    {},
+  por_faixa_codigo_resposta_http:            { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 },
 }
 
 const LOGS_FALLBACK = {
@@ -118,9 +119,14 @@ apiCockpitRouter.get('/log-consumo', async (req, res) => {
   }
 })
 
-apiCockpitRouter.get('/log-consumo/estatisticas', async (_req, res) => {
+apiCockpitRouter.get('/log-consumo/estatisticas', async (req, res) => {
   try {
-    const data = await proxyToCockpit('/estatisticas-log-consumo')
+    // Workspace: filtra por organizacao do usuario logado.
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) {
+      return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    }
+    const data = await proxyToCockpit('/estatisticas-log-consumo', { id_organizacao: idOrganizacao })
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)

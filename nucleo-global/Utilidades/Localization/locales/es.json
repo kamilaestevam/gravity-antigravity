@@ -743,6 +743,9 @@
     "api-cockpit": {
       "titulo": "Monitor de Infraestructura",
       "subtitulo": "Visión administrativa global del estado de las APIs en Railway",
+      "status_geral": "Estado General",
+      "uptime_24h": "Uptime (24h)",
+      "latencia_media": "Latencia Promedio",
       "apis_online": "APIs en Línea",
       "requisicoes_24h": "Solicitudes (24h)",
       "alertas_ativos": "Alertas Activos",
@@ -756,6 +759,7 @@
       },
       "tabela": {
         "servico": "Servicio",
+        "tipo": "Tipo",
         "organizacao": "Organización",
         "status": "Estado",
         "consumo": "Consumo",

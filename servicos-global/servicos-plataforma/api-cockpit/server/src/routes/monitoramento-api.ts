@@ -1,10 +1,10 @@
 /**
- * observability.ts — Rotas de ingestao e consulta de metricas de API
+ * monitoramento-api.ts — Rotas de ingestao e consulta de metricas de API
  *
- * POST /ingest          Recebe batch de metricas dos produtos (S2S)
- * GET  /servicos        Lista servicos com status (health check)
- * GET  /logs            Lista logs de requisicoes (paginado)
- * GET  /stats           KPIs agregados (24h uptime, latencia media, etc.)
+ * POST /ingestao                       Recebe batch de metricas dos produtos (S2S)
+ * GET  /servicos                       Lista servicos com status (health check)
+ * GET  /logs                           Lista logs de requisicoes (paginado)
+ * GET  /estatisticas-log-consumo       KPIs agregados (24h uptime, latencia media, etc.)
  *
  * NOMENCLATURA DDD (REGRA 3/4 — FKs canonicas + sufixo de entidade em genericos):
  *   - id_organizacao, id_produto_gravity, id_usuario        FKs canonicas
@@ -147,7 +147,7 @@ function enrichEntry(input: LogConsumoInput): LogConsumoEntry {
   }
 }
 
-router.post('/ingest', requireInternalKey, (req: Request, res: Response, next: NextFunction) => {
+router.post('/ingestao', requireInternalKey, (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = IngestSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -168,7 +168,7 @@ router.post('/ingest', requireInternalKey, (req: Request, res: Response, next: N
     if (logConsumoStore.length >= OVERFLOW_WARNING_THRESHOLD && !overflowWarningEmitted) {
       overflowWarningEmitted = true
       console.warn(
-        `[observability] Store em memória atingiu ${logConsumoStore.length}/${MAX_STORE_SIZE} ` +
+        `[monitoramento-api] Store em memória atingiu ${logConsumoStore.length}/${MAX_STORE_SIZE} ` +
         `registros. Dados antigos começam a ser descartados. Migrar para Prisma LogConsumo.`
       )
     }
@@ -298,7 +298,7 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
 
 // ─── GET /stats — KPIs agregados ────────────────────────────────────────
 
-router.get('/stats', (_req: Request, res: Response, next: NextFunction) => {
+router.get('/estatisticas-log-consumo', (_req: Request, res: Response, next: NextFunction) => {
   try {
     const h24 = Date.now() - 24 * 60 * 60 * 1000
 
@@ -337,4 +337,4 @@ router.get('/stats', (_req: Request, res: Response, next: NextFunction) => {
   }
 })
 
-export { router as observabilityRouter }
+export { router as monitoramentoApiRouter }

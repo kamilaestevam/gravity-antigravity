@@ -1,20 +1,20 @@
 /**
- * apiCockpit.ts — Rotas proxy para dados de observabilidade no Configurador
+ * api-cockpit.ts — Rotas proxy para dados de monitoramento da API no Configurador
  *
  * Proxy entre o frontend (workspace + admin) e o servico api-cockpit.
  * O frontend NAO fala diretamente com o api-cockpit; passa pelo Configurador.
  *
  * Rotas workspace (qualquer usuario autenticado — montadas em /api/v1/api-cockpit):
- *   GET /api/v1/api-cockpit/servicos    — Health check dos servicos
- *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por organizacao)
- *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por organizacao)
+ *   GET /api/v1/api-cockpit/saude-servicos                    — Health check dos servicos
+ *   GET /api/v1/api-cockpit/log-consumo                       — Logs (filtrado por organizacao)
+ *   GET /api/v1/api-cockpit/log-consumo/estatisticas          — KPIs (filtrado por organizacao)
  *
  * Rotas admin (gravity_admin — montadas em /api/v1/api-cockpit/admin):
- *   GET /api/v1/api-cockpit/admin/servicos          — Health check (todos)
- *   GET /api/v1/api-cockpit/admin/logs              — Logs (todas as organizacoes)
- *   GET /api/v1/api-cockpit/admin/estatisticas      — KPIs (globais)
- *   GET /api/v1/api-cockpit/admin/uso-gabi          — Custos GABI IA agregados
- *   GET /api/v1/api-cockpit/admin/uso-gabi/historico — Historico de uso GABI (6 meses)
+ *   GET /api/v1/api-cockpit/admin/saude-servicos              — Health check global
+ *   GET /api/v1/api-cockpit/admin/log-consumo                 — Logs globais
+ *   GET /api/v1/api-cockpit/admin/log-consumo/estatisticas    — KPIs globais
+ *   GET /api/v1/api-cockpit/admin/uso-gabi                    — Custos GABI IA agregados
+ *   GET /api/v1/api-cockpit/admin/uso-gabi/historico          — Historico de uso GABI
  *
  * NOMENCLATURA DDD (REGRA 3/4):
  *   - Query params: id_organizacao, id_produto_gravity, pagina, limite
@@ -46,7 +46,7 @@ function maskError(err: unknown): string {
 // ─── Helper: proxy para api-cockpit ─────────────────────────────────────
 
 async function proxyToCockpit(path: string, query?: Record<string, string>): Promise<unknown> {
-  const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/observability${path}`)
+  const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/monitoramento-api${path}`)
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value) url.searchParams.set(key, value)
@@ -88,7 +88,7 @@ const LOGS_FALLBACK = {
 
 apiCockpitRouter.use(rateLimitPresets.internal(), requireAuth)
 
-apiCockpitRouter.get('/servicos', async (_req, res) => {
+apiCockpitRouter.get('/saude-servicos', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/servicos')
     res.json(data)
@@ -97,7 +97,7 @@ apiCockpitRouter.get('/servicos', async (_req, res) => {
   }
 })
 
-apiCockpitRouter.get('/logs', async (req, res) => {
+apiCockpitRouter.get('/log-consumo', async (req, res) => {
   try {
     // Mandamento 08 — sem fallback de header. id_organizacao SOMENTE do JWT.
     const idOrganizacao = req.auth?.id_organizacao
@@ -116,9 +116,9 @@ apiCockpitRouter.get('/logs', async (req, res) => {
   }
 })
 
-apiCockpitRouter.get('/stats', async (_req, res) => {
+apiCockpitRouter.get('/log-consumo/estatisticas', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/stats')
+    const data = await proxyToCockpit('/estatisticas-log-consumo')
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)
@@ -129,7 +129,7 @@ apiCockpitRouter.get('/stats', async (_req, res) => {
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
-apiCockpitAdminRouter.get('/servicos', async (_req, res) => {
+apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/servicos')
     res.json(data)
@@ -138,7 +138,7 @@ apiCockpitAdminRouter.get('/servicos', async (_req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/logs', async (req, res) => {
+apiCockpitAdminRouter.get('/log-consumo', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
       id_organizacao:     (req.query.id_organizacao as string) || '',
@@ -152,9 +152,9 @@ apiCockpitAdminRouter.get('/logs', async (req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/estatisticas', async (_req, res) => {
+apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/stats')
+    const data = await proxyToCockpit('/estatisticas-log-consumo')
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)

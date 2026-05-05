@@ -2,7 +2,7 @@ import { Router } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi'
 
-export const docsRouter = Router()
+export const documentacaoApiRouter = Router()
 const registry = new OpenAPIRegistry()
 
 // Minimal example registering a schema and route.
@@ -33,9 +33,9 @@ const openApiDocument = generator.generateDocument({
 })
 
 // Expose Swagger UI
-docsRouter.use('/', swaggerUi.serve, swaggerUi.setup(openApiDocument))
+documentacaoApiRouter.use('/', swaggerUi.serve, swaggerUi.setup(openApiDocument))
 
 // Expose Raw JSON
-docsRouter.get('/raw', (req, res) => {
+documentacaoApiRouter.get('/openapi-json', (req, res) => {
   res.json(openApiDocument)
 })

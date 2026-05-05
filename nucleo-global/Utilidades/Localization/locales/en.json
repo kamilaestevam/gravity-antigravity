@@ -411,6 +411,8 @@
       "operacional": "Operational",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Avg. Latency",
+      "apis_online": "APIs Online",
+      "requisicoes_24h": "Requests (24h)",
       "aba_inventario": "Service Inventory",
       "aba_logs": "Request Logs",
       "tabela": {
@@ -441,6 +443,9 @@
     "api-cockpit": {
       "titulo": "Infrastructure Monitor",
       "subtitulo": "Global administrative view of API health on Railway",
+      "status_geral": "Overall Status",
+      "uptime_24h": "Uptime (24h)",
+      "latencia_media": "Avg. Latency",
       "apis_online": "APIs Online",
       "requisicoes_24h": "Requests (24h)",
       "alertas_ativos": "Active Alerts",
@@ -454,6 +459,7 @@
       },
       "tabela": {
         "servico": "Service",
+        "tipo": "Type",
         "organizacao": "Organization",
         "status": "Status",
         "consumo": "Usage",

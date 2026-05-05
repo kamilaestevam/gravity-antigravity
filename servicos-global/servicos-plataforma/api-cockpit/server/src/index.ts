@@ -19,8 +19,8 @@ import { z } from 'zod'
 // import { tokensRouter } from './routes/tokens'
 // import { webhooksRouter } from './routes/webhooks'
 // import { erpRouter } from './routes/erp'
-import { docsRouter } from './routes/docs'
-import { observabilityRouter } from './routes/observability'
+import { documentacaoApiRouter } from './routes/documentacao-api'
+import { monitoramentoApiRouter } from './routes/monitoramento-api'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 
@@ -43,8 +43,8 @@ app.use(rateLimitPresets.internal())
 // app.use('/api/v1/api-tokens', tokensRouter)
 // app.use('/api/v1/webhooks', webhooksRouter)
 // app.use('/api/v1/erp', erpRouter)
-app.use('/api/v1/cockpit/docs', requireInternalKey, docsRouter)
-app.use('/api/v1/cockpit/observability', observabilityRouter)
+app.use('/api/v1/cockpit/documentacao-api', requireInternalKey, documentacaoApiRouter)
+app.use('/api/v1/cockpit/monitoramento-api', monitoramentoApiRouter)
 
 // Error Handler
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

@@ -56,13 +56,24 @@ const logsResponseSchema = z.object({
   error: z.string().optional(),
 })
 
+const estatisticasLogConsumoSchema = z.object({
+  quantidade_requisicoes_log_consumo: z.number(),
+  quantidade_erros_log_consumo:       z.number(),
+  latencia_media_log_consumo:         z.number(),
+  percentual_uptime_log_consumo:      z.number(),
+  por_id_produto_gravity:             z.record(z.number()),
+  por_faixa_codigo_resposta_http:     z.record(z.number()),
+})
+
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
 type LogConsumo = z.infer<typeof logConsumoSchema>
+type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 
 export function ApiCockpit() {
   const { t } = useTranslation()
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
   const [logs, setLogs] = useState<LogConsumo[]>([])
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
   const [abaAtiva, setAbaAtiva] = useState<'geral' | 'logs' | 'config'>('geral')
   const [, setLoading] = useState(true)
 
@@ -70,9 +81,10 @@ export function ApiCockpit() {
     const carregarCockpit = async () => {
       setLoading(true)
       try {
-        const [svcRes, logsRes] = await Promise.all([
-          fetch('/api/v1/api-cockpit/servicos', { credentials: 'include' }),
-          fetch('/api/v1/api-cockpit/logs?limite=50', { credentials: 'include' }),
+        const [svcRes, logsRes, statsRes] = await Promise.all([
+          fetch('/api/v1/api-cockpit/saude-servicos',         { credentials: 'include' }),
+          fetch('/api/v1/api-cockpit/log-consumo?limite=50',  { credentials: 'include' }),
+          fetch('/api/v1/api-cockpit/log-consumo/estatisticas', { credentials: 'include' }),
         ])
 
         if (svcRes.ok) {
@@ -81,7 +93,7 @@ export function ApiCockpit() {
           if (svcData.success) {
             setServicos(svcData.data.servicos)
           } else {
-            console.warn('[ApiCockpit] /servicos payload invalido', svcData.error)
+            console.warn('[ApiCockpit] /saude-servicos payload invalido', svcData.error)
           }
         }
 
@@ -91,7 +103,17 @@ export function ApiCockpit() {
           if (logsData.success) {
             setLogs(logsData.data.logs)
           } else {
-            console.warn('[ApiCockpit] /logs payload invalido', logsData.error)
+            console.warn('[ApiCockpit] /log-consumo payload invalido', logsData.error)
+          }
+        }
+
+        if (statsRes.ok) {
+          const statsRaw = await statsRes.json()
+          const statsData = estatisticasLogConsumoSchema.safeParse(statsRaw)
+          if (statsData.success) {
+            setEstatisticas(statsData.data)
+          } else {
+            console.warn('[ApiCockpit] /log-consumo/estatisticas payload invalido', statsData.error)
           }
         }
       } catch (err) {
@@ -102,6 +124,26 @@ export function ApiCockpit() {
     }
     carregarCockpit()
   }, [])
+
+  // ─── Derivados dos cards ─────────────────────────────────────────────
+  const servicosOnline   = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
+  const servicosOffline  = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
+  const statusGeral      = servicos.length === 0
+    ? 'Indisponível'
+    : servicosOffline === 0
+      ? 'Operacional'
+      : servicosOffline === servicos.length
+        ? 'Crítico'
+        : 'Degradado'
+  const uptimePercent    = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
+  const latenciaMediaMs  = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
+  const apisOnlineLabel  = `${servicosOnline}/${servicos.length || 0}`
+  const requisicoes24h   = estatisticas ? String(estatisticas.quantidade_requisicoes_log_consumo) : '—'
+  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
+    statusGeral === 'Operacional' ? 'sucesso'
+    : statusGeral === 'Degradado' ? 'aviso'
+    : statusGeral === 'Crítico'   ? 'perigo'
+    : 'padrao'
 
   const colunasServicos: TabelaGlobalColuna<ServicoPlataforma>[] = [
     {
@@ -225,11 +267,13 @@ export function ApiCockpit() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
-        {/* KPI Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.status_geral')} valor={t('admin.cockpit.operacional')} variante="sucesso" />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.uptime_24h')} valor="100%" variante="primario" />
-          <CardEstatisticaGlobal titulo={t('admin.cockpit.latencia_media')} valor="24ms" variante="padrao" />
+        {/* KPI Row — 5 cards dinamicos */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.status_geral')}    valor={statusGeral}      variante={statusVariante} />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.uptime_24h')}      valor={uptimePercent}    variante="primario" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.latencia_media')}  valor={latenciaMediaMs}  variante="padrao" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.apis_online')}     valor={apisOnlineLabel}  variante="sucesso" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.requisicoes_24h')} valor={requisicoes24h}   variante="primario" />
         </div>
 
         {/* Tabs Control */}

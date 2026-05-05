@@ -411,6 +411,8 @@
       "operacional": "Operacional",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Latência Média",
+      "apis_online": "APIs Online",
+      "requisicoes_24h": "Requisições (24h)",
       "aba_inventario": "Inventário de Serviços",
       "aba_logs": "Logs de Requisições",
       "tabela": {
@@ -441,6 +443,9 @@
     "api-cockpit": {
       "titulo": "Monitor de Infraestrutura",
       "subtitulo": "Visão administrativa global da saúde das APIs no Railway",
+      "status_geral": "Status Geral",
+      "uptime_24h": "Uptime (24h)",
+      "latencia_media": "Latência Média",
       "apis_online": "APIs Online",
       "requisicoes_24h": "Requisições (24h)",
       "alertas_ativos": "Alertas Ativos",
@@ -454,6 +459,7 @@
       },
       "tabela": {
         "servico": "Serviço",
+        "tipo": "Tipo",
         "organizacao": "Organização",
         "status": "Status",
         "consumo": "Consumo",

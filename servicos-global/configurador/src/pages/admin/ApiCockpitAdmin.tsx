@@ -58,8 +58,18 @@ const logsResponseSchema = z.object({
   error: z.string().optional(),
 })
 
+const estatisticasLogConsumoSchema = z.object({
+  quantidade_requisicoes_log_consumo: z.number(),
+  quantidade_erros_log_consumo:       z.number(),
+  latencia_media_log_consumo:         z.number(),
+  percentual_uptime_log_consumo:      z.number(),
+  por_id_produto_gravity:             z.record(z.number()),
+  por_faixa_codigo_resposta_http:     z.record(z.number()),
+})
+
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
 type LogConsumo = z.infer<typeof logConsumoSchema>
+type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 
 /** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi (servico GABI — fora do escopo DDD api-cockpit) */
 interface GabiUsagePayload {
@@ -106,6 +116,7 @@ export function ApiCockpitAdmin() {
   const addNotification = useShellStore((s) => s.addNotification)
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
   const [logs, setLogs] = useState<LogConsumo[]>([])
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
@@ -117,16 +128,19 @@ export function ApiCockpitAdmin() {
     try {
       setLoading(true)
       setErroCarregar(null)
-      const [svcRes, logsRes] = await Promise.all([
-        authedFetch('/api/v1/api-cockpit/admin/servicos', { signal }),
-        authedFetch('/api/v1/api-cockpit/admin/logs?limite=50', { signal }),
+      const [svcRes, logsRes, statsRes] = await Promise.all([
+        authedFetch('/api/v1/api-cockpit/admin/saude-servicos',         { signal }),
+        authedFetch('/api/v1/api-cockpit/admin/log-consumo?limite=50',  { signal }),
+        authedFetch('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
       ])
 
-      if (!svcRes.ok) throw new Error(`servicos ${svcRes.status} ${svcRes.statusText}`)
-      if (!logsRes.ok) throw new Error(`logs ${logsRes.status} ${logsRes.statusText}`)
+      if (!svcRes.ok)   throw new Error(`saude-servicos ${svcRes.status} ${svcRes.statusText}`)
+      if (!logsRes.ok)  throw new Error(`log-consumo ${logsRes.status} ${logsRes.statusText}`)
+      if (!statsRes.ok) throw new Error(`estatisticas ${statsRes.status} ${statsRes.statusText}`)
 
       const svcRaw = await svcRes.json()
       const logsRaw = await logsRes.json()
+      const statsRaw = await statsRes.json()
 
       // Backend retorna `error` no payload mesmo com 200 quando o api-cockpit esta down
       if (svcRaw.error) throw new Error(svcRaw.error)
@@ -134,12 +148,15 @@ export function ApiCockpitAdmin() {
 
       const svcParsed = servicosResponseSchema.safeParse(svcRaw)
       const logsParsed = logsResponseSchema.safeParse(logsRaw)
+      const statsParsed = estatisticasLogConsumoSchema.safeParse(statsRaw)
 
-      if (!svcParsed.success) throw new Error('Payload de servicos invalido')
-      if (!logsParsed.success) throw new Error('Payload de logs invalido')
+      if (!svcParsed.success)   throw new Error('Payload de saude-servicos invalido')
+      if (!logsParsed.success)  throw new Error('Payload de log-consumo invalido')
+      if (!statsParsed.success) throw new Error('Payload de estatisticas invalido')
 
       setServicos(svcParsed.data.servicos)
       setLogs(logsParsed.data.logs)
+      setEstatisticas(statsParsed.data)
     } catch (err) {
       // Ignora AbortError (cleanup do useEffect no StrictMode)
       if (err instanceof DOMException && err.name === 'AbortError') return
@@ -191,7 +208,29 @@ export function ApiCockpitAdmin() {
     () => servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length,
     [servicos],
   )
-  const totalRequisicoes = useMemo(() => logs.length, [logs])
+  const apisTotal = servicos.length
+  const apisOffline = useMemo(
+    () => servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length,
+    [servicos],
+  )
+
+  // Status geral derivado da saude dos servicos
+  const statusGeral = apisTotal === 0
+    ? 'Indisponível'
+    : apisOffline === 0
+      ? 'Operacional'
+      : apisOffline === apisTotal
+        ? 'Crítico'
+        : 'Degradado'
+  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
+    statusGeral === 'Operacional' ? 'sucesso'
+    : statusGeral === 'Degradado' ? 'aviso'
+    : statusGeral === 'Crítico'   ? 'perigo'
+    : 'padrao'
+
+  const uptimePercent   = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
+  const latenciaMediaMs = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
+  const requisicoes24h  = estatisticas ? estatisticas.quantidade_requisicoes_log_consumo : 0
 
   // GABI KPIs memoizados
   const gabiCalls = gabiUsage?.total_calls ?? 0
@@ -302,13 +341,28 @@ export function ApiCockpitAdmin() {
       stats={
         <>
           <CardEstatisticaGlobal
+            titulo={t('admin.api-cockpit.status_geral')}
+            valor={statusGeral}
+            variante={statusVariante}
+          />
+          <CardEstatisticaGlobal
+            titulo={t('admin.api-cockpit.uptime_24h')}
+            valor={uptimePercent}
+            variante="primario"
+          />
+          <CardEstatisticaGlobal
+            titulo={t('admin.api-cockpit.latencia_media')}
+            valor={latenciaMediaMs}
+            variante="padrao"
+          />
+          <CardEstatisticaGlobal
             titulo={t('admin.api-cockpit.apis_online')}
-            valor={String(apisOnline)}
+            valor={`${apisOnline}/${apisTotal}`}
             variante="sucesso"
           />
           <CardEstatisticaGlobal
             titulo={t('admin.api-cockpit.requisicoes_24h')}
-            valor={String(totalRequisicoes)}
+            valor={String(requisicoes24h)}
             variante="primario"
           />
           <CardEstatisticaGlobal

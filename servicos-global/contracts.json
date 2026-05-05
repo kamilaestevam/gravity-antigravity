@@ -83,7 +83,7 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/historico-organizacao",
       "middleware": ["requireAuth"],
-      "note": "Proxy fino sobre `/api/v1/historico-global/logs`. Aplica ACL Prisma → contrato FE (Mandamento 06): remove o sufixo `_historico_log` dos campos. Encaminha o JWT do usuário no header Authorization (sem x-internal-key). Paginação page-based é best-effort — o cursor real do upstream é exposto via `nextCursor` na resposta.",
+      "note": "Proxy fino sobre `/api/v1/historico-global/logs`. Passthrough do payload do upstream — nomes de campo idênticos ao Prisma (sufixo `_historico_log` preservado por conformidade com REGRA 1.2 de `ddd-nomenclatura`: nomes genéricos exigem sufixo de entidade). Encaminha o JWT do usuário no header Authorization (sem x-internal-key). Paginação page-based é best-effort — o cursor real do upstream é exposto via `nextCursor` na resposta.",
       "endpoints": {
         "GET /": "Lista logs da organização. Query: page?, limit? (max 100), cursor?, search?, from_date?, to_date?. Resposta: { page, limit, logs, total, hasMore, nextCursor }. `total` é best-effort (upstream é cursor-based, não retorna count)."
       }

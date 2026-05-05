@@ -6,8 +6,11 @@
  * recebem visão global automaticamente (Mandamento 04).
  *
  * Responsabilidade do proxy:
- *  - Aplicar a ACL de campos (Prisma → contrato FE) (Mandamento 06)
- *  - Estabilizar paginação page-based (best-effort) e expor `nextCursor`
+ *  - Repassar payload do upstream sem renomear campos (paridade DDD
+ *    Prisma↔HTTP↔FE — todos os campos preservam o sufixo `_historico_log`,
+ *    conforme REGRA 1.2 de `ddd-nomenclatura`: nomes genéricos como `acao`,
+ *    `data_criacao`, `tipo_recurso` exigem sufixo de entidade).
+ *  - Estabilizar paginação page-based (best-effort) e expor `nextCursor`.
  *
  * Limitações conhecidas (best-effort, documentadas no doc técnico):
  *  - O filtro `tipo_recurso IN (...)` não é suportado pelo upstream e foi
@@ -27,38 +30,6 @@ import { logger } from '../lib/logger.js'
 export const historicoOrganizacaoRouter = Router()
 
 const log = logger.child({ module: 'historico-organizacao' })
-
-// ---------------------------------------------------------------------------
-// ACL — Prisma `historico-global` → contrato consumido pelo frontend
-// (Mandamento 06: tradução obrigatória nos pontos onde o nome interno difere
-// do nome do contrato. Aqui apenas removemos o sufixo `_historico_log`.)
-// ---------------------------------------------------------------------------
-
-interface HistoricoLogPrisma {
-  id_historico_log: string
-  data_criacao_historico_log: string
-  acao_historico_log: string
-  detalhe_acao_historico_log: string | null
-  tipo_recurso_historico_log: string
-  id_recurso_historico_log: string | null
-  nome_ator_historico_log: string | null
-  tipo_ator_historico_log: string | null
-  status_historico_log: string | null
-}
-
-function mapPrismaParaContrato(row: HistoricoLogPrisma) {
-  return {
-    id:            row.id_historico_log,
-    data_criacao:  row.data_criacao_historico_log,
-    acao:          row.acao_historico_log,
-    detalhe_acao:  row.detalhe_acao_historico_log,
-    tipo_recurso:  row.tipo_recurso_historico_log,
-    id_recurso:    row.id_recurso_historico_log,
-    nome_ator:     row.nome_ator_historico_log,
-    tipo_ator:     row.tipo_ator_historico_log,
-    status:        row.status_historico_log,
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Validação de query params
@@ -113,13 +84,12 @@ historicoOrganizacaoRouter.get(
 
       if (!response.ok) {
         const errorBody = await response.text().catch(() => 'Erro ao buscar histórico')
-        log.error({ status: response.status, body: errorBody, fetchUrl }, 'Falha upstream historico-global')
+        log.error('Falha upstream historico-global', { status: response.status, body: errorBody, fetchUrl })
         return next(new AppError('Erro ao buscar histórico da organização', response.status >= 500 ? 502 : response.status, 'UPSTREAM_ERROR'))
       }
 
       const data = await response.json()
-      const linhasPrisma: HistoricoLogPrisma[] = data.data ?? data.logs ?? []
-      const logs = linhasPrisma.map(mapPrismaParaContrato)
+      const logs: unknown[] = data.data ?? data.logs ?? []
       const hasMore = data.meta?.hasMore ?? data.hasMore ?? false
       const nextCursor: string | null = data.meta?.nextCursor ?? null
 

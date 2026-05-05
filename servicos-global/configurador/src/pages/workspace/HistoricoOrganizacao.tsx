@@ -8,20 +8,20 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 
 // ---------------------------------------------------------------------------
-// Contrato — mantido em sincronia com a ACL do backend
-// servicos-global/configurador/server/routes/historico-organizacao.ts
+// Contrato — paridade DDD direta com Prisma `historico_log`
+// (sem ACL no backend; nomes idênticos do model até o React)
 // ---------------------------------------------------------------------------
 
 const historicoLogSchema = z.object({
-  id:           z.string(),
-  data_criacao: z.string(),
-  acao:         z.string(),
-  detalhe_acao: z.string().nullable(),
-  tipo_recurso: z.string(),
-  id_recurso:   z.string().nullable(),
-  nome_ator:    z.string().nullable(),
-  tipo_ator:    z.string().nullable(),
-  status:       z.string().nullable(),
+  id_historico_log:           z.string(),
+  data_criacao_historico_log: z.string(),
+  acao_historico_log:         z.string(),
+  detalhe_acao_historico_log: z.string().nullable(),
+  tipo_recurso_historico_log: z.string(),
+  id_recurso_historico_log:   z.string().nullable(),
+  nome_ator_historico_log:    z.string().nullable(),
+  tipo_ator_historico_log:    z.string().nullable(),
+  status_historico_log:       z.string().nullable(),
 })
 
 const historicoResponseSchema = z.object({
@@ -59,31 +59,37 @@ function formatarData(iso: string): string {
 
 const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
   {
-    chave: 'data_criacao',
-    rotulo: 'Data/Hora',
+    key: 'data_criacao_historico_log',
+    label: 'Data/Hora',
+    tipo: 'periodo',
     largura: '160px',
-    renderizar: (row) => formatarData(row.data_criacao),
+    render: (v) => formatarData(String(v)),
   },
   {
-    chave: 'acao',
-    rotulo: 'Ação',
+    key: 'acao_historico_log',
+    label: 'Ação',
+    tipo: 'texto',
     largura: '140px',
   },
   {
-    chave: 'tipo_recurso',
-    rotulo: 'Recurso',
+    key: 'tipo_recurso_historico_log',
+    label: 'Recurso',
+    tipo: 'texto',
     largura: '140px',
   },
   {
-    chave: 'nome_ator',
-    rotulo: 'Usuário',
+    key: 'nome_ator_historico_log',
+    label: 'Usuário',
+    tipo: 'texto',
     largura: '180px',
-    renderizar: (row) => row.nome_ator ?? row.tipo_ator ?? '—',
+    render: (_v, item) =>
+      item.nome_ator_historico_log ?? item.tipo_ator_historico_log ?? '—',
   },
   {
-    chave: 'detalhe_acao',
-    rotulo: 'Detalhes',
-    renderizar: (row) => row.detalhe_acao ?? '—',
+    key: 'detalhe_acao_historico_log',
+    label: 'Detalhes',
+    tipo: 'texto',
+    render: (v) => (v as string | null) ?? '—',
   },
 ]
 
@@ -96,7 +102,6 @@ export function HistoricoOrganizacao() {
   const { getToken } = useAuth()
 
   const [logs, setLogs] = useState<HistoricoLog[]>([])
-  const [carregando, setCarregando] = useState(true)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [hasMore, setHasMore] = useState(false)
@@ -104,7 +109,6 @@ export function HistoricoOrganizacao() {
 
   const fetchLogs = useCallback(async (pageNum: number) => {
     try {
-      setCarregando(true)
       const token = await getToken()
       const params = new URLSearchParams({
         page: String(pageNum),
@@ -134,8 +138,6 @@ export function HistoricoOrganizacao() {
       setHasMore(parsed.data.hasMore)
     } catch (err) {
       console.error('[HistoricoOrganizacao] Erro ao buscar logs:', err)
-    } finally {
-      setCarregando(false)
     }
   }, [getToken])
 
@@ -146,7 +148,6 @@ export function HistoricoOrganizacao() {
   return (
     <PaginaGlobal
       className="ws-fade-up"
-      layout="tabela"
       cabecalho={
         <CabecalhoGlobal
           icone={<ClockCounterClockwise weight="duotone" size={22} />}
@@ -158,8 +159,7 @@ export function HistoricoOrganizacao() {
       <TabelaGlobal<HistoricoLog>
         colunas={colunas}
         dados={logs}
-        carregando={carregando}
-        chaveId="id"
+        idKey="id_historico_log"
         mensagemSemFiltro="Nenhum registro de histórico encontrado"
       />
 

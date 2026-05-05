@@ -417,7 +417,7 @@ meRouter.post('/workspaces', async (req, res, next) => {
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Workspace',
       id_recurso_historico_log: workspace.id_workspace,
-      acao_historico_log: 'CREATE',
+      acao_historico_log: 'CRIAR',
       detalhe_acao_historico_log: `Criou workspace "${workspace.nome_workspace}" (subdomínio ${subdominio_ajustado ? `ajustado de ${subdominio_solicitado} para ${workspace.subdominio_workspace}` : workspace.subdominio_workspace})`,
       estado_posterior_historico_log: workspace,
     }).catch(() => {})
@@ -456,7 +456,7 @@ meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Workspace',
       id_recurso_historico_log: req.params.id_workspace,
-      acao_historico_log: 'UPDATE',
+      acao_historico_log: 'ATUALIZAR',
       detalhe_acao_historico_log: `Atualizou workspace: ${Object.keys(parsed.data).join(', ')}`,
       estado_posterior_historico_log: workspace,
     }).catch(() => {})
@@ -483,7 +483,7 @@ meRouter.delete('/workspaces/:id_workspace', async (req, res, next) => {
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Workspace',
       id_recurso_historico_log: req.params.id_workspace,
-      acao_historico_log: 'DELETE',
+      acao_historico_log: 'EXCLUIR',
       detalhe_acao_historico_log: `Removeu workspace ${req.params.id_workspace}`,
     }).catch(() => {})
 

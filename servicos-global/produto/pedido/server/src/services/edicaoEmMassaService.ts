@@ -401,7 +401,7 @@ export class EdicaoEmMassaService {
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     p.id_pedido as string,
-          acao_historico_log:           'EDICAO_EM_MASSA',
+          acao_historico_log:           'EDITAR_EM_MASSA',
           detalhe_acao_historico_log:   `Edicao em massa: ${camposAlterados.join(', ')}`,
           estado_posterior_historico_log: { campos: payload.campos, nivel: payload.nivel },
         })

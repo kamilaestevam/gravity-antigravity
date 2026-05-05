@@ -145,7 +145,7 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: req.auth.id_organizacao,
-      acao_historico_log: 'UPDATE',
+      acao_historico_log: 'ATUALIZAR',
       detalhe_acao_historico_log: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
       estado_anterior_historico_log: before ?? undefined,
       estado_posterior_historico_log: organizacao,

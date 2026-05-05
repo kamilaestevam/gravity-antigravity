@@ -333,7 +333,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     id,
-          acao_historico_log:           'CONSOLIDADO',
+          acao_historico_log:           'CONSOLIDAR',
           detalhe_acao_historico_log:   `Pedido consolidado em ${numero_pedido}`,
           estado_posterior_historico_log: { ids_origem: ids, numero_pedido_destino: numero_pedido, pedido_consolidado_id: novo.id_pedido },
         })

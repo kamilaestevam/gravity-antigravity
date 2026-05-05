@@ -287,7 +287,7 @@ export class DuplicarService {
             modulo_historico_log:         'pedido',
             tipo_recurso_historico_log:   'Pedido',
             id_recurso_historico_log:     novoPedido.id_pedido,
-            acao_historico_log:           'DUPLICACAO',
+            acao_historico_log:           'DUPLICAR',
             detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
             estado_posterior_historico_log: { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
           })
@@ -490,7 +490,7 @@ export class ExcluirService {
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     pedido.id_pedido as string,
-          acao_historico_log:           'EXCLUSAO',
+          acao_historico_log:           'EXCLUIR',
           detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
           estado_anterior_historico_log: {
             numero_pedido: pedido.numero_pedido,
@@ -571,7 +571,7 @@ export class ExcluirService {
         modulo_historico_log:         'pedido',
         tipo_recurso_historico_log:   'PedidoItem',
         id_recurso_historico_log:     pedidoId,
-        acao_historico_log:           'EXCLUSAO_ITENS',
+        acao_historico_log:           'EXCLUIR_ITENS',
         detalhe_acao_historico_log:   `${itemIds.length} item(ns) excluido(s) do pedido`,
         estado_anterior_historico_log: {
           item_ids: itemIds,
@@ -603,7 +603,7 @@ export class ExcluirService {
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
           id_recurso_historico_log:     pedidoId,
-          acao_historico_log:           'EXCLUSAO_AUTOMATICA',
+          acao_historico_log:           'EXCLUIR_AUTOMATICAMENTE',
           detalhe_acao_historico_log:   'Pedido excluido automaticamente por ficar sem itens',
           estado_anterior_historico_log: { numero_pedido: pedido.numero_pedido },
         })

@@ -90,7 +90,7 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
       modulo_historico_log: 'compliance',
       tipo_recurso_historico_log: 'HistoryLog',
       id_recurso_historico_log: id_ator_historico_log,
-      acao_historico_log: 'ANONIMIZACAO_LGPD',
+      acao_historico_log: 'ANONIMIZAR',
       detalhe_acao_historico_log: `LGPD Art.18 — ${count} logs anonimizados para id_ator_historico_log ${id_ator_historico_log}. Motivo: ${reason}`,
       status_historico_log: 'SUCESSO',
     })

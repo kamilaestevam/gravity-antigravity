@@ -361,7 +361,7 @@ export class TransferirService {
         modulo_historico_log:         'pedido',
         tipo_recurso_historico_log:   'PedidoTransferencia',
         id_recurso_historico_log:     transferId,
-        acao_historico_log:           'TRANSFERENCIA_REVERTIDA',
+        acao_historico_log:           'REVERTER_TRANSFERENCIA',
         detalhe_acao_historico_log:   `Transferência ${transferId} revertida`,
         estado_posterior_historico_log: { transfer_id: transferId, id_pedido: historico.id_pedido_origem },
       })
@@ -533,7 +533,7 @@ export class TransferirService {
       modulo_historico_log:         'pedido',
       tipo_recurso_historico_log:   'PedidoTransferencia',
       id_recurso_historico_log:     payload.pedido_id,
-      acao_historico_log:           'TRANSFERENCIA',
+      acao_historico_log:           'TRANSFERIR',
       detalhe_acao_historico_log:   `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
       estado_posterior_historico_log: { cenario: payload.cenario, destinos: pedidosDestinoIds, quantidade: payload.quantidade_origem },
     })

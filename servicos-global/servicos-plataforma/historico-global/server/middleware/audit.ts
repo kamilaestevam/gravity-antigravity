@@ -174,7 +174,7 @@ export async function auditedJob<T>(
       nome_ator_historico_log: jobName,
       modulo_historico_log: 'jobs',
       tipo_recurso_historico_log: 'job',
-      acao_historico_log: 'JOB_SUCCESS',
+      acao_historico_log: 'CONCLUIR_JOB',
       detalhe_acao_historico_log: `Job "${jobName}" concluído em ${Date.now() - startedAt}ms`,
       status_historico_log: 'SUCESSO',
     })
@@ -188,7 +188,7 @@ export async function auditedJob<T>(
       nome_ator_historico_log: jobName,
       modulo_historico_log: 'jobs',
       tipo_recurso_historico_log: 'job',
-      acao_historico_log: 'JOB_FAILURE',
+      acao_historico_log: 'FALHAR_JOB',
       detalhe_acao_historico_log: `Job "${jobName}" falhou após ${Date.now() - startedAt}ms`,
       status_historico_log: 'FALHA',
       mensagem_erro_historico_log: error instanceof Error ? error.message : String(error),

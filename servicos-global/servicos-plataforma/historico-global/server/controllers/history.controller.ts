@@ -239,7 +239,7 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
           modulo_historico_log: 'historico',
           tipo_recurso_historico_log: 'HistoryLog',
           id_recurso_historico_log: log.id_historico_log,
-          acao_historico_log: 'VISUALIZACAO',
+          acao_historico_log: 'CONSULTAR',
           detalhe_acao_historico_log: `Visualizou log de auditoria #${log.id_historico_log} (${log.acao_historico_log} em ${log.modulo_historico_log})`,
           status_historico_log: 'SUCESSO',
           id_usuario: user.id,

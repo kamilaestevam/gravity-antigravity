@@ -667,6 +667,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     
     colunasVisiveis.forEach(c => {
       const st = filtros[c.key]
+      if (st === undefined) return
       if (c.tipo === 'texto') {
         const s = st as Set<string>
         s.forEach(v => list.push({ key: `${c.key}-${v}`, label: `${c.label}: ${v}`, onRemover: () => onToggleValor(c.key, v) }))

@@ -8,6 +8,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
@@ -273,6 +274,7 @@ export function ApiTokens() {
           id="api-tokens"
           colunas={colunas}
           dados={tokens}
+          acoesExportacao={getAcoesExportacaoPadrao(colunas, 'tokens-api', 'Tokens de API')}
           mensagemVazio={loading ? 'Carregando tokens...' : 'Nenhum token gerado ainda. Clique em "Novo Token" para criar o primeiro.'}
         />
       </div>

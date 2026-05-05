@@ -15,6 +15,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -72,6 +73,14 @@ const estatisticasLogConsumoSchema = z.object({
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
 type LogConsumo = z.infer<typeof logConsumoSchema>
 type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
+type TipoServicoPlataforma = ServicoPlataforma['tipo_servico_plataforma']
+
+// Rotulos com ortografia PT-BR — type-safe via Record<TipoServicoPlataforma>
+const ROTULO_TIPO_SERVICO: Record<TipoServicoPlataforma, string> = {
+  NUCLEO:          'Núcleo',
+  PRODUTO_GRAVITY: 'Produto Gravity',
+  CONECTOR:        'Conector',
+}
 
 /** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi (servico GABI — fora do escopo DDD api-cockpit) */
 interface GabiUsagePayload {
@@ -236,7 +245,7 @@ export function ApiCockpitAdmin() {
       tipo: 'texto',
       tooltipTitulo: 'Tipo',
       tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou conector',
-      render: (val) => <span style={{ textTransform: 'capitalize' }}>{(val as string).toLowerCase().replace('_', ' ')}</span>,
+      render: (val) => ROTULO_TIPO_SERVICO[val as TipoServicoPlataforma] ?? String(val),
     },
     {
       key: 'status_servico_plataforma',
@@ -478,12 +487,14 @@ export function ApiCockpitAdmin() {
             id="admin-inventory"
             colunas={colunasInventario}
             dados={servicos}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'inventario-infraestrutura', 'Monitor de Infraestrutura')}
             mensagemVazio={loading ? 'Carregando serviços...' : t('admin.api-cockpit.vazio.sem_servicos')}
           />
           <TabelaGlobal
             id="admin-telemetry"
             colunas={colunasLogs}
             dados={logs}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasLogs, 'logs-globais', 'Logs Globais (Admin)')}
             mensagemVazio={loading ? 'Carregando logs...' : t('admin.api-cockpit.vazio.sem_trafego')}
           />
         </div>

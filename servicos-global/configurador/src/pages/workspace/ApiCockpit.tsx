@@ -11,6 +11,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
@@ -59,6 +60,14 @@ const logsResponseSchema = z.object({
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
 type LogConsumo = z.infer<typeof logConsumoSchema>
+type TipoServicoPlataforma = ServicoPlataforma['tipo_servico_plataforma']
+
+// Rotulos com ortografia PT-BR — type-safe via Record<TipoServicoPlataforma>
+const ROTULO_TIPO_SERVICO: Record<TipoServicoPlataforma, string> = {
+  NUCLEO:          'Núcleo',
+  PRODUTO_GRAVITY: 'Produto Gravity',
+  CONECTOR:        'Conector',
+}
 
 export function ApiCockpit() {
   const { t } = useTranslation()
@@ -115,7 +124,7 @@ export function ApiCockpit() {
       tipo: 'texto',
       tooltipTitulo: 'Tipo',
       tooltipDescricao: 'Categoria do serviço: núcleo, produto Gravity ou conector',
-      render: (val) => <span style={{ textTransform: 'capitalize' }}>{(val as string).toLowerCase().replace('_', ' ')}</span>,
+      render: (val) => ROTULO_TIPO_SERVICO[val as TipoServicoPlataforma] ?? String(val),
     },
     {
       key: 'status_servico_plataforma',
@@ -236,6 +245,7 @@ export function ApiCockpit() {
               id="cockpit-services"
               colunas={colunasServicos}
               dados={servicos}
+              acoesExportacao={getAcoesExportacaoPadrao(colunasServicos, 'inventario-servicos', 'Inventário de Serviços')}
               mensagemVazio={t('admin.cockpit.vazio.sem_servicos')}
             />
           ) : (
@@ -243,6 +253,7 @@ export function ApiCockpit() {
               id="cockpit-logs"
               colunas={colunasLogs}
               dados={logs}
+              acoesExportacao={getAcoesExportacaoPadrao(colunasLogs, 'logs-requisicoes', 'Logs de Requisições')}
               mensagemVazio={t('admin.cockpit.vazio.sem_requisicoes')}
             />
           )}

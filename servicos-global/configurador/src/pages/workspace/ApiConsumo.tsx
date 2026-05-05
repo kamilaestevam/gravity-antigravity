@@ -7,6 +7,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
@@ -277,6 +278,7 @@ export function ApiConsumo() {
           id="api-consumo"
           colunas={colunas}
           dados={logs}
+          acoesExportacao={getAcoesExportacaoPadrao(colunas, 'consumo-api', 'Consumo da API')}
           mensagemVazio={loading ? 'Carregando logs...' : 'Nenhuma requisicao encontrada com os filtros atuais.'}
         />
 

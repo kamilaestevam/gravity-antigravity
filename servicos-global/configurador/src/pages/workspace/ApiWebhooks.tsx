@@ -8,6 +8,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
@@ -330,6 +331,7 @@ export function ApiWebhooks() {
           id="api-webhooks"
           colunas={colunas}
           dados={webhooks}
+          acoesExportacao={getAcoesExportacaoPadrao(colunas, 'webhooks', 'Webhooks')}
           mensagemVazio={loading ? 'Carregando webhooks...' : 'Nenhum webhook cadastrado. Clique em "Novo Webhook" para criar o primeiro.'}
         />
       </div>

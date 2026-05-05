@@ -15,7 +15,6 @@ import { portosRouter } from './routes/portos.js'
 import { incotermsRouter } from './routes/incoterms.js'
 import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
-import { paisesRouter } from './routes/paises.js'
 import { containersRouter } from './routes/containers.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
@@ -93,7 +92,8 @@ app.use('/api/v1', rateLimitPresets.public(), portosRouter)
 app.use('/api/v1', rateLimitPresets.public(), incotermsRouter)
 app.use('/api/v1', rateLimitPresets.public(), modaisRouter)
 app.use('/api/v1', rateLimitPresets.public(), moedasRouter)
-app.use('/api/v1', rateLimitPresets.public(), paisesRouter)
+// paisesRouter removido — fonte única em Cadastros (/api/v1/cadastros/paises).
+// Bid-frete não tinha consumers reais desse endpoint.
 app.use('/api/v1', rateLimitPresets.public(), containersRouter)
 
 // --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---

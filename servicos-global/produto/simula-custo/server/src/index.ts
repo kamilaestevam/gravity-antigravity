@@ -113,9 +113,10 @@ app.use(createProductAuditPlugin({
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },
-  // Rotas públicas de master data (paises, unidades-federativas, ncm/buscar)
-  // são servidas sob /api/v1/simula-custo e não possuem tenant — ignorar
-  ignoreRoutes: ['/api/v1/simula-custo/paises', '/api/v1/simula-custo/unidades-federativas', '/api/v1/simula-custo/ncm/buscar'],
+  // Rotas públicas de master data (unidades-federativas, ncm/buscar) são
+  // servidas sob /api/v1/simula-custo e não possuem tenant — ignorar.
+  // /paises foi removido — fonte única agora é Cadastros.
+  ignoreRoutes: ['/api/v1/simula-custo/unidades-federativas', '/api/v1/simula-custo/ncm/buscar'],
 }))
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ import { moedasRouter } from './routes/moedas.js'
 import { unidadesRouter } from './routes/unidades.js'
 import { ncmRouter } from './routes/ncm.js'
 import { opeRouter } from './routes/ope.js'
+import { paisesRouter } from './routes/paises.js'
 import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
 import { errorHandler } from './lib/app-error.js'
 import { initNcmSync } from './initNcmSync.js'
@@ -43,6 +44,7 @@ app.use('/api/v1/cadastros/moedas', moedasRouter)
 app.use('/api/v1/cadastros/unidades', unidadesRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
+app.use('/api/v1/cadastros/paises', paisesRouter)
 
 // Admin NCM Sync — chamado pelo configurador via S2S (x-internal-key).
 // Endpoints: /, /historico, /sincronizar, /agendamento, /agendamento/executar

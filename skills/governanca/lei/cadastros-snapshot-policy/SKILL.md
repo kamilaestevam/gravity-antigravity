@@ -1,7 +1,7 @@
 # Cadastros — Política de Snapshot
 
 > **Lei única do Gravity sobre como cada produto consome entidades do banco Cadastros.**
-> Aplicável a `Empresa`, `Moeda`, `Unidade`, `NCM` e qualquer entidade futura que viva em `servicos-global/cadastros/`.
+> Aplicável a `Empresa`, `Moeda`, `Unidade`, `NCM`, `Pais` e qualquer entidade futura que viva em `servicos-global/cadastros/`.
 > Em conflito com qualquer outro documento, esta skill prevalece.
 
 ---
@@ -28,6 +28,7 @@ A política vale para **todo produto e serviço** que referencia entidade de Cad
 | Produto / Serviço | Padrão atual | Padrão exigido |
 |---|---|---|
 | Configurador (`/workspace/empresas-e-parceiros`) | Leitura ao vivo (gestão) | Mantém — gestão da entidade |
+| Configurador (Modal Editar Empresa — campo País) | Leitura ao vivo via `usePaises()` hook | Mantém — gestão. Lista vem de `GET /api/v1/cadastros/paises` |
 | Pedido | Snapshot (`pedido_snapshot_empresa`) | Mantém — referência canônica desta lei |
 | LPCO | (a definir) | **Snapshot** — emite ao Portal Único |
 | NF-Importação | (a definir) | **Snapshot** — emite NF-e ao SEFAZ |
@@ -37,6 +38,16 @@ A política vale para **todo produto e serviço** que referencia entidade de Cad
 | Simula-Custo | Sem ref | Leitura ao vivo (descartável) |
 | Financeiro-Comex | Consome do Pedido | Herda snapshot do Pedido — **não cria próprio** |
 | Processo (orquestrador) | Leitura ao vivo via `cadastrosClient.ts` | Mantém — não emite |
+
+### Master Data (catálogos globais — leitura ao vivo única)
+
+`Pais`, `Moeda`, `Unidade`, `NcmSync` são **catálogos globais** sem `id_organizacao`. Diferente das entidades por organização (Empresa), eles:
+
+- Têm **fonte única** em Cadastros — código fora de Cadastros não pode ter cópia hardcoded da lista
+- Sempre acessados via leitura ao vivo (REST direto)
+- Cache em memória client-side é permitido (lista raramente muda) — `usePaises()`, `useMoedas()` etc.
+- **NÃO** geram snapshot por documento (mesma moeda hoje e ontem; mudar valor de moeda = nova moeda)
+- Quando uma entidade que se usa um deles for emitida em documento (Pedido cita Empresa-em-país-X), o snapshot da entidade-pai inclui os campos relevantes do master data como cópia denormalizada
 
 Se um produto novo aparecer, ele cai em uma destas categorias por critério de risco (REGRA 1).
 

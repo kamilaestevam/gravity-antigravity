@@ -40,6 +40,7 @@ import {
 import { formatarCNPJ, formatarCEP, formatarTelefone, validarCNPJ } from '@nucleo/utils'
 import { useShellStore } from '@gravity/shell'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
+import { usePaises } from '../../hooks/use-paises'
 import {
   criarEmpresaSchema,
   atualizarEmpresaSchema,
@@ -60,59 +61,9 @@ const OPCOES_ESTADOS: SelectOpcao[] = [
   ...ESTADOS_BR.map(uf => ({ valor: uf, rotulo: uf })),
 ]
 
-// ── Lista de Países ISO 3166-1 alpha-2 (PT-BR, foco COMEX) ───────────────────
-// Brasil aparece SEMPRE PRIMEIRO; demais ordenados alfabeticamente em PT-BR.
-// Mesma lista usada em simula-custo/server/routes/masterData.ts (sem Brasil lá
-// porque BR não é país de origem em simulação de importação). Aqui Brasil
-// importa porque empresa parceira pode ser brasileira.
-const PAISES_ISO: Array<{ codigo: string; nome: string }> = [
-  { codigo: 'BR', nome: 'Brasil' },
-  ...[
-    { codigo: 'AR', nome: 'Argentina' },
-    { codigo: 'AU', nome: 'Austrália' },
-    { codigo: 'AT', nome: 'Áustria' },
-    { codigo: 'BE', nome: 'Bélgica' },
-    { codigo: 'BO', nome: 'Bolívia' },
-    { codigo: 'CA', nome: 'Canadá' },
-    { codigo: 'CL', nome: 'Chile' },
-    { codigo: 'CN', nome: 'China' },
-    { codigo: 'CO', nome: 'Colômbia' },
-    { codigo: 'KR', nome: 'Coreia do Sul' },
-    { codigo: 'DK', nome: 'Dinamarca' },
-    { codigo: 'EG', nome: 'Egito' },
-    { codigo: 'ES', nome: 'Espanha' },
-    { codigo: 'US', nome: 'Estados Unidos' },
-    { codigo: 'FR', nome: 'França' },
-    { codigo: 'DE', nome: 'Alemanha' },
-    { codigo: 'IN', nome: 'Índia' },
-    { codigo: 'ID', nome: 'Indonésia' },
-    { codigo: 'IL', nome: 'Israel' },
-    { codigo: 'IT', nome: 'Itália' },
-    { codigo: 'JP', nome: 'Japão' },
-    { codigo: 'MX', nome: 'México' },
-    { codigo: 'NO', nome: 'Noruega' },
-    { codigo: 'NL', nome: 'Países Baixos' },
-    { codigo: 'PY', nome: 'Paraguai' },
-    { codigo: 'PE', nome: 'Peru' },
-    { codigo: 'PL', nome: 'Polônia' },
-    { codigo: 'PT', nome: 'Portugal' },
-    { codigo: 'GB', nome: 'Reino Unido' },
-    { codigo: 'RU', nome: 'Rússia' },
-    { codigo: 'SE', nome: 'Suécia' },
-    { codigo: 'CH', nome: 'Suíça' },
-    { codigo: 'TW', nome: 'Taiwan' },
-    { codigo: 'TH', nome: 'Tailândia' },
-    { codigo: 'TR', nome: 'Turquia' },
-    { codigo: 'UY', nome: 'Uruguai' },
-    { codigo: 'VE', nome: 'Venezuela' },
-    { codigo: 'VN', nome: 'Vietnã' },
-  ].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
-]
-
-const OPCOES_PAISES: SelectOpcao[] = PAISES_ISO.map(p => ({
-  valor: p.codigo,
-  rotulo: `${p.nome} (${p.codigo})`,
-}))
+// Lista de Países: lê da fonte única (Cadastros — usePaises hook).
+// Anteriormente era hardcoded local (38 países) — substituído pela tabela
+// canônica com 251 países. Lei: cadastros-snapshot-policy.
 
 // ── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -339,6 +290,18 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
 
   const ehBr = form.pais === 'BR'
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(form.estado)
+  // Lista de países da fonte única (Cadastros). Sprint 1: form.pais ainda
+  // armazena ISO-2 ('BR') por compatibilidade com Empresa.pais_empresa
+  // existente. Sprint 2 vai migrar para id_pais (cuid).
+  const { paises, carregando: carregandoPaises } = usePaises()
+  const opcoesPaises: SelectOpcao[] = useMemo(() => {
+    return paises
+      .filter(p => p.codigo_pais_iso_alpha2)
+      .map(p => ({
+        valor: p.codigo_pais_iso_alpha2 as string,
+        rotulo: `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`,
+      }))
+  }, [paises])
   const algumaFlagAtiva = useMemo(
     () => Object.values(form.papeis).some(Boolean),
     [form.papeis],
@@ -481,7 +444,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
           <CampoGeralGlobal label="PAÍS" obrigatorio>
             <SelectGlobal
               iconeEsquerda={<MapPinLine size={16} />}
-              opcoes={OPCOES_PAISES}
+              opcoes={opcoesPaises}
               valor={form.pais || null}
               aoMudarValor={(v) => {
                 const novoPais = String(v ?? '')
@@ -495,8 +458,9 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
                   tin:  novoPais !== 'BR' ? prev.tin  : '',
                 }))
               }}
-              placeholder="Selecione o país..."
+              placeholder={carregandoPaises ? 'Carregando países...' : 'Selecione o país...'}
               buscavel
+              carregando={carregandoPaises}
             />
             {erro('pais') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('pais')}</span>}
           </CampoGeralGlobal>

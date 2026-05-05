@@ -11,7 +11,6 @@ import type {
   SimulaCustoEstimativaStatus,
   NcmItem,
   UfItem,
-  PaisItem,
 } from './types'
 
 const API_BASE = '/api/v1'
@@ -67,11 +66,9 @@ export async function getUfs(): Promise<UfItem[]> {
   return res.json()
 }
 
-export async function getPaises(): Promise<PaisItem[]> {
-  const res = await fetch(`${API_BASE}/simula-custo/paises`)
-  if (!res.ok) return []
-  return res.json()
-}
+// getPaises() removido — fonte única é Cadastros (/api/v1/cadastros/paises).
+// Para usar a lista de países no simula-custo, importe do shell hook
+// usePaises() ou faça fetch direto desse endpoint.
 
 // ─── Estimativas CRUD ────────────────────────────────────────────────────────
 

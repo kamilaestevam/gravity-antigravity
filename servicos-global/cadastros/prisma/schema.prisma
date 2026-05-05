@@ -1,9 +1,9 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T22:03:23.934Z
+// Gerado em: 2026-05-05T13:03:33.383Z
 // Banco: gravity-cadastros-* (Railway)
-// Serviço: @tenant/cadastros
+// Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
 // ============================================================================
 
@@ -111,9 +111,43 @@ model Empresa {
 }
 
 // ---------------------------------------------------------------------
-// Catálogos globais (Moeda, Unidade, Ncm) — sem id_organizacao
+// Catálogos globais (Moeda, Unidade, Ncm, Pais) — sem id_organizacao
 // Decisão arquitetural: catálogos compartilhados entre todos os tenants.
 // ---------------------------------------------------------------------
+
+/// Pais — fonte única da verdade para país no monorepo Gravity.
+/// 252 países seedeados de planilha consolidada (RFB + BACEN + SPED + ISO).
+/// Toda entidade que referencia país (Empresa, Workspace, Organizacao,
+/// AgenteCarga, Seguradora, etc.) deve apontar para id_pais (lookup lógico
+/// cross-banco — sem FK física pois entidades vivem em DBs distintos).
+/// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+model Pais {
+  id_pais                            String   @id @default(cuid())
+
+  // Nomes (RFB / referência internacional)
+  nome_pais_portugues                String   @unique
+  nome_pais_ingles                   String
+
+  // Códigos brasileiros (COMEX, fiscal, contábil)
+  // NÃO UNIQUE: planilha consolidada tem 4 duplicatas legítimas em
+  // codigo_pais_portal_unico_siscomex (Receita Federal usa o mesmo código
+  // para grupos de territórios — ex: 359 cobre Antártida e Ilha de Man).
+  codigo_pais_portal_unico_siscomex  String?
+  codigo_pais_bacen_4                String?
+  codigo_pais_bacen_5                String?
+  codigo_pais_sped_nfe               String?
+  codigo_pais_sped_efd               String?
+
+  // Códigos ISO 3166-1 (integrações internacionais)
+  codigo_pais_iso_alpha2             String?  @unique
+  codigo_pais_iso_alpha3             String?  @unique
+  codigo_pais_iso_numerico           String?
+
+  ativo_pais                         Boolean  @default(true)
+
+  @@index([nome_pais_portugues])
+  @@map("pais")
+}
 
 model Moeda {
   codigo_moeda   String  @id   // BRL, USD, EUR, CNY

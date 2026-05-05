@@ -40,47 +40,9 @@ const BRAZIL_UFS = [
   { uf: 'TO', nome: 'Tocantins', icms: 0.18 },
 ].sort((a, b) => a.uf.localeCompare(b.uf))
 
-// Países ISO 3166-1 alpha-2 mais usados em operações de comércio exterior
-const ISO_COUNTRIES = [
-  { codigo: 'AR', nome: 'Argentina' },
-  { codigo: 'AU', nome: 'Austrália' },
-  { codigo: 'AT', nome: 'Áustria' },
-  { codigo: 'BE', nome: 'Bélgica' },
-  { codigo: 'BO', nome: 'Bolívia' },
-  { codigo: 'CA', nome: 'Canadá' },
-  { codigo: 'CL', nome: 'Chile' },
-  { codigo: 'CN', nome: 'China' },
-  { codigo: 'CO', nome: 'Colômbia' },
-  { codigo: 'KR', nome: 'Coreia do Sul' },
-  { codigo: 'DK', nome: 'Dinamarca' },
-  { codigo: 'EG', nome: 'Egito' },
-  { codigo: 'ES', nome: 'Espanha' },
-  { codigo: 'FR', nome: 'França' },
-  { codigo: 'DE', nome: 'Alemanha' },
-  { codigo: 'IN', nome: 'Índia' },
-  { codigo: 'ID', nome: 'Indonésia' },
-  { codigo: 'IL', nome: 'Israel' },
-  { codigo: 'IT', nome: 'Itália' },
-  { codigo: 'JP', nome: 'Japão' },
-  { codigo: 'MX', nome: 'México' },
-  { codigo: 'NL', nome: 'Países Baixos' },
-  { codigo: 'NO', nome: 'Noruega' },
-  { codigo: 'PY', nome: 'Paraguai' },
-  { codigo: 'PE', nome: 'Peru' },
-  { codigo: 'PL', nome: 'Polônia' },
-  { codigo: 'PT', nome: 'Portugal' },
-  { codigo: 'GB', nome: 'Reino Unido' },
-  { codigo: 'RU', nome: 'Rússia' },
-  { codigo: 'SE', nome: 'Suécia' },
-  { codigo: 'CH', nome: 'Suíça' },
-  { codigo: 'TW', nome: 'Taiwan' },
-  { codigo: 'TH', nome: 'Tailândia' },
-  { codigo: 'TR', nome: 'Turquia' },
-  { codigo: 'UY', nome: 'Uruguai' },
-  { codigo: 'US', nome: 'Estados Unidos' },
-  { codigo: 'VE', nome: 'Venezuela' },
-  { codigo: 'VN', nome: 'Vietnã' },
-].sort((a, b) => a.nome.localeCompare(b.nome, 'pt'))
+// ISO_COUNTRIES local removido. Fonte única agora é Cadastros:
+//   GET /api/v1/cadastros/paises
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
 
 /**
  * GET /api/v1/simula-custo/ncm/buscar?q={termo}
@@ -102,12 +64,10 @@ masterDataRouter.get('/ncm/buscar', async (req: Request, res: Response) => {
   }
 })
 
-/**
- * GET /api/v1/simula-custo/paises
- */
-masterDataRouter.get('/paises', (_req, res) => {
-  res.json(ISO_COUNTRIES)
-})
+// GET /api/v1/simula-custo/paises removido. Frontend deve consumir
+// /api/v1/cadastros/paises (fonte única). Endpoint local não tinha
+// consumers reais (getPaises() em client/src/shared/api.ts era código
+// morto — sem invocações).
 
 /**
  * GET /api/v1/simula-custo/unidades-federativas

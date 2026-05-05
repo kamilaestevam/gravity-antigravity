@@ -46,6 +46,7 @@ import { hubRouter } from './routes/hub-init.js'
 import { meRouter } from './routes/me.js'
 import { taxaCambioRouter } from './routes/taxa-cambio.js'
 import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
+import { apiObservability } from '../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import { prisma } from './lib/prisma.js'
 
@@ -77,6 +78,7 @@ app.use(cors({
   credentials: true
 }))
 app.use(correlationMiddleware)
+app.use(apiObservability('configurador'))
 
 // ─── Health check ───────────────────────────────────────────────────────────
 

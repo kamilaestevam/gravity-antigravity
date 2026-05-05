@@ -29,15 +29,15 @@ const FLUSH_INTERVAL_MS = 5_000
 const MAX_BUFFER_SIZE = 50
 
 interface ObservabilityEntry {
-  tenant_id: string
-  product_id: string
-  user_id: string | null
-  endpoint: string
-  method: string
-  status_code: number
-  latency_ms: number
-  correlation_id: string | null
-  timestamp: string
+  id_organizacao:                   string
+  id_produto_gravity:               string
+  id_usuario:                       string | null
+  endpoint_log_consumo:             string
+  metodo_http_log_consumo:          string
+  codigo_resposta_http_log_consumo: number
+  latencia_ms_log_consumo:          number
+  id_correlacao:                    string | null
+  data_criacao_log_consumo:         string
 }
 
 /**
@@ -49,7 +49,7 @@ async function flushBuffer(): Promise<void> {
   const batch = logBuffer.splice(0, logBuffer.length)
 
   try {
-    const response = await fetch(`${API_COCKPIT_URL}/api/v1/cockpit/observability/ingest`, {
+    const response = await fetch(`${API_COCKPIT_URL}/api/v1/cockpit/monitoramento-api/ingestao`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -104,21 +104,23 @@ export function apiObservability(productId: string) {
 
     // Capturar no onFinish da response
     res.on('finish', () => {
-      const latencyMs = Date.now() - startTime
-      const tenantId = (req as any).tenantId || req.headers['x-id-organizacao'] as string || ''
-      const userId = req.headers['x-id-usuario'] as string || null
-      const correlationId = req.headers['x-correlation-id'] as string || null
+      const latenciaMs = Date.now() - startTime
+      const idOrganizacao = (req as { tenantId?: string }).tenantId
+        || (req.headers['x-id-organizacao'] as string)
+        || ''
+      const idUsuario = (req.headers['x-id-usuario'] as string) || null
+      const idCorrelacao = (req.headers['x-correlation-id'] as string) || null
 
       const entry: ObservabilityEntry = {
-        tenant_id: tenantId,
-        product_id: productId,
-        user_id: userId,
-        endpoint: req.path,
-        method: req.method,
-        status_code: res.statusCode,
-        latency_ms: latencyMs,
-        correlation_id: correlationId,
-        timestamp: new Date().toISOString(),
+        id_organizacao:                   idOrganizacao,
+        id_produto_gravity:               productId,
+        id_usuario:                       idUsuario,
+        endpoint_log_consumo:             req.path,
+        metodo_http_log_consumo:          req.method,
+        codigo_resposta_http_log_consumo: res.statusCode,
+        latencia_ms_log_consumo:          latenciaMs,
+        id_correlacao:                    idCorrelacao,
+        data_criacao_log_consumo:         new Date().toISOString(),
       }
 
       logBuffer.push(entry)

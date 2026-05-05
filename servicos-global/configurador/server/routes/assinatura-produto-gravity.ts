@@ -175,11 +175,16 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req,
         create: {
           id_organizacao,
           id_produto_gravity: produto.id_produto_gravity,
-          status_assinatura_produto_gravity: StatusAssinaturaProdutoGravity.EM_TESTE,
+          // Self-service: assinatura comeca ATIVA por default. EM_TESTE fica
+          // reservado para fluxos com trial period explicito (futuro).
+          status_assinatura_produto_gravity: StatusAssinaturaProdutoGravity.ATIVA,
+          data_inicio_periodo_assinatura_produto_gravity: new Date(),
         },
         update: {
-          status_assinatura_produto_gravity: StatusAssinaturaProdutoGravity.EM_TESTE,
+          // Reativacao limpa cancelamento e marca como ATIVA novamente.
+          status_assinatura_produto_gravity: StatusAssinaturaProdutoGravity.ATIVA,
           data_cancelamento_assinatura_produto_gravity: null,
+          data_inicio_periodo_assinatura_produto_gravity: new Date(),
         },
         include: { produto: true },
       })

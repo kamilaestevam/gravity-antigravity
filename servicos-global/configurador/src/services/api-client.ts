@@ -332,6 +332,54 @@ export const substituirWorkspacesResponseSchema = z.object({
   workspaces: z.array(z.string()),
 })
 
+// ─── Permissões granulares (formato canônico <slug>:<secao>:<acao>) ─────────
+// Mandamento 09 — schema bilateral. Espelha SetPermissoesUsuarioSchema /
+// permissoesResponseSchema em servicos-global/configurador/server/routes/usuario.ts.
+
+export const permissaoUsuarioItemApiSchema = z.object({
+  id_organizacao: z.string(),
+  id_workspace: z.string(),
+  id_usuario: z.string(),
+  id_produto_gravity: z.string(),
+  permissao_usuario: z.string(),
+  permissao_usuario_concedido_por: z.string(),
+  data_criacao_permissao_usuario: z.union([z.string(), z.date()]),
+})
+
+export const listarPermissoesUsuarioResponseSchema = z.object({
+  permissoes: z.array(permissaoUsuarioItemApiSchema),
+})
+
+export const configurarPermissoesResponseSchema = z.object({
+  permissoes: z.array(z.string()),
+  total_inseridas: z.number(),
+  total_removidas: z.number(),
+})
+
+// Produtos do workspace (catálogo + status_produto_gravity)
+export const produtoWorkspaceCatalogoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  status: z.string(), // 'ATIVO' | 'EM_BREVE' | 'SUSPENSO' | 'LEGADO' | 'INATIVO'
+}).nullable()
+
+export const produtoWorkspaceItemSchema = z.object({
+  id: z.string(),
+  product_key: z.string(),
+  is_active: z.boolean(),
+  activated_at: z.union([z.string(), z.date()]),
+  catalog: produtoWorkspaceCatalogoSchema,
+})
+
+export const produtosWorkspaceResponseSchema = z.object({
+  products: z.array(produtoWorkspaceItemSchema),
+})
+
+export type ProdutoWorkspaceItem = z.infer<typeof produtoWorkspaceItemSchema>
+export type PermissaoUsuarioItem = z.infer<typeof permissaoUsuarioItemApiSchema>
+
 export interface PaginationApi {
   page: number
   limit: number
@@ -1100,5 +1148,34 @@ export const usuariosApi = {
       body: JSON.stringify({ tipo_usuario }),
     })
     return alterarTipoUsuarioResponseSchema.parse(raw)
+  },
+
+  /** Lista permissões granulares (formato canônico <slug>:<secao>:<acao>). */
+  async listarPermissoes(id_usuario: string, id_workspace?: string) {
+    const qs = id_workspace ? `?id_workspace=${encodeURIComponent(id_workspace)}` : ''
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/permissoes${qs}`)
+    return listarPermissoesUsuarioResponseSchema.parse(raw)
+  },
+
+  /** Substitui (atomicamente) permissões de um usuário em UM produto/workspace. */
+  async configurarPermissoes(
+    id_usuario: string,
+    data: { id_workspace: string; id_produto_gravity: string; permissoes: string[] },
+  ) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/permissoes`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+    return configurarPermissoesResponseSchema.parse(raw)
+  },
+}
+
+// ─── Produtos do workspace (catálogo + status) ──────────────────────────────
+
+export const produtosWorkspaceApi = {
+  /** Lista produtos contratados pelo workspace (inclui catálogo com slug + status). */
+  async listar(id_workspace: string) {
+    const raw = await request<unknown>(`/v1/workspaces/${id_workspace}/produtos`)
+    return produtosWorkspaceResponseSchema.parse(raw)
   },
 }

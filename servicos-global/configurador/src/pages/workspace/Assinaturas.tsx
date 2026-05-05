@@ -357,9 +357,10 @@ export function Assinaturas() {
 
   const COLUNAS: TabelaGlobalColuna<AssinaturaProdutoGravity>[] = [
     {
-      key: 'id_assinatura_produto_gravity',
+      key: 'produto',
       label: t('workspace.subscriptions.tabela.produto'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Produto Contratado',
       tooltipDescricao: 'Nome do módulo ou serviço ativo na plataforma.',
       render: (_v, a) => <span style={{ fontWeight: 600 }}>{a.produto.nome_produto_gravity}</span>,
@@ -368,6 +369,7 @@ export function Assinaturas() {
       key: 'id_produto_gravity',
       label: t('workspace.subscriptions.tabela.cobranca'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Modelo de Cobrança',
       tooltipDescricao: t('workspace.subscriptions.tabela.cobranca_desc'),
       render: (_v, a) => {
@@ -386,9 +388,10 @@ export function Assinaturas() {
       },
     },
     {
-      key: 'data_criacao_assinatura_produto_gravity',
+      key: 'data_inicio_periodo_assinatura_produto_gravity',
       label: t('workspace.subscriptions.tabela.valor'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Valor do Produto',
       tooltipDescricao: 'Preço cobrado por ciclo ou unidade de consumo.',
       render: (_v, a) => (
@@ -401,6 +404,7 @@ export function Assinaturas() {
       key: 'data_fim_periodo_assinatura_produto_gravity',
       label: t('workspace.subscriptions.tabela.renovacao'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Data de Renovação',
       tooltipDescricao: t('workspace.subscriptions.tabela.renovacao_desc'),
       render: (_v, a) => (
@@ -410,9 +414,10 @@ export function Assinaturas() {
       ),
     },
     {
-      key: 'data_criacao_assinatura_produto_gravity', // distinct key for second column
+      key: 'ativacoes_produto_gravity',
       label: t('workspace.subscriptions.tabela.workspaces_habilitados'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Distribuição por Workspace',
       tooltipDescricao: t('workspace.subscriptions.tabela.workspaces_desc'),
       render: (_v, a) => {
@@ -452,6 +457,7 @@ export function Assinaturas() {
       key: 'status_assinatura_produto_gravity',
       label: t('workspace.subscriptions.tabela_status'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Status da Assinatura',
       tooltipDescricao: 'Indica se a assinatura está em teste, ativa, suspensa ou cancelada.',
       render: (v) => {

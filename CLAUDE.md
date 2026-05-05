@@ -223,7 +223,7 @@ const meResponseSchema = z.object({
 
 ---
 
-### 1. Governança › Lei (10 skills) — Regras absolutas
+### 1. Governança › Lei (12 skills) — Regras absolutas
 
 > Ler **antes de qualquer tarefa**. Estas valem sempre, independente de papel ou área.
 
@@ -240,6 +240,7 @@ const meResponseSchema = z.object({
 | Cost Budget ⭐ | `skills/governanca/lei/cost-budget/SKILL.md` | Limites mensais por ambiente, thresholds 70/80/90/95%, bloqueio de scaling em 95% |
 | Backup Policy ⭐ | `skills/governanca/lei/backup-policy/SKILL.md` | RPO 24h, RTO 1h, backup pré-migration obrigatório, teste de restauração mensal |
 | Database Governance ⭐ | `skills/governanca/lei/database-governance/SKILL.md` | **Criar/alterar models Prisma** — paridade Front=Back=Banco, schema-per-org, public vazio, CUID, FK Nullable Proibida (promovida de convenção-técnica em 2026-04-28) |
+| Cadastros Snapshot Policy ⭐ | `skills/governanca/lei/cadastros-snapshot-policy/SKILL.md` | **Como cada produto consome Empresa/Moeda/Unidade/NCM do Cadastros** — leitura ao vivo (gestão) vs snapshot congelado (emissão de documento legal/fiscal/financeiro) |
 
 > ⭐ = nova skill (Fase C1 da reorganização SSOT)
 

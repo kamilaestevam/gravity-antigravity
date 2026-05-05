@@ -166,10 +166,9 @@ export type UsuarioTipo = (typeof UsuarioTipo)[keyof typeof UsuarioTipo]
 
 export const StatusAssinaturaProdutoGravity: {
   ATIVA: 'ATIVA',
-  VENCIDA: 'VENCIDA',
-  CANCELADA: 'CANCELADA',
   EM_TESTE: 'EM_TESTE',
-  INCOMPLETA: 'INCOMPLETA'
+  SUSPENSA: 'SUSPENSA',
+  CANCELADA: 'CANCELADA'
 };
 
 export type StatusAssinaturaProdutoGravity = (typeof StatusAssinaturaProdutoGravity)[keyof typeof StatusAssinaturaProdutoGravity]
@@ -247,12 +246,13 @@ export type DeployStatus = (typeof DeployStatus)[keyof typeof DeployStatus]
 
 
 export const StatusFaturaProdutoGravity: {
-  DRAFT: 'DRAFT',
-  OPEN: 'OPEN',
-  PAID: 'PAID',
-  VOID: 'VOID',
-  OVERDUE: 'OVERDUE',
-  UNCOLLECTIBLE: 'UNCOLLECTIBLE'
+  RASCUNHO: 'RASCUNHO',
+  EMITIDA: 'EMITIDA',
+  ENVIADA: 'ENVIADA',
+  PAGA: 'PAGA',
+  EM_ATRASO: 'EM_ATRASO',
+  ANULADA: 'ANULADA',
+  INCOBRAVEL: 'INCOBRAVEL'
 };
 
 export type StatusFaturaProdutoGravity = (typeof StatusFaturaProdutoGravity)[keyof typeof StatusFaturaProdutoGravity]

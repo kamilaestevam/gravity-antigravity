@@ -31,12 +31,13 @@ import {
 // ─── Mapa de status → classe de badge ────────────────────────────────────────
 
 const statusBadgeFaturaProdutoGravity: Record<StatusFaturaProdutoGravity, string> = {
-  DRAFT:         'ws-badge-neutral',
-  OPEN:          'ws-badge-warning',
-  PAID:          'ws-badge-success',
-  VOID:          'ws-badge-neutral',
-  OVERDUE:       'ws-badge-danger',
-  UNCOLLECTIBLE: 'ws-badge-danger',
+  RASCUNHO:   'ws-badge-neutral',
+  EMITIDA:    'ws-badge-warning',
+  ENVIADA:    'ws-badge-warning',
+  PAGA:       'ws-badge-success',
+  EM_ATRASO:  'ws-badge-danger',
+  ANULADA:    'ws-badge-neutral',
+  INCOBRAVEL: 'ws-badge-danger',
 }
 
 // ─── Helpers de formatação ───────────────────────────────────────────────────
@@ -152,8 +153,9 @@ export function FinanceiroWorkspace() {
   // ── Stats (cards no topo) ─────────────────────────────────────────────────
 
   const faturasEmAberto = faturas.filter(f =>
-    f.status_fatura_produto_gravity === 'OPEN' ||
-    f.status_fatura_produto_gravity === 'OVERDUE'
+    f.status_fatura_produto_gravity === 'EMITIDA' ||
+    f.status_fatura_produto_gravity === 'ENVIADA' ||
+    f.status_fatura_produto_gravity === 'EM_ATRASO'
   )
 
   const proximaFatura = faturasEmAberto
@@ -271,7 +273,7 @@ export function FinanceiroWorkspace() {
       key: 'data_vencimento_fatura_produto_gravity', label: t('workspace.financial.col_vencimento'), tipo: 'texto',
       tooltipTitulo: 'Dia do Vencimento', tooltipDescricao: 'Data limite para pagamento.',
       render: (v, item) => (
-        <span style={{ color: item.status_fatura_produto_gravity === 'OVERDUE' ? '#f87171' : 'var(--ws-muted)' }}>
+        <span style={{ color: item.status_fatura_produto_gravity === 'EM_ATRASO' ? '#f87171' : 'var(--ws-muted)' }}>
           {formatarData(v as string | null)}
         </span>
       ),
@@ -469,11 +471,11 @@ export function FinanceiroWorkspace() {
                 <p className="cg-tooltip__title">COMPOSIÇÃO DO VALOR</p>
                 <div className="cg-tooltip__row">
                   <span>Faturas pendentes</span>
-                  <strong>{faturasEmAberto.filter(f => f.status_fatura_produto_gravity === 'OPEN').length}</strong>
+                  <strong>{faturasEmAberto.filter(f => f.status_fatura_produto_gravity === 'EMITIDA' || f.status_fatura_produto_gravity === 'ENVIADA').length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Faturas atrasadas</span>
-                  <strong>{faturasEmAberto.filter(f => f.status_fatura_produto_gravity === 'OVERDUE').length}</strong>
+                  <strong>{faturasEmAberto.filter(f => f.status_fatura_produto_gravity === 'EM_ATRASO').length}</strong>
                 </div>
               </>
             }
@@ -492,7 +494,7 @@ export function FinanceiroWorkspace() {
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Faturas pagas</span>
-                  <strong>{faturas.filter(x => x.status_fatura_produto_gravity === 'PAID').length}</strong>
+                  <strong>{faturas.filter(x => x.status_fatura_produto_gravity === 'PAGA').length}</strong>
                 </div>
               </>
             }

@@ -30,7 +30,7 @@ const TIPOS_DOCUMENTO: Array<{ value: TipoDocumentoFaturaProdutoGravity; label: 
   { value: 'OUTRO',        label: 'Outro' },
 ]
 
-const STATUS_TERMINAIS: StatusFaturaProdutoGravity[] = ['PAID', 'VOID', 'UNCOLLECTIBLE']
+const STATUS_TERMINAIS: StatusFaturaProdutoGravity[] = ['PAGA', 'ANULADA', 'INCOBRAVEL']
 
 interface ItemEditavel {
   id_fatura_item_produto_gravity?:            string

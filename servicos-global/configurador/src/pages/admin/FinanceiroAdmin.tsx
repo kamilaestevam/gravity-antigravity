@@ -75,24 +75,26 @@ function maskMoeda(value: string): string {
 
 function statusLabel(s: GravityInvoiceStatus): string {
   switch (s) {
-    case 'DRAFT': return 'RASCUNHO'
-    case 'OPEN': return 'EM ABERTO'
-    case 'PAID': return 'PAGO'
-    case 'VOID': return 'ANULADA'
-    case 'OVERDUE': return 'ATRASADO'
-    case 'UNCOLLECTIBLE': return 'INCOBRÁVEL'
+    case 'RASCUNHO':   return 'RASCUNHO'
+    case 'EMITIDA':    return 'EMITIDA'
+    case 'ENVIADA':    return 'ENVIADA'
+    case 'PAGA':       return 'PAGA'
+    case 'EM_ATRASO':  return 'EM ATRASO'
+    case 'ANULADA':    return 'ANULADA'
+    case 'INCOBRAVEL': return 'INCOBRÁVEL'
     default: return s
   }
 }
 
 function statusColor(s: GravityInvoiceStatus): { cor: string; bg: string } {
   switch (s) {
-    case 'PAID': return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
-    case 'OPEN': return { cor: '#fbbf24', bg: 'rgba(251,191,36,0.12)' }
-    case 'DRAFT': return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
-    case 'OVERDUE':
-    case 'UNCOLLECTIBLE': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
-    case 'VOID': return { cor: '#64748b', bg: 'rgba(100,116,139,0.12)' }
+    case 'PAGA':       return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
+    case 'EMITIDA':    return { cor: '#fbbf24', bg: 'rgba(251,191,36,0.12)' }
+    case 'ENVIADA':    return { cor: '#34d399', bg: 'rgba(52,211,153,0.08)' }
+    case 'RASCUNHO':   return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
+    case 'EM_ATRASO':
+    case 'INCOBRAVEL': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
+    case 'ANULADA':    return { cor: '#64748b', bg: 'rgba(100,116,139,0.12)' }
     default: return { cor: '#64748b', bg: 'rgba(100,116,139,0.12)' }
   }
 }
@@ -159,11 +161,11 @@ export function FinanceiroAdmin() {
   // ─── Derivadas (memoizadas) ──────────────────────────────────────────────
 
   const abertas = useMemo(
-    () => invoices.filter(i => i.status === 'OPEN' || i.status === 'OVERDUE'),
+    () => invoices.filter(i => i.status === 'EMITIDA' || i.status === 'ENVIADA' || i.status === 'EM_ATRASO'),
     [invoices],
   )
   const inadimplentes = useMemo(
-    () => invoices.filter(i => i.status === 'OVERDUE' || i.status === 'UNCOLLECTIBLE'),
+    () => invoices.filter(i => i.status === 'EM_ATRASO' || i.status === 'INCOBRAVEL'),
     [invoices],
   )
   const totalAberto = useMemo(
@@ -175,7 +177,7 @@ export function FinanceiroAdmin() {
     [inadimplentes],
   )
   const performancePct = useMemo(() => {
-    const pagas = invoices.filter(i => i.status === 'PAID').length
+    const pagas = invoices.filter(i => i.status === 'PAGA').length
     return invoices.length > 0 ? Math.round((pagas / invoices.length) * 100) : 0
   }, [invoices])
 
@@ -395,7 +397,7 @@ export function FinanceiroAdmin() {
       render: (_, item) => {
         if (!item.due_date) return <span style={{ color: 'var(--ws-muted)' }}>—</span>
         const d = new Date(item.due_date)
-        const overdue = item.status === 'OVERDUE'
+        const overdue = item.status === 'EM_ATRASO'
         return (
           <span style={{ color: overdue ? '#f87171' : 'var(--ws-muted)' }}>
             {d.toLocaleDateString('pt-BR')}

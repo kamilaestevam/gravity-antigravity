@@ -27,10 +27,9 @@ enum OrganizacaoStatus {
 
 enum StatusAssinaturaProdutoGravity {
   ATIVA
-  VENCIDA
-  CANCELADA
   EM_TESTE
-  INCOMPLETA
+  SUSPENSA
+  CANCELADA
 }
 
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
@@ -148,7 +147,7 @@ model ProdutoGravityAssinatura {
   id_assinatura_produto_gravity     String                         @id @default(cuid())
   id_organizacao                    String
   id_produto_gravity                String
-  status_assinatura_produto_gravity StatusAssinaturaProdutoGravity @default(EM_TESTE)
+  status_assinatura_produto_gravity StatusAssinaturaProdutoGravity @default(ATIVA)
 
   data_fim_teste_assinatura_produto_gravity      DateTime?
   data_inicio_periodo_assinatura_produto_gravity DateTime?
@@ -802,19 +801,20 @@ model TestePlano {
 // ---------------------------------------------------------------------------
 
 enum StatusFaturaProdutoGravity {
-  DRAFT
-  OPEN
-  PAID
-  VOID
-  OVERDUE
-  UNCOLLECTIBLE
+  RASCUNHO
+  EMITIDA
+  ENVIADA
+  PAGA
+  EM_ATRASO
+  ANULADA
+  INCOBRAVEL
 }
 
 model ProdutoGravityFatura {
   id_fatura_produto_gravity                String                     @id @default(cuid())
   id_organizacao                           String
   numero_fatura_produto_gravity            String
-  status_fatura_produto_gravity            StatusFaturaProdutoGravity @default(DRAFT)
+  status_fatura_produto_gravity            StatusFaturaProdutoGravity @default(RASCUNHO)
   nome_organizacao_fatura_produto_gravity  String
   email_organizacao_fatura_produto_gravity String?
   valor_total_fatura_produto_gravity       Decimal                    @db.Decimal(18, 2)

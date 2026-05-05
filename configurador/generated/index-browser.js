@@ -558,10 +558,9 @@ exports.UsuarioTipo = exports.$Enums.UsuarioTipo = {
 
 exports.StatusAssinaturaProdutoGravity = exports.$Enums.StatusAssinaturaProdutoGravity = {
   ATIVA: 'ATIVA',
-  VENCIDA: 'VENCIDA',
-  CANCELADA: 'CANCELADA',
   EM_TESTE: 'EM_TESTE',
-  INCOMPLETA: 'INCOMPLETA'
+  SUSPENSA: 'SUSPENSA',
+  CANCELADA: 'CANCELADA'
 };
 
 exports.WorkspaceStatus = exports.$Enums.WorkspaceStatus = {
@@ -615,12 +614,13 @@ exports.DeployStatus = exports.$Enums.DeployStatus = {
 };
 
 exports.StatusFaturaProdutoGravity = exports.$Enums.StatusFaturaProdutoGravity = {
-  DRAFT: 'DRAFT',
-  OPEN: 'OPEN',
-  PAID: 'PAID',
-  VOID: 'VOID',
-  OVERDUE: 'OVERDUE',
-  UNCOLLECTIBLE: 'UNCOLLECTIBLE'
+  RASCUNHO: 'RASCUNHO',
+  EMITIDA: 'EMITIDA',
+  ENVIADA: 'ENVIADA',
+  PAGA: 'PAGA',
+  EM_ATRASO: 'EM_ATRASO',
+  ANULADA: 'ANULADA',
+  INCOBRAVEL: 'INCOBRAVEL'
 };
 
 exports.TipoDocumentoFaturaProdutoGravity = exports.$Enums.TipoDocumentoFaturaProdutoGravity = {

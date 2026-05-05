@@ -7,12 +7,13 @@
 // Isso permite trocar de provider sem reescrever tela.
 
 export type GravityInvoiceStatus =
-  | 'DRAFT'       // rascunho — ainda não enviado ao cliente
-  | 'OPEN'        // enviado, aguardando pagamento
-  | 'PAID'        // pago
-  | 'VOID'        // anulado
-  | 'OVERDUE'     // em atraso (status derivado)
-  | 'UNCOLLECTIBLE' // escrito como perda
+  | 'RASCUNHO'    // ainda não emitida — pode ser editada/descartada
+  | 'EMITIDA'     // gerada e finalizada (cliente ainda não foi notificado)
+  | 'ENVIADA'     // notificação ao cliente foi disparada (e-mail/etc.)
+  | 'PAGA'        // pagamento confirmado
+  | 'EM_ATRASO'   // em atraso (status derivado)
+  | 'ANULADA'     // anulada antes de ser paga
+  | 'INCOBRAVEL'  // escrita como perda contábil
 
 export interface GravityInvoiceLineItem {
   description: string

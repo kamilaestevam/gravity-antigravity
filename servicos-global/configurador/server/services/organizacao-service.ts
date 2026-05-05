@@ -185,14 +185,12 @@ export const organizacaoService = {
           },
         })
 
-        const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
-        await tx.produtoGravityAssinatura.create({
-          data: {
-            id_organizacao: novaOrganizacao.id_organizacao,
-            status_assinatura_produto_gravity: 'EM_TESTE',
-            data_fim_teste_assinatura_produto_gravity: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
-          },
-        })
+        // Organização nasce SEM assinatura guarda-chuva.
+        // Cada produto contratado cria sua própria linha em assinatura_produto_gravity
+        // via /workspace/assinaturas (rota assinatura-produto-gravity.ts), com
+        // FK obrigatória id_produto_gravity (migration manual 2026-05-04).
+        // EM_TESTE permanece como estado válido nesse fluxo, atribuído por admin
+        // quando alguém testa um produto antes de fechar contrato.
 
         // Workspace inicial — distinto da Empresa SUID em Cadastros.
         await tx.workspace.create({

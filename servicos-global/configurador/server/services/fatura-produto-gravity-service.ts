@@ -42,7 +42,7 @@ function paraFaturaDto(row: FaturaRow): GravityInvoice {
       tenant_id: row.id_organizacao,
     },
     amount_due_cents:  valor_cents,
-    amount_paid_cents: row.status_fatura_produto_gravity === 'PAID' ? valor_cents : 0,
+    amount_paid_cents: row.status_fatura_produto_gravity === 'PAGA' ? valor_cents : 0,
     currency:          row.moeda_fatura_produto_gravity,
     due_date:          row.data_fatura_produto_gravity.toISOString(),
     competencia:       row.competencia_fatura_produto_gravity,
@@ -116,7 +116,7 @@ export const faturaProdutoGravityServico = {
       data: {
         id_organizacao:                           params.customer_tenant_id,
         numero_fatura_produto_gravity:            numero,
-        status_fatura_produto_gravity:            params.auto_finalize ? 'OPEN' : 'DRAFT',
+        status_fatura_produto_gravity:            params.auto_finalize ? 'EMITIDA' : 'RASCUNHO',
         nome_organizacao_fatura_produto_gravity:  org.nome_organizacao,
         email_organizacao_fatura_produto_gravity: params.customer_email ?? null,
         valor_total_fatura_produto_gravity:       total_cents / 100,
@@ -147,7 +147,7 @@ export const faturaProdutoGravityServico = {
   async anular(id: string, _motivo?: string): Promise<GravityInvoice> {
     const row = await prisma.produtoGravityFatura.update({
       where: { id_fatura_produto_gravity: id },
-      data:  { status_fatura_produto_gravity: 'VOID' },
+      data:  { status_fatura_produto_gravity: 'ANULADA' },
     })
     return paraFaturaDto(row)
   },
@@ -201,7 +201,7 @@ export const faturaProdutoGravityServico = {
       if (!atual) {
         throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
       }
-      const terminais: GravityInvoiceStatus[] = ['PAID', 'VOID', 'UNCOLLECTIBLE']
+      const terminais: GravityInvoiceStatus[] = ['PAGA', 'ANULADA', 'INCOBRAVEL']
       if (terminais.includes(atual.status_fatura_produto_gravity as GravityInvoiceStatus)) {
         throw new AppError(
           `Fatura em status ${atual.status_fatura_produto_gravity} não pode ser editada`,

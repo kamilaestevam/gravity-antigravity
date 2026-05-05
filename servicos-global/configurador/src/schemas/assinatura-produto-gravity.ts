@@ -9,8 +9,8 @@ import { z } from 'zod'
 // ─── Enums (idênticos ao Prisma) ────────────────────────────────────────────
 
 export const statusAssinaturaProdutoGravitySchema = z.enum([
-  'EM_TESTE',
   'ATIVA',
+  'EM_TESTE',
   'SUSPENSA',
   'CANCELADA',
 ])

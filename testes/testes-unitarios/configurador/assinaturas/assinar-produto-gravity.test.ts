@@ -6,8 +6,8 @@
 //
 // Abordagem: leitura estática + extração da lógica de subscribe em isolamento.
 // A renderização completa do componente fica coberta pelo teste E2E (Playwright).
-/// <reference types="vitest/globals" />
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -91,7 +91,7 @@ describe('TST-UNIT-CONF-STORE-001 — handleSubscribe: comportamento da lógica'
       new Response(JSON.stringify(subscribeBody), { status: subscribeStatus })
     )
 
-    const res = await fetch(`${API_URL}/assinaturas/subscribe`, {
+    const res = await fetch(`${API_URL}/organizacoes/me/assinaturas/assinar-produto`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ slug_produto_gravity: slug }),

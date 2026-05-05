@@ -1,6 +1,6 @@
 // Testa o contrato Zod de /api/v1/faturas* — Mandamentos 06 + 09.
 // Garante que payloads válidos passam, payloads inválidos falham,
-// e que TODOS os 6 valores do enum StatusFaturaProdutoGravity são aceitos.
+// e que TODOS os 7 valores do enum StatusFaturaProdutoGravity são aceitos.
 
 import { describe, it, expect } from 'vitest'
 import {
@@ -17,7 +17,7 @@ import {
 const faturaValida = {
   id_fatura_produto_gravity:                'cuid_fatura_001',
   numero_fatura_produto_gravity:            '2026-000042',
-  status_fatura_produto_gravity:            'OPEN',
+  status_fatura_produto_gravity:            'EMITIDA',
   id_organizacao:                           'org_abc',
   nome_organizacao_fatura_produto_gravity:  'Importas SA',
   email_organizacao_fatura_produto_gravity: 'financeiro@importas.com',
@@ -38,17 +38,24 @@ describe('faturaProdutoGravitySchema', () => {
     expect(faturaProdutoGravitySchema.parse(faturaValida)).toEqual(faturaValida)
   })
 
-  it('aceita os 6 valores do enum StatusFaturaProdutoGravity', () => {
-    const valores = ['DRAFT', 'OPEN', 'PAID', 'VOID', 'OVERDUE', 'UNCOLLECTIBLE'] as const
+  it('aceita os 7 valores do enum StatusFaturaProdutoGravity', () => {
+    const valores = ['RASCUNHO', 'EMITIDA', 'ENVIADA', 'PAGA', 'EM_ATRASO', 'ANULADA', 'INCOBRAVEL'] as const
     for (const v of valores) {
       expect(statusFaturaProdutoGravitySchema.parse(v)).toBe(v)
     }
   })
 
-  it('rejeita status legado em PT-BR (Pago/Pendente/Atrasado)', () => {
-    expect(statusFaturaProdutoGravitySchema.safeParse('Pago').success).toBe(false)
-    expect(statusFaturaProdutoGravitySchema.safeParse('Pendente').success).toBe(false)
-    expect(statusFaturaProdutoGravitySchema.safeParse('Atrasado').success).toBe(false)
+  it('rejeita valores legados em inglês (DRAFT/OPEN/PAID/VOID/OVERDUE/UNCOLLECTIBLE)', () => {
+    expect(statusFaturaProdutoGravitySchema.safeParse('DRAFT').success).toBe(false)
+    expect(statusFaturaProdutoGravitySchema.safeParse('OPEN').success).toBe(false)
+    expect(statusFaturaProdutoGravitySchema.safeParse('PAID').success).toBe(false)
+    expect(statusFaturaProdutoGravitySchema.safeParse('VOID').success).toBe(false)
+    expect(statusFaturaProdutoGravitySchema.safeParse('OVERDUE').success).toBe(false)
+    expect(statusFaturaProdutoGravitySchema.safeParse('UNCOLLECTIBLE').success).toBe(false)
+  })
+
+  it('rejeita status com acento (deve ser INCOBRAVEL sem acento)', () => {
+    expect(statusFaturaProdutoGravitySchema.safeParse('INCOBRÁVEL').success).toBe(false)
   })
 
   it('rejeita campos faltando', () => {

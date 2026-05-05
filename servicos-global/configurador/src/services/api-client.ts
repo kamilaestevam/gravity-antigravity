@@ -569,12 +569,13 @@ export const adminUsersApi = {
 // Ver servicos-global/configurador/server/lib/billing/types.ts
 
 export type GravityInvoiceStatus =
-  | 'DRAFT'
-  | 'OPEN'
-  | 'PAID'
-  | 'VOID'
-  | 'OVERDUE'
-  | 'UNCOLLECTIBLE'
+  | 'RASCUNHO'
+  | 'EMITIDA'
+  | 'ENVIADA'
+  | 'PAGA'
+  | 'EM_ATRASO'
+  | 'ANULADA'
+  | 'INCOBRAVEL'
 
 export interface GravityInvoiceLineItemApi {
   description: string

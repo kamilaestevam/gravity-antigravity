@@ -12,12 +12,13 @@ import { z } from 'zod'
 // para UI vai pelo i18n (workspace.financial.status.*).
 
 export const statusFaturaProdutoGravitySchema = z.enum([
-  'DRAFT',
-  'OPEN',
-  'PAID',
-  'VOID',
-  'OVERDUE',
-  'UNCOLLECTIBLE',
+  'RASCUNHO',
+  'EMITIDA',
+  'ENVIADA',
+  'PAGA',
+  'EM_ATRASO',
+  'ANULADA',
+  'INCOBRAVEL',
 ])
 
 export type StatusFaturaProdutoGravity = z.infer<typeof statusFaturaProdutoGravitySchema>

@@ -312,22 +312,20 @@ export function ApiWebhooks() {
         </div>
       )}
 
-      <div style={{ marginTop: '1.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         <ApiCockpitKpiCards />
-      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', gap: '1rem' }}>
-        <ApiCockpitTabs />
-        <BotaoGlobal
-          variante="primario"
-          onClick={() => setModalCriarAberto(true)}
-          icone={<Plus size={16} />}
-        >
-          Novo Webhook
-        </BotaoGlobal>
-      </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <ApiCockpitTabs />
+          <BotaoGlobal
+            variante="primario"
+            onClick={() => setModalCriarAberto(true)}
+            icone={<Plus size={16} />}
+          >
+            Novo Webhook
+          </BotaoGlobal>
+        </div>
 
-      <div style={{ marginTop: '1.5rem' }}>
         <TabelaGlobal
           id="api-webhooks"
           colunas={colunas}

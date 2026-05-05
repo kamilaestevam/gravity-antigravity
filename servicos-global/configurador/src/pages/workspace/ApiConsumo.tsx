@@ -211,25 +211,24 @@ export function ApiConsumo() {
         </div>
       )}
 
-      <div style={{ marginTop: '1.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         <ApiCockpitKpiCards />
-      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', gap: '1rem' }}>
-        <ApiCockpitTabs />
-        <BotaoGlobal
-          variante="primario"
-          onClick={() => { setPagina(1); void carregar() }}
-          icone={<ArrowClockwise size={16} />}
-        >
-          Atualizar
-        </BotaoGlobal>
-      </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <ApiCockpitTabs />
+          <BotaoGlobal
+            variante="primario"
+            onClick={() => { setPagina(1); void carregar() }}
+            icone={<ArrowClockwise size={16} />}
+          >
+            Atualizar
+          </BotaoGlobal>
+        </div>
 
       {/* Filtros */}
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem', marginTop: '1.5rem',
+        gap: '1rem',
         padding: '1rem', borderRadius: '12px',
         background: 'var(--ws-bg-card, rgba(30,41,59,0.5))',
         border: '1px solid var(--border-color)',
@@ -274,20 +273,18 @@ export function ApiConsumo() {
         </CampoGeralGlobal>
       </div>
 
-      <div style={{ marginTop: '1.5rem' }}>
         <TabelaGlobal
           id="api-consumo"
           colunas={colunas}
           dados={logs}
           mensagemVazio={loading ? 'Carregando logs...' : 'Nenhuma requisicao encontrada com os filtros atuais.'}
         />
-      </div>
 
       {/* Paginacao */}
       {paginacao && paginacao.paginas > 1 && (
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginTop: '1rem', padding: '0.75rem 1rem', borderRadius: '8px',
+          padding: '0.75rem 1rem', borderRadius: '8px',
           background: 'var(--ws-bg-card, rgba(30,41,59,0.5))',
           border: '1px solid var(--border-color)',
           fontSize: '0.875rem', color: 'var(--text-secondary)',
@@ -318,6 +315,7 @@ export function ApiConsumo() {
           </div>
         </div>
       )}
+      </div>
     </PaginaGlobal>
   )
 }

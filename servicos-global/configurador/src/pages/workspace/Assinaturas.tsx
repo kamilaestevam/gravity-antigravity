@@ -138,11 +138,19 @@ export function Assinaturas() {
   const [carregando, setCarregando] = useState(true)
   const [assinaturaParaCancelar, setAssinaturaParaCancelar] = useState<AssinaturaProdutoGravity | null>(null)
   const [assinaturaEditando, setAssinaturaEditando] = useState<AssinaturaProdutoGravity | null>(null)
-  const [vinculoWorkspaceParaRemover, setVinculoWorkspaceParaRemover] = useState<{
-    assinatura: AssinaturaProdutoGravity
-    id_workspace: string
-    nome_workspace: string
-  } | null>(null)
+
+  // ── Modo edição em lote dos workspaces da assinatura ───────────────────
+  // Decisão dono 2026-05-05: cliques na sub-tabela (toggle play/pause + lixeira)
+  // não disparam HTTP imediatamente. Vão para esse rascunho; o usuário aplica
+  // tudo via botão "Salvar alterações" no toolbar da expansão.
+  type EdicaoWorkspacePendente =
+    | { tipo: 'toggle'; ativo: boolean }   // ativar / desativar workspace nesta assinatura
+    | { tipo: 'remover' }                  // remover vínculo do workspace
+  type EdicoesPorAssinatura = Record<string /* id_workspace */, EdicaoWorkspacePendente>
+  type EdicoesGlobais = Record<string /* id_assinatura */, EdicoesPorAssinatura>
+
+  const [edicoesPendentes, setEdicoesPendentes] = useState<EdicoesGlobais>({})
+  const [salvandoEdicoes, setSalvandoEdicoes] = useState<Set<string>>(new Set())
 
   // ── Carregar assinaturas + workspaces + catálogo ────────────────────────
 
@@ -336,48 +344,107 @@ export function Assinaturas() {
     }
   }
 
-  async function aoToggleWorkspace(
+  // ── Handlers do modo edição em lote ───────────────────────────────────
+
+  /** Stage: alterna o estado pendente "toggle" do workspace nesta assinatura.
+   *  Se já tem um toggle ou remover pendente para esse workspace, REMOVE a
+   *  pendência (volta ao estado servidor). Senão, ADICIONA toggle pendente. */
+  function aoStagedToggleWorkspace(
     a: AssinaturaProdutoGravity,
     id_workspace: string,
-    ativo_atual: boolean,
+    ativo_servidor: boolean,
   ) {
-    const slug = a.produto.slug_produto_gravity
-    try {
-      const headers = await getAuthHeaders()
-      const res = await fetch(
-        `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`,
-        {
-          method: 'PUT', headers,
-          body: JSON.stringify({ ativo_produto_gravity_workspace: !ativo_atual }),
-        },
-      )
-      if (!res.ok) throw new Error('Falha ao alterar workspace')
-      await recarregar()
-    } catch {
-      addNotification({ type: 'error', message: 'Erro ao alterar workspace.' })
-    }
+    const idA = a.id_assinatura_produto_gravity
+    setEdicoesPendentes((prev) => {
+      const cur = prev[idA] ?? {}
+      const existente = cur[id_workspace]
+      const next: EdicoesPorAssinatura = { ...cur }
+      if (existente) {
+        // Já tinha pendência — remove (volta ao servidor)
+        delete next[id_workspace]
+      } else {
+        // Nova pendência: inverte o ativo do servidor
+        next[id_workspace] = { tipo: 'toggle', ativo: !ativo_servidor }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[idA]
+      else proximo[idA] = next
+      return proximo
+    })
   }
 
-  async function confirmarRemocaoVinculoWorkspace() {
-    if (!vinculoWorkspaceParaRemover) return
-    const { assinatura, id_workspace, nome_workspace } = vinculoWorkspaceParaRemover
-    const slug = assinatura.produto.slug_produto_gravity
+  /** Stage: marca workspace para remoção pendente. Se já está marcado, remove a pendência. */
+  function aoStagedRemoverWorkspace(
+    a: AssinaturaProdutoGravity,
+    id_workspace: string,
+  ) {
+    const idA = a.id_assinatura_produto_gravity
+    setEdicoesPendentes((prev) => {
+      const cur = prev[idA] ?? {}
+      const next: EdicoesPorAssinatura = { ...cur }
+      if (next[id_workspace]?.tipo === 'remover') {
+        delete next[id_workspace]
+      } else {
+        next[id_workspace] = { tipo: 'remover' }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[idA]
+      else proximo[idA] = next
+      return proximo
+    })
+  }
+
+  function descartarEdicoesWorkspaces(a: AssinaturaProdutoGravity) {
+    setEdicoesPendentes((prev) => {
+      const proximo = { ...prev }
+      delete proximo[a.id_assinatura_produto_gravity]
+      return proximo
+    })
+  }
+
+  async function salvarEdicoesWorkspaces(a: AssinaturaProdutoGravity) {
+    const idA = a.id_assinatura_produto_gravity
+    const pendentes = edicoesPendentes[idA] ?? {}
+    if (Object.keys(pendentes).length === 0) return
+
+    const slug = a.produto.slug_produto_gravity
+    setSalvandoEdicoes((prev) => new Set(prev).add(idA))
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(
-        `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`,
-        { method: 'DELETE', headers },
-      )
-      if (!res.ok) throw new Error('Falha ao remover vínculo')
-      await recarregar()
-      addNotification({
-        type: 'success',
-        message: `Workspace "${nome_workspace}" removido da assinatura.`,
+      const promessas = Object.entries(pendentes).map(([id_workspace, edicao]) => {
+        const url = `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`
+        if (edicao.tipo === 'remover') {
+          return fetch(url, { method: 'DELETE', headers })
+        }
+        return fetch(url, {
+          method: 'PUT', headers,
+          body: JSON.stringify({ ativo_produto_gravity_workspace: edicao.ativo }),
+        })
       })
+      const respostas = await Promise.all(promessas)
+      const falharam = respostas.filter((r) => !r.ok).length
+      if (falharam > 0) {
+        addNotification({
+          type: 'error',
+          message: `${falharam} alteração(ões) falharam ao salvar.`,
+        })
+      } else {
+        addNotification({
+          type: 'success',
+          message: `Alterações salvas em "${a.produto.nome_produto_gravity}".`,
+        })
+        descartarEdicoesWorkspaces(a)
+      }
+      await recarregar()
     } catch {
-      addNotification({ type: 'error', message: 'Erro ao remover vínculo.' })
+      addNotification({ type: 'error', message: 'Erro ao salvar alterações.' })
+    } finally {
+      setSalvandoEdicoes((prev) => {
+        const next = new Set(prev)
+        next.delete(idA)
+        return next
+      })
     }
-    setVinculoWorkspaceParaRemover(null)
   }
 
   // ── Colunas da TabelaGlobal ─────────────────────────────────────────────
@@ -741,165 +808,257 @@ export function Assinaturas() {
             mensagemSemFiltro="Nenhuma assinatura contratada."
             tooltipBusca="Localizar assinatura por nome do produto ou status"
             tooltipExpandir="Ver workspaces vinculados a esta assinatura"
-            renderExpandido={(a) => (
-              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
-                <div style={{
-                  padding: '1rem',
-                  borderTop: '1px solid rgba(129,140,248,0.1)',
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600,
-                  textTransform: 'uppercase', letterSpacing: '0.05em',
-                }}>
-                  <TreeStructure size={14} /> Auditoria de Consumo por Workspace
-                </div>
-                <div style={{
-                  border: '1px solid rgba(129,140,248,0.08)',
-                  borderRadius: '12px', overflow: 'hidden',
-                }}>
-                  <TabelaGlobal<Workspace>
-                    id={`workspace-subscription-workspaces-${a.id_assinatura_produto_gravity}`}
-                    idKey="id_workspace"
-                    dados={workspaces}
-                    tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
-                    colunas={[
-                      {
-                        key: 'nome_workspace',
-                        label: t('workspace.subscriptions.subtabela_nome_workspace'),
-                        tipo: 'texto',
-                        render: (v, ws) => {
-                          const nome = String(v)
-                          const subdominio = nome
-                            .toLowerCase()
-                            .normalize('NFD')
-                            .replace(/[̀-ͯ]/g, '')
-                            .replace(/[^a-z0-9]/g, '-')
-                            .replace(/-+/g, '-')
-                            .replace(/^-|-$/g, '')
-                          return (
-                            <a
-                              href={`http://localhost:8010/workspace/${subdominio}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                fontWeight: 600, color: 'var(--ws-text)',
-                                textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer',
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.color = '#818cf8'
-                                e.currentTarget.style.textDecoration = 'underline'
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.color = 'var(--ws-text)'
-                                e.currentTarget.style.textDecoration = 'none'
-                              }}
-                              onClick={(ev) => ev.stopPropagation()}
-                            >{ws.nome_workspace}</a>
-                          )
+            renderExpandido={(a) => {
+              const idA = a.id_assinatura_produto_gravity
+              const pendentes = edicoesPendentes[idA] ?? {}
+              const totalPendentes = Object.keys(pendentes).length
+              const salvando = salvandoEdicoes.has(idA)
+
+              // Calcula o estado EFETIVO de cada workspace (servidor + pending)
+              const efetivoPorWorkspace = (id_workspace: string): {
+                ativo_efetivo: boolean
+                marcado_remover: boolean
+                modificado: boolean
+              } => {
+                const ativacao = a.ativacoes_produto_gravity.find((x) => x.id_workspace === id_workspace)
+                const ativoServidor = !!ativacao?.ativo_produto_gravity_workspace
+                const pend = pendentes[id_workspace]
+                if (!pend) return { ativo_efetivo: ativoServidor, marcado_remover: false, modificado: false }
+                if (pend.tipo === 'remover') return { ativo_efetivo: ativoServidor, marcado_remover: true, modificado: true }
+                return { ativo_efetivo: pend.ativo, marcado_remover: false, modificado: true }
+              }
+
+              return (
+                <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                  <div style={{
+                    padding: '1rem',
+                    borderTop: '1px solid rgba(129,140,248,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem',
+                  }}>
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem',
+                      color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600,
+                      textTransform: 'uppercase', letterSpacing: '0.05em',
+                    }}>
+                      <TreeStructure size={14} /> Auditoria de Consumo por Workspace
+                    </span>
+
+                    {/* Toolbar Salvar/Descartar — só aparece se há pendentes */}
+                    {totalPendentes > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                        <span style={{
+                          fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24',
+                          padding: '0.25rem 0.625rem', borderRadius: '9999px',
+                          background: 'rgba(251,191,36,0.08)',
+                          border: '1px solid rgba(251,191,36,0.25)',
+                        }}>{totalPendentes} alteração{totalPendentes !== 1 ? 'ões' : ''} pendente{totalPendentes !== 1 ? 's' : ''}</span>
+                        <BotaoGlobal
+                          variante="fantasma"
+                          tamanho="pequeno"
+                          onClick={() => descartarEdicoesWorkspaces(a)}
+                          disabled={salvando}
+                        >Descartar</BotaoGlobal>
+                        <BotaoGlobal
+                          variante="primario"
+                          tamanho="pequeno"
+                          onClick={() => void salvarEdicoesWorkspaces(a)}
+                          disabled={salvando}
+                        >{salvando ? 'Salvando…' : 'Salvar alterações'}</BotaoGlobal>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{
+                    border: '1px solid rgba(129,140,248,0.08)',
+                    borderRadius: '12px', overflow: 'hidden',
+                  }}>
+                    <TabelaGlobal<Workspace>
+                      id={`workspace-subscription-workspaces-${idA}`}
+                      idKey="id_workspace"
+                      ocultarSelecao
+                      dados={workspaces}
+                      tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
+                      colunas={[
+                        {
+                          key: 'nome_workspace',
+                          label: t('workspace.subscriptions.subtabela_nome_workspace'),
+                          tipo: 'texto',
+                          render: (v, ws) => {
+                            const nome = String(v)
+                            const { marcado_remover, modificado } = efetivoPorWorkspace(ws.id_workspace)
+                            const subdominio = nome
+                              .toLowerCase()
+                              .normalize('NFD')
+                              .replace(/[̀-ͯ]/g, '')
+                              .replace(/[^a-z0-9]/g, '-')
+                              .replace(/-+/g, '-')
+                              .replace(/^-|-$/g, '')
+                            return (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                <a
+                                  href={`http://localhost:8010/workspace/${subdominio}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    fontWeight: 600,
+                                    color: marcado_remover ? '#f87171' : 'var(--ws-text)',
+                                    textDecoration: marcado_remover ? 'line-through' : 'none',
+                                    transition: 'color 0.15s',
+                                    cursor: 'pointer',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!marcado_remover) {
+                                      e.currentTarget.style.color = '#818cf8'
+                                      e.currentTarget.style.textDecoration = 'underline'
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!marcado_remover) {
+                                      e.currentTarget.style.color = 'var(--ws-text)'
+                                      e.currentTarget.style.textDecoration = 'none'
+                                    }
+                                  }}
+                                  onClick={(ev) => ev.stopPropagation()}
+                                >{ws.nome_workspace}</a>
+                                {modificado && (
+                                  <span style={{
+                                    fontSize: '0.5625rem', fontWeight: 800, letterSpacing: '0.04em',
+                                    padding: '0.1rem 0.4rem', borderRadius: '4px',
+                                    background: 'rgba(251,191,36,0.12)',
+                                    color: '#fbbf24',
+                                    border: '1px solid rgba(251,191,36,0.25)',
+                                    textTransform: 'uppercase',
+                                  }}>Pendente</span>
+                                )}
+                              </span>
+                            )
+                          },
                         },
-                      },
-                      {
-                        key: 'status_workspace',
-                        label: t('workspace.subscriptions.subtabela_status_servico'),
-                        tipo: 'texto',
-                        render: (_v, ws) => {
-                          const ativacao = a.ativacoes_produto_gravity.find(
-                            (x) => x.id_workspace === ws.id_workspace,
-                          )
-                          const ativo = !!ativacao?.ativo_produto_gravity_workspace
-                          const suspensa = a.status_assinatura_produto_gravity === 'SUSPENSA'
-                          return (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{
-                                display: 'inline-flex',
-                                padding: '0.15rem 0.5rem', borderRadius: '4px',
-                                fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                                background: ativo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
-                                color: ativo ? '#34d399' : 'var(--ws-muted)',
-                                border: ativo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)',
-                              }}>{ativo ? 'HABILITADO' : 'BLOQUEADO'}</span>
-                              {ativo && suspensa && (
+                        {
+                          key: 'status_workspace',
+                          label: t('workspace.subscriptions.subtabela_status_servico'),
+                          tipo: 'texto',
+                          render: (_v, ws) => {
+                            const { ativo_efetivo, marcado_remover } = efetivoPorWorkspace(ws.id_workspace)
+                            const suspensa = a.status_assinatura_produto_gravity === 'SUSPENSA'
+                            if (marcado_remover) {
+                              return (
                                 <span style={{
                                   display: 'inline-flex',
                                   padding: '0.15rem 0.5rem', borderRadius: '4px',
                                   fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                                  background: 'rgba(248,113,113,0.1)',
-                                  color: '#f87171',
+                                  background: 'rgba(248,113,113,0.1)', color: '#f87171',
                                   border: '1px solid rgba(248,113,113,0.2)',
-                                }}>SUSPENSA</span>
-                              )}
-                            </div>
-                          )
+                                }}>VAI SER REMOVIDO</span>
+                              )
+                            }
+                            return (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{
+                                  display: 'inline-flex',
+                                  padding: '0.15rem 0.5rem', borderRadius: '4px',
+                                  fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                                  background: ativo_efetivo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
+                                  color: ativo_efetivo ? '#34d399' : 'var(--ws-muted)',
+                                  border: ativo_efetivo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)',
+                                }}>{ativo_efetivo ? 'HABILITADO' : 'BLOQUEADO'}</span>
+                                {ativo_efetivo && suspensa && (
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    padding: '0.15rem 0.5rem', borderRadius: '4px',
+                                    fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                                    background: 'rgba(248,113,113,0.1)',
+                                    color: '#f87171',
+                                    border: '1px solid rgba(248,113,113,0.2)',
+                                  }}>SUSPENSA</span>
+                                )}
+                              </div>
+                            )
+                          },
                         },
-                      },
-                      {
-                        key: 'id_workspace',
-                        label: t('workspace.subscriptions.subtabela_acoes'),
-                        tipo: 'texto',
-                        align: 'right',
-                        render: (_v, ws) => {
-                          const ativacao = a.ativacoes_produto_gravity.find(
-                            (x) => x.id_workspace === ws.id_workspace,
-                          )
-                          const ativo = !!ativacao?.ativo_produto_gravity_workspace
-                          return (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                              <TooltipGlobal descricao={ativo ? 'Suspender acesso neste workspace' : 'Reativar acesso neste workspace'}>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    void aoToggleWorkspace(a, ws.id_workspace, ativo)
-                                  }}
-                                  style={{
-                                    background: 'transparent', border: 'none', cursor: 'pointer',
-                                    color: ativo ? '#34d399' : 'var(--ws-muted)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
-                                  }}
-                                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(129,140,248,0.1)' }}
-                                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                                >
-                                  {ativo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-                                </button>
-                              </TooltipGlobal>
+                        {
+                          key: 'id_workspace',
+                          label: t('workspace.subscriptions.subtabela_acoes'),
+                          tipo: 'texto',
+                          align: 'right',
+                          render: (_v, ws) => {
+                            const { ativo_efetivo, marcado_remover } = efetivoPorWorkspace(ws.id_workspace)
+                            const ativacao = a.ativacoes_produto_gravity.find((x) => x.id_workspace === ws.id_workspace)
+                            const ativo_servidor = !!ativacao?.ativo_produto_gravity_workspace
+                            return (
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                                <TooltipGlobal descricao={
+                                  marcado_remover
+                                    ? 'Cancelar remoção'
+                                    : ativo_efetivo
+                                      ? 'Bloquear acesso (rascunho — clique em Salvar)'
+                                      : 'Habilitar acesso (rascunho — clique em Salvar)'
+                                }>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      if (marcado_remover) {
+                                        // Cancela remoção
+                                        aoStagedRemoverWorkspace(a, ws.id_workspace)
+                                      } else {
+                                        aoStagedToggleWorkspace(a, ws.id_workspace, ativo_servidor)
+                                      }
+                                    }}
+                                    disabled={salvando}
+                                    style={{
+                                      background: 'transparent', border: 'none', cursor: salvando ? 'not-allowed' : 'pointer',
+                                      color: ativo_efetivo && !marcado_remover ? '#34d399' : 'var(--ws-muted)',
+                                      opacity: salvando ? 0.4 : 1,
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => { if (!salvando) e.currentTarget.style.background = 'rgba(129,140,248,0.1)' }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                                  >
+                                    {ativo_efetivo && !marcado_remover ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+                                  </button>
+                                </TooltipGlobal>
 
-                              <TooltipGlobal descricao="Remover vínculo deste workspace">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setVinculoWorkspaceParaRemover({
-                                      assinatura: a,
-                                      id_workspace: ws.id_workspace,
-                                      nome_workspace: ws.nome_workspace,
-                                    })
-                                  }}
-                                  style={{
-                                    background: 'transparent', border: 'none', cursor: 'pointer',
-                                    color: 'var(--ws-muted)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.color = '#f87171'
-                                    e.currentTarget.style.background = 'rgba(248,113,113,0.1)'
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.color = 'var(--ws-muted)'
-                                    e.currentTarget.style.background = 'transparent'
-                                  }}
-                                >
-                                  <Trash size={16} weight="bold" />
-                                </button>
-                              </TooltipGlobal>
-                            </div>
-                          )
+                                <TooltipGlobal descricao={marcado_remover ? 'Cancelar remoção' : 'Marcar para remover (rascunho — clique em Salvar)'}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      aoStagedRemoverWorkspace(a, ws.id_workspace)
+                                    }}
+                                    disabled={salvando}
+                                    style={{
+                                      background: marcado_remover ? 'rgba(248,113,113,0.12)' : 'transparent',
+                                      border: 'none', cursor: salvando ? 'not-allowed' : 'pointer',
+                                      color: marcado_remover ? '#f87171' : 'var(--ws-muted)',
+                                      opacity: salvando ? 0.4 : 1,
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (salvando) return
+                                      e.currentTarget.style.color = '#f87171'
+                                      e.currentTarget.style.background = 'rgba(248,113,113,0.1)'
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (marcado_remover) return
+                                      e.currentTarget.style.color = 'var(--ws-muted)'
+                                      e.currentTarget.style.background = 'transparent'
+                                    }}
+                                  >
+                                    <Trash size={16} weight="bold" />
+                                  </button>
+                                </TooltipGlobal>
+                              </div>
+                            )
+                          },
                         },
-                      },
-                    ]}
-                    mensagemVazio="Nenhum workspace cadastrado."
-                  />
+                      ]}
+                      mensagemVazio="Nenhum workspace cadastrado."
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            }}
           />
         )}
       </div>
@@ -1051,18 +1210,8 @@ export function Assinaturas() {
       aoCancelar={() => setAssinaturaParaCancelar(null)}
     />
 
-    <ModalExclusao
-      aberto={!!vinculoWorkspaceParaRemover}
-      titulo="Remover Vínculo do Workspace"
-      descricao={
-        <>Tem certeza de que deseja remover o workspace{' '}
-          <strong>{vinculoWorkspaceParaRemover?.nome_workspace}</strong> desta assinatura?
-        </>
-      }
-      nomeItem="O acesso a este serviço será cortado imediatamente para essa instância de trabalho e a linha será removida da auditoria."
-      aoConfirmar={confirmarRemocaoVinculoWorkspace}
-      aoCancelar={() => setVinculoWorkspaceParaRemover(null)}
-    />
+    {/* Modal "Remover Vínculo" foi removido em 2026-05-05: agora a remoção
+        é via modo edição em lote (lixeira marca pendente, Salvar dispara). */}
 
     <ModalEditarAssinatura
       assinatura={assinaturaEditando}

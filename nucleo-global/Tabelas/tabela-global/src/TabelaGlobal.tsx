@@ -125,6 +125,10 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   kanban?: TabelaKanbanConfig<T>
   /** Quantidade de colunas de dados iniciais a congelar (sticky horizontal). A coluna de controle (checkbox/expand) é sempre congelada junto quando > 0. */
   frozenColunas?: number
+  /** Esconde a coluna de checkbox de seleção (e o badge "X selecionado(s)").
+   *  Útil em sub-tabelas onde não há ação em massa via Set selecionados —
+   *  usar quando as ações são por linha imediatas ou via modo edição em lote. */
+  ocultarSelecao?: boolean
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -432,7 +436,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro,
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
-    id: tableId, kanban, frozenColunas = 0
+    id: tableId, kanban, frozenColunas = 0, ocultarSelecao = false,
   } = props
 
   const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
@@ -722,7 +726,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
               {chips.length === 1 ? t('tabela.filtro_ativo_singular', { count: chips.length }) : t('tabela.filtro_ativo_plural', { count: chips.length })}
             </span>
           )}
-          {selecionados.size > 0 && (
+          {!ocultarSelecao && selecionados.size > 0 && (
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
               {selecionados.size === 1 ? t('tabela.selecionado_singular', { count: selecionados.size }) : t('tabela.selecionado_plural', { count: selecionados.size })}
             </span>
@@ -826,12 +830,14 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead ref={theadRef}>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem', position: 'sticky', top: 0, zIndex: frozenColunas > 0 ? 3 : 2, ...(frozenColunas > 0 ? { left: 0 } : {}) }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
-                  <span style={{ opacity: 0.5 }}>#</span>
-                </div>
-              </th>
+              {!ocultarSelecao && (
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem', position: 'sticky', top: 0, zIndex: frozenColunas > 0 ? 3 : 2, ...(frozenColunas > 0 ? { left: 0 } : {}) }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
+                    <span style={{ opacity: 0.5 }}>#</span>
+                  </div>
+                </th>
+              )}
               {colunasVisiveis.map((col, cIdx) => (
                 <Th
                   key={col.key}
@@ -862,7 +868,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
           <tbody>
             {paginado.length === 0 ? (
               <tr>
-                <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (renderExpandido ? 1 : 0) + 1} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+                <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (renderExpandido ? 1 : 0) + (ocultarSelecao ? 0 : 1)} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
                     ? <span>{defaultMensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>{t('tabela.limpar_filtros')}</button></span>
                     : defaultMensagemSemFiltro
@@ -888,34 +894,36 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                       background: selecionados.has(id) ? 'var(--tg-bg-selected)' : 'transparent' 
                     }}
                   >
-                    <td className="tg-td tg-td--checkbox" onClick={ev => ev.stopPropagation()} style={frozenColunas > 0 ? { position: 'sticky', left: 0, zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : undefined}>
-                      {filhos ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
-                          {temFilhos && (
-                            <TooltipGlobal 
-                              descricao={
-                                isExpanded 
-                                  ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
-                                  : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
-                              }
-                            >
-                              <button
-                                type="button"
-                                className="tg-chevron-btn"
-                                onClick={e => { e.stopPropagation(); toggleExpandido(id) }}
+                    {!ocultarSelecao && (
+                      <td className="tg-td tg-td--checkbox" onClick={ev => ev.stopPropagation()} style={frozenColunas > 0 ? { position: 'sticky', left: 0, zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : undefined}>
+                        {filhos ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
+                            {temFilhos && (
+                              <TooltipGlobal
+                                descricao={
+                                  isExpanded
+                                    ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
+                                    : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
+                                }
                               >
-                                <span className={`tg-chevron-icon ${isExpanded ? 'tg-chevron-icon--aberto' : ''}`}>
-                                  <IconeChevron />
-                                </span>
-                              </button>
-                            </TooltipGlobal>
-                          )}
-                        </div>
-                      ) : (
-                        <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
-                      )}
-                    </td>
+                                <button
+                                  type="button"
+                                  className="tg-chevron-btn"
+                                  onClick={e => { e.stopPropagation(); toggleExpandido(id) }}
+                                >
+                                  <span className={`tg-chevron-icon ${isExpanded ? 'tg-chevron-icon--aberto' : ''}`}>
+                                    <IconeChevron />
+                                  </span>
+                                </button>
+                              </TooltipGlobal>
+                            )}
+                          </div>
+                        ) : (
+                          <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
+                        )}
+                      </td>
+                    )}
                     
                     {colunasVisiveis.map((col, cIdx) => (
                       <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'center', ...(cIdx < frozenColunas && stickyOffsets[cIdx] !== undefined ? { position: 'sticky', left: stickyOffsets[cIdx], zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : {}) }}>
@@ -1029,7 +1037,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                   {/* ── Conteúdo Expandido (Modo Legado/Simples) ── */}
                   {isExpanded && renderExpandido && !filhos && (
                     <tr className="tg-tr-expandida-conteudo">
-                      <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + 2} style={{ padding: 0 }}>
+                      <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (ocultarSelecao ? 1 : 2)} style={{ padding: 0 }}>
                         {renderExpandido(item)}
                       </td>
                     </tr>

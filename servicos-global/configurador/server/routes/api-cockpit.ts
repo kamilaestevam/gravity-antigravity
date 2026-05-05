@@ -207,6 +207,121 @@ apiCockpitRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
   }
 })
 
+// ─── Workspace: webhooks (CRUD + disparar-evento-teste + historico) ────
+
+async function proxyToWebhooks(
+  metodo: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  body?: unknown,
+  query?: Record<string, string>,
+): Promise<{ status: number; data: unknown }> {
+  const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/webhooks${path}`)
+  if (query) {
+    for (const [k, v] of Object.entries(query)) {
+      if (v) url.searchParams.set(k, v)
+    }
+  }
+  const init: RequestInit = {
+    method: metodo,
+    headers: {
+      'x-internal-key': INTERNAL_SERVICE_KEY,
+      'Content-Type':   'application/json',
+    },
+    signal: AbortSignal.timeout(10_000),
+  }
+  if (body !== undefined) init.body = JSON.stringify(body)
+  const response = await fetch(url.toString(), init)
+  const data = response.status === 204 ? null : await response.json().catch(() => null)
+  return { status: response.status, data }
+}
+
+apiCockpitRouter.get('/webhooks', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const { status, data } = await proxyToWebhooks('GET', '/', undefined, { id_organizacao: idOrganizacao })
+    res.status(status).json(data)
+  } catch (err) {
+    res.json({ webhooks: [], error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.post('/webhooks', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    const idUsuario     = req.auth?.id_usuario
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const body = { ...(req.body || {}), id_organizacao: idOrganizacao, id_usuario: idUsuario }
+    const { status, data } = await proxyToWebhooks('POST', '/', body)
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.put('/webhooks/:id_webhook_configuracao', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const body = { ...(req.body || {}), id_organizacao: idOrganizacao }
+    const { status, data } = await proxyToWebhooks(
+      'PUT',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}`,
+      body,
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.delete('/webhooks/:id_webhook_configuracao', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const { status, data } = await proxyToWebhooks(
+      'DELETE',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}`,
+      { id_organizacao: idOrganizacao },
+    )
+    if (status === 204) return res.status(204).send()
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-teste', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const { status, data } = await proxyToWebhooks(
+      'POST',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}/disparar-evento-teste`,
+      { id_organizacao: idOrganizacao },
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitRouter.get('/webhooks/:id_webhook_configuracao/historico', async (req, res) => {
+  try {
+    const idOrganizacao = req.auth?.id_organizacao
+    if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
+    const { status, data } = await proxyToWebhooks(
+      'GET',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}/historico`,
+      undefined,
+      { id_organizacao: idOrganizacao },
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.json({ historico: [], error: maskError(err) })
+  }
+})
+
 // ─── Admin Routes (gravity_admin — todas as organizacoes) ───────────────
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
@@ -264,6 +379,19 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     res.json(await response.json())
   } catch (err) {
     res.json({ tokens: [], error: maskError(err) })
+  }
+})
+
+// ─── Admin: webhooks (visualizacao por id_organizacao) ─────────────────
+
+apiCockpitAdminRouter.get('/webhooks', async (req, res) => {
+  try {
+    const idOrganizacao = (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
+    const { status, data } = await proxyToWebhooks('GET', '/', undefined, { id_organizacao: idOrganizacao })
+    res.status(status).json(data)
+  } catch (err) {
+    res.json({ webhooks: [], error: maskError(err) })
   }
 })
 

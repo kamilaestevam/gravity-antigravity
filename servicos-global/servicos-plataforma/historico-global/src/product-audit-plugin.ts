@@ -57,15 +57,74 @@ export interface ProductAuditPluginOptions {
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
 /**
+ * Mapa HTTP method → verbo PT-BR UPPER_SNAKE conforme Mandamento 03 e
+ * skill `arquitetura/observabilidade/SKILL.md:307`.
+ *
+ * `acao_historico_log` é VERBO (CRIAR/ATUALIZAR/EXCLUIR), `tipo_recurso_historico_log`
+ * é o OBJETO afetado. A combinação dos dois substitui o padrão antigo de codigos
+ * compostos como `INVOICE_CREATED`, `WORKSPACE_DELETED` etc.
+ */
+const HTTP_PARA_ACAO: Record<string, string> = {
+  POST:   'CRIAR',
+  PUT:    'ATUALIZAR',
+  PATCH:  'ATUALIZAR',
+  DELETE: 'EXCLUIR',
+}
+
+/**
+ * Mapa verbo → particípio passado para uso em `detalhe_acao_historico_log`.
+ * Ex: CRIAR → "Criou", EXCLUIR → "Excluiu". Usado quando o caller não tem
+ * detalhe humano específico (fallback).
+ */
+const ACAO_PARA_PARTICIPIO: Record<string, string> = {
+  CRIAR:     'Criou',
+  ATUALIZAR: 'Atualizou',
+  EXCLUIR:   'Excluiu',
+}
+
+/**
+ * Normaliza o segmento de path do recurso para PascalCase canonical (singular).
+ * Espelha REGRA 7 de `ddd-nomenclatura` (PascalCase em PT-BR para nomes de model).
+ *
+ * Heurística:
+ *  - retira plural simples (sufixo 's' / 'es')
+ *  - aplica PascalCase (primeira letra maiúscula, demais minúsculas)
+ *  - hífen / underscore → camel-bound (ex: 'nf-importacao' → 'NfImportacao')
+ *
+ * Ex: 'workspaces' → 'Workspace', 'pedidos' → 'Pedido', 'organizacoes' → 'Organizacao',
+ *     'nf-importacao' → 'NfImportacao', 'campos_calculados' → 'CampoCalculado'
+ */
+function normalizarTipoRecurso(raw: string): string {
+  if (!raw) return raw
+  // Singularização ingênua — funciona para os casos PT-BR mais comuns
+  let singular = raw
+  if (singular.endsWith('oes')) {
+    singular = singular.slice(0, -3) + 'ao'  // organizacoes → organizacao
+  } else if (singular.endsWith('aes')) {
+    singular = singular.slice(0, -3) + 'ao'  // alemães → alemao (raro)
+  } else if (singular.endsWith('es') && singular.length > 4 && /[zrs]es$/.test(singular)) {
+    singular = singular.slice(0, -2)  // mes - vez - veres → ve (raro, mas seguro)
+  } else if (singular.endsWith('s') && !singular.endsWith('ss')) {
+    singular = singular.slice(0, -1)  // workspaces → workspace, pedidos → pedido
+  }
+  // PascalCase com hífen/underscore como separador
+  return singular
+    .split(/[-_]/)
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ''))
+    .join('')
+}
+
+/**
  * Infere tipo_recurso_historico_log e id_recurso_historico_log a partir da URL.
- * Ex: /api/v1/pedidos/123/itens/456 → tipo_recurso_historico_log='pedidos', id_recurso_historico_log='123'
+ * Ex: /api/v1/pedidos/123/itens/456 → tipo_recurso_historico_log='Pedido', id_recurso_historico_log='123'
  */
 function inferResourceFromPath(req: Request): { tipo_recurso_historico_log: string; id_recurso_historico_log?: string } {
   const segments = req.path.replace(/^\/+/, '').split('/').filter(Boolean)
   // Remove prefixos comuns de API
   const apiPrefixPatterns = /^(api|v\d+|internal)$/i
   const meaningful = segments.filter((s) => !apiPrefixPatterns.test(s))
-  const tipo_recurso_historico_log = meaningful[0] ?? req.path
+  const rawTipoRecurso = meaningful[0] ?? req.path
+  const tipo_recurso_historico_log = normalizarTipoRecurso(rawTipoRecurso)
   // Se o próximo segmento parece um ID (UUID ou número), usa como id_recurso_historico_log
   const maybeId = meaningful[1]
   const id_recurso_historico_log =
@@ -73,15 +132,9 @@ function inferResourceFromPath(req: Request): { tipo_recurso_historico_log: stri
   return { tipo_recurso_historico_log, id_recurso_historico_log }
 }
 
-function buildActionDetail(method: string, tipo_recurso_historico_log: string, id?: string): string {
-  const map: Record<string, string> = {
-    POST: 'Criou',
-    PUT: 'Atualizou',
-    PATCH: 'Atualizou parcialmente',
-    DELETE: 'Removeu',
-  }
-  const verb = map[method] ?? method
-  return id ? `${verb} ${tipo_recurso_historico_log} #${id}` : `${verb} ${tipo_recurso_historico_log}`
+function buildActionDetail(acao: string, tipo_recurso_historico_log: string, id?: string): string {
+  const verbo = ACAO_PARA_PARTICIPIO[acao] ?? acao.toLowerCase()
+  return id ? `${verbo} ${tipo_recurso_historico_log} #${id}` : `${verbo} ${tipo_recurso_historico_log}`
 }
 
 export function createProductAuditPlugin(opts: ProductAuditPluginOptions) {
@@ -135,12 +188,13 @@ export function createProductAuditPlugin(opts: ProductAuditPluginOptions) {
             user_agent: req.headers['user-agent'],
             correlation_id: req.headers['x-correlation-id'],
             method: req.method,
+            endpoint: req.originalUrl || req.url,
           },
           modulo_historico_log,
           tipo_recurso_historico_log,
           id_recurso_historico_log: resolvedId,
-          acao_historico_log: req.method,
-          detalhe_acao_historico_log: buildActionDetail(req.method, tipo_recurso_historico_log, resolvedId),
+          acao_historico_log: HTTP_PARA_ACAO[req.method] ?? req.method,
+          detalhe_acao_historico_log: buildActionDetail(HTTP_PARA_ACAO[req.method] ?? req.method, tipo_recurso_historico_log, resolvedId),
           estado_posterior_historico_log: isSuccess ? (body as Record<string, unknown>) : undefined,
           status_historico_log: isFailure ? 'FALHA' : isSuccess ? 'SUCESSO' : 'PARCIAL',
           mensagem_erro_historico_log: isFailure ? (body as any)?.message : undefined,

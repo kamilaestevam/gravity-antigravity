@@ -130,7 +130,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
             user_agent: req.headers['user-agent'],
             correlation_id: req.headers['x-correlation-id'],
             method: req.method,
-            path: req.originalUrl ?? req.url,
+            endpoint: req.originalUrl ?? req.url,
           },
           modulo_historico_log: opts.modulo_historico_log,
           tipo_recurso_historico_log: tipoRecurso,

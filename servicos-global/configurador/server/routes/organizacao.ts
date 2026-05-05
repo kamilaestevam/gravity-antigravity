@@ -141,7 +141,7 @@ organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
       id_organizacao: req.auth.id_organizacao,
       tipo_ator_historico_log: 'USUARIO',
       id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.id_usuario,
+      nome_ator_historico_log: req.auth.nome_usuario,
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: req.auth.id_organizacao,

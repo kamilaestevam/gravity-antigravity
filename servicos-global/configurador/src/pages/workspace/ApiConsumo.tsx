@@ -201,8 +201,7 @@ export function ApiConsumo() {
         />
       }
       toolbar={
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', gap: '1rem' }}>
-          <ApiCockpitTabs />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
           <BotaoGlobal
             variante="primario"
             onClick={() => { setPagina(1); void carregar() }}
@@ -225,6 +224,10 @@ export function ApiConsumo() {
 
       <div style={{ marginTop: '1.5rem' }}>
         <ApiCockpitKpiCards />
+      </div>
+
+      <div style={{ marginTop: '1.5rem' }}>
+        <ApiCockpitTabs />
       </div>
 
       {/* Filtros */}

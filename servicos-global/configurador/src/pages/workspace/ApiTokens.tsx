@@ -245,8 +245,7 @@ export function ApiTokens() {
         />
       }
       toolbar={
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', gap: '1rem' }}>
-          <ApiCockpitTabs />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
           <BotaoGlobal
             variante="primario"
             onClick={() => setModalCriarAberto(true)}
@@ -269,6 +268,10 @@ export function ApiTokens() {
 
       <div style={{ marginTop: '1.5rem' }}>
         <ApiCockpitKpiCards />
+      </div>
+
+      <div style={{ marginTop: '1.5rem' }}>
+        <ApiCockpitTabs />
       </div>
 
       <div style={{ marginTop: '1.5rem' }}>

@@ -200,17 +200,6 @@ export function ApiConsumo() {
           icone={<ChartLineUp size={32} weight="duotone" />}
         />
       }
-      toolbar={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => { setPagina(1); void carregar() }}
-            icone={<ArrowClockwise size={16} />}
-          >
-            Atualizar
-          </BotaoGlobal>
-        </div>
-      }
     >
       {erro && (
         <div role="alert" style={{
@@ -226,8 +215,15 @@ export function ApiConsumo() {
         <ApiCockpitKpiCards />
       </div>
 
-      <div style={{ marginTop: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', gap: '1rem' }}>
         <ApiCockpitTabs />
+        <BotaoGlobal
+          variante="primario"
+          onClick={() => { setPagina(1); void carregar() }}
+          icone={<ArrowClockwise size={16} />}
+        >
+          Atualizar
+        </BotaoGlobal>
       </div>
 
       {/* Filtros */}

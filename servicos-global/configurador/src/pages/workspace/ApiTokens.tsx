@@ -244,17 +244,6 @@ export function ApiTokens() {
           icone={<Key size={32} weight="duotone" />}
         />
       }
-      toolbar={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => setModalCriarAberto(true)}
-            icone={<Plus size={16} />}
-          >
-            Novo Token
-          </BotaoGlobal>
-        </div>
-      }
     >
       {erro && (
         <div role="alert" style={{
@@ -270,8 +259,15 @@ export function ApiTokens() {
         <ApiCockpitKpiCards />
       </div>
 
-      <div style={{ marginTop: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', gap: '1rem' }}>
         <ApiCockpitTabs />
+        <BotaoGlobal
+          variante="primario"
+          onClick={() => setModalCriarAberto(true)}
+          icone={<Plus size={16} />}
+        >
+          Novo Token
+        </BotaoGlobal>
       </div>
 
       <div style={{ marginTop: '1.5rem' }}>

@@ -2,12 +2,14 @@
  * useServerHealth — Monitor de saúde dos servidores de desenvolvimento.
  *
  * Faz polling periódico nos endpoints /health de cada backend.
- * Quando um servidor que estava UP fica DOWN, dispara uma notificação
- * de erro no padrão do shell (useShellStore.addNotification).
- * Quando volta a subir, dispara notificação de sucesso.
+ * Quando um servidor que estava UP fica DOWN:
+ *   - Toast de erro (imediato, auto-fecha em 8s)
+ *   - Aviso persistente no sininho (tipo 'aviso', fica até marcar lido)
+ * Quando volta a subir:
+ *   - Toast de sucesso (auto-fecha em 5s)
+ *   - Aviso persistente no sininho (tipo 'sistema')
  *
  * Só ativo em modo DEV (import.meta.env.DEV).
- * Usa useShellStore.getState() para não depender de Provider no call site.
  */
 import { useEffect, useRef } from 'react'
 import { useShellStore } from '@gravity/shell'
@@ -23,10 +25,10 @@ interface ServerConfig {
 }
 
 const SERVERS: ServerConfig[] = [
-  { name: 'Configurador Backend',  url: '/dev-health/configurador' },
-  { name: 'Histórico Backend',     url: '/dev-health/historico'    },
-  { name: 'Pedido Backend',        url: '/dev-health/pedido'       },
-  { name: 'Cadastros Backend',     url: '/dev-health/cadastros'    },
+  { name: 'Configurador',  url: '/dev-health/configurador' },
+  { name: 'Histórico',     url: '/dev-health/historico'    },
+  { name: 'Pedido',        url: '/dev-health/pedido'       },
+  { name: 'Cadastros',     url: '/dev-health/cadastros'    },
 ]
 
 /** Retorna true se o servidor respondeu (qualquer HTTP status = UP; erro de rede = DOWN) */
@@ -49,6 +51,7 @@ export function useServerHealth(): void {
   if (!import.meta.env.DEV) return
 
   const addNotification = useShellStore((s) => s.addNotification)
+  const addAviso        = useShellStore((s) => s.addAviso)
 
   // Mapa de estado anterior: true = UP, false = DOWN, undefined = não verificado ainda
   const statusRef = useRef<Record<string, boolean | undefined>>({})
@@ -66,19 +69,33 @@ export function useServerHealth(): void {
 
           // Transição UP → DOWN
           if (prev === true && !isUp) {
+            // Toast imediato
             addNotification({
               type: 'error',
-              message: `⚠️ Servidor caiu: ${srv.name}`,
+              message: `${srv.name} está temporariamente indisponível`,
               duration: 8_000,
+            })
+            // Aviso persistente no sininho
+            addAviso({
+              conteudo: `${srv.name} está fora do ar. Algumas funcionalidades podem não responder até que o serviço seja restabelecido.`,
+              autor: { nome: 'Monitor de Servidores' },
+              tipo: 'aviso',
             })
           }
 
-          // Transição DOWN → UP (exceto na primeira verificação onde prev === undefined)
+          // Transição DOWN → UP (exceto primeira verificação onde prev === undefined)
           if (prev === false && isUp) {
+            // Toast imediato
             addNotification({
               type: 'success',
-              message: `✅ Servidor voltou: ${srv.name}`,
+              message: `${srv.name} voltou a funcionar normalmente`,
               duration: 5_000,
+            })
+            // Aviso persistente no sininho
+            addAviso({
+              conteudo: `${srv.name} está disponível novamente. Você já pode utilizar todas as funcionalidades normalmente.`,
+              autor: { nome: 'Monitor de Servidores' },
+              tipo: 'sistema',
             })
           }
 
@@ -101,5 +118,5 @@ export function useServerHealth(): void {
       clearTimeout(initialTimer)
       clearInterval(intervalId)
     }
-  }, [addNotification])
+  }, [addNotification, addAviso])
 }

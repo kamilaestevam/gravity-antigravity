@@ -58,6 +58,9 @@ jobs:
       - name: Check monorepo rules (versions, type:module, overrides)
         run: npm run check:deps
 
+      - name: Check audit coverage (todo produto/configurador deve auto-instrumentar)
+        run: npm run check:audit-coverage
+
       - name: Check for duplicate dependencies
         run: |
           echo "Verificando duplicatas de libs criticas..."

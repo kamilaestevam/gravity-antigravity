@@ -237,24 +237,24 @@ describe('GET /api/v1/api-cockpit/admin/uso-gabi/historico', () => {
 // ─── Existing admin routes still work ───────────────────────────────────────
 
 describe('Existing admin cockpit routes', () => {
-  it('GET /services retorna fallback resiliente', async () => {
+  it('GET /saude-servicos retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/v1/api-cockpit/admin/servicos')
+    const res = await request.get('/api/v1/api-cockpit/admin/saude-servicos')
     expect(res.status).toBe(200)
-    expect(res.body.services).toEqual([])
+    expect(res.body.servicos).toEqual([])
   })
 
-  it('GET /logs retorna fallback resiliente', async () => {
+  it('GET /log-consumo retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/v1/api-cockpit/admin/logs')
+    const res = await request.get('/api/v1/api-cockpit/admin/log-consumo')
     expect(res.status).toBe(200)
     expect(res.body.logs).toEqual([])
   })
 
-  it('GET /stats retorna fallback resiliente', async () => {
+  it('GET /log-consumo/estatisticas retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/v1/api-cockpit/admin/estatisticas')
+    const res = await request.get('/api/v1/api-cockpit/admin/log-consumo/estatisticas')
     expect(res.status).toBe(200)
-    expect(res.body.requisicoes_24h).toBe(0)
+    expect(res.body.quantidade_requisicoes_log_consumo).toBe(0)
   })
 })

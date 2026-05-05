@@ -8,6 +8,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -96,7 +97,7 @@ export function ApiWebhooks() {
     try {
       setLoading(true)
       setErro(null)
-      const res = await fetch('/api/v1/api-cockpit/webhooks', { credentials: 'include' })
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/webhooks')
       if (!res.ok) throw new Error(`Falha ao listar webhooks: ${res.status}`)
       const raw = await res.json()
       const parsed = listarWebhooksResponseSchema.safeParse(raw)
@@ -134,10 +135,9 @@ export function ApiWebhooks() {
     setCriando(true)
     setErro(null)
     try {
-      const res = await fetch('/api/v1/api-cockpit/webhooks', {
-        method:      'POST',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/webhooks', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url_webhook_configuracao:     novaUrl.trim(),
           eventos_webhook_configuracao: novosEventos,
@@ -164,10 +164,10 @@ export function ApiWebhooks() {
   const handleExcluir = async (id: string) => {
     if (!window.confirm('Excluir este webhook? As entregas pararão imediatamente.')) return
     try {
-      const res = await fetch(`/api/v1/api-cockpit/webhooks/${encodeURIComponent(id)}`, {
-        method:      'DELETE',
-        credentials: 'include',
-      })
+      const res = await requisicaoAutenticada(
+        `/api/v1/api-cockpit/webhooks/${encodeURIComponent(id)}`,
+        { method: 'DELETE' },
+      )
       if (!res.ok && res.status !== 204) {
         const raw = await res.json().catch(() => ({}))
         throw new Error(raw?.erro || raw?.error || `Falha ao excluir: ${res.status}`)
@@ -180,9 +180,9 @@ export function ApiWebhooks() {
 
   const handleDispararTeste = async (id: string) => {
     try {
-      const res = await fetch(
+      const res = await requisicaoAutenticada(
         `/api/v1/api-cockpit/webhooks/${encodeURIComponent(id)}/disparar-evento-teste`,
-        { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' } },
+        { method: 'POST', headers: { 'Content-Type': 'application/json' } },
       )
       const raw = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(raw?.erro || raw?.error || `Falha ao disparar: ${res.status}`)
@@ -200,9 +200,8 @@ export function ApiWebhooks() {
     setHistoricoAberto(true)
     setCarregandoHistorico(true)
     try {
-      const res = await fetch(
+      const res = await requisicaoAutenticada(
         `/api/v1/api-cockpit/webhooks/${encodeURIComponent(id)}/historico`,
-        { credentials: 'include' },
       )
       const raw = await res.json()
       const parsed = historicoResponseSchema.safeParse(raw)

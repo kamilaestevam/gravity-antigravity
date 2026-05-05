@@ -8,6 +8,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -75,7 +76,7 @@ export function ApiTokens() {
     try {
       setLoading(true)
       setErro(null)
-      const res = await fetch('/api/v1/api-cockpit/api-tokens', { credentials: 'include' })
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/api-tokens')
       if (!res.ok) throw new Error(`Falha ao listar tokens: ${res.status}`)
       const raw = await res.json()
       const parsed = listarTokensResponseSchema.safeParse(raw)
@@ -110,10 +111,9 @@ export function ApiTokens() {
     setCriando(true)
     setErro(null)
     try {
-      const res = await fetch('/api/v1/api-cockpit/api-tokens', {
-        method:      'POST',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/api-tokens', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nome_api_token:                      novoNome.trim(),
           escopo_api_token:                    novoEscopo,
@@ -141,10 +141,10 @@ export function ApiTokens() {
   const handleRevogar = async (id_api_token: string) => {
     if (!window.confirm('Revogar este token? Aplicações que o usam pararão de funcionar imediatamente.')) return
     try {
-      const res = await fetch(`/api/v1/api-cockpit/api-tokens/${encodeURIComponent(id_api_token)}`, {
-        method:      'DELETE',
-        credentials: 'include',
-      })
+      const res = await requisicaoAutenticada(
+        `/api/v1/api-cockpit/api-tokens/${encodeURIComponent(id_api_token)}`,
+        { method: 'DELETE' },
+      )
       if (!res.ok && res.status !== 204) {
         const raw = await res.json().catch(() => ({}))
         throw new Error(raw?.erro || raw?.error || `Falha ao revogar: ${res.status}`)

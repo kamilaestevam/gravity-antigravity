@@ -14,6 +14,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -94,23 +95,6 @@ const fmtTokens = (n: number) => {
   return String(n)
 }
 
-// Bearer token Clerk — sem ele as rotas admin retornam 401 (requireAuth valida JWT).
-async function getClerkBearerToken(): Promise<string | null> {
-  try {
-    const w = window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }
-    return (await w.Clerk?.session?.getToken()) ?? null
-  } catch {
-    return null
-  }
-}
-
-async function authedFetch(input: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getClerkBearerToken()
-  const headers: Record<string, string> = { ...((init.headers as Record<string, string>) ?? {}) }
-  if (token) headers.Authorization = `Bearer ${token}`
-  return fetch(input, { ...init, credentials: 'include', headers })
-}
-
 export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
@@ -129,9 +113,9 @@ export function ApiCockpitAdmin() {
       setLoading(true)
       setErroCarregar(null)
       const [svcRes, logsRes, statsRes] = await Promise.all([
-        authedFetch('/api/v1/api-cockpit/admin/saude-servicos',         { signal }),
-        authedFetch('/api/v1/api-cockpit/admin/log-consumo?limite=50',  { signal }),
-        authedFetch('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',         { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo?limite=50',  { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
       ])
 
       if (!svcRes.ok)   throw new Error(`saude-servicos ${svcRes.status} ${svcRes.statusText}`)
@@ -175,7 +159,7 @@ export function ApiCockpitAdmin() {
   const carregarGabiUsage = useCallback(async (signal?: AbortSignal) => {
     try {
       setGabiLoading(true)
-      const res = await authedFetch('/api/v1/api-cockpit/admin/uso-gabi', { signal })
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/admin/uso-gabi', { signal })
       if (!res.ok) throw new Error(`gabi-usage ${res.status}`)
       const data: GabiUsagePayload = await res.json()
       if (data.error) throw new Error(data.error)

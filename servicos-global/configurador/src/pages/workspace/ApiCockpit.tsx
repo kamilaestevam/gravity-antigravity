@@ -17,6 +17,7 @@ import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -88,9 +89,9 @@ export function ApiCockpit() {
       setLoading(true)
       try {
         const [svcRes, logsRes, statsRes] = await Promise.all([
-          fetch('/api/v1/api-cockpit/saude-servicos',         { credentials: 'include' }),
-          fetch('/api/v1/api-cockpit/log-consumo?limite=50',  { credentials: 'include' }),
-          fetch('/api/v1/api-cockpit/log-consumo/estatisticas', { credentials: 'include' }),
+          requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos'),
+          requisicaoAutenticada('/api/v1/api-cockpit/log-consumo?limite=50'),
+          requisicaoAutenticada('/api/v1/api-cockpit/log-consumo/estatisticas'),
         ])
 
         if (svcRes.ok) {

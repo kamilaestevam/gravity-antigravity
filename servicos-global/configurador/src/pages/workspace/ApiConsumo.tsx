@@ -7,6 +7,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -93,7 +94,7 @@ export function ApiConsumo() {
       if (range.minimo) params.set('codigo_resposta_http_minimo', range.minimo)
       if (range.maximo) params.set('codigo_resposta_http_maximo', range.maximo)
 
-      const res = await fetch(`/api/v1/api-cockpit/log-consumo?${params}`, { credentials: 'include' })
+      const res = await requisicaoAutenticada(`/api/v1/api-cockpit/log-consumo?${params}`)
       if (!res.ok) throw new Error(`Falha ao carregar logs: ${res.status}`)
       const raw = await res.json()
       const parsed = logConsumoResponseSchema.safeParse(raw)

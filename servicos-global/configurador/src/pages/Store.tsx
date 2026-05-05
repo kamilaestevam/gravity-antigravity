@@ -17,7 +17,6 @@ import {
   Eye,
   Receipt,
   Lightning,
-  Star,
   ArrowDown,
   Bell,
   Gear,
@@ -187,7 +186,9 @@ export function Store() {
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [activeFilter, setActiveFilter] = useState('todos')
+  const [viewMode, setViewMode] = useState<'todos' | 'catalogo' | 'meus'>('todos')
+  const [emBreveOnly, setEmBreveOnly] = useState(false)
+  const [category, setCategory] = useState<string>('todas')
 
   useEffect(() => {
     async function load() {
@@ -293,17 +294,24 @@ export function Store() {
   const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
   const totalCount = catalog.length
   const emBreveCount = useMemo(() => catalog.filter(p => p.status === 'EM_BREVE').length, [catalog])
+  const catalogoCount = useMemo(() => catalog.filter(p => getStatus(p.slug) !== 'owned').length, [catalog, subscribed])
+
+  // Delay determinístico por slug — cada card "owned" pulsa fora de sync (efeito aleatório estável)
+  const pulseDelayFor = (slug: string): string => {
+    let h = 0
+    for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0
+    const sec = ((Math.abs(h) % 1000) / 1000) * 5  // 0..5s
+    return `${sec.toFixed(2)}s`
+  }
 
   const categoryFilters = useMemo(() => {
     const cats = new Set(catalog.map(p => PRODUCT_META[p.slug]?.categoryFilter).filter(Boolean))
-    return ['todos', 'disponiveis', 'em_breve', ...Array.from(cats)]
+    return ['todas', ...Array.from(cats)]
   }, [catalog])
 
-  const filterLabel = (key: string): string => {
+  const categoryLabel = (key: string): string => {
     const map: Record<string, string> = {
-      todos: t('store.filtro_todos'),
-      disponiveis: t('store.filtro_disponiveis'),
-      em_breve: t('store.filtro_em_breve'),
+      todas: t('store.filtro_categoria_todas'),
       frete: t('store.filtro_frete'),
       cambio: t('store.filtro_cambio'),
       importacao: t('store.filtro_importacao'),
@@ -312,20 +320,27 @@ export function Store() {
     return map[key] ?? key
   }
 
+  // "Em Breve" só faz sentido em Catálogo — força reset ao trocar para Meus produtos
+  useEffect(() => {
+    if (viewMode === 'meus' && emBreveOnly) setEmBreveOnly(false)
+  }, [viewMode, emBreveOnly])
+
   const filteredCatalog = useMemo(() => {
     return catalog.filter(p => {
       const meta = PRODUCT_META[p.slug]
+      const status = getStatus(p.slug)
       const matchesSearch = !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.description ?? '').toLowerCase().includes(search.toLowerCase())
-      const matchesFilter =
-        activeFilter === 'todos' ||
-        (activeFilter === 'disponiveis' && p.status !== 'EM_BREVE') ||
-        (activeFilter === 'em_breve' && p.status === 'EM_BREVE') ||
-        meta?.categoryFilter === activeFilter
-      return matchesSearch && matchesFilter
+      const matchesView =
+        viewMode === 'todos' ? true :
+        viewMode === 'meus' ? status === 'owned' :
+        status !== 'owned'
+      const matchesEmBreve = !emBreveOnly || status === 'soon'
+      const matchesCategory = category === 'todas' || meta?.categoryFilter === category
+      return matchesSearch && matchesView && matchesEmBreve && matchesCategory
     })
-  }, [catalog, search, activeFilter])
+  }, [catalog, subscribed, search, viewMode, emBreveOnly, category])
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history } = useLocalizadorHistory('store')
@@ -506,15 +521,6 @@ export function Store() {
                     <div className="gs-stat__l">{t('store.stat_em_breve')}</div>
                   </div>
                 </div>
-                <div className="gs-stat gs-stat--premium">
-                  <div className="gs-stat__icon" style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
-                    <Star weight="duotone" size={20} />
-                  </div>
-                  <div>
-                    <div className="gs-stat__n" style={{ color: '#a5b4fc' }}>{t('store.stat_premium_titulo')}</div>
-                    <div className="gs-stat__l">{t('store.stat_premium_desc')}</div>
-                  </div>
-                </div>
               </div>
 
               {/* ── MONTE O SEU GRAVITY — Puzzle Stack ───────────────────── */}
@@ -555,14 +561,15 @@ export function Store() {
                         // Primeira peça fica na frente para a aba cobrir a cavidade da próxima
                         const zIdx = validSlugs.length - pieceIdx + 1
 
-                        // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 13px esquerda
+                        // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 18px esquerda
+                        // Mesma geometria garante que aba e cavidade tracem o MESMO arco — strokes coincidem em uma linha só
                         const path = isFirst && isLast
                           ? 'M 0,0 L 120,0 L 120,90 L 0,90 Z'
                           : isFirst
                           ? 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 Z'
                           : isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 13,58 13,32 0,32 Z'
-                          : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 13,58 13,32 0,32 Z'
+                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
+                          : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
 
                         const fill = isOwned ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
                         const stroke = isOwned ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
@@ -619,27 +626,85 @@ export function Store() {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </div>
+
+                {/* Segmented: Todos | Catálogo | Meus produtos */}
+                <div className="gs-segmented" role="tablist" aria-label={t('store.view_aria')}>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={viewMode === 'todos'}
+                    className={`gs-segmented__btn${viewMode === 'todos' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => setViewMode('todos')}
+                  >
+                    {t('store.filtro_todos')}
+                    <span className="gs-segmented__count">{totalCount}</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={viewMode === 'catalogo'}
+                    className={`gs-segmented__btn${viewMode === 'catalogo' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => setViewMode('catalogo')}
+                  >
+                    {t('store.view_catalogo')}
+                    <span className="gs-segmented__count">{catalogoCount}</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={viewMode === 'meus'}
+                    className={`gs-segmented__btn${viewMode === 'meus' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => setViewMode('meus')}
+                  >
+                    {t('store.view_meus')}
+                    <span className="gs-segmented__count">{ownedCount}</span>
+                  </button>
+                </div>
+
+                {/* Chip "Em Breve" — ativo em Todos e Catálogo (quando há itens) */}
+                {viewMode !== 'meus' && emBreveCount > 0 && (
+                  <button
+                    type="button"
+                    className={`gs-chip-soon${emBreveOnly ? ' gs-chip-soon--active' : ''}`}
+                    onClick={() => setEmBreveOnly(v => !v)}
+                    aria-pressed={emBreveOnly}
+                  >
+                    <Lightning weight="fill" size={12} />
+                    {t('store.filtro_em_breve')}
+                    <span className="gs-chip-soon__count">{emBreveCount}</span>
+                  </button>
+                )}
+
+                <div className="gs-toolbar__divider" aria-hidden="true" />
+
                 <div className="gs-filters">
                   {categoryFilters.map(f => (
                     <button
                       key={f}
                       type="button"
-                      className={`gs-filter-tab${activeFilter === f ? ' gs-filter-tab--active' : ''}`}
-                      onClick={() => setActiveFilter(f)}
+                      className={`gs-filter-tab${category === f ? ' gs-filter-tab--active' : ''}`}
+                      onClick={() => setCategory(f)}
                     >
-                      {filterLabel(f)}
+                      {categoryLabel(f)}
                     </button>
                   ))}
                 </div>
+
                 <div className="gs-toolbar__count">
                   {t('store.contagem_modulos', { count: filteredCatalog.length })}
                 </div>
               </div>
 
-              {/* Label seção — disponíveis */}
+              {/* Label seção — dinâmico conforme view */}
               {filteredCatalog.length > 0 && (
                 <div className="gs-section-label">
-                  <span>{t('store.secao_disponiveis', { count: filteredCatalog.length })}</span>
+                  <span>
+                    {viewMode === 'meus'
+                      ? t('store.secao_meus', { count: filteredCatalog.length })
+                      : emBreveOnly
+                        ? t('store.secao_em_breve', { count: filteredCatalog.length })
+                        : t('store.secao_disponiveis', { count: filteredCatalog.length })}
+                  </span>
                 </div>
               )}
 
@@ -658,9 +723,11 @@ export function Store() {
                     <div
                       key={p.id}
                       id={`produto-${p.slug}`}
-                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}`}
+                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}${!isOwned && !isSoon ? ' gs-card--available' : ''}`}
                       onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
-                      style={isOwned ? { cursor: 'pointer' } : undefined}
+                      style={isOwned
+                        ? { cursor: 'pointer', ['--pulse-delay' as string]: pulseDelayFor(p.slug) } as React.CSSProperties
+                        : undefined}
                     >
                       <div className="gs-card__top">
                         <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.12)' }}>
@@ -727,7 +794,7 @@ export function Store() {
                         <span />
                         {isOwned ? (
                           <BotaoGlobal
-                            variante="primario"
+                            variante="secundario"
                             tamanho="pequeno"
                             onClick={(e) => { e.stopPropagation(); navigate(`/produto/${p.slug}`) }}
                           >

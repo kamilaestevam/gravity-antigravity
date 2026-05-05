@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import {
-  CreditCard, FileXls, FileCsv, FileText, FilePdf, Code,
+  CreditCard,
   PencilSimple, Trash, PauseCircle, PlayCircle, Package, WarningCircle, TreeStructure,
   FloppyDisk, ArrowCounterClockwise, Lightning, ArrowRight,
 } from '@phosphor-icons/react'
@@ -24,17 +24,12 @@ import {
   TabelaGlobal,
   type TabelaGlobalColuna,
   type TabelaGlobalAcao,
-  type TabelaExportAcao,
 } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalConfirmarExclusao'
 import { ModalEditarAssinatura } from './ModalEditarAssinatura'
-import {
-  exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF,
-  type ColunasExport,
-} from '../../services/export-service'
 import { catalogService } from '../../services/catalog-service'
 import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY } from '../../data/product-meta'
 import type { FaixaPreco } from '../../types/entidades'
@@ -481,6 +476,7 @@ export function Assinaturas() {
       tooltipTitulo: 'Produto Contratado',
       tooltipDescricao: 'Nome do módulo ou serviço ativo na plataforma.',
       render: (_v, a) => <span style={{ fontWeight: 600 }}>{a.produto.nome_produto_gravity}</span>,
+      getValorBruto: (a) => a.produto.nome_produto_gravity,
     },
     {
       key: 'id_produto_gravity',
@@ -503,6 +499,10 @@ export function Assinaturas() {
           }}>{label}</span>
         )
       },
+      getValorBruto: (a) => {
+        const tipo = a.produto.tipo_cobranca_produto_gravity
+        return t(`enum.tipo_cobranca_produto_gravity.${tipo}`, tipo.replace('POR_', ''))
+      },
     },
     {
       key: 'data_inicio_periodo_assinatura_produto_gravity',
@@ -515,6 +515,10 @@ export function Assinaturas() {
         <span style={{ fontFamily: 'monospace', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
           {formatarMoeda(a.produto.preco_unitario_produto_gravity, a.produto.moeda_unitario_produto_gravity)}
         </span>
+      ),
+      getValorBruto: (a) => formatarMoeda(
+        a.produto.preco_unitario_produto_gravity,
+        a.produto.moeda_unitario_produto_gravity,
       ),
     },
     {
@@ -529,6 +533,7 @@ export function Assinaturas() {
           {formatarData(a.data_fim_periodo_assinatura_produto_gravity)}
         </span>
       ),
+      getValorBruto: (a) => formatarData(a.data_fim_periodo_assinatura_produto_gravity),
     },
     {
       key: 'ativacoes_produto_gravity',
@@ -537,6 +542,12 @@ export function Assinaturas() {
       align: 'center',
       tooltipTitulo: 'Distribuição por Workspace',
       tooltipDescricao: t('workspace.subscriptions.tabela.workspaces_desc'),
+      getValorBruto: (a) => {
+        const habilitados = a.ativacoes_produto_gravity
+          .filter((w) => w.ativo_produto_gravity_workspace)
+          .map((w) => w.workspace.nome_workspace)
+        return habilitados.length === 0 ? '— Nenhum —' : habilitados.join(', ')
+      },
       render: (_v, a) => {
         const habilitados = a.ativacoes_produto_gravity.filter(
           (w) => w.ativo_produto_gravity_workspace,
@@ -551,7 +562,10 @@ export function Assinaturas() {
         const show = habilitados.slice(0, 2)
         const rest = habilitados.length - show.length
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '4px', flexWrap: 'wrap',
+          }}>
             {show.map((w) => (
               <span key={w.id_workspace} style={{
                 fontSize: '0.625rem', fontWeight: 700,
@@ -654,38 +668,9 @@ export function Assinaturas() {
   ]
 
   // ── Exportação ──────────────────────────────────────────────────────────
-
-  const COLUNAS_EXPORT: ColunasExport[] = [
-    { header: 'Produto',   key: 'nome_produto_gravity'             },
-    { header: 'Cobrança',  key: 'tipo_cobranca_produto_gravity'    },
-    { header: 'Valor',     key: 'preco_unitario_produto_gravity'   },
-    { header: 'Renovação', key: 'data_fim_periodo_assinatura_produto_gravity' },
-    { header: 'Status',    key: 'status_assinatura_produto_gravity' },
-  ]
-  const OPCOES_EXPORT = { nomeArquivo: 'assinaturas', titulo: 'Assinaturas & Planos' }
-
-  // Linha plana para exportação (achatamento do JOIN)
-  const dadosExport = assinaturas.map((a) => ({
-    nome_produto_gravity:                          a.produto.nome_produto_gravity,
-    tipo_cobranca_produto_gravity:                 a.produto.tipo_cobranca_produto_gravity,
-    preco_unitario_produto_gravity:                formatarMoeda(
-      a.produto.preco_unitario_produto_gravity,
-      a.produto.moeda_unitario_produto_gravity,
-    ),
-    data_fim_periodo_assinatura_produto_gravity:   formatarData(
-      a.data_fim_periodo_assinatura_produto_gravity,
-    ),
-    status_assinatura_produto_gravity:             a.status_assinatura_produto_gravity,
-  }))
-
-  const _ACOES_EXPORT: TabelaExportAcao<AssinaturaProdutoGravity>[] = [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: () => void exportarExcel(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'CSV',           icone: <FileCsv size={14} weight="bold" />, onClick: () => exportarCSV(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: () => exportarTXT(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'XML',           icone: <Code size={14} weight="bold" />,     onClick: () => exportarXML(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'PDF',           icone: <FilePdf size={14} weight="bold" />, onClick: () => exportarPDF(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'JSON',          icone: <Code size={14} weight="bold" />,     onClick: () => exportarJSON(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT) },
-  ]
+  // Usa `getAcoesExportacaoPadrao(COLUNAS, ...)` no acoesExportacao da tabela.
+  // O export agora respeita `getValorBruto` por coluna (definido acima),
+  // garantindo que os arquivos exportados usem nomes/labels e nao IDs/objetos.
 
   // ── Render ──────────────────────────────────────────────────────────────
 

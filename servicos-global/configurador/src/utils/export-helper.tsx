@@ -16,28 +16,39 @@ export function getAcoesExportacaoPadrao<T extends object>(
   nomeArquivo: string,
   titulo: string,
 ): TabelaExportAcao<T>[] {
-  const colunasExport: ColunasExport[] = colunas
-    .filter(c => !!c.label && c.label.toLowerCase() !== 'ações' && c.label.toLowerCase() !== 'acoes' && c.key !== '')
-    .map(c => ({
-      header: c.label,
-      key: c.key as string,
-    }))
+  const colunasFiltradas = colunas.filter(c =>
+    !!c.label
+    && c.label.toLowerCase() !== 'ações'
+    && c.label.toLowerCase() !== 'acoes'
+    && c.key !== '',
+  )
+  const colunasExport: ColunasExport[] = colunasFiltradas.map(c => ({
+    header: c.label,
+    key: c.key as string,
+  }))
 
   const opcoes = { nomeArquivo, titulo }
 
-  // exportService requer Record<string, unknown> — objetos de dados da tabela
-  // satisfazem essa forma em runtime (são interfaces com chaves conhecidas).
-  // O cast é necessário porque interfaces específicas não são estruturalmente
-  // assinaláveis para Record<string, unknown> no TypeScript, embora sejam no JS.
-  const toRecord = (dados: T[]): Record<string, unknown>[] =>
-    dados as unknown as Record<string, unknown>[]
+  // Achata cada item respeitando `getValorBruto` quando definido — evita
+  // exportar "[object Object]" ou IDs CUID quando a coluna deriva o display
+  // de um campo aninhado (ex: produto.nome_produto_gravity).
+  const toExport = (dados: T[]): Record<string, unknown>[] =>
+    dados.map((item) => {
+      const linha: Record<string, unknown> = {}
+      for (const c of colunasFiltradas) {
+        linha[c.key as string] = c.getValorBruto
+          ? c.getValorBruto(item)
+          : (item as unknown as Record<string, unknown>)[c.key as string]
+      }
+      return linha
+    })
 
   return [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(toRecord(dados), colunasExport, opcoes) },
-    { label: 'CSV',           icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(toRecord(dados), colunasExport, opcoes) },
-    { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(toRecord(dados), colunasExport, opcoes) },
-    { label: 'XML',           icone: <FileCode size={14} weight="bold" />, onClick: (dados) => void exportarXML(toRecord(dados), colunasExport, opcoes) },
-    { label: 'PDF',           icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(toRecord(dados), colunasExport, opcoes) },
-    { label: 'JSON',          icone: <FileCode size={14} weight="bold" />, onClick: (dados) => void exportarJSON(toRecord(dados), colunasExport, opcoes) },
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(toExport(dados), colunasExport, opcoes) },
+    { label: 'CSV',           icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(toExport(dados), colunasExport, opcoes) },
+    { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(toExport(dados), colunasExport, opcoes) },
+    { label: 'XML',           icone: <FileCode size={14} weight="bold" />, onClick: (dados) => void exportarXML(toExport(dados), colunasExport, opcoes) },
+    { label: 'PDF',           icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(toExport(dados), colunasExport, opcoes) },
+    { label: 'JSON',          icone: <FileCode size={14} weight="bold" />, onClick: (dados) => void exportarJSON(toExport(dados), colunasExport, opcoes) },
   ]
 }

@@ -532,6 +532,25 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     })
   }, [])
 
+  // Bug fix (2026-05-05): se uma linha expandida sumir do `dados` (ex: filtro
+  // client-side ou recarregar pós-DELETE), o ID orfão fica em `expandidos` e
+  // mantém o container com a classe `tg-container--focado`. Resultado: todas
+  // as rows visíveis ficam opacas (porque não há nenhuma com `tg-tr--expandida`
+  // visível para "destacar"). Limpa IDs órfãos sempre que `dados` muda.
+  useEffect(() => {
+    setExpandidos(prev => {
+      if (prev.size === 0) return prev
+      const idsValidos = new Set(dados.map(d => String(d[idKey as string])))
+      let mudou = false
+      const proximo = new Set<string>()
+      for (const id of prev) {
+        if (idsValidos.has(id)) proximo.add(id)
+        else mudou = true
+      }
+      return mudou ? proximo : prev
+    })
+  }, [dados, idKey])
+
   const onToggleValor = useCallback((col: string, v: string) => {
     setFiltros(prev => {
       const copia = { ...prev }

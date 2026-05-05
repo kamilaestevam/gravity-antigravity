@@ -8,11 +8,15 @@ import {
   FileCode,
   FilePdf,
   Code,
+  ListBullets,
+  CalendarBlank,
+  ChartPieSlice,
 } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import {
   TabelaGlobal,
   type TabelaGlobalColuna,
@@ -356,15 +360,119 @@ export function HistoricoOrganizacao() {
     },
   ], [dadosExport, colunasExport])
 
+  // ─── KPIs do cabeçalho — calculados a partir da página corrente de logs ───
+  // (delta vs. período anterior fica como TODO — precisa endpoint dedicado de
+  // contagem agregada que o proxy ainda não expõe. Por ora os deltas são
+  // placeholders neutros — serão preenchidos quando o backend ganhar
+  // GET /api/v1/historico-organizacao/contagens).
+  const totalEventos    = logs.length
+  const inicioUltimaSem = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 7)
+    return d
+  }, [])
+  const eventosSemana   = useMemo(
+    () => logs.filter((l) => new Date(l.data_criacao_historico_log) >= inicioUltimaSem).length,
+    [logs, inicioUltimaSem],
+  )
+  const eventosSucesso  = useMemo(() => logs.filter((l) => l.status_historico_log === 'SUCESSO').length, [logs])
+  const eventosFalha    = useMemo(() => logs.filter((l) => l.status_historico_log === 'FALHA').length, [logs])
+  const eventosParcial  = useMemo(() => logs.filter((l) => l.status_historico_log === 'PARCIAL').length, [logs])
+
   return (
     <PaginaGlobal
       className="ws-fade-up"
+      layout="lista"
       cabecalho={
         <CabecalhoGlobal
           icone={<ClockCounterClockwise weight="duotone" size={22} />}
           titulo={t('workspace.layout.historico-organizacao')}
           subtitulo="Registro de alterações na organização e workspaces"
         />
+      }
+      stats={
+        <>
+          <CardBasicoGlobal
+            titulo="Total de eventos"
+            icone={<ListBullets weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+            valor={totalEventos}
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '—', direcao: 'neutral', descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '—', direcao: 'neutral', descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '—', direcao: 'neutral', descricao: 'vs semestre anterior'},
+              { periodo: '1a',  rotulo: '1 ano',   valor: '—', direcao: 'neutral', descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Visão geral</p>
+                <div className="cg-tooltip__row">
+                  <span>Carregados (página atual)</span>
+                  <strong>{totalEventos}</strong>
+                </div>
+              </>
+            }
+          />
+          <CardBasicoGlobal
+            titulo="Últimos 7 dias"
+            icone={<CalendarBlank weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={eventosSemana}
+            variante="sucesso"
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '—', direcao: 'neutral', descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '—', direcao: 'neutral', descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '—', direcao: 'neutral', descricao: 'vs semestre anterior'},
+              { periodo: '1a',  rotulo: '1 ano',   valor: '—', direcao: 'neutral', descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Atividade recente</p>
+                <div className="cg-tooltip__row">
+                  <span>Eventos nos últimos 7 dias</span>
+                  <strong style={{ color: '#34d399' }}>{eventosSemana}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>% do total carregado</span>
+                  <strong>{totalEventos ? Math.round((eventosSemana / totalEventos) * 100) : 0}%</strong>
+                </div>
+              </>
+            }
+          />
+          <CardGraficoGlobal
+            titulo="Status dos eventos"
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+            total={totalEventos}
+            valorPrincipal={eventosSucesso}
+            corGauge="#34d399"
+            legenda={[
+              { label: 'Sucesso',  valor: eventosSucesso, cor: 'green'  },
+              { label: 'Falha',    valor: eventosFalha,   cor: 'red'    },
+              { label: 'Parcial',  valor: eventosParcial, cor: 'yellow' },
+            ]}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>Sucesso</span>
+                  <strong style={{ color: '#34d399' }}>{eventosSucesso}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Falha</span>
+                  <strong style={{ color: '#f87171' }}>{eventosFalha}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Parcial</span>
+                  <strong style={{ color: '#fbbf24' }}>{eventosParcial}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Taxa de sucesso</span>
+                  <strong style={{ color: '#34d399' }}>
+                    {totalEventos ? Math.round((eventosSucesso / totalEventos) * 100) : 0}%
+                  </strong>
+                </div>
+              </>
+            }
+          />
+        </>
       }
     >
       <TabelaGlobal<HistoricoLog>

@@ -10,44 +10,34 @@
 import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { temBypassPermissao } from '../../shared/index.js'
+import {
+  temBypassPermissao,
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+  PERMISSAO_REGEX_PATTERN,
+  buildPermissaoString,
+  parsePermissaoString,
+  type SecaoProduto,
+  type AcaoProduto,
+} from '../../shared/index.js'
 
-// Re-export do utilitário de bypass para consumidores que já importam tudo daqui.
-export { temBypassPermissao }
+// Re-export para consumidores que já importam tudo deste arquivo.
+// Fonte da verdade canônica: shared/permissoes-canonicas.ts (Mandamento 07).
+export {
+  temBypassPermissao,
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+  buildPermissaoString,
+  parsePermissaoString,
+}
+export type { SecaoProduto, AcaoProduto }
 
-// ─── Constantes canônicas ────────────────────────────────────────────────────
+// ─── Schema Zod (Mandamento 09 — bilateral) ──────────────────────────────────
 
-/** Seções fixas que existem em todo produto Gravity. */
-export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios'] as const
-export type SecaoProduto = typeof SECOES_PRODUTO[number]
-
-/** Ações fixas para cada (produto, seção). */
-export const ACOES_PRODUTO = ['ver', 'editar'] as const
-export type AcaoProduto = typeof ACOES_PRODUTO[number]
-
-/**
- * Set hardcoded de produtos cuja UI já tem o sistema de permissões granulares ativo.
- * Produtos no catálogo (`ProdutoGravity`) que NÃO estão neste Set ficam OPACOS no
- * modal de permissões (rótulo "Em breve") até serem migrados.
- *
- * TODO[ARQ]: migrar para coluna `permissoes_granulares_habilitadas Boolean` em
- * `ProdutoGravity` quando houver janela de schema (Mandamento 02 — só Coordenador).
- *
- * IMPORTANTE: o teste-guardião `permissoes-guarda.test.ts` falha em CI se
- * (a) algum slug no Set não tem rotas com `requirePermissao` correspondentes, ou
- * (b) algum produto novo `ATIVO` no catálogo entrar sem decisão explícita aqui.
- * NUNCA pular o teste com `.skip` — é a única defesa contra esquecimento.
- */
-export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
-  'pedido',
-])
-
-// ─── Schema Zod (compartilhado back+front via export — Mandamento 09) ────────
-
-/** Regex que valida `<slug>:<secao>:<acao>`. */
-const PERMISSAO_REGEX = new RegExp(
-  `^[a-z][a-z0-9-]*:(${SECOES_PRODUTO.join('|')}):(${ACOES_PRODUTO.join('|')})$`,
-)
+/** Regex que valida `<slug>:<secao>:<acao>`. Mesmo pattern usado no Zod do front. */
+const PERMISSAO_REGEX = new RegExp(PERMISSAO_REGEX_PATTERN)
 
 export const permissaoStringSchema = z.string().regex(
   PERMISSAO_REGEX,
@@ -75,25 +65,8 @@ export interface PermissaoUsuarioDTO {
   data_criacao_permissao_usuario: Date
 }
 
-// ─── Helpers de parsing/build da string canônica ─────────────────────────────
-
-export function buildPermissaoString(
-  slug: string,
-  secao: SecaoProduto,
-  acao: AcaoProduto,
-): string {
-  return `${slug}:${secao}:${acao}`
-}
-
-export function parsePermissaoString(
-  permissao: string,
-): { slug: string; secao: SecaoProduto; acao: AcaoProduto } | null {
-  const match = PERMISSAO_REGEX.exec(permissao)
-  if (!match) return null
-  const [, secao, acao] = match
-  const [slug] = permissao.split(':')
-  return { slug, secao: secao as SecaoProduto, acao: acao as AcaoProduto }
-}
+// Helpers `buildPermissaoString` e `parsePermissaoString` vêm do shared/
+// (re-exportados acima). Manter import único — Mandamento 07.
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 

@@ -335,13 +335,21 @@ export const substituirWorkspacesResponseSchema = z.object({
 // ─── Permissões granulares (formato canônico <slug>:<secao>:<acao>) ─────────
 // Mandamento 09 — schema bilateral. Espelha SetPermissoesUsuarioSchema /
 // permissoesResponseSchema em servicos-global/configurador/server/routes/usuario.ts.
+// Regex importado do shared/ (FONTE ÚNICA — Mandamento 07).
+
+import { PERMISSAO_REGEX_PATTERN } from '../../shared/index.js'
+
+const permissaoStringClientSchema = z.string().regex(
+  new RegExp(PERMISSAO_REGEX_PATTERN),
+  'Formato inválido — esperado <slug>:<secao>:<acao>',
+)
 
 export const permissaoUsuarioItemApiSchema = z.object({
   id_organizacao: z.string(),
   id_workspace: z.string(),
   id_usuario: z.string(),
   id_produto_gravity: z.string(),
-  permissao_usuario: z.string(),
+  permissao_usuario: permissaoStringClientSchema,
   permissao_usuario_concedido_por: z.string(),
   data_criacao_permissao_usuario: z.union([z.string(), z.date()]),
 })

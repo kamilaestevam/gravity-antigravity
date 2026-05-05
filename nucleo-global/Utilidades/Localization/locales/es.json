@@ -5634,7 +5634,7 @@
       "EM_TESTE":  "Prueba",
       "ATIVA":     "Activa",
       "SUSPENSA":  "Suspendida",
-      "CANCELADA": "Cancelada"
+      "CANCELADA": "Inactiva"
     },
     "status_workspace": {
       "ATIVO":   "Activo",

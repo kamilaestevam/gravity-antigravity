@@ -8,10 +8,23 @@ import {
   BannerRequisitosContexto,
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
-import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
+import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck, Crown, Lightning, Hourglass, Cube, House, Compass } from '@phosphor-icons/react'
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react'
 import type { UsuarioOrg } from './Usuarios'
-import type { WorkspaceItem } from '../../services/api-client'
+import {
+  produtosWorkspaceApi,
+  usuariosApi,
+  type WorkspaceItem,
+  type ProdutoWorkspaceItem,
+} from '../../services/api-client'
 import { mapRole, nivelToRole, type NivelAcesso, type BackendUserRole } from '../../types/niveis-acesso'
+// Convenção canônica <slug>:<secao>:<acao> — FONTE ÚNICA: shared/permissoes-canonicas.ts (Mand. 07)
+import {
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  TOGGLES_POR_PRODUTO,
+  PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+} from '../../../shared/index.js'
 
 interface ModalEditarUsuarioProps {
   usuario: UsuarioOrg | null
@@ -29,46 +42,19 @@ interface ModalEditarUsuarioProps {
   aoSalvar: (dados: UsuarioOrg, permissoes: string[], workspaceIds: string[]) => void
 }
 
-const CATEGORIAS_PERMISSAO = [
-  {
-    titulo: 'NAVEGAÇÃO',
-    cor: '#818cf8',
-    itens: [
-      { id: 'nav_dash', rotulo: 'Dashboard' },
-      { id: 'nav_emp', rotulo: 'Empresas' },
-      { id: 'nav_ativ', rotulo: 'Minhas Atividades' },
-      { id: 'nav_relat', rotulo: 'Relatórios' },
-      { id: 'nav_hist', rotulo: 'Histórico de Alterações' },
-      { id: 'nav_log', rotulo: 'Log de Testes' },
-      { id: 'nav_deploy', rotulo: 'Deploy Tracker' },
-      { id: 'nav_gabi', rotulo: 'Gabi AI' },
-    ]
-  },
-  {
-    titulo: 'VISUALIZAR CLIENTE (ABAS)',
-    cor: '#f472b6',
-    itens: [
-      { id: 'vis_basico', rotulo: 'Dados Básicos' },
-      { id: 'vis_prod', rotulo: 'Produtos DATI' },
-      { id: 'vis_cont', rotulo: 'Contatos' },
-      { id: 'vis_cs', rotulo: 'Customer Success' },
-      { id: 'vis_ativ', rotulo: 'Atividades' },
-    ]
-  },
-  {
-    titulo: 'EDIÇÃO',
-    cor: '#34d399',
-    itens: [
-      { id: 'edi_basico', rotulo: 'Editar Básicos' },
-      { id: 'edi_prod', rotulo: 'Editar Produtos DATI' },
-      { id: 'edi_cont', rotulo: 'Editar Contatos' },
-      { id: 'edi_cs', rotulo: 'Editar CS' },
-      { id: 'edi_ativ', rotulo: 'Editar Atividades' },
-    ]
-  }
+/** Mapa rótulo→id para render — derivado de SECOES_PRODUTO (shared). */
+const SECOES_PRODUTO_RENDER: Array<{ id: typeof SECOES_PRODUTO[number]; rotulo: string }> = [
+  { id: 'dashboard',    rotulo: 'Dashboard' },
+  { id: 'kanban',       rotulo: 'Kanban' },
+  { id: 'lista',        rotulo: 'Lista' },
+  { id: 'configuracao', rotulo: 'Configuração' },
+  { id: 'relatorios',   rotulo: 'Relatórios' },
 ]
 
-const TOTAL_PERMISSOES_DISPONIVEIS = CATEGORIAS_PERMISSAO.reduce((acc, c) => acc + c.itens.length, 0)
+const ACOES_PRODUTO_RENDER: Array<{ id: typeof ACOES_PRODUTO[number]; rotulo: string }> = [
+  { id: 'ver',    rotulo: 'Ver' },
+  { id: 'editar', rotulo: 'Editar' },
+]
 
 function PermissaoCheckbox({ label, selecionado, onChange, desabilitado }: { label: string, selecionado: boolean, onChange: (v: boolean) => void, desabilitado?: boolean }) {
   return (
@@ -357,70 +343,313 @@ function AbaWorkspaces({ master, workspaces, workspacesAtivos, carregando, onTog
   return <AbaWorkspacesChecklist workspaces={workspaces} workspacesAtivos={workspacesAtivos} onToggle={onToggle} />
 }
 
+// ─── Aba Permissões — convenção <slug>:<secao>:<acao> ───────────────────────
+
 interface AbaPermissoesProps {
+  /** True para SAdmin/Admin/Master (Mandamento 04 — bypass total). */
   master: boolean
-  valores: string[]
-  onToggle: (id: string, checked: boolean) => void
-  onSelecionarTudo: (todas: boolean) => void
+  /** Workspace atualmente selecionado (linhas em UsuarioPermissao são por ws). */
+  workspaceSelecionado: string | null
+  /** Apenas os workspaces aos quais o usuário está vinculado. */
+  workspacesVinculados: WorkspaceItem[]
+  /** Produtos contratados pelo workspace selecionado (DTO da rota /workspaces/:id/produtos). */
+  produtos: ProdutoWorkspaceItem[]
+  /** Permissões ativas do workspace selecionado, como Set para lookup O(1). */
+  permissoesDoWorkspace: Set<string>
+  carregandoProdutos: boolean
+  /** Mensagem de erro de carga (Mandamento 08 — UI não silencia). */
+  erroCargaPermissoes: string | null
+  erroCargaProdutos: string | null
+  onSelecionarWorkspace: (id_workspace: string) => void
+  onTogglePermissao: (chave: string, marcada: boolean) => void
+  onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
 }
 
-function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: AbaPermissoesProps) {
-  const { t } = useTranslation()
+function AvisoErroCarga({ mensagem, contexto }: { mensagem: string; contexto: string }) {
   return (
-    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>{t('workspace.users.selecionar')}:</span>
-          <button
-            type="button"
-            onClick={() => onSelecionarTudo(true)}
-            disabled={master}
-            style={{
-              padding: '0.25rem 0.625rem', borderRadius: '4px', background: 'transparent',
-              border: '1px solid #10b981', color: '#10b981', fontSize: '0.75rem', fontWeight: 600,
-              cursor: master ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem',
-              opacity: master ? 0.5 : 1
-            }}
-          >
-            <CheckSquare size={14} weight="bold" /> {t('workspace.users.todas')}
+    <div style={{
+      padding: '0.75rem 1rem', borderRadius: 8,
+      background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+      display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
+    }}>
+      <span style={{ color: '#ef4444', fontSize: '1rem', lineHeight: 1, marginTop: 1 }}>⚠</span>
+      <div>
+        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fca5a5', margin: 0 }}>
+          Falha ao carregar {contexto}
+        </p>
+        <p style={{ fontSize: '0.6875rem', color: '#fda4af', margin: '0.125rem 0 0' }}>
+          {mensagem}. Feche e reabra o modal — não salve enquanto o aviso permanecer (risco de sobrescrita).
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function BannerBypassMasterAdmin({ tipo }: { tipo: NivelAcesso }) {
+  const isSAdmin = tipo === 'Super Admin'
+  const isAdmin = tipo === 'Admin'
+  const isMaster = tipo === 'Master'
+  const cor = isSAdmin ? '#22c55e' : isAdmin ? '#06b6d4' : '#818cf8'
+  const Icone = isSAdmin ? Lightning : isAdmin ? ShieldCheck : Crown
+  const titulo = isSAdmin ? 'Super Admin — acesso global irrestrito'
+                : isAdmin  ? 'Admin — acesso global irrestrito'
+                :            'Master — acesso total à organização'
+  return (
+    <div style={{
+      padding: '1rem 1.25rem', borderRadius: '10px',
+      background: `${cor}10`, border: `1px solid ${cor}33`,
+      display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
+    }}>
+      <Icone size={18} weight="duotone" color={cor} style={{ marginTop: 2, flexShrink: 0 }} />
+      <div>
+        <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: cor, margin: 0, marginBottom: '0.25rem' }}>{titulo}</p>
+        <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+          Este tipo de usuário tem acesso automático a todos os produtos e seções
+          (Mandamento 04). Não há permissões granulares para configurar.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function CardEmBreve({ titulo, descricao, icone: Icone }: {
+  titulo: string
+  descricao: string
+  icone: PhosphorIcon
+}) {
+  return (
+    <div style={{
+      padding: '1rem 1.25rem', borderRadius: '10px',
+      background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.12)',
+      opacity: 0.55, display: 'flex', alignItems: 'center', gap: '0.875rem',
+    }}>
+      <Icone size={18} weight="duotone" color="#64748b" />
+      <div style={{ flex: 1 }}>
+        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#cbd5e1', margin: 0 }}>{titulo}</p>
+        <p style={{ fontSize: '0.6875rem', color: '#64748b', margin: '0.125rem 0 0' }}>{descricao}</p>
+      </div>
+      <span style={{
+        fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
+        padding: '0.25rem 0.625rem', borderRadius: '999px',
+        background: 'rgba(245,158,11,0.1)', color: '#fbbf24',
+        border: '1px solid rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+      }}>
+        <Hourglass size={11} weight="duotone" /> Em breve
+      </span>
+    </div>
+  )
+}
+
+function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto }: {
+  produto: ProdutoWorkspaceItem
+  permissoesDoWorkspace: Set<string>
+  onTogglePermissao: (chave: string, marcada: boolean) => void
+  onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
+}) {
+  const slug = produto.product_key
+  const nome = produto.catalog?.name ?? slug
+  const todasChavesProduto = SECOES_PRODUTO_RENDER.flatMap(s => ACOES_PRODUTO_RENDER.map(a => `${slug}:${s.id}:${a.id}`))
+  const ativasNoProduto = todasChavesProduto.filter(c => permissoesDoWorkspace.has(c)).length
+
+  return (
+    <div style={{
+      borderRadius: '10px', background: 'rgba(129,140,248,0.04)',
+      border: '1px solid rgba(129,140,248,0.18)', overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(129,140,248,0.06)', borderBottom: '1px solid rgba(129,140,248,0.12)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <Cube size={16} weight="duotone" color="#818cf8" />
+          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#e2e8f0' }}>{nome}</span>
+          <span style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>{ativasNoProduto}/{TOGGLES_POR_PRODUTO}</span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.375rem' }}>
+          <button type="button" onClick={() => onSelecionarTudoProduto(slug, true)}
+            style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
+                     border: '1px solid #10b981', color: '#10b981', fontSize: '0.6875rem', fontWeight: 600,
+                     cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <CheckSquare size={11} weight="bold" /> Tudo
           </button>
-          <button
-            type="button"
-            onClick={() => onSelecionarTudo(false)}
-            disabled={master}
-            style={{
-              padding: '0.25rem 0.625rem', borderRadius: '4px', background: 'transparent',
-              border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.75rem', fontWeight: 600,
-              cursor: master ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem',
-              opacity: master ? 0.5 : 1
-            }}
-          >
-            <Square size={14} weight="bold" /> {t('workspace.users.nenhuma')}
+          <button type="button" onClick={() => onSelecionarTudoProduto(slug, false)}
+            style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
+                     border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.6875rem', fontWeight: 600,
+                     cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <Square size={11} weight="bold" /> Limpar
           </button>
         </div>
       </div>
 
-      {CATEGORIAS_PERMISSAO.map((cat) => (
-        <div key={cat.titulo}>
-          <p style={{
-            fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase',
-            letterSpacing: '0.08em', color: cat.cor, marginBottom: '0.75rem'
-          }}>
-            {cat.titulo}
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.625rem' }}>
-            {cat.itens.map(it => (
-              <PermissaoCheckbox
-                key={it.id}
-                label={it.rotulo}
-                selecionado={master || valores.includes(it.id)}
-                desabilitado={master}
-                onChange={checked => onToggle(it.id, checked)}
+      <div style={{ padding: '0.75rem 1rem' }}>
+        {/* Cabeçalho da grid 5×2 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr repeat(2, minmax(80px, 1fr))', gap: '0.375rem 0.75rem', alignItems: 'center' }}>
+          <div />
+          {ACOES_PRODUTO_RENDER.map(a => (
+            <span key={a.id} style={{
+              fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
+              color: a.id === 'ver' ? '#06b6d4' : '#22c55e', textAlign: 'center',
+            }}>{a.rotulo}</span>
+          ))}
+
+          {SECOES_PRODUTO_RENDER.map(s => (
+            <React.Fragment key={s.id}>
+              <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', fontWeight: 500, paddingLeft: '0.25rem' }}>
+                {s.rotulo}
+              </span>
+              {ACOES_PRODUTO_RENDER.map(a => {
+                const chave = `${slug}:${s.id}:${a.id}`
+                const marcada = permissoesDoWorkspace.has(chave)
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => onTogglePermissao(chave, !marcada)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '0.4rem', borderRadius: 6, cursor: 'pointer',
+                      background: marcada ? 'rgba(129,140,248,0.15)' : 'rgba(255,255,255,0.02)',
+                      border: marcada ? '1px solid rgba(129,140,248,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                      color: marcada ? '#818cf8' : '#475569', transition: 'all 0.15s',
+                    }}
+                  >
+                    {marcada ? <CheckSquare size={16} weight="fill" /> : <Square size={16} weight="regular" />}
+                  </button>
+                )
+              })}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AbaPermissoes({
+  master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
+  carregandoProdutos, erroCargaPermissoes, erroCargaProdutos,
+  onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto,
+}: AbaPermissoesProps & { tipo: NivelAcesso }) {
+  // Bypass — exibe apenas banner informativo
+  if (master) {
+    return (
+      <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <BannerBypassMasterAdmin tipo={tipo} />
+      </div>
+    )
+  }
+
+  // Standard/Fornecedor sem workspaces vinculados — orienta a vincular antes
+  if (workspacesVinculados.length === 0) {
+    return (
+      <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+        Vincule este usuário a pelo menos um workspace na aba "Workspaces Vinculados"
+        antes de configurar permissões granulares.
+      </div>
+    )
+  }
+
+  const produtosAtivos = produtos.filter(p => PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key) && p.is_active)
+  const produtosEmBreve = produtos.filter(p => !PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key) && p.is_active)
+
+  return (
+    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Avisos de erro de carga (Mandamento 08) */}
+      {erroCargaPermissoes && (
+        <AvisoErroCarga mensagem={erroCargaPermissoes} contexto="permissões existentes" />
+      )}
+      {erroCargaProdutos && (
+        <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
+      )}
+
+      {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) */}
+      {workspacesVinculados.length > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem',
+                      background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
+          <Buildings size={16} color="#818cf8" />
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Workspace:</span>
+          <select
+            value={workspaceSelecionado ?? ''}
+            onChange={e => onSelecionarWorkspace(e.target.value)}
+            style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
+                     borderRadius: 6, color: 'var(--ws-text)', padding: '0.375rem 0.625rem', fontSize: '0.8125rem' }}
+          >
+            {workspacesVinculados.map(w => (
+              <option key={w.id_workspace} value={w.id_workspace}>{w.nome_workspace}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Bloco 1: Acesso geral (informativo, sem toggle) */}
+      <div>
+        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
+                    color: '#818cf8', marginBottom: '0.5rem' }}>Acesso geral</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.625rem' }}>
+          <div style={{ padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(34,197,94,0.06)',
+                        border: '1px solid rgba(34,197,94,0.18)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            <House size={16} color="#22c55e" weight="duotone" />
+            <div>
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#e2e8f0', margin: 0 }}>HUB</p>
+              <p style={{ fontSize: '0.6875rem', color: '#94a3b8', margin: 0 }}>Acesso automático aos workspaces vinculados</p>
+            </div>
+          </div>
+          <div style={{ padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(34,197,94,0.06)',
+                        border: '1px solid rgba(34,197,94,0.18)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            <Compass size={16} color="#22c55e" weight="duotone" />
+            <div>
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#e2e8f0', margin: 0 }}>CORE</p>
+              <p style={{ fontSize: '0.6875rem', color: '#94a3b8', margin: 0 }}>Visão geral filtrada por permissões</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bloco 2: Comunicação (Em breve) */}
+      <div>
+        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
+                    color: '#94a3b8', marginBottom: '0.5rem' }}>Comunicação</p>
+        <CardEmBreve
+          titulo="E-mail / WhatsApp / Gabi IA"
+          descricao="Permissões granulares de canais de comunicação serão configuráveis em breve."
+          icone={EnvelopeSimple}
+        />
+      </div>
+
+      {/* Bloco 3: Produtos */}
+      <div>
+        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
+                    color: '#cbd5e1', marginBottom: '0.5rem' }}>Produtos contratados</p>
+        {carregandoProdutos ? (
+          <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+            Carregando produtos...
+          </div>
+        ) : produtos.length === 0 ? (
+          <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+            Nenhum produto contratado neste workspace.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {produtosAtivos.map(p => (
+              <CardProdutoAtivo
+                key={p.id}
+                produto={p}
+                permissoesDoWorkspace={permissoesDoWorkspace}
+                onTogglePermissao={onTogglePermissao}
+                onSelecionarTudoProduto={onSelecionarTudoProduto}
+              />
+            ))}
+            {produtosEmBreve.map(p => (
+              <CardEmBreve
+                key={p.id}
+                titulo={p.catalog?.name ?? p.product_key}
+                descricao="Permissões granulares deste produto serão habilitadas em breve."
+                icone={Cube}
               />
             ))}
           </div>
-        </div>
-      ))}
+        )}
+      </div>
     </div>
   )
 }
@@ -431,41 +660,107 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const [email, setEmail] = useState('')
   // Estado guarda o nível UI (NivelAcesso); enum DDD é derivado via nivelToRole no save.
   const [tipo, setTipo] = useState<NivelAcesso>('Standard')
-  const [permissoesAtivas, setPermissoesAtivas] = useState<string[]>([])
   const [workspacesAtivos, setWorkspacesAtivos] = useState<string[]>([])
 
-  useEffect(() => {
-    if (usuario) {
-      setNome(usuario.nome_usuario)
-      setEmail(usuario.email_usuario)
-      const nivel = mapRole(usuario.tipo_usuario)
-      setTipo(nivel)
-      setWorkspacesAtivos(workspacesSalvos)
-      if (nivel === 'Master') {
-        setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id)))
-      } else {
-        setPermissoesAtivas(['nav_dash', 'vis_basico'])
-      }
-    }
-  }, [usuario, workspacesSalvos])
+  // ─── Permissões granulares ───────────────────────────────────────────────
+  // Map<id_workspace, Set<chave>> onde `chave` segue formato `<slug>:<secao>:<acao>`.
+  // Manter como Record para serialização/diff trivial; converter para Set só na renderização.
+  const [permissoesPorWorkspace, setPermissoesPorWorkspace] = useState<Record<string, string[]>>({})
+  const [permissoesOriginaisPorWorkspace, setPermissoesOriginaisPorWorkspace] = useState<Record<string, string[]>>({})
+  const [workspaceSelecionado, setWorkspaceSelecionado] = useState<string | null>(null)
+  const [produtosPorWorkspace, setProdutosPorWorkspace] = useState<Record<string, ProdutoWorkspaceItem[]>>({})
+  const [carregandoProdutos, setCarregandoProdutos] = useState(false)
+  /** Mandamento 08 — rastreia falha de carga para UI exibir aviso (não silenciar). */
+  const [erroCargaPermissoes, setErroCargaPermissoes] = useState<string | null>(null)
+  const [erroCargaProdutos, setErroCargaProdutos] = useState<string | null>(null)
 
-  // Nome/email são read-only (sem endpoint backend); apenas `tipo` é editável.
-  // Mantemos os setters de nome/email para o useEffect que carrega o usuário —
-  // o handleValoresChange só é chamado pelo `<select>` do tipo.
+  // Carga inicial: dados do usuário + permissões existentes (Mand. 09 — Zod no client).
+  useEffect(() => {
+    if (!usuario) return
+    setNome(usuario.nome_usuario)
+    setEmail(usuario.email_usuario)
+    const nivel = mapRole(usuario.tipo_usuario)
+    setTipo(nivel)
+    setWorkspacesAtivos(workspacesSalvos)
+
+    // Default workspace selecionado: primeiro vinculado.
+    setWorkspaceSelecionado(workspacesSalvos[0] ?? null)
+
+    // Busca permissões reais do banco. Master/SAdmin/Admin têm bypass — não há
+    // linhas em UsuarioPermissao para eles (Mand. 04). Para Standard/Fornecedor,
+    // carrega o estado atual do banco para popular os toggles.
+    if (nivel !== 'Master' && nivel !== 'Super Admin' && nivel !== 'Admin') {
+      usuariosApi.listarPermissoes(usuario.id_usuario)
+        .then(resp => {
+          const map: Record<string, string[]> = {}
+          for (const p of resp.permissoes) {
+            if (!map[p.id_workspace]) map[p.id_workspace] = []
+            map[p.id_workspace].push(p.permissao_usuario)
+          }
+          setPermissoesPorWorkspace(map)
+          setPermissoesOriginaisPorWorkspace(map)
+          setErroCargaPermissoes(null)
+        })
+        .catch(err => {
+          // Mandamento 08 — falha alto, sem fallback silencioso.
+          // CRÍTICO: NÃO zerar permissoesOriginaisPorWorkspace aqui — se zerássemos,
+          // o dirty-check compararia o estado atual contra um "vazio" e na hora do
+          // PUT (Fase 02) apagaria todas as permissões reais do banco.
+          // Manter o sentinel `null` em ambos sinaliza "estado desconhecido".
+          // eslint-disable-next-line no-console
+          console.warn('[ModalEditarUsuario] Falha ao carregar permissões do usuário', err)
+          setErroCargaPermissoes(err instanceof Error ? err.message : 'Erro desconhecido')
+        })
+    } else {
+      setPermissoesPorWorkspace({})
+      setPermissoesOriginaisPorWorkspace({})
+      setErroCargaPermissoes(null)
+    }
+  }, [usuario?.id_usuario, usuario?.tipo_usuario, usuario?.nome_usuario, usuario?.email_usuario, workspacesSalvos])
+
+  // Carga lazy: produtos do workspace atualmente selecionado (cacheado por id_workspace).
+  useEffect(() => {
+    if (!workspaceSelecionado || produtosPorWorkspace[workspaceSelecionado]) return
+    setCarregandoProdutos(true)
+    produtosWorkspaceApi.listar(workspaceSelecionado)
+      .then(resp => {
+        setProdutosPorWorkspace(prev => ({ ...prev, [workspaceSelecionado]: resp.products }))
+        setErroCargaProdutos(null)
+      })
+      .catch(err => {
+        // Mandamento 08 — falha alto. Lista vazia + flag de erro evita renderizar
+        // catálogo desatualizado, mas mostra aviso na UI.
+        // eslint-disable-next-line no-console
+        console.warn('[ModalEditarUsuario] Falha ao carregar produtos do workspace', err)
+        setProdutosPorWorkspace(prev => ({ ...prev, [workspaceSelecionado]: [] }))
+        setErroCargaProdutos(err instanceof Error ? err.message : 'Erro desconhecido')
+      })
+      .finally(() => setCarregandoProdutos(false))
+  }, [workspaceSelecionado])
+
+  // Nome/email são read-only. Apenas `tipo` é editável via select.
   const handleValoresChange = (_campo: 'tipo', valor: string) => {
     setTipo(valor as NivelAcesso)
   }
 
-  const handleTogglePermissao = (id: string, checked: boolean) => {
-    setPermissoesAtivas((prev) => checked ? [...prev, id] : prev.filter((p) => p !== id))
+  const handleTogglePermissao = (chave: string, marcada: boolean) => {
+    if (!workspaceSelecionado) return
+    setPermissoesPorWorkspace(prev => {
+      const atuais = prev[workspaceSelecionado] ?? []
+      const novas = marcada ? Array.from(new Set([...atuais, chave])) : atuais.filter(p => p !== chave)
+      return { ...prev, [workspaceSelecionado]: novas }
+    })
   }
 
-  const handleSelecionarTudo = (todas: boolean) => {
-    if (todas) {
-      setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id)))
-    } else {
-      setPermissoesAtivas([])
-    }
+  const handleSelecionarTudoProduto = (slug: string, marcadas: boolean) => {
+    if (!workspaceSelecionado) return
+    const todasDoProduto = SECOES_PRODUTO_RENDER.flatMap(s => ACOES_PRODUTO_RENDER.map(a => `${slug}:${s.id}:${a.id}`))
+    setPermissoesPorWorkspace(prev => {
+      const atuais = prev[workspaceSelecionado] ?? []
+      const semProduto = atuais.filter(p => !todasDoProduto.includes(p))
+      const novas = marcadas ? [...semProduto, ...todasDoProduto] : semProduto
+      return { ...prev, [workspaceSelecionado]: novas }
+    })
   }
 
   const handleToggleWorkspace = (id_workspace: string, checked: boolean) => {
@@ -473,9 +768,23 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   }
 
   // Mandamento 04 (LIMBO): Master, Super Admin e Admin têm acesso total implícito
-  // a todos os workspaces; checklist de vínculos não se aplica.
+  // a todos os workspaces; checklist de vínculos e permissões granulares não se aplicam.
   const master = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
-  const countPermissoes = master ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
+
+  // Workspaces vinculados (apenas linhas em UsuarioWorkspace) — para o seletor
+  // da aba Permissões. Master/Admin/SAdmin não passam por aqui (banner cobre).
+  const workspacesVinculados = useMemo<WorkspaceItem[]>(
+    () => workspaces.filter(w => workspacesAtivos.includes(w.id_workspace)),
+    [workspaces, workspacesAtivos],
+  )
+
+  // Total de toggles disponíveis = produtos ativos no ws selecionado × 10 (5 seções × 2 ações).
+  const produtosDoWsSelecionado = workspaceSelecionado ? (produtosPorWorkspace[workspaceSelecionado] ?? []) : []
+  const produtosAtivosNoWs = produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key))
+  const totalToggles = master ? 0 : produtosAtivosNoWs.length * TOGGLES_POR_PRODUTO
+  const permissoesAtivasDoWs = workspaceSelecionado ? (permissoesPorWorkspace[workspaceSelecionado] ?? []) : []
+  const permissoesDoWorkspaceSet = useMemo(() => new Set(permissoesAtivasDoWs), [permissoesAtivasDoWs])
+  const countPermissoes = master ? '✶' : permissoesAtivasDoWs.length
 
   const requisitos = useMemo<RequisitoSalvar[]>(() => [
     { chave: 'nome',  ok: !!nome.trim(),  mensagem: 'Nome do usuário' },
@@ -503,11 +812,26 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     },
     {
       id: 'permissoes',
-      rotulo: `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
+      rotulo: master
+        ? `${t('workspace.users.aba_permissoes')} (✶)`
+        : `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${totalToggles})`,
       icone: 'shield-check',
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
-          <AbaPermissoes master={master} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
+          <AbaPermissoes
+            master={master}
+            tipo={tipo}
+            workspaceSelecionado={workspaceSelecionado}
+            workspacesVinculados={workspacesVinculados}
+            produtos={produtosDoWsSelecionado}
+            permissoesDoWorkspace={permissoesDoWorkspaceSet}
+            carregandoProdutos={carregandoProdutos}
+            erroCargaPermissoes={erroCargaPermissoes}
+            erroCargaProdutos={erroCargaProdutos}
+            onSelecionarWorkspace={setWorkspaceSelecionado}
+            onTogglePermissao={handleTogglePermissao}
+            onSelecionarTudoProduto={handleSelecionarTudoProduto}
+          />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
           </div>
@@ -533,23 +857,29 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
+  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
 
-  const originalPerms = useMemo(() => {
-    if (!usuario) return []
-    if (mapRole(usuario.tipo_usuario) === 'Master') {
-      return CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id))
+  // Dirty: comparar mapa atual de permissões com mapa carregado do backend
+  // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões
+  // (bypass — não há linhas no banco).
+  const permissoesDirty = useMemo(() => {
+    if (master) return false
+    const idsTodos = new Set([...Object.keys(permissoesPorWorkspace), ...Object.keys(permissoesOriginaisPorWorkspace)])
+    for (const wsId of idsTodos) {
+      const atuais = new Set(permissoesPorWorkspace[wsId] ?? [])
+      const originais = new Set(permissoesOriginaisPorWorkspace[wsId] ?? [])
+      if (atuais.size !== originais.size) return true
+      for (const k of atuais) if (!originais.has(k)) return true
     }
-    return ['nav_dash', 'vis_basico'] // mocks correlacionados ao useEffect
-  }, [usuario?.id_usuario, usuario?.tipo_usuario])
+    return false
+  }, [master, permissoesPorWorkspace, permissoesOriginaisPorWorkspace])
 
   const nivelOriginal: NivelAcesso | null = usuario ? mapRole(usuario.tipo_usuario) : null
   const dirty = !!(usuario && (
     nome !== usuario.nome_usuario ||
     email !== usuario.email_usuario ||
     tipo !== nivelOriginal ||
-    permissoesAtivas.length !== originalPerms.length ||
-    permissoesAtivas.some((p) => !originalPerms.includes(p)) ||
+    permissoesDirty ||
     (!master && (
       workspacesAtivos.length !== workspacesSalvos.length ||
       workspacesAtivos.some((id) => !workspacesSalvos.includes(id))
@@ -559,6 +889,9 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const handleSalvar = () => {
     if (!usuario) return
     const tipoBackend: BackendUserRole = nivelToRole(tipo)
+    // Fase 01: passa o map por workspace; Fase 02 implementa o PUT real em Usuarios.tsx.
+    // Achata para array flat (legacy compat) — handler atual de Usuarios.tsx ignora.
+    const permissoesFlat = Object.values(permissoesPorWorkspace).flat()
     aoSalvar(
       {
         ...usuario,
@@ -566,7 +899,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         email_usuario: email,
         tipo_usuario: tipoBackend,
       },
-      permissoesAtivas,
+      permissoesFlat,
       workspacesAtivos,
     )
   }

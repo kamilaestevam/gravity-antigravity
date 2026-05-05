@@ -74,7 +74,8 @@ const corStatusAssinaturaProdutoGravity: Record<
   EM_TESTE:  { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: 'rgba(251,191,36,0.2)' },
   ATIVA:     { bg: 'rgba(52,211,153,0.12)', color: '#34d399', border: 'rgba(52,211,153,0.2)' },
   SUSPENSA:  { bg: 'rgba(248,113,113,0.12)', color: '#f87171', border: 'rgba(248,113,113,0.2)' },
-  CANCELADA: { bg: 'rgba(148,163,184,0.12)', color: '#94a3b8', border: 'rgba(148,163,184,0.2)' },
+  // CANCELADA = "Inativa" (label DDD): cinza fraco, sinaliza inerte mas não-erro
+  CANCELADA: { bg: 'rgba(100,116,139,0.10)', color: '#64748b', border: 'rgba(100,116,139,0.18)' },
 }
 
 // ─── Auth helper ────────────────────────────────────────────────────────────
@@ -108,8 +109,18 @@ function formatarData(iso: string | null): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR')
 }
 
-function statusEhAtivo(s: StatusAssinaturaProdutoGravity): boolean {
-  return s === 'EM_TESTE' || s === 'ATIVA'
+// Regras de domínio (decisão dono 2026-05-04):
+// - "Ativa"   = produto contratado e em uso (status_assinatura = ATIVA)
+// - "Em Teste" = dentro do período de trial (status_assinatura = EM_TESTE)
+// - "Suspensa" = admin suspendeu o produto no catálogo (cascade)
+// - "Inativa"  = usuário cancelou via lixeira (status_assinatura = CANCELADA)
+//
+// Stats cards contam SOMENTE ATIVA. EM_TESTE tem card próprio.
+function statusEhAtiva(s: StatusAssinaturaProdutoGravity): boolean {
+  return s === 'ATIVA'
+}
+function statusEhEmTeste(s: StatusAssinaturaProdutoGravity): boolean {
+  return s === 'EM_TESTE'
 }
 
 // ─── Componente ─────────────────────────────────────────────────────────────
@@ -194,14 +205,17 @@ export function Assinaturas() {
   // ── Stats ───────────────────────────────────────────────────────────────
 
   const totalAssinaturasAtivas = assinaturas.filter((a) =>
-    statusEhAtivo(a.status_assinatura_produto_gravity),
+    statusEhAtiva(a.status_assinatura_produto_gravity),
+  ).length
+  const totalAssinaturasEmTeste = assinaturas.filter((a) =>
+    statusEhEmTeste(a.status_assinatura_produto_gravity),
   ).length
   const totalAssinaturasSuspensas = assinaturas.filter(
     (a) => a.status_assinatura_produto_gravity === 'SUSPENSA',
   ).length
   const custoMensalAssinaturas = assinaturas
     .filter((a) =>
-      statusEhAtivo(a.status_assinatura_produto_gravity)
+      statusEhAtiva(a.status_assinatura_produto_gravity)
       && a.produto.tipo_cobranca_produto_gravity === 'MENSAL',
     )
     .reduce((acc, a) => acc + Number(a.produto.preco_unitario_produto_gravity || 0), 0)
@@ -622,17 +636,44 @@ export function Assinaturas() {
             titulo={t('workspace.subscriptions.produtos_ativos')}
             icone={<Package weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{totalAssinaturasAtivas}</span>}
-            subtexto={assinaturas.length > 0 ? `${assinaturas.length} no total` : 'Sem produtos'}
+            subtexto={
+              assinaturas.length > 0
+                ? `${assinaturas.filter((a) => a.status_assinatura_produto_gravity !== 'CANCELADA').length} no total`
+                : 'Sem produtos'
+            }
             tooltip={
               <>
                 <p className="cg-tooltip__title">STATUS DAS ASSINATURAS</p>
                 <div className="cg-tooltip__row">
                   <span>Ativas</span>
-                  <strong>{assinaturas.filter((a) => a.status_assinatura_produto_gravity === 'ATIVA').length}</strong>
+                  <strong>{totalAssinaturasAtivas}</strong>
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Em Teste</span>
-                  <strong>{assinaturas.filter((a) => a.status_assinatura_produto_gravity === 'EM_TESTE').length}</strong>
+                  <strong>{totalAssinaturasEmTeste}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Suspensas</span>
+                  <strong>{totalAssinaturasSuspensas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Inativas</span>
+                  <strong>{assinaturas.filter((a) => a.status_assinatura_produto_gravity === 'CANCELADA').length}</strong>
+                </div>
+              </>
+            }
+          />
+          <CardEstatisticaGlobal
+            titulo="Em Teste"
+            icone={<Package weight="duotone" size={16} />}
+            valor={<span style={{ fontSize: '1.5rem' }}>{totalAssinaturasEmTeste}</span>}
+            subtexto={totalAssinaturasEmTeste === 0 ? 'Nenhuma em trial' : 'No período de teste'}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">PERÍODO DE TESTE</p>
+                <div className="cg-tooltip__row">
+                  <span>Em trial</span>
+                  <strong>{totalAssinaturasEmTeste}</strong>
                 </div>
               </>
             }

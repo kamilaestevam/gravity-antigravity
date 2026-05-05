@@ -478,18 +478,22 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
                       type="button"
                       onClick={() => inputArquivoRef.current?.click()}
                       style={{
+                        // Mesmas variáveis CSS e dimensões do .sg-trigger do SelectGlobal
+                        // (nucleo-global/Campos/campo-select-global/src/select.css)
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem',
-                        width: '100%', padding: '0.625rem 0.75rem',
+                        width: '100%',
+                        padding: '0.5625rem 0.875rem',
                         borderRadius: '8px',
-                        background: 'rgba(15,23,42,0.6)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'var(--ws-bg-body, #0f172a)',
+                        border: '1.5px solid var(--ws-accent-border, rgba(129,140,248,0.2))',
                         color: arquivoNovo ? 'var(--ws-text)' : 'var(--ws-muted)',
-                        fontSize: '0.8125rem', fontFamily: 'inherit',
+                        fontSize: '0.875rem', fontFamily: 'inherit',
                         cursor: 'pointer', textAlign: 'left',
-                        minHeight: '38px',
+                        minHeight: '2.5rem',
+                        boxSizing: 'border-box',
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.45)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--ws-accent-border, rgba(129,140,248,0.2))' }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         <Paperclip size={14} weight="bold" />

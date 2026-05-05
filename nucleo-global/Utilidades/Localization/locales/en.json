@@ -5383,7 +5383,7 @@
       "EM_TESTE":  "Trial",
       "ATIVA":     "Active",
       "SUSPENSA":  "Suspended",
-      "CANCELADA": "Cancelled"
+      "CANCELADA": "Inactive"
     },
     "status_workspace": {
       "ATIVO":   "Active",

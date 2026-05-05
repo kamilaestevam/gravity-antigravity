@@ -366,17 +366,50 @@ export const productCatalogService = {
 
   /**
    * Alterna status Ativo/Suspenso de um produto.
+   *
+   * Regra de domínio (decisão dono 2026-05-04):
+   *   ATIVO -> SUSPENSO  : cascata em assinatura_produto_gravity das organizações:
+   *                        toda assinatura ATIVA ou EM_TESTE vira SUSPENSA.
+   *                        Inativas (CANCELADA) ficam intactas.
+   *   SUSPENSO -> ATIVO  : cascata reversa — toda assinatura SUSPENSA volta a ATIVA.
+   *                        EM_TESTE e CANCELADA não são tocadas.
    */
   async toggleStatus(id: string) {
     const product = await prisma.produtoGravity.findUnique({ where: { id_produto_gravity: id } })
     if (!product) return null
 
     const newStatus = product.status_produto_gravity === 'ATIVO' ? 'SUSPENSO' : 'ATIVO'
-    const row = await prisma.produtoGravity.update({
-      where: { id_produto_gravity: id },
-      data: { status_produto_gravity: newStatus },
-      include: ACTIVE_PRODUCT_INCLUDE,
+
+    const row = await prisma.$transaction(async (tx) => {
+      const updated = await tx.produtoGravity.update({
+        where: { id_produto_gravity: id },
+        data: { status_produto_gravity: newStatus },
+        include: ACTIVE_PRODUCT_INCLUDE,
+      })
+
+      if (newStatus === 'SUSPENSO') {
+        // Suspende todas as assinaturas em uso desse produto
+        await tx.produtoGravityAssinatura.updateMany({
+          where: {
+            id_produto_gravity: id,
+            status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+          },
+          data: { status_assinatura_produto_gravity: 'SUSPENSA' },
+        })
+      } else {
+        // Reativa só o que foi suspenso pela cascata anterior
+        await tx.produtoGravityAssinatura.updateMany({
+          where: {
+            id_produto_gravity: id,
+            status_assinatura_produto_gravity: 'SUSPENSA',
+          },
+          data: { status_assinatura_produto_gravity: 'ATIVA' },
+        })
+      }
+
+      return updated
     })
+
     return toProductDto(row)
   },
 

@@ -5,3 +5,14 @@
 // Padrão alinhado com `servicos-global/cadastros/shared/`.
 
 export { temBypassPermissao, type TipoUsuarioBypass } from './permissao-bypass.js'
+export {
+  SECOES_PRODUTO,
+  ACOES_PRODUTO,
+  TOGGLES_POR_PRODUTO,
+  PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+  PERMISSAO_REGEX_PATTERN,
+  buildPermissaoString,
+  parsePermissaoString,
+  type SecaoProduto,
+  type AcaoProduto,
+} from './permissoes-canonicas.js'

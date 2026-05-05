@@ -685,6 +685,7 @@ export function Assinaturas() {
         ) : (
           <TabelaGlobal<AssinaturaProdutoGravity>
             id="workspace-subscriptions"
+            idKey="id_assinatura_produto_gravity"
             dados={assinaturas}
             colunas={COLUNAS}
             acoes={ACOES}
@@ -710,6 +711,7 @@ export function Assinaturas() {
                 }}>
                   <TabelaGlobal<Workspace>
                     id={`workspace-subscription-workspaces-${a.id_assinatura_produto_gravity}`}
+                    idKey="id_workspace"
                     dados={workspaces}
                     tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
                     colunas={[

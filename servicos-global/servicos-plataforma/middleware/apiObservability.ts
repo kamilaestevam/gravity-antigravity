@@ -105,10 +105,19 @@ export function apiObservability(productId: string) {
     // Capturar no onFinish da response
     res.on('finish', () => {
       const latenciaMs = Date.now() - startTime
+      // Fontes do id_organizacao em ordem de confianca:
+      //   1. req.tenantId — produtos com tenantIsolation middleware
+      //   2. req.auth.id_organizacao — Configurador apos requireAuth (Clerk JWT)
+      //   3. header x-id-organizacao — chamadas S2S inter-servico
+      //   4. '' — request nao autenticada
+      const reqAuth = (req as { auth?: { id_organizacao?: string; id_usuario?: string } }).auth
       const idOrganizacao = (req as { tenantId?: string }).tenantId
+        || reqAuth?.id_organizacao
         || (req.headers['x-id-organizacao'] as string)
         || ''
-      const idUsuario = (req.headers['x-id-usuario'] as string) || null
+      const idUsuario = reqAuth?.id_usuario
+        || (req.headers['x-id-usuario'] as string)
+        || null
       const idCorrelacao = (req.headers['x-correlation-id'] as string) || null
 
       const entry: ObservabilityEntry = {

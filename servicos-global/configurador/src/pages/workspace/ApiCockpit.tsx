@@ -10,6 +10,7 @@ import {
   TerminalWindow,
   Key,
   WebhooksLogo,
+  ChartLineUp,
   CaretRight,
 } from '@phosphor-icons/react'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
@@ -318,6 +319,25 @@ export function ApiCockpit() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600 }}>Webhooks</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Notificacoes em tempo real</div>
+            </div>
+            <CaretRight size={16} />
+          </button>
+          <button
+            onClick={() => navigate('/workspace/api-cockpit/consumo')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.75rem',
+              padding: '1rem 1.25rem', borderRadius: '12px',
+              background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)', cursor: 'pointer',
+              fontSize: '0.875rem', textAlign: 'left',
+            }}
+            aria-label="Acessar consumo da API"
+          >
+            <ChartLineUp size={20} weight="duotone" />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600 }}>Consumo da API</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Logs detalhados de requisicoes</div>
             </div>
             <CaretRight size={16} />
           </button>

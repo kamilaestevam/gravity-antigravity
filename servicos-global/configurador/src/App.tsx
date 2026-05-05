@@ -60,6 +60,7 @@ const FinanceiroWorkspace = lazy(() => import('./pages/workspace/FinanceiroWorks
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ApiTokens = lazy(() => import('./pages/workspace/ApiTokens'), 'ApiTokens')
 const ApiWebhooks = lazy(() => import('./pages/workspace/ApiWebhooks'), 'ApiWebhooks')
+const ApiConsumo = lazy(() => import('./pages/workspace/ApiConsumo'), 'ApiConsumo')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
 const TaxasCambioPage = lazy(() => import('./pages/workspace/TaxasCambio'), 'TaxasCambio')
 const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao'), 'HistoricoOrganizacao')
@@ -353,6 +354,7 @@ export default function App() {
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="api-cockpit/tokens" element={<React.Suspense fallback={<ProductLoading />}><ApiTokens /></React.Suspense>} />
           <Route path="api-cockpit/webhooks" element={<React.Suspense fallback={<ProductLoading />}><ApiWebhooks /></React.Suspense>} />
+          <Route path="api-cockpit/consumo" element={<React.Suspense fallback={<ProductLoading />}><ApiConsumo /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
           <Route path="taxas-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxasCambioPage /></React.Suspense>} />
           <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />

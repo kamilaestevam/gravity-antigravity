@@ -105,10 +105,12 @@ apiCockpitRouter.get('/log-consumo', async (req, res) => {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
     const data = await proxyToCockpit('/logs', {
-      id_organizacao:     idOrganizacao,
-      id_produto_gravity: (req.query.id_produto_gravity as string) || '',
-      pagina:             (req.query.pagina as string) || '1',
-      limite:             (req.query.limite as string) || '50',
+      id_organizacao:              idOrganizacao,
+      id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
+      codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
+      codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
+      pagina:                      (req.query.pagina as string) || '1',
+      limite:                      (req.query.limite as string) || '50',
     })
     res.json(data)
   } catch (err) {

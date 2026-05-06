@@ -1,20 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { apiFetch, setAuthTokenProvider } from '../../services/api-client'
 import {
-  Desktop, User, Robot, FileCsv, FileCode,
+  Desktop, User, Robot, FileCsv, FileCode, FileXls, FileText, FilePdf, Code,
   Info, Funnel, Warning, CheckCircle, ArrowsClockwise,
-  Globe, Cpu, Gear, Hash
+  Globe, Cpu, Gear, Hash, ListBullets, CalendarBlank, ChartPieSlice,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { caminhoParaLocalString } from '@nucleo/audit-locais'
+import {
+  exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarPDF, exportarJSON,
+  type ColunasExport,
+} from '@nucleo/export-utils'
 import { useShellStore } from '@gravity/shell'
 
 // ---------------------------------------------------------------------------
@@ -604,35 +609,72 @@ export function HistoricoGlobalAdmin() {
     }
   }
 
-  // Export legado backend (CSV/JSON síncrono ou job assíncrono >10k registros).
-  // Mantido para volumes grandes; export client-side com 6 formatos é Commit 3.
-  async function exportar(format: 'csv' | 'json') {
-    try {
-      const params = new URLSearchParams()
-      if (filtroTipoAtor && filtroTipoAtor !== 'todos')
-        params.set('tipo_ator_historico_log', filtroTipoAtor)
-      if (filtroStatusHistoricoLog && filtroStatusHistoricoLog !== 'todos')
-        params.set('status_historico_log', filtroStatusHistoricoLog)
-      params.set('format', format)
+  // ── Exportação client-side (6 formatos via @nucleo/export-utils) ─────────
+  // Substitui o endpoint legado /logs/export?format=csv|json. Backend continua
+  // disponível para volumes >10k via job assíncrono (PG Boss); botão dedicado
+  // será adicionado quando demanda aparecer.
 
-      const res = await apiFetch(`/api/v1/admin/historico-global/logs/export?${params}`)
+  const colunasExport: ColunasExport[] = useMemo(() => [
+    { header: 'Data/Hora',         key: 'data_criacao_historico_log' },
+    { header: 'Tipo de Ator',      key: 'tipo_ator_historico_log' },
+    { header: 'Nome do Ator',      key: 'nome_ator_historico_log' },
+    { header: 'E-mail do Ator',    key: 'email_ator_historico_log' },
+    { header: 'Módulo',            key: 'modulo_historico_log' },
+    { header: 'Tipo de Recurso',   key: 'tipo_recurso_historico_log' },
+    { header: 'ID do Recurso',     key: 'id_recurso_historico_log' },
+    { header: 'Ação',              key: 'acao_historico_log' },
+    { header: 'Detalhes',          key: 'detalhe_acao_historico_log' },
+    { header: 'Status',            key: 'status_historico_log' },
+    { header: 'Mensagem de Erro',  key: 'mensagem_erro_historico_log' },
+  ], [])
 
-      if (res.status === 202) {
-        addNotification({ type: 'info', message: 'Exportação em background iniciada. O download estará disponível em breve.' })
-        return
-      }
+  // Achata e humaniza para export — paridade visual com a tabela
+  // (data formatada PT-BR + ação como particípio passado).
+  const dadosExport: Record<string, unknown>[] = useMemo(
+    () => logs.map((l) => ({
+      data_criacao_historico_log: formatarData(l.data_criacao_historico_log),
+      tipo_ator_historico_log:    l.tipo_ator_historico_log,
+      nome_ator_historico_log:    l.nome_ator_historico_log ?? '',
+      email_ator_historico_log:   l.email_ator_historico_log ?? '',
+      modulo_historico_log:       l.modulo_historico_log ?? '',
+      tipo_recurso_historico_log: l.tipo_recurso_historico_log ?? '',
+      id_recurso_historico_log:   l.id_recurso_historico_log ?? '',
+      acao_historico_log:         rotuloAcao(l.acao_historico_log),
+      detalhe_acao_historico_log: l.detalhe_acao_historico_log ?? '',
+      status_historico_log:       l.status_historico_log,
+      mensagem_erro_historico_log: l.mensagem_erro_historico_log ?? '',
+    })),
+    [logs],
+  )
 
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `audit-logs.${format}`
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch {
-      addNotification({ type: 'error', message: 'Erro ao exportar logs.' })
-    }
-  }
+  const opcoesExport = { nomeArquivo: 'historico-global-admin', titulo: 'Histórico Global' }
+
+  const acoesExportacao: TabelaExportAcao<HistoricoLog>[] = useMemo(() => [
+    { label: 'Excel (.xlsx)', icone: <FileXls  size={14} weight="duotone" />, onClick: () => void exportarExcel(dadosExport, colunasExport, opcoesExport) },
+    { label: 'CSV',           icone: <FileCsv  size={14} weight="duotone" />, onClick: () => exportarCSV(dadosExport, colunasExport, opcoesExport) },
+    { label: 'TXT',           icone: <FileText size={14} weight="duotone" />, onClick: () => exportarTXT(dadosExport, colunasExport, opcoesExport) },
+    { label: 'XML',           icone: <FileCode size={14} weight="duotone" />, onClick: () => exportarXML(dadosExport, colunasExport, opcoesExport) },
+    { label: 'PDF',           icone: <FilePdf  size={14} weight="duotone" />, onClick: () => void exportarPDF(dadosExport, colunasExport, opcoesExport) },
+    { label: 'JSON',          icone: <Code     size={14} weight="duotone" />, onClick: () => exportarJSON(dadosExport, colunasExport, opcoesExport) },
+  ], [dadosExport, colunasExport])
+
+  // ── KPIs do cabeçalho ────────────────────────────────────────────────────
+  // Cálculo sobre a página atual de cursor (best-effort) — endpoint dedicado
+  // de contagens é follow-up. Suficiente para visão imediata do admin.
+
+  const totalEventos    = logs.length
+  const inicioUltimaSem = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 7)
+    return d
+  }, [])
+  const eventosSemana   = useMemo(
+    () => logs.filter((l) => new Date(l.data_criacao_historico_log) >= inicioUltimaSem).length,
+    [logs, inicioUltimaSem],
+  )
+  const eventosSucesso  = useMemo(() => logs.filter((l) => l.status_historico_log === 'SUCESSO').length, [logs])
+  const eventosFalha    = useMemo(() => logs.filter((l) => l.status_historico_log === 'FALHA').length, [logs])
+  const eventosParcial  = useMemo(() => logs.filter((l) => l.status_historico_log === 'PARCIAL').length, [logs])
 
   // ── Colunas da tabela ────────────────────────────────────────────────────
 
@@ -725,6 +767,90 @@ export function HistoricoGlobalAdmin() {
       <PaginaGlobal
         className="ws-fade-up"
         layout="lista"
+        stats={
+          <>
+            <CardBasicoGlobal
+              titulo="Total de eventos"
+              icone={<ListBullets weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+              valor={totalEventos}
+              periodos={[
+                { periodo: '7d',  rotulo: '7 dias',  valor: '—', direcao: 'neutral', descricao: 'vs semana anterior' },
+                { periodo: '30d', rotulo: '30 dias', valor: '—', direcao: 'neutral', descricao: 'vs mês anterior'    },
+                { periodo: '6m',  rotulo: '6 meses', valor: '—', direcao: 'neutral', descricao: 'vs semestre anterior'},
+                { periodo: '1a',  rotulo: '1 ano',   valor: '—', direcao: 'neutral', descricao: 'vs ano anterior'    },
+              ] as PeriodoTendencia[]}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Visão geral</p>
+                  <div className="cg-tooltip__row">
+                    <span>Carregados (página atual)</span>
+                    <strong>{totalEventos}</strong>
+                  </div>
+                </>
+              }
+            />
+            <CardBasicoGlobal
+              titulo="Últimos 7 dias"
+              icone={<CalendarBlank weight="duotone" size={16} style={{ color: '#34d399' }} />}
+              valor={eventosSemana}
+              variante="sucesso"
+              periodos={[
+                { periodo: '7d',  rotulo: '7 dias',  valor: '—', direcao: 'neutral', descricao: 'vs semana anterior' },
+                { periodo: '30d', rotulo: '30 dias', valor: '—', direcao: 'neutral', descricao: 'vs mês anterior'    },
+                { periodo: '6m',  rotulo: '6 meses', valor: '—', direcao: 'neutral', descricao: 'vs semestre anterior'},
+                { periodo: '1a',  rotulo: '1 ano',   valor: '—', direcao: 'neutral', descricao: 'vs ano anterior'    },
+              ] as PeriodoTendencia[]}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Atividade recente</p>
+                  <div className="cg-tooltip__row">
+                    <span>Eventos nos últimos 7 dias</span>
+                    <strong style={{ color: '#34d399' }}>{eventosSemana}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>% do total carregado</span>
+                    <strong>{totalEventos ? Math.round((eventosSemana / totalEventos) * 100) : 0}%</strong>
+                  </div>
+                </>
+              }
+            />
+            <CardGraficoGlobal
+              titulo="Status dos eventos"
+              icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+              total={totalEventos}
+              valorPrincipal={eventosSucesso}
+              corGauge="#34d399"
+              legenda={[
+                { label: 'Sucesso',  valor: eventosSucesso, cor: 'green'  },
+                { label: 'Falha',    valor: eventosFalha,   cor: 'red'    },
+                { label: 'Parcial',  valor: eventosParcial, cor: 'yellow' },
+              ]}
+              tooltip={
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Sucesso</span>
+                    <strong style={{ color: '#34d399' }}>{eventosSucesso}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Falha</span>
+                    <strong style={{ color: '#f87171' }}>{eventosFalha}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Parcial</span>
+                    <strong style={{ color: '#fbbf24' }}>{eventosParcial}</strong>
+                  </div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row">
+                    <span>Taxa de sucesso</span>
+                    <strong style={{ color: '#34d399' }}>
+                      {totalEventos ? Math.round((eventosSucesso / totalEventos) * 100) : 0}%
+                    </strong>
+                  </div>
+                </>
+              }
+            />
+          </>
+        }
         cabecalho={
           <CabecalhoGlobal
             icone={<Desktop weight="duotone" size={22} />}
@@ -857,10 +983,7 @@ export function HistoricoGlobalAdmin() {
               tooltipExpandir="Ver antes/depois e detalhes"
               tooltipRecolher="Recolher detalhes"
               renderExpandido={(item) => <DetalheLog log={item} />}
-              acoesExportacao={[
-                { label: 'CSV',  icone: <FileCsv size={14} weight="bold" />,  onClick: () => void exportar('csv') },
-                { label: 'JSON', icone: <FileCode size={14} weight="bold" />, onClick: () => void exportar('json') },
-              ] as TabelaExportAcao<HistoricoLog>[]}
+              acoesExportacao={acoesExportacao}
             />
           )}
 

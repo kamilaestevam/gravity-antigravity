@@ -2908,6 +2908,9 @@ export default function Pedidos() {
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
+  // Erro do ultimo carregamento — usado pelo empty state para diferenciar
+  // "lista vazia" de "falhou ao carregar" (Mand. 08, sem fallback silencioso).
+  const [erroCarga, setErroCarga]           = useState<string | null>(null)
   // Total global de matches no find-in-page (calculado via pré-scan de todos os registros)
   const [findTotalExterno, setFindTotalExterno] = useState<number | null>(null)
   const [paginaAtual, setPaginaAtual]       = useState(1)
@@ -3260,6 +3263,7 @@ export default function Pedidos() {
     if (carregandoRef.current) return
     carregandoRef.current = true
     setCarregando(true)
+    setErroCarga(null)
     setPaginaAtual(novaPagina)
     try {
       const res = await pedidoVirtualApi.listar({
@@ -3273,11 +3277,14 @@ export default function Pedidos() {
       setPedidos(res.data)
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
-    } catch {
+    } catch (err) {
       // keepPreviousData: mantém os pedidos atualmente exibidos caso o fetch falhe
       // (ex: token Clerk expirando após idle timeout, race condition de refresh).
       // Sem isso, qualquer falha transitória zera a tela e mostra Empty State
       // mesmo quando o usuário tem dados válidos carregados.
+      // Mand. 08 — registramos o erro no estado para que o empty state possa
+      // diferenciar "vazio legítimo" de "falhou ao carregar" (sem fallback silencioso).
+      setErroCarga(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setCarregando(false)
       carregandoRef.current = false
@@ -4410,18 +4417,54 @@ export default function Pedidos() {
           colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
 
           carregando={carregando}
-          emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
-          emptyTitle="Nenhum pedido encontrado"
-          emptyDescription="Crie seu primeiro pedido ou ajuste os filtros ativos."
+          emptyIcon={
+            erroCarga
+              ? <Warning size={40} weight="duotone" style={{ color: 'var(--color-error, #ef4444)' }} />
+              : <Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />
+          }
+          emptyTitle={
+            erroCarga
+              ? t('pedido.vazio_erro')
+              : (busca || Object.keys(filtrosAtivos).length > 0)
+                ? t('pedido.vazio_filtro')
+                : t('pedido.vazio_inicial')
+          }
+          emptyDescription={
+            erroCarga
+              ? t('pedido.vazio_erro_desc')
+              : (busca || Object.keys(filtrosAtivos).length > 0)
+                ? t('pedido.vazio_filtro_desc')
+                : t('pedido.vazio_inicial_desc')
+          }
           emptyAction={
-            <BotaoGlobal
-              variante="primario"
-              tamanho="pequeno"
-              icone={<Plus size={14} weight="bold" />}
-              onClick={() => setModalNovoPedidoAberto(true)}
-            >
-              Novo Pedido
-            </BotaoGlobal>
+            erroCarga ? (
+              <BotaoGlobal
+                variante="primario"
+                tamanho="pequeno"
+                icone={<ArrowsClockwise size={14} weight="bold" />}
+                onClick={() => carregarInicial()}
+              >
+                {t('pedido.tentar_novamente')}
+              </BotaoGlobal>
+            ) : (busca || Object.keys(filtrosAtivos).length > 0) ? (
+              <BotaoGlobal
+                variante="primario"
+                tamanho="pequeno"
+                icone={<X size={14} weight="bold" />}
+                onClick={handleLimparTodosFiltros}
+              >
+                {t('pedido.limpar_filtros')}
+              </BotaoGlobal>
+            ) : (
+              <BotaoGlobal
+                variante="primario"
+                tamanho="pequeno"
+                icone={<Plus size={14} weight="bold" />}
+                onClick={() => setModalNovoPedidoAberto(true)}
+              >
+                {t('pedido.novo_pedido')}
+              </BotaoGlobal>
+            )
           }
 
           ariaLabel="Lista de pedidos"

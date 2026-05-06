@@ -146,6 +146,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   nome_usuario: 'nome_usuario',
   tipo_usuario: 'tipo_usuario',
   id_workspace_preferido_usuario: 'id_workspace_preferido_usuario',
+  acesso_workspaces_futuros: 'acesso_workspaces_futuros',
   data_criacao_usuario: 'data_criacao_usuario',
   data_atualizacao_usuario: 'data_atualizacao_usuario'
 };

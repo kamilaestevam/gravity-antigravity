@@ -117,6 +117,13 @@ model Usuario {
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
   id_workspace_preferido_usuario String?
 
+  // Auto-vínculo a workspaces futuros (decisão arquitetural 2026-05-05).
+  // Quando true em PADRAO/FORNECEDOR, criar workspace na organização gera
+  // UsuarioWorkspace automático para esse usuário. MASTER/SUPER_ADMIN/ADMIN
+  // ignoram este campo — bypass por Mand. 04. Limpa para false ao promover
+  // PADRAO/FORNECEDOR para tipo com bypass via PATCH /patente.
+  acesso_workspaces_futuros Boolean @default(false)
+
   // Timestamps
   data_criacao_usuario      DateTime @default(now())
   data_atualizacao_usuario  DateTime @updatedAt
@@ -134,6 +141,7 @@ model Usuario {
   @@index([id_organizacao, data_criacao_usuario],        map: "usuario_id_organizacao_data_criacao_idx")
   @@index([id_organizacao, tipo_usuario],                map: "usuario_id_organizacao_tipo_usuario_idx")
   @@index([id_workspace_preferido_usuario],              map: "usuario_id_workspace_preferido_usuario_idx")
+  @@index([id_organizacao, acesso_workspaces_futuros],   map: "usuario_id_organizacao_acesso_workspaces_futuros_idx")
   @@map("usuario")
 }
 

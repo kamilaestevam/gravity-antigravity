@@ -4669,6 +4669,7 @@ export namespace Prisma {
     nome_usuario: string | null
     tipo_usuario: $Enums.UsuarioTipo | null
     id_workspace_preferido_usuario: string | null
+    acesso_workspaces_futuros: boolean | null
     data_criacao_usuario: Date | null
     data_atualizacao_usuario: Date | null
   }
@@ -4681,6 +4682,7 @@ export namespace Prisma {
     nome_usuario: string | null
     tipo_usuario: $Enums.UsuarioTipo | null
     id_workspace_preferido_usuario: string | null
+    acesso_workspaces_futuros: boolean | null
     data_criacao_usuario: Date | null
     data_atualizacao_usuario: Date | null
   }
@@ -4693,6 +4695,7 @@ export namespace Prisma {
     nome_usuario: number
     tipo_usuario: number
     id_workspace_preferido_usuario: number
+    acesso_workspaces_futuros: number
     data_criacao_usuario: number
     data_atualizacao_usuario: number
     _all: number
@@ -4707,6 +4710,7 @@ export namespace Prisma {
     nome_usuario?: true
     tipo_usuario?: true
     id_workspace_preferido_usuario?: true
+    acesso_workspaces_futuros?: true
     data_criacao_usuario?: true
     data_atualizacao_usuario?: true
   }
@@ -4719,6 +4723,7 @@ export namespace Prisma {
     nome_usuario?: true
     tipo_usuario?: true
     id_workspace_preferido_usuario?: true
+    acesso_workspaces_futuros?: true
     data_criacao_usuario?: true
     data_atualizacao_usuario?: true
   }
@@ -4731,6 +4736,7 @@ export namespace Prisma {
     nome_usuario?: true
     tipo_usuario?: true
     id_workspace_preferido_usuario?: true
+    acesso_workspaces_futuros?: true
     data_criacao_usuario?: true
     data_atualizacao_usuario?: true
     _all?: true
@@ -4816,6 +4822,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario: $Enums.UsuarioTipo
     id_workspace_preferido_usuario: string | null
+    acesso_workspaces_futuros: boolean
     data_criacao_usuario: Date
     data_atualizacao_usuario: Date
     _count: UsuarioCountAggregateOutputType | null
@@ -4845,6 +4852,7 @@ export namespace Prisma {
     nome_usuario?: boolean
     tipo_usuario?: boolean
     id_workspace_preferido_usuario?: boolean
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: boolean
     data_atualizacao_usuario?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
@@ -4862,6 +4870,7 @@ export namespace Prisma {
     nome_usuario?: boolean
     tipo_usuario?: boolean
     id_workspace_preferido_usuario?: boolean
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: boolean
     data_atualizacao_usuario?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
@@ -4876,6 +4885,7 @@ export namespace Prisma {
     nome_usuario?: boolean
     tipo_usuario?: boolean
     id_workspace_preferido_usuario?: boolean
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: boolean
     data_atualizacao_usuario?: boolean
   }
@@ -4908,6 +4918,7 @@ export namespace Prisma {
       nome_usuario: string
       tipo_usuario: $Enums.UsuarioTipo
       id_workspace_preferido_usuario: string | null
+      acesso_workspaces_futuros: boolean
       data_criacao_usuario: Date
       data_atualizacao_usuario: Date
     }, ExtArgs["result"]["usuario"]>
@@ -5314,6 +5325,7 @@ export namespace Prisma {
     readonly nome_usuario: FieldRef<"Usuario", 'String'>
     readonly tipo_usuario: FieldRef<"Usuario", 'UsuarioTipo'>
     readonly id_workspace_preferido_usuario: FieldRef<"Usuario", 'String'>
+    readonly acesso_workspaces_futuros: FieldRef<"Usuario", 'Boolean'>
     readonly data_criacao_usuario: FieldRef<"Usuario", 'DateTime'>
     readonly data_atualizacao_usuario: FieldRef<"Usuario", 'DateTime'>
   }
@@ -29644,6 +29656,7 @@ export namespace Prisma {
     nome_usuario: 'nome_usuario',
     tipo_usuario: 'tipo_usuario',
     id_workspace_preferido_usuario: 'id_workspace_preferido_usuario',
+    acesso_workspaces_futuros: 'acesso_workspaces_futuros',
     data_criacao_usuario: 'data_criacao_usuario',
     data_atualizacao_usuario: 'data_atualizacao_usuario'
   };
@@ -30192,6 +30205,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'StatusAssinaturaProdutoGravity'
    */
   export type EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAssinaturaProdutoGravity'>
@@ -30230,13 +30250,6 @@ export namespace Prisma {
    * Reference to a field of type 'TipoUsuarioWorkspace[]'
    */
   export type ListEnumTipoUsuarioWorkspaceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoUsuarioWorkspace[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -30520,6 +30533,7 @@ export namespace Prisma {
     nome_usuario?: StringFilter<"Usuario"> | string
     tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: StringNullableFilter<"Usuario"> | string | null
+    acesso_workspaces_futuros?: BoolFilter<"Usuario"> | boolean
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     data_atualizacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
@@ -30536,6 +30550,7 @@ export namespace Prisma {
     nome_usuario?: SortOrder
     tipo_usuario?: SortOrder
     id_workspace_preferido_usuario?: SortOrderInput | SortOrder
+    acesso_workspaces_futuros?: SortOrder
     data_criacao_usuario?: SortOrder
     data_atualizacao_usuario?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
@@ -30556,6 +30571,7 @@ export namespace Prisma {
     nome_usuario?: StringFilter<"Usuario"> | string
     tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: StringNullableFilter<"Usuario"> | string | null
+    acesso_workspaces_futuros?: BoolFilter<"Usuario"> | boolean
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     data_atualizacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
@@ -30572,6 +30588,7 @@ export namespace Prisma {
     nome_usuario?: SortOrder
     tipo_usuario?: SortOrder
     id_workspace_preferido_usuario?: SortOrderInput | SortOrder
+    acesso_workspaces_futuros?: SortOrder
     data_criacao_usuario?: SortOrder
     data_atualizacao_usuario?: SortOrder
     _count?: UsuarioCountOrderByAggregateInput
@@ -30590,6 +30607,7 @@ export namespace Prisma {
     nome_usuario?: StringWithAggregatesFilter<"Usuario"> | string
     tipo_usuario?: EnumUsuarioTipoWithAggregatesFilter<"Usuario"> | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: StringNullableWithAggregatesFilter<"Usuario"> | string | null
+    acesso_workspaces_futuros?: BoolWithAggregatesFilter<"Usuario"> | boolean
     data_criacao_usuario?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
     data_atualizacao_usuario?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
   }
@@ -32959,6 +32977,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -32975,6 +32994,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -32987,6 +33007,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -33003,6 +33024,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -33017,6 +33039,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
   }
@@ -33027,6 +33050,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -33039,6 +33063,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35859,6 +35884,11 @@ export namespace Prisma {
     not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type OrganizacaoRelationFilter = {
     is?: OrganizacaoWhereInput
     isNot?: OrganizacaoWhereInput
@@ -35892,6 +35922,7 @@ export namespace Prisma {
     nome_usuario?: SortOrder
     tipo_usuario?: SortOrder
     id_workspace_preferido_usuario?: SortOrder
+    acesso_workspaces_futuros?: SortOrder
     data_criacao_usuario?: SortOrder
     data_atualizacao_usuario?: SortOrder
   }
@@ -35904,6 +35935,7 @@ export namespace Prisma {
     nome_usuario?: SortOrder
     tipo_usuario?: SortOrder
     id_workspace_preferido_usuario?: SortOrder
+    acesso_workspaces_futuros?: SortOrder
     data_criacao_usuario?: SortOrder
     data_atualizacao_usuario?: SortOrder
   }
@@ -35916,6 +35948,7 @@ export namespace Prisma {
     nome_usuario?: SortOrder
     tipo_usuario?: SortOrder
     id_workspace_preferido_usuario?: SortOrder
+    acesso_workspaces_futuros?: SortOrder
     data_criacao_usuario?: SortOrder
     data_atualizacao_usuario?: SortOrder
   }
@@ -35928,6 +35961,14 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
     _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
@@ -36174,11 +36215,6 @@ export namespace Prisma {
     not?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel> | $Enums.TipoUsuarioWorkspace
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type WorkspaceRelationFilter = {
     is?: WorkspaceWhereInput
     isNot?: WorkspaceWhereInput
@@ -36231,14 +36267,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel>
     _max?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -38105,6 +38133,10 @@ export namespace Prisma {
     set?: $Enums.UsuarioTipo
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput = {
     create?: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
     connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput
@@ -38401,10 +38433,6 @@ export namespace Prisma {
 
   export type EnumTipoUsuarioWorkspaceFieldUpdateOperationsInput = {
     set?: $Enums.TipoUsuarioWorkspace
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type UsuarioUpdateOneRequiredWithoutMembershipsNestedInput = {
@@ -39165,6 +39193,11 @@ export namespace Prisma {
     not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedEnumUsuarioTipoWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
     in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
@@ -39173,6 +39206,14 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
     _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
@@ -39241,11 +39282,6 @@ export namespace Prisma {
     not?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel> | $Enums.TipoUsuarioWorkspace
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedEnumTipoUsuarioWorkspaceWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.TipoUsuarioWorkspace | EnumTipoUsuarioWorkspaceFieldRefInput<$PrismaModel>
     in?: $Enums.TipoUsuarioWorkspace[] | ListEnumTipoUsuarioWorkspaceFieldRefInput<$PrismaModel>
@@ -39254,14 +39290,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel>
     _max?: NestedEnumTipoUsuarioWorkspaceFilter<$PrismaModel>
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -39541,6 +39569,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
@@ -39555,6 +39584,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -39882,6 +39912,7 @@ export namespace Prisma {
     nome_usuario?: StringFilter<"Usuario"> | string
     tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: StringNullableFilter<"Usuario"> | string | null
+    acesso_workspaces_futuros?: BoolFilter<"Usuario"> | boolean
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     data_atualizacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
   }
@@ -40782,6 +40813,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -40797,6 +40829,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
@@ -40883,6 +40916,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -40898,6 +40932,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
@@ -41020,6 +41055,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -41034,6 +41070,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -41163,6 +41200,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -41178,6 +41216,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -41246,6 +41285,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -41261,6 +41301,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -43323,6 +43364,7 @@ export namespace Prisma {
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
   }
@@ -43430,6 +43472,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
@@ -43444,6 +43487,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -43457,6 +43501,7 @@ export namespace Prisma {
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43872,6 +43917,7 @@ export namespace Prisma {
     email_usuario: string
     nome_usuario: string
     tipo_usuario?: $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: boolean
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
   }
@@ -43939,6 +43985,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -43953,6 +44000,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -43966,6 +44014,7 @@ export namespace Prisma {
     email_usuario?: StringFieldUpdateOperationsInput | string
     nome_usuario?: StringFieldUpdateOperationsInput | string
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -4,9 +4,9 @@
 > **Serviço:** `historico-global`  
 > **Porta:** 8005 (montado no processo do Configurador)  
 > **Mounts:**
->  - `/api/v1/admin/historico-global` — superfície completa (ingestão, export, alert-rules, LGPD). Exige `requireAuth + requireGravityAdmin`.
+>  - `/api/v1/admin/historico-global` — superfície completa (ingestão, export, alert-rules, LGPD). Exige `requireAuth + requireGravityAdmin`. **`GET /logs` é interceptado pelo proxy `historicoGlobalAdminRouter`** (`configurador/server/routes/historico-global-admin.ts`), que enriquece cada item com `email_ator_historico_log` via lookup batch em `prisma.usuario` (banco Configurador, separado do banco do `historico_log`). Demais rotas (`/logs/:id`, `/logs/export`, `/alerts`, `/alert-rules`, `/lgpd`) caem direto no `historicoRouter` do upstream pelo segundo mount.
 >  - `/api/v1/historico-global` — sub-router somente leitura (`historicoReadOnlyRouter`: `GET /logs`, `GET /logs/:id`). Exige `requireAuth` apenas. Auto-escopo por `id_organizacao` via `visibilityFilter` no controller; Mandamento 04 honrado para `SUPER_ADMIN`/`ADMIN`.
->  - `/api/v1/historico-organizacao` — proxy fino para a página workspace, aplica ACL Prisma → contrato FE.
+>  - `/api/v1/historico-organizacao` — proxy fino para a página workspace, aplica ACL Prisma → contrato FE. Também enriquece com `email_ator_historico_log`.
 > **Banco:** tenant-db (PostgreSQL via Prisma)  
 > **Fila:** pg-boss (PostgreSQL-backed job queue)
 

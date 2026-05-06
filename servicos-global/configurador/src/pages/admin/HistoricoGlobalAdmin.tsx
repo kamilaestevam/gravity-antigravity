@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { apiFetch, setAuthTokenProvider } from '../../services/api-client'
@@ -13,56 +14,82 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@n
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
+import { caminhoParaLocalString } from '@nucleo/audit-locais'
 import { useShellStore } from '@gravity/shell'
 
-// ── Tipos ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Tipos canonical (DDD — paridade com fragment.prisma do historico-global)
+// ---------------------------------------------------------------------------
 
-type ActorType = 'USUARIO' | 'API' | 'IA' | 'JOB' | 'INTEGRACAO'
-type EventStatus = 'SUCESSO' | 'FALHA' | 'PARCIAL'
-type AlertStatus = 'PENDENTE' | 'REVISADO' | 'ESCALADO'
+type TipoAtorHistoricoLog = 'USUARIO' | 'API' | 'IA' | 'JOB' | 'INTEGRACAO'
+type StatusHistoricoLog   = 'SUCESSO' | 'FALHA' | 'PARCIAL'
+type StatusEventoAlerta   = 'PENDENTE' | 'REVISADO' | 'ESCALADO'
 
-type AuditLog = {
-  id: string
-  created_at: string
-  tenant_id: string
-  actor_type: ActorType
-  actor_id: string
-  actor_name: string
-  actor_ip?: string
-  actor_metadata?: Record<string, unknown>
-  module: string
-  resource_type: string
-  resource_id?: string
-  action: string
-  action_detail: string
-  before?: unknown
-  after?: unknown
-  status: EventStatus
-  error_message?: string
-  integrity_hash: string
-  product_id?: string
-  user_id?: string
-}
+// Schema Zod do log de histórico — 21 campos, paridade 1:1 com model HistoricoLog
+// (servicos-global/servicos-plataforma/historico-global/prisma/fragment.prisma).
+// `email_ator_historico_log` é enriquecimento do proxy admin (lookup em prisma.usuario);
+// fica como optional() porque não vem do banco de histórico.
+const historicoLogSchema = z.object({
+  id_historico_log:                 z.string(),
+  data_criacao_historico_log:       z.string(),
+  id_organizacao:                   z.string(),
+  tipo_ator_historico_log:          z.enum(['USUARIO','API','IA','JOB','INTEGRACAO']),
+  id_ator_historico_log:            z.string(),
+  nome_ator_historico_log:          z.string(),
+  ip_ator_historico_log:            z.string().nullable(),
+  metadata_ator_historico_log:      z.record(z.unknown()).nullable(),
+  modulo_historico_log:             z.string(),
+  tipo_recurso_historico_log:       z.string(),
+  id_recurso_historico_log:         z.string().nullable(),
+  acao_historico_log:               z.string(),
+  detalhe_acao_historico_log:       z.string(),
+  estado_anterior_historico_log:    z.unknown().nullable(),
+  estado_posterior_historico_log:   z.unknown().nullable(),
+  status_historico_log:             z.enum(['SUCESSO','FALHA','PARCIAL']),
+  mensagem_erro_historico_log:      z.string().nullable(),
+  hash_integridade_historico_log:   z.string(),
+  id_produto_historico_log:         z.string().nullable(),
+  id_usuario:                       z.string().nullable(),
+  email_ator_historico_log:         z.string().nullable().optional(),
+})
 
-type AlertEvent = {
-  id: string
-  tenant_id: string
-  actor_type: ActorType
-  actor_id: string
-  actor_name: string
-  module: string
-  action: string
-  event_count: number
-  window_seconds: number
-  status: AlertStatus
-  created_at: string
-  notes?: string
-  rule: { name: string }
-}
+type HistoricoLog = z.infer<typeof historicoLogSchema>
 
-// ── Helpers ───────────────────────────────────────────────────────
+const listaHistoricoLogSchema = z.object({
+  data: z.array(historicoLogSchema),
+  meta: z.object({
+    hasMore:    z.boolean(),
+    nextCursor: z.string().nullable(),
+    limit:      z.number(),
+  }),
+})
 
-const COR_ATOR: Record<ActorType, { cor: string; bg: string }> = {
+// Schema Zod do evento de alerta — paridade com model AlertaData + relation regra_evento_alerta.
+const eventoAlertaSchema = z.object({
+  id_evento_alerta:                z.string(),
+  id_organizacao:                  z.string(),
+  tipo_ator_evento_alerta:         z.enum(['USUARIO','API','IA','JOB','INTEGRACAO']),
+  id_ator_evento_alerta:           z.string(),
+  nome_ator_evento_alerta:         z.string(),
+  modulo_evento_alerta:            z.string(),
+  acao_evento_alerta:              z.string(),
+  contagem_eventos_evento_alerta:  z.number(),
+  janela_segundos_evento_alerta:   z.number(),
+  status_evento_alerta:            z.enum(['PENDENTE','REVISADO','ESCALADO']),
+  data_criacao_evento_alerta:      z.string(),
+  notas_evento_alerta:             z.string().nullable().optional(),
+  regra_evento_alerta:             z.object({ nome_regra_alerta: z.string() }),
+})
+
+type EventoAlerta = z.infer<typeof eventoAlertaSchema>
+
+const listaEventoAlertaSchema = z.object({ data: z.array(eventoAlertaSchema) })
+
+// ---------------------------------------------------------------------------
+// Helpers visuais
+// ---------------------------------------------------------------------------
+
+const COR_TIPO_ATOR: Record<TipoAtorHistoricoLog, { cor: string; bg: string }> = {
   USUARIO:    { cor: '#818cf8', bg: 'rgba(129,140,248,0.1)' },
   API:        { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
   IA:         { cor: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
@@ -70,13 +97,13 @@ const COR_ATOR: Record<ActorType, { cor: string; bg: string }> = {
   INTEGRACAO: { cor: '#fb923c', bg: 'rgba(251,146,60,0.1)' },
 }
 
-const COR_STATUS: Record<EventStatus, { cor: string; bg: string }> = {
+const COR_STATUS_HISTORICO_LOG: Record<StatusHistoricoLog, { cor: string; bg: string }> = {
   SUCESSO: { cor: '#34d399', bg: 'rgba(52,211,153,0.1)' },
   FALHA:   { cor: '#f87171', bg: 'rgba(248,113,113,0.1)' },
   PARCIAL: { cor: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
 }
 
-function IconeAtor({ tipo }: { tipo: ActorType }) {
+function IconeAtor({ tipo }: { tipo: TipoAtorHistoricoLog }) {
   const props = { size: 14, weight: 'bold' as const }
   if (tipo === 'IA') return <Robot {...props} />
   if (tipo === 'JOB') return <Gear {...props} />
@@ -85,8 +112,8 @@ function IconeAtor({ tipo }: { tipo: ActorType }) {
   return <User {...props} />
 }
 
-function BadgeAtorType({ tipo }: { tipo: ActorType }) {
-  const { cor, bg } = COR_ATOR[tipo] ?? COR_ATOR.USUARIO
+function BadgeAtorTipo({ tipo }: { tipo: TipoAtorHistoricoLog }) {
+  const { cor, bg } = COR_TIPO_ATOR[tipo] ?? COR_TIPO_ATOR.USUARIO
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -99,8 +126,8 @@ function BadgeAtorType({ tipo }: { tipo: ActorType }) {
   )
 }
 
-function BadgeStatus({ status }: { status: EventStatus }) {
-  const { cor, bg } = COR_STATUS[status] ?? COR_STATUS.PARCIAL
+function BadgeStatusHistoricoLog({ status }: { status: StatusHistoricoLog }) {
+  const { cor, bg } = COR_STATUS_HISTORICO_LOG[status] ?? COR_STATUS_HISTORICO_LOG.PARCIAL
   return (
     <span style={{
       display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
@@ -111,28 +138,99 @@ function BadgeStatus({ status }: { status: EventStatus }) {
   )
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`
+function formatarData(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    })
+  } catch {
+    return iso
+  }
 }
 
-// ── Diff visual antes/depois ──────────────────────────────────────
+// Mapa código → particípio passado em PT-BR (humano para o usuário final).
+// Fallback aplica humanizar() para qualquer código novo/legado.
+const ACAO_PARTICIPIO: Record<string, string> = {
+  CRIAR:       'Criou',
+  ATUALIZAR:   'Atualizou',
+  EXCLUIR:     'Excluiu',
+  ENTRAR:      'Entrou',
+  SAIR:        'Saiu',
+  CONVIDAR:    'Convidou',
+  CONSULTAR:   'Consultou',
+  EXPORTAR:    'Exportou',
+  ANULAR:      'Anulou',
+  ENVIAR:      'Enviou',
+  DUPLICAR:    'Duplicou',
+  TRANSFERIR:  'Transferiu',
+  CONSOLIDAR:  'Consolidou',
+  ANONIMIZAR:  'Anonimizou',
+  EXCLUIR_ITENS:                    'Excluiu itens',
+  EXCLUIR_AUTOMATICAMENTE:          'Excluiu automaticamente',
+  EXCLUIR_DADO:                     'Excluiu dado',
+  EDITAR_EM_MASSA:                  'Editou em massa',
+  REVERTER_TRANSFERENCIA:           'Reverteu transferência',
+  ALTERAR_STATUS:                   'Alterou status',
+  ALTERAR_PATENTE:                  'Alterou patente',
+  REVOGAR_SESSAO:                   'Revogou sessão',
+  FALHAR_AUTENTICACAO:              'Falhou autenticação',
+  FALHAR_ASSINATURA_WEBHOOK:        'Falhou assinatura webhook',
+  TENTAR_ACESSO_OUTRA_ORGANIZACAO:  'Tentou acessar outra organização',
+  ATINGIR_LIMITE_TAXA:              'Atingiu limite de taxa',
+  ACESSAR_ADMIN:                    'Acessou área Admin',
+  CHAMAR_API:                       'Chamou API',
+  CONCLUIR_JOB:                     'Concluiu job',
+  FALHAR_JOB:                       'Falhou job',
+  SINCRONIZAR_NCM:                  'Sincronizou NCM',
+  AGENDAR_SINCRONIZACAO_NCM:        'Agendou sincronização NCM',
+  INICIAR_EXECUCAO_TESTES:          'Iniciou execução de testes',
+  CONCLUIR_EXECUCAO_TESTES:         'Concluiu execução de testes',
+  INGERIR_LOGS_TESTE:               'Ingeriu logs de teste',
+  GERAR_PLANO_TESTE:                'Gerou plano de teste',
+  EXPANDIR_PLANO_TESTE:             'Expandiu plano de teste',
+  REANALISAR_TESTE:                 'Reanalisou teste',
+  APLICAR_CORRECAO_TESTE:           'Aplicou correção em teste',
+  REJEITAR_ANALISE_TESTE:           'Rejeitou análise de teste',
+  EXECUTAR_PENTEST:                 'Executou pentest',
+}
 
-function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
-  if (!before && !after) {
+function humanizar(codigo: string): string {
+  return codigo
+    .split('_')
+    .map((p) => p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : '')
+    .join(' ')
+}
+
+function rotuloAcao(codigo: string | null | undefined): string {
+  if (!codigo) return '—'
+  return ACAO_PARTICIPIO[codigo] ?? humanizar(codigo)
+}
+
+// ---------------------------------------------------------------------------
+// Diff visual antes/depois (estado_anterior_historico_log vs estado_posterior_historico_log)
+// ---------------------------------------------------------------------------
+
+function DiffVisual({
+  estado_anterior_historico_log,
+  estado_posterior_historico_log,
+}: {
+  estado_anterior_historico_log?: unknown
+  estado_posterior_historico_log?: unknown
+}) {
+  if (!estado_anterior_historico_log && !estado_posterior_historico_log) {
     return <p style={{ color: '#64748b', fontSize: '0.8125rem', padding: '0.5rem 0' }}>Sem dados de antes/depois registrados.</p>
   }
 
   const computedDiff = (() => {
-    if (!before || !after) return null
-    if (typeof before !== 'object' || typeof after !== 'object') return null
-    const b = before as Record<string, unknown>
-    const a = after as Record<string, unknown>
-    const campos = Array.from(new Set([...Object.keys(b), ...Object.keys(a)]))
+    if (!estado_anterior_historico_log || !estado_posterior_historico_log) return null
+    if (typeof estado_anterior_historico_log !== 'object' || typeof estado_posterior_historico_log !== 'object') return null
+    const anterior  = estado_anterior_historico_log  as Record<string, unknown>
+    const posterior = estado_posterior_historico_log as Record<string, unknown>
+    const campos = Array.from(new Set([...Object.keys(anterior), ...Object.keys(posterior)]))
     return campos
-      .filter((k) => JSON.stringify(b[k]) !== JSON.stringify(a[k]))
-      .map((k) => ({ campo: k, antes: b[k], depois: a[k] }))
+      .filter((k) => JSON.stringify(anterior[k]) !== JSON.stringify(posterior[k]))
+      .map((k) => ({ campo: k, antes: anterior[k], depois: posterior[k] }))
   })()
 
   return (
@@ -148,7 +246,7 @@ function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
           borderRadius: '6px', padding: '12px', fontSize: '0.75rem', color: '#e2e8f0',
           overflow: 'auto', maxHeight: '200px', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
         }}>
-          {before ? JSON.stringify(before, null, 2) : '(novo registro)'}
+          {estado_anterior_historico_log ? JSON.stringify(estado_anterior_historico_log, null, 2) : '(novo registro)'}
         </pre>
       </div>
 
@@ -163,7 +261,7 @@ function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
           borderRadius: '6px', padding: '12px', fontSize: '0.75rem', color: '#e2e8f0',
           overflow: 'auto', maxHeight: '200px', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
         }}>
-          {after ? JSON.stringify(after, null, 2) : '(registro excluído)'}
+          {estado_posterior_historico_log ? JSON.stringify(estado_posterior_historico_log, null, 2) : '(registro excluído)'}
         </pre>
       </div>
 
@@ -197,9 +295,11 @@ function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
   )
 }
 
-// ── Linha expandida ───────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Linha expandida — abas Antes/Depois e Detalhes
+// ---------------------------------------------------------------------------
 
-function DetalheLog({ log }: { log: AuditLog }) {
+function DetalheLog({ log }: { log: HistoricoLog }) {
   const [aba, setAba] = useState<'diff' | 'meta'>('diff')
 
   return (
@@ -218,17 +318,25 @@ function DetalheLog({ log }: { log: AuditLog }) {
         ))}
       </div>
 
-      {aba === 'diff' && <DiffVisual before={log.before} after={log.after} />}
+      {aba === 'diff' && (
+        <DiffVisual
+          estado_anterior_historico_log={log.estado_anterior_historico_log}
+          estado_posterior_historico_log={log.estado_posterior_historico_log}
+        />
+      )}
 
       {aba === 'meta' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '0.8rem' }}>
           {[
-            { label: 'ID do Log', valor: log.id },
-            { label: 'Módulo', valor: log.module },
-            { label: 'Tipo de recurso', valor: log.resource_type },
-            { label: 'ID do recurso', valor: log.resource_id ?? '—' },
-            { label: 'IP do ator', valor: log.actor_ip ?? '—' },
-            { label: 'Status', valor: log.status },
+            { label: 'ID do Log',         valor: log.id_historico_log },
+            { label: 'Módulo',            valor: log.modulo_historico_log },
+            { label: 'Tipo de recurso',   valor: log.tipo_recurso_historico_log },
+            { label: 'ID do recurso',     valor: log.id_recurso_historico_log ?? '—' },
+            { label: 'IP do ator',        valor: log.ip_ator_historico_log ?? '—' },
+            { label: 'Status',            valor: log.status_historico_log },
+            { label: 'E-mail do ator',    valor: log.email_ator_historico_log ?? '—' },
+            { label: 'ID do usuário',     valor: log.id_usuario ?? '—' },
+            { label: 'ID do produto',     valor: log.id_produto_historico_log ?? '—' },
           ].map(({ label, valor }) => (
             <div key={label}>
               <p style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</p>
@@ -236,17 +344,17 @@ function DetalheLog({ log }: { log: AuditLog }) {
             </div>
           ))}
 
-          {log.error_message && (
+          {log.mensagem_erro_historico_log && (
             <div style={{ gridColumn: '1 / -1' }}>
               <p style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '4px', textTransform: 'uppercase' }}>Erro</p>
-              <p style={{ color: '#f87171', fontFamily: 'monospace', fontSize: '0.8rem' }}>{log.error_message}</p>
+              <p style={{ color: '#f87171', fontFamily: 'monospace', fontSize: '0.8rem' }}>{log.mensagem_erro_historico_log}</p>
             </div>
           )}
 
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
             <Hash size={12} color="#64748b" />
             <span style={{ color: '#64748b', fontSize: '0.7rem' }}>Integridade:</span>
-            <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.7rem', wordBreak: 'break-all' }}>{log.integrity_hash}</span>
+            <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.7rem', wordBreak: 'break-all' }}>{log.hash_integridade_historico_log}</span>
           </div>
         </div>
       )}
@@ -254,36 +362,47 @@ function DetalheLog({ log }: { log: AuditLog }) {
   )
 }
 
-// ── Painel de alertas ─────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Painel de alertas
+// ---------------------------------------------------------------------------
 
 function PainelAlertas({ onClose }: { onClose: () => void }) {
   const addNotification = useShellStore((s) => s.addNotification)
-  const [alertas, setAlertas] = useState<AlertEvent[]>([])
+  const [alertas, setAlertas] = useState<EventoAlerta[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     apiFetch('/api/v1/admin/historico-global/alerts?status=PENDENTE')
       .then((r) => r.json())
-      .then((d) => setAlertas(d.data ?? []))
+      .then((d) => {
+        const parsed = listaEventoAlertaSchema.safeParse(d)
+        if (parsed.success) {
+          setAlertas(parsed.data.data)
+        } else {
+          // Falha ruidosa (Mandamento 08) sem quebrar a UI — admin vê tela vazia
+          // e log no console identifica o drift de contrato.
+          console.warn('[PainelAlertas] payload de alertas fora do contrato', parsed.error.issues, d)
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
-  async function marcarRevisado(id: string) {
+  async function marcarRevisado(id_evento_alerta: string) {
     try {
-      await apiFetch(`/api/v1/admin/historico-global/alerts/${id}`, {
+      await apiFetch(`/api/v1/admin/historico-global/alerts/${id_evento_alerta}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REVISADO' }),
+        body: JSON.stringify({ status_evento_alerta: 'REVISADO' }),
       })
-      setAlertas((prev) => prev.filter((a) => a.id !== id))
+      setAlertas((prev) => prev.filter((a) => a.id_evento_alerta !== id_evento_alerta))
       addNotification({ type: 'success', message: 'Alerta marcado como revisado.' })
     } catch {
       addNotification({ type: 'error', message: 'Erro ao atualizar alerta.' })
     }
   }
 
-  const COR_ALERT: Record<AlertStatus, string> = {
+  const COR_STATUS_EVENTO_ALERTA: Record<StatusEventoAlerta, string> = {
     PENDENTE: '#fbbf24',
     REVISADO: '#34d399',
     ESCALADO: '#f87171',
@@ -319,28 +438,28 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
         )}
 
         {alertas.map((alerta) => (
-          <div key={alerta.id} style={{
-            background: 'rgba(255,255,255,0.03)', border: `1px solid ${COR_ALERT[alerta.status]}33`,
+          <div key={alerta.id_evento_alerta} style={{
+            background: 'rgba(255,255,255,0.03)', border: `1px solid ${COR_STATUS_EVENTO_ALERTA[alerta.status_evento_alerta]}33`,
             borderRadius: '8px', padding: '12px', marginBottom: '8px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
               <div>
-                <p style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '0.85rem', marginBottom: '2px' }}>{alerta.rule.name}</p>
-                <p style={{ color: '#64748b', fontSize: '0.75rem' }}>{formatDate(alerta.created_at)}</p>
+                <p style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '0.85rem', marginBottom: '2px' }}>{alerta.regra_evento_alerta.nome_regra_alerta}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem' }}>{formatarData(alerta.data_criacao_evento_alerta)}</p>
               </div>
-              <BadgeAtorType tipo={alerta.actor_type} />
+              <BadgeAtorTipo tipo={alerta.tipo_ator_evento_alerta} />
             </div>
 
             <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '10px' }}>
-              <strong style={{ color: '#e2e8f0' }}>{alerta.actor_name}</strong> executou{' '}
-              <strong style={{ color: COR_ALERT[alerta.status] }}>{alerta.event_count}x</strong>{' '}
-              "{alerta.action}" em <strong>{alerta.module}</strong>{' '}
-              {alerta.window_seconds > 0 && `em ${alerta.window_seconds}s`}
+              <strong style={{ color: '#e2e8f0' }}>{alerta.nome_ator_evento_alerta}</strong> executou{' '}
+              <strong style={{ color: COR_STATUS_EVENTO_ALERTA[alerta.status_evento_alerta] }}>{alerta.contagem_eventos_evento_alerta}x</strong>{' '}
+              "{rotuloAcao(alerta.acao_evento_alerta)}" em <strong>{alerta.modulo_evento_alerta}</strong>{' '}
+              {alerta.janela_segundos_evento_alerta > 0 && `em ${alerta.janela_segundos_evento_alerta}s`}
             </p>
 
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
-                onClick={() => marcarRevisado(alerta.id)}
+                onClick={() => marcarRevisado(alerta.id_evento_alerta)}
                 style={{
                   flex: 1, padding: '6px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
                   background: 'rgba(52,211,153,0.1)', color: '#34d399',
@@ -351,12 +470,12 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={async () => {
-                  await apiFetch(`/api/v1/admin/historico-global/alerts/${alerta.id}`, {
+                  await apiFetch(`/api/v1/admin/historico-global/alerts/${alerta.id_evento_alerta}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'ESCALADO' }),
+                    body: JSON.stringify({ status_evento_alerta: 'ESCALADO' }),
                   })
-                  setAlertas((prev) => prev.filter((a) => a.id !== alerta.id))
+                  setAlertas((prev) => prev.filter((a) => a.id_evento_alerta !== alerta.id_evento_alerta))
                 }}
                 style={{
                   flex: 1, padding: '6px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
@@ -374,7 +493,9 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ── Componente principal ──────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Componente principal
+// ---------------------------------------------------------------------------
 
 export function HistoricoGlobalAdmin() {
   const { t } = useTranslation()
@@ -383,7 +504,7 @@ export function HistoricoGlobalAdmin() {
 
   useEffect(() => { setAuthTokenProvider(() => getToken()) }, [getToken])
 
-  const [logs, setLogs] = useState<AuditLog[]>([])
+  const [logs, setLogs] = useState<HistoricoLog[]>([])
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -391,16 +512,21 @@ export function HistoricoGlobalAdmin() {
   const [alertasAbertos, setAlertasAbertos] = useState(false)
   const [alertasPendentes, setAlertasPendentes] = useState(0)
 
-  const [filtroAtorType, setFiltroAtorType] = useState<string | null>(null)
-  const [filtroStatus, setFiltroStatus] = useState<string | null>(null)
-  const [filtroDataRange, setFiltroDataRange] = useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
+  const [filtroTipoAtor,           setFiltroTipoAtor]           = useState<string | null>(null)
+  const [filtroStatusHistoricoLog, setFiltroStatusHistoricoLog] = useState<string | null>(null)
+  const [filtroPeriodo,            setFiltroPeriodo]            = useState<{
+    data_inicio: Date | null
+    data_fim:    Date | null
+  }>({ data_inicio: null, data_fim: null })
 
   function buildQuery(cursor?: string) {
     const params = new URLSearchParams()
-    if (filtroAtorType && filtroAtorType !== 'todos') params.set('actor_type', filtroAtorType)
-    if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
-    if (filtroDataRange.inicio) params.set('startDate', filtroDataRange.inicio.toISOString())
-    if (filtroDataRange.fim) params.set('endDate', filtroDataRange.fim.toISOString())
+    if (filtroTipoAtor && filtroTipoAtor !== 'todos')
+      params.set('tipo_ator_historico_log', filtroTipoAtor)
+    if (filtroStatusHistoricoLog && filtroStatusHistoricoLog !== 'todos')
+      params.set('status_historico_log', filtroStatusHistoricoLog)
+    if (filtroPeriodo.data_inicio) params.set('startDate', filtroPeriodo.data_inicio.toISOString())
+    if (filtroPeriodo.data_fim)    params.set('endDate',   filtroPeriodo.data_fim.toISOString())
     if (cursor) params.set('cursor', cursor)
     params.set('limit', '50')
     return params.toString()
@@ -415,9 +541,16 @@ export function HistoricoGlobalAdmin() {
         const body = await res.text().catch(() => '')
         throw new Error(`${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ''}`)
       }
-      const result = await res.json()
-      setLogs(result.data ?? [])
-      setNextCursor(result.meta?.nextCursor ?? null)
+      const raw = await res.json()
+      const parsed = listaHistoricoLogSchema.safeParse(raw)
+      if (!parsed.success) {
+        // Falha ruidosa (Mandamento 06+08) — payload divergente do contrato Zod
+        // bilateral. Notifica o admin e loga as issues para diagnóstico.
+        console.warn('[HistoricoGlobalAdmin] payload de logs fora do contrato', parsed.error.issues, raw)
+        throw new Error('Payload do histórico fora do contrato esperado')
+      }
+      setLogs(parsed.data.data)
+      setNextCursor(parsed.data.meta.nextCursor)
     } catch (err) {
       // Ignora AbortError (cleanup do useEffect no StrictMode em dev — evita toast duplicado)
       if (err instanceof DOMException && err.name === 'AbortError') return
@@ -428,7 +561,7 @@ export function HistoricoGlobalAdmin() {
       setLoading(false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtroAtorType, filtroStatus, filtroDataRange])
+  }, [filtroTipoAtor, filtroStatusHistoricoLog, filtroPeriodo])
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -455,9 +588,14 @@ export function HistoricoGlobalAdmin() {
     try {
       const res = await apiFetch(`/api/v1/admin/historico-global/logs?${buildQuery(nextCursor)}`)
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-      const result = await res.json()
-      setLogs((prev) => [...prev, ...(result.data ?? [])])
-      setNextCursor(result.meta?.nextCursor ?? null)
+      const raw = await res.json()
+      const parsed = listaHistoricoLogSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.warn('[HistoricoGlobalAdmin] paginação — payload fora do contrato', parsed.error.issues, raw)
+        throw new Error('Payload do histórico fora do contrato esperado')
+      }
+      setLogs((prev) => [...prev, ...parsed.data.data])
+      setNextCursor(parsed.data.meta.nextCursor)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Falha desconhecida'
       addNotification({ type: 'error', message: `Falha ao carregar mais logs: ${msg}` })
@@ -466,11 +604,15 @@ export function HistoricoGlobalAdmin() {
     }
   }
 
+  // Export legado backend (CSV/JSON síncrono ou job assíncrono >10k registros).
+  // Mantido para volumes grandes; export client-side com 6 formatos é Commit 3.
   async function exportar(format: 'csv' | 'json') {
     try {
       const params = new URLSearchParams()
-      if (filtroAtorType && filtroAtorType !== 'todos') params.set('actor_type', filtroAtorType)
-      if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
+      if (filtroTipoAtor && filtroTipoAtor !== 'todos')
+        params.set('tipo_ator_historico_log', filtroTipoAtor)
+      if (filtroStatusHistoricoLog && filtroStatusHistoricoLog !== 'todos')
+        params.set('status_historico_log', filtroStatusHistoricoLog)
       params.set('format', format)
 
       const res = await apiFetch(`/api/v1/admin/historico-global/logs/export?${params}`)
@@ -492,61 +634,77 @@ export function HistoricoGlobalAdmin() {
     }
   }
 
-  // ── Colunas da tabela ──────────────────────────────────────────
+  // ── Colunas da tabela ────────────────────────────────────────────────────
 
-  const COLUNAS: TabelaGlobalColuna<AuditLog>[] = [
+  const COLUNAS: TabelaGlobalColuna<HistoricoLog>[] = [
     {
-      key: 'created_at', label: 'Quando', tipo: 'periodo',
-      render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{formatDate(v)}</span>
+      key: 'data_criacao_historico_log', label: 'Quando', tipo: 'periodo', largura: '160px',
+      render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{formatarData(String(v))}</span>,
     },
     {
-      key: 'actor_name', label: 'Ator', tipo: 'texto',
-      render: (v, item) => (
+      key: 'nome_ator_historico_log', label: 'Ator', tipo: 'texto', largura: '240px',
+      render: (_v, item) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <BadgeAtorType tipo={item.actor_type} />
+            <BadgeAtorTipo tipo={item.tipo_ator_historico_log} />
           </div>
-          <span style={{ fontWeight: 600, color: '#f1f5f9', fontSize: '0.8rem' }}>{v}</span>
+          <span style={{ fontWeight: 600, color: '#f1f5f9', fontSize: '0.8rem' }}>
+            {item.nome_ator_historico_log}
+          </span>
+          {item.email_ator_historico_log && (
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', opacity: 0.85 }}>
+              {item.email_ator_historico_log}
+            </span>
+          )}
         </div>
-      )
+      ),
     },
     {
-      key: 'action', label: 'Ação', tipo: 'texto',
+      key: 'acao_historico_log', label: 'Ação', tipo: 'texto', largura: '160px',
       render: (v) => (
         <span style={{
           display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
           fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
           background: 'rgba(129,140,248,0.1)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.2)',
         }}>
-          {v}
+          {rotuloAcao(v as string | null)}
         </span>
-      )
+      ),
+      renderFiltroLabel: (v) => rotuloAcao(v),
     },
     {
-      key: 'action_detail', label: 'O que foi feito', tipo: 'texto',
-      render: (v, item) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{
-              padding: '1px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)', fontSize: '0.65rem', color: '#94a3b8',
-            }}>
-              {item.module}/{item.resource_type}
-            </span>
+      key: 'detalhe_acao_historico_log', label: 'O que foi feito', tipo: 'texto',
+      render: (v, item) => {
+        const endpoint = (item.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
+        const local = caminhoParaLocalString(endpoint, item.modulo_historico_log, item.tipo_recurso_historico_log)
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{
+                padding: '1px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)', fontSize: '0.65rem', color: '#94a3b8',
+              }}>
+                {local}
+              </span>
+            </div>
+            <span style={{ color: '#e2e8f0', fontSize: '0.8125rem' }}>{(v as string | null) ?? '—'}</span>
           </div>
-          <span style={{ color: '#e2e8f0', fontSize: '0.8125rem' }}>{v}</span>
-        </div>
-      )
+        )
+      },
+      getValorBruto: (item) => {
+        const endpoint = (item.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
+        return caminhoParaLocalString(endpoint, item.modulo_historico_log, item.tipo_recurso_historico_log)
+      },
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
-      render: (v) => <BadgeStatus status={v as EventStatus} />
+      key: 'status_historico_log', label: 'Status', tipo: 'texto', largura: '110px',
+      render: (v) => <BadgeStatusHistoricoLog status={v as StatusHistoricoLog} />,
     },
   ]
 
-  // ── Opções de filtro ───────────────────────────────────────────
+  // ── Opções de filtro ─────────────────────────────────────────────────────
 
-  const opcoesAtorType = [
+  const opcoesTipoAtor = [
     { valor: 'todos', rotulo: 'Todos os atores' },
     { valor: 'USUARIO', rotulo: 'Usuário' },
     { valor: 'IA', rotulo: 'IA / GABI' },
@@ -555,7 +713,7 @@ export function HistoricoGlobalAdmin() {
     { valor: 'INTEGRACAO', rotulo: 'Integração' },
   ]
 
-  const opcoesStatus = [
+  const opcoesStatusHistoricoLog = [
     { valor: 'todos', rotulo: 'Todos os status' },
     { valor: 'SUCESSO', rotulo: 'Sucesso' },
     { valor: 'FALHA', rotulo: 'Falha' },
@@ -615,18 +773,28 @@ export function HistoricoGlobalAdmin() {
             </div>
 
             <div style={{ width: '180px' }}>
-              <SelectGlobal opcoes={opcoesAtorType} valor={filtroAtorType} aoMudarValor={(v) => setFiltroAtorType(v as string)} placeholder="Tipo de ator" />
+              <SelectGlobal
+                opcoes={opcoesTipoAtor}
+                valor={filtroTipoAtor}
+                aoMudarValor={(v) => setFiltroTipoAtor(v as string)}
+                placeholder="Tipo de ator"
+              />
             </div>
 
             <div style={{ width: '180px' }}>
-              <SelectGlobal opcoes={opcoesStatus} valor={filtroStatus} aoMudarValor={(v) => setFiltroStatus(v as string)} placeholder="Status" />
+              <SelectGlobal
+                opcoes={opcoesStatusHistoricoLog}
+                valor={filtroStatusHistoricoLog}
+                aoMudarValor={(v) => setFiltroStatusHistoricoLog(v as string)}
+                placeholder="Status"
+              />
             </div>
 
             <div style={{ width: '240px' }}>
               <CampoCalendarioGlobal
                 placeholder="Período"
-                valor={filtroDataRange}
-                aoMudarValor={(range) => setFiltroDataRange(range)}
+                valor={{ inicio: filtroPeriodo.data_inicio, fim: filtroPeriodo.data_fim }}
+                aoMudarValor={(range) => setFiltroPeriodo({ data_inicio: range.inicio, data_fim: range.fim })}
               />
             </div>
 
@@ -678,10 +846,11 @@ export function HistoricoGlobalAdmin() {
               </button>
             </div>
           ) : (
-            <TabelaGlobal<AuditLog>
+            <TabelaGlobal<HistoricoLog>
               id="admin-historico-global"
               dados={logs}
               colunas={COLUNAS}
+              idKey="id_historico_log"
               mensagemVazio={loading ? 'Carregando...' : 'Nenhum log encontrado com os filtros aplicados.'}
               mensagemSemFiltro="Nenhum log encontrado."
               tooltipBusca="Buscar por ação, ator ou recurso"
@@ -691,7 +860,7 @@ export function HistoricoGlobalAdmin() {
               acoesExportacao={[
                 { label: 'CSV',  icone: <FileCsv size={14} weight="bold" />,  onClick: () => void exportar('csv') },
                 { label: 'JSON', icone: <FileCode size={14} weight="bold" />, onClick: () => void exportar('json') },
-              ] as TabelaExportAcao<AuditLog>[]}
+              ] as TabelaExportAcao<HistoricoLog>[]}
             />
           )}
 

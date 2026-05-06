@@ -1,0 +1,206 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { useShellStore } from '@gravity/shell'
+import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+
+/**
+ * ApiCockpitAdminKpis — bloco de KPIs globais (admin Gravity HQ)
+ * compartilhado pelas 5 abas do API Cockpit admin.
+ *
+ * Cards (todos cross-organizacao, dados globais do Railway):
+ *   1. Status Geral         — derivado da saude dos servicos
+ *   2. Uptime (24h)         — % uptime calculado pelo backend
+ *   3. Latencia Media       — em ms
+ *   4. APIs Online          — N de M servicos
+ *   5. Requisicoes (24h)    — total
+ *   6. GABI IA · Chamadas   — count
+ *   7. GABI IA · Custo Mes  — USD
+ *
+ * Polling: 30s.
+ */
+
+// ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
+
+const servicoPlataformaSchema = z.object({
+  nome_servico_plataforma:              z.string(),
+  status_servico_plataforma:            z.enum(['ONLINE', 'DEGRADADO', 'OFFLINE']),
+  latencia_ms_servico_plataforma:       z.number(),
+  versao_servico_plataforma:            z.string(),
+  data_ultimo_check_servico_plataforma: z.string(),
+  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
+})
+
+const servicosResponseSchema = z.object({
+  servicos: z.array(servicoPlataformaSchema),
+  error:    z.string().optional(),
+})
+
+const estatisticasLogConsumoSchema = z.object({
+  quantidade_requisicoes_log_consumo:        z.number(),
+  quantidade_erros_log_consumo:              z.number(),
+  latencia_media_log_consumo:                z.number(),
+  percentual_uptime_log_consumo:             z.number(),
+  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+  por_id_produto_gravity:                    z.record(z.number()),
+  por_faixa_codigo_resposta_http:            z.record(z.number()),
+})
+
+type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
+type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
+
+interface GabiUsagePayload {
+  month?: string
+  total_calls?: number
+  total_tokens_input?: number
+  total_tokens_output?: number
+  total_cost_usd?: number
+  by_model?: Record<string, { calls: number; tokensIn: number; tokensOut: number; cost: number }>
+  by_day?: Record<string, number>
+  error?: string
+}
+
+const POLLING_INTERVAL_MS = 30_000
+
+const fmtUSD = (n: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
+  }).format(n)
+
+export function ApiCockpitAdminKpis() {
+  const { t } = useTranslation()
+  const addNotification = useShellStore((s) => s.addNotification)
+
+  const [servicos, setServicos]         = useState<ServicoPlataforma[]>([])
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
+  const [gabiUsage, setGabiUsage]       = useState<GabiUsagePayload | null>(null)
+  const [gabiLoading, setGabiLoading]   = useState(true)
+
+  const carregar = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const [svcRes, statsRes] = await Promise.all([
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',           { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
+      ])
+
+      if (svcRes.ok) {
+        const svcRaw = await svcRes.json()
+        const parsed = servicosResponseSchema.safeParse(svcRaw)
+        if (parsed.success) setServicos(parsed.data.servicos)
+      }
+      if (statsRes.ok) {
+        const statsRaw = await statsRes.json()
+        const parsed = estatisticasLogConsumoSchema.safeParse(statsRaw)
+        if (parsed.success) setEstatisticas(parsed.data)
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      // Mandamento 08 — falha em KPI nao trava a tela, mas notifica
+      addNotification({
+        type: 'error',
+        message: `Falha ao carregar KPIs do API Cockpit: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+      })
+    }
+  }, [addNotification])
+
+  const carregarGabi = useCallback(async (signal?: AbortSignal) => {
+    try {
+      setGabiLoading(true)
+      const res = await requisicaoAutenticada('/api/v1/api-cockpit/admin/uso-gabi', { signal })
+      if (!res.ok) throw new Error(`gabi-usage ${res.status}`)
+      const data: GabiUsagePayload = await res.json()
+      if (data.error) throw new Error(data.error)
+      setGabiUsage(data)
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      setGabiUsage(null)
+    } finally {
+      setGabiLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    void carregar(ctrl.signal)
+    void carregarGabi(ctrl.signal)
+    const interval = setInterval(() => {
+      void carregar()
+      void carregarGabi()
+    }, POLLING_INTERVAL_MS)
+    return () => {
+      ctrl.abort()
+      clearInterval(interval)
+    }
+  }, [carregar, carregarGabi])
+
+  // ── Derivacoes (memoizadas implicitamente em re-render) ──
+  const apisOnline = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
+  const apisTotal = servicos.length
+  const apisOffline = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
+
+  const statusGeral = apisTotal === 0
+    ? 'Indisponível'
+    : apisOffline === 0
+      ? 'Operacional'
+      : apisOffline === apisTotal
+        ? 'Crítico'
+        : 'Degradado'
+  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
+    statusGeral === 'Operacional' ? 'sucesso'
+    : statusGeral === 'Degradado' ? 'aviso'
+    : statusGeral === 'Crítico'   ? 'perigo'
+    : 'padrao'
+
+  const uptimePercent   = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
+  const latenciaMediaMs = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
+  const requisicoes24h  = estatisticas ? estatisticas.quantidade_requisicoes_log_consumo : 0
+
+  const gabiCalls = gabiUsage?.total_calls ?? 0
+  const gabiCost  = gabiUsage?.total_cost_usd ?? 0
+
+  return (
+    <>
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.status_geral')}
+        valor={statusGeral}
+        variante={statusVariante}
+      />
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.uptime_24h')}
+        valor={uptimePercent}
+        variante="primario"
+      />
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.latencia_media')}
+        valor={latenciaMediaMs}
+        variante="padrao"
+      />
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.apis_online')}
+        valor={`${apisOnline}/${apisTotal}`}
+        variante="sucesso"
+      />
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.requisicoes_24h')}
+        valor={String(requisicoes24h)}
+        variante="primario"
+      />
+      <CardEstatisticaGlobal
+        titulo="GABI IA · Chamadas"
+        valor={gabiLoading ? '…' : String(gabiCalls)}
+        variante="primario"
+      />
+      <CardEstatisticaGlobal
+        titulo="GABI IA · Custo Mês"
+        valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
+        variante="aviso"
+      />
+    </>
+  )
+}
+
+export default ApiCockpitAdminKpis

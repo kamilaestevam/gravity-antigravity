@@ -2,13 +2,14 @@ import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
+import { useAuth } from '@clerk/clerk-react'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
-import { setApiContext, injectTenantGetter } from './shared/api'
+import { setApiContext, injectTenantGetter, injectTokenGetter } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // Injeta o getter uma vez quando o módulo carrega — lê o Zustand sincronamente
@@ -94,6 +95,13 @@ function LoadingFallback() {
 export function App() {
   useMeSync()
   const { t } = useTranslation()
+  const { getToken } = useAuth()
+
+  // Backend do Pedido exige Authorization: Bearer <jwt> via @gravity/resolver-organizacao.
+  // Re-injeta sempre que getToken muda (inclui rotacao automatica do Clerk).
+  useEffect(() => {
+    injectTokenGetter(() => getToken())
+  }, [getToken])
 
   const navItems = useMemo(
     () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item, t)),
@@ -138,6 +146,7 @@ export function App() {
 
   const ROUTE_LABELS: Record<string, string> = {
     'pedidos':           'Lista',
+    'pedidos/lista':     'Lista',
     'pedidos/dashboard': 'Dashboard',
     'pedidos/kanban':    'Kanban',
     'pedidos/novo':      'Novo Pedido',
@@ -198,15 +207,16 @@ export function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"       element={<Navigate to="/produto/pedido/pedidos" replace />} />
-          <Route path="pedidos"                  element={<Pedidos />} />
+          <Route path="/"       element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
+          <Route path="pedidos"                  element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
+          <Route path="pedidos/lista"            element={<Pedidos />} />
           <Route path="pedidos/dashboard"        element={<PedidosDashboard />} />
           <Route path="pedidos/kanban"           element={<PedidosKanban />} />
           <Route path="pedidos/novo"             element={<PedidoFormulario />} />
           <Route path="pedidos/:id_pedido/editar" element={<PedidoFormulario />} />
           <Route path="historico"            element={<Historico />} />
           <Route path="configuracoes"        element={<Configuracoes />} />
-          <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos" replace />} />
+          <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

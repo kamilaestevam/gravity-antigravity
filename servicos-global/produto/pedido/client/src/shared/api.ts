@@ -78,6 +78,36 @@ export const injectTenantGetter = (fn: () => string | undefined): void => {
   }
 }
 
+// Getter de token Clerk — backend do Pedido usa @gravity/resolver-organizacao
+// que exige Authorization: Bearer <jwt>. Padrao espelhado de configurador
+// api-client.ts:11-43 com 2 niveis de fallback para cobrir a janela entre
+// montagem do useEffect no App.tsx e a primeira request feita por filhos
+// lazy-loaded (que podem rodar antes do effect de injecao).
+let getDynamicToken: (() => Promise<string | null>) | null = null
+
+export const injectTokenGetter = (fn: () => Promise<string | null>): void => {
+  getDynamicToken = fn
+}
+
+async function getAuthToken(): Promise<string | null> {
+  // 1. Getter injetado pelo App.tsx via useAuth().getToken
+  if (getDynamicToken) {
+    try {
+      const token = await getDynamicToken()
+      if (token) return token
+    } catch { /* fallback */ }
+  }
+  // 2. Fallback global — Clerk injeta window.Clerk via ClerkProvider
+  try {
+    const clerk = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
+    if (clerk?.session?.getToken) {
+      const token = await clerk.session.getToken()
+      if (token) return token
+    }
+  } catch { /* fallback */ }
+  return null
+}
+
 export function setApiContext(ctx: { idOrganizacao: string; userId: string; userName?: string }): void {
   if (ctx.idOrganizacao) {
     context.idOrganizacao = ctx.idOrganizacao
@@ -97,11 +127,13 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const token = await getAuthToken()
 
   const response = await fetch(endpoint, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       'x-id-organizacao': idOrganizacao,
       'x-id-usuario':   context.userId,
       'x-user-name': context.userName,

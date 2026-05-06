@@ -1,9 +1,13 @@
 // server/routes/produto-gravity.ts
-// GET /api/v1/produtos — Catálogo público de produtos (leitura)
+// GET /api/v1/produtos       — Catálogo público de produtos (lista compacta)
+// GET /api/v1/produtos/:slug  — Produto COMPLETO read-only (espelho do admin
+//                               com faixas de preço e negociações da org)
 // CRUD exclusivo de admin via /api/v1/admin/produtos-gravity (adminProducts.ts)
 
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
+import { requireAuth } from '../middleware/requireAuth.js'
+import { AppError } from '../lib/appError.js'
 
 export const productsRouter = Router()
 
@@ -46,5 +50,50 @@ productsRouter.get('/', async (_req, res) => {
     })
   } catch {
     res.json({ products: [] })
+  }
+})
+
+/**
+ * GET /api/v1/produtos/:slug
+ *
+ * Retorna o produto COMPLETO em read-only para o modal "Configurar
+ * Assinatura" do workspace — espelho fiel do que o admin vê em
+ * /admin/produtos-gravity, sem permitir edição.
+ *
+ * Inclui:
+ *   - Todos os campos do produto (dados básicos, setup, valor, usuários,
+ *     help-desk, tokens GABI)
+ *   - Faixas de preço por volume (ProdutoGravityFaixaPreco[])
+ *   - Negociações especiais APENAS da organização autenticada
+ *     (privacidade — orgs não veem acordos de outras)
+ *
+ * Auth: qualquer usuário autenticado da organização. Sem checagem de papel
+ * porque é read-only e tudo aqui já é metadado de produto contratável.
+ */
+productsRouter.get('/:slug', requireAuth, async (req, res, next) => {
+  try {
+    const { slug } = req.params
+    const id_organizacao = req.auth.id_organizacao
+
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: slug },
+      include: {
+        faixas_preco_produto_gravity: {
+          orderBy: { faixa_de_faixa_preco_produto_gravity: 'asc' },
+        },
+        negociacoes_produto_gravity: {
+          where: { id_organizacao },
+          orderBy: { data_criacao_negociacao_especial_preco_produto_gravity: 'desc' },
+        },
+      },
+    })
+
+    if (!produto || produto.data_remocao_produto_gravity) {
+      throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
+    }
+
+    res.json({ produto })
+  } catch (err) {
+    next(err)
   }
 })

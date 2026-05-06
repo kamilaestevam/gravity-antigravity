@@ -686,10 +686,8 @@ export function HistoricoGlobalAdmin() {
     {
       key: 'nome_ator_historico_log', label: 'Ator', tipo: 'texto', largura: '240px',
       render: (_v, item) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <BadgeAtorTipo tipo={item.tipo_ator_historico_log} />
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', textAlign: 'center' }}>
+          <BadgeAtorTipo tipo={item.tipo_ator_historico_log} />
           <span style={{ fontWeight: 600, color: '#f1f5f9', fontSize: '0.8rem' }}>
             {item.nome_ator_historico_log}
           </span>
@@ -720,15 +718,13 @@ export function HistoricoGlobalAdmin() {
         const endpoint = (item.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
         const local = caminhoParaLocalString(endpoint, item.modulo_historico_log, item.tipo_recurso_historico_log)
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{
-                padding: '1px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)', fontSize: '0.65rem', color: '#94a3b8',
-              }}>
-                {local}
-              </span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+            <span style={{
+              padding: '1px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)', fontSize: '0.65rem', color: '#94a3b8',
+            }}>
+              {local}
+            </span>
             <span style={{ color: '#e2e8f0', fontSize: '0.8125rem' }}>{(v as string | null) ?? '—'}</span>
           </div>
         )

@@ -7,7 +7,7 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
-import { Notificacoes } from '@plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { setApiContext, injectTenantGetter } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
 

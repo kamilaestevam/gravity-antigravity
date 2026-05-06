@@ -55,6 +55,14 @@ function temAcessoTotalAosWorkspaces(tipo_usuario: string): boolean {
   return tipo_usuario === 'MASTER' || tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN'
 }
 
+// Tipos do modo edição em lote vivem em `src/components/expandido-editor-vinculos`
+// (compartilhados com UsuariosAdmin). Padrão Assinaturas — cânone documentado em
+// skills/ux/criacao-telas/SKILL.md.
+import {
+  ExpandidoEditorVinculos,
+  type EdicoesPorUsuario,
+} from '../../components/expandido-editor-vinculos'
+
 // ─── Botão de ação condicional ───────────────────────────────────────────────
 // Hook usePodeEditarUsuario precisa rodar por linha — sub-componente respeita
 // regras dos hooks (top level). Retorna `null` quando o ator não pode editar
@@ -150,6 +158,53 @@ function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceIte
   )
 }
 
+// ── Wrapper Configurador-específico: aplica gating via usePodeEditarUsuario ──
+// O componente compartilhado `ExpandidoEditorVinculos` (em src/components/) é
+// agnóstico de gating — espera `podeEditar: boolean` calculado pelo caller.
+// Aqui, o gating é Mand. 08 (autorização barulhenta) + anti-self-edit.
+//
+// UsuariosAdmin tem seu próprio wrapper com gating diferente (opção α: SAdmin).
+interface WrapperConfiguradorProps {
+  usuario: UsuarioOrg
+  idUsuarioAtor: string | null
+  workspaces: WorkspaceItem[]
+  vinculosServidor: string[]
+  edicoesPendentes: EdicoesPorUsuario | undefined
+  selecaoIds: string[]
+  onSelecaoChange: (ids: string[]) => void
+  onStagedToggle: (id_workspace: string) => void
+  onAcaoEmMassa: (ids: string[], acao: 'habilitar' | 'bloquear') => void
+  onDescartar: () => void
+  onSalvar: () => void
+  salvando: boolean
+}
+
+function ExpandidoEditorVinculosConfigurador(props: WrapperConfiguradorProps) {
+  const gating = usePodeEditarUsuario({
+    id_usuario: props.usuario.id_usuario,
+    tipo_usuario: props.usuario.tipo_usuario as TipoUsuarioBackend,
+  })
+  const ehProprio = props.idUsuarioAtor !== null && props.idUsuarioAtor === props.usuario.id_usuario
+  const podeEditar = gating.podeAlterarVinculosWorkspace && !ehProprio
+
+  return (
+    <ExpandidoEditorVinculos
+      usuario={{ id_usuario: props.usuario.id_usuario, nome_usuario: props.usuario.nome_usuario }}
+      podeEditar={podeEditar}
+      workspaces={props.workspaces}
+      vinculosServidor={props.vinculosServidor}
+      edicoesPendentes={props.edicoesPendentes}
+      selecaoIds={props.selecaoIds}
+      onSelecaoChange={props.onSelecaoChange}
+      onStagedToggle={props.onStagedToggle}
+      onAcaoEmMassa={props.onAcaoEmMassa}
+      onDescartar={props.onDescartar}
+      onSalvar={props.onSalvar}
+      salvando={props.salvando}
+    />
+  )
+}
+
 const OPCOES_TIPO: SelectOpcao[] = [
   { 
     valor: 'Standard',   
@@ -180,6 +235,18 @@ export function Usuarios() {
   // Vínculos ativos: id_usuario → id_workspace[] (derivado da relation usuario_workspaces)
   const [vinculosMap, setVinculosMap] = useState<Record<string, string[]>>({})
   const [carregando, setCarregando] = useState(true)
+
+  // ── Modo edição em lote dos workspaces vinculados ───────────────────────
+  // Padrão de sistema (decisão dono 2026-05-05): cliques na sub-tabela do
+  // expandido (toggle play/pause) não disparam HTTP imediatamente. Vão para
+  // este rascunho; o usuário aplica tudo via "Salvar alterações" no toolbar.
+  // Cânone documentado em skills/ux/criacao-telas — replicado de Assinaturas.tsx.
+  const [edicoesPendentesPorUsuario, setEdicoesPendentesPorUsuario] = useState<Record<string, EdicoesPorUsuario>>({})
+  const [salvandoEdicoes, setSalvandoEdicoes] = useState<Set<string>>(new Set())
+
+  // Seleção por usuário — alimenta o toolbar de ações em massa.
+  // Map id_usuario → id_workspace[]. Limpa após Salvar/Descartar.
+  const [selecaoPorUsuario, setSelecaoPorUsuario] = useState<Record<string, string[]>>({})
   // id_usuario do ator (banco) — usado para gating anti-escalada por id (hook
   // checa por tipo). Resolvido via match clerkUser.id ↔ id_clerk_usuario carregado
   // pela rota /me; aqui derivamos do usuários carregados.
@@ -274,6 +341,7 @@ export function Usuarios() {
         nome_usuario: fNome.trim(),
         email_usuario: criado.email_usuario,
         tipo_usuario: criado.tipo_usuario,
+        acesso_workspaces_futuros: criado.acesso_workspaces_futuros,
         data_criacao_usuario: new Date().toISOString(),
         usuario_workspaces: [],
         status_usuario: 'ATIVO',
@@ -319,6 +387,119 @@ export function Usuarios() {
           : x,
       ),
     )
+  }
+
+  // ── Handlers do modo edição em lote (padrão Assinaturas) ──────────────────
+  // Estado servidor de um vínculo: id_workspace presente em vinculosMap[id_usuario].
+  // O `efetivoPorWorkspace` (servidor + pendência) vive na sub-component
+  // ExpandidoEditorVinculos, que recebe `vinculosServidor` por props.
+  function ativoServidorWorkspace(id_usuario: string, id_workspace: string): boolean {
+    return (vinculosMap[id_usuario] ?? []).includes(id_workspace)
+  }
+
+  /** Stage: alterna o estado pendente "toggle" do workspace para um usuário.
+   *  Se já tem toggle pendente, REMOVE a pendência (volta ao estado servidor).
+   *  Senão, ADICIONA toggle pendente. Mesma semântica de Assinaturas. */
+  function aoStagedToggleWorkspace(id_usuario: string, id_workspace: string) {
+    const ativo_servidor = ativoServidorWorkspace(id_usuario, id_workspace)
+    setEdicoesPendentesPorUsuario((prev) => {
+      const cur = prev[id_usuario] ?? {}
+      const existente = cur[id_workspace]
+      const next: EdicoesPorUsuario = { ...cur }
+      if (existente) {
+        delete next[id_workspace]
+      } else {
+        next[id_workspace] = { tipo: 'toggle', ativo: !ativo_servidor }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[id_usuario]
+      else proximo[id_usuario] = next
+      return proximo
+    })
+  }
+
+  /** Stage em lote: aplica a mesma ação a todos os IDs selecionados.
+   *  Stage inteligente — workspace já no estado-alvo limpa pendência prévia
+   *  para que o contador "X alterações pendentes" reflita só mudanças reais. */
+  function aoStagedAcaoEmMassa(
+    id_usuario: string,
+    ids_workspace: string[],
+    acao: 'habilitar' | 'bloquear',
+  ) {
+    if (ids_workspace.length === 0) return
+    const ativo_alvo = acao === 'habilitar'
+    setEdicoesPendentesPorUsuario((prev) => {
+      const cur = prev[id_usuario] ?? {}
+      const next: EdicoesPorUsuario = { ...cur }
+      for (const id_workspace of ids_workspace) {
+        const ativo_servidor = ativoServidorWorkspace(id_usuario, id_workspace)
+        if (ativo_servidor === ativo_alvo) {
+          delete next[id_workspace]
+          continue
+        }
+        next[id_workspace] = { tipo: 'toggle', ativo: ativo_alvo }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[id_usuario]
+      else proximo[id_usuario] = next
+      return proximo
+    })
+  }
+
+  function descartarEdicoesUsuario(id_usuario: string) {
+    setEdicoesPendentesPorUsuario((prev) => {
+      const proximo = { ...prev }
+      delete proximo[id_usuario]
+      return proximo
+    })
+    setSelecaoPorUsuario((prev) => {
+      const proximo = { ...prev }
+      delete proximo[id_usuario]
+      return proximo
+    })
+  }
+
+  /** Calcula a lista final de id_workspace vinculados depois de aplicar as
+   *  pendências sobre o estado servidor. Replace-all atômico — Mand. 04 garante
+   *  que MASTER/SAdmin/ADMIN não chegam aqui (gating UI + bloqueio backend). */
+  function workspacesFinaisAposPendencias(id_usuario: string): string[] {
+    const pendentes = edicoesPendentesPorUsuario[id_usuario] ?? {}
+    const finais = new Set<string>(vinculosMap[id_usuario] ?? [])
+    for (const [id_workspace, edicao] of Object.entries(pendentes)) {
+      if (edicao.ativo) finais.add(id_workspace)
+      else finais.delete(id_workspace)
+    }
+    return Array.from(finais)
+  }
+
+  async function salvarEdicoesUsuario(id_usuario: string, nome_usuario: string) {
+    const pendentes = edicoesPendentesPorUsuario[id_usuario] ?? {}
+    if (Object.keys(pendentes).length === 0) return
+
+    setSalvandoEdicoes((prev) => new Set(prev).add(id_usuario))
+    try {
+      const finais = workspacesFinaisAposPendencias(id_usuario)
+      await usuariosApi.substituirWorkspaces(id_usuario, finais)
+      // Refetch antes de descartar pendências evita flicker do badge
+      // HABILITADO/BLOQUEADO (mesma técnica documentada em Assinaturas).
+      await recarregarUsuarios()
+      descartarEdicoesUsuario(id_usuario)
+      addNotification({
+        type: 'success',
+        message: `Acessos de "${nome_usuario}" atualizados.`,
+      })
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: extractCatchError(err, 'Erro ao salvar alterações.'),
+      })
+    } finally {
+      setSalvandoEdicoes((prev) => {
+        const next = new Set(prev)
+        next.delete(id_usuario)
+        return next
+      })
+    }
   }
 
   const COLUNAS: TabelaGlobalColuna<UsuarioOrg>[] = [
@@ -629,18 +810,16 @@ export function Usuarios() {
           tooltipRecolher="Recolher detalhes do usuário"
           renderExpandido={(usuario) => {
             const acessoTotal = temAcessoTotalAosWorkspaces(usuario.tipo_usuario)
-            const vinculados = acessoTotal ? workspaces : workspacesDoUsuario(usuario.id_usuario)
             const nivelLabel = mapRole(usuario.tipo_usuario)
-            return (
-              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
-                <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
-                </div>
 
-                {acessoTotal ? (
-                  // Acesso implícito (Master/Super Admin/Admin) — Mandamento 04 LIMBO.
-                  // Não há vínculos formais para alternar; mostramos apenas a lista
-                  // informativa, sem checkbox e sem coluna "Acesso" ambígua.
+            // Branch 1 — Master/SAdmin/Admin: Mandamento 04 LIMBO. Acesso implícito,
+            // sem vínculos formais para alternar. Panel informativo, read-only.
+            if (acessoTotal) {
+              return (
+                <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
+                  <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
+                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                     <div
                       role="note"
@@ -654,7 +833,7 @@ export function Usuarios() {
                       <ShieldCheck size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
                       <div>
                         <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#c7d2fe' }}>
-                          Acesso implícito a todos os workspaces ({vinculados.length})
+                          Acesso implícito a todos os workspaces ({workspaces.length})
                         </p>
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
                           Como <strong>{nivelLabel}</strong>, <strong>{usuario.nome_usuario}</strong> tem acesso a todos os workspaces da organização sem necessidade de vínculo individual. Para revogar o acesso, altere o tipo do usuário.
@@ -662,9 +841,9 @@ export function Usuarios() {
                       </div>
                     </div>
 
-                    {vinculados.length > 0 && (
+                    {workspaces.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
-                        {vinculados.map((w) => (
+                        {workspaces.map((w) => (
                           <a
                             key={w.id_workspace}
                             href={`/workspace/workspaces?id=${w.id_workspace}`}
@@ -684,59 +863,36 @@ export function Usuarios() {
                       </div>
                     )}
                   </div>
-                ) : vinculados.length > 0 ? (
-                  <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
-                    <TabelaGlobal<WorkspaceItem>
-                      id={`usuario-workspaces-drilldown-${usuario.id_usuario}`}
-                      idKey="id_workspace"
-                      dados={vinculados}
-                      tooltipBusca="Filtrar workspaces por nome ou ID comercial"
-                      colunas={[
-                        {
-                          key: 'nome_workspace',
-                          label: t('workspace.users.nome_workspace'),
-                          tipo: 'texto',
-                          render: (v, item) => (
-                            <a
-                              href={`/workspace/workspaces?id=${item.id_workspace}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none' }}
-                              onClick={(ev) => ev.stopPropagation()}
-                            >
-                              {v as string}
-                            </a>
-                          ),
-                        },
-                        { key: 'id_workspace', label: t('workspace.users.id_tecnica'), tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
-                        {
-                          key: 'id_workspace', label: t('workspace.users.privilegio'), tipo: 'texto',
-                          render: () => (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                              Acesso Padrão
-                            </span>
-                          ),
-                        },
-                        {
-                          // Status do VÍNCULO do usuário com o workspace (não o status do workspace).
-                          key: 'id_workspace', label: 'ACESSO', tipo: 'texto', align: 'right',
-                          render: () => (
-                            <TooltipGlobal descricao="Vínculo ativo: este usuário pode acessar este workspace">
-                              <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700, letterSpacing: '0.04em' }}>VINCULADO</span>
-                            </TooltipGlobal>
-                          ),
-                        },
-                      ]}
-                      mensagemVazio="Este usuário não possui acessos vinculados."
-                    />
-                  </div>
-                ) : (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                    O usuário <strong>{usuario.nome_usuario}</strong> ainda não possui workspaces vinculados.
-                  </div>
-                )}
+                </div>
+              )
+            }
+
+            // Branch 2 — Standard/Fornecedor: padrão Assinaturas (cânone).
+            // Editor com checkbox, multi-select, toolbar massa, Salvar/Descartar.
+            return (
+              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
+                <div style={{ paddingTop: '1rem' }}>
+                  <ExpandidoEditorVinculosConfigurador
+                    usuario={usuario}
+                    idUsuarioAtor={idUsuarioAtor}
+                    workspaces={workspaces}
+                    vinculosServidor={vinculosMap[usuario.id_usuario] ?? []}
+                    edicoesPendentes={edicoesPendentesPorUsuario[usuario.id_usuario]}
+                    selecaoIds={selecaoPorUsuario[usuario.id_usuario] ?? []}
+                    onSelecaoChange={(ids) =>
+                      setSelecaoPorUsuario((prev) => ({ ...prev, [usuario.id_usuario]: ids }))
+                    }
+                    onStagedToggle={(id_workspace) =>
+                      aoStagedToggleWorkspace(usuario.id_usuario, id_workspace)
+                    }
+                    onAcaoEmMassa={(ids, acao) =>
+                      aoStagedAcaoEmMassa(usuario.id_usuario, ids, acao)
+                    }
+                    onDescartar={() => descartarEdicoesUsuario(usuario.id_usuario)}
+                    onSalvar={() => void salvarEdicoesUsuario(usuario.id_usuario, usuario.nome_usuario)}
+                    salvando={salvandoEdicoes.has(usuario.id_usuario)}
+                  />
+                </div>
               </div>
             )
           }}

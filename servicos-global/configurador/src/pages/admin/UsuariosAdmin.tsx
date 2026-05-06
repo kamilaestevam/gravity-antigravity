@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Users, UserCircleCheck, UserCircleMinus,
-  PencilSimple, TreeStructure,
+  PencilSimple,
   ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning, ArrowClockwise
 } from '@phosphor-icons/react'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
@@ -24,10 +24,20 @@ import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
-import { adminUsersApi, type GlobalUserApi } from '../../services/api-client'
+import {
+  adminUsersApi,
+  adminOrganizacoesApi,
+  usuariosApi,
+  type GlobalUserApi,
+  type WorkspaceItem,
+} from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/use-load-system-role'
 import { workspaceUrl } from '../../config/constants'
+import {
+  ExpandidoEditorVinculos,
+  type EdicoesPorUsuario,
+} from '../../components/expandido-editor-vinculos'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -37,6 +47,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 interface VinculoWorkspaceUI {
   id_usuario_workspace: string
+  id_workspace: string
   nome_workspace: string
   subdominio_workspace: string
   perfil: string
@@ -49,6 +60,8 @@ interface UsuarioGlobalUI {
   email_usuario: string
   tipo: NivelAcesso
   status: UserStatus
+  /** id_organizacao do alvo — necessário para lazy-load de workspaces da org. */
+  id_organizacao: string
   nome_organizacao: string
   vinculos_workspace: VinculoWorkspaceUI[]
 }
@@ -58,6 +71,7 @@ interface UsuarioGlobalUI {
 function mapApiUserToGlobal(u: GlobalUserApi): UsuarioGlobalUI {
   const vinculos: VinculoWorkspaceUI[] = u.memberships.map(m => ({
     id_usuario_workspace: m.id_usuario_workspace,
+    id_workspace:         m.id_workspace,
     nome_workspace:       m.workspace?.nome_workspace ?? 'N/A',
     subdominio_workspace: m.workspace?.subdominio_workspace ?? '',
     perfil:               mapRole(m.tipo_usuario_workspace),
@@ -72,6 +86,7 @@ function mapApiUserToGlobal(u: GlobalUserApi): UsuarioGlobalUI {
     email_usuario:     u.email_usuario,
     tipo:              mapRole(u.tipo_usuario),
     status,
+    id_organizacao:    u.id_organizacao,
     nome_organizacao:  u.organizacao?.nome_organizacao ?? 'N/A',
     vinculos_workspace: vinculos,
   }
@@ -149,6 +164,112 @@ export function UsuariosAdmin() {
   const [usuarioPermissoes, setUsuarioPermissoes] = useState<UsuarioGlobalUI | null>(null)
   const [abaEditando, setAbaEditando]         = useState<string>('dados')
 
+  // ── Modo edição em lote dos vínculos workspace (cross-org) ──────────────────
+  // Padrão Assinaturas — cânone em skills/ux/criacao-telas/SKILL.md.
+  // Reusa `ExpandidoEditorVinculos` (componente compartilhado) e o endpoint
+  // `PUT /api/v1/usuarios/:id/workspaces` (já suporta SUPER_ADMIN cross-org).
+  // Gating: opção α (decisão dono 2026-05-05) — apenas SUPER_ADMIN edita aqui.
+  const [edicoesPendentesPorUsuario, setEdicoesPendentesPorUsuario] =
+    useState<Record<string, EdicoesPorUsuario>>({})
+  const [salvandoEdicoes, setSalvandoEdicoes] = useState<Set<string>>(new Set())
+  const [selecaoPorUsuario, setSelecaoPorUsuario] = useState<Record<string, string[]>>({})
+
+  // Cache de workspaces por organização (lazy-load no expand da linha).
+  const [workspacesPorOrg, setWorkspacesPorOrg] = useState<Record<string, WorkspaceItem[]>>({})
+  const [carregandoWsOrg, setCarregandoWsOrg] = useState<Set<string>>(new Set())
+  const [erroWsOrg, setErroWsOrg] = useState<Record<string, string>>({})
+
+  async function carregarWorkspacesOrg(id_organizacao: string) {
+    if (workspacesPorOrg[id_organizacao] || carregandoWsOrg.has(id_organizacao)) return
+    setCarregandoWsOrg((prev) => new Set(prev).add(id_organizacao))
+    setErroWsOrg((prev) => { const n = { ...prev }; delete n[id_organizacao]; return n })
+    try {
+      const { workspaces } = await adminOrganizacoesApi.listarWorkspaces(id_organizacao)
+      setWorkspacesPorOrg((prev) => ({ ...prev, [id_organizacao]: workspaces }))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Falha ao carregar workspaces da organização.'
+      setErroWsOrg((prev) => ({ ...prev, [id_organizacao]: msg }))
+      addNotification({ type: 'error', message: msg })
+    } finally {
+      setCarregandoWsOrg((prev) => { const n = new Set(prev); n.delete(id_organizacao); return n })
+    }
+  }
+
+  // Estado servidor de um vínculo: id_workspace presente nos vinculos do alvo.
+  function vinculosServidorDoUsuario(usuario: UsuarioGlobalUI): string[] {
+    return usuario.vinculos_workspace.map((v) => v.id_workspace)
+  }
+
+  function aoStagedToggleWorkspace(usuario: UsuarioGlobalUI, id_workspace: string) {
+    const ativo_servidor = vinculosServidorDoUsuario(usuario).includes(id_workspace)
+    setEdicoesPendentesPorUsuario((prev) => {
+      const cur = prev[usuario.id_usuario] ?? {}
+      const existente = cur[id_workspace]
+      const next: EdicoesPorUsuario = { ...cur }
+      if (existente) delete next[id_workspace]
+      else next[id_workspace] = { tipo: 'toggle', ativo: !ativo_servidor }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[usuario.id_usuario]
+      else proximo[usuario.id_usuario] = next
+      return proximo
+    })
+  }
+
+  function aoStagedAcaoEmMassa(
+    usuario: UsuarioGlobalUI,
+    ids_workspace: string[],
+    acao: 'habilitar' | 'bloquear',
+  ) {
+    if (ids_workspace.length === 0) return
+    const ativo_alvo = acao === 'habilitar'
+    const servidor = new Set(vinculosServidorDoUsuario(usuario))
+    setEdicoesPendentesPorUsuario((prev) => {
+      const cur = prev[usuario.id_usuario] ?? {}
+      const next: EdicoesPorUsuario = { ...cur }
+      for (const id_workspace of ids_workspace) {
+        const ativo_servidor = servidor.has(id_workspace)
+        if (ativo_servidor === ativo_alvo) { delete next[id_workspace]; continue }
+        next[id_workspace] = { tipo: 'toggle', ativo: ativo_alvo }
+      }
+      const proximo = { ...prev }
+      if (Object.keys(next).length === 0) delete proximo[usuario.id_usuario]
+      else proximo[usuario.id_usuario] = next
+      return proximo
+    })
+  }
+
+  function descartarEdicoesUsuario(id_usuario: string) {
+    setEdicoesPendentesPorUsuario((prev) => { const n = { ...prev }; delete n[id_usuario]; return n })
+    setSelecaoPorUsuario((prev) => { const n = { ...prev }; delete n[id_usuario]; return n })
+  }
+
+  async function salvarEdicoesUsuario(usuario: UsuarioGlobalUI) {
+    const pendentes = edicoesPendentesPorUsuario[usuario.id_usuario] ?? {}
+    if (Object.keys(pendentes).length === 0) return
+
+    setSalvandoEdicoes((prev) => new Set(prev).add(usuario.id_usuario))
+    try {
+      const finais = new Set<string>(vinculosServidorDoUsuario(usuario))
+      for (const [id_workspace, edicao] of Object.entries(pendentes)) {
+        if (edicao.ativo) finais.add(id_workspace)
+        else finais.delete(id_workspace)
+      }
+      await usuariosApi.substituirWorkspaces(usuario.id_usuario, Array.from(finais))
+      // Refetch antes de descartar pendências (evita flicker do badge HABILITADO/BLOQUEADO)
+      await loadUsers()
+      descartarEdicoesUsuario(usuario.id_usuario)
+      addNotification({
+        type: 'success',
+        message: `Acessos de "${usuario.nome_usuario}" atualizados.`,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao salvar alterações.'
+      addNotification({ type: 'error', message: msg })
+    } finally {
+      setSalvandoEdicoes((prev) => { const n = new Set(prev); n.delete(usuario.id_usuario); return n })
+    }
+  }
+
   // Filtro de opções com base no perfil logado
   const opcoesDisponiveis = useMemo(() => {
     if (perfilLogado === 'Super Admin') return OPCOES_TIPO_ADMIN
@@ -179,20 +300,15 @@ export function UsuariosAdmin() {
       return
     }
     try {
-      const result = await adminUsersApi.inviteUser({
+      await adminUsersApi.inviteUser({
         email_usuario: email,
         nome_usuario:  nome,
         tipo_usuario:  nivelToRole(fTipo),
       })
-      setUsers(prev => [...prev, {
-        id_usuario:         result.usuario.id_usuario,
-        nome_usuario:       fNome.trim(),
-        email_usuario:      fEmail.trim(),
-        tipo:               fTipo,
-        status:             'Ativo',
-        nome_organizacao:   fOrg,
-        vinculos_workspace: [],
-      }])
+      // Refetch é a fonte da verdade — backend retorna id_organizacao real e
+      // demais campos completos (UsuarioGlobalUI exige id_organizacao desde
+      // 2026-05-05 para alimentar o lazy-load do editor de vínculos).
+      await loadUsers()
       addNotification({ type: 'success', message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome: fNome.trim() }) })
       setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
     } catch (err) {
@@ -266,67 +382,8 @@ export function UsuariosAdmin() {
     },
   ]
 
-  const COLUNAS_FILHAS: TabelaGlobalColuna<VinculoWorkspaceUI>[] = [
-    {
-      key: 'nome_workspace', label: t('admin.usuarios-globais.children.workspace'), tipo: 'texto',
-      render: (_v, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome_workspace.charAt(0)}
-          </div>
-          <a
-            href={`/workspace/workspaces?id=${item.id_usuario_workspace}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none' }}
-            onClick={ev => ev.stopPropagation()}
-          >
-            {item.nome_workspace}
-          </a>
-        </div>
-      )
-    },
-    {
-      key: 'subdominio_workspace', label: t('admin.usuarios-globais.children.subdominio'), tipo: 'texto',
-      render: (_v, item) => (
-        <a
-          href={workspaceUrl(item.subdominio_workspace)}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ textDecoration: 'none' }}
-          onClick={ev => ev.stopPropagation()}
-        >
-          <code style={{
-            fontSize: '0.75rem',
-            color: '#a5b4fc',
-            background: 'rgba(165,180,252,0.05)',
-            border: '1px solid rgba(165,180,252,0.1)',
-            padding: '0.125rem 0.4rem',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            transition: 'all 0.15s'
-          }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.15)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.3)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.05)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.1)' }}
-          >
-            {item.subdominio_workspace}.usegravity.com.br
-          </code>
-        </a>
-      )
-    },
-    {
-      key: 'perfil', label: t('admin.usuarios-globais.children.plano_perfil'), tipo: 'texto',
-      render: (v) => (
-        <span style={{
-          fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600,
-          padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)',
-          borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)'
-        }}>{String(v)}</span>
-      )
-    },
-  ]
+  // COLUNAS_FILHAS removido em 2026-05-05 — o expandido agora usa
+  // ExpandidoEditorVinculos (componente compartilhado, padrão Assinaturas).
 
   const ACOES: TabelaGlobalAcao<UsuarioGlobalUI>[] = [
     {
@@ -497,20 +554,87 @@ export function UsuariosAdmin() {
             tooltipExpandir={t('admin.usuarios-globais.tabela_expandir_tooltip')}
             tooltipRecolher={t('admin.usuarios-globais.tabela_recolher_tooltip')}
             idKey="id_usuario"
-            renderExpandido={(user) => (
-              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
-                <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  <TreeStructure size={14} /> {t('admin.usuarios-globais.espacos_trabalho')} ({user.vinculos_workspace?.length || 0})
+            renderExpandido={(user) => {
+              // Branch 1 — Master/SAdmin/Admin: Mand. 04 LIMBO. Acesso implícito.
+              const acessoTotal =
+                user.tipo === 'Master' || user.tipo === 'Super Admin' || user.tipo === 'Admin'
+              if (acessoTotal) {
+                return (
+                  <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                    <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
+                    </div>
+                    <div
+                      role="note"
+                      aria-label={`Acesso implícito de ${user.tipo}`}
+                      style={{
+                        padding: '0.875rem 1rem', borderRadius: '10px',
+                        background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.25)',
+                        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                      }}
+                    >
+                      <ShieldCheck size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
+                      <div>
+                        <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#c7d2fe' }}>
+                          Acesso implícito a todos os workspaces da organização
+                        </p>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                          Como <strong>{user.tipo}</strong>, <strong>{user.nome_usuario}</strong> tem acesso a todos os workspaces de <strong>{user.nome_organizacao}</strong> sem necessidade de vínculo individual. Para revogar, altere o tipo do usuário.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+
+              // Branch 2 — Standard/Fornecedor: editor padrão Assinaturas com lazy-load.
+              // Gating α (decisão dono 2026-05-05): apenas SUPER_ADMIN edita aqui.
+              const podeEditar = perfilLogado === 'Super Admin'
+
+              if (!workspacesPorOrg[user.id_organizacao] && !carregandoWsOrg.has(user.id_organizacao)) {
+                void carregarWorkspacesOrg(user.id_organizacao)
+              }
+              const carregando = carregandoWsOrg.has(user.id_organizacao)
+              const erro = erroWsOrg[user.id_organizacao]
+              const workspacesDaOrg = workspacesPorOrg[user.id_organizacao] ?? []
+
+              return (
+                <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                  <div style={{ paddingTop: '1rem' }}>
+                    {carregando ? (
+                      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        Carregando workspaces de <strong>{user.nome_organizacao}</strong>…
+                      </div>
+                    ) : erro ? (
+                      <div style={{ padding: '2rem', textAlign: 'center', color: '#f87171', fontSize: '0.875rem', background: 'rgba(248,113,113,0.05)', borderRadius: '12px', border: '1px dashed rgba(248,113,113,0.3)' }}>
+                        Falha ao carregar workspaces: {erro}
+                      </div>
+                    ) : (
+                      <ExpandidoEditorVinculos
+                        usuario={{ id_usuario: user.id_usuario, nome_usuario: user.nome_usuario }}
+                        podeEditar={podeEditar}
+                        workspaces={workspacesDaOrg}
+                        vinculosServidor={vinculosServidorDoUsuario(user)}
+                        edicoesPendentes={edicoesPendentesPorUsuario[user.id_usuario]}
+                        selecaoIds={selecaoPorUsuario[user.id_usuario] ?? []}
+                        onSelecaoChange={(ids) =>
+                          setSelecaoPorUsuario((prev) => ({ ...prev, [user.id_usuario]: ids }))
+                        }
+                        onStagedToggle={(id_workspace) =>
+                          aoStagedToggleWorkspace(user, id_workspace)
+                        }
+                        onAcaoEmMassa={(ids, acao) =>
+                          aoStagedAcaoEmMassa(user, ids, acao)
+                        }
+                        onDescartar={() => descartarEdicoesUsuario(user.id_usuario)}
+                        onSalvar={() => void salvarEdicoesUsuario(user)}
+                        salvando={salvandoEdicoes.has(user.id_usuario)}
+                      />
+                    )}
+                  </div>
                 </div>
-                <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                  <TabelaGlobal<VinculoWorkspaceUI>
-                    dados={user.vinculos_workspace || []}
-                    colunas={COLUNAS_FILHAS}
-                    mensagemVazio={t('admin.usuarios-globais.espacos_vazio')}
-                  />
-                </div>
-              </div>
-            )}
+              )
+            }}
           />
         )}
       </div>

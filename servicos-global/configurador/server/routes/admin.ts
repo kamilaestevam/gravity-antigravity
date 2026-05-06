@@ -1,9 +1,10 @@
 // server/routes/admin.ts
 // Rotas exclusivas para gravity_admin — gestão de todas as organizações da plataforma
 // Montado em /api/v1/admin pelo index.ts
-// GET   /api/v1/admin/organizacoes                     — listar todas as organizações
-// GET   /api/v1/admin/organizacoes/:id_organizacao     — detalhes de uma organização
-// PATCH /api/v1/admin/organizacoes/:id_organizacao     — atualizar status
+// GET   /api/v1/admin/organizacoes                                 — listar todas as organizações
+// GET   /api/v1/admin/organizacoes/:id_organizacao                 — detalhes de uma organização
+// GET   /api/v1/admin/organizacoes/:id_organizacao/workspaces      — listar workspaces de uma org (lazy-load do editor de vínculos)
+// PATCH /api/v1/admin/organizacoes/:id_organizacao                 — atualizar status
 // GET   /api/v1/admin/estatisticas-plataforma          — estatísticas globais da plataforma
 // GET   /api/v1/admin/usuarios                         — listar todos os usuários
 // GET   /api/v1/admin/financeiro-admin                 — listar faturas globais
@@ -274,6 +275,41 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
 
     // PARIDADE ABSOLUTA
     res.json({ organizacao: tenant })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * GET /api/v1/admin/organizacoes/:id_organizacao/workspaces
+ * Lista os workspaces ATIVOs de uma organização (lazy-load do editor de
+ * vínculos no Admin Panel). Acesso: SUPER_ADMIN + ADMIN (requireGravityAdmin).
+ *
+ * IMPORTANTE: este endpoint é apenas LEITURA. A mutação de vínculos
+ * usa `PUT /api/v1/usuarios/:id_usuario/workspaces` (cross-org só para
+ * SUPER_ADMIN — opção α decidida pelo dono em 2026-05-05).
+ */
+adminRouter.get('/organizacoes/:id_organizacao/workspaces', async (req, res, next) => {
+  try {
+    const { id_organizacao } = req.params
+    const org = await prisma.organizacao.findUnique({
+      where: { id_organizacao },
+      select: { id_organizacao: true },
+    })
+    if (!org) throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
+
+    const workspaces = await prisma.workspace.findMany({
+      where: { id_organizacao, status_workspace: 'ATIVO' },
+      select: {
+        id_workspace: true,
+        nome_workspace: true,
+        subdominio_workspace: true,
+        status_workspace: true,
+        data_criacao_workspace: true,
+      },
+      orderBy: { nome_workspace: 'asc' },
+    })
+    res.json({ workspaces })
   } catch (err) {
     next(err)
   }

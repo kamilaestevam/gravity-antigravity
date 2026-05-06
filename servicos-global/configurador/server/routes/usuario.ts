@@ -51,9 +51,12 @@ const VincularUsuarioWorkspaceSchema = z.object({
 })
 
 export const SubstituirWorkspacesUsuarioSchema = z.object({
+  // Mand. 04 garante que MASTER/SAdmin/ADMIN são bloqueados na rota com 400
+  // ('tipo_usuario não vincula a workspaces'). Para PADRAO/FORNECEDOR, array
+  // vazio é estado válido — significa "revogar acesso a todos os workspaces"
+  // sem alterar o tipo do usuário (decisão dono 2026-05-05, padrão Assinaturas).
   workspaces: z
     .array(z.string().cuid())
-    .min(1, 'Selecione pelo menos um workspace')
     .refine((ids) => new Set(ids).size === ids.length, {
       message: 'Workspaces duplicados não são permitidos',
     }),
@@ -83,6 +86,7 @@ export const usuarioListItemSchema = z.object({
   nome_usuario: z.string(),
   email_usuario: z.string().email(),
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
@@ -97,6 +101,7 @@ export const convidarUsuarioResponseSchema = z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
     tipo_usuario: TipoUsuarioEnum,
+    acesso_workspaces_futuros: z.boolean(),
   }),
 })
 
@@ -118,6 +123,7 @@ export const alterarTipoUsuarioResponseSchema = z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
     tipo_usuario: TipoUsuarioPatenteEnum,
+    acesso_workspaces_futuros: z.boolean(),
   }),
 })
 
@@ -142,6 +148,7 @@ usersRouter.get('/', async (req, res, next) => {
         nome_usuario: true,
         email_usuario: true,
         tipo_usuario: true,
+        acesso_workspaces_futuros: true,
         data_criacao_usuario: true,
         memberships: {
           select: {
@@ -227,6 +234,12 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       }
     }
 
+    // Auto-vínculo a workspaces futuros (decisão arquitetural 2026-05-05).
+    // Quando o admin convida com 'all', o usuário também recebe vínculo automático
+    // a workspaces criados depois (F3). MASTER tem bypass por Mand. 04 — flag false.
+    const acesso_workspaces_futuros =
+      workspaces_alvo === 'all' && (tipo_usuario === 'PADRAO' || tipo_usuario === 'FORNECEDOR')
+
     // Cria usuário + vínculos atomicamente — se o createMany falhar, o usuário não é criado
     const usuario = await prisma.$transaction(async (tx) => {
       const criado = await tx.usuario.create({
@@ -236,6 +249,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
           email_usuario,
           nome_usuario,
           tipo_usuario,
+          acesso_workspaces_futuros,
         },
       })
 
@@ -261,6 +275,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
         id_usuario: usuario.id_usuario,
         email_usuario: usuario.email_usuario,
         tipo_usuario: usuario.tipo_usuario,
+        acesso_workspaces_futuros: usuario.acesso_workspaces_futuros,
       },
     })
   } catch (err) {
@@ -433,10 +448,10 @@ usersRouter.put('/:id_usuario/workspaces', requireUserManagementRole, async (req
     const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
     if (adicionados.length > 0 || removidos.length > 0) {
       securityAudit.permissionChanged(idOrganizacaoAlvo, req.auth.id_usuario, {
-        targetUserId: id_usuario,
-        permission: 'workspace_access',
-        action: adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
-      }).catch(() => {})
+        id_usuario_alvo: id_usuario,
+        nome_permissao:  'workspace_access',
+        acao_permissao:  adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
+      }, req.auth.nome_usuario).catch(() => {})
     }
 
     res.json({ workspaces: workspaceIds })
@@ -604,20 +619,27 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
         }
       }
 
+      // Mand. 04 + F4 — quando promove para tipo com bypass (MASTER/SAdmin/Admin),
+      // limpa `acesso_workspaces_futuros` para false. A flag só faz sentido em
+      // PADRAO/FORNECEDOR; mantê-la em master/admin gera lixo lógico no F3.
+      const limpaAcessoFuturos = novoTipo === 'MASTER' || novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN'
+
       return tx.usuario.update({
         where: { id_usuario: alvo.id_usuario },
-        data: { tipo_usuario: novoTipo },
-        select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
+        data: limpaAcessoFuturos
+          ? { tipo_usuario: novoTipo, acesso_workspaces_futuros: false }
+          : { tipo_usuario: novoTipo },
+        select: { id_usuario: true, email_usuario: true, tipo_usuario: true, acesso_workspaces_futuros: true },
       })
     }, {
       isolationLevel: 'Serializable',
     })
 
     securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
-      targetUserId: alvo.id_usuario,
-      oldRole: alvo.tipo_usuario,
-      newRole: novoTipo,
-    }).catch(() => {})
+      id_usuario_alvo:        alvo.id_usuario,
+      tipo_usuario_anterior:  alvo.tipo_usuario,
+      tipo_usuario_novo:      novoTipo,
+    }, req.auth.nome_usuario).catch(() => {})
 
     res.json({ usuario: atualizado })
   } catch (err) {
@@ -769,16 +791,96 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
     })
 
     securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
-      targetUserId: id_usuario,
-      permission: `${produto.slug_produto_gravity}:${parsed.data.id_workspace}`,
-      action: result.total_inseridas >= result.total_removidas ? 'GRANTED' : 'REVOKED',
-    }).catch(() => {})
+      id_usuario_alvo: id_usuario,
+      nome_permissao:  `${produto.slug_produto_gravity}:${parsed.data.id_workspace}`,
+      acao_permissao:  result.total_inseridas >= result.total_removidas ? 'GRANTED' : 'REVOKED',
+    }, req.auth.nome_usuario).catch(() => {})
 
     res.json({
       permissoes: parsed.data.permissoes,
       total_inseridas: result.total_inseridas,
       total_removidas: result.total_removidas,
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── F4 — PATCH /:id_usuario/acesso-workspaces-futuros ────────────────────
+// Alterna a flag de auto-vínculo a workspaces futuros (Mand. 04 — só PADRAO/FORNECEDOR).
+
+export const AlternarAcessoWorkspacesFuturosSchema = z.object({
+  acesso_workspaces_futuros: z.boolean(),
+})
+
+/**
+ * PATCH /api/v1/usuarios/:id_usuario/acesso-workspaces-futuros
+ * Liga/desliga a flag para usuário PADRAO/FORNECEDOR. Operação idempotente.
+ *
+ * Defesas:
+ *   • requireUserManagementRole (SAdmin/Admin/Master)
+ *   • Anti-escalada (FORBIDDEN_SELF_EDIT)
+ *   • IDOR cross-org (404 NOT_FOUND para alvo de outra org sem privilégio global)
+ *   • Mand. 04 — alvo MASTER/SAdmin/Admin retorna 400 INVALID_OPERATION
+ *
+ * Comportamento:
+ *   • NÃO faz backfill retroativo (a flag só afeta workspaces FUTUROS).
+ *     Para vincular aos workspaces atuais, usar `PUT /:id/workspaces` ou o
+ *     botão "Vincular aos atuais agora" da F5 do frontend.
+ */
+usersRouter.patch('/:id_usuario/acesso-workspaces-futuros', requireUserManagementRole, async (req, res, next) => {
+  try {
+    const parsed = AlternarAcessoWorkspacesFuturosSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const id_usuario = req.params.id_usuario
+
+    // Anti-escalada
+    if (id_usuario === req.auth.id_usuario) {
+      throw new AppError(
+        'Você não pode alterar a própria configuração de auto-vínculo',
+        403,
+        'FORBIDDEN_SELF_EDIT',
+      )
+    }
+
+    // SUPER_ADMIN tem escopo global; demais limitam à própria organização
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+        })
+
+    if (!alvo) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+
+    // Mand. 04 — alvos com bypass não recebem flag (lixo lógico no F3)
+    if (alvo.tipo_usuario === 'SUPER_ADMIN' || alvo.tipo_usuario === 'ADMIN' || alvo.tipo_usuario === 'MASTER') {
+      throw new AppError(
+        `Usuário ${alvo.tipo_usuario} tem acesso global automático — flag de auto-vínculo não se aplica`,
+        400,
+        'INVALID_OPERATION',
+      )
+    }
+
+    const atualizado = await prisma.usuario.update({
+      where: { id_usuario: alvo.id_usuario },
+      data: { acesso_workspaces_futuros: parsed.data.acesso_workspaces_futuros },
+      select: { id_usuario: true, tipo_usuario: true, acesso_workspaces_futuros: true },
+    })
+
+    securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
+      id_usuario_alvo: alvo.id_usuario,
+      nome_permissao:  'workspace_futuros_auto_vinculo',
+      acao_permissao:  parsed.data.acesso_workspaces_futuros ? 'GRANTED' : 'REVOKED',
+    }, req.auth.nome_usuario).catch(() => {})
+
+    res.json({ usuario: atualizado })
   } catch (err) {
     next(err)
   }

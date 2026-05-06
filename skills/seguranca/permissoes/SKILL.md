@@ -435,19 +435,41 @@ Após o convite, um Master pode alterar quais Workspaces um Standard ou Supplier
 | **Usuário não encontrado na organização** | `404 NOT_FOUND` — sem vazar existência |
 | **IDs de Workspace de outra organização (IDOR)** | `403 FORBIDDEN` — `workspace.findMany` filtra por `id_organizacao` antes de qualquer escrita |
 | **Atomicidade** | `$transaction(deleteMany + createMany)` — nunca estado parcial |
-| **Audit trail** | `securityAudit.permissionChanged` com `action: 'GRANTED'` se workspaces adicionados, `'REVOKED'` se apenas removidos |
+| **Array vazio (revogar todos)** | **Aceito** desde 2026-05-05 — Standard/Fornecedor pode existir sem nenhum vínculo. Defesa em camada continua bloqueando MASTER/SAdmin/Admin |
+| **Audit trail** | `securityAudit.permissionChanged` com `acao_permissao: 'GRANTED'` se workspaces adicionados, `'REVOKED'` se apenas removidos (inclui o caso "revogar todos") |
 | **Sem diff** | Se workspaces novos = antigos, `permissionChanged` NÃO é chamado |
 
 ### Schema de Validação
 
 ```typescript
-// Exportado como UpdateWorkspacesSchema para contract testing (Mandamento 09)
+// Exportado como SubstituirWorkspacesUsuarioSchema para contract testing (Mandamento 09).
+// Sem min(1) — array vazio é estado válido (revogar todos os vínculos sem alterar tipo).
+// Defesa em camada (rota linha ~422-428) bloqueia MASTER/SAdmin/Admin com 400.
 z.object({
   workspaces: z.array(z.string().cuid())
-    .min(1, 'É necessário pelo menos um workspace')
     .refine(ids => new Set(ids).size === ids.length, 'Workspaces duplicados não são permitidos'),
 })
 ```
+
+### UI de gestão (frontend)
+
+Editor inline na linha expandida — padrão Assinaturas (cânone em [criacao-telas](../../ux/criacao-telas/SKILL.md)). Componente compartilhado [`ExpandidoEditorVinculos`](../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) é agnóstico de gating; cada caller calcula `podeEditar` conforme sua superfície:
+
+| Tela | Cálculo de `podeEditar` | Endpoint de carregamento de workspaces |
+|---|---|---|
+| `/workspace/usuarios` (Configurador) | `usePodeEditarUsuario(alvo).podeAlterarVinculosWorkspace && !ehProprio` | `GET /api/v1/me/workspaces` (org logada) |
+| `/admin/usuarios-globais` (Admin Panel) | **Opção α (decisão dono 2026-05-05): `perfilLogado === 'Super Admin'`** — apenas SAdmin edita cross-org. ADMIN visualiza o editor em modo read-only. | `GET /api/v1/admin/organizacoes/:id_organizacao/workspaces` (lazy-load por org do alvo, `requireGravityAdmin`) |
+
+Em ambos os casos, quando `podeEditar=false` o componente renderiza badges sem botões (defesa em profundidade espelhando o backend).
+
+### Cross-org via SUPER_ADMIN
+
+A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/configurador/server/routes/usuario.ts) detecta `req.auth.tipo_usuario === 'SUPER_ADMIN'` e omite o filtro `id_organizacao` no `findFirst` do alvo (linhas 410-414). Isso permite ao SAdmin editar vínculos de qualquer org via Admin Panel. Defesas preservadas:
+
+- **`idOrganizacaoAlvo` vem do alvo, não do ator** (`const idOrganizacaoAlvo = usuario.id_organizacao`) — `deleteMany`/`createMany` ficam isolados na org correta
+- **Audit trail emitido na org do alvo** — `securityAudit.permissionChanged(idOrganizacaoAlvo, req.auth.id_usuario, ...)`
+- **Mand. 04 mantido** — alvo MASTER/SAdmin/ADMIN ainda retorna 400 INVALID_OPERATION mesmo para SAdmin
+- **Anti-self-edit mantido** — `id_usuario === req.auth.id_usuario` retorna 403 mesmo para SAdmin
 
 ## Edição de patente (`tipo_usuario`)
 

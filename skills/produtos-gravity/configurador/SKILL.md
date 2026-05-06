@@ -119,6 +119,16 @@ Para um usuário `STANDARD` ou `SUPPLIER` trabalhar em um Workspace, ele precisa
 - Um `STANDARD` com vínculo no Workspace A **não acessa** o Workspace B
 - **MASTER** tem acesso a todos os Workspaces da organização SEM `UsuarioWorkspace` (Mandamento 04). O legado de Bulk Insert para MASTER foi removido — acesso é reconhecido pelo `tipo_usuario`, não pelo vínculo.
 
+#### UI de Vinculação — Editor inline na linha expandida (decisão dono 2026-05-05)
+
+A tela `/workspace/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
+
+- **Master/SAdmin/Admin** — linha expandida exibe panel "Acesso implícito a todos os workspaces" (read-only). Para revogar acesso, alterar `tipo_usuario`.
+- **Standard/Fornecedor** — linha expandida exibe editor com checkboxes, multi-select, toggle individual Play/Pause, toolbar Habilitar/Bloquear em massa, Salvar/Descartar com badge de pendentes.
+- **Endpoint:** `PUT /api/v1/usuarios/:id_usuario/workspaces` — replace-all atômico. **Aceita array vazio** (revogar todos os vínculos sem alterar tipo do usuário) — Zod afrouxado de `min(1)` → `min(0)` em 2026-05-05. Defesa em camada continua bloqueando MASTER/SAdmin/ADMIN com 400 INVALID_OPERATION.
+- **Audit trail** — `securityAudit.permissionChanged` com `acao_permissao: 'GRANTED' | 'REVOKED'` consolidando o diff de adições/remoções no save.
+- **Modal `ModalEditarUsuario`** continua existindo como caminho avançado para permissões granulares por produto (não foi removido).
+
 ### Regra Crítica — Permissões Granulares
 
 As permissões granulares dentro de cada produto **só existem após o produto as registrar no Configurador**.

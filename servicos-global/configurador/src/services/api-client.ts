@@ -80,6 +80,30 @@ async function request<T>(
   return res.json()
 }
 
+/**
+ * Baixa um arquivo de uma rota autenticada com requireAuth (Bearer token).
+ * window.open()/<a href> não enviam Authorization → 401. Solução: fetch como blob
+ * via apiFetch e disparar download programático.
+ */
+export async function apiDownload(url: string, fallbackName = 'arquivo'): Promise<void> {
+  const res = await apiFetch(url)
+  if (!res.ok) {
+    throw new Error(`Falha ao baixar (${res.status}): ${await res.text()}`)
+  }
+  const blob = await res.blob()
+  const cd = res.headers.get('Content-Disposition') ?? ''
+  const match = cd.match(/filename="?([^"]+)"?/i)
+  const filename = match ? decodeURIComponent(match[1]) : fallbackName
+  const objectUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = objectUrl
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+}
+
 /** fetch autenticado com token Clerk — retorna Response bruta (como fetch nativo) */
 export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const { headers: extraHeaders, ...restOptions } = options
@@ -289,6 +313,7 @@ export const usuarioListItemSchema = z.object({
   nome_usuario: z.string(),
   email_usuario: z.string().email(),
   tipo_usuario: tipoUsuarioEnum,
+  acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
@@ -304,6 +329,7 @@ export const convidarUsuarioResponseSchema = z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
     tipo_usuario: tipoUsuarioWorkspaceEnum,
+    acesso_workspaces_futuros: z.boolean(),
   }),
 })
 
@@ -325,6 +351,15 @@ export const alterarTipoUsuarioResponseSchema = z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
     tipo_usuario: tipoUsuarioWorkspaceEnum,
+    acesso_workspaces_futuros: z.boolean(),
+  }),
+})
+
+export const alterarAcessoWorkspacesFuturosResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario: z.string(),
+    tipo_usuario: tipoUsuarioWorkspaceEnum,
+    acesso_workspaces_futuros: z.boolean(),
   }),
 })
 
@@ -461,6 +496,17 @@ export const adminProductsApi = {
 }
 
 // ─── Admin: Organizações ────────────────────────────────────────────────────
+// Endpoints do painel admin para gestão cross-org. Mand. 09 — Zod bilateral.
+
+export const listarWorkspacesOrganizacaoAdminResponseSchema = z.object({
+  workspaces: z.array(z.object({
+    id_workspace: z.string(),
+    nome_workspace: z.string(),
+    subdominio_workspace: z.string().nullable(),
+    status_workspace: z.string(),
+    data_criacao_workspace: z.union([z.string(), z.date()]),
+  })),
+})
 
 export const adminOrganizacoesApi = {
   async list(params?: { page?: number; limit?: number; search?: string }) {
@@ -515,6 +561,18 @@ export const adminOrganizacoesApi = {
         totalUsuarios:         number
       }
     }>('/v1/admin/estatisticas-plataforma')
+  },
+
+  /**
+   * Lista workspaces ATIVOs de uma organização — alimenta o editor de
+   * vínculos no Admin Panel (lazy-load no expand da linha do usuário).
+   * Auth: SUPER_ADMIN + ADMIN (requireGravityAdmin no backend).
+   */
+  async listarWorkspaces(id_organizacao: string) {
+    const raw = await request<unknown>(
+      `/v1/admin/organizacoes/${encodeURIComponent(id_organizacao)}/workspaces`,
+    )
+    return listarWorkspacesOrganizacaoAdminResponseSchema.parse(raw)
   },
 }
 
@@ -1157,6 +1215,19 @@ export const usuariosApi = {
       body: JSON.stringify({ tipo_usuario }),
     })
     return alterarTipoUsuarioResponseSchema.parse(raw)
+  },
+
+  /**
+   * F4 — Alterna a flag `acesso_workspaces_futuros` do usuário.
+   * NÃO faz backfill nos workspaces atuais — só afeta workspaces criados depois.
+   * Backend rejeita alvo MASTER/SAdmin/Admin (Mand. 04).
+   */
+  async alterarAcessoWorkspacesFuturos(id_usuario: string, acesso_workspaces_futuros: boolean) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/acesso-workspaces-futuros`, {
+      method: 'PATCH',
+      body: JSON.stringify({ acesso_workspaces_futuros }),
+    })
+    return alterarAcessoWorkspacesFuturosResponseSchema.parse(raw)
   },
 
   /** Lista permissões granulares (formato canônico <slug>:<secao>:<acao>). */

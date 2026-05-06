@@ -163,9 +163,18 @@ app.use('/api/v1/internal', serviceTokenRouter)
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
 import { historicoRouter, historicoReadOnlyRouter } from '../../servicos-plataforma/historico-global/server/routes.js'
+import { historicoGlobalAdminRouter } from './routes/historico-global-admin.js'
 // Middleware obrigatório: rate limit + auth Clerk + role check (SUPER_ADMIN/ADMIN)
 // Sem isso, /api/tenant/historico-global/* ficou exposto publicamente — todas as 12 rotas
 // do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
+//
+// O `historicoGlobalAdminRouter` é montado PRIMEIRO e intercepta APENAS
+// `GET /logs` para enriquecer cada item com `email_ator_historico_log` (lookup
+// batch em `prisma.usuario`). Demais rotas (`/logs/:id`, `/logs/export`,
+// `/alerts`, `/alert-rules`, `/lgpd`) caem no `historicoRouter` original
+// pelo segundo mount — Express avança para o próximo handler quando o path
+// não casa nenhuma rota do primeiro router.
+app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoGlobalAdminRouter)
 app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 // Mount não-admin (somente leitura): qualquer usuário autenticado consulta o

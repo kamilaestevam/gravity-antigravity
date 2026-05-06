@@ -44,19 +44,19 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/admin/historico-global",
       "middleware": ["rateLimitPresets.admin", "requireAuth", "requireGravityAdmin"],
-      "note": "Montado pelo configurador (porta 8005) — superfície completa do historico-global (ingestão, export, alert-rules, lgpd). Todas as rotas exigem SUPER_ADMIN ou ADMIN. Para leitura por usuário comum de workspace ver `historico-leitura`.",
+      "note": "Montado pelo configurador (porta 8005) — superfície completa do historico-global (ingestão, export, alert-rules, lgpd). Todas as rotas exigem SUPER_ADMIN ou ADMIN. `GET /logs` é interceptado pelo proxy `historicoGlobalAdminRouter` (configurador/server/routes/historico-global-admin.ts) que enriquece cada log com `email_ator_historico_log` via lookup batch em `prisma.usuario` — demais rotas caem direto no historicoRouter do upstream. Para leitura por usuário comum de workspace ver `historico-leitura`.",
       "endpoints": {
         "logs": {
-          "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-internal-key só podem gravar actor_type em {AI, API, JOB, INTEGRATION}.",
-          "GET /logs": "Listar logs (cursor pagination, limit máximo: 200). Filtros: actor_type, module, action, status, startDate, endDate, search",
-          "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros vai para background job via PG Boss)",
+          "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-internal-key só podem gravar tipo_ator_historico_log em {IA, API, JOB, INTEGRACAO}.",
+          "GET /logs": "Listar logs (cursor pagination, limit máximo: 200). Resposta enriquecida com `email_ator_historico_log` para atores tipo USUARIO. Filtros: tipo_ator_historico_log, id_ator_historico_log, modulo_historico_log, tipo_recurso_historico_log, id_recurso_historico_log, acao_historico_log, status_historico_log, id_produto_historico_log, startDate, endDate, search, cursor.",
+          "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros vai para background job via PG Boss). Filtros DDD canonical idênticos a GET /logs.",
           "GET /logs/export/:jobId/status": "Status do job de exportação assíncrona",
           "GET /logs/export/:jobId/download": "Download do arquivo exportado",
-          "GET /logs/:id": "Buscar log por ID (cross-tenant bloqueado para STANDARD/SUPPLIER)"
+          "GET /logs/:id": "Buscar log por ID (cross-tenant bloqueado para PADRAO/FORNECEDOR)"
         },
         "alerts": {
-          "GET /alerts": "Listar eventos de alerta (filtro: status=PENDING|REVIEWED|ESCALATED)",
-          "PATCH /alerts/:id": "Atualizar status do alerta (REVIEWED | ESCALATED)"
+          "GET /alerts": "Listar eventos de alerta (filtro: status=PENDENTE|REVISADO|ESCALADO). Inclui regra_evento_alerta.nome_regra_alerta.",
+          "PATCH /alerts/:id": "Atualizar status do alerta. Body: { status_evento_alerta: 'REVISADO' | 'ESCALADO', notas_evento_alerta?: string }."
         },
         "alert-rules": {
           "GET /alert-rules": "Listar regras de alerta",
@@ -65,7 +65,7 @@
           "DELETE /alert-rules/:id": "Remover regra de alerta"
         },
         "lgpd": {
-          "POST /lgpd/anonymize": "Anonimizar actor em todos os logs (SUPER_ADMIN/ADMIN/MASTER)"
+          "POST /lgpd/anonymize": "Anonimizar ator em todos os logs (SUPER_ADMIN/ADMIN/MASTER)"
         }
       }
     },

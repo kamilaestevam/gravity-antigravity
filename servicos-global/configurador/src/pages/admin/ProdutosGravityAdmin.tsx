@@ -340,12 +340,6 @@ export function ProdutosGravityAdmin() {
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>,
     },
     {
-      key: 'descricao_produto_gravity', label: t('admin.produtos-gravity.tabela.o_que_e'), tipo: 'texto',
-      tooltipTitulo: 'DESCRIÇÃO',
-      tooltipDescricao: 'Resumo das funcionalidades principais exibido para o cliente',
-      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>,
-    },
-    {
       key: 'modulo_backend_produto_gravity', label: t('admin.produtos-gravity.tabela.slug_modulo'), tipo: 'texto',
       tooltipTitulo: 'VÍNCULO TÉCNICO',
       tooltipDescricao: 'Identificador do sistema para ativação automática das funções',

@@ -16,6 +16,7 @@ import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -25,39 +26,14 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
-  tipo_servico_plataforma:              z.enum(['NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
+  // Transicao 2026-05-06: backend pode estar servindo 'NUCLEO' (legacy) ate restart.
+  // Aceita ambos enquanto a renomeacao se propaga; ROTULO mapeia NUCLEO -> 'Plataforma'.
+  tipo_servico_plataforma:              z.enum(['PLATAFORMA', 'NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
 })
 
 const servicosResponseSchema = z.object({
   servicos: z.array(servicoPlataformaSchema),
   error:    z.string().optional(),
-})
-
-const logConsumoSchema = z.object({
-  id_log_consumo:                   z.string(),
-  id_organizacao:                   z.string(),
-  id_produto_gravity:               z.string(),
-  id_usuario:                       z.string().nullable(),
-  id_correlacao:                    z.string().nullable(),
-  endpoint_log_consumo:             z.string(),
-  metodo_http_log_consumo:          z.string(),
-  codigo_resposta_http_log_consumo: z.number(),
-  latencia_ms_log_consumo:          z.number(),
-  data_criacao_log_consumo:         z.string(),
-  data_log_consumo:                 z.string(),
-  hora_log_consumo:                 z.string(),
-  resultado_log_consumo:            z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR']),
-})
-
-const logsResponseSchema = z.object({
-  logs: z.array(logConsumoSchema),
-  paginacao: z.object({
-    pagina:  z.number(),
-    limite:  z.number(),
-    total:   z.number(),
-    paginas: z.number(),
-  }),
-  error: z.string().optional(),
 })
 
 const estatisticasLogConsumoSchema = z.object({
@@ -71,13 +47,14 @@ const estatisticasLogConsumoSchema = z.object({
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
-type LogConsumo = z.infer<typeof logConsumoSchema>
 type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
 type TipoServicoPlataforma = ServicoPlataforma['tipo_servico_plataforma']
 
 // Rotulos com ortografia PT-BR — type-safe via Record<TipoServicoPlataforma>
+// NUCLEO mantido apenas para compat de transicao — mapeia para 'Plataforma'.
 const ROTULO_TIPO_SERVICO: Record<TipoServicoPlataforma, string> = {
-  NUCLEO:          'Núcleo',
+  PLATAFORMA:      'Plataforma',
+  NUCLEO:          'Plataforma',
   PRODUTO_GRAVITY: 'Produto Gravity',
   CONECTOR:        'Conector',
 }
@@ -109,7 +86,6 @@ export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
-  const [logs, setLogs] = useState<LogConsumo[]>([])
   const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
@@ -122,34 +98,27 @@ export function ApiCockpitAdmin() {
     try {
       setLoading(true)
       setErroCarregar(null)
-      const [svcRes, logsRes, statsRes] = await Promise.all([
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',         { signal }),
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo?limite=50',  { signal }),
+      const [svcRes, statsRes] = await Promise.all([
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',           { signal }),
         requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
       ])
 
       if (!svcRes.ok)   throw new Error(`saude-servicos ${svcRes.status} ${svcRes.statusText}`)
-      if (!logsRes.ok)  throw new Error(`log-consumo ${logsRes.status} ${logsRes.statusText}`)
       if (!statsRes.ok) throw new Error(`estatisticas ${statsRes.status} ${statsRes.statusText}`)
 
       const svcRaw = await svcRes.json()
-      const logsRaw = await logsRes.json()
       const statsRaw = await statsRes.json()
 
       // Backend retorna `error` no payload mesmo com 200 quando o api-cockpit esta down
       if (svcRaw.error) throw new Error(svcRaw.error)
-      if (logsRaw.error) throw new Error(logsRaw.error)
 
       const svcParsed = servicosResponseSchema.safeParse(svcRaw)
-      const logsParsed = logsResponseSchema.safeParse(logsRaw)
       const statsParsed = estatisticasLogConsumoSchema.safeParse(statsRaw)
 
       if (!svcParsed.success)   throw new Error('Payload de saude-servicos invalido')
-      if (!logsParsed.success)  throw new Error('Payload de log-consumo invalido')
       if (!statsParsed.success) throw new Error('Payload de estatisticas invalido')
 
       setServicos(svcParsed.data.servicos)
-      setLogs(logsParsed.data.logs)
       setEstatisticas(statsParsed.data)
     } catch (err) {
       // Ignora AbortError (cleanup do useEffect no StrictMode)
@@ -270,58 +239,32 @@ export function ApiCockpitAdmin() {
     },
     {
       key: 'latencia_ms_servico_plataforma',
-      label: t('admin.api-cockpit.tabela.consumo'),
+      label: t('admin.api-cockpit.tabela.latencia'),
       tipo: 'texto',
+      align: 'center',
       tooltipTitulo: 'Latência',
       tooltipDescricao: 'Tempo de resposta do último health-check em milissegundos',
       render: (val) => `${val as number}ms`,
     },
+    {
+      key: 'versao_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.versao'),
+      tipo: 'texto',
+      align: 'center',
+      tooltipTitulo: 'Versão',
+      tooltipDescricao: 'Versão da API ou serviço atualmente em execução',
+      render: (val) => (val ? String(val) : '—'),
+    },
+    {
+      key: 'data_ultimo_check_servico_plataforma',
+      label: t('admin.api-cockpit.tabela.ultimo_check'),
+      tipo: 'texto',
+      tooltipTitulo: 'Último Check',
+      tooltipDescricao: 'Data e hora da última verificação de disponibilidade',
+      render: (val) => (val ? new Date(val as string).toLocaleString('pt-BR') : '—'),
+    },
   ]
 
-  const colunasLogs: TabelaGlobalColuna<LogConsumo>[] = [
-    {
-      key: 'data_log_consumo',
-      label: t('admin.api-cockpit.tabela.data'),
-      tipo: 'texto',
-      tooltipTitulo: 'Data',
-      tooltipDescricao: 'Data em que a requisição foi registrada',
-    },
-    {
-      key: 'hora_log_consumo',
-      label: t('admin.api-cockpit.tabela.hora'),
-      tipo: 'texto',
-      tooltipTitulo: 'Hora',
-      tooltipDescricao: 'Hora exata em que a requisição ocorreu',
-    },
-    {
-      key: 'id_organizacao',
-      label: t('admin.api-cockpit.tabela.org'),
-      tipo: 'texto',
-      tooltipTitulo: 'Organização',
-      tooltipDescricao: 'Empresa que originou esta chamada à API',
-    },
-    {
-      key: 'metodo_http_log_consumo',
-      label: t('admin.api-cockpit.tabela.metodo'),
-      tipo: 'texto',
-      tooltipTitulo: 'Método',
-      tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE',
-    },
-    {
-      key: 'endpoint_log_consumo',
-      label: t('admin.api-cockpit.tabela.endpoint'),
-      tipo: 'texto',
-      tooltipTitulo: 'Endpoint',
-      tooltipDescricao: 'Rota da API que recebeu a chamada',
-    },
-    {
-      key: 'codigo_resposta_http_log_consumo',
-      label: t('admin.api-cockpit.tabela.status'),
-      tipo: 'texto',
-      tooltipTitulo: 'Status',
-      tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso',
-    },
-  ]
 
   return (
     <PaginaGlobal
@@ -372,7 +315,14 @@ export function ApiCockpitAdmin() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1rem',
+          padding: '1.25rem 0 0.5rem',  // respiro vs stats acima e conteudo abaixo (padrao cga-tabs)
+        }}>
+          <ApiCockpitAdminTabs />
           <BotaoGlobal
             variante="secundario"
             onClick={() => { void carregarMonitor(); void carregarGabiUsage() }}
@@ -416,7 +366,7 @@ export function ApiCockpitAdmin() {
           </BotaoGlobal>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* ── GABI IA Usage Panel ── */}
           {gabiUsage && !gabiLoading && (
             <div
@@ -487,15 +437,8 @@ export function ApiCockpitAdmin() {
             id="admin-inventory"
             colunas={colunasInventario}
             dados={servicos}
-            acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'inventario-infraestrutura', 'Monitor de Infraestrutura')}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'inventario-infraestrutura', 'Inventário de Infraestrutura')}
             mensagemVazio={loading ? 'Carregando serviços...' : t('admin.api-cockpit.vazio.sem_servicos')}
-          />
-          <TabelaGlobal
-            id="admin-telemetry"
-            colunas={colunasLogs}
-            dados={logs}
-            acoesExportacao={getAcoesExportacaoPadrao(colunasLogs, 'logs-globais', 'Logs Globais (Admin)')}
-            mensagemVazio={loading ? 'Carregando logs...' : t('admin.api-cockpit.vazio.sem_trafego')}
           />
         </div>
       )}

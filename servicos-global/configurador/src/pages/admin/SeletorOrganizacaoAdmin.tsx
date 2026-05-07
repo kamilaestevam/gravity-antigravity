@@ -69,6 +69,7 @@ export function SeletorOrganizacaoAdmin({ valor, aoMudar, rotuloVazio }: Props) 
       border: '1px solid var(--border-color)',
     }}>
       <Buildings size={20} weight="duotone" style={{ color: 'var(--brand-primary, #818cf8)', flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
       <CampoGeralGlobal
         label="Organização"
         htmlFor="seletor-organizacao-admin"
@@ -96,6 +97,7 @@ export function SeletorOrganizacaoAdmin({ valor, aoMudar, rotuloVazio }: Props) 
           ))}
         </select>
       </CampoGeralGlobal>
+      </div>
     </div>
   )
 }

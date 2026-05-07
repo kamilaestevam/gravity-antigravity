@@ -165,7 +165,14 @@ export function ApiCockpitAdminLogs() {
       }
       stats={<ApiCockpitAdminKpis />}
       toolbar={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1rem',
+          padding: '1.25rem 0 0.5rem',  // respiro vs stats acima e conteudo abaixo (padrao cga-tabs)
+        }}>
+          <ApiCockpitAdminTabs />
           <BotaoGlobal
             variante="secundario"
             onClick={() => void carregar()}
@@ -177,9 +184,7 @@ export function ApiCockpitAdminLogs() {
         </div>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
-        <ApiCockpitAdminTabs />
-
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {erro && (
           <div role="alert" style={{
             padding: '0.75rem 1rem', borderRadius: '8px',

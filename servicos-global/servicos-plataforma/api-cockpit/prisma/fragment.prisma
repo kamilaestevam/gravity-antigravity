@@ -148,8 +148,8 @@ model LogRequisicaoApi {
   id_produto_gravity String?
   id_usuario         String?
 
-  // Relação
-  id_api_token String
+  // Relação — nullable porque chamadas internas (S2S sem token) tambem geram log
+  id_api_token String?
 
   // Rastreamento distribuido (header x-correlation-id propagado entre serviços)
   id_correlacao String?

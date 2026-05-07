@@ -239,10 +239,10 @@ export type WebhookConfiguracao = $Result.DefaultSelection<Prisma.$WebhookConfig
  */
 export type WebhookLog = $Result.DefaultSelection<Prisma.$WebhookLogPayload>
 /**
- * Model LogConsumo
+ * Model LogRequisicaoApi
  * 
  */
-export type LogConsumo = $Result.DefaultSelection<Prisma.$LogConsumoPayload>
+export type LogRequisicaoApi = $Result.DefaultSelection<Prisma.$LogRequisicaoApiPayload>
 /**
  * Model ApiIntegracaoErp
  * 
@@ -1025,14 +1025,14 @@ export class PrismaClient<
   get webhookLog(): Prisma.WebhookLogDelegate<ExtArgs>;
 
   /**
-   * `prisma.logConsumo`: Exposes CRUD operations for the **LogConsumo** model.
+   * `prisma.logRequisicaoApi`: Exposes CRUD operations for the **LogRequisicaoApi** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more LogConsumos
-    * const logConsumos = await prisma.logConsumo.findMany()
+    * // Fetch zero or more LogRequisicaoApis
+    * const logRequisicaoApis = await prisma.logRequisicaoApi.findMany()
     * ```
     */
-  get logConsumo(): Prisma.LogConsumoDelegate<ExtArgs>;
+  get logRequisicaoApi(): Prisma.LogRequisicaoApiDelegate<ExtArgs>;
 
   /**
    * `prisma.apiIntegracaoErp`: Exposes CRUD operations for the **ApiIntegracaoErp** model.
@@ -1529,7 +1529,7 @@ export namespace Prisma {
     ApiToken: 'ApiToken',
     WebhookConfiguracao: 'WebhookConfiguracao',
     WebhookLog: 'WebhookLog',
-    LogConsumo: 'LogConsumo',
+    LogRequisicaoApi: 'LogRequisicaoApi',
     ApiIntegracaoErp: 'ApiIntegracaoErp'
   };
 
@@ -1546,7 +1546,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logConsumo" | "apiIntegracaoErp"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4700,73 +4700,73 @@ export namespace Prisma {
           }
         }
       }
-      LogConsumo: {
-        payload: Prisma.$LogConsumoPayload<ExtArgs>
-        fields: Prisma.LogConsumoFieldRefs
+      LogRequisicaoApi: {
+        payload: Prisma.$LogRequisicaoApiPayload<ExtArgs>
+        fields: Prisma.LogRequisicaoApiFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.LogConsumoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload> | null
+            args: Prisma.LogRequisicaoApiFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.LogConsumoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           findFirst: {
-            args: Prisma.LogConsumoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload> | null
+            args: Prisma.LogRequisicaoApiFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.LogConsumoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           findMany: {
-            args: Prisma.LogConsumoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>[]
+            args: Prisma.LogRequisicaoApiFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>[]
           }
           create: {
-            args: Prisma.LogConsumoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           createMany: {
-            args: Prisma.LogConsumoCreateManyArgs<ExtArgs>
+            args: Prisma.LogRequisicaoApiCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.LogConsumoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>[]
+            args: Prisma.LogRequisicaoApiCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>[]
           }
           delete: {
-            args: Prisma.LogConsumoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           update: {
-            args: Prisma.LogConsumoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           deleteMany: {
-            args: Prisma.LogConsumoDeleteManyArgs<ExtArgs>
+            args: Prisma.LogRequisicaoApiDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.LogConsumoUpdateManyArgs<ExtArgs>
+            args: Prisma.LogRequisicaoApiUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.LogConsumoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LogConsumoPayload>
+            args: Prisma.LogRequisicaoApiUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LogRequisicaoApiPayload>
           }
           aggregate: {
-            args: Prisma.LogConsumoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateLogConsumo>
+            args: Prisma.LogRequisicaoApiAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLogRequisicaoApi>
           }
           groupBy: {
-            args: Prisma.LogConsumoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<LogConsumoGroupByOutputType>[]
+            args: Prisma.LogRequisicaoApiGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LogRequisicaoApiGroupByOutputType>[]
           }
           count: {
-            args: Prisma.LogConsumoCountArgs<ExtArgs>
-            result: $Utils.Optional<LogConsumoCountAggregateOutputType> | number
+            args: Prisma.LogRequisicaoApiCountArgs<ExtArgs>
+            result: $Utils.Optional<LogRequisicaoApiCountAggregateOutputType> | number
           }
         }
       }
@@ -50733,432 +50733,443 @@ export namespace Prisma {
 
 
   /**
-   * Model LogConsumo
+   * Model LogRequisicaoApi
    */
 
-  export type AggregateLogConsumo = {
-    _count: LogConsumoCountAggregateOutputType | null
-    _avg: LogConsumoAvgAggregateOutputType | null
-    _sum: LogConsumoSumAggregateOutputType | null
-    _min: LogConsumoMinAggregateOutputType | null
-    _max: LogConsumoMaxAggregateOutputType | null
+  export type AggregateLogRequisicaoApi = {
+    _count: LogRequisicaoApiCountAggregateOutputType | null
+    _avg: LogRequisicaoApiAvgAggregateOutputType | null
+    _sum: LogRequisicaoApiSumAggregateOutputType | null
+    _min: LogRequisicaoApiMinAggregateOutputType | null
+    _max: LogRequisicaoApiMaxAggregateOutputType | null
   }
 
-  export type LogConsumoAvgAggregateOutputType = {
-    codigo_resposta_http_log_consumo: number | null
-    latencia_ms_log_consumo: number | null
+  export type LogRequisicaoApiAvgAggregateOutputType = {
+    codigo_resposta_http_log_requisicao_api: number | null
+    latencia_ms_log_requisicao_api: number | null
   }
 
-  export type LogConsumoSumAggregateOutputType = {
-    codigo_resposta_http_log_consumo: number | null
-    latencia_ms_log_consumo: number | null
+  export type LogRequisicaoApiSumAggregateOutputType = {
+    codigo_resposta_http_log_requisicao_api: number | null
+    latencia_ms_log_requisicao_api: number | null
   }
 
-  export type LogConsumoMinAggregateOutputType = {
-    id_log_consumo: string | null
+  export type LogRequisicaoApiMinAggregateOutputType = {
+    id_log_requisicao_api: string | null
     id_organizacao: string | null
     id_produto_gravity: string | null
     id_usuario: string | null
     id_api_token: string | null
-    endpoint_log_consumo: string | null
-    metodo_http_log_consumo: string | null
-    codigo_resposta_http_log_consumo: number | null
-    latencia_ms_log_consumo: number | null
-    data_criacao_log_consumo: Date | null
-    data_atualizacao_log_consumo: Date | null
+    id_correlacao: string | null
+    endpoint_log_requisicao_api: string | null
+    metodo_http_log_requisicao_api: string | null
+    codigo_resposta_http_log_requisicao_api: number | null
+    latencia_ms_log_requisicao_api: number | null
+    data_criacao_log_requisicao_api: Date | null
+    data_atualizacao_log_requisicao_api: Date | null
   }
 
-  export type LogConsumoMaxAggregateOutputType = {
-    id_log_consumo: string | null
+  export type LogRequisicaoApiMaxAggregateOutputType = {
+    id_log_requisicao_api: string | null
     id_organizacao: string | null
     id_produto_gravity: string | null
     id_usuario: string | null
     id_api_token: string | null
-    endpoint_log_consumo: string | null
-    metodo_http_log_consumo: string | null
-    codigo_resposta_http_log_consumo: number | null
-    latencia_ms_log_consumo: number | null
-    data_criacao_log_consumo: Date | null
-    data_atualizacao_log_consumo: Date | null
+    id_correlacao: string | null
+    endpoint_log_requisicao_api: string | null
+    metodo_http_log_requisicao_api: string | null
+    codigo_resposta_http_log_requisicao_api: number | null
+    latencia_ms_log_requisicao_api: number | null
+    data_criacao_log_requisicao_api: Date | null
+    data_atualizacao_log_requisicao_api: Date | null
   }
 
-  export type LogConsumoCountAggregateOutputType = {
-    id_log_consumo: number
+  export type LogRequisicaoApiCountAggregateOutputType = {
+    id_log_requisicao_api: number
     id_organizacao: number
     id_produto_gravity: number
     id_usuario: number
     id_api_token: number
-    endpoint_log_consumo: number
-    metodo_http_log_consumo: number
-    codigo_resposta_http_log_consumo: number
-    latencia_ms_log_consumo: number
-    data_criacao_log_consumo: number
-    data_atualizacao_log_consumo: number
+    id_correlacao: number
+    endpoint_log_requisicao_api: number
+    metodo_http_log_requisicao_api: number
+    codigo_resposta_http_log_requisicao_api: number
+    latencia_ms_log_requisicao_api: number
+    data_criacao_log_requisicao_api: number
+    data_atualizacao_log_requisicao_api: number
     _all: number
   }
 
 
-  export type LogConsumoAvgAggregateInputType = {
-    codigo_resposta_http_log_consumo?: true
-    latencia_ms_log_consumo?: true
+  export type LogRequisicaoApiAvgAggregateInputType = {
+    codigo_resposta_http_log_requisicao_api?: true
+    latencia_ms_log_requisicao_api?: true
   }
 
-  export type LogConsumoSumAggregateInputType = {
-    codigo_resposta_http_log_consumo?: true
-    latencia_ms_log_consumo?: true
+  export type LogRequisicaoApiSumAggregateInputType = {
+    codigo_resposta_http_log_requisicao_api?: true
+    latencia_ms_log_requisicao_api?: true
   }
 
-  export type LogConsumoMinAggregateInputType = {
-    id_log_consumo?: true
+  export type LogRequisicaoApiMinAggregateInputType = {
+    id_log_requisicao_api?: true
     id_organizacao?: true
     id_produto_gravity?: true
     id_usuario?: true
     id_api_token?: true
-    endpoint_log_consumo?: true
-    metodo_http_log_consumo?: true
-    codigo_resposta_http_log_consumo?: true
-    latencia_ms_log_consumo?: true
-    data_criacao_log_consumo?: true
-    data_atualizacao_log_consumo?: true
+    id_correlacao?: true
+    endpoint_log_requisicao_api?: true
+    metodo_http_log_requisicao_api?: true
+    codigo_resposta_http_log_requisicao_api?: true
+    latencia_ms_log_requisicao_api?: true
+    data_criacao_log_requisicao_api?: true
+    data_atualizacao_log_requisicao_api?: true
   }
 
-  export type LogConsumoMaxAggregateInputType = {
-    id_log_consumo?: true
+  export type LogRequisicaoApiMaxAggregateInputType = {
+    id_log_requisicao_api?: true
     id_organizacao?: true
     id_produto_gravity?: true
     id_usuario?: true
     id_api_token?: true
-    endpoint_log_consumo?: true
-    metodo_http_log_consumo?: true
-    codigo_resposta_http_log_consumo?: true
-    latencia_ms_log_consumo?: true
-    data_criacao_log_consumo?: true
-    data_atualizacao_log_consumo?: true
+    id_correlacao?: true
+    endpoint_log_requisicao_api?: true
+    metodo_http_log_requisicao_api?: true
+    codigo_resposta_http_log_requisicao_api?: true
+    latencia_ms_log_requisicao_api?: true
+    data_criacao_log_requisicao_api?: true
+    data_atualizacao_log_requisicao_api?: true
   }
 
-  export type LogConsumoCountAggregateInputType = {
-    id_log_consumo?: true
+  export type LogRequisicaoApiCountAggregateInputType = {
+    id_log_requisicao_api?: true
     id_organizacao?: true
     id_produto_gravity?: true
     id_usuario?: true
     id_api_token?: true
-    endpoint_log_consumo?: true
-    metodo_http_log_consumo?: true
-    codigo_resposta_http_log_consumo?: true
-    latencia_ms_log_consumo?: true
-    data_criacao_log_consumo?: true
-    data_atualizacao_log_consumo?: true
+    id_correlacao?: true
+    endpoint_log_requisicao_api?: true
+    metodo_http_log_requisicao_api?: true
+    codigo_resposta_http_log_requisicao_api?: true
+    latencia_ms_log_requisicao_api?: true
+    data_criacao_log_requisicao_api?: true
+    data_atualizacao_log_requisicao_api?: true
     _all?: true
   }
 
-  export type LogConsumoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LogConsumo to aggregate.
+     * Filter which LogRequisicaoApi to aggregate.
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LogConsumos to fetch.
+     * Determine the order of LogRequisicaoApis to fetch.
      */
-    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    orderBy?: LogRequisicaoApiOrderByWithRelationInput | LogRequisicaoApiOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: LogConsumoWhereUniqueInput
+    cursor?: LogRequisicaoApiWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LogConsumos from the position of the cursor.
+     * Take `±n` LogRequisicaoApis from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LogConsumos.
+     * Skip the first `n` LogRequisicaoApis.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned LogConsumos
+     * Count returned LogRequisicaoApis
     **/
-    _count?: true | LogConsumoCountAggregateInputType
+    _count?: true | LogRequisicaoApiCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: LogConsumoAvgAggregateInputType
+    _avg?: LogRequisicaoApiAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: LogConsumoSumAggregateInputType
+    _sum?: LogRequisicaoApiSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: LogConsumoMinAggregateInputType
+    _min?: LogRequisicaoApiMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: LogConsumoMaxAggregateInputType
+    _max?: LogRequisicaoApiMaxAggregateInputType
   }
 
-  export type GetLogConsumoAggregateType<T extends LogConsumoAggregateArgs> = {
-        [P in keyof T & keyof AggregateLogConsumo]: P extends '_count' | 'count'
+  export type GetLogRequisicaoApiAggregateType<T extends LogRequisicaoApiAggregateArgs> = {
+        [P in keyof T & keyof AggregateLogRequisicaoApi]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateLogConsumo[P]>
-      : GetScalarType<T[P], AggregateLogConsumo[P]>
+        : GetScalarType<T[P], AggregateLogRequisicaoApi[P]>
+      : GetScalarType<T[P], AggregateLogRequisicaoApi[P]>
   }
 
 
 
 
-  export type LogConsumoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LogConsumoWhereInput
-    orderBy?: LogConsumoOrderByWithAggregationInput | LogConsumoOrderByWithAggregationInput[]
-    by: LogConsumoScalarFieldEnum[] | LogConsumoScalarFieldEnum
-    having?: LogConsumoScalarWhereWithAggregatesInput
+  export type LogRequisicaoApiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LogRequisicaoApiWhereInput
+    orderBy?: LogRequisicaoApiOrderByWithAggregationInput | LogRequisicaoApiOrderByWithAggregationInput[]
+    by: LogRequisicaoApiScalarFieldEnum[] | LogRequisicaoApiScalarFieldEnum
+    having?: LogRequisicaoApiScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: LogConsumoCountAggregateInputType | true
-    _avg?: LogConsumoAvgAggregateInputType
-    _sum?: LogConsumoSumAggregateInputType
-    _min?: LogConsumoMinAggregateInputType
-    _max?: LogConsumoMaxAggregateInputType
+    _count?: LogRequisicaoApiCountAggregateInputType | true
+    _avg?: LogRequisicaoApiAvgAggregateInputType
+    _sum?: LogRequisicaoApiSumAggregateInputType
+    _min?: LogRequisicaoApiMinAggregateInputType
+    _max?: LogRequisicaoApiMaxAggregateInputType
   }
 
-  export type LogConsumoGroupByOutputType = {
-    id_log_consumo: string
+  export type LogRequisicaoApiGroupByOutputType = {
+    id_log_requisicao_api: string
     id_organizacao: string
     id_produto_gravity: string | null
     id_usuario: string | null
-    id_api_token: string
-    endpoint_log_consumo: string
-    metodo_http_log_consumo: string
-    codigo_resposta_http_log_consumo: number
-    latencia_ms_log_consumo: number
-    data_criacao_log_consumo: Date
-    data_atualizacao_log_consumo: Date
-    _count: LogConsumoCountAggregateOutputType | null
-    _avg: LogConsumoAvgAggregateOutputType | null
-    _sum: LogConsumoSumAggregateOutputType | null
-    _min: LogConsumoMinAggregateOutputType | null
-    _max: LogConsumoMaxAggregateOutputType | null
+    id_api_token: string | null
+    id_correlacao: string | null
+    endpoint_log_requisicao_api: string
+    metodo_http_log_requisicao_api: string
+    codigo_resposta_http_log_requisicao_api: number
+    latencia_ms_log_requisicao_api: number
+    data_criacao_log_requisicao_api: Date
+    data_atualizacao_log_requisicao_api: Date
+    _count: LogRequisicaoApiCountAggregateOutputType | null
+    _avg: LogRequisicaoApiAvgAggregateOutputType | null
+    _sum: LogRequisicaoApiSumAggregateOutputType | null
+    _min: LogRequisicaoApiMinAggregateOutputType | null
+    _max: LogRequisicaoApiMaxAggregateOutputType | null
   }
 
-  type GetLogConsumoGroupByPayload<T extends LogConsumoGroupByArgs> = Prisma.PrismaPromise<
+  type GetLogRequisicaoApiGroupByPayload<T extends LogRequisicaoApiGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<LogConsumoGroupByOutputType, T['by']> &
+      PickEnumerable<LogRequisicaoApiGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof LogConsumoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof LogRequisicaoApiGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], LogConsumoGroupByOutputType[P]>
-            : GetScalarType<T[P], LogConsumoGroupByOutputType[P]>
+              : GetScalarType<T[P], LogRequisicaoApiGroupByOutputType[P]>
+            : GetScalarType<T[P], LogRequisicaoApiGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type LogConsumoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_log_consumo?: boolean
+  export type LogRequisicaoApiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_log_requisicao_api?: boolean
     id_organizacao?: boolean
     id_produto_gravity?: boolean
     id_usuario?: boolean
     id_api_token?: boolean
-    endpoint_log_consumo?: boolean
-    metodo_http_log_consumo?: boolean
-    codigo_resposta_http_log_consumo?: boolean
-    latencia_ms_log_consumo?: boolean
-    data_criacao_log_consumo?: boolean
-    data_atualizacao_log_consumo?: boolean
-  }, ExtArgs["result"]["logConsumo"]>
+    id_correlacao?: boolean
+    endpoint_log_requisicao_api?: boolean
+    metodo_http_log_requisicao_api?: boolean
+    codigo_resposta_http_log_requisicao_api?: boolean
+    latencia_ms_log_requisicao_api?: boolean
+    data_criacao_log_requisicao_api?: boolean
+    data_atualizacao_log_requisicao_api?: boolean
+  }, ExtArgs["result"]["logRequisicaoApi"]>
 
-  export type LogConsumoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_log_consumo?: boolean
+  export type LogRequisicaoApiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_log_requisicao_api?: boolean
     id_organizacao?: boolean
     id_produto_gravity?: boolean
     id_usuario?: boolean
     id_api_token?: boolean
-    endpoint_log_consumo?: boolean
-    metodo_http_log_consumo?: boolean
-    codigo_resposta_http_log_consumo?: boolean
-    latencia_ms_log_consumo?: boolean
-    data_criacao_log_consumo?: boolean
-    data_atualizacao_log_consumo?: boolean
-  }, ExtArgs["result"]["logConsumo"]>
+    id_correlacao?: boolean
+    endpoint_log_requisicao_api?: boolean
+    metodo_http_log_requisicao_api?: boolean
+    codigo_resposta_http_log_requisicao_api?: boolean
+    latencia_ms_log_requisicao_api?: boolean
+    data_criacao_log_requisicao_api?: boolean
+    data_atualizacao_log_requisicao_api?: boolean
+  }, ExtArgs["result"]["logRequisicaoApi"]>
 
-  export type LogConsumoSelectScalar = {
-    id_log_consumo?: boolean
+  export type LogRequisicaoApiSelectScalar = {
+    id_log_requisicao_api?: boolean
     id_organizacao?: boolean
     id_produto_gravity?: boolean
     id_usuario?: boolean
     id_api_token?: boolean
-    endpoint_log_consumo?: boolean
-    metodo_http_log_consumo?: boolean
-    codigo_resposta_http_log_consumo?: boolean
-    latencia_ms_log_consumo?: boolean
-    data_criacao_log_consumo?: boolean
-    data_atualizacao_log_consumo?: boolean
+    id_correlacao?: boolean
+    endpoint_log_requisicao_api?: boolean
+    metodo_http_log_requisicao_api?: boolean
+    codigo_resposta_http_log_requisicao_api?: boolean
+    latencia_ms_log_requisicao_api?: boolean
+    data_criacao_log_requisicao_api?: boolean
+    data_atualizacao_log_requisicao_api?: boolean
   }
 
 
-  export type $LogConsumoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "LogConsumo"
+  export type $LogRequisicaoApiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LogRequisicaoApi"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_log_consumo: string
+      id_log_requisicao_api: string
       id_organizacao: string
       id_produto_gravity: string | null
       id_usuario: string | null
-      id_api_token: string
-      endpoint_log_consumo: string
-      metodo_http_log_consumo: string
-      codigo_resposta_http_log_consumo: number
-      latencia_ms_log_consumo: number
-      data_criacao_log_consumo: Date
-      data_atualizacao_log_consumo: Date
-    }, ExtArgs["result"]["logConsumo"]>
+      id_api_token: string | null
+      id_correlacao: string | null
+      endpoint_log_requisicao_api: string
+      metodo_http_log_requisicao_api: string
+      codigo_resposta_http_log_requisicao_api: number
+      latencia_ms_log_requisicao_api: number
+      data_criacao_log_requisicao_api: Date
+      data_atualizacao_log_requisicao_api: Date
+    }, ExtArgs["result"]["logRequisicaoApi"]>
     composites: {}
   }
 
-  type LogConsumoGetPayload<S extends boolean | null | undefined | LogConsumoDefaultArgs> = $Result.GetResult<Prisma.$LogConsumoPayload, S>
+  type LogRequisicaoApiGetPayload<S extends boolean | null | undefined | LogRequisicaoApiDefaultArgs> = $Result.GetResult<Prisma.$LogRequisicaoApiPayload, S>
 
-  type LogConsumoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<LogConsumoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: LogConsumoCountAggregateInputType | true
+  type LogRequisicaoApiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<LogRequisicaoApiFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: LogRequisicaoApiCountAggregateInputType | true
     }
 
-  export interface LogConsumoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LogConsumo'], meta: { name: 'LogConsumo' } }
+  export interface LogRequisicaoApiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LogRequisicaoApi'], meta: { name: 'LogRequisicaoApi' } }
     /**
-     * Find zero or one LogConsumo that matches the filter.
-     * @param {LogConsumoFindUniqueArgs} args - Arguments to find a LogConsumo
+     * Find zero or one LogRequisicaoApi that matches the filter.
+     * @param {LogRequisicaoApiFindUniqueArgs} args - Arguments to find a LogRequisicaoApi
      * @example
-     * // Get one LogConsumo
-     * const logConsumo = await prisma.logConsumo.findUnique({
+     * // Get one LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends LogConsumoFindUniqueArgs>(args: SelectSubset<T, LogConsumoFindUniqueArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends LogRequisicaoApiFindUniqueArgs>(args: SelectSubset<T, LogRequisicaoApiFindUniqueArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one LogConsumo that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one LogRequisicaoApi that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {LogConsumoFindUniqueOrThrowArgs} args - Arguments to find a LogConsumo
+     * @param {LogRequisicaoApiFindUniqueOrThrowArgs} args - Arguments to find a LogRequisicaoApi
      * @example
-     * // Get one LogConsumo
-     * const logConsumo = await prisma.logConsumo.findUniqueOrThrow({
+     * // Get one LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends LogConsumoFindUniqueOrThrowArgs>(args: SelectSubset<T, LogConsumoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends LogRequisicaoApiFindUniqueOrThrowArgs>(args: SelectSubset<T, LogRequisicaoApiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first LogConsumo that matches the filter.
+     * Find the first LogRequisicaoApi that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoFindFirstArgs} args - Arguments to find a LogConsumo
+     * @param {LogRequisicaoApiFindFirstArgs} args - Arguments to find a LogRequisicaoApi
      * @example
-     * // Get one LogConsumo
-     * const logConsumo = await prisma.logConsumo.findFirst({
+     * // Get one LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends LogConsumoFindFirstArgs>(args?: SelectSubset<T, LogConsumoFindFirstArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends LogRequisicaoApiFindFirstArgs>(args?: SelectSubset<T, LogRequisicaoApiFindFirstArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first LogConsumo that matches the filter or
+     * Find the first LogRequisicaoApi that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoFindFirstOrThrowArgs} args - Arguments to find a LogConsumo
+     * @param {LogRequisicaoApiFindFirstOrThrowArgs} args - Arguments to find a LogRequisicaoApi
      * @example
-     * // Get one LogConsumo
-     * const logConsumo = await prisma.logConsumo.findFirstOrThrow({
+     * // Get one LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends LogConsumoFindFirstOrThrowArgs>(args?: SelectSubset<T, LogConsumoFindFirstOrThrowArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends LogRequisicaoApiFindFirstOrThrowArgs>(args?: SelectSubset<T, LogRequisicaoApiFindFirstOrThrowArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more LogConsumos that matches the filter.
+     * Find zero or more LogRequisicaoApis that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {LogRequisicaoApiFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all LogConsumos
-     * const logConsumos = await prisma.logConsumo.findMany()
+     * // Get all LogRequisicaoApis
+     * const logRequisicaoApis = await prisma.logRequisicaoApi.findMany()
      * 
-     * // Get first 10 LogConsumos
-     * const logConsumos = await prisma.logConsumo.findMany({ take: 10 })
+     * // Get first 10 LogRequisicaoApis
+     * const logRequisicaoApis = await prisma.logRequisicaoApi.findMany({ take: 10 })
      * 
-     * // Only select the `id_log_consumo`
-     * const logConsumoWithId_log_consumoOnly = await prisma.logConsumo.findMany({ select: { id_log_consumo: true } })
+     * // Only select the `id_log_requisicao_api`
+     * const logRequisicaoApiWithId_log_requisicao_apiOnly = await prisma.logRequisicaoApi.findMany({ select: { id_log_requisicao_api: true } })
      * 
      */
-    findMany<T extends LogConsumoFindManyArgs>(args?: SelectSubset<T, LogConsumoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends LogRequisicaoApiFindManyArgs>(args?: SelectSubset<T, LogRequisicaoApiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a LogConsumo.
-     * @param {LogConsumoCreateArgs} args - Arguments to create a LogConsumo.
+     * Create a LogRequisicaoApi.
+     * @param {LogRequisicaoApiCreateArgs} args - Arguments to create a LogRequisicaoApi.
      * @example
-     * // Create one LogConsumo
-     * const LogConsumo = await prisma.logConsumo.create({
+     * // Create one LogRequisicaoApi
+     * const LogRequisicaoApi = await prisma.logRequisicaoApi.create({
      *   data: {
-     *     // ... data to create a LogConsumo
+     *     // ... data to create a LogRequisicaoApi
      *   }
      * })
      * 
      */
-    create<T extends LogConsumoCreateArgs>(args: SelectSubset<T, LogConsumoCreateArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends LogRequisicaoApiCreateArgs>(args: SelectSubset<T, LogRequisicaoApiCreateArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many LogConsumos.
-     * @param {LogConsumoCreateManyArgs} args - Arguments to create many LogConsumos.
+     * Create many LogRequisicaoApis.
+     * @param {LogRequisicaoApiCreateManyArgs} args - Arguments to create many LogRequisicaoApis.
      * @example
-     * // Create many LogConsumos
-     * const logConsumo = await prisma.logConsumo.createMany({
+     * // Create many LogRequisicaoApis
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends LogConsumoCreateManyArgs>(args?: SelectSubset<T, LogConsumoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends LogRequisicaoApiCreateManyArgs>(args?: SelectSubset<T, LogRequisicaoApiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many LogConsumos and returns the data saved in the database.
-     * @param {LogConsumoCreateManyAndReturnArgs} args - Arguments to create many LogConsumos.
+     * Create many LogRequisicaoApis and returns the data saved in the database.
+     * @param {LogRequisicaoApiCreateManyAndReturnArgs} args - Arguments to create many LogRequisicaoApis.
      * @example
-     * // Create many LogConsumos
-     * const logConsumo = await prisma.logConsumo.createManyAndReturn({
+     * // Create many LogRequisicaoApis
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many LogConsumos and only return the `id_log_consumo`
-     * const logConsumoWithId_log_consumoOnly = await prisma.logConsumo.createManyAndReturn({ 
-     *   select: { id_log_consumo: true },
+     * // Create many LogRequisicaoApis and only return the `id_log_requisicao_api`
+     * const logRequisicaoApiWithId_log_requisicao_apiOnly = await prisma.logRequisicaoApi.createManyAndReturn({ 
+     *   select: { id_log_requisicao_api: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -51167,28 +51178,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends LogConsumoCreateManyAndReturnArgs>(args?: SelectSubset<T, LogConsumoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends LogRequisicaoApiCreateManyAndReturnArgs>(args?: SelectSubset<T, LogRequisicaoApiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a LogConsumo.
-     * @param {LogConsumoDeleteArgs} args - Arguments to delete one LogConsumo.
+     * Delete a LogRequisicaoApi.
+     * @param {LogRequisicaoApiDeleteArgs} args - Arguments to delete one LogRequisicaoApi.
      * @example
-     * // Delete one LogConsumo
-     * const LogConsumo = await prisma.logConsumo.delete({
+     * // Delete one LogRequisicaoApi
+     * const LogRequisicaoApi = await prisma.logRequisicaoApi.delete({
      *   where: {
-     *     // ... filter to delete one LogConsumo
+     *     // ... filter to delete one LogRequisicaoApi
      *   }
      * })
      * 
      */
-    delete<T extends LogConsumoDeleteArgs>(args: SelectSubset<T, LogConsumoDeleteArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends LogRequisicaoApiDeleteArgs>(args: SelectSubset<T, LogRequisicaoApiDeleteArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one LogConsumo.
-     * @param {LogConsumoUpdateArgs} args - Arguments to update one LogConsumo.
+     * Update one LogRequisicaoApi.
+     * @param {LogRequisicaoApiUpdateArgs} args - Arguments to update one LogRequisicaoApi.
      * @example
-     * // Update one LogConsumo
-     * const logConsumo = await prisma.logConsumo.update({
+     * // Update one LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -51198,30 +51209,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends LogConsumoUpdateArgs>(args: SelectSubset<T, LogConsumoUpdateArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends LogRequisicaoApiUpdateArgs>(args: SelectSubset<T, LogRequisicaoApiUpdateArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more LogConsumos.
-     * @param {LogConsumoDeleteManyArgs} args - Arguments to filter LogConsumos to delete.
+     * Delete zero or more LogRequisicaoApis.
+     * @param {LogRequisicaoApiDeleteManyArgs} args - Arguments to filter LogRequisicaoApis to delete.
      * @example
-     * // Delete a few LogConsumos
-     * const { count } = await prisma.logConsumo.deleteMany({
+     * // Delete a few LogRequisicaoApis
+     * const { count } = await prisma.logRequisicaoApi.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends LogConsumoDeleteManyArgs>(args?: SelectSubset<T, LogConsumoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends LogRequisicaoApiDeleteManyArgs>(args?: SelectSubset<T, LogRequisicaoApiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more LogConsumos.
+     * Update zero or more LogRequisicaoApis.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {LogRequisicaoApiUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many LogConsumos
-     * const logConsumo = await prisma.logConsumo.updateMany({
+     * // Update many LogRequisicaoApis
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -51231,56 +51242,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends LogConsumoUpdateManyArgs>(args: SelectSubset<T, LogConsumoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends LogRequisicaoApiUpdateManyArgs>(args: SelectSubset<T, LogRequisicaoApiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one LogConsumo.
-     * @param {LogConsumoUpsertArgs} args - Arguments to update or create a LogConsumo.
+     * Create or update one LogRequisicaoApi.
+     * @param {LogRequisicaoApiUpsertArgs} args - Arguments to update or create a LogRequisicaoApi.
      * @example
-     * // Update or create a LogConsumo
-     * const logConsumo = await prisma.logConsumo.upsert({
+     * // Update or create a LogRequisicaoApi
+     * const logRequisicaoApi = await prisma.logRequisicaoApi.upsert({
      *   create: {
-     *     // ... data to create a LogConsumo
+     *     // ... data to create a LogRequisicaoApi
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the LogConsumo we want to update
+     *     // ... the filter for the LogRequisicaoApi we want to update
      *   }
      * })
      */
-    upsert<T extends LogConsumoUpsertArgs>(args: SelectSubset<T, LogConsumoUpsertArgs<ExtArgs>>): Prisma__LogConsumoClient<$Result.GetResult<Prisma.$LogConsumoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends LogRequisicaoApiUpsertArgs>(args: SelectSubset<T, LogRequisicaoApiUpsertArgs<ExtArgs>>): Prisma__LogRequisicaoApiClient<$Result.GetResult<Prisma.$LogRequisicaoApiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of LogConsumos.
+     * Count the number of LogRequisicaoApis.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoCountArgs} args - Arguments to filter LogConsumos to count.
+     * @param {LogRequisicaoApiCountArgs} args - Arguments to filter LogRequisicaoApis to count.
      * @example
-     * // Count the number of LogConsumos
-     * const count = await prisma.logConsumo.count({
+     * // Count the number of LogRequisicaoApis
+     * const count = await prisma.logRequisicaoApi.count({
      *   where: {
-     *     // ... the filter for the LogConsumos we want to count
+     *     // ... the filter for the LogRequisicaoApis we want to count
      *   }
      * })
     **/
-    count<T extends LogConsumoCountArgs>(
-      args?: Subset<T, LogConsumoCountArgs>,
+    count<T extends LogRequisicaoApiCountArgs>(
+      args?: Subset<T, LogRequisicaoApiCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], LogConsumoCountAggregateOutputType>
+          : GetScalarType<T['select'], LogRequisicaoApiCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a LogConsumo.
+     * Allows you to perform aggregations operations on a LogRequisicaoApi.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {LogRequisicaoApiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -51300,13 +51311,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends LogConsumoAggregateArgs>(args: Subset<T, LogConsumoAggregateArgs>): Prisma.PrismaPromise<GetLogConsumoAggregateType<T>>
+    aggregate<T extends LogRequisicaoApiAggregateArgs>(args: Subset<T, LogRequisicaoApiAggregateArgs>): Prisma.PrismaPromise<GetLogRequisicaoApiAggregateType<T>>
 
     /**
-     * Group by LogConsumo.
+     * Group by LogRequisicaoApi.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {LogConsumoGroupByArgs} args - Group by arguments.
+     * @param {LogRequisicaoApiGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -51321,14 +51332,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends LogConsumoGroupByArgs,
+      T extends LogRequisicaoApiGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: LogConsumoGroupByArgs['orderBy'] }
-        : { orderBy?: LogConsumoGroupByArgs['orderBy'] },
+        ? { orderBy: LogRequisicaoApiGroupByArgs['orderBy'] }
+        : { orderBy?: LogRequisicaoApiGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -51377,20 +51388,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, LogConsumoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLogConsumoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, LogRequisicaoApiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLogRequisicaoApiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the LogConsumo model
+   * Fields of the LogRequisicaoApi model
    */
-  readonly fields: LogConsumoFieldRefs;
+  readonly fields: LogRequisicaoApiFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for LogConsumo.
+   * The delegate class that acts as a "Promise-like" for LogRequisicaoApi.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__LogConsumoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__LogRequisicaoApiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -51418,305 +51429,306 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the LogConsumo model
+   * Fields of the LogRequisicaoApi model
    */ 
-  interface LogConsumoFieldRefs {
-    readonly id_log_consumo: FieldRef<"LogConsumo", 'String'>
-    readonly id_organizacao: FieldRef<"LogConsumo", 'String'>
-    readonly id_produto_gravity: FieldRef<"LogConsumo", 'String'>
-    readonly id_usuario: FieldRef<"LogConsumo", 'String'>
-    readonly id_api_token: FieldRef<"LogConsumo", 'String'>
-    readonly endpoint_log_consumo: FieldRef<"LogConsumo", 'String'>
-    readonly metodo_http_log_consumo: FieldRef<"LogConsumo", 'String'>
-    readonly codigo_resposta_http_log_consumo: FieldRef<"LogConsumo", 'Int'>
-    readonly latencia_ms_log_consumo: FieldRef<"LogConsumo", 'Int'>
-    readonly data_criacao_log_consumo: FieldRef<"LogConsumo", 'DateTime'>
-    readonly data_atualizacao_log_consumo: FieldRef<"LogConsumo", 'DateTime'>
+  interface LogRequisicaoApiFieldRefs {
+    readonly id_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly id_organizacao: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly id_produto_gravity: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly id_usuario: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly id_api_token: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly id_correlacao: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly endpoint_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly metodo_http_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'String'>
+    readonly codigo_resposta_http_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'Int'>
+    readonly latencia_ms_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'Int'>
+    readonly data_criacao_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'DateTime'>
+    readonly data_atualizacao_log_requisicao_api: FieldRef<"LogRequisicaoApi", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * LogConsumo findUnique
+   * LogRequisicaoApi findUnique
    */
-  export type LogConsumoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter, which LogConsumo to fetch.
+     * Filter, which LogRequisicaoApi to fetch.
      */
-    where: LogConsumoWhereUniqueInput
+    where: LogRequisicaoApiWhereUniqueInput
   }
 
   /**
-   * LogConsumo findUniqueOrThrow
+   * LogRequisicaoApi findUniqueOrThrow
    */
-  export type LogConsumoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter, which LogConsumo to fetch.
+     * Filter, which LogRequisicaoApi to fetch.
      */
-    where: LogConsumoWhereUniqueInput
+    where: LogRequisicaoApiWhereUniqueInput
   }
 
   /**
-   * LogConsumo findFirst
+   * LogRequisicaoApi findFirst
    */
-  export type LogConsumoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter, which LogConsumo to fetch.
+     * Filter, which LogRequisicaoApi to fetch.
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LogConsumos to fetch.
+     * Determine the order of LogRequisicaoApis to fetch.
      */
-    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    orderBy?: LogRequisicaoApiOrderByWithRelationInput | LogRequisicaoApiOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LogConsumos.
+     * Sets the position for searching for LogRequisicaoApis.
      */
-    cursor?: LogConsumoWhereUniqueInput
+    cursor?: LogRequisicaoApiWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LogConsumos from the position of the cursor.
+     * Take `±n` LogRequisicaoApis from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LogConsumos.
+     * Skip the first `n` LogRequisicaoApis.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LogConsumos.
+     * Filter by unique combinations of LogRequisicaoApis.
      */
-    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+    distinct?: LogRequisicaoApiScalarFieldEnum | LogRequisicaoApiScalarFieldEnum[]
   }
 
   /**
-   * LogConsumo findFirstOrThrow
+   * LogRequisicaoApi findFirstOrThrow
    */
-  export type LogConsumoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter, which LogConsumo to fetch.
+     * Filter, which LogRequisicaoApi to fetch.
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LogConsumos to fetch.
+     * Determine the order of LogRequisicaoApis to fetch.
      */
-    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    orderBy?: LogRequisicaoApiOrderByWithRelationInput | LogRequisicaoApiOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for LogConsumos.
+     * Sets the position for searching for LogRequisicaoApis.
      */
-    cursor?: LogConsumoWhereUniqueInput
+    cursor?: LogRequisicaoApiWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LogConsumos from the position of the cursor.
+     * Take `±n` LogRequisicaoApis from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LogConsumos.
+     * Skip the first `n` LogRequisicaoApis.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of LogConsumos.
+     * Filter by unique combinations of LogRequisicaoApis.
      */
-    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+    distinct?: LogRequisicaoApiScalarFieldEnum | LogRequisicaoApiScalarFieldEnum[]
   }
 
   /**
-   * LogConsumo findMany
+   * LogRequisicaoApi findMany
    */
-  export type LogConsumoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter, which LogConsumos to fetch.
+     * Filter, which LogRequisicaoApis to fetch.
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of LogConsumos to fetch.
+     * Determine the order of LogRequisicaoApis to fetch.
      */
-    orderBy?: LogConsumoOrderByWithRelationInput | LogConsumoOrderByWithRelationInput[]
+    orderBy?: LogRequisicaoApiOrderByWithRelationInput | LogRequisicaoApiOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing LogConsumos.
+     * Sets the position for listing LogRequisicaoApis.
      */
-    cursor?: LogConsumoWhereUniqueInput
+    cursor?: LogRequisicaoApiWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` LogConsumos from the position of the cursor.
+     * Take `±n` LogRequisicaoApis from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` LogConsumos.
+     * Skip the first `n` LogRequisicaoApis.
      */
     skip?: number
-    distinct?: LogConsumoScalarFieldEnum | LogConsumoScalarFieldEnum[]
+    distinct?: LogRequisicaoApiScalarFieldEnum | LogRequisicaoApiScalarFieldEnum[]
   }
 
   /**
-   * LogConsumo create
+   * LogRequisicaoApi create
    */
-  export type LogConsumoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * The data needed to create a LogConsumo.
+     * The data needed to create a LogRequisicaoApi.
      */
-    data: XOR<LogConsumoCreateInput, LogConsumoUncheckedCreateInput>
+    data: XOR<LogRequisicaoApiCreateInput, LogRequisicaoApiUncheckedCreateInput>
   }
 
   /**
-   * LogConsumo createMany
+   * LogRequisicaoApi createMany
    */
-  export type LogConsumoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many LogConsumos.
+     * The data used to create many LogRequisicaoApis.
      */
-    data: LogConsumoCreateManyInput | LogConsumoCreateManyInput[]
+    data: LogRequisicaoApiCreateManyInput | LogRequisicaoApiCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * LogConsumo createManyAndReturn
+   * LogRequisicaoApi createManyAndReturn
    */
-  export type LogConsumoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelectCreateManyAndReturn<ExtArgs> | null
+    select?: LogRequisicaoApiSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many LogConsumos.
+     * The data used to create many LogRequisicaoApis.
      */
-    data: LogConsumoCreateManyInput | LogConsumoCreateManyInput[]
+    data: LogRequisicaoApiCreateManyInput | LogRequisicaoApiCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * LogConsumo update
+   * LogRequisicaoApi update
    */
-  export type LogConsumoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * The data needed to update a LogConsumo.
+     * The data needed to update a LogRequisicaoApi.
      */
-    data: XOR<LogConsumoUpdateInput, LogConsumoUncheckedUpdateInput>
+    data: XOR<LogRequisicaoApiUpdateInput, LogRequisicaoApiUncheckedUpdateInput>
     /**
-     * Choose, which LogConsumo to update.
+     * Choose, which LogRequisicaoApi to update.
      */
-    where: LogConsumoWhereUniqueInput
+    where: LogRequisicaoApiWhereUniqueInput
   }
 
   /**
-   * LogConsumo updateMany
+   * LogRequisicaoApi updateMany
    */
-  export type LogConsumoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update LogConsumos.
+     * The data used to update LogRequisicaoApis.
      */
-    data: XOR<LogConsumoUpdateManyMutationInput, LogConsumoUncheckedUpdateManyInput>
+    data: XOR<LogRequisicaoApiUpdateManyMutationInput, LogRequisicaoApiUncheckedUpdateManyInput>
     /**
-     * Filter which LogConsumos to update
+     * Filter which LogRequisicaoApis to update
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
   }
 
   /**
-   * LogConsumo upsert
+   * LogRequisicaoApi upsert
    */
-  export type LogConsumoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * The filter to search for the LogConsumo to update in case it exists.
+     * The filter to search for the LogRequisicaoApi to update in case it exists.
      */
-    where: LogConsumoWhereUniqueInput
+    where: LogRequisicaoApiWhereUniqueInput
     /**
-     * In case the LogConsumo found by the `where` argument doesn't exist, create a new LogConsumo with this data.
+     * In case the LogRequisicaoApi found by the `where` argument doesn't exist, create a new LogRequisicaoApi with this data.
      */
-    create: XOR<LogConsumoCreateInput, LogConsumoUncheckedCreateInput>
+    create: XOR<LogRequisicaoApiCreateInput, LogRequisicaoApiUncheckedCreateInput>
     /**
-     * In case the LogConsumo was found with the provided `where` argument, update it with this data.
+     * In case the LogRequisicaoApi was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<LogConsumoUpdateInput, LogConsumoUncheckedUpdateInput>
+    update: XOR<LogRequisicaoApiUpdateInput, LogRequisicaoApiUncheckedUpdateInput>
   }
 
   /**
-   * LogConsumo delete
+   * LogRequisicaoApi delete
    */
-  export type LogConsumoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
     /**
-     * Filter which LogConsumo to delete.
+     * Filter which LogRequisicaoApi to delete.
      */
-    where: LogConsumoWhereUniqueInput
+    where: LogRequisicaoApiWhereUniqueInput
   }
 
   /**
-   * LogConsumo deleteMany
+   * LogRequisicaoApi deleteMany
    */
-  export type LogConsumoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which LogConsumos to delete
+     * Filter which LogRequisicaoApis to delete
      */
-    where?: LogConsumoWhereInput
+    where?: LogRequisicaoApiWhereInput
   }
 
   /**
-   * LogConsumo without action
+   * LogRequisicaoApi without action
    */
-  export type LogConsumoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LogRequisicaoApiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the LogConsumo
+     * Select specific fields to fetch from the LogRequisicaoApi
      */
-    select?: LogConsumoSelect<ExtArgs> | null
+    select?: LogRequisicaoApiSelect<ExtArgs> | null
   }
 
 
@@ -53479,21 +53491,22 @@ export namespace Prisma {
   export type WebhookLogScalarFieldEnum = (typeof WebhookLogScalarFieldEnum)[keyof typeof WebhookLogScalarFieldEnum]
 
 
-  export const LogConsumoScalarFieldEnum: {
-    id_log_consumo: 'id_log_consumo',
+  export const LogRequisicaoApiScalarFieldEnum: {
+    id_log_requisicao_api: 'id_log_requisicao_api',
     id_organizacao: 'id_organizacao',
     id_produto_gravity: 'id_produto_gravity',
     id_usuario: 'id_usuario',
     id_api_token: 'id_api_token',
-    endpoint_log_consumo: 'endpoint_log_consumo',
-    metodo_http_log_consumo: 'metodo_http_log_consumo',
-    codigo_resposta_http_log_consumo: 'codigo_resposta_http_log_consumo',
-    latencia_ms_log_consumo: 'latencia_ms_log_consumo',
-    data_criacao_log_consumo: 'data_criacao_log_consumo',
-    data_atualizacao_log_consumo: 'data_atualizacao_log_consumo'
+    id_correlacao: 'id_correlacao',
+    endpoint_log_requisicao_api: 'endpoint_log_requisicao_api',
+    metodo_http_log_requisicao_api: 'metodo_http_log_requisicao_api',
+    codigo_resposta_http_log_requisicao_api: 'codigo_resposta_http_log_requisicao_api',
+    latencia_ms_log_requisicao_api: 'latencia_ms_log_requisicao_api',
+    data_criacao_log_requisicao_api: 'data_criacao_log_requisicao_api',
+    data_atualizacao_log_requisicao_api: 'data_atualizacao_log_requisicao_api'
   };
 
-  export type LogConsumoScalarFieldEnum = (typeof LogConsumoScalarFieldEnum)[keyof typeof LogConsumoScalarFieldEnum]
+  export type LogRequisicaoApiScalarFieldEnum = (typeof LogRequisicaoApiScalarFieldEnum)[keyof typeof LogRequisicaoApiScalarFieldEnum]
 
 
   export const ApiIntegracaoErpScalarFieldEnum: {
@@ -57986,88 +57999,93 @@ export namespace Prisma {
     data_atualizacao_webhook_log?: DateTimeWithAggregatesFilter<"WebhookLog"> | Date | string
   }
 
-  export type LogConsumoWhereInput = {
-    AND?: LogConsumoWhereInput | LogConsumoWhereInput[]
-    OR?: LogConsumoWhereInput[]
-    NOT?: LogConsumoWhereInput | LogConsumoWhereInput[]
-    id_log_consumo?: StringFilter<"LogConsumo"> | string
-    id_organizacao?: StringFilter<"LogConsumo"> | string
-    id_produto_gravity?: StringNullableFilter<"LogConsumo"> | string | null
-    id_usuario?: StringNullableFilter<"LogConsumo"> | string | null
-    id_api_token?: StringFilter<"LogConsumo"> | string
-    endpoint_log_consumo?: StringFilter<"LogConsumo"> | string
-    metodo_http_log_consumo?: StringFilter<"LogConsumo"> | string
-    codigo_resposta_http_log_consumo?: IntFilter<"LogConsumo"> | number
-    latencia_ms_log_consumo?: IntFilter<"LogConsumo"> | number
-    data_criacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
-    data_atualizacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
+  export type LogRequisicaoApiWhereInput = {
+    AND?: LogRequisicaoApiWhereInput | LogRequisicaoApiWhereInput[]
+    OR?: LogRequisicaoApiWhereInput[]
+    NOT?: LogRequisicaoApiWhereInput | LogRequisicaoApiWhereInput[]
+    id_log_requisicao_api?: StringFilter<"LogRequisicaoApi"> | string
+    id_organizacao?: StringFilter<"LogRequisicaoApi"> | string
+    id_produto_gravity?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_usuario?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_api_token?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_correlacao?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    endpoint_log_requisicao_api?: StringFilter<"LogRequisicaoApi"> | string
+    metodo_http_log_requisicao_api?: StringFilter<"LogRequisicaoApi"> | string
+    codigo_resposta_http_log_requisicao_api?: IntFilter<"LogRequisicaoApi"> | number
+    latencia_ms_log_requisicao_api?: IntFilter<"LogRequisicaoApi"> | number
+    data_criacao_log_requisicao_api?: DateTimeFilter<"LogRequisicaoApi"> | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFilter<"LogRequisicaoApi"> | Date | string
   }
 
-  export type LogConsumoOrderByWithRelationInput = {
-    id_log_consumo?: SortOrder
+  export type LogRequisicaoApiOrderByWithRelationInput = {
+    id_log_requisicao_api?: SortOrder
     id_organizacao?: SortOrder
     id_produto_gravity?: SortOrderInput | SortOrder
     id_usuario?: SortOrderInput | SortOrder
-    id_api_token?: SortOrder
-    endpoint_log_consumo?: SortOrder
-    metodo_http_log_consumo?: SortOrder
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
-    data_criacao_log_consumo?: SortOrder
-    data_atualizacao_log_consumo?: SortOrder
+    id_api_token?: SortOrderInput | SortOrder
+    id_correlacao?: SortOrderInput | SortOrder
+    endpoint_log_requisicao_api?: SortOrder
+    metodo_http_log_requisicao_api?: SortOrder
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
+    data_criacao_log_requisicao_api?: SortOrder
+    data_atualizacao_log_requisicao_api?: SortOrder
   }
 
-  export type LogConsumoWhereUniqueInput = Prisma.AtLeast<{
-    id_log_consumo?: string
-    AND?: LogConsumoWhereInput | LogConsumoWhereInput[]
-    OR?: LogConsumoWhereInput[]
-    NOT?: LogConsumoWhereInput | LogConsumoWhereInput[]
-    id_organizacao?: StringFilter<"LogConsumo"> | string
-    id_produto_gravity?: StringNullableFilter<"LogConsumo"> | string | null
-    id_usuario?: StringNullableFilter<"LogConsumo"> | string | null
-    id_api_token?: StringFilter<"LogConsumo"> | string
-    endpoint_log_consumo?: StringFilter<"LogConsumo"> | string
-    metodo_http_log_consumo?: StringFilter<"LogConsumo"> | string
-    codigo_resposta_http_log_consumo?: IntFilter<"LogConsumo"> | number
-    latencia_ms_log_consumo?: IntFilter<"LogConsumo"> | number
-    data_criacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
-    data_atualizacao_log_consumo?: DateTimeFilter<"LogConsumo"> | Date | string
-  }, "id_log_consumo">
+  export type LogRequisicaoApiWhereUniqueInput = Prisma.AtLeast<{
+    id_log_requisicao_api?: string
+    AND?: LogRequisicaoApiWhereInput | LogRequisicaoApiWhereInput[]
+    OR?: LogRequisicaoApiWhereInput[]
+    NOT?: LogRequisicaoApiWhereInput | LogRequisicaoApiWhereInput[]
+    id_organizacao?: StringFilter<"LogRequisicaoApi"> | string
+    id_produto_gravity?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_usuario?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_api_token?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    id_correlacao?: StringNullableFilter<"LogRequisicaoApi"> | string | null
+    endpoint_log_requisicao_api?: StringFilter<"LogRequisicaoApi"> | string
+    metodo_http_log_requisicao_api?: StringFilter<"LogRequisicaoApi"> | string
+    codigo_resposta_http_log_requisicao_api?: IntFilter<"LogRequisicaoApi"> | number
+    latencia_ms_log_requisicao_api?: IntFilter<"LogRequisicaoApi"> | number
+    data_criacao_log_requisicao_api?: DateTimeFilter<"LogRequisicaoApi"> | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFilter<"LogRequisicaoApi"> | Date | string
+  }, "id_log_requisicao_api">
 
-  export type LogConsumoOrderByWithAggregationInput = {
-    id_log_consumo?: SortOrder
+  export type LogRequisicaoApiOrderByWithAggregationInput = {
+    id_log_requisicao_api?: SortOrder
     id_organizacao?: SortOrder
     id_produto_gravity?: SortOrderInput | SortOrder
     id_usuario?: SortOrderInput | SortOrder
-    id_api_token?: SortOrder
-    endpoint_log_consumo?: SortOrder
-    metodo_http_log_consumo?: SortOrder
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
-    data_criacao_log_consumo?: SortOrder
-    data_atualizacao_log_consumo?: SortOrder
-    _count?: LogConsumoCountOrderByAggregateInput
-    _avg?: LogConsumoAvgOrderByAggregateInput
-    _max?: LogConsumoMaxOrderByAggregateInput
-    _min?: LogConsumoMinOrderByAggregateInput
-    _sum?: LogConsumoSumOrderByAggregateInput
+    id_api_token?: SortOrderInput | SortOrder
+    id_correlacao?: SortOrderInput | SortOrder
+    endpoint_log_requisicao_api?: SortOrder
+    metodo_http_log_requisicao_api?: SortOrder
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
+    data_criacao_log_requisicao_api?: SortOrder
+    data_atualizacao_log_requisicao_api?: SortOrder
+    _count?: LogRequisicaoApiCountOrderByAggregateInput
+    _avg?: LogRequisicaoApiAvgOrderByAggregateInput
+    _max?: LogRequisicaoApiMaxOrderByAggregateInput
+    _min?: LogRequisicaoApiMinOrderByAggregateInput
+    _sum?: LogRequisicaoApiSumOrderByAggregateInput
   }
 
-  export type LogConsumoScalarWhereWithAggregatesInput = {
-    AND?: LogConsumoScalarWhereWithAggregatesInput | LogConsumoScalarWhereWithAggregatesInput[]
-    OR?: LogConsumoScalarWhereWithAggregatesInput[]
-    NOT?: LogConsumoScalarWhereWithAggregatesInput | LogConsumoScalarWhereWithAggregatesInput[]
-    id_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
-    id_organizacao?: StringWithAggregatesFilter<"LogConsumo"> | string
-    id_produto_gravity?: StringNullableWithAggregatesFilter<"LogConsumo"> | string | null
-    id_usuario?: StringNullableWithAggregatesFilter<"LogConsumo"> | string | null
-    id_api_token?: StringWithAggregatesFilter<"LogConsumo"> | string
-    endpoint_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
-    metodo_http_log_consumo?: StringWithAggregatesFilter<"LogConsumo"> | string
-    codigo_resposta_http_log_consumo?: IntWithAggregatesFilter<"LogConsumo"> | number
-    latencia_ms_log_consumo?: IntWithAggregatesFilter<"LogConsumo"> | number
-    data_criacao_log_consumo?: DateTimeWithAggregatesFilter<"LogConsumo"> | Date | string
-    data_atualizacao_log_consumo?: DateTimeWithAggregatesFilter<"LogConsumo"> | Date | string
+  export type LogRequisicaoApiScalarWhereWithAggregatesInput = {
+    AND?: LogRequisicaoApiScalarWhereWithAggregatesInput | LogRequisicaoApiScalarWhereWithAggregatesInput[]
+    OR?: LogRequisicaoApiScalarWhereWithAggregatesInput[]
+    NOT?: LogRequisicaoApiScalarWhereWithAggregatesInput | LogRequisicaoApiScalarWhereWithAggregatesInput[]
+    id_log_requisicao_api?: StringWithAggregatesFilter<"LogRequisicaoApi"> | string
+    id_organizacao?: StringWithAggregatesFilter<"LogRequisicaoApi"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"LogRequisicaoApi"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"LogRequisicaoApi"> | string | null
+    id_api_token?: StringNullableWithAggregatesFilter<"LogRequisicaoApi"> | string | null
+    id_correlacao?: StringNullableWithAggregatesFilter<"LogRequisicaoApi"> | string | null
+    endpoint_log_requisicao_api?: StringWithAggregatesFilter<"LogRequisicaoApi"> | string
+    metodo_http_log_requisicao_api?: StringWithAggregatesFilter<"LogRequisicaoApi"> | string
+    codigo_resposta_http_log_requisicao_api?: IntWithAggregatesFilter<"LogRequisicaoApi"> | number
+    latencia_ms_log_requisicao_api?: IntWithAggregatesFilter<"LogRequisicaoApi"> | number
+    data_criacao_log_requisicao_api?: DateTimeWithAggregatesFilter<"LogRequisicaoApi"> | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeWithAggregatesFilter<"LogRequisicaoApi"> | Date | string
   }
 
   export type ApiIntegracaoErpWhereInput = {
@@ -63045,102 +63063,109 @@ export namespace Prisma {
     data_atualizacao_webhook_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LogConsumoCreateInput = {
-    id_log_consumo?: string
+  export type LogRequisicaoApiCreateInput = {
+    id_log_requisicao_api?: string
     id_organizacao: string
     id_produto_gravity?: string | null
     id_usuario?: string | null
-    id_api_token: string
-    endpoint_log_consumo: string
-    metodo_http_log_consumo: string
-    codigo_resposta_http_log_consumo: number
-    latencia_ms_log_consumo: number
-    data_criacao_log_consumo?: Date | string
-    data_atualizacao_log_consumo?: Date | string
+    id_api_token?: string | null
+    id_correlacao?: string | null
+    endpoint_log_requisicao_api: string
+    metodo_http_log_requisicao_api: string
+    codigo_resposta_http_log_requisicao_api: number
+    latencia_ms_log_requisicao_api: number
+    data_criacao_log_requisicao_api?: Date | string
+    data_atualizacao_log_requisicao_api?: Date | string
   }
 
-  export type LogConsumoUncheckedCreateInput = {
-    id_log_consumo?: string
+  export type LogRequisicaoApiUncheckedCreateInput = {
+    id_log_requisicao_api?: string
     id_organizacao: string
     id_produto_gravity?: string | null
     id_usuario?: string | null
-    id_api_token: string
-    endpoint_log_consumo: string
-    metodo_http_log_consumo: string
-    codigo_resposta_http_log_consumo: number
-    latencia_ms_log_consumo: number
-    data_criacao_log_consumo?: Date | string
-    data_atualizacao_log_consumo?: Date | string
+    id_api_token?: string | null
+    id_correlacao?: string | null
+    endpoint_log_requisicao_api: string
+    metodo_http_log_requisicao_api: string
+    codigo_resposta_http_log_requisicao_api: number
+    latencia_ms_log_requisicao_api: number
+    data_criacao_log_requisicao_api?: Date | string
+    data_atualizacao_log_requisicao_api?: Date | string
   }
 
-  export type LogConsumoUpdateInput = {
-    id_log_consumo?: StringFieldUpdateOperationsInput | string
+  export type LogRequisicaoApiUpdateInput = {
+    id_log_requisicao_api?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
-    id_api_token?: StringFieldUpdateOperationsInput | string
-    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
-    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
-    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
-    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
-    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_api_token?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LogConsumoUncheckedUpdateInput = {
-    id_log_consumo?: StringFieldUpdateOperationsInput | string
+  export type LogRequisicaoApiUncheckedUpdateInput = {
+    id_log_requisicao_api?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
-    id_api_token?: StringFieldUpdateOperationsInput | string
-    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
-    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
-    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
-    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
-    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_api_token?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LogConsumoCreateManyInput = {
-    id_log_consumo?: string
+  export type LogRequisicaoApiCreateManyInput = {
+    id_log_requisicao_api?: string
     id_organizacao: string
     id_produto_gravity?: string | null
     id_usuario?: string | null
-    id_api_token: string
-    endpoint_log_consumo: string
-    metodo_http_log_consumo: string
-    codigo_resposta_http_log_consumo: number
-    latencia_ms_log_consumo: number
-    data_criacao_log_consumo?: Date | string
-    data_atualizacao_log_consumo?: Date | string
+    id_api_token?: string | null
+    id_correlacao?: string | null
+    endpoint_log_requisicao_api: string
+    metodo_http_log_requisicao_api: string
+    codigo_resposta_http_log_requisicao_api: number
+    latencia_ms_log_requisicao_api: number
+    data_criacao_log_requisicao_api?: Date | string
+    data_atualizacao_log_requisicao_api?: Date | string
   }
 
-  export type LogConsumoUpdateManyMutationInput = {
-    id_log_consumo?: StringFieldUpdateOperationsInput | string
+  export type LogRequisicaoApiUpdateManyMutationInput = {
+    id_log_requisicao_api?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
-    id_api_token?: StringFieldUpdateOperationsInput | string
-    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
-    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
-    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
-    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
-    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_api_token?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type LogConsumoUncheckedUpdateManyInput = {
-    id_log_consumo?: StringFieldUpdateOperationsInput | string
+  export type LogRequisicaoApiUncheckedUpdateManyInput = {
+    id_log_requisicao_api?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
-    id_api_token?: StringFieldUpdateOperationsInput | string
-    endpoint_log_consumo?: StringFieldUpdateOperationsInput | string
-    metodo_http_log_consumo?: StringFieldUpdateOperationsInput | string
-    codigo_resposta_http_log_consumo?: IntFieldUpdateOperationsInput | number
-    latencia_ms_log_consumo?: IntFieldUpdateOperationsInput | number
-    data_criacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_log_consumo?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_api_token?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    metodo_http_log_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    latencia_ms_log_requisicao_api?: IntFieldUpdateOperationsInput | number
+    data_criacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_log_requisicao_api?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ApiIntegracaoErpCreateInput = {
@@ -66269,56 +66294,59 @@ export namespace Prisma {
     quantidade_tentativas_webhook_log?: SortOrder
   }
 
-  export type LogConsumoCountOrderByAggregateInput = {
-    id_log_consumo?: SortOrder
+  export type LogRequisicaoApiCountOrderByAggregateInput = {
+    id_log_requisicao_api?: SortOrder
     id_organizacao?: SortOrder
     id_produto_gravity?: SortOrder
     id_usuario?: SortOrder
     id_api_token?: SortOrder
-    endpoint_log_consumo?: SortOrder
-    metodo_http_log_consumo?: SortOrder
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
-    data_criacao_log_consumo?: SortOrder
-    data_atualizacao_log_consumo?: SortOrder
+    id_correlacao?: SortOrder
+    endpoint_log_requisicao_api?: SortOrder
+    metodo_http_log_requisicao_api?: SortOrder
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
+    data_criacao_log_requisicao_api?: SortOrder
+    data_atualizacao_log_requisicao_api?: SortOrder
   }
 
-  export type LogConsumoAvgOrderByAggregateInput = {
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
+  export type LogRequisicaoApiAvgOrderByAggregateInput = {
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
   }
 
-  export type LogConsumoMaxOrderByAggregateInput = {
-    id_log_consumo?: SortOrder
+  export type LogRequisicaoApiMaxOrderByAggregateInput = {
+    id_log_requisicao_api?: SortOrder
     id_organizacao?: SortOrder
     id_produto_gravity?: SortOrder
     id_usuario?: SortOrder
     id_api_token?: SortOrder
-    endpoint_log_consumo?: SortOrder
-    metodo_http_log_consumo?: SortOrder
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
-    data_criacao_log_consumo?: SortOrder
-    data_atualizacao_log_consumo?: SortOrder
+    id_correlacao?: SortOrder
+    endpoint_log_requisicao_api?: SortOrder
+    metodo_http_log_requisicao_api?: SortOrder
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
+    data_criacao_log_requisicao_api?: SortOrder
+    data_atualizacao_log_requisicao_api?: SortOrder
   }
 
-  export type LogConsumoMinOrderByAggregateInput = {
-    id_log_consumo?: SortOrder
+  export type LogRequisicaoApiMinOrderByAggregateInput = {
+    id_log_requisicao_api?: SortOrder
     id_organizacao?: SortOrder
     id_produto_gravity?: SortOrder
     id_usuario?: SortOrder
     id_api_token?: SortOrder
-    endpoint_log_consumo?: SortOrder
-    metodo_http_log_consumo?: SortOrder
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
-    data_criacao_log_consumo?: SortOrder
-    data_atualizacao_log_consumo?: SortOrder
+    id_correlacao?: SortOrder
+    endpoint_log_requisicao_api?: SortOrder
+    metodo_http_log_requisicao_api?: SortOrder
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
+    data_criacao_log_requisicao_api?: SortOrder
+    data_atualizacao_log_requisicao_api?: SortOrder
   }
 
-  export type LogConsumoSumOrderByAggregateInput = {
-    codigo_resposta_http_log_consumo?: SortOrder
-    latencia_ms_log_consumo?: SortOrder
+  export type LogRequisicaoApiSumOrderByAggregateInput = {
+    codigo_resposta_http_log_requisicao_api?: SortOrder
+    latencia_ms_log_requisicao_api?: SortOrder
   }
 
   export type EnumProtocoloApiIntegracaoErpFilter<$PrismaModel = never> = {
@@ -70513,9 +70541,9 @@ export namespace Prisma {
      */
     export type WebhookLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WebhookLogDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use LogConsumoDefaultArgs instead
+     * @deprecated Use LogRequisicaoApiDefaultArgs instead
      */
-    export type LogConsumoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LogConsumoDefaultArgs<ExtArgs>
+    export type LogRequisicaoApiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LogRequisicaoApiDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ApiIntegracaoErpDefaultArgs instead
      */

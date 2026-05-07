@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-07T19:23:21.515Z
+// Gerado em: 2026-05-07T19:28:37.891Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes, api-cockpit
 // Serviços ausentes (fragment não encontrado): processos-core, ncm-sync
 // ============================================================================
@@ -1621,8 +1621,8 @@ model LogRequisicaoApi {
   id_produto_gravity String?
   id_usuario         String?
 
-  // Relação
-  id_api_token String
+  // Relação — nullable porque chamadas internas (S2S sem token) tambem geram log
+  id_api_token String?
 
   // Rastreamento distribuido (header x-correlation-id propagado entre serviços)
   id_correlacao String?

@@ -818,18 +818,19 @@ exports.Prisma.WebhookLogScalarFieldEnum = {
   data_atualizacao_webhook_log: 'data_atualizacao_webhook_log'
 };
 
-exports.Prisma.LogConsumoScalarFieldEnum = {
-  id_log_consumo: 'id_log_consumo',
+exports.Prisma.LogRequisicaoApiScalarFieldEnum = {
+  id_log_requisicao_api: 'id_log_requisicao_api',
   id_organizacao: 'id_organizacao',
   id_produto_gravity: 'id_produto_gravity',
   id_usuario: 'id_usuario',
   id_api_token: 'id_api_token',
-  endpoint_log_consumo: 'endpoint_log_consumo',
-  metodo_http_log_consumo: 'metodo_http_log_consumo',
-  codigo_resposta_http_log_consumo: 'codigo_resposta_http_log_consumo',
-  latencia_ms_log_consumo: 'latencia_ms_log_consumo',
-  data_criacao_log_consumo: 'data_criacao_log_consumo',
-  data_atualizacao_log_consumo: 'data_atualizacao_log_consumo'
+  id_correlacao: 'id_correlacao',
+  endpoint_log_requisicao_api: 'endpoint_log_requisicao_api',
+  metodo_http_log_requisicao_api: 'metodo_http_log_requisicao_api',
+  codigo_resposta_http_log_requisicao_api: 'codigo_resposta_http_log_requisicao_api',
+  latencia_ms_log_requisicao_api: 'latencia_ms_log_requisicao_api',
+  data_criacao_log_requisicao_api: 'data_criacao_log_requisicao_api',
+  data_atualizacao_log_requisicao_api: 'data_atualizacao_log_requisicao_api'
 };
 
 exports.Prisma.ApiIntegracaoErpScalarFieldEnum = {
@@ -1017,7 +1018,7 @@ exports.Prisma.ModelName = {
   ApiToken: 'ApiToken',
   WebhookConfiguracao: 'WebhookConfiguracao',
   WebhookLog: 'WebhookLog',
-  LogConsumo: 'LogConsumo',
+  LogRequisicaoApi: 'LogRequisicaoApi',
   ApiIntegracaoErp: 'ApiIntegracaoErp'
 };
 

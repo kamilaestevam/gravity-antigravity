@@ -1,20 +1,25 @@
 /**
  * monitoramento-api.ts — Rotas de ingestao e consulta de metricas de API
  *
- * POST /ingestao                       Recebe batch de metricas dos produtos (S2S)
- * GET  /servicos                       Lista servicos com status (health check)
- * GET  /logs                           Lista logs de requisicoes (paginado)
+ * POST /ingestao                              Recebe batch de metricas dos produtos (S2S)
+ * GET  /servicos                              Lista servicos com status (health check)
+ * GET  /logs                                  Lista logs de requisicoes (paginado)
  * GET  /estatisticas-log-requisicao-api       KPIs agregados (24h uptime, latencia media, etc.)
  *
  * NOMENCLATURA DDD (REGRA 3/4 — FKs canonicas + sufixo de entidade em genericos):
- *   - id_organizacao, id_produto_gravity, id_usuario        FKs canonicas
+ *   - id_organizacao, id_produto_gravity, id_usuario, id_api_token        FKs canonicas
  *   - endpoint_log_requisicao_api, metodo_http_log_requisicao_api         entidade LogRequisicaoApi
  *   - codigo_resposta_http_log_requisicao_api, latencia_ms_log_requisicao_api
- *   - data_criacao_log_requisicao_api                              audit field (REGRA 3)
+ *   - data_criacao_log_requisicao_api                                     audit field (REGRA 3)
  *
  * SERVIÇO_PLATAFORMA (runtime — nao persistido):
  *   - nome_servico_plataforma, status_servico_plataforma, latencia_ms_servico_plataforma
  *   - versao_servico_plataforma, data_ultimo_check_servico_plataforma, tipo_servico_plataforma
+ *
+ * PERSISTENCIA (Fase 1B — ativada em 2026-05-07):
+ *   - Ingest grava em prisma.logRequisicaoApi via buffer (flush 100 entries OU 5s)
+ *   - Reads (logs/estatisticas) consultam Postgres direto
+ *   - Schema permite id_api_token NULL (chamadas internas S2S sem token)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -23,44 +28,22 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { requireInternalKey } from '../middleware/requireInternalKey'
+import { PrismaClient } from '../../../../generated/index.js'
 
 const router = Router()
+const prisma = new PrismaClient()
 
-// ─── In-Memory Store (TODO: migrar para Prisma LogRequisicaoApi) ───────────────
+// ─── Buffer de ingest (flush 100 entries OU 5s) ─────────────────────────
 //
-// Status atual: store em memória, perdido em restart, MAX 10k registros.
-// Dev/staging usam isto; produção precisa da migração.
-//
-// Roadmap da migração (requer Coordenador):
-//   1. Schema LogRequisicaoApi ja existe no fragment.prisma do api-cockpit.
-//      Atencao: id_api_token e obrigatorio no schema, mas nao e capturado
-//      no ingest atual — ajustar antes da persistencia.
-//   2. Reescrever POST /ingest -> prisma.logRequisicaoApi.createMany
-//   3. Reescrever GET /logs -> prisma.logRequisicaoApi.findMany com filtros
-//   4. Reescrever GET /stats -> count + groupBy
-//   5. Particionar por mes (similar ao HistoricoGlobal) para LGPD 5+ anos
+// Performance: 1 INSERT por requisicao seria prohibitivo (10k req/s -> 10k INSERTs/s).
+// Buffer agrupa entradas e dispara createMany periodicamente.
+// Fire-and-forget: nao bloqueia a resposta do POST /ingestao.
 
-interface LogRequisicaoApiEntry {
-  id_organizacao: string
-  id_produto_gravity: string
-  id_usuario: string | null
-  endpoint_log_requisicao_api: string
-  metodo_http_log_requisicao_api: string
-  codigo_resposta_http_log_requisicao_api: number
-  latencia_ms_log_requisicao_api: number
-  id_correlacao: string | null
-  data_criacao_log_requisicao_api: string
-  // Pré-computados no ingest pra evitar split('T') repetido em GET /logs
-  _ts_ms: number
-  _data: string
-  _hora: string
-}
-
-/** Dado cru vindo do cliente (antes do pré-processamento). */
 interface LogRequisicaoApiInput {
   id_organizacao: string
   id_produto_gravity: string
   id_usuario: string | null
+  id_api_token: string | null
   endpoint_log_requisicao_api: string
   metodo_http_log_requisicao_api: string
   codigo_resposta_http_log_requisicao_api: number
@@ -69,8 +52,52 @@ interface LogRequisicaoApiInput {
   data_criacao_log_requisicao_api: string
 }
 
+const ingestBuffer: LogRequisicaoApiInput[] = []
+const FLUSH_INTERVAL_MS = 5_000
+const FLUSH_BATCH_SIZE  = 100
+
+let flushTimer: ReturnType<typeof setInterval> | null = null
+
+async function flushIngestBuffer(): Promise<void> {
+  if (ingestBuffer.length === 0) return
+  // Drena o buffer atomicamente (splice retorna o que tinha + zera o array)
+  const batch = ingestBuffer.splice(0, ingestBuffer.length)
+  try {
+    await prisma.logRequisicaoApi.createMany({
+      data: batch.map((e) => ({
+        id_organizacao:                          e.id_organizacao,
+        id_produto_gravity:                      e.id_produto_gravity,
+        id_usuario:                              e.id_usuario,
+        id_api_token:                            e.id_api_token,
+        id_correlacao:                           e.id_correlacao,
+        endpoint_log_requisicao_api:             e.endpoint_log_requisicao_api,
+        metodo_http_log_requisicao_api:          e.metodo_http_log_requisicao_api,
+        codigo_resposta_http_log_requisicao_api: e.codigo_resposta_http_log_requisicao_api,
+        latencia_ms_log_requisicao_api:          e.latencia_ms_log_requisicao_api,
+        data_criacao_log_requisicao_api:         new Date(e.data_criacao_log_requisicao_api),
+      })),
+    })
+  } catch (err) {
+    // Nao re-enfilera: se falhou, perdeu (vs ficar acumulando indefinidamente em memoria).
+    // Logamos para investigacao mas nao paramos a aplicacao (fire-and-forget).
+    console.warn('[monitoramento-api] flush falhou — dropando batch', {
+      tamanho: batch.length,
+      erro:    err instanceof Error ? err.message : String(err),
+    })
+  }
+}
+
+function ensureFlushTimer(): void {
+  if (flushTimer) return
+  flushTimer = setInterval(() => { void flushIngestBuffer() }, FLUSH_INTERVAL_MS)
+  if (flushTimer && typeof flushTimer === 'object' && 'unref' in flushTimer) {
+    flushTimer.unref()
+  }
+}
+
+// ─── Tipos do snapshot de saude (runtime, nao persistido) ────────────────
+
 type StatusServicoPlataforma = 'ONLINE' | 'DEGRADADO' | 'OFFLINE'
-// PLATAFORMA substitui NUCLEO (renomeado em 2026-05-06 — alinha com pasta servicos-plataforma/)
 type TipoServicoPlataforma = 'PLATAFORMA' | 'PRODUTO_GRAVITY' | 'CONECTOR'
 
 interface ServicoPlataforma {
@@ -82,22 +109,7 @@ interface ServicoPlataforma {
   tipo_servico_plataforma: TipoServicoPlataforma
 }
 
-// Store em memoria — em producao usar Prisma (LogRequisicaoApi) ou Redis TimeSeries
-const logRequisicaoApiStore: LogRequisicaoApiEntry[] = []
-const MAX_STORE_SIZE = 10_000
-const OVERFLOW_WARNING_THRESHOLD = Math.floor(MAX_STORE_SIZE * 0.9) // 90%
-let overflowWarningEmitted = false
-
 // ─── Descoberta dinamica de servicos via contracts.json ────────────────
-//
-// Substitui a lista hard-coded de portas. Fonte unica de verdade e
-// `servicos-global/contracts.json`. Servico novo no contracts aparece
-// no inventario sem alteracao de codigo.
-//
-// Tipo derivado:
-//   - Em products[]            → PRODUTO_GRAVITY
-//   - Comeca com "conector-"   → CONECTOR
-//   - Senao                    → PLATAFORMA
 
 interface ContractsJson {
   products: string[]
@@ -130,8 +142,8 @@ interface ServicoDescoberto {
 function descobrirServicos(): ServicoDescoberto[] {
   const contracts = carregarContracts()
   return Object.entries(contracts.services)
-    .filter(([nome]) => !nome.startsWith('_'))             // pula _nota e similares
-    .filter(([, cfg]) => typeof cfg.baseUrl === 'string')  // somente entries com baseUrl
+    .filter(([nome]) => !nome.startsWith('_'))
+    .filter(([, cfg]) => typeof cfg.baseUrl === 'string')
     .map(([nome, cfg]) => ({
       nome_servico_plataforma:     nome,
       base_url_servico_plataforma: cfg.baseUrl as string,
@@ -143,14 +155,15 @@ function descobrirServicos(): ServicoDescoberto[] {
 
 const IngestSchema = z.object({
   entries: z.array(z.object({
-    id_organizacao:                   z.string(),
-    id_produto_gravity:               z.string(),
-    id_usuario:                       z.string().nullable(),
+    id_organizacao:                          z.string(),
+    id_produto_gravity:                      z.string(),
+    id_usuario:                              z.string().nullable(),
+    id_api_token:                            z.string().nullable(),
     endpoint_log_requisicao_api:             z.string(),
     metodo_http_log_requisicao_api:          z.string(),
     codigo_resposta_http_log_requisicao_api: z.number().int(),
     latencia_ms_log_requisicao_api:          z.number().int(),
-    id_correlacao:                    z.string().nullable(),
+    id_correlacao:                           z.string().nullable(),
     data_criacao_log_requisicao_api:         z.string(),
   })).min(1).max(500),
 })
@@ -164,21 +177,7 @@ const LogsQuerySchema = z.object({
   limite:                        z.coerce.number().int().positive().max(100).default(50),
 })
 
-// ─── POST /ingest — Receber batch de metricas ───────────────────────────
-
-/** Pré-computa campos derivados para evitar string.split() repetido em GET /logs. */
-function enrichEntry(input: LogRequisicaoApiInput): LogRequisicaoApiEntry {
-  const ts = input.data_criacao_log_requisicao_api
-  const tIdx = ts.indexOf('T')
-  const data = tIdx >= 0 ? ts.slice(0, tIdx) : ts
-  const hora = tIdx >= 0 ? ts.slice(tIdx + 1, tIdx + 9) : ''
-  return {
-    ...input,
-    _ts_ms: Date.parse(ts),
-    _data: data,
-    _hora: hora,
-  }
-}
+// ─── POST /ingestao — Receber batch de metricas (vai para o buffer) ─────
 
 router.post('/ingestao', requireInternalKey, (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -187,28 +186,17 @@ router.post('/ingestao', requireInternalKey, (req: Request, res: Response, next:
       return res.status(400).json({ erro: 'Payload invalido', issues: parsed.error.issues })
     }
 
-    // Enriquece no ingest (1x por entry) em vez de no GET (N leituras depois)
-    const enriched = parsed.data.entries.map(enrichEntry)
-    logRequisicaoApiStore.push(...enriched)
+    ensureFlushTimer()
+    ingestBuffer.push(...parsed.data.entries)
 
-    // FIFO: remove os mais antigos se exceder limite.
-    // Usa splice em vez de shift() em loop — O(1) vs O(n) por iteração.
-    if (logRequisicaoApiStore.length > MAX_STORE_SIZE) {
-      logRequisicaoApiStore.splice(0, logRequisicaoApiStore.length - MAX_STORE_SIZE)
-    }
-
-    // Warning uma vez quando store se aproxima do limite — sinal pra migrar para Prisma
-    if (logRequisicaoApiStore.length >= OVERFLOW_WARNING_THRESHOLD && !overflowWarningEmitted) {
-      overflowWarningEmitted = true
-      console.warn(
-        `[monitoramento-api] Store em memória atingiu ${logRequisicaoApiStore.length}/${MAX_STORE_SIZE} ` +
-        `registros. Dados antigos começam a ser descartados. Migrar para Prisma LogRequisicaoApi.`
-      )
+    // Flush imediato se passou do tamanho do batch (evita esperar 5s)
+    if (ingestBuffer.length >= FLUSH_BATCH_SIZE) {
+      void flushIngestBuffer()
     }
 
     res.json({
       quantidade_ingerida: parsed.data.entries.length,
-      total_log_requisicao_api:   logRequisicaoApiStore.length,
+      tamanho_buffer:      ingestBuffer.length,
     })
   } catch (err) {
     next(err)
@@ -227,9 +215,6 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
   try {
     const servicosDescobertos = descobrirServicos()
 
-    // Multiplos servicos compartilham processo (ex: tudo em localhost:3001 e
-    // localhost:8005). Deduplica por baseUrl para fazer 1 fetch /health por
-    // processo, depois replica o resultado para todos os servicos do mesmo URL.
     const baseUrlsUnicas = [...new Set(servicosDescobertos.map((s) => s.base_url_servico_plataforma))]
     const healthPorBaseUrl = new Map<string, HealthCheckResult>()
 
@@ -274,7 +259,6 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
       }
     })
 
-    // Ordenar: ONLINE primeiro, depois DEGRADADO, depois OFFLINE
     const ordem: Record<StatusServicoPlataforma, number> = { ONLINE: 0, DEGRADADO: 1, OFFLINE: 2 }
     servicos.sort((a, b) => ordem[a.status_servico_plataforma] - ordem[b.status_servico_plataforma])
 
@@ -284,53 +268,61 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
   }
 })
 
-// ─── GET /logs — Consultar logs de requisicoes ──────────────────────────
+// ─── GET /logs — Consultar logs de requisicoes (Postgres) ───────────────
 
-router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
+router.get('/logs', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filtros = LogsQuerySchema.parse(req.query)
 
-    // Filtro único — O(n) em vez de O(n×4) com 4 filters sequenciais
-    const {
-      id_organizacao,
-      id_produto_gravity,
-      codigo_resposta_http_minimo,
-      codigo_resposta_http_maximo,
-    } = filtros
-    const filtrados = logRequisicaoApiStore.filter((e) => {
-      if (id_organizacao && e.id_organizacao !== id_organizacao) return false
-      if (id_produto_gravity && e.id_produto_gravity !== id_produto_gravity) return false
-      if (codigo_resposta_http_minimo !== undefined && e.codigo_resposta_http_log_requisicao_api < codigo_resposta_http_minimo) return false
-      if (codigo_resposta_http_maximo !== undefined && e.codigo_resposta_http_log_requisicao_api > codigo_resposta_http_maximo) return false
-      return true
+    const where: Record<string, unknown> = {}
+    if (filtros.id_organizacao)     where.id_organizacao     = filtros.id_organizacao
+    if (filtros.id_produto_gravity) where.id_produto_gravity = filtros.id_produto_gravity
+    if (filtros.codigo_resposta_http_minimo !== undefined ||
+        filtros.codigo_resposta_http_maximo !== undefined) {
+      where.codigo_resposta_http_log_requisicao_api = {
+        ...(filtros.codigo_resposta_http_minimo !== undefined ? { gte: filtros.codigo_resposta_http_minimo } : {}),
+        ...(filtros.codigo_resposta_http_maximo !== undefined ? { lte: filtros.codigo_resposta_http_maximo } : {}),
+      }
+    }
+
+    const [total, rows] = await Promise.all([
+      prisma.logRequisicaoApi.count({ where }),
+      prisma.logRequisicaoApi.findMany({
+        where,
+        orderBy: { data_criacao_log_requisicao_api: 'desc' },
+        skip:    (filtros.pagina - 1) * filtros.limite,
+        take:    filtros.limite,
+      }),
+    ])
+
+    const logs = rows.map((e) => {
+      const iso = e.data_criacao_log_requisicao_api.toISOString()
+      const tIdx = iso.indexOf('T')
+      const data = tIdx >= 0 ? iso.slice(0, tIdx) : iso
+      const hora = tIdx >= 0 ? iso.slice(tIdx + 1, tIdx + 9) : ''
+      const status = e.codigo_resposta_http_log_requisicao_api
+      return {
+        id_log_requisicao_api:                   e.id_log_requisicao_api,
+        id_organizacao:                          e.id_organizacao,
+        id_produto_gravity:                      e.id_produto_gravity,
+        id_usuario:                              e.id_usuario,
+        id_correlacao:                           e.id_correlacao,
+        endpoint_log_requisicao_api:             e.endpoint_log_requisicao_api,
+        metodo_http_log_requisicao_api:          e.metodo_http_log_requisicao_api,
+        codigo_resposta_http_log_requisicao_api: status,
+        latencia_ms_log_requisicao_api:          e.latencia_ms_log_requisicao_api,
+        data_criacao_log_requisicao_api:         iso,
+        // Campos derivados pré-computados (UI consome diretos)
+        data_log_requisicao_api:                 data,
+        hora_log_requisicao_api:                 hora,
+        resultado_log_requisicao_api:
+          status < 400
+            ? 'SUCESSO'
+            : status < 500
+              ? 'ERRO_CLIENTE'
+              : 'ERRO_SERVIDOR',
+      }
     })
-
-    // Ordena por timestamp desc usando _ts_ms pré-computado (sem parse a cada compare)
-    filtrados.sort((a, b) => b._ts_ms - a._ts_ms)
-
-    const total = filtrados.length
-    const skip = (filtros.pagina - 1) * filtros.limite
-    const logs = filtrados.slice(skip, skip + filtros.limite).map((e) => ({
-      id_log_requisicao_api:                   `${e.data_criacao_log_requisicao_api}-${e.endpoint_log_requisicao_api}-${e.metodo_http_log_requisicao_api}`,
-      id_organizacao:                   e.id_organizacao,
-      id_produto_gravity:               e.id_produto_gravity,
-      id_usuario:                       e.id_usuario,
-      id_correlacao:                    e.id_correlacao,
-      endpoint_log_requisicao_api:             e.endpoint_log_requisicao_api,
-      metodo_http_log_requisicao_api:          e.metodo_http_log_requisicao_api,
-      codigo_resposta_http_log_requisicao_api: e.codigo_resposta_http_log_requisicao_api,
-      latencia_ms_log_requisicao_api:          e.latencia_ms_log_requisicao_api,
-      data_criacao_log_requisicao_api:         e.data_criacao_log_requisicao_api,
-      // Campos derivados pré-computados (UI consome diretos)
-      data_log_requisicao_api:                 e._data,
-      hora_log_requisicao_api:                 e._hora,
-      resultado_log_requisicao_api:
-        e.codigo_resposta_http_log_requisicao_api < 400
-          ? 'SUCESSO'
-          : e.codigo_resposta_http_log_requisicao_api < 500
-            ? 'ERRO_CLIENTE'
-            : 'ERRO_SERVIDOR',
-    }))
 
     res.json({
       logs,
@@ -346,70 +338,89 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
   }
 })
 
-// ─── GET /stats — KPIs agregados ────────────────────────────────────────
+// ─── GET /estatisticas — KPIs agregados ─────────────────────────────────
 
 /**
- * GET /estatisticas-log-requisicao-api[?id_organizacao=...]
+ * GET /estatisticas-log-requisicao-api[?id_organizacao=...&serie=diaria&dias=N]
  *
  * Sem filtro: agregado global (uso pelo admin).
  * Com filtro id_organizacao: agregado per-org (uso pelo workspace).
  *
- * Campos calculados sao identicos nos dois casos. Adicional:
- *   quantidade_produtos_distintos_log_requisicao_api — count distinct id_produto_gravity
+ * Janela 24h: count, sum(latencia), faixas HTTP, produtos distintos.
+ * Janela N dias (serie=diaria): % sucesso por dia (HTTP < 500).
+ *
+ * Implementacao: findMany unica com filtro WHERE data >= max(janela_24h, janela_30d),
+ * depois agrega em JS. Para volumes >100k linhas/dia, considerar groupBy SQL puro.
  */
+
 const EstatisticasQuerySchema = z.object({
   id_organizacao: z.string().optional(),
-  // Quando 'serie=diaria', retorna tambem a chave serie_diaria_log_requisicao_api
-  // com agregacao por dia (UTC) dos ultimos N dias (parametro 'dias', max 30).
   serie:          z.enum(['diaria']).optional(),
   dias:           z.coerce.number().int().positive().max(30).optional(),
 })
 
-/** YYYY-MM-DD em UTC a partir de timestamp em ms */
-function diaUtc(tsMs: number): string {
-  return new Date(tsMs).toISOString().slice(0, 10)
+function diaUtc(d: Date): string {
+  return d.toISOString().slice(0, 10)
 }
 
-router.get('/estatisticas-log-requisicao-api', (req: Request, res: Response, next: NextFunction) => {
+router.get('/estatisticas-log-requisicao-api', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       id_organizacao: filtroIdOrganizacao,
       serie,
       dias,
     } = EstatisticasQuerySchema.parse(req.query)
-    const agora = Date.now()
-    const h24   = agora - 24 * 60 * 60 * 1000
+    const agora        = Date.now()
+    const h24          = new Date(agora - 24 * 60 * 60 * 1000)
+    const diasJanela   = serie === 'diaria' ? (dias ?? 30) : 0
+    const inicioJanela = diasJanela > 0
+      ? new Date(agora - diasJanela * 24 * 60 * 60 * 1000)
+      : h24
 
-    // Single pass — filter, count, sum, groupBy em 1 loop só (era 4 iterações antes)
+    // Buscar a janela mais larga (para cobrir 24h e/ou serie diaria de N dias).
+    // Se serie=diaria, janela = N dias; senao janela = 24h.
+    const where: Record<string, unknown> = {
+      data_criacao_log_requisicao_api: { gte: inicioJanela },
+    }
+    if (filtroIdOrganizacao) where.id_organizacao = filtroIdOrganizacao
+
+    const rows = await prisma.logRequisicaoApi.findMany({
+      where,
+      select: {
+        id_produto_gravity:                      true,
+        codigo_resposta_http_log_requisicao_api: true,
+        latencia_ms_log_requisicao_api:          true,
+        data_criacao_log_requisicao_api:         true,
+      },
+    })
+
+    // Agrega em JS (single pass)
     let quantidadeRequisicoes = 0
     let quantidadeErros = 0
     let somaLatencia = 0
     const porIdProdutoGravity: Record<string, number> = {}
     const porFaixaCodigoRespostaHttp: Record<string, number> = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }
-
-    // Serie diaria: agrega por dia UTC quando serie=diaria
-    const diasJanela     = serie === 'diaria' ? (dias ?? 30) : 0
-    const inicioJanelaMs = diasJanela > 0 ? agora - diasJanela * 24 * 60 * 60 * 1000 : 0
-    // Map dia -> { total, sucesso }; sucesso = HTTP < 500 (falhas de cliente nao contam contra disponibilidade)
     const porDia: Record<string, { total: number; sucesso: number }> = {}
 
-    for (const e of logRequisicaoApiStore) {
-      if (filtroIdOrganizacao && e.id_organizacao !== filtroIdOrganizacao) continue
+    for (const e of rows) {
+      const ts = e.data_criacao_log_requisicao_api.getTime()
 
-      // Acumular serie diaria primeiro (janela de N dias) — independente da janela 24h
-      if (diasJanela > 0 && e._ts_ms >= inicioJanelaMs) {
-        const dia = diaUtc(e._ts_ms)
+      // Serie diaria (janela ampla)
+      if (diasJanela > 0) {
+        const dia = diaUtc(e.data_criacao_log_requisicao_api)
         const slot = porDia[dia] ?? (porDia[dia] = { total: 0, sucesso: 0 })
         slot.total++
         if (e.codigo_resposta_http_log_requisicao_api < 500) slot.sucesso++
       }
 
-      // Acumulados 24h (mantem comportamento original)
-      if (e._ts_ms < h24) continue
+      // Janela 24h (acumulados padrao)
+      if (ts < h24.getTime()) continue
       quantidadeRequisicoes++
       somaLatencia += e.latencia_ms_log_requisicao_api
       if (e.codigo_resposta_http_log_requisicao_api >= 500) quantidadeErros++
-      porIdProdutoGravity[e.id_produto_gravity] = (porIdProdutoGravity[e.id_produto_gravity] || 0) + 1
+      if (e.id_produto_gravity) {
+        porIdProdutoGravity[e.id_produto_gravity] = (porIdProdutoGravity[e.id_produto_gravity] || 0) + 1
+      }
       const grupo = `${Math.floor(e.codigo_resposta_http_log_requisicao_api / 100)}xx`
       if (grupo in porFaixaCodigoRespostaHttp) porFaixaCodigoRespostaHttp[grupo]++
     }
@@ -420,20 +431,19 @@ router.get('/estatisticas-log-requisicao-api', (req: Request, res: Response, nex
       : 100
     const quantidadeProdutosDistintos = Object.keys(porIdProdutoGravity).length
 
-    // Monta serie diaria com TODOS os dias da janela (incluindo dias sem trafego — total=0)
     let serieDiariaLogRequisicaoApi: { data: string; total: number; sucesso: number; percentual: number }[] | undefined
     if (diasJanela > 0) {
       serieDiariaLogRequisicaoApi = []
       for (let i = diasJanela - 1; i >= 0; i--) {
-        const dia = diaUtc(agora - i * 24 * 60 * 60 * 1000)
+        const dia = diaUtc(new Date(agora - i * 24 * 60 * 60 * 1000))
         const slot = porDia[dia] ?? { total: 0, sucesso: 0 }
         const percentual = slot.total > 0
           ? Number(((slot.sucesso / slot.total) * 100).toFixed(1))
           : 100
         serieDiariaLogRequisicaoApi.push({
-          data:       dia,
-          total:      slot.total,
-          sucesso:    slot.sucesso,
+          data:    dia,
+          total:   slot.total,
+          sucesso: slot.sucesso,
           percentual,
         })
       }
@@ -445,8 +455,8 @@ router.get('/estatisticas-log-requisicao-api', (req: Request, res: Response, nex
       latencia_media_log_requisicao_api:                latenciaMedia,
       percentual_uptime_log_requisicao_api:             percentualUptime,
       quantidade_produtos_distintos_log_requisicao_api: quantidadeProdutosDistintos,
-      por_id_produto_gravity:                    porIdProdutoGravity,
-      por_faixa_codigo_resposta_http:            porFaixaCodigoRespostaHttp,
+      por_id_produto_gravity:                           porIdProdutoGravity,
+      por_faixa_codigo_resposta_http:                   porFaixaCodigoRespostaHttp,
       ...(serieDiariaLogRequisicaoApi ? { serie_diaria_log_requisicao_api: serieDiariaLogRequisicaoApi } : {}),
     })
   } catch (err) {

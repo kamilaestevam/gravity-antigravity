@@ -40,6 +40,21 @@ const statusBadgeFaturaProdutoGravity: Record<StatusFaturaProdutoGravity, string
   INCOBRAVEL: 'ws-badge-danger',
 }
 
+// ─── Plural PT-BR do tipo de cobrança (col. FRANQUIA FREE) ───────────────────
+// Mapa explícito (vs. concat 's' cego) — evita "MENSALs", "ESTIMATIVAs", etc.
+// Chaves espelham o enum Prisma `TipoCobrancaGravity`.
+const PLURAL_TIPO_COBRANCA: Record<string, string> = {
+  MENSAL:         'mensalidades',
+  POR_PROCESSO:   'processos',
+  POR_DOCUMENTO:  'documentos',
+  POR_ESTIMATIVA: 'estimativas',
+  POR_DI_DUIMP:   'DI/DUIMPs',
+  POR_DUE:        'DUEs',
+  POR_PRODUTO:    'produtos',
+  POR_FLUXO:      'fluxos',
+  POR_LPCO:       'LPCOs',
+}
+
 // ─── Helpers de formatação ───────────────────────────────────────────────────
 
 function formatarMoeda(valor: number, moeda: string): string {
@@ -335,7 +350,7 @@ export function FinanceiroWorkspace() {
       tooltipTitulo: 'Franquia Inclusa', tooltipDescricao: 'Quantidade de uso incluída sem cobrança adicional.',
       render: (_v, item) => (
         <span style={{ color: item.qtd_usuarios_base_produto_gravity ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtd_usuarios_base_produto_gravity ? 600 : 400 }}>
-          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${item.tipo_cobranca_produto_gravity.replace('POR_', '')}s` : 'Zero'}
+          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${PLURAL_TIPO_COBRANCA[item.tipo_cobranca_produto_gravity] ?? item.tipo_cobranca_produto_gravity.toLowerCase()}` : 'Zero'}
         </span>
       ),
     },

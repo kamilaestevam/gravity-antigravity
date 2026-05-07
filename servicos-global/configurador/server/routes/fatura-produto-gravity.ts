@@ -2,9 +2,9 @@
 // Histórico de faturas do tenant via BillingProvider configurado.
 //
 // Contrato HTTP em DDD-PT (Opção A — alinhado à refatoração de nomenclatura):
-//   GET  /api/v1/faturas                              — lista de faturas da organização
-//   GET  /api/v1/faturas/:id_fatura_produto_gravity   — fatura específica
-//   GET  /api/v1/faturas/:id_fatura_produto_gravity/itens — composição (line items)
+//   GET  /api/v1/faturas-produto-gravity                              — lista de faturas da organização
+//   GET  /api/v1/faturas-produto-gravity/:id_fatura_produto_gravity   — fatura específica
+//   GET  /api/v1/faturas-produto-gravity/:id_fatura_produto_gravity/itens — composição (line items)
 //
 // `GravityInvoice` segue como abstração INTERNA (REGRA 4 da skill ddd-nomenclatura
 // — providers Conta Azul/Itaú/Santander são sistemas externos). A camada de
@@ -88,7 +88,7 @@ function paraFaturaItemResposta(item: GravityInvoiceLineItem, idx: number) {
 // ─── Rotas ───────────────────────────────────────────────────────────────────
 
 /**
- * GET /api/v1/faturas
+ * GET /api/v1/faturas-produto-gravity
  * Lista de faturas da organização autenticada.
  */
 billingRouter.get('/', requireAuth, async (req, res, next) => {
@@ -113,7 +113,7 @@ billingRouter.get('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/faturas/:id_fatura_produto_gravity
+ * GET /api/v1/faturas-produto-gravity/:id_fatura_produto_gravity
  * Fatura específica.
  */
 billingRouter.get('/:id_fatura_produto_gravity', requireAuth, async (req, res, next) => {
@@ -136,7 +136,7 @@ billingRouter.get('/:id_fatura_produto_gravity', requireAuth, async (req, res, n
 })
 
 /**
- * GET /api/v1/faturas/:id_fatura_produto_gravity/itens
+ * GET /api/v1/faturas-produto-gravity/:id_fatura_produto_gravity/itens
  * Composição (line items) da fatura. Para o provider 'gravity', vem do banco
  * via `produtoGravityFaturaItem`. Para providers externos, vem do `line_items`
  * do `GravityInvoice` (já agregado pelo provider).
@@ -197,7 +197,7 @@ billingRouter.get('/:id_fatura_produto_gravity/itens', requireAuth, async (req, 
   }
 })
 
-// ─── PATCH /api/v1/faturas/:id ───────────────────────────────────────────────
+// ─── PATCH /api/v1/faturas-produto-gravity/:id ───────────────────────────────────────────────
 // Editar dados/itens da fatura. Apenas gravity_admin. Bloqueado em status terminal.
 
 const atualizarFaturaSchema = z.object({
@@ -239,7 +239,7 @@ billingRouter.patch('/:id_fatura_produto_gravity', requireAuth, requireGravityAd
   }
 })
 
-// ─── GET /api/v1/faturas/:id/documentos ──────────────────────────────────────
+// ─── GET /api/v1/faturas-produto-gravity/:id/documentos ──────────────────────────────────────
 // Lista anexos de uma fatura. Cliente vê os próprios; admin pode ver qualquer.
 
 billingRouter.get('/:id_fatura_produto_gravity/documentos', requireAuth, async (req, res, next) => {
@@ -264,7 +264,7 @@ billingRouter.get('/:id_fatura_produto_gravity/documentos', requireAuth, async (
         id_documento_fatura_produto_gravity:      d.id_documento_fatura_produto_gravity,
         tipo_documento_fatura_produto_gravity:    d.tipo_documento_fatura_produto_gravity,
         nome_documento_fatura_produto_gravity:    d.nome_documento_fatura_produto_gravity,
-        url_documento_fatura_produto_gravity:     `/api/v1/faturas/${req.params.id_fatura_produto_gravity}/documentos/${d.id_documento_fatura_produto_gravity}/download`,
+        url_documento_fatura_produto_gravity:     `/api/v1/faturas-produto-gravity/${req.params.id_fatura_produto_gravity}/documentos/${d.id_documento_fatura_produto_gravity}/download`,
         tamanho_documento_fatura_produto_gravity: d.tamanho_documento_fatura_produto_gravity,
         mime_documento_fatura_produto_gravity:    d.mime_documento_fatura_produto_gravity,
         data_criacao_documento_fatura_produto_gravity: d.data_criacao_documento_fatura_produto_gravity.toISOString(),
@@ -275,7 +275,7 @@ billingRouter.get('/:id_fatura_produto_gravity/documentos', requireAuth, async (
   }
 })
 
-// ─── POST /api/v1/faturas/:id/documentos ─────────────────────────────────────
+// ─── POST /api/v1/faturas-produto-gravity/:id/documentos ─────────────────────────────────────
 // Upload multipart. Apenas gravity_admin. Multer já validou MIME + tamanho.
 
 const tipoDocumentoSchema = z.enum(['BOLETO', 'NFE', 'RECIBO', 'PDF_GENERICO', 'OUTRO'])
@@ -316,7 +316,7 @@ billingRouter.post('/:id_fatura_produto_gravity/documentos', requireAuth, requir
   }
 })
 
-// ─── DELETE /api/v1/faturas/:id/documentos/:id_doc ───────────────────────────
+// ─── DELETE /api/v1/faturas-produto-gravity/:id/documentos/:id_doc ───────────────────────────
 // Soft-delete. Apenas gravity_admin.
 
 billingRouter.delete('/:id_fatura_produto_gravity/documentos/:id_documento', requireAuth, requireGravityAdmin, async (req, res, next) => {
@@ -337,7 +337,7 @@ billingRouter.delete('/:id_fatura_produto_gravity/documentos/:id_documento', req
   }
 })
 
-// ─── GET /api/v1/faturas/:id/documentos/:id_doc/download ─────────────────────
+// ─── GET /api/v1/faturas-produto-gravity/:id/documentos/:id_doc/download ─────────────────────
 // Download do arquivo. Cliente vê o próprio; admin pode baixar qualquer.
 
 billingRouter.get('/:id_fatura_produto_gravity/documentos/:id_documento/download', requireAuth, async (req, res, next) => {

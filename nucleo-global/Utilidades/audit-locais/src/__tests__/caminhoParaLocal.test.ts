@@ -64,13 +64,13 @@ describe('caminhoParaLocal — paths conhecidos', () => {
     ['/api/v1/organizacoes/me',                 'Configurador | Organização'],
     ['/api/v1/historico-organizacao',           'Configurador | Histórico'],
     ['/api/v1/usuarios',                        'Configurador | Usuários'],
-    ['/api/v1/faturas',                         'Configurador | Financeiro'],
+    ['/api/v1/faturas-produto-gravity',         'Configurador | Financeiro'],
     ['/api/v1/api-cockpit',                     'Configurador | API Cockpit'],
     ['/api/v1/api-cockpit/tokens',              'Configurador | API Cockpit'],
     ['/api/v1/taxa-cambio',                     'Configurador | Taxa de Câmbio'],
     ['/api/v1/tokens-servico',                  'Configurador | Tokens de Serviço'],
-    ['/api/v1/workspaces/abc/produtos',         'Configurador | Produtos do Workspace'],
-    ['/api/v1/produtos',                        'Configurador | Produtos Gravity'],
+    ['/api/v1/workspaces/abc/produtos-gravity', 'Configurador | Produtos do Workspace'],
+    ['/api/v1/produtos-gravity',                'Configurador | Produtos Gravity'],
   ])('%s → %s', (path, esperado) => {
     expect(caminhoParaLocalString(path)).toBe(esperado)
   })

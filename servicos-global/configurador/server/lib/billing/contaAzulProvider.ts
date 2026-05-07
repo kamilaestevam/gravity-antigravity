@@ -86,7 +86,7 @@
 //      c. Opcional: finaliza (gera boleto/link de pagamento)
 //   4. Cliente recebe email com link de pagamento
 //   5. Cliente paga
-//   6. Conta Azul envia webhook pra Gravity (POST /api/v1/faturas/webhook-conta-azul)
+//   6. Conta Azul envia webhook pra Gravity (POST /api/v1/faturas-produto-gravity/webhook-conta-azul)
 //   7. Webhook handler detecta tipo "sale_paid" e dispara emissão de NF-e
 //   8. NF-e fica disponível no Conta Azul e é puxada pelo getInvoice() seguinte
 //

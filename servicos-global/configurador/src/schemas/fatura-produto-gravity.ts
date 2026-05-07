@@ -1,5 +1,5 @@
 // schemas/faturaProdutoGravity.ts
-// Contratos Zod para as rotas /api/v1/faturas* — espelho do payload DDD-PT
+// Contratos Zod para as rotas /api/v1/faturas-produto-gravity* — espelho do payload DDD-PT
 // devolvido pelo backend ([servicos-global/configurador/server/routes/fatura-produto-gravity.ts]).
 //
 // Segue Mandamentos 06 + 09: validação obrigatória + bilateralidade. Qualquer
@@ -57,7 +57,7 @@ export const faturaProdutoGravitySchema = z.object({
 
 export type FaturaProdutoGravity = z.infer<typeof faturaProdutoGravitySchema>
 
-// ─── Resposta GET /api/v1/faturas ────────────────────────────────────────────
+// ─── Resposta GET /api/v1/faturas-produto-gravity ────────────────────────────────────────────
 
 export const listaFaturasProdutoGravitySchema = z.object({
   faturas:  z.array(faturaProdutoGravitySchema),
@@ -85,7 +85,7 @@ export const faturaItemProdutoGravitySchema = z.object({
 
 export type FaturaItemProdutoGravity = z.infer<typeof faturaItemProdutoGravitySchema>
 
-// ─── Resposta GET /api/v1/faturas/:id/itens ──────────────────────────────────
+// ─── Resposta GET /api/v1/faturas-produto-gravity/:id/itens ──────────────────────────────────
 
 export const itensFaturaProdutoGravitySchema = z.object({
   itens_fatura_produto_gravity: z.array(faturaItemProdutoGravitySchema),
@@ -124,7 +124,7 @@ export const listaDocumentosFaturaProdutoGravitySchema = z.object({
   documentos_fatura_produto_gravity: z.array(documentoAnexoFaturaProdutoGravitySchema),
 })
 
-// ─── Request PATCH /api/v1/faturas/:id ───────────────────────────────────────
+// ─── Request PATCH /api/v1/faturas-produto-gravity/:id ───────────────────────────────────────
 
 export const atualizarFaturaProdutoGravitySchema = z.object({
   competencia_fatura_produto_gravity:       z.string().nullable().optional(),

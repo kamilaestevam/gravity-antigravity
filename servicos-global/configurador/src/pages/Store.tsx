@@ -97,8 +97,8 @@ export function Store() {
     async function load() {
       try {
         const [catRes, subRes] = await Promise.all([
-          fetch(`${API_URL}/produtos`),
-          fetch(`${API_URL}/organizacoes/me/assinaturas`, {
+          fetch(`${API_URL}/produtos-gravity`),
+          fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity`, {
             headers: { Authorization: `Bearer ${await getToken()}` },
           }).catch(() => null),
         ])
@@ -106,7 +106,7 @@ export function Store() {
           const catData = await catRes.json()
           setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
         } else {
-          console.warn('[Store] GET /produtos falhou', catRes.status, catRes.statusText)
+          console.warn('[Store] GET /produtos-gravity falhou', catRes.status, catRes.statusText)
           addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
         }
         if (subRes?.ok) {
@@ -156,7 +156,7 @@ export function Store() {
     setSubscribing(slug)
     try {
       const token = await getToken()
-      const res = await fetch(`${API_URL}/organizacoes/me/assinaturas/assinar-produto`, {
+      const res = await fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity/assinar-produto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ slug_produto_gravity: slug }),
@@ -164,7 +164,7 @@ export function Store() {
       if (res.ok) {
         const id_workspace = sessionStorage.getItem('gravity_company_id')
         if (id_workspace) {
-          await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
+          await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ slug_produto_gravity: slug }),

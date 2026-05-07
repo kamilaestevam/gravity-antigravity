@@ -377,7 +377,7 @@ interface AbaPermissoesProps {
   workspaceSelecionado: string | null
   /** Apenas os workspaces aos quais o usuário está vinculado. */
   workspacesVinculados: WorkspaceItem[]
-  /** Produtos contratados pelo workspace selecionado (DTO da rota /workspaces/:id/produtos). */
+  /** Produtos contratados pelo workspace selecionado (DTO da rota /workspaces/:id/produtos-gravity). */
   produtos: ProdutoWorkspaceItem[]
   /** Permissões ativas do workspace selecionado, como Set para lookup O(1). */
   permissoesDoWorkspace: Set<string>

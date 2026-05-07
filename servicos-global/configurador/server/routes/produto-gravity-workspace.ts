@@ -1,8 +1,8 @@
 // server/routes/produto-gravity-workspace.ts
 // Gestão de produtos habilitados por workspace
-// GET    /api/v1/workspaces/:id_workspace/produtos                       — Listar produtos do workspace
-// POST   /api/v1/workspaces/:id_workspace/produtos                       — Ativar produto no workspace
-// DELETE /api/v1/workspaces/:id_workspace/produtos/:id_produto_gravity   — Desativar produto no workspace
+// GET    /api/v1/workspaces/:id_workspace/produtos-gravity                       — Listar produtos do workspace
+// POST   /api/v1/workspaces/:id_workspace/produtos-gravity                       — Ativar produto no workspace
+// DELETE /api/v1/workspaces/:id_workspace/produtos-gravity/:id_produto_gravity   — Desativar produto no workspace
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ const EnableProductSchema = z.object({
 })
 
 /**
- * GET /api/v1/workspaces/:id_workspace/produtos
+ * GET /api/v1/workspaces/:id_workspace/produtos-gravity
  * Lista produtos habilitados no workspace
  */
 companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
@@ -102,7 +102,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/workspaces/:id_workspace/produtos
+ * POST /api/v1/workspaces/:id_workspace/produtos-gravity
  * Ativa um produto no workspace (a organização já precisa ter contratado o produto)
  */
 companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
@@ -186,7 +186,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/workspaces/:id_workspace/produtos/:id_produto_gravity
+ * DELETE /api/v1/workspaces/:id_workspace/produtos-gravity/:id_produto_gravity
  * Desativa um produto no workspace (soft delete)
  */
 companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, res, next) => {

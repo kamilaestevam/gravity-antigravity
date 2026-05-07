@@ -1,6 +1,6 @@
 // src/schemas/assinatura-produto-gravity.ts
 // Contrato bilateral (Mandamento 09) entre frontend e backend
-// para a rota /api/v1/organizacoes/me/assinaturas.
+// para a rota /api/v1/organizacoes/me/assinaturas-produto-gravity.
 //
 // Nomes idênticos ao schema.prisma (configurador/prisma/schema.prisma).
 

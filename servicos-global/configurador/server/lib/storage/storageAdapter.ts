@@ -49,7 +49,7 @@ export class FilesystemStorageAdapter implements StorageAdapter {
   }
 
   async obterUrl(chave: string) {
-    // Filesystem: devolve URL relativa ao próprio backend (rota /api/v1/faturas/:id/documentos/:id/download).
+    // Filesystem: devolve URL relativa ao próprio backend (rota /api/v1/faturas-produto-gravity/:id/documentos/:id/download).
     // S3 futuro: devolveria signed URL com TTL.
     return chave
   }

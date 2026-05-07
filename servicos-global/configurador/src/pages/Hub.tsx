@@ -176,7 +176,7 @@ export function Hub() {
 
       try {
         const token = await getToken()
-        const res = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
+        const res = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -196,7 +196,7 @@ export function Hub() {
               const tenantActive = (tenantData.products as CompanyProduct[] | undefined)?.filter(p => p.is_active) ?? []
 
               for (const tp of tenantActive) {
-                await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
+                await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                   body: JSON.stringify({ product_key: tp.product_key }),
@@ -204,7 +204,7 @@ export function Hub() {
               }
 
               if (tenantActive.length > 0) {
-                const refresh = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
+                const refresh = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
                   headers: { Authorization: `Bearer ${token}` },
                 })
                 if (refresh.ok) {

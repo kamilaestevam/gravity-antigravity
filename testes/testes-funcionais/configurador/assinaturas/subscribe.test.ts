@@ -1,5 +1,5 @@
 // @vitest-environment node
-// TST-FUNC-CONF-STORE-001 — POST /api/v1/organizacoes/me/assinaturas/assinar-produto + GET /api/v1/organizacoes/me/assinaturas
+// TST-FUNC-CONF-STORE-001 — POST /api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto + GET /api/v1/organizacoes/me/assinaturas-produto-gravity
 //
 // SUITE TEMPORARIAMENTE SKIPADA — refactor DDD do contrato (2026-05-04):
 //   - tenantProductsRouter foi splitado em assinatura-produto-gravity.ts e

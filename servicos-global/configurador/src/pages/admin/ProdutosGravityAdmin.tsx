@@ -95,6 +95,26 @@ const TIPOS_COBRANCA_OPCOES = [
   { valor: 'POR_LPCO',       rotulo: 'Por LPCO'       },
 ]
 
+// Singular/plural PT-BR para coluna FRANQUIA FREE — espelha o helper do
+// FinanceiroWorkspace para garantir consistencia entre admin e workspace.
+const ROTULO_TIPO_COBRANCA: Record<string, { singular: string; plural: string }> = {
+  MENSAL:         { singular: 'mensalidade', plural: 'mensalidades' },
+  POR_PROCESSO:   { singular: 'processo',    plural: 'processos'    },
+  POR_DOCUMENTO:  { singular: 'documento',   plural: 'documentos'   },
+  POR_ESTIMATIVA: { singular: 'estimativa',  plural: 'estimativas'  },
+  POR_DI_DUIMP:   { singular: 'DI/DUIMP',    plural: 'DI/DUIMPs'    },
+  POR_DUE:        { singular: 'DUE',         plural: 'DUEs'         },
+  POR_PRODUTO:    { singular: 'produto',     plural: 'produtos'     },
+  POR_FLUXO:      { singular: 'fluxo',       plural: 'fluxos'       },
+  POR_LPCO:       { singular: 'LPCO',        plural: 'LPCOs'        },
+}
+
+function rotuloFranquia(qtd: number, tipo: string): string {
+  const r = ROTULO_TIPO_COBRANCA[tipo]
+  if (!r) return `${qtd} ${tipo.toLowerCase()}`
+  return `${qtd} ${qtd === 1 ? r.singular : r.plural}`
+}
+
 /** Formata valor monetário durante a digitação → ex: "1.234,56" */
 function mascaraMoeda(valor: string): string {
   // Remove tudo que não for dígito
@@ -355,7 +375,7 @@ export function ProdutosGravityAdmin() {
       tooltipDescricao: 'Volume de uso liberado sem custo adicional em cada ciclo',
       render: (_v, item) => (
         <span style={{ color: item.qtd_usuarios_base_produto_gravity ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtd_usuarios_base_produto_gravity ? 600 : 400 }}>
-          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${item.tipo_cobranca_produto_gravity.replace('POR_', '')}s` : 'Zero'}
+          {item.qtd_usuarios_base_produto_gravity ? rotuloFranquia(item.qtd_usuarios_base_produto_gravity, item.tipo_cobranca_produto_gravity) : 'Zero'}
         </span>
       ),
     },

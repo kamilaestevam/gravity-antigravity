@@ -70,6 +70,10 @@ export interface ModalProps {
    *  valor entre `lg` (720px) e `xl` (960px) — ex: `'820px'`, `'52rem'`.
    *  Default undefined (usa LARGURA_MODAL[tamanho]). Opt-in. */
   larguraMaxima?: string
+  /** Adiciona padding-top no `<nav>` das abas — opt-in para aumentar o
+   *  espaço entre a linha divisória do header e o topo da pill (default: 0).
+   *  Útil quando 5.2px entre linha e pill ficou apertado. Ex: `'7px'` -> 12px total. */
+  paddingSuperiorAbas?: string
   /** Estilo das abas. Padrão: 'underline' */
   tipoAbas?: 'underline' | 'pill'
   /** Centraliza horizontalmente a pill de abas dentro do nav.

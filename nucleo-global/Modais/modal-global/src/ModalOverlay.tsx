@@ -30,6 +30,7 @@ function NavegacaoAbas({
   idBase,
   tipoAbas,
   centralizarAbas,
+  paddingSuperiorAbas,
 }: {
   abas: AbaModal[]
   abaAtiva: string
@@ -37,6 +38,7 @@ function NavegacaoAbas({
   idBase: string
   tipoAbas?: 'underline' | 'pill'
   centralizarAbas?: boolean
+  paddingSuperiorAbas?: string
 }) {
   const isPill = tipoAbas === 'pill'
   // `centralizada` só vai pro DOM quando o caller pediu E é estilo pill.
@@ -44,7 +46,12 @@ function NavegacaoAbas({
   const classeCentralizada = isPill && centralizarAbas ? ' centralizada' : ''
 
   return (
-    <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}${classeCentralizada}`} role="tablist" aria-label="Abas do modal">
+    <nav
+      className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}${classeCentralizada}`}
+      style={paddingSuperiorAbas ? { paddingTop: paddingSuperiorAbas } : undefined}
+      role="tablist"
+      aria-label="Abas do modal"
+    >
       {isPill ? (
         <div className="mg-tabs-pill">
           {abas.map((aba) => {
@@ -135,6 +142,7 @@ export function ModalOverlay({
   abas,
   tipoAbas = 'underline',
   centralizarAbas = false,
+  paddingSuperiorAbas,
   abaAtivaInicial,
   larguraMaxima,
   cabecalhoPersonalizado,
@@ -266,6 +274,7 @@ export function ModalOverlay({
               idBase={id}
               tipoAbas={tipoAbas}
               centralizarAbas={centralizarAbas}
+              paddingSuperiorAbas={paddingSuperiorAbas}
             />
           </div>
         )}

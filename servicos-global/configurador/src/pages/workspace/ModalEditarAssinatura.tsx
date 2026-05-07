@@ -792,6 +792,7 @@ export function ModalEditarAssinatura({
       tamanho="lg"
       larguraMaxima="820px"
       altura="640px"
+      paddingSuperiorAbas="7px"
 
       abas={[
         abaDadosBasicos,

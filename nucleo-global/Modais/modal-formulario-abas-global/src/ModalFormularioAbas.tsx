@@ -35,6 +35,8 @@ export interface ModalFormularioAbasProps {
   tipoAbas?: 'underline' | 'pill'
   /** Centraliza horizontalmente a pill de abas. Default false. Ver ModalProps. */
   centralizarAbas?: boolean
+  /** Padding-top no nav das abas (ex: '7px'). Default vazio. Ver ModalProps. */
+  paddingSuperiorAbas?: string
   textoSalvar?: string
   textoCancelar?: string
   /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
@@ -57,6 +59,7 @@ export function ModalFormularioAbas({
   abaAtivaInicial,
   tipoAbas = 'pill',
   centralizarAbas = false,
+  paddingSuperiorAbas,
   textoSalvar,
   textoCancelar,
   semAbas = false,
@@ -117,6 +120,7 @@ export function ModalFormularioAbas({
       abaAtivaInicial={semAbas ? undefined : abaAtivaInicial}
       tipoAbas={tipoAbas}
       centralizarAbas={centralizarAbas}
+      paddingSuperiorAbas={paddingSuperiorAbas}
       renderizarFooter={renderFooter}
     >
       {semAbas ? abas[0]?.conteudo : undefined}

@@ -23,7 +23,7 @@ import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
-import { iniciarWorkerRetencao } from './workers/retencao-log-requisicao-api'
+import { iniciarWorkerRetencao, pararWorkerRetencao } from './workers/retencao-log-requisicao-api'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -61,8 +61,28 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 
 const PORT = 8016
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 API Cockpit Service running on port ${PORT}`)
   // Worker de retencao 90d para log_requisicao_api — roda 1x ao dia (3h UTC)
   iniciarWorkerRetencao()
 })
+
+// Graceful shutdown — Railway envia SIGTERM em deploy/restart.
+// Sem isso, setTimeout do worker pode disparar com prisma desconectado.
+const shutdown = (sinal: string) => {
+  console.log(`[api-cockpit] recebido ${sinal}, encerrando...`)
+  pararWorkerRetencao()
+  void prisma.$disconnect()
+  server.close(() => {
+    console.log('[api-cockpit] servidor encerrado')
+    process.exit(0)
+  })
+  // Forca saida apos 10s se close demorar
+  setTimeout(() => {
+    console.warn('[api-cockpit] forcando saida (close timeout 10s)')
+    process.exit(1)
+  }, 10_000).unref()
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT',  () => shutdown('SIGINT'))

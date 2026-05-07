@@ -17,6 +17,7 @@
  */
 
 import { PrismaClient } from '../../../../generated/index.js'
+import { logger } from '../../../../middleware/logger.js'
 
 const RETENCAO_DIAS              = 90
 const HORA_EXECUCAO_UTC          = 3                   // 3h UTC (baixo trafego)
@@ -24,8 +25,7 @@ const HORA_EXECUCAO_UTC          = 3                   // 3h UTC (baixo trafego)
 const prisma = new PrismaClient()
 
 /** Calcula o atraso em ms ate a proxima execucao (3h UTC do proximo dia, ou hoje se ainda nao passou). */
-function calcularProximaExecucaoMs(): number {
-  const agora = new Date()
+export function calcularProximaExecucaoMs(agora: Date = new Date()): number {
   const proxima = new Date(agora)
   proxima.setUTCHours(HORA_EXECUCAO_UTC, 0, 0, 0)
   if (proxima.getTime() <= agora.getTime()) {
@@ -58,10 +58,12 @@ export async function executarRetencao(): Promise<{ apagados: number; vacuumOk: 
       await prisma.$executeRawUnsafe('VACUUM ANALYZE log_requisicao_api')
       vacuumOk = true
     } catch (err) {
-      console.warn('[retencao-log-requisicao-api] VACUUM falhou (nao critico):', err instanceof Error ? err.message : err)
+      logger.warn('[retencao-log-requisicao-api] VACUUM falhou (nao critico)', {
+        erro: err instanceof Error ? err.message : String(err),
+      })
     }
 
-    console.log('[retencao-log-requisicao-api] retencao executada', {
+    logger.info('[retencao-log-requisicao-api] retencao executada', {
       apagados:        resultado.count,
       duracaoDeleteMs: duracaoDelete,
       vacuumOk,
@@ -70,7 +72,9 @@ export async function executarRetencao(): Promise<{ apagados: number; vacuumOk: 
 
     return { apagados: resultado.count, vacuumOk }
   } catch (err) {
-    console.error('[retencao-log-requisicao-api] retencao falhou:', err instanceof Error ? err.message : err)
+    logger.error('[retencao-log-requisicao-api] retencao falhou', {
+      erro: err instanceof Error ? err.message : String(err),
+    })
     return { apagados: 0, vacuumOk: false }
   }
 }
@@ -97,7 +101,10 @@ export function iniciarWorkerRetencao(): void {
     }
   }
 
-  console.log(`[retencao-log-requisicao-api] worker iniciado — proxima execucao em ${Math.round(calcularProximaExecucaoMs() / 60_000)}min (3h UTC)`)
+  logger.info('[retencao-log-requisicao-api] worker iniciado', {
+    proximaExecucaoEmMinutos: Math.round(calcularProximaExecucaoMs() / 60_000),
+    horaExecucaoUtc:          HORA_EXECUCAO_UTC,
+  })
   agendarProxima()
 }
 

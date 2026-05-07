@@ -3696,6 +3696,7 @@
       "label_pais": "País *",
       "ph_pais": "Selecione o país",
       "ph_select_empresa": "Selecionar ou cadastrar empresa...",
+      "ph_select_empresa_curto": "Selecionar empresa...",
       "label_cnpj": "CNPJ (opcional)",
       "cnpj_opcional": "Pode ser preenchido depois em Cadastros",
       "salvar_e_usar": "Salvar e usar",

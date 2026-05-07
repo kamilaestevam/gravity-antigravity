@@ -3890,6 +3890,7 @@
       "label_pais": "Country *",
       "ph_pais": "Select country",
       "ph_select_empresa": "Select or register a company...",
+      "ph_select_empresa_curto": "Select company...",
       "label_cnpj": "CNPJ (optional)",
       "cnpj_opcional": "Can be filled in later in Cadastros",
       "salvar_e_usar": "Save and use",

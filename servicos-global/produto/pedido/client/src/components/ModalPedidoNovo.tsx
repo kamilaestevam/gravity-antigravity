@@ -20,9 +20,6 @@ import { pedidoApi } from '../shared/api'
 import { cadastrosApi, type Empresa, type PapelEmpresaRapido } from '../shared/cadastrosApi'
 import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
 
-// Sentinel value usado em SelectGlobal para representar a opção
-// "+ Cadastrar nova empresa" sem colidir com SUIDs reais.
-const SENTINEL_NOVA_EMPRESA = '__nova_empresa__'
 
 // ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
 
@@ -322,23 +319,17 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     }
   }, [aberto])
 
-  // Monta opções do SelectGlobal para um papel — adiciona sentinel "+ cadastrar nova"
-  // no topo, e filtra empresas que tem o papel adequado quando a empresa
-  // explicita um papel (default: mostra todas, papel é só hint visual).
+  // Monta opções do SelectGlobal para um papel.
+  // Empresas com o papel marcado aparecem primeiro; demais ficam visíveis com
+  // descrição informativa (não bloqueia escolha — apenas alerta UX).
   function opcoesEmpresaPara(papel: PapelEmpresaRapido) {
     const papelKey =
       papel === 'importador' ? 'pode_ser_importador_empresa'
       : papel === 'exportador' ? 'pode_ser_exportador_empresa'
       : 'pode_ser_fabricante_empresa'
-    // Mostra com prioridade as que já marcam o papel; demais aparecem abaixo.
     const aptas = empresas.filter((e) => e[papelKey])
     const outras = empresas.filter((e) => !e[papelKey])
-    const acao = {
-      valor: SENTINEL_NOVA_EMPRESA,
-      rotulo: t('pedido.cadastro_empresa.cadastrar_nova'),
-    }
     return [
-      acao,
       ...aptas.map((e) => ({
         valor: e.suid_empresa,
         rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
@@ -349,19 +340,6 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         descricao: t('pedido.cadastro_empresa.papel_nao_marcado'),
       })),
     ]
-  }
-
-  function aoEscolherEmpresa(campo: 'suid_importador' | 'suid_exportador' | 'suid_fabricante', valor: string | number | null) {
-    const v = String(valor ?? '')
-    if (v === SENTINEL_NOVA_EMPRESA) {
-      const papel: PapelEmpresaRapido =
-        campo === 'suid_importador' ? 'importador'
-        : campo === 'suid_exportador' ? 'exportador'
-        : 'fabricante'
-      setCadastroEmpresaPapel(papel)
-      return
-    }
-    set(campo, v)
   }
 
   function aoCriarEmpresa(empresa: Empresa) {
@@ -513,7 +491,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
             carregandoEmpresas={carregandoEmpresas}
-            aoEscolherEmpresa={aoEscolherEmpresa}
+            aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
           />
         )}
         {passo === 2 && (
@@ -553,7 +531,7 @@ function Passo1Dados({
   opcoesExportador,
   opcoesFabricante,
   carregandoEmpresas,
-  aoEscolherEmpresa,
+  aoCadastrarNova,
 }: {
   form: PedidoForm
   erros: ErrosValidacao
@@ -562,7 +540,7 @@ function Passo1Dados({
   opcoesExportador: OpcaoEmpresaSelect[]
   opcoesFabricante: OpcaoEmpresaSelect[]
   carregandoEmpresas: boolean
-  aoEscolherEmpresa: (campo: 'suid_importador' | 'suid_exportador' | 'suid_fabricante', valor: string | number | null) => void
+  aoCadastrarNova: (papel: PapelEmpresaRapido) => void
 }) {
   const { t } = useTranslation()
   const opcoesTipoOperacao = useMemo(() => [
@@ -604,19 +582,37 @@ function Passo1Dados({
             </span>
           )}
         </div>
-        {/* B3 — SelectGlobal carrega empresas do Cadastros; opção
-            "+ Cadastrar nova empresa" abre ModalEmpresaCadastroRapido. */}
+        {/* B3 — SelectGlobal carrega empresas do Cadastros + botão
+            "+ Cadastrar nova" logo abaixo (fora do dropdown, click direto). */}
         {form.tipo_operacao === 'importacao' && (
           <div style={s.campo}>
             <SelectGlobal
               label={t('pedido.drawer.label_exportador')}
               opcoes={opcoesExportador}
               valor={form.suid_exportador || null}
-              aoMudarValor={(v) => aoEscolherEmpresa('suid_exportador', v)}
+              aoMudarValor={(v) => onChange('suid_exportador', String(v ?? ''))}
               buscavel
               carregando={carregandoEmpresas}
-              placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
+              placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
             />
+            <button
+              type="button"
+              onClick={() => aoCadastrarNova('exportador')}
+              style={{
+                marginTop: '0.375rem',
+                background: 'transparent',
+                border: '1px dashed var(--border-subtle, #333)',
+                color: 'var(--ws-accent, #818cf8)',
+                fontSize: '0.75rem',
+                padding: '0.375rem 0.5rem',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                width: '100%',
+                textAlign: 'left',
+              }}
+            >
+              {t('pedido.cadastro_empresa.cadastrar_nova')}
+            </button>
           </div>
         )}
         {form.tipo_operacao === 'exportacao' && (
@@ -625,11 +621,29 @@ function Passo1Dados({
               label={t('pedido.drawer.label_importador', 'Importador')}
               opcoes={opcoesImportador}
               valor={form.suid_importador || null}
-              aoMudarValor={(v) => aoEscolherEmpresa('suid_importador', v)}
+              aoMudarValor={(v) => onChange('suid_importador', String(v ?? ''))}
               buscavel
               carregando={carregandoEmpresas}
-              placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
+              placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
             />
+            <button
+              type="button"
+              onClick={() => aoCadastrarNova('importador')}
+              style={{
+                marginTop: '0.375rem',
+                background: 'transparent',
+                border: '1px dashed var(--border-subtle, #333)',
+                color: 'var(--ws-accent, #818cf8)',
+                fontSize: '0.75rem',
+                padding: '0.375rem 0.5rem',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                width: '100%',
+                textAlign: 'left',
+              }}
+            >
+              {t('pedido.cadastro_empresa.cadastrar_nova')}
+            </button>
           </div>
         )}
         <div style={s.campo}>
@@ -637,11 +651,29 @@ function Passo1Dados({
             label={t('pedido.drawer.label_fabricante')}
             opcoes={opcoesFabricante}
             valor={form.suid_fabricante || null}
-            aoMudarValor={(v) => aoEscolherEmpresa('suid_fabricante', v)}
+            aoMudarValor={(v) => onChange('suid_fabricante', String(v ?? ''))}
             buscavel
             carregando={carregandoEmpresas}
-            placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
+            placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
           />
+          <button
+            type="button"
+            onClick={() => aoCadastrarNova('fabricante')}
+            style={{
+              marginTop: '0.375rem',
+              background: 'transparent',
+              border: '1px dashed var(--border-subtle, #333)',
+              color: 'var(--ws-accent, #818cf8)',
+              fontSize: '0.75rem',
+              padding: '0.375rem 0.5rem',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              width: '100%',
+              textAlign: 'left',
+            }}
+          >
+            {t('pedido.cadastro_empresa.cadastrar_nova')}
+          </button>
         </div>
         <div style={s.campo}>
           <SelectGlobal

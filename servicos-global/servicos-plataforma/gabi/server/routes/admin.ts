@@ -140,6 +140,14 @@ adminRouter.get('/api/v1/gabi/admin/uso-global', async (req, res, next) => {
       orgs_com_falha:     orgsComFalha.length,
     })
   } catch (err) {
-    next(err)
+    console.error('[gabi/admin/uso-global] erro fatal', {
+      mensagem: err instanceof Error ? err.message : String(err),
+      stack:    err instanceof Error ? err.stack    : undefined,
+    })
+    // DEBUG TEMPORARIO: expor erro no body pra diagnostico (remover apos resolver)
+    res.status(500).json({
+      _debug_erro:        err instanceof Error ? err.message : String(err),
+      _debug_stack_top:   err instanceof Error && err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : undefined,
+    })
   }
 })

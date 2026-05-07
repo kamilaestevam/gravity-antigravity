@@ -4035,6 +4035,7 @@
       "label_pais": "País *",
       "ph_pais": "Seleccione el país",
       "ph_select_empresa": "Seleccionar o registrar empresa...",
+      "ph_select_empresa_curto": "Seleccionar empresa...",
       "label_cnpj": "CNPJ (opcional)",
       "cnpj_opcional": "Puede completarse después en Cadastros",
       "salvar_e_usar": "Guardar y usar",

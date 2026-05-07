@@ -8,7 +8,13 @@ import { Request, Response, NextFunction } from 'express'
 // Nomenclatura legada do projeto: alguns clientes enviam `x-internal-key` /
 // `INTERNAL_API_KEY`, outros usam `x-chave-interna-servico` / `CHAVE_INTERNA_SERVICO`.
 // Aceita os dois nomes (header e env) ate a renomeacao ser uniformizada.
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO ?? ''
+//
+// IMPORTANTE: ler env DENTRO do middleware (nao no module load). ES modules
+// hoist os imports — middleware carrega ANTES de dotenv.config() do index.ts,
+// entao `process.env` esta vazio no module load.
+function getInternalKey(): string {
+  return process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO ?? ''
+}
 
 export function authMiddleware(
   req: Request,
@@ -19,7 +25,8 @@ export function authMiddleware(
   const internalKey =
     (req.headers['x-internal-key']           as string | undefined) ??
     (req.headers['x-chave-interna-servico']  as string | undefined)
-  if (INTERNAL_KEY && internalKey === INTERNAL_KEY) {
+  const expected = getInternalKey()
+  if (expected && internalKey === expected) {
     req.auth = { id_organizacao: '__internal__', id_usuario: 'system' }
     return next()
   }

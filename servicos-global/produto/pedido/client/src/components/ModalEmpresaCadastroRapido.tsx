@@ -164,7 +164,7 @@ export function ModalEmpresaCadastroRapido({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1100, // acima do ModalPedidoNovo (1000 padrão)
+        zIndex: 10000, // acima do ModalPassoPassoGlobal (9999)
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onFechar()

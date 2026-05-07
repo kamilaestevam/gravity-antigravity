@@ -10,10 +10,10 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Buildings,
   Globe,
-  MapPinLine,
   PencilSimple,
   PauseCircle,
   PlayCircle,
@@ -24,6 +24,7 @@ import {
   FilePdf,
   Code,
   CheckCircle,
+  ChartPieSlice,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -34,7 +35,7 @@ import {
   type TabelaGlobalAcao,
   type TabelaExportAcao,
 } from '@nucleo/tabela-global'
-import { CardBasicoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
+import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   listaEmpresasSchema,
@@ -283,10 +284,10 @@ export function EmpresasEParceiros() {
     },
     {
       key: 'cnpj_empresa',
-      label: 'Documento',
+      label: 'CNPJ do Parceiro',
       tipo: 'texto',
-      tooltipTitulo: 'Documento',
-      tooltipDescricao: 'CNPJ (empresas brasileiras) ou TIN (estrangeiras)',
+      tooltipTitulo: 'CNPJ do Parceiro',
+      tooltipDescricao: 'CNPJ para parceiros brasileiros, TIN para estrangeiros',
       render: (_, item) => <DocumentoCell empresa={item} />,
     },
     {
@@ -421,18 +422,25 @@ export function EmpresasEParceiros() {
 
   const stats = useMemo(() => {
     const ativas = empresas.filter((e) => e.ativo_empresa)
-    const br = ativas.filter((e) => e.pais_empresa === 'BR').length
-    const estrangeiras = ativas.filter((e) => e.pais_empresa !== 'BR').length
-    const importadoras = ativas.filter((e) => e.pode_ser_importador_empresa).length
-    return { total: empresas.length, ativas: ativas.length, br, estrangeiras, importadoras }
+    // Contagem por papel — empresas podem somar em mais de um (count > total e' OK).
+    // Ordena por count desc para destacar o tipo mais frequente.
+    const tiposCount = PAPEIS
+      .map((p) => ({ label: p.label, cor: p.cor, count: empresas.filter((e) => Boolean(e[p.key])).length }))
+      .sort((a, b) => b.count - a.count)
+    return {
+      total: empresas.length,
+      ativas: ativas.length,
+      tiposCount,
+    }
   }, [empresas])
 
-  const periodosFake: PeriodoTendencia[] = [
-    { periodo: '7d', rotulo: '7 dias', valor: '—', direcao: 'neutral', descricao: 'sem histórico ainda' },
-    { periodo: '30d', rotulo: '30 dias', valor: '—', direcao: 'neutral', descricao: 'sem histórico ainda' },
-    { periodo: '6m', rotulo: '6 meses', valor: '—', direcao: 'neutral', descricao: 'sem histórico ainda' },
-    { periodo: '1a', rotulo: '1 ano', valor: '—', direcao: 'neutral', descricao: 'sem histórico ainda' },
-  ]
+  const tipoPrincipal = stats.tiposCount[0]
+  const tiposComEmpresas = stats.tiposCount.filter((t) => t.count > 0)
+
+  // Estilo do valor principal — alinhado ao padrao da tela TaxasMoeda
+  // (font-size maior, branco). Default do componente e' 1.875rem; aqui
+  // bumpamos para 2rem para destaque visual quando o valor e' curto (1-2 digitos).
+  const estiloValor = { fontSize: '2rem', color: 'var(--ws-text, #f1f5f9)', fontWeight: 700 } as const
 
   return (
     <PaginaGlobal
@@ -442,38 +450,74 @@ export function EmpresasEParceiros() {
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
           titulo="Empresas e Parceiros"
-          subtitulo="Cartório de identidades COMEX — importadores, exportadores, fabricantes e parceiros operacionais da sua organização"
+          subtitulo="Cadastre e gerencie os parceiros da sua jornada COMEX"
         />
       }
       stats={
         <>
           <CardBasicoGlobal
             titulo="Total de empresas"
-            valor={stats.total}
+            valor={<span style={estiloValor}>{stats.total}</span>}
             icone={<Buildings weight="duotone" size={18} />}
-            periodos={periodosFake}
+            subtexto="Ativas e inativas"
           />
           <CardBasicoGlobal
             titulo="Empresas ativas"
-            valor={stats.ativas}
+            valor={<span style={estiloValor}>{stats.ativas}</span>}
             icone={<CheckCircle weight="duotone" size={18} />}
             variante="sucesso"
             subtexto="Disponíveis em dropdowns operacionais"
-            periodos={periodosFake}
           />
-          <CardBasicoGlobal
-            titulo="Brasileiras"
-            valor={stats.br}
-            icone={<MapPinLine weight="duotone" size={18} />}
-            subtexto="Com CNPJ"
-            periodos={periodosFake}
-          />
-          <CardBasicoGlobal
-            titulo="Estrangeiras"
-            valor={stats.estrangeiras}
-            icone={<Globe weight="duotone" size={18} />}
-            subtexto="Com TIN ou sem documento obrigatório"
-            periodos={periodosFake}
+          <CardGraficoGlobal
+            titulo="Distribuição por tipo"
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+            total={empresas.length}
+            valorPrincipal={tipoPrincipal?.count ?? 0}
+            corGauge={tipoPrincipal?.cor ?? '#818cf8'}
+            legenda={
+              tiposComEmpresas.length === 0
+                ? [{ label: 'Nenhum tipo cadastrado', cor: '#64748b' }]
+                : tiposComEmpresas.length <= 3
+                  ? tiposComEmpresas.map((t) => ({ label: t.label, cor: t.cor }))
+                  : [
+                      ...tiposComEmpresas.slice(0, 3).map((t) => ({ label: t.label, cor: t.cor })),
+                      { label: 'Outros', cor: '#64748b' },
+                    ]
+            }
+            tooltip={
+              <>
+                {tiposComEmpresas.length === 0 ? (
+                  <div className="cg-tooltip__row">
+                    <span>Nenhum tipo cadastrado ainda</span>
+                  </div>
+                ) : (
+                  tiposComEmpresas.map((t) => (
+                    <div key={t.label} className="cg-tooltip__row">
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <i
+                          aria-hidden
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: t.cor,
+                            display: 'inline-block',
+                            flexShrink: 0,
+                          }}
+                        />
+                        {t.label}
+                      </span>
+                      <strong style={{ color: t.cor }}>{t.count}</strong>
+                    </div>
+                  ))
+                )}
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Total de empresas</span>
+                  <strong>{empresas.length}</strong>
+                </div>
+              </>
+            }
           />
         </>
       }
@@ -498,7 +542,7 @@ export function EmpresasEParceiros() {
           </div>
         ) : !idOrganizacao ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-            Organização ainda não foi carregada no Shell. Tente recarregar a página.
+            Carregando parceiros, aguarde alguns segundos.
           </div>
         ) : (
           <TabelaGlobal<EmpresaComTipos>
@@ -514,7 +558,16 @@ export function EmpresasEParceiros() {
         )}
       </div>
 
-      {(criandoNova || empresaEditando) && idOrganizacao && (
+      {/*
+        Modal renderizado via React portal direto no document.body.
+        Motivo: ancestrais do .ws-main (ex: .ws-stats-row com transform:
+        translateZ(0)) criam containing block que prende `position: fixed`
+        do .mg-overlay no stacking context interno — fazendo o overlay
+        ficar atras do botao Hub/sino/busca. Saindo via portal, o modal
+        sobe para o body e respeita a viewport. Scoped a esta tela; nao
+        toca no nucleo (ModalSemSessoesGlobal) nem no HubBotao.
+      */}
+      {(criandoNova || empresaEditando) && idOrganizacao && createPortal(
         <ModalEditarEmpresa
           empresa={empresaEditando}
           idOrganizacao={idOrganizacao}
@@ -532,7 +585,8 @@ export function EmpresasEParceiros() {
             setEmpresaEditando(null)
             setCriandoNova(false)
           }}
-        />
+        />,
+        document.body,
       )}
     </PaginaGlobal>
   )

@@ -71,9 +71,30 @@ export function ApiCockpitKpiCards() {
   const produtosEmUsoLabel  = estatisticas ? String(estatisticas.quantidade_produtos_distintos_log_consumo) : '—'
   const requisicoes24h      = estatisticas ? String(totalReqOrg) : '—'
 
+  const tooltipStatusIntegracao = (
+    <>
+      <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', lineHeight: 1.45, marginBottom: '0.625rem' }}>
+        Calculado com base nas últimas 24h de tráfego da sua organização.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+        {([
+          { label: 'Sem Tráfego', desc: 'Nenhuma chamada registrada',    cor: 'var(--text-secondary, #94a3b8)' },
+          { label: 'OK',          desc: 'Taxa de erro abaixo de 1%',     cor: '#4ade80' },
+          { label: 'Atenção',     desc: 'Taxa de erro entre 1% e 5%',    cor: '#fbbf24' },
+          { label: 'Falhando',    desc: 'Taxa de erro acima de 5%',      cor: '#f87171' },
+        ] as const).map(({ label, desc, cor }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem' }}>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: cor, flexShrink: 0 }}>{label}</span>
+            <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.3 }}>{desc}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
-      <CardEstatisticaGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} />
+      <CardEstatisticaGlobal titulo={t('workspace.cockpit.status_integracao')}  valor={statusIntegracao}    variante={statusVariante} tooltip={tooltipStatusIntegracao} />
       <CardEstatisticaGlobal titulo={t('workspace.cockpit.taxa_sucesso_24h')}   valor={taxaSucessoLabel}    variante="primario" />
       <CardEstatisticaGlobal titulo={t('workspace.cockpit.latencia_media_24h')} valor={latenciaMediaMs}     variante="padrao" />
       <CardEstatisticaGlobal titulo={t('workspace.cockpit.produtos_em_uso')}    valor={produtosEmUsoLabel}  variante="sucesso" />

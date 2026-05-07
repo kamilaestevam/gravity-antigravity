@@ -23,6 +23,7 @@ import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
+import { iniciarWorkerRetencao } from './workers/retencao-log-requisicao-api'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -62,4 +63,6 @@ const PORT = 8016
 
 app.listen(PORT, () => {
   console.log(`🚀 API Cockpit Service running on port ${PORT}`)
+  // Worker de retencao 90d para log_requisicao_api — roda 1x ao dia (3h UTC)
+  iniciarWorkerRetencao()
 })

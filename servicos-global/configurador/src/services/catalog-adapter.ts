@@ -160,10 +160,10 @@ export const catalogApiService = {
   /**
    * Catálogo público — não requer autenticação Gravity admin.
    * Usado pela tela /workspace/assinaturas (Master/Standard) e Store.
-   * Endpoint: GET /api/v1/catalogo/produtos
+   * Endpoint: GET /api/v1/catalogo/produtos-gravity
    */
   async getCatalogoPublico(): Promise<ProdutoCatalogo[]> {
-    const res = await fetch('/api/v1/catalogo/produtos')
+    const res = await fetch('/api/v1/catalogo/produtos-gravity')
     if (!res.ok) {
       throw new Error(`Falha ao carregar catálogo público (HTTP ${res.status})`)
     }

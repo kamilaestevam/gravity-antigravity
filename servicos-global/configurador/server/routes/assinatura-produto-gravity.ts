@@ -1,6 +1,6 @@
 // server/routes/assinatura-produto-gravity.ts
 // Self-service: assinaturas da organização autenticada.
-// Mount: /api/v1/organizacoes/me/assinaturas
+// Mount: /api/v1/organizacoes/me/assinaturas-produto-gravity
 //
 // Mandamentos:
 //   06 — Zod em todo body
@@ -46,7 +46,7 @@ const PatchStatusSchema = z.object({
 // ─── GET / — listar assinaturas ─────────────────────────────────────────────
 
 /**
- * GET /api/v1/organizacoes/me/assinaturas
+ * GET /api/v1/organizacoes/me/assinaturas-produto-gravity
  * Lista assinaturas da organização autenticada com JOIN no catálogo
  * e nas habilitações por workspace.
  */
@@ -140,7 +140,7 @@ assinaturaProdutoGravityRouter.get('/', requireAuth, async (req, res, next) => {
 // ─── POST /assinar-produto ──────────────────────────────────────────────────
 
 /**
- * POST /api/v1/organizacoes/me/assinaturas/assinar-produto
+ * POST /api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto
  * Body: { slug_produto_gravity }
  *
  * Cria assinatura (status EM_TESTE) + configuracao (JSON vazio + ativo=true)
@@ -227,7 +227,7 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req,
 // ─── PATCH /:slug_produto_gravity — muda status (Suspender/Reativar) ────────
 
 /**
- * PATCH /api/v1/organizacoes/me/assinaturas/:slug_produto_gravity
+ * PATCH /api/v1/organizacoes/me/assinaturas-produto-gravity/:slug_produto_gravity
  * Body: { status_assinatura_produto_gravity: 'ATIVA' | 'SUSPENSA' | 'EM_TESTE' }
  *
  * Usado pelo botão "Suspender" / "Reativar" da tela. Não cancela —
@@ -296,7 +296,7 @@ assinaturaProdutoGravityRouter.patch('/:slug_produto_gravity', requireAuth, asyn
 // ─── DELETE /:slug_produto_gravity — cancelar assinatura ────────────────────
 
 /**
- * DELETE /api/v1/organizacoes/me/assinaturas/:slug_produto_gravity
+ * DELETE /api/v1/organizacoes/me/assinaturas-produto-gravity/:slug_produto_gravity
  * Cancela: status CANCELADA + data_cancelamento + ativo=false na configuracao.
  * Não apaga linha — soft-cancel preserva histórico.
  */
@@ -345,7 +345,7 @@ assinaturaProdutoGravityRouter.delete('/:slug_produto_gravity', requireAuth, asy
 // ─── PUT /:slug/workspaces/:id_workspace — habilitar/suspender workspace ────
 
 /**
- * PUT /api/v1/organizacoes/me/assinaturas/:slug_produto_gravity/workspaces/:id_workspace
+ * PUT /api/v1/organizacoes/me/assinaturas-produto-gravity/:slug_produto_gravity/workspaces/:id_workspace
  * Body: { ativo_produto_gravity_workspace: boolean }
  * Cria ou atualiza linha em produto_gravity_workspace.
  */
@@ -410,7 +410,7 @@ assinaturaProdutoGravityRouter.put(
 // ─── DELETE /:slug/workspaces/:id_workspace — remover vínculo ───────────────
 
 /**
- * DELETE /api/v1/organizacoes/me/assinaturas/:slug_produto_gravity/workspaces/:id_workspace
+ * DELETE /api/v1/organizacoes/me/assinaturas-produto-gravity/:slug_produto_gravity/workspaces/:id_workspace
  * Apaga a linha em produto_gravity_workspace (vínculo removido).
  */
 assinaturaProdutoGravityRouter.delete(

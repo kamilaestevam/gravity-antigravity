@@ -53,7 +53,7 @@ async function main() {
 
   // 3. Listar produtos (verificação)
   try {
-    const res = await fetch(`${BASE}/api/v1/catalogo/produtos`)
+    const res = await fetch(`${BASE}/api/v1/catalogo/produtos-gravity`)
     const { products } = await res.json()
     console.log(`\n── Catálogo Público (${products.length} produtos) ──`)
     for (const p of products) {

@@ -1,7 +1,7 @@
 // @vitest-environment node
 // TST-UNIT-CONF-STORE-001 — Store — URLs corretas de assinaturas e assinar-produto
-// Anti-regressão: garante que Store.tsx usa /api/v1/organizacoes/me/assinaturas
-// e /api/v1/organizacoes/me/assinaturas/assinar-produto (DDD pós 2026-05-04).
+// Anti-regressão: garante que Store.tsx usa /api/v1/organizacoes/me/assinaturas-produto-gravity
+// e /api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto (DDD pós 2026-05-04).
 // Antes: /assinaturas e /assinaturas/subscribe (legado pré-DDD, removido).
 //
 // Abordagem: leitura estática + extração da lógica de subscribe em isolamento.
@@ -100,11 +100,11 @@ describe('TST-UNIT-CONF-STORE-001 — handleSubscribe: comportamento da lógica'
     return { res, calls: fetchMock.mock.calls }
   }
 
-  it('chama /api/v1/organizacoes/me/assinaturas/assinar-produto com POST', async () => {
+  it('chama /api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto com POST', async () => {
     await callSubscribe('pedido', 'jwt-test', SUBSCRIBE_OK, 201)
 
     const [url, opts] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(url).toBe('/api/v1/organizacoes/me/assinaturas/assinar-produto')
+    expect(url).toBe('/api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto')
     expect(opts.method).toBe('POST')
   })
 

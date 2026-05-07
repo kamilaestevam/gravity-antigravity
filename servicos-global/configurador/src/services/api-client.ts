@@ -1255,7 +1255,7 @@ export const usuariosApi = {
 export const produtosWorkspaceApi = {
   /** Lista produtos contratados pelo workspace (inclui catálogo com slug + status). */
   async listar(id_workspace: string) {
-    const raw = await request<unknown>(`/v1/workspaces/${id_workspace}/produtos`)
+    const raw = await request<unknown>(`/v1/workspaces/${id_workspace}/produtos-gravity`)
     return produtosWorkspaceResponseSchema.parse(raw)
   },
 }

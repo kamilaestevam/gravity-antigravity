@@ -6,7 +6,7 @@
  * não migrarem direto para `catalogApiService`. Quando isso acontecer, este
  * arquivo pode ser deletado.
  *
- * O serviço antigo apontava para `/api/v1/produtos` (rota inexistente) e usava
+ * O serviço antigo apontava para `/api/v1/produtos-gravity` (rota inexistente) e usava
  * tipos legados — substituído pelo wrapper que retorna nomes Prisma.
  */
 

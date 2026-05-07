@@ -5,7 +5,7 @@
 //
 // Estratégia de dados (decisão dono 2026-05-06): lazy fetch quando o modal
 // abre. Listagem em /me/assinaturas continua leve (8 campos do produto);
-// modal busca produto completo via GET /api/v1/produtos/:slug, que retorna
+// modal busca produto completo via GET /api/v1/produtos-gravity/:slug, que retorna
 // 20+ campos + faixas de preço + negociações ESPECÍFICAS da organização.
 //
 // Abas:
@@ -163,12 +163,12 @@ export function ModalEditarAssinatura({
       try {
         const headers = await getAuthHeaders()
         const slug = assinatura!.produto.slug_produto_gravity
-        const res = await fetch(`/api/v1/produtos/${encodeURIComponent(slug)}`, { headers })
+        const res = await fetch(`/api/v1/produtos-gravity/${encodeURIComponent(slug)}`, { headers })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const raw = await res.json()
         const parsed = produtoGravityCompletoResponseSchema.safeParse(raw)
         if (!parsed.success) {
-          console.error('[ModalEditarAssinatura] payload de /api/v1/produtos/:slug fora do contrato', parsed.error)
+          console.error('[ModalEditarAssinatura] payload de /api/v1/produtos-gravity/:slug fora do contrato', parsed.error)
           throw new Error('Contrato inválido')
         }
         if (!cancelado) setProdutoCompleto(parsed.data.produto)
@@ -220,7 +220,7 @@ export function ModalEditarAssinatura({
         if (eraAtivo !== ehAtivo) {
           promessas.push(
             fetch(
-              `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(ws.id_workspace)}`,
+              `/api/v1/organizacoes/me/assinaturas-produto-gravity/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(ws.id_workspace)}`,
               {
                 method: 'PUT', headers,
                 body: JSON.stringify({ ativo_produto_gravity_workspace: ehAtivo }),

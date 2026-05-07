@@ -1,6 +1,6 @@
 // src/schemas/produto-gravity-completo.ts
 // Contrato bilateral (Mandamento 09) entre frontend e backend para a rota
-// GET /api/v1/produtos/:slug — retorna produto COMPLETO read-only para o
+// GET /api/v1/produtos-gravity/:slug — retorna produto COMPLETO read-only para o
 // modal "Configurar Assinatura" do workspace (espelho do admin).
 //
 // Nomes idênticos ao schema.prisma (configurador/prisma/schema.prisma).

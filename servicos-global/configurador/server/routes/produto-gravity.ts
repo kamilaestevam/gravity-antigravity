@@ -1,6 +1,6 @@
 // server/routes/produto-gravity.ts
-// GET /api/v1/produtos       — Catálogo público de produtos (lista compacta)
-// GET /api/v1/produtos/:slug  — Produto COMPLETO read-only (espelho do admin
+// GET /api/v1/produtos-gravity       — Catálogo público de produtos (lista compacta)
+// GET /api/v1/produtos-gravity/:slug  — Produto COMPLETO read-only (espelho do admin
 //                               com faixas de preço e negociações da org)
 // CRUD exclusivo de admin via /api/v1/admin/produtos-gravity (adminProducts.ts)
 
@@ -12,7 +12,7 @@ import { AppError } from '../lib/appError.js'
 export const productsRouter = Router()
 
 /**
- * GET /api/v1/produtos
+ * GET /api/v1/produtos-gravity
  * Retorna produtos ATIVO e EM_BREVE — mesma fonte que o Admin (tabela ProdutoGravity)
  */
 productsRouter.get('/', async (_req, res) => {
@@ -54,7 +54,7 @@ productsRouter.get('/', async (_req, res) => {
 })
 
 /**
- * GET /api/v1/produtos/:slug
+ * GET /api/v1/produtos-gravity/:slug
  *
  * Retorna o produto COMPLETO em read-only para o modal "Configurar
  * Assinatura" do workspace — espelho fiel do que o admin vê em

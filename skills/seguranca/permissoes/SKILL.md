@@ -268,7 +268,7 @@ Comunicação (Email/WhatsApp/Gabi) ficou **opaca "Em breve"** no modal — mode
 
 ### Endpoint canônico do catálogo (Mandamento 07 — contratos)
 
-Para listar produtos contratados pela organização logada, **reutilizar** `GET /api/v1/workspaces/:id_workspace/produtos` (em `produto-gravity-workspace.ts`). DTO inclui `slug_produto_gravity` e `status_produto_gravity` para o front decidir entre toggles ativos vs. card opaco "Em breve".
+Para listar produtos contratados pela organização logada, **reutilizar** `GET /api/v1/workspaces/:id_workspace/produtos-gravity` (em `produto-gravity-workspace.ts`). DTO inclui `slug_produto_gravity` e `status_produto_gravity` para o front decidir entre toggles ativos vs. card opaco "Em breve".
 
 **Não criar rota nova `/produto-gravity/contratados`** — duplicação. Estender o DTO existente se faltar campo. Atualizar `servicos-global/configurador/contracts.json` no MESMO commit (Mandamento 07/09).
 

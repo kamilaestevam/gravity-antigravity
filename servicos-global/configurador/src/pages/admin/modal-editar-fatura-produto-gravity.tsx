@@ -78,7 +78,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
     setErroAnexo(null)
 
     // Itens
-    apiFetch(`/api/v1/faturas/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/itens`)
+    apiFetch(`/api/v1/faturas-produto-gravity/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/itens`)
       .then(r => r.json())
       .then(j => {
         const arr = (j?.itens_fatura_produto_gravity ?? []) as ItemEditavel[]
@@ -99,7 +99,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
 
   async function carregarDocumentos(id_fatura: string) {
     try {
-      const res = await apiFetch(`/api/v1/faturas/${encodeURIComponent(id_fatura)}/documentos`)
+      const res = await apiFetch(`/api/v1/faturas-produto-gravity/${encodeURIComponent(id_fatura)}/documentos`)
       if (!res.ok) return
       const raw = await res.json()
       const parsed = listaDocumentosFaturaProdutoGravitySchema.safeParse(raw)
@@ -145,7 +145,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
           moeda_fatura_item_produto_gravity:          it.moeda_fatura_item_produto_gravity,
         })),
       }
-      const res = await apiFetch(`/api/v1/faturas/${encodeURIComponent(fatura.id_fatura_produto_gravity)}`, {
+      const res = await apiFetch(`/api/v1/faturas-produto-gravity/${encodeURIComponent(fatura.id_fatura_produto_gravity)}`, {
         method: 'PATCH',
         body: JSON.stringify(body),
       })
@@ -177,7 +177,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
       const session = await (window as unknown as { Clerk?: { session?: { getToken(): Promise<string | null> } } }).Clerk?.session
       const token = session ? await session.getToken() : null
       const res = await fetch(
-        `/api/v1/faturas/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/documentos`,
+        `/api/v1/faturas-produto-gravity/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/documentos`,
         {
           method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
@@ -203,7 +203,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
     if (!window.confirm('Excluir este documento?')) return
     try {
       const res = await apiFetch(
-        `/api/v1/faturas/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/documentos/${encodeURIComponent(id_documento)}`,
+        `/api/v1/faturas-produto-gravity/${encodeURIComponent(fatura.id_fatura_produto_gravity)}/documentos/${encodeURIComponent(id_documento)}`,
         { method: 'DELETE' },
       )
       if (!res.ok && res.status !== 204) {

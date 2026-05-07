@@ -1,4 +1,4 @@
-// Testa o contrato Zod de /api/v1/faturas* — Mandamentos 06 + 09.
+// Testa o contrato Zod de /api/v1/faturas-produto-gravity* — Mandamentos 06 + 09.
 // Garante que payloads válidos passam, payloads inválidos falham,
 // e que TODOS os 7 valores do enum StatusFaturaProdutoGravity são aceitos.
 
@@ -79,7 +79,7 @@ describe('faturaProdutoGravitySchema', () => {
 })
 
 describe('listaFaturasProdutoGravitySchema', () => {
-  it('aceita resposta GET /api/v1/faturas válida', () => {
+  it('aceita resposta GET /api/v1/faturas-produto-gravity válida', () => {
     const payload = {
       faturas: [faturaValida],
       provider: 'gravity',
@@ -139,7 +139,7 @@ describe('documentoAnexoFaturaProdutoGravitySchema', () => {
     id_documento_fatura_produto_gravity:           'doc_001',
     tipo_documento_fatura_produto_gravity:         'BOLETO' as const,
     nome_documento_fatura_produto_gravity:         'boleto-2026-04.pdf',
-    url_documento_fatura_produto_gravity:          '/api/v1/faturas/x/documentos/doc_001/download',
+    url_documento_fatura_produto_gravity:          '/api/v1/faturas-produto-gravity/x/documentos/doc_001/download',
     tamanho_documento_fatura_produto_gravity:      52341,
     mime_documento_fatura_produto_gravity:         'application/pdf',
     data_criacao_documento_fatura_produto_gravity: '2026-05-04T10:00:00Z',

@@ -37,9 +37,9 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
 
         // Busca catálogo e produtos da company em paralelo
         const [catRes, compRes] = await Promise.all([
-          fetch('/api/v1/produtos').catch(() => null),
+          fetch('/api/v1/produtos-gravity').catch(() => null),
           companyId
-            ? fetch(`/api/v1/workspaces/${companyId}/produtos`, {
+            ? fetch(`/api/v1/workspaces/${companyId}/produtos-gravity`, {
                 headers: { 'x-id-organizacao': sessionStorage.getItem('gravity_tenant_id') ?? '' },
               }).catch(() => null)
             : Promise.resolve(null),

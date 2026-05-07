@@ -108,7 +108,7 @@ Gravity, mas a implementação real está bloqueada pelos pré-requisitos abaixo
       https://developers.contaazul.com/
 - [ ] Obter `client_id` + `client_secret`
 - [ ] Definir `redirect_uri` da aplicação (ex:
-      `https://configurador.usegravity.com.br/api/v1/faturas/conta-azul/oauth-callback`)
+      `https://configurador.usegravity.com.br/api/v1/faturas-produto-gravity/conta-azul/oauth-callback`)
 - [ ] Implementar endpoint callback OAuth no Gravity
       (`server/routes/billing.ts`)
 - [ ] Executar o fluxo OAuth2 Authorization Code **uma vez** manualmente:
@@ -129,7 +129,7 @@ NFSE_PROVIDER=conta_azul
 
 CONTA_AZUL_CLIENT_ID=
 CONTA_AZUL_CLIENT_SECRET=
-CONTA_AZUL_REDIRECT_URI=https://configurador.usegravity.com.br/api/v1/faturas/conta-azul/oauth-callback
+CONTA_AZUL_REDIRECT_URI=https://configurador.usegravity.com.br/api/v1/faturas-produto-gravity/conta-azul/oauth-callback
 CONTA_AZUL_REFRESH_TOKEN=                # obtido no fluxo OAuth, depois migrar pra DB
 CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 ```
@@ -167,7 +167,7 @@ CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 4. Cria a Venda com `emitir_nfse: true`
 5. Conta Azul envia email ao cliente com link de pagamento
 6. Cliente paga (boleto/Pix/cartão)
-7. Conta Azul envia webhook pra `POST /api/v1/faturas/webhook-conta-azul`
+7. Conta Azul envia webhook pra `POST /api/v1/faturas-produto-gravity/webhook-conta-azul`
 8. Webhook handler detecta `sale_paid` e a NFS-e **já foi emitida junto**
 9. Status da invoice muda pra `PAID` e `documents` ganha `nfe_url`
 

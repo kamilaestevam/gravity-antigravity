@@ -1,6 +1,6 @@
 // pages/workspace/Assinaturas.tsx
 // Tela self-service de assinaturas da organização autenticada.
-// Contrato: GET /api/v1/organizacoes/me/assinaturas (Mandamento 09).
+// Contrato: GET /api/v1/organizacoes/me/assinaturas-produto-gravity (Mandamento 09).
 //
 // Mudanças DDD (2026-05-04):
 //   - Payload agora usa nomes idênticos ao schema.prisma (sem chaves legadas inglês)
@@ -166,7 +166,7 @@ export function Assinaturas() {
 
         const [allProducts, assinaturasRes, workspacesRes] = await Promise.all([
           catalogService.getProdutos(),
-          fetch('/api/v1/organizacoes/me/assinaturas', { headers }).catch(() => null),
+          fetch('/api/v1/organizacoes/me/assinaturas-produto-gravity', { headers }).catch(() => null),
           fetch('/api/v1/me/workspaces', { headers }).catch(() => null),
         ])
 
@@ -191,7 +191,7 @@ export function Assinaturas() {
           const raw = await assinaturasRes.json()
           const parsed = listaAssinaturasProdutoGravitySchema.safeParse(raw)
           if (!parsed.success) {
-            console.error('[Assinaturas] payload de /api/v1/organizacoes/me/assinaturas fora do contrato', parsed.error)
+            console.error('[Assinaturas] payload de /api/v1/organizacoes/me/assinaturas-produto-gravity fora do contrato', parsed.error)
             addNotification({ type: 'error', message: 'Falha de contrato no payload de assinaturas.' })
           } else {
             const visiveis = parsed.data.assinaturas.filter(
@@ -239,7 +239,7 @@ export function Assinaturas() {
 
   async function recarregar() {
     const headers = await getAuthHeaders()
-    const res = await fetch('/api/v1/organizacoes/me/assinaturas', { headers }).catch(() => null)
+    const res = await fetch('/api/v1/organizacoes/me/assinaturas-produto-gravity', { headers }).catch(() => null)
     if (!res || !res.ok) return
     const parsed = listaAssinaturasProdutoGravitySchema.safeParse(await res.json())
     if (parsed.success) {
@@ -262,7 +262,7 @@ export function Assinaturas() {
     const slug = a.produto.slug_produto_gravity
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/assinaturas-produto-gravity/${encodeURIComponent(slug)}`, {
         method: 'PATCH', headers,
         body: JSON.stringify({ status_assinatura_produto_gravity: novoStatus }),
       })
@@ -290,7 +290,7 @@ export function Assinaturas() {
     const slug = a.produto.slug_produto_gravity
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/assinaturas-produto-gravity/${encodeURIComponent(slug)}`, {
         method: 'DELETE', headers,
       })
       if (!res.ok) throw new Error('Falha ao cancelar')
@@ -323,7 +323,7 @@ export function Assinaturas() {
   async function aoAssinarProduto(slug: string, nome: string) {
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch('/api/v1/organizacoes/me/assinaturas/assinar-produto', {
+      const res = await fetch('/api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto', {
         method: 'POST', headers,
         body: JSON.stringify({ slug_produto_gravity: slug }),
       })
@@ -424,7 +424,7 @@ export function Assinaturas() {
     try {
       const headers = await getAuthHeaders()
       const promessas = Object.entries(pendentes).map(([id_workspace, edicao]) => {
-        const url = `/api/v1/organizacoes/me/assinaturas/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`
+        const url = `/api/v1/organizacoes/me/assinaturas-produto-gravity/${encodeURIComponent(slug)}/workspaces/${encodeURIComponent(id_workspace)}`
         return fetch(url, {
           method: 'PUT', headers,
           body: JSON.stringify({ ativo_produto_gravity_workspace: edicao.ativo }),

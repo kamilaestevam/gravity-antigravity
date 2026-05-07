@@ -166,7 +166,7 @@ const REGRAS: RegraLocal[] = [
     local: { sessao: 'Configurador', subsessao: 'Usuários' },
   },
   {
-    match: /^\/api\/v1\/faturas\b/,
+    match: /^\/api\/v1\/faturas-produto-gravity\b/,
     local: { sessao: 'Configurador', subsessao: 'Financeiro' },
   },
   {
@@ -187,11 +187,11 @@ const REGRAS: RegraLocal[] = [
   },
   // Ativação/desativação de produto em workspace
   {
-    match: /^\/api\/v1\/workspaces\/[^/]+\/produtos\b/,
+    match: /^\/api\/v1\/workspaces\/[^/]+\/produtos-gravity\b/,
     local: { sessao: 'Configurador', subsessao: 'Produtos do Workspace' },
   },
   {
-    match: /^\/api\/v1\/produtos\b/,
+    match: /^\/api\/v1\/produtos-gravity\b/,
     local: { sessao: 'Configurador', subsessao: 'Produtos Gravity' },
   },
 

@@ -1,7 +1,7 @@
 // server/routes/catalogo-publico.ts
 // Catálogo público de produtos — sem autenticação
 // Usado pelo Store, Marketplace e landing pages
-// GET /api/v1/catalogo/produtos — lista produtos disponíveis
+// GET /api/v1/catalogo/produtos-gravity — lista produtos disponíveis
 
 import { Router } from 'express'
 import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
@@ -9,10 +9,10 @@ import { productCatalogService } from '../services/produto-gravity-catalogo-serv
 export const publicCatalogRouter = Router()
 
 /**
- * GET /api/v1/catalogo/produtos
+ * GET /api/v1/catalogo/produtos-gravity
  * Lista produtos ativos/em breve para exibição pública
  */
-publicCatalogRouter.get('/produtos', async (_req, res, next) => {
+publicCatalogRouter.get('/produtos-gravity', async (_req, res, next) => {
   try {
     const products = await productCatalogService.listPublic()
     res.json({ products })
@@ -22,10 +22,10 @@ publicCatalogRouter.get('/produtos', async (_req, res, next) => {
 })
 
 /**
- * GET /api/v1/catalogo/produtos/:id_produto_gravity
+ * GET /api/v1/catalogo/produtos-gravity/:id_produto_gravity
  * Detalhes de um produto pelo slug (para página de produto)
  */
-publicCatalogRouter.get('/produtos/:id_produto_gravity', async (req, res, next) => {
+publicCatalogRouter.get('/produtos-gravity/:id_produto_gravity', async (req, res, next) => {
   try {
     const { id_produto_gravity: slug } = req.params
     const product = await productCatalogService.getBySlug(slug)

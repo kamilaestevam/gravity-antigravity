@@ -373,7 +373,7 @@ Campos identificados como faltantes no schema atual de Pedido:
 - [ ] Componente reutilizável `<ConfiguracaoAtualizacaoCadastros />` em nucleo-global
 - [ ] `Configurações > Pedido > Cadastros`: matriz por linha (entidade × status com toggle)
 - [ ] Mesma tela replicada em `Configurações > LPCO > Cadastros`, `Configurações > NF Importação > Cadastros`
-- [ ] Endpoint `GET/PUT /api/v1/produtos/:produto/configuracao-atualizacao-cadastros`
+- [ ] Endpoint `GET/PUT /api/v1/produtos-gravity/:produto/configuracao-atualizacao-cadastros`
 - [ ] Default ao criar produto novo: flags ligadas em "Rascunho" e "Em emissão", desligadas nos demais
 - [ ] UI de preview de impacto ao salvar Cadastros:
   - Loading state com aviso de lentidão

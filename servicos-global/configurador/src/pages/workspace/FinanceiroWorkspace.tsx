@@ -89,7 +89,7 @@ export function FinanceiroWorkspace() {
     async function carregar() {
       try {
         const [faturasRes, orgRes] = await Promise.all([
-          apiFetch('/api/v1/faturas'),
+          apiFetch('/api/v1/faturas-produto-gravity'),
           apiFetch('/api/v1/organizacoes/me'),
         ])
 
@@ -102,7 +102,7 @@ export function FinanceiroWorkspace() {
           const raw = await faturasRes.json()
           const parsed = listaFaturasProdutoGravitySchema.safeParse(raw)
           if (!parsed.success) {
-            console.error('[FinanceiroWorkspace] payload de /api/v1/faturas fora do contrato', parsed.error)
+            console.error('[FinanceiroWorkspace] payload de /api/v1/faturas-produto-gravity fora do contrato', parsed.error)
             setFaturas([])
           } else {
             setFaturas(parsed.data.faturas)
@@ -203,7 +203,7 @@ export function FinanceiroWorkspace() {
   async function carregarItensFatura(id_fatura: string) {
     if (itensPorFatura[id_fatura]) return // já carregado
     try {
-      const res = await apiFetch(`/api/v1/faturas/${encodeURIComponent(id_fatura)}/itens`)
+      const res = await apiFetch(`/api/v1/faturas-produto-gravity/${encodeURIComponent(id_fatura)}/itens`)
       if (!res.ok) return
       const raw = await res.json()
       const parsed = itensFaturaProdutoGravitySchema.safeParse(raw)

@@ -117,7 +117,7 @@ export function Core() {
     async function loadProducts() {
       try {
         const token = await getToken()
-        const res = await fetch(`/api/v1/workspaces/${id_workspace}/produtos`, {
+        const res = await fetch(`/api/v1/workspaces/${id_workspace}/produtos-gravity`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {

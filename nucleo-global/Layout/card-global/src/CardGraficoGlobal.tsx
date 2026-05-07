@@ -110,7 +110,7 @@ export function CardGraficoGlobal({
                   ? { background: item.cor }
                   : undefined}
               />
-              {item.label} ({item.valor})
+              {item.label}{item.valor !== undefined ? ` (${item.valor})` : ''}
             </li>
           ))}
         </ul>

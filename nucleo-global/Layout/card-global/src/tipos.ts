@@ -80,7 +80,8 @@ export type StatCardProps = CardBasicoProps
 /** Item da legenda do gráfico gauge */
 export interface GaugeLegendaItem {
   label: string
-  valor: number
+  /** Valor numérico ao lado do label (ex: "Agente (5)"). Omita para mostrar só o label. */
+  valor?: number
   cor: 'green' | 'yellow' | 'red' | string
 }
 

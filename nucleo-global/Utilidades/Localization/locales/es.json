@@ -781,8 +781,7 @@
         "canais": "Canales",
         "ativo": "Activo"
       },
-      "aba_inventario": "Inventario",
-      "aba_logs": "Logs",
+      "aba_servidores": "Servidores",
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
       "aba_consumo": "Consumo"

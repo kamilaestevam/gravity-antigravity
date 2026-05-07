@@ -418,8 +418,7 @@
       "latencia_media": "Latência Média",
       "apis_online": "APIs Online",
       "requisicoes_24h": "Requisições (24h)",
-      "aba_inventario": "Inventário de Serviços",
-      "aba_logs": "Logs de Requisições",
+      "aba_servidores": "Servidores",
       "tabela": {
         "servico": "Serviço",
         "tipo": "Tipo",
@@ -481,8 +480,7 @@
         "canais": "Canais",
         "ativo": "Ativo"
       },
-      "aba_inventario": "Inventário",
-      "aba_logs": "Logs",
+      "aba_servidores": "Servidores",
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
       "aba_consumo": "Consumo"

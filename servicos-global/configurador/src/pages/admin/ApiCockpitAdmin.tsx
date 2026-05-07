@@ -73,6 +73,27 @@ interface GabiUsagePayload {
 
 const POLLING_INTERVAL_MS = 30_000
 
+// Ordem padrão de exibição da aba Servidores.
+// Serviços listados aqui aparecem primeiro, na sequência definida.
+// Demais serviços ficam ao final na ordem retornada pelo backend.
+const ORDEM_PADRAO_SERVICOS: string[] = [
+  'configurador-organizacoes',
+  'configurador-me',
+  'configurador-usuarios',
+  'simula-custo',
+  'cadastros',
+  'bid-frete',
+  'bid-cambio',
+  'pedido',
+  'lpco',
+  'financeiro-comex',
+  'nf-importacao',
+  'taxas-cambio',
+  'api-cockpit',
+  'historico',
+  'relatorios',
+]
+
 const fmtUSD = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(n)
 
@@ -176,6 +197,16 @@ export function ApiCockpitAdmin() {
     () => servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length,
     [servicos],
   )
+
+  // Ordenação padrão: prioridade definida em ORDEM_PADRAO_SERVICOS; demais ao final
+  const servicosOrdenados = useMemo(() => {
+    const total = ORDEM_PADRAO_SERVICOS.length
+    return [...servicos].sort((a, b) => {
+      const ia = ORDEM_PADRAO_SERVICOS.indexOf(a.nome_servico_plataforma)
+      const ib = ORDEM_PADRAO_SERVICOS.indexOf(b.nome_servico_plataforma)
+      return (ia === -1 ? total : ia) - (ib === -1 ? total : ib)
+    })
+  }, [servicos])
 
   // Status geral derivado da saude dos servicos
   const statusGeral = apisTotal === 0
@@ -434,11 +465,11 @@ export function ApiCockpitAdmin() {
           )}
 
           <TabelaGlobal
-            id="admin-inventory"
+            id="admin-servidores"
             colunas={colunasInventario}
-            dados={servicos}
-            acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'inventario-infraestrutura', 'Inventário de Infraestrutura')}
-            mensagemVazio={loading ? 'Carregando serviços...' : t('admin.api-cockpit.vazio.sem_servicos')}
+            dados={servicosOrdenados}
+            acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'servidores-infraestrutura', 'Servidores de Infraestrutura')}
+            mensagemVazio={loading ? 'Carregando servidores...' : t('admin.api-cockpit.vazio.sem_servicos')}
           />
         </div>
       )}

@@ -44,7 +44,6 @@ const HistoricoGlobalAdmin = lazy(() => import('./pages/admin/HistoricoGlobalAdm
 const FinanceiroAdmin = lazy(() => import('./pages/admin/FinanceiroAdmin'), 'FinanceiroAdmin')
 const TestesGeraisAdmin = lazy(() => import('./pages/admin/TestesGeraisAdmin'), 'TestesGeraisAdmin')
 const ApiCockpitAdmin = lazy(() => import('./pages/admin/ApiCockpitAdmin'), 'ApiCockpitAdmin')
-const ApiCockpitAdminLogs = lazy(() => import('./pages/admin/ApiCockpitAdminLogs'), 'ApiCockpitAdminLogs')
 const ApiTokensAdmin = lazy(() => import('./pages/admin/ApiTokensAdmin'), 'ApiTokensAdmin')
 const ApiWebhooksAdmin = lazy(() => import('./pages/admin/ApiWebhooksAdmin'), 'ApiWebhooksAdmin')
 const ApiConsumoAdmin = lazy(() => import('./pages/admin/ApiConsumoAdmin'), 'ApiConsumoAdmin')
@@ -336,7 +335,7 @@ export default function App() {
           <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployAdmin /></React.Suspense>} />
           <Route path="testes-gerais" element={<React.Suspense fallback={<ProductLoading />}><TestesGeraisAdmin /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdmin /></React.Suspense>} />
-          <Route path="api-cockpit/logs" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdminLogs /></React.Suspense>} />
+          <Route path="api-cockpit/logs" element={<Navigate to="/admin/api-cockpit/consumo" replace />} />
           <Route path="api-cockpit/tokens" element={<React.Suspense fallback={<ProductLoading />}><ApiTokensAdmin /></React.Suspense>} />
           <Route path="api-cockpit/webhooks" element={<React.Suspense fallback={<ProductLoading />}><ApiWebhooksAdmin /></React.Suspense>} />
           <Route path="api-cockpit/consumo" element={<React.Suspense fallback={<ProductLoading />}><ApiConsumoAdmin /></React.Suspense>} />

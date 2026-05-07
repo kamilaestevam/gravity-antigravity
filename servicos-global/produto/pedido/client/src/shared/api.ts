@@ -147,7 +147,17 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const msg = raw?.error?.message || (typeof raw?.error === 'string' ? raw.error : null)
     throw new Error(msg || `HTTP ${response.status}`)
   }
+  // HTTP 204 No Content — resposta válida sem corpo (DELETE, PATCH sem retorno).
+  // O `as T` é necessário porque T é genérico; quando o caller espera void/undefined
+  // por contrato (ex: pedidoApi.excluir), undefined é o valor honesto e correto.
+  if (response.status === 204) {
+    return undefined as T
+  }
   const text = await response.text()
+  // Corpo vazio em outro 2xx (raro mas possível) — também trata como vazio.
+  if (!text) {
+    return undefined as T
+  }
   try {
     return JSON.parse(text) as T
   } catch {

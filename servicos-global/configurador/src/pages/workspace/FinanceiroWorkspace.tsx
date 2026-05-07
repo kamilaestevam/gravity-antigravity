@@ -40,19 +40,25 @@ const statusBadgeFaturaProdutoGravity: Record<StatusFaturaProdutoGravity, string
   INCOBRAVEL: 'ws-badge-danger',
 }
 
-// ─── Plural PT-BR do tipo de cobrança (col. FRANQUIA FREE) ───────────────────
-// Mapa explícito (vs. concat 's' cego) — evita "MENSALs", "ESTIMATIVAs", etc.
+// ─── Singular/plural PT-BR do tipo de cobrança (col. FRANQUIA FREE) ──────────
+// Mapa explícito (vs. concat 's' cego) — evita "MENSALs", "1 mensalidades", etc.
 // Chaves espelham o enum Prisma `TipoCobrancaGravity`.
-const PLURAL_TIPO_COBRANCA: Record<string, string> = {
-  MENSAL:         'mensalidades',
-  POR_PROCESSO:   'processos',
-  POR_DOCUMENTO:  'documentos',
-  POR_ESTIMATIVA: 'estimativas',
-  POR_DI_DUIMP:   'DI/DUIMPs',
-  POR_DUE:        'DUEs',
-  POR_PRODUTO:    'produtos',
-  POR_FLUXO:      'fluxos',
-  POR_LPCO:       'LPCOs',
+const ROTULO_TIPO_COBRANCA: Record<string, { singular: string; plural: string }> = {
+  MENSAL:         { singular: 'mensalidade', plural: 'mensalidades' },
+  POR_PROCESSO:   { singular: 'processo',    plural: 'processos'    },
+  POR_DOCUMENTO:  { singular: 'documento',   plural: 'documentos'   },
+  POR_ESTIMATIVA: { singular: 'estimativa',  plural: 'estimativas'  },
+  POR_DI_DUIMP:   { singular: 'DI/DUIMP',    plural: 'DI/DUIMPs'    },
+  POR_DUE:        { singular: 'DUE',         plural: 'DUEs'         },
+  POR_PRODUTO:    { singular: 'produto',     plural: 'produtos'     },
+  POR_FLUXO:      { singular: 'fluxo',       plural: 'fluxos'       },
+  POR_LPCO:       { singular: 'LPCO',        plural: 'LPCOs'        },
+}
+
+function rotuloFranquia(qtd: number, tipo: string): string {
+  const r = ROTULO_TIPO_COBRANCA[tipo]
+  if (!r) return `${qtd} ${tipo.toLowerCase()}`
+  return `${qtd} ${qtd === 1 ? r.singular : r.plural}`
 }
 
 // ─── Helpers de formatação ───────────────────────────────────────────────────
@@ -350,7 +356,7 @@ export function FinanceiroWorkspace() {
       tooltipTitulo: 'Franquia Inclusa', tooltipDescricao: 'Quantidade de uso incluída sem cobrança adicional.',
       render: (_v, item) => (
         <span style={{ color: item.qtd_usuarios_base_produto_gravity ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtd_usuarios_base_produto_gravity ? 600 : 400 }}>
-          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${PLURAL_TIPO_COBRANCA[item.tipo_cobranca_produto_gravity] ?? item.tipo_cobranca_produto_gravity.toLowerCase()}` : 'Zero'}
+          {item.qtd_usuarios_base_produto_gravity ? rotuloFranquia(item.qtd_usuarios_base_produto_gravity, item.tipo_cobranca_produto_gravity) : 'Zero'}
         </span>
       ),
     },

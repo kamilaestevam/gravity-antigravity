@@ -204,7 +204,7 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       const where: Record<string, unknown> = { id_organizacao: tenant_id }
       if (company_id) where.id_workspace = company_id
 
-      const status = await db.pedidoStatus.findMany({
+      const status = await db.statusPedido.findMany({
         where,
         orderBy: { ordem_pedido_status: 'asc' },
       })
@@ -213,7 +213,7 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       if (status.length === 0) {
         await Promise.all(
           STATUS_PADRAO.map(s =>
-            db.pedidoStatus.create({
+            db.statusPedido.create({
               data: {
                 id_organizacao:                   tenant_id,
                 id_workspace:                     company_id ?? null,
@@ -227,7 +227,7 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
             })
           )
         )
-        const seeded = await db.pedidoStatus.findMany({
+        const seeded = await db.statusPedido.findMany({
           where,
           orderBy: { ordem_pedido_status: 'asc' },
         })
@@ -258,12 +258,12 @@ pedidosConfigRouter.post('/status', async (req: Request, res: Response, next: Ne
       const where: Record<string, unknown> = { id_organizacao: tenant_id }
       if (company_id) where.id_workspace = company_id
 
-      const count = await db.pedidoStatus.count({ where })
+      const count = await db.statusPedido.count({ where })
       if (count >= 20) {
         throw new AppError(400, 'Limite de 20 status por tenant atingido')
       }
 
-      const novoStatus = await db.pedidoStatus.create({
+      const novoStatus = await db.statusPedido.create({
         data: {
           id_organizacao:                   tenant_id,
           id_workspace:                     company_id ?? null,
@@ -317,7 +317,7 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
       const nomesNovos = new Set(result.data.status.map(s => s.nome))
 
       // Buscar todos os status atuais do tenant para saber quais deletar
-      const atuais = await db.pedidoStatus.findMany({
+      const atuais = await db.statusPedido.findMany({
         where,
         select: {
           id_pedido_status:                 true,
@@ -328,7 +328,7 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
 
       // Upserts por nome (chave única id_organizacao + nome_pedido_status)
       const ops = result.data.status.map(s =>
-        db.pedidoStatus.upsert({
+        db.statusPedido.upsert({
           where: { id_organizacao_nome_pedido_status: { id_organizacao: tenant_id, nome_pedido_status: s.nome } },
           update: {
             rotulo_pedido_status: s.rotulo,
@@ -355,12 +355,12 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
         .map(a => a.id_pedido_status)
 
       const deleteOp = idsParaDeletar.length > 0
-        ? [db.pedidoStatus.deleteMany({ where: { id_pedido_status: { in: idsParaDeletar }, id_organizacao: tenant_id } })]
+        ? [db.statusPedido.deleteMany({ where: { id_pedido_status: { in: idsParaDeletar }, id_organizacao: tenant_id } })]
         : []
 
       await Promise.all([...ops, ...deleteOp])
 
-      const synced = await db.pedidoStatus.findMany({ where, orderBy: { ordem_pedido_status: 'asc' } })
+      const synced = await db.statusPedido.findMany({ where, orderBy: { ordem_pedido_status: 'asc' } })
       res.json({ data: (synced as PedidoStatusDB[]).map(mapStatus) })
     })
   } catch (err) {
@@ -381,7 +381,7 @@ pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next:
       const db        = rawDb as any
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const existente = await db.pedidoStatus.findFirst({
+      const existente = await db.statusPedido.findFirst({
         where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
       })
 
@@ -390,7 +390,7 @@ pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next:
       }
 
       // Inclui id_organizacao no where para garantir isolamento atômico
-      const updated = await db.pedidoStatus.update({
+      const updated = await db.statusPedido.update({
         where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
         data: mapStatusPatch(result.data),
       })
@@ -410,7 +410,7 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
       const db        = rawDb as any
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const existente = await db.pedidoStatus.findFirst({
+      const existente = await db.statusPedido.findFirst({
         where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
       })
 
@@ -423,7 +423,7 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
       }
 
       // Inclui id_organizacao no where para garantir isolamento atômico
-      await db.pedidoStatus.delete({ where: { id_pedido_status: req.params.id, id_organizacao: tenant_id } })
+      await db.statusPedido.delete({ where: { id_pedido_status: req.params.id, id_organizacao: tenant_id } })
       res.status(204).send()
     })
   } catch (err) {
@@ -445,7 +445,7 @@ pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Respons
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       // Verificar que todos os IDs pertencem ao tenant
-      const existentes = await db.pedidoStatus.findMany({
+      const existentes = await db.statusPedido.findMany({
         where: { id_pedido_status: { in: result.data.ids }, id_organizacao: tenant_id },
         select: { id_pedido_status: true },
       })
@@ -459,7 +459,7 @@ pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Respons
       // Atualizar ordem em paralelo (withOrganizacao já garante atomicidade)
       await Promise.all(
         result.data.ids.map((id, index) =>
-          db.pedidoStatus.update({
+          db.statusPedido.update({
             where: { id_pedido_status: id },
             data: { ordem_pedido_status: index },
           })

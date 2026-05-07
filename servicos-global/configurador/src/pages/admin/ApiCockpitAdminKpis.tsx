@@ -163,42 +163,113 @@ export function ApiCockpitAdminKpis() {
   const gabiCalls = gabiUsage?.total_calls ?? 0
   const gabiCost  = gabiUsage?.total_cost_usd ?? 0
 
+  // ── Tooltips ────────────────────────────────────────────────────────────
+
+  const ttDesc = (texto: string) => (
+    <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', lineHeight: 1.45 }}>{texto}</p>
+  )
+
+  const ttEstados = (itens: readonly { label: string; desc: string; cor: string }[]) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+      {itens.map(({ label, desc, cor }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem' }}>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: cor, flexShrink: 0 }}>{label}</span>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.3 }}>{desc}</span>
+        </div>
+      ))}
+    </div>
+  )
+
+  const tooltipStatusGeral = (
+    <>
+      {ttDesc('Derivado do health check de todos os serviços registrados. Atualizado a cada 30s.')}
+      <div style={{ marginTop: '0.625rem' }}>
+        {ttEstados([
+          { label: 'Indisponível', desc: 'Serviço de monitoramento offline',  cor: 'var(--text-secondary, #94a3b8)' },
+          { label: 'Operacional',  desc: 'Todos os serviços respondendo',      cor: '#4ade80' },
+          { label: 'Degradado',    desc: 'Um ou mais serviços com falha',      cor: '#fbbf24' },
+          { label: 'Crítico',      desc: 'Nenhum serviço respondendo',         cor: '#f87171' },
+        ] as const)}
+      </div>
+    </>
+  )
+
+  const tooltipUptime = ttDesc(
+    'Percentual de requisições globais sem erro 5xx nas últimas 24h. Calculado sobre todas as organizações.'
+  )
+
+  const tooltipLatencia = ttDesc(
+    'Tempo médio de processamento de todas as chamadas à API nas últimas 24h, em milissegundos.'
+  )
+
+  const tooltipApisOnline = (
+    <>
+      {ttDesc(`${apisOnline} de ${apisTotal} serviços respondendo ao health check neste momento.`)}
+      <div style={{ marginTop: '0.625rem' }}>
+        {ttEstados([
+          { label: 'ONLINE',   desc: 'Respondeu em menos de 1 000ms', cor: '#4ade80' },
+          { label: 'DEGRADADO',desc: 'Respondeu acima de 1 000ms',    cor: '#fbbf24' },
+          { label: 'OFFLINE',  desc: 'Sem resposta ou timeout de 3s', cor: '#f87171' },
+        ] as const)}
+      </div>
+    </>
+  )
+
+  const tooltipRequisicoes = ttDesc(
+    'Total de chamadas à API registradas globalmente nas últimas 24h, de todas as organizações.'
+  )
+
+  const tooltipGabiChamadas = ttDesc(
+    'Total de chamadas ao modelo de linguagem realizadas pela GABI no mês atual (dados do serviço Gabi).'
+  )
+
+  const tooltipGabiCusto = ttDesc(
+    'Custo acumulado em USD das chamadas ao LLM no mês atual. Inclui tokens de entrada e saída de todos os modelos.'
+  )
+
   return (
     <>
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.status_geral')}
         valor={statusGeral}
         variante={statusVariante}
+        tooltip={tooltipStatusGeral}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.uptime_24h')}
         valor={uptimePercent}
         variante="primario"
+        tooltip={tooltipUptime}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.latencia_media')}
         valor={latenciaMediaMs}
         variante="padrao"
+        tooltip={tooltipLatencia}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.apis_online')}
         valor={`${apisOnline}/${apisTotal}`}
         variante="sucesso"
+        tooltip={tooltipApisOnline}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.requisicoes_24h')}
         valor={String(requisicoes24h)}
         variante="primario"
+        tooltip={tooltipRequisicoes}
       />
       <CardEstatisticaGlobal
         titulo="GABI IA · Chamadas"
         valor={gabiLoading ? '…' : String(gabiCalls)}
         variante="primario"
+        tooltip={tooltipGabiChamadas}
       />
       <CardEstatisticaGlobal
         titulo="GABI IA · Custo Mês"
         valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
         variante="aviso"
+        tooltip={tooltipGabiCusto}
       />
     </>
   )

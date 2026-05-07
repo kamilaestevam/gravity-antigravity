@@ -5,15 +5,20 @@
 
 import { Request, Response, NextFunction } from 'express'
 
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
+// Nomenclatura legada do projeto: alguns clientes enviam `x-internal-key` /
+// `INTERNAL_API_KEY`, outros usam `x-chave-interna-servico` / `CHAVE_INTERNA_SERVICO`.
+// Aceita os dois nomes (header e env) ate a renomeacao ser uniformizada.
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 export function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ): void {
-  // Rotas inter-serviço (admin, S2S) passam com x-internal-key — sem tenant_id
-  const internalKey = req.headers['x-internal-key'] as string | undefined
+  // Rotas inter-serviço (admin, S2S) passam com chave interna — sem tenant_id
+  const internalKey =
+    (req.headers['x-internal-key']           as string | undefined) ??
+    (req.headers['x-chave-interna-servico']  as string | undefined)
   if (INTERNAL_KEY && internalKey === INTERNAL_KEY) {
     req.auth = { id_organizacao: '__internal__', id_usuario: 'system' }
     return next()

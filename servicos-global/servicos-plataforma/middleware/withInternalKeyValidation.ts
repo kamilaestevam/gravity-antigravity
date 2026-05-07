@@ -26,7 +26,8 @@ function withInternalKeyValidation(
   res: Response,
   next: NextFunction
 ): void {
-  const expectedKey = process.env.INTERNAL_API_KEY
+  // Compat: aceita ambos os nomes de env ate a nomenclatura ser uniformizada.
+  const expectedKey = process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO
 
   // Se a chave não está configurada, nega por segurança (fail-safe)
   if (!expectedKey || expectedKey.trim() === '') {
@@ -37,12 +38,15 @@ function withInternalKeyValidation(
     return
   }
 
-  const providedKey = req.headers['x-internal-key']
+  // Compat: aceita ambos os nomes de header
+  const providedKey =
+    req.headers['x-internal-key'] ??
+    req.headers['x-chave-interna-servico']
 
   if (!providedKey) {
     res.status(403).json({
       error: 'Forbidden',
-      message: 'Header x-internal-key ausente. Este endpoint é restrito a chamadas internas.',
+      message: 'Header x-internal-key ou x-chave-interna-servico ausente. Este endpoint é restrito a chamadas internas.',
     })
     return
   }

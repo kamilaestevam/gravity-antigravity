@@ -88,14 +88,17 @@ export interface ProdutoCatalogo {
 
 // ── Negociação Especial (model ProdutoGravityNegociacaoEspecial) ────────────
 export interface NegociacaoEspecial {
-  id_negociacao_especial_preco_produto_gravity: string
+  id_negociacao_especial: string
   id_produto_gravity: string
   id_organizacao: string
-  nome_organizacao_negociacao_especial_preco_produto_gravity: string
-  acordo_negociacao_especial_preco_produto_gravity: string
-  data_inicio_negociacao_especial_preco_produto_gravity?: string | null
-  data_fim_negociacao_especial_preco_produto_gravity?: string | null
-  ilimitado_negociacao_especial_preco_produto_gravity: boolean
+  nome_organizacao_negociacao_especial: string
+  acordo_negociacao_especial: string
+  /** Decimal serializado como string (ex: "1500.00"); null = só desconto descritivo no `acordo` */
+  valor_unitario_negociacao_especial?: string | null
+  moeda_negociacao_especial: string
+  data_inicio_negociacao_especial?: string | null
+  data_fim_negociacao_especial?: string | null
+  ilimitado_prazo_negociacao_especial: boolean
 }
 
 // ── Organização (model Organizacao do schema-composition) ───────────────────

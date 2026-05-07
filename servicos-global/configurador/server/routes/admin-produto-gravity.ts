@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
-import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
+import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 
@@ -122,7 +122,7 @@ const UpdateProductSchema = CreateProductSchema.partial()
 adminProductsRouter.get('/slugs-disponiveis', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
-    const usedSlugs = await productCatalogService.listUsedSlugs()
+    const usedSlugs = await produtoGravityCatalogoServico.listUsedSlugs()
     const available = allSlugs.filter(slug => !usedSlugs.has(slug))
     res.json({ available, all: allSlugs })
   } catch (err) {
@@ -136,7 +136,7 @@ adminProductsRouter.get('/slugs-disponiveis', async (_req, res, next) => {
  */
 adminProductsRouter.get('/', async (req, res, next) => {
   try {
-    const result = await productCatalogService.list({
+    const result = await produtoGravityCatalogoServico.list({
       page: req.query.page ? Number(req.query.page) : undefined,
       limit: req.query.limit ? Number(req.query.limit) : undefined,
       search: typeof req.query.search === 'string' ? req.query.search : undefined,
@@ -154,7 +154,7 @@ adminProductsRouter.get('/', async (req, res, next) => {
  */
 adminProductsRouter.get('/:id_produto_gravity', async (req, res, next) => {
   try {
-    const product = await productCatalogService.getById(req.params.id_produto_gravity)
+    const product = await produtoGravityCatalogoServico.getById(req.params.id_produto_gravity)
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
@@ -193,7 +193,7 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
       }
     }
 
-    const existing = await productCatalogService.getBySlug(parsed.data.slug)
+    const existing = await produtoGravityCatalogoServico.getBySlug(parsed.data.slug)
     if (existing) {
       throw new AppError(
         `Já existe um produto com o slug "${parsed.data.slug}". Use PUT /api/v1/admin/produtos-gravity/:id_produto_gravity para atualizar.`,
@@ -202,7 +202,7 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
       )
     }
 
-    const product = await productCatalogService.create(parsed.data)
+    const product = await produtoGravityCatalogoServico.create(parsed.data)
 
     log.info('product created', {
       actor_id: req.auth.clerkUserId,
@@ -231,19 +231,19 @@ adminProductsRouter.put('/:id_produto_gravity', adminRateLimit, async (req, res,
       )
     }
 
-    const existing = await productCatalogService.getById(req.params.id_produto_gravity)
+    const existing = await produtoGravityCatalogoServico.getById(req.params.id_produto_gravity)
     if (!existing) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
     if (parsed.data.slug && parsed.data.slug !== existing.slug) {
-      const slugTaken = await productCatalogService.getBySlug(parsed.data.slug)
+      const slugTaken = await produtoGravityCatalogoServico.getBySlug(parsed.data.slug)
       if (slugTaken) {
         throw new AppError('Já existe um produto com este slug', 409, 'CONFLICT')
       }
     }
 
-    const product = await productCatalogService.update(req.params.id_produto_gravity, parsed.data)
+    const product = await produtoGravityCatalogoServico.update(req.params.id_produto_gravity, parsed.data)
 
     log.info('product updated', {
       actor_id: req.auth.clerkUserId,
@@ -262,7 +262,7 @@ adminProductsRouter.put('/:id_produto_gravity', adminRateLimit, async (req, res,
  */
 adminProductsRouter.patch('/:id_produto_gravity/status', adminRateLimit, async (req, res, next) => {
   try {
-    const product = await productCatalogService.toggleStatus(req.params.id_produto_gravity)
+    const product = await produtoGravityCatalogoServico.toggleStatus(req.params.id_produto_gravity)
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
@@ -286,12 +286,12 @@ adminProductsRouter.patch('/:id_produto_gravity/status', adminRateLimit, async (
  */
 adminProductsRouter.delete('/:id_produto_gravity', adminRateLimit, async (req, res, next) => {
   try {
-    const existing = await productCatalogService.getById(req.params.id_produto_gravity)
+    const existing = await produtoGravityCatalogoServico.getById(req.params.id_produto_gravity)
     if (!existing) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    const negotiationCount = await productCatalogService.countActiveNegotiations(req.params.id_produto_gravity)
+    const negotiationCount = await produtoGravityCatalogoServico.countActiveNegotiations(req.params.id_produto_gravity)
     const force = req.query.force === 'true'
     const ack = req.query.ack_negotiations === 'true'
 
@@ -304,9 +304,9 @@ adminProductsRouter.delete('/:id_produto_gravity', adminRateLimit, async (req, r
     }
 
     if (force) {
-      await productCatalogService.hardDelete(req.params.id_produto_gravity)
+      await produtoGravityCatalogoServico.hardDelete(req.params.id_produto_gravity)
     } else {
-      await productCatalogService.softDelete(req.params.id_produto_gravity)
+      await produtoGravityCatalogoServico.softDelete(req.params.id_produto_gravity)
     }
 
     log.info('product deleted', {

@@ -4,7 +4,7 @@
 // GET /api/v1/catalogo/produtos-gravity — lista produtos disponíveis
 
 import { Router } from 'express'
-import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
+import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 
 export const publicCatalogRouter = Router()
 
@@ -14,7 +14,7 @@ export const publicCatalogRouter = Router()
  */
 publicCatalogRouter.get('/produtos-gravity', async (_req, res, next) => {
   try {
-    const products = await productCatalogService.listPublic()
+    const products = await produtoGravityCatalogoServico.listarPublico()
     res.json({ products })
   } catch (err) {
     next(err)
@@ -28,7 +28,7 @@ publicCatalogRouter.get('/produtos-gravity', async (_req, res, next) => {
 publicCatalogRouter.get('/produtos-gravity/:id_produto_gravity', async (req, res, next) => {
   try {
     const { id_produto_gravity: slug } = req.params
-    const product = await productCatalogService.getBySlug(slug)
+    const product = await produtoGravityCatalogoServico.getBySlug(slug)
     if (!product || !['ATIVO', 'EM_BREVE'].includes(product.status)) {
       res.status(404).json({ error: 'Produto não encontrado' })
       return

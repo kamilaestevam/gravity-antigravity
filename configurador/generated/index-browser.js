@@ -275,16 +275,18 @@ exports.Prisma.ProdutoGravityFaixaPrecoScalarFieldEnum = {
 };
 
 exports.Prisma.ProdutoGravityNegociacaoEspecialScalarFieldEnum = {
-  id_negociacao_especial_preco_produto_gravity: 'id_negociacao_especial_preco_produto_gravity',
+  id_negociacao_especial: 'id_negociacao_especial',
   id_produto_gravity: 'id_produto_gravity',
   id_organizacao: 'id_organizacao',
-  nome_organizacao_negociacao_especial_preco_produto_gravity: 'nome_organizacao_negociacao_especial_preco_produto_gravity',
-  acordo_negociacao_especial_preco_produto_gravity: 'acordo_negociacao_especial_preco_produto_gravity',
-  data_inicio_negociacao_especial_preco_produto_gravity: 'data_inicio_negociacao_especial_preco_produto_gravity',
-  data_fim_negociacao_especial_preco_produto_gravity: 'data_fim_negociacao_especial_preco_produto_gravity',
-  ilimitado_negociacao_especial_preco_produto_gravity: 'ilimitado_negociacao_especial_preco_produto_gravity',
-  data_criacao_negociacao_especial_preco_produto_gravity: 'data_criacao_negociacao_especial_preco_produto_gravity',
-  data_atualizacao_negociacao_especial_preco_produto_gravity: 'data_atualizacao_negociacao_especial_preco_produto_gravity'
+  nome_organizacao_negociacao_especial: 'nome_organizacao_negociacao_especial',
+  acordo_negociacao_especial: 'acordo_negociacao_especial',
+  valor_unitario_negociacao_especial: 'valor_unitario_negociacao_especial',
+  moeda_negociacao_especial: 'moeda_negociacao_especial',
+  data_inicio_negociacao_especial: 'data_inicio_negociacao_especial',
+  data_fim_negociacao_especial: 'data_fim_negociacao_especial',
+  ilimitado_prazo_negociacao_especial: 'ilimitado_prazo_negociacao_especial',
+  data_criacao_negociacao_especial: 'data_criacao_negociacao_especial',
+  data_atualizacao_negociacao_especial: 'data_atualizacao_negociacao_especial'
 };
 
 exports.Prisma.DeployScalarFieldEnum = {

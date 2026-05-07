@@ -48,7 +48,7 @@ type ProductUpdateData = Partial<ProductCreateData>
 
 const ACTIVE_PRODUCT_INCLUDE = {
   faixas_preco_produto_gravity: true,
-  negociacoes_produto_gravity: true,
+  negociacoes_especiais: true,
 } satisfies Prisma.ProdutoGravityInclude
 
 // DTO: traduz contrato legado público → fields Prisma renomeados (Option C ACL)
@@ -152,17 +152,19 @@ type ProductRow = {
     moeda_faixa_preco_produto_gravity: string
     data_criacao_faixa_preco_produto_gravity: Date
   }>
-  negociacoes_produto_gravity?: Array<{
-    id_negociacao_especial_preco_produto_gravity: string
+  negociacoes_especiais?: Array<{
+    id_negociacao_especial: string
     id_produto_gravity: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity: Date | null
-    data_fim_negociacao_especial_preco_produto_gravity: Date | null
-    ilimitado_negociacao_especial_preco_produto_gravity: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity: Date
-    data_atualizacao_negociacao_especial_preco_produto_gravity: Date
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial: unknown // Decimal | null (Prisma)
+    moeda_negociacao_especial: string
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_prazo_negociacao_especial: boolean
+    data_criacao_negociacao_especial: Date
+    data_atualizacao_negociacao_especial: Date
   }>
 }
 
@@ -206,22 +208,24 @@ export function toProductDto(row: ProductRow) {
       currency: t.moeda_faixa_preco_produto_gravity,
       created_at: t.data_criacao_faixa_preco_produto_gravity,
     })),
-    negotiations: row.negociacoes_produto_gravity?.map((n) => ({
-      id: n.id_negociacao_especial_preco_produto_gravity,
-      product_id: n.id_produto_gravity,
-      tenant_id: n.id_organizacao,
-      tenant_name: n.nome_organizacao_negociacao_especial_preco_produto_gravity,
-      agreement: n.acordo_negociacao_especial_preco_produto_gravity,
-      starts_at: n.data_inicio_negociacao_especial_preco_produto_gravity,
-      ends_at: n.data_fim_negociacao_especial_preco_produto_gravity,
-      is_unlimited: n.ilimitado_negociacao_especial_preco_produto_gravity,
-      created_at: n.data_criacao_negociacao_especial_preco_produto_gravity,
-      updated_at: n.data_atualizacao_negociacao_especial_preco_produto_gravity,
+    negotiations: row.negociacoes_especiais?.map((n) => ({
+      id_negociacao_especial:               n.id_negociacao_especial,
+      id_produto_gravity:                   n.id_produto_gravity,
+      id_organizacao:                       n.id_organizacao,
+      nome_organizacao_negociacao_especial: n.nome_organizacao_negociacao_especial,
+      acordo_negociacao_especial:           n.acordo_negociacao_especial,
+      valor_unitario_negociacao_especial:   n.valor_unitario_negociacao_especial?.toString() ?? null,
+      moeda_negociacao_especial:            n.moeda_negociacao_especial,
+      data_inicio_negociacao_especial:      n.data_inicio_negociacao_especial,
+      data_fim_negociacao_especial:         n.data_fim_negociacao_especial,
+      ilimitado_prazo_negociacao_especial:  n.ilimitado_prazo_negociacao_especial,
+      data_criacao_negociacao_especial:     n.data_criacao_negociacao_especial,
+      data_atualizacao_negociacao_especial: n.data_atualizacao_negociacao_especial,
     })),
   }
 }
 
-export const productCatalogService = {
+export const produtoGravityCatalogoServico = {
   /**
    * Lista todos os produtos do catálogo com paginação e filtros.
    * Ignora produtos soft-deletados.
@@ -422,9 +426,9 @@ export const productCatalogService = {
       where: {
         id_produto_gravity: id_produto,
         OR: [
-          { ilimitado_negociacao_especial_preco_produto_gravity: true },
-          { data_fim_negociacao_especial_preco_produto_gravity: { gte: now } },
-          { data_fim_negociacao_especial_preco_produto_gravity: null },
+          { ilimitado_prazo_negociacao_especial: true },
+          { data_fim_negociacao_especial: { gte: now } },
+          { data_fim_negociacao_especial: null },
         ],
       },
     })
@@ -453,7 +457,7 @@ export const productCatalogService = {
   /**
    * Lista produtos ativos para exibição pública (Store/Marketplace).
    */
-  async listPublic() {
+  async listarPublico() {
     const rows = await prisma.produtoGravity.findMany({
       where: {
         status_produto_gravity: { in: ['ATIVO', 'EM_BREVE'] },

@@ -14994,88 +14994,118 @@ export namespace Prisma {
 
   export type AggregateProdutoGravityNegociacaoEspecial = {
     _count: ProdutoGravityNegociacaoEspecialCountAggregateOutputType | null
+    _avg: ProdutoGravityNegociacaoEspecialAvgAggregateOutputType | null
+    _sum: ProdutoGravityNegociacaoEspecialSumAggregateOutputType | null
     _min: ProdutoGravityNegociacaoEspecialMinAggregateOutputType | null
     _max: ProdutoGravityNegociacaoEspecialMaxAggregateOutputType | null
   }
 
+  export type ProdutoGravityNegociacaoEspecialAvgAggregateOutputType = {
+    valor_unitario_negociacao_especial: Decimal | null
+  }
+
+  export type ProdutoGravityNegociacaoEspecialSumAggregateOutputType = {
+    valor_unitario_negociacao_especial: Decimal | null
+  }
+
   export type ProdutoGravityNegociacaoEspecialMinAggregateOutputType = {
-    id_negociacao_especial_preco_produto_gravity: string | null
+    id_negociacao_especial: string | null
     id_produto_gravity: string | null
     id_organizacao: string | null
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string | null
-    acordo_negociacao_especial_preco_produto_gravity: string | null
-    data_inicio_negociacao_especial_preco_produto_gravity: Date | null
-    data_fim_negociacao_especial_preco_produto_gravity: Date | null
-    ilimitado_negociacao_especial_preco_produto_gravity: boolean | null
-    data_criacao_negociacao_especial_preco_produto_gravity: Date | null
-    data_atualizacao_negociacao_especial_preco_produto_gravity: Date | null
+    nome_organizacao_negociacao_especial: string | null
+    acordo_negociacao_especial: string | null
+    valor_unitario_negociacao_especial: Decimal | null
+    moeda_negociacao_especial: string | null
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_prazo_negociacao_especial: boolean | null
+    data_criacao_negociacao_especial: Date | null
+    data_atualizacao_negociacao_especial: Date | null
   }
 
   export type ProdutoGravityNegociacaoEspecialMaxAggregateOutputType = {
-    id_negociacao_especial_preco_produto_gravity: string | null
+    id_negociacao_especial: string | null
     id_produto_gravity: string | null
     id_organizacao: string | null
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string | null
-    acordo_negociacao_especial_preco_produto_gravity: string | null
-    data_inicio_negociacao_especial_preco_produto_gravity: Date | null
-    data_fim_negociacao_especial_preco_produto_gravity: Date | null
-    ilimitado_negociacao_especial_preco_produto_gravity: boolean | null
-    data_criacao_negociacao_especial_preco_produto_gravity: Date | null
-    data_atualizacao_negociacao_especial_preco_produto_gravity: Date | null
+    nome_organizacao_negociacao_especial: string | null
+    acordo_negociacao_especial: string | null
+    valor_unitario_negociacao_especial: Decimal | null
+    moeda_negociacao_especial: string | null
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_prazo_negociacao_especial: boolean | null
+    data_criacao_negociacao_especial: Date | null
+    data_atualizacao_negociacao_especial: Date | null
   }
 
   export type ProdutoGravityNegociacaoEspecialCountAggregateOutputType = {
-    id_negociacao_especial_preco_produto_gravity: number
+    id_negociacao_especial: number
     id_produto_gravity: number
     id_organizacao: number
-    nome_organizacao_negociacao_especial_preco_produto_gravity: number
-    acordo_negociacao_especial_preco_produto_gravity: number
-    data_inicio_negociacao_especial_preco_produto_gravity: number
-    data_fim_negociacao_especial_preco_produto_gravity: number
-    ilimitado_negociacao_especial_preco_produto_gravity: number
-    data_criacao_negociacao_especial_preco_produto_gravity: number
-    data_atualizacao_negociacao_especial_preco_produto_gravity: number
+    nome_organizacao_negociacao_especial: number
+    acordo_negociacao_especial: number
+    valor_unitario_negociacao_especial: number
+    moeda_negociacao_especial: number
+    data_inicio_negociacao_especial: number
+    data_fim_negociacao_especial: number
+    ilimitado_prazo_negociacao_especial: number
+    data_criacao_negociacao_especial: number
+    data_atualizacao_negociacao_especial: number
     _all: number
   }
 
 
+  export type ProdutoGravityNegociacaoEspecialAvgAggregateInputType = {
+    valor_unitario_negociacao_especial?: true
+  }
+
+  export type ProdutoGravityNegociacaoEspecialSumAggregateInputType = {
+    valor_unitario_negociacao_especial?: true
+  }
+
   export type ProdutoGravityNegociacaoEspecialMinAggregateInputType = {
-    id_negociacao_especial_preco_produto_gravity?: true
+    id_negociacao_especial?: true
     id_produto_gravity?: true
     id_organizacao?: true
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: true
-    acordo_negociacao_especial_preco_produto_gravity?: true
-    data_inicio_negociacao_especial_preco_produto_gravity?: true
-    data_fim_negociacao_especial_preco_produto_gravity?: true
-    ilimitado_negociacao_especial_preco_produto_gravity?: true
-    data_criacao_negociacao_especial_preco_produto_gravity?: true
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    valor_unitario_negociacao_especial?: true
+    moeda_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_prazo_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
   }
 
   export type ProdutoGravityNegociacaoEspecialMaxAggregateInputType = {
-    id_negociacao_especial_preco_produto_gravity?: true
+    id_negociacao_especial?: true
     id_produto_gravity?: true
     id_organizacao?: true
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: true
-    acordo_negociacao_especial_preco_produto_gravity?: true
-    data_inicio_negociacao_especial_preco_produto_gravity?: true
-    data_fim_negociacao_especial_preco_produto_gravity?: true
-    ilimitado_negociacao_especial_preco_produto_gravity?: true
-    data_criacao_negociacao_especial_preco_produto_gravity?: true
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    valor_unitario_negociacao_especial?: true
+    moeda_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_prazo_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
   }
 
   export type ProdutoGravityNegociacaoEspecialCountAggregateInputType = {
-    id_negociacao_especial_preco_produto_gravity?: true
+    id_negociacao_especial?: true
     id_produto_gravity?: true
     id_organizacao?: true
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: true
-    acordo_negociacao_especial_preco_produto_gravity?: true
-    data_inicio_negociacao_especial_preco_produto_gravity?: true
-    data_fim_negociacao_especial_preco_produto_gravity?: true
-    ilimitado_negociacao_especial_preco_produto_gravity?: true
-    data_criacao_negociacao_especial_preco_produto_gravity?: true
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    valor_unitario_negociacao_especial?: true
+    moeda_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_prazo_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
     _all?: true
   }
 
@@ -15117,6 +15147,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ProdutoGravityNegociacaoEspecialAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProdutoGravityNegociacaoEspecialSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ProdutoGravityNegociacaoEspecialMinAggregateInputType
@@ -15147,22 +15189,28 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ProdutoGravityNegociacaoEspecialCountAggregateInputType | true
+    _avg?: ProdutoGravityNegociacaoEspecialAvgAggregateInputType
+    _sum?: ProdutoGravityNegociacaoEspecialSumAggregateInputType
     _min?: ProdutoGravityNegociacaoEspecialMinAggregateInputType
     _max?: ProdutoGravityNegociacaoEspecialMaxAggregateInputType
   }
 
   export type ProdutoGravityNegociacaoEspecialGroupByOutputType = {
-    id_negociacao_especial_preco_produto_gravity: string
+    id_negociacao_especial: string
     id_produto_gravity: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity: Date | null
-    data_fim_negociacao_especial_preco_produto_gravity: Date | null
-    ilimitado_negociacao_especial_preco_produto_gravity: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity: Date
-    data_atualizacao_negociacao_especial_preco_produto_gravity: Date
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial: Decimal | null
+    moeda_negociacao_especial: string
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_prazo_negociacao_especial: boolean
+    data_criacao_negociacao_especial: Date
+    data_atualizacao_negociacao_especial: Date
     _count: ProdutoGravityNegociacaoEspecialCountAggregateOutputType | null
+    _avg: ProdutoGravityNegociacaoEspecialAvgAggregateOutputType | null
+    _sum: ProdutoGravityNegociacaoEspecialSumAggregateOutputType | null
     _min: ProdutoGravityNegociacaoEspecialMinAggregateOutputType | null
     _max: ProdutoGravityNegociacaoEspecialMaxAggregateOutputType | null
   }
@@ -15182,44 +15230,50 @@ export namespace Prisma {
 
 
   export type ProdutoGravityNegociacaoEspecialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_negociacao_especial_preco_produto_gravity?: boolean
+    id_negociacao_especial?: boolean
     id_produto_gravity?: boolean
     id_organizacao?: boolean
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: boolean
-    acordo_negociacao_especial_preco_produto_gravity?: boolean
-    data_inicio_negociacao_especial_preco_produto_gravity?: boolean
-    data_fim_negociacao_especial_preco_produto_gravity?: boolean
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: boolean
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    valor_unitario_negociacao_especial?: boolean
+    moeda_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
 
   export type ProdutoGravityNegociacaoEspecialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_negociacao_especial_preco_produto_gravity?: boolean
+    id_negociacao_especial?: boolean
     id_produto_gravity?: boolean
     id_organizacao?: boolean
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: boolean
-    acordo_negociacao_especial_preco_produto_gravity?: boolean
-    data_inicio_negociacao_especial_preco_produto_gravity?: boolean
-    data_fim_negociacao_especial_preco_produto_gravity?: boolean
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: boolean
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    valor_unitario_negociacao_especial?: boolean
+    moeda_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
 
   export type ProdutoGravityNegociacaoEspecialSelectScalar = {
-    id_negociacao_especial_preco_produto_gravity?: boolean
+    id_negociacao_especial?: boolean
     id_produto_gravity?: boolean
     id_organizacao?: boolean
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: boolean
-    acordo_negociacao_especial_preco_produto_gravity?: boolean
-    data_inicio_negociacao_especial_preco_produto_gravity?: boolean
-    data_fim_negociacao_especial_preco_produto_gravity?: boolean
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: boolean
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    valor_unitario_negociacao_especial?: boolean
+    moeda_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
   }
 
   export type ProdutoGravityNegociacaoEspecialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15235,16 +15289,18 @@ export namespace Prisma {
       produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id_negociacao_especial_preco_produto_gravity: string
+      id_negociacao_especial: string
       id_produto_gravity: string
       id_organizacao: string
-      nome_organizacao_negociacao_especial_preco_produto_gravity: string
-      acordo_negociacao_especial_preco_produto_gravity: string
-      data_inicio_negociacao_especial_preco_produto_gravity: Date | null
-      data_fim_negociacao_especial_preco_produto_gravity: Date | null
-      ilimitado_negociacao_especial_preco_produto_gravity: boolean
-      data_criacao_negociacao_especial_preco_produto_gravity: Date
-      data_atualizacao_negociacao_especial_preco_produto_gravity: Date
+      nome_organizacao_negociacao_especial: string
+      acordo_negociacao_especial: string
+      valor_unitario_negociacao_especial: Prisma.Decimal | null
+      moeda_negociacao_especial: string
+      data_inicio_negociacao_especial: Date | null
+      data_fim_negociacao_especial: Date | null
+      ilimitado_prazo_negociacao_especial: boolean
+      data_criacao_negociacao_especial: Date
+      data_atualizacao_negociacao_especial: Date
     }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
     composites: {}
   }
@@ -15328,8 +15384,8 @@ export namespace Prisma {
      * // Get first 10 ProdutoGravityNegociacaoEspecials
      * const produtoGravityNegociacaoEspecials = await prisma.produtoGravityNegociacaoEspecial.findMany({ take: 10 })
      * 
-     * // Only select the `id_negociacao_especial_preco_produto_gravity`
-     * const produtoGravityNegociacaoEspecialWithId_negociacao_especial_preco_produto_gravityOnly = await prisma.produtoGravityNegociacaoEspecial.findMany({ select: { id_negociacao_especial_preco_produto_gravity: true } })
+     * // Only select the `id_negociacao_especial`
+     * const produtoGravityNegociacaoEspecialWithId_negociacao_especialOnly = await prisma.produtoGravityNegociacaoEspecial.findMany({ select: { id_negociacao_especial: true } })
      * 
      */
     findMany<T extends ProdutoGravityNegociacaoEspecialFindManyArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findMany">>
@@ -15373,9 +15429,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ProdutoGravityNegociacaoEspecials and only return the `id_negociacao_especial_preco_produto_gravity`
-     * const produtoGravityNegociacaoEspecialWithId_negociacao_especial_preco_produto_gravityOnly = await prisma.produtoGravityNegociacaoEspecial.createManyAndReturn({ 
-     *   select: { id_negociacao_especial_preco_produto_gravity: true },
+     * // Create many ProdutoGravityNegociacaoEspecials and only return the `id_negociacao_especial`
+     * const produtoGravityNegociacaoEspecialWithId_negociacao_especialOnly = await prisma.produtoGravityNegociacaoEspecial.createManyAndReturn({ 
+     *   select: { id_negociacao_especial: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -15639,16 +15695,18 @@ export namespace Prisma {
    * Fields of the ProdutoGravityNegociacaoEspecial model
    */ 
   interface ProdutoGravityNegociacaoEspecialFieldRefs {
-    readonly id_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly id_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
     readonly id_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
     readonly id_organizacao: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
-    readonly nome_organizacao_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
-    readonly acordo_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
-    readonly data_inicio_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
-    readonly data_fim_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
-    readonly ilimitado_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'Boolean'>
-    readonly data_criacao_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
-    readonly data_atualizacao_negociacao_especial_preco_produto_gravity: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly nome_organizacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly acordo_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly valor_unitario_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'Decimal'>
+    readonly moeda_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly data_inicio_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly data_fim_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly ilimitado_prazo_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'Boolean'>
+    readonly data_criacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly data_atualizacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
   }
     
 
@@ -29815,16 +29873,18 @@ export namespace Prisma {
 
 
   export const ProdutoGravityNegociacaoEspecialScalarFieldEnum: {
-    id_negociacao_especial_preco_produto_gravity: 'id_negociacao_especial_preco_produto_gravity',
+    id_negociacao_especial: 'id_negociacao_especial',
     id_produto_gravity: 'id_produto_gravity',
     id_organizacao: 'id_organizacao',
-    nome_organizacao_negociacao_especial_preco_produto_gravity: 'nome_organizacao_negociacao_especial_preco_produto_gravity',
-    acordo_negociacao_especial_preco_produto_gravity: 'acordo_negociacao_especial_preco_produto_gravity',
-    data_inicio_negociacao_especial_preco_produto_gravity: 'data_inicio_negociacao_especial_preco_produto_gravity',
-    data_fim_negociacao_especial_preco_produto_gravity: 'data_fim_negociacao_especial_preco_produto_gravity',
-    ilimitado_negociacao_especial_preco_produto_gravity: 'ilimitado_negociacao_especial_preco_produto_gravity',
-    data_criacao_negociacao_especial_preco_produto_gravity: 'data_criacao_negociacao_especial_preco_produto_gravity',
-    data_atualizacao_negociacao_especial_preco_produto_gravity: 'data_atualizacao_negociacao_especial_preco_produto_gravity'
+    nome_organizacao_negociacao_especial: 'nome_organizacao_negociacao_especial',
+    acordo_negociacao_especial: 'acordo_negociacao_especial',
+    valor_unitario_negociacao_especial: 'valor_unitario_negociacao_especial',
+    moeda_negociacao_especial: 'moeda_negociacao_especial',
+    data_inicio_negociacao_especial: 'data_inicio_negociacao_especial',
+    data_fim_negociacao_especial: 'data_fim_negociacao_especial',
+    ilimitado_prazo_negociacao_especial: 'ilimitado_prazo_negociacao_especial',
+    data_criacao_negociacao_especial: 'data_criacao_negociacao_especial',
+    data_atualizacao_negociacao_especial: 'data_atualizacao_negociacao_especial'
   };
 
   export type ProdutoGravityNegociacaoEspecialScalarFieldEnum = (typeof ProdutoGravityNegociacaoEspecialScalarFieldEnum)[keyof typeof ProdutoGravityNegociacaoEspecialScalarFieldEnum]
@@ -31409,80 +31469,92 @@ export namespace Prisma {
     AND?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
     OR?: ProdutoGravityNegociacaoEspecialWhereInput[]
     NOT?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
-    id_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_organizacao?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    valor_unitario_negociacao_especial?: DecimalNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
   export type ProdutoGravityNegociacaoEspecialOrderByWithRelationInput = {
-    id_negociacao_especial_preco_produto_gravity?: SortOrder
+    id_negociacao_especial?: SortOrder
     id_produto_gravity?: SortOrder
     id_organizacao?: SortOrder
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    acordo_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_inicio_negociacao_especial_preco_produto_gravity?: SortOrderInput | SortOrder
-    data_fim_negociacao_especial_preco_produto_gravity?: SortOrderInput | SortOrder
-    ilimitado_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_criacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    valor_unitario_negociacao_especial?: SortOrderInput | SortOrder
+    moeda_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrderInput | SortOrder
+    data_fim_negociacao_especial?: SortOrderInput | SortOrder
+    ilimitado_prazo_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
     produto?: ProdutoGravityOrderByWithRelationInput
   }
 
   export type ProdutoGravityNegociacaoEspecialWhereUniqueInput = Prisma.AtLeast<{
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     AND?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
     OR?: ProdutoGravityNegociacaoEspecialWhereInput[]
     NOT?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
     id_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_organizacao?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    valor_unitario_negociacao_especial?: DecimalNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
-  }, "id_negociacao_especial_preco_produto_gravity">
+  }, "id_negociacao_especial">
 
   export type ProdutoGravityNegociacaoEspecialOrderByWithAggregationInput = {
-    id_negociacao_especial_preco_produto_gravity?: SortOrder
+    id_negociacao_especial?: SortOrder
     id_produto_gravity?: SortOrder
     id_organizacao?: SortOrder
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    acordo_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_inicio_negociacao_especial_preco_produto_gravity?: SortOrderInput | SortOrder
-    data_fim_negociacao_especial_preco_produto_gravity?: SortOrderInput | SortOrder
-    ilimitado_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_criacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    valor_unitario_negociacao_especial?: SortOrderInput | SortOrder
+    moeda_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrderInput | SortOrder
+    data_fim_negociacao_especial?: SortOrderInput | SortOrder
+    ilimitado_prazo_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
     _count?: ProdutoGravityNegociacaoEspecialCountOrderByAggregateInput
+    _avg?: ProdutoGravityNegociacaoEspecialAvgOrderByAggregateInput
     _max?: ProdutoGravityNegociacaoEspecialMaxOrderByAggregateInput
     _min?: ProdutoGravityNegociacaoEspecialMinOrderByAggregateInput
+    _sum?: ProdutoGravityNegociacaoEspecialSumOrderByAggregateInput
   }
 
   export type ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput = {
     AND?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput | ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
     OR?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
     NOT?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput | ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
-    id_negociacao_especial_preco_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_organizacao?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    nome_organizacao_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    valor_unitario_negociacao_especial?: DecimalNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
   }
 
   export type DeployWhereInput = {
@@ -33950,93 +34022,107 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
     produto: ProdutoGravityCreateNestedOneWithoutNegociacoes_produto_gravityInput
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedCreateInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_produto_gravity: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUpdateInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
     produto?: ProdutoGravityUpdateOneRequiredWithoutNegociacoes_produto_gravityNestedInput
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedUpdateInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateManyInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_produto_gravity: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUpdateManyMutationInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedUpdateManyInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeployCreateInput = {
@@ -36726,42 +36812,56 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityNegociacaoEspecialCountOrderByAggregateInput = {
-    id_negociacao_especial_preco_produto_gravity?: SortOrder
+    id_negociacao_especial?: SortOrder
     id_produto_gravity?: SortOrder
     id_organizacao?: SortOrder
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    acordo_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_inicio_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_fim_negociacao_especial_preco_produto_gravity?: SortOrder
-    ilimitado_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_criacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    valor_unitario_negociacao_especial?: SortOrder
+    moeda_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_prazo_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
+  }
+
+  export type ProdutoGravityNegociacaoEspecialAvgOrderByAggregateInput = {
+    valor_unitario_negociacao_especial?: SortOrder
   }
 
   export type ProdutoGravityNegociacaoEspecialMaxOrderByAggregateInput = {
-    id_negociacao_especial_preco_produto_gravity?: SortOrder
+    id_negociacao_especial?: SortOrder
     id_produto_gravity?: SortOrder
     id_organizacao?: SortOrder
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    acordo_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_inicio_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_fim_negociacao_especial_preco_produto_gravity?: SortOrder
-    ilimitado_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_criacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    valor_unitario_negociacao_especial?: SortOrder
+    moeda_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_prazo_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
   }
 
   export type ProdutoGravityNegociacaoEspecialMinOrderByAggregateInput = {
-    id_negociacao_especial_preco_produto_gravity?: SortOrder
+    id_negociacao_especial?: SortOrder
     id_produto_gravity?: SortOrder
     id_organizacao?: SortOrder
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    acordo_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_inicio_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_fim_negociacao_especial_preco_produto_gravity?: SortOrder
-    ilimitado_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_criacao_negociacao_especial_preco_produto_gravity?: SortOrder
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    valor_unitario_negociacao_especial?: SortOrder
+    moeda_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_prazo_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
+  }
+
+  export type ProdutoGravityNegociacaoEspecialSumOrderByAggregateInput = {
+    valor_unitario_negociacao_especial?: SortOrder
   }
 
   export type EnumDeployAmbienteFilter<$PrismaModel = never> = {
@@ -41855,27 +41955,31 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput = {
@@ -42035,16 +42139,18 @@ export namespace Prisma {
     AND?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
     OR?: ProdutoGravityNegociacaoEspecialScalarWhereInput[]
     NOT?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
-    id_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
     id_organizacao?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    valor_unitario_negociacao_especial?: DecimalNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput = {
@@ -44029,15 +44135,17 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateManyProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: string
+    id_negociacao_especial?: string
     id_organizacao: string
-    nome_organizacao_negociacao_especial_preco_produto_gravity: string
-    acordo_negociacao_especial_preco_produto_gravity: string
-    data_inicio_negociacao_especial_preco_produto_gravity?: Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    valor_unitario_negociacao_especial?: Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_prazo_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type ProdutoGravityWorkspaceCreateManyProdutoInput = {
@@ -44102,39 +44210,45 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityNegociacaoEspecialUpdateWithoutProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedUpdateWithoutProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput = {
-    id_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    nome_organizacao_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    acordo_negociacao_especial_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
-    data_inicio_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim_negociacao_especial_preco_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
-    data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    valor_unitario_negociacao_especial?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_prazo_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpdateWithoutProdutoInput = {

@@ -158,10 +158,10 @@ export function FinanceiroWorkspace() {
       setProdutos(lista.filter(p => p.status_produto_gravity === 'ATIVO'))
     }).catch(err => console.error('[FinanceiroWorkspace] falha ao carregar catálogo', err))
 
-    // Negociações APENAS da org autenticada — rota /me/negociacoes-especiais-preco-produto-gravity
+    // Negociações APENAS da org autenticada — rota /me/negociacao-especial
     // já filtra no backend por req.auth.id_organizacao (REGRA 01 + isolamento).
-    // ANTES: getNegociacoes() batia em /admin/produtos-gravity → 403 → "Padrão" sempre.
-    catalogApiService.getMinhasNegociacoes().then(negs => {
+    // ANTES: getNegociacaoEspecial() batia em /admin/produtos-gravity → 403 → "Padrão" sempre.
+    catalogApiService.getMinhaNegociacaoEspecial().then(negs => {
       if (cancelado) return
       setNegociacoes(negs)
     }).catch(err => console.error('[FinanceiroWorkspace] falha ao carregar negociações', err))
@@ -937,14 +937,14 @@ export function FinanceiroWorkspace() {
                     <div>
                       <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#10b981' }}>Acordo Especial Ativo</p>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.nome_organizacao_negociacao_especial_preco_produto_gravity}</strong>
+                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.nome_organizacao_negociacao_especial}</strong>
                       </p>
                     </div>
                   </div>
-                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao_negociacao_especial_preco_produto_gravity} icon={<Buildings size={16} />} />
-                  <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo_negociacao_especial_preco_produto_gravity} icon={<Handshake size={16} />} />
+                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao_negociacao_especial} icon={<Buildings size={16} />} />
+                  <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo_negociacao_especial} icon={<Handshake size={16} />} />
                   <ReadOnlyField label="Vigência" value={
-                    negProdutoAtual.ilimitado_negociacao_especial_preco_produto_gravity ? (
+                    negProdutoAtual.ilimitado_prazo_negociacao_especial ? (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
                         padding: '0.2rem 0.625rem', borderRadius: '9999px',
@@ -955,7 +955,7 @@ export function FinanceiroWorkspace() {
                       </span>
                     ) : (
                       <span style={{ color: 'var(--ws-text)' }}>
-                        {negProdutoAtual.data_inicio_negociacao_especial_preco_produto_gravity || '—'} até {negProdutoAtual.data_fim_negociacao_especial_preco_produto_gravity || '—'}
+                        {negProdutoAtual.data_inicio_negociacao_especial || '—'} até {negProdutoAtual.data_fim_negociacao_especial || '—'}
                       </span>
                     )
                   } />

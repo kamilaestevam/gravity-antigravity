@@ -15,7 +15,7 @@
  */
 
 import 'dotenv/config'
-import { productCatalogService } from '../services/produto-gravity-catalogo-service.js'
+import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 import { prisma } from '../lib/prisma.js'
 import { logger } from '../lib/logger.js'
 
@@ -26,12 +26,12 @@ async function main(): Promise<void> {
   const demoTenantId = demoTenantArg?.split('=')[1]
 
   log.info('seeding product catalog')
-  const catalogResult = await productCatalogService.seedInitialProducts()
+  const catalogResult = await produtoGravityCatalogoServico.seedInitialProducts()
   log.info('catalog seed complete', { ...catalogResult })
 
   if (demoTenantId) {
     log.info('activating demo products for tenant', { tenant_id: demoTenantId })
-    const activateResult = await productCatalogService.activateProductsForTenant(
+    const activateResult = await produtoGravityCatalogoServico.activateProductsForTenant(
       demoTenantId,
       ['simula-custo', 'bid-cambio', 'bid-frete'],
     )

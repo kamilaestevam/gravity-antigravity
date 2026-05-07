@@ -592,10 +592,10 @@ export function ModalEditarAssinatura({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
               <Handshake size={16} weight="duotone" color="var(--color-primary)" />
-              Acordos Especiais ({produtoCompleto.negociacoes_produto_gravity.length})
+              Acordos Especiais ({produtoCompleto.negociacoes_especiais.length})
             </p>
 
-            {produtoCompleto.negociacoes_produto_gravity.length === 0 ? (
+            {produtoCompleto.negociacoes_especiais.length === 0 ? (
               <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
                 Nenhuma negociação especial vigente para sua organização neste produto.
                 Aplica-se a tabela padrão.
@@ -603,11 +603,11 @@ export function ModalEditarAssinatura({
             ) : (
               <>
                 {(mostrarTodasNegociacoes
-                  ? produtoCompleto.negociacoes_produto_gravity
-                  : produtoCompleto.negociacoes_produto_gravity.slice(0, NEGOC_LIMITE)
+                  ? produtoCompleto.negociacoes_especiais
+                  : produtoCompleto.negociacoes_especiais.slice(0, NEGOC_LIMITE)
                 ).map((n) => (
                   <div
-                    key={n.id_negociacao_especial_preco_produto_gravity}
+                    key={n.id_negociacao_especial}
                     style={{
                       padding: '0.875rem', borderRadius: '8px',
                       background: 'rgba(167,139,250,0.04)',
@@ -617,11 +617,11 @@ export function ModalEditarAssinatura({
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '0.5rem' }}>
                       <FileText size={16} color="#a78bfa" />
                       <span style={{ color: 'var(--ws-text)', fontWeight: 600, fontSize: '0.8125rem' }}>
-                        {n.acordo_negociacao_especial_preco_produto_gravity}
+                        {n.acordo_negociacao_especial}
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      {n.ilimitado_negociacao_especial_preco_produto_gravity ? (
+                      {n.ilimitado_prazo_negociacao_especial ? (
                         <Badge
                           texto="VIGÊNCIA INDEFINIDA"
                           cor="#34d399"
@@ -631,16 +631,16 @@ export function ModalEditarAssinatura({
                       ) : (
                         <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <CalendarBlank size={12} />
-                          {formatDataPT(n.data_inicio_negociacao_especial_preco_produto_gravity)}
+                          {formatDataPT(n.data_inicio_negociacao_especial)}
                           {' → '}
-                          {formatDataPT(n.data_fim_negociacao_especial_preco_produto_gravity)}
+                          {formatDataPT(n.data_fim_negociacao_especial)}
                         </span>
                       )}
                     </div>
                   </div>
                 ))}
 
-                {produtoCompleto.negociacoes_produto_gravity.length > NEGOC_LIMITE && (
+                {produtoCompleto.negociacoes_especiais.length > NEGOC_LIMITE && (
                   <button
                     type="button"
                     onClick={() => setMostrarTodasNegociacoes((v) => !v)}
@@ -653,7 +653,7 @@ export function ModalEditarAssinatura({
                   >
                     {mostrarTodasNegociacoes
                       ? <><CaretUp size={12} /> Ocultar</>
-                      : <><CaretDown size={12} /> Ver todas as {produtoCompleto.negociacoes_produto_gravity.length} negociações</>}
+                      : <><CaretDown size={12} /> Ver todas as {produtoCompleto.negociacoes_especiais.length} negociações</>}
                   </button>
                 )}
               </>

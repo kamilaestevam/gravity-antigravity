@@ -154,7 +154,7 @@ export interface ProductApi {
   updated_at: string
   deleted_at: string | null
   price_tiers: FaixaPrecoApi[]
-  negotiations?: NegotiationApi[]
+  negotiations?: NegociacaoEspecialApi[]
 }
 
 export interface FaixaPrecoApi {
@@ -166,17 +166,22 @@ export interface FaixaPrecoApi {
   currency: string
 }
 
-// NegotiationApi — espelha model ProdutoGravityNegociacaoEspecial do Prisma
+// NegociacaoEspecialApi — espelha model ProdutoGravityNegociacaoEspecial do Prisma
 // Paridade Absoluta: nomes idênticos ao schema (configurador/prisma/schema.prisma)
-export interface NegotiationApi {
-  id_negociacao_especial_preco_produto_gravity: string
+export interface NegociacaoEspecialApi {
+  id_negociacao_especial: string
   id_produto_gravity: string
   id_organizacao: string
-  nome_organizacao_negociacao_especial_preco_produto_gravity: string
-  acordo_negociacao_especial_preco_produto_gravity: string
-  data_inicio_negociacao_especial_preco_produto_gravity: string | null
-  data_fim_negociacao_especial_preco_produto_gravity: string | null
-  ilimitado_negociacao_especial_preco_produto_gravity: boolean
+  nome_organizacao_negociacao_especial: string
+  acordo_negociacao_especial: string
+  /** Decimal serializado como string ("1500.00"); null = só descritivo */
+  valor_unitario_negociacao_especial: string | null
+  moeda_negociacao_especial: string
+  data_inicio_negociacao_especial: string | null
+  data_fim_negociacao_especial: string | null
+  ilimitado_prazo_negociacao_especial: boolean
+  data_criacao_negociacao_especial: string
+  data_atualizacao_negociacao_especial: string
 }
 
 // PARIDADE ABSOLUTA: espelha model Workspace + back-relations renomeadas.

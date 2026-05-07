@@ -451,7 +451,7 @@ export function ProdutosGravityAdmin() {
 
   const COLUNAS_NEGOCIACOES: TabelaGlobalColuna<NegociacaoEspecial>[] = [
     {
-      key: 'nome_organizacao_negociacao_especial_preco_produto_gravity', label: 'Cliente', tipo: 'texto',
+      key: 'nome_organizacao_negociacao_especial', label: 'Cliente', tipo: 'texto',
       tooltipTitulo: 'Referência ao id_organizacao', tooltipDescricao: 'Vinculação FK com a tabela de Organizacao.',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
@@ -464,16 +464,16 @@ export function ProdutosGravityAdmin() {
       }
     },
     {
-      key: 'acordo_negociacao_especial_preco_produto_gravity', label: 'Condição Especial', tipo: 'texto',
+      key: 'acordo_negociacao_especial', label: 'Condição Especial', tipo: 'texto',
       tooltipTitulo: 'Override de Preço', tooltipDescricao: 'Regra de exceção aplicada no motor de billing no final do mês.',
       render: (v) => <span style={{ color: '#818cf8', fontWeight: 500 }}>{v}</span>
     },
     {
-      key: 'ilimitado_negociacao_especial_preco_produto_gravity', label: 'Vigência', tipo: 'texto',
+      key: 'ilimitado_prazo_negociacao_especial', label: 'Vigência', tipo: 'texto',
       tooltipTitulo: 'TTL / Data de Expiração', tooltipDescricao: 'Determina reversão automática para o pricing base após a data limite.',
       render: (v, item) => (
         <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>
-          {v ? 'Indeterminado' : (item.data_fim_negociacao_especial_preco_produto_gravity || 'Expirado')}
+          {v ? 'Indeterminado' : (item.data_fim_negociacao_especial || 'Expirado')}
         </span>
       )
     }

@@ -27,16 +27,19 @@ export type FaixaPrecoProdutoGravity = z.infer<typeof faixaPrecoProdutoGravitySc
 // ─── Negociação especial (somente as da organização autenticada) ────────────
 
 export const negociacaoEspecialProdutoGravitySchema = z.object({
-  id_negociacao_especial_preco_produto_gravity:               z.string(),
-  id_produto_gravity:                                         z.string(),
-  id_organizacao:                                             z.string(),
-  nome_organizacao_negociacao_especial_preco_produto_gravity: z.string(),
-  acordo_negociacao_especial_preco_produto_gravity:           z.string(),
-  data_inicio_negociacao_especial_preco_produto_gravity:      z.string().datetime().nullable(),
-  data_fim_negociacao_especial_preco_produto_gravity:         z.string().datetime().nullable(),
-  ilimitado_negociacao_especial_preco_produto_gravity:        z.boolean(),
-  data_criacao_negociacao_especial_preco_produto_gravity:     z.string().datetime(),
-  data_atualizacao_negociacao_especial_preco_produto_gravity: z.string().datetime(),
+  id_negociacao_especial:               z.string(),
+  id_produto_gravity:                   z.string(),
+  id_organizacao:                       z.string(),
+  nome_organizacao_negociacao_especial: z.string(),
+  acordo_negociacao_especial:           z.string(),
+  // Decimal serializado como string (ex: "1500.00") OU null se sem preço fixo
+  valor_unitario_negociacao_especial:   z.string().nullable(),
+  moeda_negociacao_especial:            z.string(),
+  data_inicio_negociacao_especial:      z.string().datetime().nullable(),
+  data_fim_negociacao_especial:         z.string().datetime().nullable(),
+  ilimitado_prazo_negociacao_especial:  z.boolean(),
+  data_criacao_negociacao_especial:     z.string().datetime(),
+  data_atualizacao_negociacao_especial: z.string().datetime(),
 })
 export type NegociacaoEspecialProdutoGravity = z.infer<
   typeof negociacaoEspecialProdutoGravitySchema
@@ -97,7 +100,7 @@ export const produtoGravityCompletoSchema = z.object({
 
   // Relations (já filtradas pela organização autenticada)
   faixas_preco_produto_gravity: z.array(faixaPrecoProdutoGravitySchema),
-  negociacoes_produto_gravity:  z.array(negociacaoEspecialProdutoGravitySchema),
+  negociacoes_especiais:  z.array(negociacaoEspecialProdutoGravitySchema),
 })
 export type ProdutoGravityCompleto = z.infer<typeof produtoGravityCompletoSchema>
 

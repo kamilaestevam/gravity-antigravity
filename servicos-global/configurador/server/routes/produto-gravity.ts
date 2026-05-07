@@ -81,9 +81,9 @@ productsRouter.get('/:slug', requireAuth, async (req, res, next) => {
         faixas_preco_produto_gravity: {
           orderBy: { faixa_de_faixa_preco_produto_gravity: 'asc' },
         },
-        negociacoes_produto_gravity: {
+        negociacoes_especiais: {
           where: { id_organizacao },
-          orderBy: { data_criacao_negociacao_especial_preco_produto_gravity: 'desc' },
+          orderBy: { data_criacao_negociacao_especial: 'desc' },
         },
       },
     })

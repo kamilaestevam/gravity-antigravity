@@ -201,12 +201,12 @@ export const catalogApiService = {
     await adminProductsApi.delete(id_produto_gravity, opts)
   },
 
-  async getNegociacoes(): Promise<NegociacaoEspecial[]> {
+  async getNegociacaoEspecial(): Promise<NegociacaoEspecial[]> {
     const { products } = await adminProductsApi.list()
     const negs: NegociacaoEspecial[] = []
     for (const p of products) {
       if (p.negotiations) {
-        // NegotiationApi já vem com nomes Prisma (ver apiClient.ts) — pass-through direto.
+        // NegociacaoEspecialApi já vem com nomes Prisma (ver api-client.ts) — pass-through direto.
         for (const n of p.negotiations) negs.push(n)
       }
     }
@@ -215,11 +215,11 @@ export const catalogApiService = {
 
   /**
    * Negociações especiais APENAS da organização autenticada.
-   * Endpoint público-para-org: GET /api/v1/organizacoes/me/negociacoes-especiais-preco-produto-gravity
+   * Endpoint público-para-org: GET /api/v1/organizacoes/me/negociacao-especial
    * Usado pelo FinanceiroWorkspace (workspace) — usuário não-admin não tem
-   * acesso a getNegociacoes() (rota admin que retorna de TODAS as orgs).
+   * acesso a getNegociacaoEspecial() (rota admin que retorna de TODAS as orgs).
    */
-  async getMinhasNegociacoes(): Promise<NegociacaoEspecial[]> {
+  async getMinhaNegociacaoEspecial(): Promise<NegociacaoEspecial[]> {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
     try {
       const session = await (window as unknown as { Clerk?: { session?: { getToken(): Promise<string | null> } } }).Clerk?.session
@@ -227,14 +227,14 @@ export const catalogApiService = {
       if (token) headers['Authorization'] = `Bearer ${token}`
     } catch { /* sem token */ }
     const res = await fetch(
-      '/api/v1/organizacoes/me/negociacoes-especiais-preco-produto-gravity',
+      '/api/v1/organizacoes/me/negociacao-especial',
       { headers },
     )
     if (!res.ok) {
-      throw new Error(`Falha ao carregar negociações da organização (HTTP ${res.status})`)
+      throw new Error(`Falha ao carregar negociação especial da organização (HTTP ${res.status})`)
     }
-    const body = (await res.json()) as { negociacoes_produto_gravity: NegociacaoEspecial[] }
-    return body.negociacoes_produto_gravity ?? []
+    const body = (await res.json()) as { negociacao_especial: NegociacaoEspecial[] }
+    return body.negociacao_especial ?? []
   },
 
   async getSlugsDisponiveis(): Promise<string[]> {

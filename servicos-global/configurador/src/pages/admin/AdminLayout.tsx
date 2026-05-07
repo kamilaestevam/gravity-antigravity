@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
-import { useLoadSystemRole } from '../../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
@@ -31,6 +31,7 @@ import {
   ShieldCheck,
   ArrowsClockwise,
   Database,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -45,7 +46,7 @@ export function AdminLayout() {
   // Defesa em profundidade: bloqueia rendering se não for admin Gravity,
   // mesmo que o roteador (AdminRoute) já tenha feito essa verificação.
   // Role lido do banco — não depende de Clerk publicMetadata.
-  const { isGravityAdmin, isReady, role: systemRole } = useLoadSystemRole()
+  const { gravityAdmin: isGravityAdmin, pronto: isReady, tipoUsuario: systemRole } = useCarregarTipoUsuario()
   if (isReady && !isGravityAdmin) {
     return <Navigate to="/hub" replace />
   }
@@ -62,6 +63,7 @@ export function AdminLayout() {
     { to: '/admin/seguranca',       label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
     { to: '/admin/cadastros-globais', label: t('admin.layout.cadastros_globais', 'Cadastros Globais'), icon: <Database weight="duotone" size={18} /> },
+    { to: '/admin/taxas-moeda',  label: t('admin.layout.taxas_moeda', 'Taxas de Moeda'), icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()

@@ -42,7 +42,7 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { useLoadSystemRole } from '../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -270,7 +270,7 @@ export function SelecionarWorkspace() {
   }, [])
 
   // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
-  const { isGravityAdmin, role: dbRole, isReady: roleReady } = useLoadSystemRole()
+  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole, pronto: roleReady } = useCarregarTipoUsuario()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',

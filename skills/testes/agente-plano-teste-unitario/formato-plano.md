@@ -81,9 +81,9 @@ const CasoTesteSchema = z.object({
   descricao:        z.string().min(10).max(200),   // texto do it() — descreve comportamento
   categoria:        z.number().int().min(1).max(12),
   origem:           z.enum(['humano-original', 'agente-adicionado', 'agente-expandido', 'existente']),
-  exportacaoTestada: z.string(),                   // nome da export: 'useLoadSystemRole', 'signatureValidator', etc.
+  exportacaoTestada: z.string(),                   // nome da export: 'useCarregarTipoUsuario', 'signatureValidator', etc.
   setup:            SetupSchema.optional(),
-  acao:             z.string(),                    // o que o it() faz: "renderHook(() => useLoadSystemRole())"
+  acao:             z.string(),                    // o que o it() faz: "renderHook(() => useCarregarTipoUsuario())"
   assercao:         AssercaoUnitSchema,
   resultadoEsperado: z.string().min(10).max(300),  // em pt-BR, humano lê isto
   adversarial:      z.boolean().default(false),    // true se é caso de XSS/SQLi/payload-gigante
@@ -171,10 +171,10 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
   "geradoEm": "2026-04-20T10:00:00Z",
   "geradoPor": "agente-plano-teste-unitario",
   "escopo": "CONFIG",
-  "modulo": "useLoadSystemRole",
+  "modulo": "useCarregarTipoUsuario",
   "tipoModulo": "hook",
-  "arquivoFilePath": "servicos-global/configurador/src/hooks/useLoadSystemRole.ts",
-  "testFilePath": "testes/testes-unitarios/configurador/useLoadSystemRole.test.ts",
+  "arquivoFilePath": "servicos-global/configurador/src/hooks/useCarregarTipoUsuario.ts",
+  "testFilePath": "testes/testes-unitarios/configurador/useCarregarTipoUsuario.test.ts",
   "ambiente": "jsdom",
   "criticidade": "alta",
   "coberturaMinima": 80,
@@ -197,14 +197,14 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
   ],
   "exportacoes": [
     {
-      "nome": "useLoadSystemRole",
+      "nome": "useCarregarTipoUsuario",
       "tipo": "function",
       "descricao": "Hook React que retorna { role, isGravityAdmin, isReady } — campo `role` carrega o `tipo_usuario` lido do banco via /api/v1/me (Mandamento 01)",
       "critica": true,
       "casosMinimos": 5
     },
     {
-      "nome": "invalidateRoleCache",
+      "nome": "limparCacheTipoUsuario",
       "tipo": "function",
       "descricao": "Função que limpa o cache de tipo_usuario por idUsuario (Clerk userId)",
       "critica": false,
@@ -233,7 +233,7 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
       "descricao": "retorna tipo_usuario MASTER lido de data.usuario.tipo_usuario via /api/v1/me (Mandamento 01)",
       "categoria": 1,
       "origem": "existente",
-      "exportacaoTestada": "useLoadSystemRole",
+      "exportacaoTestada": "useCarregarTipoUsuario",
       "setup": {
         "mockRetornos": [
           { "nomeMock": "mockGetToken", "retorno": "valid-jwt", "metodo": "mockResolvedValue" },
@@ -241,7 +241,7 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
         ],
         "waitForAsync": true
       },
-      "acao": "renderHook(() => useLoadSystemRole()) + waitFor(() => result.current.isReady === true)",
+      "acao": "renderHook(() => useCarregarTipoUsuario()) + waitFor(() => result.current.isReady === true)",
       "assercao": { "tipo": "toBe", "valor": "MASTER" },
       "resultadoEsperado": "result.current.role (tipo_usuario) é 'MASTER' e isGravityAdmin é false",
       "adversarial": false
@@ -267,10 +267,10 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
     "id": "TST-UNIT-CONFIG-AUTH-000001",
     "tipo": "UNI",
     "escopo": "CONFIG",
-    "modulo": "useLoadSystemRole",
+    "modulo": "useCarregarTipoUsuario",
     "criticidade": "alta",
-    "planoFile": "testes/testes-unitarios/configurador/_planos/useLoadSystemRole.json",
-    "testFile": "testes/testes-unitarios/configurador/useLoadSystemRole.test.ts"
+    "planoFile": "testes/testes-unitarios/configurador/_planos/useCarregarTipoUsuario.json",
+    "testFile": "testes/testes-unitarios/configurador/useCarregarTipoUsuario.test.ts"
   }
 ]
 ```

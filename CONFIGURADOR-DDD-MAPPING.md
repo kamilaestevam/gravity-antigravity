@@ -795,7 +795,7 @@ Gerado por sweep automatico. Cada linha mostra:
 |---:|---|---|---|---|
 | 69 | OBJ_KEY | `user_id` | `      user_id: user.id,` | `      id_usuario: user.id,` |
 
-### `servicos-global/configurador/src/hooks/useLoadSystemRole.ts` (9 hits)
+### `servicos-global/configurador/src/hooks/useCarregarTipoUsuario.ts` (9 hits)
 
 | Linha | Cat | Pat | Como esta | Como deve ficar |
 |---:|---|---|---|---|

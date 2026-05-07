@@ -25,7 +25,6 @@ const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
 const PedidosDashboard = lazy(() => import('./pages/PedidosDashboard'))
-const Historico        = lazy(() => import('./pages/Historico'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -58,6 +57,7 @@ function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
     disabled:     item.disabled,
     badge:        item.badge,
     badgeVariant: item.badgeVariant as 'accent' | 'muted' | undefined,
+    external:     item.external,
     children:     item.children?.map(child => mapNavItem(child, t)),
   }
 }
@@ -150,7 +150,6 @@ export function App() {
     'pedidos/dashboard': 'Dashboard',
     'pedidos/kanban':    'Kanban',
     'pedidos/novo':      'Novo Pedido',
-    'historico':         'Histórico',
     'configuracoes':     'Configurações',
   }
   // Extrai segmentos relativos ao produto — funciona standalone (/pedidos)
@@ -214,7 +213,6 @@ export function App() {
           <Route path="pedidos/kanban"           element={<PedidosKanban />} />
           <Route path="pedidos/novo"             element={<PedidoFormulario />} />
           <Route path="pedidos/:id_pedido/editar" element={<PedidoFormulario />} />
-          <Route path="historico"            element={<Historico />} />
           <Route path="configuracoes"        element={<Configuracoes />} />
           <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
         </Routes>

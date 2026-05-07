@@ -281,11 +281,11 @@ vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
 ```typescript
 // @vitest-environment jsdom
 import { renderHook, waitFor } from '@testing-library/react'
-import { useLoadSystemRole, invalidateRoleCache } from '../../../servicos-global/configurador/src/hooks/useLoadSystemRole.js'
+import { useCarregarTipoUsuario, limparCacheTipoUsuario } from '../../../servicos-global/configurador/src/hooks/useCarregarTipoUsuario.js'
 
 beforeEach(() => {
   vi.clearAllMocks()
-  invalidateRoleCache()           // limpa cache entre testes
+  limparCacheTipoUsuario()           // limpa cache entre testes
   vi.stubGlobal('fetch', vi.fn()) // isola fetch global
 })
 
@@ -300,7 +300,7 @@ it('retorna role MASTER', async () => {
     new Response(JSON.stringify({ usuario: { tipo_usuario: 'MASTER' } }), { status: 200 })
   )
 
-  const { result } = renderHook(() => useLoadSystemRole())
+  const { result } = renderHook(() => useCarregarTipoUsuario())
 
   await waitFor(() => expect(result.current.isReady).toBe(true))
   expect(result.current.role).toBe('MASTER')
@@ -310,7 +310,7 @@ it('retorna role MASTER', async () => {
 **Regras para hooks assíncronos:**
 - `await waitFor(() => expect(result.current.isReady).toBe(true))` antes de qualquer assert de dados
 - Nunca fazer assert imediato sem `waitFor` — o hook parte em estado `isReady=false`
-- `invalidateRoleCache()` (ou equivalente) no `beforeEach` quando o hook tem cache por módulo
+- `limparCacheTipoUsuario()` (ou equivalente) no `beforeEach` quando o hook tem cache por módulo
 - Se o hook pode emitir updates após o assert, garantir que o mock está totalmente resolvido antes do fim do teste (evita warning de `act()`)
 
 ### Exemplo
@@ -450,7 +450,7 @@ const VALID_KEY = 'test-internal-key'
 const validHeaders = {
   'x-tenant-id': 'tenant-aaa',
   'x-user-id': 'user-001',
-  'x-chave-interna': VALID_KEY,
+  'x-chave-interna-servico': VALID_KEY,
 }
 
 beforeAll(() => {
@@ -476,7 +476,7 @@ describe('Autenticação', () => {
     const res = await request(app)
       .get('/api/v1/qualquer-rota')
       .set('x-tenant-id', 'tenant-aaa')
-      .set('x-chave-interna', 'chave-errada')
+      .set('x-chave-interna-servico', 'chave-errada')
     expect(res.status).toBe(403)
   })
 })

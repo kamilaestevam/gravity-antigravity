@@ -31,7 +31,7 @@ export function useLinkContextualSync(): void {
     }
     if (itens.length > 1) {
       const ids = itens.map((i) => i.pedido_id).join(',')
-      setLinkContextual(`/produto/pedido/pedidos?ids=${ids}`)
+      setLinkContextual(`/produto/pedido/pedidos/lista?ids=${ids}`)
       return
     }
 
@@ -42,7 +42,7 @@ export function useLinkContextualSync(): void {
     }
     if (pedidos.length > 1) {
       const ids = pedidos.map((p) => p.id).join(',')
-      setLinkContextual(`/produto/pedido/pedidos?ids=${ids}`)
+      setLinkContextual(`/produto/pedido/pedidos/lista?ids=${ids}`)
       return
     }
 

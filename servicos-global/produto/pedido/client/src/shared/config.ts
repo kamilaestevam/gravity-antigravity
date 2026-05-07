@@ -17,6 +17,8 @@ export interface NavigationItem {
   badge?:        string
   badgeVariant?: 'accent' | 'muted'
   children?:     NavigationItem[]
+  /** Se true, o item abre em nova aba (link externo cross-aplicação) */
+  external?:     boolean
 }
 
 export const PRODUCT_CONFIG = {
@@ -52,11 +54,13 @@ export const PRODUCT_CONFIG = {
     // ── Pedidos ──────────────────────────────────────────────────────────────
     { id: 'section-pedidos',                    label: 'Pedidos',    labelKey: 'pedido.nav.pedidos',       sectionDivider: true },
     { id: '/produto/pedido/pedidos/dashboard',  label: 'Dashboard',  labelKey: 'pedido.nav.dashboard',     icon: 'chart-pie-slice',         source: 'product' },
-    { id: '/produto/pedido/pedidos',            label: 'Lista',      labelKey: 'pedido.nav.lista',         icon: 'list-bullets',            source: 'product' },
+    { id: '/produto/pedido/pedidos/lista',      label: 'Lista',      labelKey: 'pedido.nav.lista',         icon: 'list-bullets',            source: 'product' },
     { id: '/produto/pedido/pedidos/kanban',     label: 'Kanban',     labelKey: 'pedido.nav.kanban',        icon: 'kanban',                  source: 'product' },
 
-    // ── Serviços ──────────────────────────────────────────────────────────────
-    { id: '/produto/pedido/historico',     label: 'Histórico',     labelKey: 'pedido.nav.historico',     icon: 'clock-counter-clockwise', source: 'tenant'  },
+    // ── Servicos ──────────────────────────────────────────────────────────────
+    // Historico: link externo para a tela centralizada do Configurador (SSOT da UI de auditoria).
+    // O filtro id_produto_historico_log=pedido pre-aplica o escopo do produto na tela.
+    { id: '/workspace/historico-organizacao?id_produto_historico_log=pedido', label: 'Historico', labelKey: 'pedido.nav.historico', icon: 'clock-counter-clockwise', source: 'tenant', external: true },
     { id: '/produto/pedido/configuracoes', label: 'Configurações', labelKey: 'pedido.nav.configuracoes', icon: 'gear-six',                source: 'product' },
 
   ] satisfies NavigationItem[],

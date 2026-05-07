@@ -17,8 +17,8 @@ export default defineConfig({
     extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'react-grid-layout', 'react-resizable'],
     alias: [
-      // Aliases específicos ANTES dos prefixos genéricos (@tenant, etc.)
-      { find: '@plataforma/historico', replacement: path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts') },
+      // Alias @plataforma/historico removido em 2026-05-07 — Pedido client nao consome
+      // mais o componente <Historico /> compartilhado (tela centralizada no Configurador).
       ...Object.entries({ ...createNucleoAliases(monorepoRoot), ...createServiceAliases(monorepoRoot), ...createTenantAliases(monorepoRoot, ['gabi']) })
         .map(([find, replacement]) => ({ find, replacement })),
     ],
@@ -71,11 +71,9 @@ export default defineConfig({
         timeout: 120000,
         proxyTimeout: 120000,
       },
-      '/historico-api': {
-        target: 'http://localhost:8012',
-        changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
-      },
+      // /historico-api removido em 2026-05-07 — produto Pedido nao consulta mais o
+      // backend de historico-global. Tela "Historico" virou hyperlink externo para
+      // /admin/historico-global no Configurador (SSOT da UI de auditoria).
     },
   },
 })

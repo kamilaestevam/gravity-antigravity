@@ -28,7 +28,7 @@ import {
   type WorkspaceItem,
 } from '../../services/api-client'
 import { usePodeEditarUsuario, type TipoUsuarioBackend } from '../../hooks/use-pode-editar-usuario'
-import { useLoadSystemRole } from '../../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { useAuth } from '@clerk/clerk-react'
 
 

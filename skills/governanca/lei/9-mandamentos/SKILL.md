@@ -149,7 +149,7 @@ Dados de autorização devem falhar fazendo barulho. Se o `tipo_usuario` não fo
 
 ❌ **Jamais faça:**
 ```ts
-const role = (data?.user?.role ?? null) as SystemRole
+const tipoUsuario = (data?.user?.role ?? null) as TipoUsuario
 // null → fallback 'Standard' → usuário SUPER_ADMIN aparece como Standard
 // Sem erro. Sem log. Bug invisível.
 ```
@@ -157,11 +157,11 @@ const role = (data?.user?.role ?? null) as SystemRole
 ✅ **Sempre faça:**
 ```ts
 // Opção A — falha ruidosa (preferível em autorização)
-const role = meResponseSchema.parse(data).usuario.tipo_usuario
+const tipoUsuario = meResponseSchema.parse(data).usuario.tipo_usuario
 
 // Opção B — se precisar de fallback, deixe rastro obrigatório
-const role = data?.usuario?.tipo_usuario ?? null
-if (!role) console.warn('[useLoadSystemRole] tipo_usuario ausente na resposta de /me', data)
+const tipoUsuario = data?.usuario?.tipo_usuario ?? null
+if (!tipoUsuario) console.warn('[useCarregarTipoUsuario] tipo_usuario ausente na resposta de /me', data)
 ```
 
 > ⚠️ **NOTA DE ARQUITETURA:** O uso de `console.warn` acima é tolerado APENAS no Frontend (React) onde o logger estruturado pode não estar disponível. No Backend, o uso de `console.*` é PROIBIDO; deve-se usar sempre o `logger` (ver [Observabilidade](../../../arquitetura/observabilidade/SKILL.md)).

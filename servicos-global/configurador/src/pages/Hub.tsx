@@ -25,7 +25,7 @@ import {
 import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -152,7 +152,7 @@ export function Hub() {
   const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
-  const { isGravityAdmin: isAdmin, role: dbRole } = useLoadSystemRole()
+  const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
 
   const id_workspace   = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'

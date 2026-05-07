@@ -31,7 +31,7 @@ import {
 } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
@@ -68,7 +68,7 @@ export function Store() {
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
-  const { isGravityAdmin, role: dbRole } = useLoadSystemRole()
+  const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
 
   const userRoleLabel = mapRole(dbRole)
 

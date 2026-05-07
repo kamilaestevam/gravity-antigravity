@@ -40,7 +40,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystem-nodes'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
-import { invalidateRoleCache, useLoadSystemRole } from '../hooks/use-load-system-role'
+import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
 
@@ -69,7 +69,7 @@ export function Core() {
 
   // ── Localizador ────────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('core')
-  const { isGravityAdmin } = useLoadSystemRole()
+  const { gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
   useEffect(() => {
     locAddEntry({ productId: 'core', productLabel: 'Core', productColor: '#a78bfa', pageLabel: 'Core', pagePath: '/core' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -203,12 +203,9 @@ export function Core() {
       icon: <Bell weight="duotone" size={18} />,
     })
 
-    // Histórico
-    items.push({
-      to: '/core/historico',
-      label: t('shell.menu.historico'),
-      icon: <ClockCounterClockwise weight="duotone" size={18} />,
-    })
+    // Historico — item removido em 2026-05-07. Acesso ao historico de auditoria
+    // do cliente fica em /workspace/historico-organizacao (rota canonica para
+    // Master/Standard/Fornecedor). Admins Gravity usam /admin/historico-global.
 
     // Conector ERP
     items.push({
@@ -317,7 +314,7 @@ export function Core() {
             onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
             onSignOut={() => {
-              invalidateRoleCache()
+              limparCacheTipoUsuario()
               sessionStorage.removeItem('gravity_company_id')
               sessionStorage.removeItem('gravity_company_name')
               signOut()

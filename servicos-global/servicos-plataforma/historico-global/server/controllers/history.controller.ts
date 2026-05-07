@@ -19,7 +19,7 @@ import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
 // requireAuth do configurador (ver configurador/server/middleware/requireAuth.ts).
 // Precisa ser idêntica à declaração do configurador para merge de tipos funcionar.
 // Chamadas à historico-global que não passam por requireAuth (ex: internas com
-// x-internal-key) devem usar x-id-organizacao header explicitamente.
+// x-chave-interna-servico) devem usar x-id-organizacao header explicitamente.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -35,7 +35,7 @@ declare global {
   }
 }
 
-/** Tipos de ator permitidos por chamadas com x-internal-key (serviços internos). */
+/** Tipos de ator permitidos por chamadas com x-chave-interna-servico (serviços internos). */
 const INTERNAL_ALLOWED_ACTOR_TYPES = new Set(['IA', 'API', 'JOB', 'INTEGRACAO'])
 
 /** Metadados de job do PG Boss (tipagem local — a lib não exporta este shape). */
@@ -49,14 +49,14 @@ function getPrisma(): PrismaClient {
   if (!_prisma) _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
   return _prisma
 }
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 /** Limite superior do tamanho de página para queries de listagem. */
 const MAX_PAGE_SIZE = 200
 
 /** Extrai id_organizacao do request (header x-id-organizacao ou req.auth do middleware). */
 function getIdOrganizacao(req: Request): string {
-  // req.auth pode estar ausente em rotas com x-internal-key (chamadas inter-serviço)
+  // req.auth pode estar ausente em rotas com x-chave-interna-servico (chamadas inter-serviço)
   const authIdOrganizacao = (req as { auth?: { id_organizacao?: string } }).auth?.id_organizacao
   const idOrganizacao = (req.headers['x-id-organizacao'] as string) || authIdOrganizacao
   if (!idOrganizacao) throw AppError.unauthorized('id_organizacao obrigatório')
@@ -77,9 +77,9 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
     // Ponto C — validar que id_ator_historico_log corresponde ao usuário autenticado.
-    // Chamadas internas (x-internal-key) só podem gravar tipo_ator_historico_log ∈ {IA, API, JOB, INTEGRACAO}
+    // Chamadas internas (x-chave-interna-servico) só podem gravar tipo_ator_historico_log ∈ {IA, API, JOB, INTEGRACAO}
     // — nunca USUARIO (um serviço interno não deve fingir ser um humano específico).
-    const isInternalCall = req.headers['x-internal-key'] === INTERNAL_KEY && !!INTERNAL_KEY
+    const isInternalCall = req.headers['x-chave-interna-servico'] === INTERNAL_KEY && !!INTERNAL_KEY
     const authUserId = getAuthUserId(req)
 
     if (isInternalCall) {
@@ -117,7 +117,21 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
   }
 }
 
-// GET /logs
+/**
+ * GET /logs — listagem de logs de historico.
+ *
+ * @deprecated 2026-05-07
+ * Endpoint mantido por compatibilidade. Apos a centralizacao da UI de auditoria
+ * no Configurador, os consumidores canonicos passaram a ser:
+ *   - GET /api/v1/historico-global/logs        (Configurador read-only, requireAuth)
+ *   - GET /api/v1/admin/historico-global/logs  (Configurador admin, requireGravityAdmin + enrichment)
+ *
+ * Este handler ainda atende o mount do super-servidor da plataforma e o
+ * historicoReadOnlyRouter. Quando ficar comprovado que nenhum consumidor
+ * externo usa o GET aqui, este handler pode ser removido — a leitura ficaria
+ * exclusivamente nos proxies do Configurador. POST /logs (ingestao) NAO esta
+ * deprecado: e a interface canonica usada por todos os produtos via auditLog().
+ */
 export async function listLogs(req: Request, res: Response, next: NextFunction) {
   try {
     const id_organizacao = getIdOrganizacao(req)

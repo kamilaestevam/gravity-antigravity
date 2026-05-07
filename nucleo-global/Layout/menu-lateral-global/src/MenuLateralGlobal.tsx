@@ -24,6 +24,8 @@ export interface NavItem {
   badgeVariant?: 'accent' | 'muted'
   /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
   sectionDivider?: boolean
+  /** Se true, o link abre em nova aba (target="_blank" + rel noopener). Use para links cross-aplicação (ex: produto -> Configurador). */
+  external?: boolean
 }
 
 export interface MenuLateralGlobalProps {
@@ -169,6 +171,8 @@ export function MenuLateralGlobal({
       <a
         key={item.to || item.label}
         href={item.to || '#'}
+        target={item.external ? '_blank' : undefined}
+        rel={item.external ? 'noopener noreferrer' : undefined}
         className={`mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
       >
         <div className="mlg-nav-icon">{item.icon}</div>

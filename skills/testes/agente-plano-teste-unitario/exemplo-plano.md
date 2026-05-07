@@ -1,8 +1,8 @@
-# Exemplo Completo — Plano de useLoadSystemRole
+# Exemplo Completo — Plano de useCarregarTipoUsuario
 
 > Demonstração de como o agente `agente-plano-teste-unitario` produz um plano para um hook real do projeto.
-> **Módulo:** `servicos-global/configurador/src/hooks/useLoadSystemRole.ts`
-> **Teste existente:** `testes/testes-unitarios/configurador/useLoadSystemRole.test.ts`
+> **Módulo:** `servicos-global/configurador/src/hooks/useCarregarTipoUsuario.ts`
+> **Teste existente:** `testes/testes-unitarios/configurador/useCarregarTipoUsuario.test.ts`
 
 ---
 
@@ -11,9 +11,9 @@
 ```json
 {
   "escopo": "CONFIG",
-  "modulo": "useLoadSystemRole",
+  "modulo": "useCarregarTipoUsuario",
   "tipoModulo": "hook",
-  "arquivoFilePath": "servicos-global/configurador/src/hooks/useLoadSystemRole.ts",
+  "arquivoFilePath": "servicos-global/configurador/src/hooks/useCarregarTipoUsuario.ts",
   "criticidade": "alta",
   "coberturaMinima": 80,
   "planoExistente": null
@@ -28,9 +28,9 @@ O agente lê o arquivo e identifica:
 
 | Export | Tipo | Crítica | Casos mínimos |
 |---|---|---|---|
-| `useLoadSystemRole` | function (hook) | ✅ sim | 5 |
-| `invalidateRoleCache` | function | ❌ não | 2 |
-| `SystemRole` | type | ❌ não | 0 (type — sem casos de runtime) |
+| `useCarregarTipoUsuario` | function (hook) | ✅ sim | 5 |
+| `limparCacheTipoUsuario` | function | ❌ não | 2 |
+| `TipoUsuario` | type | ❌ não | 0 (type — sem casos de runtime) |
 
 Total: 2 exportações testáveis → mínimo 7 casos. Plano final: 23 casos.
 
@@ -61,7 +61,7 @@ O agente detecta as dependências externas e declara os mocks:
 ```typescript
 beforeEach(() => {
   vi.clearAllMocks()
-  invalidateRoleCache()           // limpa cache do hook
+  limparCacheTipoUsuario()           // limpa cache do hook
   vi.stubGlobal('fetch', vi.fn())
 })
 afterEach(() => {
@@ -109,7 +109,7 @@ afterEach(() => {
   "descricao": "retorna tipo_usuario MASTER lido de data.usuario.tipo_usuario via /api/v1/me (Mandamento 01)",
   "categoria": 1,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "mockGetToken", "retorno": "valid-jwt", "metodo": "mockResolvedValue" },
@@ -118,7 +118,7 @@ afterEach(() => {
     ],
     "waitForAsync": true
   },
-  "acao": "renderHook(() => useLoadSystemRole()) + waitFor(() => result.current.isReady)",
+  "acao": "renderHook(() => useCarregarTipoUsuario()) + waitFor(() => result.current.isReady)",
   "assercao": { "tipo": "toBe", "valor": "MASTER" },
   "resultadoEsperado": "result.current.role = 'MASTER', isGravityAdmin = false",
   "adversarial": false
@@ -132,7 +132,7 @@ afterEach(() => {
   "descricao": "retorna tipo_usuario SUPER_ADMIN e isGravityAdmin=true",
   "categoria": 1,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "assercao": { "tipo": "toBe", "valor": "SUPER_ADMIN" },
   "resultadoEsperado": "result.current.role = 'SUPER_ADMIN', isGravityAdmin = true",
   "adversarial": false
@@ -146,7 +146,7 @@ afterEach(() => {
   "descricao": "retorna tipo_usuario ADMIN e isGravityAdmin=true",
   "categoria": 1,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "assercao": { "tipo": "toBe", "valor": "ADMIN" },
   "resultadoEsperado": "result.current.role = 'ADMIN', isGravityAdmin = true",
   "adversarial": false
@@ -160,7 +160,7 @@ afterEach(() => {
   "descricao": "NÃO lê data.user.role (estrutura legada) — tipo_usuario deve ser null e meResponseSchema.parse falha alto (Mandamentos 06, 08)",
   "categoria": 2,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "fetch", "retorno": "Response({ user: { id: 'x', role: 'SUPER_ADMIN' } }, 200)", "metodo": "mockResolvedValue" }
@@ -183,7 +183,7 @@ afterEach(() => {
   "descricao": "role é null quando getToken retorna null",
   "categoria": 7,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "mockGetToken", "retorno": null, "metodo": "mockResolvedValue" }
@@ -203,7 +203,7 @@ afterEach(() => {
   "descricao": "role é null e isReady=true quando /me retorna 4xx",
   "categoria": 6,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "fetch", "retorno": "Response('Unauthorized', 401)", "metodo": "mockResolvedValue" }
@@ -223,7 +223,7 @@ afterEach(() => {
   "descricao": "role é null e isReady=true em exceção de rede",
   "categoria": 6,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "fetch", "retorno": "new Error('Network error')", "metodo": "mockRejectedValue" }
@@ -243,7 +243,7 @@ afterEach(() => {
   "descricao": "não executa fetch quando usuário não está autenticado (isSignedIn=false)",
   "categoria": 7,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "setup": {
     "mockRetornos": [
       { "nomeMock": "mockUseAuth", "retorno": { "isLoaded": true, "isSignedIn": false, "userId": null }, "metodo": "mockReturnValue" }
@@ -265,7 +265,7 @@ afterEach(() => {
   "descricao": "cache hit: fetch não é chamado novamente para o mesmo userId",
   "categoria": 8,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "renderHook + rerender com mesmo userId → verificar fetch.mock.calls.length",
   "assercao": { "tipo": "toHaveBeenCalledTimes", "vezes": 1 },
   "resultadoEsperado": "Segundo render não chama fetch — resultado vem do cache",
@@ -277,11 +277,11 @@ afterEach(() => {
 {
   "id": "TST-UNIT-CONFIG-AUTH-000010",
   "numero": 10,
-  "descricao": "invalidateRoleCache limpa o cache e permite novo fetch",
+  "descricao": "limparCacheTipoUsuario limpa o cache e permite novo fetch",
   "categoria": 8,
   "origem": "existente",
-  "exportacaoTestada": "invalidateRoleCache",
-  "acao": "renderHook → waitFor → invalidateRoleCache() → novo renderHook → waitFor",
+  "exportacaoTestada": "limparCacheTipoUsuario",
+  "acao": "renderHook → waitFor → limparCacheTipoUsuario() → novo renderHook → waitFor",
   "assercao": { "tipo": "toHaveBeenCalledTimes", "vezes": 2 },
   "resultadoEsperado": "Após invalidação, o segundo mount busca novamente (2 calls ao fetch)",
   "adversarial": false
@@ -295,7 +295,7 @@ afterEach(() => {
   "descricao": "cache diferencia usuários — userId A e userId B têm caches independentes",
   "categoria": 8,
   "origem": "agente-adicionado",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "renderHook com userId A → renderHook com userId B → verificar 2 chamadas ao fetch",
   "assercao": { "tipo": "toHaveBeenCalledTimes", "vezes": 2 },
   "resultadoEsperado": "Cache não vaza entre usuários distintos — cada userId tem seu próprio cache",
@@ -313,7 +313,7 @@ afterEach(() => {
   "descricao": "it.each — todos os roles testados individualmente para isGravityAdmin",
   "categoria": 1,
   "origem": "existente",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "it.each([['SUPER_ADMIN', true], ['ADMIN', true], ['MASTER', false], ['STANDARD', false], ['SUPPLIER', false], [null, false]])",
   "assercao": { "tipo": "toBe", "valor": "expected por parâmetro" },
   "resultadoEsperado": "isGravityAdmin = true apenas para SUPER_ADMIN e ADMIN; false para todos os demais e null",
@@ -331,7 +331,7 @@ afterEach(() => {
   "descricao": "isReady começa false antes da resolução async",
   "categoria": 5,
   "origem": "agente-adicionado",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "renderHook, checar result.current.isReady IMEDIATAMENTE (sem waitFor)",
   "assercao": { "tipo": "toBe", "valor": false },
   "resultadoEsperado": "isReady = false no estado inicial — nunca true antes do fetch resolver",
@@ -346,7 +346,7 @@ afterEach(() => {
   "descricao": "role não vaza para outro componente após desmontagem",
   "categoria": 12,
   "origem": "agente-adicionado",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "renderHook → unmount() antes de fetch resolver → verificar sem setState erro",
   "assercao": { "tipo": "toBeNull" },
   "resultadoEsperado": "Sem warning 'setState on unmounted component' — sem memory leak",
@@ -358,12 +358,12 @@ afterEach(() => {
 {
   "id": "TST-UNIT-CONFIG-AUTH-000015",
   "numero": 15,
-  "descricao": "retorno de tipo satisfaz SystemRole (null | 'MASTER' | 'STANDARD' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPLIER')",
+  "descricao": "retorno de tipo satisfaz TipoUsuario (null | 'MASTER' | 'STANDARD' | 'ADMIN' | 'SUPER_ADMIN' | 'SUPPLIER')",
   "categoria": 10,
   "origem": "agente-adicionado",
-  "exportacaoTestada": "useLoadSystemRole",
+  "exportacaoTestada": "useCarregarTipoUsuario",
   "acao": "verificar em compile time via TypeScript satisfies",
-  "assercao": { "tipo": "tipoCorreto", "tipo": "SystemRole" },
+  "assercao": { "tipo": "tipoCorreto", "tipo": "TipoUsuario" },
   "resultadoEsperado": "tsc --noEmit compila sem erro — tipo de retorno está correto",
   "adversarial": false,
   "notas": "Verificado por CI com tsc --noEmit, não por Vitest em runtime"
@@ -384,7 +384,7 @@ afterEach(() => {
   { "categoria": 6, "nome": "Erros de rede / banco", "status": "coberta", "casosAssociados": [6,7] },
   { "categoria": 7, "nome": "Autenticação e token", "status": "coberta", "casosAssociados": [5,8] },
   { "categoria": 8, "nome": "Cache — hit, miss e invalidação", "status": "coberta", "casosAssociados": [9,10,11] },
-  { "categoria": 9, "nome": "Isolamento entre testes", "status": "coberta", "casosAssociados": [1], "notas": "vi.clearAllMocks() + invalidateRoleCache() em beforeEach garante isolamento" },
+  { "categoria": 9, "nome": "Isolamento entre testes", "status": "coberta", "casosAssociados": [1], "notas": "vi.clearAllMocks() + limparCacheTipoUsuario() em beforeEach garante isolamento" },
   { "categoria": 10, "nome": "Contratos de tipo", "status": "coberta", "casosAssociados": [15] },
   { "categoria": 11, "nome": "Idempotência", "status": "nao_aplicavel", "justificativa": "Hook de leitura pura — sem operação de escrita ou criação de estado persistente" },
   { "categoria": 12, "nome": "Efeitos colaterais indesejados", "status": "coberta", "casosAssociados": [14] }

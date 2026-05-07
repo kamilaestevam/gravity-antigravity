@@ -32,7 +32,7 @@ import {
   type WorkspaceItem,
 } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
-import { useLoadSystemRole } from '../../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { workspaceUrl } from '../../config/constants'
 import {
   ExpandidoEditorVinculos,
@@ -120,7 +120,7 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
 export function UsuariosAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
-  const { role: dbRole } = useLoadSystemRole()
+  const { tipoUsuario: dbRole } = useCarregarTipoUsuario()
   const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
 
   const [users, setUsers] = useState<UsuarioGlobalUI[]>([])

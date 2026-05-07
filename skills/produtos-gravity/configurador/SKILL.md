@@ -308,7 +308,7 @@ Retorna campos com nomes DDD em Português:
 DATABASE_URL=postgresql://...
 CLERK_SECRET_KEY=sk_live_...
 # Provedor de pagamento: definido pelo dono — Stripe NÃO é mais dependência
-INTERNAL_SERVICE_KEY=...
+CHAVE_INTERNA_SERVICO=...
 PORT=3000
 ```
 
@@ -327,7 +327,7 @@ PORT=3000
 
 | Arquivo | Tipo | Testes | Config |
 |---|---|---|---|
-| `testes/testes-unitarios/configurador/useLoadSystemRole.test.ts` | Unitário (jsdom) | 17 | `testes/testes-unitarios/configurador/vitest.config.ts` |
+| `testes/testes-unitarios/configurador/use-carregar-tipo-usuario.test.ts` | Unitário (jsdom) | 17 | `testes/testes-unitarios/configurador/vitest.config.ts` |
 | `testes/testes-unitarios/configurador/usuarios/workspaces-put.test.ts` | Unitário (node) | 18 | mesma config |
 | `testes/testes-funcionais/configurador/me-contract.test.ts` | Funcional (node) | 7 | `testes/testes-funcionais/configurador/vitest.config.ts` |
 | `testes/testes-funcionais/configurador/requireAuth.test.ts` | Funcional (node) | 7 | mesma config |

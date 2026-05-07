@@ -29,7 +29,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste unitá
 | Campo | Tipo | Por quê |
 |---|---|---|
 | `escopo` | enum | CONFIG, ADMIN, PEDIDO, NFIMP, LPCO, BIDFRT, BIDCAM, SIMCUS, FINCOM, TENANT, INFRA, NUCLEO, PROCSO |
-| `modulo` | string | Ex: "useLoadSystemRole", "importEngine", "webhookSignature" |
+| `modulo` | string | Ex: "useCarregarTipoUsuario", "importEngine", "webhookSignature" |
 | `tipoModulo` | enum | Ver tabela de 12 tipos abaixo |
 | `arquivoFilePath` | string | Path do arquivo fonte — fonte da verdade para extração de exports |
 | `arquivoFileContent` | string | Conteúdo do arquivo — agente extrai exports, lógica e dependências |
@@ -220,7 +220,7 @@ vi.mock('@clerk/clerk-react', () => ({
 }))
 
 // import DEPOIS dos mocks
-import { useLoadSystemRole } from '../../../src/hooks/useLoadSystemRole.js'
+import { useCarregarTipoUsuario } from '../../../src/hooks/useCarregarTipoUsuario.js'
 ```
 
 ### vi.stubGlobal para fetch / console
@@ -326,9 +326,9 @@ JSON validado por Zod (ver [formato-plano.md](./formato-plano.md)). Estrutura ma
   geradoEm:        "2026-04-20T...",
   geradoPor:       "agente-plano-teste-unitario",
   escopo:          "CONFIG",
-  modulo:          "useLoadSystemRole",
+  modulo:          "useCarregarTipoUsuario",
   tipoModulo:      "hook",
-  arquivoFilePath: "servicos-global/configurador/src/hooks/useLoadSystemRole.ts",
+  arquivoFilePath: "servicos-global/configurador/src/hooks/useCarregarTipoUsuario.ts",
   ambiente:        "jsdom",
   criticidade:     "alta",
   coberturaMinima: 80,
@@ -454,7 +454,7 @@ testes/testes-unitarios/
 │   ├── _planos/                    ← JSONs de plano por módulo
 │   ├── assinaturas/
 │   │   └── store-subscribe.test.ts
-│   └── useLoadSystemRole.test.ts
+│   └── useCarregarTipoUsuario.test.ts
 ├── infra/
 │   └── migrate-tenants/
 │       └── _shared.test.ts
@@ -504,4 +504,4 @@ testes/
 
 - [checklist-categorias.md](./checklist-categorias.md) — categorias de cobertura com mínimos por criticidade
 - [formato-plano.md](./formato-plano.md) — schema Zod completo do JSON do plano
-- [exemplo-plano.md](./exemplo-plano.md) — plano completo de `useLoadSystemRole` (hook real do projeto)
+- [exemplo-plano.md](./exemplo-plano.md) — plano completo de `useCarregarTipoUsuario` (hook real do projeto)

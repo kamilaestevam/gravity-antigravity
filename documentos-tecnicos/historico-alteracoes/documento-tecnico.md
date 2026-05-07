@@ -638,7 +638,7 @@ auditLog({
 
 **Variáveis de ambiente:**  
 - `HISTORICO_URL` ou `CONFIGURADOR_URL` — URL do servidor (default: `http://localhost:8005`)
-- `INTERNAL_SERVICE_KEY` — chave de autenticação inter-serviço
+- `CHAVE_INTERNA_SERVICO` — chave de autenticação inter-serviço
 
 ---
 
@@ -647,7 +647,7 @@ auditLog({
 | Variável | Obrigatória | Uso |
 |----------|-------------|-----|
 | `ORGANIZACAO_DATABASE_URL` | Sim (Configurador) | pg-boss e Prisma para o banco gravity-servicos (dados operacionais por organização) |
-| `INTERNAL_SERVICE_KEY` | Sim | Autenticação inter-serviço (`x-internal-key`) |
+| `CHAVE_INTERNA_SERVICO` | Sim | Autenticação inter-serviço (`x-chave-interna-servico`) |
 | `EMAIL_SERVICE_URL` | Não | URL do serviço de email para notificações |
 | `WHATSAPP_SERVICE_URL` | Não | URL do serviço de WhatsApp para notificações |
 | `NOTIFICACOES_SERVICE_URL` | Não | URL do serviço de notificações in-app |
@@ -659,10 +659,18 @@ auditLog({
 
 ## 15. Frontend — Telas
 
+> **Atualizado em 2026-05-07** — A UI de auditoria foi centralizada no Configurador
+> em **2 telas oficiais** (admin + cliente). O componente shared `<Historico />`
+> em `historico-global/src/Historico.tsx` e a rota `/core/historico` foram
+> removidos como parte da consolidação SSOT da UI. Cada produto Gravity expoe
+> apenas um **hyperlink** "Histórico" no menu lateral que abre nova aba na tela
+> canonica do cliente.
+
 ### Admin — `HistoricoGlobalAdmin.tsx`
 
-**Rota:** `/admin/historico`  
+**Rota:** `/admin/historico-global`
 **Arquivo:** `servicos-global/configurador/src/pages/admin/HistoricoGlobalAdmin.tsx`
+**Quem acessa:** SUPER_ADMIN, ADMIN (gating `requireGravityAdmin`).
 
 Funcionalidades:
 - Tabela de logs com paginação cursor-based e scroll infinito
@@ -671,16 +679,28 @@ Funcionalidades:
 - Drawer `PainelAlertas`: visualização e gestão de AlertEvent + AlertRule
 - Exportação CSV/JSON
 - i18n: `admin.history.*` — 7 idiomas (pt, en, es, de, it, zh, ar)
+- Endpoint: `/api/v1/admin/historico-global/logs` (proxy enriquecido com email_ator)
 
-### Tenant — `Historico.tsx`
+### Cliente — `HistoricoOrganizacao.tsx`
 
-**Rota:** `/core/historico`  
-**Arquivo:** `servicos-global/tenant/historico-global/src/Historico.tsx`
+**Rota:** `/workspace/historico-organizacao`
+**Arquivo:** `servicos-global/configurador/src/pages/workspace/HistoricoOrganizacao.tsx`
+**Quem acessa:** MASTER (sempre); STANDARD/FORNECEDOR com permissao Cadeia 2 `<slug>:historico:ver`.
 
 Funcionalidades:
-- Visão equivalente ao admin, filtrada pela visibilidade do role do usuário
-- Sem gestão de alertas (responsabilidade do admin/master)
-- Endpoint: `/api/tenant/historico-global/logs`
+- Visão filtrada pela visibilidade do `tipo_usuario` (`montarFiltroVisibilidadeHistoricoLog`)
+- Aceita query param `?id_produto_historico_log=<slug>` — pre-aplicado pelo hyperlink de cada produto
+- Sem gestão de alertas (responsabilidade do admin)
+- Endpoint: `/api/v1/historico-organizacao` (proxy fino + gating Cadeia 2)
+- Gating: STANDARD/FORNECEDOR sem `<slug>:historico:ver` → 403 FORBIDDEN_PERMISSION
+
+### Hyperlink dos produtos
+
+Cada produto Gravity expoe item "Histórico" no menu lateral como **link externo**
+(`target="_blank"`) apontando para `/workspace/historico-organizacao?id_produto_historico_log=<slug>`.
+A rota interna `<Route path="historico">` no produto e o componente shared `<Historico />`
+foram removidos. Backend de escrita (`auditLog()` via `historico-global/src/audit-client.ts`)
+permanece intacto — produtos continuam gravando logs normalmente.
 
 ---
 

@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react'
-import { useLoadSystemRole } from './use-load-system-role'
+import { useCarregarTipoUsuario } from './use-carregar-tipo-usuario'
 import { temBypassPermissao } from '../../shared/index.js'
 
 /** Cache por usuário (limpa em logout via invalidatePermissoesCache). */
@@ -47,7 +47,7 @@ export function usePermissao(
   acao: 'ver' | 'editar',
 ): UsePermissaoResult {
   const { isLoaded, isSignedIn, getToken, userId } = useAuth()
-  const { role, isReady: roleReady } = useLoadSystemRole()
+  const { tipoUsuario: role, pronto: roleReady } = useCarregarTipoUsuario()
 
   const [permitido, setPermitido] = useState(false)
   const [isReady, setIsReady] = useState(false)

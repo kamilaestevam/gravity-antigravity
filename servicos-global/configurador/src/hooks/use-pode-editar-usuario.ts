@@ -7,7 +7,7 @@
 //
 // Documentação central: skills/seguranca/permissoes/SKILL.md
 
-import { useLoadSystemRole, type SystemRole } from './use-load-system-role'
+import { useCarregarTipoUsuario, type TipoUsuario } from './use-carregar-tipo-usuario'
 
 export type TipoUsuarioBackend = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
@@ -38,7 +38,7 @@ const DENY: PodeEditarUsuario = {
 }
 
 function tiposParaPatente(
-  ator: SystemRole,
+  ator: TipoUsuario,
   alvo: TipoUsuarioBackend,
 ): TipoUsuarioBackend[] {
   if (ator === 'SUPER_ADMIN') {
@@ -56,7 +56,7 @@ function tiposParaPatente(
 }
 
 export function usePodeEditarUsuario(alvo: AlvoUsuario | null | undefined): PodeEditarUsuario {
-  const { role: ator, isReady } = useLoadSystemRole()
+  const { tipoUsuario: ator, pronto: isReady } = useCarregarTipoUsuario()
 
   if (!isReady || !alvo || !ator) return DENY
 

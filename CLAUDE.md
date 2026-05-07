@@ -168,7 +168,7 @@ Dados de autorização devem falhar fazendo barulho. Se o `tipo_usuario` não fo
 
 ❌ **Jamais faça:**
 ```ts
-const role = (data?.user?.role ?? null) as SystemRole
+const tipoUsuario = (data?.user?.role ?? null) as TipoUsuario
 // null → fallback 'Standard' → usuário SUPER_ADMIN aparece como Standard
 // Sem erro. Sem log. Bug invisível.
 ```
@@ -176,11 +176,11 @@ const role = (data?.user?.role ?? null) as SystemRole
 ✅ **Sempre faça:**
 ```ts
 // Opção A — falha ruidosa (preferível em autorização)
-const role = meResponseSchema.parse(data).usuario.tipo_usuario
+const tipoUsuario = meResponseSchema.parse(data).usuario.tipo_usuario
 
 // Opção B — se precisar de fallback, deixe rastro obrigatório
-const role = data?.usuario?.tipo_usuario ?? null
-if (!role) console.warn('[useLoadSystemRole] tipo_usuario ausente na resposta de /me', data)
+const tipoUsuario = data?.usuario?.tipo_usuario ?? null
+if (!tipoUsuario) console.warn('[useCarregarTipoUsuario] tipo_usuario ausente na resposta de /me', data)
 ```
 
 **Por quê:** nível de acesso errado não quebra a tela — exibe permissão falsa. A aplicação continua rodando e ninguém percebe. Autorização deve falhar alto ou deixar rastro, nunca engolir o problema em silêncio.
@@ -316,7 +316,7 @@ const meResponseSchema = z.object({
 |-------|---------|-----------------|
 | Segurança 5 Camadas | `skills/seguranca/seguranca-5-camadas/SKILL.md` | **Checklist obrigatório de segurança para toda entrega** |
 | Permissões | `skills/seguranca/permissoes/SKILL.md` | RBAC via `tipo_usuario`, fonte da verdade Configurador |
-| Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | JWT inter-serviço, machine tokens, `x-internal-key` |
+| Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | JWT inter-serviço, machine tokens, `x-chave-interna-servico` |
 | Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | Ações cross-banco, BullMQ, DLQ, agregação eventual |
 | Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | `express-rate-limit` com Redis, limites por org/rota |
 | Pentest | `skills/seguranca/pentest/SKILL.md` | OWASP Top 10, ferramentas, relatório |
@@ -406,7 +406,7 @@ Estas regras se aplicam a TODOS os agentes, em TODAS as tarefas:
 **Segurança:**
 - Toda rota tem validação Zod antes do banco
 - JWT validado em rotas protegidas via `@clerk/backend`
-- `x-internal-key` em toda chamada inter-serviço
+- `x-chave-interna-servico` em toda chamada inter-serviço
 - Sem `console.log` expondo dados sensíveis
 - Sem variáveis de ambiente hardcoded
 - Erros via `AppError` — nunca `res.status().json()` direto

@@ -318,12 +318,14 @@ function PopoverFiltro({
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['min', 'max'] as const).map((campo, i) => (
               <input key={campo}
-                type="text" inputMode="numeric" pattern="[0-9]*"
+                type="text" inputMode="decimal" pattern="[0-9.,\-]*"
                 placeholder={i === 0 ? t('tabela.minimo') : t('tabela.maximo')}
                 autoComplete="off"
                 value={minMax[campo]}
                 onChange={e => {
-                  const v = e.target.value.replace(/[^0-9]/g, '')
+                  // Aceita digitos, ponto, virgula (BR) e sinal negativo.
+                  // Normaliza virgula -> ponto pra Number() parsear corretamente.
+                  const v = e.target.value.replace(/[^0-9.,\-]/g, '').replace(',', '.')
                   onFiltrarNumero(coluna, campo, v)
                 }}
                 style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid var(--ws-accent-border)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}

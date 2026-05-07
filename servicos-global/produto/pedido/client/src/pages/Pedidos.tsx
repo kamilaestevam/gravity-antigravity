@@ -13,6 +13,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import i18next from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
@@ -2884,17 +2885,28 @@ export default function Pedidos() {
   const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
+  // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
+  // precisamos injetar Authorization: Bearer aqui (mesmo padrao da Pedido SDK
+  // resolverOrganizacao que exige JWT). Sem isso, /pedidos/gabi/quota volta 401.
+  const { getToken: getClerkToken } = useAuth()
+  const [gabiAuthToken, setGabiAuthToken] = useState<string | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    void getClerkToken().then(t => { if (!cancelled) setGabiAuthToken(t) })
+    return () => { cancelled = true }
+  }, [getClerkToken])
+
   const gabiQuotaFetchOptions = useMemo((): RequestInit => {
     const ctx = getApiContext()
     return {
       headers: {
+        ...(gabiAuthToken ? { Authorization: `Bearer ${gabiAuthToken}` } : {}),
         'x-id-organizacao': ctx.idOrganizacao,
         'x-id-usuario': ctx.userId,
         'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
       },
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // stable: context populated before mount, doesn't change
+  }, [gabiAuthToken])
   // Conditional fetching: só dispara quando idOrganizacao já está hidratado do store.
   // Evita requisição prematura no milissegundo 0 do render (que resulta em 400).
   const { quota: gabiQuota } = useGabiQuota(idOrganizacao ? '/api/v1/pedidos/gabi/quota' : null, gabiQuotaFetchOptions)

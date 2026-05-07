@@ -26,6 +26,12 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 import { AppError } from '../errors/AppError.js'
 import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
+import {
+  CAMPOS_PEDIDO_DDD,
+  CAMPOS_ITEM_DDD,
+  FORMATO_EXCEL_POR_TIPO,
+  type CampoPedidoDDD,
+} from '../../../shared/campos-pedido-ddd.js'
 
 export const smartImportRouter = Router()
 
@@ -93,37 +99,84 @@ const ConfirmarSchema = z.object({
 })
 
 // ── GET /template — Download de planilha modelo ───────────────────────────────
-// Padrão visual idêntico ao exportarExcel() do frontend (exportUtils.ts):
-//   Header: fundo #1e3256, fonte Calibri 11 bold azul #38bdf8, centralizado
-//   Sem linhas de dados — template vazio para o usuário preencher
+// Cobertura 100% dos campos preenchiveis de Pedido + PedidoItem (SSOT em
+// `produto/pedido/shared/campos-pedido-ddd.ts`). Layout master-detail:
+//   - Linha 1 (super-header): "PEDIDO" mesclado | "ITEM" mesclado
+//   - Linha 2 (sub-header):   rotulos canonical PT-BR (REGRA 9 do DDD)
+//   - Linha 3 (exemplo Pedido, vazia): negrito, formato pre-aplicado
+//   - Linha 4 (exemplo Item, vazia):   regular, formato pre-aplicado
+//
+// Padrao visual identico ao exportarExcel() do frontend (exportUtils.ts):
+//   Header: fundo #1e3256, fonte Calibri 11 bold azul #38bdf8, centralizado.
+//
+// O usuario preenche linha do Pedido (master, em negrito) e linhas de Item
+// (detail) abaixo, espelhando a tabela do app. Para o segundo Pedido, repete
+// o mesmo padrao.
 
 smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
-    const cabecalhos = [
-      'PO Number', 'Supplier', 'Manufacturer', 'Incoterms', 'Currency',
-      'Order Date', 'Ship Date', 'Part Number', 'NCM', 'Description',
-      'Qty', 'Unit', 'Unit Price', 'Total Value',
-    ]
+    // Lista combinada na ordem: Pedido primeiro, Item depois.
+    const camposOrdenados: CampoPedidoDDD[] = [...CAMPOS_PEDIDO_DDD, ...CAMPOS_ITEM_DDD]
+    const totalPedido = CAMPOS_PEDIDO_DDD.length
+    const totalItem   = CAMPOS_ITEM_DDD.length
 
     const wb = new ExcelJS.Workbook()
     wb.creator = 'Gravity Platform'
     wb.created = new Date()
 
-    const ws = wb.addWorksheet('Pedidos', { views: [{ showGridLines: true }] })
+    const ws = wb.addWorksheet('Pedidos', { views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }] })
 
-    ws.columns = cabecalhos.map(h => ({
-      key: h,
-      width: Math.max(h.length + 4, 18),
+    // Largura por coluna — minimo 18, max length(rotulo) + 4
+    ws.columns = camposOrdenados.map(c => ({
+      key:   c.campo,
+      width: Math.max(c.rotulo.length + 4, 18),
     }))
 
-    const headerRow = ws.addRow(cabecalhos)
-    headerRow.height = 22
-    headerRow.eachCell(cell => {
-      cell.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3256' } }
-      cell.font   = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF38bdf8' } }
-      cell.alignment = { horizontal: 'center', vertical: 'middle' }
-      cell.border = { bottom: { style: 'medium', color: { argb: 'FF38bdf8' } } }
+    // ── Linha 1 — Super-header: PEDIDO | ITEM ─────────────────────────────────
+    ws.addRow([])
+    ws.getRow(1).height = 24
+    // Mesclar colunas 1..totalPedido como "PEDIDO"
+    ws.mergeCells(1, 1, 1, totalPedido)
+    const cellPedido = ws.getCell(1, 1)
+    cellPedido.value = 'PEDIDO'
+    cellPedido.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0f172a' } }
+    cellPedido.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FF38bdf8' } }
+    cellPedido.alignment = { horizontal: 'center', vertical: 'middle' }
+    // Mesclar colunas (totalPedido+1)..(totalPedido+totalItem) como "ITEM"
+    ws.mergeCells(1, totalPedido + 1, 1, totalPedido + totalItem)
+    const cellItem = ws.getCell(1, totalPedido + 1)
+    cellItem.value = 'ITEM'
+    cellItem.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0f172a' } }
+    cellItem.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FFa78bfa' } }
+    cellItem.alignment = { horizontal: 'center', vertical: 'middle' }
+
+    // ── Linha 2 — Sub-header: rotulos PT-BR canonical ─────────────────────────
+    const subHeader = ws.addRow(camposOrdenados.map(c => c.rotulo))
+    subHeader.height = 22
+    subHeader.eachCell(cell => {
+      cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3256' } }
+      cell.font      = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF38bdf8' } }
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+      cell.border    = { bottom: { style: 'medium', color: { argb: 'FF38bdf8' } } }
     })
+
+    // ── Aplicar numFmt por coluna conforme tipo do campo (data, numero) ───────
+    camposOrdenados.forEach((c, idx) => {
+      const numFmt = FORMATO_EXCEL_POR_TIPO[c.tipo]
+      if (numFmt) {
+        ws.getColumn(idx + 1).numFmt = numFmt
+      }
+    })
+
+    // ── Linha 3 — Exemplo de Pedido (vazia, em negrito) ───────────────────────
+    const linhaPedidoExemplo = ws.addRow([])
+    linhaPedidoExemplo.height = 20
+    linhaPedidoExemplo.font   = { name: 'Calibri', bold: true, size: 11 }
+
+    // ── Linha 4 — Exemplo de Item (vazia, regular) ────────────────────────────
+    const linhaItemExemplo = ws.addRow([])
+    linhaItemExemplo.height = 18
+    linhaItemExemplo.font   = { name: 'Calibri', bold: false, size: 11 }
 
     const buf = await wb.xlsx.writeBuffer()
     res.set({

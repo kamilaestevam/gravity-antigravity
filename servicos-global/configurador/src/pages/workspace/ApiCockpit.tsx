@@ -40,7 +40,7 @@ const serieDiariaPontoSchema = z.object({
 })
 
 const estatisticasSerieSchema = z.object({
-  serie_diaria_log_consumo: z.array(serieDiariaPontoSchema).optional(),
+  serie_diaria_log_requisicao_api: z.array(serieDiariaPontoSchema).optional(),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
@@ -88,7 +88,7 @@ export function ApiCockpit() {
       try {
         const [svcRes, serieRes] = await Promise.all([
           requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos'),
-          requisicaoAutenticada('/api/v1/api-cockpit/log-consumo/estatisticas?serie=diaria&dias=30'),
+          requisicaoAutenticada('/api/v1/api-cockpit/log-requisicao-api/estatisticas?serie=diaria&dias=30'),
         ])
         if (svcRes.ok) {
           const svcRaw = await svcRes.json()
@@ -102,8 +102,8 @@ export function ApiCockpit() {
         if (serieRes.ok) {
           const serieRaw = await serieRes.json()
           const parsed = estatisticasSerieSchema.safeParse(serieRaw)
-          if (parsed.success && parsed.data.serie_diaria_log_consumo) {
-            setSerieDiaria(parsed.data.serie_diaria_log_consumo)
+          if (parsed.success && parsed.data.serie_diaria_log_requisicao_api) {
+            setSerieDiaria(parsed.data.serie_diaria_log_requisicao_api)
           }
         }
       } catch (err) {

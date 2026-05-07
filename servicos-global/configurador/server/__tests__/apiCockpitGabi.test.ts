@@ -244,17 +244,17 @@ describe('Existing admin cockpit routes', () => {
     expect(res.body.servicos).toEqual([])
   })
 
-  it('GET /log-consumo retorna fallback resiliente', async () => {
+  it('GET /log-requisicao-api retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/v1/api-cockpit/admin/log-consumo')
+    const res = await request.get('/api/v1/api-cockpit/admin/log-requisicao-api')
     expect(res.status).toBe(200)
     expect(res.body.logs).toEqual([])
   })
 
-  it('GET /log-consumo/estatisticas retorna fallback resiliente', async () => {
+  it('GET /log-requisicao-api/estatisticas retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/v1/api-cockpit/admin/log-consumo/estatisticas')
+    const res = await request.get('/api/v1/api-cockpit/admin/log-requisicao-api/estatisticas')
     expect(res.status).toBe(200)
-    expect(res.body.quantidade_requisicoes_log_consumo).toBe(0)
+    expect(res.body.quantidade_requisicoes_log_requisicao_api).toBe(0)
   })
 })

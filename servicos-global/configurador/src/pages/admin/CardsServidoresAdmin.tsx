@@ -30,8 +30,8 @@ export interface SerieDiariaPontoAdmin {
   percentual: number
 }
 
-interface EstatisticasLogConsumo {
-  percentual_uptime_log_consumo: number
+interface EstatisticasLogRequisicaoApi {
+  percentual_uptime_log_requisicao_api: number
 }
 
 interface GabiUsage {
@@ -42,7 +42,7 @@ interface GabiUsage {
 interface CardsServidoresAdminProps {
   servicos:     ServicoPlataforma[]
   serieDiaria?: SerieDiariaPontoAdmin[]
-  estatisticas: EstatisticasLogConsumo | null
+  estatisticas: EstatisticasLogRequisicaoApi | null
   gabiUsage:    GabiUsage | null
   gabiLoading:  boolean
 }
@@ -143,7 +143,7 @@ export function CardsServidoresAdmin({
   }, undefined)
   const ultimaLabel = formatarRelativo(ultimaIso)
 
-  const uptimePercent = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
+  const uptimePercent = estatisticas ? `${estatisticas.percentual_uptime_log_requisicao_api.toFixed(1)}%` : '—'
   const gabiCalls     = gabiUsage?.total_calls ?? 0
   const gabiCost      = gabiUsage?.total_cost_usd ?? 0
 

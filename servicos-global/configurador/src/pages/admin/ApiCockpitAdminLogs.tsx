@@ -14,24 +14,24 @@ import { ApiCockpitAdminKpis } from './ApiCockpitAdminKpis'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
-const logConsumoSchema = z.object({
-  id_log_consumo:                   z.string(),
+const logRequisicaoApiSchema = z.object({
+  id_log_requisicao_api:                   z.string(),
   id_organizacao:                   z.string(),
   id_produto_gravity:               z.string(),
   id_usuario:                       z.string().nullable(),
   id_correlacao:                    z.string().nullable(),
-  endpoint_log_consumo:             z.string(),
-  metodo_http_log_consumo:          z.string(),
-  codigo_resposta_http_log_consumo: z.number(),
-  latencia_ms_log_consumo:          z.number(),
-  data_criacao_log_consumo:         z.string(),
-  data_log_consumo:                 z.string(),
-  hora_log_consumo:                 z.string(),
-  resultado_log_consumo:            z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR']),
+  endpoint_log_requisicao_api:             z.string(),
+  metodo_http_log_requisicao_api:          z.string(),
+  codigo_resposta_http_log_requisicao_api: z.number(),
+  latencia_ms_log_requisicao_api:          z.number(),
+  data_criacao_log_requisicao_api:         z.string(),
+  data_log_requisicao_api:                 z.string(),
+  hora_log_requisicao_api:                 z.string(),
+  resultado_log_requisicao_api:            z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR']),
 })
 
 const logsResponseSchema = z.object({
-  logs: z.array(logConsumoSchema),
+  logs: z.array(logRequisicaoApiSchema),
   paginacao: z.object({
     pagina:  z.number(),
     limite:  z.number(),
@@ -41,12 +41,12 @@ const logsResponseSchema = z.object({
   error: z.string().optional(),
 })
 
-type LogConsumo = z.infer<typeof logConsumoSchema>
+type LogRequisicaoApi = z.infer<typeof logRequisicaoApiSchema>
 
 export function ApiCockpitAdminLogs() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
-  const [logs, setLogs] = useState<LogConsumo[]>([])
+  const [logs, setLogs] = useState<LogRequisicaoApi[]>([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
 
@@ -55,14 +55,14 @@ export function ApiCockpitAdminLogs() {
       setLoading(true)
       setErro(null)
       const res = await requisicaoAutenticada(
-        '/api/v1/api-cockpit/admin/log-consumo?limite=100',
+        '/api/v1/api-cockpit/admin/log-requisicao-api?limite=100',
         { signal },
       )
-      if (!res.ok) throw new Error(`log-consumo ${res.status} ${res.statusText}`)
+      if (!res.ok) throw new Error(`log-requisicao-api ${res.status} ${res.statusText}`)
       const raw = await res.json()
       if (raw.error) throw new Error(raw.error)
       const parsed = logsResponseSchema.safeParse(raw)
-      if (!parsed.success) throw new Error('Payload de log-consumo invalido')
+      if (!parsed.success) throw new Error('Payload de log-requisicao-api invalido')
       setLogs(parsed.data.logs)
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
@@ -83,16 +83,16 @@ export function ApiCockpitAdminLogs() {
     return () => ctrl.abort()
   }, [carregar])
 
-  const colunas: TabelaGlobalColuna<LogConsumo>[] = [
+  const colunas: TabelaGlobalColuna<LogRequisicaoApi>[] = [
     {
-      key: 'data_log_consumo',
+      key: 'data_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.data'),
       tipo: 'texto',
       tooltipTitulo: 'Data',
       tooltipDescricao: 'Data em que a requisição foi registrada',
     },
     {
-      key: 'hora_log_consumo',
+      key: 'hora_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.hora'),
       tipo: 'texto',
       tooltipTitulo: 'Hora',
@@ -107,7 +107,7 @@ export function ApiCockpitAdminLogs() {
       render: (val) => <code style={{ fontSize: '0.75rem' }}>{val as string}</code>,
     },
     {
-      key: 'metodo_http_log_consumo',
+      key: 'metodo_http_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.metodo'),
       tipo: 'texto',
       align: 'center',
@@ -116,7 +116,7 @@ export function ApiCockpitAdminLogs() {
       render: (val) => <strong style={{ color: 'var(--brand-primary)' }}>{val as string}</strong>,
     },
     {
-      key: 'endpoint_log_consumo',
+      key: 'endpoint_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.endpoint'),
       tipo: 'texto',
       tooltipTitulo: 'Endpoint',
@@ -124,7 +124,7 @@ export function ApiCockpitAdminLogs() {
       render: (val) => <code style={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>{val as string}</code>,
     },
     {
-      key: 'codigo_resposta_http_log_consumo',
+      key: 'codigo_resposta_http_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.status'),
       tipo: 'texto',
       align: 'center',
@@ -137,7 +137,7 @@ export function ApiCockpitAdminLogs() {
       ),
     },
     {
-      key: 'latencia_ms_log_consumo',
+      key: 'latencia_ms_log_requisicao_api',
       label: t('admin.api-cockpit.tabela.latencia'),
       tipo: 'texto',
       align: 'center',

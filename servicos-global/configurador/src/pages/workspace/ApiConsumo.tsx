@@ -13,22 +13,22 @@ import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
-const resultadoLogConsumoEnum = z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR'])
+const resultadoLogRequisicaoApiEnum = z.enum(['SUCESSO', 'ERRO_CLIENTE', 'ERRO_SERVIDOR'])
 
-const logConsumoSchema = z.object({
-  id_log_consumo:                   z.string(),
+const logRequisicaoApiSchema = z.object({
+  id_log_requisicao_api:                   z.string(),
   id_organizacao:                   z.string(),
   id_produto_gravity:               z.string().nullable().optional(),
   id_usuario:                       z.string().nullable().optional(),
   id_correlacao:                    z.string().nullable().optional(),
-  endpoint_log_consumo:             z.string(),
-  metodo_http_log_consumo:          z.string(),
-  codigo_resposta_http_log_consumo: z.number(),
-  latencia_ms_log_consumo:          z.number(),
-  data_criacao_log_consumo:         z.string(),
-  data_log_consumo:                 z.string().optional(),
-  hora_log_consumo:                 z.string().optional(),
-  resultado_log_consumo:            resultadoLogConsumoEnum,
+  endpoint_log_requisicao_api:             z.string(),
+  metodo_http_log_requisicao_api:          z.string(),
+  codigo_resposta_http_log_requisicao_api: z.number(),
+  latencia_ms_log_requisicao_api:          z.number(),
+  data_criacao_log_requisicao_api:         z.string(),
+  data_log_requisicao_api:                 z.string().optional(),
+  hora_log_requisicao_api:                 z.string().optional(),
+  resultado_log_requisicao_api:            resultadoLogRequisicaoApiEnum,
 })
 
 const paginacaoSchema = z.object({
@@ -38,13 +38,13 @@ const paginacaoSchema = z.object({
   paginas: z.number(),
 })
 
-const logConsumoResponseSchema = z.object({
-  logs:      z.array(logConsumoSchema),
+const logRequisicaoApiResponseSchema = z.object({
+  logs:      z.array(logRequisicaoApiSchema),
   paginacao: paginacaoSchema.optional(),
   error:     z.string().optional(),
 })
 
-type LogConsumo = z.infer<typeof logConsumoSchema>
+type LogRequisicaoApi = z.infer<typeof logRequisicaoApiSchema>
 type Paginacao = z.infer<typeof paginacaoSchema>
 
 const SELECT_STYLE: React.CSSProperties = {
@@ -72,7 +72,7 @@ function rangeHttpDoFiltro(filtro: FiltroResultado): { minimo?: string; maximo?:
 }
 
 export function ApiConsumo() {
-  const [logs, setLogs] = useState<LogConsumo[]>([])
+  const [logs, setLogs] = useState<LogRequisicaoApi[]>([])
   const [paginacao, setPaginacao] = useState<Paginacao | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
@@ -95,10 +95,10 @@ export function ApiConsumo() {
       if (range.minimo) params.set('codigo_resposta_http_minimo', range.minimo)
       if (range.maximo) params.set('codigo_resposta_http_maximo', range.maximo)
 
-      const res = await requisicaoAutenticada(`/api/v1/api-cockpit/log-consumo?${params}`)
+      const res = await requisicaoAutenticada(`/api/v1/api-cockpit/log-requisicao-api?${params}`)
       if (!res.ok) throw new Error(`Falha ao carregar logs: ${res.status}`)
       const raw = await res.json()
-      const parsed = logConsumoResponseSchema.safeParse(raw)
+      const parsed = logRequisicaoApiResponseSchema.safeParse(raw)
       if (!parsed.success) {
         console.warn('[ApiConsumo] payload invalido', parsed.error)
         setLogs([])
@@ -121,15 +121,15 @@ export function ApiConsumo() {
     void carregar()
   }, [carregar])
 
-  const corResultado = (resultado: LogConsumo['resultado_log_consumo']): string => {
+  const corResultado = (resultado: LogRequisicaoApi['resultado_log_requisicao_api']): string => {
     if (resultado === 'SUCESSO')      return '#4ade80'
     if (resultado === 'ERRO_CLIENTE') return '#fbbf24'
     return '#f87171'
   }
 
-  const colunas: TabelaGlobalColuna<LogConsumo>[] = [
+  const colunas: TabelaGlobalColuna<LogRequisicaoApi>[] = [
     {
-      key: 'data_criacao_log_consumo',
+      key: 'data_criacao_log_requisicao_api',
       label: 'Data/Hora',
       tipo: 'texto',
       tooltipTitulo: 'Quando',
@@ -137,7 +137,7 @@ export function ApiConsumo() {
       render: (val) => new Date(val as string).toLocaleString('pt-BR'),
     },
     {
-      key: 'metodo_http_log_consumo',
+      key: 'metodo_http_log_requisicao_api',
       label: 'Metodo',
       tipo: 'texto',
       tooltipTitulo: 'Metodo HTTP',
@@ -145,7 +145,7 @@ export function ApiConsumo() {
       render: (val) => <code style={{ fontSize: '0.75rem', fontWeight: 600 }}>{val as string}</code>,
     },
     {
-      key: 'endpoint_log_consumo',
+      key: 'endpoint_log_requisicao_api',
       label: 'Endpoint',
       tipo: 'texto',
       tooltipTitulo: 'Endpoint',
@@ -153,20 +153,20 @@ export function ApiConsumo() {
       render: (val) => <code style={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>{val as string}</code>,
     },
     {
-      key: 'codigo_resposta_http_log_consumo',
+      key: 'codigo_resposta_http_log_requisicao_api',
       label: 'Status',
       tipo: 'texto',
       align: 'center',
       tooltipTitulo: 'Codigo HTTP',
       tooltipDescricao: 'Codigo de resposta da requisicao',
       render: (val, row) => (
-        <code style={{ fontSize: '0.75rem', fontWeight: 600, color: corResultado(row.resultado_log_consumo) }}>
+        <code style={{ fontSize: '0.75rem', fontWeight: 600, color: corResultado(row.resultado_log_requisicao_api) }}>
           {val as number}
         </code>
       ),
     },
     {
-      key: 'latencia_ms_log_consumo',
+      key: 'latencia_ms_log_requisicao_api',
       label: 'Latencia',
       tipo: 'texto',
       align: 'center',

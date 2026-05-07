@@ -38,18 +38,18 @@ const servicosResponseSchema = z.object({
   error:    z.string().optional(),
 })
 
-const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo:        z.number(),
-  quantidade_erros_log_consumo:              z.number(),
-  latencia_media_log_consumo:                z.number(),
-  percentual_uptime_log_consumo:             z.number(),
-  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+const estatisticasLogRequisicaoApiSchema = z.object({
+  quantidade_requisicoes_log_requisicao_api:        z.number(),
+  quantidade_erros_log_requisicao_api:              z.number(),
+  latencia_media_log_requisicao_api:                z.number(),
+  percentual_uptime_log_requisicao_api:             z.number(),
+  quantidade_produtos_distintos_log_requisicao_api: z.number().optional().default(0),
   por_id_produto_gravity:                    z.record(z.number()),
   por_faixa_codigo_resposta_http:            z.record(z.number()),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
-type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
+type EstatisticasLogRequisicaoApi = z.infer<typeof estatisticasLogRequisicaoApiSchema>
 
 interface GabiUsagePayload {
   month?: string
@@ -77,7 +77,7 @@ export function ApiCockpitAdminKpis() {
   const addNotification = useShellStore((s) => s.addNotification)
 
   const [servicos, setServicos]         = useState<ServicoPlataforma[]>([])
-  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogRequisicaoApi | null>(null)
   const [gabiUsage, setGabiUsage]       = useState<GabiUsagePayload | null>(null)
   const [gabiLoading, setGabiLoading]   = useState(true)
 
@@ -85,7 +85,7 @@ export function ApiCockpitAdminKpis() {
     try {
       const [svcRes, statsRes] = await Promise.all([
         requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',           { signal }),
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-requisicao-api/estatisticas', { signal }),
       ])
 
       if (svcRes.ok) {
@@ -95,7 +95,7 @@ export function ApiCockpitAdminKpis() {
       }
       if (statsRes.ok) {
         const statsRaw = await statsRes.json()
-        const parsed = estatisticasLogConsumoSchema.safeParse(statsRaw)
+        const parsed = estatisticasLogRequisicaoApiSchema.safeParse(statsRaw)
         if (parsed.success) setEstatisticas(parsed.data)
       }
     } catch (err) {
@@ -156,9 +156,9 @@ export function ApiCockpitAdminKpis() {
     : statusGeral === 'Crítico'   ? 'perigo'
     : 'padrao'
 
-  const uptimePercent   = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
-  const latenciaMediaMs = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
-  const requisicoes24h  = estatisticas ? estatisticas.quantidade_requisicoes_log_consumo : 0
+  const uptimePercent   = estatisticas ? `${estatisticas.percentual_uptime_log_requisicao_api.toFixed(1)}%` : '—'
+  const latenciaMediaMs = estatisticas ? `${estatisticas.latencia_media_log_requisicao_api}ms` : '—'
+  const requisicoes24h  = estatisticas ? estatisticas.quantidade_requisicoes_log_requisicao_api : 0
 
   const gabiCalls = gabiUsage?.total_calls ?? 0
   const gabiCost  = gabiUsage?.total_cost_usd ?? 0

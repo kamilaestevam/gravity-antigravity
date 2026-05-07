@@ -8,7 +8,7 @@ import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
  * ApiCockpitKpiCards — 5 cards de KPI per-organizacao compartilhados pelas
  * 4 paginas do API Cockpit (Inventario/Logs, Tokens, Webhooks, Consumo).
  *
- * Buscam GET /api/v1/api-cockpit/log-consumo/estatisticas (ja filtrado por
+ * Buscam GET /api/v1/api-cockpit/log-requisicao-api/estatisticas (ja filtrado por
  * organizacao do usuario via JWT no proxy do Configurador).
  *
  * Cards:
@@ -19,29 +19,29 @@ import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
  *   5. Requisicoes (24h)
  */
 
-const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo:        z.number(),
-  quantidade_erros_log_consumo:              z.number(),
-  latencia_media_log_consumo:                z.number(),
-  percentual_uptime_log_consumo:             z.number(),
-  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+const estatisticasLogRequisicaoApiSchema = z.object({
+  quantidade_requisicoes_log_requisicao_api:        z.number(),
+  quantidade_erros_log_requisicao_api:              z.number(),
+  latencia_media_log_requisicao_api:                z.number(),
+  percentual_uptime_log_requisicao_api:             z.number(),
+  quantidade_produtos_distintos_log_requisicao_api: z.number().optional().default(0),
   por_id_produto_gravity:                    z.record(z.number()),
   por_faixa_codigo_resposta_http:            z.record(z.number()),
 })
 
-type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
+type EstatisticasLogRequisicaoApi = z.infer<typeof estatisticasLogRequisicaoApiSchema>
 
 export function ApiCockpitKpiCards() {
   const { t } = useTranslation()
-  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogRequisicaoApi | null>(null)
 
   useEffect(() => {
     const carregar = async () => {
       try {
-        const res = await requisicaoAutenticada('/api/v1/api-cockpit/log-consumo/estatisticas')
+        const res = await requisicaoAutenticada('/api/v1/api-cockpit/log-requisicao-api/estatisticas')
         if (!res.ok) return
         const raw = await res.json()
-        const parsed = estatisticasLogConsumoSchema.safeParse(raw)
+        const parsed = estatisticasLogRequisicaoApiSchema.safeParse(raw)
         if (parsed.success) setEstatisticas(parsed.data)
       } catch (err) {
         console.warn('[ApiCockpitKpiCards] falha ao carregar estatisticas', err)
@@ -51,8 +51,8 @@ export function ApiCockpitKpiCards() {
   }, [])
 
   // Derivacao identica a ApiCockpit.tsx — fonte unica de verdade aqui agora.
-  const totalReqOrg     = estatisticas?.quantidade_requisicoes_log_consumo ?? 0
-  const totalErrosOrg   = estatisticas?.quantidade_erros_log_consumo ?? 0
+  const totalReqOrg     = estatisticas?.quantidade_requisicoes_log_requisicao_api ?? 0
+  const totalErrosOrg   = estatisticas?.quantidade_erros_log_requisicao_api ?? 0
   const taxaErroPct     = totalReqOrg > 0 ? (totalErrosOrg / totalReqOrg) * 100 : 0
   const taxaSucessoPct  = totalReqOrg > 0 ? 100 - taxaErroPct : 100
   const statusIntegracao: 'OK' | 'Atenção' | 'Falhando' | 'Sem Tráfego' =
@@ -67,8 +67,8 @@ export function ApiCockpitKpiCards() {
     : 'padrao'
 
   const taxaSucessoLabel    = estatisticas && totalReqOrg > 0 ? `${taxaSucessoPct.toFixed(1)}%` : '—'
-  const latenciaMediaMs     = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
-  const produtosEmUsoLabel  = estatisticas ? String(estatisticas.quantidade_produtos_distintos_log_consumo) : '—'
+  const latenciaMediaMs     = estatisticas ? `${estatisticas.latencia_media_log_requisicao_api}ms` : '—'
+  const produtosEmUsoLabel  = estatisticas ? String(estatisticas.quantidade_produtos_distintos_log_requisicao_api) : '—'
   const requisicoes24h      = estatisticas ? String(totalReqOrg) : '—'
 
   // ── Tooltips ────────────────────────────────────────────────────────────

@@ -6,13 +6,13 @@
  *
  * Rotas workspace (qualquer usuario autenticado — montadas em /api/v1/api-cockpit):
  *   GET /api/v1/api-cockpit/saude-servicos                    — Health check dos servicos
- *   GET /api/v1/api-cockpit/log-consumo                       — Logs (filtrado por organizacao)
- *   GET /api/v1/api-cockpit/log-consumo/estatisticas          — KPIs (filtrado por organizacao)
+ *   GET /api/v1/api-cockpit/log-requisicao-api                       — Logs (filtrado por organizacao)
+ *   GET /api/v1/api-cockpit/log-requisicao-api/estatisticas          — KPIs (filtrado por organizacao)
  *
  * Rotas admin (gravity_admin — montadas em /api/v1/api-cockpit/admin):
  *   GET /api/v1/api-cockpit/admin/saude-servicos              — Health check global
- *   GET /api/v1/api-cockpit/admin/log-consumo                 — Logs globais
- *   GET /api/v1/api-cockpit/admin/log-consumo/estatisticas    — KPIs globais
+ *   GET /api/v1/api-cockpit/admin/log-requisicao-api                 — Logs globais
+ *   GET /api/v1/api-cockpit/admin/log-requisicao-api/estatisticas    — KPIs globais
  *   GET /api/v1/api-cockpit/admin/uso-gabi                    — Custos GABI IA agregados
  *   GET /api/v1/api-cockpit/admin/uso-gabi/historico          — Historico de uso GABI
  *
@@ -71,11 +71,11 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
 // ─── Fallback shapes (alinhadas com payload DDD do backend) ─────────────
 
 const STATS_FALLBACK = {
-  quantidade_requisicoes_log_consumo:        0,
-  quantidade_erros_log_consumo:              0,
-  latencia_media_log_consumo:                0,
-  percentual_uptime_log_consumo:             100,
-  quantidade_produtos_distintos_log_consumo: 0,
+  quantidade_requisicoes_log_requisicao_api:        0,
+  quantidade_erros_log_requisicao_api:              0,
+  latencia_media_log_requisicao_api:                0,
+  percentual_uptime_log_requisicao_api:             100,
+  quantidade_produtos_distintos_log_requisicao_api: 0,
   por_id_produto_gravity:                    {},
   por_faixa_codigo_resposta_http:            { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 },
 }
@@ -98,7 +98,7 @@ apiCockpitRouter.get('/saude-servicos', async (_req, res) => {
   }
 })
 
-apiCockpitRouter.get('/log-consumo', async (req, res) => {
+apiCockpitRouter.get('/log-requisicao-api', async (req, res) => {
   try {
     // Mandamento 08 — sem fallback de header. id_organizacao SOMENTE do JWT.
     const idOrganizacao = req.auth?.id_organizacao
@@ -119,7 +119,7 @@ apiCockpitRouter.get('/log-consumo', async (req, res) => {
   }
 })
 
-apiCockpitRouter.get('/log-consumo/estatisticas', async (req, res) => {
+apiCockpitRouter.get('/log-requisicao-api/estatisticas', async (req, res) => {
   try {
     // Workspace: filtra por organizacao do usuario logado.
     const idOrganizacao = req.auth?.id_organizacao
@@ -129,7 +129,7 @@ apiCockpitRouter.get('/log-consumo/estatisticas', async (req, res) => {
     const params: Record<string, string> = { id_organizacao: idOrganizacao }
     if (typeof req.query.serie === 'string') params.serie = req.query.serie
     if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
-    const data = await proxyToCockpit('/estatisticas-log-consumo', params)
+    const data = await proxyToCockpit('/estatisticas-log-requisicao-api', params)
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)
@@ -346,7 +346,7 @@ apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/log-consumo', async (req, res) => {
+apiCockpitAdminRouter.get('/log-requisicao-api', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
       id_organizacao:              (req.query.id_organizacao as string) || '',
@@ -362,12 +362,12 @@ apiCockpitAdminRouter.get('/log-consumo', async (req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (req, res) => {
+apiCockpitAdminRouter.get('/log-requisicao-api/estatisticas', async (req, res) => {
   try {
     const params: Record<string, string> = {}
     if (typeof req.query.serie === 'string') params.serie = req.query.serie
     if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
-    const data = await proxyToCockpit('/estatisticas-log-consumo', Object.keys(params).length ? params : undefined)
+    const data = await proxyToCockpit('/estatisticas-log-requisicao-api', Object.keys(params).length ? params : undefined)
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)

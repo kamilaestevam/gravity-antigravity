@@ -43,19 +43,19 @@ const serieDiariaPontoSchema = z.object({
   percentual: z.number(),
 })
 
-const estatisticasLogConsumoSchema = z.object({
-  quantidade_requisicoes_log_consumo:        z.number(),
-  quantidade_erros_log_consumo:              z.number(),
-  latencia_media_log_consumo:                z.number(),
-  percentual_uptime_log_consumo:             z.number(),
-  quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
+const estatisticasLogRequisicaoApiSchema = z.object({
+  quantidade_requisicoes_log_requisicao_api:        z.number(),
+  quantidade_erros_log_requisicao_api:              z.number(),
+  latencia_media_log_requisicao_api:                z.number(),
+  percentual_uptime_log_requisicao_api:             z.number(),
+  quantidade_produtos_distintos_log_requisicao_api: z.number().optional().default(0),
   por_id_produto_gravity:                    z.record(z.number()),
   por_faixa_codigo_resposta_http:            z.record(z.number()),
-  serie_diaria_log_consumo:                  z.array(serieDiariaPontoSchema).optional(),
+  serie_diaria_log_requisicao_api:                  z.array(serieDiariaPontoSchema).optional(),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
-type EstatisticasLogConsumo = z.infer<typeof estatisticasLogConsumoSchema>
+type EstatisticasLogRequisicaoApi = z.infer<typeof estatisticasLogRequisicaoApiSchema>
 type TipoServicoPlataforma = ServicoPlataforma['tipo_servico_plataforma']
 
 // Rotulos com ortografia PT-BR — type-safe via Record<TipoServicoPlataforma>
@@ -115,7 +115,7 @@ export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
-  const [estatisticas, setEstatisticas] = useState<EstatisticasLogConsumo | null>(null)
+  const [estatisticas, setEstatisticas] = useState<EstatisticasLogRequisicaoApi | null>(null)
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
@@ -129,7 +129,7 @@ export function ApiCockpitAdmin() {
       setErroCarregar(null)
       const [svcRes, statsRes] = await Promise.all([
         requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',                                  { signal }),
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas?serie=diaria&dias=30',   { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-requisicao-api/estatisticas?serie=diaria&dias=30',   { signal }),
       ])
 
       if (!svcRes.ok)   throw new Error(`saude-servicos ${svcRes.status} ${svcRes.statusText}`)
@@ -142,7 +142,7 @@ export function ApiCockpitAdmin() {
       if (svcRaw.error) throw new Error(svcRaw.error)
 
       const svcParsed = servicosResponseSchema.safeParse(svcRaw)
-      const statsParsed = estatisticasLogConsumoSchema.safeParse(statsRaw)
+      const statsParsed = estatisticasLogRequisicaoApiSchema.safeParse(statsRaw)
 
       if (!svcParsed.success)   throw new Error('Payload de saude-servicos invalido')
       if (!statsParsed.success) throw new Error('Payload de estatisticas invalido')
@@ -288,7 +288,7 @@ export function ApiCockpitAdmin() {
       stats={
         <CardsServidoresAdmin
           servicos={servicos}
-          serieDiaria={estatisticas?.serie_diaria_log_consumo as SerieDiariaPontoAdmin[] | undefined}
+          serieDiaria={estatisticas?.serie_diaria_log_requisicao_api as SerieDiariaPontoAdmin[] | undefined}
           estatisticas={estatisticas}
           gabiUsage={gabiUsage}
           gabiLoading={gabiLoading}

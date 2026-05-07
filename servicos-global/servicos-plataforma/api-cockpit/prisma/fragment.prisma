@@ -4,7 +4,7 @@
 // ApiToken               — tokens de API emitidos por organização
 // WebhookConfiguracao    — webhooks cadastrados por organização
 // WebhookLog             — histórico de entregas de webhooks
-// LogConsumo             — log de consumo de endpoints da API pública
+// LogRequisicaoApi       — log de requisições à API pública (1 linha por chamada)
 // ApiIntegracaoErp       — credenciais de integração com ERP (singleton por organização)
 
 // ---------------------------------------------------------------------------
@@ -133,11 +133,15 @@ model WebhookLog {
 }
 
 // ---------------------------------------------------------------------------
-// LogConsumo — log de consumo da API pública (1 linha por requisição)
+// LogRequisicaoApi — log de requisições à API pública (1 linha por chamada HTTP)
+//
+// Renomeado em 2026-05-07 (era `LogConsumo`/`log_consumo`). O nome anterior era
+// genérico demais — esta tabela registra requisições HTTP à API pública
+// Gravity, não "consumo" no sentido financeiro/produto.
 // ---------------------------------------------------------------------------
 
-model LogConsumo {
-  id_log_consumo String @id @default(cuid())
+model LogRequisicaoApi {
+  id_log_requisicao_api String @id @default(cuid())
 
   // Identificação organização — FKs canônicas (REGRA 3/4)
   id_organizacao     String
@@ -147,21 +151,25 @@ model LogConsumo {
   // Relação
   id_api_token String
 
+  // Rastreamento distribuido (header x-correlation-id propagado entre serviços)
+  id_correlacao String?
+
   // Conteúdo da requisição
-  endpoint_log_consumo             String
-  metodo_http_log_consumo          String // GET, POST, PUT, DELETE, etc.
-  codigo_resposta_http_log_consumo Int    // 200, 404, 500, etc.
-  latencia_ms_log_consumo          Int
+  endpoint_log_requisicao_api             String
+  metodo_http_log_requisicao_api          String // GET, POST, PUT, DELETE, etc.
+  codigo_resposta_http_log_requisicao_api Int    // 200, 404, 500, etc.
+  latencia_ms_log_requisicao_api          Int
 
   // Timestamps
-  data_criacao_log_consumo     DateTime @default(now())
-  data_atualizacao_log_consumo DateTime @updatedAt
+  data_criacao_log_requisicao_api     DateTime @default(now())
+  data_atualizacao_log_requisicao_api DateTime @updatedAt
 
-  @@index([id_organizacao],                     map: "lcon_org_idx")
-  @@index([id_organizacao, id_produto_gravity], map: "lcon_org_prd_idx")
-  @@index([id_organizacao, id_usuario],         map: "lcon_org_usr_idx")
-  @@index([id_api_token],                       map: "lcon_apitk_idx")
-  @@map("log_consumo")
+  @@index([id_organizacao],                     map: "lreqapi_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "lreqapi_org_prd_idx")
+  @@index([id_organizacao, id_usuario],         map: "lreqapi_org_usr_idx")
+  @@index([id_api_token],                       map: "lreqapi_apitk_idx")
+  @@index([id_correlacao],                      map: "lreqapi_corr_idx")
+  @@map("log_requisicao_api")
 }
 
 // ---------------------------------------------------------------------------

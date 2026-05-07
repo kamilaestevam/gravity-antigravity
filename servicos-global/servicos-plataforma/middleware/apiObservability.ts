@@ -32,12 +32,12 @@ interface ObservabilityEntry {
   id_organizacao:                   string
   id_produto_gravity:               string
   id_usuario:                       string | null
-  endpoint_log_consumo:             string
-  metodo_http_log_consumo:          string
-  codigo_resposta_http_log_consumo: number
-  latencia_ms_log_consumo:          number
+  endpoint_log_requisicao_api:             string
+  metodo_http_log_requisicao_api:          string
+  codigo_resposta_http_log_requisicao_api: number
+  latencia_ms_log_requisicao_api:          number
   id_correlacao:                    string | null
-  data_criacao_log_consumo:         string
+  data_criacao_log_requisicao_api:         string
 }
 
 /**
@@ -124,12 +124,12 @@ export function apiObservability(productId: string) {
         id_organizacao:                   idOrganizacao,
         id_produto_gravity:               productId,
         id_usuario:                       idUsuario,
-        endpoint_log_consumo:             req.path,
-        metodo_http_log_consumo:          req.method,
-        codigo_resposta_http_log_consumo: res.statusCode,
-        latencia_ms_log_consumo:          latenciaMs,
+        endpoint_log_requisicao_api:             req.path,
+        metodo_http_log_requisicao_api:          req.method,
+        codigo_resposta_http_log_requisicao_api: res.statusCode,
+        latencia_ms_log_requisicao_api:          latenciaMs,
         id_correlacao:                    idCorrelacao,
-        data_criacao_log_consumo:         new Date().toISOString(),
+        data_criacao_log_requisicao_api:         new Date().toISOString(),
       }
 
       logBuffer.push(entry)

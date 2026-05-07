@@ -42,6 +42,10 @@ export interface CampoPedidoDDD {
 
 export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   // Identificacao
+  // tipo_linha: marca obrigatoria para o parser identificar Pedido (master) vs Item (detail).
+  // PEDIDO -> linha de Pedido (preenche colunas de Pedido, deixa colunas de Item vazias).
+  // ITEM   -> linha de Item   (vincula ao Pedido imediatamente acima OU por numero_pedido).
+  { campo: 'tipo_linha',                                   rotulo: 'Tipo Linha',                             tipo: 'select', nivel: 'pedido', grupo: 'Identificacao', opcoesSelect: ['PEDIDO', 'ITEM'] },
   { campo: 'numero_pedido',                                rotulo: 'Numero do Pedido',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Identificacao' },
   { campo: 'tipo_operacao',                                rotulo: 'Tipo de Operacao',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificacao', opcoesSelect: ['importacao', 'exportacao'] },
 

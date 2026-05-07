@@ -179,6 +179,27 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       }
     })
 
+    // ── Data validation (dropdowns) para campos tipo 'select' ─────────────────
+    // Aplica do row 3 ate 1000 (margem para o usuario adicionar linhas).
+    camposOrdenados.forEach((c, idx) => {
+      if (c.tipo === 'select' && c.opcoesSelect && c.opcoesSelect.length > 0) {
+        const colLetter = ws.getColumn(idx + 1).letter
+        const opcoes = c.opcoesSelect.map(o => `"${o}"`).join(',')
+        // Aplica em cada celula da faixa 3:1000 — eachCell + dataValidation
+        for (let row = 3; row <= 1000; row++) {
+          ws.getCell(`${colLetter}${row}`).dataValidation = {
+            type:           'list',
+            allowBlank:     false,
+            formulae:       [`"${c.opcoesSelect.join(',')}"`],
+            showErrorMessage: true,
+            errorStyle:     'error',
+            errorTitle:     'Valor invalido',
+            error:          `Valores aceitos: ${c.opcoesSelect.join(', ')}`,
+          }
+        }
+      }
+    })
+
     // ── Linha 3 — Exemplo de Pedido (vazia, em negrito) ───────────────────────
     const linhaPedidoExemplo = ws.addRow([])
     linhaPedidoExemplo.height = 20

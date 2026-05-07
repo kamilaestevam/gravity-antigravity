@@ -66,8 +66,17 @@ export interface ModalProps {
   iconeTitulo?: string
   /** Abas do modal */
   abas?: AbaModal[]
+  /** Sobrescreve a largura máxima do `tamanho` enum quando precisar de um
+   *  valor entre `lg` (720px) e `xl` (960px) — ex: `'820px'`, `'52rem'`.
+   *  Default undefined (usa LARGURA_MODAL[tamanho]). Opt-in. */
+  larguraMaxima?: string
   /** Estilo das abas. Padrão: 'underline' */
   tipoAbas?: 'underline' | 'pill'
+  /** Centraliza horizontalmente a pill de abas dentro do nav.
+   *  Útil quando o modal é mais largo que o conteúdo das abas (ex: modal "xl"
+   *  com poucas abas — o pill ficaria com sobra à direita). Default `false`
+   *  — preserva o alinhamento à esquerda histórico de todos os modais. Opt-in. */
+  centralizarAbas?: boolean
   /** Aba a ser selecionada inicialmente ao abrir o modal */
   abaAtivaInicial?: string
   /** Header inteiro customizado (substitui o padrão do modal) */

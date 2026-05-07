@@ -29,17 +29,22 @@ function NavegacaoAbas({
   aoMudarAba,
   idBase,
   tipoAbas,
+  centralizarAbas,
 }: {
   abas: AbaModal[]
   abaAtiva: string
   aoMudarAba: (id: string) => void
   idBase: string
   tipoAbas?: 'underline' | 'pill'
+  centralizarAbas?: boolean
 }) {
   const isPill = tipoAbas === 'pill'
+  // `centralizada` só vai pro DOM quando o caller pediu E é estilo pill.
+  // Mantém alinhamento à esquerda padrão pra todos os modais que não optaram.
+  const classeCentralizada = isPill && centralizarAbas ? ' centralizada' : ''
 
   return (
-    <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}`} role="tablist" aria-label="Abas do modal">
+    <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}${classeCentralizada}`} role="tablist" aria-label="Abas do modal">
       {isPill ? (
         <div className="mg-tabs-pill">
           {abas.map((aba) => {
@@ -129,7 +134,9 @@ export function ModalOverlay({
   iconeTitulo,
   abas,
   tipoAbas = 'underline',
+  centralizarAbas = false,
   abaAtivaInicial,
+  larguraMaxima,
   cabecalhoPersonalizado,
   children,
   botoes,
@@ -210,7 +217,7 @@ export function ModalOverlay({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${id}-titulo`}
-        style={{ maxWidth: LARGURA_MODAL[tamanho], ...(altura ? { height: altura } : {}) }}
+        style={{ maxWidth: larguraMaxima ?? LARGURA_MODAL[tamanho], ...(altura ? { height: altura } : {}) }}
       >
         {/* Header */}
         {cabecalhoPersonalizado ? (
@@ -258,6 +265,7 @@ export function ModalOverlay({
               aoMudarAba={setAbaAtiva}
               idBase={id}
               tipoAbas={tipoAbas}
+              centralizarAbas={centralizarAbas}
             />
           </div>
         )}

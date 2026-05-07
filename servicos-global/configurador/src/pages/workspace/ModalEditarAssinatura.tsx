@@ -789,8 +789,10 @@ export function ModalEditarAssinatura({
       subtitulo={t('workspace.subscriptions.modal_subtitulo')}
       dirty={dirty}
       podesSalvar={dirty && !salvando && requisitos.every((r) => r.ok)}
-      tamanho="xl"
+      tamanho="lg"
+      larguraMaxima="820px"
       altura="640px"
+
       abas={[
         abaDadosBasicos,
         abaSetup,

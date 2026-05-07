@@ -221,6 +221,14 @@ body.light-theme .btn-primary { color: #fff; }
   background: var(--bg-base);
 }
 
+/* Opt-in: centraliza horizontalmente a pill quando o caller passa
+   `centralizarAbas={true}` (prop em ModalProps).
+   Default off — preserva alinhamento à esquerda histórico de todos os modais. */
+.mg-nav-abas.mg-tabs-pill-wrap.centralizada {
+  display: flex;
+  justify-content: center;
+}
+
 .mg-tabs-pill {
   display: inline-flex;
   background: var(--bg-surface);

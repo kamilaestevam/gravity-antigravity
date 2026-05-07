@@ -27,10 +27,14 @@ export interface ModalFormularioAbasProps {
   dirty?: boolean
   podesSalvar?: boolean
   tamanho?: "sm" | "md" | "lg" | "xl" | "full"
+  /** Sobrescreve a largura do `tamanho` enum (ex: '820px'). Ver ModalProps. */
+  larguraMaxima?: string
   altura?: string
   abas: AbaFormulario[]
   abaAtivaInicial?: string
   tipoAbas?: 'underline' | 'pill'
+  /** Centraliza horizontalmente a pill de abas. Default false. Ver ModalProps. */
+  centralizarAbas?: boolean
   textoSalvar?: string
   textoCancelar?: string
   /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
@@ -47,10 +51,12 @@ export function ModalFormularioAbas({
   dirty = false,
   podesSalvar = false,
   tamanho = "lg",
+  larguraMaxima,
   altura = "680px",
   abas,
   abaAtivaInicial,
   tipoAbas = 'pill',
+  centralizarAbas = false,
   textoSalvar,
   textoCancelar,
   semAbas = false,
@@ -105,10 +111,12 @@ export function ModalFormularioAbas({
       titulo=""
       cabecalhoPersonalizado={cabecalho}
       tamanho={tamanho}
+      larguraMaxima={larguraMaxima}
       altura={semAbas ? undefined : altura}
       abas={semAbas ? undefined : abas}
       abaAtivaInicial={semAbas ? undefined : abaAtivaInicial}
       tipoAbas={tipoAbas}
+      centralizarAbas={centralizarAbas}
       renderizarFooter={renderFooter}
     >
       {semAbas ? abas[0]?.conteudo : undefined}

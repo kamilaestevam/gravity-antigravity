@@ -410,10 +410,15 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
               <CardEstatisticaGlobal
-                titulo={<TituloComPill>USD / BRL <PillPeriodo>Atual</PillPeriodo></TituloComPill>}
+                titulo="USD / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
-                subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo>Atual</PillPeriodo>
+                    <span>{taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">DÓLAR AMERICANO · COTAÇÃO ATUAL</p>
@@ -442,10 +447,15 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<TituloComPill>EUR / BRL <PillPeriodo>Atual</PillPeriodo></TituloComPill>}
+                titulo="EUR / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
-                subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo>Atual</PillPeriodo>
+                    <span>{taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">EURO · COTAÇÃO ATUAL</p>
@@ -477,7 +487,12 @@ export function TaxasMoeda() {
                 titulo="Moedas ativas"
                 icone={<ChartLine weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
-                subtexto={`de ${MOEDAS_ORDEM.length} moedas suportadas`}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo>Atual</PillPeriodo>
+                    <span>{`de ${MOEDAS_ORDEM.length} moedas suportadas`}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">SITUAÇÃO POR MOEDA</p>
@@ -506,12 +521,17 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
               <CardEstatisticaGlobal
-                titulo={<TituloComPill>USD / BRL <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
+                titulo="USD / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</span>}
-                subtexto={media30dUSD.compra != null
-                  ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)} · ${media30dUSD.total} boletins`
-                  : 'Sem histórico nos últimos 30 dias'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
+                    <span>{media30dUSD.compra != null
+                      ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)} · ${media30dUSD.total} boletins`
+                      : 'Sem histórico nos últimos 30 dias'}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">DÓLAR AMERICANO · MÉDIA 30 DIAS</p>
@@ -541,12 +561,17 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<TituloComPill>EUR / BRL <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
+                titulo="EUR / BRL"
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</span>}
-                subtexto={media30dEUR.compra != null
-                  ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)} · ${media30dEUR.total} boletins`
-                  : 'Sem histórico nos últimos 30 dias'}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
+                    <span>{media30dEUR.compra != null
+                      ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)} · ${media30dEUR.total} boletins`
+                      : 'Sem histórico nos últimos 30 dias'}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">EURO · MÉDIA 30 DIAS</p>
@@ -576,10 +601,15 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<TituloComPill>Boletins <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
+                titulo="Boletins"
                 icone={<ChartLine weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.75rem' }}>{historico.length}</span>}
-                subtexto={`${moedaHistorico} nos últimos 30 dias`}
+                subtexto={
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
+                    <span>{`${moedaHistorico} nos últimos 30 dias`}</span>
+                  </span>
+                }
                 tooltip={
                   <>
                     <p className="cg-tooltip__title">VOLUME DE HISTÓRICO · {moedaHistorico}</p>

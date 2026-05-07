@@ -22,7 +22,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/use-historico-logger'
 import { catalogApiService, type ProdutoInput } from '../../services/catalog-adapter'
-import { setAuthTokenProvider } from '../../services/api-client'
+import { setAuthTokenProvider, adminOrganizacoesApi } from '../../services/api-client'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { extractCatchError } from '../../utils/extract-api-error'
@@ -163,6 +163,12 @@ export function ProdutosGravityAdmin() {
     setCarregando(true)
     // Slugs carregados independentemente — não devem bloquear a lista de produtos
     catalogApiService.getSlugsDisponiveis().then(setSlugsDisponiveis)
+    // Organizações disponíveis para vincular em Negociação Especial — substitui mock
+    adminOrganizacoesApi.list({ limit: 200 })
+      .then(({ organizacoes }) => setOrganizacoesDisponiveis(
+        organizacoes.map(o => ({ id_organizacao: o.id_organizacao, nome_organizacao: o.nome_organizacao })),
+      ))
+      .catch(err => console.warn('[ProdutosGravityAdmin] falha ao carregar organizacoes', err))
     try {
       const [lista, negs] = await Promise.all([
         catalogApiService.listProdutos({ page: pagina, limit: LIMITE_POR_PAGINA }),
@@ -260,11 +266,17 @@ export function ProdutosGravityAdmin() {
   const [moedaHelpDesk, setMoedaHelpDesk] = React.useState('BRL')
 
   // 06. Negociação Especial
-  const [vincularOrg, setVincularOrg] = React.useState<'sim' | 'nao'>('nao')
-  const [orgSelecionada, setOrgSelecionada] = React.useState<string | null>(null)
-  const [vigenciaIlimitada, setVigenciaIlimitada] = React.useState<'sim' | 'nao'>('nao')
-  const [vigenciaPeriodo, setVigenciaPeriodo] = React.useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
-  const [vigenciaNeg, setVigenciaNeg] = React.useState('')
+  const [vincularOrganizacaoNegociacaoEspecial, setVincularOrganizacaoNegociacaoEspecial] = React.useState<'sim' | 'nao'>('nao')
+  const [organizacaoSelecionadaNegociacaoEspecial, setOrganizacaoSelecionadaNegociacaoEspecial] = React.useState<{ id_organizacao: string; nome_organizacao: string } | null>(null)
+  const [vigenciaIlimitadaNegociacaoEspecial, setVigenciaIlimitadaNegociacaoEspecial] = React.useState<'sim' | 'nao'>('nao')
+  const [vigenciaPeriodoNegociacaoEspecial, setVigenciaPeriodoNegociacaoEspecial] = React.useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
+  const [acordoNegociacaoEspecial, setAcordoNegociacaoEspecial] = React.useState('')
+  const [valorNegociacaoEspecial, setValorNegociacaoEspecial] = React.useState('')
+  const [moedaNegociacaoEspecial, setMoedaNegociacaoEspecial] = React.useState('BRL')
+  const [negociacaoEspecialEditando, setNegociacaoEspecialEditando] = React.useState<NegociacaoEspecial | null>(null)
+  const [organizacoesDisponiveis, setOrganizacoesDisponiveis] = React.useState<Array<{ id_organizacao: string; nome_organizacao: string }>>([])
+  const [negociacoesDoProduto, setNegociacoesDoProduto] = React.useState<NegociacaoEspecial[]>([])
+  const [salvandoNegociacaoEspecial, setSalvandoNegociacaoEspecial] = React.useState(false)
 
   // 07. Faixas de Preço (Novo na Onda 3)
   const [faixas, setFaixas] = React.useState<FaixaPreco[]>([])
@@ -287,8 +299,10 @@ export function ProdutosGravityAdmin() {
     setTipoCobranca(''); setMoedaProduto('BRL'); setValorUnitario(''); setValorMinimo(''); setValorTotal('')
     setLimiteUsuarios('limitada'); setQtdUsuarios(''); setMoedaUsuario('BRL'); setValorUsuarioAdicional('')
     setTotalHoras(''); setMoedaHelpDesk('BRL')
-    setVincularOrg('nao'); setOrgSelecionada(null)
-    setVigenciaIlimitada('nao'); setVigenciaPeriodo({ inicio: null, fim: null }); setVigenciaNeg('')
+    setVincularOrganizacaoNegociacaoEspecial('nao'); setOrganizacaoSelecionadaNegociacaoEspecial(null)
+    setVigenciaIlimitadaNegociacaoEspecial('nao'); setVigenciaPeriodoNegociacaoEspecial({ inicio: null, fim: null })
+    setAcordoNegociacaoEspecial(''); setValorNegociacaoEspecial(''); setMoedaNegociacaoEspecial('BRL')
+    setNegociacaoEspecialEditando(null); setNegociacoesDoProduto([])
     setFaixas([])
     setGabiQuotaMensal('')
     setGabiTokenStats(null)
@@ -318,6 +332,10 @@ export function ProdutosGravityAdmin() {
     setFaixas(item.faixas_preco_produto_gravity || [])
     setGabiQuotaMensal(String(item.quota_gabi_mensal_produto_gravity ?? 0))
     setGabiTokenStats(null)
+    // Carrega negociações do produto para a aba Negociação Especial (lista CRUD)
+    catalogApiService.listarNegociacoesEspeciaisPorProduto(item.id_produto_gravity)
+      .then(setNegociacoesDoProduto)
+      .catch(err => console.warn('[ProdutosGravityAdmin] falha ao carregar negociacoes do produto', err))
     setModalAberto(true)
   }
 
@@ -683,8 +701,53 @@ export function ProdutosGravityAdmin() {
           try {
             await catalogApiService.saveProduto(produtoInput, { isNew })
 
-            if (vincularOrg === 'sim' && orgSelecionada) {
-              // Em breve integrar com a nova tabela de negociações no banco
+            // Persiste Negociação Especial (POST se nova, PUT se editando)
+            if (
+              vincularOrganizacaoNegociacaoEspecial === 'sim' &&
+              organizacaoSelecionadaNegociacaoEspecial &&
+              acordoNegociacaoEspecial.trim().length > 0
+            ) {
+              const id_produto_para_negociacao = produtoEditando?.id_produto_gravity ?? slugResolve
+              const valor_decimal = valorNegociacaoEspecial
+                ? Number(valorNegociacaoEspecial.replace(/\./g, '').replace(',', '.'))
+                : null
+              const body = {
+                id_organizacao: organizacaoSelecionadaNegociacaoEspecial.id_organizacao,
+                nome_organizacao_negociacao_especial: organizacaoSelecionadaNegociacaoEspecial.nome_organizacao,
+                acordo_negociacao_especial: acordoNegociacaoEspecial.trim(),
+                valor_unitario_negociacao_especial: valor_decimal,
+                moeda_negociacao_especial: moedaNegociacaoEspecial,
+                data_inicio_negociacao_especial: vigenciaIlimitadaNegociacaoEspecial === 'nao' && vigenciaPeriodoNegociacaoEspecial.inicio
+                  ? vigenciaPeriodoNegociacaoEspecial.inicio.toISOString()
+                  : null,
+                data_fim_negociacao_especial: vigenciaIlimitadaNegociacaoEspecial === 'nao' && vigenciaPeriodoNegociacaoEspecial.fim
+                  ? vigenciaPeriodoNegociacaoEspecial.fim.toISOString()
+                  : null,
+                ilimitado_prazo_negociacao_especial: vigenciaIlimitadaNegociacaoEspecial === 'sim',
+              }
+              try {
+                if (negociacaoEspecialEditando) {
+                  await catalogApiService.atualizarNegociacaoEspecial(
+                    id_produto_para_negociacao,
+                    negociacaoEspecialEditando.id_negociacao_especial,
+                    {
+                      acordo_negociacao_especial: body.acordo_negociacao_especial,
+                      valor_unitario_negociacao_especial: body.valor_unitario_negociacao_especial,
+                      moeda_negociacao_especial: body.moeda_negociacao_especial,
+                      data_inicio_negociacao_especial: body.data_inicio_negociacao_especial,
+                      data_fim_negociacao_especial: body.data_fim_negociacao_especial,
+                      ilimitado_prazo_negociacao_especial: body.ilimitado_prazo_negociacao_especial,
+                    },
+                  )
+                } else {
+                  await catalogApiService.criarNegociacaoEspecial(id_produto_para_negociacao, body)
+                }
+              } catch (negErr) {
+                addNotification({
+                  type: 'error',
+                  message: extractCatchError(negErr, 'Produto salvo, mas falha ao salvar Negociação Especial'),
+                })
+              }
             }
 
             handleFecharModal()
@@ -1329,44 +1392,79 @@ export function ProdutosGravityAdmin() {
                   tooltipDescricao={t('admin.produtos-gravity.campo_vincular_org_tooltip_desc')}
                 >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                    <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_nao')} />
-                    <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_sim')} />
+                    <TogBtn val="nao" cur={vincularOrganizacaoNegociacaoEspecial} set={v => dirty(() => setVincularOrganizacaoNegociacaoEspecial(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_nao')} />
+                    <TogBtn val="sim" cur={vincularOrganizacaoNegociacaoEspecial} set={v => dirty(() => setVincularOrganizacaoNegociacaoEspecial(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_sim')} />
                   </div>
                 </CampoGeralGlobal>
 
-                {vincularOrg === 'sim' && (
+                {vincularOrganizacaoNegociacaoEspecial === 'sim' && (
                   <>
+                    {/* Lista de organizações REAL via /api/v1/admin/organizacoes (substitui mock) */}
                     <CampoGeralGlobal label={t('admin.produtos-gravity.campo_empresa_org')} obrigatorio>
                       <SelectGlobal
-                        opcoes={[
-                          { valor: 'Importas SA', rotulo: 'Importas SA' },
-                          { valor: 'TechCorp Brasil', rotulo: 'TechCorp Brasil' },
-                          { valor: 'Mega Retail', rotulo: 'Mega Retail' },
-                          { valor: 'Global Trade Ltda', rotulo: 'Global Trade Ltda' },
-                          { valor: 'Aduaneiro Plus', rotulo: 'Aduaneiro Plus' },
-                        ]}
-                        valor={orgSelecionada}
-                        aoMudarValor={v => dirty(() => setOrgSelecionada(v ? String(v) : null))}
+                        opcoes={organizacoesDisponiveis.map(o => ({ valor: o.id_organizacao, rotulo: o.nome_organizacao }))}
+                        valor={organizacaoSelecionadaNegociacaoEspecial?.id_organizacao ?? null}
+                        aoMudarValor={v => dirty(() => {
+                          if (!v) {
+                            setOrganizacaoSelecionadaNegociacaoEspecial(null)
+                            return
+                          }
+                          const escolhida = organizacoesDisponiveis.find(o => o.id_organizacao === String(v))
+                          setOrganizacaoSelecionadaNegociacaoEspecial(escolhida ?? null)
+                        })}
                         iconeEsquerda={<Buildings size={16} />}
                         placeholder={t('admin.produtos-gravity.campo_empresa_org_placeholder')}
                         buscavel
                       />
                     </CampoGeralGlobal>
 
+                    <CampoGeralGlobal label={t('admin.produtos-gravity.campo_acordo_negociacao_especial', { defaultValue: 'Descrição do acordo' })} obrigatorio>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={acordoNegociacaoEspecial}
+                        onChange={e => dirty(() => setAcordoNegociacaoEspecial(e.target.value))}
+                        placeholder='ex: "Preço fixo R$ 1.500/mês" ou "Desconto 20%"'
+                        maxLength={2000}
+                        style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid var(--ws-border)', background: 'var(--ws-bg)', color: 'var(--ws-text)', fontSize: '0.875rem' }}
+                      />
+                    </CampoGeralGlobal>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                      <CampoGeralGlobal label={t('admin.produtos-gravity.campo_valor_negociacao_especial', { defaultValue: 'Valor Unitário Especial (R$)' })}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={valorNegociacaoEspecial}
+                          onChange={e => dirty(() => setValorNegociacaoEspecial(mascaraMoeda(e.target.value)))}
+                          placeholder="opcional — deixe vazio se acordo é só descritivo"
+                          style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid var(--ws-border)', background: 'var(--ws-bg)', color: 'var(--ws-text)', fontSize: '0.875rem' }}
+                        />
+                      </CampoGeralGlobal>
+
+                      <CampoGeralGlobal label={t('admin.produtos-gravity.campo_moeda_negociacao_especial', { defaultValue: 'Moeda' })}>
+                        <SelectGlobal
+                          opcoes={MOEDAS_OPCOES}
+                          valor={moedaNegociacaoEspecial}
+                          aoMudarValor={v => dirty(() => setMoedaNegociacaoEspecial(String(v ?? 'BRL')))}
+                          buscavel
+                        />
+                      </CampoGeralGlobal>
+                    </div>
 
                     <CampoGeralGlobal label={t('admin.produtos-gravity.campo_vigencia')}>
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', marginBottom: '0.5rem' }}>
-                        <TogBtn val="nao" cur={vigenciaIlimitada} set={v => dirty(() => setVigenciaIlimitada(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.vigencia_com_data')} />
-                        <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label={t('admin.produtos-gravity.vigencia_ilimitada')} />
+                        <TogBtn val="nao" cur={vigenciaIlimitadaNegociacaoEspecial} set={v => dirty(() => setVigenciaIlimitadaNegociacaoEspecial(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.vigencia_com_data')} />
+                        <TogBtn val="sim" cur={vigenciaIlimitadaNegociacaoEspecial} set={v => dirty(() => { setVigenciaIlimitadaNegociacaoEspecial(v as 'sim' | 'nao'); setVigenciaPeriodoNegociacaoEspecial({ inicio: null, fim: null }) })} label={t('admin.produtos-gravity.vigencia_ilimitada')} />
                       </div>
-                      {vigenciaIlimitada === 'nao' && (
+                      {vigenciaIlimitadaNegociacaoEspecial === 'nao' && (
                         <CampoCalendarioGlobal
                           placeholder={t('admin.produtos-gravity.vigencia_placeholder')}
-                          valor={vigenciaPeriodo}
-                          aoMudarValor={v => dirty(() => setVigenciaPeriodo(v))}
+                          valor={vigenciaPeriodoNegociacaoEspecial}
+                          aoMudarValor={v => dirty(() => setVigenciaPeriodoNegociacaoEspecial(v))}
                         />
                       )}
-                      {vigenciaIlimitada === 'sim' && (
+                      {vigenciaIlimitadaNegociacaoEspecial === 'sim' && (
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.375rem 0.875rem', borderRadius: '9999px', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', color: '#818cf8', fontSize: '0.8125rem', fontWeight: 600 }}>
                           <Infinity size={15} weight="bold" />
                           {t('admin.produtos-gravity.vigencia_sem_expiracao')}
@@ -1374,15 +1472,83 @@ export function ProdutosGravityAdmin() {
                       )}
                     </CampoGeralGlobal>
 
-                    {orgSelecionada && (
+                    {organizacaoSelecionadaNegociacaoEspecial && (
                       <div style={{ padding: '0.75rem 1rem', borderRadius: 8, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#10b981' }}>{t('admin.produtos-gravity.negociacao_preview_titulo')}</span>
                         <span style={{ fontSize: '0.875rem', color: 'var(--ws-text)' }}>
-                          <strong>{orgSelecionada}</strong>{vigenciaNeg ? ` · ${vigenciaNeg}` : ''}
+                          <strong>{organizacaoSelecionadaNegociacaoEspecial.nome_organizacao}</strong>
+                          {acordoNegociacaoEspecial && ` · ${acordoNegociacaoEspecial}`}
+                          {valorNegociacaoEspecial && ` · ${moedaNegociacaoEspecial} ${valorNegociacaoEspecial}`}
                         </span>
                       </div>
                     )}
                   </>
+                )}
+
+                {/* Lista de negociações já configuradas para este produto (CRUD inline) */}
+                {produtoEditando && negociacoesDoProduto.length > 0 && (
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid var(--ws-border)', paddingTop: '1rem' }}>
+                    <p style={{ margin: '0 0 0.75rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
+                      {t('admin.produtos-gravity.lista_negociacoes_especiais_titulo', { defaultValue: 'Negociações Especiais já configuradas' })} ({negociacoesDoProduto.length})
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {negociacoesDoProduto.map(neg => (
+                        <div key={neg.id_negociacao_especial} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 0.875rem', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <Buildings size={16} weight="duotone" color="#818cf8" />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {neg.nome_organizacao_negociacao_especial}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>
+                              {neg.acordo_negociacao_especial}
+                              {neg.valor_unitario_negociacao_especial && ` · ${neg.moeda_negociacao_especial} ${neg.valor_unitario_negociacao_especial}`}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNegociacaoEspecialEditando(neg)
+                              setVincularOrganizacaoNegociacaoEspecial('sim')
+                              setOrganizacaoSelecionadaNegociacaoEspecial({ id_organizacao: neg.id_organizacao, nome_organizacao: neg.nome_organizacao_negociacao_especial })
+                              setAcordoNegociacaoEspecial(neg.acordo_negociacao_especial)
+                              setValorNegociacaoEspecial(neg.valor_unitario_negociacao_especial ?? '')
+                              setMoedaNegociacaoEspecial(neg.moeda_negociacao_especial ?? 'BRL')
+                              setVigenciaIlimitadaNegociacaoEspecial(neg.ilimitado_prazo_negociacao_especial ? 'sim' : 'nao')
+                              setVigenciaPeriodoNegociacaoEspecial({
+                                inicio: neg.data_inicio_negociacao_especial ? new Date(neg.data_inicio_negociacao_especial) : null,
+                                fim: neg.data_fim_negociacao_especial ? new Date(neg.data_fim_negociacao_especial) : null,
+                              })
+                            }}
+                            style={{ padding: '0.25rem 0.625rem', borderRadius: 6, background: 'rgba(129,140,248,0.12)', color: '#818cf8', fontSize: '0.6875rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            disabled={salvandoNegociacaoEspecial}
+                            onClick={async () => {
+                              if (!produtoEditando) return
+                              if (!confirm(`Excluir negociação de ${neg.nome_organizacao_negociacao_especial}?`)) return
+                              try {
+                                setSalvandoNegociacaoEspecial(true)
+                                await catalogApiService.excluirNegociacaoEspecial(produtoEditando.id_produto_gravity, neg.id_negociacao_especial)
+                                const lista = await catalogApiService.listarNegociacoesEspeciaisPorProduto(produtoEditando.id_produto_gravity)
+                                setNegociacoesDoProduto(lista)
+                                addNotification({ type: 'success', message: 'Negociação especial removida' })
+                              } catch (err) {
+                                addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao excluir negociação') })
+                              } finally {
+                                setSalvandoNegociacaoEspecial(false)
+                              }
+                            }}
+                            style={{ padding: '0.25rem 0.625rem', borderRadius: 6, background: 'rgba(248,113,113,0.12)', color: '#f87171', fontSize: '0.6875rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )

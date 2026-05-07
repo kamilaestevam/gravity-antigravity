@@ -13,7 +13,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
-import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
+import { CardsServidores } from './CardsServidores'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -170,7 +170,8 @@ export function ApiCockpit() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
-        <ApiCockpitKpiCards />
+        {/* Cards especificos da aba Servidores (saude da infraestrutura) */}
+        <CardsServidores servicos={servicos} />
 
         {/* Tabs unificadas — 4 pills (Servidores, Tokens, Webhooks, Consumo) */}
         <ApiCockpitTabs />

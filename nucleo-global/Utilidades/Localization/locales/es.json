@@ -784,7 +784,14 @@
       "aba_servidores": "Servidores",
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
-      "aba_consumo": "Consumo"
+      "aba_consumo": "Consumo",
+      "status_plataforma": "Estado de la Plataforma",
+      "servidores_online": "Servidores en Línea",
+      "latencia_plataforma": "Latencia Promedio Plataforma",
+      "ultima_verificacao": "Última Verificación",
+      "status_operacional_pleno": "Operativo Pleno",
+      "status_degradado": "Degradado",
+      "status_falhando": "Fallando"
     },
     "visao-geral": {
       "titulo": "Visión General de la Plataforma",
@@ -1554,6 +1561,19 @@
     }
   },
   "workspace": {
+    "cockpit": {
+      "aba_servidores":      "Servidores",
+      "aba_tokens":          "Tokens",
+      "aba_webhooks":        "Webhooks",
+      "aba_consumo":         "Consumo",
+      "status_plataforma":   "Estado de la Plataforma",
+      "servidores_online":   "Servidores en Línea",
+      "latencia_plataforma": "Latencia Promedio Plataforma",
+      "ultima_verificacao":  "Última Verificación",
+      "status_operacional_pleno": "Operativo Pleno",
+      "status_degradado":    "Degradado",
+      "status_falhando":     "Fallando"
+    },
     "layout": {
       "organizacao": "Organización",
       "workspaces": "Workspaces",

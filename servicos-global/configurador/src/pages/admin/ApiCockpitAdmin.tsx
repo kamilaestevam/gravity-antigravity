@@ -12,11 +12,11 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
+import { CardsServidoresAdmin } from './CardsServidoresAdmin'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -187,17 +187,6 @@ export function ApiCockpitAdmin() {
     }
   }, [carregarMonitor, carregarGabiUsage])
 
-  // KPIs memoizados — recalcular so quando servicos/logs mudam
-  const apisOnline = useMemo(
-    () => servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length,
-    [servicos],
-  )
-  const apisTotal = servicos.length
-  const apisOffline = useMemo(
-    () => servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length,
-    [servicos],
-  )
-
   // Ordenação padrão: prioridade definida em ORDEM_PADRAO_SERVICOS; demais ao final
   const servicosOrdenados = useMemo(() => {
     const total = ORDEM_PADRAO_SERVICOS.length
@@ -208,27 +197,9 @@ export function ApiCockpitAdmin() {
     })
   }, [servicos])
 
-  // Status geral derivado da saude dos servicos
-  const statusGeral = apisTotal === 0
-    ? 'Indisponível'
-    : apisOffline === 0
-      ? 'Operacional'
-      : apisOffline === apisTotal
-        ? 'Crítico'
-        : 'Degradado'
-  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
-    statusGeral === 'Operacional' ? 'sucesso'
-    : statusGeral === 'Degradado' ? 'aviso'
-    : statusGeral === 'Crítico'   ? 'perigo'
-    : 'padrao'
-
-  const uptimePercent   = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
-  const latenciaMediaMs = estatisticas ? `${estatisticas.latencia_media_log_consumo}ms` : '—'
-  const requisicoes24h  = estatisticas ? estatisticas.quantidade_requisicoes_log_consumo : 0
-
-  // GABI KPIs memoizados
-  const gabiCalls = gabiUsage?.total_calls ?? 0
-  const gabiCost = gabiUsage?.total_cost_usd ?? 0
+  // GABI KPIs (ainda usados na seção de breakdown abaixo)
+  const gabiCalls  = gabiUsage?.total_calls ?? 0
+  const gabiCost   = gabiUsage?.total_cost_usd ?? 0
   const gabiTokens = (gabiUsage?.total_tokens_input ?? 0) + (gabiUsage?.total_tokens_output ?? 0)
 
   const colunasInventario: TabelaGlobalColuna<ServicoPlataforma>[] = [
@@ -307,43 +278,12 @@ export function ApiCockpitAdmin() {
         />
       }
       stats={
-        <>
-          <CardEstatisticaGlobal
-            titulo={t('admin.api-cockpit.status_geral')}
-            valor={statusGeral}
-            variante={statusVariante}
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.api-cockpit.uptime_24h')}
-            valor={uptimePercent}
-            variante="primario"
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.api-cockpit.latencia_media')}
-            valor={latenciaMediaMs}
-            variante="padrao"
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.api-cockpit.apis_online')}
-            valor={`${apisOnline}/${apisTotal}`}
-            variante="sucesso"
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.api-cockpit.requisicoes_24h')}
-            valor={String(requisicoes24h)}
-            variante="primario"
-          />
-          <CardEstatisticaGlobal
-            titulo="GABI IA · Chamadas"
-            valor={gabiLoading ? '…' : String(gabiCalls)}
-            variante="primario"
-          />
-          <CardEstatisticaGlobal
-            titulo="GABI IA · Custo Mês"
-            valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
-            variante="aviso"
-          />
-        </>
+        <CardsServidoresAdmin
+          servicos={servicos}
+          estatisticas={estatisticas}
+          gabiUsage={gabiUsage}
+          gabiLoading={gabiLoading}
+        />
       }
       toolbar={
         <div style={{

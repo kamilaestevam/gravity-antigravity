@@ -483,7 +483,14 @@
       "aba_servidores": "Servers",
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
-      "aba_consumo": "Usage"
+      "aba_consumo": "Usage",
+      "status_plataforma": "Platform Status",
+      "servidores_online": "Servers Online",
+      "latencia_plataforma": "Avg. Platform Latency",
+      "ultima_verificacao": "Last Check",
+      "status_operacional_pleno": "Fully Operational",
+      "status_degradado": "Degraded",
+      "status_falhando": "Failing"
     },
     "visao-geral": {
       "titulo": "Platform Overview",
@@ -1393,6 +1400,19 @@
     }
   },
   "workspace": {
+    "cockpit": {
+      "aba_servidores":      "Servers",
+      "aba_tokens":          "Tokens",
+      "aba_webhooks":        "Webhooks",
+      "aba_consumo":         "Usage",
+      "status_plataforma":   "Platform Status",
+      "servidores_online":   "Servers Online",
+      "latencia_plataforma": "Avg. Platform Latency",
+      "ultima_verificacao":  "Last Check",
+      "status_operacional_pleno": "Fully Operational",
+      "status_degradado":    "Degraded",
+      "status_falhando":     "Failing"
+    },
     "layout": {
       "organizacao": "Organization",
       "workspaces": "Workspaces",

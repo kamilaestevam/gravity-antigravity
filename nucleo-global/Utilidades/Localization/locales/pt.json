@@ -483,7 +483,14 @@
       "aba_servidores": "Servidores",
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
-      "aba_consumo": "Consumo"
+      "aba_consumo": "Consumo",
+      "status_plataforma": "Status da Plataforma",
+      "servidores_online": "Servidores Online",
+      "latencia_plataforma": "Latência Média Plataforma",
+      "ultima_verificacao": "Última Verificação",
+      "status_operacional_pleno": "Operacional Pleno",
+      "status_degradado": "Degradado",
+      "status_falhando": "Falhando"
     },
     "visao-geral": {
       "titulo": "Visão Geral da Plataforma",
@@ -1524,7 +1531,14 @@
       "aba_servidores":      "Servidores",
       "aba_tokens":          "Tokens",
       "aba_webhooks":        "Webhooks",
-      "aba_consumo":         "Consumo"
+      "aba_consumo":         "Consumo",
+      "status_plataforma":   "Status da Plataforma",
+      "servidores_online":   "Servidores Online",
+      "latencia_plataforma": "Latência Média Plataforma",
+      "ultima_verificacao":  "Última Verificação",
+      "status_operacional_pleno": "Operacional Pleno",
+      "status_degradado":    "Degradado",
+      "status_falhando":     "Falhando"
     },
     "layout": {
       "organizacao": "Organização",

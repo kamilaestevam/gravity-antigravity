@@ -1427,7 +1427,7 @@
       "financeiro": "Financial",
       "api-cockpit": "API Cockpit",
       "conectores": "Connectors",
-      "taxa-cambio": "Exchange Rate",
+      "taxa-cambio": "Currency Rates",
       "historico-organizacao": "History",
       "modulo_nome": "Configurator",
       "tenant_plano": "Enterprise Plan"

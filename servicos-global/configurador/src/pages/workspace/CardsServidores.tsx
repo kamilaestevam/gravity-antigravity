@@ -6,14 +6,15 @@ import { CardEstatisticaGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 /**
  * CardsServidores — cards da aba Servidores no workspace.
  *
- * Mostra a saude da infraestrutura da plataforma (health checks), nao
- * o consumo da organizacao. Para metricas de consumo per-organizacao,
- * ver ApiCockpitKpiCards (renderizado nas abas Tokens/Webhooks/Consumo).
+ * Mostra a saude da infraestrutura da plataforma. Para metricas de
+ * consumo per-organizacao, ver ApiCockpitKpiCards (renderizado nas
+ * abas Tokens/Webhooks/Consumo).
  *
  * Cards:
- *   1. Status da Plataforma (gauge) — % online no anel + legenda Online/Degradado/Offline
- *   2. Latencia Media — media das latencias dos servicos ONLINE
- *   3. Ultima Verificacao — health check mais recente, formato relativo
+ *   1. Status da Plataforma (gauge)        — % online + legenda Online/Degradado/Offline
+ *   2. Latencia Media Plataforma           — media das latencias dos servicos ONLINE
+ *   3. Ultima Verificacao                  — health check mais recente (relativo)
+ *   4. Disponibilidade Percebida 30d        — % medio + sparkline da serie diaria
  */
 
 interface ServicoPlataforma {
@@ -23,8 +24,16 @@ interface ServicoPlataforma {
   data_ultimo_check_servico_plataforma: string
 }
 
+export interface SerieDiariaPonto {
+  data:       string
+  total:      number
+  sucesso:    number
+  percentual: number
+}
+
 interface CardsServidoresProps {
-  servicos: ServicoPlataforma[]
+  servicos:     ServicoPlataforma[]
+  serieDiaria?: SerieDiariaPonto[]
 }
 
 function formatarRelativo(iso: string | undefined): string {
@@ -42,15 +51,49 @@ function formatarRelativo(iso: string | undefined): string {
   return `há ${dias}d`
 }
 
-export function CardsServidores({ servicos }: CardsServidoresProps) {
+/** Sparkline SVG inline — recebe pontos 0–100 e renderiza um polyline simples. */
+function Sparkline({ pontos, cor = '#34d399', altura = 28, largura = 120 }: {
+  pontos: number[]
+  cor?: string
+  altura?: number
+  largura?: number
+}) {
+  if (pontos.length < 2) {
+    return <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>histórico insuficiente</span>
+  }
+  const min = 0
+  const max = 100
+  const range = max - min
+  const stepX = largura / (pontos.length - 1)
+  const points = pontos
+    .map((v, i) => {
+      const x = i * stepX
+      const y = altura - ((v - min) / range) * altura
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(' ')
+  return (
+    <svg width={largura} height={altura} viewBox={`0 0 ${largura} ${altura}`} aria-hidden>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={cor}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function CardsServidores({ servicos, serieDiaria }: CardsServidoresProps) {
   const { t } = useTranslation()
 
-  const total       = servicos.length
+  const total          = servicos.length
   const onlineCount    = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
   const degradadoCount = servicos.filter((s) => s.status_servico_plataforma === 'DEGRADADO').length
   const offlineCount   = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
 
-  // Status da Plataforma — define cor do gauge
   const status: 'pleno' | 'degradado' | 'falhando' | 'sem_dados' =
     total === 0          ? 'sem_dados'
     : onlineCount === total ? 'pleno'
@@ -63,19 +106,32 @@ export function CardsServidores({ servicos }: CardsServidoresProps) {
     : status === 'falhando'  ? '#f87171'
     :                          '#94a3b8'
 
-  // Latencia media — apenas dos servicos ONLINE
   const servicosOnline = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE')
   const latenciaMediaMs = servicosOnline.length > 0
     ? `${Math.round(servicosOnline.reduce((acc, s) => acc + s.latencia_ms_servico_plataforma, 0) / servicosOnline.length)}ms`
     : '—'
 
-  // Ultima verificacao
   const ultimaIso = servicos.reduce<string | undefined>((acc, s) => {
     const d = s.data_ultimo_check_servico_plataforma
     if (!acc) return d
     return new Date(d).getTime() > new Date(acc).getTime() ? d : acc
   }, undefined)
   const ultimaLabel = formatarRelativo(ultimaIso)
+
+  // Disponibilidade Percebida 30d — media simples dos percentuais diarios da serie
+  const pontosSerie = serieDiaria?.map((p) => p.percentual) ?? []
+  const diasComTrafego = serieDiaria?.filter((p) => p.total > 0) ?? []
+  const disponibilidadePercebidaMedia = diasComTrafego.length > 0
+    ? diasComTrafego.reduce((acc, p) => acc + p.percentual, 0) / diasComTrafego.length
+    : null
+  const disponibilidadeLabel = disponibilidadePercebidaMedia != null
+    ? `${disponibilidadePercebidaMedia.toFixed(1)}%`
+    : '—'
+  const corSparkline =
+    disponibilidadePercebidaMedia == null    ? '#94a3b8'
+    : disponibilidadePercebidaMedia >= 99    ? '#34d399'
+    : disponibilidadePercebidaMedia >= 95    ? '#fbbf24'
+    :                                          '#f87171'
 
   // ── Tooltips ────────────────────────────────────────────────────────────
 
@@ -117,6 +173,23 @@ export function CardsServidores({ servicos }: CardsServidoresProps) {
     'Há quanto tempo foi o último health check de qualquer serviço. A plataforma verifica continuamente.'
   )
 
+  const tooltipDisponibilidade = (
+    <>
+      {ttDesc(
+        '% de requisições bem-sucedidas (HTTP < 500) por dia nos últimos 30 dias. Mede a saúde percebida pelo cliente da API — diferente do health check sintético do card "Status da Plataforma".'
+      )}
+      {disponibilidadePercebidaMedia != null && (
+        <>
+          <div className="cg-tooltip__divider" />
+          <div className="cg-tooltip__row">
+            <span>Dias com tráfego</span>
+            <strong>{diasComTrafego.length} / {serieDiaria?.length ?? 0}</strong>
+          </div>
+        </>
+      )}
+    </>
+  )
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
       <CardGraficoGlobal
@@ -143,6 +216,13 @@ export function CardsServidores({ servicos }: CardsServidoresProps) {
         valor={ultimaLabel}
         variante="padrao"
         tooltip={tooltipUltimaVerificacao}
+      />
+      <CardEstatisticaGlobal
+        titulo={t('workspace.cockpit.disponibilidade_percebida_30d')}
+        valor={disponibilidadeLabel}
+        variante="padrao"
+        subtexto={<Sparkline pontos={pontosSerie} cor={corSparkline} />}
+        tooltip={tooltipDisponibilidade}
       />
     </div>
   )

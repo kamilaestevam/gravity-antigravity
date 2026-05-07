@@ -13,7 +13,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
-import { CardsServidores } from './CardsServidores'
+import { CardsServidores, type SerieDiariaPonto } from './CardsServidores'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -30,6 +30,17 @@ const servicoPlataformaSchema = z.object({
 const servicosResponseSchema = z.object({
   servicos: z.array(servicoPlataformaSchema),
   error:    z.string().optional(),
+})
+
+const serieDiariaPontoSchema = z.object({
+  data:       z.string(),
+  total:      z.number(),
+  sucesso:    z.number(),
+  percentual: z.number(),
+})
+
+const estatisticasSerieSchema = z.object({
+  serie_diaria_log_consumo: z.array(serieDiariaPontoSchema).optional(),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
@@ -68,13 +79,17 @@ export function ApiCockpit() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [servicos, setServicos] = useState<ServicoPlataforma[]>([])
+  const [serieDiaria, setSerieDiaria] = useState<SerieDiariaPonto[] | undefined>(undefined)
   const redirecionarParaConsumo = searchParams.get('aba') === 'logs'
 
   useEffect(() => {
     if (redirecionarParaConsumo) return
     const carregarCockpit = async () => {
       try {
-        const svcRes = await requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos')
+        const [svcRes, serieRes] = await Promise.all([
+          requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos'),
+          requisicaoAutenticada('/api/v1/api-cockpit/log-consumo/estatisticas?serie=diaria&dias=30'),
+        ])
         if (svcRes.ok) {
           const svcRaw = await svcRes.json()
           const svcData = servicosResponseSchema.safeParse(svcRaw)
@@ -82,6 +97,13 @@ export function ApiCockpit() {
             setServicos(svcData.data.servicos)
           } else {
             console.warn('[ApiCockpit] /saude-servicos payload invalido', svcData.error)
+          }
+        }
+        if (serieRes.ok) {
+          const serieRaw = await serieRes.json()
+          const parsed = estatisticasSerieSchema.safeParse(serieRaw)
+          if (parsed.success && parsed.data.serie_diaria_log_consumo) {
+            setSerieDiaria(parsed.data.serie_diaria_log_consumo)
           }
         }
       } catch (err) {
@@ -171,7 +193,7 @@ export function ApiCockpit() {
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         {/* Cards especificos da aba Servidores (saude da infraestrutura) */}
-        <CardsServidores servicos={servicos} />
+        <CardsServidores servicos={servicos} serieDiaria={serieDiaria} />
 
         {/* Tabs unificadas — 4 pills (Servidores, Tokens, Webhooks, Consumo) */}
         <ApiCockpitTabs />

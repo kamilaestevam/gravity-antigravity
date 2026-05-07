@@ -493,7 +493,8 @@
       "status_falhando": "Failing",
       "legenda_online": "Online",
       "legenda_degradado": "Degraded",
-      "legenda_offline": "Offline"
+      "legenda_offline": "Offline",
+      "disponibilidade_percebida_30d": "Perceived Availability 30d"
     },
     "visao-geral": {
       "titulo": "Platform Overview",
@@ -1417,7 +1418,8 @@
       "status_falhando":     "Failing",
       "legenda_online":      "Online",
       "legenda_degradado":   "Degraded",
-      "legenda_offline":     "Offline"
+      "legenda_offline":     "Offline",
+      "disponibilidade_percebida_30d": "Perceived Availability 30d"
     },
     "layout": {
       "organizacao": "Organization",

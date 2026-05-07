@@ -6,17 +6,14 @@ import { CardEstatisticaGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 /**
  * CardsServidoresAdmin — cards da aba Servidores no admin (Gravity HQ).
  *
- * Saude da infraestrutura global + KPIs operacionais (Uptime, GABI). As
- * metricas per-organizacao (Taxa Sucesso, Requisicoes, Produtos em Uso)
- * vivem no shared ApiCockpitAdminKpis usado nas demais abas.
- *
  * Cards:
- *   1. Status da Plataforma (gauge) — % online no anel + legenda Online/Degradado/Offline
- *   2. Latencia Media Plataforma — media dos health checks dos servicos ONLINE
- *   3. Ultima Verificacao — health check mais recente (relativo)
- *   4. Uptime 24h — % uptime calculado pelo backend (consumo agregado)
- *   5. GABI IA · Chamadas — count mes
- *   6. GABI IA · Custo Mes — USD
+ *   1. Status da Plataforma (gauge)        — % online + legenda Online/Degradado/Offline
+ *   2. Latencia Media Plataforma           — media dos health checks dos servicos ONLINE
+ *   3. Ultima Verificacao                  — health check mais recente (relativo)
+ *   4. Disponibilidade Percebida 30d        — % medio + sparkline da serie diaria
+ *   5. Uptime 24h                          — % uptime calculado pelo backend (consumo agregado)
+ *   6. GABI IA · Chamadas                  — count mes
+ *   7. GABI IA · Custo Mes                 — USD
  */
 
 interface ServicoPlataforma {
@@ -24,6 +21,13 @@ interface ServicoPlataforma {
   status_servico_plataforma: 'ONLINE' | 'DEGRADADO' | 'OFFLINE'
   latencia_ms_servico_plataforma: number
   data_ultimo_check_servico_plataforma: string
+}
+
+export interface SerieDiariaPontoAdmin {
+  data:       string
+  total:      number
+  sucesso:    number
+  percentual: number
 }
 
 interface EstatisticasLogConsumo {
@@ -37,6 +41,7 @@ interface GabiUsage {
 
 interface CardsServidoresAdminProps {
   servicos:     ServicoPlataforma[]
+  serieDiaria?: SerieDiariaPontoAdmin[]
   estatisticas: EstatisticasLogConsumo | null
   gabiUsage:    GabiUsage | null
   gabiLoading:  boolean
@@ -65,8 +70,44 @@ const fmtUSD = (n: number) =>
     maximumFractionDigits: 4,
   }).format(n)
 
+/** Sparkline SVG inline — recebe pontos 0–100 */
+function Sparkline({ pontos, cor = '#34d399', altura = 28, largura = 120 }: {
+  pontos: number[]
+  cor?: string
+  altura?: number
+  largura?: number
+}) {
+  if (pontos.length < 2) {
+    return <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>histórico insuficiente</span>
+  }
+  const min = 0
+  const max = 100
+  const range = max - min
+  const stepX = largura / (pontos.length - 1)
+  const points = pontos
+    .map((v, i) => {
+      const x = i * stepX
+      const y = altura - ((v - min) / range) * altura
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(' ')
+  return (
+    <svg width={largura} height={altura} viewBox={`0 0 ${largura} ${altura}`} aria-hidden>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={cor}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function CardsServidoresAdmin({
   servicos,
+  serieDiaria,
   estatisticas,
   gabiUsage,
   gabiLoading,
@@ -105,6 +146,21 @@ export function CardsServidoresAdmin({
   const uptimePercent = estatisticas ? `${estatisticas.percentual_uptime_log_consumo.toFixed(1)}%` : '—'
   const gabiCalls     = gabiUsage?.total_calls ?? 0
   const gabiCost      = gabiUsage?.total_cost_usd ?? 0
+
+  // Disponibilidade Percebida 30d
+  const pontosSerie = serieDiaria?.map((p) => p.percentual) ?? []
+  const diasComTrafego = serieDiaria?.filter((p) => p.total > 0) ?? []
+  const disponibilidadePercebidaMedia = diasComTrafego.length > 0
+    ? diasComTrafego.reduce((acc, p) => acc + p.percentual, 0) / diasComTrafego.length
+    : null
+  const disponibilidadeLabel = disponibilidadePercebidaMedia != null
+    ? `${disponibilidadePercebidaMedia.toFixed(1)}%`
+    : '—'
+  const corSparkline =
+    disponibilidadePercebidaMedia == null    ? '#94a3b8'
+    : disponibilidadePercebidaMedia >= 99    ? '#34d399'
+    : disponibilidadePercebidaMedia >= 95    ? '#fbbf24'
+    :                                          '#f87171'
 
   // ── Tooltips ────────────────────────────────────────────────────────────
 
@@ -146,6 +202,23 @@ export function CardsServidoresAdmin({
     'Há quanto tempo foi o health check mais recente. O monitor roda continuamente — valores muito antigos indicam falha no monitor.'
   )
 
+  const tooltipDisponibilidade = (
+    <>
+      {ttDesc(
+        '% de requisições bem-sucedidas (HTTP < 500) por dia nos últimos 30 dias, agregado de todas as organizações. Mede a saúde percebida pelo cliente da API — diferente do health check sintético do card "Status da Plataforma".'
+      )}
+      {disponibilidadePercebidaMedia != null && (
+        <>
+          <div className="cg-tooltip__divider" />
+          <div className="cg-tooltip__row">
+            <span>Dias com tráfego</span>
+            <strong>{diasComTrafego.length} / {serieDiaria?.length ?? 0}</strong>
+          </div>
+        </>
+      )}
+    </>
+  )
+
   const tooltipUptime = ttDesc(
     'Percentual de requisições globais sem erro 5xx nas últimas 24h, agregado de todas as organizações.'
   )
@@ -184,6 +257,13 @@ export function CardsServidoresAdmin({
         valor={ultimaLabel}
         variante="padrao"
         tooltip={tooltipUltimaVerificacao}
+      />
+      <CardEstatisticaGlobal
+        titulo={t('admin.api-cockpit.disponibilidade_percebida_30d')}
+        valor={disponibilidadeLabel}
+        variante="padrao"
+        subtexto={<Sparkline pontos={pontosSerie} cor={corSparkline} />}
+        tooltip={tooltipDisponibilidade}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.uptime_24h')}

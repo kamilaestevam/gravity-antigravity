@@ -126,7 +126,10 @@ apiCockpitRouter.get('/log-consumo/estatisticas', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
-    const data = await proxyToCockpit('/estatisticas-log-consumo', { id_organizacao: idOrganizacao })
+    const params: Record<string, string> = { id_organizacao: idOrganizacao }
+    if (typeof req.query.serie === 'string') params.serie = req.query.serie
+    if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
+    const data = await proxyToCockpit('/estatisticas-log-consumo', params)
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)
@@ -359,9 +362,12 @@ apiCockpitAdminRouter.get('/log-consumo', async (req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (_req, res) => {
+apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (req, res) => {
   try {
-    const data = await proxyToCockpit('/estatisticas-log-consumo')
+    const params: Record<string, string> = {}
+    if (typeof req.query.serie === 'string') params.serie = req.query.serie
+    if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
+    const data = await proxyToCockpit('/estatisticas-log-consumo', Object.keys(params).length ? params : undefined)
     res.json(data)
   } catch {
     res.json(STATS_FALLBACK)

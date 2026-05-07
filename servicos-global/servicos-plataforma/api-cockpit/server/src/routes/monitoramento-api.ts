@@ -19,6 +19,9 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
 import { requireInternalKey } from '../middleware/requireInternalKey'
 
 const router = Router()
@@ -67,7 +70,8 @@ interface LogConsumoInput {
 }
 
 type StatusServicoPlataforma = 'ONLINE' | 'DEGRADADO' | 'OFFLINE'
-type TipoServicoPlataforma = 'NUCLEO' | 'PRODUTO_GRAVITY' | 'CONECTOR'
+// PLATAFORMA substitui NUCLEO (renomeado em 2026-05-06 — alinha com pasta servicos-plataforma/)
+type TipoServicoPlataforma = 'PLATAFORMA' | 'PRODUTO_GRAVITY' | 'CONECTOR'
 
 interface ServicoPlataforma {
   nome_servico_plataforma: string
@@ -84,27 +88,56 @@ const MAX_STORE_SIZE = 10_000
 const OVERFLOW_WARNING_THRESHOLD = Math.floor(MAX_STORE_SIZE * 0.9) // 90%
 let overflowWarningEmitted = false
 
-// Servicos conhecidos para health check
-const SERVICOS_CONHECIDOS: Array<{
+// ─── Descoberta dinamica de servicos via contracts.json ────────────────
+//
+// Substitui a lista hard-coded de portas. Fonte unica de verdade e
+// `servicos-global/contracts.json`. Servico novo no contracts aparece
+// no inventario sem alteracao de codigo.
+//
+// Tipo derivado:
+//   - Em products[]            → PRODUTO_GRAVITY
+//   - Comeca com "conector-"   → CONECTOR
+//   - Senao                    → PLATAFORMA
+
+interface ContractsJson {
+  products: string[]
+  services: Record<string, { baseUrl?: string; pathPrefix?: string }>
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const CONTRACTS_PATH = resolve(__dirname, '../../../../../contracts.json')
+
+let contractsCache: ContractsJson | null = null
+function carregarContracts(): ContractsJson {
+  if (contractsCache) return contractsCache
+  const raw = readFileSync(CONTRACTS_PATH, 'utf-8')
+  contractsCache = JSON.parse(raw) as ContractsJson
+  return contractsCache
+}
+
+function tipoDoServico(nome: string, products: string[]): TipoServicoPlataforma {
+  if (products.includes(nome)) return 'PRODUTO_GRAVITY'
+  if (nome.startsWith('conector-')) return 'CONECTOR'
+  return 'PLATAFORMA'
+}
+
+interface ServicoDescoberto {
   nome_servico_plataforma: string
-  porta_servico_plataforma: number
+  base_url_servico_plataforma: string
   tipo_servico_plataforma: TipoServicoPlataforma
-}> = [
-  { nome_servico_plataforma: 'configurador',     porta_servico_plataforma: 8005, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'api-cockpit',      porta_servico_plataforma: 8016, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'dashboard',        porta_servico_plataforma: 8010, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'simula-custo',     porta_servico_plataforma: 8020, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'bid-frete',        porta_servico_plataforma: 8023, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'bid-cambio',       porta_servico_plataforma: 8025, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'processo',         porta_servico_plataforma: 8026, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'pedido',           porta_servico_plataforma: 8030, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'lpco',             porta_servico_plataforma: 8027, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'nf-importacao',    porta_servico_plataforma: 8028, tipo_servico_plataforma: 'PRODUTO_GRAVITY' },
-  { nome_servico_plataforma: 'email',            porta_servico_plataforma: 8022, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'historico',        porta_servico_plataforma: 8014, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'notificacoes',     porta_servico_plataforma: 8013, tipo_servico_plataforma: 'NUCLEO' },
-  { nome_servico_plataforma: 'gabi',             porta_servico_plataforma: 8015, tipo_servico_plataforma: 'NUCLEO' },
-]
+}
+
+function descobrirServicos(): ServicoDescoberto[] {
+  const contracts = carregarContracts()
+  return Object.entries(contracts.services)
+    .filter(([nome]) => !nome.startsWith('_'))             // pula _nota e similares
+    .filter(([, cfg]) => typeof cfg.baseUrl === 'string')  // somente entries com baseUrl
+    .map(([nome, cfg]) => ({
+      nome_servico_plataforma:     nome,
+      base_url_servico_plataforma: cfg.baseUrl as string,
+      tipo_servico_plataforma:     tipoDoServico(nome, contracts.products),
+    }))
+}
 
 // ─── Schemas Zod (Mandamento 06 — toda rota com Zod) ─────────────────────
 
@@ -184,45 +217,62 @@ router.post('/ingestao', requireInternalKey, (req: Request, res: Response, next:
 
 // ─── GET /servicos — Health check de todos os servicos ──────────────────
 
+interface HealthCheckResult {
+  ok:       boolean
+  latencia: number
+  versao:   string
+}
+
 router.get('/servicos', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const servicos: ServicoPlataforma[] = []
+    const servicosDescobertos = descobrirServicos()
 
-    const checks = SERVICOS_CONHECIDOS.map(async (svc) => {
+    // Multiplos servicos compartilham processo (ex: tudo em localhost:3001 e
+    // localhost:8005). Deduplica por baseUrl para fazer 1 fetch /health por
+    // processo, depois replica o resultado para todos os servicos do mesmo URL.
+    const baseUrlsUnicas = [...new Set(servicosDescobertos.map((s) => s.base_url_servico_plataforma))]
+    const healthPorBaseUrl = new Map<string, HealthCheckResult>()
+
+    await Promise.allSettled(baseUrlsUnicas.map(async (baseUrl) => {
       const inicio = Date.now()
       try {
         const controller = new AbortController()
         const timeout = setTimeout(() => controller.abort(), 3_000)
-
-        const resp = await fetch(`http://localhost:${svc.porta_servico_plataforma}/health`, {
-          signal: controller.signal,
-        })
+        const resp = await fetch(`${baseUrl}/health`, { signal: controller.signal })
         clearTimeout(timeout)
-
         const latencia = Date.now() - inicio
         const data = await resp.json().catch(() => ({}))
-
-        servicos.push({
-          nome_servico_plataforma:              svc.nome_servico_plataforma,
-          status_servico_plataforma:            resp.ok ? (latencia > 1000 ? 'DEGRADADO' : 'ONLINE') : 'DEGRADADO',
-          latencia_ms_servico_plataforma:       latencia,
-          versao_servico_plataforma:            (data as { version?: string }).version || '1.0.0',
-          data_ultimo_check_servico_plataforma: new Date().toISOString(),
-          tipo_servico_plataforma:              svc.tipo_servico_plataforma,
+        healthPorBaseUrl.set(baseUrl, {
+          ok:       resp.ok,
+          latencia,
+          versao:   (data as { version?: string }).version || '1.0.0',
         })
       } catch {
-        servicos.push({
-          nome_servico_plataforma:              svc.nome_servico_plataforma,
-          status_servico_plataforma:            'OFFLINE',
-          latencia_ms_servico_plataforma:       Date.now() - inicio,
-          versao_servico_plataforma:            '-',
-          data_ultimo_check_servico_plataforma: new Date().toISOString(),
-          tipo_servico_plataforma:              svc.tipo_servico_plataforma,
+        healthPorBaseUrl.set(baseUrl, {
+          ok:       false,
+          latencia: Date.now() - inicio,
+          versao:   '-',
         })
       }
-    })
+    }))
 
-    await Promise.allSettled(checks)
+    const agora = new Date().toISOString()
+    const servicos: ServicoPlataforma[] = servicosDescobertos.map((svc) => {
+      const health = healthPorBaseUrl.get(svc.base_url_servico_plataforma) ?? {
+        ok: false, latencia: 0, versao: '-',
+      }
+      const status: StatusServicoPlataforma = health.ok
+        ? (health.latencia > 1000 ? 'DEGRADADO' : 'ONLINE')
+        : 'OFFLINE'
+      return {
+        nome_servico_plataforma:              svc.nome_servico_plataforma,
+        status_servico_plataforma:            status,
+        latencia_ms_servico_plataforma:       health.latencia,
+        versao_servico_plataforma:            health.versao,
+        data_ultimo_check_servico_plataforma: agora,
+        tipo_servico_plataforma:              svc.tipo_servico_plataforma,
+      }
+    })
 
     // Ordenar: ONLINE primeiro, depois DEGRADADO, depois OFFLINE
     const ordem: Record<StatusServicoPlataforma, number> = { ONLINE: 0, DEGRADADO: 1, OFFLINE: 2 }
@@ -309,12 +359,26 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
  */
 const EstatisticasQuerySchema = z.object({
   id_organizacao: z.string().optional(),
+  // Quando 'serie=diaria', retorna tambem a chave serie_diaria_log_consumo
+  // com agregacao por dia (UTC) dos ultimos N dias (parametro 'dias', max 30).
+  serie:          z.enum(['diaria']).optional(),
+  dias:           z.coerce.number().int().positive().max(30).optional(),
 })
+
+/** YYYY-MM-DD em UTC a partir de timestamp em ms */
+function diaUtc(tsMs: number): string {
+  return new Date(tsMs).toISOString().slice(0, 10)
+}
 
 router.get('/estatisticas-log-consumo', (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id_organizacao: filtroIdOrganizacao } = EstatisticasQuerySchema.parse(req.query)
-    const h24 = Date.now() - 24 * 60 * 60 * 1000
+    const {
+      id_organizacao: filtroIdOrganizacao,
+      serie,
+      dias,
+    } = EstatisticasQuerySchema.parse(req.query)
+    const agora = Date.now()
+    const h24   = agora - 24 * 60 * 60 * 1000
 
     // Single pass — filter, count, sum, groupBy em 1 loop só (era 4 iterações antes)
     let quantidadeRequisicoes = 0
@@ -323,9 +387,25 @@ router.get('/estatisticas-log-consumo', (req: Request, res: Response, next: Next
     const porIdProdutoGravity: Record<string, number> = {}
     const porFaixaCodigoRespostaHttp: Record<string, number> = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }
 
+    // Serie diaria: agrega por dia UTC quando serie=diaria
+    const diasJanela     = serie === 'diaria' ? (dias ?? 30) : 0
+    const inicioJanelaMs = diasJanela > 0 ? agora - diasJanela * 24 * 60 * 60 * 1000 : 0
+    // Map dia -> { total, sucesso }; sucesso = HTTP < 500 (falhas de cliente nao contam contra disponibilidade)
+    const porDia: Record<string, { total: number; sucesso: number }> = {}
+
     for (const e of logConsumoStore) {
-      if (e._ts_ms < h24) continue
       if (filtroIdOrganizacao && e.id_organizacao !== filtroIdOrganizacao) continue
+
+      // Acumular serie diaria primeiro (janela de N dias) — independente da janela 24h
+      if (diasJanela > 0 && e._ts_ms >= inicioJanelaMs) {
+        const dia = diaUtc(e._ts_ms)
+        const slot = porDia[dia] ?? (porDia[dia] = { total: 0, sucesso: 0 })
+        slot.total++
+        if (e.codigo_resposta_http_log_consumo < 500) slot.sucesso++
+      }
+
+      // Acumulados 24h (mantem comportamento original)
+      if (e._ts_ms < h24) continue
       quantidadeRequisicoes++
       somaLatencia += e.latencia_ms_log_consumo
       if (e.codigo_resposta_http_log_consumo >= 500) quantidadeErros++
@@ -340,6 +420,25 @@ router.get('/estatisticas-log-consumo', (req: Request, res: Response, next: Next
       : 100
     const quantidadeProdutosDistintos = Object.keys(porIdProdutoGravity).length
 
+    // Monta serie diaria com TODOS os dias da janela (incluindo dias sem trafego — total=0)
+    let serieDiariaLogConsumo: { data: string; total: number; sucesso: number; percentual: number }[] | undefined
+    if (diasJanela > 0) {
+      serieDiariaLogConsumo = []
+      for (let i = diasJanela - 1; i >= 0; i--) {
+        const dia = diaUtc(agora - i * 24 * 60 * 60 * 1000)
+        const slot = porDia[dia] ?? { total: 0, sucesso: 0 }
+        const percentual = slot.total > 0
+          ? Number(((slot.sucesso / slot.total) * 100).toFixed(1))
+          : 100
+        serieDiariaLogConsumo.push({
+          data:       dia,
+          total:      slot.total,
+          sucesso:    slot.sucesso,
+          percentual,
+        })
+      }
+    }
+
     res.json({
       quantidade_requisicoes_log_consumo:        quantidadeRequisicoes,
       quantidade_erros_log_consumo:              quantidadeErros,
@@ -348,6 +447,7 @@ router.get('/estatisticas-log-consumo', (req: Request, res: Response, next: Next
       quantidade_produtos_distintos_log_consumo: quantidadeProdutosDistintos,
       por_id_produto_gravity:                    porIdProdutoGravity,
       por_faixa_codigo_resposta_http:            porFaixaCodigoRespostaHttp,
+      ...(serieDiariaLogConsumo ? { serie_diaria_log_consumo: serieDiariaLogConsumo } : {}),
     })
   } catch (err) {
     next(err)

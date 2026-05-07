@@ -16,7 +16,7 @@ import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
-import { CardsServidoresAdmin } from './CardsServidoresAdmin'
+import { CardsServidoresAdmin, type SerieDiariaPontoAdmin } from './CardsServidoresAdmin'
 
 // ─── Schemas Zod (Mandamento 06/09 — contratos bilaterais) ──────────────
 
@@ -36,6 +36,13 @@ const servicosResponseSchema = z.object({
   error:    z.string().optional(),
 })
 
+const serieDiariaPontoSchema = z.object({
+  data:       z.string(),
+  total:      z.number(),
+  sucesso:    z.number(),
+  percentual: z.number(),
+})
+
 const estatisticasLogConsumoSchema = z.object({
   quantidade_requisicoes_log_consumo:        z.number(),
   quantidade_erros_log_consumo:              z.number(),
@@ -44,6 +51,7 @@ const estatisticasLogConsumoSchema = z.object({
   quantidade_produtos_distintos_log_consumo: z.number().optional().default(0),
   por_id_produto_gravity:                    z.record(z.number()),
   por_faixa_codigo_resposta_http:            z.record(z.number()),
+  serie_diaria_log_consumo:                  z.array(serieDiariaPontoSchema).optional(),
 })
 
 type ServicoPlataforma = z.infer<typeof servicoPlataformaSchema>
@@ -120,8 +128,8 @@ export function ApiCockpitAdmin() {
       setLoading(true)
       setErroCarregar(null)
       const [svcRes, statsRes] = await Promise.all([
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',           { signal }),
-        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas', { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/saude-servicos',                                  { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/admin/log-consumo/estatisticas?serie=diaria&dias=30',   { signal }),
       ])
 
       if (!svcRes.ok)   throw new Error(`saude-servicos ${svcRes.status} ${svcRes.statusText}`)
@@ -280,6 +288,7 @@ export function ApiCockpitAdmin() {
       stats={
         <CardsServidoresAdmin
           servicos={servicos}
+          serieDiaria={estatisticas?.serie_diaria_log_consumo as SerieDiariaPontoAdmin[] | undefined}
           estatisticas={estatisticas}
           gabiUsage={gabiUsage}
           gabiLoading={gabiLoading}

@@ -493,7 +493,8 @@
       "status_falhando": "Falhando",
       "legenda_online": "Online",
       "legenda_degradado": "Degradado",
-      "legenda_offline": "Offline"
+      "legenda_offline": "Offline",
+      "disponibilidade_percebida_30d": "Disponibilidade Percebida 30d"
     },
     "visao-geral": {
       "titulo": "Visão Geral da Plataforma",
@@ -1544,7 +1545,8 @@
       "status_falhando":     "Falhando",
       "legenda_online":      "Online",
       "legenda_degradado":   "Degradado",
-      "legenda_offline":     "Offline"
+      "legenda_offline":     "Offline",
+      "disponibilidade_percebida_30d": "Disponibilidade Percebida 30d"
     },
     "layout": {
       "organizacao": "Organização",

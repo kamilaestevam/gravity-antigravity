@@ -250,9 +250,24 @@
       "pathPrefix": "/api/v1/processos"
     },
     "taxas-moeda": {
-      "baseUrl": "http://localhost:8031",
+      "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/taxas-moeda",
-      "note": "Renomeado de taxas-cambio em refator DDD (cambio EN -> moeda PT-BR). Hospedado no super-server da plataforma + tambem montado no Configurador (:8005) via taxasMoedaRouter para fallback dev."
+      "note": "Camada 2 (persistencia + UI) — le boletins do banco prisma.cambio do Configurador. Frontend consome este endpoint. Para a fonte primaria BCB (S2S), ver `cotacoes-bcb-internal`.",
+      "endpoints": {
+        "GET /": "Cotacoes do dia agrupadas por moeda { por_moeda: { USD: [...], EUR: [...] } }",
+        "GET /historico": "Historico por moeda (ultimos 30 dias)",
+        "POST /sync": "Forca sync agora (chama cotacoes-bcb-internal e persiste no banco) — requer requireAuth"
+      }
+    },
+    "cotacoes-bcb-internal": {
+      "baseUrl": "http://localhost:8031",
+      "pathPrefix": "/api/v1/internal/cotacoes-bcb",
+      "internal": true,
+      "note": "Camada 1 (fonte primaria) — wrapper do PTAX BCB Olinda com cache 5min e fallback retroativo D-1/D-2/D-3. Consumido APENAS pelo Configurador via S2S (cron + endpoint de sync). Frontend NAO deve chamar diretamente. Exige header x-chave-interna-servico.",
+      "endpoints": {
+        "GET /?moeda=USD": "Cotacao atual de uma moeda { moeda, compra, venda, hora, fonte }",
+        "GET /historico?moeda=X&dias=30": "Historico do BCB para uma moeda"
+      }
     },
     "cadastros": {
       "baseUrl": "http://localhost:8031",

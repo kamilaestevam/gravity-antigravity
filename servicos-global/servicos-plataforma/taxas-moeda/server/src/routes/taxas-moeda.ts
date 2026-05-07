@@ -1,12 +1,13 @@
 /**
- * taxas-moeda.ts — PTAX BCB direto (fonte única de verdade da plataforma)
+ * taxas-moeda.ts — PTAX BCB direto (fonte primária da plataforma)
  *
  * Origem: produto/bid-cambio/server/src/routes/cotacoes-ptax.ts (movido em F1).
- * Endpoints públicos (sem autenticação — PTAX é dado público do BCB):
- *   GET /api/v1/taxas-moeda?moeda=USD               → cotação atual
- *   GET /api/v1/taxas-moeda/historico?moeda=USD&dias=30 → histórico
+ * Path canonico (montado em index.ts com requireChaveInternaServico):
+ *   GET /api/v1/internal/cotacoes-bcb?moeda=USD               → cotação atual
+ *   GET /api/v1/internal/cotacoes-bcb/historico?moeda=USD&dias=30 → histórico
  *
- * Cache in-memory com TTL 5 min. Fallback retroativo D-1, D-2, D-3 (fim de
+ * Endpoints S2S — exigem header x-chave-interna-servico.
+ * Cache in-memory TTL 5 min. Fallback retroativo D-1, D-2, D-3 (fim de
  * semana / feriado).
  */
 
@@ -87,8 +88,9 @@ async function getPtaxComCache(moeda: string): Promise<PtaxResponse | null> {
 // ─── Rotas ───────────────────────────────────────────────────────────────────
 
 /**
- * GET /api/v1/taxas-moeda?moeda=USD
+ * GET /api/v1/internal/cotacoes-bcb?moeda=USD
  * Retorna PTAX do dia (ou último dia útil) com cache de 5 min.
+ * Exige header x-chave-interna-servico (S2S).
  */
 taxasMoedaRouter.get('/', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'
@@ -123,7 +125,8 @@ taxasMoedaRouter.get('/', async (req: Request, res: Response) => {
 })
 
 /**
- * GET /api/v1/taxas-moeda/historico?moeda=USD&dias=30
+ * GET /api/v1/internal/cotacoes-bcb/historico?moeda=USD&dias=30
+ * Exige header x-chave-interna-servico (S2S).
  */
 taxasMoedaRouter.get('/historico', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'

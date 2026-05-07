@@ -193,9 +193,10 @@ taxasMoedaRouter.post('/sync', requireAuth, async (_req: Request, res: Response,
 
   for (const moeda of MOEDAS_SUPORTADAS) {
     try {
-      const { data } = await axios.get(`${TAXAS_MOEDA_URL}/api/v1/taxas-moeda`, {
+      const { data } = await axios.get(`${TAXAS_MOEDA_URL}/api/v1/internal/cotacoes-bcb`, {
         params: { moeda },
         timeout: 12000,
+        headers: { 'x-chave-interna-servico': process.env.CHAVE_INTERNA_SERVICO ?? '' },
       })
 
       if (!data.compra || !data.venda || !data.data) {

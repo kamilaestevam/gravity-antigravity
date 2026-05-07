@@ -101,7 +101,7 @@ servicos-global/servicos-plataforma/
 
 ### Ordem dos Middlewares no Super-Servidor
 
-> ⚠️ **REGRA ABSOLUTA:** A ordem geral de middlewares (correlation → health → parse → auth → erro) vive em [Observabilidade](../observabilidade/SKILL.md). Específico do super-servidor da organizacao: o `authMiddleware` exige header `x-tenant-id` (legacy, preservado por compatibilidade — o valor corresponde a `id_organizacao`), e logo depois entra `withInternalKeyValidation` que faz `timingSafeEqual` em `x-chave-interna` e devolve 403 se inválida.
+> ⚠️ **REGRA ABSOLUTA:** A ordem geral de middlewares (correlation → health → parse → auth → erro) vive em [Observabilidade](../observabilidade/SKILL.md). Específico do super-servidor da organizacao: o `authMiddleware` exige header `x-tenant-id` (legacy, preservado por compatibilidade — o valor corresponde a `id_organizacao`), e logo depois entra `withInternalKeyValidation` que faz `timingSafeEqual` em `x-chave-interna-servico` e devolve 403 se inválida.
 
 ---
 
@@ -296,6 +296,61 @@ on('timer:stopped', ({ activity_id, duration }) => {
   if (activity_id === currentId) refresh()
 })
 ```
+
+---
+
+## Caso especial — Cotações BCB (duas camadas com nomes próximos)
+
+**Atenção:** existem dois endpoints com nomes parecidos mas semânticas distintas. Confundi-los quebra a tela de Taxas de Moeda silenciosamente.
+
+### Camada 1 — Fonte primária (S2S, interno)
+
+- **Serviço**: `servicos-global/servicos-plataforma/taxas-moeda/`
+- **Porta**: `:8031` (processo próprio, NÃO entra no super-servidor `:3001`)
+- **Path**: `GET /api/v1/internal/cotacoes-bcb?moeda=USD`
+- **Auth**: header `x-chave-interna-servico` obrigatório (`requireChaveInternaServico`)
+- **O que faz**: wrapper do PTAX BCB Olinda com cache 5min e fallback retroativo D-1, D-2, D-3 (fim de semana / feriado)
+- **Quem consome**: APENAS o Configurador, durante o sync. Nunca o frontend, nunca outro produto direto.
+
+### Camada 2 — Persistência + UI
+
+- **Serviço**: Configurador (`servicos-global/configurador/server/routes/taxas-moeda.ts`)
+- **Porta**: `:8005`
+- **Path**: `GET /api/v1/taxas-moeda` → `{ por_moeda: { USD: [...], EUR: [...] } }`
+- **Auth**: público nos GETs (PTAX é dado público), `requireAuth` no `POST /sync`
+- **O que faz**: lê os boletins persistidos em `prisma.cambio` (todos boletins do dia agrupados por moeda)
+- **Quem consome**: frontend (tela `/workspace/taxas-moeda` e `/admin/taxas-moeda`), produtos via hook `useTaxasMoeda`
+
+### Cadeia completa
+
+```
+BCB Olinda (internet)
+    ↑
+    │ axios — cache 5min, fallback D-1/D-2/D-3
+    │
+Camada 1 (porta :8031)
+GET /api/v1/internal/cotacoes-bcb?moeda=USD     [S2S, x-chave-interna-servico]
+    ↑
+    │ chamada S2S do Configurador (sync handler + cron 4×/dia)
+    │
+Camada 2 (porta :8005, Configurador)
+POST /api/v1/taxas-moeda/sync       [requireAuth]
+    │   → chama Camada 1, persiste no banco prisma.cambio
+GET  /api/v1/taxas-moeda            [público]
+GET  /api/v1/taxas-moeda/historico  [público]
+    │   → leem prisma.cambio
+    ↑
+    │ fetch
+    │
+Frontend (telas e hook do Pedido)
+```
+
+### Anti-padrões — NÃO fazer
+
+- ❌ Frontend chamar Camada 1 diretamente (path `/api/v1/internal/*` é S2S; vai retornar 403)
+- ❌ Configurador rotear `/api/v1/taxas-moeda` direto pra Camada 1 (shapes incompatíveis: Camada 1 retorna `{moeda, compra, venda}` por chamada; frontend espera `{por_moeda: {...}}` agregado)
+- ❌ Apagar Camada 2 e fazer frontend chamar Camada 1 (perde a feature de "todos boletins persistidos do dia")
+- ❌ Reusar mesmo path entre as duas camadas (foi corrigido em 2026-05-08 — antes ambas usavam `/api/v1/taxas-moeda`)
 
 ---
 

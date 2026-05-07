@@ -416,17 +416,17 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const idOrganizacao = ctx.idOrganizacao
+      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
 
-      const where: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
+      const where: Record<string, unknown> = { id_organizacao: idOrganizacao, id_workspace: idWorkspace, data_exclusao_pedido: null }
       if (status) {
         const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
-        where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
+        where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]
       }
-      if (tipo_operacao) where.tipo_operacao = tipo_operacao
+      if (tipo_operacao) where.tipo_operacao_pedido = tipo_operacao
       if (busca) {
         where.numero_pedido = { contains: busca as string, mode: 'insensitive' }
       }
@@ -444,7 +444,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             return res.status(400).json({ error: { message: 'Cursor invalido' } })
           }
 
-          // WHERE (sort_field < last_val) OR (sort_field = last_val AND id < last_id)
+          // WHERE (sort_field < last_val) OR (sort_field = last_val AND id_pedido < last_id)
           // Para sortDir=asc, usa-se > e para desc, usa-se <
           const op = payload.sort_dir === 'desc' ? 'lt' : 'gt'
 
@@ -452,7 +452,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             { [payload.sort_field]: { [op]: payload.sort_value } },
             {
               [payload.sort_field]: payload.sort_value,
-              id: { [op]: payload.id },
+              id_pedido: { [op]: payload.id },
             },
           ]
         }
@@ -460,10 +460,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await db.pedido.findMany({
           where,
-          include: { itens_pedido: { orderBy: { sequencia_item: 'asc' } } },
+          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           orderBy: [
             { [sortField]: sortDir },
-            { id: sortDir },
+            { id_pedido: sortDir },
           ],
           take: limitNum + 1, // busca +1 para saber se tem mais
         }) as any[]
@@ -478,11 +478,11 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             sort_field: sortField,
             sort_value: (ultimo as Record<string, unknown>)[sortField],
             sort_dir: sortDir,
-            id: ultimo.id,
+            id: ultimo.id_pedido,
           })
         }
 
-        const registrosComColunas = await injetarValoresColunasUsuario(db, registros, tenant_id)
+        const registrosComColunas = await injetarValoresColunasUsuario(db, registros, idOrganizacao)
         return res.json({ data: registrosComColunas.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
@@ -505,7 +505,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = dataRaw as any[]
-      const dataComColunas = await injetarValoresColunasUsuario(db, data, tenant_id)
+      const dataComColunas = await injetarValoresColunasUsuario(db, data, idOrganizacao)
       res.json({ data: dataComColunas.map(mapPedido), total, totalItens, page: pageNum, limit: limitNum })
     })
   } catch (err) {

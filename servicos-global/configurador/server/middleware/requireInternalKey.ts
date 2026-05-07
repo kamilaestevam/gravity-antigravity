@@ -1,5 +1,5 @@
 // server/middleware/requireInternalKey.ts
-// Valida x-internal-key em rotas internas (S2S)
+// Valida x-chave-interna-servico em rotas internas (S2S)
 // Deve ser aplicado em todas as rotas /api/v1/internal/*
 
 import type { Request, Response, NextFunction } from 'express'
@@ -16,10 +16,10 @@ export function requireInternalKey(
   _res: Response,
   next: NextFunction
 ): void {
-  const key = req.headers['x-internal-key'] as string | undefined
-  const expected = process.env.INTERNAL_SERVICE_KEY
+  const key = req.headers['x-chave-interna-servico'] as string | undefined
+  const expected = process.env.CHAVE_INTERNA_SERVICO
   if (!expected) {
-    throw new AppError('INTERNAL_SERVICE_KEY não configurada', 500, 'CONFIG_ERROR')
+    throw new AppError('CHAVE_INTERNA_SERVICO não configurada', 500, 'CONFIG_ERROR')
   }
   if (!key || !safeCompare(key, expected)) {
     throw new AppError('Chave interna inválida ou ausente', 401, 'UNAUTHORIZED')

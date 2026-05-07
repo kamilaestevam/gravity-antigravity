@@ -208,7 +208,7 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
 
 function resolveEnvConfig(): ConfiguradorClientOptions {
   const baseUrl = process.env.CONFIGURATOR_URL;
-  const chaveInterna = process.env.CHAVE_SERVICO_INTERNO;
+  const chaveInterna = process.env.CHAVE_INTERNA_SERVICO;
 
   if (!baseUrl) {
     throw new AppError(
@@ -219,7 +219,7 @@ function resolveEnvConfig(): ConfiguradorClientOptions {
   }
   if (!chaveInterna) {
     throw new AppError(
-      '[@gravity/resolver-organizacao] CHAVE_SERVICO_INTERNO não definido',
+      '[@gravity/resolver-organizacao] CHAVE_INTERNA_SERVICO não definido',
       500,
       'SDK_MISCONFIGURED',
     );

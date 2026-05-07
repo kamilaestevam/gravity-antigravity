@@ -340,18 +340,92 @@ export function TaxasMoeda() {
               icone={<CurrencyCircleDollar weight="duotone" size={16} />}
               valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
               subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">DÓLAR AMERICANO</p>
+                  <div className="cg-tooltip__row">
+                    <span>Compra</span>
+                    <strong>{taxaUSD?.compra != null ? `R$ ${fmtTaxa(taxaUSD.compra)}` : '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Venda</span>
+                    <strong style={{ color: '#34d399' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row">
+                    <span>Data cotação</span>
+                    <strong>{fmtData(taxaUSD?.data_cotacao)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Hora</span>
+                    <strong>{taxaUSD?.hora_cotacao ?? '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Fonte</span>
+                    <strong>{taxaUSD?.fonte ?? '—'}</strong>
+                  </div>
+                </>
+              }
             />
             <CardEstatisticaGlobal
               titulo="EUR / BRL"
               icone={<CurrencyCircleDollar weight="duotone" size={16} />}
               valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
               subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">EURO</p>
+                  <div className="cg-tooltip__row">
+                    <span>Compra</span>
+                    <strong>{taxaEUR?.compra != null ? `R$ ${fmtTaxa(taxaEUR.compra)}` : '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Venda</span>
+                    <strong style={{ color: '#34d399' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row">
+                    <span>Data cotação</span>
+                    <strong>{fmtData(taxaEUR?.data_cotacao)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Hora</span>
+                    <strong>{taxaEUR?.hora_cotacao ?? '—'}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Fonte</span>
+                    <strong>{taxaEUR?.fonte ?? '—'}</strong>
+                  </div>
+                </>
+              }
             />
             <CardEstatisticaGlobal
               titulo="Moedas ativas"
               icone={<ChartLine weight="duotone" size={16} />}
               valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
               subtexto={`de ${MOEDAS_ORDEM.length} moedas suportadas`}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">SITUAÇÃO POR MOEDA</p>
+                  {MOEDAS_ORDEM.map(m => {
+                    const t = taxasAtuais.find(x => x.moeda === m)
+                    const ativa = t?.venda != null
+                    return (
+                      <div key={m} className="cg-tooltip__row">
+                        <span>{m} · {MOEDAS_INFO[m]?.nome ?? m}</span>
+                        <strong style={{ color: ativa ? '#34d399' : '#94a3b8' }}>
+                          {ativa ? `R$ ${fmtTaxa(t!.venda)}` : 'sem dado'}
+                        </strong>
+                      </div>
+                    )
+                  })}
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row">
+                    <span>Total ativas</span>
+                    <strong style={{ color: '#34d399' }}>{moedasComDados} de {MOEDAS_ORDEM.length}</strong>
+                  </div>
+                </>
+              }
             />
           </>
         }

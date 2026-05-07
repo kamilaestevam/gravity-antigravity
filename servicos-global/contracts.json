@@ -8,7 +8,7 @@
     "financeiro-comex",
     "processo",
     "lpco",
-    "taxas-cambio"
+    "taxas-moeda"
   ],
   "services": {
     "_nota": "Todos os serviços de plataforma rodam em processo único na porta 3001 (super-servidor).",
@@ -249,9 +249,10 @@
       "baseUrl": "http://localhost:8026",
       "pathPrefix": "/api/v1/processos"
     },
-    "taxas-cambio": {
+    "taxas-moeda": {
       "baseUrl": "http://localhost:8031",
-      "pathPrefix": "/api/v1/taxas-cambio"
+      "pathPrefix": "/api/v1/taxas-moeda",
+      "note": "Renomeado de taxas-cambio em refator DDD (cambio EN -> moeda PT-BR). Hospedado no super-server da plataforma + tambem montado no Configurador (:8005) via taxasMoedaRouter para fallback dev."
     },
     "cadastros": {
       "baseUrl": "http://localhost:8031",

@@ -1967,7 +1967,7 @@ export default function Configuracoes() {
   const buscarTaxasAtuais = useCallback(async () => {
     setCarregandoTaxa(true)
     try {
-      const res = await fetch('/api/v1/taxas-cambio')
+      const res = await fetch('/api/v1/taxas-moeda')
       if (res.ok) {
         const json = await res.json()
         // Aplanar por_moeda → array flat ordenado por moeda + boletim
@@ -1988,7 +1988,7 @@ export default function Configuracoes() {
 
   const buscarHistoricoTaxa = useCallback(async (moeda: string) => {
     try {
-      const res = await fetch(`/api/v1/taxas-cambio/historico?moeda=${moeda}&dias=30`)
+      const res = await fetch(`/api/v1/taxas-moeda/historico?moeda=${moeda}&dias=30`)
       if (res.ok) { const json = await res.json(); setHistoricoTaxas(json.historico ?? []) }
     } catch { setHistoricoTaxas([]) }
   }, [])
@@ -2004,7 +2004,7 @@ export default function Configuracoes() {
   const sincronizarTaxas = async () => {
     setSincronizandoTaxa(true); setErroSyncTaxa(null)
     try {
-      const res = await fetch('/api/v1/taxas-cambio/sincronizar', { method: 'POST' })
+      const res = await fetch('/api/v1/taxas-moeda/sincronizar', { method: 'POST' })
       const json = await res.json()
       if (json.total_ok === 0) { setErroSyncTaxa('Não foi possível sincronizar. O serviço pode estar offline.') }
       else { setUltimaSyncTaxa(new Date().toLocaleTimeString('pt-BR')); await buscarTaxasAtuais(); await buscarHistoricoTaxa(moedaHistoricoTaxa) }

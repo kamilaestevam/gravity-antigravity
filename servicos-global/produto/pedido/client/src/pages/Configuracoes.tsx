@@ -40,6 +40,7 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
+import { TaxasMoedaResponseSchema, HistoricoTaxasResponseSchema, SyncTaxasResponseSchema, type BoletimCambio } from '../shared/useTaxasCambio'
 import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
 import type { SnapshotAtualizacaoPolicy } from '../shared/types'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
@@ -1950,14 +1951,11 @@ export default function Configuracoes() {
   }, [categoria])
 
   // ── Taxa de Câmbio ────────────────────────────────────────────────────────
+  // Tipo BoletimCambio + schemas Zod centralizados em useTaxasCambio.ts
+  // (reuso pra evitar drift entre tela e hook do Pedidos.tsx).
 
-  interface RegistroTaxa {
-    id: string; moeda: string; compra: number; venda: number
-    data_cotacao: string; hora_cotacao: string | null; boletim: string; fonte: string
-  }
-
-  const [taxasHoje, setTaxasHoje] = useState<RegistroTaxa[]>([])
-  const [historicoTaxas, setHistoricoTaxas] = useState<RegistroTaxa[]>([])
+  const [taxasHoje, setTaxasHoje] = useState<BoletimCambio[]>([])
+  const [historicoTaxas, setHistoricoTaxas] = useState<BoletimCambio[]>([])
   const [moedaHistoricoTaxa, setMoedaHistoricoTaxa] = useState('USD')
   const [sincronizandoTaxa, setSincronizandoTaxa] = useState(false)
   const [carregandoTaxa, setCarregandoTaxa] = useState(false)
@@ -1969,11 +1967,12 @@ export default function Configuracoes() {
     try {
       const res = await fetch('/api/v1/taxas-moeda')
       if (res.ok) {
-        const json = await res.json()
+        const raw = await res.json()
+        const json = TaxasMoedaResponseSchema.parse(raw)
         // Aplanar por_moeda → array flat ordenado por moeda + boletim
-        const flat: RegistroTaxa[] = []
-        for (const registros of Object.values(json.por_moeda ?? {})) {
-          flat.push(...(registros as RegistroTaxa[]))
+        const flat: BoletimCambio[] = []
+        for (const registros of Object.values(json.por_moeda)) {
+          flat.push(...registros)
         }
         flat.sort((a, b) => {
           const oi = MOEDAS_ORDEM.indexOf(a.moeda)
@@ -1983,14 +1982,25 @@ export default function Configuracoes() {
         })
         setTaxasHoje(flat)
       }
-    } catch { /* silent */ } finally { setCarregandoTaxa(false) }
+    } catch (err) {
+      // Mand. 08 — registra erro pra investigacao em prod (nao mascara)
+      console.warn('[Configuracoes/taxas-atuais] falha ao carregar:', err)
+    } finally { setCarregandoTaxa(false) }
   }, [])
 
   const buscarHistoricoTaxa = useCallback(async (moeda: string) => {
     try {
       const res = await fetch(`/api/v1/taxas-moeda/historico?moeda=${moeda}&dias=30`)
-      if (res.ok) { const json = await res.json(); setHistoricoTaxas(json.historico ?? []) }
-    } catch { setHistoricoTaxas([]) }
+      if (res.ok) {
+        const raw = await res.json()
+        const json = HistoricoTaxasResponseSchema.parse(raw)
+        setHistoricoTaxas(json.historico)
+      }
+    } catch (err) {
+      // Mand. 08 — registra erro; UX preservada com lista vazia
+      console.warn('[Configuracoes/taxas-historico] falha ao carregar:', err)
+      setHistoricoTaxas([])
+    }
   }, [])
 
   useEffect(() => {
@@ -2004,11 +2014,16 @@ export default function Configuracoes() {
   const sincronizarTaxas = async () => {
     setSincronizandoTaxa(true); setErroSyncTaxa(null)
     try {
-      const res = await fetch('/api/v1/taxas-moeda/sincronizar', { method: 'POST' })
-      const json = await res.json()
+      const res = await fetch('/api/v1/taxas-moeda/sync', { method: 'POST' })
+      const raw = await res.json()
+      const json = SyncTaxasResponseSchema.parse(raw)
       if (json.total_ok === 0) { setErroSyncTaxa('Não foi possível sincronizar. O serviço pode estar offline.') }
       else { setUltimaSyncTaxa(new Date().toLocaleTimeString('pt-BR')); await buscarTaxasAtuais(); await buscarHistoricoTaxa(moedaHistoricoTaxa) }
-    } catch { setErroSyncTaxa('Erro de comunicação.') } finally { setSincronizandoTaxa(false) }
+    } catch (err) {
+      // Mand. 08 — registra erro real (nao apenas mensagem generica) pra investigacao em prod
+      console.warn('[Configuracoes/taxas-sync] falha ao sincronizar:', err)
+      setErroSyncTaxa('Erro de comunicação.')
+    } finally { setSincronizandoTaxa(false) }
   }
 
   const MOEDAS_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']

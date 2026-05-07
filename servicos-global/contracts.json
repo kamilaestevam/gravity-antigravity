@@ -7,8 +7,7 @@
     "nf-importacao",
     "financeiro-comex",
     "processo",
-    "lpco",
-    "taxas-moeda"
+    "lpco"
   ],
   "services": {
     "_nota": "Todos os serviços de plataforma rodam em processo único na porta 3001 (super-servidor).",
@@ -260,7 +259,7 @@
       }
     },
     "cotacoes-bcb-internal": {
-      "baseUrl": "http://localhost:8031",
+      "baseUrl": "http://localhost:8032",
       "pathPrefix": "/api/v1/internal/cotacoes-bcb",
       "internal": true,
       "note": "Camada 1 (fonte primaria) — wrapper do PTAX BCB Olinda com cache 5min e fallback retroativo D-1/D-2/D-3. Consumido APENAS pelo Configurador via S2S (cron + endpoint de sync). Frontend NAO deve chamar diretamente. Exige header x-chave-interna-servico.",

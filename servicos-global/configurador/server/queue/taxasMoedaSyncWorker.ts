@@ -7,13 +7,13 @@
  * Apenas dias úteis (seg–sex). Finais de semana ignorados.
  * O BCB publica um boletim por hora — o worker salva cada um separadamente.
  *
- * Fonte: serviço de plataforma `taxas-moeda` (porta 8031).
+ * Fonte: serviço de plataforma `taxas-moeda` (porta 8032 desde 2026-05-07).
  */
 
 import axios from 'axios'
 import { persistirCotacao, classificarBoletim, MOEDAS_SUPORTADAS } from '../routes/taxas-moeda.js'
 
-const TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://localhost:8031'
+const TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://localhost:8032'
 
 const SYNC_UTC_HOURS = [13, 14, 15, 16]
 const SYNC_MINUTE = 3

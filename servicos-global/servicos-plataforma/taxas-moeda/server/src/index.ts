@@ -1,7 +1,8 @@
 /**
  * index.ts — Cotações BCB Express Server
  * Localização canônica: servicos-global/servicos-plataforma/taxas-moeda/server/
- * Porta: 8031
+ * Porta: 8032 (movida de 8031 em 2026-05-07 — colisão com Cadastros, ver
+ * contracts.json e skill arquitetura/servicos-plataforma)
  *
  * Serviço de plataforma — fonte primária do PTAX BCB Olinda.
  * Consumido APENAS pelo Configurador via S2S durante o sync —
@@ -36,7 +37,7 @@ import { timingSafeEqual as cryptoTimingSafeEqual } from 'node:crypto'
 import { taxasMoedaRouter } from './routes/taxas-moeda.js'
 
 const app = express()
-const PORT = process.env.PORT ?? 8031
+const PORT = process.env.PORT ?? 8032
 
 // ── 0. Security Headers ──────────────────────────────────────────────────────
 app.use(helmet({

@@ -23,7 +23,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 
 export const taxasMoedaRouter = Router()
 
-const TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://localhost:8031'
+const TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://localhost:8032'
 
 export const MOEDAS_SUPORTADAS = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD'] as const
 type Moeda = typeof MOEDAS_SUPORTADAS[number]

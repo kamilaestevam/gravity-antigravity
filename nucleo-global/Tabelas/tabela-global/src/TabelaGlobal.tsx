@@ -732,13 +732,26 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         // Normaliza virgula BR -> ponto para Number() parsear corretamente.
         // Permite o usuario digitar '4,9' (formato BR) sem quebrar a logica.
         const parseN = (s: string) => Number(s.replace(',', '.'))
+        // Valor da celula tratado: null/undefined/'' -> NaN (excluido do
+        // filtro numerico, ja que 'sem dado' nao satisfaz comparacao).
+        const cellNum = (raw: unknown): number => {
+          if (raw == null || raw === '') return NaN
+          const n = Number(raw)
+          return isNaN(n) ? NaN : n
+        }
         if (num.min !== '') {
           const min = parseN(num.min)
-          if (!isNaN(min)) r = r.filter(e => Number(e[c.key]) >= min)
+          if (!isNaN(min)) r = r.filter(e => {
+            const n = cellNum(e[c.key])
+            return !isNaN(n) && n >= min
+          })
         }
         if (num.max !== '') {
           const max = parseN(num.max)
-          if (!isNaN(max)) r = r.filter(e => Number(e[c.key]) <= max)
+          if (!isNaN(max)) r = r.filter(e => {
+            const n = cellNum(e[c.key])
+            return !isNaN(n) && n <= max
+          })
         }
       } else if (c.tipo === 'periodo') {
         const p = st as { inicio: Date | null; fim: Date | null }

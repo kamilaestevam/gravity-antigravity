@@ -1,5 +1,5 @@
 /**
- * rotate-internal-key.ts — Rotacao de INTERNAL_SERVICE_KEY
+ * rotate-internal-key.ts — Rotacao de CHAVE_INTERNA_SERVICO
  *
  * Gera nova chave segura e exibe instrucoes para atualizar em todos os servicos.
  * Executar trimestralmente conforme politica de seguranca (Cap. 13.3).
@@ -12,7 +12,7 @@ import { randomBytes } from 'crypto'
 const newKey = `gv_isk_${randomBytes(32).toString('hex')}`
 
 console.log('='.repeat(70))
-console.log('ROTACAO DE INTERNAL_SERVICE_KEY')
+console.log('ROTACAO DE CHAVE_INTERNA_SERVICO')
 console.log('='.repeat(70))
 console.log()
 console.log('Nova chave gerada:')
@@ -28,7 +28,7 @@ console.log()
 
 const services = [
   'configurador',
-  'tenant-server',
+  'servidor-plataforma',
   'bid-frete',
   'simula-custo',
   'processo',
@@ -47,7 +47,7 @@ const services = [
 ]
 
 for (const svc of services) {
-  console.log(`   - ${svc}: INTERNAL_SERVICE_KEY=${newKey}`)
+  console.log(`   - ${svc}: CHAVE_INTERNA_SERVICO=${newKey}`)
 }
 
 console.log()
@@ -58,7 +58,7 @@ console.log('3. Verificar health checks apos deploy:')
 console.log('   curl https://<servico>.railway.app/health')
 console.log()
 console.log('4. Atualizar .env.example locais (sem a chave real):')
-console.log('   INTERNAL_SERVICE_KEY=SUBSTITUA_POR_CHAVE_SEGURA')
+console.log('   CHAVE_INTERNA_SERVICO=SUBSTITUA_POR_CHAVE_SEGURA')
 console.log()
 console.log('5. Registrar rotacao no historico:')
 console.log(`   Data: ${new Date().toISOString().split('T')[0]}`)

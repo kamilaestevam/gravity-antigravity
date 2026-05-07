@@ -54,9 +54,9 @@ let healthCache: HealthCacheEntry | null = null
 const SERVICES = [
   // Serviços de infraestrutura
   { name: 'configurador',  url: process.env.CONFIGURADOR_URL         || 'http://localhost:8005' },
-  // Super-servidor tenant — agrega atividades, cronometro, email, gabi, dashboard,
+  // Super-servidor de plataforma — agrega atividades, cronometro, email, gabi, dashboard,
   // relatorios, historico, notificacoes, agendamento, preferencias, whatsapp
-  { name: 'tenant-server', url: process.env.TENANT_SERVER_URL        || 'http://localhost:3001' },
+  { name: 'servidor-plataforma', url: process.env.SERVIDOR_PLATAFORMA_URL || 'http://localhost:3001' },
   // Serviços não-tenant (processo próprio)
   { name: 'api-cockpit',   url: process.env.API_COCKPIT_SERVICE_URL  || 'http://localhost:8016' },
   { name: 'conector-erp',  url: process.env.CONECTOR_ERP_SERVICE_URL || 'http://localhost:8017' },
@@ -226,7 +226,7 @@ function fetchSecretsSnapshot() {
   // TODO(Coordenador): criar model Secret com tracking de rotated_at/expires_at.
   return {
     secrets: [
-      { name: 'INTERNAL_SERVICE_KEY', configured: !!process.env.INTERNAL_SERVICE_KEY, prefix: (process.env.INTERNAL_SERVICE_KEY ?? '').slice(0, 6) },
+      { name: 'CHAVE_INTERNA_SERVICO', configured: !!process.env.CHAVE_INTERNA_SERVICO, prefix: (process.env.CHAVE_INTERNA_SERVICO ?? '').slice(0, 6) },
       { name: 'CLERK_SECRET_KEY',     configured: !!process.env.CLERK_SECRET_KEY,     prefix: (process.env.CLERK_SECRET_KEY ?? '').slice(0, 6) },
       { name: 'ENCRYPTION_KEY',       configured: !!process.env.ENCRYPTION_KEY,       prefix: (process.env.ENCRYPTION_KEY ?? '').slice(0, 6) },
     ],
@@ -378,7 +378,7 @@ adminSecurityRouter.get('/segredos', (_req, res) => {
 // POST /events — REMOVIDA do router admin
 //
 // Esta rota era chamada pelo securityAuditLogger do historico-global para
-// persistir eventos na tabela Seguranca. Mas o logger usa x-internal-key
+// persistir eventos na tabela Seguranca. Mas o logger usa x-chave-interna-servico
 // (não Bearer JWT) e caía em 401 aqui — resultado: a tabela ficava VAZIA e
 // o painel /admin/seguranca mostrava "0 eventos" permanentemente, com
 // compliance LGPD/SOC2 quebrado silenciosamente.

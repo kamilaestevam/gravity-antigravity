@@ -1,6 +1,6 @@
 /**
- * servicos-global/tenant/server/index.ts
- * Super-Servidor de Tenant — porta 3001
+ * servicos-global/servicos-plataforma/server/index.ts
+ * Super-Servidor de Plataforma — porta 3001
  *
  * Único processo Node.js que serve todos os serviços de tenant.
  * Cada serviço exporta apenas seu router — este arquivo os monta.
@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '.env') })
@@ -91,7 +91,7 @@ app.get('/health', async (_req, res) => {
     await prisma.$queryRaw`SELECT 1`
     res.json({
       status: 'ok',
-      service: 'tenant-server',
+      service: 'servidor-plataforma',
       port: PORT,
       services: [
         'atividades', 'cronometro', 'email', 'gabi',
@@ -100,14 +100,14 @@ app.get('/health', async (_req, res) => {
       ],
     })
   } catch {
-    res.status(503).json({ status: 'down', service: 'tenant-server' })
+    res.status(503).json({ status: 'down', service: 'servidor-plataforma' })
   }
 })
 
 // ── 6. Auth — extrai tenant_id e user_id dos headers ─────────────────────────
 app.use(authMiddleware)
 
-// ── 7. S2S — valida x-internal-key em toda chamada inter-serviço ─────────────
+// ── 7. S2S — valida x-chave-interna-servico em toda chamada inter-serviço ─────────────
 app.use(withInternalKeyValidation)
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
@@ -131,24 +131,24 @@ app.use(errorHandler)
 async function bootstrap() {
   // Serviços com workers/crons — falha não impede o servidor de responder HTTP
   await initHistorico().catch((e: unknown) =>
-    console.warn('[tenant-server] initHistorico falhou (não-fatal):', (e as Error).message))
+    console.warn('[servidor-plataforma] initHistorico falhou (não-fatal):', (e as Error).message))
 
   await initNotificacoes().catch((e: unknown) =>
-    console.warn('[tenant-server] initNotificacoes falhou (não-fatal):', (e as Error).message))
+    console.warn('[servidor-plataforma] initNotificacoes falhou (não-fatal):', (e as Error).message))
 
   // initNcmSync removido — agora roda no bootstrap do serviço Cadastros (porta 8031)
 
   app.listen(PORT, () => {
-    console.log(`[tenant-server] rodando na porta ${PORT}`)
-    console.log(`[tenant-server] serviços: atividades, cronometro, email, gabi, dashboard,`)
-    console.log(`[tenant-server]           relatorios, historico, notificacoes, agendamento,`)
-    console.log(`[tenant-server]           preferencias, whatsapp`)
+    console.log(`[servidor-plataforma] rodando na porta ${PORT}`)
+    console.log(`[servidor-plataforma] serviços: atividades, cronometro, email, gabi, dashboard,`)
+    console.log(`[servidor-plataforma]           relatorios, historico, notificacoes, agendamento,`)
+    console.log(`[servidor-plataforma]           preferencias, whatsapp`)
   })
 }
 
 if (process.env.NODE_ENV !== 'test') {
   bootstrap().catch((err) => {
-    console.error('[tenant-server] Falha ao iniciar:', err)
+    console.error('[servidor-plataforma] Falha ao iniciar:', err)
     process.exit(1)
   })
 }

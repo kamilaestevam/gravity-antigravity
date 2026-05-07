@@ -11,10 +11,10 @@
     "taxas-cambio"
   ],
   "services": {
-    "_nota": "Todos os serviços tenant rodam em processo único na porta 3001 (super-servidor).",
-    "tenant-server": {
+    "_nota": "Todos os serviços de plataforma rodam em processo único na porta 3001 (super-servidor).",
+    "servidor-plataforma": {
       "baseUrl": "http://localhost:3001",
-      "description": "Super-servidor que agrega todos os serviços tenant abaixo"
+      "description": "Super-servidor que agrega todos os serviços de plataforma abaixo"
     },
     "atividades": {
       "baseUrl": "http://localhost:3001",
@@ -47,7 +47,7 @@
       "note": "Montado pelo configurador (porta 8005) — superfície completa do historico-global (ingestão, export, alert-rules, lgpd). Todas as rotas exigem SUPER_ADMIN ou ADMIN. `GET /logs` é interceptado pelo proxy `historicoGlobalAdminRouter` (configurador/server/routes/historico-global-admin.ts) que enriquece cada log com `email_ator_historico_log` via lookup batch em `prisma.usuario` — demais rotas caem direto no historicoRouter do upstream. Para leitura por usuário comum de workspace ver `historico-leitura`.",
       "endpoints": {
         "logs": {
-          "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-internal-key só podem gravar tipo_ator_historico_log em {IA, API, JOB, INTEGRACAO}.",
+          "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-chave-interna-servico só podem gravar tipo_ator_historico_log em {IA, API, JOB, INTEGRACAO}.",
           "GET /logs": "Listar logs (cursor pagination, limit máximo: 200). Resposta enriquecida com `email_ator_historico_log` para atores tipo USUARIO. Filtros: tipo_ator_historico_log, id_ator_historico_log, modulo_historico_log, tipo_recurso_historico_log, id_recurso_historico_log, acao_historico_log, status_historico_log, id_produto_historico_log, startDate, endDate, search, cursor.",
           "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros vai para background job via PG Boss). Filtros DDD canonical idênticos a GET /logs.",
           "GET /logs/export/:jobId/status": "Status do job de exportação assíncrona",
@@ -83,7 +83,7 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/historico-organizacao",
       "middleware": ["requireAuth"],
-      "note": "Proxy fino sobre `/api/v1/historico-global/logs`. Passthrough do payload do upstream — nomes de campo idênticos ao Prisma (sufixo `_historico_log` preservado por conformidade com REGRA 1.2 de `ddd-nomenclatura`: nomes genéricos exigem sufixo de entidade). Encaminha o JWT do usuário no header Authorization (sem x-internal-key). Paginação page-based é best-effort — o cursor real do upstream é exposto via `nextCursor` na resposta.",
+      "note": "Proxy fino sobre `/api/v1/historico-global/logs`. Passthrough do payload do upstream — nomes de campo idênticos ao Prisma (sufixo `_historico_log` preservado por conformidade com REGRA 1.2 de `ddd-nomenclatura`: nomes genéricos exigem sufixo de entidade). Encaminha o JWT do usuário no header Authorization (sem x-chave-interna-servico). Paginação page-based é best-effort — o cursor real do upstream é exposto via `nextCursor` na resposta.",
       "endpoints": {
         "GET /": "Lista logs da organização. Query: page?, limit? (max 100), cursor?, search?, from_date?, to_date?. Resposta: { page, limit, logs, total, hasMore, nextCursor }. `total` é best-effort (upstream é cursor-based, não retorna count)."
       }
@@ -92,7 +92,7 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/notificacoes",
       "middleware": ["rateLimitPresets.internal", "requireAuth"],
-      "note": "Montado pelo configurador (porta 8005) com auth Clerk. O checkAuth interno usa req.auth.id_organizacao/id_usuario (vindos do requireAuth do proxy, que validou o JWT Clerk contra o DB). Headers x-id-organizacao/x-id-usuario só são aceitos em chamadas S2S marcadas com x-internal-validated=1. Rota /internal protegida por x-internal-key (withInternalKeyValidation) — sem checkAuth, sem JWT. Schema-composition incluído em ce78e0b.",
+      "note": "Montado pelo configurador (porta 8005) com auth Clerk. O checkAuth interno usa req.auth.id_organizacao/id_usuario (vindos do requireAuth do proxy, que validou o JWT Clerk contra o DB). Headers x-id-organizacao/x-id-usuario só são aceitos em chamadas S2S marcadas com x-internal-validated=1. Rota /internal protegida por x-chave-interna-servico (withInternalKeyValidation) — sem checkAuth, sem JWT. Schema-composition incluído em ce78e0b.",
       "endpoints": {
         "GET /": "Lista notificações do usuário na organização atual (paginação via query take, max 100)",
         "POST /": "Cria notificação para o próprio usuário (body Zod: type, message, title?, product_id?, activity_id?). Não aceita target_user_id — destinatário é sempre o id_usuario do JWT.",
@@ -101,7 +101,7 @@
         "DELETE /:id_notificacao": "Remover notificação (404 se não pertence à organização/usuário)",
         "GET /stream": "Server-Sent Events para push em tempo real (auth via Clerk JWT no header — query string desativada)",
         "POST /enviar": "Envia notificação a outro(s) usuário(s) da mesma organização. Auth: JWT Clerk (browser). Body Zod: user_ids[] (max 20), message, sender_name?, activity_id? (deep link). Cria tipo 'compartilhamento'. Filtra self-send.",
-        "POST /internal": "S2S — cria notificação(ões) direcionada(s) a outros usuários. Auth: x-internal-key (timing-safe). Body Zod: id_organizacao, user_ids[], type, title, message, product_id?, activity_id? (deep link). Aceita tipo 'compartilhamento' para envio de links."
+        "POST /internal": "S2S — cria notificação(ões) direcionada(s) a outros usuários. Auth: x-chave-interna-servico (timing-safe). Body Zod: id_organizacao, user_ids[], type, title, message, product_id?, activity_id? (deep link). Aceita tipo 'compartilhamento' para envio de links."
       }
     },
     "agendamento": {
@@ -171,7 +171,7 @@
             "GET /stats": "Contadores últimas 24h (totalEvents, criticalCount, warningCount, blockedCount, 5 recentEvents) — 1 groupBy em vez de 4 counts",
             "GET /health": "Health check dos 7 serviços internos com cache TTL 10s (evita 7 fetches HTTP por tick). Persiste snapshot em ServiceHealth",
             "GET /ratelimit": "RateLimitMetric da última hora (top 100)",
-            "GET /secrets": "Status de env vars críticas (INTERNAL_SERVICE_KEY, CLERK_SECRET_KEY, STRIPE_SECRET_KEY, ENCRYPTION_KEY) com prefixo mascarado"
+            "GET /secrets": "Status de env vars críticas (CHAVE_INTERNA_SERVICO, CLERK_SECRET_KEY, STRIPE_SECRET_KEY, ENCRYPTION_KEY) com prefixo mascarado"
           }
         },
         "internal": {
@@ -187,7 +187,7 @@
     "api-cockpit": {
       "baseUrl": "http://localhost:8016",
       "pathPrefix": "/api/v1/cockpit/observability",
-      "note": "Serviço de observabilidade. Frontend nunca chama direto — sempre via proxy do configurador (apiCockpit.ts). Autenticado via x-internal-key entre serviços.",
+      "note": "Serviço de observabilidade. Frontend nunca chama direto — sempre via proxy do configurador (apiCockpit.ts). Autenticado via x-chave-interna-servico entre serviços.",
       "proxyViaConfigurador": {
         "workspace": {
           "pathPrefix": "/api/cockpit",
@@ -199,7 +199,7 @@
         }
       },
       "endpoints": {
-        "POST /ingest": "Recebe batch de métricas dos produtos (até 500 entries). Exige x-internal-key.",
+        "POST /ingest": "Recebe batch de métricas dos produtos (até 500 entries). Exige x-chave-interna-servico.",
         "GET /services": "Health check dos 14 serviços conhecidos. Sem filtros.",
         "GET /logs": "Lista logs de requisições. Filtros: tenant_id, product_id, status_min, status_max. Paginado (limit max: 100).",
         "GET /stats": "KPIs agregados das últimas 24h: total de requisições, erros 5xx, latência média, uptime, breakdown por produto/status."
@@ -256,7 +256,7 @@
     "cadastros": {
       "baseUrl": "http://localhost:8031",
       "pathPrefix": "/api/v1/cadastros",
-      "note": "Cadastros globais (catálogos da Receita Federal) — Empresa, Moeda, Unidade, Ncm (catálogo `ncm_sync`), Operações COMEX. Inclui NCM Sync (sincronização diária com Portal Único Siscomex) e endpoints admin acessados pelo configurador via S2S (x-internal-key). Catálogos sem id_organizacao — universais.",
+      "note": "Cadastros globais (catálogos da Receita Federal) — Empresa, Moeda, Unidade, Ncm (catálogo `ncm_sync`), Operações COMEX. Inclui NCM Sync (sincronização diária com Portal Único Siscomex) e endpoints admin acessados pelo configurador via S2S (x-chave-interna-servico). Catálogos sem id_organizacao — universais.",
       "endpoints": {
         "moedas":      "GET/POST/PUT/DELETE /moedas",
         "unidades":    "GET/POST/PUT/DELETE /unidades",

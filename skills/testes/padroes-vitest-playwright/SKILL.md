@@ -31,7 +31,7 @@ Gravity/
       │   │   ├── modal-global/
       │   │   ├── shell/
       │   │   └── utilitarios-global/
-      │   └── servicos-tenant/
+      │   └── servicos-plataforma/
       │       ├── atividades/
       │       ├── cronometro/
       │       ├── email/
@@ -47,7 +47,7 @@ Gravity/
       │   ├── infra/                 ← funções com efeitos externos (pg.Pool, fs) mockados
       │   │   └── migrate-tenants/
       │   ├── nucleo-global/
-      │   ├── servicos-tenant/
+      │   ├── servicos-plataforma/
       │   └── produtos/
       └── testes-e2e/
           ├── infra/                 ← integração real com PostgreSQL (requer TEST_DATABASE_URL)
@@ -361,10 +361,10 @@ describe('formatarCNPJ', () => {
 
 ### Configuração padrão
 
-Testes funcionais de serviços organização **importam o app do super-servidor** (`servicos-global/tenant/server/index.ts`), não de serviços individuais. O plugin `resolveTsFromJs` é obrigatório porque os arquivos têm extensão `.ts` mas os imports usam `.js` (ESModules).
+Testes funcionais de serviços organização **importam o app do super-servidor** (`servicos-global/servicos-plataforma/server/index.ts`), não de serviços individuais. O plugin `resolveTsFromJs` é obrigatório porque os arquivos têm extensão `.ts` mas os imports usam `.js` (ESModules).
 
 ```typescript
-// testes/testes-funcionais/servicos-tenant/vitest.config.ts
+// testes/testes-funcionais/servicos-plataforma/vitest.config.ts
 import { defineConfig } from 'vitest/config'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -388,7 +388,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['testes/testes-funcionais/servicos-tenant/**/*.test.ts'],
+    include: ['testes/testes-funcionais/servicos-plataforma/**/*.test.ts'],
     env: {
       NODE_ENV: 'test',           // impede bootstrap() de chamar app.listen() e pg-boss
       INTERNAL_API_KEY: 'test-key',
@@ -398,7 +398,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@nucleo': path.resolve(root, 'nucleo-global'),
-      '@tenant': path.resolve(root, 'servicos-global/tenant'),
+      '@plataforma': path.resolve(root, 'servicos-global/servicos-plataforma'),
       '@produto': path.resolve(root, 'produto'),
     },
   },
@@ -428,23 +428,23 @@ afterAll(async () => {
 ### Exemplo — Teste via Super-Servidor
 
 ```typescript
-// testes/testes-funcionais/servicos-tenant/tenant-server.test.ts
+// testes/testes-funcionais/servicos-plataforma/servidor-plataforma.test.ts
 // @vitest-environment node
 
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import request from 'supertest'
 
 // Mockar dependências pesadas ANTES de importar o app
-vi.mock('../../../servicos-global/tenant/server/lib/prisma.js', () => ({
+vi.mock('../../../servicos-global/servicos-plataforma/server/lib/prisma.js', () => ({
   prisma: { $queryRaw: vi.fn().mockResolvedValue([{ '?column?': 1n }]) },
 }))
-vi.mock('../../../servicos-global/tenant/historico-global/server/init.js', () => ({
+vi.mock('../../../servicos-global/servicos-plataforma/historico-global/server/init.js', () => ({
   initHistorico: vi.fn().mockResolvedValue(undefined),
 }))
 // ... mockar os 11 service routers com async factories ...
 
 // Importar DEPOIS dos mocks
-import { app } from '../../../servicos-global/tenant/server/index.js'
+import { app } from '../../../servicos-global/servicos-plataforma/server/index.js'
 
 const VALID_KEY = 'test-internal-key'
 const validHeaders = {
@@ -461,7 +461,7 @@ describe('GET /health', () => {
   it('retorna 200 sem autenticação', async () => {
     const res = await request(app).get('/health')
     expect(res.status).toBe(200)
-    expect(res.body.service).toBe('tenant-server')
+    expect(res.body.service).toBe('servidor-plataforma')
   })
 })
 

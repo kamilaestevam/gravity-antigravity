@@ -791,7 +791,10 @@
       "ultima_verificacao": "Última Verificación",
       "status_operacional_pleno": "Operativo Pleno",
       "status_degradado": "Degradado",
-      "status_falhando": "Fallando"
+      "status_falhando": "Fallando",
+      "legenda_online": "En Línea",
+      "legenda_degradado": "Degradado",
+      "legenda_offline": "Offline"
     },
     "visao-geral": {
       "titulo": "Visión General de la Plataforma",
@@ -1572,7 +1575,10 @@
       "ultima_verificacao":  "Última Verificación",
       "status_operacional_pleno": "Operativo Pleno",
       "status_degradado":    "Degradado",
-      "status_falhando":     "Fallando"
+      "status_falhando":     "Fallando",
+      "legenda_online":      "En Línea",
+      "legenda_degradado":   "Degradado",
+      "legenda_offline":     "Offline"
     },
     "layout": {
       "organizacao": "Organización",

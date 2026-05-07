@@ -490,7 +490,10 @@
       "ultima_verificacao": "Last Check",
       "status_operacional_pleno": "Fully Operational",
       "status_degradado": "Degraded",
-      "status_falhando": "Failing"
+      "status_falhando": "Failing",
+      "legenda_online": "Online",
+      "legenda_degradado": "Degraded",
+      "legenda_offline": "Offline"
     },
     "visao-geral": {
       "titulo": "Platform Overview",
@@ -1411,7 +1414,10 @@
       "ultima_verificacao":  "Last Check",
       "status_operacional_pleno": "Fully Operational",
       "status_degradado":    "Degraded",
-      "status_falhando":     "Failing"
+      "status_falhando":     "Failing",
+      "legenda_online":      "Online",
+      "legenda_degradado":   "Degraded",
+      "legenda_offline":     "Offline"
     },
     "layout": {
       "organizacao": "Organization",

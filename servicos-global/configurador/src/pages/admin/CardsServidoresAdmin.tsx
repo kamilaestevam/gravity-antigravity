@@ -1,22 +1,22 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { ChartPieSlice } from '@phosphor-icons/react'
+import { CardEstatisticaGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 
 /**
- * CardsServidoresAdmin — 7 cards da aba Servidores no admin (Gravity HQ).
+ * CardsServidoresAdmin — cards da aba Servidores no admin (Gravity HQ).
  *
  * Saude da infraestrutura global + KPIs operacionais (Uptime, GABI). As
  * metricas per-organizacao (Taxa Sucesso, Requisicoes, Produtos em Uso)
  * vivem no shared ApiCockpitAdminKpis usado nas demais abas.
  *
  * Cards:
- *   1. Status da Plataforma     — rotulo qualitativo (Operacional Pleno / Degradado / Falhando)
- *   2. Servidores Online        — contagem X/Y
- *   3. Latencia Media Plataforma — media dos health checks dos servicos ONLINE
- *   4. Ultima Verificacao       — health check mais recente (relativo)
- *   5. Uptime 24h               — % uptime calculado pelo backend (consumo agregado)
- *   6. GABI IA · Chamadas       — count mes
- *   7. GABI IA · Custo Mes      — USD
+ *   1. Status da Plataforma (gauge) — % online no anel + legenda Online/Degradado/Offline
+ *   2. Latencia Media Plataforma — media dos health checks dos servicos ONLINE
+ *   3. Ultima Verificacao — health check mais recente (relativo)
+ *   4. Uptime 24h — % uptime calculado pelo backend (consumo agregado)
+ *   5. GABI IA · Chamadas — count mes
+ *   6. GABI IA · Custo Mes — USD
  */
 
 interface ServicoPlataforma {
@@ -73,8 +73,10 @@ export function CardsServidoresAdmin({
 }: CardsServidoresAdminProps) {
   const { t } = useTranslation()
 
-  const total       = servicos.length
-  const onlineCount = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
+  const total          = servicos.length
+  const onlineCount    = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE').length
+  const degradadoCount = servicos.filter((s) => s.status_servico_plataforma === 'DEGRADADO').length
+  const offlineCount   = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
 
   const status: 'pleno' | 'degradado' | 'falhando' | 'sem_dados' =
     total === 0          ? 'sem_dados'
@@ -82,17 +84,11 @@ export function CardsServidoresAdmin({
     : onlineCount === 0     ? 'falhando'
     :                         'degradado'
 
-  const statusLabel =
-    status === 'pleno'     ? t('admin.api-cockpit.status_operacional_pleno')
-    : status === 'degradado' ? t('admin.api-cockpit.status_degradado')
-    : status === 'falhando'  ? t('admin.api-cockpit.status_falhando')
-    :                          '—'
-
-  const statusVariante: 'sucesso' | 'aviso' | 'perigo' | 'padrao' =
-    status === 'pleno'     ? 'sucesso'
-    : status === 'degradado' ? 'aviso'
-    : status === 'falhando'  ? 'perigo'
-    :                          'padrao'
+  const corGauge =
+    status === 'pleno'     ? '#34d399'
+    : status === 'degradado' ? '#fbbf24'
+    : status === 'falhando'  ? '#f87171'
+    :                          '#94a3b8'
 
   const servicosOnline = servicos.filter((s) => s.status_servico_plataforma === 'ONLINE')
   const latenciaMediaMs = servicosOnline.length > 0
@@ -116,32 +112,30 @@ export function CardsServidoresAdmin({
     <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', lineHeight: 1.45 }}>{texto}</p>
   )
 
-  const ttEstados = (itens: readonly { label: string; desc: string; cor: string }[]) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-      {itens.map(({ label, desc, cor }) => (
-        <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem' }}>
-          <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: cor, flexShrink: 0 }}>{label}</span>
-          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.3 }}>{desc}</span>
-        </div>
-      ))}
-    </div>
-  )
-
   const tooltipStatusPlataforma = (
     <>
-      {ttDesc('Saúde geral da infraestrutura Gravity. A contagem exata aparece no card "Servidores Online" ao lado.')}
-      <div style={{ marginTop: '0.625rem' }}>
-        {ttEstados([
-          { label: 'Operacional Pleno', desc: 'Todos os servidores respondendo',     cor: '#4ade80' },
-          { label: 'Degradado',         desc: 'Pelo menos um servidor fora do ar',   cor: '#fbbf24' },
-          { label: 'Falhando',          desc: 'Nenhum servidor respondendo',         cor: '#f87171' },
-        ] as const)}
+      <div className="cg-tooltip__row">
+        <span>Online</span>
+        <strong style={{ color: '#34d399' }}>{onlineCount}</strong>
+      </div>
+      <div className="cg-tooltip__row">
+        <span>Degradado</span>
+        <strong style={{ color: '#fbbf24' }}>{degradadoCount}</strong>
+      </div>
+      <div className="cg-tooltip__row">
+        <span>Offline</span>
+        <strong style={{ color: '#f87171' }}>{offlineCount}</strong>
+      </div>
+      <div className="cg-tooltip__divider" />
+      <div className="cg-tooltip__row">
+        <span>Total</span>
+        <strong>{total}</strong>
+      </div>
+      <div className="cg-tooltip__row">
+        <span>Disponibilidade</span>
+        <strong style={{ color: corGauge }}>{total > 0 ? Math.round((onlineCount / total) * 100) : 0}%</strong>
       </div>
     </>
-  )
-
-  const tooltipServidoresOnline = ttDesc(
-    `${onlineCount} de ${total} serviços responderam ao último health check.`
   )
 
   const tooltipLatencia = ttDesc(
@@ -166,17 +160,18 @@ export function CardsServidoresAdmin({
 
   return (
     <>
-      <CardEstatisticaGlobal
+      <CardGraficoGlobal
         titulo={t('admin.api-cockpit.status_plataforma')}
-        valor={statusLabel}
-        variante={statusVariante}
+        icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+        total={total}
+        valorPrincipal={onlineCount}
+        corGauge={corGauge}
+        legenda={[
+          { label: t('admin.api-cockpit.legenda_online'),    valor: onlineCount,    cor: 'green'  },
+          { label: t('admin.api-cockpit.legenda_degradado'), valor: degradadoCount, cor: 'yellow' },
+          { label: t('admin.api-cockpit.legenda_offline'),   valor: offlineCount,   cor: 'red'    },
+        ]}
         tooltip={tooltipStatusPlataforma}
-      />
-      <CardEstatisticaGlobal
-        titulo={t('admin.api-cockpit.servidores_online')}
-        valor={total === 0 ? '—' : `${onlineCount}/${total}`}
-        variante={statusVariante}
-        tooltip={tooltipServidoresOnline}
       />
       <CardEstatisticaGlobal
         titulo={t('admin.api-cockpit.latencia_plataforma')}

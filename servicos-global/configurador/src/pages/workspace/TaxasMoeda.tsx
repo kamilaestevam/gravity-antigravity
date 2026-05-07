@@ -32,9 +32,18 @@ interface TaxaItem {
   criado_em: string
 }
 
+// Achatado (sem aninhar em `taxa`) — TabelaGlobal lê filtros via e[key],
+// então periodo/numero precisam de campos no top-level pra funcionar.
 interface TaxaAtual {
   moeda: string
-  taxa: TaxaItem | null
+  nome_moeda: string
+  simbolo_moeda: string
+  compra: number | null
+  venda: number | null
+  data_cotacao: string | null
+  hora_cotacao: string | null
+  fonte: string | null
+  criado_em: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -97,13 +106,31 @@ export function TaxasMoeda() {
       const json = await res.json()
       const porMoeda: Record<string, TaxaItem[]> = json.por_moeda ?? {}
       const linhas: TaxaAtual[] = MOEDAS_ORDEM.map(moeda => {
+        const info = MOEDAS_INFO[moeda] ?? { simbolo: moeda, nome: moeda }
         const boletins = porMoeda[moeda] ?? []
         const ultimo = boletins.length > 0 ? boletins[boletins.length - 1] : null
-        return { moeda, taxa: ultimo }
+        return {
+          moeda,
+          nome_moeda: info.nome,
+          simbolo_moeda: info.simbolo,
+          compra: ultimo ? Number(ultimo.compra) : null,
+          venda: ultimo ? Number(ultimo.venda) : null,
+          data_cotacao: ultimo ? ultimo.data_cotacao : null,
+          hora_cotacao: ultimo?.hora_cotacao ?? null,
+          fonte: ultimo?.fonte ?? null,
+          criado_em: ultimo?.criado_em ?? null,
+        }
       })
       setTaxasAtuais(linhas)
     } catch {
-      setTaxasAtuais(MOEDAS_ORDEM.map(moeda => ({ moeda, taxa: null })))
+      setTaxasAtuais(MOEDAS_ORDEM.map(moeda => {
+        const info = MOEDAS_INFO[moeda] ?? { simbolo: moeda, nome: moeda }
+        return {
+          moeda, nome_moeda: info.nome, simbolo_moeda: info.simbolo,
+          compra: null, venda: null, data_cotacao: null,
+          hora_cotacao: null, fonte: null, criado_em: null,
+        }
+      }))
     } finally {
       setCarregando(false)
     }
@@ -175,9 +202,9 @@ export function TaxasMoeda() {
 
   // ── KPIs ─────────────────────────────────────────────────────────────────
 
-  const taxaUSD = taxasAtuais.find(t => t.moeda === 'USD')?.taxa
-  const taxaEUR = taxasAtuais.find(t => t.moeda === 'EUR')?.taxa
-  const moedasComDados = taxasAtuais.filter(t => t.taxa != null).length
+  const taxaUSD = taxasAtuais.find(t => t.moeda === 'USD')
+  const taxaEUR = taxasAtuais.find(t => t.moeda === 'EUR')
+  const moedasComDados = taxasAtuais.filter(t => t.venda != null).length
 
   // ── Colunas — Cotações Atuais ────────────────────────────────────────────
 
@@ -185,53 +212,61 @@ export function TaxasMoeda() {
     {
       key: 'moeda',
       label: 'Moeda',
-      render: (_, row) => {
-        const info = MOEDAS_INFO[row.moeda] ?? { simbolo: row.moeda, nome: row.moeda }
-        return (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontWeight: 600 }}>{row.moeda}</span>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-              {info.simbolo} · {info.nome}
-            </span>
-          </span>
-        )
+      tipo: 'texto',
+      renderFiltroLabel: (val) => {
+        const info = MOEDAS_INFO[val]
+        return info ? `${val} — ${info.nome}` : val
       },
-    },
-    {
-      key: 'compra',
-      label: 'Compra (R$)',
-      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtTaxa(row.taxa?.compra)}</span>,
-    },
-    {
-      key: 'venda',
-      label: 'Venda (R$)',
-      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{fmtTaxa(row.taxa?.venda)}</span>,
-    },
-    {
-      key: 'data_cotacao',
-      label: 'Data Cotação',
-      render: (_, row) => fmtData(row.taxa?.data_cotacao),
-    },
-    {
-      key: 'hora_cotacao',
-      label: 'Hora',
-      render: (_, row) => row.taxa?.hora_cotacao ?? '—',
-    },
-    {
-      key: 'fonte',
-      label: 'Fonte',
       render: (_, row) => (
-        <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-          {row.taxa?.fonte ?? '—'}
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontWeight: 600 }}>{row.moeda}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+            {row.simbolo_moeda} · {row.nome_moeda}
+          </span>
         </span>
       ),
     },
     {
-      key: 'atualizado_em',
-      label: 'Armazenado em',
+      key: 'compra',
+      label: 'Compra (R$)',
+      tipo: 'numero',
+      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtTaxa(row.compra)}</span>,
+    },
+    {
+      key: 'venda',
+      label: 'Venda (R$)',
+      tipo: 'numero',
+      render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{fmtTaxa(row.venda)}</span>,
+    },
+    {
+      key: 'data_cotacao',
+      label: 'Data Cotação',
+      tipo: 'periodo',
+      render: (_, row) => fmtData(row.data_cotacao),
+    },
+    {
+      key: 'hora_cotacao',
+      label: 'Hora',
+      tipo: 'texto',
+      render: (_, row) => row.hora_cotacao ?? '—',
+    },
+    {
+      key: 'fonte',
+      label: 'Fonte',
+      tipo: 'texto',
       render: (_, row) => (
         <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-          {fmtDataHora(row.taxa?.criado_em)}
+          {row.fonte ?? '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'criado_em',
+      label: 'Armazenado em',
+      tipo: 'periodo',
+      render: (_, row) => (
+        <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+          {fmtDataHora(row.criado_em)}
         </span>
       ),
     },
@@ -243,26 +278,38 @@ export function TaxasMoeda() {
     {
       key: 'data_cotacao',
       label: 'Data',
+      tipo: 'periodo',
+      getValorBruto: (row) => row.data_cotacao
+        ? new Date(row.data_cotacao).toISOString().split('T')[0]
+        : '',
       render: (_, row) => fmtData(row.data_cotacao),
     },
     {
       key: 'compra',
       label: 'Compra (R$)',
+      tipo: 'numero',
+      getValorBruto: (row) => String(row.compra),
       render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtTaxa(row.compra)}</span>,
     },
     {
       key: 'venda',
       label: 'Venda (R$)',
+      tipo: 'numero',
+      getValorBruto: (row) => String(row.venda),
       render: (_, row) => <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{fmtTaxa(row.venda)}</span>,
     },
     {
       key: 'hora_cotacao',
       label: 'Hora',
+      tipo: 'texto',
+      getValorBruto: (row) => row.hora_cotacao ?? '',
       render: (_, row) => row.hora_cotacao ?? '—',
     },
     {
       key: 'fonte',
       label: 'Fonte',
+      tipo: 'texto',
+      getValorBruto: (row) => row.fonte ?? '',
       render: (_, row) => (
         <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{row.fonte}</span>
       ),
@@ -291,14 +338,14 @@ export function TaxasMoeda() {
             <CardEstatisticaGlobal
               titulo="USD / BRL"
               icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
-              subtexto={taxaUSD ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
+              valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
+              subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
             />
             <CardEstatisticaGlobal
               titulo="EUR / BRL"
               icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
-              subtexto={taxaEUR ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
+              valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
+              subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
             />
             <CardEstatisticaGlobal
               titulo="Moedas ativas"

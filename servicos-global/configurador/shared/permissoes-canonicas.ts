@@ -7,14 +7,14 @@
 // Sem deps de Node, Prisma, Zod ou React. Pode rodar em qualquer JS engine.
 
 /** Seções fixas que existem em todo produto Gravity. */
-export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios'] as const
+export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios', 'historico'] as const
 export type SecaoProduto = typeof SECOES_PRODUTO[number]
 
 /** Ações fixas para cada (produto, seção). */
 export const ACOES_PRODUTO = ['ver', 'editar'] as const
 export type AcaoProduto = typeof ACOES_PRODUTO[number]
 
-/** Total de toggles disponíveis por produto: 5 seções × 2 ações = 10. */
+/** Total de toggles disponíveis por produto: 6 seções × 2 ações = 12. */
 export const TOGGLES_POR_PRODUTO = SECOES_PRODUTO.length * ACOES_PRODUTO.length
 
 /**

@@ -125,7 +125,7 @@ if (usuario.tipo_usuario === 'ADMIN') {
 
 ### Princípio
 
-Cada produto contratado pela organização (presente em `ProdutoGravityConfiguracao` com `ativo_configuracao_produto_gravity = true`) expõe **5 seções fixas × 2 ações fixas** de permissão granular. O Master atribui essas permissões a usuários `STANDARD` e `FORNECEDOR`.
+Cada produto contratado pela organização (presente em `ProdutoGravityConfiguracao` com `ativo_configuracao_produto_gravity = true`) expõe **6 seções fixas × 2 ações fixas** de permissão granular. O Master atribui essas permissões a usuários `STANDARD` e `FORNECEDOR`.
 
 **Usuários `MASTER`, `SUPER_ADMIN`, `ADMIN` e `gravity_admin = true` têm bypass total** — as granulares não se aplicam (Mandamento 04).
 
@@ -142,7 +142,7 @@ Cada produto contratado pela organização (presente em `ProdutoGravityConfigura
 | Componente | Valores válidos | Origem |
 |:---|:---|:---|
 | `<slug>` | `slug_produto_gravity` da tabela `ProdutoGravity` (ex: `pedido`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`) | Banco — `productCatalogService.list()` |
-| `<secao>` | `dashboard` \| `kanban` \| `lista` \| `configuracao` \| `relatorios` | **Const fixa** em `permissao-usuario-service.ts` |
+| `<secao>` | `dashboard` \| `kanban` \| `lista` \| `configuracao` \| `relatorios` \| `historico` | **Const fixa** em `permissao-usuario-servico.ts` |
 | `<acao>` | `ver` \| `editar` | **Const fixa** em `permissao-usuario-service.ts` |
 
 **Exemplos válidos:** `pedido:dashboard:ver`, `pedido:configuracao:editar`, `simula-custo:lista:ver`
@@ -150,11 +150,11 @@ Cada produto contratado pela organização (presente em `ProdutoGravityConfigura
 **Schema Zod (compartilhado entre back e front — Mandamento 09):**
 
 ```typescript
-export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios'] as const
+export const SECOES_PRODUTO = ['dashboard', 'kanban', 'lista', 'configuracao', 'relatorios', 'historico'] as const
 export const ACOES_PRODUTO  = ['ver', 'editar'] as const
 
 export const permissaoStringSchema = z.string().regex(
-  /^[a-z][a-z0-9-]*:(dashboard|kanban|lista|configuracao|relatorios):(ver|editar)$/,
+  /^[a-z][a-z0-9-]*:(dashboard|kanban|lista|configuracao|relatorios|historico):(ver|editar)$/,
   'Formato inválido — esperado <slug>:<secao>:<acao>'
 )
 ```
@@ -163,16 +163,32 @@ export const permissaoStringSchema = z.string().regex(
 
 ---
 
+### Caso especial — `<slug>:historico:ver` (cross-workspace)
+
+> **Decisão arquitetural — 2026-05-07** (aprovada por Líder Técnico + Coordenador):
+> A 6ª seção `historico` foi adicionada para gating do hyperlink "Histórico" que cada produto expõe no menu lateral (abre nova aba em `/workspace/historico-organizacao` no Configurador — tela única de auditoria do cliente).
+>
+> A permissão segue o padrão Cadeia 2 (linha por workspace), mas o **gating de acesso à tela** consulta via `verificarPermissaoEmAlgumWorkspace` — basta UMA linha em qualquer workspace da org pra liberar. Razão: auditoria é cross-workspace por natureza; granularidade fina por workspace seria fricção sem ganho de segurança real.
+>
+> Comportamento por `tipo_usuario`:
+> - `SUPER_ADMIN` / `ADMIN` / `MASTER` → bypass (Mandamento 04). Vê escopo conforme `montarFiltroVisibilidadeHistoricoLog`.
+> - `STANDARD` / `FORNECEDOR` sem permissão → **403 FORBIDDEN_PERMISSION**.
+> - `STANDARD` / `FORNECEDOR` com permissão → vê apenas seus próprios eventos do produto, cross-workspace.
+>
+> Implementação: middleware de gating no proxy `/api/v1/historico-organizacao` (Configurador). O frontend `HistoricoOrganizacao.tsx` lê `id_produto_historico_log` da query string e envia ao backend.
+
+---
+
 ### Set `PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS`
 
 Nem todo produto do catálogo já tem o sistema de permissões granulares funcionando. O modal de permissões precisa renderizar **opaco "Em breve"** os produtos que ainda não migraram.
 
 ```typescript
-// servicos-global/configurador/server/services/permissao-usuario-service.ts
+// servicos-global/configurador/server/services/permissao-usuario-servico.ts
 // TODO[ARQ]: migrar para coluna `permissoes_granulares_habilitadas` em ProdutoGravity
 // quando houver janela de schema (Mandamento 02 — só Coordenador).
 export const PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS = new Set<string>([
-  'pedido',  // único produto com 5×2 toggles ativos em 2026-05-04
+  'pedido',  // único produto com 6×2 toggles ativos em 2026-05-07
 ])
 ```
 

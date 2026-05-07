@@ -27,6 +27,8 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 import { prisma } from '../lib/prisma.js'
+import { servicoPermissaoUsuario } from '../services/permissao-usuario-servico.js'
+import { temBypassPermissao } from '../../shared/index.js'
 
 export const historicoOrganizacaoRouter = Router()
 
@@ -43,6 +45,11 @@ const listQuerySchema = z.object({
   search:    z.string().optional(),
   from_date: z.string().optional(),
   to_date:   z.string().optional(),
+  // Filtro por produto — permite que o hyperlink de cada produto pre-aplique
+  // o escopo (ex: /workspace/historico-organizacao?id_produto_historico_log=pedido).
+  // Tambem usado para resolver a permissao Cadeia 2 (`<slug>:historico:ver`)
+  // de STANDARD/FORNECEDOR.
+  id_produto_historico_log: z.string().optional(),
 })
 
 // ---------------------------------------------------------------------------
@@ -59,7 +66,38 @@ historicoOrganizacaoRouter.get(
         return next(new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR'))
       }
 
-      const { page, limit, cursor, search, from_date, to_date } = parsed.data
+      const { page, limit, cursor, search, from_date, to_date, id_produto_historico_log } = parsed.data
+
+      // ── Gating Cadeia 2 — `<slug>:historico:ver` ──────────────────────────
+      // SUPER_ADMIN / ADMIN / MASTER tem bypass (Mandamento 04). PADRAO/FORNECEDOR
+      // precisa de pelo menos UMA permissao `<slug>:historico:ver` em qualquer
+      // workspace da organizacao. Sem permissao, 403 ruidoso (Mandamento 08).
+      if (!req.auth?.tipo_usuario || !req.auth?.id_usuario || !req.auth?.id_organizacao) {
+        return next(new AppError('Autenticacao necessaria', 401, 'UNAUTHORIZED'))
+      }
+      if (!temBypassPermissao(req.auth)) {
+        if (!id_produto_historico_log) {
+          return next(new AppError(
+            'STANDARD/FORNECEDOR deve filtrar Historico por produto (id_produto_historico_log obrigatorio)',
+            400,
+            'PRODUTO_REQUIRED',
+          ))
+        }
+        const permitido = await servicoPermissaoUsuario.verificarPermissaoEmAlgumWorkspace({
+          id_organizacao: req.auth.id_organizacao,
+          id_usuario:     req.auth.id_usuario,
+          slug_produto:   id_produto_historico_log,
+          secao:          'historico',
+          acao:           'ver',
+        })
+        if (!permitido) {
+          return next(new AppError(
+            `Permissao negada: ${id_produto_historico_log}:historico:ver`,
+            403,
+            'FORBIDDEN_PERMISSION',
+          ))
+        }
+      }
 
       const params = new URLSearchParams()
       params.set('limit', String(limit))
@@ -67,6 +105,7 @@ historicoOrganizacaoRouter.get(
       if (search) params.set('search', search)
       if (from_date) params.set('startDate', from_date)
       if (to_date) params.set('endDate', to_date)
+      if (id_produto_historico_log) params.set('id_produto_historico_log', id_produto_historico_log)
 
       const authorization = req.headers.authorization
       if (!authorization) {

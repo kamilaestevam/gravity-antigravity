@@ -94,9 +94,9 @@ describe('Permissões — temBypassPermissao (Mandamento 04)', () => {
 })
 
 describe('Permissões — constantes canônicas', () => {
-  it('SECOES_PRODUTO tem exatamente 5 valores fixos', () => {
+  it('SECOES_PRODUTO tem exatamente 6 valores fixos', () => {
     expect([...SECOES_PRODUTO].sort()).toEqual(
-      ['configuracao', 'dashboard', 'kanban', 'lista', 'relatorios'].sort()
+      ['configuracao', 'dashboard', 'historico', 'kanban', 'lista', 'relatorios'].sort()
     )
   })
 

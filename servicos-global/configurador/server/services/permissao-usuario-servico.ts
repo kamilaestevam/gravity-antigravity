@@ -126,6 +126,54 @@ export const servicoPermissaoUsuario = {
   },
 
   /**
+   * Verifica se o usuario tem permissao `<slug>:<secao>:<acao>` em PELO MENOS UM
+   * workspace da organizacao (sem exigir workspace especifico).
+   *
+   * Casos de uso: telas cross-workspace por natureza (ex: Historico de auditoria,
+   * onde o usuario ve seus eventos em todos os workspaces da org). Mantem a
+   * permissao modelada por workspace (consistencia Cadeia 2) mas relaxa a
+   * verificacao para evitar fricca o de UX.
+   *
+   * Bypass total para SUPER_ADMIN, ADMIN, MASTER (Mandamento 04).
+   * STANDARD/FORNECEDOR exigem ao menos uma linha em UsuarioPermissao
+   * (Mandamento 08 — sem fallback).
+   */
+  async verificarPermissaoEmAlgumWorkspace(input: Omit<VerificarPermissaoInput, 'id_workspace'>): Promise<boolean> {
+    const { id_organizacao, id_usuario, slug_produto, secao, acao } = input
+
+    const usuario = await prisma.usuario.findFirst({
+      where: { id_usuario, id_organizacao },
+      select: { tipo_usuario: true },
+    })
+
+    if (!usuario) return false
+
+    // 1. Bypass Mandamento 04 (Master/SAdmin/Admin tem acesso global)
+    if (temBypassPermissao(usuario)) return true
+
+    // 2. Resolve slug -> id_produto_gravity (catalogo)
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: slug_produto },
+      select: { id_produto_gravity: true },
+    })
+    if (!produto) return false
+
+    // 3. Verificacao granular cross-workspace — qualquer linha basta
+    const permissaoString = buildPermissaoString(slug_produto, secao, acao)
+    const linha = await prisma.usuarioPermissao.findFirst({
+      where: {
+        id_organizacao,
+        id_usuario,
+        id_produto_gravity: produto.id_produto_gravity,
+        permissao_usuario: permissaoString,
+      },
+      select: { id_usuario_permissao: true },
+    })
+
+    return !!linha
+  },
+
+  /**
    * Lista todas as permissões granulares de um usuário (DTO PT-BR — Mandamento 03).
    * Retorna apenas linhas físicas de `UsuarioPermissao` — não aplica bypass aqui
    * (o consumidor decide o que fazer com bypass exibindo banner próprio).

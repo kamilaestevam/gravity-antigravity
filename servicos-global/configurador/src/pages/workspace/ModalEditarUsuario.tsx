@@ -73,6 +73,7 @@ const SECOES_PRODUTO_RENDER: Array<{ id: typeof SECOES_PRODUTO[number]; rotulo: 
   { id: 'lista',        rotulo: 'Lista' },
   { id: 'configuracao', rotulo: 'Configuração' },
   { id: 'relatorios',   rotulo: 'Relatórios' },
+  { id: 'historico',    rotulo: 'Histórico' },
 ]
 
 const ACOES_PRODUTO_RENDER: Array<{ id: typeof ACOES_PRODUTO[number]; rotulo: string }> = [
@@ -809,7 +810,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     [workspaces, workspacesAtivos],
   )
 
-  // Total de toggles disponíveis = produtos ativos no ws selecionado × 10 (5 seções × 2 ações).
+  // Total de toggles disponíveis = produtos ativos no ws selecionado × 12 (6 seções × 2 ações).
   const produtosDoWsSelecionado = workspaceSelecionado ? (produtosPorWorkspace[workspaceSelecionado] ?? []) : []
   const produtosAtivosNoWs = produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key))
   const totalToggles = master ? 0 : produtosAtivosNoWs.length * TOGGLES_POR_PRODUTO

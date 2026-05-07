@@ -13,6 +13,7 @@ import {
   ChartPieSlice,
 } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -244,6 +245,12 @@ export function HistoricoOrganizacao() {
   const [hasMore, setHasMore] = useState(false)
   const limit = 25
 
+  // Filtro de produto vindo da URL — pre-aplicado pelo hyperlink de cada produto
+  // (ex: /workspace/historico-organizacao?id_produto_historico_log=pedido).
+  // Tambem usado no backend para resolver a permissao Cadeia 2 de PADRAO/FORNECEDOR.
+  const [searchParams] = useSearchParams()
+  const idProdutoHistoricoLog = searchParams.get('id_produto_historico_log') ?? undefined
+
   const fetchLogs = useCallback(async (pageNum: number) => {
     try {
       const token = await getToken()
@@ -251,6 +258,7 @@ export function HistoricoOrganizacao() {
         page: String(pageNum),
         limit: String(limit),
       })
+      if (idProdutoHistoricoLog) params.set('id_produto_historico_log', idProdutoHistoricoLog)
 
       const res = await fetch(`/api/v1/historico-organizacao?${params.toString()}`, {
         headers: {
@@ -276,7 +284,7 @@ export function HistoricoOrganizacao() {
     } catch (err) {
       console.error('[HistoricoOrganizacao] Erro ao buscar logs:', err)
     }
-  }, [getToken])
+  }, [getToken, idProdutoHistoricoLog])
 
   useEffect(() => {
     fetchLogs(page)

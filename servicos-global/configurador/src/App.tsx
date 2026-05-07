@@ -67,8 +67,7 @@ const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrgan
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
-const CoreDashboard = React.lazy(() => import('./pages/core/CoreDashboard'))
-const HistoricoTenant = React.lazy(() =>
+const HistoricoWorkspace = React.lazy(() =>
   import('../../../servicos-global/servicos-plataforma/historico-global/src/Historico').then(m => ({ default: m.Historico }))
 )
 
@@ -311,7 +310,7 @@ export default function App() {
             <Route path="email" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Email — em desenvolvimento</div>} />
             <Route path="whatsapp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>WhatsApp — em desenvolvimento</div>} />
             <Route path="notificacoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Notificações — em desenvolvimento</div>} />
-            <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoTenant /></React.Suspense>} />
+            <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoWorkspace /></React.Suspense>} />
             <Route path="conector-erp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Conector ERP — em desenvolvimento</div>} />
             <Route path="configuracoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Configurações — em desenvolvimento</div>} />
           </Route>

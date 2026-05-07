@@ -528,7 +528,7 @@ export function TaxasMoeda() {
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                     <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
                     <span>{media30dUSD.compra != null
-                      ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)} · ${media30dUSD.total} boletins`
+                      ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)}`
                       : 'Sem histórico nos últimos 30 dias'}</span>
                   </span>
                 }
@@ -568,7 +568,7 @@ export function TaxasMoeda() {
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                     <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo>
                     <span>{media30dEUR.compra != null
-                      ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)} · ${media30dEUR.total} boletins`
+                      ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)}`
                       : 'Sem histórico nos últimos 30 dias'}</span>
                   </span>
                 }
@@ -697,6 +697,19 @@ export function TaxasMoeda() {
                 mensagemSemFiltro="Nenhuma moeda encontrada."
                 tooltipBusca="Localizar por moeda, fonte ou data"
               />
+            </div>
+
+            <div style={{
+              background: 'rgba(129,140,248,0.06)',
+              border: '1px solid rgba(129,140,248,0.15)',
+              borderRadius: '10px',
+              padding: '1rem 1.25rem',
+              fontSize: '0.8125rem',
+              color: 'var(--ws-muted)',
+              lineHeight: 1.6,
+              marginTop: '1.5rem',
+            }}>
+              💡 <strong style={{ color: 'var(--ws-text)' }}>Sincronização</strong> — A cotação PTAX é atualizada automaticamente <strong style={{ color: '#818cf8' }}>4 vezes por dia</strong> em dias úteis (10h03 / 11h03 / 12h03 / 13h03 BRT), gravando os boletins do <strong style={{ color: '#818cf8' }}>BCB/PTAX</strong>. O botão <strong style={{ color: 'var(--ws-text)' }}>Sincronizar PTAX</strong> dispara uma sincronização sob demanda — útil fora dos horários do cron ou para recuperar boletim que tenha falhado.
             </div>
           </div>
         )}

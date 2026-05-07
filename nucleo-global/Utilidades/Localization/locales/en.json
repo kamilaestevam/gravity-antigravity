@@ -446,8 +446,8 @@
       }
     },
     "api-cockpit": {
-      "titulo": "Infrastructure Monitor",
-      "subtitulo": "Global administrative view of API health on Railway",
+      "titulo": "API Cockpit",
+      "subtitulo": "Global administrative view of all organizations",
       "status_geral": "Overall Status",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Avg. Latency",
@@ -468,6 +468,10 @@
         "organizacao": "Organization",
         "status": "Status",
         "consumo": "Usage",
+        "latencia": "Latency",
+        "versao": "Version",
+        "ultimo_check": "Last Check",
+        "produto": "Product",
         "data": "Date",
         "hora": "Time",
         "org": "Org",
@@ -476,7 +480,12 @@
         "grupo": "Group",
         "canais": "Channels",
         "ativo": "Active"
-      }
+      },
+      "aba_inventario": "Inventory",
+      "aba_logs": "Logs",
+      "aba_tokens": "Tokens",
+      "aba_webhooks": "Webhooks",
+      "aba_consumo": "Usage"
     },
     "visao-geral": {
       "titulo": "Platform Overview",

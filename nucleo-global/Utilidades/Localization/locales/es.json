@@ -746,8 +746,8 @@
       "nao_existia": "— no existía"
     },
     "api-cockpit": {
-      "titulo": "Monitor de Infraestructura",
-      "subtitulo": "Visión administrativa global del estado de las APIs en Railway",
+      "titulo": "API Cockpit",
+      "subtitulo": "Visión administrativa global de todas las organizaciones",
       "status_geral": "Estado General",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Latencia Promedio",
@@ -768,6 +768,10 @@
         "organizacao": "Organización",
         "status": "Estado",
         "consumo": "Consumo",
+        "latencia": "Latencia",
+        "versao": "Versión",
+        "ultimo_check": "Último Chequeo",
+        "produto": "Producto",
         "data": "Fecha",
         "hora": "Hora",
         "org": "Org",
@@ -776,7 +780,12 @@
         "grupo": "Grupo",
         "canais": "Canales",
         "ativo": "Activo"
-      }
+      },
+      "aba_inventario": "Inventario",
+      "aba_logs": "Logs",
+      "aba_tokens": "Tokens",
+      "aba_webhooks": "Webhooks",
+      "aba_consumo": "Consumo"
     },
     "visao-geral": {
       "titulo": "Visión General de la Plataforma",

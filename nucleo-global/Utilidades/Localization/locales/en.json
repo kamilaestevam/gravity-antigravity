@@ -411,7 +411,7 @@
     },
     "cockpit": {
       "titulo": "API Cockpit",
-      "subtitulo": "Real-time monitoring of infrastructure on Railway",
+      "subtitulo": "Real-time monitoring of Gravity infrastructure",
       "status_geral": "Overall Status",
       "operacional": "Operational",
       "uptime_24h": "Uptime (24h)",
@@ -447,7 +447,7 @@
     },
     "api-cockpit": {
       "titulo": "API Cockpit",
-      "subtitulo": "Global administrative view of all organizations",
+      "subtitulo": "Real-time monitoring of Gravity infrastructure",
       "status_geral": "Overall Status",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Avg. Latency",

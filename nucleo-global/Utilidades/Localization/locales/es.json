@@ -747,7 +747,7 @@
     },
     "api-cockpit": {
       "titulo": "API Cockpit",
-      "subtitulo": "Visión administrativa global de todas las organizaciones",
+      "subtitulo": "Monitoreo en tiempo real de la infraestructura de Gravity",
       "status_geral": "Estado General",
       "uptime_24h": "Uptime (24h)",
       "latencia_media": "Latencia Promedio",

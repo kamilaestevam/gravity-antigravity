@@ -130,25 +130,29 @@ export function FinanceiroWorkspace() {
 
     carregar()
 
-    catalogApiService.getProdutos().then(lista => {
+    // Catálogo público — usuário workspace (não-admin) usa rota /catalogo/produtos-gravity.
+    // ANTES: getProdutos() batia em /admin/produtos-gravity → 403 → tabela vazia.
+    catalogApiService.getCatalogoPublico().then(lista => {
       if (cancelado) return
       setProdutos(lista.filter(p => p.status_produto_gravity === 'ATIVO'))
-    })
-    catalogApiService.getNegociacoes().then(negs => {
+    }).catch(err => console.error('[FinanceiroWorkspace] falha ao carregar catálogo', err))
+
+    // Negociações APENAS da org autenticada — rota /me/negociacoes-especiais-preco-produto-gravity
+    // já filtra no backend por req.auth.id_organizacao (REGRA 01 + isolamento).
+    // ANTES: getNegociacoes() batia em /admin/produtos-gravity → 403 → "Padrão" sempre.
+    catalogApiService.getMinhasNegociacoes().then(negs => {
       if (cancelado) return
       setNegociacoes(negs)
-    })
+    }).catch(err => console.error('[FinanceiroWorkspace] falha ao carregar negociações', err))
 
     return () => { cancelado = true }
   }, [])
 
-  // Negociações da organização atual (apenas após sessão carregada)
-  const negociacoesOrg = organizacaoAtual
-    ? negociacoes.filter(n => n.id_organizacao === organizacaoAtual.id_organizacao)
-    : []
-
+  // Negociações já chegam filtradas pela org autenticada (filtro no backend).
+  // Filtro client-side anterior era redundante e quebrava quando organizacaoAtual
+  // ainda não havia carregado da rota /me.
   const getNegociacao = (id_produto_gravity: string): NegociacaoEspecial | undefined =>
-    negociacoesOrg.find(n => n.id_produto_gravity === id_produto_gravity)
+    negociacoes.find(n => n.id_produto_gravity === id_produto_gravity)
 
   // ── Stats (cards no topo) ─────────────────────────────────────────────────
 
@@ -645,7 +649,7 @@ export function FinanceiroWorkspace() {
       {/* ═══════ ABA 2: PRODUTOS & VALORES ═══════ */}
       {tabAtiva === 'produtos' && (
         <div className="ws-fade-up">
-          {negociacoesOrg.length > 0 && organizacaoAtual && (
+          {negociacoes.length > 0 && organizacaoAtual && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '0.75rem',
               padding: '0.875rem 1.25rem', borderRadius: '10px',
@@ -658,7 +662,7 @@ export function FinanceiroWorkspace() {
                   Negociação Especial Ativa
                 </p>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                  Sua organização (<strong style={{ color: 'var(--ws-text)' }}>{organizacaoAtual.nome_organizacao}</strong>) possui {negociacoesOrg.length} acordo(s) especial(is) com condições exclusivas de preço.
+                  Sua organização (<strong style={{ color: 'var(--ws-text)' }}>{organizacaoAtual.nome_organizacao}</strong>) possui {negociacoes.length} acordo(s) especial(is) com condições exclusivas de preço.
                 </p>
               </div>
             </div>

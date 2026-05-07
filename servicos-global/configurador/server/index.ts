@@ -37,6 +37,7 @@ import { accessRouter } from './routes/acesso.js'
 import { adminRouter } from './routes/admin.js'
 import { productsRouter } from './routes/produto-gravity.js'
 import { assinaturaProdutoGravityRouter } from './routes/assinatura-produto-gravity.js'
+import { negociacaoEspecialPrecoProdutoGravityRouter } from './routes/negociacao-especial-preco-produto-gravity.js'
 import { adminOrganizacaoProdutoGravityRouter } from './routes/admin-organizacao-produto-gravity.js'
 import { companyProductsRouter } from './routes/produto-gravity-workspace.js'
 import { serviceTokenRouter } from './routes/token-servico.js'
@@ -151,6 +152,7 @@ app.use('/api/v1/faturas-produto-gravity', billingRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/produtos-gravity', productsRouter)
 app.use('/api/v1/organizacoes/me/assinaturas-produto-gravity', assinaturaProdutoGravityRouter)
+app.use('/api/v1/organizacoes/me/negociacoes-especiais-preco-produto-gravity', negociacaoEspecialPrecoProdutoGravityRouter)
 app.use('/api/v1/workspaces/:id_workspace/produtos-gravity', companyProductsRouter)
 app.use('/api/v1/usuarios', usersRouter)
 app.use('/api/v1/tokens-servico', serviceTokenRouter)

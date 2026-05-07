@@ -213,6 +213,30 @@ export const catalogApiService = {
     return negs
   },
 
+  /**
+   * Negociações especiais APENAS da organização autenticada.
+   * Endpoint público-para-org: GET /api/v1/organizacoes/me/negociacoes-especiais-preco-produto-gravity
+   * Usado pelo FinanceiroWorkspace (workspace) — usuário não-admin não tem
+   * acesso a getNegociacoes() (rota admin que retorna de TODAS as orgs).
+   */
+  async getMinhasNegociacoes(): Promise<NegociacaoEspecial[]> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    try {
+      const session = await (window as unknown as { Clerk?: { session?: { getToken(): Promise<string | null> } } }).Clerk?.session
+      const token = session ? await session.getToken() : null
+      if (token) headers['Authorization'] = `Bearer ${token}`
+    } catch { /* sem token */ }
+    const res = await fetch(
+      '/api/v1/organizacoes/me/negociacoes-especiais-preco-produto-gravity',
+      { headers },
+    )
+    if (!res.ok) {
+      throw new Error(`Falha ao carregar negociações da organização (HTTP ${res.status})`)
+    }
+    const body = (await res.json()) as { negociacoes_produto_gravity: NegociacaoEspecial[] }
+    return body.negociacoes_produto_gravity ?? []
+  },
+
   async getSlugsDisponiveis(): Promise<string[]> {
     const { available } = await adminProductsApi.getAvailableSlugs()
     return available

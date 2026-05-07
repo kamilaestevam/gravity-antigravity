@@ -6,7 +6,7 @@
  *  2. Valida JWT via @clerk/backend verifyToken.
  *  3. Extrai idUsuario do payload (sub).
  *  4. Consulta cache por idUsuario.
- *  5. Se cache miss → GET /api/internal/users/:idUsuario no Configurador.
+ *  5. Se cache miss → GET /api/v1/internal/usuarios/:id_clerk_usuario no Configurador.
  *  6. Valida que organização está active (feito no configurador-client).
  *  7. Valida nomeSchema contra regex de segurança (defense-in-depth).
  *  8. Gera idCorrelacao (SUID por request).

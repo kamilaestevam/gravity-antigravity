@@ -1,11 +1,11 @@
 /**
  * Cliente HTTP para o Configurador — fonte de verdade de identidade.
  *
- * Endpoints:
- *   GET /api/internal/organizacoes/:id   → resolve organização por ID (CRON/worker)
- *   GET /api/internal/users/:idUsuario   → resolve organização pelo usuário (middleware HTTP)
+ * Endpoints (mounted em /api/v1/internal no Configurador, ver acesso.ts):
+ *   GET /api/v1/internal/organizacoes/:id_organizacao   → resolve organizacao por ID (CRON/worker)
+ *   GET /api/v1/internal/usuarios/:id_clerk_usuario     → resolve org pelo Clerk sub (middleware HTTP)
  *
- * Toda chamada inclui `x-chave-interna`. Falhas são mapeadas para `AppError`.
+ * Toda chamada inclui `x-internal-key` (S2S). Falhas mapeadas para `AppError`.
  * Cache fica em `cache.ts` — este módulo faz apenas o fetch + validação Zod.
  */
 
@@ -20,7 +20,7 @@ import { buildSchemaName } from './schema-name.js';
 // ---------------------------------------------------------------------------
 
 /**
- * GET /api/internal/organizacoes/:id
+ * GET /api/v1/internal/organizacoes/:id_organizacao
  * Chamado por withOrganizacaoContext (background/CRON). Retorna só a organização.
  */
 const OrganizacaoByIdSchema = z.object({
@@ -30,8 +30,9 @@ const OrganizacaoByIdSchema = z.object({
 });
 
 /**
- * GET /api/internal/users/:idUsuario
+ * GET /api/v1/internal/usuarios/:id_clerk_usuario
  * Chamado pelo middleware (path HTTP). Retorna organização + contexto do usuário.
+ * O parametro NAO eh o CUID id_usuario — eh o id_clerk_usuario (sub do JWT).
  */
 const OrganizacaoByUsuarioSchema = z.object({
   idOrganizacao: z.string(),
@@ -115,7 +116,7 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
   return {
     async resolveOrganizacaoById(idOrganizacao, idCorrelacao = randomUUID()): Promise<ContextoOrganizacao> {
       const res = await fetchWithRetry(
-        `${opts.baseUrl}/api/internal/organizacoes/${encodeURIComponent(idOrganizacao)}`,
+        `${opts.baseUrl}/api/v1/internal/organizacoes/${encodeURIComponent(idOrganizacao)}`,
         baseHeaders(idCorrelacao),
         timeoutMs,
         retries,
@@ -158,7 +159,7 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
 
     async resolveOrganizacaoByIdUsuario(idUsuario, idCorrelacao = randomUUID()): Promise<ContextoOrganizacao> {
       const res = await fetchWithRetry(
-        `${opts.baseUrl}/api/internal/users/${encodeURIComponent(idUsuario)}`,
+        `${opts.baseUrl}/api/v1/internal/usuarios/${encodeURIComponent(idUsuario)}`,
         baseHeaders(idCorrelacao),
         timeoutMs,
         retries,

@@ -11,7 +11,6 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { useShellStore } from '@gravity/shell'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 
@@ -61,11 +60,12 @@ const fmtTokens = (n: number) => {
 
 export function MonitorLlmAdmin() {
   const { t } = useTranslation()
-  const addNotification = useShellStore((s) => s.addNotification)
 
   const [gabiUsage, setGabiUsage] = useState<GabiUsagePayload | null>(null)
   const [loading, setLoading]     = useState(true)
 
+  // Banner inline ja sinaliza falha — nao usamos addNotification aqui
+  // pra nao spammar a cada poll de 30s quando GABI esta offline em dev.
   const carregar = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
@@ -77,14 +77,11 @@ export function MonitorLlmAdmin() {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
       setGabiUsage(null)
-      addNotification({
-        type:    'error',
-        message: `Falha ao carregar uso de LLM: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
-      })
+      console.warn('[MonitorLlmAdmin] falha ao carregar /uso-gabi', err instanceof Error ? err.message : err)
     } finally {
       setLoading(false)
     }
-  }, [addNotification])
+  }, [])
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -138,25 +135,25 @@ export function MonitorLlmAdmin() {
         <>
           <CardEstatisticaGlobal
             titulo={t('admin.monitor-llm.chamadas')}
-            valor={loading ? '…' : String(gabiCalls)}
+            valor={loading ? '…' : gabiUsage ? String(gabiCalls) : '—'}
             variante="primario"
             tooltip={tooltipChamadas}
           />
           <CardEstatisticaGlobal
             titulo={t('admin.monitor-llm.tokens')}
-            valor={loading ? '…' : fmtTokens(gabiTokens)}
+            valor={loading ? '…' : gabiUsage ? fmtTokens(gabiTokens) : '—'}
             variante="padrao"
             tooltip={tooltipTokens}
           />
           <CardEstatisticaGlobal
             titulo={t('admin.monitor-llm.custo_total')}
-            valor={loading ? '…' : fmtUSD(gabiCost)}
+            valor={loading ? '…' : gabiUsage ? fmtUSD(gabiCost) : '—'}
             variante="aviso"
             tooltip={tooltipCusto}
           />
           <CardEstatisticaGlobal
             titulo={t('admin.monitor-llm.custo_medio_chamada')}
-            valor={loading ? '…' : fmtUSD(gabiCustoMedio)}
+            valor={loading ? '…' : gabiUsage ? fmtUSD(gabiCustoMedio) : '—'}
             variante="padrao"
             tooltip={tooltipCustoMedio}
           />

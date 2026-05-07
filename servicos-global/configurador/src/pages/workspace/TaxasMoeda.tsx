@@ -78,6 +78,31 @@ function fmtDataHora(iso: string | null | undefined): string {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+/**
+ * Pill de período — destaca "atual" / "média 30d" no título do card.
+ * Usa accent indigo (#818cf8) do design system Solid Slate.
+ */
+function PillPeriodo({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{
+      display: 'inline-block',
+      marginLeft: '0.4rem',
+      padding: '2px 8px',
+      borderRadius: '10px',
+      fontSize: '0.65rem',
+      fontWeight: 700,
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      color: '#818cf8',
+      background: 'rgba(129,140,248,0.10)',
+      border: '1px solid rgba(129,140,248,0.25)',
+      verticalAlign: 'middle',
+    }}>
+      {children}
+    </span>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Componente
 // ---------------------------------------------------------------------------
@@ -369,7 +394,7 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
               <CardEstatisticaGlobal
-                titulo="USD / BRL · atual"
+                titulo={<>USD / BRL <PillPeriodo>Atual</PillPeriodo></>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
                 subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
@@ -401,7 +426,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo="EUR / BRL · atual"
+                titulo={<>EUR / BRL <PillPeriodo>Atual</PillPeriodo></>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
                 subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
@@ -465,7 +490,7 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
               <CardEstatisticaGlobal
-                titulo="USD / BRL · média 30d"
+                titulo={<>USD / BRL <PillPeriodo>Média 30d</PillPeriodo></>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</span>}
                 subtexto={media30dUSD.compra != null
@@ -500,7 +525,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo="EUR / BRL · média 30d"
+                titulo={<>EUR / BRL <PillPeriodo>Média 30d</PillPeriodo></>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</span>}
                 subtexto={media30dEUR.compra != null
@@ -535,7 +560,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo="Boletins · 30d"
+                titulo={<>Boletins <PillPeriodo>30d</PillPeriodo></>}
                 icone={<ChartLine weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.75rem' }}>{historico.length}</span>}
                 subtexto={`${moedaHistorico} nos últimos 30 dias`}

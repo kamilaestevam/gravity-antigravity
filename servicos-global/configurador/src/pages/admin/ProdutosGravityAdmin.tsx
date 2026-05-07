@@ -166,7 +166,7 @@ export function ProdutosGravityAdmin() {
     try {
       const [lista, negs] = await Promise.all([
         catalogApiService.listProdutos({ page: pagina, limit: LIMITE_POR_PAGINA }),
-        catalogApiService.getNegociacoes(),
+        catalogApiService.getNegociacaoEspecial(),
       ])
       setProdutos(lista.produtos)
       setTotalPaginas(lista.pages)

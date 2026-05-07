@@ -241,4 +241,94 @@ export const catalogApiService = {
     const { available } = await adminProductsApi.getAvailableSlugs()
     return available
   },
+
+  // ── Negociação Especial — CRUD admin (auth + gravity_admin no backend) ────
+
+  async listarNegociacoesEspeciaisPorProduto(id_produto_gravity: string): Promise<NegociacaoEspecial[]> {
+    const headers = await buildAuthHeaders()
+    const res = await fetch(
+      `/api/v1/admin/produtos-gravity/${encodeURIComponent(id_produto_gravity)}/negociacao-especial`,
+      { headers },
+    )
+    if (!res.ok) throw new Error(`Falha ao listar negociacoes (HTTP ${res.status})`)
+    const body = (await res.json()) as { negociacao_especial: NegociacaoEspecial[] }
+    return body.negociacao_especial ?? []
+  },
+
+  async criarNegociacaoEspecial(
+    id_produto_gravity: string,
+    body: {
+      id_organizacao: string
+      nome_organizacao_negociacao_especial: string
+      acordo_negociacao_especial: string
+      valor_unitario_negociacao_especial?: string | number | null
+      moeda_negociacao_especial?: string
+      data_inicio_negociacao_especial?: string | null
+      data_fim_negociacao_especial?: string | null
+      ilimitado_prazo_negociacao_especial?: boolean
+    },
+  ): Promise<NegociacaoEspecial> {
+    const headers = await buildAuthHeaders()
+    const res = await fetch(
+      `/api/v1/admin/produtos-gravity/${encodeURIComponent(id_produto_gravity)}/negociacao-especial`,
+      { method: 'POST', headers, body: JSON.stringify(body) },
+    )
+    if (!res.ok) {
+      const erro = await res.json().catch(() => ({}))
+      throw new Error(erro?.error?.message ?? `Falha ao criar negociacao (HTTP ${res.status})`)
+    }
+    const data = (await res.json()) as { negociacao_especial: NegociacaoEspecial }
+    return data.negociacao_especial
+  },
+
+  async atualizarNegociacaoEspecial(
+    id_produto_gravity: string,
+    id_negociacao_especial: string,
+    body: {
+      acordo_negociacao_especial?: string
+      valor_unitario_negociacao_especial?: string | number | null
+      moeda_negociacao_especial?: string
+      data_inicio_negociacao_especial?: string | null
+      data_fim_negociacao_especial?: string | null
+      ilimitado_prazo_negociacao_especial?: boolean
+    },
+  ): Promise<NegociacaoEspecial> {
+    const headers = await buildAuthHeaders()
+    const res = await fetch(
+      `/api/v1/admin/produtos-gravity/${encodeURIComponent(id_produto_gravity)}/negociacao-especial/${encodeURIComponent(id_negociacao_especial)}`,
+      { method: 'PUT', headers, body: JSON.stringify(body) },
+    )
+    if (!res.ok) {
+      const erro = await res.json().catch(() => ({}))
+      throw new Error(erro?.error?.message ?? `Falha ao atualizar negociacao (HTTP ${res.status})`)
+    }
+    const data = (await res.json()) as { negociacao_especial: NegociacaoEspecial }
+    return data.negociacao_especial
+  },
+
+  async excluirNegociacaoEspecial(
+    id_produto_gravity: string,
+    id_negociacao_especial: string,
+  ): Promise<void> {
+    const headers = await buildAuthHeaders()
+    const res = await fetch(
+      `/api/v1/admin/produtos-gravity/${encodeURIComponent(id_produto_gravity)}/negociacao-especial/${encodeURIComponent(id_negociacao_especial)}`,
+      { method: 'DELETE', headers },
+    )
+    if (!res.ok) {
+      const erro = await res.json().catch(() => ({}))
+      throw new Error(erro?.error?.message ?? `Falha ao excluir negociacao (HTTP ${res.status})`)
+    }
+  },
+}
+
+// Helper interno — reuso do mesmo padrão de auth do getMinhaNegociacaoEspecial
+async function buildAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  try {
+    const session = await (window as unknown as { Clerk?: { session?: { getToken(): Promise<string | null> } } }).Clerk?.session
+    const token = session ? await session.getToken() : null
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  } catch { /* sem token */ }
+  return headers
 }

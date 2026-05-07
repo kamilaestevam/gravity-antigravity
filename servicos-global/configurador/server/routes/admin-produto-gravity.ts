@@ -11,6 +11,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
+import { negociacaoEspecialServico } from '../services/negociacao-especial-servico.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 
@@ -316,6 +317,177 @@ adminProductsRouter.delete('/:id_produto_gravity', adminRateLimit, async (req, r
       negotiation_count: negotiationCount,
     })
     res.json({ deleted: true, id: req.params.id_produto_gravity, mode: force ? 'hard' : 'soft' })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── CRUD Negociação Especial ───────────────────────────────────────────────
+// Sub-recurso de produto. Mount herdado do adminProductsRouter:
+//   /api/v1/admin/produtos-gravity/:id_produto_gravity/negociacao-especial
+// Auth: requireAuth + requireGravityAdmin (já aplicado no router acima).
+
+const CriarNegociacaoEspecialSchema = z.object({
+  id_organizacao:                       z.string().min(1),
+  nome_organizacao_negociacao_especial: z.string().min(1).max(255),
+  acordo_negociacao_especial:           z.string().min(1).max(2000),
+  valor_unitario_negociacao_especial:   z.union([z.string(), z.number()]).nullable().optional(),
+  moeda_negociacao_especial:            z.string().length(3).optional(),
+  data_inicio_negociacao_especial:      z.string().datetime().nullable().optional(),
+  data_fim_negociacao_especial:         z.string().datetime().nullable().optional(),
+  ilimitado_prazo_negociacao_especial:  z.boolean().optional(),
+})
+
+const AtualizarNegociacaoEspecialSchema = z.object({
+  acordo_negociacao_especial:           z.string().min(1).max(2000).optional(),
+  valor_unitario_negociacao_especial:   z.union([z.string(), z.number()]).nullable().optional(),
+  moeda_negociacao_especial:            z.string().length(3).optional(),
+  data_inicio_negociacao_especial:      z.string().datetime().nullable().optional(),
+  data_fim_negociacao_especial:         z.string().datetime().nullable().optional(),
+  ilimitado_prazo_negociacao_especial:  z.boolean().optional(),
+})
+
+function negociacaoToDto(n: {
+  id_negociacao_especial: string
+  id_produto_gravity: string
+  id_organizacao: string
+  nome_organizacao_negociacao_especial: string
+  acordo_negociacao_especial: string
+  valor_unitario_negociacao_especial: unknown
+  moeda_negociacao_especial: string
+  data_inicio_negociacao_especial: Date | null
+  data_fim_negociacao_especial: Date | null
+  ilimitado_prazo_negociacao_especial: boolean
+  data_criacao_negociacao_especial: Date
+  data_atualizacao_negociacao_especial: Date
+}) {
+  return {
+    id_negociacao_especial:               n.id_negociacao_especial,
+    id_produto_gravity:                   n.id_produto_gravity,
+    id_organizacao:                       n.id_organizacao,
+    nome_organizacao_negociacao_especial: n.nome_organizacao_negociacao_especial,
+    acordo_negociacao_especial:           n.acordo_negociacao_especial,
+    valor_unitario_negociacao_especial:   (n.valor_unitario_negociacao_especial as { toString(): string } | null)?.toString() ?? null,
+    moeda_negociacao_especial:            n.moeda_negociacao_especial,
+    data_inicio_negociacao_especial:      n.data_inicio_negociacao_especial?.toISOString() ?? null,
+    data_fim_negociacao_especial:         n.data_fim_negociacao_especial?.toISOString() ?? null,
+    ilimitado_prazo_negociacao_especial:  n.ilimitado_prazo_negociacao_especial,
+    data_criacao_negociacao_especial:     n.data_criacao_negociacao_especial.toISOString(),
+    data_atualizacao_negociacao_especial: n.data_atualizacao_negociacao_especial.toISOString(),
+  }
+}
+
+/**
+ * GET /api/v1/admin/produtos-gravity/:id_produto_gravity/negociacao-especial
+ * Lista todas as negociações especiais do produto (todas as orgs — admin only).
+ */
+adminProductsRouter.get('/:id_produto_gravity/negociacao-especial', async (req, res, next) => {
+  try {
+    const rows = await negociacaoEspecialServico.listarNegociacoesEspeciaisPorProduto(req.params.id_produto_gravity)
+    res.json({ negociacao_especial: rows.map(negociacaoToDto) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/v1/admin/produtos-gravity/:id_produto_gravity/negociacao-especial
+ * Cria nova negociação especial para uma organização neste produto.
+ */
+adminProductsRouter.post('/:id_produto_gravity/negociacao-especial', adminRateLimit, async (req, res, next) => {
+  try {
+    const parsed = CriarNegociacaoEspecialSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Body invalido', 400, 'VALIDATION_ERROR')
+    }
+
+    const valor = parsed.data.valor_unitario_negociacao_especial
+    const valor_decimal = valor === null || valor === undefined ? null : Number(valor)
+    if (valor_decimal !== null && Number.isNaN(valor_decimal)) {
+      throw new AppError('valor_unitario_negociacao_especial invalido (nao e numero)', 400, 'VALIDATION_ERROR')
+    }
+
+    const created = await negociacaoEspecialServico.criarNegociacaoEspecial({
+      id_produto_gravity:                   req.params.id_produto_gravity,
+      id_organizacao:                       parsed.data.id_organizacao,
+      nome_organizacao_negociacao_especial: parsed.data.nome_organizacao_negociacao_especial,
+      acordo_negociacao_especial:           parsed.data.acordo_negociacao_especial,
+      valor_unitario_negociacao_especial:   valor_decimal,
+      moeda_negociacao_especial:            parsed.data.moeda_negociacao_especial,
+      data_inicio_negociacao_especial:      parsed.data.data_inicio_negociacao_especial ? new Date(parsed.data.data_inicio_negociacao_especial) : null,
+      data_fim_negociacao_especial:         parsed.data.data_fim_negociacao_especial ? new Date(parsed.data.data_fim_negociacao_especial) : null,
+      ilimitado_prazo_negociacao_especial:  parsed.data.ilimitado_prazo_negociacao_especial ?? false,
+    })
+
+    log.info('negociacao_especial created', {
+      actor_id: req.auth.clerkUserId,
+      id_produto_gravity: req.params.id_produto_gravity,
+      id_organizacao: parsed.data.id_organizacao,
+      id_negociacao_especial: created.id_negociacao_especial,
+    })
+
+    res.status(201).json({ negociacao_especial: negociacaoToDto(created) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PUT /api/v1/admin/produtos-gravity/:id_produto_gravity/negociacao-especial/:id_negociacao_especial
+ * Atualiza negociacao existente. id_organizacao e imutavel.
+ */
+adminProductsRouter.put('/:id_produto_gravity/negociacao-especial/:id_negociacao_especial', adminRateLimit, async (req, res, next) => {
+  try {
+    const parsed = AtualizarNegociacaoEspecialSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Body invalido', 400, 'VALIDATION_ERROR')
+    }
+
+    const valor = parsed.data.valor_unitario_negociacao_especial
+    const valor_decimal = valor === null || valor === undefined ? undefined : Number(valor)
+    if (valor_decimal !== undefined && Number.isNaN(valor_decimal)) {
+      throw new AppError('valor_unitario_negociacao_especial invalido (nao e numero)', 400, 'VALIDATION_ERROR')
+    }
+
+    const updated = await negociacaoEspecialServico.atualizarNegociacaoEspecial({
+      id_negociacao_especial:               req.params.id_negociacao_especial,
+      acordo_negociacao_especial:           parsed.data.acordo_negociacao_especial,
+      valor_unitario_negociacao_especial:   valor_decimal,
+      moeda_negociacao_especial:            parsed.data.moeda_negociacao_especial,
+      data_inicio_negociacao_especial:      parsed.data.data_inicio_negociacao_especial !== undefined
+        ? (parsed.data.data_inicio_negociacao_especial ? new Date(parsed.data.data_inicio_negociacao_especial) : null)
+        : undefined,
+      data_fim_negociacao_especial:         parsed.data.data_fim_negociacao_especial !== undefined
+        ? (parsed.data.data_fim_negociacao_especial ? new Date(parsed.data.data_fim_negociacao_especial) : null)
+        : undefined,
+      ilimitado_prazo_negociacao_especial:  parsed.data.ilimitado_prazo_negociacao_especial,
+    })
+
+    log.info('negociacao_especial updated', {
+      actor_id: req.auth.clerkUserId,
+      id_negociacao_especial: req.params.id_negociacao_especial,
+    })
+
+    res.json({ negociacao_especial: negociacaoToDto(updated) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/admin/produtos-gravity/:id_produto_gravity/negociacao-especial/:id_negociacao_especial
+ * Hard delete da negociacao. Auditoria via AuditPlugin universal.
+ */
+adminProductsRouter.delete('/:id_produto_gravity/negociacao-especial/:id_negociacao_especial', adminRateLimit, async (req, res, next) => {
+  try {
+    await negociacaoEspecialServico.excluirNegociacaoEspecial(req.params.id_negociacao_especial)
+
+    log.info('negociacao_especial deleted', {
+      actor_id: req.auth.clerkUserId,
+      id_negociacao_especial: req.params.id_negociacao_especial,
+    })
+
+    res.json({ deleted: true, id_negociacao_especial: req.params.id_negociacao_especial })
   } catch (err) {
     next(err)
   }

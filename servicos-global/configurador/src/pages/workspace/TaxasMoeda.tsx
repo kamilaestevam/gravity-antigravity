@@ -91,6 +91,7 @@ export function TaxasMoeda() {
   const [abaAtiva, setAbaAtiva] = useState<AbaTaxaMoeda>('atual')
   const [taxasAtuais, setTaxasAtuais] = useState<TaxaAtual[]>([])
   const [historico, setHistorico] = useState<TaxaItem[]>([])
+  const [historico30dPorMoeda, setHistorico30dPorMoeda] = useState<Record<string, TaxaItem[]>>({})
   const [moedaHistorico, setMoedaHistorico] = useState<MoedaSuportada>('USD')
   const [sincronizando, setSincronizando] = useState(false)
   const [carregando, setCarregando] = useState(true)
@@ -143,7 +144,9 @@ export function TaxasMoeda() {
       const res = await fetch(`/api/v1/taxas-moeda/historico?moeda=${moeda}&dias=30`)
       if (!res.ok) throw new Error('Falha ao buscar histórico')
       const json = await res.json()
-      setHistorico(json.historico ?? [])
+      const lista: TaxaItem[] = json.historico ?? []
+      setHistorico(lista)
+      setHistorico30dPorMoeda(prev => ({ ...prev, [moeda]: lista }))
     } catch {
       setHistorico([])
     }
@@ -153,6 +156,34 @@ export function TaxasMoeda() {
   useEffect(() => {
     if (abaAtiva === 'historico') buscarHistorico(moedaHistorico)
   }, [abaAtiva, moedaHistorico, buscarHistorico])
+
+  // Pre-fetch dos históricos de USD e EUR — alimenta os KPIs quando a aba
+  // 'historico' estiver ativa, mesmo sem o usuário ter selecionado essas
+  // moedas no pill. Roda 1x no mount.
+  useEffect(() => {
+    void buscarHistorico('USD')
+    void buscarHistorico('EUR')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── Médias 30 dias ───────────────────────────────────────────────────────
+
+  const calcularMediaMoeda = useCallback((moeda: string) => {
+    const lista = historico30dPorMoeda[moeda] ?? []
+    if (lista.length === 0) return { compra: null, venda: null, total: 0, min: null, max: null }
+    const compras = lista.map(r => Number(r.compra)).filter(n => !isNaN(n))
+    const vendas = lista.map(r => Number(r.venda)).filter(n => !isNaN(n))
+    return {
+      compra: compras.length ? compras.reduce((a, b) => a + b, 0) / compras.length : null,
+      venda: vendas.length ? vendas.reduce((a, b) => a + b, 0) / vendas.length : null,
+      total: lista.length,
+      min: vendas.length ? Math.min(...vendas) : null,
+      max: vendas.length ? Math.max(...vendas) : null,
+    }
+  }, [historico30dPorMoeda])
+
+  const media30dUSD = calcularMediaMoeda('USD')
+  const media30dEUR = calcularMediaMoeda('EUR')
 
   // ── Sincronizar ──────────────────────────────────────────────────────────
 
@@ -334,100 +365,204 @@ export function TaxasMoeda() {
           />
         }
         stats={
-          <>
-            <CardEstatisticaGlobal
-              titulo="USD / BRL"
-              icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
-              subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
-              tooltip={
-                <>
-                  <p className="cg-tooltip__title">DÓLAR AMERICANO</p>
-                  <div className="cg-tooltip__row">
-                    <span>Compra</span>
-                    <strong>{taxaUSD?.compra != null ? `R$ ${fmtTaxa(taxaUSD.compra)}` : '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Venda</span>
-                    <strong style={{ color: '#34d399' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__divider" />
-                  <div className="cg-tooltip__row">
-                    <span>Data cotação</span>
-                    <strong>{fmtData(taxaUSD?.data_cotacao)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Hora</span>
-                    <strong>{taxaUSD?.hora_cotacao ?? '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Fonte</span>
-                    <strong>{taxaUSD?.fonte ?? '—'}</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardEstatisticaGlobal
-              titulo="EUR / BRL"
-              icone={<CurrencyCircleDollar weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
-              subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
-              tooltip={
-                <>
-                  <p className="cg-tooltip__title">EURO</p>
-                  <div className="cg-tooltip__row">
-                    <span>Compra</span>
-                    <strong>{taxaEUR?.compra != null ? `R$ ${fmtTaxa(taxaEUR.compra)}` : '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Venda</span>
-                    <strong style={{ color: '#34d399' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__divider" />
-                  <div className="cg-tooltip__row">
-                    <span>Data cotação</span>
-                    <strong>{fmtData(taxaEUR?.data_cotacao)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Hora</span>
-                    <strong>{taxaEUR?.hora_cotacao ?? '—'}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Fonte</span>
-                    <strong>{taxaEUR?.fonte ?? '—'}</strong>
-                  </div>
-                </>
-              }
-            />
-            <CardEstatisticaGlobal
-              titulo="Moedas ativas"
-              icone={<ChartLine weight="duotone" size={16} />}
-              valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
-              subtexto={`de ${MOEDAS_ORDEM.length} moedas suportadas`}
-              tooltip={
-                <>
-                  <p className="cg-tooltip__title">SITUAÇÃO POR MOEDA</p>
-                  {MOEDAS_ORDEM.map(m => {
-                    const t = taxasAtuais.find(x => x.moeda === m)
-                    const ativa = t?.venda != null
-                    return (
-                      <div key={m} className="cg-tooltip__row">
-                        <span>{m} · {MOEDAS_INFO[m]?.nome ?? m}</span>
-                        <strong style={{ color: ativa ? '#34d399' : '#94a3b8' }}>
-                          {ativa ? `R$ ${fmtTaxa(t!.venda)}` : 'sem dado'}
-                        </strong>
-                      </div>
-                    )
-                  })}
-                  <div className="cg-tooltip__divider" />
-                  <div className="cg-tooltip__row">
-                    <span>Total ativas</span>
-                    <strong style={{ color: '#34d399' }}>{moedasComDados} de {MOEDAS_ORDEM.length}</strong>
-                  </div>
-                </>
-              }
-            />
-          </>
+          abaAtiva === 'atual' ? (
+            <>
+              {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
+              <CardEstatisticaGlobal
+                titulo="USD / BRL · atual"
+                icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
+                subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">DÓLAR AMERICANO · COTAÇÃO ATUAL</p>
+                    <div className="cg-tooltip__row">
+                      <span>Compra</span>
+                      <strong>{taxaUSD?.compra != null ? `R$ ${fmtTaxa(taxaUSD.compra)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Venda</span>
+                      <strong style={{ color: '#34d399' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Data cotação</span>
+                      <strong>{fmtData(taxaUSD?.data_cotacao)}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Hora</span>
+                      <strong>{taxaUSD?.hora_cotacao ?? '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Fonte</span>
+                      <strong>{taxaUSD?.fonte ?? '—'}</strong>
+                    </div>
+                  </>
+                }
+              />
+              <CardEstatisticaGlobal
+                titulo="EUR / BRL · atual"
+                icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
+                subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">EURO · COTAÇÃO ATUAL</p>
+                    <div className="cg-tooltip__row">
+                      <span>Compra</span>
+                      <strong>{taxaEUR?.compra != null ? `R$ ${fmtTaxa(taxaEUR.compra)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Venda</span>
+                      <strong style={{ color: '#34d399' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Data cotação</span>
+                      <strong>{fmtData(taxaEUR?.data_cotacao)}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Hora</span>
+                      <strong>{taxaEUR?.hora_cotacao ?? '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Fonte</span>
+                      <strong>{taxaEUR?.fonte ?? '—'}</strong>
+                    </div>
+                  </>
+                }
+              />
+              <CardEstatisticaGlobal
+                titulo="Moedas ativas"
+                icone={<ChartLine weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
+                subtexto={`de ${MOEDAS_ORDEM.length} moedas suportadas`}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">SITUAÇÃO POR MOEDA</p>
+                    {MOEDAS_ORDEM.map(m => {
+                      const t = taxasAtuais.find(x => x.moeda === m)
+                      const ativa = t?.venda != null
+                      return (
+                        <div key={m} className="cg-tooltip__row">
+                          <span>{m} · {MOEDAS_INFO[m]?.nome ?? m}</span>
+                          <strong style={{ color: ativa ? '#34d399' : '#94a3b8' }}>
+                            {ativa ? `R$ ${fmtTaxa(t!.venda)}` : 'sem dado'}
+                          </strong>
+                        </div>
+                      )
+                    })}
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Total ativas</span>
+                      <strong style={{ color: '#34d399' }}>{moedasComDados} de {MOEDAS_ORDEM.length}</strong>
+                    </div>
+                  </>
+                }
+              />
+            </>
+          ) : (
+            <>
+              {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
+              <CardEstatisticaGlobal
+                titulo="USD / BRL · média 30d"
+                icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.5rem' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</span>}
+                subtexto={media30dUSD.compra != null
+                  ? `Compra média: R$ ${fmtTaxa(media30dUSD.compra)} · ${media30dUSD.total} boletins`
+                  : 'Sem histórico nos últimos 30 dias'}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">DÓLAR AMERICANO · MÉDIA 30 DIAS</p>
+                    <div className="cg-tooltip__row">
+                      <span>Compra (média)</span>
+                      <strong>{media30dUSD.compra != null ? `R$ ${fmtTaxa(media30dUSD.compra)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Venda (média)</span>
+                      <strong style={{ color: '#34d399' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Mínima (venda)</span>
+                      <strong>{media30dUSD.min != null ? `R$ ${fmtTaxa(media30dUSD.min)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Máxima (venda)</span>
+                      <strong>{media30dUSD.max != null ? `R$ ${fmtTaxa(media30dUSD.max)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Boletins no período</span>
+                      <strong>{media30dUSD.total}</strong>
+                    </div>
+                  </>
+                }
+              />
+              <CardEstatisticaGlobal
+                titulo="EUR / BRL · média 30d"
+                icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.5rem' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</span>}
+                subtexto={media30dEUR.compra != null
+                  ? `Compra média: R$ ${fmtTaxa(media30dEUR.compra)} · ${media30dEUR.total} boletins`
+                  : 'Sem histórico nos últimos 30 dias'}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">EURO · MÉDIA 30 DIAS</p>
+                    <div className="cg-tooltip__row">
+                      <span>Compra (média)</span>
+                      <strong>{media30dEUR.compra != null ? `R$ ${fmtTaxa(media30dEUR.compra)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Venda (média)</span>
+                      <strong style={{ color: '#34d399' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Mínima (venda)</span>
+                      <strong>{media30dEUR.min != null ? `R$ ${fmtTaxa(media30dEUR.min)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Máxima (venda)</span>
+                      <strong>{media30dEUR.max != null ? `R$ ${fmtTaxa(media30dEUR.max)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <div className="cg-tooltip__row">
+                      <span>Boletins no período</span>
+                      <strong>{media30dEUR.total}</strong>
+                    </div>
+                  </>
+                }
+              />
+              <CardEstatisticaGlobal
+                titulo="Boletins · 30d"
+                icone={<ChartLine weight="duotone" size={16} />}
+                valor={<span style={{ fontSize: '1.75rem' }}>{historico.length}</span>}
+                subtexto={`${moedaHistorico} nos últimos 30 dias`}
+                tooltip={
+                  <>
+                    <p className="cg-tooltip__title">VOLUME DE HISTÓRICO · {moedaHistorico}</p>
+                    <div className="cg-tooltip__row">
+                      <span>Boletins de {moedaHistorico}</span>
+                      <strong style={{ color: '#34d399' }}>{historico.length}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Média compra</span>
+                      <strong>{calcularMediaMoeda(moedaHistorico).compra != null ? `R$ ${fmtTaxa(calcularMediaMoeda(moedaHistorico).compra!)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__row">
+                      <span>Média venda</span>
+                      <strong>{calcularMediaMoeda(moedaHistorico).venda != null ? `R$ ${fmtTaxa(calcularMediaMoeda(moedaHistorico).venda!)}` : '—'}</strong>
+                    </div>
+                    <div className="cg-tooltip__divider" />
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>
+                      Trocar moeda: pills abaixo da tabela
+                    </p>
+                  </>
+                }
+              />
+            </>
+          )
         }
         toolbar={
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '1rem' }}>

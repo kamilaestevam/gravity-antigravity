@@ -27,8 +27,8 @@ import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { preferenciasRouter } from './routes/preferencias.js'
 import { startCronJobs } from './services/cronJobs.js'
-import { apiObservability } from '../../../../middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -70,7 +70,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-id-organizacao, x-id-usuario, x-correlation-id')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-chave-interna-servico, x-id-organizacao, x-id-usuario, x-correlation-id')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
   if (_req.method === 'OPTIONS') return res.sendStatus(204)
   next()

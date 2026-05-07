@@ -564,7 +564,7 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
       },
       {
         method: 'GET',
-        path: '/master-data/ptax',
+        path: '/taxas-moeda',
         titulo: 'PTAX do Dia (BCB)',
         descricao: 'Consulta PTAX atual via API OLINDA do Banco Central (cache 5 min)',
         params: [

@@ -7,14 +7,14 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../.env.local') })
 // Chaves específicas do serviço vêm do .env na raiz do pacote (configurador/)
 // ATENÇÃO: __dir aponta para server/ — por isso '../.env' e não '.env'
 dotenv.config({ path: resolve(__dir, '../.env') })
 
 // Fail-fast: validar env vars criticas antes de qualquer import
-const requiredEnvVars = ['CONFIGURADOR_DATABASE_URL', 'CLERK_SECRET_KEY', 'INTERNAL_SERVICE_KEY'] as const
+const requiredEnvVars = ['CONFIGURADOR_DATABASE_URL', 'CLERK_SECRET_KEY', 'CHAVE_INTERNA_SERVICO'] as const
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     throw new Error(`[Configurador] Variavel de ambiente obrigatoria ausente: ${envVar}`)
@@ -44,7 +44,7 @@ import { adminProductsRouter } from './routes/admin-produto-gravity.js'
 import { publicCatalogRouter } from './routes/catalogo-publico.js'
 import { hubRouter } from './routes/hub-init.js'
 import { meRouter } from './routes/me.js'
-import { taxaCambioRouter } from './routes/taxa-cambio.js'
+import { taxasMoedaRouter } from './routes/taxas-moeda.js'
 import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
 import { apiObservability } from '../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
@@ -155,7 +155,7 @@ app.use('/api/v1/workspaces/:id_workspace/produtos', companyProductsRouter)
 app.use('/api/v1/usuarios', usersRouter)
 app.use('/api/v1/tokens-servico', serviceTokenRouter)
 
-// ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────
+// ─── Rotas internas (x-chave-interna-servico obrigatória) ────────────────────────────
 
 app.use('/api/v1/internal', accessRouter)
 app.use('/api/v1/internal', serviceTokenRouter)
@@ -205,7 +205,7 @@ app.use('/api/v1/admin/eventos-seguranca', adminSecurityRouter)        // painel
 // Rota interna S2S para ingestão de eventos de segurança (chamada pelo
 // securityAuditLogger do historico-global). Antes: POST /admin/security/events
 // estava atrás de requireAuth+requireGravityAdmin mas o caller usava
-// x-internal-key, resultando em 401 silencioso — audit trail quebrado.
+// x-chave-interna-servico, resultando em 401 silencioso — audit trail quebrado.
 app.use('/api/v1/internal/eventos-seguranca', adminSecurityInternalRouter)
 
 // Ponto Cego 2 — captura 401/403 que ocorrem antes dos route handlers
@@ -218,9 +218,9 @@ app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: obser
 app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 
-// ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────
+// ─── Taxas de moeda (PTAX) — sem auth (dados públicos do BCB) ──────────────
 
-app.use('/api/v1/taxa-cambio', taxaCambioRouter)
+app.use('/api/v1/taxas-moeda', taxasMoedaRouter)
 
 // ─── Histórico da organização — workspace page (requireAuth interno) ────────
 
@@ -266,9 +266,9 @@ if (process.env.NODE_ENV !== 'test') {
         await startPartitionWorker()
         await startGabiQuotaResetWorker()
 
-        // Taxa de câmbio — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
-        const { startTaxaCambioSyncWorker } = await import('./queue/taxaCambioSyncWorker.js')
-        startTaxaCambioSyncWorker()
+        // Taxas de moeda — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
+        const { startTaxasMoedaSyncWorker } = await import('./queue/taxasMoedaSyncWorker.js')
+        startTaxasMoedaSyncWorker()
 
         // NCM Siscomex — cron job diário roda no bootstrap do serviço Cadastros
         // (porta 8031). Configurador apenas proxya as chamadas admin via REST.

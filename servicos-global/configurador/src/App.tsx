@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
-import { useLoadSystemRole } from './hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
@@ -44,6 +44,10 @@ const HistoricoGlobalAdmin = lazy(() => import('./pages/admin/HistoricoGlobalAdm
 const FinanceiroAdmin = lazy(() => import('./pages/admin/FinanceiroAdmin'), 'FinanceiroAdmin')
 const TestesGeraisAdmin = lazy(() => import('./pages/admin/TestesGeraisAdmin'), 'TestesGeraisAdmin')
 const ApiCockpitAdmin = lazy(() => import('./pages/admin/ApiCockpitAdmin'), 'ApiCockpitAdmin')
+const ApiCockpitAdminLogs = lazy(() => import('./pages/admin/ApiCockpitAdminLogs'), 'ApiCockpitAdminLogs')
+const ApiTokensAdmin = lazy(() => import('./pages/admin/ApiTokensAdmin'), 'ApiTokensAdmin')
+const ApiWebhooksAdmin = lazy(() => import('./pages/admin/ApiWebhooksAdmin'), 'ApiWebhooksAdmin')
+const ApiConsumoAdmin = lazy(() => import('./pages/admin/ApiConsumoAdmin'), 'ApiConsumoAdmin')
 const UsuariosAdmin = lazy(() => import('./pages/admin/UsuariosAdmin'), 'UsuariosAdmin')
 const OrganizacaoDetalheAdmin = lazy(() => import('./pages/OrganizacaoDetalheAdmin'), 'OrganizacaoDetalheAdmin')
 const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
@@ -62,14 +66,14 @@ const ApiTokens = lazy(() => import('./pages/workspace/ApiTokens'), 'ApiTokens')
 const ApiWebhooks = lazy(() => import('./pages/workspace/ApiWebhooks'), 'ApiWebhooks')
 const ApiConsumo = lazy(() => import('./pages/workspace/ApiConsumo'), 'ApiConsumo')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
-const TaxasCambioPage = lazy(() => import('./pages/workspace/TaxasCambio'), 'TaxasCambio')
+const TaxasMoedaPage = lazy(() => import('./pages/workspace/TaxasMoeda'), 'TaxasMoeda')
 const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao'), 'HistoricoOrganizacao')
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
-const HistoricoWorkspace = React.lazy(() =>
-  import('../../../servicos-global/servicos-plataforma/historico-global/src/Historico').then(m => ({ default: m.Historico }))
-)
+// HistoricoWorkspace removido em 2026-05-07 — era duplicação do <HistoricoOrganizacao>
+// (mesma tabela HistoricoLog, escopo Master/Standard/Fornecedor). Tela canonica do
+// cliente fica em /workspace/historico-organizacao. Tela admin segue em /admin/historico-global.
 
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
 const SimulaCustoApp = React.lazy(() => import('../../produto/simula-custo/client/src/App'))
@@ -78,43 +82,41 @@ const BidFreteApp = React.lazy(() => import('../../produto/bid-frete/client/src/
 const BidCambioApp = React.lazy(() => import('../../produto/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../produto/pedido/client/src/App'))
 
+import { ROTAS_PEDIDO, BASE_ROTA_PEDIDO } from '../../produto/pedido/client/src/shared/rotas'
+
 /**
- * Guard contra routing loop do catch-all do Pedido.
+ * Porteiro da entrada do produto Pedido.
  *
- * Problema: NavLinks resolvem `to="pedidos/kanban"` relativo à URL atual em vez do
- * base `/produto/pedido`, produzindo paths acumulados como:
- *   - /produto/pedido/pedidos/pedidos/kanban  (de Lista → Kanban)
- *   - /produto/pedido/pedidos/dashboard/pedidos/kanban  (de Dashboard → Kanban)
+ * Problema historico: NavLinks resolvem `to="pedidos/kanban"` relativo a URL atual em vez
+ * do base `/produto/pedido`, produzindo paths acumulados como:
+ *   - /produto/pedido/pedidos/pedidos/kanban  (de Lista -> Kanban)
+ *   - /produto/pedido/pedidos/dashboard/pedidos/kanban  (de Dashboard -> Kanban)
  *
- * Solução: validar o inner path contra o conjunto de rotas conhecidas.
- * Se inválido, extrair o sufixo válido mais curto (= destino pretendido pelo usuário).
- * Sem tocar no código do produto Pedido.
+ * Solucao: validar o sufixo (apos o base) contra ROTAS_PEDIDO. Se invalido, extrair o sufixo
+ * valido mais curto (= destino pretendido pelo usuario) e redirecionar. A lista de rotas
+ * validas vive em produto/pedido/client/src/shared/rotas.ts (SSOT).
  */
-const PEDIDO_VALID_PATHS = new Set([
-  '', 'pedidos', 'pedidos/dashboard', 'pedidos/kanban',
-  'pedidos/novo', 'historico', 'configuracoes',
-])
+const ROTAS_VALIDAS_PEDIDO = new Set<string>(ROTAS_PEDIDO.estaticas)
 
-function PedidoRouteGuard() {
+function GuardaRotaPedido() {
   const location = useLocation()
-  const BASE = '/produto/pedido'
 
-  const inner = location.pathname.startsWith(BASE + '/')
-    ? location.pathname.slice(BASE.length + 1)
+  const sufixo = location.pathname.startsWith(BASE_ROTA_PEDIDO + '/')
+    ? location.pathname.slice(BASE_ROTA_PEDIDO.length + 1)
     : ''
 
-  const isValid =
-    PEDIDO_VALID_PATHS.has(inner) ||
-    /^pedidos\/[^/]+\/editar$/.test(inner)
+  const valido =
+    ROTAS_VALIDAS_PEDIDO.has(sufixo) ||
+    ROTAS_PEDIDO.dinamicas.some(rx => rx.test(sufixo))
 
-  if (!isValid) {
-    const segs = inner.split('/').filter(Boolean)
-    let target = 'pedidos'
-    for (let len = 1; len <= Math.min(segs.length, 3); len++) {
-      const candidate = segs.slice(-len).join('/')
-      if (PEDIDO_VALID_PATHS.has(candidate)) { target = candidate; break }
+  if (!valido) {
+    const segmentos = sufixo.split('/').filter(Boolean)
+    let destino = 'pedidos'
+    for (let len = 1; len <= Math.min(segmentos.length, 3); len++) {
+      const candidato = segmentos.slice(-len).join('/')
+      if (ROTAS_VALIDAS_PEDIDO.has(candidato)) { destino = candidato; break }
     }
-    return <Navigate to={`${BASE}/${target}`} replace />
+    return <Navigate to={`${BASE_ROTA_PEDIDO}/${destino}`} replace />
   }
 
   return <React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense>
@@ -223,7 +225,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  *  Role lido do banco via /api/v1/me — não depende de Clerk publicMetadata. */
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
-  const { isReady, isGravityAdmin } = useLoadSystemRole()
+  const { pronto: isReady, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
 
   if (!isLoaded) return null
   if (!isSignedIn) return <Navigate to="/login" replace />
@@ -310,7 +312,7 @@ export default function App() {
             <Route path="email" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Email — em desenvolvimento</div>} />
             <Route path="whatsapp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>WhatsApp — em desenvolvimento</div>} />
             <Route path="notificacoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Notificações — em desenvolvimento</div>} />
-            <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoWorkspace /></React.Suspense>} />
+            {/* /core/historico removido em 2026-05-07 — ver HistoricoOrganizacao em /workspace/historico-organizacao */}
             <Route path="conector-erp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Conector ERP — em desenvolvimento</div>} />
             <Route path="configuracoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Configurações — em desenvolvimento</div>} />
           </Route>
@@ -321,7 +323,7 @@ export default function App() {
         <Route path="/produto/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/produto/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/produto/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><PedidoRouteGuard /></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Admin — área interna restrita — exclusivo gravity_admin */}
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
@@ -334,6 +336,10 @@ export default function App() {
           <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployAdmin /></React.Suspense>} />
           <Route path="testes-gerais" element={<React.Suspense fallback={<ProductLoading />}><TestesGeraisAdmin /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdmin /></React.Suspense>} />
+          <Route path="api-cockpit/logs" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdminLogs /></React.Suspense>} />
+          <Route path="api-cockpit/tokens" element={<React.Suspense fallback={<ProductLoading />}><ApiTokensAdmin /></React.Suspense>} />
+          <Route path="api-cockpit/webhooks" element={<React.Suspense fallback={<ProductLoading />}><ApiWebhooksAdmin /></React.Suspense>} />
+          <Route path="api-cockpit/consumo" element={<React.Suspense fallback={<ProductLoading />}><ApiConsumoAdmin /></React.Suspense>} />
           <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
           <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
@@ -355,7 +361,9 @@ export default function App() {
           <Route path="api-cockpit/webhooks" element={<React.Suspense fallback={<ProductLoading />}><ApiWebhooks /></React.Suspense>} />
           <Route path="api-cockpit/consumo" element={<React.Suspense fallback={<ProductLoading />}><ApiConsumo /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
-          <Route path="taxas-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxasCambioPage /></React.Suspense>} />
+          <Route path="taxas-moeda" element={<React.Suspense fallback={<ProductLoading />}><TaxasMoedaPage /></React.Suspense>} />
+          <Route path="taxas-cambio" element={<Navigate to="/workspace/taxas-moeda" replace />} />
+          <Route path="taxa-cambio" element={<Navigate to="/workspace/taxas-moeda" replace />} />
           <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />
         </Route>
 

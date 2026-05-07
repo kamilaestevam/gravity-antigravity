@@ -1,12 +1,17 @@
 /**
- * taxaCambio.ts — Taxas de câmbio PTAX centralizadas
+ * taxas-moeda.ts — Taxas de moeda (PTAX) centralizadas
  *
  * Armazena até 4 boletins por dia por moeda (10h / 11h / 12h / 13h).
- * Fonte: BCB/PTAX via bid-cambio. Cron automático em taxaCambioSyncWorker.ts.
+ * Fonte: BCB/PTAX via serviço de plataforma `taxas-moeda` (porta 8031).
+ * Cron automático em taxasMoedaSyncWorker.ts.
  *
- * GET  /api/v1/taxa-cambio           — taxas do dia (todos os boletins)
- * GET  /api/v1/taxa-cambio/historico — histórico (filtro: moeda, dias)
- * POST /api/v1/taxa-cambio/sync      — sincroniza boletim atual do BCB
+ * GET  /api/v1/taxas-moeda           — taxas do dia (todos os boletins)
+ * GET  /api/v1/taxas-moeda/historico — histórico (filtro: moeda, dias)
+ * POST /api/v1/taxas-moeda/sync      — sincroniza boletim atual do BCB
+ *
+ * NOTA (Fase C pendente): persistência ainda usa `prisma.cambio` (banco do
+ * Configurador). Mover para `cadastros-db.taxa_moeda` é tarefa do Coordenador
+ * via script + migration controlada.
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -16,9 +21,9 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 
-export const taxaCambioRouter = Router()
+export const taxasMoedaRouter = Router()
 
-const BID_CAMBIO_URL = process.env.BID_CAMBIO_URL ?? 'http://localhost:8025'
+const TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://localhost:8031'
 
 export const MOEDAS_SUPORTADAS = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD'] as const
 type Moeda = typeof MOEDAS_SUPORTADAS[number]
@@ -102,24 +107,25 @@ function toCambioDto(row: {
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/taxa-cambio
+// GET /api/v1/taxas-moeda
 // Taxas do dia agrupadas por moeda — todos os boletins disponíveis hoje
 // ---------------------------------------------------------------------------
 
-taxaCambioRouter.get('/', async (_req: Request, res: Response, next: NextFunction) => {
+taxasMoedaRouter.get('/', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const hoje = new Date()
-    hoje.setUTCHours(0, 0, 0, 0)
+    // Olhamos os últimos 7 dias — cobre fim de semana/feriado quando o BCB
+    // só publica D-1 ou D-2. Frontend pega o último boletim por moeda.
+    const desde = new Date()
+    desde.setDate(desde.getDate() - 7)
+    desde.setUTCHours(0, 0, 0, 0)
 
     const taxas = await prisma.cambio.findMany({
-      where: { data_cotacao_cambio: { gte: hoje } },
-      orderBy: [{ moeda_cambio: 'asc' }, { data_criacao_cambio: 'asc' }],
+      where: { data_cotacao_cambio: { gte: desde } },
+      orderBy: [{ moeda_cambio: 'asc' }, { data_cotacao_cambio: 'asc' }, { data_criacao_cambio: 'asc' }],
     })
 
-    // DTO: rename Prisma → contrato legado
     const taxasDto = taxas.map(toCambioDto)
 
-    // Agrupar por moeda
     const porMoeda: Record<string, ReturnType<typeof toCambioDto>[]> = {}
     for (const t of taxasDto) {
       if (!porMoeda[t.moeda]) porMoeda[t.moeda] = []
@@ -133,7 +139,7 @@ taxaCambioRouter.get('/', async (_req: Request, res: Response, next: NextFunctio
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/taxa-cambio/historico?moeda=USD&dias=30
+// GET /api/v1/taxas-moeda/historico?moeda=USD&dias=30
 // ---------------------------------------------------------------------------
 
 const historicoQuerySchema = z.object({
@@ -141,7 +147,7 @@ const historicoQuerySchema = z.object({
   dias: z.coerce.number().int().min(1).max(365).default(30),
 })
 
-taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: NextFunction) => {
+taxasMoedaRouter.get('/historico', async (req: Request, res: Response, next: NextFunction) => {
   const parsed = historicoQuerySchema.safeParse(req.query)
   if (!parsed.success) return next(new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR'))
 
@@ -167,7 +173,6 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
       },
     })
 
-    // DTO: rename Prisma → contrato legado
     const historico = registros.map(toCambioDto)
 
     res.json({ moeda, periodo_dias: dias, total: historico.length, historico })
@@ -177,18 +182,18 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/taxa-cambio/sync
-// Busca cotação atual do BCB (via bid-cambio) e persiste no banco.
+// POST /api/v1/taxas-moeda/sync
+// Busca cotação atual do BCB (via taxas-moeda plataforma) e persiste no banco.
 // Requer auth: sem proteção, qualquer cliente anônimo pode disparar o sync
-// e sobrecarregar o bid-cambio/BCB (abuso de origem externa).
+// e sobrecarregar o BCB (abuso de origem externa).
 // ---------------------------------------------------------------------------
 
-taxaCambioRouter.post('/sync', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
+taxasMoedaRouter.post('/sync', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   const resultados: Array<{ moeda: Moeda; boletim: string; status: 'ok' | 'erro'; detalhe?: string }> = []
 
   for (const moeda of MOEDAS_SUPORTADAS) {
     try {
-      const { data } = await axios.get(`${BID_CAMBIO_URL}/api/v1/master-data/ptax`, {
+      const { data } = await axios.get(`${TAXAS_MOEDA_URL}/api/v1/taxas-moeda`, {
         params: { moeda },
         timeout: 12000,
       })

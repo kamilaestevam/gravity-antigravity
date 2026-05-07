@@ -7,7 +7,7 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
-import { useLoadSystemRole } from '../../hooks/use-load-system-role'
+import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import {
   Crown,
@@ -53,7 +53,7 @@ export function WorkspaceLayout() {
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
     { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
-    { to: '/workspace/taxa-cambio',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
+    { to: '/workspace/taxas-moeda',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
     { to: '/workspace/historico-organizacao', label: t('workspace.layout.historico-organizacao'), icon: <ClockCounterClockwise weight="duotone" size={18} /> },
   ]
 
@@ -73,7 +73,7 @@ export function WorkspaceLayout() {
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
-  const { role: dbRole, isGravityAdmin } = useLoadSystemRole()
+  const { tipoUsuario: dbRole, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',

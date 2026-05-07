@@ -7,6 +7,7 @@ import {
   CircleNotch,
   Clock,
   ChartLine,
+  Sigma,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -79,14 +80,16 @@ function fmtDataHora(iso: string | null | undefined): string {
 }
 
 /**
- * Pill de período — destaca "atual" / "média 30d" no título do card.
+ * Pill de período — destaca "atual" / "Σ 30 dias" no título do card.
  * Usa accent indigo (#818cf8) do design system Solid Slate.
+ * `icone` opcional aparece antes do texto (ex: <Sigma /> para média).
  */
-function PillPeriodo({ children }: { children: React.ReactNode }) {
+function PillPeriodo({ children, icone }: { children: React.ReactNode; icone?: React.ReactNode }) {
   return (
     <span style={{
-      display: 'inline-block',
-      marginLeft: '0.4rem',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.3rem',
       padding: '2px 8px',
       borderRadius: '10px',
       fontSize: '0.65rem',
@@ -96,8 +99,21 @@ function PillPeriodo({ children }: { children: React.ReactNode }) {
       color: '#818cf8',
       background: 'rgba(129,140,248,0.10)',
       border: '1px solid rgba(129,140,248,0.25)',
-      verticalAlign: 'middle',
+      lineHeight: 1,
     }}>
+      {icone}
+      {children}
+    </span>
+  )
+}
+
+/**
+ * Wrap do titulo do card pra alinhar verticalmente o nome da moeda
+ * com o pill de periodo.
+ */
+function TituloComPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
       {children}
     </span>
   )
@@ -394,7 +410,7 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 1: Cotação atual ═══════ */}
               <CardEstatisticaGlobal
-                titulo={<>USD / BRL <PillPeriodo>Atual</PillPeriodo></>}
+                titulo={<TituloComPill>USD / BRL <PillPeriodo>Atual</PillPeriodo></TituloComPill>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
                 subtexto={taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
@@ -426,7 +442,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<>EUR / BRL <PillPeriodo>Atual</PillPeriodo></>}
+                titulo={<TituloComPill>EUR / BRL <PillPeriodo>Atual</PillPeriodo></TituloComPill>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
                 subtexto={taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
@@ -490,7 +506,7 @@ export function TaxasMoeda() {
             <>
               {/* ═══════ KPIs ABA 2: Média 30 dias ═══════ */}
               <CardEstatisticaGlobal
-                titulo={<>USD / BRL <PillPeriodo>Média 30d</PillPeriodo></>}
+                titulo={<TituloComPill>USD / BRL <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dUSD.venda != null ? `R$ ${fmtTaxa(media30dUSD.venda)}` : '—'}</span>}
                 subtexto={media30dUSD.compra != null
@@ -525,7 +541,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<>EUR / BRL <PillPeriodo>Média 30d</PillPeriodo></>}
+                titulo={<TituloComPill>EUR / BRL <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{media30dEUR.venda != null ? `R$ ${fmtTaxa(media30dEUR.venda)}` : '—'}</span>}
                 subtexto={media30dEUR.compra != null
@@ -560,7 +576,7 @@ export function TaxasMoeda() {
                 }
               />
               <CardEstatisticaGlobal
-                titulo={<>Boletins <PillPeriodo>30d</PillPeriodo></>}
+                titulo={<TituloComPill>Boletins <PillPeriodo icone={<Sigma size={11} weight="bold" />}>30 dias</PillPeriodo></TituloComPill>}
                 icone={<ChartLine weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.75rem' }}>{historico.length}</span>}
                 subtexto={`${moedaHistorico} nos últimos 30 dias`}

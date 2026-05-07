@@ -265,7 +265,7 @@ export function ModalEditarAssinatura({
     rotulo: t('workspace.subscriptions.aba_dados_basicos', 'Dados Básicos'),
     conteudo: (
       <BannerRequisitosContexto requisitos={requisitos}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingTop: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingTop: '13px' }}>
           {!produtoCompleto ? <PlaceholderCarregando titulo="Dados Básicos" /> : (
             <>
               <CampoGeralGlobal label="Nome do Produto">
@@ -318,7 +318,7 @@ export function ModalEditarAssinatura({
     id: 'setup',
     rotulo: t('workspace.subscriptions.aba_setup', 'Setup'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Setup" /> : (
           produtoCompleto.possui_setup_produto_gravity ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -352,7 +352,7 @@ export function ModalEditarAssinatura({
     id: 'valor-produto',
     rotulo: t('workspace.subscriptions.aba_valor_produto', 'Valor do Produto'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Valor do Produto" /> : (
           <>
             <p style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
@@ -472,7 +472,7 @@ export function ModalEditarAssinatura({
     id: 'usuarios',
     rotulo: t('workspace.subscriptions.aba_usuarios', 'Usuários'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Usuários" /> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
@@ -517,7 +517,7 @@ export function ModalEditarAssinatura({
     id: 'help-desk',
     rotulo: t('workspace.subscriptions.aba_help_desk', 'Help Desk'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Help Desk" /> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
@@ -553,7 +553,7 @@ export function ModalEditarAssinatura({
     id: 'tokens',
     rotulo: t('workspace.subscriptions.aba_tokens', 'Tokens GABI'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Tokens GABI" /> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
@@ -587,7 +587,7 @@ export function ModalEditarAssinatura({
     id: 'negociacoes',
     rotulo: t('workspace.subscriptions.aba_negociacoes', 'Negociações'),
     conteudo: (
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '13px' }}>
         {!produtoCompleto ? <PlaceholderCarregando titulo="Negociações" /> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
@@ -669,7 +669,7 @@ export function ModalEditarAssinatura({
     id: 'distribuicao',
     rotulo: t('workspace.subscriptions.aba_distribuicao'),
     conteudo: (
-      <div style={{ paddingTop: '0.25rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingTop: '13px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
             <TreeStructure size={16} weight="duotone" color="var(--color-primary)" />{' '}

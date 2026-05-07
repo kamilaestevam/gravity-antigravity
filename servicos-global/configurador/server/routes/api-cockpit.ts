@@ -549,24 +549,40 @@ apiCockpitAdminRouter.get('/webhooks/:id_webhook_configuracao/historico', async 
 
 /**
  * GET /api/v1/api-cockpit/admin/uso-gabi
- * Proxy para GET /api/v1/gabi/uso do servico Gabi.
- * Quando id_organizacao nao e informado, retorna uso global (sem filtro).
+ *
+ * Proxy duplo:
+ *   - Sem id_organizacao -> /api/v1/gabi/admin/uso-global (cross-org, agrega todas)
+ *   - Com id_organizacao -> /api/v1/gabi/uso (per-org, schema-per-organizacao)
+ *
+ * O endpoint admin/uso-global lista organizacoes via S2S no Configurador
+ * e itera com SET LOCAL search_path. Path per-org continua intocado.
  */
 apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
   try {
-    const month = (req.query.month as string) || ''
+    const month          = (req.query.month as string)          || ''
     const id_organizacao = (req.query.id_organizacao as string) || ''
-    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso`)
+
+    // Roteamento: cross-org vs per-org
+    const path = id_organizacao
+      ? '/api/v1/gabi/uso'
+      : '/api/v1/gabi/admin/uso-global'
+
+    const url = new URL(`${GABI_SERVICE_URL}${path}`)
     if (month) url.searchParams.set('month', month)
     if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
+    const headers: Record<string, string> = {
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'Content-Type':            'application/json',
+    }
+    // Per-org path exige header de tenant; cross-org nao
+    if (id_organizacao) {
+      headers['x-id-organizacao'] = id_organizacao
+    }
+
     const response = await fetch(url.toString(), {
-      headers: {
-        'x-chave-interna-servico':  CHAVE_INTERNA_SERVICO,
-        'x-id-organizacao': id_organizacao || '__admin_global__',
-        'Content-Type':    'application/json',
-      },
-      signal: AbortSignal.timeout(5_000),
+      headers,
+      signal: AbortSignal.timeout(15_000), // cross-org pode ser mais lento (N orgs)
     })
 
     if (!response.ok) throw new Error(`gabi usage ${response.status}`)

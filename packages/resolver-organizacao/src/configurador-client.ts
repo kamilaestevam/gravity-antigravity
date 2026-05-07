@@ -5,7 +5,7 @@
  *   GET /api/v1/internal/organizacoes/:id_organizacao   → resolve organizacao por ID (CRON/worker)
  *   GET /api/v1/internal/usuarios/:id_clerk_usuario     → resolve org pelo Clerk sub (middleware HTTP)
  *
- * Toda chamada inclui `x-internal-key` (S2S). Falhas mapeadas para `AppError`.
+ * Toda chamada inclui `x-chave-interna-servico` (S2S). Falhas mapeadas para `AppError`.
  * Cache fica em `cache.ts` — este módulo faz apenas o fetch + validação Zod.
  */
 
@@ -107,7 +107,7 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
 
   function baseHeaders(idCorrelacao: string): Record<string, string> {
     return {
-      'x-chave-interna': opts.chaveInterna,
+      'x-chave-interna-servico': opts.chaveInterna,
       'x-id-correlacao': idCorrelacao,
       'Content-Type': 'application/json',
     };

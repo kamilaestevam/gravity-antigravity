@@ -125,7 +125,7 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
   }
 }
 
-async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+export async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const token = await getAuthToken()
 
@@ -143,9 +143,15 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   })
   if (!response.ok) {
     const raw = await response.json().catch(() => null)
-    // Servidor retorna { error: { message } } ou { error: string }
+    // Servidor retorna { error: { message, details? } } ou { error: string }
+    // BUG-C (Mand. 08): preservar `details` no Error para que a UI possa exibir
+    // o(s) campo(s) realmente inválidos em vez de uma mensagem genérica.
     const msg = raw?.error?.message || (typeof raw?.error === 'string' ? raw.error : null)
-    throw new Error(msg || `HTTP ${response.status}`)
+    const err = new Error(msg || `HTTP ${response.status}`) as Error & { details?: unknown }
+    if (raw?.error && typeof raw.error === 'object' && 'details' in raw.error) {
+      err.details = (raw.error as { details?: unknown }).details
+    }
+    throw err
   }
   // HTTP 204 No Content — resposta válida sem corpo (DELETE, PATCH sem retorno).
   // O `as T` é necessário porque T é genérico; quando o caller espera void/undefined

@@ -51,7 +51,7 @@ export interface ConfigResolverOrganizacao {
   chaveProduto: ChaveProduto;
   /** Base URL do Configurador (ex.: `https://configurador.gravity.app`). */
   configuradorBaseUrl: string;
-  /** Chave compartilhada `x-chave-interna` para chamadas inter-serviço. */
+  /** Chave compartilhada `x-chave-interna-servico` para chamadas inter-serviço. */
   chaveInterna: string;
   /** TTL do cache de organização em ms. Default: 60_000. */
   cacheTtlMs?: number;

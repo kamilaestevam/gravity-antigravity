@@ -271,8 +271,10 @@
     "cadastros": {
       "baseUrl": "http://localhost:8031",
       "pathPrefix": "/api/v1/cadastros",
-      "note": "Cadastros globais (catálogos da Receita Federal) — Empresa, Moeda, Unidade, Ncm (catálogo `ncm_sync`), Operações COMEX. Inclui NCM Sync (sincronização diária com Portal Único Siscomex) e endpoints admin acessados pelo configurador via S2S (x-chave-interna-servico). Catálogos sem id_organizacao — universais.",
+      "note": "Cadastros globais (catálogos da Receita Federal) — Empresa, Moeda, Unidade, Ncm (catálogo `ncm_sync`), Operações COMEX. Inclui NCM Sync (sincronização diária com Portal Único Siscomex) e endpoints admin acessados pelo configurador via S2S (x-chave-interna-servico). Catálogos sem id_organizacao — universais. Consumido também pelo produto Pedido (modal Manual `ModalPedidoNovo` chama /empresas e /paises via cadastrosApi.ts; cadastro inline de Empresa via POST /empresas com fluxo rápido nome+país+papel).",
       "endpoints": {
+        "empresas":    "GET/POST/PUT/DELETE /empresas — produto Pedido consome para SelectGlobal de exportador/importador/fabricante e cadastra inline via POST",
+        "paises":      "GET /paises — catálogo de países ISO-2 (read-only, fonte única)",
         "moedas":      "GET/POST/PUT/DELETE /moedas",
         "unidades":    "GET/POST/PUT/DELETE /unidades",
         "ncm":         "GET/POST/PUT/DELETE /ncm — CRUD do catálogo NcmSync (tabela física `ncm_sync`)",

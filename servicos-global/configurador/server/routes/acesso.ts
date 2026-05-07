@@ -317,6 +317,40 @@ accessRouter.get('/usuarios/:id_clerk_usuario', async (req, res, next) => {
 })
 
 /**
+ * GET /api/v1/internal/organizacoes
+ * Lista todas as organizacoes ATIVAS para uso S2S (workers, admin cross-org views).
+ *
+ * Filtra por padrao status_organizacao = 'ATIVO' — orgs suspensas ou canceladas
+ * nao deveriam ser iteradas em rotinas operacionais (workers de cobranca,
+ * paineis admin, agregacoes globais). Para incluir todos os status, passar
+ * ?incluirInativas=true.
+ *
+ * Resposta: minimal payload (apenas id_organizacao + status) — chamadores
+ * que precisam de mais campos podem buscar org por org via /organizacoes/:id.
+ *
+ * Consumido por: GABI /admin/uso-global, futuros workers cross-org.
+ */
+accessRouter.get('/organizacoes', async (req, res, next) => {
+  try {
+    const incluirInativas = req.query.incluirInativas === 'true'
+    const where = incluirInativas ? {} : { status_organizacao: 'ATIVO' as const }
+
+    const organizacoes = await prisma.organizacao.findMany({
+      where,
+      select: {
+        id_organizacao:     true,
+        status_organizacao: true,
+      },
+      orderBy: { data_criacao_organizacao: 'asc' },
+    })
+
+    res.json({ organizacoes })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/internal/organizacoes/:id_organizacao
  * Resolve organizacao por ID — usado por background jobs/CRON via SDK
  * (sem usuario no contexto, idUsuario e tiposUsuario sao default no SDK).

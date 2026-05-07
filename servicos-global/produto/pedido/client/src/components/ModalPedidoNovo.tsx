@@ -8,7 +8,7 @@
  * Edição de pedido existente usa o DrawerPedido (aba Dados / Itens / Transferências).
  */
 
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Package, Tag, Plus, Trash, Warning } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
@@ -17,6 +17,12 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
+import { cadastrosApi, type Empresa, type PapelEmpresaRapido } from '../shared/cadastrosApi'
+import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
+
+// Sentinel value usado em SelectGlobal para representar a opção
+// "+ Cadastrar nova empresa" sem colidir com SUIDs reais.
+const SENTINEL_NOVA_EMPRESA = '__nova_empresa__'
 
 // ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
 
@@ -25,8 +31,13 @@ import { pedidoApi } from '../shared/api'
 interface PedidoForm {
   tipo_operacao: TipoOperacao
   numero_pedido: string
-  importacao_exportador_id: string
-  fabricante_id: string
+  // Fase 4 DDD — SUIDs referenciam Empresas no serviço Cadastros.
+  // UX (B3): SelectGlobal carrega empresas da organização ao abrir o modal,
+  // com atalho "+ Cadastrar nova empresa" que abre ModalEmpresaCadastroRapido,
+  // grava no Cadastros e seleciona o SUID retornado.
+  suid_importador: string
+  suid_exportador: string
+  suid_fabricante: string
   incoterm: string
   condicao_pagamento: string
   numero_proforma: string
@@ -48,8 +59,9 @@ interface ItemForm {
 const FORM_VAZIO: PedidoForm = {
   tipo_operacao: 'importacao',
   numero_pedido: '',
-  importacao_exportador_id: '',
-  fabricante_id: '',
+  suid_importador: '',
+  suid_exportador: '',
+  suid_fabricante: '',
   incoterm: 'FOB',
   condicao_pagamento: '',
   numero_proforma: '',
@@ -117,6 +129,13 @@ function traduzirErroApi(err: unknown, t: TFunc): string {
 
   if (msg && !msg.startsWith('HTTP ')) {
     if (msg.toLowerCase().includes('dados invalidos') || msg.toLowerCase().includes('dados inválidos')) {
+      // BUG-C (Mand. 08) — preferir mostrar os campos reais com erro vindos do
+      // backend (Zod `.flatten().fieldErrors`) em vez do texto genérico.
+      const details = (err as Error & { details?: { fieldErrors?: Record<string, unknown> } }).details
+      const campos = details?.fieldErrors ? Object.keys(details.fieldErrors) : []
+      if (campos.length > 0) {
+        return t('pedido.modal_novo.erro_dados_invalidos_campos', { campos: campos.join(', ') })
+      }
       return t('pedido.modal_novo.erro_dados_invalidos')
     }
     return msg
@@ -276,6 +295,83 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [erros, setErros]       = useState<ErrosValidacao>({})
   const { addNotification } = useShellStore()
 
+  // ── Empresas (B3) — pré-carrega ao abrir e refresh quando cria nova ────────
+  const [empresas, setEmpresas]                       = useState<Empresa[]>([])
+  const [carregandoEmpresas, setCarregandoEmpresas]   = useState(false)
+  const [cadastroEmpresaPapel, setCadastroEmpresaPapel] = useState<PapelEmpresaRapido | null>(null)
+
+  useEffect(() => {
+    if (!aberto) return
+    let cancelado = false
+    setCarregandoEmpresas(true)
+    cadastrosApi
+      .listarEmpresas()
+      .then((resp) => {
+        if (!cancelado) setEmpresas(resp.itens.filter((e) => e.ativo_empresa))
+      })
+      .catch(() => {
+        // Falha silenciosa só na pré-carga (o usuário ainda pode cadastrar
+        // nova empresa pelo atalho — esse fluxo trata erro com mensagem).
+        if (!cancelado) setEmpresas([])
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoEmpresas(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [aberto])
+
+  // Monta opções do SelectGlobal para um papel — adiciona sentinel "+ cadastrar nova"
+  // no topo, e filtra empresas que tem o papel adequado quando a empresa
+  // explicita um papel (default: mostra todas, papel é só hint visual).
+  function opcoesEmpresaPara(papel: PapelEmpresaRapido) {
+    const papelKey =
+      papel === 'importador' ? 'pode_ser_importador_empresa'
+      : papel === 'exportador' ? 'pode_ser_exportador_empresa'
+      : 'pode_ser_fabricante_empresa'
+    // Mostra com prioridade as que já marcam o papel; demais aparecem abaixo.
+    const aptas = empresas.filter((e) => e[papelKey])
+    const outras = empresas.filter((e) => !e[papelKey])
+    const acao = {
+      valor: SENTINEL_NOVA_EMPRESA,
+      rotulo: t('pedido.cadastro_empresa.cadastrar_nova'),
+    }
+    return [
+      acao,
+      ...aptas.map((e) => ({
+        valor: e.suid_empresa,
+        rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
+      })),
+      ...outras.map((e) => ({
+        valor: e.suid_empresa,
+        rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
+        descricao: t('pedido.cadastro_empresa.papel_nao_marcado'),
+      })),
+    ]
+  }
+
+  function aoEscolherEmpresa(campo: 'suid_importador' | 'suid_exportador' | 'suid_fabricante', valor: string | number | null) {
+    const v = String(valor ?? '')
+    if (v === SENTINEL_NOVA_EMPRESA) {
+      const papel: PapelEmpresaRapido =
+        campo === 'suid_importador' ? 'importador'
+        : campo === 'suid_exportador' ? 'exportador'
+        : 'fabricante'
+      setCadastroEmpresaPapel(papel)
+      return
+    }
+    set(campo, v)
+  }
+
+  function aoCriarEmpresa(empresa: Empresa) {
+    setEmpresas((prev) => [empresa, ...prev.filter((e) => e.suid_empresa !== empresa.suid_empresa)])
+    if (cadastroEmpresaPapel === 'importador') set('suid_importador', empresa.suid_empresa)
+    if (cadastroEmpresaPapel === 'exportador') set('suid_exportador', empresa.suid_empresa)
+    if (cadastroEmpresaPapel === 'fabricante') set('suid_fabricante', empresa.suid_empresa)
+    setCadastroEmpresaPapel(null)
+  }
+
   const PASSOS = useMemo<PassoConfig[]>(() => [
     { id: 1, label: t('pedido.modal_novo.passo_dados'), icone: <Package size={14} weight="duotone" /> },
     { id: 2, label: t('pedido.modal_novo.passo_itens'), icone: <Tag size={14} weight="duotone" /> },
@@ -394,45 +490,79 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   }
 
   return (
-    <ModalPassoPassoGlobal
-      titulo={t('pedido.modal_novo.titulo')}
-      aberto={aberto}
-      passos={PASSOS}
-      passoAtual={passo}
-      onProximo={handleProximo}
-      onVoltar={handleVoltar}
-      onFechar={handleFechar}
-      podeAvancar={podeAvancar && !salvando}
-      labelBotaoFinal={salvando ? t('pedido.modal_novo.criando') : t('pedido.modal_novo.criar')}
-      tamanho="lg"
-      altura="620px"
-    >
-      {passo === 1 && (
-        <Passo1Dados form={form} erros={erros} onChange={set} />
-      )}
-      {passo === 2 && (
-        <Passo2Itens
-          itens={itens}
-          erros={erros}
-          onAdicionarItem={adicionarItem}
-          onRemoverItem={removerItem}
-          onChangeItem={setItem}
-        />
-      )}
-    </ModalPassoPassoGlobal>
+    <>
+      <ModalPassoPassoGlobal
+        titulo={t('pedido.modal_novo.titulo')}
+        aberto={aberto}
+        passos={PASSOS}
+        passoAtual={passo}
+        onProximo={handleProximo}
+        onVoltar={handleVoltar}
+        onFechar={handleFechar}
+        podeAvancar={podeAvancar && !salvando}
+        labelBotaoFinal={salvando ? t('pedido.modal_novo.criando') : t('pedido.modal_novo.criar')}
+        tamanho="lg"
+        altura="620px"
+      >
+        {passo === 1 && (
+          <Passo1Dados
+            form={form}
+            erros={erros}
+            onChange={set}
+            opcoesImportador={opcoesEmpresaPara('importador')}
+            opcoesExportador={opcoesEmpresaPara('exportador')}
+            opcoesFabricante={opcoesEmpresaPara('fabricante')}
+            carregandoEmpresas={carregandoEmpresas}
+            aoEscolherEmpresa={aoEscolherEmpresa}
+          />
+        )}
+        {passo === 2 && (
+          <Passo2Itens
+            itens={itens}
+            erros={erros}
+            onAdicionarItem={adicionarItem}
+            onRemoverItem={removerItem}
+            onChangeItem={setItem}
+          />
+        )}
+      </ModalPassoPassoGlobal>
+      {/* Modal cascateado para cadastro rápido de Empresa via Cadastros API */}
+      <ModalEmpresaCadastroRapido
+        aberto={cadastroEmpresaPapel !== null}
+        papel={cadastroEmpresaPapel ?? 'exportador'}
+        onFechar={() => setCadastroEmpresaPapel(null)}
+        onCriado={aoCriarEmpresa}
+      />
+    </>
   )
 }
 
 // ── Passo 1 — Dados do Pedido ──────────────────────────────────────────────────
 
+interface OpcaoEmpresaSelect {
+  valor: string
+  rotulo: string
+  descricao?: string
+}
+
 function Passo1Dados({
   form,
   erros,
   onChange,
+  opcoesImportador,
+  opcoesExportador,
+  opcoesFabricante,
+  carregandoEmpresas,
+  aoEscolherEmpresa,
 }: {
   form: PedidoForm
   erros: ErrosValidacao
   onChange: (campo: keyof PedidoForm, valor: string) => void
+  opcoesImportador: OpcaoEmpresaSelect[]
+  opcoesExportador: OpcaoEmpresaSelect[]
+  opcoesFabricante: OpcaoEmpresaSelect[]
+  carregandoEmpresas: boolean
+  aoEscolherEmpresa: (campo: 'suid_importador' | 'suid_exportador' | 'suid_fabricante', valor: string | number | null) => void
 }) {
   const { t } = useTranslation()
   const opcoesTipoOperacao = useMemo(() => [
@@ -474,24 +604,43 @@ function Passo1Dados({
             </span>
           )}
         </div>
+        {/* B3 — SelectGlobal carrega empresas do Cadastros; opção
+            "+ Cadastrar nova empresa" abre ModalEmpresaCadastroRapido. */}
+        {form.tipo_operacao === 'importacao' && (
+          <div style={s.campo}>
+            <SelectGlobal
+              label={t('pedido.drawer.label_exportador')}
+              opcoes={opcoesExportador}
+              valor={form.suid_exportador || null}
+              aoMudarValor={(v) => aoEscolherEmpresa('suid_exportador', v)}
+              buscavel
+              carregando={carregandoEmpresas}
+              placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
+            />
+          </div>
+        )}
+        {form.tipo_operacao === 'exportacao' && (
+          <div style={s.campo}>
+            <SelectGlobal
+              label={t('pedido.drawer.label_importador', 'Importador')}
+              opcoes={opcoesImportador}
+              valor={form.suid_importador || null}
+              aoMudarValor={(v) => aoEscolherEmpresa('suid_importador', v)}
+              buscavel
+              carregando={carregandoEmpresas}
+              placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
+            />
+          </div>
+        )}
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-exportador">{t('pedido.drawer.label_exportador')}</label>
-          <input
-            id="mnp-exportador"
-            style={s.input}
-            value={form.importacao_exportador_id}
-            onChange={e => onChange('importacao_exportador_id', e.target.value)}
-            placeholder={t('pedido.modal_novo.ph_exportador')}
-          />
-        </div>
-        <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-fabricante">{t('pedido.drawer.label_fabricante')}</label>
-          <input
-            id="mnp-fabricante"
-            style={s.input}
-            value={form.fabricante_id}
-            onChange={e => onChange('fabricante_id', e.target.value)}
-            placeholder={t('pedido.modal_novo.ph_fabricante')}
+          <SelectGlobal
+            label={t('pedido.drawer.label_fabricante')}
+            opcoes={opcoesFabricante}
+            valor={form.suid_fabricante || null}
+            aoMudarValor={(v) => aoEscolherEmpresa('suid_fabricante', v)}
+            buscavel
+            carregando={carregandoEmpresas}
+            placeholder={t('pedido.cadastro_empresa.ph_select_empresa')}
           />
         </div>
         <div style={s.campo}>

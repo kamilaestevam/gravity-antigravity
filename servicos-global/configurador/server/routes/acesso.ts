@@ -255,3 +255,91 @@ accessRouter.get('/permissoes-acesso/produtos-permitidos', async (req, res, next
     next(err)
   }
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SDK @gravity/resolver-organizacao — endpoints de resolucao de contexto
+//
+// Consumidos pelo middleware HTTP dos produtos (pedido, futuros) que usam o
+// SDK para mapear (Clerk JWT sub) → (id_organizacao + tipo_usuario + workspace).
+//
+// Contrato: ver packages/resolver-organizacao/src/configurador-client.ts:36
+// Resposta em camelCase para casar com OrganizacaoByUsuarioSchema/OrganizacaoByIdSchema
+// do SDK (sem refactor do consumidor downstream em req.organizacao.idOrganizacao).
+//
+// Mapping status: PG OrganizacaoStatus → SDK enum
+//   ATIVO                 → active
+//   SUSPENSO              → suspended
+//   CANCELADO             → deleted
+//   CONFIGURACAO_PENDENTE → suspended (usuario nao deve operar ate concluir setup)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const StatusSdkMap: Record<string, 'active' | 'suspended' | 'deleted'> = {
+  ATIVO: 'active',
+  SUSPENSO: 'suspended',
+  CANCELADO: 'deleted',
+  CONFIGURACAO_PENDENTE: 'suspended',
+}
+
+/**
+ * GET /api/v1/internal/usuarios/:id_clerk_usuario
+ * Resolve organizacao + contexto a partir do Clerk sub (payload.sub do JWT).
+ * O parametro NAO e o id_usuario do banco (CUID) — e o id_clerk_usuario.
+ */
+accessRouter.get('/usuarios/:id_clerk_usuario', async (req, res, next) => {
+  try {
+    const { id_clerk_usuario } = req.params
+
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_clerk_usuario },
+      select: {
+        id_usuario: true,
+        tipo_usuario: true,
+        id_organizacao: true,
+        id_workspace_preferido_usuario: true,
+        tenant: { select: { status_organizacao: true } },
+      },
+    })
+
+    if (!usuario || !usuario.tenant) {
+      throw new AppError('Usuário ou organização não encontrada', 404, 'NOT_FOUND')
+    }
+
+    res.json({
+      idOrganizacao: usuario.id_organizacao,
+      status: StatusSdkMap[usuario.tenant.status_organizacao] ?? 'suspended',
+      idUsuario: usuario.id_usuario,
+      tiposUsuario: [usuario.tipo_usuario],
+      idWorkspace: usuario.id_workspace_preferido_usuario,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * GET /api/v1/internal/organizacoes/:id_organizacao
+ * Resolve organizacao por ID — usado por background jobs/CRON via SDK
+ * (sem usuario no contexto, idUsuario e tiposUsuario sao default no SDK).
+ */
+accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
+  try {
+    const { id_organizacao } = req.params
+
+    const organizacao = await prisma.organizacao.findUnique({
+      where: { id_organizacao },
+      select: { id_organizacao: true, status_organizacao: true },
+    })
+
+    if (!organizacao) {
+      throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
+    }
+
+    res.json({
+      id: organizacao.id_organizacao,
+      status: StatusSdkMap[organizacao.status_organizacao] ?? 'suspended',
+      idWorkspace: null,
+    })
+  } catch (err) {
+    next(err)
+  }
+})

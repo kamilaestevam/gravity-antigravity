@@ -28,7 +28,7 @@ import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
 const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL || 'http://localhost:3001'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const CHAVE_INTERNA_SERVICO = process.env.CHAVE_INTERNA_SERVICO || ''
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 export const apiCockpitRouter = Router()
@@ -55,7 +55,7 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
 
   const response = await fetch(url.toString(), {
     headers: {
-      'x-internal-key': INTERNAL_SERVICE_KEY,
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
       'Content-Type': 'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -145,7 +145,7 @@ async function proxyToTokens(
   const init: RequestInit = {
     method: metodo,
     headers: {
-      'x-internal-key': INTERNAL_SERVICE_KEY,
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
       'Content-Type':   'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -166,7 +166,7 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
         'Content-Type':   'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -232,7 +232,7 @@ async function proxyToWebhooks(
   const init: RequestInit = {
     method: metodo,
     headers: {
-      'x-internal-key': INTERNAL_SERVICE_KEY,
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
       'Content-Type':   'application/json',
     },
     signal: AbortSignal.timeout(10_000),
@@ -346,10 +346,12 @@ apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
 apiCockpitAdminRouter.get('/log-consumo', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
-      id_organizacao:     (req.query.id_organizacao as string) || '',
-      id_produto_gravity: (req.query.id_produto_gravity as string) || '',
-      pagina:             (req.query.pagina as string) || '1',
-      limite:             (req.query.limite as string) || '50',
+      id_organizacao:              (req.query.id_organizacao as string) || '',
+      id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
+      codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
+      codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
+      pagina:                      (req.query.pagina as string) || '1',
+      limite:                      (req.query.limite as string) || '50',
     })
     res.json(data)
   } catch (err) {
@@ -366,7 +368,10 @@ apiCockpitAdminRouter.get('/log-consumo/estatisticas', async (_req, res) => {
   }
 })
 
-// ─── Admin: api-tokens (qualquer organizacao via query) ─────────────────
+// ─── Admin: api-tokens (CRUD completo — qualquer organizacao via query/body) ───
+//
+// Paridade com workspace: admin pode listar/criar/excluir tokens de qualquer
+// organizacao especificada via id_organizacao explicito (drill-down).
 
 apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
   try {
@@ -378,7 +383,7 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
         'Content-Type':   'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -390,16 +395,147 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
   }
 })
 
-// ─── Admin: webhooks (visualizacao por id_organizacao) ─────────────────
+apiCockpitAdminRouter.post('/api-tokens', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const idUsuario = req.auth?.id_usuario  // admin que executou a acao
+    const body = {
+      ...(req.body || {}),
+      id_organizacao: idOrganizacao,
+      id_usuario:     idUsuario,
+    }
+    const { status, data } = await proxyToTokens('POST', '/', body)
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const { status, data } = await proxyToTokens(
+      'DELETE',
+      `/${encodeURIComponent(req.params.id_api_token)}`,
+      { id_organizacao: idOrganizacao },
+    )
+    if (status === 204) return res.status(204).send()
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+// ─── Admin: webhooks (CRUD completo + disparar-evento-teste + historico) ──
+//
+// Paridade com workspace. Backend webhooks.ts foi migrado para padrao S2S
+// em 2026-05-06; em caso de fallback (status >= 400) o proxy responde 200
+// com payload amigavel para nao quebrar a UI admin.
 
 apiCockpitAdminRouter.get('/webhooks', async (req, res) => {
   try {
     const idOrganizacao = (req.query.id_organizacao as string) || ''
     if (!idOrganizacao) return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
     const { status, data } = await proxyToWebhooks('GET', '/', undefined, { id_organizacao: idOrganizacao })
+    if (status >= 400) {
+      return res.json({
+        webhooks: [],
+        error: `Backend de webhooks indisponivel ou nao migrado (status ${status})`,
+      })
+    }
     res.status(status).json(data)
   } catch (err) {
     res.json({ webhooks: [], error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.post('/webhooks', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const idUsuario = req.auth?.id_usuario
+    const body = { ...(req.body || {}), id_organizacao: idOrganizacao, id_usuario: idUsuario }
+    const { status, data } = await proxyToWebhooks('POST', '/', body)
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.put('/webhooks/:id_webhook_configuracao', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const body = { ...(req.body || {}), id_organizacao: idOrganizacao }
+    const { status, data } = await proxyToWebhooks(
+      'PUT',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}`,
+      body,
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.delete('/webhooks/:id_webhook_configuracao', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const { status, data } = await proxyToWebhooks(
+      'DELETE',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}`,
+      { id_organizacao: idOrganizacao },
+    )
+    if (status === 204) return res.status(204).send()
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-teste', async (req, res) => {
+  try {
+    const idOrganizacao = (req.body?.id_organizacao as string) || (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) {
+      return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
+    }
+    const { status, data } = await proxyToWebhooks(
+      'POST',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}/disparar-evento-teste`,
+      { id_organizacao: idOrganizacao },
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.status(500).json({ error: maskError(err) })
+  }
+})
+
+apiCockpitAdminRouter.get('/webhooks/:id_webhook_configuracao/historico', async (req, res) => {
+  try {
+    const idOrganizacao = (req.query.id_organizacao as string) || ''
+    if (!idOrganizacao) return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
+    const { status, data } = await proxyToWebhooks(
+      'GET',
+      `/${encodeURIComponent(req.params.id_webhook_configuracao)}/historico`,
+      undefined,
+      { id_organizacao: idOrganizacao },
+    )
+    res.status(status).json(data)
+  } catch (err) {
+    res.json({ historico: [], error: maskError(err) })
   }
 })
 
@@ -420,7 +556,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key':  INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico':  CHAVE_INTERNA_SERVICO,
         'x-id-organizacao': id_organizacao || '__admin_global__',
         'Content-Type':    'application/json',
       },
@@ -456,7 +592,7 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'x-internal-key':  INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico':  CHAVE_INTERNA_SERVICO,
         'x-id-organizacao': id_organizacao || '__admin_global__',
         'Content-Type':    'application/json',
       },

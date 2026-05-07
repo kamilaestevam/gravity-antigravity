@@ -324,8 +324,10 @@ function PopoverFiltro({
                 value={minMax[campo]}
                 onChange={e => {
                   // Aceita digitos, ponto, virgula (BR) e sinal negativo.
-                  // Normaliza virgula -> ponto pra Number() parsear corretamente.
-                  const v = e.target.value.replace(/[^0-9.,\-]/g, '').replace(',', '.')
+                  // Preserva visualmente o que o usuario digitou (incluindo
+                  // virgula BR). A conversao virgula->ponto e feita no
+                  // momento da comparacao (Number).
+                  const v = e.target.value.replace(/[^0-9.,\-]/g, '')
                   onFiltrarNumero(coluna, campo, v)
                 }}
                 style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid var(--ws-accent-border)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
@@ -727,8 +729,17 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         })
       } else if (c.tipo === 'numero') {
         const num = st as {min: string, max: string}
-        if (num.min !== '') r = r.filter(e => Number(e[c.key]) >= Number(num.min))
-        if (num.max !== '') r = r.filter(e => Number(e[c.key]) <= Number(num.max))
+        // Normaliza virgula BR -> ponto para Number() parsear corretamente.
+        // Permite o usuario digitar '4,9' (formato BR) sem quebrar a logica.
+        const parseN = (s: string) => Number(s.replace(',', '.'))
+        if (num.min !== '') {
+          const min = parseN(num.min)
+          if (!isNaN(min)) r = r.filter(e => Number(e[c.key]) >= min)
+        }
+        if (num.max !== '') {
+          const max = parseN(num.max)
+          if (!isNaN(max)) r = r.filter(e => Number(e[c.key]) <= max)
+        }
       } else if (c.tipo === 'periodo') {
         const p = st as { inicio: Date | null; fim: Date | null }
         if (p.inicio || p.fim) {

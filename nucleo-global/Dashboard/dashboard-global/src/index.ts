@@ -31,8 +31,8 @@ export type { DashboardToolbarProps, PeriodOption } from './DashboardBarraFerram
 export { DashboardValorKPI } from './DashboardValorKPI/index.js'
 export type { KpiValueProps } from './DashboardValorKPI/index.js'
 
-export { WidgetEditModal } from './WidgetEditModal/index.js'
-export type { WidgetEditModalProps, ChartOptionMeta, PeriodOptionEdit } from './WidgetEditModal/index.js'
+export { DashboardPainelEditarModal } from './DashboardPainelEditarModal/index.js'
+export type { ModalEditarWidgetProps, ChartOptionMeta, PeriodOptionEdit } from './DashboardPainelEditarModal/index.js'
 
 export { DashboardPainelSugestoes } from './DashboardPainelSugestoes/index.js'
 export type { SuggestionsPanelProps } from './DashboardPainelSugestoes/index.js'

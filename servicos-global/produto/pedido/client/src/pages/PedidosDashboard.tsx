@@ -6,7 +6,7 @@
  * - mockResult produz slices[] para DISTRIBUTION
  * - renderWidget usa contratos novos (LineSeriesConfig[], BarSeriesConfig[])
  * - Hack status_dist removido — widget usa DISTRIBUTION real
- * - WidgetEditModal exibe FieldQuerySpec[] com operação por campo
+ * - DashboardPainelEditarModal exibe FieldQuerySpec[] com operação por campo
  */
 
 import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
@@ -26,7 +26,7 @@ import {
   DashboardWidgetBarras,
   DashboardWidgetDistribuicao,
   DashboardBarraFerramentas,
-  WidgetEditModal,
+  DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
 } from '@nucleo/dashboard'
@@ -127,7 +127,7 @@ function buildWidgetResult(
   return { data: { [fieldKey]: value }, chartType, partial: false, cached: false, computed_at: now }
 }
 
-// ── (DashboardValorKPI, WidgetEditModal e DashboardPainelSugestoes migrados para @nucleo/dashboard) ──
+// ── (DashboardValorKPI, DashboardPainelEditarModal e DashboardPainelSugestoes migrados para @nucleo/dashboard) ──
 
 // ── Período anterior para comparação de tendência ────────────────────────────
 
@@ -1014,7 +1014,7 @@ export default function PedidosDashboard() {
     [userDerivedMetrics],
   )
 
-  // Labels dos campos para o WidgetEditModal (produto-específico)
+  // Labels dos campos para o DashboardPainelEditarModal (produto-específico)
   const fieldLabels = useMemo(
     () => Object.fromEntries(DASHBOARD_CATALOG.map(f => [f.key, f.label])),
     [],
@@ -1693,7 +1693,7 @@ export default function PedidosDashboard() {
         onCancel={() => setQueryBuilderOpen(false)}
       />
 
-      <WidgetEditModal
+      <DashboardPainelEditarModal
         widget={editingWidget}
         aberto={editModalOpen}
         onFechar={() => { setEditModalOpen(false); setEditingWidget(null) }}

@@ -24,7 +24,7 @@
       ],
       "@nucleo/logo-produtos": ["../../../../nucleo-global/Logo/produtos/src/index.ts"],
       "@nucleo/tabelas-base-unidades-peso": ["../../../../nucleo-global/Tabelas/tabelas-base/unidades-peso/src/index.ts"],
-      "@nucleo/query-builder-global": ["../../../../nucleo-global/Dashboard/dashboard-global/src/QueryBuilder/DashboardConstrutorConsulta.tsx"],
+      "@nucleo/query-builder-global": ["../../../../nucleo-global/Dashboard/dashboard-global/src/DashboardConstrutorConsulta/DashboardConstrutorConsulta.tsx"],
       "@nucleo/dashboard": ["../../../../nucleo-global/Dashboard/dashboard-global/src/index.ts"],
 
       "@shell": ["../../../shell/index.ts"],

@@ -68,7 +68,7 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/dashboard': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src'),
 
     // Sub-export do Dashboard (DashboardConstrutorConsulta isolado)
-    '@nucleo/query-builder-global': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src/QueryBuilder/DashboardConstrutorConsulta.tsx'),
+    '@nucleo/query-builder-global': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src/DashboardConstrutorConsulta/DashboardConstrutorConsulta.tsx'),
 
     // Logo com nome de pacote diferente do nome da pasta (pasta: produtos)
     '@nucleo/logo-produtos': path.resolve(nucleoRoot, 'Logo/produtos/src/index.ts'),

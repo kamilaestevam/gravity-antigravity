@@ -136,8 +136,8 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       'x-id-organizacao': idOrganizacao,
       'x-id-usuario':   context.userId,
-      'x-user-name': context.userName,
-      'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+      'x-nome-usuario': context.userName,
+      'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       ...options?.headers,
     },
   })
@@ -398,8 +398,8 @@ export const importacaoApi = {
       headers: {
         'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
-        'x-user-name': context.userName,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+        'x-nome-usuario': context.userName,
+        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       },
       body: formData,
     })
@@ -817,8 +817,8 @@ export const smartImportApi = {
       headers: {
         'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
-        'x-user-name': context.userName,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+        'x-nome-usuario': context.userName,
+        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       },
       body: formData,
     }).then(async res => {
@@ -1312,8 +1312,8 @@ export const anexosApi = {
       headers: {
         'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
-        'x-user-name': context.userName,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+        'x-nome-usuario': context.userName,
+        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       },
       body: form,
     }).then(async res => {
@@ -1333,8 +1333,8 @@ export const anexosApi = {
       headers: {
         'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
-        'x-user-name': context.userName,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+        'x-nome-usuario': context.userName,
+        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       },
     }).then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -2038,4 +2038,31 @@ export function obterSnapshotStatusPedido(idPedido: string): Promise<SnapshotSta
       if (import.meta.env.DEV) console.warn('[api] obterSnapshotStatusPedido falhou:', err)
       return null
     })
+}
+
+// ── Eventos de Comportamento (GABI Insights — Fase 2) ────────────────────────
+
+export type EventoComportamentoTipo =
+  | 'route_visited'
+  | 'filter_applied'
+  | 'widget_clicked'
+  | 'column_viewed'
+  | 'insight_clicked'
+
+export interface EventoComportamentoPayload {
+  route?:        string
+  filter_field?: string
+  filter_value?: string
+  widget_id?:    string
+  column_key?:   string
+  insight_id?:   string
+}
+
+export const pedidoEventoApi = {
+  /** Fire-and-forget — falha silenciosa nao propaga pro usuario (UX intencional). */
+  registrar: (event: EventoComportamentoTipo, payload: EventoComportamentoPayload): Promise<void> =>
+    request<void>('/api/v1/pedidos/eventos-comportamento', {
+      method: 'POST',
+      body: JSON.stringify({ event, payload }),
+    }),
 }

@@ -15,37 +15,13 @@
 
 import { useEffect, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { getApiContext } from '../shared/api'
+import { pedidoEventoApi, type EventoComportamentoTipo, type EventoComportamentoPayload } from '../shared/api'
 
-type BehaviorEventType =
-  | 'route_visited'
-  | 'filter_applied'
-  | 'widget_clicked'
-  | 'column_viewed'
-  | 'insight_clicked'
-
-interface BehaviorPayload {
-  route?:        string
-  filter_field?: string
-  filter_value?: string
-  widget_id?:    string
-  column_key?:   string
-  insight_id?:   string
-}
-
-async function sendEvent(event: BehaviorEventType, payload: BehaviorPayload): Promise<void> {
+async function sendEvent(event: EventoComportamentoTipo, payload: EventoComportamentoPayload): Promise<void> {
+  // Fire-and-forget com fallback silencioso (Mand. 08 — comportamento intencional aqui:
+  // analytics nao deve degradar UX). request() central ja anexa Bearer JWT + headers de tenant.
   try {
-    const ctx = getApiContext()
-    await fetch('/api/v1/pedidos/eventos-comportamento', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-id-organizacao': ctx.idOrganizacao,
-        'x-id-usuario': ctx.userId,
-        'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
-      },
-      body: JSON.stringify({ event, payload }),
-    })
+    await pedidoEventoApi.registrar(event, payload)
   } catch {
     // Silencioso
   }

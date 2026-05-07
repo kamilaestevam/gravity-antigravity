@@ -217,7 +217,9 @@ body.light-theme .btn-primary { color: #fff; }
 
 /* ─── Abas Pill (Configurador) ──────────────────────────────────────────────── */
 .mg-nav-abas.mg-tabs-pill-wrap {
-  padding: 0 1.5rem 0.5rem 1.5rem; /* 8px bottom */
+  /* top: 7px → distância linha divisória → topo da pill ~12px (decisão UX 2026-05-05) */
+  /* bottom: 0.5rem (8px) → distância pill → conteúdo (somado ao padding-top do .mg-body) */
+  padding: 7px 1.5rem 0.5rem 1.5rem;
   background: var(--bg-base);
 }
 

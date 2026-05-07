@@ -484,6 +484,7 @@
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
       "aba_consumo": "Usage",
+      "aba_monitor_llm": "LLM Monitor",
       "status_plataforma": "Platform Status",
       "servidores_online": "Servers Online",
       "latencia_plataforma": "Avg. Platform Latency",
@@ -495,6 +496,15 @@
       "legenda_degradado": "Degraded",
       "legenda_offline": "Offline",
       "disponibilidade_percebida_30d": "Perceived Availability 30d"
+    },
+    "monitor-llm": {
+      "subtitulo": "Platform AI usage — calls, tokens and cost per model",
+      "chamadas": "Calls",
+      "tokens": "Tokens (in + out)",
+      "custo_total": "Total Cost",
+      "custo_medio_chamada": "Avg. Cost per Call",
+      "consumo_mes": "Monthly Usage",
+      "por_modelo": "By Model"
     },
     "visao-geral": {
       "titulo": "Platform Overview",

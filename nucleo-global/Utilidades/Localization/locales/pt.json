@@ -484,6 +484,7 @@
       "aba_tokens": "Tokens",
       "aba_webhooks": "Webhooks",
       "aba_consumo": "Consumo",
+      "aba_monitor_llm": "Monitor LLM",
       "status_plataforma": "Status da Plataforma",
       "servidores_online": "Servidores Online",
       "latencia_plataforma": "Latência Média Plataforma",
@@ -495,6 +496,15 @@
       "legenda_degradado": "Degradado",
       "legenda_offline": "Offline",
       "disponibilidade_percebida_30d": "Disponibilidade Percebida 30d"
+    },
+    "monitor-llm": {
+      "subtitulo": "Consumo de IA da plataforma — chamadas, tokens e custo por modelo",
+      "chamadas": "Chamadas",
+      "tokens": "Tokens (in + out)",
+      "custo_total": "Custo Total",
+      "custo_medio_chamada": "Custo Médio por Chamada",
+      "consumo_mes": "Consumo do Mês",
+      "por_modelo": "Por Modelo"
     },
     "visao-geral": {
       "titulo": "Visão Geral da Plataforma",

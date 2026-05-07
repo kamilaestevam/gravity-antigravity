@@ -12,8 +12,10 @@ import { CardEstatisticaGlobal, CardGraficoGlobal } from '@nucleo/card-global'
  *   3. Ultima Verificacao                  — health check mais recente (relativo)
  *   4. Disponibilidade Percebida 30d        — % medio + sparkline da serie diaria
  *   5. Uptime 24h                          — % uptime calculado pelo backend (consumo agregado)
- *   6. GABI IA · Chamadas                  — count mes
- *   7. GABI IA · Custo Mes                 — USD
+ *
+ * Os cards GABI IA · Chamadas / Custo Mes foram migrados para a aba
+ * dedicada "Monitor LLM" em 2026-05-07 — ficam fora deste header pra reduzir
+ * ruido visual e dar destaque proprio ao consumo de IA.
  */
 
 interface ServicoPlataforma {
@@ -34,17 +36,10 @@ interface EstatisticasLogRequisicaoApi {
   percentual_uptime_log_requisicao_api: number
 }
 
-interface GabiUsage {
-  total_calls?: number
-  total_cost_usd?: number
-}
-
 interface CardsServidoresAdminProps {
   servicos:     ServicoPlataforma[]
   serieDiaria?: SerieDiariaPontoAdmin[]
   estatisticas: EstatisticasLogRequisicaoApi | null
-  gabiUsage:    GabiUsage | null
-  gabiLoading:  boolean
 }
 
 function formatarRelativo(iso: string | undefined): string {
@@ -61,14 +56,6 @@ function formatarRelativo(iso: string | undefined): string {
   const dias = Math.floor(horas / 24)
   return `há ${dias}d`
 }
-
-const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
-  }).format(n)
 
 /** Sparkline SVG inline — recebe pontos 0–100 */
 function Sparkline({ pontos, cor = '#34d399', altura = 28, largura = 120 }: {
@@ -109,8 +96,6 @@ export function CardsServidoresAdmin({
   servicos,
   serieDiaria,
   estatisticas,
-  gabiUsage,
-  gabiLoading,
 }: CardsServidoresAdminProps) {
   const { t } = useTranslation()
 
@@ -144,8 +129,6 @@ export function CardsServidoresAdmin({
   const ultimaLabel = formatarRelativo(ultimaIso)
 
   const uptimePercent = estatisticas ? `${estatisticas.percentual_uptime_log_requisicao_api.toFixed(1)}%` : '—'
-  const gabiCalls     = gabiUsage?.total_calls ?? 0
-  const gabiCost      = gabiUsage?.total_cost_usd ?? 0
 
   // Disponibilidade Percebida 30d
   const pontosSerie = serieDiaria?.map((p) => p.percentual) ?? []
@@ -223,14 +206,6 @@ export function CardsServidoresAdmin({
     'Percentual de requisições globais sem erro 5xx nas últimas 24h, agregado de todas as organizações.'
   )
 
-  const tooltipGabiChamadas = ttDesc(
-    'Total de chamadas ao modelo de linguagem realizadas pela GABI no mês atual.'
-  )
-
-  const tooltipGabiCusto = ttDesc(
-    'Custo acumulado em USD das chamadas ao LLM no mês atual. Inclui tokens de entrada e saída de todos os modelos.'
-  )
-
   return (
     <>
       <CardGraficoGlobal
@@ -270,18 +245,6 @@ export function CardsServidoresAdmin({
         valor={uptimePercent}
         variante="primario"
         tooltip={tooltipUptime}
-      />
-      <CardEstatisticaGlobal
-        titulo="GABI IA · Chamadas"
-        valor={gabiLoading ? '…' : String(gabiCalls)}
-        variante="primario"
-        tooltip={tooltipGabiChamadas}
-      />
-      <CardEstatisticaGlobal
-        titulo="GABI IA · Custo Mês"
-        valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
-        variante="aviso"
-        tooltip={tooltipGabiCusto}
       />
     </>
   )

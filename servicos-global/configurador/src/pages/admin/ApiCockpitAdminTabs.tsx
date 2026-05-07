@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
  * (ver SeletorOrganizacaoAdmin) — admin escolhe a organizacao no topo
  * da aba e ve os dados isolados daquela org. Reusa endpoints existentes.
  */
-type AbaCockpitAdmin = 'servidores' | 'tokens' | 'webhooks' | 'consumo'
+type AbaCockpitAdmin = 'servidores' | 'tokens' | 'webhooks' | 'consumo' | 'monitor-llm'
 
 const ROTA_BASE = '/admin/api-cockpit'
 
@@ -24,9 +24,10 @@ export function ApiCockpitAdminTabs() {
   const { pathname } = useLocation()
 
   const abaAtiva: AbaCockpitAdmin = (() => {
-    if (pathname.endsWith('/tokens'))   return 'tokens'
-    if (pathname.endsWith('/webhooks')) return 'webhooks'
-    if (pathname.endsWith('/consumo'))  return 'consumo'
+    if (pathname.endsWith('/tokens'))      return 'tokens'
+    if (pathname.endsWith('/webhooks'))    return 'webhooks'
+    if (pathname.endsWith('/consumo'))     return 'consumo'
+    if (pathname.endsWith('/monitor-llm')) return 'monitor-llm'
     return 'servidores'
   })()
 
@@ -36,10 +37,11 @@ export function ApiCockpitAdminTabs() {
   }
 
   const abas: { key: AbaCockpitAdmin; label: string }[] = [
-    { key: 'servidores', label: t('admin.api-cockpit.aba_servidores') },
-    { key: 'tokens',     label: t('admin.api-cockpit.aba_tokens') },
-    { key: 'webhooks',   label: t('admin.api-cockpit.aba_webhooks') },
-    { key: 'consumo',    label: t('admin.api-cockpit.aba_consumo') },
+    { key: 'servidores',  label: t('admin.api-cockpit.aba_servidores') },
+    { key: 'tokens',      label: t('admin.api-cockpit.aba_tokens') },
+    { key: 'webhooks',    label: t('admin.api-cockpit.aba_webhooks') },
+    { key: 'consumo',     label: t('admin.api-cockpit.aba_consumo') },
+    { key: 'monitor-llm', label: t('admin.api-cockpit.aba_monitor_llm') },
   ]
 
   return (

@@ -4,9 +4,6 @@ import { z } from 'zod'
 import {
   PlugsConnected,
   ArrowClockwise,
-  Sparkle,
-  CurrencyDollar,
-  Lightning,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -67,17 +64,8 @@ const ROTULO_TIPO_SERVICO: Record<TipoServicoPlataforma, string> = {
   CONECTOR:        'Conector',
 }
 
-/** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi (servico GABI — fora do escopo DDD api-cockpit) */
-interface GabiUsagePayload {
-  month?: string
-  total_calls?: number
-  total_tokens_input?: number
-  total_tokens_output?: number
-  total_cost_usd?: number
-  by_model?: Record<string, { calls: number; tokensIn: number; tokensOut: number; cost: number }>
-  by_day?: Record<string, number>
-  error?: string
-}
+// Painel GABI/LLM migrado para /admin/api-cockpit/monitor-llm em 2026-05-07.
+// Esta tela cuida apenas da aba Servidores (saude da infraestrutura).
 
 const POLLING_INTERVAL_MS = 30_000
 
@@ -102,15 +90,6 @@ const ORDEM_PADRAO_SERVICOS: string[] = [
   'relatorios',
 ]
 
-const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(n)
-
-const fmtTokens = (n: number) => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-  return String(n)
-}
-
 export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
@@ -118,10 +97,6 @@ export function ApiCockpitAdmin() {
   const [estatisticas, setEstatisticas] = useState<EstatisticasLogRequisicaoApi | null>(null)
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
-
-  // ── GABI usage state ──
-  const [gabiUsage, setGabiUsage] = useState<GabiUsagePayload | null>(null)
-  const [gabiLoading, setGabiLoading] = useState(true)
 
   const carregarMonitor = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -163,37 +138,18 @@ export function ApiCockpitAdmin() {
     }
   }, [addNotification])
 
-  // ── GABI usage fetcher ──
-  const carregarGabiUsage = useCallback(async (signal?: AbortSignal) => {
-    try {
-      setGabiLoading(true)
-      const res = await requisicaoAutenticada('/api/v1/api-cockpit/admin/uso-gabi', { signal })
-      if (!res.ok) throw new Error(`gabi-usage ${res.status}`)
-      const data: GabiUsagePayload = await res.json()
-      if (data.error) throw new Error(data.error)
-      setGabiUsage(data)
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') return
-      setGabiUsage(null)
-    } finally {
-      setGabiLoading(false)
-    }
-  }, [])
-
   // Carregamento inicial + polling 30s
   useEffect(() => {
     const ctrl = new AbortController()
     void carregarMonitor(ctrl.signal)
-    void carregarGabiUsage(ctrl.signal)
     const interval = setInterval(() => {
       void carregarMonitor()
-      void carregarGabiUsage()
     }, POLLING_INTERVAL_MS)
     return () => {
       ctrl.abort()
       clearInterval(interval)
     }
-  }, [carregarMonitor, carregarGabiUsage])
+  }, [carregarMonitor])
 
   // Ordenação padrão: prioridade definida em ORDEM_PADRAO_SERVICOS; demais ao final
   const servicosOrdenados = useMemo(() => {
@@ -204,11 +160,6 @@ export function ApiCockpitAdmin() {
       return (ia === -1 ? total : ia) - (ib === -1 ? total : ib)
     })
   }, [servicos])
-
-  // GABI KPIs (ainda usados na seção de breakdown abaixo)
-  const gabiCalls  = gabiUsage?.total_calls ?? 0
-  const gabiCost   = gabiUsage?.total_cost_usd ?? 0
-  const gabiTokens = (gabiUsage?.total_tokens_input ?? 0) + (gabiUsage?.total_tokens_output ?? 0)
 
   const colunasInventario: TabelaGlobalColuna<ServicoPlataforma>[] = [
     {
@@ -290,8 +241,6 @@ export function ApiCockpitAdmin() {
           servicos={servicos}
           serieDiaria={estatisticas?.serie_diaria_log_requisicao_api as SerieDiariaPontoAdmin[] | undefined}
           estatisticas={estatisticas}
-          gabiUsage={gabiUsage}
-          gabiLoading={gabiLoading}
         />
       }
       toolbar={
@@ -305,7 +254,7 @@ export function ApiCockpitAdmin() {
           <ApiCockpitAdminTabs />
           <BotaoGlobal
             variante="secundario"
-            onClick={() => { void carregarMonitor(); void carregarGabiUsage() }}
+            onClick={() => { void carregarMonitor() }}
             icone={<ArrowClockwise size={16} />}
             aria-label="Atualizar monitor de infraestrutura"
           >
@@ -347,72 +296,7 @@ export function ApiCockpitAdmin() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {/* ── GABI IA Usage Panel ── */}
-          {gabiUsage && !gabiLoading && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '1rem',
-                padding: '1.25rem',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(79,70,229,0.06) 0%, rgba(124,58,237,0.04) 100%)',
-                border: '1px solid rgba(129,140,248,0.15)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', gridColumn: '1 / -1', marginBottom: '0.25rem' }}>
-                <Sparkle weight="fill" size={16} style={{ color: '#818cf8' }} />
-                <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#818cf8', letterSpacing: '-0.01em' }}>
-                  GABI IA · Consumo do Mês ({gabiUsage.month})
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Chamadas à LLM
-                </span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                  <Lightning size={14} weight="fill" style={{ color: '#818cf8', marginRight: '0.25rem' }} />
-                  {gabiCalls}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Tokens (in + out)
-                </span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                  {fmtTokens(gabiTokens)}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Custo Total (USD)
-                </span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                  <CurrencyDollar size={14} weight="fill" style={{ color: '#f59e0b', marginRight: '0.25rem' }} />
-                  {fmtUSD(gabiCost)}
-                </span>
-              </div>
-
-              {gabiUsage.by_model && Object.keys(gabiUsage.by_model).length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Por Modelo
-                  </span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-                    {Object.entries(gabiUsage.by_model).map(([model, stats]) => (
-                      <span key={model} style={{ fontSize: '0.75rem', color: 'var(--ws-text-2)' }}>
-                        {model}: {stats.calls} calls · {fmtUSD(stats.cost)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
+          {/* Painel GABI migrado para a aba "Monitor LLM" em 2026-05-07 */}
           <TabelaGlobal
             id="admin-servidores"
             colunas={colunasInventario}

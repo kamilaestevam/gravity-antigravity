@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../.env') })
@@ -37,7 +37,7 @@ import { dashboardPaineisRouter } from './routes/dashboard-pedido-paineis.js'
 import { consolidarRouter } from './routes/consolidacoes-pedido.js'
 import { transferirRouter, transferirHistoricoRouter } from './routes/transferencias-pedido.js'
 import { edicaoEmMassaRouter } from './routes/edicoes-em-massa-pedido.js'
-import { smartImportRouter } from './routes/importacoes-inteligentes-pedido.js'
+import { smartImportRouter, templateHandler } from './routes/importacoes-inteligentes-pedido.js'
 import { duplicacoesPedidoRouter } from './routes/duplicacoes-pedido.js'
 import { exclusoesPedidoRouter } from './routes/exclusoes-pedido.js'
 import { colunasUsuarioRouter } from './routes/colunas-usuario-pedido.js'
@@ -110,6 +110,11 @@ app.use('/api/v1/pedidos/analytics', analyticsRouter)
 //        no header, NÃO passa por resolverOrganizacao). FASE 06E frente 2.
 app.use('/api/v1/internal', internalCadastrosChangedRouter)
 
+// ── 5.0.1. Download de planilha modelo — link <a download> do frontend NÃO envia
+//          JWT, então fica ANTES de resolverOrganizacao (que exige Authorization).
+//          Auth real fica no requireInternalKey + whitelist + proxy injetando a chave.
+app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
+
 // ── 5.1. Taxa de câmbio — extraído para servicos-global/servicos-plataforma/taxas-cambio/
 // (Gamma-3 leva 3). Consumers passaram a chamar o tenant service standalone.
 
@@ -117,7 +122,7 @@ app.use('/api/v1/internal', internalCadastrosChangedRouter)
 app.use(resolverOrganizacao({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
-  chaveInterna:        process.env.INTERNAL_SERVICE_KEY!,
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
 }))
 
 // ── 7. Observabilidade — captura métricas de uso por tenant/produto ───────────
@@ -205,8 +210,8 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 // Validações de ambiente obrigatórias — falham antes de aceitar qualquer request
-if (!process.env.INTERNAL_SERVICE_KEY) {
-  console.error('[Pedido] FATAL: INTERNAL_SERVICE_KEY não configurada. Encerrando.')
+if (!process.env.CHAVE_INTERNA_SERVICO) {
+  console.error('[Pedido] FATAL: CHAVE_INTERNA_SERVICO não configurada. Encerrando.')
   process.exit(1)
 }
 

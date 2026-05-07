@@ -113,7 +113,18 @@ const ConfirmarSchema = z.object({
 // (detail) abaixo, espelhando a tabela do app. Para o segundo Pedido, repete
 // o mesmo padrao.
 
-smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunction) => {
+/**
+ * Handler exportado para registro DIRETO em index.ts ANTES de resolverOrganizacao.
+ * O link `<a download>` no frontend nao envia JWT, entao a rota precisa ficar fora
+ * do middleware de auth (esta no whitelist do requireInternalKey, e o proxy do Vite
+ * injeta x-chave-interna-servico).
+ *
+ * Em index.ts:
+ *   app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
+ *   // ... DEPOIS:
+ *   app.use(resolverOrganizacao(...))
+ */
+export const templateHandler = (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
     // Lista combinada na ordem: Pedido primeiro, Item depois.
     const camposOrdenados: CampoPedidoDDD[] = [...CAMPOS_PEDIDO_DDD, ...CAMPOS_ITEM_DDD]
@@ -186,7 +197,11 @@ smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunc
     })
     res.send(buf)
   }).catch(next)
-})
+}
+
+// Mantem a rota tambem dentro do smartImportRouter para compatibilidade S2S (chamadas
+// internas com JWT). O handler standalone acima e o que serve o navegador.
+smartImportRouter.get('/template', templateHandler)
 
 // ── POST /analisar ─────────────────────────────────────────────────────────────
 

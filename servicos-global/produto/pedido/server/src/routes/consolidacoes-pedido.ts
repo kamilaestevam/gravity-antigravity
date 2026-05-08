@@ -20,6 +20,7 @@ import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { resolverIdStatusPedidoOpcional } from '../services/statusPedidoLookup.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -299,12 +300,18 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // withOrganizacao já garante atomicidade via $transaction — usar db diretamente
 
-      // 1. Criar o pedido consolidado
+      // 1. Resolver FK do status (Débito 2B — pedido.id_status_pedido aponta
+      //    para o catálogo StatusPedido). Consolidação cria pedidos no status
+      //    'consolidado' por convenção do produto.
+      const idStatusConsolidado = await resolverIdStatusPedidoOpcional(db, tenantId, 'consolidado')
+
+      // 2. Criar o pedido consolidado
       const novo = await db.pedido.create({
         data: {
           id_pedido:                       gerarId('pedi'),
           id_organizacao:                  tenantId,
           id_workspace:                    primeiro.id_workspace,
+          id_status_pedido:                idStatusConsolidado,
           ...camposBase,
           ...campos_escolhidos,
           numero_pedido,

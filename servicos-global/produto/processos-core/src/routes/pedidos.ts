@@ -65,46 +65,48 @@ export const pedidosRouter = Router()
 
 // ── Schemas Zod ───────────────────────────────────────────────────────────────
 
+// Schemas Zod — Mandamento 03: nomenclatura DDD pura. Nomes legados
+// (tenant_id, company_id, tipo_operacao, status, incoterm, etc.) NÃO são
+// mais aceitos. Front, smart import e tests precisam enviar DDD.
 const criarItemSchema = z.object({
-  part_number: z.string().optional().nullable().default(''),
-  ncm: z.string().optional().nullable().default(''),
-  descricao_item: z.string().optional().nullable().default(''),
-  quantidade_inicial_pedido: z.number().min(0).optional().default(0),
-  unidade_comercializada_item: z.string().optional().nullable(),
-  moeda_item: z.string().default('USD'),
-  valor_por_unidade_item: z.number().optional().nullable(),
-  valor_total_item: z.number().optional().nullable(),
+  part_number_item:               z.string().optional().nullable().default(''),
+  ncm_item:                       z.string().optional().nullable().default(''),
+  descricao_item:                 z.string().optional().nullable().default(''),
+  quantidade_inicial_item:        z.number().min(0).optional().default(0),
+  unidade_comercializada_item:    z.string().optional().nullable(),
+  moeda_item:                     z.string().default('USD'),
+  valor_por_unidade_item:         z.number().optional().nullable(),
+  valor_total_item:               z.number().optional().nullable(),
   casas_decimais_quantidade_item: z.number().int().default(2),
-  casas_decimais_valor_item: z.number().int().default(2),
-  sequencia_item: z.number().int().optional().nullable(),
+  casas_decimais_valor_item:      z.number().int().default(2),
+  sequencia_item_pedido:          z.number().int().optional().nullable(),
 })
 
 const criarPedidoObjectSchema = z.object({
-  tipo_operacao: z.enum(['importacao', 'exportacao']),
-  numero_pedido: z.string().min(1).max(100),
-  // Fase 4 DDD: SUIDs referenciam Empresas no serviço Cadastros — usados para
-  // gravar PedidoSnapshotEmpresa. Os campos *_id legados (importacao_exportador_id
-  // etc.) nao sao mais aceitos no payload; snapshots sao a fonte da verdade.
-  suid_importador:          z.string().min(1).optional().nullable(),
-  suid_exportador:          z.string().min(1).optional().nullable(),
-  suid_fabricante:          z.string().min(1).optional().nullable(),
-  suid_ope:                 z.string().min(1).optional().nullable(),
-  numero_proforma:          z.string().optional().nullable(),
-  numero_invoice:           z.string().optional().nullable(),
-  referencia_importador:    z.string().optional().nullable(),
-  referencia_exportador:    z.string().optional().nullable(),
-  referencia_fabricante:    z.string().optional().nullable(),
-  incoterm: z.string().optional().nullable(),
-  moeda_pedido: z.string().default('USD'),
-  valor_total_pedido: z.number().optional().nullable(),
-  casas_decimais_valor_pedido: z.number().int().default(2),
-  quantidade_total_inicial_pedido: z.number().optional().nullable(),
+  tipo_operacao_pedido:             z.enum(['importacao', 'exportacao']),
+  numero_pedido:                    z.string().min(1).max(100),
+  // SUIDs referenciam Empresas no serviço Cadastros — gravam PedidoSnapshotEmpresa.
+  // Os campos *_id legados não são mais aceitos; snapshots são a fonte da verdade.
+  suid_importador:                  z.string().min(1).optional().nullable(),
+  suid_exportador:                  z.string().min(1).optional().nullable(),
+  suid_fabricante:                  z.string().min(1).optional().nullable(),
+  suid_ope:                         z.string().min(1).optional().nullable(),
+  numero_proforma_pedido:           z.string().optional().nullable(),
+  numero_invoice_pedido:            z.string().optional().nullable(),
+  referencia_importador_pedido:     z.string().optional().nullable(),
+  referencia_exportador_pedido:     z.string().optional().nullable(),
+  referencia_fabricante_pedido:     z.string().optional().nullable(),
+  incoterm_pedido:                  z.string().optional().nullable(),
+  moeda_pedido:                     z.string().default('USD'),
+  valor_total_pedido:               z.number().optional().nullable(),
+  casas_decimais_valor_pedido:      z.number().int().default(2),
+  quantidade_total_pedido:          z.number().optional().nullable(),
   casas_decimais_quantidade_pedido: z.number().int().default(2),
-  unidade_comercializada_pedido: z.string().optional().nullable(),
-  condicao_pagamento: z.string().optional().nullable(),
-  data_emissao_pedido: z.string().datetime().optional(),
-  detalhes_operacionais: z.any().optional().nullable(),
-  itens: z.array(criarItemSchema).optional().default([]),
+  unidade_comercializada_pedido:    z.string().optional().nullable(),
+  condicao_pagamento_pedido:        z.string().optional().nullable(),
+  data_emissao_pedido:              z.string().datetime().optional(),
+  detalhes_operacionais_pedido:     z.any().optional().nullable(),
+  itens:                            z.array(criarItemSchema).optional().default([]),
 })
 
 /**
@@ -121,37 +123,37 @@ const criarPedidoObjectSchema = z.object({
  */
 export const criarPedidoSchema = criarPedidoObjectSchema.superRefine((data, ctx) => {
   // Importação exige AMBOS os lados (org=importador, contraparte=exportador)
-  if (data.tipo_operacao === 'importacao') {
+  if (data.tipo_operacao_pedido === 'importacao') {
     if (!data.suid_importador) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['suid_importador'],
-        message: 'suid_importador (empresa-da-org) e obrigatorio quando tipo_operacao = importacao',
+        message: 'suid_importador (empresa-da-org) e obrigatorio quando tipo_operacao_pedido = importacao',
       })
     }
     if (!data.suid_exportador) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['suid_exportador'],
-        message: 'suid_exportador e obrigatorio quando tipo_operacao = importacao',
+        message: 'suid_exportador e obrigatorio quando tipo_operacao_pedido = importacao',
       })
     }
   }
 
   // Exportação exige AMBOS os lados (org=exportador, contraparte=importador)
-  if (data.tipo_operacao === 'exportacao') {
+  if (data.tipo_operacao_pedido === 'exportacao') {
     if (!data.suid_exportador) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['suid_exportador'],
-        message: 'suid_exportador (empresa-da-org) e obrigatorio quando tipo_operacao = exportacao',
+        message: 'suid_exportador (empresa-da-org) e obrigatorio quando tipo_operacao_pedido = exportacao',
       })
     }
     if (!data.suid_importador) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['suid_importador'],
-        message: 'suid_importador e obrigatorio quando tipo_operacao = exportacao',
+        message: 'suid_importador e obrigatorio quando tipo_operacao_pedido = exportacao',
       })
     }
   }
@@ -335,30 +337,30 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     data_prevista_pedido_pronto:   pedido.data_prevista_pedido_pronto,
     data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto,
     data_meta_pedido_pronto:       pedido.data_meta_pedido_pronto,
-    data_prev_recebimento_draft_pedido:      pedido.data_previsao_recebimento_draft_pedido,
-    data_conf_recebimento_draft_pedido:      pedido.data_confirmacao_recebimento_draft_pedido,
-    data_meta_recebimento_draft_pedido:      pedido.data_meta_recebimento_draft_pedido,
-    data_prev_aprovacao_draft_pedido:        pedido.data_previsao_aprovacao_draft_pedido,
-    data_conf_aprovacao_draft_pedido:        pedido.data_confirmacao_aprovacao_draft_pedido,
-    data_meta_aprovacao_draft_pedido:        pedido.data_meta_aprovacao_draft_pedido,
-    data_prev_recebimento_draft_proforma:    pedido.data_previsao_recebimento_draft_proforma_pedido    ?? pedido.data_prev_recebimento_draft_proforma,
-    data_conf_recebimento_draft_proforma:    pedido.data_confirmacao_recebimento_draft_proforma_pedido ?? pedido.data_conf_recebimento_draft_proforma,
-    data_meta_recebimento_draft_proforma:    pedido.data_meta_recebimento_draft_proforma_pedido        ?? pedido.data_meta_recebimento_draft_proforma,
-    data_prev_aprovacao_draft_proforma:      pedido.data_previsao_aprovacao_draft_proforma_pedido      ?? pedido.data_prev_aprovacao_draft_proforma,
-    data_conf_aprovacao_draft_proforma:      pedido.data_confirmacao_aprovacao_draft_proforma_pedido   ?? pedido.data_conf_aprovacao_draft_proforma,
-    data_meta_aprovacao_draft_proforma:      pedido.data_meta_aprovacao_draft_proforma_pedido          ?? pedido.data_meta_aprovacao_draft_proforma,
+    data_prev_recebimento_rascunho_pedido:      pedido.data_previsao_recebimento_rascunho_pedido,
+    data_conf_recebimento_rascunho_pedido:      pedido.data_confirmacao_recebimento_rascunho_pedido,
+    data_meta_recebimento_rascunho_pedido:      pedido.data_meta_recebimento_rascunho_pedido,
+    data_prev_aprovacao_rascunho_pedido:        pedido.data_previsao_aprovacao_rascunho_pedido,
+    data_conf_aprovacao_rascunho_pedido:        pedido.data_confirmacao_aprovacao_rascunho_pedido,
+    data_meta_aprovacao_rascunho_pedido:        pedido.data_meta_aprovacao_rascunho_pedido,
+    data_prev_recebimento_rascunho_proforma:    pedido.data_previsao_recebimento_rascunho_proforma_pedido    ?? pedido.data_prev_recebimento_rascunho_proforma,
+    data_conf_recebimento_rascunho_proforma:    pedido.data_confirmacao_recebimento_rascunho_proforma_pedido ?? pedido.data_conf_recebimento_rascunho_proforma,
+    data_meta_recebimento_rascunho_proforma:    pedido.data_meta_recebimento_rascunho_proforma_pedido        ?? pedido.data_meta_recebimento_rascunho_proforma,
+    data_prev_aprovacao_rascunho_proforma:      pedido.data_previsao_aprovacao_rascunho_proforma_pedido      ?? pedido.data_prev_aprovacao_rascunho_proforma,
+    data_conf_aprovacao_rascunho_proforma:      pedido.data_confirmacao_aprovacao_rascunho_proforma_pedido   ?? pedido.data_conf_aprovacao_rascunho_proforma,
+    data_meta_aprovacao_rascunho_proforma:      pedido.data_meta_aprovacao_rascunho_proforma_pedido          ?? pedido.data_meta_aprovacao_rascunho_proforma,
     data_prev_envio_original_proforma:       pedido.data_previsao_envio_original_proforma_pedido       ?? pedido.data_prev_envio_original_proforma,
     data_conf_envio_original_proforma:       pedido.data_confirmacao_envio_original_proforma_pedido    ?? pedido.data_conf_envio_original_proforma,
     data_meta_envio_original_proforma:       pedido.data_meta_envio_original_proforma_pedido           ?? pedido.data_meta_envio_original_proforma,
     data_prev_recebimento_original_proforma: pedido.data_previsao_recebimento_original_proforma_pedido    ?? pedido.data_prev_recebimento_original_proforma,
     data_conf_recebimento_original_proforma: pedido.data_confirmacao_recebimento_original_proforma_pedido ?? pedido.data_conf_recebimento_original_proforma,
     data_meta_recebimento_original_proforma: pedido.data_meta_recebimento_original_proforma_pedido        ?? pedido.data_meta_recebimento_original_proforma,
-    data_prev_recebimento_draft_invoice:     pedido.data_previsao_recebimento_draft_invoice_pedido     ?? pedido.data_prev_recebimento_draft_invoice,
-    data_conf_recebimento_draft_invoice:     pedido.data_confirmacao_recebimento_draft_invoice_pedido  ?? pedido.data_conf_recebimento_draft_invoice,
-    data_meta_recebimento_draft_invoice:     pedido.data_meta_recebimento_draft_invoice_pedido         ?? pedido.data_meta_recebimento_draft_invoice,
-    data_prev_aprovacao_draft_invoice:       pedido.data_previsao_aprovacao_draft_invoice_pedido       ?? pedido.data_prev_aprovacao_draft_invoice,
-    data_conf_aprovacao_draft_invoice:       pedido.data_confirmacao_aprovacao_draft_invoice_pedido    ?? pedido.data_conf_aprovacao_draft_invoice,
-    data_meta_aprovacao_draft_invoice:       pedido.data_meta_aprovacao_draft_invoice_pedido           ?? pedido.data_meta_aprovacao_draft_invoice,
+    data_prev_recebimento_rascunho_invoice:     pedido.data_previsao_recebimento_rascunho_invoice_pedido     ?? pedido.data_prev_recebimento_rascunho_invoice,
+    data_conf_recebimento_rascunho_invoice:     pedido.data_confirmacao_recebimento_rascunho_invoice_pedido  ?? pedido.data_conf_recebimento_rascunho_invoice,
+    data_meta_recebimento_rascunho_invoice:     pedido.data_meta_recebimento_rascunho_invoice_pedido         ?? pedido.data_meta_recebimento_rascunho_invoice,
+    data_prev_aprovacao_rascunho_invoice:       pedido.data_previsao_aprovacao_rascunho_invoice_pedido       ?? pedido.data_prev_aprovacao_rascunho_invoice,
+    data_conf_aprovacao_rascunho_invoice:       pedido.data_confirmacao_aprovacao_rascunho_invoice_pedido    ?? pedido.data_conf_aprovacao_rascunho_invoice,
+    data_meta_aprovacao_rascunho_invoice:       pedido.data_meta_aprovacao_rascunho_invoice_pedido           ?? pedido.data_meta_aprovacao_rascunho_invoice,
     data_prev_envio_original_invoice:        pedido.data_previsao_envio_original_invoice_pedido        ?? pedido.data_prev_envio_original_invoice,
     data_conf_envio_original_invoice:        pedido.data_confirmacao_envio_original_invoice_pedido     ?? pedido.data_conf_envio_original_invoice,
     data_meta_envio_original_invoice:        pedido.data_meta_envio_original_invoice_pedido            ?? pedido.data_meta_envio_original_invoice,
@@ -546,9 +548,12 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // SET LOCAL search_path TO tenant_<id>, public — sem qualifier, o
       // raw query buscaria primeiro em tenant_xxx (que está vazio após
       // descoberta arquitetural — Prisma usa public, search_path é fantasma).
+      // Tabela é `pedido_item` (singular) — Prisma model `PedidoItem` mapeia
+      // via `@@map("pedido_item")`. Plural (`pedido_itens`) não existe e causa
+      // 500 (relation does not exist).
       const totalItensSql = `
         SELECT COUNT(*)::int AS n
-        FROM "public"."pedido_itens" i
+        FROM "public"."pedido_item" i
         JOIN "public"."pedido" p ON p.id_pedido = i.id_pedido
         WHERE p.id_organizacao = $1
           ${wsCondicao}
@@ -813,7 +818,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
     // Coleta códigos distintos a partir do pedido + itens
     const ncmsDistintos = Array.from(
-      new Set(itens.map((i) => i.ncm).filter((c): c is string => !!c && c.length > 0)),
+      new Set(itens.map((i) => i.ncm_item).filter((c): c is string => !!c && c.length > 0)),
     )
     const moedasDistintas = Array.from(
       new Set(
@@ -892,12 +897,12 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       // Calcular totais automaticamente
       const valorTotal = itens.reduce((acc, item) => {
-        const qty = item.quantidade_inicial_pedido ?? 0
+        const qty = item.quantidade_inicial_item ?? 0
         const valorItem = item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * qty
         return acc + valorItem
       }, 0)
 
-      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_pedido ?? 0), 0)
+      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_item ?? 0), 0)
 
       const snapshotsData = papeisPorSuid
         .map(({ suid, papel }) => {
@@ -969,35 +974,50 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           })()
         : null
 
+      // Débito 2B — resolver FK do status (catalogo StatusPedido) antes de criar.
+      // Se o catalogo nao tiver 'rascunho' nesta organizacao, segue sem vinculo
+      // (id_status_pedido NULL) e loga warn — pedido ainda eh criado.
+      const statusRascunho = await db.statusPedido.findFirst({
+        where: { id_organizacao: tenant_id, nome_pedido_status: 'rascunho' },
+        select: { id_pedido_status: true },
+      })
+      if (!statusRascunho) {
+        console.warn(
+          `[POST /pedidos] StatusPedido 'rascunho' nao encontrado na organizacao=${tenant_id}; ` +
+          `pedido sera criado sem vinculo id_status_pedido.`,
+        )
+      }
+
       const novoPedido = await db.pedido.create({
         data: {
-          id: pedidoId,
-          tenant_id,
-          company_id,
-          ...pedidoData,
-          valor_total_pedido: pedidoData.valor_total_pedido ?? valorTotal,
-          quantidade_total_inicial_pedido: pedidoData.quantidade_total_inicial_pedido ?? qtdTotal,
-          status: 'rascunho',
-          itens: {
+          id_pedido:                    pedidoId,
+          id_organizacao:               tenant_id,
+          id_workspace:                 company_id,
+          ...pedidoData,  // Zod já validou em DDD: tipo_operacao_pedido, numero_pedido, etc.
+          valor_total_pedido:           pedidoData.valor_total_pedido ?? valorTotal,
+          quantidade_total_pedido:      pedidoData.quantidade_total_pedido ?? qtdTotal,
+          status_pedido:                'rascunho',
+          id_status_pedido:             statusRascunho?.id_pedido_status ?? null,
+          itens_pedido: {
             create: itens.map((item, index) => ({
-              id_item: gerarId('pite'),
-              id_organizacao: tenant_id,
-              id_workspace: company_id,
-              sequencia_item_pedido: item.sequencia_item ?? (index + 1),
-              part_number_item: item.part_number ?? '',
-              ncm_item: item.ncm ?? '',
-              descricao_item: item.descricao_item ?? '',
-              quantidade_inicial_item: item.quantidade_inicial_pedido ?? 0,
-              quantidade_atual_item: item.quantidade_inicial_pedido ?? 0,
-              casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
-              unidade_comercializada_item: item.unidade_comercializada_item,
-              moeda_item: item.moeda_item,
-              valor_por_unidade_item: item.valor_por_unidade_item,
-              valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_pedido ?? 0),
-              casas_decimais_valor_item: item.casas_decimais_valor_item,
+              id_item:                        gerarId('pite'),
+              id_organizacao:                 tenant_id,
+              id_workspace:                   company_id,
+              sequencia_item_pedido:          item.sequencia_item_pedido ?? (index + 1),
+              part_number_item:               item.part_number_item ?? '',
+              ncm_item:                       item.ncm_item ?? '',
+              descricao_item:                 item.descricao_item ?? '',
+              quantidade_inicial_item:        item.quantidade_inicial_item ?? 0,
+              quantidade_atual_item:          item.quantidade_inicial_item ?? 0,
+              casas_decimais_quantidade_item: item.casas_decimais_quantidade_item ?? 2,
+              unidade_comercializada_item:    item.unidade_comercializada_item ?? null,
+              moeda_item:                     item.moeda_item ?? 'USD',
+              valor_por_unidade_item:         item.valor_por_unidade_item ?? null,
+              valor_total_item:               item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_item ?? 0),
+              casas_decimais_valor_item:      item.casas_decimais_valor_item ?? 2,
             })),
           },
-          snapshots_empresa: snapshotsData.length
+          snapshots_empresa_pedido: snapshotsData.length
             ? { create: snapshotsData }
             : undefined,
           snapshots_ncm_pedido: snapshotsNcmData.length
@@ -1015,7 +1035,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
         },
         include: {
           itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
-          snapshots_empresa: true,
+          snapshots_empresa_pedido: true,
           snapshots_ncm_pedido: true,
           snapshots_moeda_pedido: true,
           snapshots_unidade_pedido: true,
@@ -1128,7 +1148,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
 
       // Validar transicoes permitidas
       const transicoesValidas: Record<string, string[]> = {
-        draft: ['aberto', 'cancelado'],
+        rascunho: ['aberto', 'cancelado'],
         aberto: ['cancelado'],
       }
 
@@ -1187,19 +1207,19 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_confirmada_coleta_pedido',
   'data_meta_coleta_pedido',
   'data_transferencia_saldo_pedido',
-  'data_prevista_recebimento_draft_pedido',
-  'data_confirmada_recebimento_draft_pedido',
-  'data_meta_recebimento_draft_pedido',
-  'data_prevista_aprovacao_draft_pedido',
-  'data_confirmada_aprovacao_draft_pedido',
-  'data_meta_aprovacao_draft_pedido',
+  'data_prevista_recebimento_rascunho_pedido',
+  'data_confirmada_recebimento_rascunho_pedido',
+  'data_meta_recebimento_rascunho_pedido',
+  'data_prevista_aprovacao_rascunho_pedido',
+  'data_confirmada_aprovacao_rascunho_pedido',
+  'data_meta_aprovacao_rascunho_pedido',
   'data_documento_pedido',
-  'data_prevista_recebimento_draft_proforma',
-  'data_confirmada_recebimento_draft_proforma',
-  'data_meta_recebimento_draft_proforma',
-  'data_prevista_aprovacao_draft_proforma',
-  'data_confirmada_aprovacao_draft_proforma',
-  'data_meta_aprovacao_draft_proforma',
+  'data_prevista_recebimento_rascunho_proforma',
+  'data_confirmada_recebimento_rascunho_proforma',
+  'data_meta_recebimento_rascunho_proforma',
+  'data_prevista_aprovacao_rascunho_proforma',
+  'data_confirmada_aprovacao_rascunho_proforma',
+  'data_meta_aprovacao_rascunho_proforma',
   'data_prevista_envio_original_proforma',
   'data_confirmada_envio_original_proforma',
   'data_meta_envio_original_proforma',
@@ -1207,12 +1227,12 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_confirmada_recebimento_original_proforma',
   'data_meta_recebimento_original_proforma',
   'data_proforma_invoice',
-  'data_prevista_recebimento_draft_invoice',
-  'data_confirmada_recebimento_draft_invoice',
-  'data_meta_recebimento_draft_invoice',
-  'data_prevista_aprovacao_draft_invoice',
-  'data_confirmada_aprovacao_draft_invoice',
-  'data_meta_aprovacao_draft_invoice',
+  'data_prevista_recebimento_rascunho_invoice',
+  'data_confirmada_recebimento_rascunho_invoice',
+  'data_meta_recebimento_rascunho_invoice',
+  'data_prevista_aprovacao_rascunho_invoice',
+  'data_confirmada_aprovacao_rascunho_invoice',
+  'data_meta_aprovacao_rascunho_invoice',
   'data_prevista_envio_original_invoice',
   'data_confirmada_envio_original_invoice',
   'data_meta_envio_original_invoice',
@@ -1382,10 +1402,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         importacao_exportador_id: 'id_importacao_exportador_pedido',
         exportacao_importador_id: 'id_exportacao_importador_pedido',
         // Sub-onda 7c — datas Draft Pedido (alias prevista/confirmada → previsao/confirmacao DB)
-        data_prevista_recebimento_draft_pedido:    'data_previsao_recebimento_draft_pedido',
-        data_confirmada_recebimento_draft_pedido:  'data_confirmacao_recebimento_draft_pedido',
-        data_prevista_aprovacao_draft_pedido:      'data_previsao_aprovacao_draft_pedido',
-        data_confirmada_aprovacao_draft_pedido:    'data_confirmacao_aprovacao_draft_pedido',
+        data_prevista_recebimento_rascunho_pedido:    'data_previsao_recebimento_rascunho_pedido',
+        data_confirmada_recebimento_rascunho_pedido:  'data_confirmacao_recebimento_rascunho_pedido',
+        data_prevista_aprovacao_rascunho_pedido:      'data_previsao_aprovacao_rascunho_pedido',
+        data_confirmada_aprovacao_rascunho_pedido:    'data_confirmacao_aprovacao_rascunho_pedido',
         // ─── BLOCO 1: campos simples (frontend usa nome legado, banco usa _pedido) ───
         tipo_operacao:           'tipo_operacao_pedido',
         numero_proforma:         'numero_proforma_pedido',
@@ -1397,12 +1417,12 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         condicao_pagamento:      'condicao_pagamento_pedido',
         status:                  'status_pedido',
         // ─── BLOCO 3: datas Proforma (prevista/confirmada → previsao/confirmacao + _pedido) ───
-        data_prevista_recebimento_draft_proforma:      'data_previsao_recebimento_draft_proforma_pedido',
-        data_confirmada_recebimento_draft_proforma:    'data_confirmacao_recebimento_draft_proforma_pedido',
-        data_meta_recebimento_draft_proforma:          'data_meta_recebimento_draft_proforma_pedido',
-        data_prevista_aprovacao_draft_proforma:        'data_previsao_aprovacao_draft_proforma_pedido',
-        data_confirmada_aprovacao_draft_proforma:      'data_confirmacao_aprovacao_draft_proforma_pedido',
-        data_meta_aprovacao_draft_proforma:            'data_meta_aprovacao_draft_proforma_pedido',
+        data_prevista_recebimento_rascunho_proforma:      'data_previsao_recebimento_rascunho_proforma_pedido',
+        data_confirmada_recebimento_rascunho_proforma:    'data_confirmacao_recebimento_rascunho_proforma_pedido',
+        data_meta_recebimento_rascunho_proforma:          'data_meta_recebimento_rascunho_proforma_pedido',
+        data_prevista_aprovacao_rascunho_proforma:        'data_previsao_aprovacao_rascunho_proforma_pedido',
+        data_confirmada_aprovacao_rascunho_proforma:      'data_confirmacao_aprovacao_rascunho_proforma_pedido',
+        data_meta_aprovacao_rascunho_proforma:            'data_meta_aprovacao_rascunho_proforma_pedido',
         data_prevista_envio_original_proforma:         'data_previsao_envio_original_proforma_pedido',
         data_confirmada_envio_original_proforma:       'data_confirmacao_envio_original_proforma_pedido',
         data_meta_envio_original_proforma:             'data_meta_envio_original_proforma_pedido',
@@ -1410,12 +1430,12 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         data_confirmada_recebimento_original_proforma: 'data_confirmacao_recebimento_original_proforma_pedido',
         data_meta_recebimento_original_proforma:       'data_meta_recebimento_original_proforma_pedido',
         // ─── BLOCO 4: datas Invoice (mesmo padrão) ───
-        data_prevista_recebimento_draft_invoice:       'data_previsao_recebimento_draft_invoice_pedido',
-        data_confirmada_recebimento_draft_invoice:     'data_confirmacao_recebimento_draft_invoice_pedido',
-        data_meta_recebimento_draft_invoice:           'data_meta_recebimento_draft_invoice_pedido',
-        data_prevista_aprovacao_draft_invoice:         'data_previsao_aprovacao_draft_invoice_pedido',
-        data_confirmada_aprovacao_draft_invoice:       'data_confirmacao_aprovacao_draft_invoice_pedido',
-        data_meta_aprovacao_draft_invoice:             'data_meta_aprovacao_draft_invoice_pedido',
+        data_prevista_recebimento_rascunho_invoice:       'data_previsao_recebimento_rascunho_invoice_pedido',
+        data_confirmada_recebimento_rascunho_invoice:     'data_confirmacao_recebimento_rascunho_invoice_pedido',
+        data_meta_recebimento_rascunho_invoice:           'data_meta_recebimento_rascunho_invoice_pedido',
+        data_prevista_aprovacao_rascunho_invoice:         'data_previsao_aprovacao_rascunho_invoice_pedido',
+        data_confirmada_aprovacao_rascunho_invoice:       'data_confirmacao_aprovacao_rascunho_invoice_pedido',
+        data_meta_aprovacao_rascunho_invoice:             'data_meta_aprovacao_rascunho_invoice_pedido',
         data_prevista_envio_original_invoice:          'data_previsao_envio_original_invoice_pedido',
         data_confirmada_envio_original_invoice:        'data_confirmacao_envio_original_invoice_pedido',
         data_meta_envio_original_invoice:              'data_meta_envio_original_invoice_pedido',
@@ -1499,6 +1519,18 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const snapshotsOriginais = (original.snapshots_empresa_pedido ?? []) as any[]
 
+      // Débito 2B — FK do status (duplicação sempre nasce em 'rascunho').
+      const statusRascunhoDup = await db.statusPedido.findFirst({
+        where: { id_organizacao: idOrganizacao, nome_pedido_status: 'rascunho' },
+        select: { id_pedido_status: true },
+      })
+      if (!statusRascunhoDup) {
+        console.warn(
+          `[POST /pedidos/:id/duplicar] StatusPedido 'rascunho' nao encontrado na organizacao=${idOrganizacao}; ` +
+          `duplicado sera criado sem vinculo id_status_pedido.`,
+        )
+      }
+
       const duplicado = await db.pedido.create({
         data: {
           id_pedido: novoPedidoId,
@@ -1507,6 +1539,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
           tipo_operacao_pedido: original.tipo_operacao_pedido,
           numero_pedido: `${original.numero_pedido}-COPIA`,
           status_pedido: 'rascunho',
+          id_status_pedido: statusRascunhoDup?.id_pedido_status ?? null,
           incoterm_pedido: original.incoterm_pedido,
           moeda_pedido: original.moeda_pedido,
           valor_total_pedido: original.valor_total_pedido,
@@ -1613,26 +1646,26 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
         where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
       })
 
-      // Traduz chaves do schema público (criarItemSchema) para nomes DDD Prisma
+      // criarItemSchema agora é DDD-puro (Mandamento 03) — sem mais tradução.
       const itemData: Record<string, unknown> = {
-        id_item: gerarId('pite'),
-        id_organizacao: idOrganizacao,
-        id_workspace:   idWorkspace,
-        id_pedido:      req.params.id_pedido,
-        sequencia_item_pedido: result.data.sequencia_item ?? (itemCount + 1),
-        part_number_item:                 result.data.part_number,
-        ncm_item:                         result.data.ncm,
-        descricao_item:              result.data.descricao_item,
-        unidade_comercializada_item: result.data.unidade_comercializada_item,
-        quantidade_inicial_item:   result.data.quantidade_inicial_pedido,
-        quantidade_atual_item:     result.data.quantidade_inicial_pedido,
-        quantidade_pronta_item:      0,
-        quantidade_transferida_item: 0,
-        quantidade_cancelada_item:   0,
+        id_item:                        gerarId('pite'),
+        id_organizacao:                 idOrganizacao,
+        id_workspace:                   idWorkspace,
+        id_pedido:                      req.params.id_pedido,
+        sequencia_item_pedido:          result.data.sequencia_item_pedido ?? (itemCount + 1),
+        part_number_item:               result.data.part_number_item ?? '',
+        ncm_item:                       result.data.ncm_item ?? '',
+        descricao_item:                 result.data.descricao_item ?? '',
+        unidade_comercializada_item:    result.data.unidade_comercializada_item,
+        quantidade_inicial_item:        result.data.quantidade_inicial_item,
+        quantidade_atual_item:          result.data.quantidade_inicial_item,
+        quantidade_pronta_item:         0,
+        quantidade_transferida_item:    0,
+        quantidade_cancelada_item:      0,
         casas_decimais_quantidade_item: result.data.casas_decimais_quantidade_item,
         moeda_item:                     result.data.moeda_item,
         valor_por_unidade_item:         result.data.valor_por_unidade_item,
-        valor_total_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * result.data.quantidade_inicial_pedido,
+        valor_total_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * (result.data.quantidade_inicial_item ?? 0),
         casas_decimais_valor_item:      result.data.casas_decimais_valor_item,
       }
       const item = await db.pedidoItem.create({ data: itemData })
@@ -1744,19 +1777,19 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'data_confirmada_coleta_pedido',
   'data_meta_coleta_pedido',
   'data_transferencia_saldo_pedido',
-  'data_prevista_recebimento_draft_pedido',
-  'data_confirmada_recebimento_draft_pedido',
-  'data_meta_recebimento_draft_pedido',
-  'data_prevista_aprovacao_draft_pedido',
-  'data_confirmada_aprovacao_draft_pedido',
-  'data_meta_aprovacao_draft_pedido',
+  'data_prevista_recebimento_rascunho_pedido',
+  'data_confirmada_recebimento_rascunho_pedido',
+  'data_meta_recebimento_rascunho_pedido',
+  'data_prevista_aprovacao_rascunho_pedido',
+  'data_confirmada_aprovacao_rascunho_pedido',
+  'data_meta_aprovacao_rascunho_pedido',
   'data_documento_pedido',
-  'data_prevista_recebimento_draft_proforma',
-  'data_confirmada_recebimento_draft_proforma',
-  'data_meta_recebimento_draft_proforma',
-  'data_prevista_aprovacao_draft_proforma',
-  'data_confirmada_aprovacao_draft_proforma',
-  'data_meta_aprovacao_draft_proforma',
+  'data_prevista_recebimento_rascunho_proforma',
+  'data_confirmada_recebimento_rascunho_proforma',
+  'data_meta_recebimento_rascunho_proforma',
+  'data_prevista_aprovacao_rascunho_proforma',
+  'data_confirmada_aprovacao_rascunho_proforma',
+  'data_meta_aprovacao_rascunho_proforma',
   'data_prevista_envio_original_proforma',
   'data_confirmada_envio_original_proforma',
   'data_meta_envio_original_proforma',
@@ -1764,12 +1797,12 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'data_confirmada_recebimento_original_proforma',
   'data_meta_recebimento_original_proforma',
   'data_proforma_invoice',
-  'data_prevista_recebimento_draft_invoice',
-  'data_confirmada_recebimento_draft_invoice',
-  'data_meta_recebimento_draft_invoice',
-  'data_prevista_aprovacao_draft_invoice',
-  'data_confirmada_aprovacao_draft_invoice',
-  'data_meta_aprovacao_draft_invoice',
+  'data_prevista_recebimento_rascunho_invoice',
+  'data_confirmada_recebimento_rascunho_invoice',
+  'data_meta_recebimento_rascunho_invoice',
+  'data_prevista_aprovacao_rascunho_invoice',
+  'data_confirmada_aprovacao_rascunho_invoice',
+  'data_meta_aprovacao_rascunho_invoice',
   'data_prevista_envio_original_invoice',
   'data_confirmada_envio_original_invoice',
   'data_meta_envio_original_invoice',

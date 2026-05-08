@@ -191,8 +191,12 @@ export class TransferirService {
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
 
-    await db.$transaction(async (tx0) => {
-      const tx: Tx = tx0 as Tx
+    // Fase C fix: o `db` já vem dentro de uma transação (`withOrganizacao` no
+    // handler de rota), então `$transaction` aninhado quebra com
+    // "db.$transaction is not a function" (Prisma.TransactionClient não expõe).
+    // Usar `db` direto como `tx`.
+    {
+      const tx: Tx = db as unknown as Tx
       // Processar cada destino
       for (const destino of payload.destinos) {
         if (destino.tipo === 'novo') {
@@ -265,7 +269,7 @@ export class TransferirService {
 
       // Gravar histórico de transferência
       await this.gravarHistorico(id_organizacao, id_usuario, nome_usuario, payload, pedidosDestinoIds, tx)
-    })
+    }
 
     return {
       pedido_origem_id: payload.pedido_id,
@@ -296,8 +300,12 @@ export class TransferirService {
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
 
-    await db.$transaction(async (tx0) => {
-      const tx: Tx = tx0 as Tx
+    // Fase C fix: o `db` já vem dentro de uma transação (`withOrganizacao` no
+    // handler de rota), então `$transaction` aninhado quebra com
+    // "db.$transaction is not a function" (Prisma.TransactionClient não expõe).
+    // Usar `db` direto como `tx`.
+    {
+      const tx: Tx = db as unknown as Tx
       // Devolver quantidade ao item de origem
       const itemOrigem = await tx.pedidoItem.findFirst({
         where: { id_item: historico.id_item_origem, id_organizacao: id_organizacao },
@@ -365,7 +373,7 @@ export class TransferirService {
         detalhe_acao_historico_log:   `Transferência ${transferId} revertida`,
         estado_posterior_historico_log: { transfer_id: transferId, id_pedido: historico.id_pedido_origem },
       })
-    })
+    }
 
     return {
       pedido_origem_id: historico.id_pedido_origem,
@@ -399,6 +407,18 @@ export class TransferirService {
   }
 
   private async criarPedidoDestino(id_organizacao: string, numero: string, base: Record<string, unknown>, tx: Tx) {
+    // Débito 2B — FK do status (transferência cria pedido destino em 'aberto')
+    const statusAbertoFK = await tx.statusPedido.findFirst({
+      where: { id_organizacao, nome_pedido_status: 'aberto' },
+      select: { id_pedido_status: true },
+    })
+    if (!statusAbertoFK) {
+      console.warn(
+        `[transferirService] StatusPedido 'aberto' nao encontrado na organizacao=${id_organizacao}; ` +
+        `pedido destino sera criado sem vinculo id_status_pedido.`,
+      )
+    }
+
     return tx.pedido.create({
       data: {
         id_pedido: this.gerarId('pedi'),
@@ -407,6 +427,7 @@ export class TransferirService {
         tipo_operacao_pedido: (base.tipo_operacao_pedido ?? base.tipo_operacao) as string,
         numero_pedido: numero,
         status_pedido: 'aberto',
+        id_status_pedido: statusAbertoFK?.id_pedido_status ?? null,
         incoterm_pedido: ((base.incoterm_pedido ?? base.incoterm) as string | null) ?? null,
         moeda_pedido: (base.moeda_pedido as string | null) ?? 'USD',
         casas_decimais_valor_pedido: (base.casas_decimais_valor_pedido as number | null) ?? 2,

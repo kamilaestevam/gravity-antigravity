@@ -133,7 +133,7 @@ function parsearPadraoSeguro() {
 
 /** Cores padrão por código de status (backend) */
 const STATUS_CORES_DEFAULT: Record<string, string> = {
-  draft:         '#94a3b8',
+  rascunho:      '#94a3b8',
   aberto:        '#f472b6',
   em_andamento:  '#fb923c',
   aprovado:      '#facc15',
@@ -453,7 +453,7 @@ function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' 
 const LABELS_FILTRO: Record<string, Record<string, string>> = {
   tipo_operacao: { importacao: 'Importação', exportacao: 'Exportação' },
   status: {
-    draft: 'Rascunho',
+    rascunho: 'Rascunho',
     aberto: 'Aberto',
     transferencia: 'Em Transferência',
     consolidado: 'Consolidado',
@@ -3952,6 +3952,7 @@ export default function Pedidos() {
       return {
         ...p,
         ...divergencias,
+        itens: itensAposEdicao,
         quantidade_total_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
         quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido)    || 0), 0),
         peso_liquido_total_pedido:       itensAposEdicao.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),

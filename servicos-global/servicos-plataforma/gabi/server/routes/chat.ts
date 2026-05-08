@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { getConversationContext, buildSystemPrompt } from '../services/chat.js'
 import { generateContentWithFallback, generateWithTools } from '../services/gemini.js'
+import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
 
 export const chatRouter = Router()
 
@@ -21,11 +22,28 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
     const message = sanitizeUserInput(rawMessage)
 
     // tenant/user DEVEM vir do JWT autenticado (req.auth), não dos headers/query
-    const tenantId = (req as any).auth?.tenantId
-    const userId = (req as any).auth?.userId
+    const tenantId = (req as any).auth?.id_organizacao
+    const userId = (req as any).auth?.id_usuario
 
     if (!tenantId || !userId) {
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Autenticação necessária' } })
+    }
+
+    // F2-H: gate de hard-block (limite monetario USD).
+    // Avaliamos com modelo sentinela "__pre__" pra capturar limites de
+    // escopo "todos os modelos" (GLOBAL e ORGANIZACAO). Limites por modelo
+    // especifico sao avaliados pelo worker horario / proxima chamada.
+    const limite = await avaliarLimite(tenantId, '__pre__')
+    if (limite.status === 'bloqueio') {
+      return res.status(429).json({
+        error: {
+          code:    'LLM_USAGE_LIMIT_REACHED',
+          message: 'Limite de gasto USD atingido para este escopo. Contate o admin.',
+          escopo:        limite.origem_limite,
+          gasto_mtd_usd: limite.gasto_mtd_usd,
+          limite_usd:    limite.limite_bloqueio_usd,
+        },
+      })
     }
 
     const history = conversationId !== 'new'
@@ -49,6 +67,12 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
     const result = await generateWithTools(sysPrompt, message, history, toolCtx)
 
     const { cleanText, suggestions } = extractSuggestions(result.text)
+
+    // F2-H: invalida cache de spend MTD pos-chamada para a proxima checagem
+    // pegar o gasto atualizado em <= 60s (combina TTL + invalidacao).
+    void invalidarCacheGastoMtd(tenantId).catch((e) =>
+      console.warn('[chat] falha invalidando cache de gasto MTD', (e as Error).message),
+    )
 
     res.json({
       response: cleanText,
@@ -96,8 +120,8 @@ chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
   res.setHeader('Connection', 'keep-alive')
 
   // tenant/user DEVEM vir do JWT autenticado (req.auth), não dos headers/query
-  const tenantId = (req as any).auth?.tenantId
-  const userId = (req as any).auth?.userId
+  const tenantId = (req as any).auth?.id_organizacao
+  const userId = (req as any).auth?.id_usuario
 
   if (!tenantId || !userId) {
     res.write(`data: ${JSON.stringify({ error: 'Autenticação necessária' })}\n\n`)

@@ -62,6 +62,13 @@ app.use(errorHandler)
 app.listen(PORT, () => {
   console.log(`[GABI_SERVICE] ✅ Rodando na porta ${PORT}`)
   console.log(`[GABI_SERVICE]    Health: http://localhost:${PORT}/health`)
+
+  // F2-G: worker horario que avalia limites monetarios e dispara avisos por e-mail
+  void import('./queue/limite-worker.js').then(({ iniciarLimiteWorker }) => {
+    iniciarLimiteWorker()
+  }).catch((err) => {
+    console.warn('[GABI_SERVICE] falha iniciando limite-worker', (err as Error).message)
+  })
 })
 
 export default app

@@ -153,3 +153,55 @@ model GabiPersonalizacaoOrganizacao {
   @@index([id_organizacao_gabi_personalizacao, id_usuario_gabi_personalizacao], map: "gpe_org_usr_idx")
   @@map("gabi_personalizacao")
 }
+
+// ---------------------------------------------------------------------------
+// GabiLimiteMonetario — limite USD por organizacao (e opcionalmente por modelo)
+//
+// Vive em cada schema tenant_<cuid> via composicao do organizacao-shared.
+// Limites GLOBAIS (cross-org) ficam em configurador-db.GabiLimiteMonetarioGlobal.
+//
+// Avaliado pelo worker horario; quando excede `limite_bloqueio_usd_*` causa
+// bloqueio (HTTP 429) em chamadas novas a LLM SOMENTE para esta organizacao.
+// ---------------------------------------------------------------------------
+
+model GabiLimiteMonetario {
+  id_gabi_limite_monetario             String  @id @default(cuid())
+  id_organizacao_gabi_limite_monetario String
+  modelo_gabi_limite_monetario         String? // null = todos os modelos
+
+  limite_aviso_usd_gabi_limite_monetario    Decimal  @db.Decimal(12, 2)
+  limite_bloqueio_usd_gabi_limite_monetario Decimal  @db.Decimal(12, 2)
+  destinatarios_email_gabi_limite_monetario String[]
+  ativo_gabi_limite_monetario          Boolean  @default(true)
+
+  data_criacao_gabi_limite_monetario     DateTime @default(now())
+  data_atualizacao_gabi_limite_monetario DateTime @updatedAt
+
+  // unicidade gerenciada pela migration (UNIQUE ... COALESCE(modelo,'__ALL__'))
+  // — Prisma nao expressa NULLS-DISTINCT-FALSE de forma portatil.
+  @@index([id_organizacao_gabi_limite_monetario], map: "glm_org_idx")
+  @@index([id_organizacao_gabi_limite_monetario, modelo_gabi_limite_monetario], map: "glm_org_modelo_idx")
+  @@map("gabi_limite_monetario")
+}
+
+// ---------------------------------------------------------------------------
+// GabiAlertaEmitido — idempotencia de e-mail por (limite, mes, nivel)
+//
+// Worker insere ANTES de enviar e-mail; UNIQUE constraint + ON CONFLICT
+// DO NOTHING garante 1 e-mail por nivel/mes mesmo com worker em N instancias.
+// ---------------------------------------------------------------------------
+
+model GabiAlertaEmitido {
+  id_gabi_alerta_emitido             String   @id @default(cuid())
+  id_organizacao_gabi_alerta_emitido String
+  id_limite_gabi_alerta_emitido      String
+  mes_ref_gabi_alerta_emitido        String   // "YYYY-MM"
+  nivel_gabi_alerta_emitido          String   // "AVISO" | "BLOQUEIO"
+  gasto_usd_gabi_alerta_emitido      Decimal  @db.Decimal(12, 2)
+  data_criacao_gabi_alerta_emitido   DateTime @default(now())
+
+  @@unique([id_limite_gabi_alerta_emitido, mes_ref_gabi_alerta_emitido, nivel_gabi_alerta_emitido], map: "gae_unq_limite_mes_nivel")
+  @@index([id_organizacao_gabi_alerta_emitido], map: "gae_org_idx")
+  @@index([id_organizacao_gabi_alerta_emitido, mes_ref_gabi_alerta_emitido], map: "gae_org_mes_idx")
+  @@map("gabi_alerta_emitido")
+}

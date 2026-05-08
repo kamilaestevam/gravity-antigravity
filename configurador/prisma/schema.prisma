@@ -934,3 +934,85 @@ model LLMMetricas {
   @@index([data_analise_metricas_llm], map: "metricas_llm_data_analise_idx")
   @@map("metricas_llm")
 }
+
+// ---------------------------------------------------------------------------
+// LIMITES MONETARIOS GABI — escopo GLOBAL (cross-organizacao)
+//
+// Limites em USD aplicaveis ao gasto agregado de TODAS as organizacoes.
+// Limites por organizacao/modelo dentro de uma org vivem em
+// servicos-global/servicos-plataforma/gabi/prisma/fragment.prisma
+// (replicados em cada schema tenant_<cuid>).
+//
+// Avaliados por worker horario; quando excedem `limite_bloqueio_usd_*`
+// causam bloqueio (HTTP 429) em chamadas novas a LLM em todas as orgs.
+// ---------------------------------------------------------------------------
+
+model GabiLimiteMonetarioGlobal {
+  id_gabi_limite_monetario_global                  String   @id @default(cuid())
+  modelo_gabi_limite_monetario_global              String?  // null = todos os modelos; preenchido = limite especifico de modelo
+  limite_aviso_usd_gabi_limite_monetario_global    Decimal  @db.Decimal(12, 2)
+  limite_bloqueio_usd_gabi_limite_monetario_global Decimal  @db.Decimal(12, 2)
+  destinatarios_email_gabi_limite_monetario_global String[]
+  ativo_gabi_limite_monetario_global               Boolean  @default(true)
+  data_criacao_gabi_limite_monetario_global        DateTime @default(now())
+  data_atualizacao_gabi_limite_monetario_global    DateTime @updatedAt
+
+  // unicidade gerenciada pela migration (UNIQUE ... COALESCE(modelo,'__ALL__'))
+  // — Prisma nao expressa NULLS-DISTINCT-FALSE de forma portatil entao o
+  // constraint vive no SQL. Mantemos @@index para queries.
+  @@index([modelo_gabi_limite_monetario_global], map: "gabi_limite_monetario_global_modelo_idx")
+  @@map("gabi_limite_monetario_global")
+}
+
+// ---------------------------------------------------------------------------
+// ALERTAS EMITIDOS GABI (GLOBAL) — idempotencia para nao spammar e-mail
+//
+// Worker horario insere aqui ANTES de enviar e-mail. INSERT...ON CONFLICT
+// DO NOTHING garante que mesmo com worker rodando em N instancias, so 1
+// linha (= 1 e-mail) e' criada por (limite, mes, nivel).
+// ---------------------------------------------------------------------------
+
+model GabiAlertaEmitidoGlobal {
+  id_gabi_alerta_emitido_global           String   @id @default(cuid())
+  id_limite_gabi_alerta_emitido_global    String   // FK logico para GabiLimiteMonetarioGlobal.id
+  mes_ref_gabi_alerta_emitido_global      String   // "YYYY-MM"
+  nivel_gabi_alerta_emitido_global        String   // "AVISO" | "BLOQUEIO"
+  gasto_usd_gabi_alerta_emitido_global    Decimal  @db.Decimal(12, 2)
+  data_criacao_gabi_alerta_emitido_global DateTime @default(now())
+
+  @@unique([id_limite_gabi_alerta_emitido_global, mes_ref_gabi_alerta_emitido_global, nivel_gabi_alerta_emitido_global], map: "gabi_alerta_emitido_global_unq")
+  @@index([mes_ref_gabi_alerta_emitido_global], map: "gabi_alerta_emitido_global_mes_idx")
+  @@map("gabi_alerta_emitido_global")
+}
+
+// ---------------------------------------------------------------------------
+// AUDIT LOG ADMIN (Auditoria de ações cross-organização)
+//
+// Registra TODA chamada feita por SUPER_ADMIN/ADMIN em endpoints admin que
+// atravessam organizações (ex: GET /api/v1/admin/empresas).
+//
+// Tabela GLOBAL — não tem id_organizacao (a ação É cross-org). Filtros e
+// resultados são gravados em JSON para auditoria forense.
+//
+// Lei de governança: skills/governanca/convencao-tecnica/lint-tenant-safety
+// (seção "Exceções permitidas") — endpoints admin S2S sem extrairIdOrganizacao
+// só são autorizados se persistem aqui.
+// ---------------------------------------------------------------------------
+
+model AuditLogAdmin {
+  id_audit_log_admin             String   @id @default(cuid())
+  id_usuario_audit_log_admin     String   // id_usuario do admin que executou
+  tipo_usuario_audit_log_admin   String   // SUPER_ADMIN | ADMIN
+  acao_audit_log_admin           String   // ex: "admin.empresas.list"
+  recurso_audit_log_admin        String   // ex: "empresa"
+  filtros_audit_log_admin        Json     // query params aplicados
+  qtd_resultados_audit_log_admin Int      // total de registros retornados
+  ip_origem_audit_log_admin      String
+  correlation_id_audit_log_admin String
+  data_criacao_audit_log_admin   DateTime @default(now())
+
+  @@index([id_usuario_audit_log_admin, data_criacao_audit_log_admin], map: "ala_usuario_data_idx")
+  @@index([acao_audit_log_admin, data_criacao_audit_log_admin], map: "ala_acao_data_idx")
+  @@index([data_criacao_audit_log_admin], map: "ala_data_idx")
+  @@map("audit_log_admin")
+}

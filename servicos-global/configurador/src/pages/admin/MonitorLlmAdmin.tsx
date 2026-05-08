@@ -4,6 +4,7 @@ import {
   ArrowClockwise,
   Brain,
   Warning,
+  Gear,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -13,6 +14,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
+import { ModalLimitesMonitorLlm } from './ModalLimitesMonitorLlm'
 
 /**
  * MonitorLlmAdmin — aba "Monitor LLM" do API Cockpit (admin only).
@@ -60,12 +62,11 @@ interface GabiUsagePayload {
 
 const POLLING_INTERVAL_MS = 30_000
 
+// Formato monetario USD (pt-BR): "USD 1.000,00"
 const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('en-US', {
-    style:                 'currency',
-    currency:              'USD',
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
+  'USD ' + new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(n)
 
 const fmtTokens = (n: number) => {
@@ -79,6 +80,7 @@ export function MonitorLlmAdmin() {
 
   const [gabiUsage, setGabiUsage] = useState<GabiUsagePayload | null>(null)
   const [loading, setLoading]     = useState(true)
+  const [modalLimitesAberto, setModalLimitesAberto] = useState(false)
 
   // Banner inline ja sinaliza falha — nao usamos addNotification aqui
   // pra nao spammar a cada poll de 30s quando GABI esta offline em dev.
@@ -273,15 +275,25 @@ export function MonitorLlmAdmin() {
           padding:        '1.25rem 0 0.5rem',
         }}>
           <ApiCockpitAdminTabs />
-          <BotaoGlobal
-            variante="secundario"
-            onClick={() => { void carregar() }}
-            icone={<ArrowClockwise size={16} />}
-            aria-label="Atualizar monitor de LLM"
-            disabled={loading}
-          >
-            Atualizar
-          </BotaoGlobal>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <BotaoGlobal
+              variante="secundario"
+              onClick={() => setModalLimitesAberto(true)}
+              icone={<Gear size={16} />}
+              aria-label="Configurar limites de LLM"
+            >
+              Limites
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="secundario"
+              onClick={() => { void carregar() }}
+              icone={<ArrowClockwise size={16} />}
+              aria-label="Atualizar monitor de LLM"
+              disabled={loading}
+            >
+              Atualizar
+            </BotaoGlobal>
+          </div>
         </div>
       }
     >
@@ -338,6 +350,11 @@ export function MonitorLlmAdmin() {
           }
         />
       </div>
+
+      <ModalLimitesMonitorLlm
+        aberto={modalLimitesAberto}
+        aoFechar={() => setModalLimitesAberto(false)}
+      />
     </PaginaGlobal>
   )
 }

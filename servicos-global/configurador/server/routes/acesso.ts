@@ -384,3 +384,196 @@ accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
     next(err)
   }
 })
+
+/**
+ * GET /api/v1/internal/gabi/limites-globais
+ *
+ * Lista limites monetarios GLOBAIS da GABI (cross-organizacao).
+ * Consumido pelo servico GABI (limiteMonetarioService) — nao podemos
+ * importar o Prisma do Configurador no GABI direto (regra de isolamento
+ * inter-servicos), entao expomos via S2S.
+ *
+ * Filtros opcionais:
+ *   ?modelo=gpt-4o-mini  — limite especifico de modelo (modelo IS NOT NULL e =)
+ *   ?ativo=true|false    — default todos
+ *
+ * Resposta: { limites: GabiLimiteMonetarioGlobal[] }
+ *   Decimal serializado como string (precisao mantida); o consumidor
+ *   converte com Number() ja que JS nao tem Decimal nativo.
+ */
+accessRouter.get('/gabi/limites-globais', async (req, res, next) => {
+  try {
+    const modelo = typeof req.query.modelo === 'string' ? req.query.modelo : undefined
+    const ativoFiltro =
+      req.query.ativo === 'true'  ? true  :
+      req.query.ativo === 'false' ? false : undefined
+
+    const limites = await prisma.gabiLimiteMonetarioGlobal.findMany({
+      where: {
+        ...(ativoFiltro !== undefined && { ativo_gabi_limite_monetario_global: ativoFiltro }),
+        ...(modelo !== undefined && { modelo_gabi_limite_monetario_global: modelo }),
+      },
+      orderBy: { data_criacao_gabi_limite_monetario_global: 'asc' },
+    })
+
+    res.json({
+      limites: limites.map(serializarLimiteGlobal),
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ---------------------------------------------------------------------------
+// CRUD de limites GLOBAIS — F2-F.bis
+//
+// Espelha o CRUD per-org do GABI (gabi/server/routes/admin-limites.ts) mas
+// para escopo GLOBAL (cross-organizacao). Decimal serializado como string
+// na resposta — Prisma aceita Decimal via string ou number na entrada.
+// ---------------------------------------------------------------------------
+
+const VALOR_USD_REGEX = /^\d{1,10}(\.\d{1,2})?$/  // alinhado ao Decimal(12,2)
+
+const criarLimiteGlobalSchema = z.object({
+  modelo:              z.string().min(1).max(100).nullable().optional(),
+  limite_aviso_usd:    z.string().regex(VALOR_USD_REGEX, 'valor USD invalido'),
+  limite_bloqueio_usd: z.string().regex(VALOR_USD_REGEX, 'valor USD invalido'),
+  destinatarios_email: z.array(z.string().email('e-mail invalido')).min(1).max(20),
+  ativo:               z.boolean().optional().default(true),
+}).refine(
+  (d) => Number(d.limite_aviso_usd) <= Number(d.limite_bloqueio_usd),
+  { message: 'limite_aviso_usd deve ser <= limite_bloqueio_usd' },
+)
+
+const atualizarLimiteGlobalSchema = z.object({
+  modelo:              z.string().min(1).max(100).nullable().optional(),
+  limite_aviso_usd:    z.string().regex(VALOR_USD_REGEX).optional(),
+  limite_bloqueio_usd: z.string().regex(VALOR_USD_REGEX).optional(),
+  destinatarios_email: z.array(z.string().email()).min(1).max(20).optional(),
+  ativo:               z.boolean().optional(),
+})
+
+function serializarLimiteGlobal(l: {
+  id_gabi_limite_monetario_global:                  string
+  modelo_gabi_limite_monetario_global:              string | null
+  limite_aviso_usd_gabi_limite_monetario_global:    { toString(): string }
+  limite_bloqueio_usd_gabi_limite_monetario_global: { toString(): string }
+  destinatarios_email_gabi_limite_monetario_global: string[]
+  ativo_gabi_limite_monetario_global:               boolean
+  data_criacao_gabi_limite_monetario_global:        Date
+  data_atualizacao_gabi_limite_monetario_global:    Date
+}) {
+  return {
+    id_gabi_limite_monetario_global:                  l.id_gabi_limite_monetario_global,
+    modelo_gabi_limite_monetario_global:              l.modelo_gabi_limite_monetario_global,
+    limite_aviso_usd_gabi_limite_monetario_global:    l.limite_aviso_usd_gabi_limite_monetario_global.toString(),
+    limite_bloqueio_usd_gabi_limite_monetario_global: l.limite_bloqueio_usd_gabi_limite_monetario_global.toString(),
+    destinatarios_email_gabi_limite_monetario_global: l.destinatarios_email_gabi_limite_monetario_global,
+    ativo_gabi_limite_monetario_global:               l.ativo_gabi_limite_monetario_global,
+    data_criacao_gabi_limite_monetario_global:        l.data_criacao_gabi_limite_monetario_global.toISOString(),
+    data_atualizacao_gabi_limite_monetario_global:    l.data_atualizacao_gabi_limite_monetario_global.toISOString(),
+  }
+}
+
+/**
+ * POST /api/v1/internal/gabi/limites-globais
+ * Cria limite GLOBAL. Constraint UNIQUE COALESCE(modelo,'__ALL__') previne
+ * duplicacao entre limite "todos os modelos" e limite especifico do mesmo modelo.
+ */
+accessRouter.post('/gabi/limites-globais', async (req, res, next) => {
+  try {
+    const parse = criarLimiteGlobalSchema.safeParse(req.body)
+    if (!parse.success) {
+      throw new AppError(parse.error.issues[0]?.message ?? 'invalido', 400, 'VALIDATION_ERROR')
+    }
+    const dados = parse.data
+
+    const linha = await prisma.gabiLimiteMonetarioGlobal.create({
+      data: {
+        modelo_gabi_limite_monetario_global:              dados.modelo ?? null,
+        limite_aviso_usd_gabi_limite_monetario_global:    dados.limite_aviso_usd,
+        limite_bloqueio_usd_gabi_limite_monetario_global: dados.limite_bloqueio_usd,
+        destinatarios_email_gabi_limite_monetario_global: dados.destinatarios_email,
+        ativo_gabi_limite_monetario_global:               dados.ativo,
+      },
+    })
+
+    res.status(201).json({ limite: serializarLimiteGlobal(linha) })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('gabi_limite_monetario_global_unq_modelo') || msg.includes('Unique constraint')) {
+      return next(new AppError('Ja existe limite GLOBAL para esse modelo', 409, 'CONFLICT'))
+    }
+    next(err)
+  }
+})
+
+/**
+ * PUT /api/v1/internal/gabi/limites-globais/:id
+ */
+accessRouter.put('/gabi/limites-globais/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const parse = atualizarLimiteGlobalSchema.safeParse(req.body)
+    if (!parse.success) {
+      throw new AppError(parse.error.issues[0]?.message ?? 'invalido', 400, 'VALIDATION_ERROR')
+    }
+    const dados = parse.data
+    if (
+      dados.limite_aviso_usd !== undefined &&
+      dados.limite_bloqueio_usd !== undefined &&
+      Number(dados.limite_aviso_usd) > Number(dados.limite_bloqueio_usd)
+    ) {
+      throw new AppError('limite_aviso_usd deve ser <= limite_bloqueio_usd', 400, 'VALIDATION_ERROR')
+    }
+
+    const linha = await prisma.gabiLimiteMonetarioGlobal.update({
+      where: { id_gabi_limite_monetario_global: id },
+      data: {
+        ...(dados.modelo              !== undefined && { modelo_gabi_limite_monetario_global:              dados.modelo }),
+        ...(dados.limite_aviso_usd    !== undefined && { limite_aviso_usd_gabi_limite_monetario_global:    dados.limite_aviso_usd }),
+        ...(dados.limite_bloqueio_usd !== undefined && { limite_bloqueio_usd_gabi_limite_monetario_global: dados.limite_bloqueio_usd }),
+        ...(dados.destinatarios_email !== undefined && { destinatarios_email_gabi_limite_monetario_global: dados.destinatarios_email }),
+        ...(dados.ativo               !== undefined && { ativo_gabi_limite_monetario_global:               dados.ativo }),
+      },
+    })
+
+    res.json({ limite: serializarLimiteGlobal(linha) })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('Record to update not found')) {
+      return next(new AppError('limite GLOBAL nao encontrado', 404, 'NOT_FOUND'))
+    }
+    if (msg.includes('gabi_limite_monetario_global_unq_modelo') || msg.includes('Unique constraint')) {
+      return next(new AppError('conflito de modelo', 409, 'CONFLICT'))
+    }
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/internal/gabi/limites-globais/:id
+ * Apaga em cascata os alertas emitidos relacionados (FK logico, sem @relation).
+ */
+accessRouter.delete('/gabi/limites-globais/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id
+
+    await prisma.$transaction(async (tx) => {
+      await tx.gabiAlertaEmitidoGlobal.deleteMany({
+        where: { id_limite_gabi_alerta_emitido_global: id },
+      })
+      await tx.gabiLimiteMonetarioGlobal.delete({
+        where: { id_gabi_limite_monetario_global: id },
+      })
+    })
+
+    res.status(204).end()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('Record to delete does not exist') || msg.includes('not found')) {
+      return next(new AppError('limite GLOBAL nao encontrado', 404, 'NOT_FOUND'))
+    }
+    next(err)
+  }
+})

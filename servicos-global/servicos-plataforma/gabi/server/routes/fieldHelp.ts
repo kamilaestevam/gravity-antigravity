@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AppError } from '../lib/errors.js'
 import { checkQuota, registerTokens, getQuotaInfo } from '../services/quotaService.js'
+import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
 import { buildFieldHelpPrompt } from '../services/fieldHelpPrompt.js'
 import { fieldHelpRateLimit } from '../middleware/fieldHelpRateLimit.js'
 
@@ -144,10 +145,16 @@ fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req,
     }
     const { campo, produto, contextoAdicional } = parsed.data
 
-    // 2. Verificar quota
+    // 2. Verificar quota (tokens — legado)
     const quota = await checkQuota(tenantId, productId, quotaMensal)
     if (quota.esgotado) {
       throw new AppError('Quota de tokens esgotada para este mês', 403, 'QUOTA_ESGOTADA')
+    }
+
+    // 2b. F2-H: gate de hard-block monetario (USD).
+    const limiteMonetario = await avaliarLimite(tenantId, '__pre__')
+    if (limiteMonetario.status === 'bloqueio') {
+      throw new AppError('Limite de gasto USD atingido para este escopo', 429, 'LLM_USAGE_LIMIT_REACHED')
     }
 
     // 3. Chamar Gemini
@@ -198,6 +205,11 @@ fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req,
       tokensOutput,
       quotaMensal,
     })
+
+    // F2-H: invalida cache de spend MTD pos-chamada (proxima checagem ve gasto atual)
+    void invalidarCacheGastoMtd(tenantId).catch((e) =>
+      console.warn('[fieldHelp] falha invalidando cache gasto MTD', (e as Error).message),
+    )
 
     // 6. Retornar resultado com quota atualizada
     const quotaAtualizada = await getQuotaInfo(tenantId, productId, quotaMensal)

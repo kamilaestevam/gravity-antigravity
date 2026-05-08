@@ -628,3 +628,161 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
     res.json({ history: {}, error: maskError(err) })
   }
 })
+
+// ---------------------------------------------------------------------------
+// F2-I — Proxy CRUD de limites monetarios LLM
+//
+// Frontend admin chama este endpoint unificado; ele despacha por escopo:
+//   GLOBAL       -> Configurador local (self-fetch /api/v1/internal/gabi/limites-globais)
+//   ORGANIZACAO  -> GABI S2S (/api/v1/gabi/admin/limites)
+//   MODELO       -> idem ORGANIZACAO (limite especifico de modelo dentro da org)
+//
+// O frontend nunca fala diretamente com GABI; sempre passa por aqui.
+// ---------------------------------------------------------------------------
+
+const SELF_BASE_URL = process.env.CONFIGURADOR_PUBLIC_URL || 'http://localhost:8000'
+
+async function callConfiguradorLocal(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<{ status: number; body: unknown }> {
+  const init: RequestInit = {
+    method,
+    headers: {
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'Content-Type':            'application/json',
+    },
+    signal: AbortSignal.timeout(5_000),
+  }
+  if (body !== undefined) init.body = JSON.stringify(body)
+  const r = await fetch(`${SELF_BASE_URL}${path}`, init)
+  const text = await r.text()
+  return { status: r.status, body: text ? JSON.parse(text) : null }
+}
+
+async function callGabi(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<{ status: number; body: unknown }> {
+  const init: RequestInit = {
+    method,
+    headers: {
+      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'Content-Type':            'application/json',
+    },
+    signal: AbortSignal.timeout(8_000),
+  }
+  if (body !== undefined) init.body = JSON.stringify(body)
+  const r = await fetch(`${GABI_SERVICE_URL}${path}`, init)
+  const text = await r.text()
+  return { status: r.status, body: text ? JSON.parse(text) : null }
+}
+
+/**
+ * GET /api/v1/api-cockpit/admin/llm-limites?id_organizacao=cxxxxx
+ * Sem id_organizacao -> retorna apenas limites_globais.
+ * Com id_organizacao -> retorna limites_globais + limites_org dessa org.
+ */
+apiCockpitAdminRouter.get('/llm-limites', async (req, res) => {
+  try {
+    const id_organizacao = (req.query.id_organizacao as string) || ''
+
+    const tarefas: Array<Promise<{ status: number; body: unknown }>> = [
+      callConfiguradorLocal('GET', '/api/v1/internal/gabi/limites-globais'),
+    ]
+    if (id_organizacao) {
+      tarefas.push(callGabi('GET', `/api/v1/gabi/admin/limites?id_organizacao=${encodeURIComponent(id_organizacao)}`))
+    }
+
+    const [globaisR, orgR] = await Promise.all(tarefas)
+    if (globaisR.status >= 400) throw new Error(`limites globais ${globaisR.status}`)
+    if (orgR && orgR.status >= 400) throw new Error(`limites org ${orgR.status}`)
+
+    const globais = (globaisR.body as { limites?: unknown[] })?.limites ?? []
+    const org     = orgR ? ((orgR.body as { limites?: unknown[] })?.limites ?? []) : []
+
+    res.json({ limites_globais: globais, limites_org: org })
+  } catch (err) {
+    res.status(502).json({ limites_globais: [], limites_org: [], error: maskError(err) })
+  }
+})
+
+/**
+ * POST /api/v1/api-cockpit/admin/llm-limites
+ * Body: { escopo: 'GLOBAL' | 'ORGANIZACAO' | 'MODELO', ... }
+ *  - GLOBAL: { escopo, modelo?, limite_aviso_usd, limite_bloqueio_usd, destinatarios_email[], ativo? }
+ *  - ORG/MODELO: + id_organizacao
+ */
+apiCockpitAdminRouter.post('/llm-limites', async (req, res) => {
+  try {
+    const escopo = (req.body?.escopo as string) || ''
+    const { escopo: _drop, ...payload } = req.body ?? {}
+
+    let resposta
+    if (escopo === 'GLOBAL') {
+      resposta = await callConfiguradorLocal('POST', '/api/v1/internal/gabi/limites-globais', payload)
+    } else if (escopo === 'ORGANIZACAO' || escopo === 'MODELO') {
+      resposta = await callGabi('POST', '/api/v1/gabi/admin/limites', payload)
+    } else {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'escopo deve ser GLOBAL, ORGANIZACAO ou MODELO' } })
+    }
+    res.status(resposta.status).json(resposta.body)
+  } catch (err) {
+    res.status(502).json({ error: maskError(err) })
+  }
+})
+
+/**
+ * PUT /api/v1/api-cockpit/admin/llm-limites/:id?escopo=GLOBAL|ORG|MODELO&id_organizacao=...
+ */
+apiCockpitAdminRouter.put('/llm-limites/:id', async (req, res) => {
+  try {
+    const id     = req.params.id
+    const escopo = (req.query.escopo as string) || ''
+    const id_organizacao = (req.query.id_organizacao as string) || ''
+
+    let resposta
+    if (escopo === 'GLOBAL') {
+      resposta = await callConfiguradorLocal('PUT', `/api/v1/internal/gabi/limites-globais/${encodeURIComponent(id)}`, req.body)
+    } else if (escopo === 'ORGANIZACAO' || escopo === 'MODELO') {
+      if (!id_organizacao) {
+        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'id_organizacao obrigatorio para escopo ORGANIZACAO/MODELO' } })
+      }
+      resposta = await callGabi('PUT', `/api/v1/gabi/admin/limites/${encodeURIComponent(id)}?id_organizacao=${encodeURIComponent(id_organizacao)}`, req.body)
+    } else {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'escopo invalido' } })
+    }
+    res.status(resposta.status).json(resposta.body)
+  } catch (err) {
+    res.status(502).json({ error: maskError(err) })
+  }
+})
+
+/**
+ * DELETE /api/v1/api-cockpit/admin/llm-limites/:id?escopo=GLOBAL|ORG|MODELO&id_organizacao=...
+ */
+apiCockpitAdminRouter.delete('/llm-limites/:id', async (req, res) => {
+  try {
+    const id     = req.params.id
+    const escopo = (req.query.escopo as string) || ''
+    const id_organizacao = (req.query.id_organizacao as string) || ''
+
+    let resposta
+    if (escopo === 'GLOBAL') {
+      resposta = await callConfiguradorLocal('DELETE', `/api/v1/internal/gabi/limites-globais/${encodeURIComponent(id)}`)
+    } else if (escopo === 'ORGANIZACAO' || escopo === 'MODELO') {
+      if (!id_organizacao) {
+        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'id_organizacao obrigatorio para escopo ORGANIZACAO/MODELO' } })
+      }
+      resposta = await callGabi('DELETE', `/api/v1/gabi/admin/limites/${encodeURIComponent(id)}?id_organizacao=${encodeURIComponent(id_organizacao)}`)
+    } else {
+      return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'escopo invalido' } })
+    }
+    if (resposta.status === 204) return res.status(204).end()
+    res.status(resposta.status).json(resposta.body)
+  } catch (err) {
+    res.status(502).json({ error: maskError(err) })
+  }
+})

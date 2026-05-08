@@ -64,12 +64,11 @@ interface GabiUsagePayload {
 
 const POLLING_INTERVAL_MS = 30_000
 
+// Formato monetario USD (pt-BR): "USD 1.000,00"
 const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
+  'USD ' + new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(n)
 
 export function ApiCockpitAdminKpis() {

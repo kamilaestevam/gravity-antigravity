@@ -18,7 +18,8 @@ import { chatRouter }      from './routes/chat.js'
 import { acoesRouter }     from './routes/acoes.js'
 import { usageRouter }     from './routes/usage.js'
 import { fieldHelpRouter } from './routes/fieldHelp.js'
-import { adminRouter }     from './routes/admin.js'
+import { adminRouter }        from './routes/admin.js'
+import { adminLimitesRouter } from './routes/admin-limites.js'
 
 const router = Router()
 
@@ -29,5 +30,6 @@ router.use(acoesRouter)
 router.use(usageRouter)
 router.use(fieldHelpRouter)
 router.use(adminRouter)
+router.use(adminLimitesRouter)
 
 export { router as gabiServiceRouter }

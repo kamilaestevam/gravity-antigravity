@@ -1,0 +1,47 @@
+{
+  "id": "TST-UNI-PEDIDO-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-08T00:00:00Z",
+  "geradoPor": "claude-opus-1m",
+  "escopo": "PEDIDO",
+  "sublocal": "dashboard",
+  "modulo": "dashboardKpis/Trend/Distribution/Insights schemas",
+  "tipoModulo": "schema_zod",
+  "arquivoFilePath": "servicos-global/produto/pedido/client/src/shared/dashboard-schemas.ts",
+  "ambiente": "node",
+  "criticidade": "alta",
+  "coberturaMinima": 70,
+  "exportacoes": [
+    "dashboardKpisSchema",
+    "dashboardTrendResponseSchema",
+    "dashboardDistributionResponseSchema",
+    "dashboardInsightsResponseSchema"
+  ],
+  "categorias": [
+    { "nome": "happy",          "min": 4, "total": 4 },
+    { "nome": "sad",            "min": 4, "total": 5 },
+    { "nome": "edge",           "min": 2, "total": 3 },
+    { "nome": "regression_ddd", "min": 4, "total": 4 }
+  ],
+  "casos": [
+    { "id": "TST-UNI-PEDIDO-000001-001", "categoria": "happy",          "descricao": "dashboardKpisSchema aceita payload completo do backend com todos os 35 campos DDD",                "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-002", "categoria": "happy",          "descricao": "dashboardTrendResponseSchema aceita resposta com 12 buckets mensais",                              "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-003", "categoria": "happy",          "descricao": "dashboardDistributionResponseSchema aceita resposta com 5 grupos de status",                       "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-004", "categoria": "happy",          "descricao": "dashboardInsightsResponseSchema aceita 3 insights com variantes default e warn",                  "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-005", "categoria": "sad",            "descricao": "dashboardKpisSchema rejeita campo total_pedidos ausente",                                          "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-006", "categoria": "sad",            "descricao": "dashboardKpisSchema rejeita valor_total_brl como string",                                          "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-007", "categoria": "sad",            "descricao": "dashboardTrendResponseSchema rejeita value como objeto (deve ser array)",                          "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-008", "categoria": "sad",            "descricao": "dashboardInsightsResponseSchema rejeita variante fora do enum (default | warn)",                   "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-009", "categoria": "sad",            "descricao": "dashboardDistributionResponseSchema rejeita count como string",                                    "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-010", "categoria": "edge",           "descricao": "dashboardKpisSchema aceita campos extras via passthrough (futuras métricas derivadas)",            "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-011", "categoria": "edge",           "descricao": "dashboardTrendResponseSchema aceita value: [] (período sem dados)",                                "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-012", "categoria": "edge",           "descricao": "dashboardInsightsResponseSchema aceita campos opcionais ausentes (stat, textoLink, rota)",         "origem": "agente-adicionado" },
+    { "id": "TST-UNI-PEDIDO-000001-013", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 03: schema rejeita campo legado 'status' (deve ser 'status_pedido' já agg.)", "origem": "regressao-mandamento-03" },
+    { "id": "TST-UNI-PEDIDO-000001-014", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 03: schema rejeita campo legado 'pedidos_draft' (deve ser 'pedidos_rascunho')", "origem": "regressao-mandamento-03" },
+    { "id": "TST-UNI-PEDIDO-000001-015", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 09: schema falha alto se backend remover valor_total_brl (sem fallback silencioso)", "origem": "regressao-mandamento-09" },
+    { "id": "TST-UNI-PEDIDO-000001-016", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 06: schema rejeita parse de undefined/null (toda resposta de API tem que ser objeto)", "origem": "regressao-mandamento-06" }
+  ],
+  "mocks": [],
+  "specFile": "testes/testes-unitarios/pedido/dashboard/dashboard-pedido-dados.test.ts",
+  "resumoExecutivo": "16 casos cobrindo os 4 schemas Zod das respostas de /api/v1/pedidos/dashboard/*. Foco em: (1) aceitar payloads válidos do backend; (2) rejeitar payloads malformados (sad path); (3) tolerar extras via passthrough; (4) PROTEGER contra regressão de Mandamentos 03, 06 e 09 — qualquer renome silencioso de campo no backend faz o parse() do client explodir e impede bug invisível. Zero dependências externas além do zod."
+}

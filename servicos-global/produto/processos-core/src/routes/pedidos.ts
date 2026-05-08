@@ -108,24 +108,64 @@ const criarPedidoObjectSchema = z.object({
 })
 
 /**
- * Regra cross-field Fase 4:
- *   - importacao → exige suid_exportador (quem vende ao nosso importador)
- *   - exportacao → exige suid_importador (quem compra do nosso exportador)
- * suid_fabricante permanece opcional nos dois tipos.
+ * Regra cross-field Fase 4 + Regra empresa-da-org (lado-da-organização):
+ *   - importacao → exige suid_importador (empresa-da-org) E suid_exportador
+ *     (contraparte estrangeira). Os dois SUIDs devem ser DIFERENTES.
+ *   - exportacao → exige suid_exportador (empresa-da-org) E suid_importador
+ *     (contraparte). Idem.
+ *   - suid_fabricante permanece opcional nos dois tipos.
+ *
+ * O frontend (ModalPedidoNovo) preenche o lado-da-org automaticamente via
+ * cadastrosApi.obterEmpresaDaOrganizacao(); aqui apenas garantimos que o
+ * payload chega consistente — Mand. 08 (sem fallback silencioso).
  */
 export const criarPedidoSchema = criarPedidoObjectSchema.superRefine((data, ctx) => {
-  if (data.tipo_operacao === 'importacao' && !data.suid_exportador) {
+  // Importação exige AMBOS os lados (org=importador, contraparte=exportador)
+  if (data.tipo_operacao === 'importacao') {
+    if (!data.suid_importador) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['suid_importador'],
+        message: 'suid_importador (empresa-da-org) e obrigatorio quando tipo_operacao = importacao',
+      })
+    }
+    if (!data.suid_exportador) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['suid_exportador'],
+        message: 'suid_exportador e obrigatorio quando tipo_operacao = importacao',
+      })
+    }
+  }
+
+  // Exportação exige AMBOS os lados (org=exportador, contraparte=importador)
+  if (data.tipo_operacao === 'exportacao') {
+    if (!data.suid_exportador) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['suid_exportador'],
+        message: 'suid_exportador (empresa-da-org) e obrigatorio quando tipo_operacao = exportacao',
+      })
+    }
+    if (!data.suid_importador) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['suid_importador'],
+        message: 'suid_importador e obrigatorio quando tipo_operacao = exportacao',
+      })
+    }
+  }
+
+  // Auto-referência: a mesma empresa nao pode ser importador E exportador no mesmo pedido
+  if (
+    data.suid_importador &&
+    data.suid_exportador &&
+    data.suid_importador === data.suid_exportador
+  ) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['suid_exportador'],
-      message: 'suid_exportador e obrigatorio quando tipo_operacao = importacao',
-    })
-  }
-  if (data.tipo_operacao === 'exportacao' && !data.suid_importador) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['suid_importador'],
-      message: 'suid_importador e obrigatorio quando tipo_operacao = exportacao',
+      message: 'suid_importador e suid_exportador devem ser empresas diferentes',
     })
   }
 })

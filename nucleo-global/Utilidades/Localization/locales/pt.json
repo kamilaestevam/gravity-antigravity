@@ -3686,6 +3686,7 @@
     "cadastro_empresa": {
       "titulo": "Cadastrar Empresa",
       "cadastrar_nova": "+ Cadastrar nova empresa...",
+      "cadastrar_nova_curto": "+ Nova",
       "papel_importador": "Importador",
       "papel_exportador": "Exportador",
       "papel_fabricante": "Fabricante",

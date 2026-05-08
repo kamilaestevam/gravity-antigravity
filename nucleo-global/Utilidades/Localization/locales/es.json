@@ -4025,6 +4025,7 @@
     "cadastro_empresa": {
       "titulo": "Registrar Empresa",
       "cadastrar_nova": "+ Registrar nueva empresa...",
+      "cadastrar_nova_curto": "+ Nueva",
       "papel_importador": "Importador",
       "papel_exportador": "Exportador",
       "papel_fabricante": "Fabricante",

@@ -3880,6 +3880,7 @@
     "cadastro_empresa": {
       "titulo": "Register Company",
       "cadastrar_nova": "+ Register new company...",
+      "cadastrar_nova_curto": "+ New",
       "papel_importador": "Importer",
       "papel_exportador": "Exporter",
       "papel_fabricante": "Manufacturer",

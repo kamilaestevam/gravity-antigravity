@@ -13,7 +13,7 @@
  * Para producao, instalar xlsx e csv-parse.
  */
 
-import { AppError } from './saldoEngine.js'
+import { AppError } from './saldo-pedido.js'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 

@@ -20,7 +20,8 @@ export function errorHandler(
 
   console.error(
     `[INTERNAL_ERROR] correlation:${(req as Request & { correlationId?: string }).correlationId ?? 'n/a'}`,
-    err.message
+    err.message,
+    err.stack,
   )
   res.status(500).json({
     error: { code: 'INTERNAL_ERROR', message: 'Erro interno do servidor' },

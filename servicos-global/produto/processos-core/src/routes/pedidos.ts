@@ -28,7 +28,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
-import { saldoEngine, AppError } from '../services/saldoEngine.js'
+import { saldoPedido, AppError } from '../services/saldo-pedido.js'
 import {
   parsearFormula,
   avaliarFormula,
@@ -1231,10 +1231,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
+      const idOrganizacao = ctx.idOrganizacao
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id_pedido, tenant_id },
+        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
       })
 
       if (!pedido) {
@@ -1253,10 +1253,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       }
 
       // Validação por tipo_operacao para campos de parceiros
-      if (campo === 'nome_exportador' && pedido.tipo_operacao === 'exportacao') {
+      if (campo === 'nome_exportador' && pedido.tipo_operacao_pedido === 'exportacao') {
         throw new AppError(400, 'nome_exportador nao pode ser editado em pedidos de exportacao — vem do Configurador')
       }
-      if (campo === 'nome_importador' && pedido.tipo_operacao === 'importacao') {
+      if (campo === 'nome_importador' && pedido.tipo_operacao_pedido === 'importacao') {
         throw new AppError(400, 'nome_importador nao pode ser editado em pedidos de importacao — vem do Configurador')
       }
 
@@ -1264,7 +1264,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       if (CAMPOS_RECALCULAVEIS.has(campo)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const itens = await db.pedidoItem.findMany({
-          where: { id_pedido: req.params.id_pedido, id_organizacao: tenant_id },
+          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
         }) as any[]
 
         const dadosRecalc: Record<string, unknown> = {}
@@ -1298,13 +1298,13 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
 
         if (Object.keys(dadosRecalc).length > 0) {
           await db.pedido.update({
-            where: { id: req.params.id_pedido },
+            where: { id_pedido: req.params.id_pedido },
             data: dadosRecalc,
           })
         }
 
         const updatedRecalc = await db.pedido.findFirst({
-          where: { id: req.params.id_pedido, tenant_id },
+          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
           include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
         })
         return res.json(mapPedido(updatedRecalc))
@@ -1343,7 +1343,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       }
 
       const updated = await db.pedido.update({
-        where: { id: req.params.id_pedido },
+        where: { id_pedido: req.params.id_pedido },
         data: dadosUpdate,
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
@@ -1351,7 +1351,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
       if (isPropagavel(campo)) {
         await db.pedidoItem.updateMany({
-          where: { id_pedido: req.params.id_pedido, id_organizacao: tenant_id },
+          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
           data: { [campo]: valor === undefined ? null : valor },
         })
       }
@@ -1371,14 +1371,14 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const idOrganizacao = ctx.idOrganizacao
+      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const original = await db.pedido.findFirst({
-        where: { id: req.params.id_pedido, tenant_id, company_id },
+        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
         include: {
-          itens_pedido: { orderBy: { sequencia_item: 'asc' } },
-          snapshots_empresa: true,
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+          snapshots_empresa_pedido: true,
         },
       })
 
@@ -1396,42 +1396,42 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
 
       const duplicado = await db.pedido.create({
         data: {
-          id: novoPedidoId,
-          tenant_id,
-          company_id,
-          tipo_operacao: original.tipo_operacao,
+          id_pedido: novoPedidoId,
+          id_organizacao: idOrganizacao,
+          id_workspace: idWorkspace,
+          tipo_operacao_pedido: original.tipo_operacao_pedido,
           numero_pedido: `${original.numero_pedido}-COPIA`,
-          status: 'draft',
-          incoterm: original.incoterm,
+          status_pedido: 'draft',
+          incoterm_pedido: original.incoterm_pedido,
           moeda_pedido: original.moeda_pedido,
           valor_total_pedido: original.valor_total_pedido,
           casas_decimais_valor_pedido: original.casas_decimais_valor_pedido,
-          quantidade_total_inicial_pedido: original.quantidade_total_inicial_pedido,
+          quantidade_total_pedido: original.quantidade_total_pedido,
           casas_decimais_quantidade_pedido: original.casas_decimais_quantidade_pedido,
           unidade_comercializada_pedido: original.unidade_comercializada_pedido,
-          condicao_pagamento: original.condicao_pagamento,
-          detalhes_operacionais: original.detalhes_operacionais,
-          itens: {
+          condicao_pagamento_pedido: original.condicao_pagamento_pedido,
+          detalhes_operacionais_pedido: original.detalhes_operacionais_pedido,
+          itens_pedido: {
             create: itensOriginais.map((item) => ({
-              id: gerarId('pite'),
-              tenant_id,
-              company_id,
-              sequencia_item: item.sequencia_item,
-              part_number: item.part_number,
-              ncm: item.ncm,
+              id_item: gerarId('pite'),
+              id_organizacao: idOrganizacao,
+              id_workspace: idWorkspace,
+              sequencia_item_pedido: item.sequencia_item_pedido,
+              part_number_item: item.part_number_item,
+              ncm_item: item.ncm_item,
               descricao_item: item.descricao_item,
-              quantidade_inicial_pedido: item.quantidade_inicial_pedido,
-              quantidade_atual_pedido: item.quantidade_inicial_pedido,
+              quantidade_inicial_item: item.quantidade_inicial_item,
+              quantidade_atual_item: item.quantidade_inicial_item,
               casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
               valor_por_unidade_item: item.valor_por_unidade_item,
               valor_total_item: item.valor_total_item,
               casas_decimais_valor_item: item.casas_decimais_valor_item,
-              cobertura_cambial: item.cobertura_cambial,
+              cobertura_cambial_item: item.cobertura_cambial_item,
             })),
           },
-          snapshots_empresa: snapshotsOriginais.length
+          snapshots_empresa_pedido: snapshotsOriginais.length
             ? {
                 create: snapshotsOriginais.map((snap) => ({
                   id_organizacao: snap.id_organizacao,
@@ -1465,7 +1465,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
         },
         include: {
           itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
-          snapshots_empresa: true,
+          snapshots_empresa_pedido: true,
         },
       })
 
@@ -1478,7 +1478,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
 
 // ── POST /:id/itens — Adicionar item ──────────────────────────────────────────
 
-pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next: NextFunction) => {
   const result = criarItemSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
@@ -1489,31 +1489,31 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const idOrganizacao = ctx.idOrganizacao
+      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
       })
 
       if (!pedido) {
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      if (!['draft', 'aberto'].includes(pedido.status)) {
+      if (!['draft', 'aberto'].includes(pedido.status_pedido)) {
         throw new AppError(400, 'Itens so podem ser adicionados em pedidos Draft ou Aberto')
       }
 
       const itemCount = await db.pedidoItem.count({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
       })
 
       // Traduz chaves do schema público (criarItemSchema) para nomes DDD Prisma
       const itemData: Record<string, unknown> = {
         id_item: gerarId('pite'),
-        id_organizacao: tenant_id,
-        id_workspace:   company_id,
-        id_pedido:      req.params.id,
+        id_organizacao: idOrganizacao,
+        id_workspace:   idWorkspace,
+        id_pedido:      req.params.id_pedido,
         sequencia_item_pedido: result.data.sequencia_item ?? (itemCount + 1),
         part_number_item:                 result.data.part_number,
         ncm_item:                         result.data.ncm,
@@ -1570,7 +1570,7 @@ const publicToDddItem: Record<string, string> = {
 
 // ── PUT /:id/itens/:itemId — Atualizar item ──────────────────────────────────
 
-pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Response, next: NextFunction) => {
   const result = atualizarItemSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
@@ -1581,10 +1581,10 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
+      const idOrganizacao = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.id_item, id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
       })
 
       if (!item) {
@@ -1607,7 +1607,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       }
 
       const updated = await db.pedidoItem.update({
-        where: { id_item: req.params.itemId },
+        where: { id_item: req.params.id_item },
         data: prismaData,
       })
 
@@ -1719,7 +1719,7 @@ const CAMPOS_EDITAVEIS_ITEM_NUMERICOS = new Set([
   'valor_por_unidade_item',
 ])
 
-pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { campo, valor } = req.body as { campo: string; valor: unknown }
     const ehTexto   = CAMPOS_EDITAVEIS_ITEM.has(campo)
@@ -1743,10 +1743,10 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
+      const idOrganizacao = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.id_item, id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
       })
       if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
 
@@ -1759,7 +1759,7 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // ── Campos texto/enum — update simples ────────────────────────────────────
       if (ehTexto) {
         const updated = await db.pedidoItem.update({
-          where: { id_item: req.params.itemId },
+          where: { id_item: req.params.id_item },
           data: { [campoDdd]: valor === undefined ? null : valor },
         })
         return res.json(mapItem(updated))
@@ -1779,8 +1779,8 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // Importante: o evaluator do backend é port do client — ambos devem
       // produzir os mesmos resultados para a mesma fórmula e contexto.
       const [saldoCfg, casasCfg] = await Promise.all([
-        db.pedidoSaldoFormula.findUnique({ where: { id_organizacao: tenant_id } }),
-        db.pedidoCasasDecimais.findUnique({ where: { id_organizacao: tenant_id } }),
+        db.pedidoSaldoFormula.findUnique({ where: { id_organizacao: idOrganizacao } }),
+        db.pedidoCasasDecimais.findUnique({ where: { id_organizacao: idOrganizacao } }),
       ])
 
       const formulaExpressao: string = saldoCfg?.formula_expressao_pedido_saldo_formula ?? SALDO_FORMULA_PADRAO
@@ -1835,7 +1835,7 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
 
       const updated = await db.pedidoItem.update({
-        where: { id_item: req.params.itemId },
+        where: { id_item: req.params.id_item },
         data: {
           [campoDdd]:                          valorNumerico,
           quantidade_atual_item: saldo_novo,
@@ -1851,16 +1851,16 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
 
 // ── DELETE /:id/itens/:itemId — Remover item ──────────────────────────────────
 
-pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.delete('/:id_pedido/itens/:id_item', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
+      const idOrganizacao = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.id_item, id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
       })
 
       if (!item) {
@@ -1871,7 +1871,7 @@ pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, n
         throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
       }
 
-      await db.pedidoItem.delete({ where: { id_item: req.params.itemId } })
+      await db.pedidoItem.delete({ where: { id_item: req.params.id_item } })
       res.status(204).send()
     })
   } catch (err) {
@@ -1881,7 +1881,7 @@ pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, n
 
 // ── PATCH /:id/itens/:itemId/cancelar — Cancelar quantidade ───────────────────
 
-pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.patch('/:id_pedido/itens/:id_item/cancelar', async (req: Request, res: Response, next: NextFunction) => {
   const result = cancelarQuantidadeSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
@@ -1892,14 +1892,14 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const idOrganizacao = ctx.idOrganizacao
+      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
-      const saldo = await saldoEngine.cancelar(db, {
-        pedido_item_id: req.params.itemId,
+      const saldo = await saldoPedido.cancelar(db, {
+        pedido_item_id: req.params.id_item,
         quantidade: result.data.quantidade,
-        tenant_id,
-        company_id,
+        id_organizacao: idOrganizacao,
+        id_workspace: idWorkspace,
       })
 
       res.json(mapItem(saldo as unknown as PedidoItemRaw))
@@ -1911,7 +1911,7 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
 
 // ── PATCH /:id/itens/:itemId/pronta — Atualizar quantidade pronta ─────────────
 
-pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.patch('/:id_pedido/itens/:id_item/pronta', async (req: Request, res: Response, next: NextFunction) => {
   const result = atualizarProntaSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
@@ -1922,14 +1922,14 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const idOrganizacao = ctx.idOrganizacao
+      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
-      const saldo = await saldoEngine.atualizarPronta(db, {
-        pedido_item_id: req.params.itemId,
+      const saldo = await saldoPedido.atualizarPronta(db, {
+        pedido_item_id: req.params.id_item,
         quantidade_pronta: result.data.quantidade_pronta_pedido,
-        tenant_id,
-        company_id,
+        id_organizacao: idOrganizacao,
+        id_workspace: idWorkspace,
       })
 
       res.json(mapItem(saldo as unknown as PedidoItemRaw))

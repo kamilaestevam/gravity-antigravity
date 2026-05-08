@@ -15,7 +15,7 @@
 import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { AppError } from '../services/saldoEngine.js'
+import { AppError } from '../services/saldo-pedido.js'
 
 export const pedidosLoteRouter = Router()
 

@@ -29,8 +29,8 @@ import { pedidosLoteRouter } from '../../../processos-core/src/routes/pedidos-lo
 import { dashboardWidgetsRouter } from './routes/widgets-dashboard-processo.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
-import { apiObservability } from '../../../middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

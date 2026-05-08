@@ -297,6 +297,12 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [carregandoEmpresas, setCarregandoEmpresas]   = useState(false)
   const [cadastroEmpresaPapel, setCadastroEmpresaPapel] = useState<PapelEmpresaRapido | null>(null)
 
+  // DIAG-CASCATA — observar mudança de estado do modal cascateado
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[ModalPedidoNovo] cadastroEmpresaPapel =', cadastroEmpresaPapel)
+  }, [cadastroEmpresaPapel])
+
   useEffect(() => {
     if (!aberto) return
     let cancelado = false
@@ -491,7 +497,11 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
             carregandoEmpresas={carregandoEmpresas}
-            aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
+            aoCadastrarNova={(papel) => {
+              // eslint-disable-next-line no-console
+              console.log('[ModalPedidoNovo] aoCadastrarNova recebido papel=', papel)
+              setCadastroEmpresaPapel(papel)
+            }}
           />
         )}
         {passo === 2 && (
@@ -521,6 +531,98 @@ interface OpcaoEmpresaSelect {
   valor: string
   rotulo: string
   descricao?: string
+}
+
+/**
+ * Campo composto: label-row com texto à esquerda e link "+ Nova" à direita,
+ * seguido do SelectGlobal sem label (para evitar duplicação visual).
+ * Foi extraído para encapsular o atalho "+ Cadastrar nova" — o click é direto
+ * em <button> regular, sem depender de injeção de opção no SelectGlobal.
+ */
+function CampoEmpresaSelect({
+  label,
+  opcoes,
+  valor,
+  carregando,
+  onSelecionar,
+  onCadastrarNova,
+  labelNova,
+  placeholder,
+}: {
+  label: string
+  opcoes: OpcaoEmpresaSelect[]
+  valor: string | null
+  carregando: boolean
+  onSelecionar: (v: string | number | null) => void
+  onCadastrarNova: () => void
+  labelNova: string
+  placeholder: string
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted, #94a3b8)',
+          }}
+        >
+          {label}
+        </span>
+        <button
+          type="button"
+          data-diag="botao-cadastrar-nova-empresa"
+          onMouseDown={(e) => {
+            // eslint-disable-next-line no-console
+            console.log('[CampoEmpresaSelect] onMouseDown disparou', e.button)
+          }}
+          onClick={(e) => {
+            // eslint-disable-next-line no-console
+            console.log('[CampoEmpresaSelect] onClick disparou — chamando onCadastrarNova')
+            e.preventDefault()
+            e.stopPropagation()
+            onCadastrarNova()
+          }}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--ws-accent, #818cf8)',
+            fontSize: '0.6875rem',
+            fontWeight: 500,
+            padding: 0,
+            cursor: 'pointer',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.textDecoration = 'none'
+          }}
+        >
+          {labelNova}
+        </button>
+      </div>
+      <SelectGlobal
+        opcoes={opcoes}
+        valor={valor}
+        aoMudarValor={onSelecionar}
+        buscavel
+        carregando={carregando}
+        placeholder={placeholder}
+      />
+    </div>
+  )
 }
 
 function Passo1Dados({
@@ -582,98 +684,47 @@ function Passo1Dados({
             </span>
           )}
         </div>
-        {/* B3 — SelectGlobal carrega empresas do Cadastros + botão
-            "+ Cadastrar nova" logo abaixo (fora do dropdown, click direto). */}
+        {/* B3 — SelectGlobal carrega empresas do Cadastros. Atalho discreto
+            "+ Nova" como link inline no header da label, à direita. */}
         {form.tipo_operacao === 'importacao' && (
           <div style={s.campo}>
-            <SelectGlobal
+            <CampoEmpresaSelect
               label={t('pedido.drawer.label_exportador')}
               opcoes={opcoesExportador}
               valor={form.suid_exportador || null}
-              aoMudarValor={(v) => onChange('suid_exportador', String(v ?? ''))}
-              buscavel
               carregando={carregandoEmpresas}
+              onSelecionar={(v) => onChange('suid_exportador', String(v ?? ''))}
+              onCadastrarNova={() => aoCadastrarNova('exportador')}
+              labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
               placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
             />
-            <button
-              type="button"
-              onClick={() => aoCadastrarNova('exportador')}
-              style={{
-                marginTop: '0.375rem',
-                background: 'transparent',
-                border: '1px dashed var(--border-subtle, #333)',
-                color: 'var(--ws-accent, #818cf8)',
-                fontSize: '0.75rem',
-                padding: '0.375rem 0.5rem',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-              }}
-            >
-              {t('pedido.cadastro_empresa.cadastrar_nova')}
-            </button>
           </div>
         )}
         {form.tipo_operacao === 'exportacao' && (
           <div style={s.campo}>
-            <SelectGlobal
+            <CampoEmpresaSelect
               label={t('pedido.drawer.label_importador', 'Importador')}
               opcoes={opcoesImportador}
               valor={form.suid_importador || null}
-              aoMudarValor={(v) => onChange('suid_importador', String(v ?? ''))}
-              buscavel
               carregando={carregandoEmpresas}
+              onSelecionar={(v) => onChange('suid_importador', String(v ?? ''))}
+              onCadastrarNova={() => aoCadastrarNova('importador')}
+              labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
               placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
             />
-            <button
-              type="button"
-              onClick={() => aoCadastrarNova('importador')}
-              style={{
-                marginTop: '0.375rem',
-                background: 'transparent',
-                border: '1px dashed var(--border-subtle, #333)',
-                color: 'var(--ws-accent, #818cf8)',
-                fontSize: '0.75rem',
-                padding: '0.375rem 0.5rem',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-              }}
-            >
-              {t('pedido.cadastro_empresa.cadastrar_nova')}
-            </button>
           </div>
         )}
         <div style={s.campo}>
-          <SelectGlobal
+          <CampoEmpresaSelect
             label={t('pedido.drawer.label_fabricante')}
             opcoes={opcoesFabricante}
             valor={form.suid_fabricante || null}
-            aoMudarValor={(v) => onChange('suid_fabricante', String(v ?? ''))}
-            buscavel
             carregando={carregandoEmpresas}
+            onSelecionar={(v) => onChange('suid_fabricante', String(v ?? ''))}
+            onCadastrarNova={() => aoCadastrarNova('fabricante')}
+            labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
             placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
           />
-          <button
-            type="button"
-            onClick={() => aoCadastrarNova('fabricante')}
-            style={{
-              marginTop: '0.375rem',
-              background: 'transparent',
-              border: '1px dashed var(--border-subtle, #333)',
-              color: 'var(--ws-accent, #818cf8)',
-              fontSize: '0.75rem',
-              padding: '0.375rem 0.5rem',
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
-              width: '100%',
-              textAlign: 'left',
-            }}
-          >
-            {t('pedido.cadastro_empresa.cadastrar_nova')}
-          </button>
         </div>
         <div style={s.campo}>
           <SelectGlobal

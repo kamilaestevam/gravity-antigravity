@@ -27,7 +27,7 @@ import {
   type OPE,
   type Unidade,
 } from '../../../../cadastros/shared/schemas/index.js'
-import { AppError } from './saldoEngine.js'
+import { AppError } from './saldo-pedido.js'
 
 const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
 const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''

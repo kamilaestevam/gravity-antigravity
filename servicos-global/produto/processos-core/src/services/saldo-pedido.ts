@@ -1,5 +1,5 @@
 /**
- * saldoEngine.ts — Motor de saldo do PedidoItem
+ * saldo-pedido.ts — Motor de saldo do PedidoItem
  *
  * Implementa a Matematica de Saldo Imutavel:
  *   quantidade_inicial = quantidade_atual + quantidade_transferida + quantidade_cancelada
@@ -34,22 +34,22 @@ export class AppError extends Error {
 interface TransferirInput {
   pedido_item_id: string
   quantidade: number
-  tenant_id: string
-  company_id: string
+  id_organizacao: string
+  id_workspace: string
 }
 
 interface CancelarInput {
   pedido_item_id: string
   quantidade: number
-  tenant_id: string
-  company_id: string
+  id_organizacao: string
+  id_workspace: string
 }
 
 interface AtualizarProntaInput {
   pedido_item_id: string
   quantidade_pronta: number
-  tenant_id: string
-  company_id: string
+  id_organizacao: string
+  id_workspace: string
 }
 
 // Shape DDD — alinhado com colunas físicas de "pedido_itens" pós rename Onda 3.
@@ -65,14 +65,14 @@ interface SaldoResult {
 
 // ── Engine ────────────────────────────────────────────────────────────────────
 
-export const saldoEngine = {
+export const saldoPedido = {
   /**
    * Transferir quantidade de um PedidoItem para um Processo.
    * Debita quantidade_atual, credita quantidade_transferida.
    * Operacao atomica com validacao anti-sobre-execucao.
    */
   async transferir(prisma: PrismaClient, input: TransferirInput): Promise<SaldoResult> {
-    const { pedido_item_id, quantidade, tenant_id, company_id } = input
+    const { pedido_item_id, quantidade, id_organizacao, id_workspace } = input
 
     if (quantidade <= 0) {
       throw new AppError(400, 'Quantidade deve ser maior que zero')
@@ -81,7 +81,7 @@ export const saldoEngine = {
     return prisma.$transaction(async (tx0: unknown) => {
       const tx = tx0 as Tx
       const item = await tx.pedidoItem.findFirst({
-        where: { id_item: pedido_item_id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: { id_item: pedido_item_id, id_organizacao, id_workspace },
       })
 
       if (!item) {
@@ -104,7 +104,7 @@ export const saldoEngine = {
       })
 
       // Atualizar status do pedido pai se necessario
-      await atualizarStatusPedido(tx, item.id_pedido, tenant_id, company_id)
+      await atualizarStatusPedido(tx, item.id_pedido, id_organizacao, id_workspace)
 
       return {
         id_item:                            updated.id_item,
@@ -123,7 +123,7 @@ export const saldoEngine = {
    * Operacao irreversivel.
    */
   async cancelar(prisma: PrismaClient, input: CancelarInput): Promise<SaldoResult> {
-    const { pedido_item_id, quantidade, tenant_id, company_id } = input
+    const { pedido_item_id, quantidade, id_organizacao, id_workspace } = input
 
     if (quantidade <= 0) {
       throw new AppError(400, 'Quantidade deve ser maior que zero')
@@ -132,7 +132,7 @@ export const saldoEngine = {
     return prisma.$transaction(async (tx0: unknown) => {
       const tx = tx0 as Tx
       const item = await tx.pedidoItem.findFirst({
-        where: { id_item: pedido_item_id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: { id_item: pedido_item_id, id_organizacao, id_workspace },
       })
 
       if (!item) {
@@ -154,7 +154,7 @@ export const saldoEngine = {
         },
       })
 
-      await atualizarStatusPedido(tx, item.id_pedido, tenant_id, company_id)
+      await atualizarStatusPedido(tx, item.id_pedido, id_organizacao, id_workspace)
 
       return {
         id_item:                            updated.id_item,
@@ -172,7 +172,7 @@ export const saldoEngine = {
    * Informativo — nao afeta a formula de saldo.
    */
   async atualizarPronta(prisma: PrismaClient, input: AtualizarProntaInput): Promise<SaldoResult> {
-    const { pedido_item_id, quantidade_pronta, tenant_id, company_id } = input
+    const { pedido_item_id, quantidade_pronta, id_organizacao, id_workspace } = input
 
     if (quantidade_pronta < 0) {
       throw new AppError(400, 'Quantidade pronta nao pode ser negativa')
@@ -182,7 +182,7 @@ export const saldoEngine = {
     const db = prisma as any
 
     const item = await db.pedidoItem.findFirst({
-      where: { id_item: pedido_item_id, id_organizacao: tenant_id, id_workspace: company_id },
+      where: { id_item: pedido_item_id, id_organizacao, id_workspace },
     })
 
     if (!item) {
@@ -222,11 +222,11 @@ export const saldoEngine = {
 async function atualizarStatusPedido(
   tx: Tx,
   pedido_id: string,
-  tenant_id: string,
-  company_id: string,
+  id_organizacao: string,
+  id_workspace: string,
 ): Promise<void> {
   const itens = await tx.pedidoItem.findMany({
-    where: { id_pedido: pedido_id, id_organizacao: tenant_id, id_workspace: company_id },
+    where: { id_pedido: pedido_id, id_organizacao, id_workspace },
   })
 
   if (itens.length === 0) return

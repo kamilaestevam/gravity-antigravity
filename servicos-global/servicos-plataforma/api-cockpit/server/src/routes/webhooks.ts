@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { generateWebhookSecret, generateHMACSignature } from '../crypto'
-import { requireAuth, tenantIsolation } from '../../../middleware/src'
+import { requireInternalKey } from '../middleware/requireInternalKey'
 
 export const webhooksRouter = Router()
 const prisma = new PrismaClient()
@@ -19,8 +19,8 @@ const updateWebhookSchema = z.object({
   is_active: z.boolean().optional()
 })
 
-webhooksRouter.use(requireAuth)
-webhooksRouter.use(tenantIsolation)
+// migrado para S2S
+webhooksRouter.use(requireInternalKey)
 
 webhooksRouter.get('/', async (req, res, next) => {
   try {

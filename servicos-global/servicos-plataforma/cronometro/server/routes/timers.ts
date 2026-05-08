@@ -164,8 +164,11 @@ function emitTimerEvent(
 
 export const timersRouter = Router()
 
-// Todas as rotas requerem autenticação
-timersRouter.use(requireAuth)
+// Todas as rotas DESTE router requerem autenticacao.
+// Restringe o middleware aos paths reais do cronometro (/cronometros e
+// /atividades) — sem isso, vaza pra outros services montados em /api/v1
+// (gabi, dashboard, etc.) e quebra chamadas legitimas com 401/500.
+timersRouter.use(['/cronometros', '/atividades'], requireAuth)
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/cronometros/stream

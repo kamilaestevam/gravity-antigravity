@@ -52,25 +52,19 @@ const querySchema = z.object({
  * Falha parcial (org X cai no meio) NAO derruba a resposta — log de erro
  * por org, retorna o que conseguiu somar.
  */
-adminRouter.get('/api/v1/gabi/admin/uso-global', async (req, res, _next) => {
-  // DEBUG: marcador para confirmar reload
-  const debugSteps: string[] = ['route_entered']
+adminRouter.get('/api/v1/gabi/admin/uso-global', async (req, res, next) => {
   try {
     const { month } = querySchema.parse(req.query)
-    debugSteps.push('zod_ok')
 
     const now = new Date()
     const targetMonth = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
     const [year, mon] = targetMonth.split('-').map(Number)
     const startDate = new Date(year, mon - 1, 1)
     const endDate   = new Date(year, mon, 1)
-    debugSteps.push('dates_ok')
 
     // 1. Listar organizacoes ativas
     const organizacoes = await listarOrganizacoes()
-    debugSteps.push(`orgs_listadas:${organizacoes.length}`)
 
-    debugSteps.push('iniciando_queries')
     // 2. Query cross-schema em paralelo. allSettled para tolerar falha parcial.
     const resultados = await Promise.allSettled(
       organizacoes.map(async (org) => {
@@ -148,13 +142,7 @@ adminRouter.get('/api/v1/gabi/admin/uso-global', async (req, res, _next) => {
   } catch (err) {
     console.error('[gabi/admin/uso-global] erro fatal', {
       mensagem: err instanceof Error ? err.message : String(err),
-      stack:    err instanceof Error ? err.stack    : undefined,
     })
-    // DEBUG TEMPORARIO: expor erro no body pra diagnostico (remover apos resolver)
-    res.status(500).json({
-      _debug_steps:       debugSteps,
-      _debug_erro:        err instanceof Error ? err.message : String(err),
-      _debug_stack_top:   err instanceof Error && err.stack ? err.stack.split('\n').slice(0, 5).join(' | ') : undefined,
-    })
+    next(err)
   }
 })

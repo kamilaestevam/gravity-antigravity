@@ -18,6 +18,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, CheckCircle, ArrowRight } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import type {
   Pedido,
@@ -28,7 +29,7 @@ import type {
   TransferPreview,
   TransferResultado,
 } from '../shared/types'
-import { pedidoTransferirApi } from '../shared/api'
+import { pedidoTransferirApi, pedidoApi } from '../shared/api'
 import { fmtQuantidade } from '../shared/types'
 
 // ── Definição de Cenários ─────────────────────────────────────────────────────
@@ -283,6 +284,9 @@ interface ConfigurarDestinosProps {
   destinos: TransferDestino[]
   numeroPedidoNovo: string
   itemSelecionado: PedidoItem | undefined
+  pedidosDestinoDisponiveis: Pedido[]
+  carregandoPedidosDestino: boolean
+  erroPedidosDestino: string | null
   onDestinosChange: (d: TransferDestino[]) => void
   onNumeroPedidoChange: (n: string) => void
 }
@@ -293,6 +297,9 @@ function ConfigurarDestinos({
   destinos,
   numeroPedidoNovo,
   itemSelecionado,
+  pedidosDestinoDisponiveis,
+  carregandoPedidosDestino,
+  erroPedidosDestino,
   onDestinosChange,
   onNumeroPedidoChange,
 }: ConfigurarDestinosProps) {
@@ -323,18 +330,26 @@ function ConfigurarDestinos({
 
           {cenario === 'split_pedido_existente' && (
             <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-pedido-id-${idx}`}>
-                {t('pedido.modal_transf.destino_id_label')}
-              </label>
-              <input
-                id={`destino-pedido-id-${idx}`}
-                type="text"
-                className="modal-transferir__input"
-                value={destino.pedido_id ?? ''}
-                onChange={e => atualizarDestino(idx, { pedido_id: e.target.value })}
+              <SelectGlobal
+                label={t('pedido.modal_transf.destino_id_label')}
                 placeholder={t('pedido.modal_transf.destino_id_placeholder')}
-                aria-required="true"
+                buscavel
+                carregando={carregandoPedidosDestino}
+                opcoes={pedidosDestinoDisponiveis.map(p => ({
+                  valor: p.id,
+                  rotulo: p.numero_pedido,
+                  descricao: p.referencia_importador ?? p.referencia_exportador ?? undefined,
+                }))}
+                valor={destino.pedido_id ?? null}
+                aoMudarValor={v => atualizarDestino(idx, { pedido_id: v != null ? String(v) : undefined })}
+                obrigatorio
               />
+              {erroPedidosDestino && (
+                <div className="modal-transferir__alerta" role="alert">
+                  <Warning size={14} weight="fill" aria-hidden="true" />
+                  {erroPedidosDestino}
+                </div>
+              )}
             </div>
           )}
 
@@ -488,6 +503,11 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
   /** Confirmação explícita do usuário quando pedidos são de tipos diferentes */
   const [confirmarTiposDivergentes, setConfirmarTiposDivergentes] = useState(false)
 
+  /** Lista de pedidos da MESMA tipo_operacao (sem o de origem) — Fase F */
+  const [pedidosDestinoDisponiveis, setPedidosDestinoDisponiveis] = useState<Pedido[]>([])
+  const [carregandoPedidosDestino, setCarregandoPedidosDestino] = useState(false)
+  const [erroPedidosDestino, setErroPedidosDestino] = useState<string | null>(null)
+
   // Fechar com Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -496,6 +516,30 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onFechar])
+
+  // Fase F: carrega pedidos elegíveis como destino quando entra no passo 3
+  // com cenário split_pedido_existente. Filtra pela mesma tipo_operacao_pedido
+  // do pedido de origem e remove o próprio pedido da lista.
+  useEffect(() => {
+    if (passo !== 3 || cenario !== 'split_pedido_existente' || !pedido) return
+    const tipo = pedido.tipo_operacao
+    if (!tipo) {
+      setErroPedidosDestino(t('pedido.modal_transf.erro_carregar_pedidos'))
+      return
+    }
+    setCarregandoPedidosDestino(true)
+    setErroPedidosDestino(null)
+    pedidoApi.listar({ tipo_operacao: tipo, limit: '500' })
+      .then((res: { data: Pedido[]; total: number }) => {
+        const lista = res.data ?? []
+        setPedidosDestinoDisponiveis(lista.filter(p => p.id !== pedido.id))
+      })
+      .catch((err: unknown) => {
+        setPedidosDestinoDisponiveis([])
+        setErroPedidosDestino(err instanceof Error ? err.message : t('pedido.modal_transf.erro_carregar_pedidos'))
+      })
+      .finally(() => setCarregandoPedidosDestino(false))
+  }, [passo, cenario, pedido, t])
 
   // Resetar destinos ao mudar cenário — pré-preenche quantidade com o valor do passo 2
   // Nota: quantidadeOrigemRef captura o valor atual sem re-executar o efeito quando ela muda,
@@ -752,6 +796,9 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                   destinos={destinos}
                   numeroPedidoNovo={numeroPedidoNovo}
                   itemSelecionado={itemSelecionado}
+                  pedidosDestinoDisponiveis={pedidosDestinoDisponiveis}
+                  carregandoPedidosDestino={carregandoPedidosDestino}
+                  erroPedidosDestino={erroPedidosDestino}
                   onDestinosChange={setDestinos}
                   onNumeroPedidoChange={setNumeroPedidoNovo}
                 />

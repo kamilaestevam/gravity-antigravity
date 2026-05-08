@@ -1036,7 +1036,7 @@ export function ProdutosGravityAdmin() {
                       tooltipDescricao="Montante fixo cobrado apenas no primeiro ciclo"
                     >
                       <div className="ws-input-icon-wrap">
-                        <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaSetup)}</span>
+                        <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaSetup)}</span>
                         <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
                       </div>
                     </CampoGeralGlobal>
@@ -1102,7 +1102,7 @@ export function ProdutosGravityAdmin() {
                     tooltipDescricao="Custo aplicado cada vez que um item adicional é consumido"
                   >
                     <div className="ws-input-icon-wrap">
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
+                      <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
                   </CampoGeralGlobal>
@@ -1112,7 +1112,7 @@ export function ProdutosGravityAdmin() {
                     tooltipDescricao="Menor valor possível a ser faturado em cada ciclo"
                   >
                     <div className="ws-input-icon-wrap">
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
+                      <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
                   </CampoGeralGlobal>
@@ -1122,7 +1122,7 @@ export function ProdutosGravityAdmin() {
                     tooltipDescricao="Custo fixo do serviço independentemente do volume consumido"
                   >
                     <div className="ws-input-icon-wrap">
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
+                      <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
                     </div>
                   </CampoGeralGlobal>
@@ -1202,7 +1202,7 @@ export function ProdutosGravityAdmin() {
 
                             <CampoGeralGlobal label={t('admin.produtos-gravity.tier_valor')}>
                               <div className="ws-input-icon-wrap">
-                                <span style={{ fontSize: '0.875rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
+                                <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaProduto)}</span>
                                 <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.preco_faixa_preco_produto_gravity} onChange={e => updateFaixa({ preco_faixa_preco_produto_gravity: mascaraMoeda(e.target.value) })} />
                               </div>
                             </CampoGeralGlobal>
@@ -1284,7 +1284,7 @@ export function ProdutosGravityAdmin() {
                         tooltipDescricao={t('admin.produtos-gravity.campo_valor_usuario_adicional_tooltip_desc')}
                       >
                         <div className="ws-input-icon-wrap">
-                          <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaUsuario)}</span>
+                          <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaUsuario)}</span>
                           <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
                         </div>
                       </CampoGeralGlobal>

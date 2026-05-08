@@ -119,8 +119,8 @@ export function ModalEmpresaCadastroRapido({
   const opcoesPais = useMemo(
     () =>
       paises.map((p) => ({
-        valor: p.codigo_pais,
-        rotulo: `${p.nome_pais_portugues} (${p.codigo_pais})`,
+        valor: p.codigo_pais_iso_alpha2,
+        rotulo: `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`,
       })),
     [paises],
   )

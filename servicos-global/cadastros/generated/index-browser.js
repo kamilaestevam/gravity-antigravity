@@ -157,6 +157,21 @@ exports.Prisma.EmpresaScalarFieldEnum = {
   atualizado_em_empresa: 'atualizado_em_empresa'
 };
 
+exports.Prisma.PaisScalarFieldEnum = {
+  id_pais: 'id_pais',
+  nome_pais_portugues: 'nome_pais_portugues',
+  nome_pais_ingles: 'nome_pais_ingles',
+  codigo_pais_portal_unico_siscomex: 'codigo_pais_portal_unico_siscomex',
+  codigo_pais_bacen_4: 'codigo_pais_bacen_4',
+  codigo_pais_bacen_5: 'codigo_pais_bacen_5',
+  codigo_pais_sped_nfe: 'codigo_pais_sped_nfe',
+  codigo_pais_sped_efd: 'codigo_pais_sped_efd',
+  codigo_pais_iso_alpha2: 'codigo_pais_iso_alpha2',
+  codigo_pais_iso_alpha3: 'codigo_pais_iso_alpha3',
+  codigo_pais_iso_numerico: 'codigo_pais_iso_numerico',
+  ativo_pais: 'ativo_pais'
+};
+
 exports.Prisma.MoedaScalarFieldEnum = {
   codigo_moeda: 'codigo_moeda',
   nome_moeda: 'nome_moeda',
@@ -282,6 +297,7 @@ exports.NcmSyncOrigemSincronizacao = exports.$Enums.NcmSyncOrigemSincronizacao =
 
 exports.Prisma.ModelName = {
   Empresa: 'Empresa',
+  Pais: 'Pais',
   Moeda: 'Moeda',
   Unidade: 'Unidade',
   NcmSync: 'NcmSync',

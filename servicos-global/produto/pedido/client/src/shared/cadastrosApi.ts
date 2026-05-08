@@ -65,7 +65,9 @@ export interface ListaEmpresas {
 }
 
 export interface Pais {
-  codigo_pais: string                 // ISO-2 (BR, US, CN...)
+  id_pais: string
+  codigo_pais_iso_alpha2: string      // ISO-2 (BR, US, CN...)
+  codigo_pais_iso_alpha3: string      // ISO-3 (BRA, USA, CHN...)
   nome_pais_portugues: string
   nome_pais_ingles: string
   ativo_pais: boolean

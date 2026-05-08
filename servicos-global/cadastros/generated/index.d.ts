@@ -19,6 +19,16 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
 /**
+ * Model Pais
+ * Pais — fonte única da verdade para país no monorepo Gravity.
+ * 252 países seedeados de planilha consolidada (RFB + BACEN + SPED + ISO).
+ * Toda entidade que referencia país (Empresa, Workspace, Organizacao,
+ * AgenteCarga, Seguradora, etc.) deve apontar para id_pais (lookup lógico
+ * cross-banco — sem FK física pois entidades vivem em DBs distintos).
+ * Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+ */
+export type Pais = $Result.DefaultSelection<Prisma.$PaisPayload>
+/**
  * Model Moeda
  * 
  */
@@ -216,6 +226,16 @@ export class PrismaClient<
     * ```
     */
   get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
+
+  /**
+   * `prisma.pais`: Exposes CRUD operations for the **Pais** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Pais
+    * const pais = await prisma.pais.findMany()
+    * ```
+    */
+  get pais(): Prisma.PaisDelegate<ExtArgs>;
 
   /**
    * `prisma.moeda`: Exposes CRUD operations for the **Moeda** model.
@@ -728,6 +748,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Empresa: 'Empresa',
+    Pais: 'Pais',
     Moeda: 'Moeda',
     Unidade: 'Unidade',
     NcmSync: 'NcmSync',
@@ -750,7 +771,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "moeda" | "unidade" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -821,6 +842,76 @@ export namespace Prisma {
           count: {
             args: Prisma.EmpresaCountArgs<ExtArgs>
             result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
+          }
+        }
+      }
+      Pais: {
+        payload: Prisma.$PaisPayload<ExtArgs>
+        fields: Prisma.PaisFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaisFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaisFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          findFirst: {
+            args: Prisma.PaisFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaisFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          findMany: {
+            args: Prisma.PaisFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>[]
+          }
+          create: {
+            args: Prisma.PaisCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          createMany: {
+            args: Prisma.PaisCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaisCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>[]
+          }
+          delete: {
+            args: Prisma.PaisDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          update: {
+            args: Prisma.PaisUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaisDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaisUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PaisUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaisPayload>
+          }
+          aggregate: {
+            args: Prisma.PaisAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePais>
+          }
+          groupBy: {
+            args: Prisma.PaisGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaisGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaisCountArgs<ExtArgs>
+            result: $Utils.Optional<PaisCountAggregateOutputType> | number
           }
         }
       }
@@ -2674,6 +2765,968 @@ export namespace Prisma {
      * Select specific fields to fetch from the Empresa
      */
     select?: EmpresaSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Pais
+   */
+
+  export type AggregatePais = {
+    _count: PaisCountAggregateOutputType | null
+    _min: PaisMinAggregateOutputType | null
+    _max: PaisMaxAggregateOutputType | null
+  }
+
+  export type PaisMinAggregateOutputType = {
+    id_pais: string | null
+    nome_pais_portugues: string | null
+    nome_pais_ingles: string | null
+    codigo_pais_portal_unico_siscomex: string | null
+    codigo_pais_bacen_4: string | null
+    codigo_pais_bacen_5: string | null
+    codigo_pais_sped_nfe: string | null
+    codigo_pais_sped_efd: string | null
+    codigo_pais_iso_alpha2: string | null
+    codigo_pais_iso_alpha3: string | null
+    codigo_pais_iso_numerico: string | null
+    ativo_pais: boolean | null
+  }
+
+  export type PaisMaxAggregateOutputType = {
+    id_pais: string | null
+    nome_pais_portugues: string | null
+    nome_pais_ingles: string | null
+    codigo_pais_portal_unico_siscomex: string | null
+    codigo_pais_bacen_4: string | null
+    codigo_pais_bacen_5: string | null
+    codigo_pais_sped_nfe: string | null
+    codigo_pais_sped_efd: string | null
+    codigo_pais_iso_alpha2: string | null
+    codigo_pais_iso_alpha3: string | null
+    codigo_pais_iso_numerico: string | null
+    ativo_pais: boolean | null
+  }
+
+  export type PaisCountAggregateOutputType = {
+    id_pais: number
+    nome_pais_portugues: number
+    nome_pais_ingles: number
+    codigo_pais_portal_unico_siscomex: number
+    codigo_pais_bacen_4: number
+    codigo_pais_bacen_5: number
+    codigo_pais_sped_nfe: number
+    codigo_pais_sped_efd: number
+    codigo_pais_iso_alpha2: number
+    codigo_pais_iso_alpha3: number
+    codigo_pais_iso_numerico: number
+    ativo_pais: number
+    _all: number
+  }
+
+
+  export type PaisMinAggregateInputType = {
+    id_pais?: true
+    nome_pais_portugues?: true
+    nome_pais_ingles?: true
+    codigo_pais_portal_unico_siscomex?: true
+    codigo_pais_bacen_4?: true
+    codigo_pais_bacen_5?: true
+    codigo_pais_sped_nfe?: true
+    codigo_pais_sped_efd?: true
+    codigo_pais_iso_alpha2?: true
+    codigo_pais_iso_alpha3?: true
+    codigo_pais_iso_numerico?: true
+    ativo_pais?: true
+  }
+
+  export type PaisMaxAggregateInputType = {
+    id_pais?: true
+    nome_pais_portugues?: true
+    nome_pais_ingles?: true
+    codigo_pais_portal_unico_siscomex?: true
+    codigo_pais_bacen_4?: true
+    codigo_pais_bacen_5?: true
+    codigo_pais_sped_nfe?: true
+    codigo_pais_sped_efd?: true
+    codigo_pais_iso_alpha2?: true
+    codigo_pais_iso_alpha3?: true
+    codigo_pais_iso_numerico?: true
+    ativo_pais?: true
+  }
+
+  export type PaisCountAggregateInputType = {
+    id_pais?: true
+    nome_pais_portugues?: true
+    nome_pais_ingles?: true
+    codigo_pais_portal_unico_siscomex?: true
+    codigo_pais_bacen_4?: true
+    codigo_pais_bacen_5?: true
+    codigo_pais_sped_nfe?: true
+    codigo_pais_sped_efd?: true
+    codigo_pais_iso_alpha2?: true
+    codigo_pais_iso_alpha3?: true
+    codigo_pais_iso_numerico?: true
+    ativo_pais?: true
+    _all?: true
+  }
+
+  export type PaisAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Pais to aggregate.
+     */
+    where?: PaisWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Pais to fetch.
+     */
+    orderBy?: PaisOrderByWithRelationInput | PaisOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaisWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Pais from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Pais.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Pais
+    **/
+    _count?: true | PaisCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaisMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaisMaxAggregateInputType
+  }
+
+  export type GetPaisAggregateType<T extends PaisAggregateArgs> = {
+        [P in keyof T & keyof AggregatePais]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePais[P]>
+      : GetScalarType<T[P], AggregatePais[P]>
+  }
+
+
+
+
+  export type PaisGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaisWhereInput
+    orderBy?: PaisOrderByWithAggregationInput | PaisOrderByWithAggregationInput[]
+    by: PaisScalarFieldEnum[] | PaisScalarFieldEnum
+    having?: PaisScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaisCountAggregateInputType | true
+    _min?: PaisMinAggregateInputType
+    _max?: PaisMaxAggregateInputType
+  }
+
+  export type PaisGroupByOutputType = {
+    id_pais: string
+    nome_pais_portugues: string
+    nome_pais_ingles: string
+    codigo_pais_portal_unico_siscomex: string | null
+    codigo_pais_bacen_4: string | null
+    codigo_pais_bacen_5: string | null
+    codigo_pais_sped_nfe: string | null
+    codigo_pais_sped_efd: string | null
+    codigo_pais_iso_alpha2: string | null
+    codigo_pais_iso_alpha3: string | null
+    codigo_pais_iso_numerico: string | null
+    ativo_pais: boolean
+    _count: PaisCountAggregateOutputType | null
+    _min: PaisMinAggregateOutputType | null
+    _max: PaisMaxAggregateOutputType | null
+  }
+
+  type GetPaisGroupByPayload<T extends PaisGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaisGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaisGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaisGroupByOutputType[P]>
+            : GetScalarType<T[P], PaisGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaisSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_pais?: boolean
+    nome_pais_portugues?: boolean
+    nome_pais_ingles?: boolean
+    codigo_pais_portal_unico_siscomex?: boolean
+    codigo_pais_bacen_4?: boolean
+    codigo_pais_bacen_5?: boolean
+    codigo_pais_sped_nfe?: boolean
+    codigo_pais_sped_efd?: boolean
+    codigo_pais_iso_alpha2?: boolean
+    codigo_pais_iso_alpha3?: boolean
+    codigo_pais_iso_numerico?: boolean
+    ativo_pais?: boolean
+  }, ExtArgs["result"]["pais"]>
+
+  export type PaisSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_pais?: boolean
+    nome_pais_portugues?: boolean
+    nome_pais_ingles?: boolean
+    codigo_pais_portal_unico_siscomex?: boolean
+    codigo_pais_bacen_4?: boolean
+    codigo_pais_bacen_5?: boolean
+    codigo_pais_sped_nfe?: boolean
+    codigo_pais_sped_efd?: boolean
+    codigo_pais_iso_alpha2?: boolean
+    codigo_pais_iso_alpha3?: boolean
+    codigo_pais_iso_numerico?: boolean
+    ativo_pais?: boolean
+  }, ExtArgs["result"]["pais"]>
+
+  export type PaisSelectScalar = {
+    id_pais?: boolean
+    nome_pais_portugues?: boolean
+    nome_pais_ingles?: boolean
+    codigo_pais_portal_unico_siscomex?: boolean
+    codigo_pais_bacen_4?: boolean
+    codigo_pais_bacen_5?: boolean
+    codigo_pais_sped_nfe?: boolean
+    codigo_pais_sped_efd?: boolean
+    codigo_pais_iso_alpha2?: boolean
+    codigo_pais_iso_alpha3?: boolean
+    codigo_pais_iso_numerico?: boolean
+    ativo_pais?: boolean
+  }
+
+
+  export type $PaisPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Pais"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_pais: string
+      nome_pais_portugues: string
+      nome_pais_ingles: string
+      codigo_pais_portal_unico_siscomex: string | null
+      codigo_pais_bacen_4: string | null
+      codigo_pais_bacen_5: string | null
+      codigo_pais_sped_nfe: string | null
+      codigo_pais_sped_efd: string | null
+      codigo_pais_iso_alpha2: string | null
+      codigo_pais_iso_alpha3: string | null
+      codigo_pais_iso_numerico: string | null
+      ativo_pais: boolean
+    }, ExtArgs["result"]["pais"]>
+    composites: {}
+  }
+
+  type PaisGetPayload<S extends boolean | null | undefined | PaisDefaultArgs> = $Result.GetResult<Prisma.$PaisPayload, S>
+
+  type PaisCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PaisFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PaisCountAggregateInputType | true
+    }
+
+  export interface PaisDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Pais'], meta: { name: 'Pais' } }
+    /**
+     * Find zero or one Pais that matches the filter.
+     * @param {PaisFindUniqueArgs} args - Arguments to find a Pais
+     * @example
+     * // Get one Pais
+     * const pais = await prisma.pais.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaisFindUniqueArgs>(args: SelectSubset<T, PaisFindUniqueArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Pais that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {PaisFindUniqueOrThrowArgs} args - Arguments to find a Pais
+     * @example
+     * // Get one Pais
+     * const pais = await prisma.pais.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaisFindUniqueOrThrowArgs>(args: SelectSubset<T, PaisFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Pais that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisFindFirstArgs} args - Arguments to find a Pais
+     * @example
+     * // Get one Pais
+     * const pais = await prisma.pais.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaisFindFirstArgs>(args?: SelectSubset<T, PaisFindFirstArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Pais that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisFindFirstOrThrowArgs} args - Arguments to find a Pais
+     * @example
+     * // Get one Pais
+     * const pais = await prisma.pais.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaisFindFirstOrThrowArgs>(args?: SelectSubset<T, PaisFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Pais that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Pais
+     * const pais = await prisma.pais.findMany()
+     * 
+     * // Get first 10 Pais
+     * const pais = await prisma.pais.findMany({ take: 10 })
+     * 
+     * // Only select the `id_pais`
+     * const paisWithId_paisOnly = await prisma.pais.findMany({ select: { id_pais: true } })
+     * 
+     */
+    findMany<T extends PaisFindManyArgs>(args?: SelectSubset<T, PaisFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Pais.
+     * @param {PaisCreateArgs} args - Arguments to create a Pais.
+     * @example
+     * // Create one Pais
+     * const Pais = await prisma.pais.create({
+     *   data: {
+     *     // ... data to create a Pais
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaisCreateArgs>(args: SelectSubset<T, PaisCreateArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Pais.
+     * @param {PaisCreateManyArgs} args - Arguments to create many Pais.
+     * @example
+     * // Create many Pais
+     * const pais = await prisma.pais.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaisCreateManyArgs>(args?: SelectSubset<T, PaisCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Pais and returns the data saved in the database.
+     * @param {PaisCreateManyAndReturnArgs} args - Arguments to create many Pais.
+     * @example
+     * // Create many Pais
+     * const pais = await prisma.pais.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Pais and only return the `id_pais`
+     * const paisWithId_paisOnly = await prisma.pais.createManyAndReturn({ 
+     *   select: { id_pais: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaisCreateManyAndReturnArgs>(args?: SelectSubset<T, PaisCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Pais.
+     * @param {PaisDeleteArgs} args - Arguments to delete one Pais.
+     * @example
+     * // Delete one Pais
+     * const Pais = await prisma.pais.delete({
+     *   where: {
+     *     // ... filter to delete one Pais
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaisDeleteArgs>(args: SelectSubset<T, PaisDeleteArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Pais.
+     * @param {PaisUpdateArgs} args - Arguments to update one Pais.
+     * @example
+     * // Update one Pais
+     * const pais = await prisma.pais.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaisUpdateArgs>(args: SelectSubset<T, PaisUpdateArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Pais.
+     * @param {PaisDeleteManyArgs} args - Arguments to filter Pais to delete.
+     * @example
+     * // Delete a few Pais
+     * const { count } = await prisma.pais.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaisDeleteManyArgs>(args?: SelectSubset<T, PaisDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Pais.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Pais
+     * const pais = await prisma.pais.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaisUpdateManyArgs>(args: SelectSubset<T, PaisUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Pais.
+     * @param {PaisUpsertArgs} args - Arguments to update or create a Pais.
+     * @example
+     * // Update or create a Pais
+     * const pais = await prisma.pais.upsert({
+     *   create: {
+     *     // ... data to create a Pais
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Pais we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaisUpsertArgs>(args: SelectSubset<T, PaisUpsertArgs<ExtArgs>>): Prisma__PaisClient<$Result.GetResult<Prisma.$PaisPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Pais.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisCountArgs} args - Arguments to filter Pais to count.
+     * @example
+     * // Count the number of Pais
+     * const count = await prisma.pais.count({
+     *   where: {
+     *     // ... the filter for the Pais we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaisCountArgs>(
+      args?: Subset<T, PaisCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaisCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Pais.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaisAggregateArgs>(args: Subset<T, PaisAggregateArgs>): Prisma.PrismaPromise<GetPaisAggregateType<T>>
+
+    /**
+     * Group by Pais.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaisGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaisGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaisGroupByArgs['orderBy'] }
+        : { orderBy?: PaisGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaisGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaisGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Pais model
+   */
+  readonly fields: PaisFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Pais.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaisClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Pais model
+   */ 
+  interface PaisFieldRefs {
+    readonly id_pais: FieldRef<"Pais", 'String'>
+    readonly nome_pais_portugues: FieldRef<"Pais", 'String'>
+    readonly nome_pais_ingles: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_portal_unico_siscomex: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_bacen_4: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_bacen_5: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_sped_nfe: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_sped_efd: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_iso_alpha2: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_iso_alpha3: FieldRef<"Pais", 'String'>
+    readonly codigo_pais_iso_numerico: FieldRef<"Pais", 'String'>
+    readonly ativo_pais: FieldRef<"Pais", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Pais findUnique
+   */
+  export type PaisFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter, which Pais to fetch.
+     */
+    where: PaisWhereUniqueInput
+  }
+
+  /**
+   * Pais findUniqueOrThrow
+   */
+  export type PaisFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter, which Pais to fetch.
+     */
+    where: PaisWhereUniqueInput
+  }
+
+  /**
+   * Pais findFirst
+   */
+  export type PaisFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter, which Pais to fetch.
+     */
+    where?: PaisWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Pais to fetch.
+     */
+    orderBy?: PaisOrderByWithRelationInput | PaisOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Pais.
+     */
+    cursor?: PaisWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Pais from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Pais.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Pais.
+     */
+    distinct?: PaisScalarFieldEnum | PaisScalarFieldEnum[]
+  }
+
+  /**
+   * Pais findFirstOrThrow
+   */
+  export type PaisFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter, which Pais to fetch.
+     */
+    where?: PaisWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Pais to fetch.
+     */
+    orderBy?: PaisOrderByWithRelationInput | PaisOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Pais.
+     */
+    cursor?: PaisWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Pais from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Pais.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Pais.
+     */
+    distinct?: PaisScalarFieldEnum | PaisScalarFieldEnum[]
+  }
+
+  /**
+   * Pais findMany
+   */
+  export type PaisFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter, which Pais to fetch.
+     */
+    where?: PaisWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Pais to fetch.
+     */
+    orderBy?: PaisOrderByWithRelationInput | PaisOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Pais.
+     */
+    cursor?: PaisWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Pais from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Pais.
+     */
+    skip?: number
+    distinct?: PaisScalarFieldEnum | PaisScalarFieldEnum[]
+  }
+
+  /**
+   * Pais create
+   */
+  export type PaisCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Pais.
+     */
+    data: XOR<PaisCreateInput, PaisUncheckedCreateInput>
+  }
+
+  /**
+   * Pais createMany
+   */
+  export type PaisCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Pais.
+     */
+    data: PaisCreateManyInput | PaisCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Pais createManyAndReturn
+   */
+  export type PaisCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Pais.
+     */
+    data: PaisCreateManyInput | PaisCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Pais update
+   */
+  export type PaisUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Pais.
+     */
+    data: XOR<PaisUpdateInput, PaisUncheckedUpdateInput>
+    /**
+     * Choose, which Pais to update.
+     */
+    where: PaisWhereUniqueInput
+  }
+
+  /**
+   * Pais updateMany
+   */
+  export type PaisUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Pais.
+     */
+    data: XOR<PaisUpdateManyMutationInput, PaisUncheckedUpdateManyInput>
+    /**
+     * Filter which Pais to update
+     */
+    where?: PaisWhereInput
+  }
+
+  /**
+   * Pais upsert
+   */
+  export type PaisUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Pais to update in case it exists.
+     */
+    where: PaisWhereUniqueInput
+    /**
+     * In case the Pais found by the `where` argument doesn't exist, create a new Pais with this data.
+     */
+    create: XOR<PaisCreateInput, PaisUncheckedCreateInput>
+    /**
+     * In case the Pais was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaisUpdateInput, PaisUncheckedUpdateInput>
+  }
+
+  /**
+   * Pais delete
+   */
+  export type PaisDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
+    /**
+     * Filter which Pais to delete.
+     */
+    where: PaisWhereUniqueInput
+  }
+
+  /**
+   * Pais deleteMany
+   */
+  export type PaisDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Pais to delete
+     */
+    where?: PaisWhereInput
+  }
+
+  /**
+   * Pais without action
+   */
+  export type PaisDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pais
+     */
+    select?: PaisSelect<ExtArgs> | null
   }
 
 
@@ -9343,6 +10396,24 @@ export namespace Prisma {
   export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
 
 
+  export const PaisScalarFieldEnum: {
+    id_pais: 'id_pais',
+    nome_pais_portugues: 'nome_pais_portugues',
+    nome_pais_ingles: 'nome_pais_ingles',
+    codigo_pais_portal_unico_siscomex: 'codigo_pais_portal_unico_siscomex',
+    codigo_pais_bacen_4: 'codigo_pais_bacen_4',
+    codigo_pais_bacen_5: 'codigo_pais_bacen_5',
+    codigo_pais_sped_nfe: 'codigo_pais_sped_nfe',
+    codigo_pais_sped_efd: 'codigo_pais_sped_efd',
+    codigo_pais_iso_alpha2: 'codigo_pais_iso_alpha2',
+    codigo_pais_iso_alpha3: 'codigo_pais_iso_alpha3',
+    codigo_pais_iso_numerico: 'codigo_pais_iso_numerico',
+    ativo_pais: 'ativo_pais'
+  };
+
+  export type PaisScalarFieldEnum = (typeof PaisScalarFieldEnum)[keyof typeof PaisScalarFieldEnum]
+
+
   export const MoedaScalarFieldEnum: {
     codigo_moeda: 'codigo_moeda',
     nome_moeda: 'nome_moeda',
@@ -9785,6 +10856,93 @@ export namespace Prisma {
     ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
     atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+  }
+
+  export type PaisWhereInput = {
+    AND?: PaisWhereInput | PaisWhereInput[]
+    OR?: PaisWhereInput[]
+    NOT?: PaisWhereInput | PaisWhereInput[]
+    id_pais?: StringFilter<"Pais"> | string
+    nome_pais_portugues?: StringFilter<"Pais"> | string
+    nome_pais_ingles?: StringFilter<"Pais"> | string
+    codigo_pais_portal_unico_siscomex?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_bacen_4?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_bacen_5?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_sped_nfe?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_sped_efd?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_iso_alpha2?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_iso_alpha3?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_iso_numerico?: StringNullableFilter<"Pais"> | string | null
+    ativo_pais?: BoolFilter<"Pais"> | boolean
+  }
+
+  export type PaisOrderByWithRelationInput = {
+    id_pais?: SortOrder
+    nome_pais_portugues?: SortOrder
+    nome_pais_ingles?: SortOrder
+    codigo_pais_portal_unico_siscomex?: SortOrderInput | SortOrder
+    codigo_pais_bacen_4?: SortOrderInput | SortOrder
+    codigo_pais_bacen_5?: SortOrderInput | SortOrder
+    codigo_pais_sped_nfe?: SortOrderInput | SortOrder
+    codigo_pais_sped_efd?: SortOrderInput | SortOrder
+    codigo_pais_iso_alpha2?: SortOrderInput | SortOrder
+    codigo_pais_iso_alpha3?: SortOrderInput | SortOrder
+    codigo_pais_iso_numerico?: SortOrderInput | SortOrder
+    ativo_pais?: SortOrder
+  }
+
+  export type PaisWhereUniqueInput = Prisma.AtLeast<{
+    id_pais?: string
+    nome_pais_portugues?: string
+    codigo_pais_iso_alpha2?: string
+    codigo_pais_iso_alpha3?: string
+    AND?: PaisWhereInput | PaisWhereInput[]
+    OR?: PaisWhereInput[]
+    NOT?: PaisWhereInput | PaisWhereInput[]
+    nome_pais_ingles?: StringFilter<"Pais"> | string
+    codigo_pais_portal_unico_siscomex?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_bacen_4?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_bacen_5?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_sped_nfe?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_sped_efd?: StringNullableFilter<"Pais"> | string | null
+    codigo_pais_iso_numerico?: StringNullableFilter<"Pais"> | string | null
+    ativo_pais?: BoolFilter<"Pais"> | boolean
+  }, "id_pais" | "nome_pais_portugues" | "codigo_pais_iso_alpha2" | "codigo_pais_iso_alpha3">
+
+  export type PaisOrderByWithAggregationInput = {
+    id_pais?: SortOrder
+    nome_pais_portugues?: SortOrder
+    nome_pais_ingles?: SortOrder
+    codigo_pais_portal_unico_siscomex?: SortOrderInput | SortOrder
+    codigo_pais_bacen_4?: SortOrderInput | SortOrder
+    codigo_pais_bacen_5?: SortOrderInput | SortOrder
+    codigo_pais_sped_nfe?: SortOrderInput | SortOrder
+    codigo_pais_sped_efd?: SortOrderInput | SortOrder
+    codigo_pais_iso_alpha2?: SortOrderInput | SortOrder
+    codigo_pais_iso_alpha3?: SortOrderInput | SortOrder
+    codigo_pais_iso_numerico?: SortOrderInput | SortOrder
+    ativo_pais?: SortOrder
+    _count?: PaisCountOrderByAggregateInput
+    _max?: PaisMaxOrderByAggregateInput
+    _min?: PaisMinOrderByAggregateInput
+  }
+
+  export type PaisScalarWhereWithAggregatesInput = {
+    AND?: PaisScalarWhereWithAggregatesInput | PaisScalarWhereWithAggregatesInput[]
+    OR?: PaisScalarWhereWithAggregatesInput[]
+    NOT?: PaisScalarWhereWithAggregatesInput | PaisScalarWhereWithAggregatesInput[]
+    id_pais?: StringWithAggregatesFilter<"Pais"> | string
+    nome_pais_portugues?: StringWithAggregatesFilter<"Pais"> | string
+    nome_pais_ingles?: StringWithAggregatesFilter<"Pais"> | string
+    codigo_pais_portal_unico_siscomex?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_bacen_4?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_bacen_5?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_sped_nfe?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_sped_efd?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_iso_alpha2?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_iso_alpha3?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    codigo_pais_iso_numerico?: StringNullableWithAggregatesFilter<"Pais"> | string | null
+    ativo_pais?: BoolWithAggregatesFilter<"Pais"> | boolean
   }
 
   export type MoedaWhereInput = {
@@ -10558,6 +11716,111 @@ export namespace Prisma {
     ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
     criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaisCreateInput = {
+    id_pais?: string
+    nome_pais_portugues: string
+    nome_pais_ingles: string
+    codigo_pais_portal_unico_siscomex?: string | null
+    codigo_pais_bacen_4?: string | null
+    codigo_pais_bacen_5?: string | null
+    codigo_pais_sped_nfe?: string | null
+    codigo_pais_sped_efd?: string | null
+    codigo_pais_iso_alpha2?: string | null
+    codigo_pais_iso_alpha3?: string | null
+    codigo_pais_iso_numerico?: string | null
+    ativo_pais?: boolean
+  }
+
+  export type PaisUncheckedCreateInput = {
+    id_pais?: string
+    nome_pais_portugues: string
+    nome_pais_ingles: string
+    codigo_pais_portal_unico_siscomex?: string | null
+    codigo_pais_bacen_4?: string | null
+    codigo_pais_bacen_5?: string | null
+    codigo_pais_sped_nfe?: string | null
+    codigo_pais_sped_efd?: string | null
+    codigo_pais_iso_alpha2?: string | null
+    codigo_pais_iso_alpha3?: string | null
+    codigo_pais_iso_numerico?: string | null
+    ativo_pais?: boolean
+  }
+
+  export type PaisUpdateInput = {
+    id_pais?: StringFieldUpdateOperationsInput | string
+    nome_pais_portugues?: StringFieldUpdateOperationsInput | string
+    nome_pais_ingles?: StringFieldUpdateOperationsInput | string
+    codigo_pais_portal_unico_siscomex?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_4?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_5?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_nfe?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_efd?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha2?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha3?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_numerico?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_pais?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaisUncheckedUpdateInput = {
+    id_pais?: StringFieldUpdateOperationsInput | string
+    nome_pais_portugues?: StringFieldUpdateOperationsInput | string
+    nome_pais_ingles?: StringFieldUpdateOperationsInput | string
+    codigo_pais_portal_unico_siscomex?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_4?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_5?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_nfe?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_efd?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha2?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha3?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_numerico?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_pais?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaisCreateManyInput = {
+    id_pais?: string
+    nome_pais_portugues: string
+    nome_pais_ingles: string
+    codigo_pais_portal_unico_siscomex?: string | null
+    codigo_pais_bacen_4?: string | null
+    codigo_pais_bacen_5?: string | null
+    codigo_pais_sped_nfe?: string | null
+    codigo_pais_sped_efd?: string | null
+    codigo_pais_iso_alpha2?: string | null
+    codigo_pais_iso_alpha3?: string | null
+    codigo_pais_iso_numerico?: string | null
+    ativo_pais?: boolean
+  }
+
+  export type PaisUpdateManyMutationInput = {
+    id_pais?: StringFieldUpdateOperationsInput | string
+    nome_pais_portugues?: StringFieldUpdateOperationsInput | string
+    nome_pais_ingles?: StringFieldUpdateOperationsInput | string
+    codigo_pais_portal_unico_siscomex?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_4?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_5?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_nfe?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_efd?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha2?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha3?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_numerico?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_pais?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaisUncheckedUpdateManyInput = {
+    id_pais?: StringFieldUpdateOperationsInput | string
+    nome_pais_portugues?: StringFieldUpdateOperationsInput | string
+    nome_pais_ingles?: StringFieldUpdateOperationsInput | string
+    codigo_pais_portal_unico_siscomex?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_4?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_bacen_5?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_nfe?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_sped_efd?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha2?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_alpha3?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_pais_iso_numerico?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_pais?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaCreateInput = {
@@ -11401,6 +12664,51 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type PaisCountOrderByAggregateInput = {
+    id_pais?: SortOrder
+    nome_pais_portugues?: SortOrder
+    nome_pais_ingles?: SortOrder
+    codigo_pais_portal_unico_siscomex?: SortOrder
+    codigo_pais_bacen_4?: SortOrder
+    codigo_pais_bacen_5?: SortOrder
+    codigo_pais_sped_nfe?: SortOrder
+    codigo_pais_sped_efd?: SortOrder
+    codigo_pais_iso_alpha2?: SortOrder
+    codigo_pais_iso_alpha3?: SortOrder
+    codigo_pais_iso_numerico?: SortOrder
+    ativo_pais?: SortOrder
+  }
+
+  export type PaisMaxOrderByAggregateInput = {
+    id_pais?: SortOrder
+    nome_pais_portugues?: SortOrder
+    nome_pais_ingles?: SortOrder
+    codigo_pais_portal_unico_siscomex?: SortOrder
+    codigo_pais_bacen_4?: SortOrder
+    codigo_pais_bacen_5?: SortOrder
+    codigo_pais_sped_nfe?: SortOrder
+    codigo_pais_sped_efd?: SortOrder
+    codigo_pais_iso_alpha2?: SortOrder
+    codigo_pais_iso_alpha3?: SortOrder
+    codigo_pais_iso_numerico?: SortOrder
+    ativo_pais?: SortOrder
+  }
+
+  export type PaisMinOrderByAggregateInput = {
+    id_pais?: SortOrder
+    nome_pais_portugues?: SortOrder
+    nome_pais_ingles?: SortOrder
+    codigo_pais_portal_unico_siscomex?: SortOrder
+    codigo_pais_bacen_4?: SortOrder
+    codigo_pais_bacen_5?: SortOrder
+    codigo_pais_sped_nfe?: SortOrder
+    codigo_pais_sped_efd?: SortOrder
+    codigo_pais_iso_alpha2?: SortOrder
+    codigo_pais_iso_alpha3?: SortOrder
+    codigo_pais_iso_numerico?: SortOrder
+    ativo_pais?: SortOrder
+  }
+
   export type MoedaCountOrderByAggregateInput = {
     codigo_moeda?: SortOrder
     nome_moeda?: SortOrder
@@ -12159,6 +13467,10 @@ export namespace Prisma {
      * @deprecated Use EmpresaDefaultArgs instead
      */
     export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use PaisDefaultArgs instead
+     */
+    export type PaisArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PaisDefaultArgs<ExtArgs>
     /**
      * @deprecated Use MoedaDefaultArgs instead
      */

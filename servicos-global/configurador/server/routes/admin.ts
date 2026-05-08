@@ -1500,9 +1500,9 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (req, res, next) => {
  * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
  */
 const AdminInviteSchema = z.object({
-  email: z.string().email().max(255),
-  name:  z.string().min(1).max(200),
-  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  email_usuario: z.string().email().max(255),
+  nome_usuario: z.string().min(1).max(200),
+  tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
 adminRouter.post('/usuarios/convidar', async (req, res, next) => {
@@ -1512,15 +1512,15 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const { email, name, role } = parsed.data
+    const { email_usuario, nome_usuario, tipo_usuario } = parsed.data
 
     // ADMIN não pode criar SUPER_ADMIN ou outro ADMIN
-    if (req.auth.tipo_usuario === 'ADMIN' && (role === 'SUPER_ADMIN' || role === 'ADMIN')) {
-      throw new AppError('ADMIN não pode convidar usuários com role SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
+    if (req.auth.tipo_usuario === 'ADMIN' && (tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN')) {
+      throw new AppError('ADMIN não pode convidar usuários com tipo_usuario SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
     }
 
-    // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao: req.auth.id_organizacao } })
+    // Verifica se já existe usuário com esse e-mail na organização HQ
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario, id_organizacao: req.auth.id_organizacao } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1530,18 +1530,18 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
     // /cadastro/continuar em vez do Account Portal hospedado em *.accounts.dev.
     const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
     const invitation = await clerkClient.invitations.createInvitation({
-      emailAddress: email,
+      emailAddress: email_usuario,
       redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
     })
 
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
-    const user = await prisma.usuario.create({
+    const usuarioCriado = await prisma.usuario.create({
       data: {
         id_organizacao: req.auth.id_organizacao,
         id_clerk_usuario: `pending_${invitation.id}`,
-        email_usuario: email,
-        nome_usuario:  name,
-        tipo_usuario:  role,
+        email_usuario,
+        nome_usuario,
+        tipo_usuario,
       },
     })
 
@@ -1553,16 +1553,20 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       ip_ator_historico_log: req.ip,
       modulo_historico_log: 'admin',
       tipo_recurso_historico_log: 'Usuario',
-      id_recurso_historico_log: user.id_usuario,
+      id_recurso_historico_log: usuarioCriado.id_usuario,
       acao_historico_log: 'CONVIDAR',
-      detalhe_acao_historico_log: `Convite enviado — role=${role}`,
-      estado_posterior_historico_log: { email: user.email_usuario, role: user.tipo_usuario },
+      detalhe_acao_historico_log: `Convite enviado — tipo_usuario=${tipo_usuario}`,
+      estado_posterior_historico_log: { email_usuario: usuarioCriado.email_usuario, tipo_usuario: usuarioCriado.tipo_usuario },
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id_usuario, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
+      usuario: {
+        id_usuario: usuarioCriado.id_usuario,
+        email_usuario: usuarioCriado.email_usuario,
+        tipo_usuario: usuarioCriado.tipo_usuario,
+      },
     })
   } catch (err) {
     next(err)

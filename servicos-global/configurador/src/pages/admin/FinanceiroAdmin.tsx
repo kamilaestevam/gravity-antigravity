@@ -830,7 +830,7 @@ export function FinanceiroAdmin() {
 
                     <CampoGeralGlobal label="Valor (R$)" obrigatorio>
                       <div className="ws-input-icon-wrap">
-                        <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: 24, textAlign: 'center', color: 'var(--ws-muted)' }}>R$</span>
+                        <span>R$</span>
                         <input
                           type="text"
                           inputMode="numeric"

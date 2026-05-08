@@ -1555,6 +1555,19 @@ body.light-theme .ws-profile-dropdown {
   pointer-events: none;
 }
 
+/* Span (usado para simbolo monetario tipo "R$") segue mesmo comportamento
+   do svg — fica absolute na esquerda. Sem isso o span ocupa flex space e
+   o input ganha padding-left "fantasma" que centraliza visualmente texto
+   curto. Padrao decidido em 2026-05-08 (validado em ProdutosGravityAdmin). */
+.ws-input-icon-wrap > span {
+  position: absolute;
+  left: 0.875rem;
+  color: var(--ws-muted);
+  pointer-events: none;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
 .ws-input-icon-wrap input {
   width: 100%;
   padding-left: 2.5rem;

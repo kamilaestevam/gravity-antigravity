@@ -50,48 +50,252 @@ type Etapa = 'upload' | 'mapeamento' | 'preview' | 'confirmacao'
 type TFunc = (key: string, opts?: Record<string, unknown>) => string
 
 /**
- * Traduz erro para mensagem amigável. Mand. 08: jamais mascara totalmente o
- * detalhe técnico — quando o tipo do erro é desconhecido, retorna a mensagem
- * original do backend. Só cai no genérico se NADA útil estiver disponível.
+ * Estrutura rica de erro — substitui mensagem string por objeto com sugestoes
+ * contextuais. Cada `code` mapeia para `titulo` + `mensagem` + `sugestoes`.
+ *
+ * Mand. 08 — jamais mascara totalmente o detalhe tecnico. O `code` aparece
+ * sempre no rodape do alerta para suporte/debug.
  */
-function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload', t: TFunc): string {
+export interface ErroDetalhado {
+  code: string                 // Para suporte/debug — sempre presente
+  titulo: string               // "O que aconteceu" — uma linha
+  mensagem: string             // Frase principal explicativa
+  causa?: string               // "Por que aconteceu" — contexto opcional
+  sugestoes: string[]          // Lista de acoes praticas
+  retryable: boolean           // Mostra botao "Tentar novamente"?
+  acoes?: Array<{ label: string; tipo: 'baixar_template' | 'recarregar' }>
+}
+
+/** Extrai message + code do response body do backend. */
+async function lerErroBody(res: Response): Promise<{ message: string; code: string }> {
+  const body = await res.json().catch(() => null) as { error?: { message?: string; code?: string } } | null
+  return {
+    message: body?.error?.message ?? `HTTP ${res.status}`,
+    code:    body?.error?.code    ?? `HTTP_${res.status}`,
+  }
+}
+
+/**
+ * Traduz erro do backend (com code) ou erro de cliente (Failed to fetch, etc.)
+ * para `ErroDetalhado` com sugestoes contextuais. Cobre todos os codes do backend
+ * + erros de rede + HTTP genericos.
+ */
+function traduzirErroDetalhado(
+  err: unknown,
+  contexto: 'upload' | 'confirmar',
+  t: TFunc,
+  codeBackend?: string,
+): ErroDetalhado {
   const msg = err instanceof Error ? err.message : String(err ?? '')
 
   // eslint-disable-next-line no-console
-  console.error('[SmartImport] erro capturado (raw):', err, 'msg:', msg)
+  console.error('[SmartImport] erro capturado (raw):', err, 'msg:', msg, 'code:', codeBackend)
 
+  // ── Erros de rede / browser ─────────────────────────────────────────────
   if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('fetch')) {
-    return t('pedido.smart_import.err_rede')
+    return {
+      code: 'NETWORK_ERROR',
+      titulo: 'Sem conexao com o servidor',
+      mensagem: 'Nao foi possivel chegar no servidor.',
+      causa: 'Pode ser internet instavel, servidor fora do ar ou firewall bloqueando.',
+      sugestoes: [
+        'Verifique sua conexao com a internet',
+        'Atualize a pagina (F5) e tente novamente',
+        'Se persistir, contate o suporte',
+      ],
+      retryable: true,
+    }
   }
-  if (/^HTTP 5\d\d/.test(msg)) {
-    const base = contexto === 'upload'
-      ? t('pedido.smart_import.err_servidor_upload')
-      : t('pedido.smart_import.err_servidor_confirmar')
-    return `${base} (${msg})`
+
+  // ── Codes do backend (mais especificos) ─────────────────────────────────
+  switch (codeBackend) {
+    case 'ARQUIVO_AUSENTE':
+      return {
+        code: codeBackend,
+        titulo: 'Voce nao selecionou nenhum arquivo',
+        mensagem: 'O upload chegou no servidor sem arquivo anexado.',
+        sugestoes: [
+          'Clique na area "Arraste um arquivo ou clique para selecionar"',
+          'Escolha um arquivo .xlsx, .csv, .xml, .txt, .json ou .pdf',
+        ],
+        retryable: false,
+      }
+
+    case 'ARQUIVO_SEM_DADOS':
+      return {
+        code: codeBackend,
+        titulo: 'A planilha esta vazia',
+        mensagem: 'O arquivo nao tem nenhuma linha de dados.',
+        causa: 'Voce baixou o template e nao preencheu nenhuma linha de dados.',
+        sugestoes: [
+          'Preencha pelo menos 1 linha de dados (linhas 3+ da planilha)',
+          'Linha 1 e o cabecalho de grupo (PEDIDO/ITEM)',
+          'Linha 2 e o cabecalho com o nome dos campos',
+          'Use o template baixado como referencia',
+        ],
+        retryable: false,
+        acoes: [{ label: 'Baixar template', tipo: 'baixar_template' }],
+      }
+
+    case 'FORMATO_NAO_SUPORTADO':
+    case 'FORMATO_INVALIDO':
+      return {
+        code: codeBackend,
+        titulo: 'Formato nao aceito',
+        mensagem: msg || 'Esse formato de arquivo nao e suportado.',
+        sugestoes: [
+          'Aceitos: xlsx, xls, csv, xml, txt, json, pdf',
+          'Salve seu arquivo em formato Excel (.xlsx) — File > Save As',
+          'Para CSV, use UTF-8 e separador , ou ;',
+        ],
+        retryable: false,
+      }
+
+    case 'JSON_FORMATO_INVALIDO':
+      return {
+        code: codeBackend,
+        titulo: 'JSON com formato esperado',
+        mensagem: 'O arquivo JSON nao tem o formato que o sistema entende.',
+        causa: 'O sistema espera um array de objetos: [{...}, {...}].',
+        sugestoes: [
+          'Verifique se o JSON e um array (comeca com [ e termina com ])',
+          'Cada item do array deve ser um objeto com os campos do pedido',
+          'Se possivel, prefira Excel (.xlsx) — e mais facil de editar',
+        ],
+        retryable: false,
+      }
+
+    case 'PDF_INVALIDO':
+      return {
+        code: codeBackend,
+        titulo: 'PDF nao e valido',
+        mensagem: msg || 'O arquivo enviado nao e um PDF de verdade.',
+        causa: 'Arquivos salvos como "pagina web" (.html) nao funcionam mesmo com extensao .pdf.',
+        sugestoes: [
+          'Abra no navegador e salve como PDF de verdade (Ctrl+P > Salvar como PDF)',
+          'Ou prefira Excel (.xlsx) — extracao e mais confiavel',
+          'PDFs escaneados (imagem) nao sao suportados — precisa OCR',
+        ],
+        retryable: false,
+      }
+
+    case 'RATE_LIMIT_EXCEEDED':
+      return {
+        code: codeBackend,
+        titulo: 'Muitos uploads em pouco tempo',
+        mensagem: 'O limite de uploads por minuto foi atingido.',
+        sugestoes: [
+          'Aguarde 60 segundos antes de fazer outro upload',
+          'Limite: 10 uploads por minuto',
+        ],
+        retryable: true,
+      }
+
+    case 'UNAUTHORIZED_PREVIEW':
+      return {
+        code: codeBackend,
+        titulo: 'Sessao expirou',
+        mensagem: 'Os dados do preview nao pertencem mais a sua sessao.',
+        sugestoes: [
+          'Recarregue a pagina (Ctrl+Shift+R)',
+          'Faca o upload do arquivo novamente',
+        ],
+        retryable: false,
+        acoes: [{ label: 'Recarregar pagina', tipo: 'recarregar' }],
+      }
   }
-  if (msg === 'HTTP 413') {
-    return t('pedido.smart_import.err_arquivo_grande')
+
+  // ── HTTP genericos (sem code do backend) ────────────────────────────────
+  if (/^HTTP_5\d\d|^HTTP 5\d\d/.test(codeBackend ?? msg)) {
+    return {
+      code: codeBackend ?? 'HTTP_500',
+      titulo: 'Erro no servidor',
+      mensagem: 'O servidor falhou ao processar a requisicao.',
+      sugestoes: [
+        'Tente novamente em 30 segundos',
+        'Se persistir, abra um chamado com o codigo abaixo',
+      ],
+      retryable: true,
+    }
   }
-  if (msg === 'HTTP 403') {
-    return t('pedido.smart_import.err_sessao')
+
+  if (codeBackend === 'HTTP_413' || msg === 'HTTP 413') {
+    return {
+      code: 'HTTP_413',
+      titulo: 'Arquivo muito grande',
+      mensagem: 'O arquivo excede o limite de 10 MB.',
+      sugestoes: [
+        'Tamanho maximo: 10 MB',
+        'Divida em varios arquivos menores',
+        'Ou compacte (xlsx ja e compactado)',
+      ],
+      retryable: false,
+    }
   }
-  if (msg === 'HTTP 408' || msg === 'HTTP 504' || msg === 'HTTP 502') {
-    return t('pedido.smart_import.err_timeout')
+
+  if (codeBackend === 'HTTP_401' || msg === 'HTTP 401' ||
+      codeBackend === 'UNAUTHENTICATED' || msg.includes('Authorization')) {
+    return {
+      code: 'HTTP_401',
+      titulo: 'Sessao expirou',
+      mensagem: 'Voce precisa estar logado para importar pedidos.',
+      sugestoes: [
+        'Recarregue a pagina (Ctrl+Shift+R)',
+        'Se persistir, faca login novamente',
+      ],
+      retryable: false,
+      acoes: [{ label: 'Recarregar pagina', tipo: 'recarregar' }],
+    }
   }
-  if (msg === 'HTTP 400') {
-    return contexto === 'upload'
-      ? t('pedido.smart_import.err_formato')
-      : t('pedido.smart_import.err_dados')
+
+  if (codeBackend === 'HTTP_403' || msg === 'HTTP 403') {
+    return {
+      code: 'HTTP_403',
+      titulo: 'Sem permissao',
+      mensagem: 'Voce nao tem permissao para importar pedidos.',
+      sugestoes: [
+        'Solicite ao Master da sua organizacao a permissao "pedido:lista:editar"',
+      ],
+      retryable: false,
+    }
   }
-  // Mensagem real do backend (não-HTTP) — propaga sem mascarar (Mand. 08)
+
+  // ── Fallback: erro com mensagem do backend mas sem code conhecido ──────
   if (msg && msg.length > 0 && !msg.startsWith('HTTP ')) {
-    return msg
+    return {
+      code: codeBackend ?? 'ERRO_DESCONHECIDO',
+      titulo: contexto === 'upload' ? 'Nao foi possivel processar o arquivo' : 'Nao foi possivel concluir',
+      mensagem: msg,
+      sugestoes: [
+        'Verifique se o arquivo segue o template baixavel',
+        'Tente novamente — se persistir, abra chamado com o codigo abaixo',
+      ],
+      retryable: true,
+    }
   }
-  // Fallback final: NUNCA fica no genérico sem deixar pista do que aconteceu
-  const base = contexto === 'upload'
-    ? t('pedido.smart_import.err_upload_gen')
-    : t('pedido.smart_import.err_confirmar_gen')
-  return msg ? `${base} (detalhe técnico: ${msg})` : base
+
+  // ── Fallback final ──────────────────────────────────────────────────────
+  return {
+    code: codeBackend ?? 'ERRO_DESCONHECIDO',
+    titulo: contexto === 'upload' ? 'Erro no upload' : 'Erro na confirmacao',
+    mensagem: msg || (contexto === 'upload'
+      ? t('pedido.smart_import.err_upload_gen')
+      : t('pedido.smart_import.err_confirmar_gen')),
+    sugestoes: [
+      'Tente novamente',
+      'Se persistir, abra um chamado com o codigo abaixo',
+    ],
+    retryable: true,
+  }
+}
+
+/**
+ * @deprecated Use traduzirErroDetalhado. Mantido como wrapper para compatibilidade
+ * com chamadas legadas (etapa confirmar) que ainda esperam string.
+ */
+function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload', t: TFunc): string {
+  const detalhado = traduzirErroDetalhado(err, contexto, t)
+  return detalhado.mensagem
 }
 
 const ORDEM_ETAPAS: Etapa[] = ['upload', 'mapeamento', 'preview', 'confirmacao']
@@ -118,7 +322,8 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
   const [etapa, setEtapa]             = useState<Etapa>('upload')
   const [analisando, setAnalisando]   = useState(false)
   const [confirmando, setConfirmando] = useState(false)
-  const [erro, setErro]               = useState<string | null>(null)
+  // Erro rico — substitui string simples por estrutura ErroDetalhado com sugestoes contextuais.
+  const [erro, setErro]               = useState<ErroDetalhado | null>(null)
 
   // Dados do fluxo
   const [preview, setPreview]                   = useState<SmartImportPreview | null>(null)
@@ -220,8 +425,11 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         },
       })
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
-        throw new Error((err as { error?: { message?: string } }).error?.message ?? `HTTP ${res.status}`)
+        const { message, code } = await lerErroBody(res)
+        // Lanca erro com code anexado para o catch traduzir corretamente.
+        const errToThrow = new Error(message) as Error & { codeBackend: string }
+        errToThrow.codeBackend = code
+        throw errToThrow
       }
       const dados = await res.json() as Record<string, unknown>
 
@@ -255,7 +463,8 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
 
       setEtapa('mapeamento')
     } catch (err: unknown) {
-      setErro(traduzirErro(err, 'upload', t))
+      const codeBackend = (err as { codeBackend?: string })?.codeBackend
+      setErro(traduzirErroDetalhado(err, 'upload', t, codeBackend))
     } finally {
       setAnalisando(false)
     }
@@ -288,9 +497,10 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       setEtapa('confirmacao')
       addNotification({ type: 'success', message: `${dados.ids_criados?.length ?? 0} PO(s) importadas via SmartImport.`, duration: 4000 })
     } catch (err: unknown) {
-      const msg = traduzirErro(err, 'confirmar', t)
-      setErro(msg)
-      addNotification({ type: 'error', message: `Falha na importação: ${msg}`, duration: 4000 })
+      const codeBackend = (err as { codeBackend?: string })?.codeBackend
+      const detalhado = traduzirErroDetalhado(err, 'confirmar', t, codeBackend)
+      setErro(detalhado)
+      addNotification({ type: 'error', message: `Falha na importação: ${detalhado.mensagem}`, duration: 4000 })
     } finally {
       setConfirmando(false)
     }
@@ -405,6 +615,9 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
               erro={erro}
               planilhas={planilhas}
               planilhaSelecionada={planilhaSelecionada}
+              onBaixarTemplate={() => {
+                window.open('/api/v1/pedidos/importacoes-inteligentes/template', '_blank')
+              }}
               onPlanilhaSelecionada={(nome) => {
                 setPlanilhaSelecionada(nome)
                 setPlanilhas([])

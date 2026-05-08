@@ -17,13 +17,30 @@ import {
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Estrutura rica de erro vinda do Modal pai. Cobre todos os codes do backend
+ * + erros de cliente (rede, HTTP genericos). Contem sugestoes contextuais
+ * por tipo de erro — render lista com bullets.
+ */
+export interface ErroDetalhadoUpload {
+  code: string
+  titulo: string
+  mensagem: string
+  causa?: string
+  sugestoes: string[]
+  retryable: boolean
+  acoes?: Array<{ label: string; tipo: 'baixar_template' | 'recarregar' }>
+}
+
 interface EtapaUploadProps {
   onArquivoSelecionado: (arquivo: File) => void
   carregando: boolean
-  erro: string | null
+  erro: ErroDetalhadoUpload | null
   planilhas?: string[]
   planilhaSelecionada?: string
   onPlanilhaSelecionada?: (nome: string) => void
+  /** Acao para baixar o template — usada quando o erro sugere fazer download. */
+  onBaixarTemplate?: () => void
 }
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -35,7 +52,7 @@ const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas, planilhaSelecionada, onPlanilhaSelecionada }: EtapaUploadProps) {
+export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas, planilhaSelecionada, onPlanilhaSelecionada, onBaixarTemplate }: EtapaUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
   const [erroLocal, setErroLocal] = useState<string | null>(null)
@@ -82,7 +99,23 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
     if (file) validarESelecionar(file)
   }
 
-  const mensagemErro = erroLocal ?? erro
+  // Renderizacao do erro: prioriza erro rico do backend (ErroDetalhado).
+  // Se for so erro local (validacao client-side), monta estrutura minima.
+  const erroExibir: ErroDetalhadoUpload | null =
+    erro
+      ? erro
+      : erroLocal
+        ? {
+            code: 'VALIDACAO_LOCAL',
+            titulo: t('pedido.smart_import.erro_titulo'),
+            mensagem: erroLocal,
+            sugestoes: [
+              t('pedido.smart_import.dica_formato', { extensoes: EXTENSOES_ACEITAS.join(', ') }),
+              t('pedido.smart_import.dica_tamanho', { mb: TAMANHO_MAX_MB }),
+            ],
+            retryable: false,
+          }
+        : null
   const temMultiplasAbas = planilhas && planilhas.length > 1
 
   return (
@@ -199,63 +232,125 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
         </a>
       </div>
 
-      {mensagemErro && (
+      {erroExibir && (
         <div
           role="alert"
           style={{
             marginTop: '1rem',
-            padding: '0.875rem 1rem',
+            padding: '1rem',
             background: 'rgba(239,68,68,0.08)',
             border: '1px solid rgba(239,68,68,0.25)',
             borderRadius: '0.5rem',
           }}
         >
-          {/* Cabeçalho do erro */}
+          {/* Titulo + mensagem */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#ef4444' }}>
-            <Warning size={16} weight="fill" aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+            <Warning size={18} weight="fill" aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
             <div style={{ flex: 1 }}>
-              <strong style={{ fontSize: '0.8125rem', display: 'block', marginBottom: '0.25rem' }}>
-                {t('pedido.smart_import.erro_titulo')}
+              <strong style={{ fontSize: '0.875rem', display: 'block', marginBottom: '0.25rem' }}>
+                {erroExibir.titulo}
               </strong>
-              <span style={{ fontSize: '0.8125rem', color: '#fca5a5' }}>{mensagemErro}</span>
+              <span style={{ fontSize: '0.8125rem', color: '#fca5a5', display: 'block' }}>
+                {erroExibir.mensagem}
+              </span>
+              {erroExibir.causa && (
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', display: 'block', marginTop: '0.25rem' }}>
+                  {erroExibir.causa}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Dicas práticas — sempre exibidas para ajudar o usuário a destravar */}
-          <div
-            style={{
-              marginTop: '0.75rem',
-              paddingTop: '0.75rem',
-              borderTop: '1px solid rgba(239,68,68,0.18)',
-            }}
-          >
-            <span
+          {/* Sugestoes contextuais — geradas pelo traduzirErroDetalhado */}
+          {erroExibir.sugestoes.length > 0 && (
+            <div
               style={{
-                display: 'block',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                color: 'var(--text-muted, #94a3b8)',
-                marginBottom: '0.375rem',
+                marginTop: '0.75rem',
+                paddingTop: '0.75rem',
+                borderTop: '1px solid rgba(239,68,68,0.18)',
               }}
             >
-              {t('pedido.smart_import.erro_verificar')}
-            </span>
-            <ul
-              style={{
-                margin: 0,
-                paddingLeft: '1.125rem',
-                fontSize: '0.75rem',
-                color: 'var(--text-muted, #94a3b8)',
-                lineHeight: 1.6,
-              }}
-            >
-              <li>{t('pedido.smart_import.dica_formato', { extensoes: EXTENSOES_ACEITAS.join(', ') })}</li>
-              <li>{t('pedido.smart_import.dica_tamanho', { mb: TAMANHO_MAX_MB })}</li>
-              <li>{t('pedido.smart_import.dica_template')}</li>
-              <li>{t('pedido.smart_import.dica_pdf_texto')}</li>
-            </ul>
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted, #94a3b8)',
+                  marginBottom: '0.375rem',
+                }}
+              >
+                O QUE FAZER:
+              </span>
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: '1.125rem',
+                  fontSize: '0.8125rem',
+                  color: 'var(--text-default, #e2e8f0)',
+                  lineHeight: 1.6,
+                }}
+              >
+                {erroExibir.sugestoes.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {/* Botoes de acao contextuais (baixar template, recarregar) */}
+          {erroExibir.acoes && erroExibir.acoes.length > 0 && (
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {erroExibir.acoes.map((a, i) => {
+                if (a.tipo === 'baixar_template' && onBaixarTemplate) {
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={onBaixarTemplate}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        background: 'rgba(99,102,241,0.15)',
+                        color: '#a5b4fc',
+                        border: '1px solid rgba(99,102,241,0.3)',
+                        borderRadius: '0.375rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      📥 {a.label}
+                    </button>
+                  )
+                }
+                if (a.tipo === 'recarregar') {
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        background: 'rgba(99,102,241,0.15)',
+                        color: '#a5b4fc',
+                        border: '1px solid rgba(99,102,241,0.3)',
+                        borderRadius: '0.375rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      🔄 {a.label}
+                    </button>
+                  )
+                }
+                return null
+              })}
+            </div>
+          )}
+
+          {/* Codigo do erro — para suporte/debug. Sempre presente. */}
+          <div style={{ marginTop: '0.75rem', fontSize: '0.6875rem', color: 'var(--text-muted, #94a3b8)' }}>
+            Codigo: <code style={{ background: 'rgba(0,0,0,0.2)', padding: '0.125rem 0.375rem', borderRadius: '0.25rem' }}>{erroExibir.code}</code>
           </div>
         </div>
       )}

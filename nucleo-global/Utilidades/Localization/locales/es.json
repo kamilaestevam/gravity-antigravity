@@ -4023,7 +4023,15 @@
       "ph_sku": "SKU",
       "tooltip_lado_da_org_importador": "Su organización es el importador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
       "tooltip_lado_da_org_exportador": "Su organización es el exportador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
-      "erro_empresa_da_org": "No se pudo cargar la empresa de su organización. {{detalhe}}"
+      "erro_empresa_da_org": "No se pudo cargar la empresa de su organización. {{detalhe}}",
+      "pendencias_titulo": "Para continuar, aún falta:",
+      "legenda_obrigatorios": "Campos obligatorios",
+      "falta_numero_pedido": "Número del Pedido",
+      "falta_exportador": "Seleccionar (o registrar) el exportador",
+      "falta_importador": "Seleccionar (o registrar) el importador",
+      "falta_empresa_da_org": "La empresa de su organización debe estar registrada en Cadastros",
+      "falta_empresa_da_org_carregando": "Cargando la empresa de su organización...",
+      "falta_data_emissao_valida": "La fecha de emisión debe ser una fecha válida"
     },
     "cadastro_empresa": {
       "titulo": "Registrar Empresa",

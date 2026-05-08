@@ -3684,7 +3684,15 @@
       "ph_sku": "SKU",
       "tooltip_lado_da_org_importador": "Sua organização é o importador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
       "tooltip_lado_da_org_exportador": "Sua organização é o exportador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
-      "erro_empresa_da_org": "Não foi possível carregar a empresa da sua organização. {{detalhe}}"
+      "erro_empresa_da_org": "Não foi possível carregar a empresa da sua organização. {{detalhe}}",
+      "pendencias_titulo": "Para avançar, ainda falta:",
+      "legenda_obrigatorios": "Campos obrigatórios",
+      "falta_numero_pedido": "Número do Pedido",
+      "falta_exportador": "Selecionar (ou cadastrar) o exportador",
+      "falta_importador": "Selecionar (ou cadastrar) o importador",
+      "falta_empresa_da_org": "Empresa da sua organização precisa estar cadastrada em Cadastros",
+      "falta_empresa_da_org_carregando": "Carregando empresa da sua organização...",
+      "falta_data_emissao_valida": "Data de emissão precisa ser uma data válida"
     },
     "cadastro_empresa": {
       "titulo": "Cadastrar Empresa",

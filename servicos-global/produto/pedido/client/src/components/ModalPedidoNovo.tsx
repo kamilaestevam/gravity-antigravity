@@ -217,6 +217,41 @@ const s = {
     border: '1px solid rgba(239,68,68,0.2)',
     borderRadius: 'var(--radius-md)',
   } as React.CSSProperties,
+  // Bloco "PARA AVANÇAR, AINDA FALTA" — UX espelhada do modal Cadastros
+  pendenciasBox: {
+    marginTop: '1rem',
+    padding: '0.875rem 1rem',
+    background: 'rgba(239,68,68,0.08)',
+    border: '1px solid rgba(239,68,68,0.25)',
+    borderRadius: 'var(--radius-md)',
+  } as React.CSSProperties,
+  pendenciasTitulo: {
+    display: 'block',
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase' as const,
+    color: '#ef4444',
+    marginBottom: '0.5rem',
+  } as React.CSSProperties,
+  pendenciasLista: {
+    margin: 0,
+    paddingLeft: '1.125rem',
+    fontSize: '0.8125rem',
+    color: '#fca5a5',
+    lineHeight: 1.55,
+  } as React.CSSProperties,
+  asteriscoObrigatorio: {
+    color: 'var(--danger, #ef4444)',
+    fontWeight: 700,
+    marginLeft: '0.125rem',
+  } as React.CSSProperties,
+  legendaObrigatorios: {
+    marginTop: '0.5rem',
+    fontSize: '0.6875rem',
+    color: 'var(--text-muted, #94a3b8)',
+    fontStyle: 'italic' as const,
+  } as React.CSSProperties,
   itensHeader: {
     display: 'flex',
     alignItems: 'center',
@@ -442,10 +477,40 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setItens(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Passo 1 → só exige número do pedido para avançar
+  // ── Pendências do passo 1 ─────────────────────────────────────────────────
+  // Lista as obrigatoriedades que ainda faltam preencher para o user avançar.
+  // Cada item vira uma linha no bloco "PARA AVANÇAR, AINDA FALTA" — UX
+  // espelhada do modal de Cadastros (Razão social + funções habilitadas).
+  // Ordem segue a leitura do formulário (top-down).
+  const pendenciasPasso1 = useMemo<string[]>(() => {
+    const faltas: string[] = []
+    if (carregandoEmpresaDaOrg) {
+      faltas.push(t('pedido.modal_novo.falta_empresa_da_org_carregando'))
+    } else if (!empresaDaOrg) {
+      faltas.push(t('pedido.modal_novo.falta_empresa_da_org'))
+    }
+    if (!form.numero_pedido.trim() || form.numero_pedido.trim().length < 1) {
+      faltas.push(t('pedido.modal_novo.falta_numero_pedido'))
+    }
+    if (form.tipo_operacao === 'importacao' && !form.suid_exportador) {
+      faltas.push(t('pedido.modal_novo.falta_exportador'))
+    }
+    if (form.tipo_operacao === 'exportacao' && !form.suid_importador) {
+      faltas.push(t('pedido.modal_novo.falta_importador'))
+    }
+    if (form.data_emissao_pedido) {
+      const d = new Date(`${form.data_emissao_pedido}T00:00:00.000Z`)
+      if (isNaN(d.getTime())) {
+        faltas.push(t('pedido.modal_novo.falta_data_emissao_valida'))
+      }
+    }
+    return faltas
+  }, [form.numero_pedido, form.tipo_operacao, form.suid_exportador, form.suid_importador, form.data_emissao_pedido, empresaDaOrg, carregandoEmpresaDaOrg, t])
+
+  // Passo 1 → libera quando não há pendências
   // Passo 2 → sem obrigatoriedade, sempre pode criar
   const podeAvancar = passo === 1
-    ? form.numero_pedido.trim() !== ''
+    ? pendenciasPasso1.length === 0
     : true
 
   async function handleProximo() {
@@ -550,6 +615,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             empresaDaOrg={empresaDaOrg}
             carregandoEmpresaDaOrg={carregandoEmpresaDaOrg}
             erroEmpresaDaOrg={erroEmpresaDaOrg}
+            pendencias={pendenciasPasso1}
             aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
           />
         )}
@@ -744,6 +810,7 @@ function Passo1Dados({
   empresaDaOrg,
   carregandoEmpresaDaOrg,
   erroEmpresaDaOrg,
+  pendencias,
   aoCadastrarNova,
 }: {
   form: PedidoForm
@@ -756,6 +823,7 @@ function Passo1Dados({
   empresaDaOrg: Empresa | null
   carregandoEmpresaDaOrg: boolean
   erroEmpresaDaOrg: string | null
+  pendencias: string[]
   aoCadastrarNova: (papel: PapelEmpresaRapido) => void
 }) {
   const { t } = useTranslation()
@@ -788,7 +856,7 @@ function Passo1Dados({
       <div style={{ ...s.grid, marginBottom: '1rem' }}>
         <div style={{ ...s.campo, ...s.gridFull }}>
           <SelectGlobal
-            label={t('pedido.drawer.label_tipo_op')}
+            label={`${t('pedido.drawer.label_tipo_op')} *`}
             opcoes={opcoesTipoOperacao}
             valor={form.tipo_operacao}
             aoMudarValor={v => onChange('tipo_operacao', String(v ?? 'importacao'))}
@@ -823,7 +891,10 @@ function Passo1Dados({
       {/* Demais campos */}
       <div style={s.grid}>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-numero-pedido">{t('pedido.drawer.label_numero')}</label>
+          <label style={s.label} htmlFor="mnp-numero-pedido">
+            {t('pedido.drawer.label_numero')}
+            <span style={s.asteriscoObrigatorio}>*</span>
+          </label>
           <input
             id="mnp-numero-pedido"
             disabled={camposBloqueados}
@@ -859,7 +930,7 @@ function Passo1Dados({
             </div>
             <div style={s.campo}>
               <CampoEmpresaSelect
-                label={t('pedido.drawer.label_exportador')}
+                label={`${t('pedido.drawer.label_exportador')} *`}
                 opcoes={opcoesContraparteExportador}
                 valor={form.suid_exportador || null}
                 carregando={carregandoEmpresas}
@@ -877,7 +948,7 @@ function Passo1Dados({
           <>
             <div style={s.campo}>
               <CampoEmpresaSelect
-                label={t('pedido.drawer.label_importador', 'Importador')}
+                label={`${t('pedido.drawer.label_importador', 'Importador')} *`}
                 opcoes={opcoesContraparteImportador}
                 valor={form.suid_importador || null}
                 carregando={carregandoEmpresas}
@@ -1001,6 +1072,24 @@ function Passo1Dados({
           <span>{erros.geral}</span>
         </div>
       )}
+
+      {/* Bloco "PARA AVANÇAR, AINDA FALTA" — UX espelhada do modal de Cadastros.
+          Mostra todas as obrigatoriedades pendentes para destravar o botão Próximo. */}
+      {pendencias.length > 0 && (
+        <div style={s.pendenciasBox} role="alert" aria-live="polite">
+          <span style={s.pendenciasTitulo}>{t('pedido.modal_novo.pendencias_titulo')}</span>
+          <ul style={s.pendenciasLista}>
+            {pendencias.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Legenda permanente: explicação do asterisco vermelho */}
+      <p style={s.legendaObrigatorios}>
+        <span style={s.asteriscoObrigatorio}>*</span> {t('pedido.modal_novo.legenda_obrigatorios')}
+      </p>
     </div>
   )
 }

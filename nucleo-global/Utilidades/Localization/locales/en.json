@@ -3878,7 +3878,15 @@
       "ph_sku": "SKU",
       "tooltip_lado_da_org_importador": "Your organization is the importer in this operation. This field is auto-filled and cannot be changed.",
       "tooltip_lado_da_org_exportador": "Your organization is the exporter in this operation. This field is auto-filled and cannot be changed.",
-      "erro_empresa_da_org": "Could not load your organization's company. {{detalhe}}"
+      "erro_empresa_da_org": "Could not load your organization's company. {{detalhe}}",
+      "pendencias_titulo": "To proceed, still missing:",
+      "legenda_obrigatorios": "Required fields",
+      "falta_numero_pedido": "Order Number",
+      "falta_exportador": "Select (or register) the exporter",
+      "falta_importador": "Select (or register) the importer",
+      "falta_empresa_da_org": "Your organization's company must be registered in Cadastros",
+      "falta_empresa_da_org_carregando": "Loading your organization's company...",
+      "falta_data_emissao_valida": "Issue date must be a valid date"
     },
     "cadastro_empresa": {
       "titulo": "Register Company",

@@ -496,9 +496,18 @@ export function ProdutosGravityAdmin() {
         if (!item.valor_unitario_negociacao_especial) {
           return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', fontStyle: 'italic' }}>—</span>
         }
+        const n = Number(item.valor_unitario_negociacao_especial)
+        if (isNaN(n)) return <span style={{ color: 'var(--ws-muted)' }}>—</span>
+        const moeda = (item.moeda_negociacao_especial ?? 'BRL').toUpperCase()
+        const locale = moeda === 'BRL' ? 'pt-BR' : 'en-US'
+        const formatado = new Intl.NumberFormat(locale, {
+          style: 'currency',
+          currency: moeda,
+          minimumFractionDigits: 2,
+        }).format(n)
         return (
           <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.875rem' }}>
-            {getSimboloMoeda(item.moeda_negociacao_especial)} {item.valor_unitario_negociacao_especial}
+            {formatado}
           </span>
         )
       }

@@ -61,10 +61,12 @@ export function CampoCalendarioGlobal({
   const [panelPos, setPanelPos] = useState<{ top: number; left: number; width: number } | null>(null)
 
   // Quando initialOpen=true, calcula posição do painel logo após montar
+  // (a lógica de flip é aplicada via calcularPosicao mais abaixo no arquivo)
   useEffect(() => {
     if (initialOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
-      setPanelPos({ top: rect.bottom + 8, left: rect.left, width: Math.max(rect.width, 380) })
+      // Defer para garantir que calcularPosicao já está definido quando este efeito roda
+      // (em React isso é garantido — useCallback abaixo já registrou).
+      requestAnimationFrame(() => calcularPosicao())
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -175,16 +177,43 @@ export function CampoCalendarioGlobal({
     setEtapa('inicio')
   }
 
-  // Calcula posição do painel relativa ao viewport (position: fixed)
+  // Calcula posição do painel relativa ao viewport (position: fixed).
+  // Faz "flip" automático: se não couber abaixo do trigger e couber melhor
+  // acima, abre para cima — evita painel cortado pelo viewport (modal/scroll).
   const calcularPosicao = useCallback(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
-      setPanelPos({
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: Math.max(rect.width, 380),
-      })
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const ALTURA_ESTIMADA_PAINEL = 440 // altura típica do calendar panel (sidebar + grid + footer)
+    const MARGEM = 8
+    const espacoAbaixo = window.innerHeight - rect.bottom
+    const espacoAcima  = rect.top
+
+    let top: number
+    if (espacoAbaixo >= ALTURA_ESTIMADA_PAINEL + MARGEM) {
+      // Cabe abaixo — comportamento default
+      top = rect.bottom + MARGEM
+    } else if (espacoAcima >= ALTURA_ESTIMADA_PAINEL + MARGEM) {
+      // Não cabe abaixo, mas cabe acima — flip
+      top = rect.top - ALTURA_ESTIMADA_PAINEL - MARGEM
+    } else {
+      // Não cabe nem em cima nem embaixo — escolhe o lado mais espaçoso
+      // e gruda no topo do viewport com margem (limita corte).
+      if (espacoAbaixo >= espacoAcima) {
+        top = Math.max(MARGEM, window.innerHeight - ALTURA_ESTIMADA_PAINEL - MARGEM)
+      } else {
+        top = MARGEM
+      }
     }
+
+    // Ajusta horizontal para não estourar à direita
+    const larguraPainel = Math.max(rect.width, 380)
+    const left = Math.min(rect.left, window.innerWidth - larguraPainel - MARGEM)
+
+    setPanelPos({
+      top,
+      left: Math.max(MARGEM, left),
+      width: larguraPainel,
+    })
   }, [])
 
   function doConfirm() {

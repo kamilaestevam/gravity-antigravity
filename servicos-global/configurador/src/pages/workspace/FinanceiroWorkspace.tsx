@@ -370,7 +370,7 @@ export function FinanceiroWorkspace() {
           const valorEspecial = Number(neg.valor_unitario_negociacao_especial)
           const valorTabela = Number(item.preco_unitario_produto_gravity)
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', textAlign: 'center' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.9375rem' }}>
                   {isNaN(valorEspecial)

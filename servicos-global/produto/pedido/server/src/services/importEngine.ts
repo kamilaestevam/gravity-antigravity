@@ -13,6 +13,7 @@
  */
 
 import { createHash } from 'node:crypto'
+import { AppError } from '../errors/AppError.js'
 
 // ── Aliases conhecidos de campos para sugestao de mapeamento ─────────────────
 
@@ -197,7 +198,11 @@ export async function parseArquivo(
         ? parsed as Record<string, unknown>[]
         : (() => {
             const found = encontrarArrayAninhado(parsed as Record<string, unknown>)
-            if (!found) throw new Error('JSON não contém array de objetos')
+            if (!found) throw new AppError(
+              'O arquivo JSON nao tem o formato esperado.',
+              400,
+              'JSON_FORMATO_INVALIDO',
+            )
             return found
           })()
       return {
@@ -247,7 +252,11 @@ export async function parseArquivo(
     }
 
     default:
-      throw new Error(`Formato .${ext} nao suportado`)
+      throw new AppError(
+        `O formato ".${ext}" nao e aceito.`,
+        400,
+        'FORMATO_NAO_SUPORTADO',
+      )
   }
 }
 

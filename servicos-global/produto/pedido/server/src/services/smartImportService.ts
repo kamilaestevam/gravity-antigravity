@@ -140,7 +140,11 @@ export class SmartImportService {
     // 1. Parse do arquivo
     const { linhas: linhasBrutas, extrator_usado } = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
     if (linhasBrutas.length === 0) {
-      throw new Error('Arquivo vazio ou sem dados validos')
+      throw new AppError(
+        'A planilha nao tem nenhuma linha de dados.',
+        400,
+        'ARQUIVO_SEM_DADOS',
+      )
     }
 
     // 2. Extrair cabecalhos

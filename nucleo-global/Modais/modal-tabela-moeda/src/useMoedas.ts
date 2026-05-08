@@ -50,6 +50,33 @@ export const listaMoedasSchema = z.object({
 
 export type Moeda = z.infer<typeof moedaSchema>
 
+// ── Ordenação canônica para UX ─────────────────────────────────────────────
+// Moedas COMEX-principais aparecem no topo (na ordem listada), depois o
+// resto em ordem alfabética. Decisão de UX em 2026-05-08: usuário Gravity
+// trabalha com USD/EUR/BRL >90% das vezes — listar AED/AFN/ALL primeiro
+// (ordem natural do banco) é desperdício de scroll.
+//
+// Esta lista NÃO é a fonte da verdade da existência das moedas (o banco é).
+// É apenas hint de prioridade de exibição. Se uma moeda aqui não estiver no
+// banco (por exemplo, banco com seed parcial), ela simplesmente não aparece.
+export const MOEDAS_PRIORITARIAS_UX = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY'] as const
+
+function ordenarComPrioridade(moedas: Moeda[]): Moeda[] {
+  const prioritarias: Moeda[] = []
+  const demais: Moeda[] = []
+  const indicePrioridade = new Map(MOEDAS_PRIORITARIAS_UX.map((s, i) => [s, i] as const))
+
+  for (const m of moedas) {
+    if (indicePrioridade.has(m.codigo_moeda)) prioritarias.push(m)
+    else demais.push(m)
+  }
+  prioritarias.sort(
+    (a, b) => (indicePrioridade.get(a.codigo_moeda) ?? 999) - (indicePrioridade.get(b.codigo_moeda) ?? 999),
+  )
+  demais.sort((a, b) => a.codigo_moeda.localeCompare(b.codigo_moeda))
+  return [...prioritarias, ...demais]
+}
+
 // ── Cache singleton (ver bloco "Atenção multi-tenant" no topo) ─────────────
 
 let cachePromise: Promise<Moeda[]> | null = null
@@ -65,7 +92,8 @@ async function fetchMoedas(): Promise<Moeda[]> {
   // Zod valida shape e tipos — qualquer divergência lança ZodError ruidoso
   // e o consumer mostra mensagem de erro (Mandamento 08, sem fallback).
   const parsed = listaMoedasSchema.parse(json)
-  return parsed.itens.filter((m) => m.ativo_moeda)
+  const ativas = parsed.itens.filter((m) => m.ativo_moeda)
+  return ordenarComPrioridade(ativas)
 }
 
 function carregarMoedas(): Promise<Moeda[]> {

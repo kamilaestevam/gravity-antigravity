@@ -17,6 +17,7 @@ import {
   invalidarCacheMoedas,
   moedaSchema,
   listaMoedasSchema,
+  MOEDAS_PRIORITARIAS_UX,
 } from '../../../../nucleo-global/Modais/modal-tabela-moeda/src/useMoedas.js'
 
 const RESPOSTA_VALIDA = {
@@ -133,6 +134,67 @@ describe('useMoedas — recarregar', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(result.current.moedas.map((m) => m.codigo_moeda)).toEqual(['USD', 'EUR'])
+  })
+})
+
+describe('useMoedas — ordenação UX (prioritárias primeiro, demais alfabético)', () => {
+  it('coloca USD/EUR/BRL no topo quando presentes na resposta', async () => {
+    const respostaEmbaralhada = {
+      itens: [
+        { codigo_moeda: 'AED', nome_moeda: 'Dirham', simbolo_moeda: 'AED', ativo_moeda: true },
+        { codigo_moeda: 'BRL', nome_moeda: 'Real', simbolo_moeda: 'BRL', ativo_moeda: true },
+        { codigo_moeda: 'AFN', nome_moeda: 'Afegane', simbolo_moeda: 'AFN', ativo_moeda: true },
+        { codigo_moeda: 'EUR', nome_moeda: 'Euro', simbolo_moeda: 'EUR', ativo_moeda: true },
+        { codigo_moeda: 'USD', nome_moeda: 'Dólar', simbolo_moeda: 'USD', ativo_moeda: true },
+        { codigo_moeda: 'JPY', nome_moeda: 'Iene', simbolo_moeda: 'JPY', ativo_moeda: true },
+      ],
+      total: 6,
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(respostaEmbaralhada), { status: 200 })))
+
+    const { result } = renderHook(() => useMoedas())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    const ordem = result.current.moedas.map((m) => m.codigo_moeda)
+    // USD, EUR, BRL primeiro (ordem da lista MOEDAS_PRIORITARIAS_UX)
+    expect(ordem.slice(0, 4)).toEqual(['USD', 'EUR', 'BRL', 'JPY'])
+    // Demais em alfabético: AED, AFN
+    expect(ordem.slice(4)).toEqual(['AED', 'AFN'])
+  })
+
+  it('respeita a ordem da MOEDAS_PRIORITARIAS_UX (USD, EUR, BRL, CNY, GBP, JPY)', async () => {
+    const todasPrioritarias = {
+      itens: MOEDAS_PRIORITARIAS_UX.map((sigla) => ({
+        codigo_moeda: sigla,
+        nome_moeda: `Moeda ${sigla}`,
+        simbolo_moeda: sigla,
+        ativo_moeda: true,
+      })).reverse(), // entram na resposta em ordem reversa
+      total: MOEDAS_PRIORITARIAS_UX.length,
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(todasPrioritarias), { status: 200 })))
+
+    const { result } = renderHook(() => useMoedas())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.moedas.map((m) => m.codigo_moeda)).toEqual([...MOEDAS_PRIORITARIAS_UX])
+  })
+
+  it('quando nenhuma prioritária está presente, ordena tudo alfabeticamente', async () => {
+    const semPrioridade = {
+      itens: [
+        { codigo_moeda: 'ZWL', nome_moeda: 'Zim', simbolo_moeda: 'ZWL', ativo_moeda: true },
+        { codigo_moeda: 'AFN', nome_moeda: 'Afegane', simbolo_moeda: 'AFN', ativo_moeda: true },
+        { codigo_moeda: 'KZT', nome_moeda: 'Tenge', simbolo_moeda: 'KZT', ativo_moeda: true },
+      ],
+      total: 3,
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(semPrioridade), { status: 200 })))
+
+    const { result } = renderHook(() => useMoedas())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.moedas.map((m) => m.codigo_moeda)).toEqual(['AFN', 'KZT', 'ZWL'])
   })
 })
 

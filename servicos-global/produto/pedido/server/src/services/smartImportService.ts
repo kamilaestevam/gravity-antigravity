@@ -467,32 +467,45 @@ export class SmartImportService {
               const itemCountExistente = await (tx as Record<string, any>)['pedidoItem'].count({
                 where: { pedido_id: pedidoExistente.id, tenant_id: tenantId },
               })
-              // Adicionar item ao pedido existente — .catch(() => null) para graceful fallback
-              // (ex: unique constraint já satisfeita → pedido já atualizado, segue em frente)
-              await (tx as Record<string, any>)['pedidoItem'].create({
-                data: {
-                  id:                  gerarId('pite'),
-                  tenant_id:           tenantId,
-                  company_id:          companyId ?? tenantId,
-                  pedido_id:           pedidoExistente.id,
-                  sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : itemCountExistente + 1,
-                  part_number:         String(dados['part_number'] ?? ''),
-                  ncm:                 String(dados['ncm'] ?? ''),
-                  descricao_item:      String(dados['descricao_item'] ?? ''),
-                  quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
-                  quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
-                  casas_decimais_quantidade_item: casasConfig.quantidade,
-                  unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
-                  moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
-                  valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
-                  valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                  peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
-                  referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
-                  casas_decimais_valor_item:  casasConfig.valor,
-                  campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
-                },
-              }).catch(() => null)
-              atualizados.push(linha.linha_arquivo)
+              // Adicionar item ao pedido existente. P1.3 — REMOVIDO `.catch(() => null)`
+              // que silenciava erros de banco. Agora qualquer erro (FK violou, unique
+              // violou, NOT NULL faltando, trigger PG falhou) eh reportado em `erros[]`
+              // com o motivo real, ao inves de "graceful fallback" silencioso que
+              // mascarava bug em producao.
+              try {
+                await (tx as Record<string, any>)['pedidoItem'].create({
+                  data: {
+                    id:                  gerarId('pite'),
+                    tenant_id:           tenantId,
+                    company_id:          companyId ?? tenantId,
+                    pedido_id:           pedidoExistente.id,
+                    sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : itemCountExistente + 1,
+                    part_number:         String(dados['part_number'] ?? ''),
+                    ncm:                 String(dados['ncm'] ?? ''),
+                    descricao_item:      String(dados['descricao_item'] ?? ''),
+                    quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
+                    quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
+                    casas_decimais_quantidade_item: casasConfig.quantidade,
+                    unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
+                    moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
+                    valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                    valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
+                    peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
+                    referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
+                    casas_decimais_valor_item:  casasConfig.valor,
+                    campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
+                  },
+                })
+                atualizados.push(linha.linha_arquivo)
+              } catch (errInsert: unknown) {
+                const motivo = errInsert instanceof Error
+                  ? `${errInsert.name}: ${errInsert.message}`
+                  : 'Erro desconhecido ao inserir item'
+                erros.push({
+                  linha: linha.linha_arquivo,
+                  motivo: `Falha ao adicionar item ao pedido existente "${numeroPedidoFinal}": ${motivo}`,
+                })
+              }
               continue
             }
           }
@@ -552,10 +565,17 @@ export class SmartImportService {
           select: { quantidade_inicial_pedido: true },
         }) as { quantidade_inicial_pedido: number }[]
         const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_pedido ?? 0), 0)
+        // Atualizacao cosmetica do agregado — nao bloqueia a importacao se falhar,
+        // mas LOGA o erro (P1.3 — fim dos catches silenciosos absolutos).
         await this.db['pedido'].update({
           where: { id: pedidoId },
           data: { quantidade_total_pedido: qtdTotal },
-        }).catch(() => null) // campo opcional — não bloqueia se falhar
+        }).catch((errAggr: unknown) => {
+          const motivo = errAggr instanceof Error ? `${errAggr.name}: ${errAggr.message}` : 'erro desconhecido'
+          // eslint-disable-next-line no-console
+          console.warn(`[SmartImport] Falha ao atualizar quantidade_total_pedido (pedido ${pedidoId}, tenant ${tenantId}): ${motivo}`)
+          return null
+        })
       }
     }
 

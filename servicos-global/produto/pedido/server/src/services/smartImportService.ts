@@ -230,10 +230,13 @@ export class SmartImportService {
       console.warn(`[SmartImport] tenant=${tenantId} arquivo com ${linhasComDuplicatas.length} linhas (limite recomendado: ${LIMITE_LINHAS_AVISO})`)
     }
 
+    // 8.5. Validacao de coerencia cross-linha (master-detail) — P1.2
+    const linhasComCoerencia = this.validarCoerenciaMasterDetail(linhasComDuplicatas)
+
     // 9. Salvar preview no cache
     const previewId = `${tenantId}-${hashColunas}-${Date.now()}`
     previewCache.set(previewId, {
-      data: linhasComDuplicatas,
+      data: linhasComCoerencia,
       mapeamento,
       ts: Date.now(),
     })
@@ -252,18 +255,121 @@ export class SmartImportService {
     }))
 
     return {
-      total_linhas:    linhasComDuplicatas.length,
+      total_linhas:    linhasComCoerencia.length,
       total_pedidos:   pedidosUnicos.size,
       total_itens:     linhasBrutas.length,
       mapeamento,
       confianca_global: Math.round(confiancaGlobal),
       memoria_aplicada: memoriaAplicada,
       preview_id:      previewId,
-      linhas:          linhasComDuplicatas,
-      limite_excedido: linhasComDuplicatas.length > LIMITE_LINHAS_AVISO,
+      linhas:          linhasComCoerencia,
+      limite_excedido: linhasComCoerencia.length > LIMITE_LINHAS_AVISO,
       extrator_usado,
       dados_brutos,
     }
+  }
+
+  /**
+   * P1.2 — Coerencia master-detail entre linhas Pedido (master) e Item (detail).
+   *
+   * Verifica:
+   *   1. Linha PEDIDO duplicada — mesmo numero_pedido em 2+ linhas PEDIDO no arquivo.
+   *   2. Linha ITEM antes de qualquer PEDIDO — ordem invertida (sem pai posicional).
+   *   3. Linha ITEM com numero_pedido orfao — refere a um numero que nao existe
+   *      em nenhuma linha PEDIDO do arquivo.
+   *   4. Linha PEDIDO sem nenhum ITEM associado — aviso (pode ser intencional).
+   *
+   * Cada problema gera alerta especifico na linha afetada (nivel 'erro' para
+   * casos criticos, 'aviso' para casos toleraveis).
+   *
+   * Casos onde a coluna `tipo_linha` nao existe (formato legado): nao aplica
+   * validacao master-detail (parser cai no comportamento flat antigo).
+   */
+  private validarCoerenciaMasterDetail(linhas: SmartImportLinha[]): SmartImportLinha[] {
+    // Detecta se a coluna tipo_linha existe (template novo) ou nao (legado).
+    const temTipoLinha = linhas.some(l => l.dados['tipo_linha'] !== undefined)
+    if (!temTipoLinha) return linhas
+
+    // Indexa por numero_pedido
+    const pedidosNoArquivo = new Map<string, number[]>()  // numero -> [linha_arquivo]
+    const itensPorPedido   = new Map<string, number[]>()  // numero -> [linha_arquivo]
+    let primeiraLinhaPedido = Infinity
+
+    linhas.forEach(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+      const numero = (l.dados['numero_pedido'] as string)?.trim() || ''
+      if (tipo === 'PEDIDO' && numero) {
+        const arr = pedidosNoArquivo.get(numero) ?? []
+        arr.push(l.linha_arquivo)
+        pedidosNoArquivo.set(numero, arr)
+        if (l.linha_arquivo < primeiraLinhaPedido) primeiraLinhaPedido = l.linha_arquivo
+      } else if (tipo === 'ITEM' && numero) {
+        const arr = itensPorPedido.get(numero) ?? []
+        arr.push(l.linha_arquivo)
+        itensPorPedido.set(numero, arr)
+      }
+    })
+
+    return linhas.map(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+      const numero = (l.dados['numero_pedido'] as string)?.trim() || ''
+      const novosAlertas: SmartImportAlerta[] = []
+
+      // 1. PEDIDO duplicado no arquivo
+      if (tipo === 'PEDIDO' && numero) {
+        const ocorrencias = pedidosNoArquivo.get(numero) ?? []
+        if (ocorrencias.length > 1) {
+          const outras = ocorrencias.filter(n => n !== l.linha_arquivo).join(', ')
+          novosAlertas.push({
+            campo: 'numero_pedido',
+            tipo: 'duplicado_arquivo',
+            mensagem: `Pedido "${numero}" aparece em ${ocorrencias.length} linhas PEDIDO do arquivo (linhas: ${outras}). Mantenha apenas 1.`,
+            nivel: 'erro',
+          })
+        }
+
+        // 4. PEDIDO sem nenhum ITEM
+        const itens = itensPorPedido.get(numero) ?? []
+        if (itens.length === 0) {
+          novosAlertas.push({
+            campo: 'tipo_linha',
+            tipo: 'obrigatorio_ausente',
+            mensagem: `Pedido "${numero}" nao tem nenhum ITEM associado abaixo. Adicione pelo menos 1 linha ITEM com mesmo numero_pedido.`,
+            nivel: 'aviso',
+          })
+        }
+      }
+
+      // 2. ITEM antes de qualquer PEDIDO (ordem invertida)
+      if (tipo === 'ITEM' && l.linha_arquivo < primeiraLinhaPedido) {
+        novosAlertas.push({
+          campo: 'tipo_linha',
+          tipo: 'formato_invalido',
+          mensagem: `Linha ITEM aparece antes de qualquer linha PEDIDO. Reordene: PEDIDO primeiro, depois seus ITENs.`,
+          nivel: 'erro',
+        })
+      }
+
+      // 3. ITEM com numero_pedido orfao (sem PEDIDO correspondente)
+      if (tipo === 'ITEM' && numero && !pedidosNoArquivo.has(numero)) {
+        novosAlertas.push({
+          campo: 'numero_pedido',
+          tipo: 'formato_invalido',
+          mensagem: `Item refere ao Pedido "${numero}" que nao esta em nenhuma linha PEDIDO do arquivo. Adicione a linha PEDIDO correspondente ou corrija o numero.`,
+          nivel: 'erro',
+        })
+      }
+
+      if (novosAlertas.length === 0) return l
+
+      const alertasCombinados = [...l.alertas, ...novosAlertas]
+      const novoStatus: SmartImportLinha['status'] =
+        alertasCombinados.some(a => a.nivel === 'erro')  ? 'erro'  :
+        alertasCombinados.some(a => a.nivel === 'aviso') ? 'aviso' :
+        'ok'
+
+      return { ...l, alertas: alertasCombinados, status: novoStatus }
+    })
   }
 
   async confirmar(

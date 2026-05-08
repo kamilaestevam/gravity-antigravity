@@ -208,7 +208,7 @@ const atualizarProntaSchema = z.object({
 })
 
 const statusTransicaoSchema = z.object({
-  status: z.enum(['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']),
+  status: z.enum(['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']),
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -536,7 +536,26 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const limitNum = Number(limit ?? 20)
       const skip = (pageNum - 1) * limitNum
 
-      const [dataRaw, total, totalItens] = await Promise.all([
+      // Contagem de itens: SQL raw para evitar bug do Prisma 5.22 com filtro relation
+      // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
+      // O filtro raw garante que conta APENAS itens cujo pedido pai bate id_organizacao
+      // (e id_workspace se vier) E não está excluído.
+      const wsCondicao = idWorkspace ? 'AND p.id_workspace = $2' : ''
+      const wsParam: unknown[] = idWorkspace ? [idOrganizacao, idWorkspace] : [idOrganizacao]
+      // IMPORTANTE: qualificar com `public.` porque withOrganizacao faz
+      // SET LOCAL search_path TO tenant_<id>, public — sem qualifier, o
+      // raw query buscaria primeiro em tenant_xxx (que está vazio após
+      // descoberta arquitetural — Prisma usa public, search_path é fantasma).
+      const totalItensSql = `
+        SELECT COUNT(*)::int AS n
+        FROM "public"."pedido_itens" i
+        JOIN "public"."pedido" p ON p.id_pedido = i.id_pedido
+        WHERE p.id_organizacao = $1
+          ${wsCondicao}
+          AND p.data_exclusao_pedido IS NULL
+      `
+
+      const [dataRaw, total, totalItensRaw] = await Promise.all([
         db.pedido.findMany({
           where,
           include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
@@ -545,8 +564,11 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
           take: limitNum,
         }),
         db.pedido.count({ where }),
-        db.pedidoItem.count({ where: { pedido_item: where } }),
+        db.$queryRawUnsafe(totalItensSql, ...wsParam) as Promise<Array<{ n: number | bigint | string }>>,
       ])
+      // Number(...) cobre bigint/string que Prisma raw pode retornar para COUNT.
+      const totalItens = Number(totalItensRaw[0]?.n ?? 0)
+      console.log('[GET /pedidos] totalItens =', totalItens, 'raw:', JSON.stringify(totalItensRaw[0]))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = dataRaw as any[]
@@ -956,7 +978,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           ...pedidoData,
           valor_total_pedido: pedidoData.valor_total_pedido ?? valorTotal,
           quantidade_total_inicial_pedido: pedidoData.quantidade_total_inicial_pedido ?? qtdTotal,
-          status: 'draft',
+          status: 'rascunho',
           itens: {
             create: itens.map((item, index) => ({
               id_item: gerarId('pite'),
@@ -1033,8 +1055,8 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      if (!['draft', 'aberto'].includes(pedido.status)) {
-        throw new AppError(400, 'Pedido so pode ser editado nos status Draft ou Aberto')
+      if (!['rascunho', 'aberto'].includes(pedido.status)) {
+        throw new AppError(400, 'Pedido so pode ser editado nos status Rascunho ou Aberto')
       }
 
       const updated = await db.pedido.update({
@@ -1069,8 +1091,8 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      if (pedido.status !== 'draft') {
-        throw new AppError(400, 'Apenas pedidos com status Draft podem ser deletados')
+      if (pedido.status !== 'rascunho') {
+        throw new AppError(400, 'Apenas pedidos com status Rascunho podem ser deletados')
       }
 
       await db.pedido.delete({ where: { id: req.params.id } })
@@ -1292,7 +1314,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       }
 
       // Validação de status
-      const STATUS_VALIDOS = new Set(['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'])
+      const STATUS_VALIDOS = new Set(['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'])
       if (campo === 'status' && !STATUS_VALIDOS.has(valor as string)) {
         throw new AppError(400, `status invalido: "${valor}". Valores aceitos: ${[...STATUS_VALIDOS].join(', ')}`)
       }
@@ -1365,6 +1387,45 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         data_confirmada_recebimento_draft_pedido:  'data_confirmacao_recebimento_draft_pedido',
         data_prevista_aprovacao_draft_pedido:      'data_previsao_aprovacao_draft_pedido',
         data_confirmada_aprovacao_draft_pedido:    'data_confirmacao_aprovacao_draft_pedido',
+        // ─── BLOCO 1: campos simples (frontend usa nome legado, banco usa _pedido) ───
+        tipo_operacao:           'tipo_operacao_pedido',
+        numero_proforma:         'numero_proforma_pedido',
+        numero_invoice:          'numero_invoice_pedido',
+        referencia_importador:   'referencia_importador_pedido',
+        referencia_exportador:   'referencia_exportador_pedido',
+        referencia_fabricante:   'referencia_fabricante_pedido',
+        incoterm:                'incoterm_pedido',
+        condicao_pagamento:      'condicao_pagamento_pedido',
+        status:                  'status_pedido',
+        // ─── BLOCO 3: datas Proforma (prevista/confirmada → previsao/confirmacao + _pedido) ───
+        data_prevista_recebimento_draft_proforma:      'data_previsao_recebimento_draft_proforma_pedido',
+        data_confirmada_recebimento_draft_proforma:    'data_confirmacao_recebimento_draft_proforma_pedido',
+        data_meta_recebimento_draft_proforma:          'data_meta_recebimento_draft_proforma_pedido',
+        data_prevista_aprovacao_draft_proforma:        'data_previsao_aprovacao_draft_proforma_pedido',
+        data_confirmada_aprovacao_draft_proforma:      'data_confirmacao_aprovacao_draft_proforma_pedido',
+        data_meta_aprovacao_draft_proforma:            'data_meta_aprovacao_draft_proforma_pedido',
+        data_prevista_envio_original_proforma:         'data_previsao_envio_original_proforma_pedido',
+        data_confirmada_envio_original_proforma:       'data_confirmacao_envio_original_proforma_pedido',
+        data_meta_envio_original_proforma:             'data_meta_envio_original_proforma_pedido',
+        data_prevista_recebimento_original_proforma:   'data_previsao_recebimento_original_proforma_pedido',
+        data_confirmada_recebimento_original_proforma: 'data_confirmacao_recebimento_original_proforma_pedido',
+        data_meta_recebimento_original_proforma:       'data_meta_recebimento_original_proforma_pedido',
+        // ─── BLOCO 4: datas Invoice (mesmo padrão) ───
+        data_prevista_recebimento_draft_invoice:       'data_previsao_recebimento_draft_invoice_pedido',
+        data_confirmada_recebimento_draft_invoice:     'data_confirmacao_recebimento_draft_invoice_pedido',
+        data_meta_recebimento_draft_invoice:           'data_meta_recebimento_draft_invoice_pedido',
+        data_prevista_aprovacao_draft_invoice:         'data_previsao_aprovacao_draft_invoice_pedido',
+        data_confirmada_aprovacao_draft_invoice:       'data_confirmacao_aprovacao_draft_invoice_pedido',
+        data_meta_aprovacao_draft_invoice:             'data_meta_aprovacao_draft_invoice_pedido',
+        data_prevista_envio_original_invoice:          'data_previsao_envio_original_invoice_pedido',
+        data_confirmada_envio_original_invoice:        'data_confirmacao_envio_original_invoice_pedido',
+        data_meta_envio_original_invoice:              'data_meta_envio_original_invoice_pedido',
+        data_prevista_recebimento_original_invoice:    'data_previsao_recebimento_original_invoice_pedido',
+        data_confirmada_recebimento_original_invoice:  'data_confirmacao_recebimento_original_invoice_pedido',
+        data_meta_recebimento_original_invoice:        'data_meta_recebimento_original_invoice_pedido',
+        // ─── BLOCO 5: datas documento ───
+        data_proforma_invoice:   'data_documento_proforma_pedido',
+        data_invoice:            'data_documento_invoice_pedido',
         // campos_custom é tratado em branch próprio
       }
       let dadosUpdate: Record<string, unknown>
@@ -1377,11 +1438,11 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
           : {}
         dadosUpdate = { dados_extras_importacao_pedido: { ...customAtual, ...(valor as Record<string, unknown>) } }
       } else if (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante') {
-        // Armazenados em detalhes_operacionais — merge para não perder outros campos
-        const detAtual = (typeof pedido.detalhes_operacionais === 'object' && pedido.detalhes_operacionais !== null)
-          ? pedido.detalhes_operacionais as Record<string, unknown>
+        // Armazenados em detalhes_operacionais_pedido (JSON) — merge para não perder outros campos
+        const detAtual = (typeof pedido.detalhes_operacionais_pedido === 'object' && pedido.detalhes_operacionais_pedido !== null)
+          ? pedido.detalhes_operacionais_pedido as Record<string, unknown>
           : {}
-        dadosUpdate = { detalhes_operacionais: { ...detAtual, [campo]: valor } }
+        dadosUpdate = { detalhes_operacionais_pedido: { ...detAtual, [campo]: valor } }
       } else {
         const colunaPrisma = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
         dadosUpdate = { [colunaPrisma]: valor }
@@ -1446,7 +1507,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
           id_workspace: idWorkspace,
           tipo_operacao_pedido: original.tipo_operacao_pedido,
           numero_pedido: `${original.numero_pedido}-COPIA`,
-          status_pedido: 'draft',
+          status_pedido: 'rascunho',
           incoterm_pedido: original.incoterm_pedido,
           moeda_pedido: original.moeda_pedido,
           valor_total_pedido: original.valor_total_pedido,
@@ -1545,8 +1606,8 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      if (!['draft', 'aberto'].includes(pedido.status_pedido)) {
-        throw new AppError(400, 'Itens so podem ser adicionados em pedidos Draft ou Aberto')
+      if (!['rascunho', 'aberto'].includes(pedido.status_pedido)) {
+        throw new AppError(400, 'Itens so podem ser adicionados em pedidos Rascunho ou Aberto')
       }
 
       const itemCount = await db.pedidoItem.count({

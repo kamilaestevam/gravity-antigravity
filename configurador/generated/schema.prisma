@@ -117,6 +117,13 @@ model Usuario {
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
   id_workspace_preferido_usuario String?
 
+  // Auto-vínculo a workspaces futuros (decisão arquitetural 2026-05-05).
+  // Quando true em PADRAO/FORNECEDOR, criar workspace na organização gera
+  // UsuarioWorkspace automático para esse usuário. MASTER/SUPER_ADMIN/ADMIN
+  // ignoram este campo — bypass por Mand. 04. Limpa para false ao promover
+  // PADRAO/FORNECEDOR para tipo com bypass via PATCH /patente.
+  acesso_workspaces_futuros Boolean @default(false)
+
   // Timestamps
   data_criacao_usuario     DateTime @default(now())
   data_atualizacao_usuario DateTime @updatedAt
@@ -134,6 +141,7 @@ model Usuario {
   @@index([id_organizacao, data_criacao_usuario], map: "usuario_id_organizacao_data_criacao_idx")
   @@index([id_organizacao, tipo_usuario], map: "usuario_id_organizacao_tipo_usuario_idx")
   @@index([id_workspace_preferido_usuario], map: "usuario_id_workspace_preferido_usuario_idx")
+  @@index([id_organizacao, acesso_workspaces_futuros], map: "usuario_id_organizacao_acesso_workspaces_futuros_idx")
   @@map("usuario")
 }
 
@@ -430,7 +438,7 @@ model ProdutoGravity {
 
   // Relations
   faixas_preco_produto_gravity ProdutoGravityFaixaPreco[]
-  negociacoes_produto_gravity  ProdutoGravityNegociacaoEspecial[]
+  negociacoes_especiais        ProdutoGravityNegociacaoEspecial[]
   ativacoes_produto_gravity    ProdutoGravityWorkspace[]
   assinaturas_produto_gravity  ProdutoGravityAssinatura[]
   itens_fatura_produto_gravity ProdutoGravityFaturaItem[]
@@ -471,25 +479,27 @@ model ProdutoGravityFaixaPreco {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityNegociacaoEspecial {
-  id_negociacao_especial_preco_produto_gravity               String    @id @default(cuid())
-  id_produto_gravity                                         String
-  id_organizacao                                             String
-  nome_organizacao_negociacao_especial_preco_produto_gravity String
-  acordo_negociacao_especial_preco_produto_gravity           String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
-  data_inicio_negociacao_especial_preco_produto_gravity      DateTime?
-  data_fim_negociacao_especial_preco_produto_gravity         DateTime?
-  ilimitado_negociacao_especial_preco_produto_gravity        Boolean   @default(false)
+  id_negociacao_especial               String    @id @default(cuid())
+  id_produto_gravity                   String
+  id_organizacao                       String
+  nome_organizacao_negociacao_especial String
+  acordo_negociacao_especial           String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
+  valor_unitario_negociacao_especial   Decimal?  @db.Decimal(15, 2) // Preço especial sobrescreve preco_unitario_produto_gravity nas faturas da org (NULL = só desconto descritivo no acordo)
+  moeda_negociacao_especial            String    @default("BRL")
+  data_inicio_negociacao_especial      DateTime?
+  data_fim_negociacao_especial         DateTime?
+  ilimitado_prazo_negociacao_especial  Boolean   @default(false)
 
   // Timestamps
-  data_criacao_negociacao_especial_preco_produto_gravity     DateTime @default(now())
-  data_atualizacao_negociacao_especial_preco_produto_gravity DateTime @updatedAt
+  data_criacao_negociacao_especial     DateTime @default(now())
+  data_atualizacao_negociacao_especial DateTime @updatedAt
 
   // Relations
-  produto ProdutoGravity @relation(fields: [id_produto_gravity], references: [id_produto_gravity], onDelete: Cascade, map: "negociacao_especial_preco_produto_gravity_fkey")
+  produto ProdutoGravity @relation(fields: [id_produto_gravity], references: [id_produto_gravity], onDelete: Cascade, map: "negociacao_especial_fkey")
 
-  @@index([id_produto_gravity], map: "negociacao_especial_preco_produto_gravity_idx")
-  @@index([id_organizacao], map: "negociacao_especial_preco_produto_gravity_organizacao_idx")
-  @@map("negociacao_especial_preco_produto_gravity")
+  @@index([id_produto_gravity], map: "negociacao_especial_idx")
+  @@index([id_organizacao], map: "negociacao_especial_organizacao_idx")
+  @@map("negociacao_especial")
 }
 
 // ---------------------------------------------------------------------------

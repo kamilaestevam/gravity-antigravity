@@ -614,6 +614,34 @@ export class SmartImportService {
   private validarLinha(dados: Record<string, unknown>): SmartImportAlerta[] {
     const alertas: SmartImportAlerta[] = []
 
+    // ── Tipo Linha (master-detail) ─────────────────────────────────────────
+    // Coluna obrigatoria do template DDD novo. Aceita PEDIDO ou ITEM (case-insensitive).
+    if (dados['tipo_linha'] !== undefined) {
+      const tipoLinha = String(dados['tipo_linha']).trim().toUpperCase()
+      if (tipoLinha && !['PEDIDO', 'ITEM'].includes(tipoLinha)) {
+        alertas.push({
+          campo: 'tipo_linha',
+          tipo: 'formato_invalido',
+          mensagem: `Tipo Linha "${dados['tipo_linha']}" invalido — aceitos apenas: PEDIDO, ITEM`,
+          nivel: 'erro',
+        })
+      }
+    }
+
+    // ── Tipo Operacao (enum critico) ──────────────────────────────────────
+    // Antes era silencioso (vira 'importacao' default). Agora avisa.
+    if (dados['tipo_operacao'] !== undefined) {
+      const tipoOp = String(dados['tipo_operacao']).trim().toLowerCase()
+      if (tipoOp && !['importacao', 'exportacao'].includes(tipoOp)) {
+        alertas.push({
+          campo: 'tipo_operacao',
+          tipo: 'formato_invalido',
+          mensagem: `Tipo de Operacao "${dados['tipo_operacao']}" invalido — aceitos apenas: importacao, exportacao`,
+          nivel: 'erro',
+        })
+      }
+    }
+
     if (!dados['numero_pedido']) {
       const partNumber = dados['part_number'] ? String(dados['part_number']) : ''
       const sugestao = partNumber ? ` Sugestao: usar Part Number "${partNumber}" como referencia` : ''

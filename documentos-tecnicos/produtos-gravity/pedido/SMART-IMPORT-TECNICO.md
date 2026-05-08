@@ -170,7 +170,7 @@ Todas as rotas ficam em `/api/v1/pedidos/smart-import`.
 
 **Body:** `{ ids_criados: string[] }` (máx. 500 IDs)
 
-Cancela pedidos criados pelo import (soft delete via `status = 'cancelado'`). Só afeta pedidos com `status = 'draft'`.
+Cancela pedidos criados pelo import (soft delete via `status = 'cancelado'`). Só afeta pedidos com `status = 'rascunho'`.
 
 **Resposta `200`:** `{ revertidos: number, ids: string[] }`
 
@@ -397,7 +397,7 @@ Etapa 'confirmacao'
   ├── Criados / Atualizados / Pulados / Erros
   ├── Download de erros (.csv) se houver
   ├── Botão "Ver Pedidos Importados"
-  └── Botão "Reverter esta importação" (cancela pedidos criados em draft)
+  └── Botão "Reverter esta importação" (cancela pedidos criados em rascunho)
 ```
 
 ### Mensagens de progresso por tipo de arquivo

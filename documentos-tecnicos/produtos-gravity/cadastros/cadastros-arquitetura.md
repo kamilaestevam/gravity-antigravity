@@ -344,7 +344,7 @@ Campos identificados como faltantes no schema atual de Pedido:
 - [ ] Modelo `PedidoSnapshotEmpresa` (substitui colunas espalhadas de Importador/Exportador/Fabricante)
 - [ ] Modelo `PedidoSnapshotOpe` (substitui colunas espalhadas de OPE)
 - [ ] `AnexoPedido.tipo_documento` (proforma | invoice | bl_draft | bl_original | apolice | etc.)
-- [x] Decisão fechada (22/04/2026): `AnexoPedido.tipo_documento` fica como String única (categoria pura — `proforma | invoice | certificado_origem | apolice | pedido | etc.`). Versão Draft/Original NÃO é atributo do anexo — vive em colunas de data explícitas no `model Pedido` (ex: `data_prev_aprovacao_draft_proforma` vs `data_prev_envio_original_proforma`).
+- [x] Decisão fechada (22/04/2026): `AnexoPedido.tipo_documento` fica como String única (categoria pura — `proforma | invoice | certificado_origem | apolice | pedido | etc.`). Versão Draft/Original NÃO é atributo do anexo — vive em colunas de data explícitas no `model Pedido` (ex: `data_prev_aprovacao_rascunho_proforma` vs `data_prev_envio_original_proforma`).
 - [ ] Campos de prev/conf/meta para etapas (~20 campos)
 - [x] Decisão técnica fechada (22/04/2026): campos de etapa ficam em `model Pedido` como colunas. Sem tabela `PedidoEtapas` separada.
 - [ ] `dt_transferencia_qtd` em `TrackingItemsTransferidos`

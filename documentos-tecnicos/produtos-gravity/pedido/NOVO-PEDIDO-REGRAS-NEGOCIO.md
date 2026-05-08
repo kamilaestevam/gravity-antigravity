@@ -30,7 +30,7 @@ Drawer (painel lateral deslizante) que abre pela direita. O usuário mantém o c
 - Fechar sem salvar → confirma se há dados preenchidos
 
 ### Campos obrigatórios
-**Nenhum campo é travado.** O sistema avisa o que está faltando mas não bloqueia o salvamento. O pedido salvo sem campos essenciais fica com status `draft`.
+**Nenhum campo é travado.** O sistema avisa o que está faltando mas não bloqueia o salvamento. O pedido salvo sem campos essenciais fica com status `rascunho`.
 
 ### Itens
 - Grade dinâmica de itens dentro do drawer
@@ -71,7 +71,7 @@ Usuário decide o que fazer com cada problema
      ↓
 Confirmar importação (parcial ou total)
      ↓
-Pedidos criados com status draft
+Pedidos criados com status rascunho
 ```
 
 ### Mapeamento inteligente de colunas (3 camadas)
@@ -107,7 +107,7 @@ Analisa os valores das primeiras linhas para confirmar ou corrigir o mapeamento:
 | Coluna ignorada | Não mapeia | — |
 
 ### Campos obrigatórios
-Nenhum campo é bloqueador. Sistema avisa o que está faltando mas não impede a importação. Pedidos com campos essenciais ausentes ficam com status `draft` e com alerta.
+Nenhum campo é bloqueador. Sistema avisa o que está faltando mas não impede a importação. Pedidos com campos essenciais ausentes ficam com status `rascunho` e com alerta.
 
 ### Número de pedido duplicado
 Quando o arquivo contém um `numero_pedido` que já existe no sistema:
@@ -147,7 +147,7 @@ Linhas com o mesmo `numero_pedido` são agrupadas automaticamente em um único p
 
 | Regra | Descrição |
 |---|---|
-| **Status inicial** | Todo pedido criado (manual ou importado) começa com status `draft` |
+| **Status inicial** | Todo pedido criado (manual ou importado) começa com status `rascunho` |
 | **Auditoria** | Canal de criação registrado no histórico (`manual`, `importacao`, `api`, `smart_read`) |
 | **Colunas do usuário** | Colunas customizadas criadas pelo usuário aparecem no drawer e podem ser mapeadas no import |
 | **Permissão** | Permissão separada para criar manual vs importar em massa |

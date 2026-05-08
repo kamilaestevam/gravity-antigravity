@@ -140,30 +140,30 @@ export interface PedidoGerado {
   data_prevista_coleta_pedido: Date | null
   data_confirmada_coleta_pedido: Date | null
   data_meta_coleta_pedido: Date | null
-  data_previsao_recebimento_draft_pedido: Date | null
-  data_confirmacao_recebimento_draft_pedido: Date | null
-  data_meta_recebimento_draft_pedido: Date | null
-  data_previsao_aprovacao_draft_pedido: Date | null
-  data_confirmacao_aprovacao_draft_pedido: Date | null
-  data_meta_aprovacao_draft_pedido: Date | null
-  data_previsao_recebimento_draft_proforma_pedido: Date | null
-  data_confirmacao_recebimento_draft_proforma_pedido: Date | null
-  data_meta_recebimento_draft_proforma_pedido: Date | null
-  data_previsao_aprovacao_draft_proforma_pedido: Date | null
-  data_confirmacao_aprovacao_draft_proforma_pedido: Date | null
-  data_meta_aprovacao_draft_proforma_pedido: Date | null
+  data_previsao_recebimento_rascunho_pedido: Date | null
+  data_confirmacao_recebimento_rascunho_pedido: Date | null
+  data_meta_recebimento_rascunho_pedido: Date | null
+  data_previsao_aprovacao_rascunho_pedido: Date | null
+  data_confirmacao_aprovacao_rascunho_pedido: Date | null
+  data_meta_aprovacao_rascunho_pedido: Date | null
+  data_previsao_recebimento_rascunho_proforma_pedido: Date | null
+  data_confirmacao_recebimento_rascunho_proforma_pedido: Date | null
+  data_meta_recebimento_rascunho_proforma_pedido: Date | null
+  data_previsao_aprovacao_rascunho_proforma_pedido: Date | null
+  data_confirmacao_aprovacao_rascunho_proforma_pedido: Date | null
+  data_meta_aprovacao_rascunho_proforma_pedido: Date | null
   data_previsao_envio_original_proforma_pedido: Date | null
   data_confirmacao_envio_original_proforma_pedido: Date | null
   data_meta_envio_original_proforma_pedido: Date | null
   data_previsao_recebimento_original_proforma_pedido: Date | null
   data_confirmacao_recebimento_original_proforma_pedido: Date | null
   data_meta_recebimento_original_proforma_pedido: Date | null
-  data_previsao_recebimento_draft_invoice_pedido: Date | null
-  data_confirmacao_recebimento_draft_invoice_pedido: Date | null
-  data_meta_recebimento_draft_invoice_pedido: Date | null
-  data_previsao_aprovacao_draft_invoice_pedido: Date | null
-  data_confirmacao_aprovacao_draft_invoice_pedido: Date | null
-  data_meta_aprovacao_draft_invoice_pedido: Date | null
+  data_previsao_recebimento_rascunho_invoice_pedido: Date | null
+  data_confirmacao_recebimento_rascunho_invoice_pedido: Date | null
+  data_meta_recebimento_rascunho_invoice_pedido: Date | null
+  data_previsao_aprovacao_rascunho_invoice_pedido: Date | null
+  data_confirmacao_aprovacao_rascunho_invoice_pedido: Date | null
+  data_meta_aprovacao_rascunho_invoice_pedido: Date | null
   data_previsao_envio_original_invoice_pedido: Date | null
   data_confirmacao_envio_original_invoice_pedido: Date | null
   data_meta_envio_original_invoice_pedido: Date | null
@@ -328,10 +328,10 @@ export function gerarPedido(
     data_meta_inspecao_pedido: inc('data_meta_inspecao_pedido', dMetaInsp),
     data_confirmada_coleta_pedido: inc('data_confirmada_coleta_pedido', dConfCol),
     data_meta_coleta_pedido: inc('data_meta_coleta_pedido', dMetaCol),
-    data_previsao_recebimento_draft_pedido: inc('data_previsao_recebimento_draft_pedido', addDias(dataEmissao, 3)),
-    data_meta_recebimento_draft_pedido: inc('data_meta_recebimento_draft_pedido', addDias(dataEmissao, 2)),
-    data_previsao_aprovacao_draft_pedido: inc('data_previsao_aprovacao_draft_pedido', addDias(dataEmissao, 5)),
-    data_meta_aprovacao_draft_pedido: inc('data_meta_aprovacao_draft_pedido', addDias(dataEmissao, 4)),
+    data_previsao_recebimento_rascunho_pedido: inc('data_previsao_recebimento_rascunho_pedido', addDias(dataEmissao, 3)),
+    data_meta_recebimento_rascunho_pedido: inc('data_meta_recebimento_rascunho_pedido', addDias(dataEmissao, 2)),
+    data_previsao_aprovacao_rascunho_pedido: inc('data_previsao_aprovacao_rascunho_pedido', addDias(dataEmissao, 5)),
+    data_meta_aprovacao_rascunho_pedido: inc('data_meta_aprovacao_rascunho_pedido', addDias(dataEmissao, 4)),
     detalhes_operacionais_pedido: inc('detalhes_operacionais_pedido', {
       nome_exportador: tipoOp === 'importacao' ? fornecedor.nome : 'Gravity Comercio Exportacao Ltda',
       nome_importador: tipoOp === 'importacao' ? 'Gravity Comercio Importacao Ltda' : comprador.nome,
@@ -352,15 +352,15 @@ export function gerarPedido(
     data_documento_proforma_pedido: inc('data_documento_proforma_pedido', dDocProf),
     data_documento_invoice_pedido: inc('data_documento_invoice_pedido', dDocInv),
     data_confirmada_inspecao_pedido: inc('data_confirmada_inspecao_pedido', dConfInsp),
-    data_confirmacao_recebimento_draft_pedido: inc('data_confirmacao_recebimento_draft_pedido', addDias(dataEmissao, 4)),
-    data_confirmacao_aprovacao_draft_pedido: inc('data_confirmacao_aprovacao_draft_pedido', addDias(dataEmissao, 6)),
+    data_confirmacao_recebimento_rascunho_pedido: inc('data_confirmacao_recebimento_rascunho_pedido', addDias(dataEmissao, 4)),
+    data_confirmacao_aprovacao_rascunho_pedido: inc('data_confirmacao_aprovacao_rascunho_pedido', addDias(dataEmissao, 6)),
     // Datas proforma
-    data_previsao_recebimento_draft_proforma_pedido: inc('data_previsao_recebimento_draft_proforma_pedido', addDias(dataEmissao, 7)),
-    data_confirmacao_recebimento_draft_proforma_pedido: inc('data_confirmacao_recebimento_draft_proforma_pedido', addDias(dataEmissao, 8)),
-    data_meta_recebimento_draft_proforma_pedido: inc('data_meta_recebimento_draft_proforma_pedido', addDias(dataEmissao, 6)),
-    data_previsao_aprovacao_draft_proforma_pedido: inc('data_previsao_aprovacao_draft_proforma_pedido', addDias(dataEmissao, 9)),
-    data_confirmacao_aprovacao_draft_proforma_pedido: inc('data_confirmacao_aprovacao_draft_proforma_pedido', addDias(dataEmissao, 10)),
-    data_meta_aprovacao_draft_proforma_pedido: inc('data_meta_aprovacao_draft_proforma_pedido', addDias(dataEmissao, 8)),
+    data_previsao_recebimento_rascunho_proforma_pedido: inc('data_previsao_recebimento_rascunho_proforma_pedido', addDias(dataEmissao, 7)),
+    data_confirmacao_recebimento_rascunho_proforma_pedido: inc('data_confirmacao_recebimento_rascunho_proforma_pedido', addDias(dataEmissao, 8)),
+    data_meta_recebimento_rascunho_proforma_pedido: inc('data_meta_recebimento_rascunho_proforma_pedido', addDias(dataEmissao, 6)),
+    data_previsao_aprovacao_rascunho_proforma_pedido: inc('data_previsao_aprovacao_rascunho_proforma_pedido', addDias(dataEmissao, 9)),
+    data_confirmacao_aprovacao_rascunho_proforma_pedido: inc('data_confirmacao_aprovacao_rascunho_proforma_pedido', addDias(dataEmissao, 10)),
+    data_meta_aprovacao_rascunho_proforma_pedido: inc('data_meta_aprovacao_rascunho_proforma_pedido', addDias(dataEmissao, 8)),
     data_previsao_envio_original_proforma_pedido: inc('data_previsao_envio_original_proforma_pedido', addDias(dataEmissao, 11)),
     data_confirmacao_envio_original_proforma_pedido: inc('data_confirmacao_envio_original_proforma_pedido', addDias(dataEmissao, 12)),
     data_meta_envio_original_proforma_pedido: inc('data_meta_envio_original_proforma_pedido', addDias(dataEmissao, 10)),
@@ -368,12 +368,12 @@ export function gerarPedido(
     data_confirmacao_recebimento_original_proforma_pedido: inc('data_confirmacao_recebimento_original_proforma_pedido', addDias(dataEmissao, 15)),
     data_meta_recebimento_original_proforma_pedido: inc('data_meta_recebimento_original_proforma_pedido', addDias(dataEmissao, 12)),
     // Datas invoice
-    data_previsao_recebimento_draft_invoice_pedido: inc('data_previsao_recebimento_draft_invoice_pedido', addDias(dataEmissao, 18)),
-    data_confirmacao_recebimento_draft_invoice_pedido: inc('data_confirmacao_recebimento_draft_invoice_pedido', addDias(dataEmissao, 19)),
-    data_meta_recebimento_draft_invoice_pedido: inc('data_meta_recebimento_draft_invoice_pedido', addDias(dataEmissao, 16)),
-    data_previsao_aprovacao_draft_invoice_pedido: inc('data_previsao_aprovacao_draft_invoice_pedido', addDias(dataEmissao, 20)),
-    data_confirmacao_aprovacao_draft_invoice_pedido: inc('data_confirmacao_aprovacao_draft_invoice_pedido', addDias(dataEmissao, 21)),
-    data_meta_aprovacao_draft_invoice_pedido: inc('data_meta_aprovacao_draft_invoice_pedido', addDias(dataEmissao, 18)),
+    data_previsao_recebimento_rascunho_invoice_pedido: inc('data_previsao_recebimento_rascunho_invoice_pedido', addDias(dataEmissao, 18)),
+    data_confirmacao_recebimento_rascunho_invoice_pedido: inc('data_confirmacao_recebimento_rascunho_invoice_pedido', addDias(dataEmissao, 19)),
+    data_meta_recebimento_rascunho_invoice_pedido: inc('data_meta_recebimento_rascunho_invoice_pedido', addDias(dataEmissao, 16)),
+    data_previsao_aprovacao_rascunho_invoice_pedido: inc('data_previsao_aprovacao_rascunho_invoice_pedido', addDias(dataEmissao, 20)),
+    data_confirmacao_aprovacao_rascunho_invoice_pedido: inc('data_confirmacao_aprovacao_rascunho_invoice_pedido', addDias(dataEmissao, 21)),
+    data_meta_aprovacao_rascunho_invoice_pedido: inc('data_meta_aprovacao_rascunho_invoice_pedido', addDias(dataEmissao, 18)),
     data_previsao_envio_original_invoice_pedido: inc('data_previsao_envio_original_invoice_pedido', addDias(dataEmissao, 22)),
     data_confirmacao_envio_original_invoice_pedido: inc('data_confirmacao_envio_original_invoice_pedido', addDias(dataEmissao, 23)),
     data_meta_envio_original_invoice_pedido: inc('data_meta_envio_original_invoice_pedido', addDias(dataEmissao, 20)),

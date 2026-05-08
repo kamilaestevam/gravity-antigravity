@@ -265,7 +265,7 @@ z.object({
 │  PO-2026/003  →  PO-2026/008 (gerado)       │
 │                                              │
 │  ℹ Datas: copiadas do original              │
-│  ℹ Status: draft                            │
+│  ℹ Status: rascunho                            │
 │                                              │
 │       [Cancelar]       [Duplicar]            │
 └──────────────────────────────────────────────┘
@@ -326,7 +326,7 @@ testes/unitarios/pedido/duplicarExcluirService.test.ts
   ├── duplicar — copia todos os itens com saldo zerado
   ├── duplicar — config numero_auto gera número correto
   ├── duplicar — config copiar_datas = false reseta datas
-  ├── duplicar — config status_inicial = 'draft' ignora status original
+  ├── duplicar — config status_inicial = 'rascunho' ignora status original
   ├── excluir — hard delete remove pedido e itens
   ├── excluir — status não permitido é bloqueado
   ├── excluir item — pedido sem item é excluído (config false)

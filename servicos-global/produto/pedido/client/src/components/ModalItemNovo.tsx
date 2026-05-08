@@ -146,7 +146,7 @@ export function ModalNovoItemPedido({
   useEffect(() => {
     if (!aberto || modoContexto) return
     setCarregandoPedidos(true)
-    pedidoApi.listar({ status: 'aberto,draft' })
+    pedidoApi.listar({ status: 'aberto,rascunho' })
       .then(data => {
         const lista = Array.isArray(data) ? data : (data as { data?: Pedido[] }).data ?? []
         setPedidos(lista)

@@ -139,20 +139,20 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'data_meta_coleta_pedido',                      rotulo: 'Data Meta — Coleta',                     tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
 
   // Datas — Draft Pedido
-  { campo: 'data_previsao_recebimento_draft_pedido',       rotulo: 'Draft Pedido — Prev. Recebimento',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_confirmacao_recebimento_draft_pedido',    rotulo: 'Draft Pedido — Conf. Recebimento',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_meta_recebimento_draft_pedido',           rotulo: 'Draft Pedido — Meta Recebimento',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_previsao_aprovacao_draft_pedido',         rotulo: 'Draft Pedido — Prev. Aprovacao',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_confirmacao_aprovacao_draft_pedido',      rotulo: 'Draft Pedido — Conf. Aprovacao',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_meta_aprovacao_draft_pedido',             rotulo: 'Draft Pedido — Meta Aprovacao',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_previsao_recebimento_rascunho_pedido',       rotulo: 'Draft Pedido — Prev. Recebimento',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_confirmacao_recebimento_rascunho_pedido',    rotulo: 'Draft Pedido — Conf. Recebimento',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_meta_recebimento_rascunho_pedido',           rotulo: 'Draft Pedido — Meta Recebimento',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_previsao_aprovacao_rascunho_pedido',         rotulo: 'Draft Pedido — Prev. Aprovacao',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_pedido',      rotulo: 'Draft Pedido — Conf. Aprovacao',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_meta_aprovacao_rascunho_pedido',             rotulo: 'Draft Pedido — Meta Aprovacao',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
 
   // Datas — Draft Proforma
-  { campo: 'data_previsao_recebimento_draft_proforma_pedido',    rotulo: 'Draft Proforma — Prev. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmacao_recebimento_draft_proforma_pedido', rotulo: 'Draft Proforma — Conf. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_recebimento_draft_proforma_pedido',        rotulo: 'Draft Proforma — Meta Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_previsao_aprovacao_draft_proforma_pedido',      rotulo: 'Draft Proforma — Prev. Aprovacao',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmacao_aprovacao_draft_proforma_pedido',   rotulo: 'Draft Proforma — Conf. Aprovacao',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_aprovacao_draft_proforma_pedido',          rotulo: 'Draft Proforma — Meta Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_recebimento_rascunho_proforma_pedido',    rotulo: 'Draft Proforma — Prev. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_recebimento_rascunho_proforma_pedido', rotulo: 'Draft Proforma — Conf. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_recebimento_rascunho_proforma_pedido',        rotulo: 'Draft Proforma — Meta Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_aprovacao_rascunho_proforma_pedido',      rotulo: 'Draft Proforma — Prev. Aprovacao',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_proforma_pedido',   rotulo: 'Draft Proforma — Conf. Aprovacao',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_aprovacao_rascunho_proforma_pedido',          rotulo: 'Draft Proforma — Meta Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_previsao_envio_original_proforma_pedido',       rotulo: 'Original Proforma — Prev. Envio',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_confirmacao_envio_original_proforma_pedido',    rotulo: 'Original Proforma — Conf. Envio',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_meta_envio_original_proforma_pedido',           rotulo: 'Original Proforma — Meta Envio',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
@@ -161,12 +161,12 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'data_meta_recebimento_original_proforma_pedido',     rotulo: 'Original Proforma — Meta Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
 
   // Datas — Draft Invoice
-  { campo: 'data_previsao_recebimento_draft_invoice_pedido',     rotulo: 'Draft Invoice — Prev. Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmacao_recebimento_draft_invoice_pedido',  rotulo: 'Draft Invoice — Conf. Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_recebimento_draft_invoice_pedido',         rotulo: 'Draft Invoice — Meta Recebimento',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_previsao_aprovacao_draft_invoice_pedido',       rotulo: 'Draft Invoice — Prev. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmacao_aprovacao_draft_invoice_pedido',    rotulo: 'Draft Invoice — Conf. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_aprovacao_draft_invoice_pedido',           rotulo: 'Draft Invoice — Meta Aprovacao',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_recebimento_rascunho_invoice_pedido',     rotulo: 'Draft Invoice — Prev. Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_recebimento_rascunho_invoice_pedido',  rotulo: 'Draft Invoice — Conf. Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_recebimento_rascunho_invoice_pedido',         rotulo: 'Draft Invoice — Meta Recebimento',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_aprovacao_rascunho_invoice_pedido',       rotulo: 'Draft Invoice — Prev. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_invoice_pedido',    rotulo: 'Draft Invoice — Conf. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_aprovacao_rascunho_invoice_pedido',           rotulo: 'Draft Invoice — Meta Aprovacao',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_previsao_envio_original_invoice_pedido',        rotulo: 'Original Invoice — Prev. Envio',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
 ]
 

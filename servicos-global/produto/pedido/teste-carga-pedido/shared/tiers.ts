@@ -5,7 +5,7 @@
  * Tier 70  = Nucleo + maioria dos opcionais; deixa de fora ~25% das datas e refs secundarias
  * Tier 50  = Nucleo + opcionais essenciais; deixa de fora ~50% dos campos opcionais
  *
- * Schema base: pedido (85 colunas), pedido_itens (48 colunas)
+ * Schema base: pedido (85 colunas), pedido_item (48 colunas)
  */
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -41,8 +41,8 @@ export const PEDIDO_OPCIONAIS_MEDIANOS = new Set<string>([
   'data_confirmada_pedido_pronto', 'data_meta_pedido_pronto',
   'data_prevista_inspecao_pedido', 'data_meta_inspecao_pedido',
   'data_confirmada_coleta_pedido', 'data_meta_coleta_pedido',
-  'data_previsao_recebimento_draft_pedido', 'data_meta_recebimento_draft_pedido',
-  'data_previsao_aprovacao_draft_pedido',  'data_meta_aprovacao_draft_pedido',
+  'data_previsao_recebimento_rascunho_pedido', 'data_meta_recebimento_rascunho_pedido',
+  'data_previsao_aprovacao_rascunho_pedido',  'data_meta_aprovacao_rascunho_pedido',
   'detalhes_operacionais_pedido',
 ])
 
@@ -54,25 +54,25 @@ export const PEDIDO_OPCIONAIS_COMPLETOS = new Set<string>([
   'dados_extras_importacao_pedido', 'ids_origem_consolidacao_pedido',
   'data_documento_proforma_pedido', 'data_documento_invoice_pedido',
   'data_confirmada_inspecao_pedido',
-  'data_confirmacao_recebimento_draft_pedido', 'data_confirmacao_aprovacao_draft_pedido',
-  'data_previsao_recebimento_draft_proforma_pedido',
-  'data_confirmacao_recebimento_draft_proforma_pedido',
-  'data_meta_recebimento_draft_proforma_pedido',
-  'data_previsao_aprovacao_draft_proforma_pedido',
-  'data_confirmacao_aprovacao_draft_proforma_pedido',
-  'data_meta_aprovacao_draft_proforma_pedido',
+  'data_confirmacao_recebimento_rascunho_pedido', 'data_confirmacao_aprovacao_rascunho_pedido',
+  'data_previsao_recebimento_rascunho_proforma_pedido',
+  'data_confirmacao_recebimento_rascunho_proforma_pedido',
+  'data_meta_recebimento_rascunho_proforma_pedido',
+  'data_previsao_aprovacao_rascunho_proforma_pedido',
+  'data_confirmacao_aprovacao_rascunho_proforma_pedido',
+  'data_meta_aprovacao_rascunho_proforma_pedido',
   'data_previsao_envio_original_proforma_pedido',
   'data_confirmacao_envio_original_proforma_pedido',
   'data_meta_envio_original_proforma_pedido',
   'data_previsao_recebimento_original_proforma_pedido',
   'data_confirmacao_recebimento_original_proforma_pedido',
   'data_meta_recebimento_original_proforma_pedido',
-  'data_previsao_recebimento_draft_invoice_pedido',
-  'data_confirmacao_recebimento_draft_invoice_pedido',
-  'data_meta_recebimento_draft_invoice_pedido',
-  'data_previsao_aprovacao_draft_invoice_pedido',
-  'data_confirmacao_aprovacao_draft_invoice_pedido',
-  'data_meta_aprovacao_draft_invoice_pedido',
+  'data_previsao_recebimento_rascunho_invoice_pedido',
+  'data_confirmacao_recebimento_rascunho_invoice_pedido',
+  'data_meta_recebimento_rascunho_invoice_pedido',
+  'data_previsao_aprovacao_rascunho_invoice_pedido',
+  'data_confirmacao_aprovacao_rascunho_invoice_pedido',
+  'data_meta_aprovacao_rascunho_invoice_pedido',
   'data_previsao_envio_original_invoice_pedido',
   'data_confirmacao_envio_original_invoice_pedido',
   'data_meta_envio_original_invoice_pedido',

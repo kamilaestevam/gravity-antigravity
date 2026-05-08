@@ -47,7 +47,7 @@ export interface KpiSnapshot {
   itens_sem_cobertura: number
   qtd_cancelada_total: number
   // Outros status
-  pedidos_draft?: number
+  pedidos_rascunho?: number
 }
 
 export type UserRole = 'operador' | 'gerente' | 'diretor' | 'admin' | 'default'
@@ -608,16 +608,16 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
   }
 
   // ── Draft + valor potencial — rascunhos represando carteira ──────────────
-  if ((kpis.pedidos_draft ?? 0) > 0 && kpis.ticket_medio > 0) {
-    const valorRepresado = (kpis.pedidos_draft ?? 0) * kpis.ticket_medio
+  if ((kpis.pedidos_rascunho ?? 0) > 0 && kpis.ticket_medio > 0) {
+    const valorRepresado = (kpis.pedidos_rascunho ?? 0) * kpis.ticket_medio
     crosses.push({
-      id: 'cross_draft_valor',
+      id: 'cross_rascunho_valor',
       variante: 'default',
       tag: 'Financeiro · Rascunhos em Espera',
-      texto: `${(kpis.pedidos_draft ?? 0)} rascunho${(kpis.pedidos_draft ?? 0) > 1 ? 's' : ''} representa${(kpis.pedidos_draft ?? 0) > 1 ? 'm' : ''} aprox. ${fmtBRL(valorRepresado)} em valor potencial aguardando envio.`,
+      texto: `${(kpis.pedidos_rascunho ?? 0)} rascunho${(kpis.pedidos_rascunho ?? 0) > 1 ? 's' : ''} representa${(kpis.pedidos_rascunho ?? 0) > 1 ? 'm' : ''} aprox. ${fmtBRL(valorRepresado)} em valor potencial aguardando envio.`,
       stat: { label: 'Ticket médio', valor: fmtBRL(kpis.ticket_medio) },
       textoLink: 'Ver rascunhos',
-      rota: '/pedidos/lista?status=draft',
+      rota: '/pedidos/lista?status=rascunho',
       score: (weights.financeiro ?? 0) * 0.9,
     })
   }

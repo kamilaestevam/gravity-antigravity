@@ -41,7 +41,7 @@ export function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 
 export const LABELS_FILTRO: Record<string, Record<string, string>> = {
   tipo_operacao: { importacao: 'Importação', exportacao: 'Exportação' },
   status: {
-    draft:         'Rascunho',
+    rascunho:      'Rascunho',
     aberto:        'Aberto',
     transferencia: 'Em Transferência',
     consolidado:   'Consolidado',

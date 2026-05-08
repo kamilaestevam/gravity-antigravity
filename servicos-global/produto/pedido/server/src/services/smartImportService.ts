@@ -453,6 +453,20 @@ export class SmartImportService {
     // Ler casas decimais do workspace para aplicar nos registros criados
     const casasConfig = await this.lerCasasDecimais(tenantId)
 
+    // Débito 2B — lookup do FK do status 'rascunho' uma vez para toda a importação.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusRascunhoSmart = await (this.db as any).statusPedido.findFirst({
+      where: { id_organizacao: tenantId, nome_pedido_status: 'rascunho' },
+      select: { id_pedido_status: true },
+    })
+    if (!statusRascunhoSmart) {
+      console.warn(
+        `[smartImport] StatusPedido 'rascunho' nao encontrado na organizacao=${tenantId}; ` +
+        `pedidos importados serao criados sem vinculo id_status_pedido.`,
+      )
+    }
+    const idStatusRascunho: string | null = statusRascunhoSmart?.id_pedido_status ?? null
+
     await this.db.$transaction(async (tx: Record<string, unknown>) => {
       for (const linha of linhasFiltradas) {
         try {
@@ -479,7 +493,10 @@ export class SmartImportService {
             continue
           }
 
-          const dadosPedido = this.montarDadosPedido(dados, tenantId, companyId ?? tenantId, casasConfig)
+          const dadosPedido = {
+            ...this.montarDadosPedido(dados, tenantId, companyId ?? tenantId, casasConfig),
+            id_status_pedido: idStatusRascunho, // Débito 2B — FK do catálogo de status
+          }
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             // Atualizar pedido existente
@@ -1075,7 +1092,7 @@ export class SmartImportService {
       company_id:        companyId,
       numero_pedido:     String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
       tipo_operacao:     tipoOperacao,
-      status:            'draft',
+      status:            'rascunho',
       importacao_exportador_id: dados['exportador'] ? String(dados['exportador']) : null,
       fabricante_id:     dados['fabricante'] ? String(dados['fabricante']) : null,
       incoterm:          dados['incoterm'] ?? null,

@@ -160,9 +160,9 @@ O servidor do Processo monta as rotas do `processos-core` em `/api/v1/pedidos`:
 | GET | `/pedidos?status=&tipo_operacao=&busca=&page=&limit=` | Listar pedidos com paginacao |
 | GET | `/pedidos/:id` | Detalhe do pedido com itens |
 | POST | `/pedidos` | Criar pedido com array de itens |
-| PUT | `/pedidos/:id` | Atualizar pedido (apenas Draft/Aberto) |
-| DELETE | `/pedidos/:id` | Excluir pedido (apenas Draft) |
-| PATCH | `/pedidos/:id/status` | Transicao de status (draft→aberto, aberto→cancelado) |
+| PUT | `/pedidos/:id` | Atualizar pedido (apenas Rascunho/Aberto) |
+| DELETE | `/pedidos/:id` | Excluir pedido (apenas Rascunho) |
+| PATCH | `/pedidos/:id/status` | Transicao de status (rascunho→aberto, aberto→cancelado) |
 | POST | `/pedidos/:id/duplicar` | Duplicar pedido inteiro |
 
 #### Itens de Pedido

@@ -67,7 +67,7 @@ Descoberto em 2026-05-08: apesar do design "schema-per-tenant" (`tenant_<id_orga
 
 | Atributo | Distribuição |
 |---|---|
-| `status_pedido` | 25% draft, 25% aberto, 20% em_andamento, 15% aprovado, 8% transferencia, 5% consolidado, 2% cancelado |
+| `status_pedido` | 25% rascunho, 25% aberto, 20% em_andamento, 15% aprovado, 8% transferencia, 5% consolidado, 2% cancelado |
 | `tipo_operacao_pedido` | 70% importação, 30% exportação |
 | `qtd_itens` por pedido | 1-15 (média 5, distribuição triangular) |
 | `moeda_pedido` | 60% USD, 25% EUR, 10% CNY, 5% JPY |

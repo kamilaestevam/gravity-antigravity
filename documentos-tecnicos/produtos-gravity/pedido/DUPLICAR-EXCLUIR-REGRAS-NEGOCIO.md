@@ -15,7 +15,7 @@ Cria uma cópia exata de um ou mais pedidos (ou itens), respeitando as configura
 ### Escopo
 - Usuário pode selecionar **1 ou mais pedidos** → duplica todos
 - Usuário pode selecionar **1 ou mais itens** dentro de um pedido → duplica só os itens selecionados dentro do mesmo pedido
-- Pode duplicar pedidos em **qualquer status** (draft, aberto, transferencia, consolidado, cancelado)
+- Pode duplicar pedidos em **qualquer status** (rascunho, aberto, transferencia, consolidado, cancelado)
 
 ### Configurações
 
@@ -70,7 +70,7 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['draft']` |
+| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho']` |
 | `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `false` |
 
 ### Fluxo de restrição por status
@@ -101,6 +101,6 @@ duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
 // Excluir
-excluir_status_permitidos         String[] @default(["draft"])
+excluir_status_permitidos         String[] @default(["rascunho"])
 excluir_pedido_sem_item_permitido Boolean  @default(false)
 ```

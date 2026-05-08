@@ -385,21 +385,21 @@ export interface Pedido {
   data_transferencia_saldo_pedido?: string | null
 
   // Datas — Draft do Pedido
-  data_prevista_recebimento_draft_pedido?: string | null
-  data_confirmada_recebimento_draft_pedido?: string | null
-  data_meta_recebimento_draft_pedido?: string | null
-  data_prevista_aprovacao_draft_pedido?: string | null
-  data_confirmada_aprovacao_draft_pedido?: string | null
-  data_meta_aprovacao_draft_pedido?: string | null
+  data_prevista_recebimento_rascunho_pedido?: string | null
+  data_confirmada_recebimento_rascunho_pedido?: string | null
+  data_meta_recebimento_rascunho_pedido?: string | null
+  data_prevista_aprovacao_rascunho_pedido?: string | null
+  data_confirmada_aprovacao_rascunho_pedido?: string | null
+  data_meta_aprovacao_rascunho_pedido?: string | null
   data_documento_pedido?: string | null
 
   // Datas — Draft da Proforma Invoice
-  data_prevista_recebimento_draft_proforma?: string | null
-  data_confirmada_recebimento_draft_proforma?: string | null
-  data_meta_recebimento_draft_proforma?: string | null
-  data_prevista_aprovacao_draft_proforma?: string | null
-  data_confirmada_aprovacao_draft_proforma?: string | null
-  data_meta_aprovacao_draft_proforma?: string | null
+  data_prevista_recebimento_rascunho_proforma?: string | null
+  data_confirmada_recebimento_rascunho_proforma?: string | null
+  data_meta_recebimento_rascunho_proforma?: string | null
+  data_prevista_aprovacao_rascunho_proforma?: string | null
+  data_confirmada_aprovacao_rascunho_proforma?: string | null
+  data_meta_aprovacao_rascunho_proforma?: string | null
 
   // Datas — Original da Proforma Invoice
   data_prevista_envio_original_proforma?: string | null
@@ -411,12 +411,12 @@ export interface Pedido {
   data_proforma_invoice?: string | null
 
   // Datas — Draft da Invoice
-  data_prevista_recebimento_draft_invoice?: string | null
-  data_confirmada_recebimento_draft_invoice?: string | null
-  data_meta_recebimento_draft_invoice?: string | null
-  data_prevista_aprovacao_draft_invoice?: string | null
-  data_confirmada_aprovacao_draft_invoice?: string | null
-  data_meta_aprovacao_draft_invoice?: string | null
+  data_prevista_recebimento_rascunho_invoice?: string | null
+  data_confirmada_recebimento_rascunho_invoice?: string | null
+  data_meta_recebimento_rascunho_invoice?: string | null
+  data_prevista_aprovacao_rascunho_invoice?: string | null
+  data_confirmada_aprovacao_rascunho_invoice?: string | null
+  data_meta_aprovacao_rascunho_invoice?: string | null
 
   // Datas — Original da Invoice
   data_prevista_envio_original_invoice?: string | null

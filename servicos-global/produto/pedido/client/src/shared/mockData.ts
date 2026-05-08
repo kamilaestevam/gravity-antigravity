@@ -115,7 +115,7 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
       company_id: 'company-demo',
       tipo_operacao: 'importacao',
       numero_pedido: 'PO-2026/002',
-      status: 'draft',
+      status: 'rascunho',
       importacao_exportador_id: 'exp-002',
       exportacao_importador_id: null,
       nome_exportador: 'Ningbo Hardware Supplies Ltd.',

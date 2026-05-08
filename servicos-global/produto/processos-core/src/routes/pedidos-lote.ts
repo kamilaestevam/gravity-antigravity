@@ -62,7 +62,7 @@ interface ErroLote {
 // ── Transições válidas de status ──────────────────────────────────────────────
 // Mapa de status → statuses permitidos como destino
 const TRANSICOES_VALIDAS: Record<string, string[]> = {
-  draft: ['aberto', 'cancelado'],
+  rascunho: ['aberto', 'cancelado'],
   aberto: ['cancelado', 'transferencia', 'consolidado'],
   transferencia: ['cancelado', 'consolidado'],
   consolidado: [],

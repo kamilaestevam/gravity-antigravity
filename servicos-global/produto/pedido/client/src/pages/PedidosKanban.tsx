@@ -43,10 +43,12 @@ import './PedidosKanban.css'
 // ── Colunas base — apenas ícone (label/cor/ordem vêm da API via kanbanUtils) ──
 
 const COLUNAS_BASE: Record<string, { icon: React.ReactElement }> = {
-  draft:         { icon: <PencilSimple size={16} weight="duotone" /> },
+  rascunho:      { icon: <PencilSimple size={16} weight="duotone" /> },
   aberto:        { icon: <ArrowRight   size={16} weight="duotone" /> },
-  transferencia: { icon: <Spinner      size={16} weight="duotone" /> },
-  consolidado:   { icon: <CheckCircle  size={16} weight="duotone" /> },
+  em_andamento:  { icon: <Spinner      size={16} weight="duotone" /> },
+  aprovado:      { icon: <CheckCircle  size={16} weight="duotone" /> },
+  transferencia: { icon: <ArrowsLeftRight size={16} weight="duotone" /> },
+  consolidado:   { icon: <Package      size={16} weight="duotone" /> },
   cancelado:     { icon: <XCircle      size={16} weight="duotone" /> },
 }
 

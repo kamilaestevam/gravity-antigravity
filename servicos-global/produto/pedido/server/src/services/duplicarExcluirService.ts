@@ -76,7 +76,7 @@ const CONFIG_DUPLICAR_DEFAULT: ConfigDuplicar = {
 }
 
 const CONFIG_EXCLUIR_DEFAULT: ConfigExcluir = {
-  excluir_status_permitidos: ['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
   excluir_pedido_sem_item_permitido: true,
 }
 
@@ -224,6 +224,18 @@ export class DuplicarService {
               ? (pedido.status_pedido as string)
               : config.duplicar_status_inicial
 
+          // Débito 2B — resolver FK do status (StatusPedido) na organização
+          const statusFK = await tx.statusPedido.findFirst({
+            where: { id_organizacao: id_organizacao, nome_pedido_status: status },
+            select: { id_pedido_status: true },
+          })
+          if (!statusFK) {
+            console.warn(
+              `[duplicarPedidos] StatusPedido '${status}' nao encontrado na organizacao=${id_organizacao}; ` +
+              `pedido duplicado sera criado sem vinculo id_status_pedido.`,
+            )
+          }
+
           // Definir datas (data_emissao_pedido é DateTime, não string)
           const datas = config.duplicar_copiar_datas
             ? { data_emissao_pedido: pedido.data_emissao_pedido as Date }
@@ -275,6 +287,7 @@ export class DuplicarService {
               id_workspace: id_workspace,
               numero_pedido: numeroPedido,
               status_pedido: status,
+              id_status_pedido: statusFK?.id_pedido_status ?? null,
               itens: { create: itensClonados },
             } as unknown as Prisma.PedidoUncheckedCreateInput,
           })

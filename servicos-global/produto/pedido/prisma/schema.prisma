@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-02T15:18:23.718Z
+// Gerado em: 2026-05-08T20:44:21.061Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -47,7 +47,7 @@ model Pedido {
   id_workspace                                                String
   tipo_operacao_pedido                                        String
   numero_pedido                                               String
-  status_pedido                                               String                      @default("draft")
+  status_pedido                                               String                      @default("rascunho")
   id_status_pedido                                            String?
   id_importacao_exportador_pedido                             String?
   id_exportacao_importador_pedido                             String?
@@ -111,24 +111,24 @@ model Pedido {
   data_meta_coleta_pedido                                     DateTime?
 
   // ============================================================
-  // FASE 06B — Datas Draft Pedido (recebimento / aprovação)
+  // FASE 06B — Datas Rascunho Pedido (recebimento / aprovação)
   // ============================================================
-  data_previsao_recebimento_draft_pedido                      DateTime?
-  data_confirmacao_recebimento_draft_pedido                   DateTime?
-  data_meta_recebimento_draft_pedido                          DateTime?
-  data_previsao_aprovacao_draft_pedido                        DateTime?
-  data_confirmacao_aprovacao_draft_pedido                     DateTime?
-  data_meta_aprovacao_draft_pedido                            DateTime?
+  data_previsao_recebimento_rascunho_pedido                   DateTime?
+  data_confirmacao_recebimento_rascunho_pedido                DateTime?
+  data_meta_recebimento_rascunho_pedido                       DateTime?
+  data_previsao_aprovacao_rascunho_pedido                     DateTime?
+  data_confirmacao_aprovacao_rascunho_pedido                  DateTime?
+  data_meta_aprovacao_rascunho_pedido                         DateTime?
 
   // ============================================================
-  // FASE 06B — Datas Proforma (Draft + Original)
+  // FASE 06B — Datas Proforma (Rascunho + Original)
   // ============================================================
-  data_previsao_recebimento_draft_proforma_pedido             DateTime?
-  data_confirmacao_recebimento_draft_proforma_pedido          DateTime?
-  data_meta_recebimento_draft_proforma_pedido                 DateTime?
-  data_previsao_aprovacao_draft_proforma_pedido               DateTime?
-  data_confirmacao_aprovacao_draft_proforma_pedido            DateTime?
-  data_meta_aprovacao_draft_proforma_pedido                   DateTime?
+  data_previsao_recebimento_rascunho_proforma_pedido          DateTime?
+  data_confirmacao_recebimento_rascunho_proforma_pedido       DateTime?
+  data_meta_recebimento_rascunho_proforma_pedido              DateTime?
+  data_previsao_aprovacao_rascunho_proforma_pedido            DateTime?
+  data_confirmacao_aprovacao_rascunho_proforma_pedido         DateTime?
+  data_meta_aprovacao_rascunho_proforma_pedido                DateTime?
   data_previsao_envio_original_proforma_pedido                DateTime?
   data_confirmacao_envio_original_proforma_pedido             DateTime?
   data_meta_envio_original_proforma_pedido                    DateTime?
@@ -137,14 +137,14 @@ model Pedido {
   data_meta_recebimento_original_proforma_pedido              DateTime?
 
   // ============================================================
-  // FASE 06B — Datas Invoice (Draft + Original)
+  // FASE 06B — Datas Invoice (Rascunho + Original)
   // ============================================================
-  data_previsao_recebimento_draft_invoice_pedido              DateTime?
-  data_confirmacao_recebimento_draft_invoice_pedido           DateTime?
-  data_meta_recebimento_draft_invoice_pedido                  DateTime?
-  data_previsao_aprovacao_draft_invoice_pedido                DateTime?
-  data_confirmacao_aprovacao_draft_invoice_pedido             DateTime?
-  data_meta_aprovacao_draft_invoice_pedido                    DateTime?
+  data_previsao_recebimento_rascunho_invoice_pedido           DateTime?
+  data_confirmacao_recebimento_rascunho_invoice_pedido        DateTime?
+  data_meta_recebimento_rascunho_invoice_pedido               DateTime?
+  data_previsao_aprovacao_rascunho_invoice_pedido             DateTime?
+  data_confirmacao_aprovacao_rascunho_invoice_pedido          DateTime?
+  data_meta_aprovacao_rascunho_invoice_pedido                 DateTime?
   data_previsao_envio_original_invoice_pedido                 DateTime?
   data_confirmacao_envio_original_invoice_pedido              DateTime?
   data_meta_envio_original_invoice_pedido                     DateTime?
@@ -152,6 +152,7 @@ model Pedido {
   data_confirmacao_recebimento_original_invoice_pedido        DateTime?
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
+  status                                                      StatusPedido?               @relation(fields: [id_status_pedido], references: [id_pedido_status])
   itens_pedido                                                PedidoItem[]
   transferencias_pedido                                       PedidoTransferencia[]
   snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
@@ -244,6 +245,8 @@ model StatusPedido {
   gerenciado_sistema_pedido_status  Boolean  @default(false)
   data_criacao_pedido_status        DateTime @default(now())
   data_atualizacao_pedido_status    DateTime @updatedAt
+
+  pedidos                           Pedido[]
 
   @@unique([id_organizacao, nome_pedido_status])
   @@index([id_organizacao])
@@ -517,8 +520,13 @@ model PedidoSnapshotEmpresa {
   suid_empresa          String   // referência lógica ao Cadastros (sem FK física)
   nome_empresa          String
   nome_fantasia         String?
-  documento_principal   String   // CNPJ / EIN / VAT / TIN
-  tipo_documento        String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
+  // documento_principal/tipo_documento são opcionais: empresa estrangeira pode
+  // não ter TIN cadastrado no momento do pedido (regra de produto: TIN não é
+  // obrigatório). Validação "tem documento?" pertence ao boundary de emissão
+  // de DOCUMENTO LEGAL (LPCO/NF/Financeiro), não ao snapshot. Snapshot é
+  // fotografia ao vivo — grava o que tem (cadastros-snapshot-policy).
+  documento_principal   String?  // CNPJ / EIN / VAT / TIN — null permitido
+  tipo_documento        String?  // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' — null se sem documento
   cnpj_raiz             String?  // primeiros 8 dígitos do CNPJ — para empresas BR
 
   // Endereço

@@ -116,7 +116,7 @@ export function ModalDuplicarPedidos({ pedidos, onFechar, onConcluido }: ModalDu
   const labelStatus = (statusInicial: string) => {
     if (statusInicial === 'copiar') return t('pedido.modal_dup.status_copiado')
     const mapa: Record<string, string> = {
-      draft: t('pedido.modal_dup.status_rascunho'),
+      rascunho: t('pedido.modal_dup.status_rascunho'),
       aberto: t('pedido.modal_dup.status_aberto'),
       transferencia: t('pedido.modal_dup.status_transferencia'),
       consolidado: t('pedido.modal_dup.status_consolidado'),

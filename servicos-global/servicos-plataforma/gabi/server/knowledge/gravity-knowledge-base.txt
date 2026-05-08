@@ -38883,7 +38883,7 @@ Erros identificados como **pré-existentes** (presentes antes do trabalho DDD):
 | Mock type mismatch | behaviorTracking.test.ts | `NextFunction` mock incompatível |
 | Object unknown | consolidar.ts, edicaoEmMassaService.ts | catch block sem tipo |
 | pdf.ts | pdf.ts | VariaveisTemplate com campos faltando |
-| gabiInsightsService | gabiInsightsService.ts/test.ts | pedidos_draft, KpiSnapshot |
+| gabiInsightsService | gabiInsightsService.ts/test.ts | pedidos_rascunho, KpiSnapshot |
 | smartImport.ts | smartImport.ts | Buffer type incompatibilidade Node.js |
 | Integration test | edicaoEmMassaService.integration.test.ts | company_id, select-type, pre-DDD |
 
@@ -58257,7 +58257,7 @@ Cria uma cópia exata de um ou mais pedidos (ou itens), respeitando as configura
 ### Escopo
 - Usuário pode selecionar **1 ou mais pedidos** → duplica todos
 - Usuário pode selecionar **1 ou mais itens** dentro de um pedido → duplica só os itens selecionados dentro do mesmo pedido
-- Pode duplicar pedidos em **qualquer status** (draft, aberto, transferencia, consolidado, cancelado)
+- Pode duplicar pedidos em **qualquer status** (rascunho, aberto, transferencia, consolidado, cancelado)
 
 ### Configurações
 
@@ -58312,7 +58312,7 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['draft']` |
+| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho']` |
 | `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `false` |
 
 ### Fluxo de restrição por status
@@ -58343,7 +58343,7 @@ duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
 // Excluir
-excluir_status_permitidos         String[] @default(["draft"])
+excluir_status_permitidos         String[] @default(["rascunho"])
 excluir_pedido_sem_item_permitido Boolean  @default(false)
 ```
 
@@ -58617,7 +58617,7 @@ z.object({
 │  PO-2026/003  →  PO-2026/008 (gerado)       │
 │                                              │
 │  ℹ Datas: copiadas do original              │
-│  ℹ Status: draft                            │
+│  ℹ Status: rascunho                            │
 │                                              │
 │       [Cancelar]       [Duplicar]            │
 └──────────────────────────────────────────────┘
@@ -58678,7 +58678,7 @@ testes/unitarios/pedido/duplicarExcluirService.test.ts
   ├── duplicar — copia todos os itens com saldo zerado
   ├── duplicar — config numero_auto gera número correto
   ├── duplicar — config copiar_datas = false reseta datas
-  ├── duplicar — config status_inicial = 'draft' ignora status original
+  ├── duplicar — config status_inicial = 'rascunho' ignora status original
   ├── excluir — hard delete remove pedido e itens
   ├── excluir — status não permitido é bloqueado
   ├── excluir item — pedido sem item é excluído (config false)
@@ -59859,7 +59859,7 @@ Drawer (painel lateral deslizante) que abre pela direita. O usuário mantém o c
 - Fechar sem salvar → confirma se há dados preenchidos
 
 ### Campos obrigatórios
-**Nenhum campo é travado.** O sistema avisa o que está faltando mas não bloqueia o salvamento. O pedido salvo sem campos essenciais fica com status `draft`.
+**Nenhum campo é travado.** O sistema avisa o que está faltando mas não bloqueia o salvamento. O pedido salvo sem campos essenciais fica com status `rascunho`.
 
 ### Itens
 - Grade dinâmica de itens dentro do drawer
@@ -59900,7 +59900,7 @@ Usuário decide o que fazer com cada problema
      ↓
 Confirmar importação (parcial ou total)
      ↓
-Pedidos criados com status draft
+Pedidos criados com status rascunho
 ```
 
 ### Mapeamento inteligente de colunas (3 camadas)
@@ -59936,7 +59936,7 @@ Analisa os valores das primeiras linhas para confirmar ou corrigir o mapeamento:
 | Coluna ignorada | Não mapeia | — |
 
 ### Campos obrigatórios
-Nenhum campo é bloqueador. Sistema avisa o que está faltando mas não impede a importação. Pedidos com campos essenciais ausentes ficam com status `draft` e com alerta.
+Nenhum campo é bloqueador. Sistema avisa o que está faltando mas não impede a importação. Pedidos com campos essenciais ausentes ficam com status `rascunho` e com alerta.
 
 ### Número de pedido duplicado
 Quando o arquivo contém um `numero_pedido` que já existe no sistema:
@@ -59976,7 +59976,7 @@ Linhas com o mesmo `numero_pedido` são agrupadas automaticamente em um único p
 
 | Regra | Descrição |
 |---|---|
-| **Status inicial** | Todo pedido criado (manual ou importado) começa com status `draft` |
+| **Status inicial** | Todo pedido criado (manual ou importado) começa com status `rascunho` |
 | **Auditoria** | Canal de criação registrado no histórico (`manual`, `importacao`, `api`, `smart_read`) |
 | **Colunas do usuário** | Colunas customizadas criadas pelo usuário aparecem no drawer e podem ser mapeadas no import |
 | **Permissão** | Permissão separada para criar manual vs importar em massa |
@@ -60944,7 +60944,7 @@ Todas as rotas ficam em `/api/v1/pedidos/smart-import`.
 
 **Body:** `{ ids_criados: string[] }` (máx. 500 IDs)
 
-Cancela pedidos criados pelo import (soft delete via `status = 'cancelado'`). Só afeta pedidos com `status = 'draft'`.
+Cancela pedidos criados pelo import (soft delete via `status = 'cancelado'`). Só afeta pedidos com `status = 'rascunho'`.
 
 **Resposta `200`:** `{ revertidos: number, ids: string[] }`
 
@@ -61171,7 +61171,7 @@ Etapa 'confirmacao'
   ├── Criados / Atualizados / Pulados / Erros
   ├── Download de erros (.csv) se houver
   ├── Botão "Ver Pedidos Importados"
-  └── Botão "Reverter esta importação" (cancela pedidos criados em draft)
+  └── Botão "Reverter esta importação" (cancela pedidos criados em rascunho)
 ```
 
 ### Mensagens de progresso por tipo de arquivo

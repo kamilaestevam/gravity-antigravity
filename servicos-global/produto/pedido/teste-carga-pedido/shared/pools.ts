@@ -69,7 +69,7 @@ export const MOEDAS_PESO: Array<{ codigo: string; peso: number; taxaBrl: number 
 ]
 
 export const STATUS_PESO: Array<{ valor: string; peso: number }> = [
-  { valor: 'draft',          peso: 25 },
+  { valor: 'rascunho',       peso: 25 },
   { valor: 'aberto',         peso: 25 },
   { valor: 'em_andamento',   peso: 20 },
   { valor: 'aprovado',       peso: 15 },

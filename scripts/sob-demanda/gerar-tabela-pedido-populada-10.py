@@ -27,7 +27,7 @@ ITENS_POR_PEDIDO = [1, 2, 3, 5, 1, 4, 2, 7, 3, 6]  # total = 34 itens
 # Cada tupla é um cenário de pedido completo
 PEDIDOS_DATA = [
     # (idx, tipo_op, status, incoterm, moeda, taxa_camb, exportador, importador, fabricante, pais_origem, cobertura, num_volumes)
-    (1,  "importacao",  "draft",         "FOB",  "USD", 5.4250, "FXC_TECH_001", "GVT_BR_IMP_001", "FXC_TECH_001",  "CN", "com_cobertura",  240),
+    (1,  "importacao",  "rascunho",      "FOB",  "USD", 5.4250, "FXC_TECH_001", "GVT_BR_IMP_001", "FXC_TECH_001",  "CN", "com_cobertura",  240),
     (2,  "importacao",  "aberto",        "CIF",  "EUR", 5.8900, "BSCH_DE_002",   "GVT_BR_IMP_001", "BSCH_DE_002",   "DE", "com_cobertura",  120),
     (3,  "importacao",  "em_andamento",  "FOB",  "USD", 5.4180, "SMSG_KR_003",   "GVT_BR_IMP_001", "SMSG_KR_003",   "KR", "com_cobertura",  500),
     (4,  "exportacao",  "aprovado",      "FCA",  "USD", 5.4320, "GVT_BR_EXP_001", "ACME_US_004",   "GVT_BR_EXP_001", "BR", "sem_cobertura",   80),
@@ -36,7 +36,7 @@ PEDIDOS_DATA = [
     (7,  "exportacao",  "aberto",        "FOB",  "USD", 5.4250, "GVT_BR_EXP_001", "EUROIMP_007",   "GVT_BR_EXP_001", "BR", "com_cobertura",   60),
     (8,  "importacao",  "em_andamento",  "CIP",  "USD", 5.4180, "XIAO_CN_008",   "GVT_BR_IMP_001", "XIAO_CN_008",   "CN", "com_cobertura", 1200),
     (9,  "importacao",  "cancelado",     "FOB",  "EUR", 5.8950, "MAGN_DE_009",   "GVT_BR_IMP_001", "MAGN_DE_009",   "DE", "sem_cobertura",  100),
-    (10, "exportacao",  "draft",         "FCA",  "USD", 5.4400, "GVT_BR_EXP_001", "TARG_US_010",   "GVT_BR_EXP_001", "BR", "com_cobertura",  450),
+    (10, "exportacao",  "rascunho",      "FCA",  "USD", 5.4400, "GVT_BR_EXP_001", "TARG_US_010",   "GVT_BR_EXP_001", "BR", "com_cobertura",  450),
 ]
 
 # Itens — cada lista representa os itens do pedido N (sequencia 1..n)
@@ -185,20 +185,20 @@ PEDIDO_COLS = [
     "data_documento_invoice_pedido", "data_prevista_pedido_pronto", "data_confirmada_pedido_pronto",
     "data_meta_pedido_pronto", "data_prevista_inspecao_pedido", "data_confirmada_inspecao_pedido",
     "data_meta_inspecao_pedido", "data_prevista_coleta_pedido", "data_confirmada_coleta_pedido",
-    "data_meta_coleta_pedido", "data_previsao_recebimento_draft_pedido",
-    "data_confirmacao_recebimento_draft_pedido", "data_meta_recebimento_draft_pedido",
-    "data_previsao_aprovacao_draft_pedido", "data_confirmacao_aprovacao_draft_pedido",
-    "data_meta_aprovacao_draft_pedido", "data_previsao_recebimento_draft_proforma_pedido",
-    "data_confirmacao_recebimento_draft_proforma_pedido", "data_meta_recebimento_draft_proforma_pedido",
-    "data_previsao_aprovacao_draft_proforma_pedido", "data_confirmacao_aprovacao_draft_proforma_pedido",
-    "data_meta_aprovacao_draft_proforma_pedido", "data_previsao_envio_original_proforma_pedido",
+    "data_meta_coleta_pedido", "data_previsao_recebimento_rascunho_pedido",
+    "data_confirmacao_recebimento_rascunho_pedido", "data_meta_recebimento_rascunho_pedido",
+    "data_previsao_aprovacao_rascunho_pedido", "data_confirmacao_aprovacao_rascunho_pedido",
+    "data_meta_aprovacao_rascunho_pedido", "data_previsao_recebimento_rascunho_proforma_pedido",
+    "data_confirmacao_recebimento_rascunho_proforma_pedido", "data_meta_recebimento_rascunho_proforma_pedido",
+    "data_previsao_aprovacao_rascunho_proforma_pedido", "data_confirmacao_aprovacao_rascunho_proforma_pedido",
+    "data_meta_aprovacao_rascunho_proforma_pedido", "data_previsao_envio_original_proforma_pedido",
     "data_confirmacao_envio_original_proforma_pedido", "data_meta_envio_original_proforma_pedido",
     "data_previsao_recebimento_original_proforma_pedido",
     "data_confirmacao_recebimento_original_proforma_pedido",
-    "data_meta_recebimento_original_proforma_pedido", "data_previsao_recebimento_draft_invoice_pedido",
-    "data_confirmacao_recebimento_draft_invoice_pedido", "data_meta_recebimento_draft_invoice_pedido",
-    "data_previsao_aprovacao_draft_invoice_pedido", "data_confirmacao_aprovacao_draft_invoice_pedido",
-    "data_meta_aprovacao_draft_invoice_pedido", "data_previsao_envio_original_invoice_pedido",
+    "data_meta_recebimento_original_proforma_pedido", "data_previsao_recebimento_rascunho_invoice_pedido",
+    "data_confirmacao_recebimento_rascunho_invoice_pedido", "data_meta_recebimento_rascunho_invoice_pedido",
+    "data_previsao_aprovacao_rascunho_invoice_pedido", "data_confirmacao_aprovacao_rascunho_invoice_pedido",
+    "data_meta_aprovacao_rascunho_invoice_pedido", "data_previsao_envio_original_invoice_pedido",
     "data_confirmacao_envio_original_invoice_pedido", "data_meta_envio_original_invoice_pedido",
     "data_previsao_recebimento_original_invoice_pedido",
     "data_confirmacao_recebimento_original_invoice_pedido",
@@ -241,7 +241,7 @@ for row_idx, ped in enumerate(PEDIDOS_DATA, start=2):
     d_doc_invoice = base_dt + timedelta(days=18)
 
     d_prev_pronto = base_dt + timedelta(days=20)
-    d_conf_pronto = base_dt + timedelta(days=22) if status not in ("draft", "aberto", "cancelado") else None
+    d_conf_pronto = base_dt + timedelta(days=22) if status not in ("rascunho", "aberto", "cancelado") else None
     d_meta_pronto = base_dt + timedelta(days=18)
 
     d_prev_insp = base_dt + timedelta(days=22)
@@ -254,24 +254,24 @@ for row_idx, ped in enumerate(PEDIDOS_DATA, start=2):
 
     # Draft pedido
     d_prev_rec_dr_ped = base_dt + timedelta(days=3)
-    d_conf_rec_dr_ped = base_dt + timedelta(days=4) if status not in ("draft",) else None
+    d_conf_rec_dr_ped = base_dt + timedelta(days=4) if status not in ("rascunho",) else None
     d_meta_rec_dr_ped = base_dt + timedelta(days=2)
 
     d_prev_apv_dr_ped = base_dt + timedelta(days=5)
-    d_conf_apv_dr_ped = base_dt + timedelta(days=6) if status not in ("draft",) else None
+    d_conf_apv_dr_ped = base_dt + timedelta(days=6) if status not in ("rascunho",) else None
     d_meta_apv_dr_ped = base_dt + timedelta(days=4)
 
     # Draft proforma
     d_prev_rec_dr_prof = base_dt + timedelta(days=7)
-    d_conf_rec_dr_prof = base_dt + timedelta(days=8) if status not in ("draft", "aberto") else None
+    d_conf_rec_dr_prof = base_dt + timedelta(days=8) if status not in ("rascunho", "aberto") else None
     d_meta_rec_dr_prof = base_dt + timedelta(days=6)
 
     d_prev_apv_dr_prof = base_dt + timedelta(days=9)
-    d_conf_apv_dr_prof = base_dt + timedelta(days=10) if status not in ("draft", "aberto") else None
+    d_conf_apv_dr_prof = base_dt + timedelta(days=10) if status not in ("rascunho", "aberto") else None
     d_meta_apv_dr_prof = base_dt + timedelta(days=8)
 
     d_prev_env_or_prof = base_dt + timedelta(days=11)
-    d_conf_env_or_prof = base_dt + timedelta(days=12) if status not in ("draft", "aberto") else None
+    d_conf_env_or_prof = base_dt + timedelta(days=12) if status not in ("rascunho", "aberto") else None
     d_meta_env_or_prof = base_dt + timedelta(days=10)
 
     d_prev_rec_or_prof = base_dt + timedelta(days=14)
@@ -369,30 +369,30 @@ for row_idx, ped in enumerate(PEDIDOS_DATA, start=2):
         "data_prevista_coleta_pedido": fmt_dt(d_prev_col),
         "data_confirmada_coleta_pedido": fmt_dt(d_conf_col),
         "data_meta_coleta_pedido": fmt_dt(d_meta_col),
-        "data_previsao_recebimento_draft_pedido": fmt_dt(d_prev_rec_dr_ped),
-        "data_confirmacao_recebimento_draft_pedido": fmt_dt(d_conf_rec_dr_ped),
-        "data_meta_recebimento_draft_pedido": fmt_dt(d_meta_rec_dr_ped),
-        "data_previsao_aprovacao_draft_pedido": fmt_dt(d_prev_apv_dr_ped),
-        "data_confirmacao_aprovacao_draft_pedido": fmt_dt(d_conf_apv_dr_ped),
-        "data_meta_aprovacao_draft_pedido": fmt_dt(d_meta_apv_dr_ped),
-        "data_previsao_recebimento_draft_proforma_pedido": fmt_dt(d_prev_rec_dr_prof),
-        "data_confirmacao_recebimento_draft_proforma_pedido": fmt_dt(d_conf_rec_dr_prof),
-        "data_meta_recebimento_draft_proforma_pedido": fmt_dt(d_meta_rec_dr_prof),
-        "data_previsao_aprovacao_draft_proforma_pedido": fmt_dt(d_prev_apv_dr_prof),
-        "data_confirmacao_aprovacao_draft_proforma_pedido": fmt_dt(d_conf_apv_dr_prof),
-        "data_meta_aprovacao_draft_proforma_pedido": fmt_dt(d_meta_apv_dr_prof),
+        "data_previsao_recebimento_rascunho_pedido": fmt_dt(d_prev_rec_dr_ped),
+        "data_confirmacao_recebimento_rascunho_pedido": fmt_dt(d_conf_rec_dr_ped),
+        "data_meta_recebimento_rascunho_pedido": fmt_dt(d_meta_rec_dr_ped),
+        "data_previsao_aprovacao_rascunho_pedido": fmt_dt(d_prev_apv_dr_ped),
+        "data_confirmacao_aprovacao_rascunho_pedido": fmt_dt(d_conf_apv_dr_ped),
+        "data_meta_aprovacao_rascunho_pedido": fmt_dt(d_meta_apv_dr_ped),
+        "data_previsao_recebimento_rascunho_proforma_pedido": fmt_dt(d_prev_rec_dr_prof),
+        "data_confirmacao_recebimento_rascunho_proforma_pedido": fmt_dt(d_conf_rec_dr_prof),
+        "data_meta_recebimento_rascunho_proforma_pedido": fmt_dt(d_meta_rec_dr_prof),
+        "data_previsao_aprovacao_rascunho_proforma_pedido": fmt_dt(d_prev_apv_dr_prof),
+        "data_confirmacao_aprovacao_rascunho_proforma_pedido": fmt_dt(d_conf_apv_dr_prof),
+        "data_meta_aprovacao_rascunho_proforma_pedido": fmt_dt(d_meta_apv_dr_prof),
         "data_previsao_envio_original_proforma_pedido": fmt_dt(d_prev_env_or_prof),
         "data_confirmacao_envio_original_proforma_pedido": fmt_dt(d_conf_env_or_prof),
         "data_meta_envio_original_proforma_pedido": fmt_dt(d_meta_env_or_prof),
         "data_previsao_recebimento_original_proforma_pedido": fmt_dt(d_prev_rec_or_prof),
         "data_confirmacao_recebimento_original_proforma_pedido": fmt_dt(d_conf_rec_or_prof),
         "data_meta_recebimento_original_proforma_pedido": fmt_dt(d_meta_rec_or_prof),
-        "data_previsao_recebimento_draft_invoice_pedido": fmt_dt(d_prev_rec_dr_inv),
-        "data_confirmacao_recebimento_draft_invoice_pedido": fmt_dt(d_conf_rec_dr_inv),
-        "data_meta_recebimento_draft_invoice_pedido": fmt_dt(d_meta_rec_dr_inv),
-        "data_previsao_aprovacao_draft_invoice_pedido": fmt_dt(d_prev_apv_dr_inv),
-        "data_confirmacao_aprovacao_draft_invoice_pedido": fmt_dt(d_conf_apv_dr_inv),
-        "data_meta_aprovacao_draft_invoice_pedido": fmt_dt(d_meta_apv_dr_inv),
+        "data_previsao_recebimento_rascunho_invoice_pedido": fmt_dt(d_prev_rec_dr_inv),
+        "data_confirmacao_recebimento_rascunho_invoice_pedido": fmt_dt(d_conf_rec_dr_inv),
+        "data_meta_recebimento_rascunho_invoice_pedido": fmt_dt(d_meta_rec_dr_inv),
+        "data_previsao_aprovacao_rascunho_invoice_pedido": fmt_dt(d_prev_apv_dr_inv),
+        "data_confirmacao_aprovacao_rascunho_invoice_pedido": fmt_dt(d_conf_apv_dr_inv),
+        "data_meta_aprovacao_rascunho_invoice_pedido": fmt_dt(d_meta_apv_dr_inv),
         "data_previsao_envio_original_invoice_pedido": fmt_dt(d_prev_env_or_inv),
         "data_confirmacao_envio_original_invoice_pedido": fmt_dt(d_conf_env_or_inv),
         "data_meta_envio_original_invoice_pedido": fmt_dt(d_meta_env_or_inv),
@@ -457,7 +457,7 @@ for ped in PEDIDOS_DATA:
         # Datas item — alinhadas com pedido
         d_emissao = base_dt
         d_prev_pronto = base_dt + timedelta(days=20)
-        d_conf_pronto = base_dt + timedelta(days=22) if status not in ("draft", "aberto", "cancelado") else None
+        d_conf_pronto = base_dt + timedelta(days=22) if status not in ("rascunho", "aberto", "cancelado") else None
         d_meta_pronto = base_dt + timedelta(days=18)
         d_prev_insp = base_dt + timedelta(days=22)
         d_conf_insp = base_dt + timedelta(days=24) if status in ("em_andamento", "aprovado", "transferencia", "consolidado") else None

@@ -128,6 +128,19 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       criados = await db.$transaction(async (tx: Record<string, Record<string, unknown>>) => {
         const pedidosCriados: string[] = []
 
+        // Débito 2B — lookup do FK do status 'rascunho' uma vez, fora do loop.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const statusRascunhoImp = await (tx as any).statusPedido.findFirst({
+          where: { id_organizacao: tenant_id, nome_pedido_status: 'rascunho' },
+          select: { id_pedido_status: true },
+        })
+        if (!statusRascunhoImp) {
+          console.warn(
+            `[POST /importar] StatusPedido 'rascunho' nao encontrado na organizacao=${tenant_id}; ` +
+            `pedidos importados serao criados sem vinculo id_status_pedido.`,
+          )
+        }
+
         for (const pedidoData of result.data.pedidos) {
           const pedidoId = gerarId('pedi')
           const valorTotal = pedidoData.itens.reduce((acc, item) => {
@@ -156,7 +169,8 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
               id_workspace: company_id,
               tipo_operacao_pedido: pedidoData.tipo_operacao,
               numero_pedido: pedidoData.numero_pedido,
-              status_pedido: 'draft',
+              status_pedido: 'rascunho',
+              id_status_pedido: statusRascunhoImp?.id_pedido_status ?? null,
               incoterm_pedido: pedidoData.incoterm ?? null,
               moeda_pedido: pedidoData.moeda_pedido ?? 'USD',
               valor_total_pedido: valorTotal || null,
@@ -208,7 +222,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
     res.status(201).json({
       criados: criados.length,
       ids: criados,
-      status: 'draft',
+      status: 'rascunho',
     })
   } catch (err) {
     next(err)

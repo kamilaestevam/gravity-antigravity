@@ -51,7 +51,7 @@ type Relatorio = {
 
 // Dicionários esperados (devem bater com o seed.ts)
 const STATUS_OK = new Set([
-  'draft',
+  'rascunho',
   'aberto',
   'em_andamento',
   'aprovado',

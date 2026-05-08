@@ -445,7 +445,7 @@ smartImportRouter.post('/reverter', async (req: Request, res: Response, next: Ne
         where: {
           id: { in: parse.data.ids_criados },
           tenant_id: tenantId,
-          status: 'draft', // Só reverter rascunhos — pedidos abertos nao podem ser revertidos
+          status: 'rascunho', // Só reverter rascunhos — pedidos abertos nao podem ser revertidos
         },
         data: { status: 'cancelado' },
       })

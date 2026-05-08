@@ -1523,7 +1523,7 @@ export function ProdutosGravityAdmin() {
                         tooltipDescricao="Quando preenchido, sobrescreve o preço unitário da tabela do produto nas faturas dessa organização. Deixe vazio se o acordo é apenas descritivo."
                       >
                         <div className="ws-input-icon-wrap">
-                          <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaNegociacaoEspecial)}</span>
+                          <span style={{ position: 'absolute', left: '0.875rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--ws-muted)', pointerEvents: 'none' }}>{getSimboloMoeda(moedaNegociacaoEspecial)}</span>
                           <input
                             placeholder="opcional — deixe vazio se só descritivo"
                             style={{ width: '100%' }}

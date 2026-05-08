@@ -568,7 +568,6 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       ])
       // Number(...) cobre bigint/string que Prisma raw pode retornar para COUNT.
       const totalItens = Number(totalItensRaw[0]?.n ?? 0)
-      console.log('[GET /pedidos] totalItens =', totalItens, 'raw:', JSON.stringify(totalItensRaw[0]))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = dataRaw as any[]

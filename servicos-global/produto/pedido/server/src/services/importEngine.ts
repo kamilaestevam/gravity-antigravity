@@ -121,6 +121,41 @@ export interface ParseResultado {
   extrator_usado: string
 }
 
+// ── Helpers de encoding ───────────────────────────────────────────────────────
+
+/**
+ * P2.3 — Decodifica buffer texto tentando UTF-8 primeiro e latin1 (ISO-8859-1)
+ * como fallback. Arquivos CSV/TXT exportados de sistemas brasileiros legados
+ * (ERPs, planilhas salvas no Excel BR) frequentemente vem em latin1/Windows-1252,
+ * o que faz aparecer replacement chars (�) quando lidos como UTF-8.
+ *
+ * Heuristica: se UTF-8 produzir mais de 1% de replacement chars, ou se a
+ * decodificacao em latin1 produzir caracteres acentuados PT-BR validos onde
+ * UTF-8 produziu lixo, prefere latin1.
+ */
+export function decodificarComFallback(buffer: Buffer): string {
+  const utf8 = buffer.toString('utf-8')
+  const total = utf8.length
+  if (total === 0) return utf8
+
+  // Conta replacement chars (� = caractere usado quando byte invalido em UTF-8)
+  let replacementCount = 0
+  for (let i = 0; i < utf8.length; i++) {
+    if (utf8.charCodeAt(i) === 0xFFFD) replacementCount++
+  }
+
+  const taxaInvalidos = replacementCount / total
+  // Tolera ate 0,1% (textos mistos podem ter 1-2 chars problematicos)
+  if (taxaInvalidos <= 0.001) return utf8
+
+  // Fallback latin1
+  const latin1 = buffer.toString('latin1')
+  console.warn(
+    `[importEngine] encoding detectado como latin1 (UTF-8 produziu ${replacementCount} replacement chars / ${total} = ${(taxaInvalidos * 100).toFixed(2)}%)`
+  )
+  return latin1
+}
+
 // ── Parser principal ──────────────────────────────────────────────────────────
 
 export async function parseArquivo(
@@ -185,15 +220,31 @@ export async function parseArquivo(
     }
 
     case 'csv': {
-      return { linhas: parseCsv(buffer.toString('utf-8')), extrator_usado: ext }
+      // P2.3 — Detectar encoding (UTF-8 vs latin1). Caracteres mal-encoded
+      // viram replacement chars () em UTF-8. Tenta latin1 como fallback se
+      // detecta muitos replacement chars.
+      const texto = decodificarComFallback(buffer)
+      return { linhas: parseCsv(texto), extrator_usado: ext }
     }
 
     case 'txt': {
-      return { linhas: parseTxt(buffer.toString('utf-8')), extrator_usado: 'txt' }
+      const texto = decodificarComFallback(buffer)
+      return { linhas: parseTxt(texto), extrator_usado: 'txt' }
     }
 
     case 'json': {
-      const parsed: unknown = JSON.parse(buffer.toString('utf-8'))
+      // P3.1 — JSON malformado: parse joga SyntaxError; transforma em AppError 400
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(buffer.toString('utf-8'))
+      } catch (jsonErr: unknown) {
+        const msg = jsonErr instanceof Error ? jsonErr.message : String(jsonErr)
+        throw new AppError(
+          `O arquivo JSON esta malformado: ${msg}`,
+          400,
+          'JSON_MALFORMADO',
+        )
+      }
       const rows = Array.isArray(parsed)
         ? parsed as Record<string, unknown>[]
         : (() => {
@@ -205,6 +256,14 @@ export async function parseArquivo(
             )
             return found
           })()
+      // P3.2 — Array vazio = arquivo valido mas sem dados
+      if (rows.length === 0) {
+        throw new AppError(
+          'O arquivo JSON nao contem nenhum registro (array vazio).',
+          400,
+          'JSON_VAZIO',
+        )
+      }
       return {
         linhas: rows.map(row => {
           const flat = aplainarCampos(row as Record<string, unknown>)
@@ -237,9 +296,33 @@ export async function parseArquivo(
         const parser = new PDFParse({ data: buffer })
         // parser.load() é private — getText() o chama internamente
         const result = await parser.getText()
+        // P3.5 — PDF escaneado: tem paginas mas texto vazio/minusculo (so imagens)
+        const textoLimpo = (result.text ?? '').trim()
+        if (textoLimpo.length < 30) {
+          throw new AppError(
+            'O PDF parece ser escaneado (sem texto extraivel). ' +
+            'Use OCR antes de importar, ou prefira Excel/CSV.',
+            400,
+            'PDF_ESCANEADO',
+          )
+        }
         return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse' }
       } catch (pdfErr: unknown) {
+        // Erros do nosso AppError (PDF_ESCANEADO) sobem direto
+        if (pdfErr instanceof AppError) throw pdfErr
+
         const msg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr)
+
+        // P3.4 — PDF protegido/criptografado: pdf-parse joga erros como
+        // "PasswordException" ou contendo "encrypted"/"password"
+        if (/password|encrypt|protected/i.test(msg)) {
+          throw new AppError(
+            'O PDF esta protegido por senha. Remova a protecao e tente novamente.',
+            400,
+            'PDF_PROTEGIDO',
+          )
+        }
+
         console.warn(`[PDF] Parser local falhou (${msg}) — retornando aviso`)
         return {
           linhas: [{

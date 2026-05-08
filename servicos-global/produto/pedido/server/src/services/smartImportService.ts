@@ -54,6 +54,12 @@ export interface SmartImportLinha {
   dados: Record<string, unknown>
 }
 
+/** P2.4 — Conflito quando 2+ colunas do arquivo mapeiam para o mesmo campo do sistema. */
+export interface ConflitoMapeamento {
+  campo_sistema: string
+  colunas_arquivo: string[]
+}
+
 export interface SmartImportPreview {
   total_linhas: number
   total_pedidos: number
@@ -66,6 +72,8 @@ export interface SmartImportPreview {
   limite_excedido: boolean
   extrator_usado: string
   dados_brutos: Array<{ linha: number; valores: Record<string, string> }>
+  /** P2.4 — Lista de conflitos onde 2+ colunas apontam para o mesmo campo_sistema. */
+  conflitos_mapeamento: ConflitoMapeamento[]
 }
 
 export interface SmartImportConfirmar {
@@ -247,6 +255,10 @@ export class SmartImportService {
 
     const confiancaGlobal = mapeamento.reduce((sum, m) => sum + m.confianca, 0) / mapeamento.length
 
+    // P2.4 — Detecta conflitos: 2+ colunas mapeadas para o mesmo campo_sistema.
+    // O usuario precisa decidir qual coluna mantem e qual ignora antes de avancar.
+    const conflitos_mapeamento = this.detectarConflitosMapeamento(mapeamento)
+
     const dados_brutos = linhasBrutas.map((row, i) => ({
       linha: i + 2, // linha 1 = cabeçalho
       valores: Object.fromEntries(
@@ -266,7 +278,39 @@ export class SmartImportService {
       limite_excedido: linhasComCoerencia.length > LIMITE_LINHAS_AVISO,
       extrator_usado,
       dados_brutos,
+      conflitos_mapeamento,
     }
+  }
+
+  /**
+   * P2.4 — Detecta conflitos de mapeamento (2+ colunas -> mesmo campo_sistema).
+   *
+   * Ignora colunas com `nivel === 'ignorado'` ou sem `campo_sistema`.
+   * Retorna apenas grupos com 2 ou mais ocorrencias.
+   *
+   * Se um conflito ocorrer, a UI deve forcar o usuario a escolher qual coluna
+   * mantem (e marcar as demais como `ignorado`) antes de habilitar a importacao.
+   * Sem isso, o ultimo valor sobrescreve o anterior em `aplicarMapeamento`,
+   * gerando perda silenciosa de dados.
+   */
+  private detectarConflitosMapeamento(
+    mapeamento: ColunaMapeadaBackend[],
+  ): ConflitoMapeamento[] {
+    const grupos = new Map<string, string[]>()
+    for (const col of mapeamento) {
+      if (!col.campo_sistema) continue
+      if (col.nivel === 'ignorado') continue
+      const arr = grupos.get(col.campo_sistema) ?? []
+      arr.push(col.coluna_arquivo)
+      grupos.set(col.campo_sistema, arr)
+    }
+    const conflitos: ConflitoMapeamento[] = []
+    for (const [campo_sistema, colunas_arquivo] of grupos.entries()) {
+      if (colunas_arquivo.length >= 2) {
+        conflitos.push({ campo_sistema, colunas_arquivo })
+      }
+    }
+    return conflitos
   }
 
   /**
@@ -740,6 +784,24 @@ export class SmartImportService {
 
   private validarLinha(dados: Record<string, unknown>): SmartImportAlerta[] {
     const alertas: SmartImportAlerta[] = []
+
+    // ── P3.3 — Erros de formula do Excel ──────────────────────────────────
+    // Quando uma celula contem #REF!, #N/A, #VALUE!, #DIV/0!, #NAME?, #NULL!,
+    // #NUM! — o XLSX serializa como string. Isso indica que o arquivo foi
+    // exportado com formulas quebradas (links a celulas removidas, divisoes
+    // por zero, etc.). Sem deteccao, esses valores entram no banco como texto
+    // literal "#REF!" — bug invisivel.
+    const REGEX_ERRO_EXCEL = /^#(REF|N\/A|VALUE|DIV\/0|NAME|NULL|NUM)[!?]?$/
+    for (const [campo, valor] of Object.entries(dados)) {
+      if (typeof valor !== 'string') continue
+      if (!REGEX_ERRO_EXCEL.test(valor.trim())) continue
+      alertas.push({
+        campo,
+        tipo: 'formato_invalido',
+        mensagem: `Celula contem erro de formula do Excel ("${valor}"). Verifique a planilha de origem antes de importar.`,
+        nivel: 'erro',
+      })
+    }
 
     // ── Tipo Linha (master-detail) ─────────────────────────────────────────
     // Coluna obrigatoria do template DDD novo. Aceita PEDIDO ou ITEM (case-insensitive).

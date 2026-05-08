@@ -6,10 +6,10 @@
 
 // ── Status do Pedido ──────────────────────────────────────────────────────────
 
-export type PedidoStatus = 'draft' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
+export type PedidoStatus = 'rascunho' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
 
 export const STATUS_PEDIDO_LABELS: Record<PedidoStatus, string> = {
-  draft:         'Rascunho',
+  rascunho:      'Rascunho',
   aberto:        'Aberto',
   em_andamento:  'Em Andamento',
   aprovado:      'Aprovado',
@@ -721,6 +721,12 @@ export interface SmartImportLinhaRaw {
   valores: Record<string, string>
 }
 
+/** P2.4 — Conflito quando 2+ colunas do arquivo apontam para o mesmo campo do sistema. */
+export interface ConflitoMapeamento {
+  campo_sistema: string
+  colunas_arquivo: string[]
+}
+
 /** Resultado completo do parse + mapeamento IA */
 export interface SmartImportPreview {
   preview_id: string
@@ -735,6 +741,8 @@ export interface SmartImportPreview {
   dados_brutos?: SmartImportLinhaRaw[]
   /** Extrator utilizado: 'gemini' | 'pdf-parse' | 'xlsx' | 'csv' | 'json' | 'xml' | 'txt' */
   extrator_usado?: string
+  /** P2.4 — Conflitos onde 2+ colunas mapeiam para o mesmo campo_sistema. */
+  conflitos_mapeamento?: ConflitoMapeamento[]
 }
 
 /** Uma linha do arquivo apos mapeamento e validacao */

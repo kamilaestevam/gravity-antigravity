@@ -165,6 +165,62 @@ function traduzirErroDetalhado(
         retryable: false,
       }
 
+    case 'JSON_MALFORMADO':
+      return {
+        code: codeBackend,
+        titulo: 'JSON malformado',
+        mensagem: msg || 'O arquivo JSON tem erro de sintaxe.',
+        causa: 'JSON invalido — virgula sobrando, chave nao fechada, aspas erradas, etc.',
+        sugestoes: [
+          'Cole o conteudo em https://jsonlint.com para identificar a linha do erro',
+          'Verifique se todas as chaves abrem ({) e fecham (})',
+          'Verifique se nao ha virgula apos o ultimo item',
+          'Strings devem usar aspas duplas, nao simples',
+        ],
+        retryable: false,
+      }
+
+    case 'JSON_VAZIO':
+      return {
+        code: codeBackend,
+        titulo: 'JSON sem dados',
+        mensagem: 'O arquivo JSON e valido mas nao contem nenhum registro.',
+        causa: 'Array vazio: [] — nao ha nada para importar.',
+        sugestoes: [
+          'Verifique a fonte que gerou o JSON',
+          'Confirme se o filtro/query trouxe linhas',
+          'Para template, prefira Excel (.xlsx)',
+        ],
+        retryable: false,
+      }
+
+    case 'PDF_PROTEGIDO':
+      return {
+        code: codeBackend,
+        titulo: 'PDF protegido por senha',
+        mensagem: 'O PDF tem protecao de senha e nao pode ser lido automaticamente.',
+        sugestoes: [
+          'Abra o PDF, va em Arquivo > Imprimir > Salvar como PDF (sem protecao)',
+          'Ou use ferramentas como SmallPDF/iLovePDF para remover a senha',
+          'Apos remover a protecao, faca o upload novamente',
+        ],
+        retryable: false,
+      }
+
+    case 'PDF_ESCANEADO':
+      return {
+        code: codeBackend,
+        titulo: 'PDF escaneado (sem texto)',
+        mensagem: 'O PDF parece ser escaneado — contem so imagens, sem texto extraivel.',
+        causa: 'Documentos escaneados precisam passar por OCR (reconhecimento otico) antes.',
+        sugestoes: [
+          'Use Adobe Acrobat > Reconhecer texto (OCR) e salve novamente',
+          'Ou ferramentas online: SmallPDF OCR, ilovepdf.com/ocr',
+          'Apos OCR, exporte para Excel (.xlsx) — mais confiavel',
+        ],
+        retryable: false,
+      }
+
     case 'PDF_INVALIDO':
       return {
         code: codeBackend,
@@ -470,8 +526,26 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     }
   }, [])
 
+  // P2.4 — Conflitos calculados sobre o mapeamento atual (reflete edicoes do usuario)
+  const conflitosAtuais = (() => {
+    const grupos = new Map<string, string[]>()
+    for (const col of mapeamento) {
+      if (!col.campo_sistema) continue
+      if (col.nivel === 'ignorado') continue
+      const arr = grupos.get(col.campo_sistema) ?? []
+      arr.push(col.coluna_arquivo)
+      grupos.set(col.campo_sistema, arr)
+    }
+    return Array.from(grupos.entries())
+      .filter(([, cols]) => cols.length >= 2)
+      .map(([campo_sistema, colunas_arquivo]) => ({ campo_sistema, colunas_arquivo }))
+  })()
+
   // Avancar do mapeamento para preview
   function handleAvancarParaPreview() {
+    // P2.4 — Bloqueia avanco se ha conflitos (banner vermelho fixo no topo
+    // ja explica o problema; botao "Continuar" tambem fica disabled).
+    if (conflitosAtuais.length > 0) return
     setEtapa('preview')
   }
 
@@ -572,6 +646,25 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         {preview && etapa === 'mapeamento' && preview.confianca_global < 60 && (
           <div className="smart-import__aviso-confianca">
             {t('pedido.smart_import.aviso_confianca', { pct: preview.confianca_global })}
+          </div>
+        )}
+
+        {/* P2.4 — Aviso de conflitos de mapeamento (2+ colunas -> mesmo campo) */}
+        {etapa === 'mapeamento' && conflitosAtuais.length > 0 && (
+          <div style={{
+            padding: '0.625rem 1.25rem',
+            background: 'rgba(239,68,68,0.08)',
+            borderBottom: '1px solid rgba(239,68,68,0.25)',
+            color: '#ef4444',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            flexShrink: 0,
+          }}>
+            <strong>⚠️ Conflito de mapeamento:</strong>{' '}
+            {conflitosAtuais.map((c) => (
+              `"${c.colunas_arquivo.join('", "')}" apontam para "${c.campo_sistema}"`
+            )).join(' · ')}
+            . Escolha apenas 1 coluna por campo (marque as outras como "Ignorar").
           </div>
         )}
 
@@ -702,7 +795,8 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
                   variante="primario"
                   tamanho="medio"
                   onClick={handleAvancarParaPreview}
-                  disabled={analisando}
+                  disabled={analisando || conflitosAtuais.length > 0}
+                  title={conflitosAtuais.length > 0 ? 'Resolva os conflitos de mapeamento antes de continuar' : undefined}
                 >
                   {t('pedido.smart_import.continuar')}
                 </BotaoGlobal>

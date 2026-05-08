@@ -138,7 +138,41 @@ export async function parseArquivo(
         ? nomePlanilha
         : workbook.SheetNames[0]
       const sheet = workbook.Sheets[sheetName]
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' })
+
+      // ── Detecção de super-header ──────────────────────────────────────────
+      // O template gerado pelo `templateHandler` usa linha 1 como agrupador
+      // ("PEDIDO" / "ITEM" — células mescladas) e linha 2 como rótulos reais.
+      // Sem detecção, sheet_to_json pega linha 1 como header e gera __EMPTY_*,
+      // perdendo todas as colunas. Heurísticas combinadas:
+      //   (a) linha 1 tem MUITO menos células não-vazias que linha 2 (merges
+      //       deixam células vazias) — fator >= 3x; OR
+      //   (b) linha 1 tem ≤30% de valores únicos vs total de células (caso
+      //       merges não estejam expandidos no buffer mas há repetição).
+      const rowsAsArrays = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+        header: 1,
+        defval: '',
+        blankrows: false,
+      }) as unknown[][]
+      const row1 = rowsAsArrays[0] ?? []
+      const row2 = rowsAsArrays[1] ?? []
+      const row1NaoVazios = row1.map(v => String(v ?? '').trim()).filter(v => v.length > 0)
+      const row2NaoVazios = row2.map(v => String(v ?? '').trim()).filter(v => v.length > 0)
+      const valoresUnicos = new Set(row1NaoVazios)
+      const ehSuperHeader =
+        // (a) linha 1 muito mais esparsa que linha 2 (mesclas)
+        (row1NaoVazios.length >= 1 &&
+          row2NaoVazios.length >= 4 &&
+          row2NaoVazios.length >= row1NaoVazios.length * 3) ||
+        // (b) linha 1 com baixa diversidade (repetições explícitas, sem mescla)
+        (row1NaoVazios.length >= 4 &&
+          valoresUnicos.size / row1NaoVazios.length < 0.3)
+
+      const startRange = ehSuperHeader ? 1 : 0
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+        defval: '',
+        range: startRange,
+      })
+
       return {
         linhas: rows.map(row =>
           Object.fromEntries(

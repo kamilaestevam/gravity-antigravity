@@ -163,7 +163,8 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
         }
       }
 
-      const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (p.valor_total_pedido ?? 0), 0)
+      // Number() obrigatorio: Prisma.Decimal vira string em + (concatena em vez de somar).
+      const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (Number(p.valor_total_pedido) || 0), 0)
       const total = await db.pedido.count({ where: { id_organizacao: tenantId } })
 
       // Detectar mistura de tipos de operação (importação vs exportação)
@@ -218,12 +219,12 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         throw new AppError('Um ou mais pedidos não foram encontrados', 404, 'NOT_FOUND')
       }
 
-      // Validar homogeneidade de tipo_operacao antes de iniciar a transação
+      // Validar homogeneidade de tipo_operacao_pedido antes de iniciar a transação
       const pedidosParaConsolidar = await db.pedido.findMany({
         where: { id_pedido: { in: ids }, id_organizacao: tenantId },
-        select: { id: true, tipo_operacao: true },
+        select: { id_pedido: true, tipo_operacao_pedido: true },
       })
-      const tiposConsolidar = pedidosParaConsolidar.map((p: { id: string; tipo_operacao: string | null }) => p.tipo_operacao ?? '')
+      const tiposConsolidar = pedidosParaConsolidar.map((p: { id_pedido: string; tipo_operacao_pedido: string | null }) => p.tipo_operacao_pedido ?? '')
       if (detectarTiposMistos(tiposConsolidar)) {
         throw new AppError('Não é possível consolidar pedidos de importação com pedidos de exportação.', 422, 'TIPO_OPERACAO_MISTO')
       }
@@ -268,23 +269,25 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
-      // Campos base do pedido consolidado (primeiro prevalece como default)
+      // Campos base do pedido consolidado (primeiro prevalece como default).
+      // Nomes alinhados com schema Prisma (DDD-puro): sufixo `_pedido` em campos
+      // genericos compartilhados com PedidoItem, prefixo `id_` em FKs.
       const camposBase = {
-        tipo_operacao:                   primeiro.tipo_operacao,
-        status:                          'consolidado',
-        importacao_exportador_id:        primeiro.importacao_exportador_id,
-        exportacao_importador_id:        primeiro.exportacao_importador_id,
-        incoterm:                        primeiro.incoterm,
-        moeda_pedido:                    primeiro.moeda_pedido,
-        casas_decimais_valor_pedido:     primeiro.casas_decimais_valor_pedido,
-        casas_decimais_quantidade_pedido: primeiro.casas_decimais_quantidade_pedido,
-        unidade_comercializada_pedido:   primeiro.unidade_comercializada_pedido,
-        condicao_pagamento:       primeiro.condicao_pagamento,
-        data_emissao_pedido:             primeiro.data_emissao_pedido,
-        // Preservar nomes dos parceiros de detalhes_operacionais do primeiro pedido
-        detalhes_operacionais: (() => {
-          const det = (typeof primeiro.detalhes_operacionais === 'object' && primeiro.detalhes_operacionais !== null)
-            ? primeiro.detalhes_operacionais as Record<string, unknown>
+        tipo_operacao_pedido:               primeiro.tipo_operacao_pedido,
+        status_pedido:                      'consolidado',
+        id_importacao_exportador_pedido:    primeiro.id_importacao_exportador_pedido,
+        id_exportacao_importador_pedido:    primeiro.id_exportacao_importador_pedido,
+        incoterm_pedido:                    primeiro.incoterm_pedido,
+        moeda_pedido:                       primeiro.moeda_pedido,
+        casas_decimais_valor_pedido:        primeiro.casas_decimais_valor_pedido,
+        casas_decimais_quantidade_pedido:   primeiro.casas_decimais_quantidade_pedido,
+        unidade_comercializada_pedido:      primeiro.unidade_comercializada_pedido,
+        condicao_pagamento_pedido:          primeiro.condicao_pagamento_pedido,
+        data_emissao_pedido:                primeiro.data_emissao_pedido,
+        // Preservar nomes dos parceiros de detalhes_operacionais_pedido do primeiro pedido
+        detalhes_operacionais_pedido: (() => {
+          const det = (typeof primeiro.detalhes_operacionais_pedido === 'object' && primeiro.detalhes_operacionais_pedido !== null)
+            ? primeiro.detalhes_operacionais_pedido as Record<string, unknown>
             : {}
           return {
             nome_exportador: (det.nome_exportador as string | null | undefined) ?? null,
@@ -299,15 +302,16 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       // 1. Criar o pedido consolidado
       const novo = await db.pedido.create({
         data: {
-          id: gerarId('pedi'),
-          company_id: primeiro.company_id,
+          id_pedido:                       gerarId('pedi'),
+          id_organizacao:                  tenantId,
+          id_workspace:                    primeiro.id_workspace,
           ...camposBase,
           ...campos_escolhidos,
           numero_pedido,
-          valor_total_pedido: valorTotal,
-          pedidos_origem_id: ids,
-          data_consolidacao_pedido: new Date(),
-          itens: {
+          valor_total_pedido:              valorTotal,
+          ids_origem_consolidacao_pedido:  ids,
+          data_consolidacao_pedido:        new Date(),
+          itens_pedido: {
             create: itensMerge,
           },
         },

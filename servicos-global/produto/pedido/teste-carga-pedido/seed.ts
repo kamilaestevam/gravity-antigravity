@@ -4,15 +4,18 @@
  * Uso:
  *   tsx seed.ts --count=10
  *   tsx seed.ts --count=100
+ *   tsx seed.ts --count=500
  *   tsx seed.ts --count=1000
+ *   tsx seed.ts --count=5000
+ *   tsx seed.ts --count=10000
  *
  * Comportamento:
- *   - Conecta no banco do Pedido (Railway)
- *   - SET search_path TO tenant_<CDE>
+ *   - Conecta no banco do Pedido (Railway), schema "public"
  *   - DELETE FROM pedido WHERE numero_pedido LIKE 'CARGA-%' (zera execucao anterior)
  *   - Gera N pedidos com distribuicao 30/40/30 entre tiers 100/70/50
  *   - Cada pedido tem 1-15 itens (distribuicao triangular, media 5)
  *   - Tudo numa transacao atomica
+ *   - INSERT em chunks de 50 linhas para evitar query gigante
  */
 
 import { Client } from 'pg'
@@ -47,10 +50,11 @@ const DATABASE_URL = process.env.DATABASE_URL
 // CLI
 // ────────────────────────────────────────────────────────────────────────────
 
+const COUNTS_VALIDOS = [10, 100, 500, 1000, 5000, 10000] as const
 const arg = process.argv.find((a) => a.startsWith('--count='))
 const count = arg ? parseInt(arg.split('=')[1] ?? '0', 10) : 0
-if (![10, 100, 1000].includes(count)) {
-  console.error('Uso: tsx seed.ts --count=10|100|1000')
+if (!COUNTS_VALIDOS.includes(count as typeof COUNTS_VALIDOS[number])) {
+  console.error(`Uso: tsx seed.ts --count=${COUNTS_VALIDOS.join('|')}`)
   process.exit(1)
 }
 

@@ -7,11 +7,16 @@ Seed de pedidos sintéticos para teste de carga do produto **Pedido** na organiz
 A partir desta pasta:
 
 ```bash
-npm run seed:10      # 10 pedidos
-npm run seed:100     # 100 pedidos (zera os 10 anteriores)
-npm run seed:1000    # 1000 pedidos (zera os 100 anteriores)
-npm run cleanup      # apaga todos os pedidos CARGA-*
+npm run seed:10       # 10 pedidos
+npm run seed:100      # 100 pedidos (zera execução anterior)
+npm run seed:500      # 500 pedidos (zera execução anterior)
+npm run seed:1000     # 1000 pedidos (zera execução anterior)
+npm run seed:5000     # 5000 pedidos (zera execução anterior)
+npm run seed:10000    # 10000 pedidos (zera execução anterior)
+npm run cleanup       # apaga todos os pedidos CARGA-*
 ```
+
+**Cada execução zera os CARGA-* anteriores antes de inserir.** Não acumula.
 
 Ou direto da raiz do monorepo (sem precisar `cd`):
 
@@ -109,6 +114,11 @@ Após `npm run seed:N`, dar **F5/Ctrl+Shift+R** no browser e validar:
 - [ ] Dashboard agrega 100 pedidos (valor total, qtd total)
 - [ ] Tempo de carga da Lista < 2 segundos
 
+### Após `seed:500`
+- [ ] Paginação aparece (25 páginas se limit=20)
+- [ ] Filtro por status reduz contagem corretamente
+- [ ] Tempo de carga da Lista < 3 segundos
+
 ### Após `seed:1000`
 - [ ] Paginação ainda funciona (50 páginas se limit=20)
 - [ ] Tempo de carga da Lista < 4 segundos
@@ -116,6 +126,21 @@ Após `npm run seed:N`, dar **F5/Ctrl+Shift+R** no browser e validar:
 - [ ] Kanban: qual o comportamento com colunas grandes? (300+ cards em "Aberto", por ex)
 - [ ] Dashboard agrega corretamente
 - [ ] Sem 500/timeouts no console
+
+### Após `seed:5000`
+- [ ] Lista carrega < 6 segundos (limit=100)
+- [ ] Filtros combinados (status + tipo_operacao) ainda rápidos
+- [ ] Kanban com lazy load funciona
+- [ ] Dashboard agrega ~5k pedidos sem travar
+- [ ] Memória do navegador estável (DevTools → Performance)
+
+### Após `seed:10000`
+- [ ] Carga aceitável (< 10 segundos)
+- [ ] Indexes do banco efetivos (verificar `EXPLAIN ANALYZE` no Postgres)
+- [ ] Kanban: provavelmente requer virtualização para colunas com 2k+ cards
+- [ ] Dashboard: agregações em volume real — verificar tempo de cada KPI
+- [ ] Sem timeouts em nenhum endpoint
+- [ ] **Inserção:** ~2-5 minutos (50k+ rows)
 
 ## Limpando
 

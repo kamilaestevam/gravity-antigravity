@@ -171,47 +171,84 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 ]
 
 // ── Campos do Item (detail) ───────────────────────────────────────────────────
+//
+// Auditoria 2026-05-08 — alinhamento com Prisma fragment do PedidoItem.
+// Mudancas vs versao inicial:
+//   - 11 campos INVENTADOS removidos (descricao_completa_item_*, texto_posicao_ncm_item,
+//     grupo_item, subgrupo_item, campo_especial_item, atributos_catalogo_item,
+//     tipo_embalagem_item, numero_lpco_item, numero_certificado_origem_item,
+//     data_certificado_origem_item) — nao existem no schema.
+//   - 13 campos com sufixo `_pedido` removido (alinha com schema).
+//   - 1 campo com nome corrigido (valor_unitario -> valor_por_unidade).
+//   - 26 campos do schema adicionados (cobertura ~100% dos preenchiveis).
+//
+// Debitos conhecidos (nao corrigidos por decisao de produto):
+//   - quantidade_pronta_total_item: schema tem `quantidade_pronta_item`. Mantido
+//     com "total" por requisito de UI. Parser precisara de alias ou schema deve adicionar.
+//   - data_embarque_item_pedido: nao existe no schema. Mantido como placeholder
+//     conceitual. Parser nao vai gravar; OU schema deve adicionar a coluna.
 
 export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   // Identificacao do produto
-  { campo: 'part_number_item_pedido',                      rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'ncm_item_pedido',                              rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_item_pedido',                        rotulo: 'Descricao do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa_item_pt_pedido',            rotulo: 'Descricao Completa (PT)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa_item_en_pedido',            rotulo: 'Descricao Completa (EN)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa_item_es_pedido',            rotulo: 'Descricao Completa (ES)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa_item_nf_pedido',            rotulo: 'Descricao Espelho NF',                   tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'texto_posicao_ncm_item_pedido',                rotulo: 'Texto Posicao NCM',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'grupo_item_pedido',                            rotulo: 'Grupo do Produto',                       tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'subgrupo_item_pedido',                         rotulo: 'Subgrupo do Produto',                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'campo_especial_item_pedido',                   rotulo: 'Campo Especial',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'atributos_catalogo_item_pedido',               rotulo: 'Atributos do Catalogo',                  tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'sequencia_item_pedido',                        rotulo: 'Sequencia do Item',                      tipo: 'numero', nivel: 'item', grupo: 'Produto' },
+  { campo: 'part_number_item',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'ncm_item',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_item',                               rotulo: 'Descricao do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
-  { campo: 'quantidade_inicial_item_pedido',               rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_transferida_item_pedido',           rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_pronta_total_item_pedido',          rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_cancelada_item_pedido',             rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'casas_decimais_quantidade_item_pedido',        rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_atual_item',                        rotulo: 'Qtd. Atual',                             tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_transferida_item',                  rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  // DEBITO: schema tem `quantidade_pronta_item`. Mantido com "total" por decisao de produto (alinha com UI).
+  { campo: 'quantidade_pronta_total_item',                 rotulo: 'Qtd. Pronta Total',                      tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_cancelada_item',                    rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'casas_decimais_quantidade_item',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
-  { campo: 'valor_unitario_item_pedido',                   rotulo: 'Valor Unitario',                         tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
-  { campo: 'valor_total_item_pedido',                      rotulo: 'Valor Total do Item',                    tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
-  { campo: 'casas_decimais_valor_item_pedido',             rotulo: 'Casas Decimais — Valor',                 tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
+  { campo: 'moeda_item',                                   rotulo: 'Moeda',                                  tipo: 'texto',  nivel: 'item', grupo: 'Financeiro' },
+  { campo: 'valor_por_unidade_item',                       rotulo: 'Valor por Unidade',                      tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
+  { campo: 'valor_total_item',                             rotulo: 'Valor Total do Item',                    tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
+  { campo: 'casas_decimais_valor_item',                    rotulo: 'Casas Decimais — Valor',                 tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
+
+  // Cambio
+  { campo: 'cobertura_cambial_item',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'item', grupo: 'Cambio' },
+
+  // Partes (snapshot por item — pode divergir do Pedido pai)
+  { campo: 'nome_exportador_item',                         rotulo: 'Exportador (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Partes' },
+  { campo: 'nome_importador_item',                         rotulo: 'Importador (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Partes' },
+  { campo: 'nome_fabricante_item',                         rotulo: 'Fabricante (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Partes' },
+
+  // Documentos / referencias
+  { campo: 'referencia_importador_item',                   rotulo: 'Referencia Importador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'referencia_exportador_item',                   rotulo: 'Referencia Exportador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'referencia_fabricante_item',                   rotulo: 'Referencia Fabricante (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+
+  // Comercial
+  { campo: 'incoterm_item',                                rotulo: 'Incoterm (Item)',                        tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento_item',                      rotulo: 'Condicao de Pagamento (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
 
   // Fisico
-  { campo: 'peso_liquido_unitario_item_pedido',            rotulo: 'Peso Liquido Unitario',                  tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
-  { campo: 'peso_bruto_unitario_item_pedido',              rotulo: 'Peso Bruto Unitario',                    tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
-  { campo: 'cubagem_unitaria_item_pedido',                 rotulo: 'Cubagem Unitaria',                       tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
-
-  // Embalagem e documentos
-  { campo: 'tipo_embalagem_item_pedido',                   rotulo: 'Tipo de Embalagem',                      tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
-  { campo: 'numero_lpco_item_pedido',                      rotulo: 'No LPCO',                                tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
-  { campo: 'numero_certificado_origem_item_pedido',        rotulo: 'No Certificado de Origem',               tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
-  { campo: 'data_certificado_origem_item_pedido',          rotulo: 'Data Certificado de Origem',             tipo: 'data',   nivel: 'item', grupo: 'Documentos' },
+  { campo: 'peso_liquido_unitario_item',                   rotulo: 'Peso Liquido Unitario',                  tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
+  { campo: 'peso_bruto_unitario_item',                     rotulo: 'Peso Bruto Unitario',                    tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
+  { campo: 'cubagem_unitaria_item',                        rotulo: 'Cubagem Unitaria',                       tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
+  { campo: 'casas_decimais_peso_item',                     rotulo: 'Casas Decimais — Peso',                  tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
+  { campo: 'casas_decimais_cubagem_item',                  rotulo: 'Casas Decimais — Cubagem',               tipo: 'numero', nivel: 'item', grupo: 'Fisico' },
 
   // Datas do item
+  { campo: 'data_emissao_item',                            rotulo: 'Data de Emissao (Item)',                 tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_consolidacao_item',                       rotulo: 'Data de Consolidacao (Item)',            tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  // DEBITO: nao existe no schema. Mantido como placeholder conceitual por decisao de produto.
   { campo: 'data_embarque_item_pedido',                    rotulo: 'Data de Embarque (Item)',                tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_prevista_item_pronto',                    rotulo: 'Data Prevista — Item Pronto',            tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_confirmada_item_pronto',                  rotulo: 'Data Confirmada — Item Pronto',          tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_meta_item_pronto',                        rotulo: 'Data Meta — Item Pronto',                tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_prevista_inspecao_item',                  rotulo: 'Data Prevista — Inspecao (Item)',        tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_confirmada_inspecao_item',                rotulo: 'Data Confirmada — Inspecao (Item)',      tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_meta_inspecao_item',                      rotulo: 'Data Meta — Inspecao (Item)',            tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_prevista_coleta_item',                    rotulo: 'Data Prevista — Coleta (Item)',          tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_confirmada_coleta_item',                  rotulo: 'Data Confirmada — Coleta (Item)',        tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  { campo: 'data_meta_coleta_item',                        rotulo: 'Data Meta — Coleta (Item)',              tipo: 'data',   nivel: 'item', grupo: 'Datas' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

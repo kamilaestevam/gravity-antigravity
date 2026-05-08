@@ -16,7 +16,18 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Warning, Spinner, CheckCircle, ArrowRight } from '@phosphor-icons/react'
+import {
+  Warning,
+  Spinner,
+  CheckCircle,
+  ArrowRight,
+  ArrowSquareOut,
+  ArrowSquareIn,
+  CaretDown,
+  Database,
+  PlusCircle,
+  ArrowDown,
+} from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
@@ -394,9 +405,12 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
   const { t } = useTranslation()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div className="modal-transferir__preview-origem">
-        <div className="modal-transferir__preview-titulo">{t('pedido.modal_transf.preview_origem')}</div>
+        <div className="modal-transferir__preview-titulo">
+          <ArrowSquareOut size={18} weight="duotone" aria-hidden="true" className="modal-transferir__preview-icone modal-transferir__preview-icone--origem" />
+          <span>{t('pedido.modal_transf.preview_origem')}</span>
+        </div>
         <div className="modal-transferir__preview-linha">
           <span>{t('pedido.modal_transf.preview_label_pedido')}</span>
           <span className="modal-transferir__preview-valor">{preview.origem.pedido_numero}</span>
@@ -414,8 +428,9 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
         <div className="modal-transferir__preview-linha">
           <span>{t('pedido.modal_transf.preview_label_qtd_apos')}</span>
           <span
-            className={`modal-transferir__preview-valor${preview.origem.encerra ? ' modal-transferir__preview-valor--alerta' : ''}`}
+            className={`modal-transferir__preview-valor modal-transferir__preview-valor--com-icone${preview.origem.encerra ? ' modal-transferir__preview-valor--alerta' : ''}`}
           >
+            <ArrowDown size={12} weight="bold" aria-hidden="true" className="modal-transferir__preview-seta-reducao" />
             {fmtQuantidade(preview.origem.quantidade_apos)}
             {preview.origem.encerra && ` ${t('pedido.modal_transf.preview_ficara_zero')}`}
           </span>
@@ -423,37 +438,50 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
       </div>
 
       {preview.destinos.length > 0 && (
-        <div className="modal-transferir__preview-destinos">
-          {preview.destinos.map((d, idx) => (
-            <div key={idx} className="modal-transferir__preview-destino">
-              <div className="modal-transferir__preview-titulo">
-                {t('pedido.modal_transf.preview_destino_titulo', { n: preview.destinos.length > 1 ? idx + 1 : '' })}
-                {' '}
-                {d.tipo === 'novo' ? (
-                  <span className="modal-transferir__badge-novo">{t('pedido.modal_transf.badge_novo')}</span>
-                ) : (
-                  <span className="modal-transferir__badge-existente">{t('pedido.modal_transf.badge_existente')}</span>
+        <>
+          <div className="modal-transferir__preview-fluxo" aria-hidden="true">
+            <CaretDown size={20} weight="bold" />
+          </div>
+          <div className="modal-transferir__preview-destinos">
+            {preview.destinos.map((d, idx) => (
+              <div key={idx} className="modal-transferir__preview-destino">
+                <div className="modal-transferir__preview-titulo">
+                  <ArrowSquareIn size={18} weight="duotone" aria-hidden="true" className="modal-transferir__preview-icone modal-transferir__preview-icone--destino" />
+                  <span>{t('pedido.modal_transf.preview_destino_titulo', { n: preview.destinos.length > 1 ? idx + 1 : '' })}</span>
+                  {d.tipo === 'novo' ? (
+                    <span className="modal-transferir__badge-novo">
+                      <PlusCircle size={11} weight="fill" aria-hidden="true" />
+                      {t('pedido.modal_transf.badge_novo')}
+                    </span>
+                  ) : (
+                    <span className="modal-transferir__badge-existente">
+                      <Database size={11} weight="fill" aria-hidden="true" />
+                      {t('pedido.modal_transf.badge_existente')}
+                    </span>
+                  )}
+                </div>
+                {d.pedido_numero && (
+                  <div className="modal-transferir__preview-linha">
+                    <span>{t('pedido.modal_transf.preview_label_pedido')}</span>
+                    <span className="modal-transferir__preview-valor">{d.pedido_numero}</span>
+                  </div>
                 )}
-              </div>
-              {d.pedido_numero && (
                 <div className="modal-transferir__preview-linha">
-                  <span>{t('pedido.modal_transf.preview_label_pedido')}</span>
-                  <span className="modal-transferir__preview-valor">{d.pedido_numero}</span>
+                  <span>{t('pedido.modal_transf.preview_label_quantidade')}</span>
+                  <span className="modal-transferir__preview-valor modal-transferir__preview-valor--positivo">
+                    +{fmtQuantidade(d.quantidade)}
+                  </span>
                 </div>
-              )}
-              <div className="modal-transferir__preview-linha">
-                <span>{t('pedido.modal_transf.preview_label_quantidade')}</span>
-                <span className="modal-transferir__preview-valor">{fmtQuantidade(d.quantidade)}</span>
+                {d.alertas.map((a, ai) => (
+                  <div key={ai} className="modal-transferir__alerta" role="alert">
+                    <Warning size={14} weight="fill" aria-hidden="true" />
+                    {a}
+                  </div>
+                ))}
               </div>
-              {d.alertas.map((a, ai) => (
-                <div key={ai} className="modal-transferir__alerta" role="alert">
-                  <Warning size={14} weight="fill" aria-hidden="true" />
-                  {a}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       {preview.alertas_globais.length > 0 && (

@@ -61,13 +61,18 @@ function toEventoDto(e: PrismaOpeEvento): Record<string, unknown> {
 }
 
 function extrairIdOrganizacao(req: import('express').Request): string {
-  const header = req.headers['x-organizacao-id']
-  const fromHeader = typeof header === 'string' ? header : undefined
+  // DDD canônico: x-id-organizacao. Aceita x-organizacao-id legado por compat.
+  const headerCanonico = req.headers['x-id-organizacao']
+  const headerLegado = req.headers['x-organizacao-id']
+  const fromHeader =
+    typeof headerCanonico === 'string' ? headerCanonico
+    : typeof headerLegado === 'string' ? headerLegado
+    : undefined
   const fromQuery = typeof req.query.id_organizacao === 'string' ? req.query.id_organizacao : undefined
   const escolhido = fromHeader ?? fromQuery
   if (!escolhido) {
     throw new AppError(
-      'id_organizacao é obrigatório (header x-organizacao-id ou query ?id_organizacao=)',
+      'id_organizacao é obrigatório (header x-id-organizacao ou query ?id_organizacao=)',
       400,
       'ORGANIZACAO_AUSENTE',
     )

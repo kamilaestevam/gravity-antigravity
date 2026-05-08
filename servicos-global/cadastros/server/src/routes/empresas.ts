@@ -70,17 +70,25 @@ function toEmpresaDto(e: PrismaEmpresa): Record<string, unknown> {
 }
 
 /**
- * Lê e valida `id_organizacao` da query OU do header `x-organizacao-id`.
- * Header tem precedência (caminho oficial inter-serviço).
+ * Lê e valida `id_organizacao` da query OU do header `x-id-organizacao`.
+ * Header tem precedência (caminho oficial inter-serviço — DDD canônico
+ * do Gravity, alinhado com `request()` do frontend e demais serviços).
+ *
+ * Compat: também aceita `x-organizacao-id` (nome legado) para não quebrar
+ * chamadas internas que ainda não migraram (ver preview-impacto.ts).
  */
 function extrairIdOrganizacao(req: import('express').Request): string {
-  const header = req.headers['x-organizacao-id']
-  const fromHeader = typeof header === 'string' ? header : undefined
+  const headerCanonico = req.headers['x-id-organizacao']
+  const headerLegado = req.headers['x-organizacao-id']
+  const fromHeader =
+    typeof headerCanonico === 'string' ? headerCanonico
+    : typeof headerLegado === 'string' ? headerLegado
+    : undefined
   const fromQuery = typeof req.query.id_organizacao === 'string' ? req.query.id_organizacao : undefined
   const escolhido = fromHeader ?? fromQuery
   if (!escolhido || escolhido.length === 0) {
     throw new AppError(
-      'id_organizacao é obrigatório (header x-organizacao-id ou query ?id_organizacao=)',
+      'id_organizacao é obrigatório (header x-id-organizacao ou query ?id_organizacao=)',
       400,
       'ORGANIZACAO_AUSENTE',
     )
@@ -93,7 +101,20 @@ function extrairIdOrganizacao(req: import('express').Request): string {
 // ---------------------------------------------------------------------------
 router.post('/', async (req, res, next) => {
   try {
-    const dados = criarEmpresaSchema.parse(req.body)
+    // Fallback: se id_organizacao não vier no body, tenta do header
+    // (caminho oficial S2S). Mantém validação Zod intacta — apenas
+    // injeta o valor antes do parse para que o schema não falhe.
+    const bodyComOrg =
+      req.body && typeof req.body === 'object' && !(req.body as { id_organizacao?: string }).id_organizacao
+        ? (() => {
+            try {
+              return { ...req.body, id_organizacao: extrairIdOrganizacao(req) }
+            } catch {
+              return req.body // deixa Zod falhar com mensagem clara
+            }
+          })()
+        : req.body
+    const dados = criarEmpresaSchema.parse(bodyComOrg)
     const suid_empresa = dados.suid_empresa ?? (await gerarSuid(prisma, {
       id_organizacao: dados.id_organizacao,
       pais_empresa: dados.pais_empresa,

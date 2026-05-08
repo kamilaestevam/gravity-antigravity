@@ -22,7 +22,7 @@
  * (manter em sincronia se o schema do Cadastros evoluir).
  */
 
-import { request } from './api'
+import { request, getApiContext } from './api'
 
 // ── Tipos (espelho do empresaSchema do Cadastros) ─────────────────────────────
 
@@ -90,11 +90,12 @@ export interface CriarEmpresaRapidoInput {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function toCriarEmpresaPayload(input: CriarEmpresaRapidoInput): Record<string, unknown> {
-  // Backend exige id_organizacao no body — vem do tenant resolver via
-  // x-id-organizacao header que o `request()` injeta. O backend lê do header
-  // se body omitir. Para conformidade absoluta com criarEmpresaSchema, podemos
-  // omitir id_organizacao aqui; o controller do Cadastros usa header como
-  // fallback (ver extrairIdOrganizacao em empresas.ts).
+  // id_organizacao é EXIGIDO pelo criarEmpresaSchema (Zod) do Cadastros — Mand.
+  // 06/09. O `request()` já injeta o header x-id-organizacao, mas o schema
+  // valida o body antes do controller, então enviamos explícito também.
+  // Defesa em profundidade: header (proxy) + body (Zod).
+  const { idOrganizacao } = getApiContext()
+
   const papelFlags: Record<string, boolean> = {
     pode_ser_importador_empresa:  input.papel === 'importador',
     pode_ser_exportador_empresa:  input.papel === 'exportador',
@@ -102,6 +103,7 @@ function toCriarEmpresaPayload(input: CriarEmpresaRapidoInput): Record<string, u
   }
 
   return {
+    id_organizacao:      idOrganizacao,
     nome_empresa:        input.nome_empresa.trim(),
     pais_empresa:        input.pais_empresa,
     cnpj_empresa:        input.pais_empresa === 'BR' && input.cnpj_empresa ? input.cnpj_empresa : null,

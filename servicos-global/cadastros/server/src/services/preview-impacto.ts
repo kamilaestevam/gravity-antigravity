@@ -53,7 +53,7 @@ async function consultarUsoNoProduto(
       method: 'GET',
       headers: {
         'x-internal-key': internalKey,
-        'x-organizacao-id': idOrganizacao,
+        'x-id-organizacao': idOrganizacao, // DDD canônico (era x-organizacao-id)
         'content-type': 'application/json',
       },
       signal: AbortSignal.timeout(TIMEOUT_MS),

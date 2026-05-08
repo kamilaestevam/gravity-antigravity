@@ -89,6 +89,7 @@ export function DashboardGrid({
         draggableHandle=".db-drag-handle"
         isDraggable={editMode}
         isResizable={editMode}
+        resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
         onLayoutChange={handleLayoutChange}
         margin={[12, 12]}
         containerPadding={[0, 0]}

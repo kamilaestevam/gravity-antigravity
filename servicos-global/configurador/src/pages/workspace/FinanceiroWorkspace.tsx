@@ -367,13 +367,29 @@ export function FinanceiroWorkspace() {
           neg.valor_unitario_negociacao_especial !== undefined &&
           neg.valor_unitario_negociacao_especial !== ''
         ) {
+          const valorEspecial = Number(neg.valor_unitario_negociacao_especial)
+          const valorTabela = Number(item.preco_unitario_produto_gravity)
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.9375rem' }}>
-                {getSimboloMoeda(neg.moeda_negociacao_especial)} {neg.valor_unitario_negociacao_especial}
-              </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.9375rem' }}>
+                  {isNaN(valorEspecial)
+                    ? `${getSimboloMoeda(neg.moeda_negociacao_especial)} ${neg.valor_unitario_negociacao_especial}`
+                    : formatarMoeda(valorEspecial, neg.moeda_negociacao_especial)}
+                </span>
+                <span
+                  className="ws-badge ws-badge-success"
+                  title="Esta organização possui condição comercial exclusiva — preço da tabela substituído"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.625rem', padding: '0.125rem 0.4rem' }}
+                >
+                  <Handshake size={10} weight="bold" />
+                  ESPECIAL
+                </span>
+              </div>
               <span style={{ color: 'var(--ws-muted)', fontSize: '0.6875rem', textDecoration: 'line-through' }}>
-                Tabela: {getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}
+                Tabela: {isNaN(valorTabela)
+                  ? `${getSimboloMoeda(item.moeda_unitario_produto_gravity)} ${item.preco_unitario_produto_gravity}`
+                  : formatarMoeda(valorTabela, item.moeda_unitario_produto_gravity)}
               </span>
             </div>
           )
@@ -389,7 +405,14 @@ export function FinanceiroWorkspace() {
             </div>
           )
         }
-        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}</span>
+        const valorBase = Number(item.preco_unitario_produto_gravity)
+        return (
+          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>
+            {isNaN(valorBase)
+              ? `${getSimboloMoeda(item.moeda_unitario_produto_gravity)} ${item.preco_unitario_produto_gravity}`
+              : formatarMoeda(valorBase, item.moeda_unitario_produto_gravity)}
+          </span>
+        )
       },
     },
     {

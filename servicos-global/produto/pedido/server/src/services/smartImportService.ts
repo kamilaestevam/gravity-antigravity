@@ -863,7 +863,141 @@ export class SmartImportService {
       }
     }
 
+    // ── P2.1 — Coerencia matematica ─────────────────────────────────────────
+    // Verifica relacoes esperadas entre campos numericos. Tolerancia de 1% para
+    // evitar falsos positivos por arredondamento. Tudo nivel 'aviso' — usuario
+    // pode estar importando dados legados com pequena divergencia.
+
+    const numFlex = (v: unknown): number | null => {
+      if (v === undefined || v === null || v === '') return null
+      const n = Number(String(v).replace(',', '.'))
+      return isNaN(n) ? null : n
+    }
+
+    // valor_total_item = quantidade_inicial × valor_por_unidade (tolerancia 1%)
+    const qtyItem = numFlex(dados['quantidade_inicial_pedido'])
+    const valorUnit = numFlex(dados['valor_por_unidade_item'])
+    const valorTotal = numFlex(dados['valor_total_item'])
+    if (qtyItem !== null && valorUnit !== null && valorTotal !== null && qtyItem > 0 && valorUnit > 0) {
+      const esperado = qtyItem * valorUnit
+      const tolerancia = Math.max(0.01, esperado * 0.01)
+      if (Math.abs(esperado - valorTotal) > tolerancia) {
+        alertas.push({
+          campo: 'valor_total_item',
+          tipo: 'formato_invalido',
+          mensagem: `Valor total (${valorTotal.toFixed(2)}) nao bate com Qtd × Valor unitario (${qtyItem} × ${valorUnit} = ${esperado.toFixed(2)})`,
+          nivel: 'aviso',
+        })
+      }
+    }
+
+    // peso_bruto >= peso_liquido (impossibilidade fisica)
+    const pesoLiq = numFlex(dados['peso_liquido_unitario'])
+    const pesoBruto = numFlex(dados['peso_bruto_unitario'])
+    if (pesoLiq !== null && pesoBruto !== null && pesoLiq > 0 && pesoBruto > 0 && pesoBruto < pesoLiq) {
+      alertas.push({
+        campo: 'peso_bruto_unitario',
+        tipo: 'formato_invalido',
+        mensagem: `Peso bruto (${pesoBruto}) menor que peso liquido (${pesoLiq}) — impossibilidade fisica`,
+        nivel: 'aviso',
+      })
+    }
+
+    // peso_bruto_total >= peso_liquido_total (mesma logica para totais)
+    const pesoLiqTotal = numFlex(dados['peso_liquido_total_pedido'])
+    const pesoBrutoTotal = numFlex(dados['peso_bruto_total_pedido'])
+    if (pesoLiqTotal !== null && pesoBrutoTotal !== null && pesoLiqTotal > 0 && pesoBrutoTotal > 0 && pesoBrutoTotal < pesoLiqTotal) {
+      alertas.push({
+        campo: 'peso_bruto_total_pedido',
+        tipo: 'formato_invalido',
+        mensagem: `Peso bruto total (${pesoBrutoTotal}) menor que peso liquido total (${pesoLiqTotal}) — impossibilidade fisica`,
+        nivel: 'aviso',
+      })
+    }
+
+    // Coerencia temporal: previsao <= confirmada <= meta (e o oposto se data_meta
+    // for 'limite' e nao 'objetivo'). Aplicado em pares conhecidos.
+    const validarOrdemDatas = (campoA: string, campoB: string, rotuloA: string, rotuloB: string) => {
+      const a = dados[campoA] ? new Date(String(dados[campoA])).getTime() : NaN
+      const b = dados[campoB] ? new Date(String(dados[campoB])).getTime() : NaN
+      if (!isNaN(a) && !isNaN(b) && a > b) {
+        alertas.push({
+          campo: campoB,
+          tipo: 'formato_invalido',
+          mensagem: `${rotuloA} (${dados[campoA]}) e posterior a ${rotuloB} (${dados[campoB]}) — verifique a sequencia`,
+          nivel: 'aviso',
+        })
+      }
+    }
+    // Pedido pronto
+    validarOrdemDatas('data_prevista_pedido_pronto', 'data_confirmada_pedido_pronto',
+      'Data Prevista — Pedido Pronto', 'Data Confirmada — Pedido Pronto')
+    validarOrdemDatas('data_emissao_pedido', 'data_documento_invoice_pedido',
+      'Data de Emissao', 'Data Documento Invoice')
+
+    // ── P2.2 — Formatos especiais (CNPJ, email) ────────────────────────────
+
+    // CNPJ — 14 digitos (com ou sem mascara)
+    const cnpj = String(dados['cnpj_importador_pedido'] ?? '').replace(/\D/g, '')
+    if (cnpj && cnpj.length !== 14) {
+      alertas.push({
+        campo: 'cnpj_importador_pedido',
+        tipo: 'formato_invalido',
+        mensagem: `CNPJ "${dados['cnpj_importador_pedido']}" deve ter 14 digitos (formato: 00.000.000/0000-00)`,
+        nivel: 'aviso',
+      })
+    } else if (cnpj && !this.cnpjDigitoVerificadorValido(cnpj)) {
+      alertas.push({
+        campo: 'cnpj_importador_pedido',
+        tipo: 'formato_invalido',
+        mensagem: `CNPJ "${dados['cnpj_importador_pedido']}" tem digito verificador invalido`,
+        nivel: 'aviso',
+      })
+    }
+
+    // Email — regex basica (RFC 5322 simplificada)
+    const email = String(dados['email_contato_exportador'] ?? '').trim()
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alertas.push({
+        campo: 'email_contato_exportador',
+        tipo: 'formato_invalido',
+        mensagem: `Email "${email}" tem formato invalido (esperado: usuario@dominio.com)`,
+        nivel: 'aviso',
+      })
+    }
+
+    // Email OPE
+    const emailOpe = String(dados['email_ope'] ?? '').trim()
+    if (emailOpe && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOpe)) {
+      alertas.push({
+        campo: 'email_ope',
+        tipo: 'formato_invalido',
+        mensagem: `Email OPE "${emailOpe}" tem formato invalido`,
+        nivel: 'aviso',
+      })
+    }
+
     return alertas
+  }
+
+  /**
+   * Valida digitos verificadores do CNPJ (modulo 11).
+   * Retorna true se DV bate, false caso contrario.
+   */
+  private cnpjDigitoVerificadorValido(cnpj: string): boolean {
+    if (cnpj.length !== 14) return false
+    if (/^(\d)\1{13}$/.test(cnpj)) return false  // todos digitos iguais (11111111111111)
+
+    const calc = (slice: string, pesos: number[]): number => {
+      const soma = slice.split('').reduce((acc, d, i) => acc + parseInt(d, 10) * pesos[i], 0)
+      const resto = soma % 11
+      return resto < 2 ? 0 : 11 - resto
+    }
+
+    const dv1 = calc(cnpj.slice(0, 12), [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
+    const dv2 = calc(cnpj.slice(0, 13), [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2])
+
+    return dv1 === parseInt(cnpj[12], 10) && dv2 === parseInt(cnpj[13], 10)
   }
 
   private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO): Record<string, unknown> {

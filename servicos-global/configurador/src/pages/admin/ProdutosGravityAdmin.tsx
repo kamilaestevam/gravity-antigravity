@@ -129,6 +129,18 @@ function mascaraMoeda(valor: string): string {
   return `${inteiroFormatado},${dec}`
 }
 
+/**
+ * Formata um Decimal serializado do banco ('3000', '3000.00', '0.5') para
+ * exibicao no input no padrao BR ('3.000,00', '3.000,00', '0,50').
+ * Usado ao popular os campos no handleEditarProduto.
+ */
+function formatarDecimalParaInput(valor: string | null | undefined): string {
+  if (valor === null || valor === undefined || valor === '') return ''
+  const n = Number(valor)
+  if (isNaN(n)) return String(valor)
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 export function ProdutosGravityAdmin() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
@@ -320,16 +332,16 @@ export function ProdutosGravityAdmin() {
     setFormSlugSelecionado(item.modulo_backend_produto_gravity ?? item.slug_produto_gravity ?? null)
     setTemSetup(item.possui_setup_produto_gravity ? 'sim' : 'nao')
     setMoedaSetup(item.moeda_setup_produto_gravity || 'BRL')
-    setValorSetup(item.preco_setup_produto_gravity || '')
+    setValorSetup(formatarDecimalParaInput(item.preco_setup_produto_gravity))
     setTipoCobranca(item.tipo_cobranca_produto_gravity)
     setMoedaProduto(item.moeda_unitario_produto_gravity)
-    setValorUnitario(item.preco_unitario_produto_gravity)
-    setValorMinimo(item.preco_minimo_produto_gravity)
-    setValorTotal(item.preco_total_produto_gravity || '')
+    setValorUnitario(formatarDecimalParaInput(item.preco_unitario_produto_gravity))
+    setValorMinimo(formatarDecimalParaInput(item.preco_minimo_produto_gravity))
+    setValorTotal(formatarDecimalParaInput(item.preco_total_produto_gravity))
     setLimiteUsuarios(item.tipo_limite_usuario_produto_gravity === 'LIMITADO' ? 'limitada' : 'ilimitada')
     setQtdUsuarios(String(item.qtd_usuarios_base_produto_gravity || ''))
     setMoedaUsuario(item.moeda_usuario_extra_produto_gravity || 'BRL')
-    setValorUsuarioAdicional(item.preco_usuario_extra_produto_gravity || '')
+    setValorUsuarioAdicional(formatarDecimalParaInput(item.preco_usuario_extra_produto_gravity))
     setTotalHoras(String(item.horas_helpdesk_produto_gravity))
     setMoedaHelpDesk(item.moeda_hora_extra_produto_gravity || 'BRL')
     setFaixas(item.faixas_preco_produto_gravity || [])
@@ -377,11 +389,11 @@ export function ProdutosGravityAdmin() {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>{t('admin.produtos-gravity.tabela.ver_camadas')} ({faixas.length})</span>
-              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('admin.produtos-gravity.tabela.a_partir_de')} {getSimboloMoeda(faixas[0].moeda_faixa_preco_produto_gravity)} {ultima.preco_faixa_preco_produto_gravity}</span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('admin.produtos-gravity.tabela.a_partir_de')} {getSimboloMoeda(faixas[0].moeda_faixa_preco_produto_gravity)} {formatarDecimalParaInput(ultima.preco_faixa_preco_produto_gravity)}</span>
             </div>
           )
         }
-        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}</span>
+        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(item.moeda_unitario_produto_gravity)} {formatarDecimalParaInput(item.preco_unitario_produto_gravity)}</span>
       },
     },
     {
@@ -549,7 +561,7 @@ export function ProdutosGravityAdmin() {
           nome_organizacao: neg.nome_organizacao_negociacao_especial,
         })
         setAcordoNegociacaoEspecial(neg.acordo_negociacao_especial)
-        setValorNegociacaoEspecial(neg.valor_unitario_negociacao_especial ?? '')
+        setValorNegociacaoEspecial(formatarDecimalParaInput(neg.valor_unitario_negociacao_especial))
         setMoedaNegociacaoEspecial(neg.moeda_negociacao_especial ?? 'BRL')
         setVigenciaIlimitadaNegociacaoEspecial(neg.ilimitado_prazo_negociacao_especial ? 'sim' : 'nao')
         setVigenciaPeriodoNegociacaoEspecial({
@@ -1591,7 +1603,7 @@ export function ProdutosGravityAdmin() {
                               setVincularOrganizacaoNegociacaoEspecial('sim')
                               setOrganizacaoSelecionadaNegociacaoEspecial({ id_organizacao: neg.id_organizacao, nome_organizacao: neg.nome_organizacao_negociacao_especial })
                               setAcordoNegociacaoEspecial(neg.acordo_negociacao_especial)
-                              setValorNegociacaoEspecial(neg.valor_unitario_negociacao_especial ?? '')
+                              setValorNegociacaoEspecial(formatarDecimalParaInput(neg.valor_unitario_negociacao_especial))
                               setMoedaNegociacaoEspecial(neg.moeda_negociacao_especial ?? 'BRL')
                               setVigenciaIlimitadaNegociacaoEspecial(neg.ilimitado_prazo_negociacao_especial ? 'sim' : 'nao')
                               setVigenciaPeriodoNegociacaoEspecial({

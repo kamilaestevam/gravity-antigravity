@@ -4023,7 +4023,7 @@
       "ph_sku": "SKU",
       "tooltip_lado_da_org_importador": "Su organización es el importador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
       "tooltip_lado_da_org_exportador": "Su organización es el exportador en esta operación. Este campo se completa automáticamente y no puede modificarse.",
-      "erro_empresa_da_org": "No se pudo cargar la empresa de su organización. {{detalhe}}. Complete el registro en Cadastros antes de crear pedidos."
+      "erro_empresa_da_org": "No se pudo cargar la empresa de su organización. {{detalhe}}"
     },
     "cadastro_empresa": {
       "titulo": "Registrar Empresa",

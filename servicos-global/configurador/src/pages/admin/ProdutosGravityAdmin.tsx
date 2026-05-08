@@ -275,6 +275,7 @@ export function ProdutosGravityAdmin() {
   const [moedaNegociacaoEspecial, setMoedaNegociacaoEspecial] = React.useState('BRL')
   const [negociacaoEspecialEditando, setNegociacaoEspecialEditando] = React.useState<NegociacaoEspecial | null>(null)
   const [abaInicialModal, setAbaInicialModal] = React.useState<string | undefined>(undefined)
+  const [negociacaoEspecialParaExcluir, setNegociacaoEspecialParaExcluir] = React.useState<NegociacaoEspecial | null>(null)
   const [organizacoesDisponiveis, setOrganizacoesDisponiveis] = React.useState<Array<{ id_organizacao: string; nome_organizacao: string }>>([])
   const [negociacoesDoProduto, setNegociacoesDoProduto] = React.useState<NegociacaoEspecial[]>([])
   const [salvandoNegociacaoEspecial, setSalvandoNegociacaoEspecial] = React.useState(false)
@@ -524,6 +525,12 @@ export function ProdutosGravityAdmin() {
   ]
 
   const ACOES_NEGOCIACOES: TabelaGlobalAcao<NegociacaoEspecial>[] = [
+    {
+      id: 'excluir-negociacao',
+      icone: <Trash weight="bold" size={15} />,
+      tooltip: 'Excluir negociação especial',
+      onClick: (neg) => setNegociacaoEspecialParaExcluir(neg),
+    },
     {
       id: 'ver-no-produto',
       icone: <Eye weight="bold" size={15} />,
@@ -1663,6 +1670,50 @@ export function ProdutosGravityAdmin() {
       titulo={t('admin.produtos-gravity.excluir_titulo')}
       descricao={<>{t('admin.produtos-gravity.excluir_descricao_pre')} <strong>{produtoParaExcluir?.nome_produto_gravity}</strong> {t('admin.produtos-gravity.excluir_descricao_pos')}</>}
       nomeItem={t('admin.produtos-gravity.excluir_aviso')}
+    />
+
+    <ModalExclusao
+      aberto={!!negociacaoEspecialParaExcluir}
+      aoCancelar={() => setNegociacaoEspecialParaExcluir(null)}
+      aoConfirmar={async () => {
+        if (!negociacaoEspecialParaExcluir) return
+        try {
+          await catalogApiService.excluirNegociacaoEspecial(
+            negociacaoEspecialParaExcluir.id_produto_gravity,
+            negociacaoEspecialParaExcluir.id_negociacao_especial,
+          )
+          const nomeOrg = negociacaoEspecialParaExcluir.nome_organizacao_negociacao_especial
+          setNegociacaoEspecialParaExcluir(null)
+          addNotification({
+            type: 'success',
+            message: `Negociação especial de ${nomeOrg} removida. A organização volta a usar os valores padrão da tabela.`,
+          })
+          // Recarrega a lista de negociações
+          carregarDados()
+        } catch (err) {
+          addNotification({
+            type: 'error',
+            message: extractCatchError(err, 'Falha ao excluir negociação especial'),
+          })
+        }
+      }}
+      titulo="Excluir Negociação Especial"
+      descricao={
+        <>
+          Tem certeza de que deseja remover a negociação especial de{' '}
+          <strong>{negociacaoEspecialParaExcluir?.nome_organizacao_negociacao_especial}</strong>{' '}
+          no produto{' '}
+          <strong>
+            {produtos.find(p => p.id_produto_gravity === negociacaoEspecialParaExcluir?.id_produto_gravity)?.nome_produto_gravity ?? '—'}
+          </strong>
+          ?
+          <br /><br />
+          <span style={{ color: '#fbbf24' }}>
+            ⚠️ Após a exclusão, esta organização passará a ser cobrada com os <strong>valores padrão da tabela</strong> deste produto.
+          </span>
+        </>
+      }
+      nomeItem={negociacaoEspecialParaExcluir?.acordo_negociacao_especial}
     />
     </>
   )

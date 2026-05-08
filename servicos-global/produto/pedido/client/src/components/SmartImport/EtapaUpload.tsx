@@ -200,9 +200,63 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
       </div>
 
       {mensagemErro && (
-        <div className="smart-import__erro" role="alert">
-          <Warning size={14} weight="fill" aria-hidden="true" />
-          {mensagemErro}
+        <div
+          role="alert"
+          style={{
+            marginTop: '1rem',
+            padding: '0.875rem 1rem',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.25)',
+            borderRadius: '0.5rem',
+          }}
+        >
+          {/* Cabeçalho do erro */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#ef4444' }}>
+            <Warning size={16} weight="fill" aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+            <div style={{ flex: 1 }}>
+              <strong style={{ fontSize: '0.8125rem', display: 'block', marginBottom: '0.25rem' }}>
+                {t('pedido.smart_import.erro_titulo')}
+              </strong>
+              <span style={{ fontSize: '0.8125rem', color: '#fca5a5' }}>{mensagemErro}</span>
+            </div>
+          </div>
+
+          {/* Dicas práticas — sempre exibidas para ajudar o usuário a destravar */}
+          <div
+            style={{
+              marginTop: '0.75rem',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid rgba(239,68,68,0.18)',
+            }}
+          >
+            <span
+              style={{
+                display: 'block',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                color: 'var(--text-muted, #94a3b8)',
+                marginBottom: '0.375rem',
+              }}
+            >
+              {t('pedido.smart_import.erro_verificar')}
+            </span>
+            <ul
+              style={{
+                margin: 0,
+                paddingLeft: '1.125rem',
+                fontSize: '0.75rem',
+                color: 'var(--text-muted, #94a3b8)',
+                lineHeight: 1.6,
+              }}
+            >
+              <li>{t('pedido.smart_import.dica_formato', { extensoes: EXTENSOES_ACEITAS.join(', ') })}</li>
+              <li>{t('pedido.smart_import.dica_tamanho', { mb: TAMANHO_MAX_MB })}</li>
+              <li>{t('pedido.smart_import.dica_template')}</li>
+              <li>{t('pedido.smart_import.dica_pdf_texto')}</li>
+            </ul>
+          </div>
         </div>
       )}
     </div>

@@ -49,16 +49,25 @@ type Etapa = 'upload' | 'mapeamento' | 'preview' | 'confirmacao'
 
 type TFunc = (key: string, opts?: Record<string, unknown>) => string
 
+/**
+ * Traduz erro para mensagem amigável. Mand. 08: jamais mascara totalmente o
+ * detalhe técnico — quando o tipo do erro é desconhecido, retorna a mensagem
+ * original do backend. Só cai no genérico se NADA útil estiver disponível.
+ */
 function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload', t: TFunc): string {
   const msg = err instanceof Error ? err.message : String(err ?? '')
+
+  // eslint-disable-next-line no-console
+  console.error('[SmartImport] erro capturado (raw):', err, 'msg:', msg)
 
   if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('fetch')) {
     return t('pedido.smart_import.err_rede')
   }
   if (/^HTTP 5\d\d/.test(msg)) {
-    return contexto === 'upload'
+    const base = contexto === 'upload'
       ? t('pedido.smart_import.err_servidor_upload')
       : t('pedido.smart_import.err_servidor_confirmar')
+    return `${base} (${msg})`
   }
   if (msg === 'HTTP 413') {
     return t('pedido.smart_import.err_arquivo_grande')
@@ -74,12 +83,15 @@ function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload',
       ? t('pedido.smart_import.err_formato')
       : t('pedido.smart_import.err_dados')
   }
+  // Mensagem real do backend (não-HTTP) — propaga sem mascarar (Mand. 08)
   if (msg && msg.length > 0 && !msg.startsWith('HTTP ')) {
     return msg
   }
-  return contexto === 'upload'
+  // Fallback final: NUNCA fica no genérico sem deixar pista do que aconteceu
+  const base = contexto === 'upload'
     ? t('pedido.smart_import.err_upload_gen')
     : t('pedido.smart_import.err_confirmar_gen')
+  return msg ? `${base} (detalhe técnico: ${msg})` : base
 }
 
 const ORDEM_ETAPAS: Etapa[] = ['upload', 'mapeamento', 'preview', 'confirmacao']

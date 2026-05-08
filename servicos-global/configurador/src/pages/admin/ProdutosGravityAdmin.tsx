@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
+import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack, Eye } from '@phosphor-icons/react'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -274,6 +274,7 @@ export function ProdutosGravityAdmin() {
   const [valorNegociacaoEspecial, setValorNegociacaoEspecial] = React.useState('')
   const [moedaNegociacaoEspecial, setMoedaNegociacaoEspecial] = React.useState('BRL')
   const [negociacaoEspecialEditando, setNegociacaoEspecialEditando] = React.useState<NegociacaoEspecial | null>(null)
+  const [abaInicialModal, setAbaInicialModal] = React.useState<string | undefined>(undefined)
   const [organizacoesDisponiveis, setOrganizacoesDisponiveis] = React.useState<Array<{ id_organizacao: string; nome_organizacao: string }>>([])
   const [negociacoesDoProduto, setNegociacoesDoProduto] = React.useState<NegociacaoEspecial[]>([])
   const [salvandoNegociacaoEspecial, setSalvandoNegociacaoEspecial] = React.useState(false)
@@ -303,6 +304,7 @@ export function ProdutosGravityAdmin() {
     setVigenciaIlimitadaNegociacaoEspecial('nao'); setVigenciaPeriodoNegociacaoEspecial({ inicio: null, fim: null })
     setAcordoNegociacaoEspecial(''); setValorNegociacaoEspecial(''); setMoedaNegociacaoEspecial('BRL')
     setNegociacaoEspecialEditando(null); setNegociacoesDoProduto([])
+    setAbaInicialModal(undefined)
     setFaixas([])
     setGabiQuotaMensal('')
     setGabiTokenStats(null)
@@ -497,6 +499,39 @@ export function ProdutosGravityAdmin() {
     }
   ]
 
+  const ACOES_NEGOCIACOES: TabelaGlobalAcao<NegociacaoEspecial>[] = [
+    {
+      id: 'ver-no-produto',
+      icone: <Eye weight="bold" size={15} />,
+      tooltip: 'Ver no produto (abre aba Negociação Especial)',
+      onClick: (neg) => {
+        const produto = produtos.find(p => p.id_produto_gravity === neg.id_produto_gravity)
+        if (!produto) {
+          addNotification({ type: 'error', message: 'Produto associado nao encontrado' })
+          return
+        }
+        // Pré-popula a aba de negociação no modal de edição com a negociação selecionada
+        setNegociacaoEspecialEditando(neg)
+        setVincularOrganizacaoNegociacaoEspecial('sim')
+        setOrganizacaoSelecionadaNegociacaoEspecial({
+          id_organizacao: neg.id_organizacao,
+          nome_organizacao: neg.nome_organizacao_negociacao_especial,
+        })
+        setAcordoNegociacaoEspecial(neg.acordo_negociacao_especial)
+        setValorNegociacaoEspecial(neg.valor_unitario_negociacao_especial ?? '')
+        setMoedaNegociacaoEspecial(neg.moeda_negociacao_especial ?? 'BRL')
+        setVigenciaIlimitadaNegociacaoEspecial(neg.ilimitado_prazo_negociacao_especial ? 'sim' : 'nao')
+        setVigenciaPeriodoNegociacaoEspecial({
+          inicio: neg.data_inicio_negociacao_especial ? new Date(neg.data_inicio_negociacao_especial) : null,
+          fim:    neg.data_fim_negociacao_especial    ? new Date(neg.data_fim_negociacao_especial)    : null,
+        })
+        // Abrir modal de edição já na aba "negociacao"
+        setAbaInicialModal('negociacao')
+        handleEditarProduto(produto)
+      },
+    },
+  ]
+
   const requisitosProduto: RequisitoSalvar[] = [
     { chave: 'nome', ok: formNome.trim().length > 0, mensagem: 'Nome do produto' },
     {
@@ -644,6 +679,7 @@ export function ProdutosGravityAdmin() {
               id="admin-products-negotiations"
               dados={negociacoes}
               colunas={COLUNAS_NEGOCIACOES}
+              acoes={ACOES_NEGOCIACOES}
               mensagemVazio={t('admin.produtos-gravity.vazio_negociacoes')}
               tooltipBusca={t('admin.produtos-gravity.tooltip_busca_negociacoes')}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_NEGOCIACOES, 'dados_tabela', 'Exportação de Dados')}
@@ -655,6 +691,7 @@ export function ProdutosGravityAdmin() {
       <ModalFormularioAbasGlobal
         aberto={modalAberto}
         aoFechar={handleFecharModal}
+        abaAtivaInicial={abaInicialModal}
         aoSalvar={async () => {
           const isNew = !produtoEditando
           const slugResolve = formStatus === 'ATIVO' && formSlugSelecionado

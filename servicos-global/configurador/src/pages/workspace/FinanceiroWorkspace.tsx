@@ -175,6 +175,26 @@ export function FinanceiroWorkspace() {
   const getNegociacao = (id_produto_gravity: string): NegociacaoEspecial | undefined =>
     negociacoes.find(n => n.id_produto_gravity === id_produto_gravity)
 
+  /**
+   * Negociação especial está vigente HOJE?
+   *  - ilimitado_prazo_negociacao_especial === true  → sempre vigente
+   *  - senão: data_inicio <= hoje <= data_fim (ambas inclusivas; null = sem limite naquele lado)
+   */
+  const isNegociacaoVigente = (neg: NegociacaoEspecial | undefined): boolean => {
+    if (!neg) return false
+    if (neg.ilimitado_prazo_negociacao_especial) return true
+    const agora = Date.now()
+    if (neg.data_inicio_negociacao_especial) {
+      const inicio = new Date(neg.data_inicio_negociacao_especial).getTime()
+      if (agora < inicio) return false
+    }
+    if (neg.data_fim_negociacao_especial) {
+      const fim = new Date(neg.data_fim_negociacao_especial).getTime()
+      if (agora > fim) return false
+    }
+    return true
+  }
+
   // ── Stats (cards no topo) ─────────────────────────────────────────────────
 
   const faturasEmAberto = faturas.filter(f =>
@@ -336,8 +356,29 @@ export function FinanceiroWorkspace() {
     },
     {
       key: 'preco_unitario_produto_gravity', label: t('workspace.financial.col_valor_unitario'), tipo: 'texto',
-      tooltipTitulo: 'Preço Base', tooltipDescricao: 'Valor cobrado por unidade ou uso adicional além da franquia.',
+      tooltipTitulo: 'Preço Base', tooltipDescricao: 'Valor cobrado por unidade ou uso adicional além da franquia. Negociação Especial vigente sobrescreve este valor.',
       render: (_v, item) => {
+        // Negociação Especial vigente com valor_unitario definido sobrescreve o preço base.
+        const neg = getNegociacao(item.id_produto_gravity)
+        if (
+          neg &&
+          isNegociacaoVigente(neg) &&
+          neg.valor_unitario_negociacao_especial !== null &&
+          neg.valor_unitario_negociacao_especial !== undefined &&
+          neg.valor_unitario_negociacao_especial !== ''
+        ) {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.9375rem' }}>
+                {getSimboloMoeda(neg.moeda_negociacao_especial)} {neg.valor_unitario_negociacao_especial}
+              </span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.6875rem', textDecoration: 'line-through' }}>
+                Tabela: {getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}
+              </span>
+            </div>
+          )
+        }
+
         const faixas = item.faixas_preco_produto_gravity
         if (faixas && faixas.length > 0) {
           const ultima = faixas[faixas.length - 1]
@@ -380,10 +421,13 @@ export function FinanceiroWorkspace() {
     },
     {
       key: 'id_produto_gravity', label: t('workspace.financial.col_negociacao'), tipo: 'texto',
-      tooltipTitulo: 'Acordo Especial', tooltipDescricao: 'Verifica se esta organização possui condições exclusivas.',
+      tooltipTitulo: 'Acordo Especial', tooltipDescricao: 'Verifica se esta organização possui condições exclusivas vigentes hoje.',
       render: (_v, item) => {
         const neg = getNegociacao(item.id_produto_gravity)
-        if (neg) {
+        if (!neg) {
+          return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Padrão</span>
+        }
+        if (isNegociacaoVigente(neg)) {
           return (
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -396,7 +440,18 @@ export function FinanceiroWorkspace() {
             </span>
           )
         }
-        return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Padrão</span>
+        // Negociação cadastrada porém fora de vigência (expirada ou ainda não iniciada)
+        return (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '4px',
+            padding: '0.175rem 0.5rem', borderRadius: '9999px',
+            fontSize: '0.6875rem', fontWeight: 700,
+            background: 'rgba(148,163,184,0.10)', color: '#94a3b8',
+            border: '1px solid rgba(148,163,184,0.20)',
+          }}>
+            <Handshake size={12} weight="bold" /> EXPIRADA
+          </span>
+        )
       },
     },
   ]

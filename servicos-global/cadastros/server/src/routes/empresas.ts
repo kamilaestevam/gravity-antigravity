@@ -200,6 +200,78 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
+// GET /empresas/da-organizacao — resolve a empresa-da-organização (1:1)
+//
+// Distingue a empresa-da-org das demais (parceiros importadores/exportadores
+// estrangeiros, fabricantes etc.) via lookup cross-banco no Configurador:
+// Organizacao.suid_empresa_organizacao aponta para a empresa "de si mesma"
+// no Cadastros.
+//
+// Caminho oficial pra:
+//   - Auto-fill do lado-da-organização no ModalPedidoNovo (Importador em
+//     IMPORTACAO, Exportador em EXPORTACAO).
+//
+// Falha alta (Mand. 08):
+//   - 404 com código EMPRESA_DA_ORG_AUSENTE se a Organizacao não tem
+//     suid_empresa_organizacao (onboarding incompleto)
+//   - 404 com código EMPRESA_NAO_CADASTRADA se o suid existe na Organizacao
+//     mas a Empresa não está em cadastros (drift cross-banco)
+//
+// IMPORTANTE: rota declarada ANTES de `/:id_empresa` para evitar shadowing.
+// ---------------------------------------------------------------------------
+router.get('/da-organizacao', async (req, res, next) => {
+  try {
+    const idOrganizacao = extrairIdOrganizacao(req)
+
+    // Resolve suid_empresa_organizacao consultando o Configurador (S2S).
+    const baseUrlConfigurador = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:8005'
+    const internalKey = process.env.INTERNAL_SERVICE_KEY ?? process.env.CHAVE_INTERNA_SERVICO ?? ''
+    const url = `${baseUrlConfigurador.replace(/\/$/, '')}/api/v1/internal/organizacoes/${encodeURIComponent(idOrganizacao)}`
+    const respostaConfigurador = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-chave-interna-servico': internalKey,
+        'x-internal-key': internalKey, // compat com middleware do Configurador
+        'content-type': 'application/json',
+      },
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!respostaConfigurador.ok) {
+      throw new AppError(
+        `Falha ao resolver organização no Configurador (status ${respostaConfigurador.status})`,
+        502,
+        'CONFIGURADOR_INDISPONIVEL',
+      )
+    }
+    const dadosOrg = await respostaConfigurador.json() as { suid_empresa_organizacao?: string | null }
+    const suid = dadosOrg.suid_empresa_organizacao
+    if (!suid) {
+      throw new AppError(
+        'Organização não tem empresa-da-org cadastrada (onboarding incompleto). Conclua o cadastro da empresa nos Cadastros antes de criar pedidos.',
+        404,
+        'EMPRESA_DA_ORG_AUSENTE',
+      )
+    }
+
+    // Busca a Empresa local pelo SUID + tenant isolation.
+    const empresa = await prisma.empresa.findFirst({
+      where: { suid_empresa: suid, id_organizacao_empresa: idOrganizacao },
+    })
+    if (!empresa) {
+      throw new AppError(
+        `Configurador aponta suid_empresa_organizacao=${suid}, mas Empresa não foi encontrada no Cadastros (drift cross-banco — contate o suporte).`,
+        404,
+        'EMPRESA_NAO_CADASTRADA',
+      )
+    }
+
+    res.status(200).json(toEmpresaDto(empresa))
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ---------------------------------------------------------------------------
 // GET /empresas/:id_empresa — busca uma
 // ---------------------------------------------------------------------------
 router.get('/:id_empresa', async (req, res, next) => {

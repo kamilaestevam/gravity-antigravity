@@ -361,7 +361,12 @@ accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
 
     const organizacao = await prisma.organizacao.findUnique({
       where: { id_organizacao },
-      select: { id_organizacao: true, status_organizacao: true },
+      select: {
+        id_organizacao: true,
+        nome_organizacao: true,
+        status_organizacao: true,
+        suid_empresa_organizacao: true, // link 1:1 para Empresa no Cadastros
+      },
     })
 
     if (!organizacao) {
@@ -370,7 +375,9 @@ accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
 
     res.json({
       id: organizacao.id_organizacao,
+      nome: organizacao.nome_organizacao,
       status: StatusSdkMap[organizacao.status_organizacao] ?? 'suspended',
+      suid_empresa_organizacao: organizacao.suid_empresa_organizacao, // pode ser null se onboarding incompleto
       idWorkspace: null,
     })
   } catch (err) {

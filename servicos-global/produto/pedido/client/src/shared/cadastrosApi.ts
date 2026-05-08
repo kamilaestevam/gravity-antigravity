@@ -127,6 +127,21 @@ export const cadastrosApi = {
   },
 
   /**
+   * Resolve a empresa-da-organização (1:1) — a Empresa cadastrada em Cadastros
+   * que representa a própria organização do usuário. Distingue-se das demais
+   * empresas (parceiros estrangeiros, fabricantes) via lookup cross-banco:
+   * Configurador.Organizacao.suid_empresa_organizacao → Cadastros.Empresa.
+   *
+   * Usado pelo ModalPedidoNovo para auto-preencher o Importador (em IMPORTACAO)
+   * ou Exportador (em EXPORTACAO) — esse lado fica somente leitura, com tooltip.
+   *
+   * Mandamento 08 (sem fallbacks silenciosos): erro 404 sobe com mensagem clara
+   * para a UI exibir ao master do workspace.
+   */
+  obterEmpresaDaOrganizacao: (): Promise<Empresa> =>
+    request<Empresa>('/api/v1/empresas/da-organizacao'),
+
+  /**
    * Cria empresa via fluxo rápido do modal de Pedido. Apenas nome+país+papel
    * são preenchidos — usuário completa demais dados depois no Cadastros.
    * Lança erro com mensagem específica para 401/403/409/422 (Mandamento 08).

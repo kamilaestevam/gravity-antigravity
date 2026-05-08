@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowClockwise,
-  Sparkle,
-  CurrencyDollar,
-  Lightning,
   Brain,
+  Warning,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 
 /**
@@ -31,6 +31,20 @@ import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
  * ruido visual na aba principal e dar visibilidade dedicada ao consumo de IA.
  */
 
+/**
+ * Linha da tabela "uso por modelo".
+ * Construida no client a partir do by_model do backend para alimentar TabelaGlobal.
+ */
+interface ModeloLinhaUso {
+  modelo:       string
+  chamadas:     number
+  tokens:       number      // input + output (agregado pra UI)
+  tokens_input: number
+  tokens_output: number
+  custo_total:  number
+  custo_medio:  number      // custo_total / chamadas
+}
+
 interface GabiUsagePayload {
   month?: string
   total_calls?: number
@@ -39,6 +53,8 @@ interface GabiUsagePayload {
   total_cost_usd?: number
   by_model?: Record<string, { calls: number; tokensIn: number; tokensOut: number; cost: number }>
   by_day?: Record<string, number>
+  orgs_consultadas?: number
+  orgs_com_falha?: number
   error?: string
 }
 
@@ -99,6 +115,95 @@ export function MonitorLlmAdmin() {
   const gabiCost   = gabiUsage?.total_cost_usd ?? 0
   const gabiTokens = (gabiUsage?.total_tokens_input ?? 0) + (gabiUsage?.total_tokens_output ?? 0)
   const gabiCustoMedio = gabiCalls > 0 ? gabiCost / gabiCalls : 0
+
+  // Constroi as linhas da tabela "uso por modelo" a partir do by_model agregado.
+  // Ordem: maior custo primeiro (mais relevante pra observabilidade financeira).
+  const linhasModelo: ModeloLinhaUso[] = useMemo(() => {
+    if (!gabiUsage?.by_model) return []
+    return Object.entries(gabiUsage.by_model)
+      .map(([modelo, stats]) => ({
+        modelo,
+        chamadas:      stats.calls,
+        tokens:        stats.tokensIn + stats.tokensOut,
+        tokens_input:  stats.tokensIn,
+        tokens_output: stats.tokensOut,
+        custo_total:   stats.cost,
+        custo_medio:   stats.calls > 0 ? stats.cost / stats.calls : 0,
+      }))
+      .sort((a, b) => b.custo_total - a.custo_total)
+  }, [gabiUsage])
+
+  // Area de avisos — em F1 fica vazia quando nao ha falha de carregamento.
+  // F2 popula com avisos de limite (proximo/excedido) por modelo/org.
+  const avisos: { tipo: 'aviso' | 'erro'; mensagem: string }[] = useMemo(() => {
+    const lista: { tipo: 'aviso' | 'erro'; mensagem: string }[] = []
+    if (!gabiUsage && !loading) {
+      lista.push({
+        tipo:      'erro',
+        mensagem:  'Falha ao carregar dados do serviço GABI. Verifique se o serviço está online.',
+      })
+    }
+    if (gabiUsage && gabiUsage.orgs_com_falha && gabiUsage.orgs_com_falha > 0) {
+      lista.push({
+        tipo:      'aviso',
+        mensagem:  `${gabiUsage.orgs_com_falha} de ${gabiUsage.orgs_consultadas ?? '?'} organizações falharam ao reportar uso. Os totais abaixo estão parciais.`,
+      })
+    }
+    return lista
+  }, [gabiUsage, loading])
+
+  const colunasModelo: TabelaGlobalColuna<ModeloLinhaUso>[] = [
+    {
+      key:              'modelo',
+      label:            'Modelo',
+      tipo:             'texto',
+      tooltipTitulo:    'Modelo de LLM',
+      tooltipDescricao: 'Identificador do modelo utilizado nas chamadas (ex: gpt-4o-mini, claude-3-5-sonnet).',
+      render: (val) => (
+        <code style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{val as string}</code>
+      ),
+    },
+    {
+      key:              'chamadas',
+      label:            'Chamadas',
+      tipo:             'texto',
+      align:            'center',
+      tooltipTitulo:    'Chamadas',
+      tooltipDescricao: 'Total de invocações do modelo no mês corrente, agregado de todas as organizações.',
+      render: (val) => <span>{(val as number).toLocaleString('pt-BR')}</span>,
+    },
+    {
+      key:              'tokens',
+      label:            'Tokens (in + out)',
+      tipo:             'texto',
+      align:            'center',
+      tooltipTitulo:    'Tokens',
+      tooltipDescricao: 'Soma de tokens de entrada e saída. Indica volume de processamento.',
+      render: (_val, row) => (
+        <span title={`in: ${row.tokens_input.toLocaleString('pt-BR')} · out: ${row.tokens_output.toLocaleString('pt-BR')}`}>
+          {fmtTokens(row.tokens)}
+        </span>
+      ),
+    },
+    {
+      key:              'custo_total',
+      label:            'Custo Total',
+      tipo:             'texto',
+      align:            'center',
+      tooltipTitulo:    'Custo Total',
+      tooltipDescricao: 'Custo acumulado em USD para este modelo no mês corrente.',
+      render: (val) => <span style={{ fontWeight: 600 }}>{fmtUSD(val as number)}</span>,
+    },
+    {
+      key:              'custo_medio',
+      label:            'Custo Médio / Chamada',
+      tipo:             'texto',
+      align:            'center',
+      tooltipTitulo:    'Custo Médio',
+      tooltipDescricao: 'Custo total dividido pelo número de chamadas. Útil pra comparar modelos.',
+      render: (val) => <span>{fmtUSD(val as number)}</span>,
+    },
+  ]
 
   // ── Tooltips ──────────────────────────────────────────────────────────
 
@@ -181,86 +286,59 @@ export function MonitorLlmAdmin() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {!gabiUsage && !loading && (
-          <div role="alert" style={{
-            padding:    '0.75rem 1rem',
-            borderRadius: '8px',
-            background: 'rgba(248,113,113,0.1)',
-            border:     '1px solid rgba(248,113,113,0.3)',
-            color:      '#f87171',
-            fontSize:   '0.875rem',
-          }}>
-            Falha ao carregar dados do serviço GABI. Verifique se o serviço está online.
-          </div>
-        )}
-
-        {gabiUsage && (
-          <div
-            style={{
-              display:        'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap:            '1rem',
-              padding:        '1.25rem',
-              borderRadius:   '12px',
-              background:     'linear-gradient(135deg, rgba(79,70,229,0.06) 0%, rgba(124,58,237,0.04) 100%)',
-              border:         '1px solid rgba(129,140,248,0.15)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', gridColumn: '1 / -1', marginBottom: '0.25rem' }}>
-              <Sparkle weight="fill" size={16} style={{ color: '#818cf8' }} />
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#818cf8', letterSpacing: '-0.01em' }}>
-                {t('admin.monitor-llm.consumo_mes')} ({gabiUsage.month})
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t('admin.monitor-llm.chamadas')}
-              </span>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                <Lightning size={14} weight="fill" style={{ color: '#818cf8', marginRight: '0.25rem' }} />
-                {gabiCalls}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t('admin.monitor-llm.tokens')}
-              </span>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                {fmtTokens(gabiTokens)}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t('admin.monitor-llm.custo_total')}
-              </span>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ws-text)' }}>
-                <CurrencyDollar size={14} weight="fill" style={{ color: '#f59e0b', marginRight: '0.25rem' }} />
-                {fmtUSD(gabiCost)}
-              </span>
-            </div>
-
-            {gabiUsage.by_model && Object.keys(gabiUsage.by_model).length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: '1 / -1' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  {t('admin.monitor-llm.por_modelo')}
-                </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-                  {Object.entries(gabiUsage.by_model).map(([model, stats]) => (
-                    <span key={model} style={{ fontSize: '0.75rem', color: 'var(--ws-text-2)' }}>
-                      {model}: {stats.calls} calls · {fmtTokens(stats.tokensIn + stats.tokensOut)} tokens · {fmtUSD(stats.cost)}
-                    </span>
-                  ))}
+        {/*
+         * Area de avisos — banners empilhados antes da tabela.
+         * F1: cobre falha de carregamento e falha parcial em orgs.
+         * F2: aqui entram avisos de limite (proximo/excedido) por modelo/org.
+         */}
+        {avisos.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {avisos.map((aviso, idx) => {
+              const isErro = aviso.tipo === 'erro'
+              return (
+                <div
+                  key={idx}
+                  role="alert"
+                  style={{
+                    display:      'flex',
+                    alignItems:   'center',
+                    gap:          '0.625rem',
+                    padding:      '0.75rem 1rem',
+                    borderRadius: '8px',
+                    background:   isErro ? 'rgba(248,113,113,0.1)' : 'rgba(251,191,36,0.1)',
+                    border:       isErro ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(251,191,36,0.3)',
+                    color:        isErro ? '#f87171' : '#fbbf24',
+                    fontSize:     '0.875rem',
+                  }}
+                >
+                  <Warning size={16} weight="fill" />
+                  <span>{aviso.mensagem}</span>
                 </div>
-              </div>
-            )}
+              )
+            })}
           </div>
         )}
+
+        {/* Tabela de uso por modelo (mes corrente). */}
+        <TabelaGlobal<ModeloLinhaUso>
+          id="admin-monitor-llm-modelos"
+          colunas={colunasModelo}
+          dados={linhasModelo}
+          acoesExportacao={getAcoesExportacaoPadrao(
+            colunasModelo,
+            'monitor-llm-por-modelo',
+            'Monitor LLM — Uso por modelo (Admin)',
+          )}
+          mensagemVazio={
+            loading
+              ? 'Carregando uso de LLM...'
+              : gabiUsage
+                ? `Sem chamadas registradas em ${gabiUsage.month ?? 'período atual'}.`
+                : 'Sem dados disponíveis.'
+          }
+        />
       </div>
     </PaginaGlobal>
   )
 }
-
 export default MonitorLlmAdmin

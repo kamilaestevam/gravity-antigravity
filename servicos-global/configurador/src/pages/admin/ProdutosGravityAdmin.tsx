@@ -1525,7 +1525,7 @@ export function ProdutosGravityAdmin() {
                         <div className="ws-input-icon-wrap">
                           <span>{getSimboloMoeda(moedaNegociacaoEspecial)}</span>
                           <input
-                            placeholder="opcional — deixe vazio se só descritivo"
+                            placeholder="Valor da negociação especial"
                             style={{ width: '100%' }}
                             inputMode="numeric"
                             value={valorNegociacaoEspecial}

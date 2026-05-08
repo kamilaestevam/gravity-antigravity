@@ -24,8 +24,18 @@ import { listarOrganizacoes, listarLimitesGlobais } from '../services/configurad
 
 const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
 
-const EMAIL_SERVICE_URL    = process.env.TENANT_EMAIL_SERVICE_URL ?? process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
-const CHAVE_INTERNA_SERVICO = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_API_KEY ?? ''
+// Aceita as 3 variantes de nome usadas no monorepo (legado nao uniformizado)
+function getInternalKey(): string {
+  return process.env.CHAVE_INTERNA_SERVICO
+      ?? process.env.CHAVE_SERVICO_INTERNO
+      ?? process.env.INTERNAL_API_KEY
+      ?? ''
+}
+function getEmailServiceUrl(): string {
+  return process.env.TENANT_EMAIL_SERVICE_URL
+      ?? process.env.EMAIL_SERVICE_URL
+      ?? 'http://localhost:8008'
+}
 
 function mesRefAtual(): string {
   const now = new Date()
@@ -59,8 +69,12 @@ async function enviarEmailAlerta(opts: {
   mesRef:        string
   idOrganizacao: string
 }): Promise<boolean> {
-  if (!EMAIL_SERVICE_URL || !CHAVE_INTERNA_SERVICO) {
-    console.warn('[limite-worker] EMAIL_SERVICE_URL ou CHAVE_INTERNA_SERVICO ausente — email pulado')
+  const emailUrl    = getEmailServiceUrl()
+  const internalKey = getInternalKey()
+  if (!emailUrl || !internalKey) {
+    console.warn('[limite-worker] EMAIL_SERVICE_URL ou chave interna ausente — email pulado', {
+      tem_url: !!emailUrl, tem_chave: !!internalKey,
+    })
     return false
   }
 
@@ -91,12 +105,12 @@ async function enviarEmailAlerta(opts: {
   const body    = `${titulo}\n\nEscopo: ${opts.escopo}\nContexto: ${opts.contexto}\nMês: ${opts.mesRef}\nGasto MTD: ${fmtUSD(opts.gastoUsd)}\nLimite: ${fmtUSD(opts.limiteUsd)}`
 
   try {
-    const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/envios-email`, {
+    const res = await fetch(`${emailUrl}/api/v1/envios-email`, {
       method: 'POST',
       headers: {
         'Content-Type':            'application/json',
-        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
-        'x-internal-key':          CHAVE_INTERNA_SERVICO,
+        'x-chave-interna-servico': internalKey,
+        'x-internal-key':          internalKey,
         'x-id-organizacao':        opts.idOrganizacao,
         'x-id-usuario':            'system',
       },

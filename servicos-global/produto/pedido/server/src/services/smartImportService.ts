@@ -13,6 +13,7 @@
 import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } from './importEngine.js'
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
 import { AppError } from '../errors/AppError.js'
+import { CAMPOS_PEDIDO_DDD_TODOS, type CampoPedidoDDD } from '../../../shared/campos-pedido-ddd.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -680,6 +681,60 @@ export class SmartImportService {
     const dataStr = String(dados['data_embarque'] ?? '')
     if (dataStr && isNaN(new Date(dataStr).getTime())) {
       alertas.push({ campo: 'data_embarque', tipo: 'formato_invalido', mensagem: 'Data de embarque com formato invalido', nivel: 'aviso' })
+    }
+
+    // ── Validacao de tipo de dados via SSOT (P1.1) ────────────────────────────
+    // Para cada campo preenchido, valida conforme tipo declarado em CAMPOS_PEDIDO_DDD_TODOS:
+    //   - tipo='data':   exige Date.parse() valido (DD/MM/YYYY, YYYY-MM-DD, ISO)
+    //   - tipo='numero': exige Number(v) sem NaN (rejeita texto livre)
+    //   - tipo='select': exige valor em opcoesSelect (case-insensitive)
+    //   - tipo='texto':  sem validacao adicional (qualquer string aceita)
+    // Pula campos ja validados especificamente acima (numero_pedido, part_number,
+    // quantidade_inicial_pedido, valor_por_unidade_item, ncm, data_embarque,
+    // tipo_linha, tipo_operacao) para evitar mensagens duplicadas.
+    const CAMPOS_JA_VALIDADOS = new Set([
+      'tipo_linha', 'tipo_operacao', 'numero_pedido', 'part_number',
+      'quantidade_inicial_pedido', 'valor_por_unidade_item', 'ncm', 'data_embarque',
+    ])
+    for (const def of CAMPOS_PEDIDO_DDD_TODOS as readonly CampoPedidoDDD[]) {
+      if (CAMPOS_JA_VALIDADOS.has(def.campo)) continue
+      const valor = dados[def.campo]
+      if (valor === undefined || valor === null || valor === '') continue
+      const valorStr = String(valor).trim()
+      if (!valorStr) continue
+
+      if (def.tipo === 'data') {
+        if (isNaN(new Date(valorStr).getTime())) {
+          alertas.push({
+            campo: def.campo,
+            tipo: 'formato_invalido',
+            mensagem: `${def.rotulo}: data invalida ("${valorStr}"). Formato esperado: DD/MM/YYYY ou YYYY-MM-DD`,
+            nivel: 'aviso',
+          })
+        }
+      } else if (def.tipo === 'numero') {
+        // Aceita virgula como decimal (cultura BR) — converte antes de Number()
+        const normalizado = valorStr.replace(',', '.')
+        if (isNaN(Number(normalizado))) {
+          alertas.push({
+            campo: def.campo,
+            tipo: 'formato_invalido',
+            mensagem: `${def.rotulo}: numero invalido ("${valorStr}"). Esperado: numero (use ponto ou virgula como decimal)`,
+            nivel: 'erro',
+          })
+        }
+      } else if (def.tipo === 'select' && def.opcoesSelect && def.opcoesSelect.length > 0) {
+        const valorLower = valorStr.toLowerCase()
+        const opcoesLower = def.opcoesSelect.map(o => o.toLowerCase())
+        if (!opcoesLower.includes(valorLower)) {
+          alertas.push({
+            campo: def.campo,
+            tipo: 'formato_invalido',
+            mensagem: `${def.rotulo}: valor invalido ("${valorStr}"). Aceitos: ${def.opcoesSelect.join(', ')}`,
+            nivel: 'erro',
+          })
+        }
+      }
     }
 
     return alertas

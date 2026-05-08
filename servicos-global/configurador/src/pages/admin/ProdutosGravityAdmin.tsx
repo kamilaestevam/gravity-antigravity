@@ -1455,28 +1455,40 @@ export function ProdutosGravityAdmin() {
                       />
                     </CampoGeralGlobal>
 
-                    <CampoGeralGlobal label={t('admin.produtos-gravity.campo_acordo_negociacao_especial', { defaultValue: 'Descrição do acordo' })} obrigatorio>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={acordoNegociacaoEspecial}
-                        onChange={e => dirty(() => setAcordoNegociacaoEspecial(e.target.value))}
-                        placeholder='ex: "Preço fixo R$ 1.500/mês" ou "Desconto 20%"'
-                        maxLength={2000}
-                        style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid var(--ws-border)', background: 'var(--ws-bg)', color: 'var(--ws-text)', fontSize: '0.875rem' }}
-                      />
+                    <CampoGeralGlobal
+                      label={t('admin.produtos-gravity.campo_acordo_negociacao_especial', { defaultValue: 'Descrição do acordo' })}
+                      obrigatorio
+                      tooltipTitulo="ACORDO COMERCIAL"
+                      tooltipDescricao='Texto livre descritivo. Ex: "Preço fixo até abril", "Desconto 20% sobre tabela", "Valor congelado por 12 meses".'
+                    >
+                      <div className="ws-input-icon-wrap">
+                        <Handshake size={16} />
+                        <input
+                          placeholder='ex: "Preço fixo R$ 1.500/mês" ou "Desconto 20%"'
+                          style={{ width: '100%' }}
+                          value={acordoNegociacaoEspecial}
+                          onChange={e => dirty(() => setAcordoNegociacaoEspecial(e.target.value))}
+                          maxLength={2000}
+                        />
+                      </div>
                     </CampoGeralGlobal>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
-                      <CampoGeralGlobal label={t('admin.produtos-gravity.campo_valor_negociacao_especial', { defaultValue: 'Valor Unitário Especial (R$)' })}>
-                        <input
-                          type="text"
-                          className="form-input"
-                          value={valorNegociacaoEspecial}
-                          onChange={e => dirty(() => setValorNegociacaoEspecial(mascaraMoeda(e.target.value)))}
-                          placeholder="opcional — deixe vazio se acordo é só descritivo"
-                          style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid var(--ws-border)', background: 'var(--ws-bg)', color: 'var(--ws-text)', fontSize: '0.875rem' }}
-                        />
+                      <CampoGeralGlobal
+                        label={t('admin.produtos-gravity.campo_valor_negociacao_especial', { defaultValue: 'Valor Unitário Especial' })}
+                        tooltipTitulo="PREÇO ESPECIAL ESTRUTURADO"
+                        tooltipDescricao="Quando preenchido, sobrescreve o preço unitário da tabela do produto nas faturas dessa organização. Deixe vazio se o acordo é apenas descritivo."
+                      >
+                        <div className="ws-input-icon-wrap">
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaNegociacaoEspecial)}</span>
+                          <input
+                            placeholder="opcional — deixe vazio se só descritivo"
+                            style={{ width: '100%' }}
+                            inputMode="numeric"
+                            value={valorNegociacaoEspecial}
+                            onChange={e => dirty(() => setValorNegociacaoEspecial(mascaraMoeda(e.target.value)))}
+                          />
+                        </div>
                       </CampoGeralGlobal>
 
                       <CampoGeralGlobal label={t('admin.produtos-gravity.campo_moeda_negociacao_especial', { defaultValue: 'Moeda' })}>

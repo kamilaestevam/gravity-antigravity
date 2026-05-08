@@ -3875,7 +3875,10 @@
       "remover_item_aria": "Remove item {{n}}",
       "ph_exportador": "Exporter name or code",
       "ph_fabricante": "Manufacturer name or code",
-      "ph_sku": "SKU"
+      "ph_sku": "SKU",
+      "tooltip_lado_da_org_importador": "Your organization is the importer in this operation. This field is auto-filled and cannot be changed.",
+      "tooltip_lado_da_org_exportador": "Your organization is the exporter in this operation. This field is auto-filled and cannot be changed.",
+      "erro_empresa_da_org": "Could not load your organization's company. {{detalhe}}. Complete the company registration in Cadastros before creating orders."
     },
     "cadastro_empresa": {
       "titulo": "Register Company",

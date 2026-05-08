@@ -10,7 +10,7 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Package, Tag, Plus, Trash, Warning } from '@phosphor-icons/react'
+import { Package, Tag, Plus, Trash, Warning, Lock, Info } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -297,6 +297,13 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [carregandoEmpresas, setCarregandoEmpresas]   = useState(false)
   const [cadastroEmpresaPapel, setCadastroEmpresaPapel] = useState<PapelEmpresaRapido | null>(null)
 
+  // ── Empresa-da-organização (auto-preenchida no lado correspondente) ───────
+  // Regra: em IMPORTACAO a Empresa-da-Org é o IMPORTADOR; em EXPORTACAO é o
+  // EXPORTADOR. O outro lado (contraparte) o usuário escolhe/cadastra.
+  const [empresaDaOrg, setEmpresaDaOrg]               = useState<Empresa | null>(null)
+  const [carregandoEmpresaDaOrg, setCarregandoEmpresaDaOrg] = useState(false)
+  const [erroEmpresaDaOrg, setErroEmpresaDaOrg]       = useState<string | null>(null)
+
   useEffect(() => {
     if (!aberto) return
     let cancelado = false
@@ -318,6 +325,55 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       cancelado = true
     }
   }, [aberto])
+
+  // Carrega empresa-da-org ao abrir o modal — Mand. 08 (sem fallback silencioso):
+  // erro 404 sobe para a UI exibir mensagem clara.
+  useEffect(() => {
+    if (!aberto) return
+    let cancelado = false
+    setCarregandoEmpresaDaOrg(true)
+    setErroEmpresaDaOrg(null)
+    cadastrosApi
+      .obterEmpresaDaOrganizacao()
+      .then((emp) => {
+        if (!cancelado) setEmpresaDaOrg(emp)
+      })
+      .catch((err: unknown) => {
+        if (cancelado) return
+        const msg =
+          err instanceof Error ? err.message : t('pedido.modal_novo.erro_inesperado')
+        setErroEmpresaDaOrg(msg)
+        setEmpresaDaOrg(null)
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoEmpresaDaOrg(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [aberto, t])
+
+  // Auto-fill do lado-da-organização sempre que tipo_operacao OU empresa-da-org mudar.
+  // O outro lado (contraparte) é mantido — usuário pode estar trocando só o tipo.
+  useEffect(() => {
+    if (!empresaDaOrg) return
+    setForm((prev) => {
+      if (prev.tipo_operacao === 'importacao') {
+        return {
+          ...prev,
+          suid_importador: empresaDaOrg.suid_empresa,
+          // Limpa exportador antigo se ele apontava para a empresa-da-org
+          // (por ex. mudou de exportacao→importacao e ficou inconsistente)
+          suid_exportador: prev.suid_exportador === empresaDaOrg.suid_empresa ? '' : prev.suid_exportador,
+        }
+      }
+      return {
+        ...prev,
+        suid_exportador: empresaDaOrg.suid_empresa,
+        suid_importador: prev.suid_importador === empresaDaOrg.suid_empresa ? '' : prev.suid_importador,
+      }
+    })
+  }, [form.tipo_operacao, empresaDaOrg])
 
   // Monta opções do SelectGlobal para um papel.
   // Empresas com o papel marcado aparecem primeiro; demais ficam visíveis com
@@ -491,6 +547,9 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
             carregandoEmpresas={carregandoEmpresas}
+            empresaDaOrg={empresaDaOrg}
+            carregandoEmpresaDaOrg={carregandoEmpresaDaOrg}
+            erroEmpresaDaOrg={erroEmpresaDaOrg}
             aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
           />
         )}
@@ -534,6 +593,7 @@ function CampoEmpresaSelect({
   opcoes,
   valor,
   carregando,
+  desabilitado,
   onSelecionar,
   onCadastrarNova,
   labelNova,
@@ -543,13 +603,14 @@ function CampoEmpresaSelect({
   opcoes: OpcaoEmpresaSelect[]
   valor: string | null
   carregando: boolean
+  desabilitado?: boolean
   onSelecionar: (v: string | number | null) => void
   onCadastrarNova: () => void
   labelNova: string
   placeholder: string
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', opacity: desabilitado ? 0.5 : 1 }}>
       <div
         style={{
           display: 'flex',
@@ -571,23 +632,25 @@ function CampoEmpresaSelect({
         </span>
         <button
           type="button"
+          disabled={desabilitado}
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
+            if (desabilitado) return
             onCadastrarNova()
           }}
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'var(--ws-accent, #818cf8)',
+            color: desabilitado ? 'var(--text-muted)' : 'var(--ws-accent, #818cf8)',
             fontSize: '0.6875rem',
             fontWeight: 500,
             padding: 0,
-            cursor: 'pointer',
+            cursor: desabilitado ? 'not-allowed' : 'pointer',
             textDecoration: 'none',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
+            if (!desabilitado) (e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLButtonElement).style.textDecoration = 'none'
@@ -602,8 +665,70 @@ function CampoEmpresaSelect({
         aoMudarValor={onSelecionar}
         buscavel
         carregando={carregando}
+        desabilitado={desabilitado}
         placeholder={placeholder}
       />
+    </div>
+  )
+}
+
+/**
+ * Campo readonly mostrando a Empresa-da-Organização auto-preenchida no lado
+ * correspondente ao tipo_operacao (Importador em IMPORTACAO, Exportador em
+ * EXPORTACAO). Inclui ícone de cadeado e tooltip explicando a regra.
+ */
+function CampoEmpresaDaOrg({
+  label,
+  empresa,
+  carregando,
+  tooltipTexto,
+}: {
+  label: string
+  empresa: Empresa | null
+  carregando: boolean
+  tooltipTexto: string
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+        <span
+          style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted, #94a3b8)',
+          }}
+        >
+          {label}
+        </span>
+        <span title={tooltipTexto} style={{ display: 'inline-flex', cursor: 'help', color: 'var(--text-muted, #94a3b8)' }}>
+          <Info size={12} weight="duotone" />
+        </span>
+      </div>
+      <div
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--bg-elevated)',
+          borderRadius: 'var(--radius-md)',
+          color: 'var(--text-primary)',
+          fontSize: '0.875rem',
+          padding: '0.5rem 0.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          minHeight: '2.25rem',
+        }}
+      >
+        <Lock size={14} weight="duotone" style={{ color: 'var(--text-muted, #94a3b8)', flexShrink: 0 }} />
+        <span style={{ flex: 1, color: empresa ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+          {carregando
+            ? '…'
+            : empresa
+            ? `${empresa.nome_empresa}${empresa.cnpj_empresa ? ` — ${empresa.cnpj_empresa}` : ''}`
+            : '—'}
+        </span>
+      </div>
     </div>
   )
 }
@@ -616,6 +741,9 @@ function Passo1Dados({
   opcoesExportador,
   opcoesFabricante,
   carregandoEmpresas,
+  empresaDaOrg,
+  carregandoEmpresaDaOrg,
+  erroEmpresaDaOrg,
   aoCadastrarNova,
 }: {
   form: PedidoForm
@@ -625,6 +753,9 @@ function Passo1Dados({
   opcoesExportador: OpcaoEmpresaSelect[]
   opcoesFabricante: OpcaoEmpresaSelect[]
   carregandoEmpresas: boolean
+  empresaDaOrg: Empresa | null
+  carregandoEmpresaDaOrg: boolean
+  erroEmpresaDaOrg: string | null
   aoCadastrarNova: (papel: PapelEmpresaRapido) => void
 }) {
   const { t } = useTranslation()
@@ -633,11 +764,29 @@ function Passo1Dados({
     { valor: 'exportacao', rotulo: t('pedido.modal_novo.opt_exportacao') },
   ], [t])
 
+  // Demais campos só liberam após carregar a empresa-da-org com sucesso.
+  // Se erro, mostra alerta e mantém tudo bloqueado (com link para Cadastros).
+  const camposBloqueados = !empresaDaOrg
+
+  // Filtra contraparte: NÃO inclui a empresa-da-org no dropdown — ela já está
+  // do outro lado. Garante que o user não selecione a si mesmo como contraparte.
+  const opcoesContraparteImportador = useMemo(
+    () => opcoesImportador.filter((o) => o.valor !== empresaDaOrg?.suid_empresa),
+    [opcoesImportador, empresaDaOrg],
+  )
+  const opcoesContraparteExportador = useMemo(
+    () => opcoesExportador.filter((o) => o.valor !== empresaDaOrg?.suid_empresa),
+    [opcoesExportador, empresaDaOrg],
+  )
+
   return (
     <div>
       <p style={s.secaoTitulo}>{t('pedido.modal_novo.passo_dados')}</p>
-      <div style={s.grid}>
-        <div style={s.campo}>
+
+      {/* Bloco em destaque: TIPO_OPERACAO em linha cheia, único campo
+          inicialmente disponível. Define qual lado é a empresa-da-org. */}
+      <div style={{ ...s.grid, marginBottom: '1rem' }}>
+        <div style={{ ...s.campo, ...s.gridFull }}>
           <SelectGlobal
             label={t('pedido.drawer.label_tipo_op')}
             opcoes={opcoesTipoOperacao}
@@ -645,13 +794,43 @@ function Passo1Dados({
             aoMudarValor={v => onChange('tipo_operacao', String(v ?? 'importacao'))}
           />
         </div>
+      </div>
+
+      {/* Erro/loading da empresa-da-org */}
+      {erroEmpresaDaOrg && (
+        <div
+          role="alert"
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem',
+            padding: '0.625rem 0.875rem',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.25)',
+            borderRadius: 'var(--radius-md)',
+            color: '#ef4444',
+            fontSize: '0.8125rem',
+            marginBottom: '1rem',
+          }}
+        >
+          <Warning size={15} weight="fill" style={{ marginTop: '0.125rem', flexShrink: 0 }} />
+          <span>
+            {t('pedido.modal_novo.erro_empresa_da_org', { detalhe: erroEmpresaDaOrg })}
+          </span>
+        </div>
+      )}
+
+      {/* Demais campos */}
+      <div style={s.grid}>
         <div style={s.campo}>
           <label style={s.label} htmlFor="mnp-numero-pedido">{t('pedido.drawer.label_numero')}</label>
           <input
             id="mnp-numero-pedido"
+            disabled={camposBloqueados}
             style={{
               ...s.input,
               ...(erros.numero_pedido ? { borderColor: 'var(--danger, #ef4444)' } : {}),
+              ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
             }}
             value={form.numero_pedido}
             onChange={e => onChange('numero_pedido', e.target.value)}
@@ -667,35 +846,57 @@ function Passo1Dados({
             </span>
           )}
         </div>
-        {/* B3 — SelectGlobal carrega empresas do Cadastros. Atalho discreto
-            "+ Nova" como link inline no header da label, à direita. */}
+        {/* IMPORTAÇÃO: lado-da-org = IMPORTADOR (auto), contraparte = EXPORTADOR */}
         {form.tipo_operacao === 'importacao' && (
-          <div style={s.campo}>
-            <CampoEmpresaSelect
-              label={t('pedido.drawer.label_exportador')}
-              opcoes={opcoesExportador}
-              valor={form.suid_exportador || null}
-              carregando={carregandoEmpresas}
-              onSelecionar={(v) => onChange('suid_exportador', String(v ?? ''))}
-              onCadastrarNova={() => aoCadastrarNova('exportador')}
-              labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
-              placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
-            />
-          </div>
+          <>
+            <div style={s.campo}>
+              <CampoEmpresaDaOrg
+                label={t('pedido.drawer.label_importador', 'Importador')}
+                empresa={empresaDaOrg}
+                carregando={carregandoEmpresaDaOrg}
+                tooltipTexto={t('pedido.modal_novo.tooltip_lado_da_org_importador')}
+              />
+            </div>
+            <div style={s.campo}>
+              <CampoEmpresaSelect
+                label={t('pedido.drawer.label_exportador')}
+                opcoes={opcoesContraparteExportador}
+                valor={form.suid_exportador || null}
+                carregando={carregandoEmpresas}
+                desabilitado={camposBloqueados}
+                onSelecionar={(v) => onChange('suid_exportador', String(v ?? ''))}
+                onCadastrarNova={() => aoCadastrarNova('exportador')}
+                labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
+                placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
+              />
+            </div>
+          </>
         )}
+        {/* EXPORTAÇÃO: lado-da-org = EXPORTADOR (auto), contraparte = IMPORTADOR */}
         {form.tipo_operacao === 'exportacao' && (
-          <div style={s.campo}>
-            <CampoEmpresaSelect
-              label={t('pedido.drawer.label_importador', 'Importador')}
-              opcoes={opcoesImportador}
-              valor={form.suid_importador || null}
-              carregando={carregandoEmpresas}
-              onSelecionar={(v) => onChange('suid_importador', String(v ?? ''))}
-              onCadastrarNova={() => aoCadastrarNova('importador')}
-              labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
-              placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
-            />
-          </div>
+          <>
+            <div style={s.campo}>
+              <CampoEmpresaSelect
+                label={t('pedido.drawer.label_importador', 'Importador')}
+                opcoes={opcoesContraparteImportador}
+                valor={form.suid_importador || null}
+                carregando={carregandoEmpresas}
+                desabilitado={camposBloqueados}
+                onSelecionar={(v) => onChange('suid_importador', String(v ?? ''))}
+                onCadastrarNova={() => aoCadastrarNova('importador')}
+                labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
+                placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
+              />
+            </div>
+            <div style={s.campo}>
+              <CampoEmpresaDaOrg
+                label={t('pedido.drawer.label_exportador')}
+                empresa={empresaDaOrg}
+                carregando={carregandoEmpresaDaOrg}
+                tooltipTexto={t('pedido.modal_novo.tooltip_lado_da_org_exportador')}
+              />
+            </div>
+          </>
         )}
         <div style={s.campo}>
           <CampoEmpresaSelect
@@ -703,6 +904,7 @@ function Passo1Dados({
             opcoes={opcoesFabricante}
             valor={form.suid_fabricante || null}
             carregando={carregandoEmpresas}
+            desabilitado={camposBloqueados}
             onSelecionar={(v) => onChange('suid_fabricante', String(v ?? ''))}
             onCadastrarNova={() => aoCadastrarNova('fabricante')}
             labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
@@ -715,13 +917,15 @@ function Passo1Dados({
             opcoes={OPCOES_INCOTERM}
             valor={form.incoterm}
             aoMudarValor={v => onChange('incoterm', String(v ?? 'FOB'))}
+            desabilitado={camposBloqueados}
           />
         </div>
         <div style={s.campo}>
           <label style={s.label} htmlFor="mnp-pagamento">{t('pedido.drawer.label_cond_pgto')}</label>
           <input
             id="mnp-pagamento"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.condicao_pagamento}
             onChange={e => onChange('condicao_pagamento', e.target.value)}
             placeholder={t('pedido.drawer.ph_cond_pgto')}
@@ -731,7 +935,8 @@ function Passo1Dados({
           <label style={s.label} htmlFor="mnp-proforma">{t('pedido.drawer.label_num_proforma')}</label>
           <input
             id="mnp-proforma"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.numero_proforma}
             onChange={e => onChange('numero_proforma', e.target.value)}
           />
@@ -740,7 +945,8 @@ function Passo1Dados({
           <label style={s.label} htmlFor="mnp-invoice">{t('pedido.drawer.label_num_invoice')}</label>
           <input
             id="mnp-invoice"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.numero_invoice}
             onChange={e => onChange('numero_invoice', e.target.value)}
           />
@@ -749,7 +955,8 @@ function Passo1Dados({
           <label style={s.label} htmlFor="mnp-ref-imp">{t('pedido.drawer.label_ref_importador')}</label>
           <input
             id="mnp-ref-imp"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.referencia_importador}
             onChange={e => onChange('referencia_importador', e.target.value)}
           />
@@ -758,7 +965,8 @@ function Passo1Dados({
           <label style={s.label} htmlFor="mnp-ref-exp">{t('pedido.drawer.label_ref_exportador')}</label>
           <input
             id="mnp-ref-exp"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.referencia_exportador}
             onChange={e => onChange('referencia_exportador', e.target.value)}
           />
@@ -767,7 +975,8 @@ function Passo1Dados({
           <label style={s.label} htmlFor="mnp-ref-fab">{t('pedido.drawer.label_ref_fabricante')}</label>
           <input
             id="mnp-ref-fab"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.referencia_fabricante}
             onChange={e => onChange('referencia_fabricante', e.target.value)}
           />
@@ -777,7 +986,8 @@ function Passo1Dados({
           <input
             id="mnp-data-emissao"
             type="date"
-            style={s.input}
+            disabled={camposBloqueados}
+            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
             value={form.data_emissao_pedido}
             onChange={e => onChange('data_emissao_pedido', e.target.value)}
           />

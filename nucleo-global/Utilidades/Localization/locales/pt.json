@@ -3681,7 +3681,10 @@
       "remover_item_aria": "Remover item {{n}}",
       "ph_exportador": "Nome ou código do exportador",
       "ph_fabricante": "Nome ou código do fabricante",
-      "ph_sku": "SKU"
+      "ph_sku": "SKU",
+      "tooltip_lado_da_org_importador": "Sua organização é o importador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
+      "tooltip_lado_da_org_exportador": "Sua organização é o exportador desta operação. Este campo é preenchido automaticamente e não pode ser alterado.",
+      "erro_empresa_da_org": "Não foi possível carregar a empresa da sua organização. {{detalhe}}. Conclua o cadastro em Cadastros antes de criar pedidos."
     },
     "cadastro_empresa": {
       "titulo": "Cadastrar Empresa",

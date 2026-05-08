@@ -388,15 +388,16 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
 // ── Helper: injeta _colunas_usuario nos pedidos retornados ───────────────────
 // Faz um único batch query para buscar todos os valores de colunas personalizadas
 // dos pedidos na página, evitando N+1 queries.
-async function injetarValoresColunasUsuario<T extends { id: string }>(
+async function injetarValoresColunasUsuario<T extends { id_pedido: string }>(
   prisma: PrismaClient,
   registros: T[],
   tenant_id: string
 ): Promise<(T & { _colunas_usuario: Record<string, string> })[]> {
   if (registros.length === 0) return []
-  const ids = registros.map(r => r.id)
+  const ids = registros.map(r => r.id_pedido).filter((x): x is string => typeof x === 'string' && x.length > 0)
+  if (ids.length === 0) return registros.map(r => ({ ...r, _colunas_usuario: {} }))
   const valores: { id_vinculo_valor_coluna_usuario_pedido: string; id_coluna_usuario_pedido: string; valor_coluna_usuario_pedido: string }[] =
-    await prisma.pedidoValorColunaUsuario.findMany({
+    await prisma.pedidoListaColunaUsuarioValor.findMany({
       where: { id_organizacao: tenant_id, id_vinculo_valor_coluna_usuario_pedido: { in: ids } },
       select: { id_vinculo_valor_coluna_usuario_pedido: true, id_coluna_usuario_pedido: true, valor_coluna_usuario_pedido: true },
     })
@@ -406,7 +407,7 @@ async function injetarValoresColunasUsuario<T extends { id: string }>(
     if (!mapa[vinculoId]) mapa[vinculoId] = {}
     mapa[vinculoId][v.id_coluna_usuario_pedido] = v.valor_coluna_usuario_pedido
   }
-  return registros.map(r => ({ ...r, _colunas_usuario: mapa[r.id] ?? {} }))
+  return registros.map(r => ({ ...r, _colunas_usuario: mapa[r.id_pedido] ?? {} }))
 }
 
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
@@ -457,11 +458,15 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const idOrganizacao = ctx.idOrganizacao
-      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
+      // Mand. 08 — sem fallback silencioso: se header nao vier, lista consolidada da
+      // organizacao (todos os workspaces). Se vier, filtra. Antes era `?? idOrganizacao`
+      // que criava filtro impossivel (id_workspace = id_organizacao nunca bate).
+      const idWorkspace = req.headers['x-id-workspace'] as string | undefined
 
       const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
 
-      const where: Record<string, unknown> = { id_organizacao: idOrganizacao, id_workspace: idWorkspace, data_exclusao_pedido: null }
+      const where: Record<string, unknown> = { id_organizacao: idOrganizacao, data_exclusao_pedido: null }
+      if (idWorkspace) where.id_workspace = idWorkspace
       if (status) {
         const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
         where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]

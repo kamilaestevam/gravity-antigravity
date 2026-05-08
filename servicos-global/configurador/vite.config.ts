@@ -72,6 +72,12 @@ export default defineConfig({
       '/api/v1/gabi': {
         target: 'http://localhost:3001',
         changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
         },
@@ -87,6 +93,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(err, _req, res) {
@@ -99,6 +106,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(err, _req, res) {
@@ -115,6 +123,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(err, _req, res) {
@@ -131,6 +140,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(err, _req, res) {
@@ -146,6 +156,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(err, _req, res) {
@@ -195,6 +206,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(_err, _req, res) {
@@ -208,6 +220,7 @@ export default defineConfig({
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
           })
         },
         onError(_err, _req, res) {

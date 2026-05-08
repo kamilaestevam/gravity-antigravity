@@ -1,0 +1,13 @@
+{
+  "name": "@tenant/pedido-teste-carga",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Seed de pedidos sinteticos para teste de carga do produto Pedido (CDE)",
+  "scripts": {
+    "seed:10":   "tsx seed.ts --count=10",
+    "seed:100":  "tsx seed.ts --count=100",
+    "seed:1000": "tsx seed.ts --count=1000",
+    "cleanup":   "tsx cleanup.ts"
+  }
+}

@@ -1618,21 +1618,7 @@ export function ProdutosGravityAdmin() {
                           <button
                             type="button"
                             disabled={salvandoNegociacaoEspecial}
-                            onClick={async () => {
-                              if (!produtoEditando) return
-                              if (!confirm(`Excluir negociação de ${neg.nome_organizacao_negociacao_especial}?`)) return
-                              try {
-                                setSalvandoNegociacaoEspecial(true)
-                                await catalogApiService.excluirNegociacaoEspecial(produtoEditando.id_produto_gravity, neg.id_negociacao_especial)
-                                const lista = await catalogApiService.listarNegociacoesEspeciaisPorProduto(produtoEditando.id_produto_gravity)
-                                setNegociacoesDoProduto(lista)
-                                addNotification({ type: 'success', message: 'Negociação especial removida' })
-                              } catch (err) {
-                                addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao excluir negociação') })
-                              } finally {
-                                setSalvandoNegociacaoEspecial(false)
-                              }
-                            }}
+                            onClick={() => setNegociacaoEspecialParaExcluir(neg)}
                             style={{ padding: '0.25rem 0.625rem', borderRadius: 6, background: 'rgba(248,113,113,0.12)', color: '#f87171', fontSize: '0.6875rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
                           >
                             Excluir
@@ -1695,13 +1681,21 @@ export function ProdutosGravityAdmin() {
             negociacaoEspecialParaExcluir.id_negociacao_especial,
           )
           const nomeOrg = negociacaoEspecialParaExcluir.nome_organizacao_negociacao_especial
+          const idProduto = negociacaoEspecialParaExcluir.id_produto_gravity
           setNegociacaoEspecialParaExcluir(null)
           addNotification({
             type: 'success',
             message: `Negociação especial de ${nomeOrg} removida. A organização volta a usar os valores padrão da tabela.`,
           })
-          // Recarrega a lista de negociações
+          // Recarrega a aba "Negociações Especiais" da pagina (state global)
           carregarDados()
+          // Recarrega a lista inline DENTRO do modal Editar Produto (se aberto neste produto)
+          if (produtoEditando && produtoEditando.id_produto_gravity === idProduto) {
+            try {
+              const lista = await catalogApiService.listarNegociacoesEspeciaisPorProduto(idProduto)
+              setNegociacoesDoProduto(lista)
+            } catch { /* refresh nao-critico */ }
+          }
         } catch (err) {
           addNotification({
             type: 'error',

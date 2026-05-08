@@ -15,6 +15,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@clerk/clerk-react'
 import { UploadSimple, X, Spinner } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -94,6 +95,7 @@ function etapaParaId(e: Etapa): number {
 export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalSmartImportPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
+  const { getToken } = useAuth()
 
   const PASSOS_IMPORT = useMemo<PassoConfig[]>(() => [
     { id: 1, label: t('pedido.smart_import.passo_upload') },
@@ -195,12 +197,14 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         sessionStorage.getItem('gravity_id_organizacao') ||
         import.meta.env.VITE_DEV_ID_ORGANIZACAO ||
         ''
+      const token = await getToken()
       const res = await fetch(url, {
         method: 'POST',
         body: formData,
         headers: {
-          'x-id-organizacao':    idOrganizacao,
-          'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          'x-id-organizacao':       idOrganizacao,
+          'x-chave-interna-servico': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
         },
       })
       if (!res.ok) {

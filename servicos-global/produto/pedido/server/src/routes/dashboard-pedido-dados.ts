@@ -21,7 +21,7 @@
  *                                               quantidade_pronta_pedido,
  *                                               valor_total_item
  *
- * Status reais: 'draft' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'
+ * Status reais: 'rascunho' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'
  *
  * Mapeamento para chaves do catálogo do dashboard:
  *   pedidos_abertos      ← status = 'aberto'
@@ -104,21 +104,21 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         db.pedido.findMany({
           where: {
             data_emissao_pedido: { gte: from, lte: to },
-            deleted_at: null,
+            data_exclusao_pedido: null,
           },
           select: {
-            status: true,
+            status_pedido: true,
             valor_total_pedido: true,
             quantidade_total_pedido: true,
             moeda_pedido: true,
-            importacao_exportador_id: true,
-            tipo_operacao: true,
-            incoterm: true,
-            fabricante_id: true,
-            numero_proforma: true,
-            numero_invoice: true,
-            referencia_importador: true,
-            referencia_exportador: true,
+            id_importacao_exportador_pedido: true,
+            tipo_operacao_pedido: true,
+            incoterm_pedido: true,
+            id_fabricante_pedido: true,
+            numero_proforma_pedido: true,
+            numero_invoice_pedido: true,
+            referencia_importador_pedido: true,
+            referencia_exportador_pedido: true,
             peso_bruto_total_pedido: true,
             cubagem_total_pedido: true,
           },
@@ -127,7 +127,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
           where: {
             pedido_item: {
               data_emissao_pedido: { gte: from, lte: to },
-              deleted_at: null,
+              data_exclusao_pedido: null,
             },
           },
           select: {
@@ -151,24 +151,24 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
 
       // ── Contagens por status ───────────────────────────────────────────────────
       const total_pedidos        = pedidos.length
-      const pedidos_abertos      = pedidos.filter((p) => p.status === 'aberto').length
-      const pedidos_em_andamento = pedidos.filter((p) => p.status === 'transferencia').length
-      const pedidos_consolidados = pedidos.filter((p) => p.status === 'consolidado').length
-      const pedidos_cancelados      = pedidos.filter((p) => p.status === 'cancelado').length
-      const pedidos_draft           = pedidos.filter((p) => p.status === 'draft').length
-      const pedidos_sem_exportador  = pedidos.filter((p) => !p.importacao_exportador_id).length
-      const pedidos_importacao      = pedidos.filter((p) => p.tipo_operacao === 'importacao').length
-      const pedidos_exportacao      = pedidos.filter((p) => p.tipo_operacao === 'exportacao').length
+      const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
+      const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
+      const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
+      const pedidos_cancelados      = pedidos.filter((p) => p.status_pedido === 'cancelado').length
+      const pedidos_rascunho           = pedidos.filter((p) => p.status_pedido === 'rascunho').length
+      const pedidos_sem_exportador  = pedidos.filter((p) => !p.id_importacao_exportador_pedido).length
+      const pedidos_importacao      = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
+      const pedidos_exportacao      = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
 
       // Sem campo de prazo no schema — retorna 0 para não quebrar derivadas
       const pedidos_atrasados = 0
 
       // ── Completude documental ─────────────────────────────────────────────────
-      const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm || p.incoterm.trim() === '').length
-      const pedidos_sem_fabricante = pedidos.filter((p) => !p.fabricante_id).length
-      const pedidos_sem_proforma   = pedidos.filter((p) => !p.numero_proforma || p.numero_proforma.trim() === '').length
-      const pedidos_sem_invoice    = pedidos.filter((p) => !p.numero_invoice || p.numero_invoice.trim() === '').length
-      const pedidos_sem_ref_imp    = pedidos.filter((p) => !p.referencia_importador || p.referencia_importador.trim() === '').length
+      const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm_pedido || p.incoterm_pedido.trim() === '').length
+      const pedidos_sem_fabricante = pedidos.filter((p) => !p.id_fabricante_pedido).length
+      const pedidos_sem_proforma   = pedidos.filter((p) => !p.numero_proforma_pedido || p.numero_proforma_pedido.trim() === '').length
+      const pedidos_sem_invoice    = pedidos.filter((p) => !p.numero_invoice_pedido || p.numero_invoice_pedido.trim() === '').length
+      const pedidos_sem_ref_imp    = pedidos.filter((p) => !p.referencia_importador_pedido || p.referencia_importador_pedido.trim() === '').length
 
       // ── Moedas distintas ──────────────────────────────────────────────────────
       const moedas_set = new Set(pedidos.map((p) => p.moeda_pedido ?? 'USD'))
@@ -220,7 +220,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         pedidos_em_andamento,
         pedidos_consolidados,
         pedidos_cancelados,
-        pedidos_draft,
+        pedidos_rascunho,
         pedidos_atrasados,
         pedidos_sem_exportador,
         pedidos_importacao,
@@ -278,7 +278,7 @@ dashboardDataRouter.get('/tendencia', async (req: Request, res: Response) => {
       const pedidos = await db.pedido.findMany({
         where: {
           data_emissao_pedido: { gte: from, lte: to },
-          deleted_at: null,
+          data_exclusao_pedido: null,
         },
         select: {
           data_emissao_pedido: true,
@@ -362,17 +362,17 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       // ── 1. Buscar KPIs do período ──────────────────────────────────────────────
       const [pedidosRaw2, itensRaw2] = await Promise.all([
         db.pedido.findMany({
-          where: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null },
+          where: { data_emissao_pedido: { gte: from, lte: to }, data_exclusao_pedido: null },
           select: {
-            status: true,
+            status_pedido: true,
             valor_total_pedido: true,
             moeda_pedido: true,
-            importacao_exportador_id: true,
-            tipo_operacao: true,
+            id_importacao_exportador_pedido: true,
+            tipo_operacao_pedido: true,
           },
         }),
         db.pedidoItem.findMany({
-          where: { pedido_item: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null } },
+          where: { pedido_item: { data_emissao_pedido: { gte: from, lte: to }, data_exclusao_pedido: null } },
           select: {
             quantidade_inicial_item: true,
             quantidade_atual_item: true,
@@ -388,14 +388,14 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       const itens = itensRaw2 as any[]
 
       const total_pedidos        = pedidos.length
-      const pedidos_abertos      = pedidos.filter((p) => p.status === 'aberto').length
-      const pedidos_em_andamento = pedidos.filter((p) => p.status === 'transferencia').length
-      const pedidos_consolidados = pedidos.filter((p) => p.status === 'consolidado').length
-      const pedidos_cancelados   = pedidos.filter((p) => p.status === 'cancelado').length
+      const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
+      const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
+      const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
+      const pedidos_cancelados   = pedidos.filter((p) => p.status_pedido === 'cancelado').length
       const pedidos_atrasados    = 0  // sem campo prazo no schema atual
-      const pedidos_sem_exportador = pedidos.filter((p) => !p.importacao_exportador_id).length
-      const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao === 'importacao').length
-      const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao === 'exportacao').length
+      const pedidos_sem_exportador = pedidos.filter((p) => !p.id_importacao_exportador_pedido).length
+      const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
+      const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
 
       const valor_total          = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
       const qtd_inicial_total    = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
@@ -539,16 +539,16 @@ dashboardDataRouter.get('/distribuicao', async (req: Request, res: Response) => 
       const pedidos = await db.pedido.findMany({
         where: {
           data_emissao_pedido: { gte: from, lte: to },
-          deleted_at: null,
+          data_exclusao_pedido: null,
         },
-        select: { status: true, valor_total_pedido: true },
+        select: { status_pedido: true, valor_total_pedido: true },
       })
 
       const groups: Record<string, { status: string; count: number; valor_total: number }> = {}
       for (const p of pedidos as any[]) {
-        if (!groups[p.status]) groups[p.status] = { status: p.status, count: 0, valor_total: 0 }
-        groups[p.status].count++
-        groups[p.status].valor_total += Number(p.valor_total_pedido ?? 0)
+        if (!groups[p.status_pedido]) groups[p.status_pedido] = { status: p.status_pedido, count: 0, valor_total: 0 }
+        groups[p.status_pedido].count++
+        groups[p.status_pedido].valor_total += Number(p.valor_total_pedido ?? 0)
       }
 
       res.json({

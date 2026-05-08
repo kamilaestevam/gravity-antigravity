@@ -99,7 +99,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     dimensionLabel: 'Status dos Pedidos',
   },
   {
-    key: 'pedidos_draft',
+    key: 'pedidos_rascunho',
     label: 'Rascunhos',
     productId: 'pedido',
     type: 'number',

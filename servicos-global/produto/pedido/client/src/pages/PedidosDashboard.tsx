@@ -231,15 +231,15 @@ function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): 
     })
   }
 
-  if (kpis.pedidos_draft > 0) {
+  if (kpis.pedidos_rascunho > 0) {
     items.push({
-      id: 'draft',
+      id: 'rascunho',
       variante: 'warn',
       tag: 'Atenção · Rascunhos',
-      texto: `${kpis.pedidos_draft} pedido${kpis.pedidos_draft > 1 ? 's' : ''} em rascunho ainda não foram enviados para operação.`,
-      stat: { label: 'Em rascunho', valor: fmtNum(kpis.pedidos_draft) },
+      texto: `${kpis.pedidos_rascunho} pedido${kpis.pedidos_rascunho > 1 ? 's' : ''} em rascunho ainda não foram enviados para operação.`,
+      stat: { label: 'Em rascunho', valor: fmtNum(kpis.pedidos_rascunho) },
       textoLink: 'Ver rascunhos',
-      rota: '/pedidos/lista?status=draft',
+      rota: '/pedidos/lista?status=rascunho',
     })
   }
 

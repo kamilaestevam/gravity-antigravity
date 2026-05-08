@@ -1035,7 +1035,7 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     company_id: 'company-demo',
     tipo_operacao: 'importacao' as const,
     numero_pedido: `PO-IMP-${Date.now()}-${i + 1}`,
-    status: 'draft' as const,
+    status: 'rascunho' as const,
     importacao_exportador_id: null,
     exportacao_importador_id: null,
     nome_exportador: 'Importado via Smart Import',
@@ -1740,7 +1740,7 @@ export interface DashboardKpis {
   pedidos_concluidos: number
   pedidos_consolidados: number
   pedidos_cancelados: number
-  pedidos_draft: number
+  pedidos_rascunho: number
   pedidos_atrasados: number
   pedidos_sem_exportador: number
   pedidos_importacao: number

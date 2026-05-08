@@ -71,7 +71,7 @@ Usado por (produtos/servicos)  +  Qtd usos
    - **Logos** seguem `Logo<Produto>` sem sufixo Global (`LogoBidCambio`, `LogoNfImportacao`, `LogoGravity`).
    - Subcomponentes internos de um pacote `*-global` podem omitir o sufixo (ex: `KanbanColuna`, `KanbanContext`, `BadgeCelula`) — desde que **só sejam importados de dentro do mesmo pacote**. Se forem usados por algum produto, devem virar `*Global`.
    - ❌ kebab-case no nome do componente (`modal-formulario-global`) → ✅ `ModalFormularioGlobal`
-   - ❌ EN no sufixo (`SelectColunasGlobal` está OK; `WidgetEditModal` deveria ser `ModalEditarWidget` — cruzar com `mapa-modais` REGRA 3).
+   - ❌ EN no sufixo (`SelectColunasGlobal` está OK). Modais e widgets do pacote `@nucleo/dashboard` seguem o prefixo `Dashboard*` por exceção documentada em `mapa-modais` REGRA 3 (ex: `DashboardPainelEditarModal`, `DashboardWidgetKPI`).
 
 5. **`Status DDD = IGNORAR`** para arquivos que não são alvo de auditoria DDD: `*.stories.tsx`, `demo/**/App.tsx`, `demo/**/main.tsx`, `demo/**/ToastDemo.tsx`, `demo/**/pages/*.tsx` (telas de exemplo). Os outros valores seguem o enum padrão (`OK`, `RENOMEAR`, `DEPRECAR`, `NOVA`).
 

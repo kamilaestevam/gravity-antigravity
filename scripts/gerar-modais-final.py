@@ -55,7 +55,7 @@ EXPLICACOES = {
     'ModalSimulacao': 'Modal de simulação rápida de custo COMEX.',
     # nucleo-global
     'ModalBuscaNcm': 'Modal de busca e seleção de NCM do catálogo.',
-    'WidgetEditModal': 'Modal para editar configurações de um widget do dashboard.',
+    'DashboardPainelEditarModal': 'Modal para editar configurações de um widget do dashboard.',
     'CardKanbanModal': 'Modal que abre um card do Kanban em detalhes.',
     'ModalEnviarParaGlobal': 'Modal para enviar um item local para o contexto global.',
     'modal-formulario-abas-global': 'Modal com formulário tabbed global (múltiplas abas).',

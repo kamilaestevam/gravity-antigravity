@@ -68,8 +68,8 @@ Local + Produto Gravity  →  Arquivo (.tsx)  →  Componente (PascalCase)
      - ✅ `ModalEditarOrganizacao.tsx`, `ModalNovaOrganizacao.tsx`, `ModalAgendamentoTestes.tsx`
      - ✅ `DrawerPedido.tsx` (overlay de detalhe — sem ação CRUD direta)
      - ❌ `modal-formulario-abas-global.tsx` (kebab-case proibido — vira `ModalFormularioAbasGlobal.tsx`)
-     - ❌ `WidgetEditModal.tsx` (sufixo + EN — vira `ModalEditarWidget.tsx`)
      - ❌ `CardKanbanModal.tsx` (sufixo — vira `ModalCardKanban.tsx`)
+     - 📝 Caso especial — modais de Dashboard seguem o prefixo `Dashboard*` por agrupamento de pacote, não o prefixo `Modal*` (ex: `DashboardPainelEditarModal.tsx` — alinhado ao Atlas DDD aba 8). Este é o único namespace de modal que não usa `Modal<Acao><Entidade>` por convenção, porque pertence ao componente coletivo `@nucleo/dashboard`.
 
 4. **`Nome do componente - DDD` = `Nome do arquivo - DDD` sem `.tsx`.** O componente exportado **default** deve ter o mesmo nome do arquivo. Constantes auxiliares exportadas (`PRIORIDADE_COR`, `TIPOS_EMPRESA`, `CHAR_LIMIT`) **não** vão nesta coluna — esta coluna é o componente React, não a primeira const exportada do arquivo.
    - 🔴 Achado crítico observado na planilha: a coluna `Nome do componente` está sendo preenchida com a **primeira const exportada** (ex: `cronParaHoraMinuto`, `PRIORIDADE_COR`) em vez do componente React real. Toda linha em que `Nome do componente` ≠ identificador derivado do arquivo é divergência a corrigir.

@@ -1,6 +1,6 @@
 # Atlas DDD - Aba 4: Enums
 
-> Gerado de planilha v52 em 2026-05-04 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
+> Gerado de planilha v52 em 2026-05-08 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
 > NAO edite manualmente. Re-execute o script apos mudanca na planilha mestre.
 
 ## Como ler
@@ -299,7 +299,7 @@ Convencoes:
 | Produto - pedido              | PedidoStatusCriado                                               | aberto                    |                                                                                     |     |       | Nao        | Pedido criado e ativo, em início de operação.                                           | StatusPedido             |
 | Produto - pedido              | PedidoStatusEmProducao                                           | em_andamento              |                                                                                     |     |       | Nao        | Pedido em processamento/produção no fornecedor.                                         | StatusPedido             |
 | Produto - pedido              | PedidoStatusItenTransferido                                      | transferencia             |                                                                                     |     |       | Nao        | Itens sendo transferidos entre pedidos (split/merge).                                   | StatusPedido             |
-| Produto - pedido              | PedidoStatusRascunho                                             | rascunho                  |                                                                                     |     |       | Nao        | Pedido em rascunho.                                                                     | StatusPedido             |
+| Produto - pedido              | PedidoStatusRascunho                                             | draft                     |                                                                                     |     |       | Nao        | Pedido em rascunho.                                                                     | StatusPedido             |
 | Produto - pedido              | PedidoTipoOperacaoExportacao                                     | exportacao                | Cotacao                                                                             |     |       | Nao        | Pedido de exportação (venda internacional).                                             | TipoOperacao             |
 | Produto - pedido              | PedidoTipoOperacaoImportacao                                     | importacao                | Cotacao                                                                             |     |       | Nao        | Pedido de importação (compra internacional).                                            | TipoOperacao             |
 | Produto - pedido              | PedidoUnidadeComercializadaDuzia                                 | DUZIA                     |                                                                                     |     |       | Nao        | Dúzia (12 unidades).                                                                    | UnidadeComercializada    |

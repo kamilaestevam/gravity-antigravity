@@ -62,6 +62,182 @@ async function buscarTaxasVenda(): Promise<Record<string, number>> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Funções puras de agregação — extraídas dos handlers para serem testáveis em
+// isolamento (sem express, sem Prisma). Recebem dados crus já filtrados pelo
+// período e devolvem o payload exato que o /kpis ou /distribuicao retornam.
+// Mandamentos 03 + 06 + 09: schema drift aqui re-introduzido quebra os testes
+// unitários em testes/testes-unitarios/pedido/dashboard/.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PedidoRaw = Record<string, any>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ItemRaw = Record<string, any>
+
+export interface AggregatedKpis {
+  period: string
+  total_pedidos: number
+  pedidos_abertos: number
+  pedidos_em_andamento: number
+  pedidos_consolidados: number
+  pedidos_cancelados: number
+  pedidos_rascunho: number
+  pedidos_atrasados: number
+  pedidos_sem_exportador: number
+  pedidos_importacao: number
+  pedidos_exportacao: number
+  valor_total: number
+  valor_total_brl: number
+  moedas_sem_taxa: string[]
+  cobertura_pendente: number
+  qtd_total: number
+  ticket_medio: number
+  itens_prontos: number
+  qtd_inicial_total: number
+  qtd_atual_total: number
+  qtd_transferida_total: number
+  valor_itens_total: number
+  taxa_atraso: number
+  taxa_conclusao_itens: number
+  exposicao_financeira: number
+  taxa_transferencia: number
+  pedidos_sem_incoterm: number
+  pedidos_sem_fabricante: number
+  pedidos_sem_proforma: number
+  pedidos_sem_invoice: number
+  pedidos_sem_ref_imp: number
+  moedas_distintas: number
+  peso_bruto_total: number
+  cubagem_total: number
+  itens_sem_cobertura: number
+  qtd_cancelada_total: number
+}
+
+/**
+ * Agrega KPIs do dashboard a partir de listas cruas de pedidos e itens já
+ * filtrados pelo período + soft-delete. Pure function — sem side-effects.
+ */
+export function aggregateKpis(
+  pedidos: PedidoRaw[],
+  itens: ItemRaw[],
+  taxasVenda: Record<string, number>,
+  period: string,
+): AggregatedKpis {
+  // Contagens por status
+  const total_pedidos        = pedidos.length
+  const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
+  const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
+  const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
+  const pedidos_cancelados   = pedidos.filter((p) => p.status_pedido === 'cancelado').length
+  const pedidos_rascunho     = pedidos.filter((p) => p.status_pedido === 'rascunho').length
+  const pedidos_sem_exportador = pedidos.filter((p) => !p.id_importacao_exportador_pedido).length
+  const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
+  const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
+
+  // Sem campo de prazo no schema — retorna 0 para não quebrar derivadas
+  const pedidos_atrasados = 0
+
+  // Completude documental
+  const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm_pedido || p.incoterm_pedido.trim() === '').length
+  const pedidos_sem_fabricante = pedidos.filter((p) => !p.id_fabricante_pedido).length
+  const pedidos_sem_proforma   = pedidos.filter((p) => !p.numero_proforma_pedido || p.numero_proforma_pedido.trim() === '').length
+  const pedidos_sem_invoice    = pedidos.filter((p) => !p.numero_invoice_pedido || p.numero_invoice_pedido.trim() === '').length
+  const pedidos_sem_ref_imp    = pedidos.filter((p) => !p.referencia_importador_pedido || p.referencia_importador_pedido.trim() === '').length
+
+  // Moedas distintas
+  const moedas_set = new Set(pedidos.map((p) => p.moeda_pedido ?? 'USD'))
+  const moedas_distintas = moedas_set.size
+
+  // Logística
+  const peso_bruto_total = pedidos.reduce((s, p) => s + Number(p.peso_bruto_total_pedido ?? 0), 0)
+  const cubagem_total    = pedidos.reduce((s, p) => s + Number(p.cubagem_total_pedido ?? 0), 0)
+
+  // Itens — cobertura cambial e cancelamentos
+  const itens_sem_cobertura = itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').length
+  const qtd_cancelada_total = itens.reduce((s, i) => s + Number(i.quantidade_cancelada_item ?? 0), 0)
+
+  // Financeiro
+  const valor_total = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
+  const qtd_total   = pedidos.reduce((s, p) => s + Number(p.quantidade_total_pedido ?? 0), 0)
+
+  // Sem campo cobertura_pendente no schema — retorna 0
+  const cobertura_pendente = 0
+
+  // Valor Total em BRL — converte cada pedido pela taxa PTAX de venda
+  const moedas_sem_taxa: string[] = []
+  let valor_total_brl = 0
+  for (const p of pedidos) {
+    const moeda = (p.moeda_pedido ?? 'USD') as string
+    const valor = Number(p.valor_total_pedido ?? 0)
+    const taxa  = taxasVenda[moeda]
+    if (taxa != null) {
+      valor_total_brl += valor * taxa
+    } else {
+      valor_total_brl += valor
+      if (!moedas_sem_taxa.includes(moeda)) moedas_sem_taxa.push(moeda)
+    }
+  }
+
+  // Itens
+  const qtd_inicial_total     = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
+  const qtd_atual_total       = itens.reduce((s, i) => s + Number(i.quantidade_atual_item ?? 0), 0)
+  const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
+  const itens_prontos         = itens.reduce((s, i) => s + Number(i.quantidade_pronta_item ?? 0), 0)
+  const valor_itens_total     = itens.reduce((s, i) => s + Number(i.valor_total_item ?? 0), 0)
+
+  return {
+    period,
+    total_pedidos,
+    pedidos_abertos,
+    pedidos_em_andamento,
+    pedidos_consolidados,
+    pedidos_cancelados,
+    pedidos_rascunho,
+    pedidos_atrasados,
+    pedidos_sem_exportador,
+    pedidos_importacao,
+    pedidos_exportacao,
+    valor_total,
+    valor_total_brl,
+    moedas_sem_taxa,
+    cobertura_pendente,
+    qtd_total,
+    ticket_medio: total_pedidos > 0 ? valor_total / total_pedidos : 0,
+    itens_prontos,
+    qtd_inicial_total,
+    qtd_atual_total,
+    qtd_transferida_total,
+    valor_itens_total,
+    taxa_atraso:          0,
+    taxa_conclusao_itens: qtd_inicial_total > 0 ? (itens_prontos / qtd_inicial_total) * 100 : 0,
+    exposicao_financeira: 0,
+    taxa_transferencia:   qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0,
+    pedidos_sem_incoterm,
+    pedidos_sem_fabricante,
+    pedidos_sem_proforma,
+    pedidos_sem_invoice,
+    pedidos_sem_ref_imp,
+    moedas_distintas,
+    peso_bruto_total,
+    cubagem_total,
+    itens_sem_cobertura,
+    qtd_cancelada_total,
+  }
+}
+
+/** Agrega distribuição por status_pedido. Pure function. */
+export function aggregateDistribution(pedidos: PedidoRaw[], period: string) {
+  const groups: Record<string, { status: string; count: number; valor_total: number }> = {}
+  for (const p of pedidos) {
+    const k = p.status_pedido as string
+    if (!groups[k]) groups[k] = { status: k, count: 0, valor_total: 0 }
+    groups[k].count++
+    groups[k].valor_total += Number(p.valor_total_pedido ?? 0)
+  }
+  return { period, value: Object.values(groups) }
+}
+
 function periodToDateRange(period: string): { from: Date; to: Date } {
   // Período personalizado: custom:YYYY-MM-DD:YYYY-MM-DD
   if (period.startsWith('custom:')) {
@@ -144,119 +320,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         }),
         buscarTaxasVenda(),
       ])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pedidos = pedidosRaw as any[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itens = itensRaw as any[]
-
-      // ── Contagens por status ───────────────────────────────────────────────────
-      const total_pedidos        = pedidos.length
-      const pedidos_abertos      = pedidos.filter((p) => p.status_pedido === 'aberto').length
-      const pedidos_em_andamento = pedidos.filter((p) => p.status_pedido === 'transferencia').length
-      const pedidos_consolidados = pedidos.filter((p) => p.status_pedido === 'consolidado').length
-      const pedidos_cancelados      = pedidos.filter((p) => p.status_pedido === 'cancelado').length
-      const pedidos_rascunho           = pedidos.filter((p) => p.status_pedido === 'rascunho').length
-      const pedidos_sem_exportador  = pedidos.filter((p) => !p.id_importacao_exportador_pedido).length
-      const pedidos_importacao      = pedidos.filter((p) => p.tipo_operacao_pedido === 'importacao').length
-      const pedidos_exportacao      = pedidos.filter((p) => p.tipo_operacao_pedido === 'exportacao').length
-
-      // Sem campo de prazo no schema — retorna 0 para não quebrar derivadas
-      const pedidos_atrasados = 0
-
-      // ── Completude documental ─────────────────────────────────────────────────
-      const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm_pedido || p.incoterm_pedido.trim() === '').length
-      const pedidos_sem_fabricante = pedidos.filter((p) => !p.id_fabricante_pedido).length
-      const pedidos_sem_proforma   = pedidos.filter((p) => !p.numero_proforma_pedido || p.numero_proforma_pedido.trim() === '').length
-      const pedidos_sem_invoice    = pedidos.filter((p) => !p.numero_invoice_pedido || p.numero_invoice_pedido.trim() === '').length
-      const pedidos_sem_ref_imp    = pedidos.filter((p) => !p.referencia_importador_pedido || p.referencia_importador_pedido.trim() === '').length
-
-      // ── Moedas distintas ──────────────────────────────────────────────────────
-      const moedas_set = new Set(pedidos.map((p) => p.moeda_pedido ?? 'USD'))
-      const moedas_distintas = moedas_set.size
-
-      // ── Logística ─────────────────────────────────────────────────────────────
-      const peso_bruto_total  = pedidos.reduce((s, p) => s + Number(p.peso_bruto_total_pedido ?? 0), 0)
-      const cubagem_total     = pedidos.reduce((s, p) => s + Number(p.cubagem_total_pedido ?? 0), 0)
-
-      // ── Itens — cobertura cambial e cancelamentos ────────────────────────────
-      const itens_sem_cobertura   = itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').length
-      const qtd_cancelada_total   = itens.reduce((s, i) => s + Number(i.quantidade_cancelada_item ?? 0), 0)
-
-      // ── Financeiro ────────────────────────────────────────────────────────────
-      const valor_total        = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
-      const qtd_total          = pedidos.reduce((s, p) => s + Number(p.quantidade_total_pedido ?? 0), 0)
-
-      // Sem campo cobertura_pendente no schema — retorna 0
-      const cobertura_pendente = 0
-
-      // ── Valor Total em BRL — converte cada pedido pela taxa PTAX de venda ─────
-      const moedas_sem_taxa: string[] = []
-      let valor_total_brl = 0
-      for (const p of pedidos as any[]) {
-        const moeda = (p.moeda_pedido ?? 'USD') as string
-        const valor = Number(p.valor_total_pedido ?? 0)
-        const taxa  = taxasVenda[moeda]
-        if (taxa != null) {
-          valor_total_brl += valor * taxa
-        } else {
-          // Sem taxa disponível: inclui sem conversão e registra a moeda
-          valor_total_brl += valor
-          if (!moedas_sem_taxa.includes(moeda)) moedas_sem_taxa.push(moeda)
-        }
-      }
-
-      // ── Itens ─────────────────────────────────────────────────────────────────
-      const qtd_inicial_total     = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
-      const qtd_atual_total       = itens.reduce((s, i) => s + Number(i.quantidade_atual_item ?? 0), 0)
-      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
-      const itens_prontos         = itens.reduce((s, i) => s + Number(i.quantidade_pronta_item ?? 0), 0)
-      const valor_itens_total     = itens.reduce((s, i) => s + Number(i.valor_total_item ?? 0), 0)
-
-      res.json({
-        period,
-        // Contagens
-        total_pedidos,
-        pedidos_abertos,
-        pedidos_em_andamento,
-        pedidos_consolidados,
-        pedidos_cancelados,
-        pedidos_rascunho,
-        pedidos_atrasados,
-        pedidos_sem_exportador,
-        pedidos_importacao,
-        pedidos_exportacao,
-        // Financeiro
-        valor_total,
-        valor_total_brl,
-        moedas_sem_taxa,
-        cobertura_pendente,
-        qtd_total,
-        ticket_medio: total_pedidos > 0 ? valor_total / total_pedidos : 0,
-        // Itens
-        itens_prontos,
-        qtd_inicial_total,
-        qtd_atual_total,
-        qtd_transferida_total,
-        valor_itens_total,
-        // Derivadas pré-computadas
-        taxa_atraso:          0,
-        taxa_conclusao_itens: qtd_inicial_total > 0 ? (itens_prontos / qtd_inicial_total) * 100 : 0,
-        exposicao_financeira: 0,
-        taxa_transferencia:   qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0,
-        // Completude documental
-        pedidos_sem_incoterm,
-        pedidos_sem_fabricante,
-        pedidos_sem_proforma,
-        pedidos_sem_invoice,
-        pedidos_sem_ref_imp,
-        // Moedas e logística
-        moedas_distintas,
-        peso_bruto_total,
-        cubagem_total,
-        // Itens
-        itens_sem_cobertura,
-        qtd_cancelada_total,
-      })
+      res.json(aggregateKpis(pedidosRaw as PedidoRaw[], itensRaw as ItemRaw[], taxasVenda, period))
     })
   } catch (err) {
     console.error('[DashboardData/kpis]', err)
@@ -544,17 +608,7 @@ dashboardDataRouter.get('/distribuicao', async (req: Request, res: Response) => 
         select: { status_pedido: true, valor_total_pedido: true },
       })
 
-      const groups: Record<string, { status: string; count: number; valor_total: number }> = {}
-      for (const p of pedidos as any[]) {
-        if (!groups[p.status_pedido]) groups[p.status_pedido] = { status: p.status_pedido, count: 0, valor_total: 0 }
-        groups[p.status_pedido].count++
-        groups[p.status_pedido].valor_total += Number(p.valor_total_pedido ?? 0)
-      }
-
-      res.json({
-        period,
-        value: Object.values(groups),
-      })
+      res.json(aggregateDistribution(pedidos as PedidoRaw[], period))
     })
   } catch (err) {
     console.error('[DashboardData/distribution]', err)

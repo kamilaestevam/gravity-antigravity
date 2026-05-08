@@ -14,6 +14,11 @@ import {
   dashboardInsightsResponseSchema,
 } from '../../../../servicos-global/produto/pedido/client/src/shared/dashboard-schemas.js'
 
+import {
+  aggregateKpis,
+  aggregateDistribution,
+} from '../../../../servicos-global/produto/pedido/server/src/routes/dashboard-pedido-dados.js'
+
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 /** Payload completo de /kpis exatamente como o backend serializa hoje. */
@@ -228,5 +233,125 @@ describe('TST-UNI-PEDIDO-000001 — regressões DDD/Mandamentos', () => {
     expect(dashboardTrendResponseSchema.safeParse(null).success).toBe(false)
     expect(dashboardDistributionResponseSchema.safeParse(null).success).toBe(false)
     expect(dashboardInsightsResponseSchema.safeParse(null).success).toBe(false)
+  })
+})
+
+// ─── Categoria: AGGREGATION_LOGIC (funções puras extraídas dos handlers) ──────
+
+describe('TST-UNI-PEDIDO-000001 — aggregateKpis (pure function)', () => {
+  it('017 — count de pedidos_abertos via status_pedido === aberto (Mand. 03)', () => {
+    const pedidos = [
+      { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'BRL' },
+      { status_pedido: 'aberto', valor_total_pedido: 200, moeda_pedido: 'BRL' },
+      { status_pedido: 'consolidado', valor_total_pedido: 50, moeda_pedido: 'BRL' },
+      { status_pedido: 'rascunho', valor_total_pedido: 10, moeda_pedido: 'BRL' },
+    ]
+    const result = aggregateKpis(pedidos, [], { BRL: 1 }, '30d')
+    expect(result.total_pedidos).toBe(4)
+    expect(result.pedidos_abertos).toBe(2)
+    expect(result.pedidos_consolidados).toBe(1)
+    expect(result.pedidos_rascunho).toBe(1)
+    expect(result.pedidos_em_andamento).toBe(0)
+  })
+
+  it('018 — valor_total_brl converte cada pedido pela taxa PTAX correspondente à moeda', () => {
+    const pedidos = [
+      { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'USD' },
+      { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'BRL' },
+      { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'EUR' },
+    ]
+    const taxas = { USD: 5.0, BRL: 1, EUR: 5.5 }
+    const result = aggregateKpis(pedidos, [], taxas, '30d')
+    // 100*5 + 100*1 + 100*5.5 = 500 + 100 + 550 = 1150
+    expect(result.valor_total_brl).toBe(1150)
+    expect(result.valor_total).toBe(300) // soma bruta sem conversão (também retornada)
+    expect(result.moedas_sem_taxa).toEqual([])
+  })
+
+  it('019 — moedas sem taxa caem em moedas_sem_taxa e somam sem conversão', () => {
+    const pedidos = [
+      { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'USD' },
+      { status_pedido: 'aberto', valor_total_pedido: 50,  moeda_pedido: 'XYZ' },
+    ]
+    const result = aggregateKpis(pedidos, [], { USD: 5 }, '30d')
+    // 100*5 + 50 (sem conversão) = 550
+    expect(result.valor_total_brl).toBe(550)
+    expect(result.moedas_sem_taxa).toContain('XYZ')
+  })
+
+  it('020 — pedidos_sem_exportador conta id_importacao_exportador_pedido falsy (Mand. 03)', () => {
+    const pedidos = [
+      { status_pedido: 'aberto', id_importacao_exportador_pedido: null,        moeda_pedido: 'BRL' },
+      { status_pedido: 'aberto', id_importacao_exportador_pedido: undefined,   moeda_pedido: 'BRL' },
+      { status_pedido: 'aberto', id_importacao_exportador_pedido: 'exp_xyz',   moeda_pedido: 'BRL' },
+    ]
+    const result = aggregateKpis(pedidos, [], { BRL: 1 }, '30d')
+    expect(result.pedidos_sem_exportador).toBe(2)
+  })
+
+  it('021 — ticket_medio = valor_total / total_pedidos; zero quando total = 0', () => {
+    const r1 = aggregateKpis([], [], {}, '30d')
+    expect(r1.ticket_medio).toBe(0)
+    expect(r1.total_pedidos).toBe(0)
+
+    const r2 = aggregateKpis(
+      [
+        { status_pedido: 'aberto', valor_total_pedido: 100, moeda_pedido: 'BRL' },
+        { status_pedido: 'aberto', valor_total_pedido: 300, moeda_pedido: 'BRL' },
+      ],
+      [], { BRL: 1 }, '30d',
+    )
+    expect(r2.ticket_medio).toBe(200)
+  })
+
+  it('022 — taxa_conclusao_itens = (itens_prontos / qtd_inicial_total) * 100', () => {
+    const itens = [
+      { quantidade_inicial_item: 100, quantidade_pronta_item: 25 },
+      { quantidade_inicial_item: 100, quantidade_pronta_item: 75 },
+    ]
+    const result = aggregateKpis([], itens, {}, '30d')
+    // 100 prontos de 200 inicial = 50%
+    expect(result.taxa_conclusao_itens).toBe(50)
+  })
+
+  it('023 — REGRESSÃO Mand. 03: backend que use status (legado) não casa nenhum filter de status_pedido', () => {
+    const pedidos = [
+      { status: 'aberto', valor_total_pedido: 100, moeda_pedido: 'BRL' }, // campo legado
+    ]
+    const result = aggregateKpis(pedidos, [], { BRL: 1 }, '30d')
+    expect(result.pedidos_abertos).toBe(0) // não conta — status_pedido é undefined
+    expect(result.total_pedidos).toBe(1)   // ainda conta no total
+  })
+})
+
+describe('TST-UNI-PEDIDO-000001 — aggregateDistribution (pure function)', () => {
+  it('024 — agrupa pedidos por status_pedido somando valor_total_pedido', () => {
+    const pedidos = [
+      { status_pedido: 'aberto',       valor_total_pedido: 100 },
+      { status_pedido: 'aberto',       valor_total_pedido: 200 },
+      { status_pedido: 'consolidado',  valor_total_pedido: 500 },
+    ]
+    const result = aggregateDistribution(pedidos, '30d')
+    expect(result.period).toBe('30d')
+    expect(result.value).toHaveLength(2)
+    const aberto = result.value.find(g => g.status === 'aberto')
+    expect(aberto?.count).toBe(2)
+    expect(aberto?.valor_total).toBe(300)
+    const consolidado = result.value.find(g => g.status === 'consolidado')
+    expect(consolidado?.count).toBe(1)
+    expect(consolidado?.valor_total).toBe(500)
+  })
+
+  it('025 — payload de aggregateDistribution passa pelo dashboardDistributionResponseSchema (round-trip)', () => {
+    const pedidos = [
+      { status_pedido: 'aberto', valor_total_pedido: 100 },
+    ]
+    const result = aggregateDistribution(pedidos, '30d')
+    expect(() => dashboardDistributionResponseSchema.parse(result)).not.toThrow()
+  })
+
+  it('026 — payload de aggregateKpis passa pelo dashboardKpisSchema (round-trip)', () => {
+    const result = aggregateKpis([], [], {}, '30d')
+    expect(() => dashboardKpisSchema.parse(result)).not.toThrow()
   })
 })

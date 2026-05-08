@@ -1,6 +1,6 @@
 # Atlas DDD - Aba 9: Componentes Locais
 
-> Gerado de planilha v52 em 2026-05-04 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
+> Gerado de planilha v52 em 2026-05-08 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
 > NAO edite manualmente. Re-execute o script apos mudanca na planilha mestre.
 
 ## Como ler

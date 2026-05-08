@@ -1,0 +1,145 @@
+{
+  "id": "TST-E2E-PEDIDO-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-08T00:00:00Z",
+  "geradoPor": "claude-opus-1m",
+  "escopo": "PEDIDO",
+  "sublocal": "dashboard",
+  "tela": "Dashboard do Pedido",
+  "rota": "/produto/pedido/pedidos/dashboard",
+  "componenteFilePath": "servicos-global/produto/pedido/client/src/pages/PedidosDashboard.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/pedido/dashboard.testids.json",
+  "ambientes": ["Local", "Staging"],
+  "criticidade": "alta",
+  "temDinheiro": true,
+  "statusAprovacao": "aguardando_aprovacao_dono",
+  "resumoExecutivo": "Dashboard BI do produto Pedido. Renderiza KPIs (Total, Em Aberto, Saldo Total, Valor Total BRL), série temporal de 12m, distribuição por status e GABI Insights. Suporta drag/resize livre dos cards (editMode default true), múltiplos painéis por usuário, filtro de período (7d/30d/90d/6m/12m/ytd/custom). Backend agrega 4 endpoints sob /api/v1/pedidos/dashboard/* protegidos por withOrganizacao + JWT. Criticidade ALTA porque o card 'Valor Total (BRL)' aplica conversão PTAX e tem dinheiro real.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador CDE",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-front-8000",
+      "configurador-server-8005",
+      "pedido-server-8030"
+    ],
+    "dadosSeed": {
+      "totalPedidos": 100,
+      "porStatus": { "aberto": 40, "transferencia": 20, "consolidado": 30, "cancelado": 5, "rascunho": 5 },
+      "moedasUsadas": ["USD", "BRL", "EUR"]
+    }
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/produto/pedido/client/src/pages/PedidosDashboard.tsx",
+    "extraidoEm": "2026-05-08T00:00:00Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "card-kpi-total-pedidos",
+      "card-kpi-pedidos-abertos",
+      "card-kpi-saldo-total",
+      "card-kpi-valor-total-brl",
+      "btn-reorganizar",
+      "btn-concluir",
+      "select-periodo",
+      "pill-painel-principal",
+      "btn-novo-painel",
+      "drag-handle-card",
+      "resize-handle-se"
+    ]
+  },
+  "cobertura20Categorias": [
+    { "id": 1,  "categoria": "Carregamento da tela",       "severidade": "alta",  "casos": ["dashboard carrega < 4s no Local", "GET /kpis 200 com payload Zod-válido", "GET /tendencia retorna 12 buckets"], "naoAplicavel": false },
+    { "id": 2,  "categoria": "Identidade visual",          "severidade": "media", "casos": ["Logo Pedido visível", "Cor accent ROXA aplicada", "Dark mode default"], "naoAplicavel": false },
+    { "id": 3,  "categoria": "Navegação lateral / breadcrumb", "severidade": "media", "casos": ["Sidebar destaca 'Dashboard'", "Título da página = 'Dashboard'"], "naoAplicavel": false },
+    { "id": 4,  "categoria": "Read / Listagem",            "severidade": "alta",  "casos": ["KPI Total mostra contagem real do banco", "Distribuição por status totaliza igual ao Total"], "naoAplicavel": false },
+    { "id": 5,  "categoria": "Update / Edição",            "severidade": "alta",  "casos": ["Drag move card para nova posição", "Resize muda tamanho do card", "Layout persiste após reload (localStorage)"], "naoAplicavel": false },
+    { "id": 6,  "categoria": "Create / Criação",           "severidade": "alta",  "casos": ["Botão Criar Dashboard cria painel novo", "Sugestões de widget criam KPI ao clicar"], "naoAplicavel": false },
+    { "id": 7,  "categoria": "Delete / Exclusão",          "severidade": "alta",  "casos": ["X em widget remove apenas em editMode", "Deletar painel pede confirmação"], "naoAplicavel": false },
+    { "id": 8,  "categoria": "Validações de campo",        "severidade": "alta",  "casos": ["Widget Edit Modal valida campos obrigatórios"], "naoAplicavel": false },
+    { "id": 9,  "categoria": "Estados de erro",            "severidade": "media", "casos": ["Backend 500 → exibe banner 'Erro ao carregar'", "Insights falha → KPIs continuam"], "naoAplicavel": false },
+    { "id": 10, "categoria": "Estados vazios",             "severidade": "baixa", "casos": ["Período sem pedidos → contagens = 0", "Painel novo sem widgets → CTA 'Adicione métricas'"], "naoAplicavel": false },
+    { "id": 11, "categoria": "Estados de loading",         "severidade": "baixa", "casos": ["Skeleton durante fetch", "loading=true bloqueia interação"], "naoAplicavel": false },
+    { "id": 12, "categoria": "Filtros e busca",            "severidade": "media", "casos": ["Trocar período 30d → 12m muda contagem", "custom:YYYY-MM-DD aplica range exato"], "naoAplicavel": false },
+    { "id": 13, "categoria": "Ordenação",                  "severidade": "baixa", "casos": [], "naoAplicavel": true, "justificativa": "Dashboard não tem listagem com colunas ordenáveis" },
+    { "id": 14, "categoria": "Permissões / RBAC",          "severidade": "alta",  "casos": ["tipo_usuario='STANDARD' não vê edit mode? a confirmar com dono", "SUPER_ADMIN vê todos os painéis"], "naoAplicavel": false },
+    { "id": 15, "categoria": "Multi-tenant / isolamento",  "severidade": "alta",  "casos": ["Org A não vê pedidos da Org B", "withOrganizacao isola schema-per-org"], "naoAplicavel": false },
+    { "id": 16, "categoria": "Acessibilidade (a11y)",      "severidade": "media", "casos": ["Drag handle tem aria-label", "Modais têm role='dialog'"], "naoAplicavel": false },
+    { "id": 17, "categoria": "Responsividade",             "severidade": "media", "casos": ["Grid lg=12 cols / md=10 / sm=6 conforme breakpoint", "Drag desabilitado em sm (<768px)"], "naoAplicavel": false },
+    { "id": 18, "categoria": "Internacionalização (i18n)", "severidade": "baixa", "casos": ["Labels PT-BR canonical", "Mês curto formato pt-BR"], "naoAplicavel": false },
+    { "id": 19, "categoria": "Performance",                "severidade": "media", "casos": ["KPI inicial p95 < 500ms (10k pedidos)", "Drag/resize 60fps"], "naoAplicavel": false },
+    { "id": 20, "categoria": "Persistência e refresh",     "severidade": "media", "casos": ["editMode=true após reload (não é persistido — é default)", "Layout custom persiste via Zustand+localStorage", "Widgets do painel servidor persistem via /paineis PUT"], "naoAplicavel": false }
+  ],
+  "fluxosCriticos": [
+    {
+      "nome": "Drag de card",
+      "categoria": 5,
+      "passos": [
+        "Abrir /produto/pedido/pedidos/dashboard",
+        "Aguardar dashboard carregar (KPIs renderizados)",
+        "Pegar header do card 'Total de Pedidos' (drag-handle-card)",
+        "Arrastar para posição (x=9, y=0)",
+        "Soltar",
+        "Aguardar 200ms (debounce de salvamento)",
+        "Recarregar página",
+        "Verificar que o card permaneceu em (x=9, y=0)"
+      ],
+      "resultadoEsperado": "Posição do card persistida em localStorage e restaurada após reload"
+    },
+    {
+      "nome": "Resize de card pelos 8 cantos",
+      "categoria": 5,
+      "passos": [
+        "Hover no canto superior-esquerdo de um card → cursor nwse-resize",
+        "Hover no canto inferior-direito → cursor nwse-resize",
+        "Hover na borda norte → cursor ns-resize",
+        "Hover na borda leste → cursor ew-resize",
+        "Drag da borda direita para aumentar largura",
+        "Verificar que cards adjacentes reposicionam (compaction vertical)"
+      ],
+      "resultadoEsperado": "Resize funciona pelos 8 lados/cantos com auto-encaixe"
+    },
+    {
+      "nome": "Migração de keys legadas",
+      "categoria": 20,
+      "passos": [
+        "No DevTools Console: localStorage.setItem('gravity:pedido:dashboard', JSON.stringify({ version: 17, state: { widgets: [{ id: 'kpi_saldo_total', query_spec: { fields: [{ key: 'qtd_saldo_total', operation: 'SUM' }] } }] } }))",
+        "Recarregar página",
+        "Inspecionar localStorage após carga",
+        "Verificar que 'qtd_saldo_total' foi convertido para 'qtd_atual_total'",
+        "Verificar que version do store é 18"
+      ],
+      "resultadoEsperado": "Migração silenciosa de keys legadas, sem quebrar UI"
+    },
+    {
+      "nome": "Conversão PTAX no Valor Total (BRL)",
+      "categoria": 4,
+      "passos": [
+        "Seed: 3 pedidos USD valor 100, taxa USD→BRL = 5.0",
+        "Abrir dashboard com período que cobre os 3 pedidos",
+        "Verificar card 'Valor Total (BRL)' = R$ 1.500,00",
+        "Verificar que NÃO mostra 300 (soma bruta sem conversão)"
+      ],
+      "resultadoEsperado": "valor_total_brl = soma(valor_pedido × taxa_ptax_venda) por moeda"
+    },
+    {
+      "nome": "Isolamento de organização (Mandamento 03 + 15)",
+      "categoria": 15,
+      "passos": [
+        "Login como usuário da Org A",
+        "Seed: 50 pedidos na Org A, 50 na Org B",
+        "Abrir dashboard",
+        "Verificar Total de Pedidos = 50 (não 100)",
+        "Verificar req tem header x-id-organizacao = idOrgA",
+        "Tentar manipular header para idOrgB → backend ignora (resolver-organizacao)"
+      ],
+      "resultadoEsperado": "Schema-per-organização isola dados; manipulação de header não vaza"
+    }
+  ],
+  "categoriasNaoAplicaveis": [
+    { "id": 13, "justificativa": "Dashboard não tem listagem com colunas ordenáveis. Ordenação aplicável só dentro de widgets de tabela específicos (não cobertos por este plano)." }
+  ],
+  "specFile": "testes/testes-e2e/pedido/dashboard/TST-E2E-PEDIDO-000001.spec.ts",
+  "totalCasos": 0,
+  "estado": "PLANO_CRIADO_AGUARDA_APROVACAO_DONO_ANTES_DE_GERAR_SPECS"
+}

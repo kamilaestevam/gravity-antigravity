@@ -408,9 +408,9 @@ export function resolveAxisAssignment(
 
 ---
 
-## 9. WidgetEditModal — atualizar
+## 9. DashboardPainelEditarModal — atualizar
 
-O modal de edição de widget em `DashboardPedido.tsx` exibe atualmente `Campo(s): fields.join(', ')`. Com o novo formato `FieldQuerySpec[]`, deve exibir:
+O modal de edição de widget em `PedidosDashboard.tsx` exibe atualmente `Campo(s): fields.join(', ')`. Com o novo formato `FieldQuerySpec[]`, deve exibir:
 
 ```
 Campo(s)    total_pedidos (COUNT)

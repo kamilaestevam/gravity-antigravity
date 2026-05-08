@@ -33,8 +33,66 @@ export function migrateQuerySpec(spec: WidgetQuerySpec): WidgetQuerySpec {
   return spec
 }
 
+/**
+ * Mapa de renomeação de keys legadas em query_spec.fields[].key.
+ * Aplica quando o backend deixou de retornar o nome antigo (Mandamento 09).
+ *
+ * - qtd_saldo_total: nunca foi retornado pelo /kpis (sempre 0 no card legado).
+ * - pedidos_draft  : backend mudou para 'pedidos_rascunho' (status PT-BR).
+ */
+const LEGACY_FIELD_KEY_MAP: Record<string, string> = {
+  qtd_saldo_total: 'qtd_atual_total',
+  pedidos_draft:   'pedidos_rascunho',
+}
+
+/**
+ * Migrações específicas por widget id — quando o renomear depende do contexto
+ * do card, não do field em si.
+ *
+ * - kpi_valor_total: troca 'valor_total' (sem conversão) por 'valor_total_brl'
+ *   (PTAX já aplicado pelo backend) e atualiza o título.
+ */
+function migrateLegacyFieldKeys(w: DashboardWidgetConfig): DashboardWidgetConfig {
+  let next = w
+  // 1) Renomes universais (independem do widget id)
+  const fields = w.query_spec?.fields ?? []
+  if (fields.some(f => typeof f === 'object' && f !== null && f.key in LEGACY_FIELD_KEY_MAP)) {
+    next = {
+      ...next,
+      query_spec: {
+        ...next.query_spec,
+        fields: fields.map(f =>
+          typeof f === 'object' && f !== null && f.key in LEGACY_FIELD_KEY_MAP
+            ? { ...f, key: LEGACY_FIELD_KEY_MAP[f.key] }
+            : f,
+        ),
+      },
+    }
+  }
+  // 2) Migração específica do KPI "Valor Total" → "Valor Total (BRL)"
+  if (
+    next.id === 'kpi_valor_total' &&
+    next.query_spec?.fields?.some(f => typeof f === 'object' && f !== null && f.key === 'valor_total')
+  ) {
+    next = {
+      ...next,
+      title: 'Valor Total (BRL)',
+      query_spec: {
+        ...next.query_spec,
+        fields: next.query_spec.fields.map(f =>
+          typeof f === 'object' && f !== null && f.key === 'valor_total'
+            ? { ...f, key: 'valor_total_brl' }
+            : f,
+        ),
+      },
+    }
+  }
+  return next
+}
+
 function migrateWidget(w: DashboardWidgetConfig): DashboardWidgetConfig {
-  return { ...w, query_spec: migrateQuerySpec(w.query_spec) }
+  const withQuerySpec = { ...w, query_spec: migrateQuerySpec(w.query_spec) }
+  return migrateLegacyFieldKeys(withQuerySpec)
 }
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -349,7 +407,7 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 17, // bump: undefined vs [] — semantics de widgetsByPainel corrigida
+      version: 18, // bump: migra keys legadas (qtd_saldo_total, pedidos_draft, valor_total no kpi_valor_total)
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,

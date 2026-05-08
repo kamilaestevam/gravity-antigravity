@@ -18,10 +18,11 @@
     "dashboardInsightsResponseSchema"
   ],
   "categorias": [
-    { "nome": "happy",          "min": 4, "total": 4 },
-    { "nome": "sad",            "min": 4, "total": 5 },
-    { "nome": "edge",           "min": 2, "total": 3 },
-    { "nome": "regression_ddd", "min": 4, "total": 4 }
+    { "nome": "happy",              "min": 4, "total": 4 },
+    { "nome": "sad",                "min": 4, "total": 5 },
+    { "nome": "edge",               "min": 2, "total": 3 },
+    { "nome": "regression_ddd",     "min": 4, "total": 4 },
+    { "nome": "aggregation_logic",  "min": 4, "total": 10 }
   ],
   "casos": [
     { "id": "TST-UNI-PEDIDO-000001-001", "categoria": "happy",          "descricao": "dashboardKpisSchema aceita payload completo do backend com todos os 35 campos DDD",                "origem": "agente-adicionado" },
@@ -39,9 +40,19 @@
     { "id": "TST-UNI-PEDIDO-000001-013", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 03: schema rejeita campo legado 'status' (deve ser 'status_pedido' já agg.)", "origem": "regressao-mandamento-03" },
     { "id": "TST-UNI-PEDIDO-000001-014", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 03: schema rejeita campo legado 'pedidos_draft' (deve ser 'pedidos_rascunho')", "origem": "regressao-mandamento-03" },
     { "id": "TST-UNI-PEDIDO-000001-015", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 09: schema falha alto se backend remover valor_total_brl (sem fallback silencioso)", "origem": "regressao-mandamento-09" },
-    { "id": "TST-UNI-PEDIDO-000001-016", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 06: schema rejeita parse de undefined/null (toda resposta de API tem que ser objeto)", "origem": "regressao-mandamento-06" }
+    { "id": "TST-UNI-PEDIDO-000001-016", "categoria": "regression_ddd", "descricao": "REGRESSÃO Mandamento 06: schema rejeita parse de undefined/null (toda resposta de API tem que ser objeto)", "origem": "regressao-mandamento-06" },
+    { "id": "TST-UNI-PEDIDO-000001-017", "categoria": "aggregation_logic", "descricao": "aggregateKpis: count de pedidos_abertos via status_pedido === aberto (Mand. 03)",                                  "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-018", "categoria": "aggregation_logic", "descricao": "aggregateKpis: valor_total_brl converte cada pedido pela taxa PTAX da moeda",                                       "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-019", "categoria": "aggregation_logic", "descricao": "aggregateKpis: moedas sem taxa caem em moedas_sem_taxa e somam sem conversão",                                      "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-020", "categoria": "aggregation_logic", "descricao": "aggregateKpis: pedidos_sem_exportador conta id_importacao_exportador_pedido falsy (Mand. 03)",                      "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-021", "categoria": "aggregation_logic", "descricao": "aggregateKpis: ticket_medio = valor_total / total_pedidos; zero quando total = 0",                                  "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-022", "categoria": "aggregation_logic", "descricao": "aggregateKpis: taxa_conclusao_itens = (itens_prontos / qtd_inicial_total) * 100",                                   "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-023", "categoria": "aggregation_logic", "descricao": "REGRESSÃO Mand. 03: backend que use 'status' (legado) não casa nenhum filter de status_pedido — bug silencioso evitado", "origem": "regressao-mandamento-03" },
+    { "id": "TST-UNI-PEDIDO-000001-024", "categoria": "aggregation_logic", "descricao": "aggregateDistribution: agrupa pedidos por status_pedido somando valor_total_pedido",                                "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-025", "categoria": "aggregation_logic", "descricao": "aggregateDistribution round-trip: payload passa pelo dashboardDistributionResponseSchema",                          "origem": "extracao-pure-function" },
+    { "id": "TST-UNI-PEDIDO-000001-026", "categoria": "aggregation_logic", "descricao": "aggregateKpis round-trip: payload passa pelo dashboardKpisSchema (vazio também)",                                   "origem": "extracao-pure-function" }
   ],
   "mocks": [],
   "specFile": "testes/testes-unitarios/pedido/dashboard/dashboard-pedido-dados.test.ts",
-  "resumoExecutivo": "16 casos cobrindo os 4 schemas Zod das respostas de /api/v1/pedidos/dashboard/*. Foco em: (1) aceitar payloads válidos do backend; (2) rejeitar payloads malformados (sad path); (3) tolerar extras via passthrough; (4) PROTEGER contra regressão de Mandamentos 03, 06 e 09 — qualquer renome silencioso de campo no backend faz o parse() do client explodir e impede bug invisível. Zero dependências externas além do zod."
+  "resumoExecutivo": "26 casos cobrindo os 4 schemas Zod das respostas + as 2 funções puras de agregação (aggregateKpis, aggregateDistribution) extraídas dos handlers. Foco em: (1) aceitar payloads válidos do backend; (2) rejeitar payloads malformados; (3) tolerar extras via passthrough; (4) regressão de Mandamentos 03, 06 e 09; (5) lógica de agregação isolada do Express/Prisma — testa filter() por status_pedido, conversão PTAX de valor_total_brl, médias derivadas, agrupamento por status. Round-trip schemas ↔ aggregations garante contrato bilateral. Zero dependências externas além do zod."
 }

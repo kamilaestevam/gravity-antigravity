@@ -297,12 +297,6 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [carregandoEmpresas, setCarregandoEmpresas]   = useState(false)
   const [cadastroEmpresaPapel, setCadastroEmpresaPapel] = useState<PapelEmpresaRapido | null>(null)
 
-  // DIAG-CASCATA — observar mudança de estado do modal cascateado
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[ModalPedidoNovo] cadastroEmpresaPapel =', cadastroEmpresaPapel)
-  }, [cadastroEmpresaPapel])
-
   useEffect(() => {
     if (!aberto) return
     let cancelado = false
@@ -497,11 +491,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
             carregandoEmpresas={carregandoEmpresas}
-            aoCadastrarNova={(papel) => {
-              // eslint-disable-next-line no-console
-              console.log('[ModalPedidoNovo] aoCadastrarNova recebido papel=', papel)
-              setCadastroEmpresaPapel(papel)
-            }}
+            aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
           />
         )}
         {passo === 2 && (
@@ -581,14 +571,7 @@ function CampoEmpresaSelect({
         </span>
         <button
           type="button"
-          data-diag="botao-cadastrar-nova-empresa"
-          onMouseDown={(e) => {
-            // eslint-disable-next-line no-console
-            console.log('[CampoEmpresaSelect] onMouseDown disparou', e.button)
-          }}
           onClick={(e) => {
-            // eslint-disable-next-line no-console
-            console.log('[CampoEmpresaSelect] onClick disparou — chamando onCadastrarNova')
             e.preventDefault()
             e.stopPropagation()
             onCadastrarNova()

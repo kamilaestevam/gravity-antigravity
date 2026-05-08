@@ -2,9 +2,13 @@
  * cadastrosApi.ts — Cliente HTTP do Pedido para o serviço Cadastros.
  *
  * Endpoints consumidos:
- *   GET  /api/v1/cadastros/empresas          — lista paginada (suporta `busca`, `por_pagina`)
- *   POST /api/v1/cadastros/empresas          — cria nova empresa (cadastro rápido inline)
+ *   GET  /api/v1/empresas                    — lista paginada (suporta `busca`, `por_pagina`)
+ *   POST /api/v1/empresas                    — cria nova empresa (cadastro rápido inline)
  *   GET  /api/v1/cadastros/paises            — catálogo de países (fonte única)
+ *
+ * Histórico DDD: o router de Empresa foi montado em /api/v1/empresas (raiz)
+ * em vez de /api/v1/cadastros/empresas — ver cadastros/server/src/index.ts:42.
+ * O Vite tem proxy `/api/v1/empresas` → 8031 (configurador/vite.config.ts:128).
  *
  * Mandamentos respeitados:
  *   - 03 (DDD): nomes em PT-BR (`nome_empresa`, `pais_empresa`, `pode_ser_*`)
@@ -115,7 +119,7 @@ export const cadastrosApi = {
   listarEmpresas: (busca?: string, por_pagina = 200): Promise<ListaEmpresas> => {
     const params = new URLSearchParams({ por_pagina: String(por_pagina) })
     if (busca && busca.trim()) params.set('busca', busca.trim())
-    return request<ListaEmpresas>(`/api/v1/cadastros/empresas?${params.toString()}`)
+    return request<ListaEmpresas>(`/api/v1/empresas?${params.toString()}`)
   },
 
   /**
@@ -125,7 +129,7 @@ export const cadastrosApi = {
    */
   criarEmpresa: async (input: CriarEmpresaRapidoInput): Promise<Empresa> => {
     const payload = toCriarEmpresaPayload(input)
-    return request<Empresa>('/api/v1/cadastros/empresas', {
+    return request<Empresa>('/api/v1/empresas', {
       method: 'POST',
       body: JSON.stringify(payload),
     })

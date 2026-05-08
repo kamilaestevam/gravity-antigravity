@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useState, useMemo } from 'react'
+import ReactDOM from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Buildings, Warning } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -152,7 +153,12 @@ export function ModalEmpresaCadastroRapido({
 
   if (!aberto) return null
 
-  return (
+  // Renderizado via Portal direto em document.body para escapar do stacking
+  // context do parent (ModalNovoPedido fica dentro de Pedidos.tsx → algum
+  // ancestral cria stacking context que confina position:fixed). O wizard
+  // ModalPassoPassoGlobal também usa portal, então sem isso o cascade fica
+  // visualmente debaixo do wizard, mesmo com z-index numericamente maior.
+  const conteudo = (
     <div
       role="dialog"
       aria-modal="true"
@@ -321,4 +327,6 @@ export function ModalEmpresaCadastroRapido({
       </div>
     </div>
   )
+
+  return ReactDOM.createPortal(conteudo, document.body)
 }

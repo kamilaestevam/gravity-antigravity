@@ -489,6 +489,21 @@ export function ProdutosGravityAdmin() {
       render: (v) => <span style={{ color: '#818cf8', fontWeight: 500 }}>{v}</span>
     },
     {
+      key: 'valor_unitario_negociacao_especial', label: 'Valor', tipo: 'texto', align: 'right',
+      tooltipTitulo: 'Valor Unitário Especial',
+      tooltipDescricao: 'Preço estruturado que sobrescreve o valor da tabela do produto. Vazio = acordo apenas descritivo.',
+      render: (_v, item) => {
+        if (!item.valor_unitario_negociacao_especial) {
+          return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', fontStyle: 'italic' }}>—</span>
+        }
+        return (
+          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981', fontSize: '0.875rem' }}>
+            {getSimboloMoeda(item.moeda_negociacao_especial)} {item.valor_unitario_negociacao_especial}
+          </span>
+        )
+      }
+    },
+    {
       key: 'ilimitado_prazo_negociacao_especial', label: 'Vigência', tipo: 'texto',
       tooltipTitulo: 'TTL / Data de Expiração', tooltipDescricao: 'Determina reversão automática para o pricing base após a data limite.',
       render: (v, item) => (

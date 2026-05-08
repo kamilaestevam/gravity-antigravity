@@ -113,7 +113,7 @@ import {
   fmtData,
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
-import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
+import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../shared/unidadesPesoColuna'
 import './Pedidos.css'
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────

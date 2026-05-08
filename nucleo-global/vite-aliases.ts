@@ -73,8 +73,8 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     // Logo com nome de pacote diferente do nome da pasta (pasta: produtos)
     '@nucleo/logo-produtos': path.resolve(nucleoRoot, 'Logo/produtos/src/index.ts'),
 
-    // Tabelas aninhadas 3 níveis (tabelas-base/unidades-peso)
-    '@nucleo/tabelas-base-unidades-peso': path.resolve(nucleoRoot, 'Tabelas/tabelas-base/unidades-peso/src/index.ts'),
+    // (tabelas-base/unidades-peso e tabelas-base/unidades removidos em 2026-05-08
+    //  durante a migração SSOT — agora useUnidades() lê do banco Cadastros.)
 
     // Modal com alias diferente do nome da pasta
     '@nucleo/modal-campo-select-global': path.resolve(nucleoRoot, 'Modais/modal-select-global/src/index.ts'),

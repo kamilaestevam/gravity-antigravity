@@ -14,7 +14,7 @@ import type { Pedido, PedidoItem } from '../../shared/types'
 import { STATUS_PEDIDO_LABELS, fmtQuantidade, fmtData } from '../../shared/types'
 import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
-import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
+import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../../shared/unidadesPesoColuna'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 
 // Re-export so callers that used to import from ListaPedidos still work

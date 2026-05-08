@@ -325,8 +325,21 @@ function StatusBadge({ ativo }: { ativo: boolean }) {
 }
 
 function TipoUnidadeChip({ tipo }: { tipo: string }) {
+  // Cores espelham as 10 categorias do tipoUnidadeEnum em
+  // servicos-global/cadastros/shared/schemas/unidade.schema.ts.
+  // Quando adicionar categoria nova lá, refletir aqui pra evitar fallback cinza.
   const map: Record<string, string> = {
-    peso: '#60a5fa', quantidade: '#a78bfa', comprimento: '#34d399', volume: '#fbbf24',
+    peso:         '#60a5fa',
+    volume:       '#fbbf24',
+    comprimento:  '#34d399',
+    area:         '#22d3ee',
+    contagem:     '#a78bfa',
+    quantidade:   '#a78bfa', // legado — mesma cor de contagem
+    energia:      '#facc15',
+    gemas:        '#f472b6',
+    agrupamento:  '#fb923c',
+    embalagem:    '#f87171',
+    caixa:        '#94a3b8',
   }
   const cor = map[tipo] ?? '#94a3b8'
   return (

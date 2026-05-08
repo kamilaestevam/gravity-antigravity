@@ -24,7 +24,7 @@ import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
-import { UNIDADES_SISCOMEX } from '@nucleo/modal-tabela-unidades'
+import { useUnidades } from '@nucleo/modal-tabela-unidades'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -270,9 +270,9 @@ function brToIso(text: string): string | null {
 
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Unidades padrão — lista oficial Siscomex (modal-tabela-unidades)
-const UNIDADES_PADRAO: GTUnidadeOpcao[] = UNIDADES_SISCOMEX.map(u => ({ sigla: u.sigla, rotulo: u.rotulo }))
-
+// Unidades padrão — agora vêm do banco via `useUnidades()` no hook do
+// GTEditPopover. Variável module-level antiga (UNIDADES_PADRAO) removida
+// porque dependia da constante hardcoded UNIDADES_SISCOMEX já deletada.
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
@@ -448,13 +448,18 @@ const GTEditPopover = memo(function GTEditPopover({
   const uv: GTValorUnidade = (isUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object))
     ? (valorEditando as GTValorUnidade)
     : { unit: 'UN', quantity: 0 }
-  // SSOT: lista vem de `useMoedas()` (banco Cadastros) — antes era hardcoded.
-  // Se a coluna restringe moedas, filtra a lista canônica.
+  // SSOT: listas vêm do banco Cadastros via hooks (antes hardcoded).
+  // Se a coluna restringe moedas/unidades, filtra a lista canônica.
   const { moedas: moedasCadastros } = useMoedas()
+  const { unidades: unidadesCadastros } = useUnidades()
   const listaMoedasSiscomex = overlayInfo.moedas
     ? moedasCadastros.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.codigo_moeda))
     : moedasCadastros
-  const listaUnidades = overlayInfo.unidades ?? UNIDADES_PADRAO
+  const unidadesPadrao: GTUnidadeOpcao[] = unidadesCadastros.map((u) => ({
+    sigla: u.codigo_unidade,
+    rotulo: u.nome_unidade,
+  }))
+  const listaUnidades = overlayInfo.unidades ?? unidadesPadrao
   const casas = overlayInfo.casasDecimais ?? 0
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)

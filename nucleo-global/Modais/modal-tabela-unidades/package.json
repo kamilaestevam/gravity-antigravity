@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@nucleo/campo-select-global": "*",
-    "@nucleo/modal-global": "*"
+    "@nucleo/modal-global": "*",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@phosphor-icons/react": "^2.0.0",

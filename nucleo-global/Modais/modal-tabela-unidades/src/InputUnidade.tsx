@@ -5,17 +5,25 @@
  * Formata em tempo real no padrão pt-BR (pontos como milhar, vírgula como decimal).
  */
 
-import React, { useId, useState, useEffect, useRef, useCallback } from 'react'
+import React, { useId, useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { OPCOES_UOM, type UnidadeMedida } from './dados.js'
+import { useUnidades, type Unidade } from './useUnidades.js'
 import './modal-tabela-unidades.css'
+
+/**
+ * Subset que o consumer pode passar via prop `opcoes` quando quiser
+ * restringir a lista (ex: só peso pra um campo de carga). Quando omitido,
+ * o componente lê de `useUnidades()` (banco Cadastros).
+ */
+export type OpcaoUnidadeInput = { codigo_unidade: string; nome_unidade: string }
 
 export interface InputUnidadeProps {
   label?: string
   valor: number | string
   unidade: string
   onChange: (valor: number, unidade: string) => void
-  opcoes?: Pick<UnidadeMedida, 'sigla' | 'descricao'>[]
+  /** Subset de unidades. Se omitido, usa lista canônica do banco via `useUnidades()`. */
+  opcoes?: OpcaoUnidadeInput[]
   placeholder?: string
   desabilitado?: boolean
   casasDecimais?: number
@@ -83,9 +91,15 @@ export function InputUnidade({
     }
   }, [valor, casasDecimais])
 
-  const opcoesSelect = opcoes
-    ? opcoes.map(u => ({ valor: u.sigla, rotulo: u.sigla, descricao: u.descricao }))
-    : OPCOES_UOM
+  const { unidades: unidadesHook } = useUnidades()
+  const opcoesSelect = useMemo(() => {
+    const fonte: OpcaoUnidadeInput[] = opcoes ?? unidadesHook
+    return fonte.map((u) => ({
+      valor: u.codigo_unidade,
+      rotulo: u.codigo_unidade,
+      descricao: u.nome_unidade,
+    }))
+  }, [opcoes, unidadesHook])
 
   const handleFocus = useCallback(() => {
     focadoRef.current = true
@@ -118,7 +132,7 @@ export function InputUnidade({
           <SelectGlobal
             opcoes={opcoesSelect}
             valor={unidade}
-            aoMudarValor={v => onChange(parsePtBR(texto), String(v ?? 'UNID'))}
+            aoMudarValor={v => onChange(parsePtBR(texto), String(v ?? 'UN'))}
             desabilitado={desabilitado}
             buscavel={false}
             aria-label="Unidade de medida"

@@ -14,7 +14,7 @@ import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './ColunasPai'
-import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
+import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../../shared/unidadesPesoColuna'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }

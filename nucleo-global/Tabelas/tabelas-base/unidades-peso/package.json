@@ -1,8 +1,0 @@
-{
-  "name": "@nucleo/tabelas-base-unidades-peso",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts"
-}

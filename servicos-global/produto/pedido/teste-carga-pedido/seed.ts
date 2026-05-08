@@ -162,25 +162,38 @@ async function main() {
 
     // Pedidos: normaliza colunas comuns para INSERT em batch
     const pedidosNorm = normalizarColunasComuns(pedidos as unknown as Record<string, unknown>[])
-    // Insere em chunks de 100 para evitar query gigante
-    const chunkSize = 50
+    // Chunk size escalado por volume — reduz round-trips ao banco em volumes grandes
+    // 10000 pedidos = ~57k itens; com chunk 500 são 114 round-trips em vez de 1140 (10x menos).
+    // Limite Postgres: 65535 parametros por query. 500 × 85 colunas = 42500 params (OK).
+    const chunkSize = count >= 5000 ? 500 : count >= 1000 ? 200 : 50
+    console.log(`[seed] chunk size: ${chunkSize}`)
     let pedidosInseridos = 0
+    const totalChunksPed = Math.ceil(pedidosNorm.length / chunkSize)
     for (let i = 0; i < pedidosNorm.length; i += chunkSize) {
       const chunk = pedidosNorm.slice(i, i + chunkSize)
       const { sql, values } = buildInsertSql(`${quoteIdent(SCHEMA_PG)}.pedido`, chunk)
       const r = await client.query(sql, values)
       pedidosInseridos += r.rowCount ?? chunk.length
+      const chunkN = Math.floor(i / chunkSize) + 1
+      if (count >= 1000 && chunkN % 5 === 0) {
+        console.log(`[seed] ... pedidos ${pedidosInseridos}/${pedidosNorm.length} (chunk ${chunkN}/${totalChunksPed})`)
+      }
     }
     console.log(`[seed] inseridos ${pedidosInseridos} pedidos`)
 
     // Itens
     const itensNorm = normalizarColunasComuns(itens as unknown as Record<string, unknown>[])
     let itensInseridos = 0
+    const totalChunksItens = Math.ceil(itensNorm.length / chunkSize)
     for (let i = 0; i < itensNorm.length; i += chunkSize) {
       const chunk = itensNorm.slice(i, i + chunkSize)
       const { sql, values } = buildInsertSql(`${quoteIdent(SCHEMA_PG)}.pedido_itens`, chunk)
       const r = await client.query(sql, values)
       itensInseridos += r.rowCount ?? chunk.length
+      const chunkN = Math.floor(i / chunkSize) + 1
+      if (count >= 1000 && chunkN % 10 === 0) {
+        console.log(`[seed] ... itens ${itensInseridos}/${itensNorm.length} (chunk ${chunkN}/${totalChunksItens})`)
+      }
     }
     console.log(`[seed] inseridos ${itensInseridos} itens`)
 

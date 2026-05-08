@@ -493,7 +493,7 @@ model PedidoItem {
   valor_total_item               Decimal? @db.Decimal(18, 6)
   casas_decimais_total_item      Int      @default(2)
   ...
-  @@map("pedido_itens")
+  @@map("pedido_item")
 }
 ```
 

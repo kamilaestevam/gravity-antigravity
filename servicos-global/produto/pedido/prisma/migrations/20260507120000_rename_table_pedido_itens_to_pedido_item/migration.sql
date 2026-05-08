@@ -1,0 +1,22 @@
+-- FASE 07 DDD / Onda 3 Pedido — Rename de tabela pedido_itens -> pedido_item
+-- Fonte: skills/governanca/lei/ddd-nomenclatura/SKILL.md REGRA 10
+--   "Nome da tabela fica no singular ... alinhado ao dicionário DDD em produtos
+--    (`pedido`, `pedido_item`)."
+--
+-- Justificativa: todos os outros models do schema do Pedido seguem singular
+-- (`pedido`, `pedido_template`, `pedido_anexo`, `pedido_transferencia`,
+--  `pedido_casas_decimais`, `pedido_saldo_formula`, etc.). Apenas `pedido_itens`
+-- estava fora do padrão por inércia legada da convenção Prisma plural.
+--
+-- Estratégia: ALTER TABLE RENAME — preserva 100% dos dados e dos índices/FKs
+-- existentes (Postgres auto-renomeia constraints e indexes referenciados).
+--
+-- Cross-product: o produto Processo tem o mesmo model `PedidoItem` espelhado
+-- (`@@map("pedido_item")`) para leitura cross-banco. Os 2 fragments foram
+-- atualizados no mesmo PR (Mandamento 07 — sincronia).
+--
+-- RLS: as policies de tenant_isolation foram atualizadas em
+-- `produto/processo/prisma/rls-policies.sql` para referenciar `pedido_item`.
+-- Re-aplicar policies depois desta migration.
+
+ALTER TABLE "pedido_itens" RENAME TO "pedido_item";

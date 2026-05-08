@@ -596,7 +596,7 @@ async function main() {
 
   if (clean) {
     console.log('🧹 Limpando dados existentes do tenant...')
-    const delItens = await prisma.$executeRaw`DELETE FROM pedido.pedido_itens WHERE id_organizacao = ${tenantId}`
+    const delItens = await prisma.$executeRaw`DELETE FROM pedido.pedido_item WHERE id_organizacao = ${tenantId}`
     const delPedidos = await prisma.$executeRaw`DELETE FROM pedido.pedidos_comerciais WHERE tenant_id = ${tenantId}`
     console.log(`   → ${delItens} itens e ${delPedidos} pedidos removidos\n`)
   }

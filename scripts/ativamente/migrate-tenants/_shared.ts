@@ -80,7 +80,7 @@ export const TABLES_WITH_TENANT_ID: readonly string[] = [
   'tracking_items_transferidos',
   'valor_coluna_usuario_pedido',
   'coluna_usuario_pedido',
-  'pedido_itens',
+  'pedido_item',
   'pedido_colunas',
   'status_pedido',
   'preferencia_coluna_pedido',

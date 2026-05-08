@@ -302,11 +302,11 @@ executar cada migration — qualquer prefixo hardcoded é redundante e quebra o 
 
 ```sql
 -- ❌ PROIBIDO — schema fixo herdado da arquitetura antiga
-ALTER TABLE "pedido"."pedido_itens" RENAME COLUMN ...
+ALTER TABLE "pedido"."pedido_item" RENAME COLUMN ...
 CREATE TYPE "pedido"."StatusPedido" AS ENUM (...)
 
 -- ✅ CORRETO — sem prefixo, search_path já foi definido pelo orquestrador
-ALTER TABLE "pedido_itens" RENAME COLUMN ...
+ALTER TABLE "pedido_item" RENAME COLUMN ...
 CREATE TYPE "StatusPedido" AS ENUM (...)
 ```
 
@@ -320,15 +320,15 @@ usar `DO $$ IF EXISTS` para não falhar em tenants cujo estado físico já está
 
 ```sql
 -- ❌ PROIBIDO — falha se a coluna já foi renomeada
-ALTER TABLE "pedido_itens" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
+ALTER TABLE "pedido_item" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
 
 -- ✅ OBRIGATÓRIO — idempotente, seguro para qualquer estado do banco
 DO $$ BEGIN
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'pedido_itens' AND column_name = 'quantidade_inicial'
+    WHERE table_name = 'pedido_item' AND column_name = 'quantidade_inicial'
   ) THEN
-    ALTER TABLE "pedido_itens" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
+    ALTER TABLE "pedido_item" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
   END IF;
 END $$;
 ```

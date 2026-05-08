@@ -86,17 +86,17 @@ ORDER BY table_name;
 
 | # | Ação | Verificação esperada |
 |---|------|---------------------|
-| 1 | Inserir 10 linhas em `pedido_itens` (5 tenant A, 5 tenant B) | - |
+| 1 | Inserir 10 linhas em `pedido_item` (5 tenant A, 5 tenant B) | - |
 | 2 | Executar `npx tsx 02-backfill.ts --execute` | Exit code = 0 |
-| 3 | Consultar `tenant_A.pedido_itens` | 5 linhas, todas com `tenant_id = A` |
-| 4 | Consultar `tenant_B.pedido_itens` | 5 linhas, todas com `tenant_id = B` |
+| 3 | Consultar `tenant_A.pedido_item` | 5 linhas, todas com `tenant_id = A` |
+| 4 | Consultar `tenant_B.pedido_item` | 5 linhas, todas com `tenant_id = B` |
 | 5 | Consultar `_schema_migration_status` | `rows_copied > 0`, `status = 'BACKFILLED'` |
 | 6 | Verificar que linhas do tenant B **não** aparecem em `tenant_A.*` | Isolamento correto |
 
 **Verificação de isolamento (crítica):**
 ```sql
 -- Nenhuma linha de tenant B no schema de tenant A
-SELECT COUNT(*) FROM tenant_A.pedido_itens
+SELECT COUNT(*) FROM tenant_A.pedido_item
 WHERE tenant_id != 'id_tenant_a';
 -- Esperado: 0
 ```

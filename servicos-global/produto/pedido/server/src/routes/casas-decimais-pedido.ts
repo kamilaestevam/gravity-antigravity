@@ -191,7 +191,7 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, idOrganizacao
     const casas = config[cfgKey]
     roundOps.push(
       db.$executeRawUnsafe(
-        `UPDATE pedido_itens SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND "${coluna}" IS NOT NULL`,
+        `UPDATE pedido_item SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND "${coluna}" IS NOT NULL`,
         idOrganizacao,
       ),
     )

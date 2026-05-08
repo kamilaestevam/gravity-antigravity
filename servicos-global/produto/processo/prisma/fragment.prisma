@@ -114,7 +114,7 @@ model ProcessoPedidoItens {
   @@index([id_organizacao])
   @@index([id_organizacao, product_id])
   @@index([id_organizacao, pedido_id])
-  @@map("pedido_itens")
+  @@map("pedido_item")
 }
 
 model ProcessoFollowup {

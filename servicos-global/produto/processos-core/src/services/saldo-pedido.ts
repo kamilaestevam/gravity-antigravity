@@ -52,7 +52,7 @@ interface AtualizarProntaInput {
   id_workspace: string
 }
 
-// Shape DDD — alinhado com colunas físicas de "pedido_itens" pós rename Onda 3.
+// Shape DDD — alinhado com colunas físicas de "pedido_item" (rename Onda 3 + rename de tabela 2026-05-07).
 // O caller (pedidos.ts) aplica mapItem() para produzir o contrato JSON público.
 interface SaldoResult {
   id_item: string

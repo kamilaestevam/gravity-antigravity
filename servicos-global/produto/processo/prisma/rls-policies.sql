@@ -13,7 +13,7 @@
 ALTER TABLE "processos"          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "processo_etapas"    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "pedidos"            ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "pedido_itens"       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "pedido_item"        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "follow_ups"         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "documentos"         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "estimativas_custo"  ENABLE ROW LEVEL SECURITY;
@@ -32,7 +32,7 @@ CREATE POLICY tenant_isolation_policy ON "processo_etapas"
 CREATE POLICY tenant_isolation_policy ON "pedidos"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
-CREATE POLICY tenant_isolation_policy ON "pedido_itens"
+CREATE POLICY tenant_isolation_policy ON "pedido_item"
   USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "follow_ups"

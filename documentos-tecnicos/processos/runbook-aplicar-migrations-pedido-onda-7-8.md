@@ -1,4 +1,4 @@
-# Runbook — Aplicar 26 Migrations Pendentes do Pedido (Onda 7 + 8)
+# Runbook — Aplicar 27 Migrations Pendentes do Pedido (Onda 7 + 8 + Rename Tabela)
 
 **Status:** 🟡 Aguardando execução
 **Aprovado por:** Coordenador (parecer em conversa de 2026-05-07)
@@ -9,7 +9,7 @@
 
 ## Contexto resumido
 
-26 migrations Prisma estão versionadas em `produto/pedido/prisma/migrations/` mas **não foram aplicadas** no banco do Pedido. Resultado:
+27 migrations Prisma estão versionadas em `produto/pedido/prisma/migrations/` mas **não foram aplicadas** no banco do Pedido. Resultado:
 
 - Banco com schema da onda anterior (até `~20260424...`).
 - Prisma Client (quando gerado contra o schema novo) referencia tabelas/colunas que ainda existem no banco com nome legado.
@@ -34,7 +34,7 @@ Auditoria executada em 2026-05-07:
 
 **Conclusão da auditoria:** todas as migrations são renames. Risco de perda de dados é zero — `RENAME COLUMN` preserva valores. Comentário das próprias migrations confirma: *"Estratégia: ALTER TABLE RENAME COLUMN — preserva dados (zero backfill)."*
 
-### Lista das 26 migrations pendentes
+### Lista das 27 migrations pendentes
 
 ```
 20260425000000_pedido_item_ddd_correto
@@ -63,9 +63,10 @@ Auditoria executada em 2026-05-07:
 20260425230000_sub_onda_7q_pedido_snapshot_empresa
 20260425240000_sub_onda_7r_pedido_config_atualizacao_cadastros
 20260425250000_sub_onda_8_processo_grupo_completo
+20260507120000_rename_table_pedido_itens_to_pedido_item
 ```
 
-A última (`sub_onda_8`) é a maior (20KB, 161 col renames cobrindo 4 tabelas: `Processo`, `ProcessoFatura`, `ProcessoItem`, `ProcessoContainer`). As demais são incrementais por sub-onda (1-3KB cada).
+A 26a (`sub_onda_8`) é a maior (20KB, 161 col renames cobrindo 4 tabelas: `Processo`, `ProcessoFatura`, `ProcessoItem`, `ProcessoContainer`). As demais são incrementais por sub-onda (1-3KB cada).
 
 ---
 
@@ -152,7 +153,21 @@ npx prisma generate
 
 ---
 
-### 5. Re-provisionar schemas tenant (`tenant_<id_organizacao>`)
+### 5.5. Re-aplicar RLS policies do Processo (apenas se a migration 27 foi aplicada)
+
+A migration `20260507120000_rename_table_pedido_itens_to_pedido_item` renomeia a tabela. As RLS policies do produto Processo apontam para essa tabela e precisam ser re-aplicadas com o nome novo:
+
+```bash
+cd /caminho/para/gravity-antigravity/servicos-global/produto/processo
+
+psql "$PEDIDO_DATABASE_URL" -f prisma/rls-policies.sql 2>&1 | tee "$BACKUP_DIR/rls-policies-reapply.log"
+```
+
+**Critério de sucesso:** log sem erros. Se houver erro `policy ... does not exist` em policies antigas (referenciando `pedido_itens`), elas foram automaticamente removidas no rename — pode ignorar.
+
+**Se as policies não forem re-aplicadas:** o produto Processo perde isolamento tenant em `pedido_item` — usuários conseguem ler dados de outras organizações. **Crítico de segurança.**
+
+### 6. Re-provisionar schemas tenant (`tenant_<id_organizacao>`)
 
 > **Pré-requisito conceitual:** o banco do Pedido usa schema-per-org. Aplicar migration no `public` é só template; cada org real vive em `tenant_<id>` separado.
 

@@ -213,7 +213,7 @@ ERP envia PO via API -> Conector ERP recebe -> Cria Pedido com status Draft
 |------|-------|
 | Product ID | `pedido` |
 | Servidor proprio | **NAO** — usa rotas do `processos-core` (tenant service) |
-| Database | Tenant DB (dados em `pedidos_comerciais` e `pedido_itens`) |
+| Database | Tenant DB (dados em `pedidos_comerciais` e `pedido_item`) |
 | Models Prisma | 2 tabelas proprias: `Pedido`, `PedidoItem` |
 | Fragment Prisma | `servicos-global/tenant/processos-core/prisma/fragment.prisma` (compartilhado) |
 | Client dev port | 5178 |

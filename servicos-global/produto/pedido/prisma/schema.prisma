@@ -228,7 +228,7 @@ model PedidoItem {
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_pedido])
-  @@map("pedido_itens")
+  @@map("pedido_item")
 }
 
 model StatusPedido {

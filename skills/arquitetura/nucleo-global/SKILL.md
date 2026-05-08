@@ -160,6 +160,63 @@ export default defineConfig({
 
 ---
 
+## Hooks de Master-Data — referência canônica
+
+Quando um componente do `nucleo-global` precisar de catálogo global do Cadastros (Moeda, Unidade, NCM, País, etc.), **o padrão obrigatório** é o hook `useMoedas` em `@nucleo/modal-tabela-moeda` (commit 2026-05-08). Replicar a arquitetura, não criar variantes.
+
+### Anatomia obrigatória
+
+```ts
+// nucleo-global/<Categoria>/<componente>/src/use<Entidade>.ts
+import { useEffect, useState } from 'react'
+import { z } from 'zod'
+
+// 1. Schema bilateral — espelha o do servicos-global/<servico>/shared/schemas
+export const entidadeSchema = z.object({ /* ... */ })
+export const listaSchema = z.object({ itens: entidadeSchema.array(), total: z.number() })
+export type Entidade = z.infer<typeof entidadeSchema>
+
+// 2. Cache singleton de módulo (master-data muda raro, sem revalidação)
+let cachePromise: Promise<Entidade[]> | null = null
+let cacheValor: Entidade[] | null = null
+let cacheErro: string | null = null
+
+// 3. Hook expõe loading/erro explícito (Mandamento 08 — sem fallback silencioso)
+export function useEntidade() {
+  // ... fetch + Zod parse + state explícito
+}
+
+// 4. Função para invalidar (testes, mutações)
+export function invalidarCache(): void { /* ... */ }
+```
+
+### O que o hook NÃO pode fazer
+
+- ❌ Cast `as` em vez de Zod parse (viola Mandamento 06+09)
+- ❌ Fallback silencioso pra lista hardcoded em caso de erro
+- ❌ Cache global com `Map<idOrganizacao, ...>` se a entidade for master-data (não há `id_organizacao`)
+- ❌ Importar de `servicos-global/` (camada acima — viola layering)
+
+### O que o consumer (componente UI) faz
+
+```tsx
+function MeuComponente() {
+  const { entidades, loading, erro } = useEntidade()
+  if (loading) return <Loading />
+  if (erro) return <Erro mensagem={erro} />
+  return <Lista itens={entidades} />
+}
+```
+
+### Não criar paralelo
+
+Antes de adicionar `useUnidades`, `useNcm`, `usePaises`, etc., verificar se já existe. Hoje:
+- `useMoedas` em `@nucleo/modal-tabela-moeda` ✅ canônico
+
+Demais master-data (`unidade`, `pais`, `ncm`) ainda têm hardcoded paralelo — é dívida de migração que segue o mesmo modelo do `useMoedas` quando atacada.
+
+---
+
 ## Checklist — Antes de Criar um Componente no nucleo-global
 
 - [ ] Respondi NÃO para as 3 perguntas do teste?

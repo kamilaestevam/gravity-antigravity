@@ -7,7 +7,7 @@
   "types": "./src/index.ts",
   "dependencies": {
     "@nucleo/campo-calendario-global": "*",
-    "@nucleo/tabelas-base-moedas": "*",
+    "@nucleo/modal-tabela-moeda": "*",
     "@nucleo/tabelas-base-unidades": "*",
     "@nucleo/tooltip-global": "*",
     "@nucleo/select-colunas-global": "*",

@@ -17,7 +17,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', '@phosphor-icons/react'],
     alias: {
       '@nucleo/tabela-virtual-global':    nucleo('Tabelas/tabelas-componentes/tabela-virtual-global/src/index.ts'),
-      '@nucleo/tabelas-base-moedas':               nucleo('Tabelas/tabelas-base/moedas/src/index.ts'),
+      '@nucleo/modal-tabela-moeda':                nucleo('Modais/modal-tabela-moeda/src/index.ts'),
       '@nucleo/tabelas-base-unidades':             nucleo('Tabelas/tabelas-base/unidades/src/index.ts'),
       '@nucleo/select-colunas-global':    nucleo('Tabelas/tabelas-componentes/select-colunas-global/src/index.ts'),
       '@nucleo/tooltip-global':           nucleo('Feedback/tooltip-global/src/index.ts'),

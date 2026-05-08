@@ -200,6 +200,29 @@ Em dúvida?                                → escalar Coordenador
 
 ---
 
+## Implementação canônica — `Moeda` como referência (2026-05-08)
+
+A entidade `Moeda` é a **referência arquitetural** desta política. Implementação completa:
+
+- **Banco** (`gravity-cadastros-*.moeda`): tabela master, populada via seed
+- **Seed** (`servicos-global/cadastros/prisma/seed-moedas.ts`): script idempotente (upsert por `codigo_moeda`) que lê de `prisma/data/moedas-canonicas.ts` (lista canônica ISO 4217 / Siscomex, ~134 entradas)
+- **Hook React** (`@nucleo/modal-tabela-moeda` → `useMoedas()`): cache singleton de módulo, valida resposta com Zod (`listaMoedasSchema`), expõe `loading`/`erro` explícito
+- **Cliente S2S** (`@tenant/cadastros/client` → `cadastrosClient.moedas.listar()` e `.buscar()`): TTL cache, chamadas com `x-internal-key` + `x-organizacao-id`
+- **Snapshot** (`processos-core/services/pedidoSnapshots.ts → montarSnapshotMoeda`): congela `codigo_moeda`, `nome_moeda`, `simbolo_moeda` no momento da emissão
+- **Sem hardcoded em código**: zero constantes `MOEDAS_*` em `nucleo-global/`, `servicos-global/produto/*` ou onde quer que seja. Quem precisa da lista, lê do banco.
+
+Quando criar a próxima entidade master-data (Unidade, NCM já existem com regra parcial), seguir o mesmo padrão:
+
+1. `prisma/data/<entidade>-canonicas.ts` — lista canônica importável e testável
+2. `prisma/seed-<entidade>.ts` — script idempotente
+3. `__tests__/unit/<entidade>-canonicas.test.ts` — valida shape + sem duplicatas + passa schema Zod
+4. Hook React no `nucleo-global` correspondente (`useUnidades`, `useNcm`, etc.) com cache singleton + Zod parse
+5. Atualizar `cadastrosClient` se ainda não exposto
+6. Atualizar `pedidoSnapshots` (ou snapshots de outros produtos) se a entidade for snapshotada
+7. **Deletar qualquer hardcoded paralelo** que duplique a fonte
+
+---
+
 ## Anti-padrões proibidos
 
 - ❌ `model Empresa` (ou outra entidade Cadastros) em schema fora do serviço Cadastros
@@ -241,3 +264,18 @@ Cada produto adapta os campos extras conforme seu domínio (ex: LPCO pode ter ca
 - **`lei/isolamento-organizacao`** — `id_organizacao` em todo model
 - **`arquitetura/schema-composition`** — Schema-per-Produto, schema-per-Organização
 - **`papeis/coordenador`** — Quem orquestra migration de snapshot
+
+---
+
+## Nota — Admin cross-organização lê do master, não dos snapshots
+
+A tela admin `/admin/empresas-e-parceiros` (`EmpresasEParceirosAdmin.tsx`)
+e o endpoint `/api/v1/admin/empresas` listam empresas **ao vivo** da tabela
+master `empresa` no Cadastros. **Snapshots de outras organizações não são
+afetados nem expostos** por essa rota.
+
+Implicação: se uma empresa foi congelada num snapshot da org A (porque a org A
+emitiu um documento legal/fiscal), o admin Gravity vê a versão **atual** dessa
+empresa, não a versão congelada no snapshot. O snapshot continua vivo no
+produto que o emitiu (Pedido/LPCO/etc.), preservando a regra: snapshots são
+imutáveis e isolados por organização.

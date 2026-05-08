@@ -1,19 +1,22 @@
 /**
- * ModalTabelaMoedaGlobal.tsx — Modal com tabela de moedas ISO 4217 / Siscomex
+ * ModalTabelaMoedaGlobal.tsx — Modal com tabela de moedas (ISO 4217)
  *
- * Uso:
+ * SSOT: lista vem do banco `gravity-cadastros-*.moeda` via hook `useMoedas`.
+ * Aceita prop `moedas` para override em testes/storybook.
+ *
+ * Uso típico:
  *   <ModalTabelaMoedaGlobal
  *     aberto={open}
  *     aoFechar={() => setOpen(false)}
- *     aoSelecionar={(sigla) => setMoeda(sigla)}
+ *     aoSelecionar={(codigo) => setMoeda(codigo)}
  *     moedaSelecionada={moeda}
  *   />
  */
 
 import React, { useState } from 'react'
-import { CurrencyDollar, MagnifyingGlass } from '@phosphor-icons/react'
+import { CurrencyDollar, MagnifyingGlass, Warning } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
-import { MOEDAS_SISCOMEX, type MoedaSiscomex } from './dados.js'
+import { useMoedas, type Moeda } from './useMoedas.js'
 import './modal-tabela-moeda.css'
 
 export interface ModalTabelaMoedaProps {
@@ -21,12 +24,12 @@ export interface ModalTabelaMoedaProps {
   aberto: boolean
   /** Fecha o modal */
   aoFechar: () => void
-  /** Callback ao selecionar uma moeda */
-  aoSelecionar: (sigla: string) => void
-  /** Sigla atualmente selecionada (para highlight) */
+  /** Callback ao selecionar uma moeda (recebe código ISO alpha-3) */
+  aoSelecionar: (codigo: string) => void
+  /** Código atualmente selecionado (para highlight) */
   moedaSelecionada?: string | null
-  /** Lista customizada (opcional — usa MOEDAS_SISCOMEX por padrão) */
-  moedas?: MoedaSiscomex[]
+  /** Lista customizada (opcional — sobrepõe o hook, útil em testes/storybook) */
+  moedas?: Moeda[]
 }
 
 export function ModalTabelaMoedaGlobal({
@@ -34,20 +37,21 @@ export function ModalTabelaMoedaGlobal({
   aoFechar,
   aoSelecionar,
   moedaSelecionada,
-  moedas = MOEDAS_SISCOMEX,
+  moedas: moedasProp,
 }: ModalTabelaMoedaProps) {
   const [busca, setBusca] = useState('')
+  const { moedas: moedasHook, loading, erro } = useMoedas()
+  const moedas = moedasProp ?? moedasHook
 
   const moedasFiltradas = busca.trim()
-    ? moedas.filter(m =>
-        m.sigla.toLowerCase().includes(busca.toLowerCase()) ||
-        m.descricao.toLowerCase().includes(busca.toLowerCase()) ||
-        String(m.codigo).includes(busca)
+    ? moedas.filter((m) =>
+        m.codigo_moeda.toLowerCase().includes(busca.toLowerCase()) ||
+        m.nome_moeda.toLowerCase().includes(busca.toLowerCase())
       )
     : moedas
 
-  function handleSelecionar(sigla: string) {
-    aoSelecionar(sigla)
+  function handleSelecionar(codigo: string) {
+    aoSelecionar(codigo)
     aoFechar()
   }
 
@@ -69,49 +73,59 @@ export function ModalTabelaMoedaGlobal({
           <input
             type="text"
             className="mtm-busca-input"
-            placeholder="Buscar por sigla, descrição ou código..."
+            placeholder="Buscar por sigla ou descrição..."
             value={busca}
-            onChange={e => setBusca(e.target.value)}
+            onChange={(e) => setBusca(e.target.value)}
             autoFocus
+            disabled={loading}
           />
         </div>
+
+        {/* Erro de carga (Mandamento 08 — sem fallback silencioso) */}
+        {erro && !moedasProp && (
+          <div className="mtm-erro" role="alert">
+            <Warning size={14} weight="fill" /> {erro}
+          </div>
+        )}
 
         {/* Tabela */}
         <div className="mtm-tabela-wrap">
           <table className="mtm-tabela">
             <thead>
               <tr>
-                <th className="mtm-th mtm-th--codigo">Cód.</th>
-                <th className="mtm-th mtm-th--sigla">Sigla</th>
+                <th className="mtm-th mtm-th--sigla">Código</th>
                 <th className="mtm-th mtm-th--descricao">Descrição</th>
                 <th className="mtm-th mtm-th--acao" />
               </tr>
             </thead>
             <tbody>
-              {moedasFiltradas.length === 0 ? (
+              {loading && !moedasProp ? (
                 <tr>
-                  <td colSpan={4} className="mtm-vazio">
+                  <td colSpan={3} className="mtm-vazio">Carregando…</td>
+                </tr>
+              ) : moedasFiltradas.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="mtm-vazio">
                     Nenhuma moeda encontrada
                   </td>
                 </tr>
               ) : (
-                moedasFiltradas.map(m => {
-                  const ativa = m.sigla === moedaSelecionada
+                moedasFiltradas.map((m) => {
+                  const ativa = m.codigo_moeda === moedaSelecionada
                   return (
                     <tr
-                      key={m.sigla}
+                      key={m.codigo_moeda}
                       className={`mtm-tr ${ativa ? 'mtm-tr--ativa' : ''}`}
-                      onClick={() => handleSelecionar(m.sigla)}
+                      onClick={() => handleSelecionar(m.codigo_moeda)}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={e => e.key === 'Enter' && handleSelecionar(m.sigla)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSelecionar(m.codigo_moeda)}
                       aria-selected={ativa}
                     >
-                      <td className="mtm-td mtm-td--codigo">{m.codigo}</td>
                       <td className="mtm-td mtm-td--sigla">
-                        <span className="mtm-sigla-badge">{m.sigla}</span>
+                        <span className="mtm-sigla-badge">{m.codigo_moeda}</span>
                       </td>
-                      <td className="mtm-td mtm-td--descricao">{m.descricao}</td>
+                      <td className="mtm-td mtm-td--descricao">{m.nome_moeda}</td>
                       <td className="mtm-td mtm-td--acao">
                         {ativa && (
                           <span className="mtm-ativa-dot" aria-label="Selecionada" />
@@ -128,7 +142,7 @@ export function ModalTabelaMoedaGlobal({
         {/* Rodapé informativo */}
         <p className="mtm-fonte">
           <CurrencyDollar size={12} weight="duotone" />
-          ISO 4217 — Padrão Siscomex
+          ISO 4217 — Cadastros (banco)
         </p>
       </div>
     </ModalOverlay>

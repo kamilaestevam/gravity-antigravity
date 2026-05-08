@@ -22,7 +22,7 @@ import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
-import { MOEDAS_SISCOMEX } from '@nucleo/tabelas-base-moedas'
+import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { UNIDADES_SISCOMEX } from '@nucleo/tabelas-base-unidades'
 import './tabela-virtual.css'
 import type {
@@ -449,10 +449,11 @@ const GTEditPopover = memo(function GTEditPopover({
   const uv: GTValorUnidade = (isUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object))
     ? (valorEditando as GTValorUnidade)
     : { unit: 'UN', quantity: 0 }
-  // Se a coluna restringe moedas, filtra MOEDAS_SISCOMEX; senão usa todas
+  // SSOT: lista vem de `useMoedas()` (banco Cadastros) — antes era hardcoded.
+  const { moedas: moedasCadastros } = useMoedas()
   const listaMoedasSiscomex = overlayInfo.moedas
-    ? MOEDAS_SISCOMEX.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.sigla))
-    : MOEDAS_SISCOMEX
+    ? moedasCadastros.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.codigo_moeda))
+    : moedasCadastros
   const listaUnidades = overlayInfo.unidades ?? UNIDADES_PADRAO
   const casas = overlayInfo.casasDecimais ?? 0
 
@@ -818,17 +819,17 @@ const GTEditPopover = memo(function GTEditPopover({
             {listaMoedasSiscomex
               .filter(m => {
                 const q = moedaBusca.toLowerCase()
-                return !q || m.sigla.toLowerCase().includes(q) || m.descricao.toLowerCase().includes(q) || String(m.codigo).includes(q)
+                return !q || m.codigo_moeda.toLowerCase().includes(q) || m.nome_moeda.toLowerCase().includes(q)
               })
               .map(m => (
                 <button
-                  key={m.sigla}
+                  key={m.codigo_moeda}
                   type="button"
-                  className={`gtv-edit-custom-select-item gtv-edit-moeda-item${mv.currency === m.sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                  onClick={() => { onAtualizar({ ...mv, currency: m.sigla }); setMoedaAberta(false) }}
+                  className={`gtv-edit-custom-select-item gtv-edit-moeda-item${mv.currency === m.codigo_moeda ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                  onClick={() => { onAtualizar({ ...mv, currency: m.codigo_moeda }); setMoedaAberta(false) }}
                 >
-                  <span className="gtv-edit-moeda-sigla">{m.sigla}</span>
-                  <span className="gtv-edit-moeda-desc">{m.descricao}</span>
+                  <span className="gtv-edit-moeda-sigla">{m.codigo_moeda}</span>
+                  <span className="gtv-edit-moeda-desc">{m.nome_moeda}</span>
                 </button>
               ))
             }

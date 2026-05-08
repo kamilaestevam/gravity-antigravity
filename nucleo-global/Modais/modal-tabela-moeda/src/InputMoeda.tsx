@@ -5,17 +5,25 @@
  * Formata em tempo real no padrão pt-BR (pontos como milhar, vírgula como decimal).
  */
 
-import React, { useId, useState, useEffect, useRef, useCallback } from 'react'
+import React, { useId, useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { OPCOES_MOEDA, type MoedaSiscomex } from './dados.js'
+import { useMoedas, type Moeda } from './useMoedas.js'
 import './modal-tabela-moeda.css'
+
+/**
+ * Subset que o consumer pode passar via prop `opcoes` quando quiser
+ * restringir a lista (ex: só USD/EUR pra um campo específico). Quando
+ * omitido, o componente lê de `useMoedas()` (banco Cadastros).
+ */
+export type OpcaoMoedaInput = { codigo_moeda: string; nome_moeda: string }
 
 export interface InputMoedaProps {
   label?: string
   valor: number | string
   moeda: string
   onChange: (valor: number, moeda: string) => void
-  opcoes?: Pick<MoedaSiscomex, 'sigla' | 'descricao'>[]
+  /** Subset de moedas. Se omitido, usa lista canônica do banco via `useMoedas()`. */
+  opcoes?: OpcaoMoedaInput[]
   placeholder?: string
   desabilitado?: boolean
   casasDecimais?: number
@@ -76,9 +84,15 @@ export function InputMoeda({
     }
   }, [valor, casasDecimais])
 
-  const opcoesSelect = opcoes
-    ? opcoes.map(m => ({ valor: m.sigla, rotulo: m.sigla, descricao: m.descricao }))
-    : OPCOES_MOEDA
+  const { moedas: moedasHook } = useMoedas()
+  const opcoesSelect = useMemo(() => {
+    const fonte: OpcaoMoedaInput[] = opcoes ?? moedasHook
+    return fonte.map((m) => ({
+      valor: m.codigo_moeda,
+      rotulo: m.codigo_moeda,
+      descricao: m.nome_moeda,
+    }))
+  }, [opcoes, moedasHook])
 
   const handleFocus = useCallback(() => {
     focadoRef.current = true

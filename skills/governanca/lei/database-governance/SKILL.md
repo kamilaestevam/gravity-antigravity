@@ -422,6 +422,52 @@ Se houver diff inesperado: **parar**. Drift indica migration órfã, edição ma
 
 ---
 
+## Regra obrigatória — Master-data tem seed idempotente
+
+> **Aprendizado validado em produção — 2026-05-08.**
+
+Toda tabela de **master-data** (catálogo global, sem `id_organizacao`, ex: `moeda`, `unidade`, `pais`, `ncm`, `incoterm`) precisa ter um **seed dedicado e idempotente** em `prisma/seed-<entidade>.ts`. Sem exceção.
+
+**Por quê:** migrations destrutivas (renomear tabela com Prisma gerando DROP+CREATE em vez de RENAME) apagam todos os registros de master-data sem aviso. A 24/04/2026 a migration `fix_model_casing_revert` no Cadastros apagou todas as ~134 moedas e ~13 unidades cadastradas, e ninguém percebeu por 2 semanas porque o front usava constantes hardcoded paralelas (anti-padrão da `cadastros-snapshot-policy`). Quando descoberto em 2026-05-08, exigiu um seed para repopular — que deveria ter existido desde o `init`.
+
+### Estrutura obrigatória
+
+```text
+servicos-global/<servico>/prisma/
+  ├── data/
+  │   └── <entidade>-canonicas.ts    ← lista TS importável e testável
+  ├── seed-<entidade>.ts              ← script idempotente (upsert)
+  └── ...
+
+servicos-global/<servico>/__tests__/unit/
+  └── <entidade>-canonicas.test.ts    ← valida shape, sem duplicatas, passa Zod
+```
+
+### O seed precisa
+
+- Usar **upsert** por chave primária (idempotente — pode rodar quantas vezes quiser)
+- Ler de `prisma/data/<entidade>-canonicas.ts` (não inline, pra ser testável)
+- Logar `inseridas/atualizadas/total` para visibilidade
+- Mandamento 08: falhar alto se `DATABASE_URL` faltar
+- Ser executável via `DATABASE_URL=<url> npx tsx prisma/seed-<entidade>.ts`
+
+### O teste precisa validar
+
+- Lista não está vazia
+- Sem chaves duplicadas
+- Cada entrada passa o `*Schema` Zod do serviço (Mandamento 09)
+- Moedas/unidades/etc. essenciais ao COMEX estão presentes (USD, EUR, BRL, KG, UN)
+
+### Caminho proibido
+
+❌ Manter constante hardcoded paralela em código TS de produto/nucleo-global como "fonte" do banco. A fonte é o banco. O seed só repopula. Constantes paralelas viram dívida de sincronização e mascaram bancos vazios em produção.
+
+### Referência canônica
+
+`servicos-global/cadastros/prisma/seed-moedas.ts` + `prisma/data/moedas-canonicas.ts` + `__tests__/unit/moedas-canonicas.test.ts` (commit de 2026-05-08). Replicar o padrão para qualquer master-data nova.
+
+---
+
 ## Estrutura de `fragment.prisma` por Produto
 
 Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/ativamente/compose-organização-schema.ts`.

@@ -1020,7 +1020,28 @@ export function FinanceiroWorkspace() {
                     </div>
                   </div>
                   <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao_negociacao_especial} icon={<Buildings size={16} />} />
-                  <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo_negociacao_especial} icon={<Handshake size={16} />} />
+                  <ReadOnlyField label="Condição Especial (acordo)" value={negProdutoAtual.acordo_negociacao_especial} icon={<Handshake size={16} />} />
+
+                  <ReadOnlyField
+                    label="Valor Unitário Especial"
+                    icon={<CurrencyCircleDollar size={16} />}
+                    value={
+                      negProdutoAtual.valor_unitario_negociacao_especial
+                        ? (() => {
+                            const n = Number(negProdutoAtual.valor_unitario_negociacao_especial)
+                            const moeda = negProdutoAtual.moeda_negociacao_especial ?? 'BRL'
+                            return (
+                              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#10b981' }}>
+                                {isNaN(n) ? `${getSimboloMoeda(moeda)} ${negProdutoAtual.valor_unitario_negociacao_especial}` : formatarMoeda(n, moeda)}
+                              </span>
+                            )
+                          })()
+                        : <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic', fontSize: '0.8125rem' }}>Acordo apenas descritivo (sem preço fixo) — aplica-se valor da tabela</span>
+                    }
+                  />
+
+                  <ReadOnlyField label="Moeda" value={negProdutoAtual.moeda_negociacao_especial ?? 'BRL'} icon={<CurrencyCircleDollar size={16} />} />
+
                   <ReadOnlyField label="Vigência" value={
                     negProdutoAtual.ilimitado_prazo_negociacao_especial ? (
                       <span style={{
@@ -1033,7 +1054,27 @@ export function FinanceiroWorkspace() {
                       </span>
                     ) : (
                       <span style={{ color: 'var(--ws-text)' }}>
-                        {negProdutoAtual.data_inicio_negociacao_especial || '—'} até {negProdutoAtual.data_fim_negociacao_especial || '—'}
+                        {formatarData(negProdutoAtual.data_inicio_negociacao_especial ?? null)}
+                        {' até '}
+                        {formatarData(negProdutoAtual.data_fim_negociacao_especial ?? null)}
+                      </span>
+                    )
+                  } />
+
+                  <ReadOnlyField label="Status" value={
+                    isNegociacaoVigente(negProdutoAtual) ? (
+                      <span className="ws-badge ws-badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Handshake size={12} weight="bold" /> ATIVA — vigente hoje
+                      </span>
+                    ) : (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        padding: '0.175rem 0.5rem', borderRadius: '9999px',
+                        fontSize: '0.6875rem', fontWeight: 700,
+                        background: 'rgba(148,163,184,0.10)', color: '#94a3b8',
+                        border: '1px solid rgba(148,163,184,0.20)',
+                      }}>
+                        <Handshake size={12} weight="bold" /> EXPIRADA — fora de vigência
                       </span>
                     )
                   } />

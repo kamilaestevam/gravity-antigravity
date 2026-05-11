@@ -591,7 +591,13 @@ export interface UsuarioGlobalApi {
   tipo_usuario: string
   data_criacao_usuario: string
   id_organizacao: string
-  organizacao: { nome_organizacao: string; subdominio_organizacao: string }
+  organizacao: {
+    nome_organizacao: string
+    subdominio_organizacao: string
+    /** Flag que define se SAdmin pode atribuir SUPER_ADMIN/ADMIN a usuários
+     *  desta org (decisão dono 2026-05-11). */
+    hospeda_colaboradores_gravity: boolean
+  }
   memberships: Array<{
     id_usuario_workspace: string
     id_workspace: string
@@ -1206,11 +1212,12 @@ export const usuariosApi = {
 
   async alterarTipoUsuario(
     id_usuario: string,
-    // Regra ε: SUPER_ADMIN/ADMIN não são atribuíveis via API (skill
-    // `seguranca/permissoes` — só seed). Tipo do parâmetro reflete o
-    // que o backend aceita em runtime (PATCH /patente rejeita os Gravity-tier
-    // via guarda FORBIDDEN_PROMOTE_GRAVITY_TIER).
-    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+    // Regra condicional (decisão dono 2026-05-11): SUPER_ADMIN/ADMIN só são
+    // atribuíveis se o alvo está em organização que hospeda colaboradores
+    // Gravity. Backend (autorizarAlteracaoPatente) valida e retorna 403
+    // FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY se a regra for violada.
+    // Frontend permite os 5 tipos no input; a UI filtra via usePodeEditarUsuario.
+    tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR',
   ) {
     const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/patente`, {
       method: 'PATCH',

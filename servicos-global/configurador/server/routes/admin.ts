@@ -524,7 +524,11 @@ adminRouter.get('/usuarios', async (req, res, next) => {
           data_criacao_usuario: true,
           id_organizacao: true,
           tenant: {
-            select: { nome_organizacao: true, subdominio_organizacao: true },
+            select: {
+              nome_organizacao: true,
+              subdominio_organizacao: true,
+              hospeda_colaboradores_gravity: true,
+            },
           },
           memberships: {
             where: { ativo_usuario_workspace: true },
@@ -1465,10 +1469,15 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (_req, _res, next) => {
 // Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN/ADMIN só via seed do
 // banco. Convite via API pública aceita apenas tipos atribuíveis a usuários
 // de organização (cliente ou Gravity-interna).
+// Convite admin — aceita os 5 tipos. Regra condicional (decisão dono
+// 2026-05-11): SUPER_ADMIN/ADMIN só são atribuíveis se a organização do
+// destinatário tem hospeda_colaboradores_gravity = true. Como o convite
+// admin cria o usuário na PRÓPRIA organização do ator (req.auth.id_organizacao),
+// a validação em runtime (mais abaixo) checa essa flag na org do ator.
 const AdminInviteSchema = z.object({
   email_usuario: z.string().email().max(255),
   nome_usuario: z.string().min(1).max(200),
-  tipo_usuario: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
+  tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
 adminRouter.post('/usuarios/convidar', async (req, res, next) => {
@@ -1479,6 +1488,35 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
     }
 
     const { email_usuario, nome_usuario, tipo_usuario } = parsed.data
+
+    // Apenas SUPER_ADMIN pode convidar via admin panel. ADMIN é read-only
+    // (decisão dono 2026-05-11). Os outros tipos não chegam aqui — adminRouter
+    // já tem `requireAuth + requireGravityAdmin` (que aceita SAdmin/ADMIN), mas
+    // ADMIN é bloqueado neste endpoint explicitamente.
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
+      throw new AppError(
+        'Apenas Super Admin pode convidar usuários (ADMIN é read-only)',
+        403,
+        'FORBIDDEN_ADMIN_READ_ONLY',
+      )
+    }
+
+    // Regra condicional: SAdmin/ADMIN só atribuíveis a usuários de organização
+    // que hospeda colaboradores Gravity. Como o convite cria o usuário na
+    // própria org do ator, checa a flag dessa org.
+    if (tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN') {
+      const orgAtor = await prisma.organizacao.findUnique({
+        where: { id_organizacao: req.auth.id_organizacao },
+        select: { hospeda_colaboradores_gravity: true },
+      })
+      if (!orgAtor?.hospeda_colaboradores_gravity) {
+        throw new AppError(
+          'SUPER_ADMIN/ADMIN só podem ser convidados em organizações que hospedam colaboradores da Gravity',
+          403,
+          'FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY',
+        )
+      }
+    }
 
     // Verifica se já existe usuário com esse e-mail na organização HQ
     const existing = await prisma.usuario.findFirst({ where: { email_usuario, id_organizacao: req.auth.id_organizacao } })

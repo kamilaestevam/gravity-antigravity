@@ -39,10 +39,15 @@ export const meResponseSchema = z.object({
     acesso_workspaces_futuros: z.boolean(),
   }),
   organizacao: z.object({
-    id_organizacao:         z.string(),
-    nome_organizacao:       z.string(),
-    subdominio_organizacao: z.string(),
-    status_organizacao:     z.string(),
+    id_organizacao:                z.string(),
+    nome_organizacao:              z.string(),
+    subdominio_organizacao:        z.string(),
+    status_organizacao:            z.string(),
+    /** Flag de organização que hospeda colaboradores da Gravity (decisão dono
+     * 2026-05-11). True = a org tem equipe Gravity dentro, false = cliente.
+     * Usado pelo frontend para decidir se SAdmin/ADMIN aparecem na whitelist
+     * de tipos atribuíveis a usuários desta org. */
+    hospeda_colaboradores_gravity: z.boolean(),
   }).nullable(),
   workspaces: z.array(z.object({
     id:             z.string(),
@@ -81,6 +86,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
             nome_organizacao: true,
             subdominio_organizacao: true,
             status_organizacao: true,
+            hospeda_colaboradores_gravity: true,
           },
         },
         memberships: {
@@ -123,6 +129,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
             nome_organizacao: usuario.tenant.nome_organizacao,
             subdominio_organizacao: usuario.tenant.subdominio_organizacao,
             status_organizacao: usuario.tenant.status_organizacao,
+            hospeda_colaboradores_gravity: usuario.tenant.hospeda_colaboradores_gravity,
           }
         : null,
       workspaces: usuario.memberships.map((m) => ({

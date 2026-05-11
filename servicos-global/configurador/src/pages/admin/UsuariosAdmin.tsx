@@ -65,6 +65,9 @@ interface UsuarioGlobalUI {
   /** id_organizacao do alvo — necessário para lazy-load de workspaces da org. */
   id_organizacao: string
   nome_organizacao: string
+  /** Flag da organização do alvo (decisão dono 2026-05-11) — habilita
+   *  SUPER_ADMIN/ADMIN na whitelist de tipos atribuíveis. */
+  organizacao_hospeda_colaboradores_gravity: boolean
   vinculos_workspace: VinculoWorkspaceUI[]
 }
 
@@ -90,6 +93,7 @@ function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
     status,
     id_organizacao:    u.id_organizacao,
     nome_organizacao:  u.organizacao?.nome_organizacao ?? 'N/A',
+    organizacao_hospeda_colaboradores_gravity: u.organizacao?.hospeda_colaboradores_gravity ?? false,
     vinculos_workspace: vinculos,
   }
 }
@@ -111,13 +115,17 @@ function OrgBadge({ nome }: { nome: string }) {
   )
 }
 
-// Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN e ADMIN são tipos
-// internos da Equipe Gravity, criados apenas via seed do banco. UI nunca
-// oferece esses tipos no convite ou na edição.
+// Catálogo completo de tipos para o modal de convite. A regra condicional
+// (decisão dono 2026-05-11) é aplicada em runtime: SUPER_ADMIN/ADMIN só
+// aparecem para SAdmin quando a organização-destinatária tem
+// hospeda_colaboradores_gravity=true. Para o admin global, isso vem da
+// própria org do ator logado (`/api/v1/me`.organizacao.hospeda_colaboradores_gravity).
 const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
-  { valor: 'Fornecedor', rotulo: 'Fornecedor', descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
-  { valor: 'Standard',   rotulo: 'Standard',   descricao: 'Usuário operacional vinculado a workspaces específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
-  { valor: 'Master',     rotulo: 'Master',     descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
+  { valor: 'Fornecedor',  rotulo: 'Fornecedor',  descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
+  { valor: 'Standard',    rotulo: 'Standard',    descricao: 'Usuário operacional vinculado a workspaces específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
+  { valor: 'Master',      rotulo: 'Master',      descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
+  { valor: 'Admin',       rotulo: 'Admin',       descricao: 'Administrador da plataforma com permissões específicas (apenas em organizações Gravity)', meta: { icone: <ShieldCheck size={16} weight="duotone" color="#06b6d4" /> } },
+  { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (apenas em organizações Gravity)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
 ]
 
 export function UsuariosAdmin() {
@@ -183,7 +191,11 @@ export function UsuariosAdmin() {
   // defesa em profundidade).
   const podeEditarAlvo = usePodeEditarUsuario(
     usuarioEditando && !ehAlvoProprio
-      ? { id_usuario: usuarioEditando.id_usuario, tipo_usuario: nivelToRole(usuarioEditando.tipo) }
+      ? {
+          id_usuario: usuarioEditando.id_usuario,
+          tipo_usuario: nivelToRole(usuarioEditando.tipo),
+          organizacao_hospeda_colaboradores_gravity: usuarioEditando.organizacao_hospeda_colaboradores_gravity,
+        }
       : null
   )
   const tiposPermitidosUI: NivelAcesso[] = useMemo(

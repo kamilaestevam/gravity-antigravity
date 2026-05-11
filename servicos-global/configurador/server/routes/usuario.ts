@@ -473,13 +473,33 @@ usersRouter.put('/:id_usuario/workspaces', requireUserManagementRole, async (req
 
 type TipoUsuarioPatente = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
+/**
+ * Matriz de autorização (decisão dono 2026-05-11 — substitui regra ε universal):
+ *
+ * - SUPER_ADMIN: pode editar qualquer alvo (inclusive o próprio — Interpretação B).
+ *   Pode atribuir SAdmin/ADMIN APENAS se alvo está em org com
+ *   `hospeda_colaboradores_gravity = true`. Para alvos cliente, só MASTER/
+ *   PADRAO/FORNECEDOR. Anti-bricking último SAdmin verificado na rota
+ *   (dentro da transação Serializable) — não aqui.
+ *
+ * - ADMIN: read-only global. Não pode editar tipo_usuario de ninguém.
+ *   Já é bloqueado em `requireUserManagementRole`, mas mantemos guard aqui
+ *   por defesa em profundidade.
+ *
+ * - MASTER: pode editar dentro da própria org, só atribui MASTER/PADRAO/
+ *   FORNECEDOR. Regras existentes preservadas.
+ *
+ * - PADRAO/FORNECEDOR: bloqueados em `requireUserManagementRole`.
+ */
 function autorizarAlteracaoPatente(
   ator: { id_usuario: string; tipo_usuario: string; id_organizacao: string },
-  alvo: { id_usuario: string; tipo_usuario: string; id_organizacao: string },
+  alvo: { id_usuario: string; tipo_usuario: string; id_organizacao: string; organizacao_hospeda_colaboradores_gravity: boolean },
   novoTipo: TipoUsuarioPatente,
 ): void {
-  // Anti-escalada: ninguém edita o próprio tipo
-  if (ator.id_usuario === alvo.id_usuario) {
+  // Anti-escalada ATOR ≠ ALVO — aplica-se a ADMIN e MASTER.
+  // SUPER_ADMIN pode editar o próprio tipo (Interpretação B do dono em 2026-05-11),
+  // mas anti-bricking último SAdmin é verificado na rota dentro de transação.
+  if (ator.id_usuario === alvo.id_usuario && ator.tipo_usuario !== 'SUPER_ADMIN') {
     throw new AppError(
       'Você não pode alterar o próprio tipo de usuário',
       403,
@@ -487,36 +507,29 @@ function autorizarAlteracaoPatente(
     )
   }
 
-  // Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN e ADMIN são tipos
-  // internos da Equipe Gravity e só podem ser atribuídos via seed do banco.
-  // Aplica-se a TODOS os atores (inclusive SAdmin) — é regra absoluta de
-  // negócio, não relativa à patente do ator. Posicionada após a anti-escalada
-  // e ANTES dos blocks de ator específicos para garantir que toda tentativa
-  // de promoção a Gravity-tier é rejeitada de forma uniforme.
-  if (novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN') {
-    throw new AppError(
-      'SUPER_ADMIN/ADMIN são tipos internos da Gravity e só podem ser atribuídos via seed do banco',
-      403,
-      'FORBIDDEN_PROMOTE_GRAVITY_TIER',
-    )
-  }
-
   if (ator.tipo_usuario === 'SUPER_ADMIN') {
-    // SUPER_ADMIN tem escopo global e pode atribuir qualquer tipo não-Gravity
+    // SUPER_ADMIN tem escopo global. Pode atribuir SAdmin/ADMIN APENAS
+    // se alvo está em organização que hospeda colaboradores da Gravity.
+    if ((novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN') && !alvo.organizacao_hospeda_colaboradores_gravity) {
+      throw new AppError(
+        'SUPER_ADMIN/ADMIN só podem ser atribuídos a usuários de organizações que hospedam colaboradores da Gravity',
+        403,
+        'FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY',
+      )
+    }
     return
   }
 
   if (ator.tipo_usuario === 'ADMIN') {
-    // ADMIN não pode mexer em SUPER_ADMIN nem em outro ADMIN
-    // (promoção a SUPER_ADMIN/ADMIN já bloqueada pelo guard regra ε acima)
-    if (alvo.tipo_usuario === 'SUPER_ADMIN') {
-      throw new AppError(
-        'Admin não pode editar Super Admin',
-        403,
-        'FORBIDDEN_ADMIN_VS_SUPER_ADMIN',
-      )
-    }
-    return
+    // ADMIN é read-only global (skill `seguranca/permissoes`: visualiza tudo,
+    // edita só com permissão explícita do SAdmin — e edição de tipo_usuario
+    // NÃO é uma das permissões delegáveis). Defesa em profundidade — middleware
+    // já bloqueou em `requireUserManagementRole`, mas garantia explícita aqui.
+    throw new AppError(
+      'ADMIN não pode alterar tipo_usuario de nenhum usuário (read-only global)',
+      403,
+      'FORBIDDEN_ADMIN_READ_ONLY',
+    )
   }
 
   if (ator.tipo_usuario === 'MASTER') {
@@ -575,24 +588,44 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
 
     const novoTipo = parsed.data.tipo_usuario as TipoUsuarioPatente
 
-    // Busca alvo. Para MASTER/ADMIN o filtro inclui id_organizacao; para
-    // SUPER_ADMIN o escopo é global (qualquer organização).
-    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+    // Busca alvo. Para MASTER o filtro inclui id_organizacao; para SUPER_ADMIN
+    // o escopo é global (qualquer organização). ADMIN é bloqueado em
+    // `requireUserManagementRole` — não chega aqui.
+    // Inclui flag `hospeda_colaboradores_gravity` da org do alvo para a regra
+    // condicional de SAdmin/ADMIN (decisão dono 2026-05-11).
+    const alvoRaw = req.auth.tipo_usuario === 'SUPER_ADMIN'
       ? await prisma.usuario.findFirst({
           where: { id_usuario: req.params.id_usuario },
-          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+          select: {
+            id_usuario: true,
+            id_organizacao: true,
+            tipo_usuario: true,
+            tenant: { select: { hospeda_colaboradores_gravity: true } },
+          },
         })
       : await prisma.usuario.findFirst({
           where: {
             id_usuario: req.params.id_usuario,
             id_organizacao: req.auth.id_organizacao,
           },
-          select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+          select: {
+            id_usuario: true,
+            id_organizacao: true,
+            tipo_usuario: true,
+            tenant: { select: { hospeda_colaboradores_gravity: true } },
+          },
         })
 
-    if (!alvo) {
+    if (!alvoRaw) {
       // 404 sem vazar existência cross-org (IDOR defense)
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const alvo = {
+      id_usuario: alvoRaw.id_usuario,
+      id_organizacao: alvoRaw.id_organizacao,
+      tipo_usuario: alvoRaw.tipo_usuario,
+      organizacao_hospeda_colaboradores_gravity: alvoRaw.tenant.hospeda_colaboradores_gravity,
     }
 
     autorizarAlteracaoPatente(
@@ -605,12 +638,12 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
       novoTipo,
     )
 
-    // Atualização + check anti-bricking dentro de transação Serializable.
-    // Se duas requisições rebaixarem dois Masters distintos da mesma org
-    // simultaneamente, a serialização garante que a 2ª vê o estado pós-1ª.
+    // Atualização + checks anti-bricking dentro de transação Serializable.
+    // Se duas requisições rebaixarem dois Masters/SAdmins simultaneamente,
+    // a serialização garante que a 2ª vê o estado pós-1ª.
     const atualizado = await prisma.$transaction(async (tx) => {
-      // Anti-bricking só se aplica quando o alvo é MASTER e o novo tipo deixa
-      // de ser MASTER, dentro da MESMA organização do alvo.
+      // Anti-bricking MASTER: rebaixar o último MASTER da organização é
+      // proibido (organização sem MASTER perde gestão local).
       if (alvo.tipo_usuario === 'MASTER' && novoTipo !== 'MASTER') {
         const totalMasters = await tx.usuario.count({
           where: {
@@ -623,6 +656,23 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
             'Não é possível rebaixar o último Master da organização',
             409,
             'CONFLICT_LAST_MASTER',
+          )
+        }
+      }
+
+      // Anti-bricking SUPER_ADMIN (decisão dono 2026-05-11 — Interpretação B):
+      // SAdmin pode editar próprio tipo, mas rebaixar o último SAdmin do
+      // sistema deixa a plataforma sem admin global — bloqueia. Escopo é
+      // GLOBAL (não por org), pois SAdmin é singular no sistema, não na org.
+      if (alvo.tipo_usuario === 'SUPER_ADMIN' && novoTipo !== 'SUPER_ADMIN') {
+        const totalSuperAdmins = await tx.usuario.count({
+          where: { tipo_usuario: 'SUPER_ADMIN' },
+        })
+        if (totalSuperAdmins <= 1) {
+          throw new AppError(
+            'Não é possível rebaixar o último Super Admin do sistema',
+            409,
+            'CONFLICT_LAST_SUPER_ADMIN',
           )
         }
       }

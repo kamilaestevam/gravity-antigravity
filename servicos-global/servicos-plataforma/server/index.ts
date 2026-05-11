@@ -56,6 +56,7 @@ import { whatsappServiceRouter }    from '@plataforma/whatsapp/server/routes.js'
 
 // ── Inicializações assíncronas ────────────────────────────────────────────────
 import { initHistorico }     from '@plataforma/historico-global/server/init.js'
+import { initGabi }          from '@plataforma/gabi/server/init.js'
 import { initNotificacoes }  from '@plataforma/notificacoes/server/init.js'
 // import { initNcmSync } from '@plataforma/ncm-sync/server/init.js'  // movido para cadastros
 
@@ -135,6 +136,9 @@ async function bootstrap() {
 
   await initNotificacoes().catch((e: unknown) =>
     console.warn('[servidor-plataforma] initNotificacoes falhou (não-fatal):', (e as Error).message))
+
+  await initGabi().catch((e: unknown) =>
+    console.warn('[servidor-plataforma] initGabi falhou (não-fatal):', (e as Error).message))
 
   // initNcmSync removido — agora roda no bootstrap do serviço Cadastros (porta 8031)
 

@@ -1,9 +1,18 @@
 # Smart Import — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.2
-> **Data:** Abril 2026
+> **Versão:** 1.3
+> **Data:** Maio 2026
 > **Status:** Implementado e em produção
+>
+> **Changelog 1.3 (maio/2026):**
+> - Estrutura de arquivos atualizada — `ModalPedidoSmartImport.tsx` (antes `SmartImportModal.tsx`)
+>   e `routes/importacoes-inteligentes-pedido.ts` (antes `routes/smartImport.ts`)
+> - Nova seção **§ Robustez — 13 pontos cegos cobertos (P0/P1/P2/P3)** documentando
+>   todos os AppError codes (`JSON_MALFORMADO`, `JSON_VAZIO`, `PDF_PROTEGIDO`,
+>   `PDF_ESCANEADO`, encoding fallback latin1, conflitos de mapeamento, etc.)
+> - Schema Zod compartilhado `smartImportPreviewSchema` em
+>   `produto/pedido/shared/smart-import-schemas.ts` (REGRA 06+09 — contrato bilateral)
 
 ---
 
@@ -16,10 +25,10 @@
 | IA — extração PDF | Google Gemini 2.5 Flash (via `@google/generative-ai`) |
 | Parse Excel | SheetJS (`xlsx`) |
 | Parse PDF fallback | `pdf-parse` |
-| Validação | Zod em todas as rotas (incluindo resposta do Gemini) |
-| Auth | `x-tenant-id` + `x-internal-key` S2S |
+| Validação | Zod bilateral (request + response) — schema único em `shared/smart-import-schemas.ts` |
+| Auth | JWT Clerk (frontend) + `x-id-organizacao` + `x-id-usuario` + `x-chave-interna-servico` S2S |
 | Hash | SHA-256 via Node.js `node:crypto` |
-| Testes | Vitest (45 testes, 3 arquivos) |
+| Testes | Vitest (45+ testes) |
 
 ---
 
@@ -27,34 +36,31 @@
 
 ```
 produto/pedido/
+├── shared/                                              ← Cross-tier (server + client)
+│   ├── campos-pedido-ddd.ts                            ← SSOT dos 92 campos Pedido+Item
+│   └── smart-import-schemas.ts                          ← Zod bilateral (REGRA 06+09)
 ├── client/
 │   └── src/
 │       ├── components/
 │       │   └── SmartImport/
-│       │       ├── SmartImportModal.tsx     ← Orquestra as 4 etapas + estados globais
-│       │       ├── SmartImportModal.css
-│       │       ├── EtapaUpload.tsx          ← Passo 1: drag-and-drop de arquivo
-│       │       ├── EtapaMapeamento.tsx      ← Passo 2: mapeamento coluna → campo sistema
-│       │       ├── EtapaPreview.tsx         ← Passo 3: validação linha a linha
-│       │       └── EtapaConfirmacao.tsx     ← Passo 4: resultado + opção de reverter
+│       │       ├── ModalPedidoSmartImport.tsx          ← Orquestra as 4 etapas + estados globais
+│       │       ├── EtapaUpload.tsx                     ← Passo 1: drag-and-drop de arquivo
+│       │       ├── EtapaMapeamento.tsx                 ← Passo 2: mapeamento coluna → campo sistema
+│       │       ├── EtapaPreview.tsx                    ← Passo 3: validação linha a linha
+│       │       └── EtapaConfirmacao.tsx                ← Passo 4: resultado + opção de reverter
 │       ├── shared/
-│       │   ├── types.ts                    ← SmartImportPreview, SmartImportLinha, etc.
-│       │   └── api.ts                      ← smartImportApi (real + mock)
-│       └── vite.config.ts                  ← Proxy /api com timeout 120s
+│       │   ├── types.ts                                ← SmartImportPreview, ConflitoMapeamento, etc.
+│       │   └── api.ts                                  ← smartImportApi (parse Zod na resposta)
+│       └── vite.config.ts                              ← Proxy /api com timeout 120s
 └── server/
     └── src/
         ├── routes/
-        │   └── smartImport.ts              ← Rotas, Zod, rate limit, magic bytes PDF
+        │   └── importacoes-inteligentes-pedido.ts      ← Rotas, Zod, rate limit, magic bytes PDF
         └── services/
-            ├── smartImportService.ts        ← Orquestrador principal
-            ├── importEngine.ts             ← Parser multi-formato + hash SHA-256
-            ├── geminiPdfExtractor.ts       ← Extração de invoice PDF com Gemini
-            └── mapeamentoMemoriaService.ts  ← Persistência de mapeamento por hash
-        prisma/
-            schema.prisma                   ← Pedido + @@unique([tenant_id, numero_pedido])
-            migrations/
-                20260405113022_add_pedido_full_schema/
-                20260405200000_add_pedido_unique_tenant_numero/
+            ├── smartImportService.ts                    ← Orquestrador principal + validações P0..P3
+            ├── importEngine.ts                         ← Parser multi-formato + encoding fallback
+            ├── geminiPdfExtractor.ts                   ← Extração de invoice PDF com Gemini
+            └── mapeamentoMemoriaService.ts              ← Persistência de mapeamento por hash
 ```
 
 ---
@@ -65,17 +71,24 @@ produto/pedido/
 
 ```ts
 export interface SmartImportPreview {
-  total_linhas:     number
-  total_pedidos:    number
-  total_itens:      number
-  mapeamento:       ColunaMapeadaBackend[]
-  confianca_global: number
-  memoria_aplicada: boolean
-  preview_id:       string
-  linhas:           SmartImportLinha[]
-  limite_excedido:  boolean
-  extrator_usado:   string   // 'gemini' | 'pdf-parse' | 'xlsx' | 'csv' | 'json' | 'xml' | 'txt'
-  dados_brutos:     Array<{ linha: number; valores: Record<string, string> }>
+  total_linhas:         number
+  total_pedidos:        number
+  total_itens:          number
+  mapeamento:           ColunaMapeadaBackend[]
+  confianca_global:     number
+  memoria_aplicada:     boolean
+  preview_id:           string
+  linhas:               SmartImportLinha[]
+  limite_excedido:      boolean
+  extrator_usado:       string   // 'gemini' | 'pdf-parse' | 'xlsx' | 'csv' | 'json' | 'xml' | 'txt'
+  dados_brutos:         Array<{ linha: number; valores: Record<string, string> }>
+  conflitos_mapeamento: ConflitoMapeamento[]   // P2.4 — 2+ colunas -> mesmo campo_sistema
+}
+
+// P2.4 — Conflito quando 2+ colunas apontam para o mesmo campo do sistema
+export interface ConflitoMapeamento {
+  campo_sistema:   string
+  colunas_arquivo: string[]
 }
 
 export interface SmartImportLinha {
@@ -127,15 +140,17 @@ export type LinhaArquivo = Record<string, string>
 
 ## API Endpoints
 
-Todas as rotas ficam em `/api/v1/pedidos/smart-import`.
+Todas as rotas ficam em `/api/v1/pedidos/importacoes-inteligentes`.
 
 ### `POST /analisar`
 
 **Tipo:** `multipart/form-data` (campo `arquivo`)
 
 **Headers obrigatórios:**
-- `x-tenant-id: <string>`
-- `x-internal-key: <string>`
+- `Authorization: Bearer <jwt>` (Clerk)
+- `x-id-organizacao: <string>`
+- `x-id-usuario: <string>`
+- `x-chave-interna-servico: <string>` (S2S)
 
 **Query params opcionais:**
 - `?sheet=<nome-da-aba>` — para xlsx com múltiplas abas
@@ -581,3 +596,80 @@ server/src/services/
 | `@@unique([tenant_id, numero_pedido])` | Impede duplicatas silenciosas de pedidos no mesmo tenant; migration inclui deduplicação automática de dados |
 | Defense in depth no `confirmar()` | Validar `preview_id` tanto na rota quanto no service protege contra chamadas diretas ao service |
 | `casas_decimais_quantidade_item = 2` | Alinhado com `@default(2)` do schema Prisma; valor 3 estava desincronizado |
+
+---
+
+## Robustez — 13 Pontos Cegos Cobertos (P0/P1/P2/P3)
+
+Após relato do dono em maio/2026 ("queremos 0 pontos cegos dizendo exatamente
+ao usuário por que a planilha não carregou e dando sugestões"), o fluxo foi
+auditado e endurecido em 4 fases por prioridade.
+
+### P0 — Erros do backend padronizados (AppError + code)
+
+| Code | Significado |
+|---|---|
+| `ARQUIVO_AUSENTE` | Upload chegou sem arquivo anexado |
+| `ARQUIVO_SEM_DADOS` | Planilha vazia (zero linhas de dado) |
+| `FORMATO_NAO_SUPORTADO` | Extensão fora de .xlsx/.xls/.csv/.xml/.txt/.json/.pdf |
+| `RATE_LIMIT_EXCEEDED` | >10 uploads/min para o mesmo tenant |
+| `UNAUTHORIZED_PREVIEW` | `preview_id` não pertence ao tenant da sessão |
+| `JSON_FORMATO_INVALIDO` | JSON válido mas sem array de objetos detectável |
+
+Antes: backend jogava `new Error()` genérico → cliente exibia "Erro desconhecido".
+Depois: cada erro tem code + message + sugestão contextual via `traduzirErroDetalhado()` no client.
+
+### P1 — Master-detail e erros silenciosos de INSERT
+
+- **P1.1 — Detecção de super-header**: heurística combinada (esparsidade × baixa
+  diversidade) em `importEngine.ts` evita perder colunas em templates com agrupador na linha 1
+- **P1.2 — Coerência master-detail** (`validarCoerenciaMasterDetail`):
+  - PEDIDO duplicado no arquivo
+  - ITEM antes de qualquer PEDIDO (ordem invertida)
+  - ITEM com `numero_pedido` órfão
+  - PEDIDO sem nenhum ITEM associado (aviso)
+- **P1.3 — Falhas de INSERT param de ser silenciadas**: erros do banco não
+  são mais engolidos — REGRA 08 (sem fallback silencioso)
+
+### P2 — Coerência matemática, encoding, conflitos de mapeamento
+
+- **P2.1 — Coerência matemática**: validar `qtd_inicial - qtd_pronta - qtd_transferida - qtd_cancelada ≥ 0`
+- **P2.2 — CNPJ + email**:
+  - CNPJ valida dígitos verificadores via `cnpjDigitoVerificadorValido()`
+  - Email valida regex padrão (RFC 5322 simplificado)
+- **P2.3 — Encoding latin1 vs UTF-8**: `decodificarComFallback()` em `importEngine.ts`
+  tenta UTF-8 primeiro, conta replacement chars (`�`), cai para latin1 quando
+  taxa > 0.1%. Log `[importEngine] encoding detectado como latin1 (...)`
+  quando o fallback é usado (REGRA 08)
+- **P2.4 — Conflitos de mapeamento** (2+ colunas → mesmo `campo_sistema`):
+  - Server: `detectarConflitosMapeamento()` retorna `ConflitoMapeamento[]` no preview
+  - Client: banner vermelho fixo + botão "Continuar" disabled enquanto houver conflito
+  - Cálculo em tempo real do mapeamento atual (reflete edições do usuário)
+  - Sem isso, último valor sobrescrevia o anterior em `aplicarMapeamento` (bug invisível)
+
+### P3 — Edge cases
+
+| Code | Detecção |
+|---|---|
+| `JSON_MALFORMADO` | `SyntaxError` ao fazer `JSON.parse()` |
+| `JSON_VAZIO` | Array `[]` (válido mas sem dados) |
+| `PDF_PROTEGIDO` | Erro do `pdf-parse` contendo `password\|encrypt\|protected` |
+| `PDF_ESCANEADO` | Texto extraído < 30 chars (provavelmente só imagens) |
+| Excel formula errors | Células com `#REF!`, `#N/A`, `#VALUE!`, `#DIV/0!`, `#NAME?`, `#NULL!`, `#NUM!` viram alertas de nível `erro` em `validarLinha()` |
+
+Cada code tem entrada correspondente em `traduzirErroDetalhado()` no client
+com título, mensagem, causa, sugestões e ações ("Baixar template", "Recarregar").
+
+### Contrato bilateral Zod (REGRA 06 + REGRA 09)
+
+`smart-import-schemas.ts` em `produto/pedido/shared/` define o contrato único:
+
+- **Server** (`importacoes-inteligentes-pedido.ts:275`): `.parse()` antes de
+  `res.json()` — defensive serialization. Falha alta se o service mudar payload
+  sem atualizar o schema.
+- **Client** (`api.ts:855`): `.parse()` a resposta antes de devolver à UI.
+  Falha alta se o backend mudar payload sem atualizar o schema.
+
+Schemas exportados: `colunaMapeadaSchema`, `smartImportAlertaSchema`,
+`smartImportLinhaSchema`, `smartImportLinhaRawSchema`, `conflitoMapeamentoSchema`,
+`smartImportPreviewSchema`.

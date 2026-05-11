@@ -53,6 +53,7 @@ import type {
   ValorColunaUsuario,
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
+import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
 
 let context = { idOrganizacao: '', userId: '', userName: '' }
 
@@ -848,8 +849,11 @@ export const smartImportApi = {
         const err = await res.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
         throw new Error(err.error?.message || `HTTP ${res.status}`)
       }
-      const data: SmartImportPreview = await res.json()
-      return data
+      // REGRA 06/09 — parse Zod do contrato bilateral. Se o backend mudar
+      // payload sem atualizar o schema, falha alta aqui em vez de bug
+      // silencioso (Mandamento 08 — sem fallback silencioso).
+      const raw = await res.json()
+      return smartImportPreviewSchema.parse(raw) as SmartImportPreview
     }).catch(err => {
       if (import.meta.env.DEV) return mockSmartImportAnalisar(arquivo.name)
       throw err

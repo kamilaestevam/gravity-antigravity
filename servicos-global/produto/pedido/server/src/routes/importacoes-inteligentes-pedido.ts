@@ -26,6 +26,7 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 import { AppError } from '../errors/AppError.js'
 import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
+import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
 import {
   CAMPOS_PEDIDO_DDD,
   CAMPOS_ITEM_DDD,
@@ -272,7 +273,11 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       const db      = rawDb as any
       const service = criarSmartImportService(db)
       const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha)
-      res.json(preview)
+      // REGRA 06/09 — valida contrato bilateral antes de devolver (defensive
+      // serialization). Se o backend acrescentar campo novo, .parse() avisa
+      // imediatamente em vez de bug silencioso no client.
+      const validated = smartImportPreviewSchema.parse(preview)
+      res.json(validated)
     })
   } catch (err) {
     next(err)

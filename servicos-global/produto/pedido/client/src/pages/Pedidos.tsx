@@ -89,6 +89,7 @@ import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
 import '../components/ModalPedidoGerarPdf.css'
 import { ModalDuplicarPedidos } from '../components/ModalPedidosDuplicar'
 import '../components/ModalPedidosDuplicar.css'
+import { ModalPedidosExcluir } from '../components/ModalPedidosExcluir'
 import { ModalTransferirPedido } from '../components/ModalPedidoTransferir'
 import '../components/ModalPedidoTransferir.css'
 import { ModalEdicaoMassaPedidos } from '../components/ModalPedidosEdicaoMassa'
@@ -2969,6 +2970,7 @@ export default function Pedidos() {
   const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
   // ── Fórmula do Saldo do Pedido (fonte: API /configuracoes/saldo-formula) ────
@@ -3362,37 +3364,13 @@ export default function Pedidos() {
     if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLElement | null>).current = anchor
   }, [])
 
-  const handleExcluirLote = useCallback(async () => {
-    const ids = pedidosSelecionados.map(p => p.id)
-    setExcluindoLote(true)
-    try {
-      const preview = await pedidoExcluirApi.preview(ids)
-      const totalPermitidos = preview.permitidos.length
-      const totalBloqueados = preview.bloqueados.length
-      const resumo: string[] = []
-      if (totalPermitidos > 0) {
-        resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
-      }
-      if (totalBloqueados > 0) {
-        resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
-        preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
-      }
-      if (totalPermitidos === 0) {
-        setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
-        return
-      }
-      const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
-      if (window.confirm(mensagem)) {
-        await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
-        setPedidosSelecionados([])
-        await carregarInicial()
-      }
-    } catch (err) {
-      setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
-    } finally {
-      setExcluindoLote(false)
-    }
-  }, [pedidosSelecionados, carregarInicial])
+  // Abre o modal customizado de exclusão (substitui o window.confirm() nativo).
+  // O modal cuida do preview, da confirmação e do resultado — aqui só sinalizamos
+  // abertura e mantemos o flag `excluindoLote` para travar a UI da BarraAcoes.
+  const handleExcluirLote = useCallback(() => {
+    if (pedidosSelecionados.length === 0) return
+    setModalExcluirAberto(true)
+  }, [pedidosSelecionados.length])
 
   const handleNavConfiguracoes = useCallback(() => {
     navigate('/configuracoes?tab=colunas&acao=nova')
@@ -4634,6 +4612,19 @@ export default function Pedidos() {
           onFechar={() => setModalDuplicarAberto(false)}
           onConcluido={() => {
             setModalDuplicarAberto(false)
+            setPedidosSelecionados([])
+            carregarInicial()
+          }}
+        />
+      )}
+
+      {/* ── Modal Excluir Pedidos (substitui window.confirm) ── */}
+      {modalExcluirAberto && pedidosSelecionados.length > 0 && (
+        <ModalPedidosExcluir
+          pedidos={pedidosSelecionados}
+          onFechar={() => setModalExcluirAberto(false)}
+          onConcluido={() => {
+            setModalExcluirAberto(false)
             setPedidosSelecionados([])
             carregarInicial()
           }}

@@ -1,0 +1,248 @@
+/**
+ * ModalPedidosExcluir.css — Estilos do modal de exclusão em lote de pedidos
+ * Design System: Gravity Solid Slate
+ * Espelha ModalPedidosDuplicar.css com prefixo `modal-excluir__`.
+ */
+
+/* Overlay */
+.modal-excluir__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Container */
+.modal-excluir__container {
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.modal-excluir__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-excluir__titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.modal-excluir__fechar {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-excluir__fechar:hover {
+  color: var(--color-text-primary, #f1f5f9);
+  background-color: var(--color-surface-hover, #334155);
+}
+
+/* Body */
+.modal-excluir__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Carregando */
+.modal-excluir__carregando {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 14px;
+}
+
+@keyframes modal-excluir-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.modal-excluir__spinner {
+  animation: modal-excluir-spin 1s linear infinite;
+}
+
+/* Aviso destrutivo (substitui o "Esta ação não pode ser desfeita") */
+.modal-excluir__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.modal-excluir__aviso-icone {
+  color: #f87171;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.modal-excluir__aviso-texto {
+  font-size: 13px;
+  color: #fecaca;
+  margin: 0;
+}
+
+.modal-excluir__aviso-texto strong {
+  color: #fca5a5;
+}
+
+/* Seção (permitidos / bloqueados) */
+.modal-excluir__secao-titulo {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #64748b);
+  margin: 0 0 8px;
+}
+
+/* Lista de permitidos */
+.modal-excluir__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.modal-excluir__th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #64748b);
+  border-bottom: 1px solid var(--color-border, #334155);
+}
+
+.modal-excluir__linha:not(:last-child) .modal-excluir__td {
+  border-bottom: 1px solid var(--color-border-subtle, #1e293b);
+}
+
+.modal-excluir__td {
+  padding: 10px 12px;
+  color: var(--color-text-primary, #f1f5f9);
+  vertical-align: middle;
+}
+
+.modal-excluir__td--numero {
+  font-weight: 500;
+}
+
+.modal-excluir__td--itens {
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 12px;
+}
+
+/* Lista de bloqueados */
+.modal-excluir__bloqueados {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-excluir__item-bloqueado {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  background-color: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+}
+
+.modal-excluir__item-bloqueado-numero {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fca5a5;
+}
+
+.modal-excluir__item-bloqueado-motivo {
+  font-size: 12px;
+  color: #fecaca;
+}
+
+/* Erro genérico (falha de rede etc.) */
+.modal-excluir__erro {
+  padding: 10px 14px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 13px;
+}
+
+/* Resultado */
+.modal-excluir__resultado-sucesso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+}
+
+.modal-excluir__icone-sucesso {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+.modal-excluir__resultado-texto {
+  font-size: 14px;
+  color: #bbf7d0;
+  margin: 0;
+}
+
+.modal-excluir__resultado-detalhe {
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+  margin: 0;
+}
+
+/* Footer */
+.modal-excluir__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}

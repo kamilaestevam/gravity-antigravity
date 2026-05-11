@@ -930,7 +930,7 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                 tamanho="medio"
                 onClick={onConcluido}
               >
-                {t('pedido.modal_transf.concluir')}
+                {t('pedido.modal_transf.fechar')}
               </BotaoGlobal>
             ) : passo === 5 ? (
               <BotaoGlobal

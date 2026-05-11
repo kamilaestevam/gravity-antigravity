@@ -181,7 +181,7 @@ export function ModalDuplicarPedidos({ pedidos, onFechar, onConcluido }: ModalDu
 
           <div className="modal-duplicar__footer">
             <BotaoGlobal variante="primario" onClick={onConcluido}>
-              {t('pedido.modal_dup.concluir')}
+              {t('pedido.modal_dup.fechar')}
             </BotaoGlobal>
           </div>
         </div>

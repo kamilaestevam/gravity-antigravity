@@ -2,18 +2,19 @@
  * duplicarExcluirService.ts — Lógica de negócio de duplicação e exclusão de pedidos
  *
  * Regras:
- *   - Duplicar: clona pedido + itens respeitando configs do tenant
+ *   - Duplicar: clona pedido + itens respeitando configs da organização
  *   - Excluir: hard delete com audit trail OBRIGATÓRIO antes de deleteMany
- *   - tenant_id em todas as queries
+ *   - id_organizacao (e id_workspace quando aplicável) em todas as queries
  *   - $transaction para atomicidade
  */
 
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
-// Workaround: Prisma.TransactionClient (Omit em classe genérica) perde os model delegates
-// no Prisma 5.22 — usamos Omit literal para preservar tx.pedido, tx.pedidoItem, etc.
-type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
+// Nota: NÃO importamos PrismaClient aqui. As funções recebem `db` que JÁ é
+// um Prisma.TransactionClient aberto pelo @gravity/resolver-organizacao. Tentar
+// abrir nova `db.$transaction(...)` aqui dispara "TypeError: db.$transaction
+// is not a function" — TransactionClient não expõe esse método.
 
 // ── Erro local (padrão project) ───────────────────────────────────────────────
 
@@ -100,7 +101,7 @@ async function buscarConfig(
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = await (db as any).configuracaoPedido.findFirst({
-      where: { tenant_id: id_organizacao },
+      where: { id_organizacao: id_organizacao },
     })
     if (!config) return { duplicar: CONFIG_DUPLICAR_DEFAULT, excluir: CONFIG_EXCLUIR_DEFAULT }
 
@@ -161,16 +162,23 @@ export class DuplicarService {
   async confirmar(
     db: Record<string, unknown>,
     id_organizacao: string,
-    id_workspace: string,
+    id_workspace: string | undefined,
     id_usuario: string,
     nome_usuario: string,
     payload: DuplicarPayload,
   ): Promise<DuplicarResultado> {
     const { duplicar: config } = await buscarConfig(db, id_organizacao)
 
+    // id_workspace é conditional: aplica só se o header veio. Caso contrário, o
+    // filtro fica apenas em id_organizacao (pattern do GET /pedidos). Forçar a
+    // coluna sempre causava 404 quando o pedido tinha workspace NULL ou diverso.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id_pedido: { in: payload.ids }, id_organizacao: id_organizacao },
+      where: {
+        id_pedido: { in: payload.ids },
+        id_organizacao: id_organizacao,
+        ...(id_workspace ? { id_workspace } : {}),
+      },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
@@ -191,154 +199,174 @@ export class DuplicarService {
       }
     }
 
+    // IMPORTANTE: NÃO abrir $transaction aninhado.
+    // `db` (vindo de withOrganizacao) JÁ É um Prisma.TransactionClient — o resolver-organizacao
+    // abriu prisma.$transaction(...) e nos entregou o tx aqui. TransactionClient não expõe
+    // o método $transaction → aninhar causa "TypeError: db.$transaction is not a function"
+    // ANTES do for-loop rodar, então NADA é gravado e o frontend pode mascarar como sucesso.
+    // Mesma armadilha já documentada em processos-core/src/routes/pedidos.ts:994-999.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resultado: DuplicarResultado = await (db as any).$transaction(async (tx0: unknown) => {
-      const tx = tx0 as Tx
-      const criados: DuplicarResultado['criados'] = []
-      const erros: DuplicarResultado['erros'] = []
+    const tx = db as any
+    const criados: DuplicarResultado['criados'] = []
+    const erros: DuplicarResultado['erros'] = []
 
-      for (const pedidoRaw of pedidos) {
-        const pedido = pedidoRaw as Record<string, unknown>
-        try {
-          // Definir número do pedido duplicado
-          let numeroPedido: string
-          if (config.duplicar_numero_auto) {
-            const total = await tx.pedido.count({ where: { id_organizacao: id_organizacao } })
-            numeroPedido = gerarNumeroPedido(total + 1)
-          } else {
-            numeroPedido = payload.numeros![pedido.id_pedido as string]
-          }
-
-          // Verificar se número já existe
-          const numeroExistente = await tx.pedido.findFirst({
-            where: { numero_pedido: numeroPedido, id_organizacao: id_organizacao },
-          })
-          if (numeroExistente) {
-            erros.push({ id: pedido.id_pedido as string, motivo: `Número "${numeroPedido}" já está em uso` })
-            continue
-          }
-
-          // Definir status
-          const status =
-            config.duplicar_status_inicial === 'copiar'
-              ? (pedido.status_pedido as string)
-              : config.duplicar_status_inicial
-
-          // Débito 2B — resolver FK do status (StatusPedido) na organização
-          const statusFK = await tx.statusPedido.findFirst({
-            where: { id_organizacao: id_organizacao, nome_pedido_status: status },
-            select: { id_pedido_status: true },
-          })
-          if (!statusFK) {
-            console.warn(
-              `[duplicarPedidos] StatusPedido '${status}' nao encontrado na organizacao=${id_organizacao}; ` +
-              `pedido duplicado sera criado sem vinculo id_status_pedido.`,
-            )
-          }
-
-          // Definir datas (data_emissao_pedido é DateTime, não string)
-          const datas = config.duplicar_copiar_datas
-            ? { data_emissao_pedido: pedido.data_emissao_pedido as Date }
-            : { data_emissao_pedido: new Date() }
-
-          // Extrair campos a copiar (sem id, timestamps, pedidos_origem, histórico de transferências)
-          const {
-            id_pedido: _id,
-            data_criacao_pedido: _ca,
-            data_atualizacao_pedido: _ua,
-            ids_origem_consolidacao_pedido: _po,
-            data_consolidacao_pedido: _dcp,
-            data_transferencia_saldo_pedido: _dtsp,
-            itens: _itens,
-            ...camposBase
-          } = pedido
-
-          // Clonar itens com contadores de execução zerados
-          const itensClonados = (pedido.itens_pedido as Array<Record<string, unknown>>).map((item: Record<string, unknown>) => {
-            const {
-              id_item: _iid,
-              id_pedido: _pid,
-              data_criacao_item: _ica,
-              data_atualizacao_item: _iua,
-              quantidade_atual_item: _qsp,
-              quantidade_pronta_item: _qpp,
-              quantidade_transferida_item: _qtp,
-              quantidade_cancelada_item: _qcp,
-              ...itemBase
-            } = item
-            return {
-              ...itemBase,
-              id_item: gerarId('pite'),
-              id_organizacao: id_organizacao,
-              id_workspace: id_workspace,
-              quantidade_atual_item: item.quantidade_inicial_item,
-              quantidade_pronta_item: 0,
-              quantidade_transferida_item: 0,
-              quantidade_cancelada_item: 0,
-            }
-          })
-
-          const novoPedido = await tx.pedido.create({
-            data: {
-              ...camposBase,
-              ...datas,
-              id_pedido: gerarId('pedi'),
-              id_organizacao: id_organizacao,
-              id_workspace: id_workspace,
-              numero_pedido: numeroPedido,
-              status_pedido: status,
-              id_status_pedido: statusFK?.id_pedido_status ?? null,
-              itens: { create: itensClonados },
-            } as unknown as Prisma.PedidoUncheckedCreateInput,
-          })
-
-          // Audit trail via historico-global (fire-and-forget)
-          auditLog({
-            id_organizacao:               id_organizacao,
-            tipo_ator_historico_log:      'USUARIO',
-            id_ator_historico_log:        id_usuario,
-            nome_ator_historico_log:      nome_usuario,
-            modulo_historico_log:         'pedido',
-            tipo_recurso_historico_log:   'Pedido',
-            id_recurso_historico_log:     novoPedido.id_pedido,
-            acao_historico_log:           'DUPLICAR',
-            detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
-            estado_posterior_historico_log: { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
-          })
-
-          criados.push({
-            original_id: pedido.id_pedido as string,
-            novo_id: novoPedido.id_pedido,
-            numero_pedido: numeroPedido,
-          })
-        } catch (err) {
-          erros.push({
-            id: pedido.id_pedido as string,
-            motivo: err instanceof Error ? err.message : 'Erro desconhecido',
-          })
+    for (const pedidoRaw of pedidos) {
+      const pedido = pedidoRaw as Record<string, unknown>
+      try {
+        // Definir número do pedido duplicado
+        let numeroPedido: string
+        if (config.duplicar_numero_auto) {
+          const total = await tx.pedido.count({ where: { id_organizacao: id_organizacao } })
+          numeroPedido = gerarNumeroPedido(total + 1)
+        } else {
+          numeroPedido = payload.numeros![pedido.id_pedido as string]
         }
+
+        // Verificar se número já existe
+        const numeroExistente = await tx.pedido.findFirst({
+          where: { numero_pedido: numeroPedido, id_organizacao: id_organizacao },
+        })
+        if (numeroExistente) {
+          erros.push({ id: pedido.id_pedido as string, motivo: `Número "${numeroPedido}" já está em uso` })
+          continue
+        }
+
+        // Definir status
+        const status =
+          config.duplicar_status_inicial === 'copiar'
+            ? (pedido.status_pedido as string)
+            : config.duplicar_status_inicial
+
+        // Débito 2B — resolver FK do status (StatusPedido) na organização
+        const statusFK = await tx.statusPedido.findFirst({
+          where: { id_organizacao: id_organizacao, nome_pedido_status: status },
+          select: { id_pedido_status: true },
+        })
+        if (!statusFK) {
+          console.warn(
+            `[duplicarPedidos] StatusPedido '${status}' nao encontrado na organizacao=${id_organizacao}; ` +
+            `pedido duplicado sera criado sem vinculo id_status_pedido.`,
+          )
+        }
+
+        // Definir datas (data_emissao_pedido é DateTime, não string)
+        const datas = config.duplicar_copiar_datas
+          ? { data_emissao_pedido: pedido.data_emissao_pedido as Date }
+          : { data_emissao_pedido: new Date() }
+
+        // Extrair campos a copiar (sem id, timestamps, pedidos_origem, histórico de transferências)
+        // IMPORTANTE: a relação Prisma chama-se `itens_pedido` (schema.prisma:156).
+        // Destructurar `itens` (nome legado) NÃO removia o array do spread → camposBase
+        // herdava `itens_pedido: [PedidoItem[]]` e o create do Prisma falhava com
+        // PrismaClientValidationError (era um dos bugs do hotfix).
+        const {
+          id_pedido: _id,
+          data_criacao_pedido: _ca,
+          data_atualizacao_pedido: _ua,
+          ids_origem_consolidacao_pedido: _po,
+          data_consolidacao_pedido: _dcp,
+          data_transferencia_saldo_pedido: _dtsp,
+          itens_pedido: _itens,
+          ...camposBase
+        } = pedido
+
+        // Workspace do duplicado: usa o do header se veio; senão herda do original
+        // (fallback para id_organizacao quando o original também não tem).
+        const id_workspace_alvo =
+          id_workspace ?? (pedido.id_workspace as string | undefined) ?? id_organizacao
+
+        // Clonar itens com contadores de execução zerados
+        const itensClonados = (pedido.itens_pedido as Array<Record<string, unknown>>).map((item: Record<string, unknown>) => {
+          const {
+            id_item: _iid,
+            id_pedido: _pid,
+            data_criacao_item: _ica,
+            data_atualizacao_item: _iua,
+            quantidade_atual_item: _qsp,
+            quantidade_pronta_item: _qpp,
+            quantidade_transferida_item: _qtp,
+            quantidade_cancelada_item: _qcp,
+            ...itemBase
+          } = item
+          return {
+            ...itemBase,
+            id_item: gerarId('pite'),
+            id_organizacao: id_organizacao,
+            id_workspace: id_workspace_alvo,
+            quantidade_atual_item: item.quantidade_inicial_item,
+            quantidade_pronta_item: 0,
+            quantidade_transferida_item: 0,
+            quantidade_cancelada_item: 0,
+          }
+        })
+
+        const novoPedido = await tx.pedido.create({
+          data: {
+            ...camposBase,
+            ...datas,
+            id_pedido: gerarId('pedi'),
+            id_organizacao: id_organizacao,
+            id_workspace: id_workspace_alvo,
+            numero_pedido: numeroPedido,
+            status_pedido: status,
+            id_status_pedido: statusFK?.id_pedido_status ?? null,
+            itens_pedido: { create: itensClonados },
+          } as unknown as Prisma.PedidoUncheckedCreateInput,
+        })
+
+        // Audit trail via historico-global (fire-and-forget)
+        auditLog({
+          id_organizacao:               id_organizacao,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        id_usuario,
+          nome_ator_historico_log:      nome_usuario,
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     novoPedido.id_pedido,
+          acao_historico_log:           'DUPLICAR',
+          detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
+          estado_posterior_historico_log: { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
+        })
+
+        criados.push({
+          original_id: pedido.id_pedido as string,
+          novo_id: novoPedido.id_pedido,
+          numero_pedido: numeroPedido,
+        })
+      } catch (err) {
+        erros.push({
+          id: pedido.id_pedido as string,
+          motivo: err instanceof Error ? err.message : 'Erro desconhecido',
+        })
       }
+    }
 
-      return { criados, erros }
-    })
-
-    return resultado
+    return { criados, erros }
   }
 
   async duplicarItens(
     db: Record<string, unknown>,
     id_organizacao: string,
-    id_workspace: string,
+    id_workspace: string | undefined,
     payload: DuplicarItemPayload,
   ): Promise<DuplicarResultado> {
-    // Verificar que o pedido pertence ao tenant
+    // id_workspace conditional (mesma justificativa de confirmar()).
+    // Verificar que o pedido pertence à organização (workspace só se header veio)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
-      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
+      where: {
+        id_pedido: payload.pedido_id,
+        id_organizacao: id_organizacao,
+        ...(id_workspace ? { id_workspace } : {}),
+      },
     })
     if (!pedido) {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
     }
+
+    // Workspace alvo dos itens novos: header > workspace do pedido pai > id_organizacao
+    const id_workspace_alvo =
+      id_workspace ?? (pedido.id_workspace as string | undefined) ?? id_organizacao
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const itens = await (db as any).pedidoItem.findMany({
@@ -346,6 +374,7 @@ export class DuplicarService {
         id_item: { in: payload.item_ids },
         id_pedido: payload.pedido_id,
         id_organizacao: id_organizacao,
+        ...(id_workspace ? { id_workspace } : {}),
       },
     })
 
@@ -356,56 +385,57 @@ export class DuplicarService {
     // Buscar maior sequencia_item atual para continuar de onde parou
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const todosItens = await (db as any).pedidoItem.findMany({
-      where: { id_pedido: payload.pedido_id, id_organizacao: id_organizacao },
+      where: {
+        id_pedido: payload.pedido_id,
+        id_organizacao: id_organizacao,
+        ...(id_workspace ? { id_workspace } : {}),
+      },
       select: { sequencia_item_pedido: true },
     })
     const maxSequencia = todosItens.reduce((max: number, i: Record<string, unknown>) => Math.max(max, (i.sequencia_item_pedido as number | undefined) ?? 0), 0)
     let proximaSequencia = maxSequencia + 1
 
+    // Sem $transaction aninhado — `db` já é TransactionClient (ver confirmar()).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx0: unknown) => {
-      const tx = tx0 as Tx
-      const resultado = []
+    const tx = db as any
+    const criados: DuplicarResultado['criados'] = []
 
-      for (const itemRaw of itens) {
-        const item = itemRaw as Record<string, unknown>
-        const {
-          id_item: _id,
-          id_pedido: _pid,
-          data_criacao_item: _ca,
-          data_atualizacao_item: _ua,
-          sequencia_item_pedido: _seq,
-          quantidade_atual_item: _qsp,
-          quantidade_pronta_item: _qpp,
-          quantidade_transferida_item: _qtp,
-          quantidade_cancelada_item: _qcp,
-          ...itemBase
-        } = item
+    for (const itemRaw of itens) {
+      const item = itemRaw as Record<string, unknown>
+      const {
+        id_item: _id,
+        id_pedido: _pid,
+        data_criacao_item: _ca,
+        data_atualizacao_item: _ua,
+        sequencia_item_pedido: _seq,
+        quantidade_atual_item: _qsp,
+        quantidade_pronta_item: _qpp,
+        quantidade_transferida_item: _qtp,
+        quantidade_cancelada_item: _qcp,
+        ...itemBase
+      } = item
 
-        const novoItem = await tx.pedidoItem.create({
-          data: {
-            ...itemBase,
-            id_item: gerarId('pite'),
-            id_organizacao: id_organizacao,
-            id_workspace: id_workspace,
-            id_pedido: payload.pedido_id,
-            sequencia_item_pedido: proximaSequencia++,
-            quantidade_atual_item: item.quantidade_inicial_item as number,
-            quantidade_pronta_item: 0,
-            quantidade_transferida_item: 0,
-            quantidade_cancelada_item: 0,
-          } as unknown as Prisma.PedidoItemUncheckedCreateInput,
-        })
+      const novoItem = await tx.pedidoItem.create({
+        data: {
+          ...itemBase,
+          id_item: gerarId('pite'),
+          id_organizacao: id_organizacao,
+          id_workspace: id_workspace_alvo,
+          id_pedido: payload.pedido_id,
+          sequencia_item_pedido: proximaSequencia++,
+          quantidade_atual_item: item.quantidade_inicial_item as number,
+          quantidade_pronta_item: 0,
+          quantidade_transferida_item: 0,
+          quantidade_cancelada_item: 0,
+        } as unknown as Prisma.PedidoItemUncheckedCreateInput,
+      })
 
-        resultado.push({
-          original_id: item.id_item as string,
-          novo_id: novoItem.id_item,
-          numero_pedido: pedido.numero_pedido as string,
-        })
-      }
-
-      return resultado
-    })
+      criados.push({
+        original_id: item.id_item as string,
+        novo_id: novoItem.id_item,
+        numero_pedido: pedido.numero_pedido as string,
+      })
+    }
 
     return { criados, erros: [] }
   }
@@ -491,43 +521,42 @@ export class ExcluirService {
 
     const totalItens = pedidos.reduce((acc: number, p: Record<string, unknown>) => acc + ((p.itens_pedido as unknown[] | undefined)?.length ?? 0), 0)
 
+    // Sem $transaction aninhado — `db` já é TransactionClient (ver confirmar() de DuplicarService).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db as any).$transaction(async (tx0: unknown) => {
-      const tx = tx0 as Tx
-      // AUDIT TRAIL ANTES de excluir (obrigatório — dados serão perdidos)
-      for (const pedidoRaw of pedidos) {
-        const pedido = pedidoRaw as Record<string, unknown>
-        auditLog({
-          id_organizacao:               id_organizacao,
-          tipo_ator_historico_log:      'USUARIO',
-          id_ator_historico_log:        id_usuario,
-          nome_ator_historico_log:      nome_usuario,
-          modulo_historico_log:         'pedido',
-          tipo_recurso_historico_log:   'Pedido',
-          id_recurso_historico_log:     pedido.id_pedido as string,
-          acao_historico_log:           'EXCLUIR',
-          detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
-          estado_anterior_historico_log: {
-            numero_pedido: pedido.numero_pedido,
-            status:        pedido.status_pedido,
-            total_itens:   (pedido.itens_pedido as unknown[]).length,
-            itens: (pedido.itens_pedido as Array<Record<string, unknown>>).map((i) => ({
-              id:                        i.id_item,
-              part_number:               i.part_number_item,
-              quantidade_inicial_pedido: i.quantidade_inicial_item,
-            })),
-          },
-        })
-      }
-
-      // Hard delete: itens primeiro (FK), depois pedidos
-      await tx.pedidoItem.deleteMany({
-        where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
+    const tx = db as any
+    // AUDIT TRAIL ANTES de excluir (obrigatório — dados serão perdidos)
+    for (const pedidoRaw of pedidos) {
+      const pedido = pedidoRaw as Record<string, unknown>
+      auditLog({
+        id_organizacao:               id_organizacao,
+        tipo_ator_historico_log:      'USUARIO',
+        id_ator_historico_log:        id_usuario,
+        nome_ator_historico_log:      nome_usuario,
+        modulo_historico_log:         'pedido',
+        tipo_recurso_historico_log:   'Pedido',
+        id_recurso_historico_log:     pedido.id_pedido as string,
+        acao_historico_log:           'EXCLUIR',
+        detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
+        estado_anterior_historico_log: {
+          numero_pedido: pedido.numero_pedido,
+          status:        pedido.status_pedido,
+          total_itens:   (pedido.itens_pedido as unknown[]).length,
+          itens: (pedido.itens_pedido as Array<Record<string, unknown>>).map((i) => ({
+            id:                        i.id_item,
+            part_number:               i.part_number_item,
+            quantidade_inicial_pedido: i.quantidade_inicial_item,
+          })),
+        },
       })
+    }
 
-      await tx.pedido.deleteMany({
-        where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
-      })
+    // Hard delete: itens primeiro (FK), depois pedidos
+    await tx.pedidoItem.deleteMany({
+      where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
+    })
+
+    await tx.pedido.deleteMany({
+      where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
     })
 
     return {
@@ -575,62 +604,61 @@ export class ExcluirService {
 
     let pedidosExcluidosPorSemItem = 0
 
+    // Sem $transaction aninhado — `db` já é TransactionClient (ver confirmar() de DuplicarService).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db as any).$transaction(async (tx0: unknown) => {
-      const tx = tx0 as Tx
-      // Audit trail ANTES da exclusão (via historico-global, fire-and-forget)
+    const tx = db as any
+    // Audit trail ANTES da exclusão (via historico-global, fire-and-forget)
+    auditLog({
+      id_organizacao:               id_organizacao,
+      tipo_ator_historico_log:      'USUARIO',
+      id_ator_historico_log:        id_usuario,
+      nome_ator_historico_log:      nome_usuario,
+      modulo_historico_log:         'pedido',
+      tipo_recurso_historico_log:   'PedidoItem',
+      id_recurso_historico_log:     pedidoId,
+      acao_historico_log:           'EXCLUIR_ITENS',
+      detalhe_acao_historico_log:   `${itemIds.length} item(ns) excluido(s) do pedido`,
+      estado_anterior_historico_log: {
+        item_ids: itemIds,
+        itens: itens.map((i: Record<string, unknown>) => ({
+          id:                        i.id_item,
+          part_number:               i.part_number_item,
+          quantidade_inicial_pedido: i.quantidade_inicial_item,
+        })),
+      },
+    })
+
+    // Hard delete dos itens
+    await tx.pedidoItem.deleteMany({
+      where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: id_organizacao },
+    })
+
+    // Verificar itens restantes no pedido
+    const itensRestantes = await tx.pedidoItem.count({
+      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
+    })
+
+    if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
+      // Audit trail do pedido pai antes de excluir (via historico-global)
       auditLog({
         id_organizacao:               id_organizacao,
         tipo_ator_historico_log:      'USUARIO',
         id_ator_historico_log:        id_usuario,
         nome_ator_historico_log:      nome_usuario,
         modulo_historico_log:         'pedido',
-        tipo_recurso_historico_log:   'PedidoItem',
+        tipo_recurso_historico_log:   'Pedido',
         id_recurso_historico_log:     pedidoId,
-        acao_historico_log:           'EXCLUIR_ITENS',
-        detalhe_acao_historico_log:   `${itemIds.length} item(ns) excluido(s) do pedido`,
-        estado_anterior_historico_log: {
-          item_ids: itemIds,
-          itens: itens.map((i: Record<string, unknown>) => ({
-            id:                        i.id_item,
-            part_number:               i.part_number_item,
-            quantidade_inicial_pedido: i.quantidade_inicial_item,
-          })),
-        },
+        acao_historico_log:           'EXCLUIR_AUTOMATICAMENTE',
+        detalhe_acao_historico_log:   'Pedido excluido automaticamente por ficar sem itens',
+        estado_anterior_historico_log: { numero_pedido: pedido.numero_pedido },
       })
 
-      // Hard delete dos itens
-      await tx.pedidoItem.deleteMany({
-        where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: id_organizacao },
+      await tx.pedido.delete({
+        where: { id_pedido: pedidoId },
       })
 
-      // Verificar itens restantes no pedido
-      const itensRestantes = await tx.pedidoItem.count({
-        where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
-      })
-
-      if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
-        // Audit trail do pedido pai antes de excluir (via historico-global)
-        auditLog({
-          id_organizacao:               id_organizacao,
-          tipo_ator_historico_log:      'USUARIO',
-          id_ator_historico_log:        id_usuario,
-          nome_ator_historico_log:      nome_usuario,
-          modulo_historico_log:         'pedido',
-          tipo_recurso_historico_log:   'Pedido',
-          id_recurso_historico_log:     pedidoId,
-          acao_historico_log:           'EXCLUIR_AUTOMATICAMENTE',
-          detalhe_acao_historico_log:   'Pedido excluido automaticamente por ficar sem itens',
-          estado_anterior_historico_log: { numero_pedido: pedido.numero_pedido },
-        })
-
-        await tx.pedido.delete({
-          where: { id_pedido: pedidoId },
-        })
-
-        pedidosExcluidosPorSemItem = 1
-      }
-    })
+      pedidosExcluidosPorSemItem = 1
+    }
 
     return {
       excluidos: pedidosExcluidosPorSemItem,

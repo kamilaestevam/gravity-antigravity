@@ -86,7 +86,10 @@ duplicacoesPedidoRouter.post('/duplicacoes/confirmar', async (req: Request, res:
       const id_usuario     = ctx.idUsuario ?? ''
       const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await duplicarService.confirmar(db, id_organizacao, id_workspace ?? id_organizacao, id_usuario, nome_usuario, parse.data)
+      // id_workspace é conditional — alinhado com GET /pedidos (filtro só aplica
+      // quando o header existe; pedidos com workspace NULL/diferente continuam visíveis
+      // dentro da mesma org). Forçar `?? id_organizacao` causava 404 NOT_FOUND.
+      const resultado = await duplicarService.confirmar(db, id_organizacao, id_workspace, id_usuario, nome_usuario, parse.data)
       res.status(201).json(resultado)
     })
   } catch (err) {
@@ -112,7 +115,7 @@ duplicacoesPedidoRouter.post('/duplicacoes/itens', async (req: Request, res: Res
       const db       = rawDb as any
       const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const resultado = await duplicarService.duplicarItens(db, id_organizacao, id_workspace ?? id_organizacao, parse.data)
+      const resultado = await duplicarService.duplicarItens(db, id_organizacao, id_workspace, parse.data)
       res.status(201).json(resultado)
     })
   } catch (err) {

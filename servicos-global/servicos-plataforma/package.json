@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server/index.ts",
+    "dev": "tsx watch --env-file=../../.env.local --env-file=.env server/index.ts",
     "start": "node dist/server/index.js",
     "build": "tsc --project server/tsconfig.json",
     "typecheck": "tsc --project server/tsconfig.json --noEmit"

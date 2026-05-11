@@ -495,8 +495,8 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 | Ator (`req.auth.tipo_usuario`) | Pode editar alvo... | Pode atribuir | Bloqueios |
 |---|---|---|---|
-| **SUPER_ADMIN** | Qualquer (escopo global) — inclui próprio registro (Interpretação B 2026-05-11) | • Se `alvo.organizacao.hospeda_colaboradores_gravity = true` → atribui qualquer dos 5 tipos<br>• Se `false` (org cliente) → apenas `MASTER`/`PADRAO`/`FORNECEDOR` | Anti-bricking último Master da org, anti-bricking último SAdmin do sistema, `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` |
-| **ADMIN** | **Ninguém** — read-only global (decisão dono 2026-05-11) | — | `FORBIDDEN_ADMIN_READ_ONLY`. ADMIN visualiza tudo mas não edita tipo_usuario. Bloqueado em `requireUserManagementRole` E em `autorizarAlteracaoPatente` (defesa em profundidade) |
+| **SUPER_ADMIN** | Qualquer (escopo global) — inclui próprio registro (Interpretação B 2026-05-11) | • Se `alvo.organizacao.hospeda_colaboradores_gravity = true` → atribui qualquer dos 5 tipos<br>• Se `false` (org cliente) → apenas `MASTER`/`PADRAO`/`FORNECEDOR` | Anti-bricking último Master da org, anti-bricking último SAdmin do sistema, `TIPO_GRAVITY_EXIGE_ORG_GRAVITY` |
+| **ADMIN** | **Ninguém** — read-only global (decisão dono 2026-05-11) | — | `ADMIN_SOMENTE_LEITURA`. ADMIN visualiza tudo mas não edita tipo_usuario. Bloqueado em `requireUserManagementRole` E em `autorizarAlteracaoPatente` (defesa em profundidade) |
 | **MASTER** | Mesmo `id_organizacao`, EXCETO outros `MASTER`/`SUPER_ADMIN`/`ADMIN` | `MASTER`/`PADRAO`/`FORNECEDOR` (incluindo promover `PADRAO` a `MASTER`) | Anti-escalada, anti-bricking |
 | **PADRAO / FORNECEDOR** | Ninguém | — | Bloqueado por `requireUserManagementRole` (`403`) |
 
@@ -504,23 +504,23 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 | Defesa | Implementação | Erro |
 |---|---|---|
-| **Anti-escalada** | `req.auth.id_usuario === alvo.id_usuario` → bloqueia | `403 FORBIDDEN_SELF_EDIT` |
-| **Anti-bricking** | Dentro de `$transaction(isolationLevel: 'Serializable')`: `count(MASTER em id_organizacao do alvo) <= 1` ao rebaixar MASTER → bloqueia | `409 CONFLICT_LAST_MASTER` |
+| **Anti-escalada** | `req.auth.id_usuario === alvo.id_usuario` → bloqueia | `403 EDICAO_PROPRIA_NAO_PERMITIDA` |
+| **Anti-bricking** | Dentro de `$transaction(isolationLevel: 'Serializable')`: `count(MASTER em id_organizacao do alvo) <= 1` ao rebaixar MASTER → bloqueia | `409 ULTIMO_MASTER_ORGANIZACAO` |
 | **IDOR cross-organização** | MASTER/ADMIN: `findFirst({ id_organizacao: req.auth.id_organizacao })`; SUPER_ADMIN: escopo global | `404 NOT_FOUND` (não vaza existência) |
 | **Whitelist por ator** | `autorizarAlteracaoPatente()` valida combinação ator×alvo×novoTipo antes de qualquer escrita | `403 FORBIDDEN_<código_específico>` |
 | **Auditoria** | `securityAudit.roleChanged(id_organizacao, ator_id, { targetUserId, oldRole, newRole })` após update | log estruturado |
 
 ### Códigos de erro específicos
 
-- `FORBIDDEN_SELF_EDIT` — ADMIN/MASTER editando próprio tipo. SUPER_ADMIN é exceção (Interpretação B 2026-05-11): pode self-edit, protegido por anti-bricking.
-- `FORBIDDEN_ADMIN_READ_ONLY` — ADMIN tentando alterar tipo_usuario (decisão dono 2026-05-11: ADMIN é read-only global, visualiza tudo mas não edita).
-- `FORBIDDEN_MASTER_VS_MASTER` — MASTER tentando editar outro MASTER.
-- `FORBIDDEN_MASTER_VS_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN.
-- `FORBIDDEN_MASTER_INVALID_TARGET_TYPE` — MASTER tentando atribuir SUPER_ADMIN/ADMIN.
-- `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` — tentativa de atribuir SUPER_ADMIN/ADMIN a usuário cuja organização NÃO tem `hospeda_colaboradores_gravity = true` (decisão dono 2026-05-11).
-- `GONE_PROMOTE_DEPRECATED` — rota `POST /admin/usuarios/:id/promover` descontinuada. Fluxo único agora é `PATCH /v1/usuarios/:id/patente`.
-- `CONFLICT_LAST_MASTER` — rebaixaria último MASTER da organização.
-- `CONFLICT_LAST_SUPER_ADMIN` — rebaixaria último SUPER_ADMIN do sistema (anti-bricking global — decisão dono 2026-05-11 Interpretação B).
+- `EDICAO_PROPRIA_NAO_PERMITIDA` — ADMIN/MASTER editando próprio tipo. SUPER_ADMIN é exceção (Interpretação B 2026-05-11): pode self-edit, protegido por anti-bricking.
+- `ADMIN_SOMENTE_LEITURA` — ADMIN tentando alterar tipo_usuario (decisão dono 2026-05-11: ADMIN é read-only global, visualiza tudo mas não edita).
+- `MASTER_NAO_EDITA_MASTER` — MASTER tentando editar outro MASTER.
+- `MASTER_NAO_EDITA_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN.
+- `MASTER_TIPO_DESTINO_INVALIDO` — MASTER tentando atribuir SUPER_ADMIN/ADMIN.
+- `TIPO_GRAVITY_EXIGE_ORG_GRAVITY` — tentativa de atribuir SUPER_ADMIN/ADMIN a usuário cuja organização NÃO tem `hospeda_colaboradores_gravity = true` (decisão dono 2026-05-11).
+- `ROTA_PROMOVER_DESCONTINUADA` — rota `POST /admin/usuarios/:id/promover` descontinuada. Fluxo único agora é `PATCH /v1/usuarios/:id/patente`.
+- `ULTIMO_MASTER_ORGANIZACAO` — rebaixaria último MASTER da organização.
+- `ULTIMO_SUPER_ADMIN_SISTEMA` — rebaixaria último SUPER_ADMIN do sistema (anti-bricking global — decisão dono 2026-05-11 Interpretação B).
 
 > ⚠️ **Regra condicional (decisão dono 2026-05-11):** SUPER_ADMIN e ADMIN são tipos
 > atribuíveis APENAS a usuários cuja organização tem `hospeda_colaboradores_gravity = true`.
@@ -534,17 +534,17 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 >   `requireUserManagementRole` whitelist; bloqueado também em
 >   `autorizarAlteracaoPatente` (defesa em profundidade).
 > - **SUPER_ADMIN pode editar próprio tipo** (Interpretação B). Protegido por
->   `CONFLICT_LAST_SUPER_ADMIN` 409 dentro de `$transaction` Serializable.
+>   `ULTIMO_SUPER_ADMIN_SISTEMA` 409 dentro de `$transaction` Serializable.
 >
 > Defesas implementadas:
 > - `autorizarAlteracaoPatente` (server/routes/usuario.ts): consome
 >   `alvo.organizacao.hospeda_colaboradores_gravity` e rejeita SAdmin/ADMIN para
->   alvos cliente com `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` 403.
+>   alvos cliente com `TIPO_GRAVITY_EXIGE_ORG_GRAVITY` 403.
 >   Anti-bricking último SAdmin dentro da transação Serializable.
 > - `AdminInviteSchema` (admin.ts): aceita 5 tipos no Zod; valida em runtime que
 >   a org do ator tem flag = true antes de criar SAdmin/ADMIN. Apenas SAdmin pode
->   convidar (ADMIN bloqueado por `FORBIDDEN_ADMIN_READ_ONLY`).
-> - `POST /admin/usuarios/:id/promover`: retorna `410 GONE_PROMOTE_DEPRECATED`.
+>   convidar (ADMIN bloqueado por `ADMIN_SOMENTE_LEITURA`).
+> - `POST /admin/usuarios/:id/promover`: retorna `410 ROTA_PROMOVER_DESCONTINUADA`.
 > - `requireUserManagementRole`: whitelist = `{SUPER_ADMIN, MASTER}` (ADMIN removido).
 > - Frontend `usePodeEditarUsuario`: recebe `alvo.organizacao_hospeda_colaboradores_gravity`,
 >   retorna whitelist correta. ADMIN ator sempre recebe DENY com motivo.
@@ -582,9 +582,9 @@ PR separado criará `PATCH /api/v1/usuarios/:id_usuario` quando o fluxo de sync 
 - [ ] Master está com bypass das permissões granulares?
 - [ ] Supplier tem ao menos uma permissão explícita antes de receber acesso?
 - [ ] Admin Gravity consegue ler sem ter permissão explícita de WRITE?
-- [ ] Super Admin e Admin são atribuíveis apenas a usuários cuja organização tem `hospeda_colaboradores_gravity = true`, com defesas em `autorizarAlteracaoPatente` (`FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` 403), `AdminInviteSchema` (validação runtime no handler) e `requireUserManagementRole` (ADMIN excluído da whitelist)?
-- [ ] ADMIN é read-only global — não consegue editar tipo_usuario de ninguém (`FORBIDDEN_ADMIN_READ_ONLY` 403)?
-- [ ] Anti-bricking último SUPER_ADMIN do sistema implementado em `$transaction` Serializable (`CONFLICT_LAST_SUPER_ADMIN` 409)?
+- [ ] Super Admin e Admin são atribuíveis apenas a usuários cuja organização tem `hospeda_colaboradores_gravity = true`, com defesas em `autorizarAlteracaoPatente` (`TIPO_GRAVITY_EXIGE_ORG_GRAVITY` 403), `AdminInviteSchema` (validação runtime no handler) e `requireUserManagementRole` (ADMIN excluído da whitelist)?
+- [ ] ADMIN é read-only global — não consegue editar tipo_usuario de ninguém (`ADMIN_SOMENTE_LEITURA` 403)?
+- [ ] Anti-bricking último SUPER_ADMIN do sistema implementado em `$transaction` Serializable (`ULTIMO_SUPER_ADMIN_SISTEMA` 409)?
 - [ ] Permissões são indexadas por `[id_organizacao, id_workspace, id_usuario]`?
 - [ ] O produto registrou suas permissões específicas além dos módulos universais?
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?

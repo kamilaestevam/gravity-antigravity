@@ -154,7 +154,7 @@
         "PUT /:id_usuario/workspaces":                 "Substitui atomicamente vínculos de workspace (PADRAO/FORNECEDOR). Master rejeitado (400) — acesso global por tipo_usuario.",
         "PATCH /:id_usuario/patente":                  "Altera tipo_usuario com whitelist por ator + anti-escalada + anti-bricking ($transaction Serializable).",
         "GET /:id_usuario/permissoes":                 "Lista permissões granulares do usuário. Query: ?id_workspace=<cuid> (opcional). Resposta: { permissoes: PermissaoUsuarioItem[] } cada item { id_organizacao, id_workspace, id_usuario, id_produto_gravity, permissao_usuario, permissao_usuario_concedido_por, data_criacao_permissao_usuario }.",
-        "PUT /:id_usuario/permissoes":                 "Substitui atomicamente permissões em UM produto/workspace. Body Zod: SetPermissoesUsuarioSchema { id_workspace, id_produto_gravity, permissoes: string[] (formato '<slug>:<secao>:<acao>') }. Rejeita alvo SAdmin/Admin/Master (400 — bypass Mand. 04). Rejeita produto fora do Set PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS (400 PRODUCT_PERMISSIONS_NOT_IMPLEMENTED). Anti-escalada (FORBIDDEN_SELF_EDIT). Audit via securityAudit.permissionChanged."
+        "PUT /:id_usuario/permissoes":                 "Substitui atomicamente permissões em UM produto/workspace. Body Zod: SetPermissoesUsuarioSchema { id_workspace, id_produto_gravity, permissoes: string[] (formato '<slug>:<secao>:<acao>') }. Rejeita alvo SAdmin/Admin/Master (400 — bypass Mand. 04). Rejeita produto fora do Set PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS (400 PRODUCT_PERMISSIONS_NOT_IMPLEMENTED). Anti-escalada (EDICAO_PROPRIA_NAO_PERMITIDA). Audit via securityAudit.permissionChanged."
       }
     },
     "admin-security": {
@@ -291,7 +291,25 @@
             "PUT /agendamento":   "Atualiza cron + notificadores. Body: { ativo, cron_expressao, notificadores[] }",
             "POST /agendamento/executar": "Alias de /sincronizar para compatibilidade com UI"
           }
+        },
+        "admin-empresas": {
+          "pathPrefix": "/api/v1/admin/empresas",
+          "middleware": ["requireInternalKey (S2S)"],
+          "lintException": "skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md (Exceções permitidas — admin S2S sem extrairIdOrganizacao). Endpoint omite filtro id_organizacao_empresa quando ?id_organizacao não vem no query — autorizado SOMENTE porque (a) S2S only, (b) audit logged pelo proxy do Configurador, (c) teto duro por_pagina<=200, (d) só GET (sem body).",
+          "note": "Listagem CROSS-ORGANIZAÇÃO read-only para SUPER_ADMIN/ADMIN Gravity. Chamado APENAS pelo proxy do Configurador (que faz auth JWT + audit log antes de chamar). Frontend nunca chama direto.",
+          "endpoints": {
+            "GET /": "Lista empresas de todas as organizações. Query: ?id_organizacao? ?tipo_parceiro? (importador|exportador|fabricante|agente|despachante|armador|cia_aerea|transportadora_rodoviaria_nacional|transportadora_rodoviaria_internacional|armazem_alfandegado|armazem_nacional|banco|seguradora_internacional|seguradora_corretora_cambio) ?pais? ?busca? ?pagina? ?por_pagina? (max 200). Resposta: { itens[], total, pagina, por_pagina, alerta_volume } — alerta_volume=true quando total>500 (frontend exibe modal de aviso). nome_organizacao volta '' deste serviço — proxy do Configurador SOBRESCREVE via batch IN(...) na tabela Configurador.Organizacao."
+          }
         }
+      }
+    },
+    "configurador-admin-empresas": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/admin/empresas",
+      "middleware": ["requireAuth (JWT Clerk)", "requireGravityAdmin (tipo_usuario ∈ {SUPER_ADMIN, ADMIN})"],
+      "note": "Proxy admin cross-organização. Pipeline: requireAuth → requireGravityAdmin → fetch Cadastros (S2S) → enrichment BATCH IN(...) em Configurador.Organizacao para preencher nome_organizacao (proibido N+1) → audit log fire-and-forget em AuditLogAdmin → resposta. Frontend EmpresasEParceirosAdmin.tsx (admin-only) consome este endpoint. Read-only por design — admin investiga, não modifica.",
+      "endpoints": {
+        "GET /": "Lista empresas cross-org com nome_organizacao enriquecido. Query/resposta espelham /api/v1/admin/empresas do Cadastros. Toda chamada é registrada em AuditLogAdmin (acao='admin.empresas.list', filtros, qtd_resultados, ip, correlation_id)."
       }
     }
   }

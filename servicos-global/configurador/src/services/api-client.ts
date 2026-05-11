@@ -1215,7 +1215,7 @@ export const usuariosApi = {
     // Regra condicional (decisão dono 2026-05-11): SUPER_ADMIN/ADMIN só são
     // atribuíveis se o alvo está em organização que hospeda colaboradores
     // Gravity. Backend (autorizarAlteracaoPatente) valida e retorna 403
-    // FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY se a regra for violada.
+    // TIPO_GRAVITY_EXIGE_ORG_GRAVITY se a regra for violada.
     // Frontend permite os 5 tipos no input; a UI filtra via usePodeEditarUsuario.
     tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR',
   ) {

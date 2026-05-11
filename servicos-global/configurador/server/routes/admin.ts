@@ -1453,7 +1453,7 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (_req, _res, next) => {
     throw new AppError(
       'Promoção a SUPER_ADMIN/ADMIN via API foi descontinuada. Esses tipos são internos da Gravity e só são criados via seed do banco.',
       410,
-      'GONE_PROMOTE_DEPRECATED',
+      'ROTA_PROMOVER_DESCONTINUADA',
     )
   } catch (err) {
     next(err)
@@ -1497,7 +1497,7 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       throw new AppError(
         'Apenas Super Admin pode convidar usuários (ADMIN é read-only)',
         403,
-        'FORBIDDEN_ADMIN_READ_ONLY',
+        'ADMIN_SOMENTE_LEITURA',
       )
     }
 
@@ -1513,7 +1513,7 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
         throw new AppError(
           'SUPER_ADMIN/ADMIN só podem ser convidados em organizações que hospedam colaboradores da Gravity',
           403,
-          'FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY',
+          'TIPO_GRAVITY_EXIGE_ORG_GRAVITY',
         )
       }
     }

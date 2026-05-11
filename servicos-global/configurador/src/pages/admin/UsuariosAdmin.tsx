@@ -187,7 +187,7 @@ export function UsuariosAdmin() {
   // Whitelist de tipos que o ator pode atribuir ao alvo em edição.
   // Reaproveita usePodeEditarUsuario (espelha autorizarAlteracaoPatente
   // do backend em server/routes/usuario.ts:476-546). Mand. 04 — anti-escalada:
-  // passa null quando ator===alvo (backend também bloqueia com FORBIDDEN_SELF_EDIT,
+  // passa null quando ator===alvo (backend também bloqueia com EDICAO_PROPRIA_NAO_PERMITIDA,
   // defesa em profundidade).
   const podeEditarAlvo = usePodeEditarUsuario(
     usuarioEditando && !ehAlvoProprio
@@ -731,8 +731,8 @@ export function UsuariosAdmin() {
             setUsuarioEditando(null)
           } catch (err) {
             // Padrão Usuarios.tsx:1130-1144 — rollback de UI + refetch best-effort.
-            // Mand. 08 — propaga mensagem real do backend (CONFLICT_LAST_MASTER,
-            // FORBIDDEN_SELF_EDIT, etc), sem mascarar com fallback genérico.
+            // Mand. 08 — propaga mensagem real do backend (ULTIMO_MASTER_ORGANIZACAO,
+            // EDICAO_PROPRIA_NAO_PERMITIDA, etc), sem mascarar com fallback genérico.
             if (original) {
               setUsuarios(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? original : u))
             }

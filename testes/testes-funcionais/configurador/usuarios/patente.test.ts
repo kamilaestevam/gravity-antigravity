@@ -211,14 +211,14 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     setupTransactionPassthrough()
   })
 
-  it('Ator tenta editar a si mesmo → 403 FORBIDDEN_SELF_EDIT', async () => {
+  it('Ator tenta editar a si mesmo → 403 EDICAO_PROPRIA_NAO_PERMITIDA', async () => {
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: ATOR_SUPER_ADMIN.id_usuario, id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN' })
 
     const res = await request(app).patch(`/api/v1/usuarios/${ATOR_SUPER_ADMIN.id_usuario}/patente`).send({ tipo_usuario: 'PADRAO' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_SELF_EDIT')
+    expect(res.body.error.code).toBe('EDICAO_PROPRIA_NAO_PERMITIDA')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
@@ -245,27 +245,27 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
   })
 
-  it('MASTER tenta editar outro MASTER → 403 FORBIDDEN_MASTER_VS_MASTER', async () => {
+  it('MASTER tenta editar outro MASTER → 403 MASTER_NAO_EDITA_MASTER', async () => {
     setAuth(ATOR_MASTER)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_MASTER_VS_MASTER')
+    expect(res.body.error.code).toBe('MASTER_NAO_EDITA_MASTER')
   })
 
-  it('MASTER tenta editar SUPER_ADMIN → 403 FORBIDDEN_MASTER_VS_GRAVITY', async () => {
+  it('MASTER tenta editar SUPER_ADMIN → 403 MASTER_NAO_EDITA_GRAVITY', async () => {
     setAuth(ATOR_MASTER)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_MASTER_VS_GRAVITY')
+    expect(res.body.error.code).toBe('MASTER_NAO_EDITA_GRAVITY')
   })
 
-  it('MASTER tenta atribuir SUPER_ADMIN → 403 FORBIDDEN_MASTER_INVALID_TARGET_TYPE', async () => {
+  it('MASTER tenta atribuir SUPER_ADMIN → 403 MASTER_TIPO_DESTINO_INVALIDO', async () => {
     // MASTER só pode atribuir Master/Standard/Fornecedor. Tentar SUPER_ADMIN
     // cai no block MASTER de autorizarAlteracaoPatente (regra preservada
     // desde antes da regra condicional 2026-05-11).
@@ -275,7 +275,7 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_MASTER_INVALID_TARGET_TYPE')
+    expect(res.body.error.code).toBe('MASTER_TIPO_DESTINO_INVALIDO')
   })
 
   it('PADRAO bloqueado pelo middleware (não passa de requireUserManagementRole)', async () => {
@@ -306,7 +306,7 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
     setupTransactionPassthrough()
   })
 
-  it('Rebaixar último MASTER da org → 409 CONFLICT_LAST_MASTER', async () => {
+  it('Rebaixar último MASTER da org → 409 ULTIMO_MASTER_ORGANIZACAO', async () => {
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(1) // só ele
@@ -314,7 +314,7 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
     expect(res.status).toBe(409)
-    expect(res.body.error.code).toBe('CONFLICT_LAST_MASTER')
+    expect(res.body.error.code).toBe('ULTIMO_MASTER_ORGANIZACAO')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
@@ -337,25 +337,25 @@ describe('TST-FUN-CONFIG-PAT-016 — Regra condicional SAdmin/ADMIN (decisão do
     setupTransactionPassthrough()
   })
 
-  it('SAdmin promove PADRAO → SUPER_ADMIN em org cliente → 403 FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY', async () => {
+  it('SAdmin promove PADRAO → SUPER_ADMIN em org cliente → 403 TIPO_GRAVITY_EXIGE_ORG_GRAVITY', async () => {
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_cliente', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY')
+    expect(res.body.error.code).toBe('TIPO_GRAVITY_EXIGE_ORG_GRAVITY')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
-  it('SAdmin promove PADRAO → ADMIN em org cliente → 403 FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY', async () => {
+  it('SAdmin promove PADRAO → ADMIN em org cliente → 403 TIPO_GRAVITY_EXIGE_ORG_GRAVITY', async () => {
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_cliente', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY')
+    expect(res.body.error.code).toBe('TIPO_GRAVITY_EXIGE_ORG_GRAVITY')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
@@ -437,7 +437,7 @@ describe('TST-FUN-CONFIG-PAT-017 — Anti-bricking último SUPER_ADMIN', () => {
     setupTransactionPassthrough()
   })
 
-  it('Rebaixar último SUPER_ADMIN do sistema → 409 CONFLICT_LAST_SUPER_ADMIN', async () => {
+  it('Rebaixar último SUPER_ADMIN do sistema → 409 ULTIMO_SUPER_ADMIN_SISTEMA', async () => {
     // SAdmin tenta rebaixar a si mesmo, sendo o único SAdmin existente.
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: ATOR_SUPER_ADMIN.id_usuario, id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: true } })
@@ -446,7 +446,7 @@ describe('TST-FUN-CONFIG-PAT-017 — Anti-bricking último SUPER_ADMIN', () => {
     const res = await request(app).patch(`/api/v1/usuarios/${ATOR_SUPER_ADMIN.id_usuario}/patente`).send({ tipo_usuario: 'MASTER' })
 
     expect(res.status).toBe(409)
-    expect(res.body.error.code).toBe('CONFLICT_LAST_SUPER_ADMIN')
+    expect(res.body.error.code).toBe('ULTIMO_SUPER_ADMIN_SISTEMA')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 

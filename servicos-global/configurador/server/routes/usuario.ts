@@ -405,7 +405,7 @@ usersRouter.put('/:id_usuario/workspaces', requireUserManagementRole, async (req
       throw new AppError(
         'Você não pode alterar os próprios vínculos de workspace',
         403,
-        'FORBIDDEN_SELF_EDIT',
+        'EDICAO_PROPRIA_NAO_PERMITIDA',
       )
     }
 
@@ -503,7 +503,7 @@ function autorizarAlteracaoPatente(
     throw new AppError(
       'Você não pode alterar o próprio tipo de usuário',
       403,
-      'FORBIDDEN_SELF_EDIT',
+      'EDICAO_PROPRIA_NAO_PERMITIDA',
     )
   }
 
@@ -514,7 +514,7 @@ function autorizarAlteracaoPatente(
       throw new AppError(
         'SUPER_ADMIN/ADMIN só podem ser atribuídos a usuários de organizações que hospedam colaboradores da Gravity',
         403,
-        'FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY',
+        'TIPO_GRAVITY_EXIGE_ORG_GRAVITY',
       )
     }
     return
@@ -528,7 +528,7 @@ function autorizarAlteracaoPatente(
     throw new AppError(
       'ADMIN não pode alterar tipo_usuario de nenhum usuário (read-only global)',
       403,
-      'FORBIDDEN_ADMIN_READ_ONLY',
+      'ADMIN_SOMENTE_LEITURA',
     )
   }
 
@@ -538,21 +538,21 @@ function autorizarAlteracaoPatente(
       throw new AppError(
         'Master não pode editar outro Master',
         403,
-        'FORBIDDEN_MASTER_VS_MASTER',
+        'MASTER_NAO_EDITA_MASTER',
       )
     }
     if (alvo.tipo_usuario === 'SUPER_ADMIN' || alvo.tipo_usuario === 'ADMIN') {
       throw new AppError(
         'Master não pode editar usuários Gravity (Super Admin/Admin)',
         403,
-        'FORBIDDEN_MASTER_VS_GRAVITY',
+        'MASTER_NAO_EDITA_GRAVITY',
       )
     }
     if (novoTipo !== 'MASTER' && novoTipo !== 'PADRAO' && novoTipo !== 'FORNECEDOR') {
       throw new AppError(
         'Master só pode atribuir Master, Standard ou Fornecedor',
         403,
-        'FORBIDDEN_MASTER_INVALID_TARGET_TYPE',
+        'MASTER_TIPO_DESTINO_INVALIDO',
       )
     }
     return
@@ -655,7 +655,7 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
           throw new AppError(
             'Não é possível rebaixar o último Master da organização',
             409,
-            'CONFLICT_LAST_MASTER',
+            'ULTIMO_MASTER_ORGANIZACAO',
           )
         }
       }
@@ -672,7 +672,7 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
           throw new AppError(
             'Não é possível rebaixar o último Super Admin do sistema',
             409,
-            'CONFLICT_LAST_SUPER_ADMIN',
+            'ULTIMO_SUPER_ADMIN_SISTEMA',
           )
         }
       }
@@ -792,7 +792,7 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
 
     // Anti-escalada: ator não altera as próprias permissões
     if (id_usuario === req.auth.id_usuario) {
-      throw new AppError('Você não pode alterar as próprias permissões', 403, 'FORBIDDEN_SELF_EDIT')
+      throw new AppError('Você não pode alterar as próprias permissões', 403, 'EDICAO_PROPRIA_NAO_PERMITIDA')
     }
 
     // SUPER_ADMIN tem escopo global; demais limitam à própria organização
@@ -822,7 +822,7 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
       where: { id_workspace: parsed.data.id_workspace, id_organizacao: alvo.id_organizacao },
       select: { id_workspace: true },
     })
-    if (!ws) throw new AppError('Workspace não pertence à organização do usuário', 403, 'FORBIDDEN_WORKSPACE')
+    if (!ws) throw new AppError('Workspace não pertence à organização do usuário', 403, 'WORKSPACE_FORA_DA_ORGANIZACAO')
 
     // Valida produto está no Set de "permissões implementadas" (defesa contra
     // gravar permissões para produtos que ainda não têm UI/middleware)
@@ -877,7 +877,7 @@ export const AlternarAcessoWorkspacesFuturosSchema = z.object({
  *
  * Defesas:
  *   • requireUserManagementRole (SAdmin/Admin/Master)
- *   • Anti-escalada (FORBIDDEN_SELF_EDIT)
+ *   • Anti-escalada (EDICAO_PROPRIA_NAO_PERMITIDA)
  *   • IDOR cross-org (404 NOT_FOUND para alvo de outra org sem privilégio global)
  *   • Mand. 04 — alvo MASTER/SAdmin/Admin retorna 400 INVALID_OPERATION
  *
@@ -900,7 +900,7 @@ usersRouter.patch('/:id_usuario/acesso-workspaces-futuros', requireUserManagemen
       throw new AppError(
         'Você não pode alterar a própria configuração de auto-vínculo',
         403,
-        'FORBIDDEN_SELF_EDIT',
+        'EDICAO_PROPRIA_NAO_PERMITIDA',
       )
     }
 

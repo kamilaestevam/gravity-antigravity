@@ -4,8 +4,8 @@
 // `skills/seguranca/permissoes/SKILL.md`:
 //   • SUPER_ADMIN: escopo global; ADMIN/MASTER: escopo da própria organização
 //   • Bypass Mand. 04 — alvo SAdmin/Admin/Master rejeita com 400
-//   • Anti-escalada — ator não edita próprias permissões (FORBIDDEN_SELF_EDIT)
-//   • IDOR cross-org de workspace (FORBIDDEN_WORKSPACE)
+//   • Anti-escalada — ator não edita próprias permissões (EDICAO_PROPRIA_NAO_PERMITIDA)
+//   • IDOR cross-org de workspace (WORKSPACE_FORA_DA_ORGANIZACAO)
 //   • Mand. 06 — Zod valida formato `<slug>:<secao>:<acao>`, sem duplicatas
 //   • Set PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS — produto fora rejeita 400
 //   • Slug do body ≠ slug do produto → PERMISSION_SLUG_MISMATCH
@@ -241,7 +241,7 @@ describe('PUT /api/v1/usuarios/:id_usuario/permissoes', () => {
   })
 
   // 6) Anti-escalada — Master tenta editar próprias permissões → 403
-  it('6. Master tenta editar próprias permissões → 403 FORBIDDEN_SELF_EDIT', async () => {
+  it('6. Master tenta editar próprias permissões → 403 EDICAO_PROPRIA_NAO_PERMITIDA', async () => {
     setAuth(ATOR_MASTER)
 
     const res = await request(app)
@@ -249,7 +249,7 @@ describe('PUT /api/v1/usuarios/:id_usuario/permissoes', () => {
       .send({ id_workspace: CUID_WS_OK, id_produto_gravity: CUID_PROD_PEDIDO, permissoes: ['pedido:dashboard:ver'] })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_SELF_EDIT')
+    expect(res.body.error.code).toBe('EDICAO_PROPRIA_NAO_PERMITIDA')
   })
 
   // 7) PADRAO tenta usar a rota → 403 (requireUserManagementRole)
@@ -312,8 +312,8 @@ describe('PUT /api/v1/usuarios/:id_usuario/permissoes', () => {
     expect(res.body.error.code).toBe('PRODUCT_PERMISSIONS_NOT_IMPLEMENTED')
   })
 
-  // 11) Workspace de outra org no body (IDOR) → 403 FORBIDDEN_WORKSPACE
-  it('11. Workspace de outra org no body → 403 FORBIDDEN_WORKSPACE', async () => {
+  // 11) Workspace de outra org no body (IDOR) → 403 WORKSPACE_FORA_DA_ORGANIZACAO
+  it('11. Workspace de outra org no body → 403 WORKSPACE_FORA_DA_ORGANIZACAO', async () => {
     setAuth(ATOR_MASTER)
     mockUsuarioFindFirst.mockResolvedValueOnce({ id_usuario: CUID_USR_ALVO, id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
     // workspace.findFirst filtra por id_organizacao do alvo → não encontra
@@ -324,7 +324,7 @@ describe('PUT /api/v1/usuarios/:id_usuario/permissoes', () => {
       .send({ id_workspace: CUID_WS_OUTRA_ORG, id_produto_gravity: CUID_PROD_PEDIDO, permissoes: ['pedido:dashboard:ver'] })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_WORKSPACE')
+    expect(res.body.error.code).toBe('WORKSPACE_FORA_DA_ORGANIZACAO')
   })
 
   // 12) Slug das strings ≠ slug do produto → 400 PERMISSION_SLUG_MISMATCH

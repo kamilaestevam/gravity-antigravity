@@ -13,7 +13,15 @@
 import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } from './importEngine.js'
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
 import { AppError } from '../errors/AppError.js'
-import { CAMPOS_PEDIDO_DDD_TODOS, type CampoPedidoDDD } from '../../../shared/campos-pedido-ddd.js'
+import {
+  CAMPOS_PEDIDO_DDD_TODOS,
+  type CampoPedidoDDD,
+  normalizarNomeCampo,
+  CAMPO_POR_ROTULO_NORMALIZADO,
+  CAMPO_POR_NOME_INTERNO,
+  CAMPO_POR_ALIAS_LEGADO,
+} from '../../../shared/campos-pedido-ddd.js'
+import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -206,10 +214,25 @@ export class SmartImportService {
       this.aplicarMapeamento(linha, mapeamento, i + 2) // linha 1 = cabecalho
     )
 
-    // 6. Agrupar por numero_pedido para contagem
+    // 6. Agrupar por numero_pedido para contagem (P4.4 — corrigido)
+    //
+    // Antes: total_pedidos = numero_pedido distintos; total_itens = linhasBrutas.length
+    // Bug exposto pelo teste manual de 11/05/2026: 1 linha PEDIDO sem
+    // numero_pedido mapeado dava "0 pedido(s) — 1 item(ns)". Agora respeita
+    // a coluna tipo_linha quando ela existe (template DDD novo).
+    const temTipoLinha = linhasMapeadas.some(l => l.dados['tipo_linha'] !== undefined)
     const pedidosUnicos = new Set(
-      linhasMapeadas.map(l => l.numero_pedido).filter(Boolean)
+      linhasMapeadas.map(l => l.numero_pedido).filter(Boolean) as string[]
     )
+    // Quando o arquivo tem tipo_linha, conta linhas PEDIDO e ITEM corretamente.
+    // Quando nao tem (formato legado flat), trata cada linha como 1 item e
+    // usa pedidosUnicos como antes (numero_pedido distintos).
+    const totalPedidosCalc = temTipoLinha
+      ? linhasMapeadas.filter(l => String(l.dados['tipo_linha'] ?? '').trim().toUpperCase() === 'PEDIDO').length
+      : pedidosUnicos.size
+    const totalItensCalc = temTipoLinha
+      ? linhasMapeadas.filter(l => String(l.dados['tipo_linha'] ?? '').trim().toUpperCase() === 'ITEM').length
+      : linhasBrutas.length
 
     // 7. Verificar duplicatas no banco
     const numerosArquivo = Array.from(pedidosUnicos).filter(Boolean) as string[]
@@ -268,8 +291,8 @@ export class SmartImportService {
 
     return {
       total_linhas:    linhasComCoerencia.length,
-      total_pedidos:   pedidosUnicos.size,
-      total_itens:     linhasBrutas.length,
+      total_pedidos:   totalPedidosCalc,
+      total_itens:     totalItensCalc,
       mapeamento,
       confianca_global: Math.round(confiancaGlobal),
       memoria_aplicada: memoriaAplicada,
@@ -616,29 +639,20 @@ export class SmartImportService {
           await this.memoriaService.salvar(tenantId, hashColunas, payload.mapeamento_confirmado)
         }
       }
-    })
 
-    // Popular agregado quantidade_total_pedido no pedido pai após criação dos itens
-    if (criados.length > 0) {
-      for (const pedidoId of criados) {
-        const itens = await this.db['pedidoItem'].findMany({
-          where: { pedido_id: pedidoId, tenant_id: tenantId },
-          select: { quantidade_inicial_pedido: true },
-        }) as { quantidade_inicial_pedido: number }[]
-        const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_pedido ?? 0), 0)
-        // Atualizacao cosmetica do agregado — nao bloqueia a importacao se falhar,
-        // mas LOGA o erro (P1.3 — fim dos catches silenciosos absolutos).
-        await this.db['pedido'].update({
-          where: { id: pedidoId },
-          data: { quantidade_total_pedido: qtdTotal },
-        }).catch((errAggr: unknown) => {
-          const motivo = errAggr instanceof Error ? `${errAggr.name}: ${errAggr.message}` : 'erro desconhecido'
-          // eslint-disable-next-line no-console
-          console.warn(`[SmartImport] Falha ao atualizar quantidade_total_pedido (pedido ${pedidoId}, tenant ${tenantId}): ${motivo}`)
-          return null
-        })
+      // Recalcular os 5 agregados de cada pedido criado/atualizado a partir
+      // dos itens. Roda DENTRO da transação principal (regra "tx obrigatório"
+      // do helper). Substitui o bloco legado que atualizava só `quantidade_total_pedido`
+      // e usava nomes de coluna desatualizados (pedido_id/tenant_id em vez de
+      // id_pedido/id_organizacao).
+      const idsAfetados = Array.from(new Set([...criados, ...atualizados.map(String)]))
+      for (const pedidoId of idsAfetados) {
+        // Loop serial (não Promise.all) — evita deadlock no PG quando vários
+        // pedidos estão sendo lockados na mesma tx.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await recalcularAgregadosPedido(tx as any, pedidoId, tenantId)
       }
-    }
+    })
 
     return {
       criados:    criados.length,
@@ -651,9 +665,26 @@ export class SmartImportService {
 
   // ── Privados ──────────────────────────────────────────────────────────────────
 
+  /**
+   * P4.2 — Mapeamento determinístico baseado em SSOT (campos-pedido-ddd.ts).
+   *
+   * Ordem de match (cada tier so e' tentado se o anterior nao encontrou):
+   *   1. ROTULO PT-BR exato (do SSOT) — confianca 99, nivel 'auto'
+   *      Ex: "Numero do Pedido" -> numero_pedido
+   *      Se 2 campos compartilham rotulo (caso "Moeda" -> pedido + item),
+   *      escolhe o de nivel='pedido' por padrao e marca confianca 85
+   *      (ainda 'auto' — desambiguar por contexto e' tarefa futura)
+   *   2. CAMPO interno exato (do SSOT) — confianca 95, nivel 'auto'
+   *      Ex: "numero_pedido" -> numero_pedido (export do Gemini)
+   *   3. ALIAS LEGADO exato — confianca 92 (sem ambiguidade) ou 75 (ambiguo)
+   *      Ex: "po number" -> numero_pedido
+   *   4. ALIAS LEGADO substring (>=6 chars, sem ambiguidade) — confianca 70
+   *      Ex: "PO Number Reference" contem "po number" -> numero_pedido
+   *
+   * SEM fallback frouxo: substring de aliases <6 chars ou ambiguos retornam
+   * null em vez de chutar (REGRA 08 — sem fallback silencioso).
+   */
   private mapearComIA(cabecalhos: string[], amostra: LinhaArquivo[]): ColunaMapeadaBackend[] {
-    const camposSistema = Object.keys(ALIASES_CAMPOS)
-
     return cabecalhos.map(cabecalho => {
       // Primeiro valor não-vazio da amostra
       const exemploValor = amostra
@@ -662,49 +693,74 @@ export class SmartImportService {
         ?? null
       const exemploStr = exemploValor ? String(exemploValor).slice(0, 80) : null
 
-      // Caso 1: coluna já é exatamente um campo do sistema (Gemini usa nomes internos)
-      if (camposSistema.includes(cabecalho)) {
-        return {
-          coluna_arquivo: cabecalho,
-          campo_sistema:  cabecalho,
-          confianca:      99,
-          nivel:          'auto' as const,
-          inferido_por:   'ia' as const,
-          exemplo_valor:  exemploStr,
+      const cabNorm = normalizarNomeCampo(cabecalho)
+      let campoEscolhido: CampoPedidoDDD | null = null
+      let confianca = 0
+
+      // Tier 1: rotulo PT-BR exato
+      const matchRotulo = CAMPO_POR_ROTULO_NORMALIZADO.get(cabNorm)
+      if (matchRotulo && matchRotulo.length > 0) {
+        if (matchRotulo.length === 1) {
+          campoEscolhido = matchRotulo[0]
+          confianca = 99
+        } else {
+          // Ambiguidade (ex: "Moeda" -> moeda_pedido + moeda_item).
+          // Escolhe o de nivel='pedido' como default; UI ja permite trocar.
+          campoEscolhido = matchRotulo.find(c => c.nivel === 'pedido') ?? matchRotulo[0]
+          confianca = 85
         }
       }
 
-      // Caso 2: matching por aliases (arquivos Excel/CSV com nomes humanos)
-      // Normaliza camelCase, underscores e hífens: "pricePerUnit" → "price per unit"
-      const cab = cabecalho.trim()
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .toLowerCase()
-        .replace(/[_-]/g, ' ')
-        .trim()
-      let melhorCampo: string | null = null
-      let melhorScore = 0
+      // Tier 2: nome interno exato
+      if (!campoEscolhido) {
+        const matchNome = CAMPO_POR_NOME_INTERNO.get(cabNorm)
+        if (matchNome) {
+          campoEscolhido = matchNome
+          confianca = 95
+        }
+      }
 
-      for (const [campo, aliases] of Object.entries(ALIASES_CAMPOS)) {
-        for (const alias of aliases) {
-          if (cab === alias) { melhorCampo = campo; melhorScore = 97; break }
-          // Partial match: alias ≥4 chars e coluna ≥3 chars para evitar falsos como "id" → "unid"
-          if (alias.length >= 4 && cab.length >= 3 && (cab === alias || cab.includes(alias) || alias.includes(cab))) {
-            const score = Math.round(70 + (Math.min(cab.length, alias.length) / Math.max(cab.length, alias.length)) * 25)
-            if (score > melhorScore) { melhorCampo = campo; melhorScore = score }
+      // Tier 3: alias legado exato
+      if (!campoEscolhido) {
+        const matchAlias = CAMPO_POR_ALIAS_LEGADO.get(cabNorm)
+        if (matchAlias && matchAlias.length > 0) {
+          if (matchAlias.length === 1) {
+            campoEscolhido = matchAlias[0]
+            confianca = 92
+          } else {
+            campoEscolhido = matchAlias.find(c => c.nivel === 'pedido') ?? matchAlias[0]
+            confianca = 75
           }
         }
-        if (melhorScore >= 97) break
+      }
+
+      // Tier 4: substring de alias legado (>=6 chars, sem ambiguidade)
+      if (!campoEscolhido) {
+        const aliasesPossiveis: CampoPedidoDDD[] = []
+        for (const [alias, campos] of CAMPO_POR_ALIAS_LEGADO.entries()) {
+          if (alias.length < 6) continue
+          if (cabNorm.includes(alias) || alias.includes(cabNorm)) {
+            aliasesPossiveis.push(...campos)
+          }
+        }
+        // Sem ambiguidade = exatamente um campo unico em todos os matches
+        const camposUnicos = Array.from(new Set(aliasesPossiveis.map(c => c.campo)))
+        if (camposUnicos.length === 1) {
+          campoEscolhido = aliasesPossiveis[0]
+          confianca = 70
+        }
+        // Se ambiguidade (2+ campos), deixa null — usuario decide manualmente
       }
 
       const nivel: ColunaMapeadaBackend['nivel'] =
-        melhorScore >= 90 ? 'auto' :
-        melhorScore >= 50 ? 'confirmado' :
+        confianca >= 90 ? 'auto' :
+        confianca >= 70 ? 'confirmado' :
         'ignorado'
 
       return {
         coluna_arquivo: cabecalho,
-        campo_sistema:  melhorScore >= 30 ? melhorCampo : null,
-        confianca:      melhorScore,
+        campo_sistema:  campoEscolhido?.campo ?? null,
+        confianca,
         nivel,
         inferido_por:   'ia',
         exemplo_valor:  exemploStr,

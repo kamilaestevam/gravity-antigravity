@@ -26,10 +26,10 @@ import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import {
-  adminUsersApi,
+  adminUsuariosApi,
   adminOrganizacoesApi,
   usuariosApi,
-  type GlobalUserApi,
+  type UsuarioGlobalApi,
   type WorkspaceItem,
 } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
@@ -68,9 +68,9 @@ interface UsuarioGlobalUI {
   vinculos_workspace: VinculoWorkspaceUI[]
 }
 
-// ─── Helper: mapeia GlobalUserApi do backend para UsuarioGlobalUI ──────────────
+// ─── Helper: mapeia UsuarioGlobalApi do backend para UsuarioGlobalUI ──────────────
 
-function mapApiUserToGlobal(u: GlobalUserApi): UsuarioGlobalUI {
+function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
   const vinculos: VinculoWorkspaceUI[] = u.memberships.map(m => ({
     id_usuario_workspace: m.id_usuario_workspace,
     id_workspace:         m.id_workspace,
@@ -127,7 +127,7 @@ export function UsuariosAdmin() {
   const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
   const { user: clerkUser } = useUser()
 
-  const [users, setUsers] = useState<UsuarioGlobalUI[]>([])
+  const [usuarios, setUsuarios] = useState<UsuarioGlobalUI[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
@@ -139,17 +139,17 @@ export function UsuariosAdmin() {
 
   // Organizações extraídas dos dados reais
   const ORGS = useMemo(() => {
-    const orgs = new Set(users.map(u => u.nome_organizacao))
+    const orgs = new Set(usuarios.map(u => u.nome_organizacao))
     return Array.from(orgs).sort()
-  }, [users])
+  }, [usuarios])
 
   // Carregar usuários da API (com suporte a retry manual)
   async function loadUsers() {
     try {
       setCarregando(true)
       setErroCarregar(null)
-      const res = await adminUsersApi.list()
-      setUsers(res.usuarios.map(mapApiUserToGlobal))
+      const res = await adminUsuariosApi.listar()
+      setUsuarios(res.usuarios.map(mapearApiParaUsuarioGlobal))
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_carregar')
       setErroCarregar(msg)
@@ -170,10 +170,10 @@ export function UsuariosAdmin() {
 
   // id_usuario do ator (anti-escalada por id — hook usePodeEditarUsuario só
   // checa por tipo). Padrão Usuarios.tsx:253-254 — match clerkUser.email ↔
-  // users[].email_usuario, já que o cache do useCarregarTipoUsuario só guarda
+  // usuarios[].email_usuario, já que o cache do useCarregarTipoUsuario só guarda
   // tipo, não o id_usuario do banco.
   const idUsuarioAtor =
-    users.find(u => clerkUser?.primaryEmailAddress?.emailAddress === u.email_usuario)?.id_usuario ?? null
+    usuarios.find(u => clerkUser?.primaryEmailAddress?.emailAddress === u.email_usuario)?.id_usuario ?? null
   const ehAlvoProprio = !!(usuarioEditando && idUsuarioAtor && idUsuarioAtor === usuarioEditando.id_usuario)
 
   // Whitelist de tipos que o ator pode atribuir ao alvo em edição.
@@ -310,7 +310,7 @@ export function UsuariosAdmin() {
       return
     }
     try {
-      await adminUsersApi.inviteUser({
+      await adminUsuariosApi.convidar({
         email_usuario: email,
         nome_usuario:  nome,
         tipo_usuario:  nivelToRole(fTipo),
@@ -418,10 +418,10 @@ export function UsuariosAdmin() {
   )
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
-  const totalUsers    = users.length
-  const ativos        = users.filter(u => u.status === 'Ativo').length
-  const inativos      = users.filter(u => u.status === 'Inativo').length
-  const orgsAtivas    = new Set(users.map(u => u.nome_organizacao)).size
+  const totalUsuarios    = usuarios.length
+  const ativos        = usuarios.filter(u => u.status === 'Ativo').length
+  const inativos      = usuarios.filter(u => u.status === 'Inativo').length
+  const orgsAtivas    = new Set(usuarios.map(u => u.nome_organizacao)).size
 
   return (
     <PaginaGlobal
@@ -438,7 +438,7 @@ export function UsuariosAdmin() {
         <>
           <CardBasicoGlobal
             titulo={t('admin.usuarios-globais.card_total')}
-            valor={totalUsers}
+            valor={totalUsuarios}
             icone={<Users weight="duotone" size={18} />}
             periodos={[
               { periodo: '7d',  rotulo: '7 dias',  valor: '+3',  direcao: 'up', descricao: 'vs semana anterior'    },
@@ -449,7 +449,7 @@ export function UsuariosAdmin() {
             tooltip={
               <>
                 <p className="cg-tooltip__title">{t('admin.usuarios-globais.card_total_tooltip_titulo')}</p>
-                <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_total_tooltip_total')}</span><strong>{totalUsers}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_total_tooltip_total')}</span><strong>{totalUsuarios}</strong></div>
                 <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_total_tooltip_ativos')}</span><strong style={{ color: '#34d399' }}>{ativos}</strong></div>
                 <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_total_tooltip_inativos')}</span><strong style={{ color: '#f87171' }}>{inativos}</strong></div>
               </>
@@ -508,7 +508,7 @@ export function UsuariosAdmin() {
                 <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_orgs_tooltip_total')}</span><strong>{ORGS.length}</strong></div>
                 <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_orgs_com_usuarios')}</span><strong style={{ color: '#8b5cf6' }}>{orgsAtivas}</strong></div>
                 <div className="cg-tooltip__divider" />
-                <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_orgs_tooltip_total_usuarios')}</span><strong>{totalUsers}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.usuarios-globais.card_orgs_tooltip_total_usuarios')}</span><strong>{totalUsuarios}</strong></div>
               </>
             }
           />
@@ -555,7 +555,7 @@ export function UsuariosAdmin() {
         ) : (
           <TabelaGlobal<UsuarioGlobalUI>
             id="admin-global-users"
-            dados={users}
+            dados={usuarios}
             colunas={COLUNAS}
             acoes={ACOES}
             acoesExportacao={ACOES_EXPORT}
@@ -684,7 +684,7 @@ export function UsuariosAdmin() {
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, permissoesParaPersistir, workspaceIds) => {
           // Estado original para rollback em caso de erro (Mand. 08).
-          const original = users.find(u => u.id_usuario === uEditado.id_usuario) ?? null
+          const original = usuarios.find(u => u.id_usuario === uEditado.id_usuario) ?? null
           const tipoMudou = original !== null && nivelToRole(original.tipo) !== uEditado.tipo_usuario
 
           // Admin global edita APENAS tipo_usuario. Permissões granulares e vínculos
@@ -722,7 +722,7 @@ export function UsuariosAdmin() {
             // Mand. 08 — propaga mensagem real do backend (CONFLICT_LAST_MASTER,
             // FORBIDDEN_SELF_EDIT, etc), sem mascarar com fallback genérico.
             if (original) {
-              setUsers(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? original : u))
+              setUsuarios(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? original : u))
             }
             try { await loadUsers() } catch { /* refetch best-effort */ }
             addNotification({

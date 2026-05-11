@@ -584,7 +584,7 @@ export const adminOrganizacoesApi = {
 // ─── Admin: Usuários Globais ────────────────────────────────────────────────
 
 // PARIDADE ABSOLUTA: espelha model Usuario + relações.
-export interface GlobalUserApi {
+export interface UsuarioGlobalApi {
   id_usuario: string
   nome_usuario: string
   email_usuario: string
@@ -601,18 +601,18 @@ export interface GlobalUserApi {
   }>
 }
 
-export const adminUsersApi = {
-  async list(params?: { page?: number; search?: string }) {
+export const adminUsuariosApi = {
+  async listar(params?: { page?: number; search?: string }) {
     const query = new URLSearchParams()
     if (params?.page) query.set('page', String(params.page))
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
-    return request<{ usuarios: GlobalUserApi[]; pagination: PaginationApi }>(
+    return request<{ usuarios: UsuarioGlobalApi[]; pagination: PaginationApi }>(
       `/v1/admin/usuarios${qs ? `?${qs}` : ''}`
     )
   },
 
-  async inviteUser(data: { email_usuario: string; nome_usuario: string; tipo_usuario: string }) {
+  async convidar(data: { email_usuario: string; nome_usuario: string; tipo_usuario: string }) {
     return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
       '/v1/admin/usuarios/convidar',
       { method: 'POST', body: JSON.stringify(data) }

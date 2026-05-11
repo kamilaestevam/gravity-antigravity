@@ -232,14 +232,17 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     expect(res.body.error.code).toBe('FORBIDDEN_ADMIN_VS_SUPER_ADMIN')
   })
 
-  it('ADMIN tenta promover a SUPER_ADMIN → 403 FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN', async () => {
+  it('ADMIN tenta promover a SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER (regra ε)', async () => {
+    // Após regra ε (2026-05-11), o guard `FORBIDDEN_PROMOTE_GRAVITY_TIER` é
+    // aplicado ANTES dos blocks de ator específicos — captura esta tentativa
+    // antes do antigo `FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN`.
     setAuth(ATOR_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO' })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN')
+    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
   })
 
   it('MASTER tenta editar outro MASTER → 403 FORBIDDEN_MASTER_VS_MASTER', async () => {
@@ -262,14 +265,17 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     expect(res.body.error.code).toBe('FORBIDDEN_MASTER_VS_GRAVITY')
   })
 
-  it('MASTER tenta atribuir SUPER_ADMIN → 403 FORBIDDEN_MASTER_INVALID_TARGET_TYPE', async () => {
+  it('MASTER tenta atribuir SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER (regra ε)', async () => {
+    // Após regra ε (2026-05-11), o guard `FORBIDDEN_PROMOTE_GRAVITY_TIER` é
+    // aplicado ANTES dos blocks de ator específicos — captura esta tentativa
+    // antes do antigo `FORBIDDEN_MASTER_INVALID_TARGET_TYPE`.
     setAuth(ATOR_MASTER)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_MASTER_INVALID_TARGET_TYPE')
+    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
   })
 
   it('PADRAO bloqueado pelo middleware (não passa de requireUserManagementRole)', async () => {
@@ -321,5 +327,66 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
     expect(res.status).toBe(200)
+  })
+})
+
+// ─── TST-FUN-CONFIG-PAT-016 — Regra ε (SAdmin/Admin só via seed) ────────────
+describe('TST-FUN-CONFIG-PAT-016 — Regra ε: SUPER_ADMIN/ADMIN não atribuíveis via API', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setupTransactionPassthrough()
+  })
+
+  it('SAdmin tenta promover PADRAO → SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
+
+    expect(res.status).toBe(403)
+    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(mockUsuarioUpdate).not.toHaveBeenCalled()
+  })
+
+  it('SAdmin tenta promover PADRAO → ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
+
+    expect(res.status).toBe(403)
+    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(mockUsuarioUpdate).not.toHaveBeenCalled()
+  })
+
+  it('SAdmin promove PADRAO → MASTER → 200 OK (caminho feliz preservado)', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'MASTER', acesso_workspaces_futuros: false })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'MASTER' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.tipo_usuario).toBe('MASTER')
+  })
+
+  it('Zod rejeita tipo inválido → 400 VALIDATION_ERROR', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'INVALIDO' })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(mockUsuarioUpdate).not.toHaveBeenCalled()
+  })
+
+  it('Body vazio → 400 VALIDATION_ERROR', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({})
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('VALIDATION_ERROR')
+    expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 })

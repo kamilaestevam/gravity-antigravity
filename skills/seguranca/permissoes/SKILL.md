@@ -495,8 +495,8 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 | Ator (`req.auth.tipo_usuario`) | Pode editar alvo... | Pode atribuir | Bloqueios |
 |---|---|---|---|
-| **SUPER_ADMIN** | Qualquer (escopo global) | Qualquer (`SUPER_ADMIN`/`ADMIN`/`MASTER`/`PADRAO`/`FORNECEDOR`) | Anti-escalada (próprio id), anti-bricking |
-| **ADMIN** | Qualquer EXCETO `SUPER_ADMIN` | `ADMIN`/`MASTER`/`PADRAO`/`FORNECEDOR` | Não promove a `SUPER_ADMIN`, anti-escalada, anti-bricking |
+| **SUPER_ADMIN** | Qualquer (escopo global) | Apenas `MASTER`/`PADRAO`/`FORNECEDOR` (SAdmin/ADMIN só via seed — regra ε) | Anti-escalada (próprio id), anti-bricking, `FORBIDDEN_PROMOTE_GRAVITY_TIER` |
+| **ADMIN** | Qualquer EXCETO `SUPER_ADMIN`/`ADMIN` | Apenas `MASTER`/`PADRAO`/`FORNECEDOR` (SAdmin/ADMIN só via seed — regra ε) | Não promove a SAdmin/ADMIN, anti-escalada, anti-bricking, `FORBIDDEN_PROMOTE_GRAVITY_TIER` |
 | **MASTER** | Mesmo `id_organizacao`, EXCETO outros `MASTER`/`SUPER_ADMIN`/`ADMIN` | `MASTER`/`PADRAO`/`FORNECEDOR` (incluindo promover `PADRAO` a `MASTER`) | Anti-escalada, anti-bricking |
 | **PADRAO / FORNECEDOR** | Ninguém | — | Bloqueado por `requireUserManagementRole` (`403`) |
 
@@ -518,7 +518,26 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 - `FORBIDDEN_MASTER_VS_MASTER` — MASTER tentando editar outro MASTER
 - `FORBIDDEN_MASTER_VS_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN
 - `FORBIDDEN_MASTER_INVALID_TARGET_TYPE` — MASTER tentando atribuir SUPER_ADMIN/ADMIN
+- `FORBIDDEN_PROMOTE_GRAVITY_TIER` — qualquer tentativa de atribuir SUPER_ADMIN/ADMIN via API (regra ε — só via seed)
+- `GONE_PROMOTE_DEPRECATED` — rota `POST /admin/usuarios/:id/promover` descontinuada (regra ε)
 - `CONFLICT_LAST_MASTER` — rebaixaria último MASTER da organização
+
+> ⚠️ **Regra ε (decisão dono 2026-05-11):** SUPER_ADMIN e ADMIN são tipos exclusivos
+> da Equipe Gravity. Esses tipos são criados **apenas via seed do banco** — nenhum
+> endpoint público (`PATCH /usuarios/:id/patente`, `POST /admin/usuarios/convidar`,
+> `POST /admin/usuarios/:id/promover`) aceita atribuir esses tipos.
+>
+> Defesas implementadas:
+> - `autorizarAlteracaoPatente` (rede de segurança após blocks de ator-específico): rejeita `novoTipo ∈ {SUPER_ADMIN, ADMIN}` com `FORBIDDEN_PROMOTE_GRAVITY_TIER` 403
+> - `AdminInviteSchema` (Zod): enum restrito a `['MASTER', 'PADRAO', 'FORNECEDOR']`
+> - `POST /admin/usuarios/:id/promover`: retorna `410 GONE_PROMOTE_DEPRECATED`
+> - Frontend `usePodeEditarUsuario`: whitelist nunca inclui SAdmin/ADMIN
+> - Frontend `OPCOES_TIPO_ADMIN`: select nunca expõe SAdmin/ADMIN
+>
+> Para criar um novo Gravity admin:
+> 1. Acesso direto ao banco (DBA) ou via script `scripts/sob-demanda/seed-admin-gravity.ts`
+> 2. Auditoria manual + aprovação dupla
+> 3. UI/API públicas nunca expõem essa operação
 
 ### Frontend — Hook `usePodeEditarUsuario`
 
@@ -550,7 +569,7 @@ PR separado criará `PATCH /api/v1/usuarios/:id_usuario` quando o fluxo de sync 
 - [ ] Master está com bypass das permissões granulares?
 - [ ] Supplier tem ao menos uma permissão explícita antes de receber acesso?
 - [ ] Admin Gravity consegue ler sem ter permissão explícita de WRITE?
-- [ ] Super Admin existe no seed do banco e nunca pode ser criado via API pública?
+- [ ] Super Admin e Admin existem APENAS no seed do banco e são rejeitados por `autorizarAlteracaoPatente` (`FORBIDDEN_PROMOTE_GRAVITY_TIER` 403), `AdminInviteSchema` (`VALIDATION_ERROR` 400) e `POST /admin/usuarios/:id/promover` (`GONE_PROMOTE_DEPRECATED` 410)?
 - [ ] Permissões são indexadas por `[id_organizacao, id_workspace, id_usuario]`?
 - [ ] O produto registrou suas permissões específicas além dos módulos universais?
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?

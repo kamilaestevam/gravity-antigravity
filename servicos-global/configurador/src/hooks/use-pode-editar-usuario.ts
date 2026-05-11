@@ -41,12 +41,17 @@ function tiposParaPatente(
   ator: TipoUsuario,
   alvo: TipoUsuarioBackend,
 ): TipoUsuarioBackend[] {
+  // Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN/ADMIN são tipos
+  // internos da Gravity, criados apenas via seed. Nenhuma whitelist
+  // contém esses tipos. Alvos SAdmin/ADMIN retornam [] (apenas seed
+  // pode mexer no tipo deles).
   if (ator === 'SUPER_ADMIN') {
-    return ['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']
+    if (alvo === 'SUPER_ADMIN' || alvo === 'ADMIN') return []
+    return ['MASTER', 'PADRAO', 'FORNECEDOR']
   }
   if (ator === 'ADMIN') {
-    if (alvo === 'SUPER_ADMIN') return []
-    return ['ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']
+    if (alvo === 'SUPER_ADMIN' || alvo === 'ADMIN') return []
+    return ['MASTER', 'PADRAO', 'FORNECEDOR']
   }
   if (ator === 'MASTER') {
     if (alvo === 'MASTER' || alvo === 'SUPER_ADMIN' || alvo === 'ADMIN') return []

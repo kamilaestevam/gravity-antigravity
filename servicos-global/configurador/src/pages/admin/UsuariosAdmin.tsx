@@ -111,12 +111,13 @@ function OrgBadge({ nome }: { nome: string }) {
   )
 }
 
+// Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN e ADMIN são tipos
+// internos da Equipe Gravity, criados apenas via seed do banco. UI nunca
+// oferece esses tipos no convite ou na edição.
 const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
-  { valor: 'Fornecedor',  rotulo: 'Fornecedor',  descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
-  { valor: 'Standard',    rotulo: 'Standard',    descricao: 'Usuário operacional vinculado a workspaces específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
-  { valor: 'Master',      rotulo: 'Master',      descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
-  { valor: 'Admin',       rotulo: 'Admin',       descricao: 'Administrador da plataforma com permissões específicas', meta: { icone: <ShieldCheck size={16} weight="duotone" color="#06b6d4" /> } },
-  { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (todas as orgs)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
+  { valor: 'Fornecedor', rotulo: 'Fornecedor', descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
+  { valor: 'Standard',   rotulo: 'Standard',   descricao: 'Usuário operacional vinculado a workspaces específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
+  { valor: 'Master',     rotulo: 'Master',     descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
 ]
 
 export function UsuariosAdmin() {
@@ -296,26 +297,9 @@ export function UsuariosAdmin() {
     }
   }
 
-  // Filtro de opções com base no perfil logado
-  const opcoesDisponiveis = useMemo(() => {
-    if (perfilLogado === 'Super Admin') return OPCOES_TIPO_ADMIN
-    // Admin não pode criar Super Admin ou outro Admin
-    return OPCOES_TIPO_ADMIN.filter(op => op.valor !== 'Super Admin' && op.valor !== 'Admin')
-  }, [perfilLogado])
-
-  // Admin e Super Admin pertencem à Gravity (org fixa) — os demais precisam de workspace
-  const isGravityRole = fTipo === 'Admin' || fTipo === 'Super Admin'
-
-  // Quando o tipo muda, ajusta o fOrg automaticamente
-  useEffect(() => {
-    if (isGravityRole) {
-      setFOrg('Gravity')
-    } else {
-      // Volta para o primeiro workspace que não seja "Gravity"
-      const firstWorkspace = ORGS.find(o => o !== 'Gravity') ?? ORGS[0] ?? ''
-      setFOrg(firstWorkspace)
-    }
-  }, [fTipo]) // eslint-disable-line react-hooks/exhaustive-deps
+  // OPCOES_TIPO_ADMIN já está limitado a Master/Standard/Fornecedor (regra ε —
+  // SAdmin/Admin só via seed do banco). Sem filtro condicional por perfil.
+  const opcoesDisponiveis = OPCOES_TIPO_ADMIN
 
   async function handleInvite() {
     const nome  = fNome.trim()
@@ -715,10 +699,16 @@ export function UsuariosAdmin() {
 
           try {
             // Persiste alteração de tipo_usuario via PATCH /patente — backend valida
-            // matriz ator×alvo (autorizarAlteracaoPatente). SAdmin/Admin podem
-            // promover/rebaixar conforme regras (Mand. 04).
+            // matriz ator×alvo (autorizarAlteracaoPatente). Regra ε: SUPER_ADMIN/ADMIN
+            // só via seed — defesa em profundidade no frontend antes do request.
             if (tipoMudou) {
-              await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, uEditado.tipo_usuario)
+              const novoTipo = uEditado.tipo_usuario
+              if (novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN') {
+                throw new Error(
+                  'SUPER_ADMIN/ADMIN são tipos internos da Gravity e só podem ser atribuídos via seed do banco',
+                )
+              }
+              await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, novoTipo)
             }
             // Refetch — servidor é fonte da verdade após qualquer mutação.
             await loadUsers()
@@ -847,35 +837,16 @@ export function UsuariosAdmin() {
 
           <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.organizacao')}
-            tooltipTitulo={isGravityRole ? 'Organização Gravity' : t('admin.usuarios-globais.tabela.org_tooltip')}
-            tooltipDescricao={isGravityRole
-              ? 'Admin e Super Admin pertencem à plataforma Gravity e não a um workspace de cliente.'
-              : t('admin.usuarios-globais.tabela.org_desc')}
+            tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
+            tooltipDescricao={t('admin.usuarios-globais.tabela.org_desc')}
           >
-            {isGravityRole ? (
-              // Org fixa — Admin/Super Admin sempre pertencem à Gravity
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.55rem 0.875rem', borderRadius: '0.5rem',
-                background: 'rgba(16,185,129,0.06)',
-                border: '1px solid rgba(16,185,129,0.25)',
-                color: '#10b981', fontSize: '0.875rem', fontWeight: 600,
-              }}>
-                <Buildings size={16} weight="duotone" />
-                Gravity
-                <span style={{ marginLeft: 'auto', fontSize: '0.7rem', opacity: 0.6, fontWeight: 400 }}>
-                  fixo para Admin / Super Admin
-                </span>
-              </div>
-            ) : (
-              <SelectGlobal
-                opcoes={ORGS.filter(o => o !== 'Gravity').map(o => ({ valor: o, rotulo: o }))}
-                valor={fOrg}
-                aoMudarValor={(v) => setFOrg(v as string)}
-                iconeEsquerda={<Buildings size={18} weight="duotone" />}
-                placeholder={t('admin.usuarios-globais.form_org_placeholder')}
-              />
-            )}
+            <SelectGlobal
+              opcoes={ORGS.filter(o => o !== 'Gravity').map(o => ({ valor: o, rotulo: o }))}
+              valor={fOrg}
+              aoMudarValor={(v) => setFOrg(v as string)}
+              iconeEsquerda={<Buildings size={18} weight="duotone" />}
+              placeholder={t('admin.usuarios-globais.form_org_placeholder')}
+            />
           </CampoGeralGlobal>
 
           <BannerRequisitosGlobal />

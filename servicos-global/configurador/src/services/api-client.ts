@@ -612,13 +612,6 @@ export const adminUsersApi = {
     )
   },
 
-  async promoteUser(id_usuario: string, tipo_usuario: 'SUPER_ADMIN' | 'ADMIN') {
-    return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
-      `/v1/admin/usuarios/${id_usuario}/promover`,
-      { method: 'POST', body: JSON.stringify({ tipo_usuario }) }
-    )
-  },
-
   async inviteUser(data: { email_usuario: string; nome_usuario: string; tipo_usuario: string }) {
     return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
       '/v1/admin/usuarios/convidar',
@@ -1213,7 +1206,11 @@ export const usuariosApi = {
 
   async alterarTipoUsuario(
     id_usuario: string,
-    tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+    // Regra ε: SUPER_ADMIN/ADMIN não são atribuíveis via API (skill
+    // `seguranca/permissoes` — só seed). Tipo do parâmetro reflete o
+    // que o backend aceita em runtime (PATCH /patente rejeita os Gravity-tier
+    // via guarda FORBIDDEN_PROMOTE_GRAVITY_TIER).
+    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
   ) {
     const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/patente`, {
       method: 'PATCH',

@@ -487,25 +487,33 @@ function autorizarAlteracaoPatente(
     )
   }
 
+  // Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN e ADMIN são tipos
+  // internos da Equipe Gravity e só podem ser atribuídos via seed do banco.
+  // Aplica-se a TODOS os atores (inclusive SAdmin) — é regra absoluta de
+  // negócio, não relativa à patente do ator. Posicionada após a anti-escalada
+  // e ANTES dos blocks de ator específicos para garantir que toda tentativa
+  // de promoção a Gravity-tier é rejeitada de forma uniforme.
+  if (novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN') {
+    throw new AppError(
+      'SUPER_ADMIN/ADMIN são tipos internos da Gravity e só podem ser atribuídos via seed do banco',
+      403,
+      'FORBIDDEN_PROMOTE_GRAVITY_TIER',
+    )
+  }
+
   if (ator.tipo_usuario === 'SUPER_ADMIN') {
-    // SUPER_ADMIN tem escopo global e pode tudo
+    // SUPER_ADMIN tem escopo global e pode atribuir qualquer tipo não-Gravity
     return
   }
 
   if (ator.tipo_usuario === 'ADMIN') {
-    // ADMIN não pode mexer em SUPER_ADMIN nem promover ninguém a SUPER_ADMIN
+    // ADMIN não pode mexer em SUPER_ADMIN nem em outro ADMIN
+    // (promoção a SUPER_ADMIN/ADMIN já bloqueada pelo guard regra ε acima)
     if (alvo.tipo_usuario === 'SUPER_ADMIN') {
       throw new AppError(
         'Admin não pode editar Super Admin',
         403,
         'FORBIDDEN_ADMIN_VS_SUPER_ADMIN',
-      )
-    }
-    if (novoTipo === 'SUPER_ADMIN') {
-      throw new AppError(
-        'Admin não pode promover usuário a Super Admin',
-        403,
-        'FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN',
       )
     }
     return

@@ -1436,58 +1436,21 @@ const PlatformConfigSchema = z.object({
 })
 
 /**
- * POST /api/v1/admin/usuarios/:id_usuario/promover
- * Promove um usuário para SUPER_ADMIN ou ADMIN.
- * Apenas SUPER_ADMIN pode chamar este endpoint.
+ * POST /api/v1/admin/usuarios/:id_usuario/promover — DEPRECATED
+ *
+ * Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN e ADMIN são tipos
+ * internos da Equipe Gravity e só podem ser criados via seed do banco.
+ * Esta rota retorna 410 Gone — qualquer tentativa de promoção via API
+ * pública é rejeitada. Para criar Admin Gravity, usar seed/script direto
+ * no banco com auditoria manual.
  */
-const PromoteSchema = z.object({
-  role: z.enum(['SUPER_ADMIN', 'ADMIN']),
-})
-
-adminRouter.post('/usuarios/:id_usuario/promover', async (req, res, next) => {
+adminRouter.post('/usuarios/:id_usuario/promover', async (_req, _res, next) => {
   try {
-    // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
-    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
-      throw new AppError('Somente Super Admin pode promover usuários', 403, 'FORBIDDEN')
-    }
-
-    const parsed = PromoteSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(
-        parsed.error.errors[0]?.message ?? 'Role inválido',
-        400,
-        'VALIDATION_ERROR'
-      )
-    }
-
-    // Impede auto-promoção/alteração
-    if (req.params.id_usuario === req.auth.id_usuario) {
-      throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
-    }
-
-    const user = await prisma.usuario.findUnique({
-      where: { id_usuario: req.params.id_usuario },
-      select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_clerk_usuario: true, id_organizacao: true },
-    })
-    if (!user || user.id_organizacao !== req.auth.id_organizacao) {
-      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
-    }
-
-    const updated = await prisma.usuario.update({
-      where: { id_usuario: req.params.id_usuario },
-      data: { tipo_usuario: parsed.data.role },
-      select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
-    })
-
-    securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
-      id_usuario_alvo:        req.params.id_usuario,
-      tipo_usuario_anterior:  user.tipo_usuario,
-      tipo_usuario_novo:      updated.tipo_usuario,
-    }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
-
-    // DTO DDD: Prisma `email_usuario` → `email`, `id_usuario` → `id`
-    const { email_usuario, id_usuario, ...updRest } = updated
-    res.json({ user: { ...updRest, id: id_usuario, email: email_usuario } })
+    throw new AppError(
+      'Promoção a SUPER_ADMIN/ADMIN via API foi descontinuada. Esses tipos são internos da Gravity e só são criados via seed do banco.',
+      410,
+      'GONE_PROMOTE_DEPRECATED',
+    )
   } catch (err) {
     next(err)
   }
@@ -1499,10 +1462,13 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (req, res, next) => {
  * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
  * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
  */
+// Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN/ADMIN só via seed do
+// banco. Convite via API pública aceita apenas tipos atribuíveis a usuários
+// de organização (cliente ou Gravity-interna).
 const AdminInviteSchema = z.object({
   email_usuario: z.string().email().max(255),
   nome_usuario: z.string().min(1).max(200),
-  tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  tipo_usuario: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
 adminRouter.post('/usuarios/convidar', async (req, res, next) => {
@@ -1513,11 +1479,6 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
     }
 
     const { email_usuario, nome_usuario, tipo_usuario } = parsed.data
-
-    // ADMIN não pode criar SUPER_ADMIN ou outro ADMIN
-    if (req.auth.tipo_usuario === 'ADMIN' && (tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN')) {
-      throw new AppError('ADMIN não pode convidar usuários com tipo_usuario SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
-    }
 
     // Verifica se já existe usuário com esse e-mail na organização HQ
     const existing = await prisma.usuario.findFirst({ where: { email_usuario, id_organizacao: req.auth.id_organizacao } })

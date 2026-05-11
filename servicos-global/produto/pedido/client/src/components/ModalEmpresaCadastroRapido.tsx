@@ -28,6 +28,17 @@ import {
 export interface ModalEmpresaCadastroRapidoProps {
   aberto: boolean
   papel: PapelEmpresaRapido
+  /**
+   * Quando true, BR é removido da lista de países e o usuário precisa escolher
+   * um país estrangeiro. Documento exigido vira TIN (Tax ID).
+   *
+   * Regra de negócio: em IMPORTAÇÃO o Exportador é estrangeiro (a empresa-da-org
+   * é o Importador BR); em EXPORTAÇÃO o Importador é estrangeiro. Para essas
+   * contrapartes nunca cabe CNPJ — passar `forcarEstrangeiro={true}`.
+   *
+   * Para Fabricante (e papéis flexíveis) deixar `false` (padrão).
+   */
+  forcarEstrangeiro?: boolean
   onFechar: () => void
   onCriado: (empresa: Empresa) => void
 }
@@ -65,6 +76,7 @@ function traduzirErroCadastro(err: unknown, t: TFunc): string {
 export function ModalEmpresaCadastroRapido({
   aberto,
   papel,
+  forcarEstrangeiro = false,
   onFechar,
   onCriado,
 }: ModalEmpresaCadastroRapidoProps): React.JSX.Element | null {
@@ -72,11 +84,17 @@ export function ModalEmpresaCadastroRapido({
   const { addNotification } = useShellStore()
 
   const [nome, setNome] = useState('')
-  const [pais, setPais] = useState('BR')
+  // Default: BR para Fabricante (papel flexível); '' (forçar escolha) quando
+  // a contraparte é obrigatoriamente estrangeira (Exportador em IMP, Importador
+  // em EXP) — evita BR ser selecionado por engano.
+  const [pais, setPais] = useState(forcarEstrangeiro ? '' : 'BR')
   const [cnpj, setCnpj] = useState('')
+  const [tin, setTin]   = useState('')
   const [paises, setPaises] = useState<Pais[]>([])
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+
+  const ehBr = pais === 'BR'
 
   // Carrega lista de países quando abre
   useEffect(() => {
@@ -99,12 +117,13 @@ export function ModalEmpresaCadastroRapido({
   useEffect(() => {
     if (aberto) {
       setNome('')
-      setPais('BR')
+      setPais(forcarEstrangeiro ? '' : 'BR')
       setCnpj('')
+      setTin('')
       setErro(null)
       setSalvando(false)
     }
-  }, [aberto])
+  }, [aberto, forcarEstrangeiro])
 
   // Esc fecha
   useEffect(() => {
@@ -116,16 +135,28 @@ export function ModalEmpresaCadastroRapido({
     return () => document.removeEventListener('keydown', handler)
   }, [aberto, onFechar])
 
+  // Quando a contraparte é obrigatoriamente estrangeira, removemos BR da lista
+  // — não queremos que o usuário caia na armadilha de cadastrar Exportador BR
+  // numa importação (a empresa BR já é a empresa-da-org, do outro lado).
   const opcoesPais = useMemo(
     () =>
-      paises.map((p) => ({
-        valor: p.codigo_pais_iso_alpha2,
-        rotulo: `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`,
-      })),
-    [paises],
+      paises
+        .filter((p) => !forcarEstrangeiro || p.codigo_pais_iso_alpha2 !== 'BR')
+        .map((p) => ({
+          valor: p.codigo_pais_iso_alpha2,
+          rotulo: `${p.nome_pais_portugues} (${p.codigo_pais_iso_alpha2})`,
+        })),
+    [paises, forcarEstrangeiro],
   )
 
-  const podeSalvar = nome.trim().length >= 2 && !!pais && !salvando
+  // CNPJ obrigatório quando BR (decisão de produto: empresa BR sem CNPJ não
+  // serve para emitir DUE/DI/NF). TIN do exterior é opcional aqui — quando
+  // ausente, o ModalPedidoNovo bloqueia a criação do pedido com mensagem
+  // amigável no banner ("XYZ ainda não tem CNPJ/Tax ID em Cadastros"),
+  // permitindo que o usuário cadastre a empresa rápido agora e complete TIN
+  // depois pelo Cadastros se quiser.
+  const cnpjOk = ehBr ? cnpj.trim().length > 0 : true
+  const podeSalvar = nome.trim().length >= 2 && !!pais && cnpjOk && !salvando
 
   async function handleSalvar() {
     if (!podeSalvar) return
@@ -135,7 +166,8 @@ export function ModalEmpresaCadastroRapido({
       const empresa = await cadastrosApi.criarEmpresa({
         nome_empresa: nome,
         pais_empresa: pais,
-        cnpj_empresa: pais === 'BR' && cnpj.trim() ? cnpj.trim() : null,
+        cnpj_empresa: ehBr && cnpj.trim() ? cnpj.trim() : null,
+        tin_empresa:  !ehBr && tin.trim() ? tin.trim() : null,
         papel,
       })
       addNotification({
@@ -200,7 +232,7 @@ export function ModalEmpresaCadastroRapido({
         >
           <h3 id="mecr-titulo" style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Buildings size={18} weight="duotone" />
-            {t('pedido.cadastro_empresa.titulo')}
+            {t('pedido.cadastro_empresa.titulo_papel', { papel: rotuloPapel(papel, t) })}
           </h3>
           <button
             type="button"
@@ -221,7 +253,7 @@ export function ModalEmpresaCadastroRapido({
           {/* Nome */}
           <div>
             <label style={{ display: 'block', fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
-              {t('pedido.cadastro_empresa.label_nome')}
+              {t('pedido.cadastro_empresa.label_nome_papel', { papel: rotuloPapel(papel, t) })}
             </label>
             <input
               type="text"
@@ -253,17 +285,64 @@ export function ModalEmpresaCadastroRapido({
             />
           </div>
 
-          {/* CNPJ — só se BR */}
-          {pais === 'BR' && (
+          {/* Documento — CNPJ obrigatório se BR; TIN obrigatório caso contrário.
+              Sem documento o snapshot do Pedido não pode ser gerado, então
+              exigimos aqui (alinhado a `pedidoSnapshots.montarSnapshotEmpresa`). */}
+          {ehBr ? (
             <div>
-              <label style={{ display: 'block', fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
-                {t('pedido.cadastro_empresa.label_cnpj')}
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  color: cnpj.trim() ? 'var(--text-muted)' : 'var(--danger, #ef4444)',
+                  marginBottom: '0.375rem',
+                }}
+              >
+                {t('pedido.cadastro_empresa.label_cnpj_obrigatorio')}
               </label>
               <input
                 type="text"
                 value={cnpj}
                 onChange={(e) => setCnpj(e.target.value)}
                 placeholder="00.000.000/0000-00"
+                aria-invalid={!cnpj.trim()}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  background: 'var(--bg-input, #11111a)',
+                  border: `1px solid ${cnpj.trim() ? 'var(--border-subtle, #333)' : 'var(--danger, #ef4444)'}`,
+                  borderRadius: '0.375rem',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                {t('pedido.cadastro_empresa.cnpj_obrigatorio_motivo')}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted)',
+                  marginBottom: '0.375rem',
+                }}
+              >
+                {t('pedido.cadastro_empresa.label_tin_opcional')}
+              </label>
+              <input
+                type="text"
+                value={tin}
+                onChange={(e) => setTin(e.target.value)}
+                placeholder={t('pedido.cadastro_empresa.ph_tin')}
                 style={{
                   width: '100%',
                   padding: '0.5rem 0.75rem',
@@ -275,7 +354,7 @@ export function ModalEmpresaCadastroRapido({
                 }}
               />
               <p style={{ margin: '0.25rem 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-                {t('pedido.cadastro_empresa.cnpj_opcional')}
+                {t('pedido.cadastro_empresa.tin_opcional_motivo')}
               </p>
             </div>
           )}

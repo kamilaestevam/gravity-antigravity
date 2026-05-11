@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next'
 import { Package, Tag, Plus, Trash, Warning, Lock, Info } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
@@ -25,56 +27,54 @@ import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
 
 // ── Tipos de formulário ────────────────────────────────────────────────────────
 
+// Form types — Mandamento 03: nomenclatura DDD pura.
 interface PedidoForm {
-  tipo_operacao: TipoOperacao
+  tipo_operacao_pedido: TipoOperacao
   numero_pedido: string
-  // Fase 4 DDD — SUIDs referenciam Empresas no serviço Cadastros.
-  // UX (B3): SelectGlobal carrega empresas da organização ao abrir o modal,
-  // com atalho "+ Cadastrar nova empresa" que abre ModalEmpresaCadastroRapido,
-  // grava no Cadastros e seleciona o SUID retornado.
+  // SUIDs referenciam Empresas no serviço Cadastros (snapshot)
   suid_importador: string
   suid_exportador: string
   suid_fabricante: string
-  incoterm: string
-  condicao_pagamento: string
-  numero_proforma: string
-  numero_invoice: string
-  referencia_importador: string
-  referencia_exportador: string
-  referencia_fabricante: string
+  incoterm_pedido: string
+  condicao_pagamento_pedido: string
+  numero_proforma_pedido: string
+  numero_invoice_pedido: string
+  referencia_importador_pedido: string
+  referencia_exportador_pedido: string
+  referencia_fabricante_pedido: string
   data_emissao_pedido: string
 }
 
 interface ItemForm {
   key: string
-  part_number: string
-  ncm: string
+  part_number_item: string
+  ncm_item: string
   descricao_item: string
-  quantidade_inicial_pedido: string
+  quantidade_inicial_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
-  tipo_operacao: 'importacao',
+  tipo_operacao_pedido: 'importacao',
   numero_pedido: '',
   suid_importador: '',
   suid_exportador: '',
   suid_fabricante: '',
-  incoterm: 'FOB',
-  condicao_pagamento: '',
-  numero_proforma: '',
-  numero_invoice: '',
-  referencia_importador: '',
-  referencia_exportador: '',
-  referencia_fabricante: '',
+  incoterm_pedido: 'FOB',
+  condicao_pagamento_pedido: '',
+  numero_proforma_pedido: '',
+  numero_invoice_pedido: '',
+  referencia_importador_pedido: '',
+  referencia_exportador_pedido: '',
+  referencia_fabricante_pedido: '',
   data_emissao_pedido: new Date().toISOString().split('T')[0],
 }
 
 const ITEM_VAZIO = (): ItemForm => ({
   key: crypto.randomUUID(),
-  part_number: '',
-  ncm: '',
+  part_number_item: '',
+  ncm_item: '',
   descricao_item: '',
-  quantidade_inicial_pedido: '',
+  quantidade_inicial_item: '',
 })
 
 // ── Opções de select ───────────────────────────────────────────────────────────
@@ -217,30 +217,8 @@ const s = {
     border: '1px solid rgba(239,68,68,0.2)',
     borderRadius: 'var(--radius-md)',
   } as React.CSSProperties,
-  // Bloco "PARA AVANÇAR, AINDA FALTA" — UX espelhada do modal Cadastros
-  pendenciasBox: {
-    marginTop: '1rem',
-    padding: '0.875rem 1rem',
-    background: 'rgba(239,68,68,0.08)',
-    border: '1px solid rgba(239,68,68,0.25)',
-    borderRadius: 'var(--radius-md)',
-  } as React.CSSProperties,
-  pendenciasTitulo: {
-    display: 'block',
-    fontSize: '0.6875rem',
-    fontWeight: 700,
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase' as const,
-    color: '#ef4444',
-    marginBottom: '0.5rem',
-  } as React.CSSProperties,
-  pendenciasLista: {
-    margin: 0,
-    paddingLeft: '1.125rem',
-    fontSize: '0.8125rem',
-    color: '#fca5a5',
-    lineHeight: 1.55,
-  } as React.CSSProperties,
+  // (Bloco "PARA AVANÇAR, AINDA FALTA" agora vem do BannerRequisitosGlobal —
+  // styles removidos. CSS oficial em @nucleo/banner-requisitos-global.)
   asteriscoObrigatorio: {
     color: 'var(--danger, #ef4444)',
     fontWeight: 700,
@@ -393,7 +371,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   useEffect(() => {
     if (!empresaDaOrg) return
     setForm((prev) => {
-      if (prev.tipo_operacao === 'importacao') {
+      if (prev.tipo_operacao_pedido === 'importacao') {
         return {
           ...prev,
           suid_importador: empresaDaOrg.suid_empresa,
@@ -408,29 +386,24 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         suid_importador: prev.suid_importador === empresaDaOrg.suid_empresa ? '' : prev.suid_importador,
       }
     })
-  }, [form.tipo_operacao, empresaDaOrg])
+  }, [form.tipo_operacao_pedido, empresaDaOrg])
 
   // Monta opções do SelectGlobal para um papel.
-  // Empresas com o papel marcado aparecem primeiro; demais ficam visíveis com
-  // descrição informativa (não bloqueia escolha — apenas alerta UX).
+  // Lista APENAS empresas com o papel marcado em Cadastros — quem não tem
+  // o flag não aparece (UX exigida pelo dono: a lista de "Exportador" só
+  // pode trazer exportadores, e assim por diante). Para cadastrar novas
+  // o usuário usa o atalho "+ Nova" que abre o cascade modal.
   function opcoesEmpresaPara(papel: PapelEmpresaRapido) {
     const papelKey =
       papel === 'importador' ? 'pode_ser_importador_empresa'
       : papel === 'exportador' ? 'pode_ser_exportador_empresa'
       : 'pode_ser_fabricante_empresa'
-    const aptas = empresas.filter((e) => e[papelKey])
-    const outras = empresas.filter((e) => !e[papelKey])
-    return [
-      ...aptas.map((e) => ({
+    return empresas
+      .filter((e) => e[papelKey])
+      .map((e) => ({
         valor: e.suid_empresa,
         rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
-      })),
-      ...outras.map((e) => ({
-        valor: e.suid_empresa,
-        rotulo: `${e.nome_empresa} (${e.pais_empresa})`,
-        descricao: t('pedido.cadastro_empresa.papel_nao_marcado'),
-      })),
-    ]
+      }))
   }
 
   function aoCriarEmpresa(empresa: Empresa) {
@@ -482,35 +455,119 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   // Cada item vira uma linha no bloco "PARA AVANÇAR, AINDA FALTA" — UX
   // espelhada do modal de Cadastros (Razão social + funções habilitadas).
   // Ordem segue a leitura do formulário (top-down).
-  const pendenciasPasso1 = useMemo<string[]>(() => {
-    const faltas: string[] = []
-    if (carregandoEmpresaDaOrg) {
-      faltas.push(t('pedido.modal_novo.falta_empresa_da_org_carregando'))
-    } else if (!empresaDaOrg) {
-      faltas.push(t('pedido.modal_novo.falta_empresa_da_org'))
+  // Helper: dado um SUID selecionado, retorna:
+  //   - null               → SUID vazio ou empresa não encontrada
+  //   - {tipo:'pais_br'}   → empresa BR num slot que deve ser estrangeiro (contraparte de IMP/EXP)
+  //   - {tipo:'sem_cnpj'}  → empresa BR sem CNPJ (identidade fiscal incompleta)
+  //   - {tipo:'ok'}        → tudo certo (inclui empresa estrangeira mesmo sem TIN — TIN é opcional)
+  //
+  // Regra de produto: TIN de contraparte estrangeira NÃO é obrigatório.
+  // A empresa pode existir só com nome/país, e o pedido é gerado mesmo
+  // sem TIN (snapshot do backend aceita documento nulo). CNPJ de empresa
+  // BR continua sendo obrigatório porque é a própria identidade legal.
+  // Mandamento 08: estados explícitos; sem auto-clean silencioso.
+  type DiagnosticoEmpresa =
+    | { tipo: 'ok'; nome: string }
+    | { tipo: 'pais_br'; nome: string }
+    | { tipo: 'sem_cnpj'; nome: string }
+  function diagnosticarEmpresa(suid: string, esperaEstrangeira: boolean): DiagnosticoEmpresa | null {
+    if (!suid) return null
+    const e = empresas.find((x) => x.suid_empresa === suid)
+    if (!e) return null
+    if (esperaEstrangeira && e.pais_empresa === 'BR') {
+      return { tipo: 'pais_br', nome: e.nome_empresa }
     }
-    if (!form.numero_pedido.trim() || form.numero_pedido.trim().length < 1) {
-      faltas.push(t('pedido.modal_novo.falta_numero_pedido'))
+    if (e.pais_empresa === 'BR' && (!e.cnpj_empresa || !e.cnpj_empresa.trim())) {
+      return { tipo: 'sem_cnpj', nome: e.nome_empresa }
     }
-    if (form.tipo_operacao === 'importacao' && !form.suid_exportador) {
-      faltas.push(t('pedido.modal_novo.falta_exportador'))
-    }
-    if (form.tipo_operacao === 'exportacao' && !form.suid_importador) {
-      faltas.push(t('pedido.modal_novo.falta_importador'))
-    }
-    if (form.data_emissao_pedido) {
-      const d = new Date(`${form.data_emissao_pedido}T00:00:00.000Z`)
-      if (isNaN(d.getTime())) {
-        faltas.push(t('pedido.modal_novo.falta_data_emissao_valida'))
-      }
-    }
-    return faltas
-  }, [form.numero_pedido, form.tipo_operacao, form.suid_exportador, form.suid_importador, form.data_emissao_pedido, empresaDaOrg, carregandoEmpresaDaOrg, t])
+    return { tipo: 'ok', nome: e.nome_empresa }
+  }
 
-  // Passo 1 → libera quando não há pendências
+  const exportadorDiag = form.tipo_operacao_pedido === 'importacao'
+    ? diagnosticarEmpresa(form.suid_exportador, true)  // contraparte → estrangeira
+    : null
+  const importadorDiag = form.tipo_operacao_pedido === 'exportacao'
+    ? diagnosticarEmpresa(form.suid_importador, true)  // contraparte → estrangeira
+    : null
+  const fabricanteDiag = diagnosticarEmpresa(form.suid_fabricante, false)  // fabricante flexível
+
+  function mensagemDiag(diag: DiagnosticoEmpresa | null, papel: 'exportador' | 'importador' | 'fabricante'): string {
+    if (!diag || diag.tipo === 'ok') return ''
+    if (diag.tipo === 'pais_br') {
+      return t('pedido.modal_novo.contraparte_pais_br', { nome: diag.nome, papel: t(`pedido.cadastro_empresa.papel_${papel}`).toLowerCase() })
+    }
+    return t('pedido.modal_novo.empresa_br_sem_cnpj', { nome: diag.nome })
+  }
+
+  // Lista canônica de requisitos do Passo 1 — feed do BannerRequisitosGlobal.
+  // Cada item tem chave estável (usada também como id de campo), `ok` (atendido?)
+  // e mensagem PT-BR/i18n. A regra "obrigatório vazio = vermelho" no
+  // CampoGeralGlobal recebe `vazio={!ok}` derivado dessa mesma fonte.
+  const requisitosPasso1 = useMemo<RequisitoSalvar[]>(() => [
+    {
+      chave: 'empresa_da_org',
+      ok: !carregandoEmpresaDaOrg && !!empresaDaOrg,
+      mensagem: carregandoEmpresaDaOrg
+        ? t('pedido.modal_novo.falta_empresa_da_org_carregando')
+        : t('pedido.modal_novo.falta_empresa_da_org'),
+    },
+    {
+      chave: 'numero_pedido',
+      ok: form.numero_pedido.trim().length > 0,
+      mensagem: t('pedido.modal_novo.falta_numero_pedido'),
+    },
+    {
+      chave: 'suid_exportador',
+      ok: form.tipo_operacao_pedido !== 'importacao' || !!form.suid_exportador,
+      mensagem: t('pedido.modal_novo.falta_exportador'),
+    },
+    {
+      chave: 'suid_importador',
+      ok: form.tipo_operacao_pedido !== 'exportacao' || !!form.suid_importador,
+      mensagem: t('pedido.modal_novo.falta_importador'),
+    },
+    {
+      chave: 'data_emissao_pedido',
+      ok: !form.data_emissao_pedido
+        ? false
+        : !isNaN(new Date(`${form.data_emissao_pedido}T00:00:00.000Z`).getTime()),
+      mensagem: !form.data_emissao_pedido
+        ? t('pedido.modal_novo.falta_data_emissao')
+        : t('pedido.modal_novo.falta_data_emissao_valida'),
+    },
+    // Validação de país e documento das contrapartes selecionadas. Cada slot
+    // só entra na lista se o usuário JÁ selecionou uma empresa — evita ruído
+    // antes da escolha. Distingue dois problemas:
+    //   - país inválido (BR em slot estrangeiro) → mensagem educativa
+    //   - documento ausente (CNPJ/TIN) → mensagem direta
+    // Mandamento 08: cada problema vem com nome da empresa e ação clara.
+    {
+      chave: 'empresa_exportador',
+      ok: !exportadorDiag || exportadorDiag.tipo === 'ok',
+      mensagem: mensagemDiag(exportadorDiag, 'exportador'),
+    },
+    {
+      chave: 'empresa_importador',
+      ok: !importadorDiag || importadorDiag.tipo === 'ok',
+      mensagem: mensagemDiag(importadorDiag, 'importador'),
+    },
+    {
+      chave: 'empresa_fabricante',
+      ok: !fabricanteDiag || fabricanteDiag.tipo === 'ok',
+      mensagem: mensagemDiag(fabricanteDiag, 'fabricante'),
+    },
+  ], [form.numero_pedido, form.tipo_operacao_pedido, form.suid_exportador, form.suid_importador, form.suid_fabricante, form.data_emissao_pedido, empresaDaOrg, carregandoEmpresaDaOrg, exportadorDiag, importadorDiag, fabricanteDiag, t])
+
+  // Helper: mapa chave→ok pra consultas O(1) ao montar `vazio` em CampoGeralGlobal.
+  const requisitoOk = useMemo(
+    () => new Map(requisitosPasso1.map((r) => [r.chave, r.ok])),
+    [requisitosPasso1],
+  )
+
+  // Passo 1 → libera quando todos requisitos estão atendidos
   // Passo 2 → sem obrigatoriedade, sempre pode criar
   const podeAvancar = passo === 1
-    ? pendenciasPasso1.length === 0
+    ? requisitosPasso1.every((r) => r.ok)
     : true
 
   async function handleProximo() {
@@ -537,12 +594,12 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setErros({})
     try {
       const itensMapped = itens
-        .filter(it => it.part_number.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm.trim() !== '' || it.quantidade_inicial_pedido.trim() !== '')
+        .filter(it => it.part_number_item.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm_item.trim() !== '' || it.quantidade_inicial_item.trim() !== '')
         .map(it => ({
-          part_number: it.part_number,
-          ncm: it.ncm,
-          descricao_item: it.descricao_item,
-          quantidade_inicial_pedido: parseFloat(it.quantidade_inicial_pedido) || 0,
+          part_number_item:        it.part_number_item,
+          ncm_item:                it.ncm_item,
+          descricao_item:          it.descricao_item,
+          quantidade_inicial_item: parseFloat(it.quantidade_inicial_item) || 0,
         }))
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
@@ -553,7 +610,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       // Converter strings vazias para null nos campos opcionais
       const formLimpo = Object.fromEntries(
         Object.entries(form).map(([k, v]) =>
-          k === 'tipo_operacao' || k === 'numero_pedido'
+          k === 'tipo_operacao_pedido' || k === 'numero_pedido'
             ? [k, v]
             : [k, typeof v === 'string' && v.trim() === '' ? null : v]
         )
@@ -562,7 +619,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       const payload = {
         ...formLimpo,
         data_emissao_pedido: dataISO,
-        itens: itensMapped as PedidoItem[],
+        itens: itensMapped as unknown as PedidoItem[],
       }
 
       const resultado = await pedidoApi.criar(payload)
@@ -608,6 +665,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             form={form}
             erros={erros}
             onChange={set}
+            empresas={empresas}
             opcoesImportador={opcoesEmpresaPara('importador')}
             opcoesExportador={opcoesEmpresaPara('exportador')}
             opcoesFabricante={opcoesEmpresaPara('fabricante')}
@@ -615,7 +673,8 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             empresaDaOrg={empresaDaOrg}
             carregandoEmpresaDaOrg={carregandoEmpresaDaOrg}
             erroEmpresaDaOrg={erroEmpresaDaOrg}
-            pendencias={pendenciasPasso1}
+            requisitos={requisitosPasso1}
+            requisitoOk={requisitoOk}
             aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
           />
         )}
@@ -629,10 +688,17 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
           />
         )}
       </ModalPassoPassoGlobal>
-      {/* Modal cascateado para cadastro rápido de Empresa via Cadastros API */}
+      {/* Modal cascateado para cadastro rápido de Empresa via Cadastros API.
+          Regra de negócio: contraparte (Exportador em IMP, Importador em EXP)
+          é obrigatoriamente estrangeira → forcarEstrangeiro=true bloqueia BR
+          na lista de países. Fabricante fica flexível. */}
       <ModalEmpresaCadastroRapido
         aberto={cadastroEmpresaPapel !== null}
         papel={cadastroEmpresaPapel ?? 'exportador'}
+        forcarEstrangeiro={
+          (cadastroEmpresaPapel === 'exportador' && form.tipo_operacao_pedido === 'importacao') ||
+          (cadastroEmpresaPapel === 'importador' && form.tipo_operacao_pedido === 'exportacao')
+        }
         onFechar={() => setCadastroEmpresaPapel(null)}
         onCriado={aoCriarEmpresa}
       />
@@ -664,6 +730,7 @@ function CampoEmpresaSelect({
   onCadastrarNova,
   labelNova,
   placeholder,
+  invalido,
 }: {
   label: string
   opcoes: OpcaoEmpresaSelect[]
@@ -674,6 +741,7 @@ function CampoEmpresaSelect({
   onCadastrarNova: () => void
   labelNova: string
   placeholder: string
+  invalido?: boolean
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', opacity: desabilitado ? 0.5 : 1 }}>
@@ -725,15 +793,27 @@ function CampoEmpresaSelect({
           {labelNova}
         </button>
       </div>
-      <SelectGlobal
-        opcoes={opcoes}
-        valor={valor}
-        aoMudarValor={onSelecionar}
-        buscavel
-        carregando={carregando}
-        desabilitado={desabilitado}
-        placeholder={placeholder}
-      />
+      <div
+        style={
+          invalido && !desabilitado
+            ? {
+                borderRadius: 'var(--radius-md)',
+                outline: '1px solid var(--danger, #ef4444)',
+                outlineOffset: '-1px',
+              }
+            : undefined
+        }
+      >
+        <SelectGlobal
+          opcoes={opcoes}
+          valor={valor}
+          aoMudarValor={onSelecionar}
+          buscavel
+          carregando={carregando}
+          desabilitado={desabilitado}
+          placeholder={placeholder}
+        />
+      </div>
     </div>
   )
 }
@@ -803,6 +883,7 @@ function Passo1Dados({
   form,
   erros,
   onChange,
+  empresas,
   opcoesImportador,
   opcoesExportador,
   opcoesFabricante,
@@ -810,12 +891,14 @@ function Passo1Dados({
   empresaDaOrg,
   carregandoEmpresaDaOrg,
   erroEmpresaDaOrg,
-  pendencias,
+  requisitos,
+  requisitoOk,
   aoCadastrarNova,
 }: {
   form: PedidoForm
   erros: ErrosValidacao
   onChange: (campo: keyof PedidoForm, valor: string) => void
+  empresas: Empresa[]
   opcoesImportador: OpcaoEmpresaSelect[]
   opcoesExportador: OpcaoEmpresaSelect[]
   opcoesFabricante: OpcaoEmpresaSelect[]
@@ -823,7 +906,8 @@ function Passo1Dados({
   empresaDaOrg: Empresa | null
   carregandoEmpresaDaOrg: boolean
   erroEmpresaDaOrg: string | null
-  pendencias: string[]
+  requisitos: RequisitoSalvar[]
+  requisitoOk: Map<string, boolean>
   aoCadastrarNova: (papel: PapelEmpresaRapido) => void
 }) {
   const { t } = useTranslation()
@@ -836,15 +920,27 @@ function Passo1Dados({
   // Se erro, mostra alerta e mantém tudo bloqueado (com link para Cadastros).
   const camposBloqueados = !empresaDaOrg
 
-  // Filtra contraparte: NÃO inclui a empresa-da-org no dropdown — ela já está
-  // do outro lado. Garante que o user não selecione a si mesmo como contraparte.
+  // Filtra contraparte: 1) NÃO inclui a empresa-da-org (ela já está do outro
+  // lado); 2) Em IMPORTAÇÃO o Exportador é estrangeiro — exclui empresas BR
+  // (mesmo as legadas que possam estar flagadas como `pode_ser_exportador`).
+  // Em EXPORTAÇÃO o Importador é estrangeiro — mesma lógica. Evita o usuário
+  // selecionar uma empresa BR que jamais geraria snapshot válido (CNPJ não
+  // se aplica e snapshot exige documento por país).
+  const suidsBr = useMemo(
+    () => new Set(empresas.filter((e) => e.pais_empresa === 'BR').map((e) => e.suid_empresa)),
+    [empresas],
+  )
   const opcoesContraparteImportador = useMemo(
-    () => opcoesImportador.filter((o) => o.valor !== empresaDaOrg?.suid_empresa),
-    [opcoesImportador, empresaDaOrg],
+    () => opcoesImportador
+      .filter((o) => o.valor !== empresaDaOrg?.suid_empresa)
+      .filter((o) => !suidsBr.has(String(o.valor))),
+    [opcoesImportador, empresaDaOrg, suidsBr],
   )
   const opcoesContraparteExportador = useMemo(
-    () => opcoesExportador.filter((o) => o.valor !== empresaDaOrg?.suid_empresa),
-    [opcoesExportador, empresaDaOrg],
+    () => opcoesExportador
+      .filter((o) => o.valor !== empresaDaOrg?.suid_empresa)
+      .filter((o) => !suidsBr.has(String(o.valor))),
+    [opcoesExportador, empresaDaOrg, suidsBr],
   )
 
   return (
@@ -858,8 +954,8 @@ function Passo1Dados({
           <SelectGlobal
             label={`${t('pedido.drawer.label_tipo_op')} *`}
             opcoes={opcoesTipoOperacao}
-            valor={form.tipo_operacao}
-            aoMudarValor={v => onChange('tipo_operacao', String(v ?? 'importacao'))}
+            valor={form.tipo_operacao_pedido}
+            aoMudarValor={v => onChange('tipo_operacao_pedido', String(v ?? 'importacao'))}
           />
         </div>
       </div>
@@ -891,34 +987,28 @@ function Passo1Dados({
       {/* Demais campos */}
       <div style={s.grid}>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-numero-pedido">
-            {t('pedido.drawer.label_numero')}
-            <span style={s.asteriscoObrigatorio}>*</span>
-          </label>
-          <input
-            id="mnp-numero-pedido"
-            disabled={camposBloqueados}
-            style={{
-              ...s.input,
-              ...(erros.numero_pedido ? { borderColor: 'var(--danger, #ef4444)' } : {}),
-              ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
-            }}
-            value={form.numero_pedido}
-            onChange={e => onChange('numero_pedido', e.target.value)}
-            placeholder={t('pedido.drawer.ph_numero')}
-            aria-invalid={Boolean(erros.numero_pedido)}
-          />
-          {erros.numero_pedido && (
-            <span
-              style={{ fontSize: '0.6875rem', color: 'var(--danger, #ef4444)', marginTop: '0.125rem' }}
-              role="alert"
-            >
-              {erros.numero_pedido}
-            </span>
-          )}
+          <CampoGeralGlobal
+            label={t('pedido.drawer.label_numero')}
+            obrigatorio
+            vazio={!camposBloqueados && requisitoOk.get('numero_pedido') === false}
+            erro={erros.numero_pedido}
+          >
+            <input
+              id="mnp-numero-pedido"
+              disabled={camposBloqueados}
+              style={{
+                ...s.input,
+                ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+              }}
+              value={form.numero_pedido}
+              onChange={e => onChange('numero_pedido', e.target.value)}
+              placeholder={t('pedido.drawer.ph_numero')}
+              aria-invalid={Boolean(erros.numero_pedido) || (!camposBloqueados && requisitoOk.get('numero_pedido') === false)}
+            />
+          </CampoGeralGlobal>
         </div>
         {/* IMPORTAÇÃO: lado-da-org = IMPORTADOR (auto), contraparte = EXPORTADOR */}
-        {form.tipo_operacao === 'importacao' && (
+        {form.tipo_operacao_pedido === 'importacao' && (
           <>
             <div style={s.campo}>
               <CampoEmpresaDaOrg
@@ -939,12 +1029,13 @@ function Passo1Dados({
                 onCadastrarNova={() => aoCadastrarNova('exportador')}
                 labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
                 placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
+                invalido={!camposBloqueados && requisitoOk.get('suid_exportador') === false}
               />
             </div>
           </>
         )}
         {/* EXPORTAÇÃO: lado-da-org = EXPORTADOR (auto), contraparte = IMPORTADOR */}
-        {form.tipo_operacao === 'exportacao' && (
+        {form.tipo_operacao_pedido === 'exportacao' && (
           <>
             <div style={s.campo}>
               <CampoEmpresaSelect
@@ -957,6 +1048,7 @@ function Passo1Dados({
                 onCadastrarNova={() => aoCadastrarNova('importador')}
                 labelNova={t('pedido.cadastro_empresa.cadastrar_nova_curto')}
                 placeholder={t('pedido.cadastro_empresa.ph_select_empresa_curto')}
+                invalido={!camposBloqueados && requisitoOk.get('suid_importador') === false}
               />
             </div>
             <div style={s.campo}>
@@ -986,8 +1078,8 @@ function Passo1Dados({
           <SelectGlobal
             label="Incoterm"
             opcoes={OPCOES_INCOTERM}
-            valor={form.incoterm}
-            aoMudarValor={v => onChange('incoterm', String(v ?? 'FOB'))}
+            valor={form.incoterm_pedido}
+            aoMudarValor={v => onChange('incoterm_pedido', String(v ?? 'FOB'))}
             desabilitado={camposBloqueados}
           />
         </div>
@@ -997,8 +1089,8 @@ function Passo1Dados({
             id="mnp-pagamento"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.condicao_pagamento}
-            onChange={e => onChange('condicao_pagamento', e.target.value)}
+            value={form.condicao_pagamento_pedido}
+            onChange={e => onChange('condicao_pagamento_pedido', e.target.value)}
             placeholder={t('pedido.drawer.ph_cond_pgto')}
           />
         </div>
@@ -1008,8 +1100,8 @@ function Passo1Dados({
             id="mnp-proforma"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.numero_proforma}
-            onChange={e => onChange('numero_proforma', e.target.value)}
+            value={form.numero_proforma_pedido}
+            onChange={e => onChange('numero_proforma_pedido', e.target.value)}
           />
         </div>
         <div style={s.campo}>
@@ -1018,8 +1110,8 @@ function Passo1Dados({
             id="mnp-invoice"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.numero_invoice}
-            onChange={e => onChange('numero_invoice', e.target.value)}
+            value={form.numero_invoice_pedido}
+            onChange={e => onChange('numero_invoice_pedido', e.target.value)}
           />
         </div>
         <div style={s.campo}>
@@ -1028,8 +1120,8 @@ function Passo1Dados({
             id="mnp-ref-imp"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.referencia_importador}
-            onChange={e => onChange('referencia_importador', e.target.value)}
+            value={form.referencia_importador_pedido}
+            onChange={e => onChange('referencia_importador_pedido', e.target.value)}
           />
         </div>
         <div style={s.campo}>
@@ -1038,8 +1130,8 @@ function Passo1Dados({
             id="mnp-ref-exp"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.referencia_exportador}
-            onChange={e => onChange('referencia_exportador', e.target.value)}
+            value={form.referencia_exportador_pedido}
+            onChange={e => onChange('referencia_exportador_pedido', e.target.value)}
           />
         </div>
         <div style={s.campo}>
@@ -1048,20 +1140,29 @@ function Passo1Dados({
             id="mnp-ref-fab"
             disabled={camposBloqueados}
             style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.referencia_fabricante}
-            onChange={e => onChange('referencia_fabricante', e.target.value)}
+            value={form.referencia_fabricante_pedido}
+            onChange={e => onChange('referencia_fabricante_pedido', e.target.value)}
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-data-emissao">{t('pedido.drawer.label_data_emissao')}</label>
-          <input
-            id="mnp-data-emissao"
-            type="date"
-            disabled={camposBloqueados}
-            style={{ ...s.input, ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }}
-            value={form.data_emissao_pedido}
-            onChange={e => onChange('data_emissao_pedido', e.target.value)}
-          />
+          <CampoGeralGlobal
+            label={t('pedido.drawer.label_data_emissao')}
+            obrigatorio
+            vazio={!camposBloqueados && requisitoOk.get('data_emissao_pedido') === false}
+          >
+            <input
+              id="mnp-data-emissao"
+              type="date"
+              disabled={camposBloqueados}
+              style={{
+                ...s.input,
+                ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+              }}
+              value={form.data_emissao_pedido}
+              onChange={e => onChange('data_emissao_pedido', e.target.value)}
+              aria-invalid={!camposBloqueados && requisitoOk.get('data_emissao_pedido') === false}
+            />
+          </CampoGeralGlobal>
         </div>
       </div>
 
@@ -1073,18 +1174,12 @@ function Passo1Dados({
         </div>
       )}
 
-      {/* Bloco "PARA AVANÇAR, AINDA FALTA" — UX espelhada do modal de Cadastros.
-          Mostra todas as obrigatoriedades pendentes para destravar o botão Próximo. */}
-      {pendencias.length > 0 && (
-        <div style={s.pendenciasBox} role="alert" aria-live="polite">
-          <span style={s.pendenciasTitulo}>{t('pedido.modal_novo.pendencias_titulo')}</span>
-          <ul style={s.pendenciasLista}>
-            {pendencias.map((p, i) => (
-              <li key={i}>{p}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Banner consolidado de requisitos pendentes — componente único do
+          nucleo-global. Não renderiza nada quando todos requisitos atendidos. */}
+      <BannerRequisitosGlobal
+        requisitos={requisitos}
+        titulo={t('pedido.modal_novo.pendencias_titulo')}
+      />
 
       {/* Legenda permanente: explicação do asterisco vermelho */}
       <p style={s.legendaObrigatorios}>
@@ -1135,8 +1230,8 @@ function Passo2Itens({
               <input
                 id={`mnp-pn-${index}`}
                 style={s.inputCompacto}
-                value={item.part_number}
-                onChange={e => onChangeItem(index, 'part_number', e.target.value)}
+                value={item.part_number_item}
+                onChange={e => onChangeItem(index, 'part_number_item', e.target.value)}
                 placeholder={t('pedido.modal_novo.ph_sku')}
               />
             </div>
@@ -1145,8 +1240,8 @@ function Passo2Itens({
               <input
                 id={`mnp-ncm-${index}`}
                 style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
-                value={item.ncm}
-                onChange={e => onChangeItem(index, 'ncm', e.target.value)}
+                value={item.ncm_item}
+                onChange={e => onChangeItem(index, 'ncm_item', e.target.value)}
                 placeholder="0000.00.00"
               />
             </div>
@@ -1166,8 +1261,8 @@ function Passo2Itens({
                 id={`mnp-qty-${index}`}
                 type="number"
                 style={{ ...s.inputCompacto, textAlign: 'right' }}
-                value={item.quantidade_inicial_pedido}
-                onChange={e => onChangeItem(index, 'quantidade_inicial_pedido', e.target.value)}
+                value={item.quantidade_inicial_item}
+                onChange={e => onChangeItem(index, 'quantidade_inicial_item', e.target.value)}
                 placeholder="0"
                 min="0"
                 step="0.01"

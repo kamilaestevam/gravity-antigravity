@@ -29,9 +29,27 @@ import {
 } from '../../../../cadastros/shared/schemas/index.js'
 import { AppError } from './saldo-pedido.js'
 
-const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 const FETCH_TIMEOUT_MS = 5_000
+
+// Lê env vars no momento da chamada (NÃO no top-level): em ES modules todos
+// os `import` são içados e executam antes de `dotenv.config()`. Capturar
+// `process.env.X` em const top-level resulta em valor undefined/'' mesmo
+// que o .env defina X corretamente. Mandamento 08: falha alto se faltar
+// INTERNAL_SERVICE_KEY ao invés de mandar header vazio que volta 401.
+function getCadastrosUrl(): string {
+  return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+}
+
+function getInternalServiceKey(): string {
+  const key = process.env.INTERNAL_SERVICE_KEY
+  if (!key || !key.trim()) {
+    throw new AppError(
+      500,
+      'INTERNAL_SERVICE_KEY ausente — pedido server não pode chamar Cadastros (S2S quebrado).',
+    )
+  }
+  return key
+}
 
 export interface CadastrosRequestContext {
   id_organizacao: string
@@ -41,7 +59,7 @@ export interface CadastrosRequestContext {
 function headersPadrao(ctx: CadastrosRequestContext): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    'x-internal-key': INTERNAL_SERVICE_KEY,
+    'x-internal-key': getInternalServiceKey(),
     'x-organizacao-id': ctx.id_organizacao,
     'x-correlation-id': ctx.correlation_id,
   }
@@ -70,7 +88,7 @@ export async function buscarEmpresaPorSuid(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/api/v1/empresas/${encodeURIComponent(suid)}`,
+      `${getCadastrosUrl()}/api/v1/empresas/${encodeURIComponent(suid)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -142,7 +160,7 @@ export async function buscarOpePorSuid(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/api/v1/cadastros/operacoes-comex/${encodeURIComponent(suidOpe)}`,
+      `${getCadastrosUrl()}/api/v1/cadastros/operacoes-comex/${encodeURIComponent(suidOpe)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -180,7 +198,7 @@ export async function buscarNcmPorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/api/v1/cadastros/ncm/${encodeURIComponent(codigoNcm)}`,
+      `${getCadastrosUrl()}/api/v1/cadastros/ncm/${encodeURIComponent(codigoNcm)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -218,7 +236,7 @@ export async function buscarMoedaPorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/api/v1/cadastros/moedas/${encodeURIComponent(codigoMoeda)}`,
+      `${getCadastrosUrl()}/api/v1/cadastros/moedas/${encodeURIComponent(codigoMoeda)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -256,7 +274,7 @@ export async function buscarUnidadePorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/api/v1/cadastros/unidades/${encodeURIComponent(codigoUnidade)}`,
+      `${getCadastrosUrl()}/api/v1/cadastros/unidades/${encodeURIComponent(codigoUnidade)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),

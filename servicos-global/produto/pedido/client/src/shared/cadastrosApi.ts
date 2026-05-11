@@ -83,7 +83,10 @@ export type PapelEmpresaRapido =
 export interface CriarEmpresaRapidoInput {
   nome_empresa: string
   pais_empresa: string
+  /** CNPJ obrigatório quando pais_empresa==='BR'. Validado no cliente antes de chamar. */
   cnpj_empresa?: string | null
+  /** TIN obrigatório quando pais_empresa!=='BR'. Validado no cliente antes de chamar. */
+  tin_empresa?: string | null
   papel: PapelEmpresaRapido
 }
 
@@ -102,11 +105,13 @@ function toCriarEmpresaPayload(input: CriarEmpresaRapidoInput): Record<string, u
     pode_ser_fabricante_empresa:  input.papel === 'fabricante',
   }
 
+  const ehBr = input.pais_empresa === 'BR'
   return {
     id_organizacao:      idOrganizacao,
     nome_empresa:        input.nome_empresa.trim(),
     pais_empresa:        input.pais_empresa,
-    cnpj_empresa:        input.pais_empresa === 'BR' && input.cnpj_empresa ? input.cnpj_empresa : null,
+    cnpj_empresa:        ehBr && input.cnpj_empresa ? input.cnpj_empresa.trim() : null,
+    tin_empresa:         !ehBr && input.tin_empresa ? input.tin_empresa.trim() : null,
     ...papelFlags,
     ativo_empresa:       true,
   }

@@ -56,6 +56,10 @@ import {
   type SnapshotOpeData,
   type SnapshotUnidadeData,
 } from '../services/pedidoSnapshots.js'
+import {
+  recalcularAgregadosPedido,
+  campoItemAfetaAgregado,
+} from '../services/recalcularAgregadosPedido.js'
 // FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
@@ -98,9 +102,12 @@ const criarPedidoObjectSchema = z.object({
   referencia_fabricante_pedido:     z.string().optional().nullable(),
   incoterm_pedido:                  z.string().optional().nullable(),
   moeda_pedido:                     z.string().default('USD'),
-  valor_total_pedido:               z.number().optional().nullable(),
+  // valor_total_pedido e quantidade_total_pedido REMOVIDOS do contrato — são
+  // agregados derivados dos itens, calculados server-side por
+  // `recalcularAgregadosPedido`. Cliente que tentar enviar recebe Zod error.
+  // Idem para os 3 agregados peso/cubagem (que já não estavam no schema).
+  // Mandamento 09: schema reflete contrato real.
   casas_decimais_valor_pedido:      z.number().int().default(2),
-  quantidade_total_pedido:          z.number().optional().nullable(),
   casas_decimais_quantidade_pedido: z.number().int().default(2),
   unidade_comercializada_pedido:    z.string().optional().nullable(),
   condicao_pagamento_pedido:        z.string().optional().nullable(),
@@ -564,7 +571,14 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         db.pedido.findMany({
           where,
           include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
-          orderBy: { data_emissao_pedido: 'desc' },
+          // Ordenação padrão da lista: mais recém-criado primeiro. Garante que
+          // o pedido que o usuário acabou de criar aparece no topo, mesmo
+          // quando a data_emissao_pedido bate empate com pedidos antigos
+          // (ex: vários pedidos com data_emissao = hoje).
+          orderBy: [
+            { data_criacao_pedido: 'desc' },
+            { id_pedido: 'desc' },
+          ],
           skip,
           take: limitNum,
         }),
@@ -747,11 +761,15 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
       const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      // Garante que o pedido existe e pertence à organização/workspace antes de
-      // expor itens. Nomes legados `id`/`tenant_id`/`company_id` causavam
-      // `Unknown argument 'id'` no Prisma → 500 → frontend mostrava itens vazios.
+      // Garante que o pedido existe e pertence à organização (e ao workspace, se vier
+      // no header) antes de expor itens. Nomes legados `id`/`tenant_id`/`company_id`
+      // causavam `Unknown argument 'id'` no Prisma → 500 → frontend mostrava itens vazios.
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: {
+          id_pedido: req.params.id,
+          id_organizacao: tenant_id,
+          ...(company_id && company_id !== tenant_id ? { id_workspace: company_id } : {}),
+        },
         select: { id_pedido: true },
       })
       if (!pedido) {
@@ -897,7 +915,10 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       const pedidoId = gerarId('pedi')
 
-      // Calcular totais automaticamente
+      // Calcular totais para o INSERT inicial (placeholder). O valor real é
+      // gravado pelo `recalcularAgregadosPedido` logo após o create — fonte
+      // única de verdade. O override do cliente em `pedidoData.valor_total_pedido`
+      // é ignorado: agregados são server-side-only (Onda A3 remove do schema).
       const valorTotal = itens.reduce((acc, item) => {
         const qty = item.quantidade_inicial_item ?? 0
         const valorItem = item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * qty
@@ -976,9 +997,14 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           })()
         : null
 
+      // `db` (vindo de withOrganizacao) JÁ É um `Prisma.TransactionClient` —
+      // o helper resolver-organizacao abre `prisma.$transaction(...)` e nos
+      // entrega o `tx` aqui. Não tentar wrap interno com `db.$transaction(...)`
+      // (TransactionClient não expõe esse método — falha "is not a function").
+      // O nested-write Prisma + recalcularAgregadosPedido + re-fetch já rodam
+      // todos na mesma transação que o resolver abriu pra nós.
+
       // Débito 2B — resolver FK do status (catalogo StatusPedido) antes de criar.
-      // Se o catalogo nao tiver 'rascunho' nesta organizacao, segue sem vinculo
-      // (id_status_pedido NULL) e loga warn — pedido ainda eh criado.
       const statusRascunho = await db.statusPedido.findFirst({
         where: { id_organizacao: tenant_id, nome_pedido_status: 'rascunho' },
         select: { id_pedido_status: true },
@@ -990,14 +1016,18 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
         )
       }
 
-      const novoPedido = await db.pedido.create({
+      const pedidoCriado = await db.pedido.create({
+        // @lint-agregados: allow-create-placeholder — recalcularAgregadosPedido
+        // roda logo depois do create na mesma $transaction (sobrescreve).
         data: {
           id_pedido:                    pedidoId,
           id_organizacao:               tenant_id,
           id_workspace:                 company_id,
           ...pedidoData,  // Zod já validou em DDD: tipo_operacao_pedido, numero_pedido, etc.
-          valor_total_pedido:           pedidoData.valor_total_pedido ?? valorTotal,
-          quantidade_total_pedido:      pedidoData.quantidade_total_pedido ?? qtdTotal,
+          // Valores iniciais: serão sobrescritos pelo helper logo abaixo. Mantemos
+          // só por compatibilidade com schemas que possam ter NOT NULL futuro.
+          valor_total_pedido:           valorTotal,
+          quantidade_total_pedido:      qtdTotal,
           status_pedido:                'rascunho',
           id_status_pedido:             statusRascunho?.id_pedido_status ?? null,
           itens_pedido: {
@@ -1045,6 +1075,25 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
         },
       })
 
+      // Recalcular os 5 agregados a partir dos itens recém-criados — fonte
+      // única de verdade. Se o cliente enviou `valor_total_pedido` (legado)
+      // o valor é sobrescrito aqui (Onda A3 remove do schema Zod).
+      await recalcularAgregadosPedido(db, pedidoId, tenant_id)
+
+      // Re-fetch para devolver o pedido COM os agregados corretos no JSON
+      // de resposta (helper grava no banco mas não reflete em pedidoCriado).
+      const novoPedido = await db.pedido.findUnique({
+        where: { id_pedido: pedidoCriado.id_pedido },
+        include: {
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+          snapshots_empresa_pedido: true,
+          snapshots_ncm_pedido: true,
+          snapshots_moeda_pedido: true,
+          snapshots_unidade_pedido: true,
+          snapshots_ope_pedido: true,
+        },
+      })
+
       res.status(201).json(mapPedido(novoPedido))
     })
   } catch (err) {
@@ -1080,9 +1129,20 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
         throw new AppError(400, 'Pedido so pode ser editado nos status Rascunho ou Aberto')
       }
 
+      // Defesa em profundidade: mesmo que o schema Zod já não aceite agregados
+      // (Onda A3), filtramos explicitamente — quem tentar passar via campo
+      // dinâmico/legado não consegue sobrescrever os agregados derivados.
+      // Ver: regra de ouro do `recalcularAgregadosPedido` (escrita centralizada).
+      const dataLimpa: Record<string, unknown> = { ...result.data }
+      delete dataLimpa.valor_total_pedido
+      delete dataLimpa.quantidade_total_pedido
+      delete dataLimpa.peso_liquido_total_pedido
+      delete dataLimpa.peso_bruto_total_pedido
+      delete dataLimpa.cubagem_total_pedido
+
       const updated = await db.pedido.update({
         where: { id_pedido: req.params.id },
-        data: result.data,
+        data: dataLimpa,
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
@@ -1349,52 +1409,60 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       }
 
       // ── Campos recalculados a partir dos itens (valor do cliente ignorado) ──────
+      // Os 5 agregados oficiais (valor/qty/peso_liq/peso_br/cubagem) são
+      // recomputados pelo helper canônico — fonte única de verdade. Quaisquer
+      // 2 campos legados (quantidade_total_inicial_pedido, quantidade_transferida_total)
+      // mantêm cálculo local (não fazem parte dos 5 cobertos pelo helper).
       if (CAMPOS_RECALCULAVEIS.has(campo)) {
+        const CINCO_AGREGADOS = new Set([
+          'valor_total_pedido',
+          'quantidade_total_pedido',
+          'peso_liquido_total_pedido',
+          'peso_bruto_total_pedido',
+          'cubagem_total_pedido',
+        ])
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const itens = await db.pedidoItem.findMany({
-          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-        }) as any[]
+        const updatedRecalc = await db.$transaction(async (tx: typeof db) => {
+          if (CINCO_AGREGADOS.has(campo)) {
+            // Caminho oficial: chama helper, que cobre TODOS os 5 de uma vez
+            // (não recalcula só o solicitado — recomputar todos é trivial e
+            // mantém os 5 sempre consistentes entre si).
+            await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+          } else {
+            // Caminho legado: 2 campos não cobertos pelo helper
+            // (quantidade_total_inicial_pedido, quantidade_transferida_total).
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const itens = await tx.pedidoItem.findMany({
+              where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
+            }) as any[]
 
-        const dadosRecalc: Record<string, unknown> = {}
+            const dadosRecalc: Record<string, unknown> = {}
+            if (campo === 'quantidade_total_inicial_pedido') {
+              const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item ?? 0), 0)
+              const casas = pedido.casas_decimais_quantidade_pedido ?? 0
+              dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
+            } else if (campo === 'quantidade_transferida_total') {
+              const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item ?? 0), 0)
+              const casas = pedido.casas_decimais_quantidade_pedido ?? 0
+              dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
+            }
+            // quantidade_pronta_itens_pedido_total → virtual, sem coluna Prisma, computado em mapPedido
 
-        if (campo === 'quantidade_total_inicial_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item ?? 0), 0)
-          const casas = pedido.casas_decimais_quantidade_pedido ?? 0
-          dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
-        } else if (campo === 'valor_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
-          const casas = pedido.casas_decimais_valor_pedido ?? 2
-          dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
-        } else if (campo === 'peso_liquido_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_item ?? 0), 0)
-          const casas = pedido.casas_decimais_peso_pedido ?? 3
-          dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
-        } else if (campo === 'peso_bruto_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_item ?? 0), 0)
-          const casas = pedido.casas_decimais_peso_pedido ?? 3
-          dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
-        } else if (campo === 'cubagem_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0), 0)
-          const casas = pedido.casas_decimais_cubagem_pedido ?? 4
-          dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
-        } else if (campo === 'quantidade_transferida_total') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item ?? 0), 0)
-          const casas = pedido.casas_decimais_quantidade_pedido ?? 0
-          dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
-        }
-        // quantidade_pronta_itens_pedido_total → virtual, sem coluna Prisma, computado em mapPedido
+            if (Object.keys(dadosRecalc).length > 0) {
+              await tx.pedido.update({
+                where: { id_pedido: req.params.id_pedido },
+                data: dadosRecalc,
+              })
+            }
+          }
 
-        if (Object.keys(dadosRecalc).length > 0) {
-          await db.pedido.update({
-            where: { id_pedido: req.params.id_pedido },
-            data: dadosRecalc,
+          return await tx.pedido.findFirst({
+            where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
+            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
-        }
-
-        const updatedRecalc = await db.pedido.findFirst({
-          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
         })
+
         return res.json(mapPedido(updatedRecalc))
       }
 
@@ -1533,7 +1601,15 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
         )
       }
 
-      const duplicado = await db.pedido.create({
+      // Wrap em $transaction: nested-create + recalcular agregados do duplicado.
+      // Embora o duplicado copie itens 1:1 (e portanto agregados deveriam bater),
+      // chamamos o helper como defesa em profundidade — se o original tinha
+      // agregados desatualizados (débito histórico), o duplicado nasce correto.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const duplicado = await db.$transaction(async (tx: typeof db) => {
+        const dup = await tx.pedido.create({
+        // @lint-agregados: allow-create-placeholder — recalcularAgregadosPedido
+        // roda logo depois do create na mesma $transaction (sobrescreve).
         data: {
           id_pedido: novoPedidoId,
           id_organizacao: idOrganizacao,
@@ -1609,6 +1685,19 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
         },
       })
 
+        // Recalcular os 5 agregados a partir dos itens copiados.
+        await recalcularAgregadosPedido(tx, novoPedidoId, idOrganizacao)
+
+        // Re-fetch para retornar com os agregados corretos.
+        return await tx.pedido.findUnique({
+          where: { id_pedido: dup.id_pedido },
+          include: {
+            itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+            snapshots_empresa_pedido: true,
+          },
+        })
+      })
+
       res.status(201).json(mapPedido(duplicado))
     })
   } catch (err) {
@@ -1670,7 +1759,14 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
         valor_total_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * (result.data.quantidade_inicial_item ?? 0),
         casas_decimais_valor_item:      result.data.casas_decimais_valor_item,
       }
-      const item = await db.pedidoItem.create({ data: itemData })
+
+      // Wrap em $transaction: criar item + recalcular os 5 agregados do pai.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const item = await db.$transaction(async (tx: typeof db) => {
+        const novoItem = await tx.pedidoItem.create({ data: itemData })
+        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+        return novoItem
+      })
 
       res.status(201).json(mapItem(item))
     })
@@ -1746,9 +1842,20 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
         prismaData.quantidade_atual_item = Math.max(0, novoAtual)
       }
 
-      const updated = await db.pedidoItem.update({
-        where: { id_item: req.params.id_item },
-        data: prismaData,
+      // Recalc condicional: só dispara se algum campo do payload afeta agregado.
+      const algumCampoAfetaAgregado = Object.keys(result.data).some(campoItemAfetaAgregado)
+
+      // Wrap em $transaction: update item + (opcional) recalcular agregados do pai.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updated = await db.$transaction(async (tx: typeof db) => {
+        const u = await tx.pedidoItem.update({
+          where: { id_item: req.params.id_item },
+          data: prismaData,
+        })
+        if (algumCampoAfetaAgregado) {
+          await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+        }
+        return u
       })
 
       res.json(mapItem(updated))
@@ -1897,10 +2004,21 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
       const campoDdd = publicToDddItem[campo] ?? campo
 
       // ── Campos texto/enum — update simples ────────────────────────────────────
+      // Recalc condicional: campos texto/enum não afetam os 5 agregados
+      // (campoItemAfetaAgregado retorna false para todos eles), então
+      // economizamos lock + UPDATE no pai. Mesmo assim, wrap em $transaction
+      // mantém consistência se o set crescer no futuro.
       if (ehTexto) {
-        const updated = await db.pedidoItem.update({
-          where: { id_item: req.params.id_item },
-          data: { [campoDdd]: valor === undefined ? null : valor },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const updated = await db.$transaction(async (tx: typeof db) => {
+          const u = await tx.pedidoItem.update({
+            where: { id_item: req.params.id_item },
+            data: { [campoDdd]: valor === undefined ? null : valor },
+          })
+          if (campoItemAfetaAgregado(campo)) {
+            await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+          }
+          return u
         })
         return res.json(mapItem(updated))
       }
@@ -1974,13 +2092,22 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
       const fator = Math.pow(10, casasValor)
       const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
 
-      const updated = await db.pedidoItem.update({
-        where: { id_item: req.params.id_item },
-        data: {
-          [campoDdd]:                          valorNumerico,
-          quantidade_atual_item: saldo_novo,
-          valor_total_item:        valor_total_novo,
-        },
+      // Wrap em $transaction: update item + recalcular agregados do pai.
+      // Aqui o campo SEMPRE afeta agregado (CAMPOS_EDITAVEIS_ITEM_NUMERICOS =
+      // {quantidade_inicial_pedido, valor_por_unidade_item}), então o recalc
+      // é incondicional.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updated = await db.$transaction(async (tx: typeof db) => {
+        const u = await tx.pedidoItem.update({
+          where: { id_item: req.params.id_item },
+          data: {
+            [campoDdd]:                          valorNumerico,
+            quantidade_atual_item: saldo_novo,
+            valor_total_item:        valor_total_novo,
+          },
+        })
+        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+        return u
       })
       return res.json(mapItem(updated))
     })
@@ -2011,7 +2138,13 @@ pedidosRouter.delete('/:id_pedido/itens/:id_item', async (req: Request, res: Res
         throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
       }
 
-      await db.pedidoItem.delete({ where: { id_item: req.params.id_item } })
+      // Wrap em $transaction: delete item + recalcular os 5 agregados do pai.
+      // Delete reduz `quantidade_inicial_item` (item some) → afeta valor/qty/peso/cubagem.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await db.$transaction(async (tx: typeof db) => {
+        await tx.pedidoItem.delete({ where: { id_item: req.params.id_item } })
+        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
+      })
       res.status(204).send()
     })
   } catch (err) {
@@ -2020,6 +2153,9 @@ pedidosRouter.delete('/:id_pedido/itens/:id_item', async (req: Request, res: Res
 })
 
 // ── PATCH /:id/itens/:itemId/cancelar — Cancelar quantidade ───────────────────
+// Nota: cancelamento muda `quantidade_atual_item` e `quantidade_cancelada_item`,
+// NÃO `quantidade_inicial_item`. Os 5 agregados do helper são todos baseados
+// em `quantidade_inicial_item` — portanto NÃO precisam de recalc aqui.
 
 pedidosRouter.patch('/:id_pedido/itens/:id_item/cancelar', async (req: Request, res: Response, next: NextFunction) => {
   const result = cancelarQuantidadeSchema.safeParse(req.body)

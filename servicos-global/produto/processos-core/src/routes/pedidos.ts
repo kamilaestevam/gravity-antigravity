@@ -721,7 +721,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
@@ -747,10 +747,12 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
       const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      // Garante que o pedido existe e pertence ao tenant/company antes de expor itens.
+      // Garante que o pedido existe e pertence à organização/workspace antes de
+      // expor itens. Nomes legados `id`/`tenant_id`/`company_id` causavam
+      // `Unknown argument 'id'` no Prisma → 500 → frontend mostrava itens vazios.
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
-        select: { id: true },
+        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
+        select: { id_pedido: true },
       })
       if (!pedido) {
         throw new AppError(404, 'Pedido nao encontrado')
@@ -1067,7 +1069,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
       })
 
       if (!pedido) {
@@ -1079,7 +1081,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       }
 
       const updated = await db.pedido.update({
-        where: { id: req.params.id },
+        where: { id_pedido: req.params.id },
         data: result.data,
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
@@ -1103,7 +1105,7 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
       })
 
       if (!pedido) {
@@ -1114,7 +1116,7 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
         throw new AppError(400, 'Apenas pedidos com status Rascunho podem ser deletados')
       }
 
-      await db.pedido.delete({ where: { id: req.params.id } })
+      await db.pedido.delete({ where: { id_pedido: req.params.id } })
       res.status(204).send()
     })
   } catch (err) {
@@ -1139,7 +1141,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
       })
 
       if (!pedido) {
@@ -1160,7 +1162,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
       }
 
       const updated = await db.pedido.update({
-        where: { id: req.params.id },
+        where: { id_pedido: req.params.id },
         data: { status: result.data.status },
         include: { itens_pedido: { orderBy: { sequencia_item: 'asc' } } },
       })

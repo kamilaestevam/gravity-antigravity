@@ -126,7 +126,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('SUPER_ADMIN promove PADRAO a MASTER em outra org', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_outra', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_outra', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99) // anti-bricking não se aplica (não rebaixa MASTER)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'MASTER' })
 
@@ -139,7 +139,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('MASTER promove PADRAO da própria org a MASTER (não bloqueado)', async () => {
     setAuth(ATOR_MASTER)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'MASTER' })
 
@@ -150,7 +150,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('MASTER rebaixa MASTER cliente quando há outros Masters → permitido', async () => {
     setAuth(ATOR_MASTER)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(2)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'PADRAO' })
 
@@ -161,7 +161,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('SUPER_ADMIN promove a SUPER_ADMIN — permitido', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'ADMIN' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'ADMIN', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'SUPER_ADMIN' })
 
@@ -172,7 +172,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('Auditoria: roleChanged é chamado com oldRole/newRole corretos', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'FORNECEDOR' })
 
@@ -191,7 +191,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
 
   it('Update usa isolationLevel Serializable (anti-bricking sem race condition)', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'MASTER' })
 
@@ -224,7 +224,7 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
 
   it('ADMIN tenta editar SUPER_ADMIN → 403 FORBIDDEN_ADMIN_VS_SUPER_ADMIN', async () => {
     setAuth(ATOR_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
 
@@ -237,7 +237,7 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     // aplicado ANTES dos blocks de ator específicos — captura esta tentativa
     // antes do antigo `FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN`.
     setAuth(ATOR_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
@@ -247,7 +247,7 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
 
   it('MASTER tenta editar outro MASTER → 403 FORBIDDEN_MASTER_VS_MASTER', async () => {
     setAuth(ATOR_MASTER)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'MASTER' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
@@ -257,7 +257,7 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
 
   it('MASTER tenta editar SUPER_ADMIN → 403 FORBIDDEN_MASTER_VS_GRAVITY', async () => {
     setAuth(ATOR_MASTER)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'SUPER_ADMIN' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
 
@@ -265,17 +265,17 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     expect(res.body.error.code).toBe('FORBIDDEN_MASTER_VS_GRAVITY')
   })
 
-  it('MASTER tenta atribuir SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER (regra ε)', async () => {
-    // Após regra ε (2026-05-11), o guard `FORBIDDEN_PROMOTE_GRAVITY_TIER` é
-    // aplicado ANTES dos blocks de ator específicos — captura esta tentativa
-    // antes do antigo `FORBIDDEN_MASTER_INVALID_TARGET_TYPE`.
+  it('MASTER tenta atribuir SUPER_ADMIN → 403 FORBIDDEN_MASTER_INVALID_TARGET_TYPE', async () => {
+    // MASTER só pode atribuir Master/Standard/Fornecedor. Tentar SUPER_ADMIN
+    // cai no block MASTER de autorizarAlteracaoPatente (regra preservada
+    // desde antes da regra condicional 2026-05-11).
     setAuth(ATOR_MASTER)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(res.body.error.code).toBe('FORBIDDEN_MASTER_INVALID_TARGET_TYPE')
   })
 
   it('PADRAO bloqueado pelo middleware (não passa de requireUserManagementRole)', async () => {
@@ -308,7 +308,7 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
 
   it('Rebaixar último MASTER da org → 409 CONFLICT_LAST_MASTER', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'MASTER' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(1) // só ele
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'PADRAO' })
@@ -320,7 +320,7 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
 
   it('Rebaixar MASTER quando há outros 2 Masters → permitido', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'MASTER' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(3)
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'PADRAO' })
 
@@ -330,44 +330,83 @@ describe('TST-FUN-CONFIG-PAT-015 — Anti-bricking último Master', () => {
   })
 })
 
-// ─── TST-FUN-CONFIG-PAT-016 — Regra ε (SAdmin/Admin só via seed) ────────────
-describe('TST-FUN-CONFIG-PAT-016 — Regra ε: SUPER_ADMIN/ADMIN não atribuíveis via API', () => {
+// ─── TST-FUN-CONFIG-PAT-016 — Regra condicional hospeda_colaboradores_gravity ──
+describe('TST-FUN-CONFIG-PAT-016 — Regra condicional SAdmin/ADMIN (decisão dono 2026-05-11)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransactionPassthrough()
   })
 
-  it('SAdmin tenta promover PADRAO → SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER', async () => {
+  it('SAdmin promove PADRAO → SUPER_ADMIN em org cliente → 403 FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_cliente', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(res.body.error.code).toBe('FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
-  it('SAdmin tenta promover PADRAO → ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER', async () => {
+  it('SAdmin promove PADRAO → ADMIN em org cliente → 403 FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY', async () => {
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_cliente', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(res.body.error.code).toBe('FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
-  it('SAdmin promove PADRAO → MASTER → 200 OK (caminho feliz preservado)', async () => {
+  it('SAdmin promove MASTER → SUPER_ADMIN em org Gravity → 200 OK', async () => {
+    // Alvo em org com hospeda_colaboradores_gravity=true — permite promoção
+    // a SUPER_ADMIN. Cenário real: SAdmin promovendo outro Master da Gravity.
     setAuth(ATOR_SUPER_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_a', tipo_usuario: 'PADRAO' })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'MASTER', tenant: { hospeda_colaboradores_gravity: true } })
+    mockUsuarioCount.mockResolvedValue(5) // anti-bricking não dispara (5 Masters)
+    mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'SUPER_ADMIN', acesso_workspaces_futuros: false })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.tipo_usuario).toBe('SUPER_ADMIN')
+  })
+
+  it('SAdmin promove PADRAO → ADMIN em org Gravity → 200 OK', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: true } })
+    mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'ADMIN', acesso_workspaces_futuros: false })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.tipo_usuario).toBe('ADMIN')
+  })
+
+  it('SAdmin promove PADRAO → MASTER em org cliente → 200 OK (caminho feliz preservado)', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_cliente', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt', email_usuario: 'a@b.com', tipo_usuario: 'MASTER', acesso_workspaces_futuros: false })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'MASTER' })
 
     expect(res.status).toBe(200)
     expect(res.body.usuario.tipo_usuario).toBe('MASTER')
+  })
+
+  it('SAdmin self-edit → 200 OK (Interpretação B — pode editar próprio tipo)', async () => {
+    // Decisão dono 2026-05-11: SAdmin pode self-edit. Anti-escalada NÃO se
+    // aplica a SAdmin (mas anti-bricking último SAdmin continua valendo).
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: ATOR_SUPER_ADMIN.id_usuario, id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: true } })
+    mockUsuarioCount.mockResolvedValue(3) // 3 SAdmins — não dispara anti-bricking
+    mockUsuarioUpdate.mockResolvedValue({ id_usuario: ATOR_SUPER_ADMIN.id_usuario, email_usuario: 'sa@gravity.com', tipo_usuario: 'ADMIN', acesso_workspaces_futuros: false })
+
+    const res = await request(app).patch(`/api/v1/usuarios/${ATOR_SUPER_ADMIN.id_usuario}/patente`).send({ tipo_usuario: 'ADMIN' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.tipo_usuario).toBe('ADMIN')
   })
 
   it('Zod rejeita tipo inválido → 400 VALIDATION_ERROR', async () => {
@@ -388,5 +427,38 @@ describe('TST-FUN-CONFIG-PAT-016 — Regra ε: SUPER_ADMIN/ADMIN não atribuíve
     expect(res.status).toBe(400)
     expect(res.body.error.code).toBe('VALIDATION_ERROR')
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
+  })
+})
+
+// ─── TST-FUN-CONFIG-PAT-017 — Anti-bricking último SUPER_ADMIN ───────────────
+describe('TST-FUN-CONFIG-PAT-017 — Anti-bricking último SUPER_ADMIN', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    setupTransactionPassthrough()
+  })
+
+  it('Rebaixar último SUPER_ADMIN do sistema → 409 CONFLICT_LAST_SUPER_ADMIN', async () => {
+    // SAdmin tenta rebaixar a si mesmo, sendo o único SAdmin existente.
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: ATOR_SUPER_ADMIN.id_usuario, id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: true } })
+    mockUsuarioCount.mockResolvedValue(1) // único SAdmin
+
+    const res = await request(app).patch(`/api/v1/usuarios/${ATOR_SUPER_ADMIN.id_usuario}/patente`).send({ tipo_usuario: 'MASTER' })
+
+    expect(res.status).toBe(409)
+    expect(res.body.error.code).toBe('CONFLICT_LAST_SUPER_ADMIN')
+    expect(mockUsuarioUpdate).not.toHaveBeenCalled()
+  })
+
+  it('Rebaixar SUPER_ADMIN quando há outros 2 SAdmins → 200 OK', async () => {
+    setAuth(ATOR_SUPER_ADMIN)
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt_outro_sa', id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: true } })
+    mockUsuarioCount.mockResolvedValue(3) // 3 SAdmins — pode rebaixar
+    mockUsuarioUpdate.mockResolvedValue({ id_usuario: 'tgt_outro_sa', email_usuario: 'a@b.com', tipo_usuario: 'MASTER', acesso_workspaces_futuros: false })
+
+    const res = await request(app).patch('/api/v1/usuarios/tgt_outro_sa/patente').send({ tipo_usuario: 'MASTER' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.tipo_usuario).toBe('MASTER')
   })
 })

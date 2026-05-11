@@ -495,8 +495,8 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 | Ator (`req.auth.tipo_usuario`) | Pode editar alvo... | Pode atribuir | Bloqueios |
 |---|---|---|---|
-| **SUPER_ADMIN** | Qualquer (escopo global) | Apenas `MASTER`/`PADRAO`/`FORNECEDOR` (SAdmin/ADMIN só via seed — regra ε) | Anti-escalada (próprio id), anti-bricking, `FORBIDDEN_PROMOTE_GRAVITY_TIER` |
-| **ADMIN** | Qualquer EXCETO `SUPER_ADMIN`/`ADMIN` | Apenas `MASTER`/`PADRAO`/`FORNECEDOR` (SAdmin/ADMIN só via seed — regra ε) | Não promove a SAdmin/ADMIN, anti-escalada, anti-bricking, `FORBIDDEN_PROMOTE_GRAVITY_TIER` |
+| **SUPER_ADMIN** | Qualquer (escopo global) — inclui próprio registro (Interpretação B 2026-05-11) | • Se `alvo.organizacao.hospeda_colaboradores_gravity = true` → atribui qualquer dos 5 tipos<br>• Se `false` (org cliente) → apenas `MASTER`/`PADRAO`/`FORNECEDOR` | Anti-bricking último Master da org, anti-bricking último SAdmin do sistema, `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` |
+| **ADMIN** | **Ninguém** — read-only global (decisão dono 2026-05-11) | — | `FORBIDDEN_ADMIN_READ_ONLY`. ADMIN visualiza tudo mas não edita tipo_usuario. Bloqueado em `requireUserManagementRole` E em `autorizarAlteracaoPatente` (defesa em profundidade) |
 | **MASTER** | Mesmo `id_organizacao`, EXCETO outros `MASTER`/`SUPER_ADMIN`/`ADMIN` | `MASTER`/`PADRAO`/`FORNECEDOR` (incluindo promover `PADRAO` a `MASTER`) | Anti-escalada, anti-bricking |
 | **PADRAO / FORNECEDOR** | Ninguém | — | Bloqueado por `requireUserManagementRole` (`403`) |
 
@@ -512,32 +512,45 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 ### Códigos de erro específicos
 
-- `FORBIDDEN_SELF_EDIT` — ator editando próprio tipo
-- `FORBIDDEN_ADMIN_VS_SUPER_ADMIN` — ADMIN tentando editar SUPER_ADMIN
-- `FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN` — ADMIN tentando promover a SUPER_ADMIN
-- `FORBIDDEN_MASTER_VS_MASTER` — MASTER tentando editar outro MASTER
-- `FORBIDDEN_MASTER_VS_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN
-- `FORBIDDEN_MASTER_INVALID_TARGET_TYPE` — MASTER tentando atribuir SUPER_ADMIN/ADMIN
-- `FORBIDDEN_PROMOTE_GRAVITY_TIER` — qualquer tentativa de atribuir SUPER_ADMIN/ADMIN via API (regra ε — só via seed)
-- `GONE_PROMOTE_DEPRECATED` — rota `POST /admin/usuarios/:id/promover` descontinuada (regra ε)
-- `CONFLICT_LAST_MASTER` — rebaixaria último MASTER da organização
+- `FORBIDDEN_SELF_EDIT` — ADMIN/MASTER editando próprio tipo. SUPER_ADMIN é exceção (Interpretação B 2026-05-11): pode self-edit, protegido por anti-bricking.
+- `FORBIDDEN_ADMIN_READ_ONLY` — ADMIN tentando alterar tipo_usuario (decisão dono 2026-05-11: ADMIN é read-only global, visualiza tudo mas não edita).
+- `FORBIDDEN_MASTER_VS_MASTER` — MASTER tentando editar outro MASTER.
+- `FORBIDDEN_MASTER_VS_GRAVITY` — MASTER tentando editar SUPER_ADMIN/ADMIN.
+- `FORBIDDEN_MASTER_INVALID_TARGET_TYPE` — MASTER tentando atribuir SUPER_ADMIN/ADMIN.
+- `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` — tentativa de atribuir SUPER_ADMIN/ADMIN a usuário cuja organização NÃO tem `hospeda_colaboradores_gravity = true` (decisão dono 2026-05-11).
+- `GONE_PROMOTE_DEPRECATED` — rota `POST /admin/usuarios/:id/promover` descontinuada. Fluxo único agora é `PATCH /v1/usuarios/:id/patente`.
+- `CONFLICT_LAST_MASTER` — rebaixaria último MASTER da organização.
+- `CONFLICT_LAST_SUPER_ADMIN` — rebaixaria último SUPER_ADMIN do sistema (anti-bricking global — decisão dono 2026-05-11 Interpretação B).
 
-> ⚠️ **Regra ε (decisão dono 2026-05-11):** SUPER_ADMIN e ADMIN são tipos exclusivos
-> da Equipe Gravity. Esses tipos são criados **apenas via seed do banco** — nenhum
-> endpoint público (`PATCH /usuarios/:id/patente`, `POST /admin/usuarios/convidar`,
-> `POST /admin/usuarios/:id/promover`) aceita atribuir esses tipos.
+> ⚠️ **Regra condicional (decisão dono 2026-05-11):** SUPER_ADMIN e ADMIN são tipos
+> atribuíveis APENAS a usuários cuja organização tem `hospeda_colaboradores_gravity = true`.
+> Em produção isso vale somente para organização(ões) Gravity-interna(s) — atualmente
+> apenas `Gravity - Interno` no banco. Para organizações cliente, os tipos disponíveis
+> são apenas `MASTER`/`PADRAO`/`FORNECEDOR`.
+>
+> Decisões complementares 2026-05-11:
+> - **ADMIN é read-only global**: visualiza tudo (Admin Panel, Configurador, todas
+>   as orgs) mas não edita tipo_usuario de ninguém. Removido de
+>   `requireUserManagementRole` whitelist; bloqueado também em
+>   `autorizarAlteracaoPatente` (defesa em profundidade).
+> - **SUPER_ADMIN pode editar próprio tipo** (Interpretação B). Protegido por
+>   `CONFLICT_LAST_SUPER_ADMIN` 409 dentro de `$transaction` Serializable.
 >
 > Defesas implementadas:
-> - `autorizarAlteracaoPatente` (rede de segurança após blocks de ator-específico): rejeita `novoTipo ∈ {SUPER_ADMIN, ADMIN}` com `FORBIDDEN_PROMOTE_GRAVITY_TIER` 403
-> - `AdminInviteSchema` (Zod): enum restrito a `['MASTER', 'PADRAO', 'FORNECEDOR']`
-> - `POST /admin/usuarios/:id/promover`: retorna `410 GONE_PROMOTE_DEPRECATED`
-> - Frontend `usePodeEditarUsuario`: whitelist nunca inclui SAdmin/ADMIN
-> - Frontend `OPCOES_TIPO_ADMIN`: select nunca expõe SAdmin/ADMIN
->
-> Para criar um novo Gravity admin:
-> 1. Acesso direto ao banco (DBA) ou via script `scripts/sob-demanda/seed-admin-gravity.ts`
-> 2. Auditoria manual + aprovação dupla
-> 3. UI/API públicas nunca expõem essa operação
+> - `autorizarAlteracaoPatente` (server/routes/usuario.ts): consome
+>   `alvo.organizacao.hospeda_colaboradores_gravity` e rejeita SAdmin/ADMIN para
+>   alvos cliente com `FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` 403.
+>   Anti-bricking último SAdmin dentro da transação Serializable.
+> - `AdminInviteSchema` (admin.ts): aceita 5 tipos no Zod; valida em runtime que
+>   a org do ator tem flag = true antes de criar SAdmin/ADMIN. Apenas SAdmin pode
+>   convidar (ADMIN bloqueado por `FORBIDDEN_ADMIN_READ_ONLY`).
+> - `POST /admin/usuarios/:id/promover`: retorna `410 GONE_PROMOTE_DEPRECATED`.
+> - `requireUserManagementRole`: whitelist = `{SUPER_ADMIN, MASTER}` (ADMIN removido).
+> - Frontend `usePodeEditarUsuario`: recebe `alvo.organizacao_hospeda_colaboradores_gravity`,
+>   retorna whitelist correta. ADMIN ator sempre recebe DENY com motivo.
+> - Frontend `OPCOES_TIPO_ADMIN` (UsuariosAdmin): catálogo completo de 5 tipos com
+>   descrição explicitando "apenas em organizações Gravity" para os tipos Gravity-tier.
+>   Filtragem runtime no select via hook `tiposPermitidosUI`.
 
 ### Frontend — Hook `usePodeEditarUsuario`
 
@@ -569,7 +582,9 @@ PR separado criará `PATCH /api/v1/usuarios/:id_usuario` quando o fluxo de sync 
 - [ ] Master está com bypass das permissões granulares?
 - [ ] Supplier tem ao menos uma permissão explícita antes de receber acesso?
 - [ ] Admin Gravity consegue ler sem ter permissão explícita de WRITE?
-- [ ] Super Admin e Admin existem APENAS no seed do banco e são rejeitados por `autorizarAlteracaoPatente` (`FORBIDDEN_PROMOTE_GRAVITY_TIER` 403), `AdminInviteSchema` (`VALIDATION_ERROR` 400) e `POST /admin/usuarios/:id/promover` (`GONE_PROMOTE_DEPRECATED` 410)?
+- [ ] Super Admin e Admin são atribuíveis apenas a usuários cuja organização tem `hospeda_colaboradores_gravity = true`, com defesas em `autorizarAlteracaoPatente` (`FORBIDDEN_GRAVITY_TIER_REQUIRES_ORG_GRAVITY` 403), `AdminInviteSchema` (validação runtime no handler) e `requireUserManagementRole` (ADMIN excluído da whitelist)?
+- [ ] ADMIN é read-only global — não consegue editar tipo_usuario de ninguém (`FORBIDDEN_ADMIN_READ_ONLY` 403)?
+- [ ] Anti-bricking último SUPER_ADMIN do sistema implementado em `$transaction` Serializable (`CONFLICT_LAST_SUPER_ADMIN` 409)?
 - [ ] Permissões são indexadas por `[id_organizacao, id_workspace, id_usuario]`?
 - [ ] O produto registrou suas permissões específicas além dos módulos universais?
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?

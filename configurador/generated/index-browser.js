@@ -134,6 +134,7 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
   cidade_organizacao: 'cidade_organizacao',
   segmento_organizacao: 'segmento_organizacao',
   tipo_organizacao: 'tipo_organizacao',
+  hospeda_colaboradores_gravity: 'hospeda_colaboradores_gravity',
   data_criacao_organizacao: 'data_criacao_organizacao',
   data_atualizacao_organizacao: 'data_atualizacao_organizacao'
 };
@@ -515,6 +516,39 @@ exports.Prisma.LLMMetricasScalarFieldEnum = {
   data_criacao_metricas_llm: 'data_criacao_metricas_llm'
 };
 
+exports.Prisma.GabiLimiteMonetarioGlobalScalarFieldEnum = {
+  id_gabi_limite_monetario_global: 'id_gabi_limite_monetario_global',
+  modelo_gabi_limite_monetario_global: 'modelo_gabi_limite_monetario_global',
+  limite_aviso_usd_gabi_limite_monetario_global: 'limite_aviso_usd_gabi_limite_monetario_global',
+  limite_bloqueio_usd_gabi_limite_monetario_global: 'limite_bloqueio_usd_gabi_limite_monetario_global',
+  destinatarios_email_gabi_limite_monetario_global: 'destinatarios_email_gabi_limite_monetario_global',
+  ativo_gabi_limite_monetario_global: 'ativo_gabi_limite_monetario_global',
+  data_criacao_gabi_limite_monetario_global: 'data_criacao_gabi_limite_monetario_global',
+  data_atualizacao_gabi_limite_monetario_global: 'data_atualizacao_gabi_limite_monetario_global'
+};
+
+exports.Prisma.GabiAlertaEmitidoGlobalScalarFieldEnum = {
+  id_gabi_alerta_emitido_global: 'id_gabi_alerta_emitido_global',
+  id_limite_gabi_alerta_emitido_global: 'id_limite_gabi_alerta_emitido_global',
+  mes_ref_gabi_alerta_emitido_global: 'mes_ref_gabi_alerta_emitido_global',
+  nivel_gabi_alerta_emitido_global: 'nivel_gabi_alerta_emitido_global',
+  gasto_usd_gabi_alerta_emitido_global: 'gasto_usd_gabi_alerta_emitido_global',
+  data_criacao_gabi_alerta_emitido_global: 'data_criacao_gabi_alerta_emitido_global'
+};
+
+exports.Prisma.AuditLogAdminScalarFieldEnum = {
+  id_audit_log_admin: 'id_audit_log_admin',
+  id_usuario_audit_log_admin: 'id_usuario_audit_log_admin',
+  tipo_usuario_audit_log_admin: 'tipo_usuario_audit_log_admin',
+  acao_audit_log_admin: 'acao_audit_log_admin',
+  recurso_audit_log_admin: 'recurso_audit_log_admin',
+  filtros_audit_log_admin: 'filtros_audit_log_admin',
+  qtd_resultados_audit_log_admin: 'qtd_resultados_audit_log_admin',
+  ip_origem_audit_log_admin: 'ip_origem_audit_log_admin',
+  correlation_id_audit_log_admin: 'correlation_id_audit_log_admin',
+  data_criacao_audit_log_admin: 'data_criacao_audit_log_admin'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -659,7 +693,10 @@ exports.Prisma.ModelName = {
   ProdutoGravityFatura: 'ProdutoGravityFatura',
   ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
   ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',
-  LLMMetricas: 'LLMMetricas'
+  LLMMetricas: 'LLMMetricas',
+  GabiLimiteMonetarioGlobal: 'GabiLimiteMonetarioGlobal',
+  GabiAlertaEmitidoGlobal: 'GabiAlertaEmitidoGlobal',
+  AuditLogAdmin: 'AuditLogAdmin'
 };
 
 /**

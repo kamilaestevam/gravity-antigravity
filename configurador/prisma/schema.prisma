@@ -79,6 +79,12 @@ model Organizacao {
   segmento_organizacao String?
   tipo_organizacao     String?
 
+  // Flag de organização que hospeda colaboradores da Gravity (true) vs cliente (false).
+  // Decisão dono 2026-05-11: SUPER_ADMIN/ADMIN só são atribuíveis a usuários cuja
+  // organização tenha esta flag = true. Detalhes em skill `seguranca/permissoes`.
+  // Default false — apenas org(s) da equipe Gravity recebem true via seed.
+  hospeda_colaboradores_gravity Boolean @default(false)
+
   // Metadata
   data_criacao_organizacao     DateTime @default(now())
   data_atualizacao_organizacao DateTime @updatedAt

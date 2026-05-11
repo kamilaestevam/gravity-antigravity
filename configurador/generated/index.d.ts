@@ -138,6 +138,21 @@ export type ProdutoGravityFaturaDocumento = $Result.DefaultSelection<Prisma.$Pro
  * 
  */
 export type LLMMetricas = $Result.DefaultSelection<Prisma.$LLMMetricasPayload>
+/**
+ * Model GabiLimiteMonetarioGlobal
+ * 
+ */
+export type GabiLimiteMonetarioGlobal = $Result.DefaultSelection<Prisma.$GabiLimiteMonetarioGlobalPayload>
+/**
+ * Model GabiAlertaEmitidoGlobal
+ * 
+ */
+export type GabiAlertaEmitidoGlobal = $Result.DefaultSelection<Prisma.$GabiAlertaEmitidoGlobalPayload>
+/**
+ * Model AuditLogAdmin
+ * 
+ */
+export type AuditLogAdmin = $Result.DefaultSelection<Prisma.$AuditLogAdminPayload>
 
 /**
  * Enums
@@ -690,6 +705,36 @@ export class PrismaClient<
     * ```
     */
   get lLMMetricas(): Prisma.LLMMetricasDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiLimiteMonetarioGlobal`: Exposes CRUD operations for the **GabiLimiteMonetarioGlobal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiLimiteMonetarioGlobals
+    * const gabiLimiteMonetarioGlobals = await prisma.gabiLimiteMonetarioGlobal.findMany()
+    * ```
+    */
+  get gabiLimiteMonetarioGlobal(): Prisma.GabiLimiteMonetarioGlobalDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiAlertaEmitidoGlobal`: Exposes CRUD operations for the **GabiAlertaEmitidoGlobal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiAlertaEmitidoGlobals
+    * const gabiAlertaEmitidoGlobals = await prisma.gabiAlertaEmitidoGlobal.findMany()
+    * ```
+    */
+  get gabiAlertaEmitidoGlobal(): Prisma.GabiAlertaEmitidoGlobalDelegate<ExtArgs>;
+
+  /**
+   * `prisma.auditLogAdmin`: Exposes CRUD operations for the **AuditLogAdmin** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuditLogAdmins
+    * const auditLogAdmins = await prisma.auditLogAdmin.findMany()
+    * ```
+    */
+  get auditLogAdmin(): Prisma.AuditLogAdminDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1155,7 +1200,10 @@ export namespace Prisma {
     ProdutoGravityFatura: 'ProdutoGravityFatura',
     ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
     ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',
-    LLMMetricas: 'LLMMetricas'
+    LLMMetricas: 'LLMMetricas',
+    GabiLimiteMonetarioGlobal: 'GabiLimiteMonetarioGlobal',
+    GabiAlertaEmitidoGlobal: 'GabiAlertaEmitidoGlobal',
+    AuditLogAdmin: 'AuditLogAdmin'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1171,7 +1219,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2925,6 +2973,216 @@ export namespace Prisma {
           }
         }
       }
+      GabiLimiteMonetarioGlobal: {
+        payload: Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>
+        fields: Prisma.GabiLimiteMonetarioGlobalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiLimiteMonetarioGlobalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiLimiteMonetarioGlobalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiLimiteMonetarioGlobalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiLimiteMonetarioGlobalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          findMany: {
+            args: Prisma.GabiLimiteMonetarioGlobalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>[]
+          }
+          create: {
+            args: Prisma.GabiLimiteMonetarioGlobalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          createMany: {
+            args: Prisma.GabiLimiteMonetarioGlobalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiLimiteMonetarioGlobalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiLimiteMonetarioGlobalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          update: {
+            args: Prisma.GabiLimiteMonetarioGlobalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiLimiteMonetarioGlobalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiLimiteMonetarioGlobalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiLimiteMonetarioGlobalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLimiteMonetarioGlobalPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiLimiteMonetarioGlobalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiLimiteMonetarioGlobal>
+          }
+          groupBy: {
+            args: Prisma.GabiLimiteMonetarioGlobalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiLimiteMonetarioGlobalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiLimiteMonetarioGlobalCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiLimiteMonetarioGlobalCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiAlertaEmitidoGlobal: {
+        payload: Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>
+        fields: Prisma.GabiAlertaEmitidoGlobalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiAlertaEmitidoGlobalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiAlertaEmitidoGlobalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiAlertaEmitidoGlobalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiAlertaEmitidoGlobalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          findMany: {
+            args: Prisma.GabiAlertaEmitidoGlobalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>[]
+          }
+          create: {
+            args: Prisma.GabiAlertaEmitidoGlobalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          createMany: {
+            args: Prisma.GabiAlertaEmitidoGlobalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiAlertaEmitidoGlobalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiAlertaEmitidoGlobalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          update: {
+            args: Prisma.GabiAlertaEmitidoGlobalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiAlertaEmitidoGlobalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiAlertaEmitidoGlobalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiAlertaEmitidoGlobalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiAlertaEmitidoGlobalPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiAlertaEmitidoGlobalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiAlertaEmitidoGlobal>
+          }
+          groupBy: {
+            args: Prisma.GabiAlertaEmitidoGlobalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiAlertaEmitidoGlobalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiAlertaEmitidoGlobalCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiAlertaEmitidoGlobalCountAggregateOutputType> | number
+          }
+        }
+      }
+      AuditLogAdmin: {
+        payload: Prisma.$AuditLogAdminPayload<ExtArgs>
+        fields: Prisma.AuditLogAdminFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuditLogAdminFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuditLogAdminFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          findFirst: {
+            args: Prisma.AuditLogAdminFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuditLogAdminFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          findMany: {
+            args: Prisma.AuditLogAdminFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>[]
+          }
+          create: {
+            args: Prisma.AuditLogAdminCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          createMany: {
+            args: Prisma.AuditLogAdminCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuditLogAdminCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>[]
+          }
+          delete: {
+            args: Prisma.AuditLogAdminDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          update: {
+            args: Prisma.AuditLogAdminUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuditLogAdminDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuditLogAdminUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AuditLogAdminUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogAdminPayload>
+          }
+          aggregate: {
+            args: Prisma.AuditLogAdminAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuditLogAdmin>
+          }
+          groupBy: {
+            args: Prisma.AuditLogAdminGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogAdminGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuditLogAdminCountArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogAdminCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3437,6 +3695,7 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_organizacao: string | null
+    hospeda_colaboradores_gravity: boolean | null
     data_criacao_organizacao: Date | null
     data_atualizacao_organizacao: Date | null
   }
@@ -3453,6 +3712,7 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_organizacao: string | null
+    hospeda_colaboradores_gravity: boolean | null
     data_criacao_organizacao: Date | null
     data_atualizacao_organizacao: Date | null
   }
@@ -3469,6 +3729,7 @@ export namespace Prisma {
     cidade_organizacao: number
     segmento_organizacao: number
     tipo_organizacao: number
+    hospeda_colaboradores_gravity: number
     data_criacao_organizacao: number
     data_atualizacao_organizacao: number
     _all: number
@@ -3487,6 +3748,7 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_organizacao?: true
+    hospeda_colaboradores_gravity?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
   }
@@ -3503,6 +3765,7 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_organizacao?: true
+    hospeda_colaboradores_gravity?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
   }
@@ -3519,6 +3782,7 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_organizacao?: true
+    hospeda_colaboradores_gravity?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
     _all?: true
@@ -3608,6 +3872,7 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_organizacao: string | null
+    hospeda_colaboradores_gravity: boolean
     data_criacao_organizacao: Date
     data_atualizacao_organizacao: Date
     _count: OrganizacaoCountAggregateOutputType | null
@@ -3641,6 +3906,7 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_organizacao?: boolean
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
     users_organizacao?: boolean | Organizacao$users_organizacaoArgs<ExtArgs>
@@ -3667,6 +3933,7 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_organizacao?: boolean
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
   }, ExtArgs["result"]["organizacao"]>
@@ -3683,6 +3950,7 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_organizacao?: boolean
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
   }
@@ -3726,6 +3994,7 @@ export namespace Prisma {
       cidade_organizacao: string | null
       segmento_organizacao: string | null
       tipo_organizacao: string | null
+      hospeda_colaboradores_gravity: boolean
       data_criacao_organizacao: Date
       data_atualizacao_organizacao: Date
     }, ExtArgs["result"]["organizacao"]>
@@ -4141,6 +4410,7 @@ export namespace Prisma {
     readonly cidade_organizacao: FieldRef<"Organizacao", 'String'>
     readonly segmento_organizacao: FieldRef<"Organizacao", 'String'>
     readonly tipo_organizacao: FieldRef<"Organizacao", 'String'>
+    readonly hospeda_colaboradores_gravity: FieldRef<"Organizacao", 'Boolean'>
     readonly data_criacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
     readonly data_atualizacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
   }
@@ -29674,6 +29944,2846 @@ export namespace Prisma {
 
 
   /**
+   * Model GabiLimiteMonetarioGlobal
+   */
+
+  export type AggregateGabiLimiteMonetarioGlobal = {
+    _count: GabiLimiteMonetarioGlobalCountAggregateOutputType | null
+    _avg: GabiLimiteMonetarioGlobalAvgAggregateOutputType | null
+    _sum: GabiLimiteMonetarioGlobalSumAggregateOutputType | null
+    _min: GabiLimiteMonetarioGlobalMinAggregateOutputType | null
+    _max: GabiLimiteMonetarioGlobalMaxAggregateOutputType | null
+  }
+
+  export type GabiLimiteMonetarioGlobalAvgAggregateOutputType = {
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | null
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | null
+  }
+
+  export type GabiLimiteMonetarioGlobalSumAggregateOutputType = {
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | null
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | null
+  }
+
+  export type GabiLimiteMonetarioGlobalMinAggregateOutputType = {
+    id_gabi_limite_monetario_global: string | null
+    modelo_gabi_limite_monetario_global: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | null
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | null
+    ativo_gabi_limite_monetario_global: boolean | null
+    data_criacao_gabi_limite_monetario_global: Date | null
+    data_atualizacao_gabi_limite_monetario_global: Date | null
+  }
+
+  export type GabiLimiteMonetarioGlobalMaxAggregateOutputType = {
+    id_gabi_limite_monetario_global: string | null
+    modelo_gabi_limite_monetario_global: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | null
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | null
+    ativo_gabi_limite_monetario_global: boolean | null
+    data_criacao_gabi_limite_monetario_global: Date | null
+    data_atualizacao_gabi_limite_monetario_global: Date | null
+  }
+
+  export type GabiLimiteMonetarioGlobalCountAggregateOutputType = {
+    id_gabi_limite_monetario_global: number
+    modelo_gabi_limite_monetario_global: number
+    limite_aviso_usd_gabi_limite_monetario_global: number
+    limite_bloqueio_usd_gabi_limite_monetario_global: number
+    destinatarios_email_gabi_limite_monetario_global: number
+    ativo_gabi_limite_monetario_global: number
+    data_criacao_gabi_limite_monetario_global: number
+    data_atualizacao_gabi_limite_monetario_global: number
+    _all: number
+  }
+
+
+  export type GabiLimiteMonetarioGlobalAvgAggregateInputType = {
+    limite_aviso_usd_gabi_limite_monetario_global?: true
+    limite_bloqueio_usd_gabi_limite_monetario_global?: true
+  }
+
+  export type GabiLimiteMonetarioGlobalSumAggregateInputType = {
+    limite_aviso_usd_gabi_limite_monetario_global?: true
+    limite_bloqueio_usd_gabi_limite_monetario_global?: true
+  }
+
+  export type GabiLimiteMonetarioGlobalMinAggregateInputType = {
+    id_gabi_limite_monetario_global?: true
+    modelo_gabi_limite_monetario_global?: true
+    limite_aviso_usd_gabi_limite_monetario_global?: true
+    limite_bloqueio_usd_gabi_limite_monetario_global?: true
+    ativo_gabi_limite_monetario_global?: true
+    data_criacao_gabi_limite_monetario_global?: true
+    data_atualizacao_gabi_limite_monetario_global?: true
+  }
+
+  export type GabiLimiteMonetarioGlobalMaxAggregateInputType = {
+    id_gabi_limite_monetario_global?: true
+    modelo_gabi_limite_monetario_global?: true
+    limite_aviso_usd_gabi_limite_monetario_global?: true
+    limite_bloqueio_usd_gabi_limite_monetario_global?: true
+    ativo_gabi_limite_monetario_global?: true
+    data_criacao_gabi_limite_monetario_global?: true
+    data_atualizacao_gabi_limite_monetario_global?: true
+  }
+
+  export type GabiLimiteMonetarioGlobalCountAggregateInputType = {
+    id_gabi_limite_monetario_global?: true
+    modelo_gabi_limite_monetario_global?: true
+    limite_aviso_usd_gabi_limite_monetario_global?: true
+    limite_bloqueio_usd_gabi_limite_monetario_global?: true
+    destinatarios_email_gabi_limite_monetario_global?: true
+    ativo_gabi_limite_monetario_global?: true
+    data_criacao_gabi_limite_monetario_global?: true
+    data_atualizacao_gabi_limite_monetario_global?: true
+    _all?: true
+  }
+
+  export type GabiLimiteMonetarioGlobalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiLimiteMonetarioGlobal to aggregate.
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiLimiteMonetarioGlobals to fetch.
+     */
+    orderBy?: GabiLimiteMonetarioGlobalOrderByWithRelationInput | GabiLimiteMonetarioGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiLimiteMonetarioGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiLimiteMonetarioGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiLimiteMonetarioGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiLimiteMonetarioGlobals
+    **/
+    _count?: true | GabiLimiteMonetarioGlobalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiLimiteMonetarioGlobalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiLimiteMonetarioGlobalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiLimiteMonetarioGlobalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiLimiteMonetarioGlobalMaxAggregateInputType
+  }
+
+  export type GetGabiLimiteMonetarioGlobalAggregateType<T extends GabiLimiteMonetarioGlobalAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiLimiteMonetarioGlobal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiLimiteMonetarioGlobal[P]>
+      : GetScalarType<T[P], AggregateGabiLimiteMonetarioGlobal[P]>
+  }
+
+
+
+
+  export type GabiLimiteMonetarioGlobalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiLimiteMonetarioGlobalWhereInput
+    orderBy?: GabiLimiteMonetarioGlobalOrderByWithAggregationInput | GabiLimiteMonetarioGlobalOrderByWithAggregationInput[]
+    by: GabiLimiteMonetarioGlobalScalarFieldEnum[] | GabiLimiteMonetarioGlobalScalarFieldEnum
+    having?: GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiLimiteMonetarioGlobalCountAggregateInputType | true
+    _avg?: GabiLimiteMonetarioGlobalAvgAggregateInputType
+    _sum?: GabiLimiteMonetarioGlobalSumAggregateInputType
+    _min?: GabiLimiteMonetarioGlobalMinAggregateInputType
+    _max?: GabiLimiteMonetarioGlobalMaxAggregateInputType
+  }
+
+  export type GabiLimiteMonetarioGlobalGroupByOutputType = {
+    id_gabi_limite_monetario_global: string
+    modelo_gabi_limite_monetario_global: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal
+    destinatarios_email_gabi_limite_monetario_global: string[]
+    ativo_gabi_limite_monetario_global: boolean
+    data_criacao_gabi_limite_monetario_global: Date
+    data_atualizacao_gabi_limite_monetario_global: Date
+    _count: GabiLimiteMonetarioGlobalCountAggregateOutputType | null
+    _avg: GabiLimiteMonetarioGlobalAvgAggregateOutputType | null
+    _sum: GabiLimiteMonetarioGlobalSumAggregateOutputType | null
+    _min: GabiLimiteMonetarioGlobalMinAggregateOutputType | null
+    _max: GabiLimiteMonetarioGlobalMaxAggregateOutputType | null
+  }
+
+  type GetGabiLimiteMonetarioGlobalGroupByPayload<T extends GabiLimiteMonetarioGlobalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiLimiteMonetarioGlobalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiLimiteMonetarioGlobalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiLimiteMonetarioGlobalGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiLimiteMonetarioGlobalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiLimiteMonetarioGlobalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_limite_monetario_global?: boolean
+    modelo_gabi_limite_monetario_global?: boolean
+    limite_aviso_usd_gabi_limite_monetario_global?: boolean
+    limite_bloqueio_usd_gabi_limite_monetario_global?: boolean
+    destinatarios_email_gabi_limite_monetario_global?: boolean
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: boolean
+    data_atualizacao_gabi_limite_monetario_global?: boolean
+  }, ExtArgs["result"]["gabiLimiteMonetarioGlobal"]>
+
+  export type GabiLimiteMonetarioGlobalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_limite_monetario_global?: boolean
+    modelo_gabi_limite_monetario_global?: boolean
+    limite_aviso_usd_gabi_limite_monetario_global?: boolean
+    limite_bloqueio_usd_gabi_limite_monetario_global?: boolean
+    destinatarios_email_gabi_limite_monetario_global?: boolean
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: boolean
+    data_atualizacao_gabi_limite_monetario_global?: boolean
+  }, ExtArgs["result"]["gabiLimiteMonetarioGlobal"]>
+
+  export type GabiLimiteMonetarioGlobalSelectScalar = {
+    id_gabi_limite_monetario_global?: boolean
+    modelo_gabi_limite_monetario_global?: boolean
+    limite_aviso_usd_gabi_limite_monetario_global?: boolean
+    limite_bloqueio_usd_gabi_limite_monetario_global?: boolean
+    destinatarios_email_gabi_limite_monetario_global?: boolean
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: boolean
+    data_atualizacao_gabi_limite_monetario_global?: boolean
+  }
+
+
+  export type $GabiLimiteMonetarioGlobalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiLimiteMonetarioGlobal"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_limite_monetario_global: string
+      modelo_gabi_limite_monetario_global: string | null
+      limite_aviso_usd_gabi_limite_monetario_global: Prisma.Decimal
+      limite_bloqueio_usd_gabi_limite_monetario_global: Prisma.Decimal
+      destinatarios_email_gabi_limite_monetario_global: string[]
+      ativo_gabi_limite_monetario_global: boolean
+      data_criacao_gabi_limite_monetario_global: Date
+      data_atualizacao_gabi_limite_monetario_global: Date
+    }, ExtArgs["result"]["gabiLimiteMonetarioGlobal"]>
+    composites: {}
+  }
+
+  type GabiLimiteMonetarioGlobalGetPayload<S extends boolean | null | undefined | GabiLimiteMonetarioGlobalDefaultArgs> = $Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload, S>
+
+  type GabiLimiteMonetarioGlobalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiLimiteMonetarioGlobalFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiLimiteMonetarioGlobalCountAggregateInputType | true
+    }
+
+  export interface GabiLimiteMonetarioGlobalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiLimiteMonetarioGlobal'], meta: { name: 'GabiLimiteMonetarioGlobal' } }
+    /**
+     * Find zero or one GabiLimiteMonetarioGlobal that matches the filter.
+     * @param {GabiLimiteMonetarioGlobalFindUniqueArgs} args - Arguments to find a GabiLimiteMonetarioGlobal
+     * @example
+     * // Get one GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiLimiteMonetarioGlobalFindUniqueArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalFindUniqueArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiLimiteMonetarioGlobal that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiLimiteMonetarioGlobalFindUniqueOrThrowArgs} args - Arguments to find a GabiLimiteMonetarioGlobal
+     * @example
+     * // Get one GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiLimiteMonetarioGlobalFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiLimiteMonetarioGlobal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalFindFirstArgs} args - Arguments to find a GabiLimiteMonetarioGlobal
+     * @example
+     * // Get one GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiLimiteMonetarioGlobalFindFirstArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalFindFirstArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiLimiteMonetarioGlobal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalFindFirstOrThrowArgs} args - Arguments to find a GabiLimiteMonetarioGlobal
+     * @example
+     * // Get one GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiLimiteMonetarioGlobalFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiLimiteMonetarioGlobals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiLimiteMonetarioGlobals
+     * const gabiLimiteMonetarioGlobals = await prisma.gabiLimiteMonetarioGlobal.findMany()
+     * 
+     * // Get first 10 GabiLimiteMonetarioGlobals
+     * const gabiLimiteMonetarioGlobals = await prisma.gabiLimiteMonetarioGlobal.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_limite_monetario_global`
+     * const gabiLimiteMonetarioGlobalWithId_gabi_limite_monetario_globalOnly = await prisma.gabiLimiteMonetarioGlobal.findMany({ select: { id_gabi_limite_monetario_global: true } })
+     * 
+     */
+    findMany<T extends GabiLimiteMonetarioGlobalFindManyArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiLimiteMonetarioGlobal.
+     * @param {GabiLimiteMonetarioGlobalCreateArgs} args - Arguments to create a GabiLimiteMonetarioGlobal.
+     * @example
+     * // Create one GabiLimiteMonetarioGlobal
+     * const GabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.create({
+     *   data: {
+     *     // ... data to create a GabiLimiteMonetarioGlobal
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiLimiteMonetarioGlobalCreateArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalCreateArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiLimiteMonetarioGlobals.
+     * @param {GabiLimiteMonetarioGlobalCreateManyArgs} args - Arguments to create many GabiLimiteMonetarioGlobals.
+     * @example
+     * // Create many GabiLimiteMonetarioGlobals
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiLimiteMonetarioGlobalCreateManyArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiLimiteMonetarioGlobals and returns the data saved in the database.
+     * @param {GabiLimiteMonetarioGlobalCreateManyAndReturnArgs} args - Arguments to create many GabiLimiteMonetarioGlobals.
+     * @example
+     * // Create many GabiLimiteMonetarioGlobals
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiLimiteMonetarioGlobals and only return the `id_gabi_limite_monetario_global`
+     * const gabiLimiteMonetarioGlobalWithId_gabi_limite_monetario_globalOnly = await prisma.gabiLimiteMonetarioGlobal.createManyAndReturn({ 
+     *   select: { id_gabi_limite_monetario_global: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiLimiteMonetarioGlobalCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiLimiteMonetarioGlobal.
+     * @param {GabiLimiteMonetarioGlobalDeleteArgs} args - Arguments to delete one GabiLimiteMonetarioGlobal.
+     * @example
+     * // Delete one GabiLimiteMonetarioGlobal
+     * const GabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.delete({
+     *   where: {
+     *     // ... filter to delete one GabiLimiteMonetarioGlobal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiLimiteMonetarioGlobalDeleteArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalDeleteArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiLimiteMonetarioGlobal.
+     * @param {GabiLimiteMonetarioGlobalUpdateArgs} args - Arguments to update one GabiLimiteMonetarioGlobal.
+     * @example
+     * // Update one GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiLimiteMonetarioGlobalUpdateArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalUpdateArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiLimiteMonetarioGlobals.
+     * @param {GabiLimiteMonetarioGlobalDeleteManyArgs} args - Arguments to filter GabiLimiteMonetarioGlobals to delete.
+     * @example
+     * // Delete a few GabiLimiteMonetarioGlobals
+     * const { count } = await prisma.gabiLimiteMonetarioGlobal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiLimiteMonetarioGlobalDeleteManyArgs>(args?: SelectSubset<T, GabiLimiteMonetarioGlobalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiLimiteMonetarioGlobals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiLimiteMonetarioGlobals
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiLimiteMonetarioGlobalUpdateManyArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiLimiteMonetarioGlobal.
+     * @param {GabiLimiteMonetarioGlobalUpsertArgs} args - Arguments to update or create a GabiLimiteMonetarioGlobal.
+     * @example
+     * // Update or create a GabiLimiteMonetarioGlobal
+     * const gabiLimiteMonetarioGlobal = await prisma.gabiLimiteMonetarioGlobal.upsert({
+     *   create: {
+     *     // ... data to create a GabiLimiteMonetarioGlobal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiLimiteMonetarioGlobal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiLimiteMonetarioGlobalUpsertArgs>(args: SelectSubset<T, GabiLimiteMonetarioGlobalUpsertArgs<ExtArgs>>): Prisma__GabiLimiteMonetarioGlobalClient<$Result.GetResult<Prisma.$GabiLimiteMonetarioGlobalPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiLimiteMonetarioGlobals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalCountArgs} args - Arguments to filter GabiLimiteMonetarioGlobals to count.
+     * @example
+     * // Count the number of GabiLimiteMonetarioGlobals
+     * const count = await prisma.gabiLimiteMonetarioGlobal.count({
+     *   where: {
+     *     // ... the filter for the GabiLimiteMonetarioGlobals we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiLimiteMonetarioGlobalCountArgs>(
+      args?: Subset<T, GabiLimiteMonetarioGlobalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiLimiteMonetarioGlobalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiLimiteMonetarioGlobal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiLimiteMonetarioGlobalAggregateArgs>(args: Subset<T, GabiLimiteMonetarioGlobalAggregateArgs>): Prisma.PrismaPromise<GetGabiLimiteMonetarioGlobalAggregateType<T>>
+
+    /**
+     * Group by GabiLimiteMonetarioGlobal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiLimiteMonetarioGlobalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiLimiteMonetarioGlobalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiLimiteMonetarioGlobalGroupByArgs['orderBy'] }
+        : { orderBy?: GabiLimiteMonetarioGlobalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiLimiteMonetarioGlobalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiLimiteMonetarioGlobalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiLimiteMonetarioGlobal model
+   */
+  readonly fields: GabiLimiteMonetarioGlobalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiLimiteMonetarioGlobal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiLimiteMonetarioGlobalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiLimiteMonetarioGlobal model
+   */ 
+  interface GabiLimiteMonetarioGlobalFieldRefs {
+    readonly id_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'String'>
+    readonly modelo_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'String'>
+    readonly limite_aviso_usd_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'Decimal'>
+    readonly limite_bloqueio_usd_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'Decimal'>
+    readonly destinatarios_email_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'String[]'>
+    readonly ativo_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'Boolean'>
+    readonly data_criacao_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'DateTime'>
+    readonly data_atualizacao_gabi_limite_monetario_global: FieldRef<"GabiLimiteMonetarioGlobal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiLimiteMonetarioGlobal findUnique
+   */
+  export type GabiLimiteMonetarioGlobalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiLimiteMonetarioGlobal to fetch.
+     */
+    where: GabiLimiteMonetarioGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal findUniqueOrThrow
+   */
+  export type GabiLimiteMonetarioGlobalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiLimiteMonetarioGlobal to fetch.
+     */
+    where: GabiLimiteMonetarioGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal findFirst
+   */
+  export type GabiLimiteMonetarioGlobalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiLimiteMonetarioGlobal to fetch.
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiLimiteMonetarioGlobals to fetch.
+     */
+    orderBy?: GabiLimiteMonetarioGlobalOrderByWithRelationInput | GabiLimiteMonetarioGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiLimiteMonetarioGlobals.
+     */
+    cursor?: GabiLimiteMonetarioGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiLimiteMonetarioGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiLimiteMonetarioGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiLimiteMonetarioGlobals.
+     */
+    distinct?: GabiLimiteMonetarioGlobalScalarFieldEnum | GabiLimiteMonetarioGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal findFirstOrThrow
+   */
+  export type GabiLimiteMonetarioGlobalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiLimiteMonetarioGlobal to fetch.
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiLimiteMonetarioGlobals to fetch.
+     */
+    orderBy?: GabiLimiteMonetarioGlobalOrderByWithRelationInput | GabiLimiteMonetarioGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiLimiteMonetarioGlobals.
+     */
+    cursor?: GabiLimiteMonetarioGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiLimiteMonetarioGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiLimiteMonetarioGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiLimiteMonetarioGlobals.
+     */
+    distinct?: GabiLimiteMonetarioGlobalScalarFieldEnum | GabiLimiteMonetarioGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal findMany
+   */
+  export type GabiLimiteMonetarioGlobalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiLimiteMonetarioGlobals to fetch.
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiLimiteMonetarioGlobals to fetch.
+     */
+    orderBy?: GabiLimiteMonetarioGlobalOrderByWithRelationInput | GabiLimiteMonetarioGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiLimiteMonetarioGlobals.
+     */
+    cursor?: GabiLimiteMonetarioGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiLimiteMonetarioGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiLimiteMonetarioGlobals.
+     */
+    skip?: number
+    distinct?: GabiLimiteMonetarioGlobalScalarFieldEnum | GabiLimiteMonetarioGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal create
+   */
+  export type GabiLimiteMonetarioGlobalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiLimiteMonetarioGlobal.
+     */
+    data: XOR<GabiLimiteMonetarioGlobalCreateInput, GabiLimiteMonetarioGlobalUncheckedCreateInput>
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal createMany
+   */
+  export type GabiLimiteMonetarioGlobalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiLimiteMonetarioGlobals.
+     */
+    data: GabiLimiteMonetarioGlobalCreateManyInput | GabiLimiteMonetarioGlobalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal createManyAndReturn
+   */
+  export type GabiLimiteMonetarioGlobalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiLimiteMonetarioGlobals.
+     */
+    data: GabiLimiteMonetarioGlobalCreateManyInput | GabiLimiteMonetarioGlobalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal update
+   */
+  export type GabiLimiteMonetarioGlobalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiLimiteMonetarioGlobal.
+     */
+    data: XOR<GabiLimiteMonetarioGlobalUpdateInput, GabiLimiteMonetarioGlobalUncheckedUpdateInput>
+    /**
+     * Choose, which GabiLimiteMonetarioGlobal to update.
+     */
+    where: GabiLimiteMonetarioGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal updateMany
+   */
+  export type GabiLimiteMonetarioGlobalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiLimiteMonetarioGlobals.
+     */
+    data: XOR<GabiLimiteMonetarioGlobalUpdateManyMutationInput, GabiLimiteMonetarioGlobalUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiLimiteMonetarioGlobals to update
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal upsert
+   */
+  export type GabiLimiteMonetarioGlobalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiLimiteMonetarioGlobal to update in case it exists.
+     */
+    where: GabiLimiteMonetarioGlobalWhereUniqueInput
+    /**
+     * In case the GabiLimiteMonetarioGlobal found by the `where` argument doesn't exist, create a new GabiLimiteMonetarioGlobal with this data.
+     */
+    create: XOR<GabiLimiteMonetarioGlobalCreateInput, GabiLimiteMonetarioGlobalUncheckedCreateInput>
+    /**
+     * In case the GabiLimiteMonetarioGlobal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiLimiteMonetarioGlobalUpdateInput, GabiLimiteMonetarioGlobalUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal delete
+   */
+  export type GabiLimiteMonetarioGlobalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+    /**
+     * Filter which GabiLimiteMonetarioGlobal to delete.
+     */
+    where: GabiLimiteMonetarioGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal deleteMany
+   */
+  export type GabiLimiteMonetarioGlobalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiLimiteMonetarioGlobals to delete
+     */
+    where?: GabiLimiteMonetarioGlobalWhereInput
+  }
+
+  /**
+   * GabiLimiteMonetarioGlobal without action
+   */
+  export type GabiLimiteMonetarioGlobalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiLimiteMonetarioGlobal
+     */
+    select?: GabiLimiteMonetarioGlobalSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiAlertaEmitidoGlobal
+   */
+
+  export type AggregateGabiAlertaEmitidoGlobal = {
+    _count: GabiAlertaEmitidoGlobalCountAggregateOutputType | null
+    _avg: GabiAlertaEmitidoGlobalAvgAggregateOutputType | null
+    _sum: GabiAlertaEmitidoGlobalSumAggregateOutputType | null
+    _min: GabiAlertaEmitidoGlobalMinAggregateOutputType | null
+    _max: GabiAlertaEmitidoGlobalMaxAggregateOutputType | null
+  }
+
+  export type GabiAlertaEmitidoGlobalAvgAggregateOutputType = {
+    gasto_usd_gabi_alerta_emitido_global: Decimal | null
+  }
+
+  export type GabiAlertaEmitidoGlobalSumAggregateOutputType = {
+    gasto_usd_gabi_alerta_emitido_global: Decimal | null
+  }
+
+  export type GabiAlertaEmitidoGlobalMinAggregateOutputType = {
+    id_gabi_alerta_emitido_global: string | null
+    id_limite_gabi_alerta_emitido_global: string | null
+    mes_ref_gabi_alerta_emitido_global: string | null
+    nivel_gabi_alerta_emitido_global: string | null
+    gasto_usd_gabi_alerta_emitido_global: Decimal | null
+    data_criacao_gabi_alerta_emitido_global: Date | null
+  }
+
+  export type GabiAlertaEmitidoGlobalMaxAggregateOutputType = {
+    id_gabi_alerta_emitido_global: string | null
+    id_limite_gabi_alerta_emitido_global: string | null
+    mes_ref_gabi_alerta_emitido_global: string | null
+    nivel_gabi_alerta_emitido_global: string | null
+    gasto_usd_gabi_alerta_emitido_global: Decimal | null
+    data_criacao_gabi_alerta_emitido_global: Date | null
+  }
+
+  export type GabiAlertaEmitidoGlobalCountAggregateOutputType = {
+    id_gabi_alerta_emitido_global: number
+    id_limite_gabi_alerta_emitido_global: number
+    mes_ref_gabi_alerta_emitido_global: number
+    nivel_gabi_alerta_emitido_global: number
+    gasto_usd_gabi_alerta_emitido_global: number
+    data_criacao_gabi_alerta_emitido_global: number
+    _all: number
+  }
+
+
+  export type GabiAlertaEmitidoGlobalAvgAggregateInputType = {
+    gasto_usd_gabi_alerta_emitido_global?: true
+  }
+
+  export type GabiAlertaEmitidoGlobalSumAggregateInputType = {
+    gasto_usd_gabi_alerta_emitido_global?: true
+  }
+
+  export type GabiAlertaEmitidoGlobalMinAggregateInputType = {
+    id_gabi_alerta_emitido_global?: true
+    id_limite_gabi_alerta_emitido_global?: true
+    mes_ref_gabi_alerta_emitido_global?: true
+    nivel_gabi_alerta_emitido_global?: true
+    gasto_usd_gabi_alerta_emitido_global?: true
+    data_criacao_gabi_alerta_emitido_global?: true
+  }
+
+  export type GabiAlertaEmitidoGlobalMaxAggregateInputType = {
+    id_gabi_alerta_emitido_global?: true
+    id_limite_gabi_alerta_emitido_global?: true
+    mes_ref_gabi_alerta_emitido_global?: true
+    nivel_gabi_alerta_emitido_global?: true
+    gasto_usd_gabi_alerta_emitido_global?: true
+    data_criacao_gabi_alerta_emitido_global?: true
+  }
+
+  export type GabiAlertaEmitidoGlobalCountAggregateInputType = {
+    id_gabi_alerta_emitido_global?: true
+    id_limite_gabi_alerta_emitido_global?: true
+    mes_ref_gabi_alerta_emitido_global?: true
+    nivel_gabi_alerta_emitido_global?: true
+    gasto_usd_gabi_alerta_emitido_global?: true
+    data_criacao_gabi_alerta_emitido_global?: true
+    _all?: true
+  }
+
+  export type GabiAlertaEmitidoGlobalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiAlertaEmitidoGlobal to aggregate.
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiAlertaEmitidoGlobals to fetch.
+     */
+    orderBy?: GabiAlertaEmitidoGlobalOrderByWithRelationInput | GabiAlertaEmitidoGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiAlertaEmitidoGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiAlertaEmitidoGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiAlertaEmitidoGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiAlertaEmitidoGlobals
+    **/
+    _count?: true | GabiAlertaEmitidoGlobalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiAlertaEmitidoGlobalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiAlertaEmitidoGlobalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiAlertaEmitidoGlobalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiAlertaEmitidoGlobalMaxAggregateInputType
+  }
+
+  export type GetGabiAlertaEmitidoGlobalAggregateType<T extends GabiAlertaEmitidoGlobalAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiAlertaEmitidoGlobal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiAlertaEmitidoGlobal[P]>
+      : GetScalarType<T[P], AggregateGabiAlertaEmitidoGlobal[P]>
+  }
+
+
+
+
+  export type GabiAlertaEmitidoGlobalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiAlertaEmitidoGlobalWhereInput
+    orderBy?: GabiAlertaEmitidoGlobalOrderByWithAggregationInput | GabiAlertaEmitidoGlobalOrderByWithAggregationInput[]
+    by: GabiAlertaEmitidoGlobalScalarFieldEnum[] | GabiAlertaEmitidoGlobalScalarFieldEnum
+    having?: GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiAlertaEmitidoGlobalCountAggregateInputType | true
+    _avg?: GabiAlertaEmitidoGlobalAvgAggregateInputType
+    _sum?: GabiAlertaEmitidoGlobalSumAggregateInputType
+    _min?: GabiAlertaEmitidoGlobalMinAggregateInputType
+    _max?: GabiAlertaEmitidoGlobalMaxAggregateInputType
+  }
+
+  export type GabiAlertaEmitidoGlobalGroupByOutputType = {
+    id_gabi_alerta_emitido_global: string
+    id_limite_gabi_alerta_emitido_global: string
+    mes_ref_gabi_alerta_emitido_global: string
+    nivel_gabi_alerta_emitido_global: string
+    gasto_usd_gabi_alerta_emitido_global: Decimal
+    data_criacao_gabi_alerta_emitido_global: Date
+    _count: GabiAlertaEmitidoGlobalCountAggregateOutputType | null
+    _avg: GabiAlertaEmitidoGlobalAvgAggregateOutputType | null
+    _sum: GabiAlertaEmitidoGlobalSumAggregateOutputType | null
+    _min: GabiAlertaEmitidoGlobalMinAggregateOutputType | null
+    _max: GabiAlertaEmitidoGlobalMaxAggregateOutputType | null
+  }
+
+  type GetGabiAlertaEmitidoGlobalGroupByPayload<T extends GabiAlertaEmitidoGlobalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiAlertaEmitidoGlobalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiAlertaEmitidoGlobalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiAlertaEmitidoGlobalGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiAlertaEmitidoGlobalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiAlertaEmitidoGlobalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_alerta_emitido_global?: boolean
+    id_limite_gabi_alerta_emitido_global?: boolean
+    mes_ref_gabi_alerta_emitido_global?: boolean
+    nivel_gabi_alerta_emitido_global?: boolean
+    gasto_usd_gabi_alerta_emitido_global?: boolean
+    data_criacao_gabi_alerta_emitido_global?: boolean
+  }, ExtArgs["result"]["gabiAlertaEmitidoGlobal"]>
+
+  export type GabiAlertaEmitidoGlobalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_alerta_emitido_global?: boolean
+    id_limite_gabi_alerta_emitido_global?: boolean
+    mes_ref_gabi_alerta_emitido_global?: boolean
+    nivel_gabi_alerta_emitido_global?: boolean
+    gasto_usd_gabi_alerta_emitido_global?: boolean
+    data_criacao_gabi_alerta_emitido_global?: boolean
+  }, ExtArgs["result"]["gabiAlertaEmitidoGlobal"]>
+
+  export type GabiAlertaEmitidoGlobalSelectScalar = {
+    id_gabi_alerta_emitido_global?: boolean
+    id_limite_gabi_alerta_emitido_global?: boolean
+    mes_ref_gabi_alerta_emitido_global?: boolean
+    nivel_gabi_alerta_emitido_global?: boolean
+    gasto_usd_gabi_alerta_emitido_global?: boolean
+    data_criacao_gabi_alerta_emitido_global?: boolean
+  }
+
+
+  export type $GabiAlertaEmitidoGlobalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiAlertaEmitidoGlobal"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_alerta_emitido_global: string
+      id_limite_gabi_alerta_emitido_global: string
+      mes_ref_gabi_alerta_emitido_global: string
+      nivel_gabi_alerta_emitido_global: string
+      gasto_usd_gabi_alerta_emitido_global: Prisma.Decimal
+      data_criacao_gabi_alerta_emitido_global: Date
+    }, ExtArgs["result"]["gabiAlertaEmitidoGlobal"]>
+    composites: {}
+  }
+
+  type GabiAlertaEmitidoGlobalGetPayload<S extends boolean | null | undefined | GabiAlertaEmitidoGlobalDefaultArgs> = $Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload, S>
+
+  type GabiAlertaEmitidoGlobalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiAlertaEmitidoGlobalFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiAlertaEmitidoGlobalCountAggregateInputType | true
+    }
+
+  export interface GabiAlertaEmitidoGlobalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiAlertaEmitidoGlobal'], meta: { name: 'GabiAlertaEmitidoGlobal' } }
+    /**
+     * Find zero or one GabiAlertaEmitidoGlobal that matches the filter.
+     * @param {GabiAlertaEmitidoGlobalFindUniqueArgs} args - Arguments to find a GabiAlertaEmitidoGlobal
+     * @example
+     * // Get one GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiAlertaEmitidoGlobalFindUniqueArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalFindUniqueArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiAlertaEmitidoGlobal that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiAlertaEmitidoGlobalFindUniqueOrThrowArgs} args - Arguments to find a GabiAlertaEmitidoGlobal
+     * @example
+     * // Get one GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiAlertaEmitidoGlobalFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiAlertaEmitidoGlobal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalFindFirstArgs} args - Arguments to find a GabiAlertaEmitidoGlobal
+     * @example
+     * // Get one GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiAlertaEmitidoGlobalFindFirstArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalFindFirstArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiAlertaEmitidoGlobal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalFindFirstOrThrowArgs} args - Arguments to find a GabiAlertaEmitidoGlobal
+     * @example
+     * // Get one GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiAlertaEmitidoGlobalFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiAlertaEmitidoGlobals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiAlertaEmitidoGlobals
+     * const gabiAlertaEmitidoGlobals = await prisma.gabiAlertaEmitidoGlobal.findMany()
+     * 
+     * // Get first 10 GabiAlertaEmitidoGlobals
+     * const gabiAlertaEmitidoGlobals = await prisma.gabiAlertaEmitidoGlobal.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_alerta_emitido_global`
+     * const gabiAlertaEmitidoGlobalWithId_gabi_alerta_emitido_globalOnly = await prisma.gabiAlertaEmitidoGlobal.findMany({ select: { id_gabi_alerta_emitido_global: true } })
+     * 
+     */
+    findMany<T extends GabiAlertaEmitidoGlobalFindManyArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiAlertaEmitidoGlobal.
+     * @param {GabiAlertaEmitidoGlobalCreateArgs} args - Arguments to create a GabiAlertaEmitidoGlobal.
+     * @example
+     * // Create one GabiAlertaEmitidoGlobal
+     * const GabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.create({
+     *   data: {
+     *     // ... data to create a GabiAlertaEmitidoGlobal
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiAlertaEmitidoGlobalCreateArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalCreateArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiAlertaEmitidoGlobals.
+     * @param {GabiAlertaEmitidoGlobalCreateManyArgs} args - Arguments to create many GabiAlertaEmitidoGlobals.
+     * @example
+     * // Create many GabiAlertaEmitidoGlobals
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiAlertaEmitidoGlobalCreateManyArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiAlertaEmitidoGlobals and returns the data saved in the database.
+     * @param {GabiAlertaEmitidoGlobalCreateManyAndReturnArgs} args - Arguments to create many GabiAlertaEmitidoGlobals.
+     * @example
+     * // Create many GabiAlertaEmitidoGlobals
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiAlertaEmitidoGlobals and only return the `id_gabi_alerta_emitido_global`
+     * const gabiAlertaEmitidoGlobalWithId_gabi_alerta_emitido_globalOnly = await prisma.gabiAlertaEmitidoGlobal.createManyAndReturn({ 
+     *   select: { id_gabi_alerta_emitido_global: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiAlertaEmitidoGlobalCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiAlertaEmitidoGlobal.
+     * @param {GabiAlertaEmitidoGlobalDeleteArgs} args - Arguments to delete one GabiAlertaEmitidoGlobal.
+     * @example
+     * // Delete one GabiAlertaEmitidoGlobal
+     * const GabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.delete({
+     *   where: {
+     *     // ... filter to delete one GabiAlertaEmitidoGlobal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiAlertaEmitidoGlobalDeleteArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalDeleteArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiAlertaEmitidoGlobal.
+     * @param {GabiAlertaEmitidoGlobalUpdateArgs} args - Arguments to update one GabiAlertaEmitidoGlobal.
+     * @example
+     * // Update one GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiAlertaEmitidoGlobalUpdateArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalUpdateArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiAlertaEmitidoGlobals.
+     * @param {GabiAlertaEmitidoGlobalDeleteManyArgs} args - Arguments to filter GabiAlertaEmitidoGlobals to delete.
+     * @example
+     * // Delete a few GabiAlertaEmitidoGlobals
+     * const { count } = await prisma.gabiAlertaEmitidoGlobal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiAlertaEmitidoGlobalDeleteManyArgs>(args?: SelectSubset<T, GabiAlertaEmitidoGlobalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiAlertaEmitidoGlobals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiAlertaEmitidoGlobals
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiAlertaEmitidoGlobalUpdateManyArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiAlertaEmitidoGlobal.
+     * @param {GabiAlertaEmitidoGlobalUpsertArgs} args - Arguments to update or create a GabiAlertaEmitidoGlobal.
+     * @example
+     * // Update or create a GabiAlertaEmitidoGlobal
+     * const gabiAlertaEmitidoGlobal = await prisma.gabiAlertaEmitidoGlobal.upsert({
+     *   create: {
+     *     // ... data to create a GabiAlertaEmitidoGlobal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiAlertaEmitidoGlobal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiAlertaEmitidoGlobalUpsertArgs>(args: SelectSubset<T, GabiAlertaEmitidoGlobalUpsertArgs<ExtArgs>>): Prisma__GabiAlertaEmitidoGlobalClient<$Result.GetResult<Prisma.$GabiAlertaEmitidoGlobalPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiAlertaEmitidoGlobals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalCountArgs} args - Arguments to filter GabiAlertaEmitidoGlobals to count.
+     * @example
+     * // Count the number of GabiAlertaEmitidoGlobals
+     * const count = await prisma.gabiAlertaEmitidoGlobal.count({
+     *   where: {
+     *     // ... the filter for the GabiAlertaEmitidoGlobals we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiAlertaEmitidoGlobalCountArgs>(
+      args?: Subset<T, GabiAlertaEmitidoGlobalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiAlertaEmitidoGlobalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiAlertaEmitidoGlobal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiAlertaEmitidoGlobalAggregateArgs>(args: Subset<T, GabiAlertaEmitidoGlobalAggregateArgs>): Prisma.PrismaPromise<GetGabiAlertaEmitidoGlobalAggregateType<T>>
+
+    /**
+     * Group by GabiAlertaEmitidoGlobal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiAlertaEmitidoGlobalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiAlertaEmitidoGlobalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiAlertaEmitidoGlobalGroupByArgs['orderBy'] }
+        : { orderBy?: GabiAlertaEmitidoGlobalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiAlertaEmitidoGlobalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiAlertaEmitidoGlobalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiAlertaEmitidoGlobal model
+   */
+  readonly fields: GabiAlertaEmitidoGlobalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiAlertaEmitidoGlobal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiAlertaEmitidoGlobalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiAlertaEmitidoGlobal model
+   */ 
+  interface GabiAlertaEmitidoGlobalFieldRefs {
+    readonly id_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'String'>
+    readonly id_limite_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'String'>
+    readonly mes_ref_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'String'>
+    readonly nivel_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'String'>
+    readonly gasto_usd_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'Decimal'>
+    readonly data_criacao_gabi_alerta_emitido_global: FieldRef<"GabiAlertaEmitidoGlobal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiAlertaEmitidoGlobal findUnique
+   */
+  export type GabiAlertaEmitidoGlobalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiAlertaEmitidoGlobal to fetch.
+     */
+    where: GabiAlertaEmitidoGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal findUniqueOrThrow
+   */
+  export type GabiAlertaEmitidoGlobalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiAlertaEmitidoGlobal to fetch.
+     */
+    where: GabiAlertaEmitidoGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal findFirst
+   */
+  export type GabiAlertaEmitidoGlobalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiAlertaEmitidoGlobal to fetch.
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiAlertaEmitidoGlobals to fetch.
+     */
+    orderBy?: GabiAlertaEmitidoGlobalOrderByWithRelationInput | GabiAlertaEmitidoGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiAlertaEmitidoGlobals.
+     */
+    cursor?: GabiAlertaEmitidoGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiAlertaEmitidoGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiAlertaEmitidoGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiAlertaEmitidoGlobals.
+     */
+    distinct?: GabiAlertaEmitidoGlobalScalarFieldEnum | GabiAlertaEmitidoGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal findFirstOrThrow
+   */
+  export type GabiAlertaEmitidoGlobalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiAlertaEmitidoGlobal to fetch.
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiAlertaEmitidoGlobals to fetch.
+     */
+    orderBy?: GabiAlertaEmitidoGlobalOrderByWithRelationInput | GabiAlertaEmitidoGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiAlertaEmitidoGlobals.
+     */
+    cursor?: GabiAlertaEmitidoGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiAlertaEmitidoGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiAlertaEmitidoGlobals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiAlertaEmitidoGlobals.
+     */
+    distinct?: GabiAlertaEmitidoGlobalScalarFieldEnum | GabiAlertaEmitidoGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal findMany
+   */
+  export type GabiAlertaEmitidoGlobalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiAlertaEmitidoGlobals to fetch.
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiAlertaEmitidoGlobals to fetch.
+     */
+    orderBy?: GabiAlertaEmitidoGlobalOrderByWithRelationInput | GabiAlertaEmitidoGlobalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiAlertaEmitidoGlobals.
+     */
+    cursor?: GabiAlertaEmitidoGlobalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiAlertaEmitidoGlobals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiAlertaEmitidoGlobals.
+     */
+    skip?: number
+    distinct?: GabiAlertaEmitidoGlobalScalarFieldEnum | GabiAlertaEmitidoGlobalScalarFieldEnum[]
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal create
+   */
+  export type GabiAlertaEmitidoGlobalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiAlertaEmitidoGlobal.
+     */
+    data: XOR<GabiAlertaEmitidoGlobalCreateInput, GabiAlertaEmitidoGlobalUncheckedCreateInput>
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal createMany
+   */
+  export type GabiAlertaEmitidoGlobalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiAlertaEmitidoGlobals.
+     */
+    data: GabiAlertaEmitidoGlobalCreateManyInput | GabiAlertaEmitidoGlobalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal createManyAndReturn
+   */
+  export type GabiAlertaEmitidoGlobalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiAlertaEmitidoGlobals.
+     */
+    data: GabiAlertaEmitidoGlobalCreateManyInput | GabiAlertaEmitidoGlobalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal update
+   */
+  export type GabiAlertaEmitidoGlobalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiAlertaEmitidoGlobal.
+     */
+    data: XOR<GabiAlertaEmitidoGlobalUpdateInput, GabiAlertaEmitidoGlobalUncheckedUpdateInput>
+    /**
+     * Choose, which GabiAlertaEmitidoGlobal to update.
+     */
+    where: GabiAlertaEmitidoGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal updateMany
+   */
+  export type GabiAlertaEmitidoGlobalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiAlertaEmitidoGlobals.
+     */
+    data: XOR<GabiAlertaEmitidoGlobalUpdateManyMutationInput, GabiAlertaEmitidoGlobalUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiAlertaEmitidoGlobals to update
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal upsert
+   */
+  export type GabiAlertaEmitidoGlobalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiAlertaEmitidoGlobal to update in case it exists.
+     */
+    where: GabiAlertaEmitidoGlobalWhereUniqueInput
+    /**
+     * In case the GabiAlertaEmitidoGlobal found by the `where` argument doesn't exist, create a new GabiAlertaEmitidoGlobal with this data.
+     */
+    create: XOR<GabiAlertaEmitidoGlobalCreateInput, GabiAlertaEmitidoGlobalUncheckedCreateInput>
+    /**
+     * In case the GabiAlertaEmitidoGlobal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiAlertaEmitidoGlobalUpdateInput, GabiAlertaEmitidoGlobalUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal delete
+   */
+  export type GabiAlertaEmitidoGlobalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+    /**
+     * Filter which GabiAlertaEmitidoGlobal to delete.
+     */
+    where: GabiAlertaEmitidoGlobalWhereUniqueInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal deleteMany
+   */
+  export type GabiAlertaEmitidoGlobalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiAlertaEmitidoGlobals to delete
+     */
+    where?: GabiAlertaEmitidoGlobalWhereInput
+  }
+
+  /**
+   * GabiAlertaEmitidoGlobal without action
+   */
+  export type GabiAlertaEmitidoGlobalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiAlertaEmitidoGlobal
+     */
+    select?: GabiAlertaEmitidoGlobalSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AuditLogAdmin
+   */
+
+  export type AggregateAuditLogAdmin = {
+    _count: AuditLogAdminCountAggregateOutputType | null
+    _avg: AuditLogAdminAvgAggregateOutputType | null
+    _sum: AuditLogAdminSumAggregateOutputType | null
+    _min: AuditLogAdminMinAggregateOutputType | null
+    _max: AuditLogAdminMaxAggregateOutputType | null
+  }
+
+  export type AuditLogAdminAvgAggregateOutputType = {
+    qtd_resultados_audit_log_admin: number | null
+  }
+
+  export type AuditLogAdminSumAggregateOutputType = {
+    qtd_resultados_audit_log_admin: number | null
+  }
+
+  export type AuditLogAdminMinAggregateOutputType = {
+    id_audit_log_admin: string | null
+    id_usuario_audit_log_admin: string | null
+    tipo_usuario_audit_log_admin: string | null
+    acao_audit_log_admin: string | null
+    recurso_audit_log_admin: string | null
+    qtd_resultados_audit_log_admin: number | null
+    ip_origem_audit_log_admin: string | null
+    correlation_id_audit_log_admin: string | null
+    data_criacao_audit_log_admin: Date | null
+  }
+
+  export type AuditLogAdminMaxAggregateOutputType = {
+    id_audit_log_admin: string | null
+    id_usuario_audit_log_admin: string | null
+    tipo_usuario_audit_log_admin: string | null
+    acao_audit_log_admin: string | null
+    recurso_audit_log_admin: string | null
+    qtd_resultados_audit_log_admin: number | null
+    ip_origem_audit_log_admin: string | null
+    correlation_id_audit_log_admin: string | null
+    data_criacao_audit_log_admin: Date | null
+  }
+
+  export type AuditLogAdminCountAggregateOutputType = {
+    id_audit_log_admin: number
+    id_usuario_audit_log_admin: number
+    tipo_usuario_audit_log_admin: number
+    acao_audit_log_admin: number
+    recurso_audit_log_admin: number
+    filtros_audit_log_admin: number
+    qtd_resultados_audit_log_admin: number
+    ip_origem_audit_log_admin: number
+    correlation_id_audit_log_admin: number
+    data_criacao_audit_log_admin: number
+    _all: number
+  }
+
+
+  export type AuditLogAdminAvgAggregateInputType = {
+    qtd_resultados_audit_log_admin?: true
+  }
+
+  export type AuditLogAdminSumAggregateInputType = {
+    qtd_resultados_audit_log_admin?: true
+  }
+
+  export type AuditLogAdminMinAggregateInputType = {
+    id_audit_log_admin?: true
+    id_usuario_audit_log_admin?: true
+    tipo_usuario_audit_log_admin?: true
+    acao_audit_log_admin?: true
+    recurso_audit_log_admin?: true
+    qtd_resultados_audit_log_admin?: true
+    ip_origem_audit_log_admin?: true
+    correlation_id_audit_log_admin?: true
+    data_criacao_audit_log_admin?: true
+  }
+
+  export type AuditLogAdminMaxAggregateInputType = {
+    id_audit_log_admin?: true
+    id_usuario_audit_log_admin?: true
+    tipo_usuario_audit_log_admin?: true
+    acao_audit_log_admin?: true
+    recurso_audit_log_admin?: true
+    qtd_resultados_audit_log_admin?: true
+    ip_origem_audit_log_admin?: true
+    correlation_id_audit_log_admin?: true
+    data_criacao_audit_log_admin?: true
+  }
+
+  export type AuditLogAdminCountAggregateInputType = {
+    id_audit_log_admin?: true
+    id_usuario_audit_log_admin?: true
+    tipo_usuario_audit_log_admin?: true
+    acao_audit_log_admin?: true
+    recurso_audit_log_admin?: true
+    filtros_audit_log_admin?: true
+    qtd_resultados_audit_log_admin?: true
+    ip_origem_audit_log_admin?: true
+    correlation_id_audit_log_admin?: true
+    data_criacao_audit_log_admin?: true
+    _all?: true
+  }
+
+  export type AuditLogAdminAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLogAdmin to aggregate.
+     */
+    where?: AuditLogAdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogAdmins to fetch.
+     */
+    orderBy?: AuditLogAdminOrderByWithRelationInput | AuditLogAdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuditLogAdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogAdmins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogAdmins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuditLogAdmins
+    **/
+    _count?: true | AuditLogAdminCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AuditLogAdminAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AuditLogAdminSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuditLogAdminMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuditLogAdminMaxAggregateInputType
+  }
+
+  export type GetAuditLogAdminAggregateType<T extends AuditLogAdminAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuditLogAdmin]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuditLogAdmin[P]>
+      : GetScalarType<T[P], AggregateAuditLogAdmin[P]>
+  }
+
+
+
+
+  export type AuditLogAdminGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogAdminWhereInput
+    orderBy?: AuditLogAdminOrderByWithAggregationInput | AuditLogAdminOrderByWithAggregationInput[]
+    by: AuditLogAdminScalarFieldEnum[] | AuditLogAdminScalarFieldEnum
+    having?: AuditLogAdminScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuditLogAdminCountAggregateInputType | true
+    _avg?: AuditLogAdminAvgAggregateInputType
+    _sum?: AuditLogAdminSumAggregateInputType
+    _min?: AuditLogAdminMinAggregateInputType
+    _max?: AuditLogAdminMaxAggregateInputType
+  }
+
+  export type AuditLogAdminGroupByOutputType = {
+    id_audit_log_admin: string
+    id_usuario_audit_log_admin: string
+    tipo_usuario_audit_log_admin: string
+    acao_audit_log_admin: string
+    recurso_audit_log_admin: string
+    filtros_audit_log_admin: JsonValue
+    qtd_resultados_audit_log_admin: number
+    ip_origem_audit_log_admin: string
+    correlation_id_audit_log_admin: string
+    data_criacao_audit_log_admin: Date
+    _count: AuditLogAdminCountAggregateOutputType | null
+    _avg: AuditLogAdminAvgAggregateOutputType | null
+    _sum: AuditLogAdminSumAggregateOutputType | null
+    _min: AuditLogAdminMinAggregateOutputType | null
+    _max: AuditLogAdminMaxAggregateOutputType | null
+  }
+
+  type GetAuditLogAdminGroupByPayload<T extends AuditLogAdminGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuditLogAdminGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuditLogAdminGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuditLogAdminGroupByOutputType[P]>
+            : GetScalarType<T[P], AuditLogAdminGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuditLogAdminSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_audit_log_admin?: boolean
+    id_usuario_audit_log_admin?: boolean
+    tipo_usuario_audit_log_admin?: boolean
+    acao_audit_log_admin?: boolean
+    recurso_audit_log_admin?: boolean
+    filtros_audit_log_admin?: boolean
+    qtd_resultados_audit_log_admin?: boolean
+    ip_origem_audit_log_admin?: boolean
+    correlation_id_audit_log_admin?: boolean
+    data_criacao_audit_log_admin?: boolean
+  }, ExtArgs["result"]["auditLogAdmin"]>
+
+  export type AuditLogAdminSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_audit_log_admin?: boolean
+    id_usuario_audit_log_admin?: boolean
+    tipo_usuario_audit_log_admin?: boolean
+    acao_audit_log_admin?: boolean
+    recurso_audit_log_admin?: boolean
+    filtros_audit_log_admin?: boolean
+    qtd_resultados_audit_log_admin?: boolean
+    ip_origem_audit_log_admin?: boolean
+    correlation_id_audit_log_admin?: boolean
+    data_criacao_audit_log_admin?: boolean
+  }, ExtArgs["result"]["auditLogAdmin"]>
+
+  export type AuditLogAdminSelectScalar = {
+    id_audit_log_admin?: boolean
+    id_usuario_audit_log_admin?: boolean
+    tipo_usuario_audit_log_admin?: boolean
+    acao_audit_log_admin?: boolean
+    recurso_audit_log_admin?: boolean
+    filtros_audit_log_admin?: boolean
+    qtd_resultados_audit_log_admin?: boolean
+    ip_origem_audit_log_admin?: boolean
+    correlation_id_audit_log_admin?: boolean
+    data_criacao_audit_log_admin?: boolean
+  }
+
+
+  export type $AuditLogAdminPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuditLogAdmin"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_audit_log_admin: string
+      id_usuario_audit_log_admin: string
+      tipo_usuario_audit_log_admin: string
+      acao_audit_log_admin: string
+      recurso_audit_log_admin: string
+      filtros_audit_log_admin: Prisma.JsonValue
+      qtd_resultados_audit_log_admin: number
+      ip_origem_audit_log_admin: string
+      correlation_id_audit_log_admin: string
+      data_criacao_audit_log_admin: Date
+    }, ExtArgs["result"]["auditLogAdmin"]>
+    composites: {}
+  }
+
+  type AuditLogAdminGetPayload<S extends boolean | null | undefined | AuditLogAdminDefaultArgs> = $Result.GetResult<Prisma.$AuditLogAdminPayload, S>
+
+  type AuditLogAdminCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AuditLogAdminFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AuditLogAdminCountAggregateInputType | true
+    }
+
+  export interface AuditLogAdminDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditLogAdmin'], meta: { name: 'AuditLogAdmin' } }
+    /**
+     * Find zero or one AuditLogAdmin that matches the filter.
+     * @param {AuditLogAdminFindUniqueArgs} args - Arguments to find a AuditLogAdmin
+     * @example
+     * // Get one AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuditLogAdminFindUniqueArgs>(args: SelectSubset<T, AuditLogAdminFindUniqueArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AuditLogAdmin that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AuditLogAdminFindUniqueOrThrowArgs} args - Arguments to find a AuditLogAdmin
+     * @example
+     * // Get one AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuditLogAdminFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditLogAdminFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AuditLogAdmin that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminFindFirstArgs} args - Arguments to find a AuditLogAdmin
+     * @example
+     * // Get one AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuditLogAdminFindFirstArgs>(args?: SelectSubset<T, AuditLogAdminFindFirstArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AuditLogAdmin that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminFindFirstOrThrowArgs} args - Arguments to find a AuditLogAdmin
+     * @example
+     * // Get one AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuditLogAdminFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditLogAdminFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AuditLogAdmins that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuditLogAdmins
+     * const auditLogAdmins = await prisma.auditLogAdmin.findMany()
+     * 
+     * // Get first 10 AuditLogAdmins
+     * const auditLogAdmins = await prisma.auditLogAdmin.findMany({ take: 10 })
+     * 
+     * // Only select the `id_audit_log_admin`
+     * const auditLogAdminWithId_audit_log_adminOnly = await prisma.auditLogAdmin.findMany({ select: { id_audit_log_admin: true } })
+     * 
+     */
+    findMany<T extends AuditLogAdminFindManyArgs>(args?: SelectSubset<T, AuditLogAdminFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AuditLogAdmin.
+     * @param {AuditLogAdminCreateArgs} args - Arguments to create a AuditLogAdmin.
+     * @example
+     * // Create one AuditLogAdmin
+     * const AuditLogAdmin = await prisma.auditLogAdmin.create({
+     *   data: {
+     *     // ... data to create a AuditLogAdmin
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuditLogAdminCreateArgs>(args: SelectSubset<T, AuditLogAdminCreateArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AuditLogAdmins.
+     * @param {AuditLogAdminCreateManyArgs} args - Arguments to create many AuditLogAdmins.
+     * @example
+     * // Create many AuditLogAdmins
+     * const auditLogAdmin = await prisma.auditLogAdmin.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuditLogAdminCreateManyArgs>(args?: SelectSubset<T, AuditLogAdminCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuditLogAdmins and returns the data saved in the database.
+     * @param {AuditLogAdminCreateManyAndReturnArgs} args - Arguments to create many AuditLogAdmins.
+     * @example
+     * // Create many AuditLogAdmins
+     * const auditLogAdmin = await prisma.auditLogAdmin.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuditLogAdmins and only return the `id_audit_log_admin`
+     * const auditLogAdminWithId_audit_log_adminOnly = await prisma.auditLogAdmin.createManyAndReturn({ 
+     *   select: { id_audit_log_admin: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuditLogAdminCreateManyAndReturnArgs>(args?: SelectSubset<T, AuditLogAdminCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AuditLogAdmin.
+     * @param {AuditLogAdminDeleteArgs} args - Arguments to delete one AuditLogAdmin.
+     * @example
+     * // Delete one AuditLogAdmin
+     * const AuditLogAdmin = await prisma.auditLogAdmin.delete({
+     *   where: {
+     *     // ... filter to delete one AuditLogAdmin
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuditLogAdminDeleteArgs>(args: SelectSubset<T, AuditLogAdminDeleteArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AuditLogAdmin.
+     * @param {AuditLogAdminUpdateArgs} args - Arguments to update one AuditLogAdmin.
+     * @example
+     * // Update one AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuditLogAdminUpdateArgs>(args: SelectSubset<T, AuditLogAdminUpdateArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AuditLogAdmins.
+     * @param {AuditLogAdminDeleteManyArgs} args - Arguments to filter AuditLogAdmins to delete.
+     * @example
+     * // Delete a few AuditLogAdmins
+     * const { count } = await prisma.auditLogAdmin.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuditLogAdminDeleteManyArgs>(args?: SelectSubset<T, AuditLogAdminDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditLogAdmins.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuditLogAdmins
+     * const auditLogAdmin = await prisma.auditLogAdmin.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuditLogAdminUpdateManyArgs>(args: SelectSubset<T, AuditLogAdminUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AuditLogAdmin.
+     * @param {AuditLogAdminUpsertArgs} args - Arguments to update or create a AuditLogAdmin.
+     * @example
+     * // Update or create a AuditLogAdmin
+     * const auditLogAdmin = await prisma.auditLogAdmin.upsert({
+     *   create: {
+     *     // ... data to create a AuditLogAdmin
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuditLogAdmin we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuditLogAdminUpsertArgs>(args: SelectSubset<T, AuditLogAdminUpsertArgs<ExtArgs>>): Prisma__AuditLogAdminClient<$Result.GetResult<Prisma.$AuditLogAdminPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AuditLogAdmins.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminCountArgs} args - Arguments to filter AuditLogAdmins to count.
+     * @example
+     * // Count the number of AuditLogAdmins
+     * const count = await prisma.auditLogAdmin.count({
+     *   where: {
+     *     // ... the filter for the AuditLogAdmins we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuditLogAdminCountArgs>(
+      args?: Subset<T, AuditLogAdminCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuditLogAdminCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuditLogAdmin.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuditLogAdminAggregateArgs>(args: Subset<T, AuditLogAdminAggregateArgs>): Prisma.PrismaPromise<GetAuditLogAdminAggregateType<T>>
+
+    /**
+     * Group by AuditLogAdmin.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAdminGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuditLogAdminGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuditLogAdminGroupByArgs['orderBy'] }
+        : { orderBy?: AuditLogAdminGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuditLogAdminGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuditLogAdminGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuditLogAdmin model
+   */
+  readonly fields: AuditLogAdminFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuditLogAdmin.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuditLogAdminClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuditLogAdmin model
+   */ 
+  interface AuditLogAdminFieldRefs {
+    readonly id_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly id_usuario_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly tipo_usuario_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly acao_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly recurso_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly filtros_audit_log_admin: FieldRef<"AuditLogAdmin", 'Json'>
+    readonly qtd_resultados_audit_log_admin: FieldRef<"AuditLogAdmin", 'Int'>
+    readonly ip_origem_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly correlation_id_audit_log_admin: FieldRef<"AuditLogAdmin", 'String'>
+    readonly data_criacao_audit_log_admin: FieldRef<"AuditLogAdmin", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuditLogAdmin findUnique
+   */
+  export type AuditLogAdminFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter, which AuditLogAdmin to fetch.
+     */
+    where: AuditLogAdminWhereUniqueInput
+  }
+
+  /**
+   * AuditLogAdmin findUniqueOrThrow
+   */
+  export type AuditLogAdminFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter, which AuditLogAdmin to fetch.
+     */
+    where: AuditLogAdminWhereUniqueInput
+  }
+
+  /**
+   * AuditLogAdmin findFirst
+   */
+  export type AuditLogAdminFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter, which AuditLogAdmin to fetch.
+     */
+    where?: AuditLogAdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogAdmins to fetch.
+     */
+    orderBy?: AuditLogAdminOrderByWithRelationInput | AuditLogAdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogAdmins.
+     */
+    cursor?: AuditLogAdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogAdmins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogAdmins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogAdmins.
+     */
+    distinct?: AuditLogAdminScalarFieldEnum | AuditLogAdminScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLogAdmin findFirstOrThrow
+   */
+  export type AuditLogAdminFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter, which AuditLogAdmin to fetch.
+     */
+    where?: AuditLogAdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogAdmins to fetch.
+     */
+    orderBy?: AuditLogAdminOrderByWithRelationInput | AuditLogAdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogAdmins.
+     */
+    cursor?: AuditLogAdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogAdmins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogAdmins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogAdmins.
+     */
+    distinct?: AuditLogAdminScalarFieldEnum | AuditLogAdminScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLogAdmin findMany
+   */
+  export type AuditLogAdminFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter, which AuditLogAdmins to fetch.
+     */
+    where?: AuditLogAdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogAdmins to fetch.
+     */
+    orderBy?: AuditLogAdminOrderByWithRelationInput | AuditLogAdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuditLogAdmins.
+     */
+    cursor?: AuditLogAdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogAdmins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogAdmins.
+     */
+    skip?: number
+    distinct?: AuditLogAdminScalarFieldEnum | AuditLogAdminScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLogAdmin create
+   */
+  export type AuditLogAdminCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * The data needed to create a AuditLogAdmin.
+     */
+    data: XOR<AuditLogAdminCreateInput, AuditLogAdminUncheckedCreateInput>
+  }
+
+  /**
+   * AuditLogAdmin createMany
+   */
+  export type AuditLogAdminCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuditLogAdmins.
+     */
+    data: AuditLogAdminCreateManyInput | AuditLogAdminCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditLogAdmin createManyAndReturn
+   */
+  export type AuditLogAdminCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AuditLogAdmins.
+     */
+    data: AuditLogAdminCreateManyInput | AuditLogAdminCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditLogAdmin update
+   */
+  export type AuditLogAdminUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * The data needed to update a AuditLogAdmin.
+     */
+    data: XOR<AuditLogAdminUpdateInput, AuditLogAdminUncheckedUpdateInput>
+    /**
+     * Choose, which AuditLogAdmin to update.
+     */
+    where: AuditLogAdminWhereUniqueInput
+  }
+
+  /**
+   * AuditLogAdmin updateMany
+   */
+  export type AuditLogAdminUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuditLogAdmins.
+     */
+    data: XOR<AuditLogAdminUpdateManyMutationInput, AuditLogAdminUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditLogAdmins to update
+     */
+    where?: AuditLogAdminWhereInput
+  }
+
+  /**
+   * AuditLogAdmin upsert
+   */
+  export type AuditLogAdminUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * The filter to search for the AuditLogAdmin to update in case it exists.
+     */
+    where: AuditLogAdminWhereUniqueInput
+    /**
+     * In case the AuditLogAdmin found by the `where` argument doesn't exist, create a new AuditLogAdmin with this data.
+     */
+    create: XOR<AuditLogAdminCreateInput, AuditLogAdminUncheckedCreateInput>
+    /**
+     * In case the AuditLogAdmin was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuditLogAdminUpdateInput, AuditLogAdminUncheckedUpdateInput>
+  }
+
+  /**
+   * AuditLogAdmin delete
+   */
+  export type AuditLogAdminDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+    /**
+     * Filter which AuditLogAdmin to delete.
+     */
+    where: AuditLogAdminWhereUniqueInput
+  }
+
+  /**
+   * AuditLogAdmin deleteMany
+   */
+  export type AuditLogAdminDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLogAdmins to delete
+     */
+    where?: AuditLogAdminWhereInput
+  }
+
+  /**
+   * AuditLogAdmin without action
+   */
+  export type AuditLogAdminDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLogAdmin
+     */
+    select?: AuditLogAdminSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -29699,6 +32809,7 @@ export namespace Prisma {
     cidade_organizacao: 'cidade_organizacao',
     segmento_organizacao: 'segmento_organizacao',
     tipo_organizacao: 'tipo_organizacao',
+    hospeda_colaboradores_gravity: 'hospeda_colaboradores_gravity',
     data_criacao_organizacao: 'data_criacao_organizacao',
     data_atualizacao_organizacao: 'data_atualizacao_organizacao'
   };
@@ -30155,6 +33266,48 @@ export namespace Prisma {
   export type LLMMetricasScalarFieldEnum = (typeof LLMMetricasScalarFieldEnum)[keyof typeof LLMMetricasScalarFieldEnum]
 
 
+  export const GabiLimiteMonetarioGlobalScalarFieldEnum: {
+    id_gabi_limite_monetario_global: 'id_gabi_limite_monetario_global',
+    modelo_gabi_limite_monetario_global: 'modelo_gabi_limite_monetario_global',
+    limite_aviso_usd_gabi_limite_monetario_global: 'limite_aviso_usd_gabi_limite_monetario_global',
+    limite_bloqueio_usd_gabi_limite_monetario_global: 'limite_bloqueio_usd_gabi_limite_monetario_global',
+    destinatarios_email_gabi_limite_monetario_global: 'destinatarios_email_gabi_limite_monetario_global',
+    ativo_gabi_limite_monetario_global: 'ativo_gabi_limite_monetario_global',
+    data_criacao_gabi_limite_monetario_global: 'data_criacao_gabi_limite_monetario_global',
+    data_atualizacao_gabi_limite_monetario_global: 'data_atualizacao_gabi_limite_monetario_global'
+  };
+
+  export type GabiLimiteMonetarioGlobalScalarFieldEnum = (typeof GabiLimiteMonetarioGlobalScalarFieldEnum)[keyof typeof GabiLimiteMonetarioGlobalScalarFieldEnum]
+
+
+  export const GabiAlertaEmitidoGlobalScalarFieldEnum: {
+    id_gabi_alerta_emitido_global: 'id_gabi_alerta_emitido_global',
+    id_limite_gabi_alerta_emitido_global: 'id_limite_gabi_alerta_emitido_global',
+    mes_ref_gabi_alerta_emitido_global: 'mes_ref_gabi_alerta_emitido_global',
+    nivel_gabi_alerta_emitido_global: 'nivel_gabi_alerta_emitido_global',
+    gasto_usd_gabi_alerta_emitido_global: 'gasto_usd_gabi_alerta_emitido_global',
+    data_criacao_gabi_alerta_emitido_global: 'data_criacao_gabi_alerta_emitido_global'
+  };
+
+  export type GabiAlertaEmitidoGlobalScalarFieldEnum = (typeof GabiAlertaEmitidoGlobalScalarFieldEnum)[keyof typeof GabiAlertaEmitidoGlobalScalarFieldEnum]
+
+
+  export const AuditLogAdminScalarFieldEnum: {
+    id_audit_log_admin: 'id_audit_log_admin',
+    id_usuario_audit_log_admin: 'id_usuario_audit_log_admin',
+    tipo_usuario_audit_log_admin: 'tipo_usuario_audit_log_admin',
+    acao_audit_log_admin: 'acao_audit_log_admin',
+    recurso_audit_log_admin: 'recurso_audit_log_admin',
+    filtros_audit_log_admin: 'filtros_audit_log_admin',
+    qtd_resultados_audit_log_admin: 'qtd_resultados_audit_log_admin',
+    ip_origem_audit_log_admin: 'ip_origem_audit_log_admin',
+    correlation_id_audit_log_admin: 'correlation_id_audit_log_admin',
+    data_criacao_audit_log_admin: 'data_criacao_audit_log_admin'
+  };
+
+  export type AuditLogAdminScalarFieldEnum = (typeof AuditLogAdminScalarFieldEnum)[keyof typeof AuditLogAdminScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -30237,6 +33390,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -30261,13 +33421,6 @@ export namespace Prisma {
    * Reference to a field of type 'UsuarioTipo[]'
    */
   export type ListEnumUsuarioTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsuarioTipo[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -30478,6 +33631,7 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    hospeda_colaboradores_gravity?: BoolFilter<"Organizacao"> | boolean
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
@@ -30503,6 +33657,7 @@ export namespace Prisma {
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
     tipo_organizacao?: SortOrderInput | SortOrder
+    hospeda_colaboradores_gravity?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
     users_organizacao?: UsuarioOrderByRelationAggregateInput
@@ -30531,6 +33686,7 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    hospeda_colaboradores_gravity?: BoolFilter<"Organizacao"> | boolean
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
@@ -30556,6 +33712,7 @@ export namespace Prisma {
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
     tipo_organizacao?: SortOrderInput | SortOrder
+    hospeda_colaboradores_gravity?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
     _count?: OrganizacaoCountOrderByAggregateInput
@@ -30578,6 +33735,7 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     tipo_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    hospeda_colaboradores_gravity?: BoolWithAggregatesFilter<"Organizacao"> | boolean
     data_criacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
   }
@@ -32895,6 +36053,214 @@ export namespace Prisma {
     data_criacao_metricas_llm?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
   }
 
+  export type GabiLimiteMonetarioGlobalWhereInput = {
+    AND?: GabiLimiteMonetarioGlobalWhereInput | GabiLimiteMonetarioGlobalWhereInput[]
+    OR?: GabiLimiteMonetarioGlobalWhereInput[]
+    NOT?: GabiLimiteMonetarioGlobalWhereInput | GabiLimiteMonetarioGlobalWhereInput[]
+    id_gabi_limite_monetario_global?: StringFilter<"GabiLimiteMonetarioGlobal"> | string
+    modelo_gabi_limite_monetario_global?: StringNullableFilter<"GabiLimiteMonetarioGlobal"> | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: StringNullableListFilter<"GabiLimiteMonetarioGlobal">
+    ativo_gabi_limite_monetario_global?: BoolFilter<"GabiLimiteMonetarioGlobal"> | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalOrderByWithRelationInput = {
+    id_gabi_limite_monetario_global?: SortOrder
+    modelo_gabi_limite_monetario_global?: SortOrderInput | SortOrder
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+    destinatarios_email_gabi_limite_monetario_global?: SortOrder
+    ativo_gabi_limite_monetario_global?: SortOrder
+    data_criacao_gabi_limite_monetario_global?: SortOrder
+    data_atualizacao_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiLimiteMonetarioGlobalWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_limite_monetario_global?: string
+    AND?: GabiLimiteMonetarioGlobalWhereInput | GabiLimiteMonetarioGlobalWhereInput[]
+    OR?: GabiLimiteMonetarioGlobalWhereInput[]
+    NOT?: GabiLimiteMonetarioGlobalWhereInput | GabiLimiteMonetarioGlobalWhereInput[]
+    modelo_gabi_limite_monetario_global?: StringNullableFilter<"GabiLimiteMonetarioGlobal"> | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: StringNullableListFilter<"GabiLimiteMonetarioGlobal">
+    ativo_gabi_limite_monetario_global?: BoolFilter<"GabiLimiteMonetarioGlobal"> | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+  }, "id_gabi_limite_monetario_global">
+
+  export type GabiLimiteMonetarioGlobalOrderByWithAggregationInput = {
+    id_gabi_limite_monetario_global?: SortOrder
+    modelo_gabi_limite_monetario_global?: SortOrderInput | SortOrder
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+    destinatarios_email_gabi_limite_monetario_global?: SortOrder
+    ativo_gabi_limite_monetario_global?: SortOrder
+    data_criacao_gabi_limite_monetario_global?: SortOrder
+    data_atualizacao_gabi_limite_monetario_global?: SortOrder
+    _count?: GabiLimiteMonetarioGlobalCountOrderByAggregateInput
+    _avg?: GabiLimiteMonetarioGlobalAvgOrderByAggregateInput
+    _max?: GabiLimiteMonetarioGlobalMaxOrderByAggregateInput
+    _min?: GabiLimiteMonetarioGlobalMinOrderByAggregateInput
+    _sum?: GabiLimiteMonetarioGlobalSumOrderByAggregateInput
+  }
+
+  export type GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput = {
+    AND?: GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput | GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput[]
+    OR?: GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput[]
+    NOT?: GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput | GabiLimiteMonetarioGlobalScalarWhereWithAggregatesInput[]
+    id_gabi_limite_monetario_global?: StringWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | string
+    modelo_gabi_limite_monetario_global?: StringNullableWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: StringNullableListFilter<"GabiLimiteMonetarioGlobal">
+    ativo_gabi_limite_monetario_global?: BoolWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeWithAggregatesFilter<"GabiLimiteMonetarioGlobal"> | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalWhereInput = {
+    AND?: GabiAlertaEmitidoGlobalWhereInput | GabiAlertaEmitidoGlobalWhereInput[]
+    OR?: GabiAlertaEmitidoGlobalWhereInput[]
+    NOT?: GabiAlertaEmitidoGlobalWhereInput | GabiAlertaEmitidoGlobalWhereInput[]
+    id_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    id_limite_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    mes_ref_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    nivel_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFilter<"GabiAlertaEmitidoGlobal"> | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFilter<"GabiAlertaEmitidoGlobal"> | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalOrderByWithRelationInput = {
+    id_gabi_alerta_emitido_global?: SortOrder
+    id_limite_gabi_alerta_emitido_global?: SortOrder
+    mes_ref_gabi_alerta_emitido_global?: SortOrder
+    nivel_gabi_alerta_emitido_global?: SortOrder
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+    data_criacao_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_alerta_emitido_global?: string
+    id_limite_gabi_alerta_emitido_global_mes_ref_gabi_alerta_emitido_global_nivel_gabi_alerta_emitido_global?: GabiAlertaEmitidoGlobalId_limite_gabi_alerta_emitido_globalMes_ref_gabi_alerta_emitido_globalNivel_gabi_alerta_emitido_globalCompoundUniqueInput
+    AND?: GabiAlertaEmitidoGlobalWhereInput | GabiAlertaEmitidoGlobalWhereInput[]
+    OR?: GabiAlertaEmitidoGlobalWhereInput[]
+    NOT?: GabiAlertaEmitidoGlobalWhereInput | GabiAlertaEmitidoGlobalWhereInput[]
+    id_limite_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    mes_ref_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    nivel_gabi_alerta_emitido_global?: StringFilter<"GabiAlertaEmitidoGlobal"> | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFilter<"GabiAlertaEmitidoGlobal"> | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFilter<"GabiAlertaEmitidoGlobal"> | Date | string
+  }, "id_gabi_alerta_emitido_global" | "id_limite_gabi_alerta_emitido_global_mes_ref_gabi_alerta_emitido_global_nivel_gabi_alerta_emitido_global">
+
+  export type GabiAlertaEmitidoGlobalOrderByWithAggregationInput = {
+    id_gabi_alerta_emitido_global?: SortOrder
+    id_limite_gabi_alerta_emitido_global?: SortOrder
+    mes_ref_gabi_alerta_emitido_global?: SortOrder
+    nivel_gabi_alerta_emitido_global?: SortOrder
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+    data_criacao_gabi_alerta_emitido_global?: SortOrder
+    _count?: GabiAlertaEmitidoGlobalCountOrderByAggregateInput
+    _avg?: GabiAlertaEmitidoGlobalAvgOrderByAggregateInput
+    _max?: GabiAlertaEmitidoGlobalMaxOrderByAggregateInput
+    _min?: GabiAlertaEmitidoGlobalMinOrderByAggregateInput
+    _sum?: GabiAlertaEmitidoGlobalSumOrderByAggregateInput
+  }
+
+  export type GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput = {
+    AND?: GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput | GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput[]
+    OR?: GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput[]
+    NOT?: GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput | GabiAlertaEmitidoGlobalScalarWhereWithAggregatesInput[]
+    id_gabi_alerta_emitido_global?: StringWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | string
+    id_limite_gabi_alerta_emitido_global?: StringWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | string
+    mes_ref_gabi_alerta_emitido_global?: StringWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | string
+    nivel_gabi_alerta_emitido_global?: StringWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeWithAggregatesFilter<"GabiAlertaEmitidoGlobal"> | Date | string
+  }
+
+  export type AuditLogAdminWhereInput = {
+    AND?: AuditLogAdminWhereInput | AuditLogAdminWhereInput[]
+    OR?: AuditLogAdminWhereInput[]
+    NOT?: AuditLogAdminWhereInput | AuditLogAdminWhereInput[]
+    id_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    id_usuario_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    tipo_usuario_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    acao_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    recurso_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    filtros_audit_log_admin?: JsonFilter<"AuditLogAdmin">
+    qtd_resultados_audit_log_admin?: IntFilter<"AuditLogAdmin"> | number
+    ip_origem_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    correlation_id_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    data_criacao_audit_log_admin?: DateTimeFilter<"AuditLogAdmin"> | Date | string
+  }
+
+  export type AuditLogAdminOrderByWithRelationInput = {
+    id_audit_log_admin?: SortOrder
+    id_usuario_audit_log_admin?: SortOrder
+    tipo_usuario_audit_log_admin?: SortOrder
+    acao_audit_log_admin?: SortOrder
+    recurso_audit_log_admin?: SortOrder
+    filtros_audit_log_admin?: SortOrder
+    qtd_resultados_audit_log_admin?: SortOrder
+    ip_origem_audit_log_admin?: SortOrder
+    correlation_id_audit_log_admin?: SortOrder
+    data_criacao_audit_log_admin?: SortOrder
+  }
+
+  export type AuditLogAdminWhereUniqueInput = Prisma.AtLeast<{
+    id_audit_log_admin?: string
+    AND?: AuditLogAdminWhereInput | AuditLogAdminWhereInput[]
+    OR?: AuditLogAdminWhereInput[]
+    NOT?: AuditLogAdminWhereInput | AuditLogAdminWhereInput[]
+    id_usuario_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    tipo_usuario_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    acao_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    recurso_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    filtros_audit_log_admin?: JsonFilter<"AuditLogAdmin">
+    qtd_resultados_audit_log_admin?: IntFilter<"AuditLogAdmin"> | number
+    ip_origem_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    correlation_id_audit_log_admin?: StringFilter<"AuditLogAdmin"> | string
+    data_criacao_audit_log_admin?: DateTimeFilter<"AuditLogAdmin"> | Date | string
+  }, "id_audit_log_admin">
+
+  export type AuditLogAdminOrderByWithAggregationInput = {
+    id_audit_log_admin?: SortOrder
+    id_usuario_audit_log_admin?: SortOrder
+    tipo_usuario_audit_log_admin?: SortOrder
+    acao_audit_log_admin?: SortOrder
+    recurso_audit_log_admin?: SortOrder
+    filtros_audit_log_admin?: SortOrder
+    qtd_resultados_audit_log_admin?: SortOrder
+    ip_origem_audit_log_admin?: SortOrder
+    correlation_id_audit_log_admin?: SortOrder
+    data_criacao_audit_log_admin?: SortOrder
+    _count?: AuditLogAdminCountOrderByAggregateInput
+    _avg?: AuditLogAdminAvgOrderByAggregateInput
+    _max?: AuditLogAdminMaxOrderByAggregateInput
+    _min?: AuditLogAdminMinOrderByAggregateInput
+    _sum?: AuditLogAdminSumOrderByAggregateInput
+  }
+
+  export type AuditLogAdminScalarWhereWithAggregatesInput = {
+    AND?: AuditLogAdminScalarWhereWithAggregatesInput | AuditLogAdminScalarWhereWithAggregatesInput[]
+    OR?: AuditLogAdminScalarWhereWithAggregatesInput[]
+    NOT?: AuditLogAdminScalarWhereWithAggregatesInput | AuditLogAdminScalarWhereWithAggregatesInput[]
+    id_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    id_usuario_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    tipo_usuario_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    acao_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    recurso_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    filtros_audit_log_admin?: JsonWithAggregatesFilter<"AuditLogAdmin">
+    qtd_resultados_audit_log_admin?: IntWithAggregatesFilter<"AuditLogAdmin"> | number
+    ip_origem_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    correlation_id_audit_log_admin?: StringWithAggregatesFilter<"AuditLogAdmin"> | string
+    data_criacao_audit_log_admin?: DateTimeWithAggregatesFilter<"AuditLogAdmin"> | Date | string
+  }
+
   export type OrganizacaoCreateInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -32907,6 +36273,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -32932,6 +36299,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -32957,6 +36325,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -32982,6 +36351,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -33007,6 +36377,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
   }
@@ -33023,6 +36394,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -33039,6 +36411,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35712,6 +39085,237 @@ export namespace Prisma {
     data_criacao_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GabiLimiteMonetarioGlobalCreateInput = {
+    id_gabi_limite_monetario_global?: string
+    modelo_gabi_limite_monetario_global?: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalCreatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: Date | string
+    data_atualizacao_gabi_limite_monetario_global?: Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalUncheckedCreateInput = {
+    id_gabi_limite_monetario_global?: string
+    modelo_gabi_limite_monetario_global?: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalCreatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: Date | string
+    data_atualizacao_gabi_limite_monetario_global?: Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalUpdateInput = {
+    id_gabi_limite_monetario_global?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_limite_monetario_global?: NullableStringFieldUpdateOperationsInput | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalUpdatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalUncheckedUpdateInput = {
+    id_gabi_limite_monetario_global?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_limite_monetario_global?: NullableStringFieldUpdateOperationsInput | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalUpdatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalCreateManyInput = {
+    id_gabi_limite_monetario_global?: string
+    modelo_gabi_limite_monetario_global?: string | null
+    limite_aviso_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global: Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalCreatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: boolean
+    data_criacao_gabi_limite_monetario_global?: Date | string
+    data_atualizacao_gabi_limite_monetario_global?: Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalUpdateManyMutationInput = {
+    id_gabi_limite_monetario_global?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_limite_monetario_global?: NullableStringFieldUpdateOperationsInput | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalUpdatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiLimiteMonetarioGlobalUncheckedUpdateManyInput = {
+    id_gabi_limite_monetario_global?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_limite_monetario_global?: NullableStringFieldUpdateOperationsInput | string | null
+    limite_aviso_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    limite_bloqueio_usd_gabi_limite_monetario_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    destinatarios_email_gabi_limite_monetario_global?: GabiLimiteMonetarioGlobalUpdatedestinatarios_email_gabi_limite_monetario_globalInput | string[]
+    ativo_gabi_limite_monetario_global?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_limite_monetario_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalCreateInput = {
+    id_gabi_alerta_emitido_global?: string
+    id_limite_gabi_alerta_emitido_global: string
+    mes_ref_gabi_alerta_emitido_global: string
+    nivel_gabi_alerta_emitido_global: string
+    gasto_usd_gabi_alerta_emitido_global: Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalUncheckedCreateInput = {
+    id_gabi_alerta_emitido_global?: string
+    id_limite_gabi_alerta_emitido_global: string
+    mes_ref_gabi_alerta_emitido_global: string
+    nivel_gabi_alerta_emitido_global: string
+    gasto_usd_gabi_alerta_emitido_global: Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalUpdateInput = {
+    id_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    id_limite_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    mes_ref_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalUncheckedUpdateInput = {
+    id_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    id_limite_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    mes_ref_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalCreateManyInput = {
+    id_gabi_alerta_emitido_global?: string
+    id_limite_gabi_alerta_emitido_global: string
+    mes_ref_gabi_alerta_emitido_global: string
+    nivel_gabi_alerta_emitido_global: string
+    gasto_usd_gabi_alerta_emitido_global: Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalUpdateManyMutationInput = {
+    id_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    id_limite_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    mes_ref_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiAlertaEmitidoGlobalUncheckedUpdateManyInput = {
+    id_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    id_limite_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    mes_ref_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_alerta_emitido_global?: StringFieldUpdateOperationsInput | string
+    gasto_usd_gabi_alerta_emitido_global?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_gabi_alerta_emitido_global?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogAdminCreateInput = {
+    id_audit_log_admin?: string
+    id_usuario_audit_log_admin: string
+    tipo_usuario_audit_log_admin: string
+    acao_audit_log_admin: string
+    recurso_audit_log_admin: string
+    filtros_audit_log_admin: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin: number
+    ip_origem_audit_log_admin: string
+    correlation_id_audit_log_admin: string
+    data_criacao_audit_log_admin?: Date | string
+  }
+
+  export type AuditLogAdminUncheckedCreateInput = {
+    id_audit_log_admin?: string
+    id_usuario_audit_log_admin: string
+    tipo_usuario_audit_log_admin: string
+    acao_audit_log_admin: string
+    recurso_audit_log_admin: string
+    filtros_audit_log_admin: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin: number
+    ip_origem_audit_log_admin: string
+    correlation_id_audit_log_admin: string
+    data_criacao_audit_log_admin?: Date | string
+  }
+
+  export type AuditLogAdminUpdateInput = {
+    id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    id_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    tipo_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    acao_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    recurso_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    filtros_audit_log_admin?: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin?: IntFieldUpdateOperationsInput | number
+    ip_origem_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    correlation_id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_audit_log_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogAdminUncheckedUpdateInput = {
+    id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    id_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    tipo_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    acao_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    recurso_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    filtros_audit_log_admin?: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin?: IntFieldUpdateOperationsInput | number
+    ip_origem_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    correlation_id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_audit_log_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogAdminCreateManyInput = {
+    id_audit_log_admin?: string
+    id_usuario_audit_log_admin: string
+    tipo_usuario_audit_log_admin: string
+    acao_audit_log_admin: string
+    recurso_audit_log_admin: string
+    filtros_audit_log_admin: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin: number
+    ip_origem_audit_log_admin: string
+    correlation_id_audit_log_admin: string
+    data_criacao_audit_log_admin?: Date | string
+  }
+
+  export type AuditLogAdminUpdateManyMutationInput = {
+    id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    id_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    tipo_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    acao_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    recurso_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    filtros_audit_log_admin?: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin?: IntFieldUpdateOperationsInput | number
+    ip_origem_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    correlation_id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_audit_log_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogAdminUncheckedUpdateManyInput = {
+    id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    id_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    tipo_usuario_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    acao_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    recurso_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    filtros_audit_log_admin?: JsonNullValueInput | InputJsonValue
+    qtd_resultados_audit_log_admin?: IntFieldUpdateOperationsInput | number
+    ip_origem_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    correlation_id_audit_log_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_audit_log_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -35747,6 +39351,11 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -35867,6 +39476,7 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_organizacao?: SortOrder
+    hospeda_colaboradores_gravity?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -35883,6 +39493,7 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_organizacao?: SortOrder
+    hospeda_colaboradores_gravity?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -35899,6 +39510,7 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_organizacao?: SortOrder
+    hospeda_colaboradores_gravity?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -35949,6 +39561,14 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -35968,11 +39588,6 @@ export namespace Prisma {
     in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
     notIn?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
     not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
-  }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type OrganizacaoRelationFilter = {
@@ -36047,14 +39662,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
     _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
@@ -37795,6 +41402,133 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_llm?: SortOrder
   }
 
+  export type GabiLimiteMonetarioGlobalCountOrderByAggregateInput = {
+    id_gabi_limite_monetario_global?: SortOrder
+    modelo_gabi_limite_monetario_global?: SortOrder
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+    destinatarios_email_gabi_limite_monetario_global?: SortOrder
+    ativo_gabi_limite_monetario_global?: SortOrder
+    data_criacao_gabi_limite_monetario_global?: SortOrder
+    data_atualizacao_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiLimiteMonetarioGlobalAvgOrderByAggregateInput = {
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiLimiteMonetarioGlobalMaxOrderByAggregateInput = {
+    id_gabi_limite_monetario_global?: SortOrder
+    modelo_gabi_limite_monetario_global?: SortOrder
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+    ativo_gabi_limite_monetario_global?: SortOrder
+    data_criacao_gabi_limite_monetario_global?: SortOrder
+    data_atualizacao_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiLimiteMonetarioGlobalMinOrderByAggregateInput = {
+    id_gabi_limite_monetario_global?: SortOrder
+    modelo_gabi_limite_monetario_global?: SortOrder
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+    ativo_gabi_limite_monetario_global?: SortOrder
+    data_criacao_gabi_limite_monetario_global?: SortOrder
+    data_atualizacao_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiLimiteMonetarioGlobalSumOrderByAggregateInput = {
+    limite_aviso_usd_gabi_limite_monetario_global?: SortOrder
+    limite_bloqueio_usd_gabi_limite_monetario_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalId_limite_gabi_alerta_emitido_globalMes_ref_gabi_alerta_emitido_globalNivel_gabi_alerta_emitido_globalCompoundUniqueInput = {
+    id_limite_gabi_alerta_emitido_global: string
+    mes_ref_gabi_alerta_emitido_global: string
+    nivel_gabi_alerta_emitido_global: string
+  }
+
+  export type GabiAlertaEmitidoGlobalCountOrderByAggregateInput = {
+    id_gabi_alerta_emitido_global?: SortOrder
+    id_limite_gabi_alerta_emitido_global?: SortOrder
+    mes_ref_gabi_alerta_emitido_global?: SortOrder
+    nivel_gabi_alerta_emitido_global?: SortOrder
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+    data_criacao_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalAvgOrderByAggregateInput = {
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalMaxOrderByAggregateInput = {
+    id_gabi_alerta_emitido_global?: SortOrder
+    id_limite_gabi_alerta_emitido_global?: SortOrder
+    mes_ref_gabi_alerta_emitido_global?: SortOrder
+    nivel_gabi_alerta_emitido_global?: SortOrder
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+    data_criacao_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalMinOrderByAggregateInput = {
+    id_gabi_alerta_emitido_global?: SortOrder
+    id_limite_gabi_alerta_emitido_global?: SortOrder
+    mes_ref_gabi_alerta_emitido_global?: SortOrder
+    nivel_gabi_alerta_emitido_global?: SortOrder
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+    data_criacao_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type GabiAlertaEmitidoGlobalSumOrderByAggregateInput = {
+    gasto_usd_gabi_alerta_emitido_global?: SortOrder
+  }
+
+  export type AuditLogAdminCountOrderByAggregateInput = {
+    id_audit_log_admin?: SortOrder
+    id_usuario_audit_log_admin?: SortOrder
+    tipo_usuario_audit_log_admin?: SortOrder
+    acao_audit_log_admin?: SortOrder
+    recurso_audit_log_admin?: SortOrder
+    filtros_audit_log_admin?: SortOrder
+    qtd_resultados_audit_log_admin?: SortOrder
+    ip_origem_audit_log_admin?: SortOrder
+    correlation_id_audit_log_admin?: SortOrder
+    data_criacao_audit_log_admin?: SortOrder
+  }
+
+  export type AuditLogAdminAvgOrderByAggregateInput = {
+    qtd_resultados_audit_log_admin?: SortOrder
+  }
+
+  export type AuditLogAdminMaxOrderByAggregateInput = {
+    id_audit_log_admin?: SortOrder
+    id_usuario_audit_log_admin?: SortOrder
+    tipo_usuario_audit_log_admin?: SortOrder
+    acao_audit_log_admin?: SortOrder
+    recurso_audit_log_admin?: SortOrder
+    qtd_resultados_audit_log_admin?: SortOrder
+    ip_origem_audit_log_admin?: SortOrder
+    correlation_id_audit_log_admin?: SortOrder
+    data_criacao_audit_log_admin?: SortOrder
+  }
+
+  export type AuditLogAdminMinOrderByAggregateInput = {
+    id_audit_log_admin?: SortOrder
+    id_usuario_audit_log_admin?: SortOrder
+    tipo_usuario_audit_log_admin?: SortOrder
+    acao_audit_log_admin?: SortOrder
+    recurso_audit_log_admin?: SortOrder
+    qtd_resultados_audit_log_admin?: SortOrder
+    ip_origem_audit_log_admin?: SortOrder
+    correlation_id_audit_log_admin?: SortOrder
+    data_criacao_audit_log_admin?: SortOrder
+  }
+
+  export type AuditLogAdminSumOrderByAggregateInput = {
+    qtd_resultados_audit_log_admin?: SortOrder
+  }
+
   export type UsuarioCreateNestedManyWithoutTenantInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -37931,6 +41665,10 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -38231,10 +41969,6 @@ export namespace Prisma {
 
   export type EnumUsuarioTipoFieldUpdateOperationsInput = {
     set?: $Enums.UsuarioTipo
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput = {
@@ -39160,6 +42894,15 @@ export namespace Prisma {
     push?: string | string[]
   }
 
+  export type GabiLimiteMonetarioGlobalCreatedestinatarios_email_gabi_limite_monetario_globalInput = {
+    set: string[]
+  }
+
+  export type GabiLimiteMonetarioGlobalUpdatedestinatarios_email_gabi_limite_monetario_globalInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -39193,6 +42936,11 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -39272,6 +43020,14 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -39293,11 +43049,6 @@ export namespace Prisma {
     not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedEnumUsuarioTipoWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
     in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
@@ -39306,14 +43057,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
     _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
@@ -40286,6 +44029,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
@@ -40310,6 +44054,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
@@ -40453,6 +44198,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
@@ -40477,6 +44223,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
@@ -40594,6 +44341,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -40618,6 +44366,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -40735,6 +44484,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -40759,6 +44509,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -40866,6 +44617,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -40890,6 +44642,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -40963,6 +44716,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -40987,6 +44741,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -41050,6 +44805,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -41074,6 +44830,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -41210,6 +44967,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -41234,6 +44992,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -41466,6 +45225,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -41490,6 +45250,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -41530,6 +45291,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -41554,6 +45316,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -41578,6 +45341,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -41602,6 +45366,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -41760,6 +45525,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -41784,6 +45550,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -42787,6 +46554,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -42811,6 +46579,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -42883,6 +46652,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -42907,6 +46677,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -43045,6 +46816,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -43069,6 +46841,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -43235,6 +47008,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -43259,6 +47033,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -43320,6 +47095,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -43344,6 +47120,7 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -43427,6 +47204,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -43451,6 +47229,7 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -44678,6 +48457,18 @@ export namespace Prisma {
      * @deprecated Use LLMMetricasDefaultArgs instead
      */
     export type LLMMetricasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LLMMetricasDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiLimiteMonetarioGlobalDefaultArgs instead
+     */
+    export type GabiLimiteMonetarioGlobalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiLimiteMonetarioGlobalDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiAlertaEmitidoGlobalDefaultArgs instead
+     */
+    export type GabiAlertaEmitidoGlobalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiAlertaEmitidoGlobalDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AuditLogAdminDefaultArgs instead
+     */
+    export type AuditLogAdminArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AuditLogAdminDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

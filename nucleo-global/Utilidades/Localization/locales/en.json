@@ -782,6 +782,9 @@
       "msg_erro_convidar": "Error sending invite. Please try again.",
       "msg_email_invalido": "Please enter a valid email.",
       "msg_permissoes_preview": "Changes were not saved — permissions persistence is under development.",
+      "msg_usuario_atualizado": "User {{nome}} updated successfully",
+      "msg_erro_atualizar": "Failed to update user",
+      "msg_apenas_tipo_editavel_admin": "In the admin panel, only the user type is editable. Permissions and workspaces must be adjusted in the workspace panel.",
       "carregando": "Loading users...",
       "btn_tentar_novamente": "Retry",
       "tabela": {

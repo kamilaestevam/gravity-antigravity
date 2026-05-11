@@ -1522,6 +1522,9 @@
       "msg_erro_convidar": "Error al enviar invitación. Intente de nuevo.",
       "msg_email_invalido": "Ingrese un correo electrónico válido.",
       "msg_permissoes_preview": "Los cambios no se han guardado — la persistencia de permisos está en desarrollo.",
+      "msg_usuario_atualizado": "Usuario {{nome}} actualizado con éxito",
+      "msg_erro_atualizar": "Error al actualizar el usuario",
+      "msg_apenas_tipo_editavel_admin": "En el panel de administración, solo el tipo de usuario es editable. Permisos y workspaces deben ajustarse en el panel del workspace.",
       "carregando": "Cargando usuarios...",
       "btn_tentar_novamente": "Intentar de nuevo",
       "tabela": {

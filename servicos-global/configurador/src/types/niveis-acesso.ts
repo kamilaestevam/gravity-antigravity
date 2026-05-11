@@ -55,7 +55,13 @@ export function mapRole(role: string | null | undefined): NivelAcesso {
     case 'MASTER':      return 'Master'
     case 'PADRAO':      return 'Standard'
     case 'FORNECEDOR':  return 'Fornecedor'
-    default:            return 'Standard'
+    default:
+      // Mand. 08 — não silenciar valor desconhecido vindo do backend.
+      // Skip warn quando null/undefined/'' (estados normais durante loading).
+      if (role) {
+        console.warn('[mapRole] tipo_usuario desconhecido recebido do backend:', role)
+      }
+      return 'Standard'
   }
 }
 

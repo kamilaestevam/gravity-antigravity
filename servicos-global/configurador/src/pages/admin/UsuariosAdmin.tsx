@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useUser } from '@clerk/clerk-react'
 import {
   Users, UserCircleCheck, UserCircleMinus,
   PencilSimple,
@@ -33,6 +34,7 @@ import {
 } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
+import { usePodeEditarUsuario } from '../../hooks/use-pode-editar-usuario'
 import { workspaceUrl } from '../../config/constants'
 import {
   ExpandidoEditorVinculos,
@@ -122,6 +124,7 @@ export function UsuariosAdmin() {
   const addNotification = useShellStore((s) => s.addNotification)
   const { tipoUsuario: dbRole } = useCarregarTipoUsuario()
   const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
+  const { user: clerkUser } = useUser()
 
   const [users, setUsers] = useState<UsuarioGlobalUI[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -163,6 +166,29 @@ export function UsuariosAdmin() {
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioGlobalUI | null>(null)
   const [usuarioPermissoes, setUsuarioPermissoes] = useState<UsuarioGlobalUI | null>(null)
   const [abaEditando, setAbaEditando]         = useState<string>('dados')
+
+  // id_usuario do ator (anti-escalada por id — hook usePodeEditarUsuario só
+  // checa por tipo). Padrão Usuarios.tsx:253-254 — match clerkUser.email ↔
+  // users[].email_usuario, já que o cache do useCarregarTipoUsuario só guarda
+  // tipo, não o id_usuario do banco.
+  const idUsuarioAtor =
+    users.find(u => clerkUser?.primaryEmailAddress?.emailAddress === u.email_usuario)?.id_usuario ?? null
+  const ehAlvoProprio = !!(usuarioEditando && idUsuarioAtor && idUsuarioAtor === usuarioEditando.id_usuario)
+
+  // Whitelist de tipos que o ator pode atribuir ao alvo em edição.
+  // Reaproveita usePodeEditarUsuario (espelha autorizarAlteracaoPatente
+  // do backend em server/routes/usuario.ts:476-546). Mand. 04 — anti-escalada:
+  // passa null quando ator===alvo (backend também bloqueia com FORBIDDEN_SELF_EDIT,
+  // defesa em profundidade).
+  const podeEditarAlvo = usePodeEditarUsuario(
+    usuarioEditando && !ehAlvoProprio
+      ? { id_usuario: usuarioEditando.id_usuario, tipo_usuario: nivelToRole(usuarioEditando.tipo) }
+      : null
+  )
+  const tiposPermitidosUI: NivelAcesso[] = useMemo(
+    () => podeEditarAlvo.tiposPermitidosParaPatente.map(mapRole),
+    [podeEditarAlvo.tiposPermitidosParaPatente]
+  )
 
   // ── Modo edição em lote dos vínculos workspace (cross-org) ──────────────────
   // Padrão Assinaturas — cânone em skills/ux/criacao-telas/SKILL.md.
@@ -670,15 +696,50 @@ export function UsuariosAdmin() {
           data_criacao_workspace: new Date().toISOString(),
         })) : []}
         workspacesSalvos={usuarioEditando?.vinculos_workspace.map(e => e.id_usuario_workspace) ?? []}
+        tiposPermitidos={tiposPermitidosUI}
         aoFechar={() => setUsuarioEditando(null)}
-        aoSalvar={(uEditado) => {
-          setUsers(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? {
-            ...u,
-            nome_usuario:  uEditado.nome_usuario,
-            email_usuario: uEditado.email_usuario,
-            tipo:          mapRole(uEditado.tipo_usuario),
-          } : u))
-          setUsuarioEditando(null)
+        aoSalvar={async (uEditado, permissoesParaPersistir, workspaceIds) => {
+          // Estado original para rollback em caso de erro (Mand. 08).
+          const original = users.find(u => u.id_usuario === uEditado.id_usuario) ?? null
+          const tipoMudou = original !== null && nivelToRole(original.tipo) !== uEditado.tipo_usuario
+
+          // Admin global edita APENAS tipo_usuario. Permissões granulares e vínculos
+          // de workspace têm fluxo dedicado (ModalPermissoesUsuario / ExpandidoEditorVinculos).
+          // Mand. 08 — se vierem do modal, avisar explicitamente (não silenciar).
+          if (permissoesParaPersistir.length > 0 || workspaceIds.length > 0) {
+            addNotification({
+              type: 'info',
+              message: t('admin.usuarios-globais.msg_apenas_tipo_editavel_admin'),
+            })
+          }
+
+          try {
+            // Persiste alteração de tipo_usuario via PATCH /patente — backend valida
+            // matriz ator×alvo (autorizarAlteracaoPatente). SAdmin/Admin podem
+            // promover/rebaixar conforme regras (Mand. 04).
+            if (tipoMudou) {
+              await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, uEditado.tipo_usuario)
+            }
+            // Refetch — servidor é fonte da verdade após qualquer mutação.
+            await loadUsers()
+            addNotification({
+              type: 'success',
+              message: t('admin.usuarios-globais.msg_usuario_atualizado', { nome: uEditado.nome_usuario }),
+            })
+            setUsuarioEditando(null)
+          } catch (err) {
+            // Padrão Usuarios.tsx:1130-1144 — rollback de UI + refetch best-effort.
+            // Mand. 08 — propaga mensagem real do backend (CONFLICT_LAST_MASTER,
+            // FORBIDDEN_SELF_EDIT, etc), sem mascarar com fallback genérico.
+            if (original) {
+              setUsers(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? original : u))
+            }
+            try { await loadUsers() } catch { /* refetch best-effort */ }
+            addNotification({
+              type: 'error',
+              message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_atualizar'),
+            })
+          }
         }}
       />
 

@@ -788,6 +788,9 @@
       "msg_erro_convidar": "Erro ao enviar convite. Tente novamente.",
       "msg_email_invalido": "Informe um e-mail válido.",
       "msg_permissoes_preview": "Alterações não foram salvas — persistência de permissões está em desenvolvimento.",
+      "msg_usuario_atualizado": "Usuário {{nome}} atualizado com sucesso",
+      "msg_erro_atualizar": "Erro ao atualizar usuário",
+      "msg_apenas_tipo_editavel_admin": "No painel admin, apenas o tipo do usuário é editável. Permissões e workspaces devem ser ajustados no painel do workspace.",
       "carregando": "Carregando usuários...",
       "btn_tentar_novamente": "Tentar novamente",
       "tabela": {

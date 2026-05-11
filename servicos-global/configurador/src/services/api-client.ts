@@ -333,7 +333,7 @@ export const convidarUsuarioResponseSchema = z.object({
   usuario: z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
-    tipo_usuario: tipoUsuarioWorkspaceEnum,
+    tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
   }),
 })
@@ -355,7 +355,7 @@ export const alterarTipoUsuarioResponseSchema = z.object({
   usuario: z.object({
     id_usuario: z.string(),
     email_usuario: z.string().email(),
-    tipo_usuario: tipoUsuarioWorkspaceEnum,
+    tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
   }),
 })
@@ -363,7 +363,7 @@ export const alterarTipoUsuarioResponseSchema = z.object({
 export const alterarAcessoWorkspacesFuturosResponseSchema = z.object({
   usuario: z.object({
     id_usuario: z.string(),
-    tipo_usuario: tipoUsuarioWorkspaceEnum,
+    tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
   }),
 })
@@ -1213,7 +1213,7 @@ export const usuariosApi = {
 
   async alterarTipoUsuario(
     id_usuario: string,
-    tipo_usuario: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+    tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR',
   ) {
     const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/patente`, {
       method: 'PATCH',

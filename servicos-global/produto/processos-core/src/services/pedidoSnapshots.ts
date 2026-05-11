@@ -46,8 +46,12 @@ export interface SnapshotEmpresaData {
   papel: PapelEmpresa
   suid_empresa: string
   nome_empresa: string
-  documento_principal: string
-  tipo_documento: 'CNPJ' | 'TIN'
+  // documento_principal/tipo_documento são opcionais: empresa estrangeira sem
+  // TIN ainda gera snapshot (cadastros-snapshot-policy: snapshot é fotografia
+  // ao vivo, validação de "tem documento?" pertence ao boundary de emissão
+  // de documento legal — LPCO/NF/Financeiro Comex).
+  documento_principal: string | null
+  tipo_documento: 'CNPJ' | 'TIN' | null
   cnpj_raiz: string | null
   endereco_cidade: string | null
   endereco_uf: string | null
@@ -62,11 +66,20 @@ export interface SnapshotEmpresaData {
 /**
  * Converte uma Empresa do Cadastros em dados para PedidoSnapshotEmpresa.
  *
- * - documento_principal = cnpj se BR; caso contrário tin
- * - cnpj_raiz = 8 primeiros dígitos do cnpj (apenas BR)
+ * - documento_principal = cnpj se BR; tin se estrangeira; **null** se a empresa
+ *   estrangeira ainda não tem TIN cadastrado (regra de produto: TIN não é
+ *   obrigatório).
+ * - tipo_documento = 'CNPJ' | 'TIN' | null (consistente com documento_principal)
+ * - cnpj_raiz = 8 primeiros dígitos do cnpj (apenas BR; null para estrangeira ou
+ *   BR sem CNPJ — caso de dado incompleto que será detectado no front).
  *
- * Lança erro se a empresa não tiver documento válido para o país — isso é
- * falha de contrato do Cadastros (não deveria persistir empresa sem documento).
+ * Snapshot é "fotografia ao vivo" da empresa no momento do pedido. NÃO valida
+ * obrigatoriedade de documento — quem precisa de documento (LPCO emitindo DUE,
+ * NF emitindo nota, Financeiro emitindo título) valida no boundary de emissão.
+ * Ver `cadastros-snapshot-policy`.
+ *
+ * Para empresa BR sem CNPJ o front bloqueia antes (regra de identidade fiscal:
+ * empresa BR precisa ter CNPJ pra existir legalmente). Aqui aceita o que vier.
  */
 export function montarSnapshotEmpresa(
   empresa: Empresa,
@@ -76,12 +89,8 @@ export function montarSnapshotEmpresa(
   motivo: MotivoCongelamento = 'emissao',
 ): SnapshotEmpresaData {
   const ehBr = empresa.pais_empresa === 'BR'
-  const documento = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
-  if (!documento) {
-    throw new Error(
-      `Empresa ${empresa.suid_empresa} sem documento (${ehBr ? 'cnpj' : 'tin'}) — snapshot não pode ser gerado`,
-    )
-  }
+  const documentoBruto = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
+  const documento = documentoBruto && documentoBruto.trim() ? documentoBruto.trim() : null
 
   return {
     id_organizacao: idOrganizacao,
@@ -90,7 +99,7 @@ export function montarSnapshotEmpresa(
     suid_empresa: empresa.suid_empresa,
     nome_empresa: empresa.nome_empresa,
     documento_principal: documento,
-    tipo_documento: ehBr ? 'CNPJ' : 'TIN',
+    tipo_documento: documento ? (ehBr ? 'CNPJ' : 'TIN') : null,
     cnpj_raiz:
       ehBr && empresa.cnpj_empresa
         ? empresa.cnpj_empresa.replace(/\D/g, '').slice(0, 8)

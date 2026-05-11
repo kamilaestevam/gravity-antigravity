@@ -157,6 +157,17 @@ async function main() {
   // Transacao atomica: limpa CARGA-* + insere
   await client.query('BEGIN')
   try {
+    // pedido_transferencia.id_pedido_origem é ON DELETE RESTRICT — limpar antes
+    // do DELETE em pedido. Demais FKs (pedido_item, snapshots) são CASCADE.
+    const delTransf = await client.query(`
+      DELETE FROM ${quoteIdent(SCHEMA_PG)}.pedido_transferencia
+      WHERE id_pedido_origem IN (
+        SELECT id_pedido FROM ${quoteIdent(SCHEMA_PG)}.pedido WHERE numero_pedido LIKE 'CARGA-%'
+      )
+    `)
+    if ((delTransf.rowCount ?? 0) > 0) {
+      console.log(`[seed] removidas ${delTransf.rowCount} transferências CARGA-* (RESTRICT na FK)`)
+    }
     const del = await client.query(`DELETE FROM ${quoteIdent(SCHEMA_PG)}.pedido WHERE numero_pedido LIKE 'CARGA-%'`)
     console.log(`[seed] removidos ${del.rowCount ?? 0} pedidos CARGA-* anteriores (cascade nos itens)`)
 
@@ -187,7 +198,7 @@ async function main() {
     const totalChunksItens = Math.ceil(itensNorm.length / chunkSize)
     for (let i = 0; i < itensNorm.length; i += chunkSize) {
       const chunk = itensNorm.slice(i, i + chunkSize)
-      const { sql, values } = buildInsertSql(`${quoteIdent(SCHEMA_PG)}.pedido_itens`, chunk)
+      const { sql, values } = buildInsertSql(`${quoteIdent(SCHEMA_PG)}.pedido_item`, chunk)
       const r = await client.query(sql, values)
       itensInseridos += r.rowCount ?? chunk.length
       const chunkN = Math.floor(i / chunkSize) + 1

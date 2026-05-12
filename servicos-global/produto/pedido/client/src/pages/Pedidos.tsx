@@ -3657,9 +3657,16 @@ export default function Pedidos() {
         result[`${campo}_valor_unico`] = distintos === 1 ? valores[0] : null
       }
     }
-    // ncms_distintos_count — usado pelo badge NCM
+    // NCM (campo ghost) — recomputa flag + valor único + contagem juntos.
+    // Espelha a regra do backend (mapPedido em processos-core/routes/pedidos.ts):
+    // ncm_divergente quando há mais de 1 NCM distinto entre os itens.
+    // Sem isso, `ncm_divergente` ficaria stale (vindo do payload anterior) e o badge
+    // mostraria "⚠ 1 NCMs diferentes nos itens" mesmo com itens homogêneos.
     const ncms = itens.map(i => i.ncm).filter((v): v is string => v != null && v !== '')
-    result.ncms_distintos_count = new Set(ncms).size
+    const ncmsUnicos = new Set(ncms)
+    result.ncms_distintos_count = ncmsUnicos.size
+    result.ncm_divergente = ncmsUnicos.size > 1
+    result.ncm_valor_unico = ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null
     return result as Partial<Pedido>
   }
 

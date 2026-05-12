@@ -105,24 +105,39 @@ export function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas 
   const itens = row.itens ?? []
   if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
 
-  // Onda A8 — homogeneidade de unidade. Considera apenas itens que de fato
-  // contribuem para a soma (valor numérico > 0). Itens com qty zero não
-  // poluem a detecção de divergência (e a soma deles é 0 mesmo).
+  // Onda A8 — homogeneidade de unidade. Detecção em 2 níveis:
+  //   1. Itens contribuintes (com valor > 0) — prioridade para definir a unidade
+  //      do agregado, porque são quem efetivamente compõe a soma.
+  //   2. Fallback: TODOS os itens com unidade declarada — quando nenhum item
+  //      contribui (caso clássico: qty_pronta = 0 em todos), ainda precisamos
+  //      detectar se as unidades dos itens declaradas DIVERGEM, ou exibir a
+  //      unidade real (não cair no 'UN' hardcoded).
+  // Sem isso, "todos itens KG mas todos com qty_pronta=0" mostrava "0 UN".
   const unidadesContribuintes = new Set(
     itens
       .filter(i => (Number(i[campoItem]) || 0) > 0)
       .map(i => i.unidade_comercializada_item ?? 'UN')
   )
+  const unidadesDeclaradas = new Set(
+    itens
+      .map(i => i.unidade_comercializada_item)
+      .filter((u): u is string => u != null && u !== '')
+  )
+  // Set efetivo: prefere contribuintes; se vazio, usa declaradas.
+  const unidadesEfetivas = unidadesContribuintes.size > 0
+    ? unidadesContribuintes
+    : unidadesDeclaradas
+
   const wrap = (node: React.ReactNode) => tooltip
     ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
     : <>{node}</>
 
   // Unidades divergentes → não somar; mostrar alerta no padrão `renderAgregado`.
-  if (unidadesContribuintes.size > 1) {
+  if (unidadesEfetivas.size > 1) {
     return wrap(renderAgregado(null, true, 'Unidades divergentes entre itens'))
   }
 
-  const unidade = [...unidadesContribuintes][0] ?? 'UN'
+  const unidade = [...unidadesEfetivas][0] ?? 'UN'
   const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
   return wrap(
     <span className="gtv-celula-moeda">

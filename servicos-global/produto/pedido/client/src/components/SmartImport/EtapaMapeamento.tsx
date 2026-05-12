@@ -4,7 +4,7 @@
  * Com nivel de confianca visual (verde/amarelo/cinza), exemplo do valor real e visualizacao do documento
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   CheckCircle,
   Warning,
@@ -13,26 +13,32 @@ import {
   Table,
 } from '@phosphor-icons/react'
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
+import { CAMPOS_PEDIDO_DDD_TODOS } from '../../../../shared/campos-pedido-ddd'
 
-// ── Campos disponiveis no sistema (fallback hardcoded) ────────────────────────
+// ── Campos disponiveis no sistema ─────────────────────────────────────────────
+//
+// P5.2 — Fallback agora vem direto do SSOT (cross-tier) com TODOS os 143
+// campos do Pedido + PedidoItem em vez do hardcode de 15 legados que tinha
+// nomes obsoletos como `exportador` (correto: `nome_exportador`), `ncm`
+// (correto: `ncm_item`) etc.
+//
+// O endpoint /campos do server tambem foi atualizado para devolver o SSOT
+// completo (P5.1), mas mantemos o import direto como fallback rapido caso
+// o fetch falhe (rede caida, headers errados, etc.).
 
-const CAMPOS_SISTEMA_FALLBACK = [
-  { valor: 'numero_pedido',        rotulo: 'Numero do Pedido'    },
-  { valor: 'tipo_operacao',        rotulo: 'Tipo de Operacao'    },
-  { valor: 'exportador',           rotulo: 'Exportador (Shipper)'},
-  { valor: 'fabricante',           rotulo: 'Fabricante'          },
-  { valor: 'incoterm',             rotulo: 'Incoterm'            },
-  { valor: 'moeda_pedido',         rotulo: 'Moeda'               },
-  { valor: 'data_emissao_pedido',  rotulo: 'Data Emissão do Pedido' },
-  { valor: 'data_embarque',        rotulo: 'Data de Embarque'    },
-  { valor: 'part_number',          rotulo: 'Part Number'         },
-  { valor: 'ncm',                  rotulo: 'NCM'                 },
-  { valor: 'descricao_item',        rotulo: 'Descricao do Item'   },
-  { valor: 'quantidade_inicial_pedido',   rotulo: 'Quantidade'          },
-  { valor: 'unidade_comercializada_item', rotulo: 'Unidade'      },
-  { valor: 'valor_por_unidade_item',    rotulo: 'Valor do Item'       },
-  { valor: 'valor_total_item',    rotulo: 'Valor Total Item'    },
-]
+interface CampoSistemaOpcao {
+  valor:  string
+  rotulo: string
+  nivel:  'pedido' | 'item'
+  grupo?: string
+}
+
+const CAMPOS_SISTEMA_FALLBACK: CampoSistemaOpcao[] = CAMPOS_PEDIDO_DDD_TODOS.map((c) => ({
+  valor:  c.campo,
+  rotulo: c.rotulo,
+  nivel:  c.nivel,
+  grupo:  c.grupo,
+}))
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -75,16 +81,45 @@ export function EtapaMapeamento({
   onResetarMapeamento,
 }: EtapaMapeamentoProps) {
   const [verDocumento, setVerDocumento] = useState(false)
-  const [camposSistema, setCamposSistema] = useState<{ valor: string; rotulo: string }[]>(CAMPOS_SISTEMA_FALLBACK)
+  const [camposSistema, setCamposSistema] = useState<CampoSistemaOpcao[]>(CAMPOS_SISTEMA_FALLBACK)
 
   useEffect(() => {
+    // /campos enriquece o SSOT com colunas customizadas do tenant (P1.7).
+    // Mesmo se o fetch falhar, o fallback ja' tem os 143 campos do SSOT
+    // (P5.2 — antes era hardcode de 15 legados).
     fetch('/api/v1/pedidos/importacoes-inteligentes/campos', {
       headers: { 'x-id-organizacao': '', 'x-internal-key': '' },
     })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (Array.isArray(data) && data.length > 0) setCamposSistema(data) })
-      .catch(() => { /* usa fallback */ })
+      .catch(() => { /* usa fallback do SSOT — ja completo */ })
   }, [])
+
+  // P5.3 — Agrupa campos por (nivel, grupo) para renderizar <optgroup>.
+  // Sem isso, um <select> com 143 opcoes vira navegavel mas ruim de usar.
+  // Ordem: PEDIDO primeiro (em ordem natural do SSOT), depois ITEM.
+  const camposAgrupados = useMemo(() => {
+    const grupos: { label: string; opcoes: CampoSistemaOpcao[] }[] = []
+    const indice = new Map<string, CampoSistemaOpcao[]>()
+
+    for (const c of camposSistema) {
+      const prefixo = c.nivel === 'item' ? '📋 ITEM' : '📦 PEDIDO'
+      const chave = `${prefixo} — ${c.grupo || 'Outros'}`
+      if (!indice.has(chave)) {
+        indice.set(chave, [])
+        grupos.push({ label: chave, opcoes: indice.get(chave)! })
+      }
+      indice.get(chave)!.push(c)
+    }
+    // PEDIDO antes de ITEM, mantendo ordem do SSOT dentro de cada grupo
+    grupos.sort((a, b) => {
+      const aPedido = a.label.startsWith('📦')
+      const bPedido = b.label.startsWith('📦')
+      if (aPedido !== bPedido) return aPedido ? -1 : 1
+      return 0
+    })
+    return grupos
+  }, [camposSistema])
 
   function atualizarCampo(index: number, campo_sistema: string | null) {
     const novo = mapeamento.map((col, i) => {
@@ -92,8 +127,8 @@ export function EtapaMapeamento({
       return {
         ...col,
         campo_sistema,
-        nivel: 'usuario' as const,
-        inferido_por: 'usuario' as const,
+        nivel: 'manual' as const,        // P5.2 fix: 'usuario' nao e valor valido de nivel
+        inferido_por: 'usuario' as const, // 'usuario' e' valor de inferido_por
       }
     })
     onMapeamentoChange(novo)
@@ -220,8 +255,12 @@ export function EtapaMapeamento({
                   >
                     <option value="">→ Campo extra (preservar)</option>
                     <option value="__drop__">✕ Descartar este campo</option>
-                    {camposSistema.map(c => (
-                      <option key={c.valor} value={c.valor}>{c.rotulo}</option>
+                    {camposAgrupados.map(g => (
+                      <optgroup key={g.label} label={g.label}>
+                        {g.opcoes.map(c => (
+                          <option key={c.valor} value={c.valor}>{c.rotulo}</option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </td>

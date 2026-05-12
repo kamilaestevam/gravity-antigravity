@@ -178,7 +178,12 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'data_previsao_aprovacao_rascunho_invoice_pedido',       rotulo: 'Draft Invoice — Prev. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_confirmacao_aprovacao_rascunho_invoice_pedido',    rotulo: 'Draft Invoice — Conf. Aprovacao',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_meta_aprovacao_rascunho_invoice_pedido',           rotulo: 'Draft Invoice — Meta Aprovacao',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_previsao_envio_original_invoice_pedido',        rotulo: 'Original Invoice — Prev. Envio',     tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_envio_original_invoice_pedido',        rotulo: 'Original Invoice — Prev. Envio',         tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_envio_original_invoice_pedido',     rotulo: 'Original Invoice — Conf. Envio',         tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_envio_original_invoice_pedido',            rotulo: 'Original Invoice — Meta Envio',          tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_recebimento_original_invoice_pedido',  rotulo: 'Original Invoice — Prev. Recebimento',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_recebimento_original_invoice_pedido', rotulo: 'Original Invoice — Conf. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_recebimento_original_invoice_pedido',      rotulo: 'Original Invoice — Meta Recebimento',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
 ]
 
 // ── Campos do Item (detail) ───────────────────────────────────────────────────

@@ -30,6 +30,7 @@ import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.j
 import {
   CAMPOS_PEDIDO_DDD,
   CAMPOS_ITEM_DDD,
+  CAMPOS_PEDIDO_DDD_TODOS,
   FORMATO_EXCEL_POR_TIPO,
   type CampoPedidoDDD,
 } from '../../../shared/campos-pedido-ddd.js'
@@ -352,23 +353,14 @@ smartImportRouter.get('/mapeamentos/:hash_mapeamento', async (req: Request, res:
 // ── GET /campos ────────────────────────────────────────────────────────────────
 
 smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextFunction) => {
-  const camposPadrao = [
-    { valor: 'numero_pedido',                    rotulo: 'Numero do Pedido'       },
-    { valor: 'tipo_operacao',                    rotulo: 'Tipo de Operacao'       },
-    { valor: 'exportador',                       rotulo: 'Exportador (Shipper)'   },
-    { valor: 'fabricante',                       rotulo: 'Fabricante'             },
-    { valor: 'incoterm',                         rotulo: 'Incoterm'               },
-    { valor: 'moeda_pedido',                     rotulo: 'Moeda'                  },
-    { valor: 'data_emissao_pedido',              rotulo: 'Data de Emissao'        },
-    { valor: 'data_embarque',                    rotulo: 'Data de Embarque'       },
-    { valor: 'part_number',                      rotulo: 'Part Number'            },
-    { valor: 'ncm',                              rotulo: 'NCM'                    },
-    { valor: 'descricao_item',                   rotulo: 'Descricao do Item'      },
-    { valor: 'quantidade_inicial_pedido',   rotulo: 'Quantidade'             },
-    { valor: 'unidade_comercializada_item',      rotulo: 'Unidade'                },
-    { valor: 'valor_por_unidade_item',              rotulo: 'Valor do Item'          },
-    { valor: 'valor_total_item',                rotulo: 'Valor Total Item'       },
-  ]
+  // P5.1 — devolve TODOS os 143 campos do SSOT (antes era hardcode de 15 legados).
+  // Inclui nivel ('pedido'|'item') e grupo para o client agrupar com <optgroup>.
+  const camposPadrao = CAMPOS_PEDIDO_DDD_TODOS.map((c) => ({
+    valor:  c.campo,
+    rotulo: c.rotulo,
+    nivel:  c.nivel,
+    grupo:  c.grupo ?? '',
+  }))
 
   try {
     await withOrganizacao(req, async (rawDb) => {
@@ -384,8 +376,10 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
       }).catch(() => [] as { chave_coluna_usuario_pedido: string; nome_coluna_usuario_pedido: string }[])
 
       const camposCustom = (colunasCustom as { chave_coluna_usuario_pedido: string; nome_coluna_usuario_pedido: string }[]).map((c) => ({
-        valor: `custom_${c.chave_coluna_usuario_pedido}`,
+        valor:  `custom_${c.chave_coluna_usuario_pedido}`,
         rotulo: `${c.nome_coluna_usuario_pedido} (personalizado)`,
+        nivel:  'pedido' as const,
+        grupo:  'Personalizado',
       }))
 
       res.json([...camposPadrao, ...camposCustom])

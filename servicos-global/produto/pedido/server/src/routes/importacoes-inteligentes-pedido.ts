@@ -32,8 +32,14 @@ import {
   CAMPOS_ITEM_DDD,
   CAMPOS_PEDIDO_DDD_TODOS,
   FORMATO_EXCEL_POR_TIPO,
+  prioridadeDeCampo,
   type CampoPedidoDDD,
 } from '../../../shared/campos-pedido-ddd.js'
+
+// P6.2 — Versao do template. Atualize quando a ordem/estrutura mudar de
+// forma incompativel. O parser e' agnostico de ordem (matcheia por rotulo),
+// entao versoes antigas continuam abrindo no v2 sem retrabalho.
+const TEMPLATE_VERSAO = '2.0'
 
 export const smartImportRouter = Router()
 
@@ -128,14 +134,33 @@ const ConfirmarSchema = z.object({
  */
 export const templateHandler = (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
-    // Lista combinada na ordem: Pedido primeiro, Item depois.
-    const camposOrdenados: CampoPedidoDDD[] = [...CAMPOS_PEDIDO_DDD, ...CAMPOS_ITEM_DDD]
+    // P6.2 — Reordena dentro de cada nivel (Pedido/Item) por prioridade.
+    // Ordem: critica -> principal -> secundaria. Dentro da mesma prioridade,
+    // mantem ordem natural do SSOT (preserva agrupamento por grupo).
+    //
+    // Beneficio: usuario ve Part Number (item, critica) logo apos os campos
+    // criticos do Pedido, sem precisar rolar 100 colunas. Parser e' agnostico
+    // de ordem — qualquer template antigo (v1) continua funcionando.
+    const ordemPrioridade = { critica: 0, principal: 1, secundaria: 2 } as const
+    const sortPorPrioridade = (a: CampoPedidoDDD, b: CampoPedidoDDD): number => {
+      const pa = ordemPrioridade[prioridadeDeCampo(a)]
+      const pb = ordemPrioridade[prioridadeDeCampo(b)]
+      return pa - pb // estavel: campos com mesma prioridade mantem ordem original
+    }
+    const pedidoOrdenado = [...CAMPOS_PEDIDO_DDD].sort(sortPorPrioridade)
+    const itemOrdenado   = [...CAMPOS_ITEM_DDD].sort(sortPorPrioridade)
+    const camposOrdenados: CampoPedidoDDD[] = [...pedidoOrdenado, ...itemOrdenado]
     const totalPedido = CAMPOS_PEDIDO_DDD.length
     const totalItem   = CAMPOS_ITEM_DDD.length
 
     const wb = new ExcelJS.Workbook()
-    wb.creator = 'Gravity Platform'
-    wb.created = new Date()
+    wb.creator     = 'Gravity Platform'
+    wb.created     = new Date()
+    // P6.2 — Metadados versionados (Excel Document Properties)
+    wb.title       = `Template Importacao Pedidos v${TEMPLATE_VERSAO}`
+    wb.description = `Gravity Pedido Template v${TEMPLATE_VERSAO} — campos organizados por prioridade (criticos -> principais -> secundarios). Parser aceita qualquer ordem; ordem visual otimizada para UX.`
+    wb.subject     = 'Smart Import - Pedido'
+    wb.company     = 'Gravity'
 
     const ws = wb.addWorksheet('Pedidos', { views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }] })
 

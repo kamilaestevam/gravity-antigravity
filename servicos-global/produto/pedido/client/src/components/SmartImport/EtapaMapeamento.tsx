@@ -4,7 +4,7 @@
  * Com nivel de confianca visual (verde/amarelo/cinza), exemplo do valor real e visualizacao do documento
  */
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import {
   CheckCircle,
   Warning,
@@ -107,6 +107,14 @@ export function EtapaMapeamento({
   const [modoEssencial, setModoEssencial] = useState(true)
   const [busca, setBusca] = useState('')
 
+  // P6.3 — Telemetria leve (console.info em DEV; futuro: Sentry/Mixpanel).
+  // Mede tempo gasto na etapa Mapeamento e padroes de uso (toggle, busca).
+  const tempoInicioEtapa = useRef(Date.now())
+  const cliquesCompleto = useRef(0)
+  const cliquesEssencial = useRef(0)
+  const buscasFeitas = useRef(0)
+  const ultimaBusca = useRef('')
+
   useEffect(() => {
     // /campos enriquece o SSOT com colunas customizadas do tenant (P1.7).
     // Mesmo se o fetch falhar, o fallback ja' tem os 143 campos do SSOT
@@ -117,7 +125,49 @@ export function EtapaMapeamento({
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (Array.isArray(data) && data.length > 0) setCamposSistema(data) })
       .catch(() => { /* usa fallback do SSOT — ja completo */ })
+
+    // P6.3 — registra entrada na etapa Mapeamento
+    console.info('[smart-import:metrica] etapa_mapeamento_iniciada', {
+      total_colunas: mapeamento.length,
+      memoria_aplicada: memoriaAplicada,
+      modo_inicial: 'essencial',
+      timestamp: new Date().toISOString(),
+    })
+
+    return () => {
+      // P6.3 — registra saida (desmount) com agregado
+      const duracaoMs = Date.now() - tempoInicioEtapa.current
+      console.info('[smart-import:metrica] etapa_mapeamento_finalizada', {
+        duracao_segundos: Math.round(duracaoMs / 1000),
+        cliques_toggle_completo: cliquesCompleto.current,
+        cliques_toggle_essencial: cliquesEssencial.current,
+        buscas_feitas: buscasFeitas.current,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // P6.3 — Conta a busca como evento apenas quando ela "estabiliza" (debounce manual).
+  useEffect(() => {
+    if (busca === ultimaBusca.current) return
+    const t = setTimeout(() => {
+      if (busca.trim().length > 0 && busca !== ultimaBusca.current) {
+        buscasFeitas.current += 1
+        console.info('[smart-import:metrica] busca_aplicada', { termo: busca.slice(0, 30) })
+      }
+      ultimaBusca.current = busca
+    }, 800)
+    return () => clearTimeout(t)
+  }, [busca])
+
+  // P6.3 — Conta troca de modo
+  function handleModoChange(novo: boolean) {
+    if (novo === modoEssencial) return
+    if (novo) cliquesEssencial.current += 1
+    else      cliquesCompleto.current += 1
+    setModoEssencial(novo)
+    console.info('[smart-import:metrica] modo_alterado', { para: novo ? 'essencial' : 'completo' })
+  }
 
   // P5.3 — Agrupa campos por (nivel, grupo) para renderizar <optgroup>.
   // Sem isso, um <select> com 143 opcoes vira navegavel mas ruim de usar.
@@ -276,7 +326,7 @@ export function EtapaMapeamento({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} role="group" aria-label="Modo de exibicao">
           <button
             type="button"
-            onClick={() => setModoEssencial(true)}
+            onClick={() => handleModoChange(true)}
             style={{
               padding: '0.375rem 0.75rem',
               fontSize: '0.75rem',
@@ -298,7 +348,7 @@ export function EtapaMapeamento({
           </button>
           <button
             type="button"
-            onClick={() => setModoEssencial(false)}
+            onClick={() => handleModoChange(false)}
             style={{
               padding: '0.375rem 0.75rem',
               fontSize: '0.75rem',
@@ -432,7 +482,7 @@ export function EtapaMapeamento({
                   {modoEssencial && (
                     <button
                       type="button"
-                      onClick={() => setModoEssencial(false)}
+                      onClick={() => handleModoChange(false)}
                       style={{ background: 'none', border: 'none', color: 'var(--color-info, #60a5fa)', cursor: 'pointer', textDecoration: 'underline', padding: 0, fontSize: 'inherit' }}
                     >
                       Mostrar todos

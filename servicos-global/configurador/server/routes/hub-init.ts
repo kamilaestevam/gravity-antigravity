@@ -9,6 +9,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { organizacaoService } from '../services/organizacao-service.js'
 import { prisma } from '../lib/prisma.js'
 import { generateHubInsights, normalizeHubRole } from '../services/hub-insights-service.js'
+import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
 
 export const hubRouter = Router()
 
@@ -88,13 +89,17 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         })))
 
     // Tudo em paralelo — 1 único requireAuth
-    const [organizacao, workspaces, configs, mergedCatalog, userPref] = await Promise.all([
+    const [organizacao, workspaces, configs, slugsAcessiveis, mergedCatalog, userPref] = await Promise.all([
       organizacaoService.getOrganizacaoById(id_organizacao),
       workspacesPromise,
       prisma.produtoGravityConfiguracao.findMany({
         where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
         orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },
       }).catch(() => []),
+      // PORTÃO 3 — filtra produtos por acesso do usuário (SSOT em produtos-acessiveis-service)
+      // Para Master/SAdmin/Admin: retorna todos os produtos contratados (bypass Mand. 04)
+      // Para Standard/Fornecedor: cruza com workspaces ativos + chave acesso_usuario_produtos_gravity
+      listarSlugsProdutosAcessiveis(id_organizacao, id_usuario).catch(() => new Set<string>()),
       prisma.produtoGravity.findMany({
         select: {
           id_produto_gravity: true,
@@ -123,14 +128,18 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     // Enriquece produtos contratados com dados do catálogo
     const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))
 
-    // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub
-    const products = configs.map(c => ({
-      product_key: c.chave_produto_configuracao_produto_gravity,
-      is_active: c.ativo_configuracao_produto_gravity,
-      config: c.configuracao_config_produto_gravity,
-      subscribed_at: c.data_criacao_configuracao_produto_gravity,
-      catalog: catalogMap.get(c.chave_produto_configuracao_produto_gravity) ?? null,
-    }))
+    // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub.
+    // Filtro Portão 3: só lista produtos que o usuário pode acessar (SSOT).
+    // Master/SAdmin/Admin recebem todos os contratados pela org (bypass Mand. 04).
+    const products = configs
+      .filter(c => slugsAcessiveis.has(c.chave_produto_configuracao_produto_gravity))
+      .map(c => ({
+        product_key: c.chave_produto_configuracao_produto_gravity,
+        is_active: c.ativo_configuracao_produto_gravity,
+        config: c.configuracao_config_produto_gravity,
+        subscribed_at: c.data_criacao_configuracao_produto_gravity,
+        catalog: catalogMap.get(c.chave_produto_configuracao_produto_gravity) ?? null,
+      }))
 
     // Workspace preferido — valida que ainda aponta para workspace ATIVO
     // onde o usuário tem membership ativa. Se inválido, retorna null

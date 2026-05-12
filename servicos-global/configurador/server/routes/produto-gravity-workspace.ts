@@ -10,6 +10,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
 
 export const companyProductsRouter = Router({ mergeParams: true })
 
@@ -33,23 +34,22 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
     }
 
-    // Fonte única: ProdutoGravityWorkspace habilitado E assinatura ATIVA/EM_TESTE.
-    // - ativo_produto_gravity_workspace: o usuário precisa ter habilitado o produto neste workspace
-    // - status_assinatura_produto_gravity: produto não pode estar SUSPENSA ou CANCELADA na organização
-    // - id_organizacao no `some` da assinatura: isolamento por organização (Mandamento)
+    // Fonte única: SSOT em produtos-acessiveis-service (Mand. 09 — sem drift Hub↔Core).
+    // Aplica os 3 portões conforme tipo_usuario:
+    //   - Master/SAdmin/Admin: Portões 1+2 (assinatura ATIVA + workspace habilitou)
+    //   - Standard/Fornecedor: Portões 1+2+3 (+ chave acesso_usuario_produtos_gravity)
+    const slugsAcessiveis = await listarSlugsProdutosAcessiveis(
+      req.auth.id_organizacao,
+      req.auth.id_usuario,
+      id_workspace,
+    )
+
     const companyProducts = await prisma.produtoGravityWorkspace.findMany({
       where: {
         id_workspace: id_workspace,
         id_organizacao: req.auth.id_organizacao,
         ativo_produto_gravity_workspace: true,
-        produto: {
-          assinaturas_produto_gravity: {
-            some: {
-              id_organizacao: req.auth.id_organizacao,
-              status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
-            },
-          },
-        },
+        produto: { slug_produto_gravity: { in: [...slugsAcessiveis] } },
       },
       include: { produto: true },
       orderBy: { data_contratacao_produto_gravity_workspace: 'desc' },

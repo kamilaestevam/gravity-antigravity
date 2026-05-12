@@ -22,6 +22,7 @@ import {
   servicoPermissaoUsuario,
   permissaoStringSchema,
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
+  ehPermissaoAcessoUsuarioProdutoGravity,
 } from '../services/permissao-usuario-servico.js'
 
 export const usersRouter = Router()
@@ -898,15 +899,25 @@ usersRouter.put('/:id_usuario/permissoes', requireUserManagementRole, async (req
     if (!ws) throw new AppError('Workspace não pertence à organização do usuário', 403, 'WORKSPACE_FORA_DA_ORGANIZACAO')
 
     // Valida produto está no Set de "permissões implementadas" (defesa contra
-    // gravar permissões para produtos que ainda não têm UI/middleware)
+    // gravar permissões para produtos que ainda não têm UI/middleware).
+    //
+    // EXCEÇÃO Portão 3: chaves `<slug>:acesso_usuario_produtos_gravity:permitido`
+    // são válidas para QUALQUER produto, não exigem whitelist (controlam apenas
+    // ABERTURA do produto, não ações granulares dentro dele). Decisão dono
+    // 2026-05-12 — todo produto deve poder ter Portão 3, independente da Cadeia 2
+    // fina estar implementada.
     const produto = await prisma.produtoGravity.findUnique({
       where: { id_produto_gravity: parsed.data.id_produto_gravity },
       select: { slug_produto_gravity: true, status_produto_gravity: true },
     })
     if (!produto) throw new AppError('Produto não encontrado', 404, 'PRODUCT_NOT_FOUND')
-    if (!PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(produto.slug_produto_gravity)) {
+
+    const temPermissaoGranular = parsed.data.permissoes.some(
+      (p) => !ehPermissaoAcessoUsuarioProdutoGravity(p),
+    )
+    if (temPermissaoGranular && !PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(produto.slug_produto_gravity)) {
       throw new AppError(
-        `Produto "${produto.slug_produto_gravity}" ainda não tem permissões granulares implementadas`,
+        `Produto "${produto.slug_produto_gravity}" ainda não tem permissões granulares implementadas — apenas Portão 3 (acesso ao produto) é aceito`,
         400,
         'PRODUCT_PERMISSIONS_NOT_IMPLEMENTED',
       )

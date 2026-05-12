@@ -174,6 +174,57 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
         })
       )
     })
+
+    // Cenário multi-pedido + cascade: edita JSON do Pedido + cascade Pedido→Item.
+    // Garante que com 2+ pedidos cada um recebe 1 update no JSON, e cada item
+    // recebe 1 update na coluna do item (caso do screenshot 2026-05-12).
+    it('Combinado: JSON pedido + cascade item para 2 pedidos com múltiplos itens', async () => {
+      const itemUpdateMock = vi.fn().mockResolvedValue({ id_item: 'item-X' })
+      const pedidoUpdateMock = vi.fn().mockResolvedValue({ id_pedido: 'X' })
+
+      const criarItens = (pedidoId: string, n: number) => Array.from({ length: n }, (_, i) => ({
+        id_item: `${pedidoId}-item-${i+1}`,
+        id_organizacao: ID_ORG,
+        id_workspace: 'ws-001',
+        id_pedido: pedidoId,
+        quantidade_inicial_item: 100,
+        quantidade_atual_item:   100,
+      }))
+
+      const pedido1 = {
+        id_pedido: 'pedido-0047', id_organizacao: ID_ORG, id_workspace: 'ws-001',
+        tipo_operacao_pedido: 'importacao', numero_pedido: 'CARGA-2026-0047',
+        detalhes_operacionais_pedido: { algumOutro: 'valor' },
+        itens_pedido: criarItens('pedido-0047', 5),
+      }
+      const pedido2 = {
+        id_pedido: 'pedido-0061', id_organizacao: ID_ORG, id_workspace: 'ws-001',
+        tipo_operacao_pedido: 'importacao', numero_pedido: 'CARGA-2026-0061',
+        detalhes_operacionais_pedido: null,
+        itens_pedido: criarItens('pedido-0061', 5),
+      }
+
+      const tx: TxMock = {
+        pedidoItem: { update: itemUpdateMock },
+        pedido:     { update: pedidoUpdateMock },
+      }
+      const dbBase = {
+        pedido: { findMany: vi.fn().mockResolvedValue([pedido1, pedido2]), updateMany: vi.fn() },
+        $transaction: vi.fn().mockImplementation((fn: (tx: TxMock) => Promise<unknown>) => fn(tx)),
+      }
+      const db = dbBase as unknown as PrismaClient
+
+      const resultado = await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-0047', 'pedido-0061'],
+        campos: [{ campo: 'nome_exportador', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'EXPORTADOR ABC' }],
+        nivel: 'combinado',
+      })
+
+      expect(pedidoUpdateMock).toHaveBeenCalledTimes(2)
+      expect(itemUpdateMock).toHaveBeenCalledTimes(10)
+      expect(resultado.pedidos_atualizados).toBe(2)
+      expect(resultado.itens_atualizados).toBe(10)
+    })
   })
 
   describe('Campos bloqueados', () => {

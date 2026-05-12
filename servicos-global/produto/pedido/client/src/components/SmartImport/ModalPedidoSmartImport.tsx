@@ -29,6 +29,7 @@ import { smartImportApi }    from '../../shared/api'
 import type {
   ColunaMapeada,
   SmartImportPreview,
+  SmartImportLinha,
   SmartImportResultado,
   DecisaoDuplicata,
   SmartImportConfirmar,
@@ -588,6 +589,60 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     setNumerosEditados(prev => ({ ...prev, [linhaArquivo]: numero }))
   }
 
+  // P15.1 — Adiciona uma nova SmartImportLinha (tipo ITEM) ao preview
+  function handleAdicionarItemInline(linhaPedido: SmartImportLinha, dadosItem: Record<string, unknown>) {
+    setPreview(prev => {
+      if (!prev) return prev
+      // Calcula proximo linha_arquivo (max + 1) para nao colidir com linhas reais
+      const maxLinhaArquivo = prev.linhas.reduce((acc, l) => Math.max(acc, l.linha_arquivo), 0)
+      const novaLinha: SmartImportLinha = {
+        linha_arquivo: maxLinhaArquivo + 1,
+        numero_pedido: linhaPedido.numero_pedido,
+        status: 'ok',
+        alertas: [],
+        dados: dadosItem,
+      }
+      // Remove o alerta "sem ITEM associado" da linha PEDIDO afetada
+      const linhasAtualizadas = prev.linhas.map(l => {
+        if (l.linha_arquivo !== linhaPedido.linha_arquivo) return l
+        const alertasSemFaltando = l.alertas.filter(a =>
+          !(a.campo === 'tipo_linha' && /sem ITEM associado|nao tem nenhum ITEM/i.test(a.mensagem))
+        )
+        const novoStatus: SmartImportLinha['status'] =
+          alertasSemFaltando.some(a => a.nivel === 'erro')  ? 'erro'  :
+          alertasSemFaltando.some(a => a.nivel === 'aviso') ? 'aviso' :
+          'ok'
+        return { ...l, alertas: alertasSemFaltando, status: novoStatus }
+      })
+      return {
+        ...prev,
+        linhas: [...linhasAtualizadas, novaLinha],
+        total_linhas: prev.total_linhas + 1,
+        total_itens:  prev.total_itens + 1,
+      }
+    })
+    // Auto-seleciona a nova linha
+    setLinhasSelecionadas(prev => {
+      const next = new Set(prev)
+      // O linha_arquivo da nova sera o ultimo apos o set acima
+      const proxLinha = (preview?.linhas.reduce((acc, l) => Math.max(acc, l.linha_arquivo), 0) ?? 0) + 1
+      next.add(proxLinha)
+      return next
+    })
+  }
+
+  // P15.2 — Atualiza valor de um campo em linha existente do preview
+  function handleEditarCampoLinha(linhaArquivo: number, campo: string, novoValor: string) {
+    setPreview(prev => {
+      if (!prev) return prev
+      const linhasAtualizadas = prev.linhas.map(l => {
+        if (l.linha_arquivo !== linhaArquivo) return l
+        return { ...l, dados: { ...l.dados, [campo]: novoValor } }
+      })
+      return { ...prev, linhas: linhasAtualizadas }
+    })
+  }
+
   function handleVerPedidos() {
     onConcluido(resultado?.ids_criados ?? [])
   }
@@ -746,6 +801,8 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
               onSelecaoChange={setLinhasSelecionadas}
               onDecisaoDuplicata={handleDecisaoDuplicata}
               onNumeroEditado={handleNumeroEditado}
+              onAdicionarItemInline={handleAdicionarItemInline}
+              onEditarCampoLinha={handleEditarCampoLinha}
             />
           )}
 

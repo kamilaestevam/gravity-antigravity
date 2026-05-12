@@ -15,6 +15,8 @@ import {
   CaretRight,
   PencilSimple,
   Check,
+  Plus,
+  X,
 } from '@phosphor-icons/react'
 import type { SmartImportLinha, DecisaoDuplicata } from '../../shared/types'
 import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
@@ -41,6 +43,31 @@ interface EtapaPreviewProps {
   onSelecaoChange: (linhas: Set<number>) => void
   onDecisaoDuplicata: (numeroPedido: string, decisao: DecisaoDuplicata) => void
   onNumeroEditado: (linhaArquivo: number, numero: string) => void
+  /** P15.1 — Callback para adicionar item inline a um pedido sem ITEM */
+  onAdicionarItemInline?: (linhaPedido: SmartImportLinha, dadosItem: Record<string, unknown>) => void
+  /** P15.2 — Callback para editar valor de campo em linha existente */
+  onEditarCampoLinha?: (linhaArquivo: number, campo: string, novoValor: string) => void
+}
+
+// P15.1 — Formulario inline para adicionar item a pedido sem ITEM
+interface ItemInlineForm {
+  part_number_item:        string
+  ncm_item:                string
+  descricao_item:          string
+  quantidade_inicial_item: string
+  valor_por_unidade_item:  string
+  moeda_item:              string
+  incoterm_item:           string
+}
+
+const ITEM_INLINE_VAZIO: ItemInlineForm = {
+  part_number_item:        '',
+  ncm_item:                '',
+  descricao_item:          '',
+  quantidade_inicial_item: '',
+  valor_por_unidade_item:  '',
+  moeda_item:              'USD',
+  incoterm_item:           '',
 }
 
 type FiltroPreview = 'todos' | 'ok' | 'aviso' | 'erro'
@@ -76,6 +103,8 @@ function CardPedido({
   onToggle,
   onDecisao,
   onNumeroEditado,
+  onAdicionarItemInline,
+  onEditarCampoLinha,
 }: {
   linha: SmartImportLinha
   selecionada: boolean
@@ -84,11 +113,24 @@ function CardPedido({
   onToggle: () => void
   onDecisao: (d: DecisaoDuplicata) => void
   onNumeroEditado: (v: string) => void
+  onAdicionarItemInline?: (linhaPedido: SmartImportLinha, dadosItem: Record<string, unknown>) => void
+  onEditarCampoLinha?: (linhaArquivo: number, campo: string, novoValor: string) => void
 }) {
   const [expandidoAlertas, setExpandidoAlertas] = useState(false)
   const [expandidoCampos, setExpandidoCampos]   = useState(false)
   const [editandoNumero, setEditandoNumero]      = useState(false)
   const [numeroTemp, setNumeroTemp]              = useState('')
+  // P15.1 — Estado do formulario inline de adicionar item
+  const [mostrandoFormItem, setMostrandoFormItem] = useState(false)
+  const [formItem, setFormItem] = useState<ItemInlineForm>(ITEM_INLINE_VAZIO)
+  // P15.2 — Estado de edicao de campo individual (chave: nome do campo)
+  const [campoEditando, setCampoEditando] = useState<string | null>(null)
+  const [valorTemp, setValorTemp]         = useState('')
+
+  // P15.1 — Detecta alerta "Pedido sem ITEM associado" (vem do validarCoerenciaMasterDetail)
+  const temAlertaItemFaltando = linha.alertas.some(a =>
+    a.campo === 'tipo_linha' && /sem ITEM associado|nao tem nenhum ITEM/i.test(a.mensagem)
+  )
 
   const temDuplicata = linha.alertas.some(a => a.tipo === 'duplicado_sistema')
   const numeroAtual  = numeroEditado ?? linha.numero_pedido ?? '—'
@@ -105,6 +147,54 @@ function CardPedido({
   function confirmarEdicao() {
     if (numeroTemp.trim()) onNumeroEditado(numeroTemp.trim())
     setEditandoNumero(false)
+  }
+
+  // P15.2 — Helpers de edicao inline de campo individual
+  function iniciarEdicaoCampo(campo: string, valorAtual: unknown) {
+    setCampoEditando(campo)
+    setValorTemp(String(valorAtual ?? ''))
+  }
+
+  function confirmarEdicaoCampo() {
+    if (campoEditando && onEditarCampoLinha) {
+      onEditarCampoLinha(linha.linha_arquivo, campoEditando, valorTemp)
+    }
+    setCampoEditando(null)
+  }
+
+  function cancelarEdicaoCampo() {
+    setCampoEditando(null)
+    setValorTemp('')
+  }
+
+  // P15.1 — Confirmacao do form inline (cria nova SmartImportLinha tipo ITEM)
+  function confirmarAdicionarItem() {
+    if (!onAdicionarItemInline) return
+    if (!formItem.part_number_item.trim()) return  // P14: part_number_item e' obrigatorio
+    const dadosItem: Record<string, unknown> = {
+      tipo_linha:              'ITEM',
+      numero_pedido:           linha.numero_pedido ?? '',
+      part_number_item:        formItem.part_number_item.trim(),
+      ncm_item:                formItem.ncm_item.trim() || undefined,
+      descricao_item:          formItem.descricao_item.trim() || undefined,
+      quantidade_inicial_item: formItem.quantidade_inicial_item.trim() || undefined,
+      valor_por_unidade_item:  formItem.valor_por_unidade_item.trim() || undefined,
+      moeda_item:              formItem.moeda_item.trim() || 'USD',
+      incoterm_item:           formItem.incoterm_item.trim() || undefined,
+      _origem:                 'inline',  // marca para auditoria
+    }
+    // Remove undefined (dados.unknown nao precisa de chave para vazio)
+    for (const k of Object.keys(dadosItem)) {
+      if (dadosItem[k] === undefined) delete dadosItem[k]
+    }
+    onAdicionarItemInline(linha, dadosItem)
+    setFormItem(ITEM_INLINE_VAZIO)
+    setMostrandoFormItem(false)
+  }
+
+  function cancelarAdicionarItem() {
+    setFormItem(ITEM_INLINE_VAZIO)
+    setMostrandoFormItem(false)
   }
 
   return (
@@ -269,12 +359,56 @@ function CardPedido({
 
           {expandidoCampos && (
             <div className="smart-import__campos-grid">
-              {camposVisiveis.map(([campo, valor]) => (
-                <div key={campo} className="smart-import__campo-item">
-                  <span className="smart-import__campo-label">{rotulo(campo)}</span>
-                  <span className="smart-import__campo-valor">{formatarValor(campo, valor)}</span>
-                </div>
-              ))}
+              {camposVisiveis.map(([campo, valor]) => {
+                const ehEditandoEste = campoEditando === campo
+                return (
+                  <div key={campo} className="smart-import__campo-item">
+                    <span className="smart-import__campo-label">{rotulo(campo)}</span>
+                    {/* P15.2 — edicao inline (mesmo padrao do numero_pedido) */}
+                    {ehEditandoEste ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1 }}>
+                        <input
+                          className="smart-import__numero-input"
+                          value={valorTemp}
+                          onChange={e => setValorTemp(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') confirmarEdicaoCampo()
+                            if (e.key === 'Escape') cancelarEdicaoCampo()
+                          }}
+                          autoFocus
+                          aria-label={`Editar ${rotulo(campo)}`}
+                          style={{ flex: 1, minWidth: 0 }}
+                        />
+                        <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicaoCampo} aria-label="Confirmar edicao" title="Confirmar (Enter)">
+                          <Check size={12} weight="bold" />
+                        </button>
+                        <button type="button" className="smart-import__btn-icone" onClick={cancelarEdicaoCampo} aria-label="Cancelar edicao" title="Cancelar (Esc)">
+                          <X size={12} weight="bold" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span
+                        className="smart-import__campo-valor"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+                      >
+                        {formatarValor(campo, valor)}
+                        {onEditarCampoLinha && (
+                          <button
+                            type="button"
+                            className="smart-import__btn-icone"
+                            onClick={() => iniciarEdicaoCampo(campo, valor)}
+                            aria-label={`Editar ${rotulo(campo)}`}
+                            title="Editar valor"
+                            style={{ opacity: 0.6 }}
+                          >
+                            <PencilSimple size={11} weight="bold" />
+                          </button>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
@@ -310,6 +444,147 @@ function CardPedido({
           )}
         </div>
       )}
+
+      {/* P15.1 — Botao/form de adicionar item quando alerta "pedido sem ITEM" */}
+      {temAlertaItemFaltando && onAdicionarItemInline && (
+        <div style={{ marginTop: '0.5rem', padding: '0.5rem 0.75rem', background: 'rgba(96,165,250,0.06)', borderRadius: '6px', border: '1px dashed rgba(96,165,250,0.3)' }}>
+          {!mostrandoFormItem ? (
+            <button
+              type="button"
+              onClick={() => setMostrandoFormItem(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                background: 'transparent',
+                border: 'none',
+                color: '#60a5fa',
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                padding: 0,
+              }}
+              aria-label="Adicionar item inline"
+            >
+              <Plus size={14} weight="bold" aria-hidden="true" />
+              Adicionar Item aqui (sem voltar a planilha)
+            </button>
+          ) : (
+            <div>
+              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Novo item para <strong>{numeroAtual}</strong>:
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                {/* Part Number — obrigatorio */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>* Part Number</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.part_number_item}
+                    onChange={e => setFormItem(p => ({ ...p, part_number_item: e.target.value }))}
+                    autoFocus
+                    aria-label="Part Number"
+                  />
+                </label>
+                {/* NCM */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>NCM</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.ncm_item}
+                    onChange={e => setFormItem(p => ({ ...p, ncm_item: e.target.value }))}
+                    placeholder="2202.10.00"
+                    aria-label="NCM"
+                  />
+                </label>
+                {/* Descricao */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: '1 / -1' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Descricao</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.descricao_item}
+                    onChange={e => setFormItem(p => ({ ...p, descricao_item: e.target.value }))}
+                    aria-label="Descricao do Item"
+                  />
+                </label>
+                {/* Quantidade */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Qtd. Inicial</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.quantidade_inicial_item}
+                    onChange={e => setFormItem(p => ({ ...p, quantidade_inicial_item: e.target.value }))}
+                    inputMode="decimal"
+                    aria-label="Quantidade Inicial"
+                  />
+                </label>
+                {/* Valor unitario */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Valor por Unidade</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.valor_por_unidade_item}
+                    onChange={e => setFormItem(p => ({ ...p, valor_por_unidade_item: e.target.value }))}
+                    inputMode="decimal"
+                    aria-label="Valor por Unidade"
+                  />
+                </label>
+                {/* Moeda */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Moeda</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.moeda_item}
+                    onChange={e => setFormItem(p => ({ ...p, moeda_item: e.target.value.toUpperCase().slice(0, 3) }))}
+                    placeholder="USD"
+                    aria-label="Moeda"
+                    maxLength={3}
+                  />
+                </label>
+                {/* Incoterm */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Incoterm</span>
+                  <input
+                    className="smart-import__numero-input"
+                    value={formItem.incoterm_item}
+                    onChange={e => setFormItem(p => ({ ...p, incoterm_item: e.target.value.toUpperCase().slice(0, 6) }))}
+                    placeholder="FOB"
+                    aria-label="Incoterm"
+                    maxLength={6}
+                  />
+                </label>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={cancelarAdicionarItem}
+                  style={{ background: 'transparent', border: '1px solid var(--bg-elevated, #334155)', color: 'var(--text-muted)', padding: '0.375rem 0.75rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmarAdicionarItem}
+                  disabled={!formItem.part_number_item.trim()}
+                  style={{
+                    background: formItem.part_number_item.trim() ? '#60a5fa' : 'var(--bg-elevated, #334155)',
+                    border: 'none',
+                    color: formItem.part_number_item.trim() ? '#0f172a' : 'var(--text-muted)',
+                    padding: '0.375rem 0.75rem',
+                    borderRadius: '4px',
+                    cursor: formItem.part_number_item.trim() ? 'pointer' : 'not-allowed',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                  }}
+                  title={formItem.part_number_item.trim() ? 'Adicionar item ao pedido' : 'Part Number e obrigatorio'}
+                >
+                  Adicionar Item
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -324,6 +599,8 @@ export function EtapaPreview({
   onSelecaoChange,
   onDecisaoDuplicata,
   onNumeroEditado,
+  onAdicionarItemInline,
+  onEditarCampoLinha,
 }: EtapaPreviewProps) {
   const [filtro, setFiltro] = useState<FiltroPreview>('todos')
   const [filtroVisible, setFiltroVisible] = useState(true)
@@ -443,6 +720,8 @@ export function EtapaPreview({
             onToggle={() => toggleLinha(linha.linha_arquivo)}
             onDecisao={d => onDecisaoDuplicata(linha.numero_pedido ?? '', d)}
             onNumeroEditado={v => onNumeroEditado(linha.linha_arquivo, v)}
+            onAdicionarItemInline={onAdicionarItemInline}
+            onEditarCampoLinha={onEditarCampoLinha}
           />
         ))}
       </div>

@@ -35,7 +35,11 @@ import {
   buildContextoItem,
   SALDO_FORMULA_PADRAO,
 } from '../services/formulaEngine.js'
-import { isPropagavel } from '../../../pedido/shared/columnPropagationConfig.js'
+import {
+  isPropagavel,
+  construirCamposPropagadosParaItem,
+  derivarNomesEmpresaParaItem,
+} from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
 import {
   buscarEmpresasPorSuids,
   buscarMoedaPorCodigo,
@@ -72,17 +76,21 @@ export const pedidosRouter = Router()
 // Schemas Zod — Mandamento 03: nomenclatura DDD pura. Nomes legados
 // (tenant_id, company_id, tipo_operacao, status, incoterm, etc.) NÃO são
 // mais aceitos. Front, smart import e tests precisam enviar DDD.
+//
+// IMPORTANTE — campos que propagam do Pedido (ver mapaPropagacaoPedidoItem.ts)
+// são `.optional()` SEM `.default()`: defaults aqui invalidariam a propagação.
+// A precedência aplicada no create é: item-explicit > pedido-herdado > default técnico.
 const criarItemSchema = z.object({
   part_number_item:               z.string().optional().nullable().default(''),
   ncm_item:                       z.string().optional().nullable().default(''),
   descricao_item:                 z.string().optional().nullable().default(''),
   quantidade_inicial_item:        z.number().min(0).optional().default(0),
   unidade_comercializada_item:    z.string().optional().nullable(),
-  moeda_item:                     z.string().default('USD'),
+  moeda_item:                     z.string().optional(),  // propagado de moeda_pedido se ausente
   valor_por_unidade_item:         z.number().optional().nullable(),
   valor_total_item:               z.number().optional().nullable(),
-  casas_decimais_quantidade_item: z.number().int().default(2),
-  casas_decimais_valor_item:      z.number().int().default(2),
+  casas_decimais_quantidade_item: z.number().int().optional(),  // propagado de casas_decimais_quantidade_pedido se ausente
+  casas_decimais_valor_item:      z.number().int().optional(),  // propagado de casas_decimais_valor_pedido se ausente
   sequencia_item_pedido:          z.number().int().optional().nullable(),
 })
 
@@ -312,6 +320,16 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
   const det = (pedido.detalhes_operacionais_pedido as Record<string, unknown> | null)
     ?? (pedido.detalhes_operacionais as Record<string, unknown> | null)
     ?? {}
+
+  // Nomes das contrapartes vêm dos snapshots (Fase 4 DDD: SUID + snapshot em vez
+  // de FK direto). Front lê `row.nome_importador/exportador/fabricante` nas
+  // colunas da lista (ColunasPai.tsx), então surfaceamos esses 3 nomes aqui.
+  const snaps = (pedido.snapshots_empresa_pedido as Array<{ papel: string; nome_empresa: string }> | undefined) ?? []
+  const findNome = (papel: 'importador' | 'exportador' | 'fabricante'): string | null => {
+    const s = snaps.find((x) => x.papel === papel)
+    return s?.nome_empresa ?? null
+  }
+
   return {
     ...pedido,
     // Identidade / isolamento — contrato legado
@@ -375,10 +393,13 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     data_conf_recebimento_original_invoice:  pedido.data_confirmacao_recebimento_original_invoice_pedido  ?? pedido.data_conf_recebimento_original_invoice,
     data_meta_recebimento_original_invoice:  pedido.data_meta_recebimento_original_invoice_pedido         ?? pedido.data_meta_recebimento_original_invoice,
     itens,
-    // Campos armazenados em detalhes_operacionais → surfaçados como top-level
-    nome_exportador: (det.nome_exportador as string | null | undefined) ?? null,
-    nome_importador: (det.nome_importador as string | null | undefined) ?? null,
-    nome_fabricante: (det.nome_fabricante as string | null | undefined) ?? null,
+    // Nomes das contrapartes: prioriza snapshots (Fase 4 DDD — fonte canônica
+    // de empresas via SUID+snapshot), faz fallback pra detalhes_operacionais
+    // legado pra pedidos antigos que ainda não têm snapshot. Front consome
+    // via colunas Pai/Filho (ColunasPai.tsx:row.nome_exportador).
+    nome_exportador: findNome('exportador') ?? (det.nome_exportador as string | null | undefined) ?? null,
+    nome_importador: findNome('importador') ?? (det.nome_importador as string | null | undefined) ?? null,
+    nome_fabricante: findNome('fabricante') ?? (det.nome_fabricante as string | null | undefined) ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
@@ -387,10 +408,27 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     quantidade_cancelada_total_pedido: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_pedido ?? 0), 0)
       : (pedido.quantidade_cancelada_total_pedido ?? null),
-    // Virtual: contagem de NCMs distintos nos itens do pedido
-    ncms_distintos_count: Array.isArray(itens)
-      ? new Set(itens.map((i: PedidoItemRaw) => i.ncm).filter(Boolean)).size
-      : (pedido.ncms_distintos_count ?? null),
+    // Virtuais: agregação de NCM por pedido seguindo o padrão renderAgregado
+    // do front (ColunasPai.tsx). `ncm_valor_unico` populado quando todos os
+    // itens compartilham o mesmo NCM; `ncm_divergente=true` quando há mais
+    // de um NCM distinto (front mostra "⚠ N NCMs"); contagem para o badge.
+    ...(() => {
+      if (!Array.isArray(itens)) {
+        return {
+          ncm_valor_unico:      pedido.ncm_valor_unico ?? null,
+          ncm_divergente:       pedido.ncm_divergente ?? false,
+          ncms_distintos_count: pedido.ncms_distintos_count ?? null,
+        }
+      }
+      const ncmsUnicos = new Set(
+        itens.map((i: PedidoItemRaw) => i.ncm as string | null | undefined).filter((x): x is string => !!x && x.length > 0),
+      )
+      return {
+        ncm_valor_unico:      ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null,
+        ncm_divergente:       ncmsUnicos.size > 1,
+        ncms_distintos_count: ncmsUnicos.size,
+      }
+    })(),
   }
 }
 
@@ -514,7 +552,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await db.pedido.findMany({
           where,
-          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+          include: {
+            itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+            snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+          },
           orderBy: [
             { [sortField]: sortDir },
             { id_pedido: sortDir },
@@ -570,7 +611,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const [dataRaw, total, totalItensRaw] = await Promise.all([
         db.pedido.findMany({
           where,
-          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+          include: {
+            itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+            snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+          },
           // Ordenação padrão da lista: mais recém-criado primeiro. Garante que
           // o pedido que o usuário acabou de criar aparece no topo, mesmo
           // quando a data_emissao_pedido bate empate com pedidos antigos
@@ -1030,25 +1074,42 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           quantidade_total_pedido:      qtdTotal,
           status_pedido:                'rascunho',
           id_status_pedido:             statusRascunho?.id_pedido_status ?? null,
-          itens_pedido: {
-            create: itens.map((item, index) => ({
-              id_item:                        gerarId('pite'),
-              id_organizacao:                 tenant_id,
-              id_workspace:                   company_id,
-              sequencia_item_pedido:          item.sequencia_item_pedido ?? (index + 1),
-              part_number_item:               item.part_number_item ?? '',
-              ncm_item:                       item.ncm_item ?? '',
-              descricao_item:                 item.descricao_item ?? '',
-              quantidade_inicial_item:        item.quantidade_inicial_item ?? 0,
-              quantidade_atual_item:          item.quantidade_inicial_item ?? 0,
-              casas_decimais_quantidade_item: item.casas_decimais_quantidade_item ?? 2,
-              unidade_comercializada_item:    item.unidade_comercializada_item ?? null,
-              moeda_item:                     item.moeda_item ?? 'USD',
-              valor_por_unidade_item:         item.valor_por_unidade_item ?? null,
-              valor_total_item:               item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_item ?? 0),
-              casas_decimais_valor_item:      item.casas_decimais_valor_item ?? 2,
-            })),
-          },
+          itens_pedido: (() => {
+            // Propagação Pedido → Item (Mandamento 03 — fonte da verdade em
+            // shared/mapaPropagacaoPedidoItem.ts). Os 22 campos diretos +
+            // 3 nomes derivados de snapshot são herdados aqui no CREATE.
+            const propagacaoPedido = construirCamposPropagadosParaItem(pedidoData as Record<string, unknown>)
+            const nomesEmpresa     = derivarNomesEmpresaParaItem(snapshotsData)
+            const camposHerdados   = { ...propagacaoPedido, ...nomesEmpresa }
+
+            return {
+              create: itens.map((item, index) => ({
+                // 1. Identidade do item
+                id_item:                  gerarId('pite'),
+                id_organizacao:           tenant_id,
+                id_workspace:             company_id,
+
+                // 2. Campos herdados do Pedido (defaults — podem ser sobrescritos abaixo)
+                ...camposHerdados,
+
+                // 3. Campos sempre item-specific
+                sequencia_item_pedido:    item.sequencia_item_pedido ?? (index + 1),
+                part_number_item:         item.part_number_item ?? '',
+                ncm_item:                 item.ncm_item ?? '',
+                descricao_item:           item.descricao_item ?? '',
+                quantidade_inicial_item:  item.quantidade_inicial_item ?? 0,
+                quantidade_atual_item:    item.quantidade_inicial_item ?? 0,
+                valor_por_unidade_item:   item.valor_por_unidade_item ?? null,
+                valor_total_item:         item.valor_total_item ?? ((item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_item ?? 0)),
+
+                // 4. Sobrescritas item-explicit (precedência: item > pedido > default técnico)
+                ...(item.moeda_item                     !== undefined ? { moeda_item:                     item.moeda_item }                     : { moeda_item: (camposHerdados as Record<string, unknown>).moeda_item ?? 'USD' }),
+                ...(item.casas_decimais_quantidade_item !== undefined ? { casas_decimais_quantidade_item: item.casas_decimais_quantidade_item } : { casas_decimais_quantidade_item: (camposHerdados as Record<string, unknown>).casas_decimais_quantidade_item ?? 2 }),
+                ...(item.casas_decimais_valor_item      !== undefined ? { casas_decimais_valor_item:      item.casas_decimais_valor_item }      : { casas_decimais_valor_item: (camposHerdados as Record<string, unknown>).casas_decimais_valor_item ?? 2 }),
+                ...(item.unidade_comercializada_item    != null       ? { unidade_comercializada_item:    item.unidade_comercializada_item }    : {}),
+              })),
+            }
+          })(),
           snapshots_empresa_pedido: snapshotsData.length
             ? { create: snapshotsData }
             : undefined,
@@ -1422,45 +1483,47 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
           'cubagem_total_pedido',
         ])
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const updatedRecalc = await db.$transaction(async (tx: typeof db) => {
-          if (CINCO_AGREGADOS.has(campo)) {
-            // Caminho oficial: chama helper, que cobre TODOS os 5 de uma vez
-            // (não recalcula só o solicitado — recomputar todos é trivial e
-            // mantém os 5 sempre consistentes entre si).
-            await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-          } else {
-            // Caminho legado: 2 campos não cobertos pelo helper
-            // (quantidade_total_inicial_pedido, quantidade_transferida_total).
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const itens = await tx.pedidoItem.findMany({
-              where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-            }) as any[]
-
-            const dadosRecalc: Record<string, unknown> = {}
-            if (campo === 'quantidade_total_inicial_pedido') {
-              const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item ?? 0), 0)
-              const casas = pedido.casas_decimais_quantidade_pedido ?? 0
-              dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
-            } else if (campo === 'quantidade_transferida_total') {
-              const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item ?? 0), 0)
-              const casas = pedido.casas_decimais_quantidade_pedido ?? 0
-              dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
-            }
-            // quantidade_pronta_itens_pedido_total → virtual, sem coluna Prisma, computado em mapPedido
-
-            if (Object.keys(dadosRecalc).length > 0) {
-              await tx.pedido.update({
-                where: { id_pedido: req.params.id_pedido },
-                data: dadosRecalc,
-              })
-            }
-          }
-
-          return await tx.pedido.findFirst({
+        // withOrganizacao já garante atomicidade — `db` é TransactionClient.
+        // Não criar $transaction aninhada (Prisma proíbe).
+        if (CINCO_AGREGADOS.has(campo)) {
+          // Caminho oficial: chama helper, que cobre TODOS os 5 de uma vez
+          // (não recalcula só o solicitado — recomputar todos é trivial e
+          // mantém os 5 sempre consistentes entre si).
+          await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
+        } else {
+          // Caminho legado: 2 campos não cobertos pelo helper
+          // (quantidade_total_inicial_pedido, quantidade_transferida_total).
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const itens = await db.pedidoItem.findMany({
             where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
-          })
+          }) as any[]
+
+          const dadosRecalc: Record<string, unknown> = {}
+          if (campo === 'quantidade_total_inicial_pedido') {
+            const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item ?? 0), 0)
+            const casas = pedido.casas_decimais_quantidade_pedido ?? 0
+            dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
+          } else if (campo === 'quantidade_transferida_total') {
+            const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item ?? 0), 0)
+            const casas = pedido.casas_decimais_quantidade_pedido ?? 0
+            dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
+          }
+          // quantidade_pronta_itens_pedido_total → virtual, sem coluna Prisma, computado em mapPedido
+
+          if (Object.keys(dadosRecalc).length > 0) {
+            await db.pedido.update({
+              where: { id_pedido: req.params.id_pedido },
+              data: dadosRecalc,
+            })
+          }
+        }
+
+        const updatedRecalc = await db.pedido.findFirst({
+          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
+          include: {
+            itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+            snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+          },
         })
 
         return res.json(mapPedido(updatedRecalc))
@@ -1601,15 +1664,13 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
         )
       }
 
-      // Wrap em $transaction: nested-create + recalcular agregados do duplicado.
-      // Embora o duplicado copie itens 1:1 (e portanto agregados deveriam bater),
-      // chamamos o helper como defesa em profundidade — se o original tinha
-      // agregados desatualizados (débito histórico), o duplicado nasce correto.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const duplicado = await db.$transaction(async (tx: typeof db) => {
-        const dup = await tx.pedido.create({
+      // withOrganizacao já garante atomicidade — `db` é TransactionClient.
+      // Não criar $transaction aninhada (Prisma proíbe).
+      // Defesa em profundidade: chamamos o helper após o create — se o
+      // original tinha agregados desatualizados, o duplicado nasce correto.
+      const dup = await db.pedido.create({
         // @lint-agregados: allow-create-placeholder — recalcularAgregadosPedido
-        // roda logo depois do create na mesma $transaction (sobrescreve).
+        // roda logo depois do create na mesma transação implícita.
         data: {
           id_pedido: novoPedidoId,
           id_organizacao: idOrganizacao,
@@ -1685,17 +1746,16 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
         },
       })
 
-        // Recalcular os 5 agregados a partir dos itens copiados.
-        await recalcularAgregadosPedido(tx, novoPedidoId, idOrganizacao)
+      // Recalcular os 5 agregados a partir dos itens copiados.
+      await recalcularAgregadosPedido(db, novoPedidoId, idOrganizacao)
 
-        // Re-fetch para retornar com os agregados corretos.
-        return await tx.pedido.findUnique({
-          where: { id_pedido: dup.id_pedido },
-          include: {
-            itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
-            snapshots_empresa_pedido: true,
-          },
-        })
+      // Re-fetch para retornar com os agregados corretos.
+      const duplicado = await db.pedido.findUnique({
+        where: { id_pedido: dup.id_pedido },
+        include: {
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+          snapshots_empresa_pedido: true,
+        },
       })
 
       res.status(201).json(mapPedido(duplicado))
@@ -1760,13 +1820,9 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
         casas_decimais_valor_item:      result.data.casas_decimais_valor_item,
       }
 
-      // Wrap em $transaction: criar item + recalcular os 5 agregados do pai.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const item = await db.$transaction(async (tx: typeof db) => {
-        const novoItem = await tx.pedidoItem.create({ data: itemData })
-        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-        return novoItem
-      })
+      // withOrganizacao já garante atomicidade — `db` é TransactionClient.
+      const item = await db.pedidoItem.create({ data: itemData })
+      await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
 
       res.status(201).json(mapItem(item))
     })
@@ -1843,20 +1899,17 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
       }
 
       // Recalc condicional: só dispara se algum campo do payload afeta agregado.
+      // withOrganizacao já garante atomicidade via $transaction — `db` é o
+      // TransactionClient, NÃO criar $transaction aninhada (Prisma proíbe).
       const algumCampoAfetaAgregado = Object.keys(result.data).some(campoItemAfetaAgregado)
 
-      // Wrap em $transaction: update item + (opcional) recalcular agregados do pai.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updated = await db.$transaction(async (tx: typeof db) => {
-        const u = await tx.pedidoItem.update({
-          where: { id_item: req.params.id_item },
-          data: prismaData,
-        })
-        if (algumCampoAfetaAgregado) {
-          await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-        }
-        return u
+      const updated = await db.pedidoItem.update({
+        where: { id_item: req.params.id_item },
+        data: prismaData,
       })
+      if (algumCampoAfetaAgregado) {
+        await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
+      }
 
       res.json(mapItem(updated))
     })
@@ -2004,22 +2057,17 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
       const campoDdd = publicToDddItem[campo] ?? campo
 
       // ── Campos texto/enum — update simples ────────────────────────────────────
+      // withOrganizacao já garante atomicidade — `db` é TransactionClient.
       // Recalc condicional: campos texto/enum não afetam os 5 agregados
-      // (campoItemAfetaAgregado retorna false para todos eles), então
-      // economizamos lock + UPDATE no pai. Mesmo assim, wrap em $transaction
-      // mantém consistência se o set crescer no futuro.
+      // (campoItemAfetaAgregado retorna false para todos eles), economiza lock.
       if (ehTexto) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const updated = await db.$transaction(async (tx: typeof db) => {
-          const u = await tx.pedidoItem.update({
-            where: { id_item: req.params.id_item },
-            data: { [campoDdd]: valor === undefined ? null : valor },
-          })
-          if (campoItemAfetaAgregado(campo)) {
-            await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-          }
-          return u
+        const updated = await db.pedidoItem.update({
+          where: { id_item: req.params.id_item },
+          data: { [campoDdd]: valor === undefined ? null : valor },
         })
+        if (campoItemAfetaAgregado(campo)) {
+          await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
+        }
         return res.json(mapItem(updated))
       }
 
@@ -2092,23 +2140,18 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
       const fator = Math.pow(10, casasValor)
       const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
 
-      // Wrap em $transaction: update item + recalcular agregados do pai.
+      // withOrganizacao já garante atomicidade — `db` é TransactionClient.
       // Aqui o campo SEMPRE afeta agregado (CAMPOS_EDITAVEIS_ITEM_NUMERICOS =
-      // {quantidade_inicial_pedido, valor_por_unidade_item}), então o recalc
-      // é incondicional.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updated = await db.$transaction(async (tx: typeof db) => {
-        const u = await tx.pedidoItem.update({
-          where: { id_item: req.params.id_item },
-          data: {
-            [campoDdd]:                          valorNumerico,
-            quantidade_atual_item: saldo_novo,
-            valor_total_item:        valor_total_novo,
-          },
-        })
-        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-        return u
+      // {quantidade_inicial_pedido, valor_por_unidade_item}), recalc incondicional.
+      const updated = await db.pedidoItem.update({
+        where: { id_item: req.params.id_item },
+        data: {
+          [campoDdd]:                          valorNumerico,
+          quantidade_atual_item: saldo_novo,
+          valor_total_item:        valor_total_novo,
+        },
       })
+      await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
       return res.json(mapItem(updated))
     })
   } catch (err) {
@@ -2138,13 +2181,10 @@ pedidosRouter.delete('/:id_pedido/itens/:id_item', async (req: Request, res: Res
         throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
       }
 
-      // Wrap em $transaction: delete item + recalcular os 5 agregados do pai.
+      // withOrganizacao já garante atomicidade — `db` é TransactionClient.
       // Delete reduz `quantidade_inicial_item` (item some) → afeta valor/qty/peso/cubagem.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await db.$transaction(async (tx: typeof db) => {
-        await tx.pedidoItem.delete({ where: { id_item: req.params.id_item } })
-        await recalcularAgregadosPedido(tx, req.params.id_pedido, idOrganizacao)
-      })
+      await db.pedidoItem.delete({ where: { id_item: req.params.id_item } })
+      await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
       res.status(204).send()
     })
   } catch (err) {

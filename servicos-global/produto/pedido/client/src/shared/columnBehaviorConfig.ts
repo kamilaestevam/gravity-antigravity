@@ -14,7 +14,7 @@
  */
 
 import type { Pedido } from './types'
-export { isPropagavel } from '../../../shared/columnPropagationConfig'
+export { isPropagavel } from '../../../shared/mapaPropagacaoPedidoItem'
 export { isAlertavel, getAlertavelKeys } from '../../../shared/columnAlertConfig'
 
 // ── Tipos ────────────────────────────────────────────────────────────────────

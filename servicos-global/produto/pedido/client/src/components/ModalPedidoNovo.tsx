@@ -14,6 +14,7 @@ import { Package, Tag, Plus, Trash, Warning, Lock, Info } from '@phosphor-icons/
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -59,7 +60,7 @@ const FORM_VAZIO: PedidoForm = {
   suid_importador: '',
   suid_exportador: '',
   suid_fabricante: '',
-  incoterm_pedido: 'FOB',
+  incoterm_pedido: '',  // sem default — usuário escolhe (Mandamento 08)
   condicao_pagamento_pedido: '',
   numero_proforma_pedido: '',
   numero_invoice_pedido: '',
@@ -111,6 +112,20 @@ function validarPasso2(_itens: ItemForm[]): ErrosValidacao {
   // Nenhum campo de item é obrigatório no frontend.
   // O backend valida o que for necessário e retorna mensagens de erro claras.
   return {}
+}
+
+// ── Formatadores ───────────────────────────────────────────────────────────────
+
+/**
+ * Normaliza entrada de NCM para o padrão "XXXX.XX.XX" (8 dígitos com pontos).
+ * Aceita: "22021000", "2202.10.00", "2202-10-00", "2202 10 00" etc.
+ * Devolve: "2202.10.00" (até 8 dígitos com pontos automáticos).
+ */
+function formatarNcmInput(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8)
+  if (digits.length <= 4)      return digits
+  if (digits.length <= 6)      return `${digits.slice(0, 4)}.${digits.slice(4)}`
+  return `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6, 8)}`
 }
 
 // ── Tradução de erros da API ───────────────────────────────────────────────────
@@ -689,15 +704,18 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         )}
       </ModalPassoPassoGlobal>
       {/* Modal cascateado para cadastro rápido de Empresa via Cadastros API.
-          Regra de negócio: contraparte (Exportador em IMP, Importador em EXP)
-          é obrigatoriamente estrangeira → forcarEstrangeiro=true bloqueia BR
-          na lista de países. Fabricante fica flexível. */}
+          Regra de negócio: empresas estrangeiras NÃO podem ser BR.
+            - Importação: Exportador (contraparte) + Fabricante (produz fora) = estrangeiros
+            - Exportação: Importador (contraparte) = estrangeiro; Fabricante = BR
+              (já que estamos exportando produção nacional)
+          forcarEstrangeiro=true bloqueia BR na lista de países. */}
       <ModalEmpresaCadastroRapido
         aberto={cadastroEmpresaPapel !== null}
         papel={cadastroEmpresaPapel ?? 'exportador'}
         forcarEstrangeiro={
           (cadastroEmpresaPapel === 'exportador' && form.tipo_operacao_pedido === 'importacao') ||
-          (cadastroEmpresaPapel === 'importador' && form.tipo_operacao_pedido === 'exportacao')
+          (cadastroEmpresaPapel === 'importador' && form.tipo_operacao_pedido === 'exportacao') ||
+          (cadastroEmpresaPapel === 'fabricante' && form.tipo_operacao_pedido === 'importacao')
         }
         onFechar={() => setCadastroEmpresaPapel(null)}
         onCriado={aoCriarEmpresa}
@@ -942,6 +960,14 @@ function Passo1Dados({
       .filter((o) => !suidsBr.has(String(o.valor))),
     [opcoesExportador, empresaDaOrg, suidsBr],
   )
+  // Fabricante em IMPORTAÇÃO é estrangeiro (estamos importando produção feita
+  // fora). Em EXPORTAÇÃO o fabricante é BR (produção nacional sendo exportada).
+  const opcoesFabricanteFiltrado = useMemo(
+    () => form.tipo_operacao_pedido === 'importacao'
+      ? opcoesFabricante.filter((o) => !suidsBr.has(String(o.valor)))
+      : opcoesFabricante,
+    [opcoesFabricante, suidsBr, form.tipo_operacao_pedido],
+  )
 
   return (
     <div>
@@ -1064,7 +1090,7 @@ function Passo1Dados({
         <div style={s.campo}>
           <CampoEmpresaSelect
             label={t('pedido.drawer.label_fabricante')}
-            opcoes={opcoesFabricante}
+            opcoes={opcoesFabricanteFiltrado}
             valor={form.suid_fabricante || null}
             carregando={carregandoEmpresas}
             desabilitado={camposBloqueados}
@@ -1079,7 +1105,7 @@ function Passo1Dados({
             label="Incoterm"
             opcoes={OPCOES_INCOTERM}
             valor={form.incoterm_pedido}
-            aoMudarValor={v => onChange('incoterm_pedido', String(v ?? 'FOB'))}
+            aoMudarValor={v => onChange('incoterm_pedido', String(v ?? ''))}
             desabilitado={camposBloqueados}
           />
         </div>
@@ -1241,8 +1267,10 @@ function Passo2Itens({
                 id={`mnp-ncm-${index}`}
                 style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
                 value={item.ncm_item}
-                onChange={e => onChangeItem(index, 'ncm_item', e.target.value)}
+                onChange={e => onChangeItem(index, 'ncm_item', formatarNcmInput(e.target.value))}
                 placeholder="0000.00.00"
+                maxLength={10}
+                inputMode="numeric"
               />
             </div>
             <div>
@@ -1257,15 +1285,16 @@ function Passo2Itens({
             </div>
             <div>
               <label style={s.labelCompacto} htmlFor={`mnp-qty-${index}`}>{t('pedido.drawer.label_qtd')}</label>
-              <input
+              {/* Live mask BR (0.000,00). casasDecimais=2 por enquanto — TODO
+                  ler do config do usuário (Configurações / Casas Decimais /
+                  col_quantidade_total_pedido) quando hook existir. */}
+              <CampoDecimalGlobal
                 id={`mnp-qty-${index}`}
-                type="number"
-                style={{ ...s.inputCompacto, textAlign: 'right' }}
-                value={item.quantidade_inicial_item}
-                onChange={e => onChangeItem(index, 'quantidade_inicial_item', e.target.value)}
-                placeholder="0"
-                min="0"
-                step="0.01"
+                valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
+                aoMudarValor={(n) => onChangeItem(index, 'quantidade_inicial_item', n === null ? '' : String(n))}
+                casasDecimais={2}
+                style={s.inputCompacto}
+                textAlign="right"
               />
             </div>
             <button

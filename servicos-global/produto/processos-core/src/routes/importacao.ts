@@ -19,6 +19,11 @@ import type { PedidoImportado } from '../services/importEngine.js'
 import { AppError } from '../services/saldo-pedido.js'
 import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
 import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
+import { recalcularAgregadosPedido } from '../services/recalcularAgregadosPedido.js'
+import {
+  construirCamposPropagadosParaItem,
+  derivarNomesEmpresaParaItem,
+} from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
 import { withOrganizacao } from '@gravity/resolver-organizacao'
 
 export const importacaoRouter = Router()
@@ -161,56 +166,74 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
             })
             .filter((s): s is NonNullable<typeof s> => s !== null)
 
+          // Monta dados Pedido em DDD-puro (smart import ainda usa nomes legados
+          // no payload; tradução localizada aqui — migração completa do Zod fica
+          // pra fase própria do smart import).
+          const dadosPedidoDdd: Record<string, unknown> = {
+            id_pedido:                    pedidoId,
+            id_organizacao:               tenant_id,
+            id_workspace:                 company_id,
+            tipo_operacao_pedido:         pedidoData.tipo_operacao,
+            numero_pedido:                pedidoData.numero_pedido,
+            status_pedido:                'rascunho',
+            id_status_pedido:             statusRascunhoImp?.id_pedido_status ?? null,
+            incoterm_pedido:              pedidoData.incoterm ?? null,
+            moeda_pedido:                 pedidoData.moeda_pedido ?? 'USD',
+            valor_total_pedido:           valorTotal || null,
+            quantidade_total_pedido:      qtdTotal || null,
+            condicao_pagamento_pedido:    null,
+            referencia_importador_pedido: pedidoData.referencia_importador ?? null,
+            referencia_exportador_pedido: pedidoData.referencia_exportador ?? null,
+            referencia_fabricante_pedido: pedidoData.referencia_fabricante ?? null,
+            numero_proforma_pedido:       pedidoData.numero_proforma ?? null,
+            numero_invoice_pedido:        pedidoData.numero_invoice ?? null,
+          }
+
+          // Propagação Pedido → Item (mesma fonte da verdade do CREATE manual)
+          const propagacaoPedido = construirCamposPropagadosParaItem(dadosPedidoDdd)
+          const nomesEmpresa     = derivarNomesEmpresaParaItem(snapshotsData)
+          const camposHerdados   = { ...propagacaoPedido, ...nomesEmpresa }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (tx as any).pedido.create({
+            // @lint-agregados: allow-create-placeholder — recalcularAgregadosPedido
+            // roda logo depois do create dentro da mesma $transaction.
             data: {
-              id_pedido: pedidoId,
-              id_organizacao: tenant_id,
-              id_workspace: company_id,
-              tipo_operacao_pedido: pedidoData.tipo_operacao,
-              numero_pedido: pedidoData.numero_pedido,
-              status_pedido: 'rascunho',
-              id_status_pedido: statusRascunhoImp?.id_pedido_status ?? null,
-              incoterm_pedido: pedidoData.incoterm ?? null,
-              moeda_pedido: pedidoData.moeda_pedido ?? 'USD',
-              valor_total_pedido: valorTotal || null,
-              quantidade_total_pedido: qtdTotal || null,
-              condicao_pagamento_pedido: null,
-              detalhes_operacionais_pedido: {
-                referencia_importador: pedidoData.referencia_importador,
-                referencia_exportador: pedidoData.referencia_exportador,
-                referencia_fabricante: pedidoData.referencia_fabricante,
-                numero_proforma: pedidoData.numero_proforma,
-                numero_invoice: pedidoData.numero_invoice,
-              },
+              ...dadosPedidoDdd,
               itens_pedido: {
                 create: pedidoData.itens.map((item, index) => ({
-                  id_item: gerarId('pite'),
-                  id_organizacao: tenant_id,
-                  id_workspace: company_id,
-                  sequencia_item_pedido: (index + 1),
-                  part_number_item: item.part_number,
-                  ncm_item: item.ncm,
-                  descricao_item: item.descricao_item,
-                  quantidade_inicial_item: item.quantidade_inicial_pedido,
-                  quantidade_atual_item: item.quantidade_inicial_pedido,
-                  quantidade_pronta_item: 0,
+                  id_item:                  gerarId('pite'),
+                  id_organizacao:           tenant_id,
+                  id_workspace:             company_id,
+                  // Herdados do Pedido — 22 campos + 3 nomes de snapshot
+                  ...camposHerdados,
+                  // Item-specific
+                  sequencia_item_pedido:    (index + 1),
+                  part_number_item:         item.part_number,
+                  ncm_item:                 item.ncm,
+                  descricao_item:           item.descricao_item,
+                  quantidade_inicial_item:  item.quantidade_inicial_pedido,
+                  quantidade_atual_item:    item.quantidade_inicial_pedido,
+                  quantidade_pronta_item:   0,
                   quantidade_transferida_item: 0,
                   quantidade_cancelada_item: 0,
-                  casas_decimais_quantidade_item: 2,
-                  unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-                  moeda_item: pedidoData.moeda_pedido ?? 'USD',
-                  valor_por_unidade_item: item.valor_por_unidade_item ?? null,
-                  valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido,
-                  casas_decimais_valor_item: 2,
-                  cobertura_cambial_item: 'com_cobertura',
+                  valor_por_unidade_item:   item.valor_por_unidade_item ?? null,
+                  valor_total_item:         item.valor_total_item ?? ((item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido),
+                  // Item-explicit override do herdado (se enviado no payload)
+                  ...(item.unidade_comercializada_item != null ? { unidade_comercializada_item: item.unidade_comercializada_item } : {}),
                 })),
               },
-              snapshots_empresa: snapshotsData.length
+              snapshots_empresa_pedido: snapshotsData.length
                 ? { create: snapshotsData }
                 : undefined,
             },
           })
+
+          // Recalcular os 5 agregados do pedido recém-criado a partir dos
+          // itens — fonte única de verdade. Cobre valor/qty/peso_liq/peso_br/cubagem
+          // (importacao.ts antes só populava valor e qty manualmente).
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await recalcularAgregadosPedido(tx as any, pedidoId, tenant_id)
 
           pedidosCriados.push(pedidoId)
         }

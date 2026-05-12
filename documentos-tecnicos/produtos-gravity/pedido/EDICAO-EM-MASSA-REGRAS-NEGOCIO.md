@@ -85,11 +85,82 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 
 ## Níveis de Edição
 
-| Nível | O que edita | Quando usar |
-|---|---|---|
-| **Pedido** | Campos do `Pedido` nos pedidos selecionados | Mudar incoterm, data, condições de vários pedidos |
-| **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | Ajustar quantidades ou valores de itens |
-| **Combinado** | Pedido + Item na mesma operação | Alterar campos de ambos os níveis de uma vez |
+| Nível | O que edita | Cascade automático? | Quando usar |
+|---|---|---|---|
+| **Pedido** | Campos do `Pedido` nos pedidos selecionados | ❌ Não | Mudar incoterm/data/condições do pedido sem tocar nos itens |
+| **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | ❌ Não | Ajustar quantidades ou valores dos itens |
+| **Combinado** | Pedido + Item na mesma operação, com cascade automático | ✅ Sim (25 pares) | Mudar valor "oficial" do pedido propagando para os itens |
+
+---
+
+## Cascade Pedido → Item (aba Combinado)
+
+Na aba **Combinado**, alterações em campos do Pedido cujo conceito tem equivalente em PedidoItem **propagam automaticamente** para todos os itens dos pedidos selecionados.
+
+### Whitelist (25 pares)
+
+**Identificação:** `tipo_operacao`
+**Comerciais/financeiros:** `incoterm`, `moeda`, `condicao_pagamento`, `data_emissao`, `referencia_importador`, `referencia_exportador`, `referencia_fabricante`, `unidade_comercializada`, `casas_decimais_valor`, `casas_decimais_quantidade`, `casas_decimais_peso`, `casas_decimais_cubagem`
+**Datas de fluxo (pronto/inspeção/coleta):** `prevista_pronto`, `confirmada_pronto`, `meta_pronto`, `prevista_inspecao`, `confirmada_inspecao`, `meta_inspecao`, `prevista_coleta`, `confirmada_coleta`, `meta_coleta`
+**Dados de partes (JSON pedido → coluna item):** `nome_exportador`, `nome_importador`, `nome_fabricante`
+
+### Fora do cascade (não propagam)
+
+- `numero_pedido` (identificador único do pedido)
+- `porto_origem`, `porto_destino` (atributos do pedido apenas)
+- Datas de rascunho/proforma/invoice (existem só no nível pedido)
+- Endereço/país/cidade do exportador/importador/fabricante (JSON pedido sem coluna item equivalente)
+- Dados de OPE (JSON pedido sem coluna item equivalente)
+
+### Comportamento detalhado
+
+1. **Aba Pedido:** muda só o pedido. Items mantêm valor anterior (que pode divergir do novo do pedido).
+2. **Aba Item:** muda só os itens. Pedido mantém valor anterior.
+3. **Aba Combinado:**
+   - Campo na whitelist → muda pedido + propaga para todos os itens (sobrescreve overrides individuais).
+   - Campo fora da whitelist → muda só o pedido (idêntico ao comportamento da aba Pedido).
+   - Se o usuário adicionar `incoterm_pedido` + `incoterm_item` explicitamente, o **explícito vence** sobre o cascade.
+4. **Preview avisa:** quando houver overrides individuais sendo sobrescritos pelo cascade, o preview mostra "N itens serão sobrescritos".
+
+### Contadores no preview
+
+A aba **Combinado** mostra 4 contadores: pedidos afetados / itens afetados / campos pedido alterados / campos item alterados. Exemplo: 2 pedidos × 1 campo (`incoterm_pedido`) com 19 itens → "2 pedidos · 19 itens · 2 campos pedido · 19 campos item".
+
+---
+
+## Divergência Pedido vs Itens na Lista
+
+Quando o valor do Pedido difere dos itens (ex: pedido `FOB`, itens variam entre `CIF`/`EXW`/`FCA`), a lista mostra:
+
+- **Valor do pedido visível** (FOB) — não é mais escondido
+- **Ícone de alerta ⚠ laranja** ao lado do valor
+- **Tooltip** descrevendo a divergência ("Itens divergem do pedido")
+
+Comportamento por estado da célula:
+
+| Estado | Renderização |
+|--------|--------------|
+| Pedido tem valor + itens iguais | `FOB` (texto normal) |
+| Pedido tem valor + itens divergem | `FOB ⚠` (valor + ícone) |
+| Pedido sem valor + agregado impossível (ex: unidades incomparáveis) | `⚠ Unidades divergentes entre itens` (só alerta) |
+| Pedido sem valor + sem divergência | `—` |
+
+Para resolver a divergência, o usuário pode usar a **aba Combinado** para forçar o valor do pedido em todos os itens.
+
+---
+
+## Máscara de Entrada por Tipo de Campo
+
+| Tipo | Renderização |
+|------|--------------|
+| **Texto** | Input livre |
+| **Número** | Input numérico |
+| **Data** | Date picker |
+| **Select (enum)** | Dropdown com opções válidas (ex: Incoterm, Tipo de Operação, Cobertura Cambial) |
+| **NCM** | Input com máscara automática `0000.00.00`, limite 8 dígitos, ignora não-numéricos |
+| **Coluna do usuário** | Conforme tipo definido na criação |
+
+Os enums Incoterm, Tipo de Operação e Cobertura Cambial **não aceitam digitação livre** — só seleção do dropdown.
 
 ---
 

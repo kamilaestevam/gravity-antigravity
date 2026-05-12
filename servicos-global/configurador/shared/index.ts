@@ -13,6 +13,11 @@ export {
   PERMISSAO_REGEX_PATTERN,
   buildPermissaoString,
   parsePermissaoString,
+  SECAO_ACESSO_PRODUTO,
+  ACAO_ACESSO_PERMITIDO,
+  buildAcessoUsuarioProdutosGravityString,
+  ehPermissaoAcessoUsuarioProdutoGravity,
+  extrairSlugDaPermissao,
   type SecaoProduto,
   type AcaoProduto,
 } from './permissoes-canonicas.js'

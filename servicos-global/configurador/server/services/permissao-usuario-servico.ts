@@ -18,6 +18,11 @@ import {
   PERMISSAO_REGEX_PATTERN,
   buildPermissaoString,
   parsePermissaoString,
+  buildAcessoUsuarioProdutosGravityString,
+  ehPermissaoAcessoUsuarioProdutoGravity,
+  extrairSlugDaPermissao,
+  SECAO_ACESSO_PRODUTO,
+  ACAO_ACESSO_PERMITIDO,
   type SecaoProduto,
   type AcaoProduto,
 } from '../../shared/index.js'
@@ -31,6 +36,10 @@ export {
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
   buildPermissaoString,
   parsePermissaoString,
+  buildAcessoUsuarioProdutosGravityString,
+  ehPermissaoAcessoUsuarioProdutoGravity,
+  SECAO_ACESSO_PRODUTO,
+  ACAO_ACESSO_PERMITIDO,
 }
 export type { SecaoProduto, AcaoProduto }
 
@@ -84,6 +93,61 @@ interface VerificarPermissaoInput {
 }
 
 export const servicoPermissaoUsuario = {
+  /**
+   * PORTÃO 3 — Verifica se o usuário tem direito de ABRIR o produto no workspace.
+   *
+   * Diferente de `verificarPermissao` (granular `<slug>:<secao>:<acao>`), aqui
+   * checamos apenas a chave sentinela `<slug>:acesso_usuario_produtos_gravity:permitido`.
+   *
+   * Bypass total para Master/SuperAdmin/Admin (Mand. 04).
+   * STANDARD/FORNECEDOR sem linha → false (Mand. 08 — deny-by-default).
+   *
+   * Convenção da chave: ver `shared/permissoes-canonicas.ts` —
+   * `buildAcessoUsuarioProdutosGravityString(slug)`.
+   */
+  async verificarAcessoUsuarioProdutoGravity(input: {
+    id_organizacao: string
+    id_usuario: string
+    /** slug do produto — ex: 'pedido' */
+    slug_produto: string
+    /** workspace onde o produto está sendo aberto */
+    id_workspace: string
+  }): Promise<boolean> {
+    const { id_organizacao, id_usuario, slug_produto, id_workspace } = input
+
+    const usuario = await prisma.usuario.findFirst({
+      where: { id_usuario, id_organizacao },
+      select: { tipo_usuario: true },
+    })
+
+    if (!usuario) return false
+
+    // 1. Bypass Mand. 04 — Master/SAdmin/Admin sempre acessam
+    if (temBypassPermissao(usuario)) return true
+
+    // 2. Resolve slug → id_produto_gravity (catálogo)
+    const produto = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: slug_produto },
+      select: { id_produto_gravity: true },
+    })
+    if (!produto) return false
+
+    // 3. Procura linha exata da chave sentinela (Mand. 08 — sem fallback)
+    const chave = buildAcessoUsuarioProdutosGravityString(slug_produto)
+    const linha = await prisma.usuarioPermissao.findFirst({
+      where: {
+        id_organizacao,
+        id_workspace,
+        id_usuario,
+        id_produto_gravity: produto.id_produto_gravity,
+        permissao_usuario: chave,
+      },
+      select: { id_usuario_permissao: true },
+    })
+
+    return !!linha
+  },
+
   /**
    * Verifica se o usuário tem permissão `<slug>:<secao>:<acao>` no workspace.
    * Bypass total para SUPER_ADMIN, ADMIN, MASTER (Mandamento 04).
@@ -239,7 +303,8 @@ export const servicoPermissaoUsuario = {
       throw new AppError('Produto não encontrado no catálogo', 404, 'PRODUCT_NOT_FOUND')
     }
 
-    const slugsForaDoProduto = parsed.data.filter(p => parsePermissaoString(p)?.slug !== produto.slug_produto_gravity)
+    // Extrai slug aceitando AMBAS as famílias (granular E Portão 3 — acesso ao produto)
+    const slugsForaDoProduto = parsed.data.filter(p => extrairSlugDaPermissao(p) !== produto.slug_produto_gravity)
     if (slugsForaDoProduto.length > 0) {
       throw new AppError(
         `Permissões com slug divergente do produto ${produto.slug_produto_gravity}: ${slugsForaDoProduto.join(', ')}`,

@@ -188,7 +188,7 @@
     "produto_ativo": "活跃",
     "produto_modulo": "平台模块",
     "produto_desc_fallback": "访问此产品的主仪表板以查看详细数据。",
-    "produto_acessar": "访问仪表板",
+    "produto_acessar": "访问",
     "erro_carregar_produtos": "加载工作区产品失败。"
   },
   "store": {

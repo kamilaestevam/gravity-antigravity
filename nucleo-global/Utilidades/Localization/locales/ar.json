@@ -188,7 +188,7 @@
     "produto_ativo": "نشط",
     "produto_modulo": "وحدة المنصة",
     "produto_desc_fallback": "ادخل إلى لوحة التحكم الرئيسية لهذا المنتج لعرض البيانات التفصيلية.",
-    "produto_acessar": "الوصول إلى لوحة التحكم",
+    "produto_acessar": "الوصول",
     "erro_carregar_produtos": "فشل تحميل منتجات مساحة العمل."
   },
   "store": {

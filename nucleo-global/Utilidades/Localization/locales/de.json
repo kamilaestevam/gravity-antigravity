@@ -188,7 +188,7 @@
     "produto_ativo": "Aktiv",
     "produto_modulo": "Plattform-Modul",
     "produto_desc_fallback": "Greifen Sie auf das Haupt-Dashboard dieses Produkts zu, um detaillierte Daten anzuzeigen.",
-    "produto_acessar": "Dashboard öffnen",
+    "produto_acessar": "Öffnen",
     "erro_carregar_produtos": "Fehler beim Laden der Workspace-Produkte."
   },
   "store": {

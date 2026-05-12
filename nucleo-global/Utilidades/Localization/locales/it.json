@@ -188,7 +188,7 @@
     "produto_ativo": "Attivo",
     "produto_modulo": "Modulo Piattaforma",
     "produto_desc_fallback": "Accedi alla dashboard principale di questo prodotto per visualizzare i dati dettagliati.",
-    "produto_acessar": "Accedi alla Dashboard",
+    "produto_acessar": "Accedi",
     "erro_carregar_produtos": "Errore nel caricamento dei prodotti del workspace."
   },
   "store": {

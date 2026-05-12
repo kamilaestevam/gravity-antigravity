@@ -5023,7 +5023,7 @@
     "produto_ativo": "Activo",
     "produto_modulo": "Módulo de Plataforma",
     "produto_desc_fallback": "Acceda al dashboard principal de este producto para ver datos detallados.",
-    "produto_acessar": "Acceder al Dashboard",
+    "produto_acessar": "Acceder",
     "erro_carregar_produtos": "Error al cargar productos del workspace.",
     "sistema_operacional": "Sistema operativo",
     "kpi_processos": "Procesos en curso",

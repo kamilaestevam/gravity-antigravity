@@ -182,7 +182,7 @@
     "produto_ativo": "Ativo",
     "produto_modulo": "Módulo de Plataforma",
     "produto_desc_fallback": "Acesse o dashboard principal deste produto para visualizar dados detalhados.",
-    "produto_acessar": "Acessar Dashboard",
+    "produto_acessar": "Acessar",
     "erro_carregar_produtos": "Falha ao carregar produtos do workspace.",
     "sistema_operacional": "Sistema operacional",
     "kpi_processos": "Processos em andamento",

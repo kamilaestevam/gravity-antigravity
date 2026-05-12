@@ -182,7 +182,7 @@
     "produto_ativo": "Active",
     "produto_modulo": "Platform Module",
     "produto_desc_fallback": "Access the main dashboard of this product to view detailed data.",
-    "produto_acessar": "Access Dashboard",
+    "produto_acessar": "Access",
     "erro_carregar_produtos": "Failed to load workspace products.",
     "sistema_operacional": "Operating system",
     "kpi_processos": "Ongoing processes",

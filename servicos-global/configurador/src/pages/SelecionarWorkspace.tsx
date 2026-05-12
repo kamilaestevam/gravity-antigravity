@@ -43,6 +43,7 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { podeMutarConfigurador } from '../routing/route-policy'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -911,11 +912,15 @@ export function SelecionarWorkspace() {
                       </div>
                     )})}
 
-                    {/* Criar novo workspace */}
-                    <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
-                      <Plus size={20} />
-                      <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
-                    </button>
+                    {/* Criar novo workspace — apenas para quem pode mutar Configurador
+                        (Master/SuperAdmin). PADRAO/FORNECEDOR/ADMIN(read-only) não veem
+                        — bloqueio espelha matriz Cadeia 1 + backend requireConfiguradorMutation. */}
+                    {podeMutarConfigurador(dbRole) && (
+                      <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
+                        <Plus size={20} />
+                        <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
+                      </button>
+                    )}
                   </div>
                   <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
                     <CaretRight size={16} weight="bold" />

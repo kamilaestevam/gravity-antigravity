@@ -7,6 +7,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 
@@ -105,7 +106,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
  * POST /api/v1/workspaces/:id_workspace/produtos-gravity
  * Ativa um produto no workspace (a organização já precisa ter contratado o produto)
  */
-companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
+companyProductsRouter.post('/', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const { id_workspace } = req.params
     const parsed = EnableProductSchema.safeParse(req.body)
@@ -189,7 +190,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
  * DELETE /api/v1/workspaces/:id_workspace/produtos-gravity/:id_produto_gravity
  * Desativa um produto no workspace (soft delete)
  */
-companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, res, next) => {
+companyProductsRouter.delete('/:id_produto_gravity', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const { id_workspace, id_produto_gravity: productKey } = req.params
 

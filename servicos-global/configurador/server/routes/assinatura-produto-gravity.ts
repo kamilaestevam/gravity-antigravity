@@ -18,6 +18,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import {
@@ -146,7 +147,7 @@ assinaturaProdutoGravityRouter.get('/', requireAuth, async (req, res, next) => {
  * Cria assinatura (status EM_TESTE) + configuracao (JSON vazio + ativo=true)
  * em transação. Se já existir, reativa.
  */
-assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req, res, next) => {
+assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const parsed = AssinarProdutoSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -237,7 +238,7 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, async (req,
  *   ATIVA / EM_TESTE -> ativo=true
  *   SUSPENSA         -> ativo=false
  */
-assinaturaProdutoGravityRouter.patch('/:slug_produto_gravity', requireAuth, async (req, res, next) => {
+assinaturaProdutoGravityRouter.patch('/:slug_produto_gravity', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const parsed = PatchStatusSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -300,7 +301,7 @@ assinaturaProdutoGravityRouter.patch('/:slug_produto_gravity', requireAuth, asyn
  * Cancela: status CANCELADA + data_cancelamento + ativo=false na configuracao.
  * Não apaga linha — soft-cancel preserva histórico.
  */
-assinaturaProdutoGravityRouter.delete('/:slug_produto_gravity', requireAuth, async (req, res, next) => {
+assinaturaProdutoGravityRouter.delete('/:slug_produto_gravity', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const { slug_produto_gravity } = req.params
     const id_organizacao = req.auth.id_organizacao
@@ -352,6 +353,7 @@ assinaturaProdutoGravityRouter.delete('/:slug_produto_gravity', requireAuth, asy
 assinaturaProdutoGravityRouter.put(
   '/:slug_produto_gravity/workspaces/:id_workspace',
   requireAuth,
+  requireConfiguradorMutation,
   async (req, res, next) => {
     try {
       const parsed = ToggleWorkspaceSchema.safeParse(req.body)
@@ -416,6 +418,7 @@ assinaturaProdutoGravityRouter.put(
 assinaturaProdutoGravityRouter.delete(
   '/:slug_produto_gravity/workspaces/:id_workspace',
   requireAuth,
+  requireConfiguradorMutation,
   async (req, res, next) => {
     try {
       const { slug_produto_gravity, id_workspace } = req.params

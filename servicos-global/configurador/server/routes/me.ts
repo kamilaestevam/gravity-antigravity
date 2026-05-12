@@ -13,6 +13,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 import { organizacaoService, proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
@@ -408,7 +409,7 @@ meRouter.get('/workspaces', async (req, res, next) => {
  * POST /api/v1/me/workspaces
  * Cria um workspace na organização autenticada.
  */
-meRouter.post('/workspaces', async (req, res, next) => {
+meRouter.post('/workspaces', requireConfiguradorMutation, async (req, res, next) => {
   try {
     const parsed = CriarWorkspaceSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -447,7 +448,7 @@ meRouter.post('/workspaces', async (req, res, next) => {
  * PATCH /api/v1/me/workspaces/:id_workspace
  * Atualiza um workspace.
  */
-meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
+meRouter.patch('/workspaces/:id_workspace', requireConfiguradorMutation, async (req, res, next) => {
   try {
     const parsed = AtualizarWorkspaceSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -502,7 +503,7 @@ meRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
  * DELETE /api/v1/me/workspaces/:id_workspace
  * Remove um workspace da organização autenticada.
  */
-meRouter.delete('/workspaces/:id_workspace', async (req, res, next) => {
+meRouter.delete('/workspaces/:id_workspace', requireConfiguradorMutation, async (req, res, next) => {
   try {
     await organizacaoService.deleteWorkspace(req.auth.id_organizacao, req.params.id_workspace)
 

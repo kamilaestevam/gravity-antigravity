@@ -32,6 +32,7 @@ import {
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { podeComprarNoStore } from '../routing/route-policy'
 import { mapRole } from '../types/niveis-acesso'
 import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
@@ -69,6 +70,11 @@ export function Store() {
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
+
+  // Matriz Cadeia 1 (route-policy.ts): só Master/SuperAdmin/Admin contratam
+  // produtos no Store. PADRAO/FORNECEDOR veem o catálogo (Fornecedor é
+  // potencial cliente) mas o botão "Ativar" fica permanentemente desabilitado.
+  const podeContratar = podeComprarNoStore(dbRole)
 
   const userRoleLabel = mapRole(dbRole)
 
@@ -707,7 +713,7 @@ export function Store() {
                           <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
                             {t('store.btn_em_breve')}
                           </BotaoGlobal>
-                        ) : (
+                        ) : podeContratar ? (
                           <BotaoGlobal
                             variante="primario"
                             tamanho="pequeno"
@@ -718,6 +724,14 @@ export function Store() {
                               ? <><SpinnerGap size={14} className="hs-spin" /> {t('store.btn_contratando')}</>
                               : <>{t('store.btn_ativar')} <ArrowRight weight="bold" size={13} /></>
                             }
+                          </BotaoGlobal>
+                        ) : (
+                          // Matriz Cadeia 1: PADRAO/FORNECEDOR vê o catálogo mas
+                          // jamais contrata. Fornecedor é potencial cliente —
+                          // mostra valor sem habilitar compra. Master/SAdmin/Admin
+                          // são os únicos que adquirem produtos para a org.
+                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
+                            {t('store.btn_ativar')}
                           </BotaoGlobal>
                         )}
                       </div>

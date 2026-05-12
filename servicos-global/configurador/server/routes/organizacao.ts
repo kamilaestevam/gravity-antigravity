@@ -13,6 +13,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { organizacaoService } from '../services/organizacao-service.js'
 import { AppError } from '../lib/appError.js'
 import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
@@ -128,7 +129,7 @@ organizacoesRouter.get('/me', requireAuth, async (req, res, next) => {
  * PATCH /api/v1/organizacoes/me
  * Atualiza dados cadastrais da organização autenticada.
  */
-organizacoesRouter.patch('/me', requireAuth, async (req, res, next) => {
+organizacoesRouter.patch('/me', requireAuth, requireConfiguradorMutation, async (req, res, next) => {
   try {
     const parsed = UpdateOrganizacaoSchema.safeParse(req.body)
     if (!parsed.success) {

@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser, AuthenticateWithRedirectCallback } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
+import { ConfiguradorRoute } from './routing/guards'
 import { useServerHealth } from './hooks/use-server-health'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
@@ -54,6 +55,7 @@ const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
 const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
 const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
+const EmpresasEParceirosAdmin = lazy(() => import('./pages/admin/EmpresasEParceirosAdmin'), 'EmpresasEParceirosAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
@@ -344,13 +346,17 @@ export default function App() {
           <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
           <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
+          <Route path="empresas-e-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasEParceirosAdmin /></React.Suspense>} />
           <Route path="taxas-moeda" element={<React.Suspense fallback={<ProductLoading />}><TaxasMoedaPage /></React.Suspense>} />
           <Route path="organizacoes" element={<React.Suspense fallback={<ProductLoading />}><OrganizacoesAdmin navigate={adminNavigate} /></React.Suspense>} />
           <Route path="organizacoes/:id_organizacao" element={<React.Suspense fallback={<ProductLoading />}><OrganizacaoDetalheWrapper /></React.Suspense>} />
         </Route>
 
-        {/* Workspace — área do cliente */}
-        <Route path="/workspace" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><WorkspaceLayout /></React.Suspense></ProtectedRoute>}>
+        {/* Workspace — área Configurador, restrita a MASTER/SUPER_ADMIN/ADMIN
+            (matriz Cadeia 1 em src/routing/route-policy.ts). PADRAO/FORNECEDOR
+            redirecionados para /hub. ADMIN entra read-only — mutações são
+            bloqueadas no backend por requireConfiguradorMutation. */}
+        <Route path="/workspace" element={<ConfiguradorRoute><React.Suspense fallback={<ProductLoading />}><WorkspaceLayout /></React.Suspense></ConfiguradorRoute>}>
           <Route index element={<Navigate to="/workspace/organizacao" replace />} />
           <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
           <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />

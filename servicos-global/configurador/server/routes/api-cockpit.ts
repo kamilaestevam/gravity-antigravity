@@ -24,6 +24,7 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
+import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
@@ -181,7 +182,7 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
   }
 })
 
-apiCockpitRouter.post('/api-tokens', async (req, res) => {
+apiCockpitRouter.post('/api-tokens', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     const idUsuario     = req.auth?.id_usuario
@@ -200,7 +201,7 @@ apiCockpitRouter.post('/api-tokens', async (req, res) => {
   }
 })
 
-apiCockpitRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
+apiCockpitRouter.delete('/api-tokens/:id_api_token', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) {
@@ -257,7 +258,7 @@ apiCockpitRouter.get('/webhooks', async (req, res) => {
   }
 })
 
-apiCockpitRouter.post('/webhooks', async (req, res) => {
+apiCockpitRouter.post('/webhooks', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     const idUsuario     = req.auth?.id_usuario
@@ -270,7 +271,7 @@ apiCockpitRouter.post('/webhooks', async (req, res) => {
   }
 })
 
-apiCockpitRouter.put('/webhooks/:id_webhook_configuracao', async (req, res) => {
+apiCockpitRouter.put('/webhooks/:id_webhook_configuracao', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
@@ -286,7 +287,7 @@ apiCockpitRouter.put('/webhooks/:id_webhook_configuracao', async (req, res) => {
   }
 })
 
-apiCockpitRouter.delete('/webhooks/:id_webhook_configuracao', async (req, res) => {
+apiCockpitRouter.delete('/webhooks/:id_webhook_configuracao', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
@@ -302,7 +303,7 @@ apiCockpitRouter.delete('/webhooks/:id_webhook_configuracao', async (req, res) =
   }
 })
 
-apiCockpitRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-teste', async (req, res) => {
+apiCockpitRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-teste', requireConfiguradorMutation, async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })

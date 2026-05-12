@@ -8,8 +8,11 @@
  *   - Registrar audit trail
  *
  * Regras:
- *   - tenant_id obrigatório em todas as queries
+ *   - id_organizacao obrigatório em todas as queries
+ *   - Frontend envia nome exato da coluna do Prisma (DDD-puro, sem ACL)
  *   - Campos em CAMPOS_BLOQUEADOS_* são rejeitados com AppError 400
+ *   - Campos em CAMPOS_DETALHES_OPERACIONAIS vivem como chaves no JSON
+ *     `detalhes_operacionais_pedido` (não são colunas físicas do Pedido)
  *   - Operações: substituir / somar / subtrair / percentual / avancar_dias / recuar_dias
  */
 
@@ -23,107 +26,92 @@ import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
 const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
+  // Agregados calculados pelo recalcularAgregadosPedido
   'valor_total_pedido',
   'quantidade_total_pedido',
-  'quantidade_transferida_total',
-  'id',
-  'tenant_id',
-  'product_id',
-  'deleted_at',
-  'created_at',
-  'updated_at',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  // Sistema / identidade
+  'id_pedido',
+  'id_organizacao',
+  'id_workspace',
+  'id_status_pedido',
+  'data_criacao_pedido',
+  'data_atualizacao_pedido',
+  'data_exclusao_pedido',
+  'data_consolidacao_pedido',
+  'ids_origem_consolidacao_pedido',
 ])
 
-// PedidoItem — bloqueia tanto chaves legadas (vindas da API pública) quanto DDD,
-// já que a tabela física foi renomeada (Onda 3 — Tabela 6).
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  // legacy (contrato público)
-  'valor_total_item',
-  'quantidade_atual_pedido',
-  'id',
-  'tenant_id',
-  'pedido_id',
-  'created_at',
-  'updated_at',
-  // DDD (banco)
+  // Calculados
   'valor_total_item',
   'quantidade_atual_item',
+  'quantidade_transferida_item', // saldoEngine — fluxo de transferência
+  // Sistema / identidade
   'id_item',
   'id_organizacao',
+  'id_workspace',
   'id_pedido',
   'data_criacao_item',
   'data_atualizacao_item',
+  'data_exclusao_item',
 ])
 
-// ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
+// ── Campos armazenados em detalhes_operacionais_pedido — merge em JSON ─────────
+// Esses campos não são colunas do Pedido; vivem como chaves dentro do JSON
+// `detalhes_operacionais_pedido`. Incluem dados de Exportador, Importador,
+// Fabricante e OPE.
 
 const CAMPOS_DETALHES_OPERACIONAIS = new Set([
+  // Exportador
   'nome_exportador',
+  'endereco_exportador',
+  'pais_exportador',
+  'estado_exportador',
+  'cidade_exportador',
+  'zip_code_exportador',
+  'exportador_ou_fabricante',
+  'relacao_exportador_fabricante',
+  'nome_contato_exportador',
+  'email_contato_exportador',
+  'whatsapp_contato_exportador',
+  'cargo_contato_exportador',
+  'departamento_contato_exportador',
+  // Importador
   'nome_importador',
+  // Fabricante
   'nome_fabricante',
+  'endereco_fabricante',
+  'pais_fabricante',
+  'estado_fabricante',
+  'cidade_fabricante',
+  'zip_code_fabricante',
+  // OPE
+  'codigo_ope',
+  'nome_ope',
+  'endereco_ope',
+  'pais_ope',
+  'estado_ope',
+  'cidade_ope',
+  'zip_code_ope',
+  'tin_ope',
+  'email_ope',
+  'situacao_ope',
+  'versao_ope',
+  'cnpj_raiz_empresa_responsavel',
 ])
 
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
-// Aceita chaves legadas (contrato API) e DDD (banco renomeado Onda 3).
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
-  'quantidade_inicial_pedido',
-  'quantidade_transferida_pedido',
-  'quantidade_pronta_pedido',
-  'quantidade_cancelada_pedido',
-  'quantidade_atual_pedido',
   'quantidade_inicial_item',
   'quantidade_transferida_item',
   'quantidade_pronta_item',
   'quantidade_cancelada_item',
   'quantidade_atual_item',
 ])
-
-// ── ACL — chave legada (contrato público) → coluna DDD (banco) para PedidoItem ─
-
-const LEGACY_TO_DDD_PEDIDO_ITEM: Record<string, string> = {
-  id: 'id_item',
-  tenant_id: 'id_organizacao',
-  company_id: 'id_workspace',
-  pedido_id: 'id_pedido',
-  sequencia_item: 'sequencia_item_pedido',
-  part_number: 'part_number_item',
-  ncm: 'ncm_item',
-  descricao_item: 'descricao_item',
-  unidade_comercializada_item: 'unidade_comercializada_item',
-  quantidade_inicial_pedido: 'quantidade_inicial_item',
-  quantidade_atual_pedido: 'quantidade_atual_item',
-  quantidade_pronta_pedido: 'quantidade_pronta_item',
-  quantidade_transferida_pedido: 'quantidade_transferida_item',
-  quantidade_cancelada_pedido: 'quantidade_cancelada_item',
-  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
-  moeda_item: 'moeda_item',
-  valor_total_item: 'valor_total_item',
-  valor_por_unidade_item: 'valor_por_unidade_item',
-  casas_decimais_valor_item: 'casas_decimais_valor_item',
-  cobertura_cambial: 'cobertura_cambial_item',
-  nome_exportador: 'nome_exportador_item',
-  nome_importador: 'nome_importador_item',
-  nome_fabricante: 'nome_fabricante_item',
-  referencia_importador: 'referencia_importador_item',
-  referencia_exportador: 'referencia_exportador_item',
-  referencia_fabricante: 'referencia_fabricante_item',
-  incoterm: 'incoterm_item',
-  condicao_pagamento_pedido: 'condicao_pagamento_item',
-  data_emissao_pedido: 'data_emissao_item',
-  peso_liquido_unitario: 'peso_liquido_unitario_item',
-  peso_bruto_unitario: 'peso_bruto_unitario_item',
-  cubagem_unitaria: 'cubagem_unitaria_item',
-  casas_decimais_peso_item: 'casas_decimais_peso_item',
-  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item',
-  campos_custom: 'dados_extras_importacao_item',
-  created_at: 'data_criacao_item',
-  updated_at: 'data_atualizacao_item',
-}
-
-function legacyKeyToDddPedidoItem(campo: string): string {
-  return LEGACY_TO_DDD_PEDIDO_ITEM[campo] ?? campo
-}
 
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
@@ -214,10 +202,16 @@ export class EdicaoEmMassaService {
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
-    const itensAfetados = pedidos.reduce<number>(
-      (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
-      0,
-    )
+    // Itens só são contados quando algum campo de nível 'item' está sendo editado.
+    // Sem isso, o preview informa itens afetados mesmo em edições puramente de pedido,
+    // induzindo o usuário a achar que itens serão alterados quando não serão.
+    const temCamposItem = payload.campos.some(c => c.nivel === 'item')
+    const itensAfetados = temCamposItem
+      ? pedidos.reduce<number>(
+          (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
+          0,
+        )
+      : 0
 
     const camposPreview = payload.campos.map(c => {
       const valores: string[] = []
@@ -225,16 +219,15 @@ export class EdicaoEmMassaService {
       if (c.nivel === 'pedido') {
         pedidos.forEach((p: Record<string, unknown>) => {
           const valor = CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)
-            ? ((p.detalhes_operacionais as Record<string, unknown> | null)?.[c.campo] ?? '')
+            ? ((p.detalhes_operacionais_pedido as Record<string, unknown> | null)?.[c.campo] ?? '')
             : (p[c.campo] ?? '')
           valores.push(String(valor))
         })
       } else {
-        const colDdd = legacyKeyToDddPedidoItem(c.campo)
         pedidos.forEach((p: Record<string, unknown>) => {
           const itens = (p.itens_pedido as Record<string, unknown>[]) ?? []
           itens.forEach(item => {
-            valores.push(String(item[colDdd] ?? item[c.campo] ?? ''))
+            valores.push(String(item[c.campo] ?? ''))
           })
         })
       }
@@ -337,10 +330,10 @@ export class EdicaoEmMassaService {
 
             for (const c of camposPedido) {
               if (CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)) {
-                // Campos armazenados em detalhes_operacionais — merge em JSON
+                // Campos armazenados em detalhes_operacionais_pedido — merge em JSON
                 if (detalhesUpdate === null) {
-                  const detAtual = (typeof pedido.detalhes_operacionais === 'object' && pedido.detalhes_operacionais !== null)
-                    ? pedido.detalhes_operacionais as Record<string, unknown>
+                  const detAtual = (typeof pedido.detalhes_operacionais_pedido === 'object' && pedido.detalhes_operacionais_pedido !== null)
+                    ? pedido.detalhes_operacionais_pedido as Record<string, unknown>
                     : {}
                   detalhesUpdate = { ...detAtual }
                 }
@@ -351,7 +344,7 @@ export class EdicaoEmMassaService {
             }
 
             if (detalhesUpdate !== null) {
-              dadosPedido.detalhes_operacionais = detalhesUpdate
+              dadosPedido.detalhes_operacionais_pedido = detalhesUpdate
             }
 
             await tx.pedido.update({
@@ -360,15 +353,13 @@ export class EdicaoEmMassaService {
             })
           }
 
-          // Aplicar campos de nível item — traduzir chaves legadas para colunas DDD
+          // Aplicar campos de nível item — frontend já envia nome DDD da coluna
           if (camposItem.length > 0) {
             const itens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               for (const c of camposItem) {
-                const colDdd = legacyKeyToDddPedidoItem(c.campo)
-                const valorAtual = item[colDdd] ?? item[c.campo]
-                dadosItem[colDdd] = this.aplicarOperacao(valorAtual, c.operacao, c.valor)
+                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
               }
               const resultado = await tx.pedidoItem.update({
                 where: { id_item: item.id_item as string, id_organizacao: id_organizacao },

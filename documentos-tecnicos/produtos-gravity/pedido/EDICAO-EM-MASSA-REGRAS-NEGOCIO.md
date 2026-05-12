@@ -23,20 +23,22 @@ Todos os campos são editáveis em massa, **exceto campos calculados automaticam
 |---|---|---|
 | `incoterm` | ✅ Sim | — |
 | `moeda_pedido` | ✅ Sim | — |
-| `data_embarque` | ✅ Sim | — |
+| `data_embarque_origem` | ✅ Sim | — |
 | `data_emissao_pedido` | ✅ Sim | — |
-| `cobertura_cambial` | ✅ Sim | — |
-| `condicao_pagamento` | ✅ Sim | — |
-| `exportador_nome` | ✅ Sim | — |
+| `condicao_pagamento_pedido` | ✅ Sim | — |
+| `nome_exportador` (JSON `detalhes_operacionais_pedido`) | ✅ Sim | — |
 | `porto_origem` | ✅ Sim | — |
 | `porto_destino` | ✅ Sim | — |
 | Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
 | `numero_pedido` | ✅ Sim (com permissão) | — |
 | `valor_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
-| `quantidade_inicial_total` | ❌ Não | Campo calculado (soma dos itens) |
-| `quantidade_transferida_total` | ❌ Não | Campo calculado (soma dos itens) |
-| `status` | ❌ Não | Gerenciado pelo saldoEngine / fluxo de status |
-| `id`, `tenant_id`, `created_at` | ❌ Não | Campos de sistema |
+| `quantidade_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `peso_liquido_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `peso_bruto_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `cubagem_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `status_pedido` | ❌ Não | Gerenciado pelo fluxo de status |
+| `data_consolidacao_pedido` | ❌ Não | Definido pelo fluxo de consolidação |
+| `id_pedido`, `id_organizacao`, `id_workspace`, `id_status_pedido`, `data_criacao_pedido`, `data_atualizacao_pedido`, `data_exclusao_pedido` | ❌ Não | Campos de sistema |
 
 ### Item (`PedidoItem`)
 
@@ -44,14 +46,17 @@ Mesma regra — todos editáveis exceto calculados:
 
 | Campo | Editável em massa? | Motivo bloqueio |
 |---|---|---|
-| `quantidade_inicial` | ✅ Sim | — |
-| `quantidade_transferida` | ✅ Sim | — |
-| `valor_unitario` | ✅ Sim | — |
+| `quantidade_inicial_item` | ✅ Sim | — |
+| `quantidade_pronta_item` | ✅ Sim | — |
+| `quantidade_cancelada_item` | ✅ Sim | — |
+| `valor_por_unidade_item` | ✅ Sim | — |
 | `data_embarque_item` | ✅ Sim | — |
-| `part_number` | ✅ Sim (com permissão) | — |
+| `part_number_item`, `ncm_item` | ✅ Sim (com permissão) | — |
 | Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
-| `valor_item` | ❌ Não | Campo calculado (qty × valor_unitario) |
-| `quantidade_atual` | ❌ Não | Campo calculado pelo saldoEngine |
+| `valor_total_item` | ❌ Não | Campo calculado (qty × valor_por_unidade) |
+| `quantidade_atual_item` | ❌ Não | Campo calculado pelo saldoEngine (inicial − transferida − cancelada) |
+| `quantidade_transferida_item` | ❌ Não | Gerenciado pelo fluxo de transferência (saldoEngine) |
+| `id_item`, `id_organizacao`, `id_workspace`, `id_pedido`, `data_criacao_item`, `data_atualizacao_item`, `data_exclusao_item` | ❌ Não | Campos de sistema |
 
 ---
 

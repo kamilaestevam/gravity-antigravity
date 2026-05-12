@@ -47,6 +47,8 @@ interface DefinicaoCampo {
   tipo: TipoCampoEdicao
   nivel: 'pedido' | 'item'
   grupo?: string
+  // Para tipo='select' — valores válidos do enum
+  opcoes?: { valor: string; rotulo: string }[]
   // Se definido, o campo só aparece quando a condição for verdadeira para os pedidos selecionados
   visivel?: (pedidos: Pedido[]) => boolean
 }
@@ -54,7 +56,11 @@ interface DefinicaoCampo {
 const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação
   { campo: 'numero_pedido',                           rotulo: 'Número do Pedido',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Identificação' },
-  { campo: 'tipo_operacao',                           rotulo: 'Tipo de Operação',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificação' },
+  { campo: 'tipo_operacao_pedido',                    rotulo: 'Tipo de Operação',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificação',
+    opcoes: [
+      { valor: 'importacao', rotulo: 'Importação' },
+      { valor: 'exportacao', rotulo: 'Exportação' },
+    ] },
 
   // Exportador
   // exportador_nome: editável somente em importacao (fornecedor estrangeiro)
@@ -99,27 +105,44 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'cnpj_raiz_empresa_responsavel',           rotulo: 'CNPJ Raiz Empresa Responsável',          tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
 
   // Dados comerciais
-  { campo: 'incoterm',                                rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'incoterm_pedido',                         rotulo: 'Incoterm',                               tipo: 'select', nivel: 'pedido', grupo: 'Comercial',
+    opcoes: [
+      { valor: 'EXW', rotulo: 'EXW' },
+      { valor: 'FCA', rotulo: 'FCA' },
+      { valor: 'FAS', rotulo: 'FAS' },
+      { valor: 'FOB', rotulo: 'FOB' },
+      { valor: 'CFR', rotulo: 'CFR' },
+      { valor: 'CIF', rotulo: 'CIF' },
+      { valor: 'CPT', rotulo: 'CPT' },
+      { valor: 'CIP', rotulo: 'CIP' },
+      { valor: 'DAP', rotulo: 'DAP' },
+      { valor: 'DPU', rotulo: 'DPU' },
+      { valor: 'DDP', rotulo: 'DDP' },
+    ] },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'cobertura_cambial',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'item',   grupo: 'Comercial' },
-  { campo: 'nome_exportador',                         rotulo: 'Nome do Exportador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
-  { campo: 'nome_importador',                         rotulo: 'Nome do Importador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
-  { campo: 'condicao_pagamento',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'cobertura_cambial_item',                  rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'item',   grupo: 'Comercial',
+    opcoes: [
+      { valor: 'com_cobertura', rotulo: 'Com Cobertura' },
+      { valor: 'sem_cobertura', rotulo: 'Sem Cobertura' },
+    ] },
+  { campo: 'nome_exportador_item',                    rotulo: 'Nome do Exportador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
+  { campo: 'nome_importador_item',                    rotulo: 'Nome do Importador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
+  { campo: 'condicao_pagamento_pedido',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Dados físicos — campos UNITÁRIOS por item (peso/cubagem total do pedido
   // são agregados derivados, calculados server-side por
   // `recalcularAgregadosPedido`. Editá-los direto causaria divergência com
   // a soma real dos itens — bloqueado pelo backend desde Onda A3.)
-  { campo: 'peso_liquido_unitario',                   rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
-  { campo: 'peso_bruto_unitario',                     rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
-  { campo: 'cubagem_unitaria',                        rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
+  { campo: 'peso_liquido_unitario_item',              rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
+  { campo: 'peso_bruto_unitario_item',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
+  { campo: 'cubagem_unitaria_item',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
 
   // Documentos
-  { campo: 'numero_proforma',                         rotulo: 'Nº Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'numero_invoice',                          rotulo: 'Nº Invoice',                             tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'referencia_importador',                   rotulo: 'Referência Importador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'referencia_exportador',                   rotulo: 'Referência Exportador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'referencia_fabricante',                   rotulo: 'Referência Fabricante',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'numero_proforma_pedido',                  rotulo: 'Nº Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'numero_invoice_pedido',                   rotulo: 'Nº Invoice',                             tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'referencia_importador_pedido',            rotulo: 'Referência Importador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'referencia_exportador_pedido',            rotulo: 'Referência Exportador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'referencia_fabricante_pedido',            rotulo: 'Referência Fabricante',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
 
   // Portos / Logística
   { campo: 'porto_origem',                            rotulo: 'Porto Origem',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Logística' },
@@ -127,7 +150,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
 
   // Datas principais
   { campo: 'data_emissao_pedido',                     rotulo: 'Data de Emissão',                        tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
-  { campo: 'data_embarque',                           rotulo: 'Data de Embarque',                       tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
+  { campo: 'data_embarque_origem',                    rotulo: 'Data de Embarque',                       tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_prevista_pedido_pronto',             rotulo: 'Data Prevista — Pedido Pronto',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_confirmada_pedido_pronto',           rotulo: 'Data Confirmada — Pedido Pronto',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_meta_pedido_pronto',                 rotulo: 'Data Meta — Pedido Pronto',              tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
@@ -142,50 +165,50 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'data_documento_pedido',                   rotulo: 'Data Documento Pedido',                  tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
 
   // Datas — Draft Pedido
-  { campo: 'data_prevista_recebimento_rascunho_pedido',  rotulo: 'Draft Pedido — Prev. Receb.',            tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_confirmada_recebimento_rascunho_pedido',rotulo: 'Draft Pedido — Conf. Receb.',            tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_previsao_recebimento_rascunho_pedido',  rotulo: 'Draft Pedido — Prev. Receb.',            tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_confirmacao_recebimento_rascunho_pedido',rotulo:'Draft Pedido — Conf. Receb.',             tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
   { campo: 'data_meta_recebimento_rascunho_pedido',      rotulo: 'Draft Pedido — Meta Receb.',             tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_prevista_aprovacao_rascunho_pedido',    rotulo: 'Draft Pedido — Prev. Aprovação',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
-  { campo: 'data_confirmada_aprovacao_rascunho_pedido',  rotulo: 'Draft Pedido — Conf. Aprovação',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_previsao_aprovacao_rascunho_pedido',    rotulo: 'Draft Pedido — Prev. Aprovação',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_pedido', rotulo: 'Draft Pedido — Conf. Aprovação',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
   { campo: 'data_meta_aprovacao_rascunho_pedido',        rotulo: 'Draft Pedido — Meta Aprovação',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
 
   // Datas — Draft Proforma
-  { campo: 'data_prevista_recebimento_rascunho_proforma',rotulo: 'Draft Proforma — Prev. Receb.',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmada_recebimento_rascunho_proforma',rotulo:'Draft Proforma — Conf. Receb.',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_recebimento_rascunho_proforma',    rotulo: 'Draft Proforma — Meta Receb.',           tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_prevista_aprovacao_rascunho_proforma',  rotulo: 'Draft Proforma — Prev. Aprovação',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmada_aprovacao_rascunho_proforma',rotulo: 'Draft Proforma — Conf. Aprovação',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_aprovacao_rascunho_proforma',      rotulo: 'Draft Proforma — Meta Aprovação',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_prevista_envio_original_proforma',   rotulo: 'Original Proforma — Prev. Envio',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmada_envio_original_proforma', rotulo: 'Original Proforma — Conf. Envio',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_envio_original_proforma',       rotulo: 'Original Proforma — Meta Envio',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_prevista_recebimento_original_proforma',rotulo:'Original Proforma — Prev. Receb.',     tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_confirmada_recebimento_original_proforma',rotulo:'Original Proforma — Conf. Receb.',   tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
-  { campo: 'data_meta_recebimento_original_proforma', rotulo: 'Original Proforma — Meta Receb.',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_recebimento_rascunho_proforma_pedido',  rotulo: 'Draft Proforma — Prev. Receb.', tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_recebimento_rascunho_proforma_pedido',rotulo:'Draft Proforma — Conf. Receb.', tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_recebimento_rascunho_proforma_pedido',      rotulo: 'Draft Proforma — Meta Receb.', tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_aprovacao_rascunho_proforma_pedido',    rotulo: 'Draft Proforma — Prev. Aprovação', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_proforma_pedido', rotulo: 'Draft Proforma — Conf. Aprovação', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_aprovacao_rascunho_proforma_pedido',        rotulo: 'Draft Proforma — Meta Aprovação',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_envio_original_proforma_pedido',   rotulo: 'Original Proforma — Prev. Envio',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_envio_original_proforma_pedido', rotulo: 'Original Proforma — Conf. Envio', tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_envio_original_proforma_pedido',       rotulo: 'Original Proforma — Meta Envio',   tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_previsao_recebimento_original_proforma_pedido', rotulo:'Original Proforma — Prev. Receb.',tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_confirmacao_recebimento_original_proforma_pedido',rotulo:'Original Proforma — Conf. Receb.',tipo:'data',nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_meta_recebimento_original_proforma_pedido', rotulo: 'Original Proforma — Meta Receb.',   tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_proforma_invoice',                   rotulo: 'Data Proforma Invoice',                  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Proforma' },
 
   // Datas — Draft Invoice
-  { campo: 'data_prevista_recebimento_rascunho_invoice', rotulo: 'Draft Invoice — Prev. Receb.',           tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmada_recebimento_rascunho_invoice',rotulo:'Draft Invoice — Conf. Receb.',           tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_recebimento_rascunho_invoice',     rotulo: 'Draft Invoice — Meta Receb.',            tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_prevista_aprovacao_rascunho_invoice',   rotulo: 'Draft Invoice — Prev. Aprovação',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmada_aprovacao_rascunho_invoice', rotulo: 'Draft Invoice — Conf. Aprovação',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_aprovacao_rascunho_invoice',       rotulo: 'Draft Invoice — Meta Aprovação',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_prevista_envio_original_invoice',    rotulo: 'Original Invoice — Prev. Envio',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmada_envio_original_invoice',  rotulo: 'Original Invoice — Conf. Envio',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_envio_original_invoice',        rotulo: 'Original Invoice — Meta Envio',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_prevista_recebimento_original_invoice',rotulo:'Original Invoice — Prev. Receb.',       tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_confirmada_recebimento_original_invoice',rotulo:'Original Invoice — Conf. Receb.',     tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
-  { campo: 'data_meta_recebimento_original_invoice',  rotulo: 'Original Invoice — Meta Receb.',         tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_recebimento_rascunho_invoice_pedido',  rotulo: 'Draft Invoice — Prev. Receb.',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_recebimento_rascunho_invoice_pedido',rotulo:'Draft Invoice — Conf. Receb.',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_recebimento_rascunho_invoice_pedido',      rotulo: 'Draft Invoice — Meta Receb.',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_aprovacao_rascunho_invoice_pedido',    rotulo: 'Draft Invoice — Prev. Aprovação',tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_invoice_pedido', rotulo: 'Draft Invoice — Conf. Aprovação',tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_aprovacao_rascunho_invoice_pedido',        rotulo: 'Draft Invoice — Meta Aprovação',tipo: 'data',  nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_envio_original_invoice_pedido',    rotulo: 'Original Invoice — Prev. Envio',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_envio_original_invoice_pedido', rotulo: 'Original Invoice — Conf. Envio',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_envio_original_invoice_pedido',        rotulo: 'Original Invoice — Meta Envio',   tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_previsao_recebimento_original_invoice_pedido',rotulo:'Original Invoice — Prev. Receb.',tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_confirmacao_recebimento_original_invoice_pedido',rotulo:'Original Invoice — Conf. Receb.',tipo:'data',  nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_meta_recebimento_original_invoice_pedido',  rotulo: 'Original Invoice — Meta Receb.',  tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_invoice',                            rotulo: 'Data Invoice',                           tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Invoice' },
 ]
 
 const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação do produto
-  { campo: 'part_number',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'ncm',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'part_number_item',                        rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'ncm_item',                                rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_item',                          rotulo: 'Descrição do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa_item_pt',               rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_pt',              rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa_item_en',              rotulo: 'Descrição (EN)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa_item_es',              rotulo: 'Descrição (ES)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa_item_nf',              rotulo: 'Descrição Espelho NF',                   tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
@@ -196,18 +219,17 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'atributos_catalogo',                      rotulo: 'Atributos Catálogo',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
-  { campo: 'quantidade_inicial_pedido',           rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_transferida_pedido',       rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_pronta_total_item_pedido',     rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_cancelada_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'casas_decimais_quantidade_item',           rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_inicial_item',                 rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_pronta_item',                  rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_cancelada_item',               rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'casas_decimais_quantidade_item',          rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
 
   // Pesos e cubagem
-  { campo: 'peso_liquido_unitario',               rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'peso_bruto_unitario',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'cubagem_unitaria',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_liquido_unitario_item',              rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_bruto_unitario_item',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'cubagem_unitaria_item',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
 
   // Embalagem e documentos
   { campo: 'tipo_embalagem',                          rotulo: 'Tipo Embalagem',                         tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
@@ -247,7 +269,44 @@ const OP_LABEL_KEYS: Record<OperacaoCampo, string> = {
 
 // Campos que exigem processamento individual por pedido (merge JSON no backend)
 // Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
-const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
+const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set([
+  // Exportador
+  'nome_exportador',
+  'endereco_exportador',
+  'pais_exportador',
+  'estado_exportador',
+  'cidade_exportador',
+  'zip_code_exportador',
+  'exportador_ou_fabricante',
+  'relacao_exportador_fabricante',
+  'nome_contato_exportador',
+  'email_contato_exportador',
+  'whatsapp_contato_exportador',
+  'cargo_contato_exportador',
+  'departamento_contato_exportador',
+  // Importador
+  'nome_importador',
+  // Fabricante
+  'nome_fabricante',
+  'endereco_fabricante',
+  'pais_fabricante',
+  'estado_fabricante',
+  'cidade_fabricante',
+  'zip_code_fabricante',
+  // OPE
+  'codigo_ope',
+  'nome_ope',
+  'endereco_ope',
+  'pais_ope',
+  'estado_ope',
+  'cidade_ope',
+  'zip_code_ope',
+  'tin_ope',
+  'email_ope',
+  'situacao_ope',
+  'versao_ope',
+  'cnpj_raiz_empresa_responsavel',
+])
 
 // ── Estado de um campo em edição ─────────────────────────────────────────────
 
@@ -334,7 +393,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
   const filtrados = busca.trim() === ''
     ? disponiveis
     : disponiveis.filter(d =>
-        t(`pedido.massa_campos.${d.campo}`).toLowerCase().includes(busca.toLowerCase()) ||
+        d.rotulo.toLowerCase().includes(busca.toLowerCase()) ||
         d.campo.toLowerCase().includes(busca.toLowerCase()) ||
         (d.grupo ?? '').toLowerCase().includes(busca.toLowerCase())
       )
@@ -439,7 +498,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
         <span className="modal-edicao-massa__combobox-valor">
           {defAtual ? (
             <>
-              {t(`pedido.massa_campos.${defAtual.campo}`)}
+              {defAtual.rotulo}
               {defAtual.nivel === 'item' && (
                 <span className="modal-edicao-massa__combobox-badge">(item)</span>
               )}
@@ -517,7 +576,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
                         }}
                         onMouseEnter={() => setIndiceFocado(idx)}
                       >
-                        <span className="modal-edicao-massa__combobox-item-rotulo">{t(`pedido.massa_campos.${item.campo}`)}</span>
+                        <span className="modal-edicao-massa__combobox-item-rotulo">{item.rotulo}</span>
                       </li>
                     )
                   })}
@@ -563,7 +622,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
     <div className="modal-edicao-massa__depara">
       <p className="modal-edicao-massa__depara-titulo">{t('pedido.modal_massa.depara_titulo')}</p>
       {camposComAlteracoes.map(campo => {
-        const rotulo = t(`pedido.massa_campos.${campo}`)
+        const rotulo = disponiveis.find(d => d.campo === campo)?.rotulo ?? campo
         const expandido = campoExpandido === campo
 
         const linhas = preview.por_pedido!.flatMap(pp =>
@@ -860,18 +919,36 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                   ))}
                 </select>
 
-                {/* Input de valor */}
+                {/* Input de valor — renderiza por tipo do campo */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <input
-                    className="modal-edicao-massa__input"
-                    type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
-                      : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
-                      : 'text'}
-                    value={campo.valor}
-                    onChange={e => handleMudarValor(campo.uid, e.target.value)}
-                    placeholder={placeholder || t('pedido.modal_massa.valor_placeholder')}
-                    aria-label={`Valor para ${campo.campo}`}
-                  />
+                  {campo.tipo === 'select' ? (() => {
+                    const def = disponiveis.find(d => d.campo === campo.campo)
+                    const opcoes = def?.opcoes ?? []
+                    return (
+                      <select
+                        className="modal-edicao-massa__select"
+                        value={campo.valor}
+                        onChange={e => handleMudarValor(campo.uid, e.target.value)}
+                        aria-label={`Valor para ${campo.campo}`}
+                      >
+                        <option value="">{t('pedido.modal_massa.valor_placeholder')}</option>
+                        {opcoes.map(o => (
+                          <option key={o.valor} value={o.valor}>{o.rotulo}</option>
+                        ))}
+                      </select>
+                    )
+                  })() : (
+                    <input
+                      className="modal-edicao-massa__input"
+                      type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
+                        : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
+                        : 'text'}
+                      value={campo.valor}
+                      onChange={e => handleMudarValor(campo.uid, e.target.value)}
+                      placeholder={placeholder || t('pedido.modal_massa.valor_placeholder')}
+                      aria-label={`Valor para ${campo.campo}`}
+                    />
+                  )}
                   {temMultiplos && (
                     <span className="modal-edicao-massa__badge-multiplos">
                       <Warning size={11} weight="fill" aria-hidden="true" />
@@ -1005,7 +1082,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
         {camposValidos.map(c => (
           <div key={c.uid} className="modal-edicao-massa__confirmacao-item">
             <span className="modal-edicao-massa__confirmacao-item-campo">
-              {t(`pedido.massa_campos.${c.campo}`)}
+              {disponiveis.find(d => d.campo === c.campo)?.rotulo ?? c.campo}
             </span>
             <span className="modal-edicao-massa__confirmacao-item-op">
               {t(OP_LABEL_KEYS[c.operacao])}

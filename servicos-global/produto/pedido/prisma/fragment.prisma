@@ -123,6 +123,16 @@ model Pedido {
   data_confirmacao_recebimento_original_invoice_pedido        DateTime?
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
+  // ============================================================
+  // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
+  // ============================================================
+  porto_origem                                                String?
+  porto_destino                                               String?
+  data_embarque_origem                                        DateTime?
+  data_proforma_invoice                                       DateTime?
+  data_invoice                                                DateTime?
+  data_transferencia_saldo_pedido                             DateTime?
+
   status                                                      StatusPedido?               @relation(fields: [id_status_pedido], references: [id_pedido_status])
   itens_pedido                                                PedidoItem[]
   transferencias_pedido                                       PedidoTransferencia[]
@@ -194,6 +204,24 @@ model PedidoItem {
   data_prevista_coleta_item        DateTime?
   data_confirmada_coleta_item      DateTime?
   data_meta_coleta_item            DateTime?
+
+  // ============================================================
+  // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
+  // ============================================================
+  descricao_completa_item_pt       String?
+  descricao_completa_item_en       String?
+  descricao_completa_item_es       String?
+  descricao_completa_item_nf       String?
+  texto_posicao_ncm                String?
+  grupo_item                       String?
+  subgrupo_item                    String?
+  campo_especial_item              String?
+  atributos_catalogo               String?
+  tipo_embalagem                   String?
+  numero_lpco                      String?
+  numero_certificado_origem        String?
+  data_certificado_origem          DateTime?
+  data_embarque_item               DateTime?
 
   pedido_item                      Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 

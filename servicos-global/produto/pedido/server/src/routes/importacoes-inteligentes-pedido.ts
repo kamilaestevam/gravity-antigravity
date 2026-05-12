@@ -44,7 +44,11 @@ import {
 // 3.0 (P7.1) — Ordenacao GLOBAL por prioridade (intercala pedido+item) +
 //              outline grouping para colapsar zona DETALHES + super-header
 //              ESSENCIAL/DETALHES + cor por nivel no sub-header
-const TEMPLATE_VERSAO = '3.0'
+// 3.1 (P8)   — UX 10/10: paleta Solid Slate (ciano/cinza/ambar), congelar
+//              2 colunas (Tipo Linha + Numero do Pedido), zona OPE propria
+//              no final, asterisco vermelho em obrigatorios (em vez de
+//              texto inteiro vermelho), fix super-header invisivel
+const TEMPLATE_VERSAO = '3.1'
 
 export const smartImportRouter = Router()
 
@@ -139,28 +143,30 @@ const ConfirmarSchema = z.object({
  */
 export const templateHandler = (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
-    // ─── P7.1 — Reordenacao GLOBAL por prioridade ──────────────────────────────
-    // Ordem: critica (5) -> principal (26) -> secundaria (112), intercalando
-    // Pedido e Item. Resultado: usuario ve Tipo Linha, Numero Pedido, Tipo
-    // Operacao, Part Number, Qtd. Inicial (5 criticos), seguidos pelos 26
-    // principais (Exportador, Importador, Incoterm, NCM, Valor por Unidade,
-    // Valor Total Item, etc.) — todos contiguos nas 31 primeiras colunas.
+    // ─── P7.1 — Reordenacao GLOBAL por prioridade + secao OPE no final ─────────
     //
-    // Sort estavel (Array.prototype.sort com retorno numerico) preserva
-    // ordem do SSOT dentro de cada prioridade — agrupamento por bloco
-    // (Identificacao, Exportador, Comercial) e' mantido.
+    // 3 secoes do template:
+    //   1. ESSENCIAL (criticos + principais, intercalando pedido + item)
+    //   2. DETALHES (secundarios EXCETO OPE — datas, snapshots, cambio, casas dec.)
+    //   3. OPE (12 campos governamentais — sessao propria no final)
+    //
+    // Decisao 11/05 do dono: "Tudo que for OPE deve ter sua propria sessao e
+    // deve ser a ultima". OPE = Operador Estrangeiro (cadastro Receita Federal).
+    //
+    // Sort estavel preserva ordem do SSOT dentro de cada prioridade —
+    // agrupamento por bloco (Identificacao, Exportador, Comercial) mantido.
     const ordemPrioridade = { critica: 0, principal: 1, secundaria: 2 } as const
     const sortPorPrioridade = (a: CampoPedidoDDD, b: CampoPedidoDDD): number => {
       return ordemPrioridade[prioridadeDeCampo(a)] - ordemPrioridade[prioridadeDeCampo(b)]
     }
-    const todosOrdenados: CampoPedidoDDD[] = [
-      ...CAMPOS_PEDIDO_DDD,
-      ...CAMPOS_ITEM_DDD,
-    ].sort(sortPorPrioridade)
-    const camposOrdenados = todosOrdenados
-    const totalColunas = camposOrdenados.length
-    const totalEssenciais = camposOrdenados.filter(c => prioridadeDeCampo(c) !== 'secundaria').length
-    const totalDetalhes   = totalColunas - totalEssenciais
+    const todos = [...CAMPOS_PEDIDO_DDD, ...CAMPOS_ITEM_DDD]
+    const camposOPE     = todos.filter(c => c.grupo === 'OPE')
+    const camposNaoOPE  = todos.filter(c => c.grupo !== 'OPE').sort(sortPorPrioridade)
+    const camposOrdenados: CampoPedidoDDD[] = [...camposNaoOPE, ...camposOPE]
+    const totalColunas    = camposOrdenados.length
+    const totalEssenciais = camposNaoOPE.filter(c => prioridadeDeCampo(c) !== 'secundaria').length
+    const totalDetalhes   = camposNaoOPE.length - totalEssenciais
+    const totalOPE        = camposOPE.length
 
     const wb = new ExcelJS.Workbook()
     wb.creator     = 'Gravity Platform'
@@ -173,9 +179,12 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     wb.subject     = 'Smart Import - Pedido'
     wb.company     = 'Gravity'
 
-    // P7.2 — Outline grouping: zona DETALHES inicia colapsada
+    // Frozen panes: 2 linhas no topo (super-header + sub-header) + 2 colunas
+    // a esquerda (Tipo Linha + Numero do Pedido). Decisao 11/05 do dono:
+    // ao rolar horizontalmente, usuario sempre ve qual linha esta editando
+    // (PEDIDO/ITEM) e a qual pedido pertence.
     const ws = wb.addWorksheet('Pedidos', {
-      views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }],
+      views: [{ showGridLines: true, state: 'frozen', xSplit: 2, ySplit: 2 }],
       properties: { outlineLevelCol: 1 },
     })
 
@@ -187,62 +196,91 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       width: Math.max(c.rotulo.length + 4, 18),
     }))
 
-    // ── P7.1 Linha 1 — Super-header: ESSENCIAL | DETALHES OPCIONAIS ───────────
-    // Mescla A1..[totalEssenciais] = ESSENCIAL (verde)
-    // Mescla [totalEssenciais+1]..[totalColunas] = DETALHES OPCIONAIS (cinza)
+    // ── P8.1 Linha 1 — Super-header: 3 zonas com cores Solid Slate ────────────
+    //
+    // Paleta UX 10/10 — cada zona com cor sutil e profissional:
+    //   ESSENCIAL: ciano-petróleo (foco prioritário, sem agressão visual)
+    //   DETALHES:  cinza-azulado (neutro, opcional)
+    //   OPE:       âmbar-escuro (regulatório/governamental — categoria distinta)
+    //
+    // Bordas verticais finas separam zonas sem brigar com sub-header.
     const linha1 = ws.getRow(1)
-    linha1.height = 26
+    linha1.height = 28
+
+    // Zona 1 — ESSENCIAL
     ws.mergeCells(1, 1, 1, totalEssenciais)
     const cellEssencial = ws.getCell(1, 1)
-    cellEssencial.value = '⭐ ESSENCIAL — preencha este bloco'
-    cellEssencial.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF065F46' } } // verde-escuro
-    cellEssencial.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FF6EE7B7' } } // verde-claro
+    cellEssencial.value = 'ESSENCIAL  ·  preencha este bloco'
+    cellEssencial.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0E7490' } } // ciano-petroleo #0E7490 (cyan-700)
+    cellEssencial.font  = { name: 'Calibri', bold: true, size: 12, color: { argb: 'FFE0F2FE' } } // ciano-claro #E0F2FE (sky-100)
     cellEssencial.alignment = { horizontal: 'center', vertical: 'middle' }
-    cellEssencial.border = { right: { style: 'medium', color: { argb: 'FF334155' } } }
+    cellEssencial.border = { right: { style: 'thin', color: { argb: 'FF1E293B' } } }
 
+    // Zona 2 — DETALHES OPCIONAIS
     if (totalDetalhes > 0) {
-      ws.mergeCells(1, totalEssenciais + 1, 1, totalColunas)
+      ws.mergeCells(1, totalEssenciais + 1, 1, totalEssenciais + totalDetalhes)
       const cellDetalhes = ws.getCell(1, totalEssenciais + 1)
-      cellDetalhes.value = '📋 DETALHES OPCIONAIS — expanda apenas se necessario'
-      cellDetalhes.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } } // cinza
-      cellDetalhes.font  = { name: 'Calibri', bold: true, size: 12, color: { argb: 'FF94A3B8' } } // cinza-claro
+      cellDetalhes.value = 'DETALHES  ·  expanda apenas se necessario'
+      cellDetalhes.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } } // cinza-azulado #334155 (slate-700)
+      cellDetalhes.font  = { name: 'Calibri', bold: true, size: 12, color: { argb: 'FFCBD5E1' } } // cinza-claro #CBD5E1 (slate-300)
       cellDetalhes.alignment = { horizontal: 'center', vertical: 'middle' }
+      cellDetalhes.border = { right: { style: 'thin', color: { argb: 'FF1E293B' } } }
     }
 
-    // ── P7.1 Linha 2 — Sub-header com cor por nivel (azul=pedido, lilas=item) ──
+    // Zona 3 — OPE (regulatorio Receita Federal)
+    if (totalOPE > 0) {
+      const inicioOPE = totalEssenciais + totalDetalhes + 1
+      ws.mergeCells(1, inicioOPE, 1, totalColunas)
+      const cellOPE = ws.getCell(1, inicioOPE)
+      cellOPE.value = 'OPE  ·  Operador Estrangeiro (Receita Federal)'
+      cellOPE.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92400E' } } // ambar-escuro #92400E (amber-800)
+      cellOPE.font  = { name: 'Calibri', bold: true, size: 12, color: { argb: 'FFFEF3C7' } } // ambar-claro #FEF3C7 (amber-100)
+      cellOPE.alignment = { horizontal: 'center', vertical: 'middle' }
+    }
+
+    // ── P8.1 Linha 2 — Sub-header com cor por nivel ───────────────────────────
+    //
+    // Cores ajustadas para UX 10/10 — paleta Solid Slate consistente:
+    //   nivel = 'pedido'  -> azul        (#1E3A5F fundo, #93C5FD texto)
+    //   nivel = 'item'    -> lilas       (#2E1065 fundo, #C4B5FD texto)
+    //   grupo = 'OPE'     -> ambar       (#451A03 fundo, #FCD34D texto)
+    //   obrigatorio       -> mantem cor do nivel + asterisco vermelho * no rotulo
+    //                        (em vez do texto inteiro vermelho — UX 10/10)
     const linha2 = ws.getRow(2)
-    linha2.height = 24
+    linha2.height = 26
     camposOrdenados.forEach((c, i) => {
       const cell = linha2.getCell(i + 1)
-      cell.value = c.rotulo
-      const ehItem = c.nivel === 'item'
+      const ehItem        = c.nivel === 'item'
+      const ehOPE         = c.grupo === 'OPE'
       const ehObrigatorio = c.obrigatorio === true
-      cell.fill  = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: ehItem ? 'FF2A1E4D' : 'FF1E3256' }, // lilas-escuro vs azul-escuro
-      }
-      cell.font  = {
-        name:  'Calibri',
-        bold:  true,
-        size:  11,
-        color: { argb: ehObrigatorio ? 'FFFCA5A5' : (ehItem ? 'FFA78BFA' : 'FF38BDF8') }, // vermelho-claro / lilas / azul
-      }
+
+      // Asterisco vermelho discreto antes do rotulo (sinaliza obrigatorio
+      // sem comprometer a hierarquia visual do nivel)
+      cell.value = ehObrigatorio ? `* ${c.rotulo}` : c.rotulo
+
+      const cores = ehOPE
+        ? { fill: 'FF451A03', text: 'FFFCD34D', borda: 'FFD97706' } // ambar-escuro / ambar-claro
+        : ehItem
+        ? { fill: 'FF2E1065', text: 'FFC4B5FD', borda: 'FF7C3AED' } // lilas-escuro / lilas-claro
+        : { fill: 'FF1E3A5F', text: 'FF93C5FD', borda: 'FF3B82F6' } // azul-escuro / azul-claro
+
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: cores.fill } }
+      cell.font = { name: 'Calibri', bold: true, size: 11, color: { argb: cores.text } }
       cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-      cell.border    = {
-        bottom: { style: 'medium', color: { argb: ehItem ? 'FFA78BFA' : 'FF38BDF8' } },
-      }
+      cell.border = { bottom: { style: 'thin', color: { argb: cores.borda } } }
     })
 
-    // P7.2 — Outline grouping: marca colunas secundarias com outlineLevel=1
-    // e collapsed=true. Excel mostra um [-/+] acima do header para
-    // expandir/colapsar todo o bloco em 1 clique.
-    // P7.2 — outlineLevel marca o agrupamento (Excel renderiza barra [+/-]).
-    // `collapsed` e' propriedade read-only no tipo ExcelJS — o estado inicial
-    // colapsado vem do worksheet via outlineProperties (summaryBelow/Right);
-    // marcar outlineLevel ja' garante a barra. Usuario clica para expandir.
+    // P7.2 / P8.1 — Outline grouping: apenas zona DETALHES (secundarias
+    // NAO-OPE) recebe outlineLevel=1. OPE fica sempre visivel ao rolar para
+    // a direita — tem zona propria visualmente distinta (ambar) e usuario
+    // que precisa de OPE quer ver imediatamente. Quem nao usa OPE simplesmente
+    // nao rola ate la.
+    //
+    // `collapsed` e' read-only no tipo ExcelJS — para colapsar por default
+    // seria necessario manipular o XML diretamente. Por ora a barra [+/-]
+    // permite colapsar em 1 clique.
     camposOrdenados.forEach((c, idx) => {
-      if (prioridadeDeCampo(c) === 'secundaria') {
+      if (prioridadeDeCampo(c) === 'secundaria' && c.grupo !== 'OPE') {
         ws.getColumn(idx + 1).outlineLevel = 1
       }
     })

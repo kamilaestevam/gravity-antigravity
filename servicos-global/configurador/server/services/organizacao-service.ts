@@ -8,6 +8,10 @@ import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 import { criarEmpresa, compensarEmpresa } from './cadastros-client.js'
 import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
+import {
+  aoHabilitarProdutoNoWorkspace,
+  aoVincularUsuarioAoWorkspace,
+} from './sincronizar-acesso-usuario-produtos-service.js'
 
 const log = logger.child({ module: 'organizacao-service' })
 
@@ -362,6 +366,22 @@ export const organizacaoService = {
           },
         })
 
+        // ─── Auto-habilita produtos contratados no workspace recém-criado ──
+        // Espelha decisão dono 2026-05-12 (commit 7297da46): "produto contratado
+        // começa habilitado em todo workspace". Aqui aplicamos o lado simétrico:
+        // workspace NOVO ganha automaticamente todas as assinaturas
+        // ATIVA/EM_TESTE da organização como ProdutoGravityWorkspace { ativo:true }.
+        //
+        // Roda ANTES do auto-vínculo de usuários para que `aoVincularUsuarioAoWorkspace`
+        // encontre os produtos já habilitados e propague as chaves Portão 3.
+        //
+        // Mand. 08: falhas logam alto e NÃO revertem o workspace (já comitado).
+        await this._habilitarProdutosContratadosPosCommit(
+          id_organizacao,
+          workspace.id_workspace,
+          workspace.nome_workspace,
+        )
+
         // ─── F3 — Auto-vínculo de workspaces futuros (decisão arquitetural 2026-05-05) ─
         // Após o workspace estar persistido, busca usuários PADRAO/FORNECEDOR com
         // `acesso_workspaces_futuros=true` na organização e cria UsuarioWorkspace para
@@ -482,6 +502,21 @@ export const organizacaoService = {
         motivo_auto_vinculo:           'WORKSPACE_CRIADO_ACESSO_FUTUROS',
       }).catch(() => {})
 
+      // PORTÃO 3 — para cada UsuarioWorkspace criado, propaga chaves de acesso
+      // aos produtos JÁ habilitados no workspace (que acabaram de ser
+      // habilitados em `_habilitarProdutosContratadosPosCommit`). Sem este
+      // disparo, Standards/Fornecedores auto-vinculados veem o workspace mas
+      // NÃO veem os produtos contratados — regressão silenciosa identificada
+      // após o fix do auto-habilitar (12/05/2026, ponto cego do Líder Técnico).
+      // Best-effort: falhas logam alto via warn no próprio helper.
+      for (const u of candidatos) {
+        aoVincularUsuarioAoWorkspace({
+          id_organizacao,
+          id_workspace,
+          id_usuario: u.id_usuario,
+        }).catch(() => { /* best-effort — warn já logado no helper */ })
+      }
+
       return result.count
     } catch (err) {
       log.error('createWorkspace.auto_vinculo_falhou', {
@@ -491,6 +526,96 @@ export const organizacaoService = {
       })
       // NÃO propaga — workspace já foi criado, falha em vínculos é recuperável
       // via "Vincular aos atuais agora" da F5. Mand. 08: log alto, sem silenciar.
+      return 0
+    }
+  },
+
+  /**
+   * Auto-habilita TODAS as assinaturas ATIVA/EM_TESTE da organização no
+   * workspace recém-criado. Espelho simétrico do commit 7297da46 — onde
+   * contratar um produto habilita em todos os workspaces existentes, criar
+   * um workspace habilita todos os produtos já contratados.
+   *
+   * Idempotente via upsert. Best-effort: falhas logam alto (Mand. 08) e
+   * NÃO revertem o workspace (já comitado). Após habilitar, dispara
+   * `aoHabilitarProdutoNoWorkspace` para cada produto — propaga chaves
+   * Portão 3 (CP6) aos Standards/Fornecedores ativos no workspace.
+   *
+   * Reportado por dono em 12/05/2026: workspaces novos ("TESTE 02 WORKSPACE
+   * PRODUTO", "Teste Workspace Produtos Gravity") apareciam BLOQUEADO em
+   * todos os produtos contratados — auto-habilitação não acontecia.
+   */
+  async _habilitarProdutosContratadosPosCommit(
+    id_organizacao: string,
+    id_workspace: string,
+    nome_workspace: string,
+  ): Promise<number> {
+    try {
+      // Produtos com assinatura ATIVA/EM_TESTE na org
+      const assinaturas = await prisma.produtoGravityAssinatura.findMany({
+        where: {
+          id_organizacao,
+          status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+        },
+        select: {
+          id_produto_gravity: true,
+          produto: { select: { slug_produto_gravity: true } },
+        },
+      })
+
+      if (assinaturas.length === 0) return 0
+
+      // Upsert idempotente — espelha o padrão do POST /assinar-produto.
+      for (const a of assinaturas) {
+        await prisma.produtoGravityWorkspace.upsert({
+          where: {
+            id_workspace_id_produto_gravity: {
+              id_workspace,
+              id_produto_gravity: a.id_produto_gravity,
+            },
+          },
+          create: {
+            id_organizacao,
+            id_workspace,
+            id_produto_gravity: a.id_produto_gravity,
+            ativo_produto_gravity_workspace: true,
+          },
+          update: { ativo_produto_gravity_workspace: true },
+        })
+      }
+
+      // Log alto de sucesso para rastreabilidade (não há audit batch dedicado).
+      log.info('createWorkspace.auto_habilitar_produtos_ok', {
+        id_organizacao,
+        id_workspace,
+        nome_workspace,
+        produtos_habilitados: assinaturas.length,
+        ids_produtos: assinaturas.map((a) => a.id_produto_gravity),
+      })
+
+      // PORTÃO 3 (CP6) — propaga chaves para Standards/Fornecedores já ativos
+      // no workspace. Aqui é redundante para o caso comum (workspace acabou
+      // de nascer e ainda não tem usuários), mas cobre cenário onde algum
+      // membership tenha sido criado antes desta chamada por outra via.
+      // Best-effort: o próprio helper já loga warn em falha.
+      for (const a of assinaturas) {
+        aoHabilitarProdutoNoWorkspace({
+          id_organizacao,
+          id_workspace,
+          id_produto_gravity: a.id_produto_gravity,
+          slug_produto: a.produto.slug_produto_gravity,
+        }).catch(() => { /* best-effort — warn já logado no helper */ })
+      }
+
+      return assinaturas.length
+    } catch (err) {
+      log.error('createWorkspace.auto_habilitar_produtos_falhou', {
+        id_organizacao,
+        id_workspace,
+        nome_workspace,
+        causa: err instanceof Error ? err.message : String(err),
+      })
+      // Mand. 08: log alto, sem silenciar. NÃO propaga — workspace já comitado.
       return 0
     }
   },

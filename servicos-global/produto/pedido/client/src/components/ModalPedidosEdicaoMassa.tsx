@@ -279,6 +279,25 @@ const OP_LABEL_KEYS: Record<OperacaoCampo, string> = {
   recuar_dias:  'pedido.modal_massa.op_label_recuar',
 }
 
+// ── Campos com @@unique no schema — protegidos contra atribuição em massa ────
+//
+// Auditoria de unique constraints do Pedido (2026-05-12):
+//   - Pedido.@@unique([id_organizacao, numero_pedido])
+//   - Demais @@unique do schema estão em models de sistema/config não expostos
+//     em edição em massa (StatusPedido, PreferenciaUsuarioColunaPedido,
+//     KanbanPreferenciasGlobal, etc.)
+//
+// Regra: aplicar o mesmo valor a >1 pedido viola @@unique → P2002 no Postgres.
+// Operação "substituir" com >1 pedido é IMPOSSÍVEL por design. Bloqueamos no
+// frontend (input disabled + tooltip) e no backend (Zod custom 422 + try/catch
+// P2002 como defesa em profundidade).
+//
+// **Convenção:** ao expor novo campo `@@unique` em CAMPOS_*_EDITAVEIS,
+// adicionar a entrada aqui também.
+const CAMPOS_UNIQUE = new Set<string>([
+  'numero_pedido',
+])
+
 // Campos que exigem processamento individual por pedido (merge JSON no backend)
 // Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
 const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set([
@@ -868,6 +887,12 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const camposValidos = campos.filter(c => c.valor.trim() !== '')
   const disponiveis = camposParaNivel(nivel, pedidos)
 
+  // Algum campo está bloqueado por @@unique (substituir + >1 pedido)?
+  // Se sim, bloqueia o botão de revisar/aplicar para falhar ruidoso.
+  const temCampoUniqueBloqueado = campos.some(c =>
+    CAMPOS_UNIQUE.has(c.campo) && c.operacao === 'substituir' && pedidos.length > 1,
+  )
+
   // Detecta caminho lento: espelha a lógica do backend (todosCamposPedidoSaoRapidos).
   // Lento = qualquer campo com operação diferente de substituir, campo em
   // detalhes_operacionais, ou qualquer campo de nível item.
@@ -908,6 +933,15 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
             const ops = OPERACOES_POR_TIPO[campo.tipo]
             const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValores(pedidos, campo.campo)
             const placeholder = inputPlaceholder(campo, pedidos, t)
+            // Campo @@unique + substituir + >1 pedido = colisão garantida (P2002).
+            // Bloqueia o input no frontend e avisa o usuário.
+            const bloqueadoUnique =
+              CAMPOS_UNIQUE.has(campo.campo) &&
+              campo.operacao === 'substituir' &&
+              pedidos.length > 1
+            const tooltipUnique = bloqueadoUnique
+              ? `"${disponiveis.find(d => d.campo === campo.campo)?.rotulo ?? campo.campo}" é único por organização — não é possível atribuir o mesmo valor a múltiplos pedidos. Selecione apenas 1 pedido para editar este campo.`
+              : undefined
 
             return (
               <div key={campo.uid} className="modal-edicao-massa__campo-linha">
@@ -932,7 +966,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 </select>
 
                 {/* Input de valor — renderiza por tipo do campo */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} title={tooltipUnique}>
                   {campo.tipo === 'select' ? (() => {
                     const def = disponiveis.find(d => d.campo === campo.campo)
                     const opcoes = def?.opcoes ?? []
@@ -940,6 +974,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                       <select
                         className="modal-edicao-massa__select"
                         value={campo.valor}
+                        disabled={bloqueadoUnique}
                         onChange={e => handleMudarValor(campo.uid, e.target.value)}
                         aria-label={`Valor para ${campo.campo}`}
                       >
@@ -955,6 +990,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                       type="text"
                       inputMode="numeric"
                       value={campo.valor}
+                      disabled={bloqueadoUnique}
                       onChange={e => handleMudarValor(campo.uid, formataNcm(String(e.target.value)))}
                       placeholder="0000.00.00"
                       maxLength={10}
@@ -968,12 +1004,19 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                         : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
                         : 'text'}
                       value={campo.valor}
+                      disabled={bloqueadoUnique}
                       onChange={e => handleMudarValor(campo.uid, e.target.value)}
-                      placeholder={placeholder || t('pedido.modal_massa.valor_placeholder')}
+                      placeholder={bloqueadoUnique ? 'Bloqueado — campo único' : (placeholder || t('pedido.modal_massa.valor_placeholder'))}
                       aria-label={`Valor para ${campo.campo}`}
                     />
                   )}
-                  {temMultiplos && (
+                  {bloqueadoUnique && (
+                    <span className="modal-edicao-massa__badge-multiplos" style={{ color: 'var(--danger, #ef4444)' }}>
+                      <Warning size={11} weight="fill" aria-hidden="true" />
+                      Único por organização — selecione 1 pedido
+                    </span>
+                  )}
+                  {temMultiplos && !bloqueadoUnique && (
                     <span className="modal-edicao-massa__badge-multiplos">
                       <Warning size={11} weight="fill" aria-hidden="true" />
                       {t('pedido.modal_massa.multiplos_valores')}
@@ -1096,6 +1139,30 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
 
   const renderPasso2 = () => (
     <div className="modal-edicao-massa__confirmacao">
+      {/* Alerta reforçado quando tipos de operação mistos.
+          O banner do topo já informou; aqui antes de aplicar a mudança final
+          repetimos com destaque para evitar erro humano. */}
+      {hasMixedTipos && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          padding: '0.75rem 1rem',
+          background: 'color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent)',
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          <Warning weight="fill" size={18} color="var(--warning, #f59e0b)" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ color: 'var(--warning, #f59e0b)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+              Atenção — tipos de operação diferentes
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+              Você está prestes a alterar pedidos de <strong>importação</strong> e <strong>exportação</strong> juntos. Confirme que isso é intencional antes de aplicar.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Resumo */}
       <div className="modal-edicao-massa__confirmacao-resumo" aria-label={t('pedido.modal_massa.aria_resumo')}>
         <div className="modal-edicao-massa__confirmacao-stat">
@@ -1256,7 +1323,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 variante="primario"
                 tamanho="medio"
                 onClick={handleAvancar}
-                disabled={camposValidos.length === 0 || carregandoPreview}
+                disabled={camposValidos.length === 0 || carregandoPreview || temCampoUniqueBloqueado}
               >
                 {t('pedido.modal_massa.revisar')}
               </BotaoGlobal>

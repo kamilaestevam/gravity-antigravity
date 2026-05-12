@@ -362,6 +362,30 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       )
     })
 
+    it('converte P2002 (unique violation) do fast path em AppError 422', async () => {
+      const { db } = criarDbMock()
+
+      // Simula P2002 ao chamar updateMany (defesa em profundidade — caso
+      // o Zod custom da rota não pegue um campo unique novo)
+      const updateManyMock = (db as unknown as { pedido: { updateMany: ReturnType<typeof vi.fn> } }).pedido.updateMany
+      updateManyMock.mockRejectedValueOnce(Object.assign(new Error('Unique constraint failed'), {
+        code: 'P2002',
+        meta: { target: ['id_organizacao', 'numero_pedido'] },
+      }))
+
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001', 'pedido-002'],
+          campos: [{ campo: 'numero_pedido', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'PO-DUP' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 422,
+        code: 'UNIQUE_VIOLATION',
+      })
+    })
+
     it('preview aba Pedido: itens_afetados=0, campos_item_alterados=0', async () => {
       const { db } = criarDbMock()
 

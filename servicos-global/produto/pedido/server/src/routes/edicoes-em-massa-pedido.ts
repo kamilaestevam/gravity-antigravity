@@ -33,10 +33,31 @@ const CampoSchema = z.object({
   valor: z.union([z.string(), z.number()]),
 })
 
+// Campos com @@unique no schema (auditado em 2026-05-12 — fragment.prisma).
+// Edição em massa de um campo unique com operação "substituir" e >1 pedido
+// causa colisão garantida (P2002). Rejeitamos no Zod antes de tocar o banco.
+// Convenção: ao expor novo campo com @@unique, adicionar aqui.
+const CAMPOS_UNIQUE_PEDIDO = new Set<string>([
+  'numero_pedido',
+])
+
 const EdicaoMassaSchema = z.object({
   pedido_ids: z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido para editar'),
   campos: z.array(CampoSchema).min(1, 'Selecione ao menos 1 campo para editar'),
   nivel: z.enum(['pedido', 'item', 'combinado']),
+}).superRefine((data, ctx) => {
+  // Bloqueia campos unique + substituir + multi-seleção (Mand. 08 — falha ruidosa)
+  if (data.pedido_ids.length > 1) {
+    for (const c of data.campos) {
+      if (CAMPOS_UNIQUE_PEDIDO.has(c.campo) && c.operacao === 'substituir') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['campos'],
+          message: `Campo "${c.campo}" é único por organização — não é possível atribuir o mesmo valor a ${data.pedido_ids.length} pedidos. Selecione apenas 1 pedido para editar este campo.`,
+        })
+      }
+    }
+  }
 })
 
 // ── POST /edicao-em-massa/preview ─────────────────────────────────────────────
@@ -44,8 +65,12 @@ const EdicaoMassaSchema = z.object({
 edicaoEmMassaRouter.post('/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = EdicaoMassaSchema.safeParse(req.body)
   if (!parse.success) {
+    // Pega a primeira mensagem de erro Zod amigável (refinements custom têm
+    // mensagens específicas, ex: "Campo X é único por organização — ...")
+    const issues = parse.error.issues
+    const message = issues[0]?.message ?? 'Dados inválidos'
     return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: 'Dados inválidos', details: parse.error.flatten() },
+      error: { code: 'VALIDATION_ERROR', message, details: parse.error.flatten() },
     })
   }
 
@@ -68,8 +93,12 @@ edicaoEmMassaRouter.post('/preview', async (req: Request, res: Response, next: N
 edicaoEmMassaRouter.post('/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = EdicaoMassaSchema.safeParse(req.body)
   if (!parse.success) {
+    // Pega a primeira mensagem de erro Zod amigável (refinements custom têm
+    // mensagens específicas, ex: "Campo X é único por organização — ...")
+    const issues = parse.error.issues
+    const message = issues[0]?.message ?? 'Dados inválidos'
     return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: 'Dados inválidos', details: parse.error.flatten() },
+      error: { code: 'VALIDATION_ERROR', message, details: parse.error.flatten() },
     })
   }
 

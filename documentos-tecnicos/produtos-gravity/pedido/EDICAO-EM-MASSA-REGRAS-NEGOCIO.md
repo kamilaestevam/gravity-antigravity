@@ -149,6 +149,22 @@ Para resolver a divergência, o usuário pode usar a **aba Combinado** para for�
 
 ---
 
+## Campos Únicos (não permitem multi-seleção)
+
+Alguns campos do Pedido são **únicos por organização** — não podem ter o mesmo valor em dois pedidos diferentes. Exemplo: `numero_pedido` (você não pode ter dois pedidos `PO-001` na mesma organização).
+
+**Regra:** quando >1 pedido está selecionado, esses campos ficam **bloqueados** para edição em massa:
+- Input desabilitado
+- Tooltip explicando o porquê
+- Badge "Único por organização — selecione 1 pedido"
+- Botão "Revisar alterações" desabilitado se algum campo unique está bloqueado
+
+Para editar um campo único, o usuário precisa **reduzir a seleção para 1 pedido**.
+
+**Campos atualmente protegidos:** `numero_pedido` (mais podem ser adicionados quando expostos).
+
+---
+
 ## Máscara de Entrada por Tipo de Campo
 
 | Tipo | Renderização |

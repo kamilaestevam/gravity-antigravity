@@ -158,7 +158,7 @@ const PARES_CASCADE_PEDIDO_ITEM: Record<string, string> = {
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
-type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario'
+type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario' | 'ncm'
 type OperacaoCampo = 'substituir' | 'somar' | 'subtrair' | 'percentual' | 'avancar_dias' | 'recuar_dias'
 
 interface CampoEdicaoMassa {
@@ -396,10 +396,30 @@ export class EdicaoEmMassaService {
       for (const c of camposPedido) {
         dadosUpdateMany[c.campo] = c.valor
       }
-      await db.pedido.updateMany({
-        where: { id_pedido: { in: pedidoIds } },
-        data: dadosUpdateMany,
-      })
+      try {
+        await db.pedido.updateMany({
+          where: { id_pedido: { in: pedidoIds } },
+          data: dadosUpdateMany,
+        })
+      } catch (err: unknown) {
+        // Defesa em profundidade contra @@unique violation (P2002). O Zod
+        // custom da rota já bloqueia campos unique + substituir + multi-seleção,
+        // mas se algum outro caminho chegar aqui (curl, futura unique nova
+        // não cadastrada em CAMPOS_UNIQUE_PEDIDO), convertemos o erro Prisma
+        // em AppError 422 com mensagem clara em vez de propagar como 500.
+        if (typeof err === 'object' && err !== null && 'code' in err) {
+          const prismaErr = err as { code: string; meta?: { target?: string[] } }
+          if (prismaErr.code === 'P2002') {
+            const campos = prismaErr.meta?.target?.join(', ') ?? 'campo'
+            throw new AppError(
+              `Valor duplicado: o campo "${campos}" violaria a unicidade. Edição em massa de campos únicos exige seleção de apenas 1 pedido.`,
+              422,
+              'UNIQUE_VIOLATION',
+            )
+          }
+        }
+        throw err
+      }
       pedidosAtualizados = pedidos.length
       camposPedidoGravados = pedidos.length * camposPedido.length
       return {

@@ -5,6 +5,29 @@ description: "Use esta skill para entender, configurar ou estender o linter cust
 
 # Gravity — Linter Custom de Isolamento de Organizacao
 
+> ## ⚠️ STATUS: ESPECIFICAÇÃO / NÃO IMPLEMENTADO (2026-05-12)
+>
+> Esta skill **documenta** as regras planejadas para o plugin
+> `@gravity/eslint-plugin-tenant-safety`, mas o **pacote ainda não existe** no
+> monorepo (`packages/eslint-plugin-tenant-safety/` está ausente). Nenhuma
+> das 6 regras roda no CI atualmente.
+>
+> **Implicações práticas:**
+> - Anti-padrões listados abaixo (PrismaClient direto, filtro de organizacao
+>   ausente, `id_organizacao` incorreta em queries cross-org, etc.) **não são
+>   bloqueados em CI nem em pre-commit**.
+> - Defesa atual é apenas **revisão humana** e testes funcionais.
+> - Auditoria 2026-05-12 (Coordenador + Líder Técnico) confirmou que o
+>   anti-padrão `id_organizacao: req.auth.id_organizacao` em rotas
+>   cross-org foi reintroduzido em `admin.ts` sem detecção automática
+>   (bug P0 do convite admin cross-org, corrigido manualmente).
+>
+> **Roadmap:** implementar o plugin quando houver capacidade. Esta skill
+> serve como **especificação congelada** das 6 regras a implementar,
+> evitando bikeshedding no momento da execução.
+>
+> ---
+
 > Esta skill implementa a estratégia de **Isolamento de Organizacao** (Schema-per-Organizacao) e o Mandamento 01 (Clerk APENAS para autenticação). Sem o linter, o SDK é apenas convenção. Com ele, é estrutural.
 > O nome `tenant-safety` é mantido por compatibilidade técnica com o pacote `@gravity/eslint-plugin-tenant-safety` e configurações já mergeadas no CI (identificador externo congelado — DDD permite preservar nomes de package).
 
@@ -329,3 +352,43 @@ Coordenador acompanha mensalmente:
 - [ ] Documentação atualizada nesta skill?
 - [ ] CI testado com PR de exemplo (regra deve falhar como esperado)?
 - [ ] Coordenador + Líder aprovaram?
+
+---
+
+## Exceções permitidas — endpoints admin S2S sem `id_organizacao`
+
+> **Regra geral**: toda query Prisma deve filtrar por `id_organizacao` (Mand. 04 + Isolamento de Organização).
+> **Exceção**: rotas admin cross-organização podem omitir o filtro **somente** sob TODAS as quatro condições abaixo.
+
+### Quando a exceção é autorizada
+
+Endpoints localizados em `**/server/**/routes/admin-*.ts` (ou similar) podem fazer queries Prisma sem `id_organizacao` no `where` se:
+
+1. **Auth S2S only** — protegido por `requireInternalKey` (ou equivalente). Não aceita JWT direto. Frontend NUNCA chama; chamada vem de outro serviço Gravity (proxy do Configurador).
+2. **Audit log persistente em tabela** — `audit_log_admin` (model `AuditLogAdmin` no Configurador) recebe 1 registro por chamada com: `id_usuario`, `tipo_usuario`, `acao`, `recurso`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`. Logging em arquivo NÃO é suficiente — precisa ser query-able.
+3. **Teto duro de paginação** — `por_pagina` clamped em servidor a no máximo 200. Sem cursor infinito sem teto.
+4. **Comentário `LINT-EXCEPTION`** — no topo do arquivo, com link para esta seção. Sem o comentário, o linter (regra futura) bloqueia.
+
+### Forma canônica do comentário
+
+```ts
+/**
+ * GET /api/v1/admin/<recurso> — listagem CROSS-ORGANIZAÇÃO.
+ *
+ * LINT-EXCEPTION: admin endpoint, S2S only, audit logged. Ver
+ * skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md
+ * (seção "Exceções permitidas") — autorização condicionada a:
+ *   (a) requireInternalKey (S2S only)
+ *   (b) audit log persistente em audit_log_admin
+ *   (c) teto duro por_pagina <= 200
+ *   (d) só GET, sem body
+ */
+```
+
+### Endpoints atualmente nessa exceção
+
+| Serviço | Path | Proxy auth | Audit log |
+|:---|:---|:---|:---|
+| Cadastros (8031) | `/api/v1/admin/empresas` | Configurador (`requireAuth + requireGravityAdmin`) | `audit_log_admin` (acao: `admin.empresas.list`) |
+
+Toda nova exceção deve ser adicionada a esta tabela **no mesmo PR** que adiciona o endpoint.

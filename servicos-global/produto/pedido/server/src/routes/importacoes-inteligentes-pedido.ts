@@ -53,7 +53,11 @@ import {
 //              Descricao, Unidade, Moeda, Valor Unidade, Valor Total Item,
 //              Incoterm Item, Peso Liq/Bruto Unit); P-AE sao os 16 principais
 //              do PEDIDO. Foco em fluxo de digitacao continuo por nivel.
-const TEMPLATE_VERSAO = '3.2'
+// 3.3 (P10)  — Rotulos desambiguados: "Moeda" -> "Moeda do Pedido" / "Moeda
+//              do Item"; "Unidade Comercializada" -> "...do Pedido" / "...do
+//              Item". Referencia Importador/Exportador movidas no SSOT para
+//              logo apos "Fabricante — Nome" (preservam grupo Documentos).
+const TEMPLATE_VERSAO = '3.3'
 
 export const smartImportRouter = Router()
 

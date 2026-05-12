@@ -105,6 +105,13 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 
   // Fabricante
   { campo: 'nome_fabricante',                              rotulo: 'Fabricante — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante', prioridade: 'principal', aliasesLegados: ['manufacturer', 'manufacturer name', 'maker', 'producer', 'factory', 'fabricante'] },
+  // Referencias dos parceiros — posicionadas logo apos Fabricante Nome no SSOT
+  // para que o sort estavel (P9) as renderize APOS "Fabricante — Nome" na zona
+  // ESSENCIAL do template. Grupo continua 'Documentos' (semantica preservada).
+  // Decisao do dono em 11/05/2026: usuario digita primeiro os 3 nomes
+  // (Exportador/Importador/Fabricante) e logo depois as referencias deles.
+  { campo: 'referencia_importador_pedido',                 rotulo: 'Referencia Importador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['buyer ref', 'importer ref', 'internal ref'] },
+  { campo: 'referencia_exportador_pedido',                 rotulo: 'Referencia Exportador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['seller ref', 'supplier ref', 'vendor ref', 'exporter ref'] },
   { campo: 'endereco_fabricante',                          rotulo: 'Fabricante — Endereco',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'pais_fabricante',                              rotulo: 'Fabricante — Pais',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'estado_fabricante',                            rotulo: 'Fabricante — Estado',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
@@ -127,10 +134,10 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 
   // Comercial
   { campo: 'incoterm_pedido',                              rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['incoterms', 'delivery terms', 'trade terms'] },
-  { campo: 'moeda_pedido',                                 rotulo: 'Moeda',                                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy'] },
+  { campo: 'moeda_pedido',                                 rotulo: 'Moeda do Pedido',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy', 'moeda'] },
   { campo: 'valor_total_pedido',                           rotulo: 'Valor Total do Pedido',                  tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['total amount', 'po total', 'order total'] },
   { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['total quantity', 'total qty'] },
-  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure'] },
+  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
   { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['payment terms', 'pay terms'] },
   { campo: 'quantidade_volumes_pedido',                    rotulo: 'Qtd. de Volumes',                        tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
@@ -149,8 +156,8 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   // Documentos
   { campo: 'numero_proforma_pedido',                       rotulo: 'No Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal' },
   { campo: 'numero_invoice_pedido',                        rotulo: 'No Invoice',                             tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['invoice no', 'invoice number', 'inv no', 'inv number'] },
-  { campo: 'referencia_importador_pedido',                 rotulo: 'Referencia Importador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['buyer ref', 'importer ref', 'internal ref'] },
-  { campo: 'referencia_exportador_pedido',                 rotulo: 'Referencia Exportador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['seller ref', 'supplier ref', 'vendor ref', 'exporter ref'] },
+  // referencia_importador_pedido e referencia_exportador_pedido foram movidos
+  // para logo apos `nome_fabricante` (decisao do dono em 11/05/2026, fase P10).
   { campo: 'referencia_fabricante_pedido',                 rotulo: 'Referencia Fabricante',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', aliasesLegados: ['manufacturer ref', 'maker ref', 'factory ref'] },
 
   // Logistica
@@ -234,7 +241,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'part_number_item',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['part no', 'partnumber', 'sku', 'item code', 'product code', 'codigo produto', 'codigo do produto', 'material', 'zmatnr'] },
   { campo: 'ncm_item',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['hs code', 'hs', 'harmonized code', 'tariff code', 'h s code', 'tariff'] },
   { campo: 'descricao_item',                               rotulo: 'Descricao do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['description', 'item description', 'product description', 'product name', 'descricao', 'goods description', 'zmaktx'] },
-  { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade', 'zmeins'] },
+  { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada do Item',         tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade', 'zmeins'] },
 
   // Quantidades
   { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['qty', 'quantity', 'qtd', 'qtde', 'quantidade', 'ordered qty', 'order qty', 'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'zmenge', 'menge'] },
@@ -246,7 +253,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'casas_decimais_quantidade_item',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
-  { campo: 'moeda_item',                                   rotulo: 'Moeda',                                  tipo: 'texto',  nivel: 'item', grupo: 'Financeiro', prioridade: 'principal' },
+  { campo: 'moeda_item',                                   rotulo: 'Moeda do Item',                          tipo: 'texto',  nivel: 'item', grupo: 'Financeiro', prioridade: 'principal' },
   { campo: 'valor_por_unidade_item',                       rotulo: 'Valor por Unidade',                      tipo: 'numero', nivel: 'item', grupo: 'Financeiro', prioridade: 'principal', aliasesLegados: ['unit price', 'unit value', 'valor unitario', 'preco unitario', 'unit cost', 'price per unit', 'net price', 'znetpr'] },
   { campo: 'valor_total_item',                             rotulo: 'Valor Total do Item',                    tipo: 'numero', nivel: 'item', grupo: 'Financeiro', prioridade: 'principal', aliasesLegados: ['total value', 'line total', 'line amount', 'ext price', 'extended price', 'amount', 'valor total', 'fob total', 'fob value', 'zwrbtr'] },
   { campo: 'casas_decimais_valor_item',                    rotulo: 'Casas Decimais — Valor',                 tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },

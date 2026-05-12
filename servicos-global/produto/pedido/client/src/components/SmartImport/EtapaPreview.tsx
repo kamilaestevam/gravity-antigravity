@@ -20,7 +20,14 @@ import {
 } from '@phosphor-icons/react'
 import type { SmartImportLinha, DecisaoDuplicata } from '../../shared/types'
 import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
-import { ROTULO_POR_CAMPO } from '../../../../shared/campos-pedido-ddd'
+import { ROTULO_POR_CAMPO, CAMPOS_PEDIDO_DDD_TODOS } from '../../../../shared/campos-pedido-ddd'
+
+// P16 — Set de campos obrigatorios para sinalizacao visual (mesmo
+// padrao do EtapaMapeamento.tsx). Reutilizado para detectar quando
+// um valor vazio em campo obrigatorio deve mostrar borda vermelha.
+const CAMPOS_OBRIGATORIOS = new Set(
+  CAMPOS_PEDIDO_DDD_TODOS.filter(c => c.obrigatorio).map(c => c.campo)
+)
 
 /**
  * P13.2-UI — Formata valor de campo para exibicao no preview.
@@ -361,9 +368,20 @@ function CardPedido({
             <div className="smart-import__campos-grid">
               {camposVisiveis.map(([campo, valor]) => {
                 const ehEditandoEste = campoEditando === campo
+                // P16 — Padrao plataforma: asterisco + borda vermelha em obrigatorios vazios
+                const ehObrigatorio = CAMPOS_OBRIGATORIOS.has(campo)
+                const valorAtualVazio = ehEditandoEste
+                  ? !valorTemp.trim()
+                  : !String(valor ?? '').trim()
+                const deveDestacarErro = ehObrigatorio && valorAtualVazio
                 return (
                   <div key={campo} className="smart-import__campo-item">
-                    <span className="smart-import__campo-label">{rotulo(campo)}</span>
+                    <span className="smart-import__campo-label">
+                      {rotulo(campo)}
+                      {ehObrigatorio && (
+                        <span style={{ color: '#f87171', fontWeight: 700, marginLeft: '0.25rem' }} aria-label="obrigatorio">*</span>
+                      )}
+                    </span>
                     {/* P15.2 — edicao inline (mesmo padrao do numero_pedido) */}
                     {ehEditandoEste ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1 }}>
@@ -377,7 +395,13 @@ function CardPedido({
                           }}
                           autoFocus
                           aria-label={`Editar ${rotulo(campo)}`}
-                          style={{ flex: 1, minWidth: 0 }}
+                          aria-required={ehObrigatorio || undefined}
+                          aria-invalid={deveDestacarErro || undefined}
+                          style={{
+                            flex: 1,
+                            minWidth: 0,
+                            borderColor: deveDestacarErro ? '#f87171' : undefined,
+                          }}
                         />
                         <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicaoCampo} aria-label="Confirmar edicao" title="Confirmar (Enter)">
                           <Check size={12} weight="bold" />
@@ -389,9 +413,17 @@ function CardPedido({
                     ) : (
                       <span
                         className="smart-import__campo-valor"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.375rem',
+                          // P16 — destaque visual sutil quando obrigatorio + vazio
+                          color: deveDestacarErro ? '#f87171' : undefined,
+                        }}
                       >
-                        {formatarValor(campo, valor)}
+                        {deveDestacarErro
+                          ? <em style={{ fontStyle: 'normal' }}>(vazio)</em>
+                          : formatarValor(campo, valor)}
                         {onEditarCampoLinha && (
                           <button
                             type="button"
@@ -475,15 +507,31 @@ function CardPedido({
                 Novo item para <strong>{numeroAtual}</strong>:
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                {/* Part Number — obrigatorio */}
+                {/* Part Number — obrigatorio (P16: padrao da plataforma) */}
+                {/*
+                  P16 — Sinalizacao de obrigatorio segue o padrao
+                  CampoGeralGlobal da plataforma:
+                    - Asterisco vermelho discreto no label (#f87171 dark)
+                    - Borda vermelha no input quando vazio (regra do
+                      campo-geral.css: ".cg-wrapper--erro input { border-color: #f87171 }")
+                  Sem legenda no rodape (removida na plataforma — era redundante).
+                */}
                 <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>* Part Number</span>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                    Part Number{' '}
+                    <span style={{ color: '#f87171', fontWeight: 700 }} aria-label="obrigatorio">*</span>
+                  </span>
                   <input
                     className="smart-import__numero-input"
                     value={formItem.part_number_item}
                     onChange={e => setFormItem(p => ({ ...p, part_number_item: e.target.value }))}
                     autoFocus
                     aria-label="Part Number"
+                    aria-required="true"
+                    aria-invalid={!formItem.part_number_item.trim()}
+                    style={{
+                      borderColor: !formItem.part_number_item.trim() ? '#f87171' : undefined,
+                    }}
                   />
                 </label>
                 {/* NCM */}

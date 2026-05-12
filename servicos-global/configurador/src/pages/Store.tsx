@@ -194,9 +194,12 @@ export function Store() {
   }
 
   const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
-    if (subscribed.get(slug)?.is_active) return 'owned'
+    // Status do catálogo (admin) é fonte da verdade. EM_BREVE prevalece sobre
+    // qualquer assinatura legada/interna — produto não-lançado nunca aparece
+    // como "ativo" na Store, mesmo que a org tenha uma linha em ProdutoGravityAssinatura.
     const produto = catalog.find(p => p.slug === slug)
     if (produto?.status === 'EM_BREVE') return 'soon'
+    if (subscribed.get(slug)?.is_active) return 'owned'
     return 'available'
   }
 

@@ -11,9 +11,11 @@ import {
   Question,
   Brain,
   Table,
+  MagnifyingGlass,
+  Star,
 } from '@phosphor-icons/react'
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
-import { CAMPOS_PEDIDO_DDD_TODOS } from '../../../../shared/campos-pedido-ddd'
+import { CAMPOS_PEDIDO_DDD_TODOS, prioridadeDeCampo, type PrioridadeCampoDDD } from '../../../../shared/campos-pedido-ddd'
 
 // ── Campos disponiveis no sistema ─────────────────────────────────────────────
 //
@@ -27,18 +29,37 @@ import { CAMPOS_PEDIDO_DDD_TODOS } from '../../../../shared/campos-pedido-ddd'
 // o fetch falhe (rede caida, headers errados, etc.).
 
 interface CampoSistemaOpcao {
-  valor:  string
-  rotulo: string
-  nivel:  'pedido' | 'item'
-  grupo?: string
+  valor:       string
+  rotulo:      string
+  nivel:       'pedido' | 'item'
+  grupo?:      string
+  prioridade?: PrioridadeCampoDDD  // P6.1
+  obrigatorio?: boolean             // P6.1
 }
 
 const CAMPOS_SISTEMA_FALLBACK: CampoSistemaOpcao[] = CAMPOS_PEDIDO_DDD_TODOS.map((c) => ({
-  valor:  c.campo,
-  rotulo: c.rotulo,
-  nivel:  c.nivel,
-  grupo:  c.grupo,
+  valor:       c.campo,
+  rotulo:      c.rotulo,
+  nivel:       c.nivel,
+  grupo:       c.grupo,
+  prioridade:  prioridadeDeCampo(c),
+  obrigatorio: c.obrigatorio,
 }))
+
+/**
+ * P6.1 — Set de campos essenciais (critica + principal) por nome interno.
+ * Usado para filtrar linhas do arquivo no Modo Essencial.
+ */
+const CAMPOS_ESSENCIAIS = new Set(
+  CAMPOS_PEDIDO_DDD_TODOS
+    .filter((c) => prioridadeDeCampo(c) !== 'secundaria')
+    .map((c) => c.campo)
+)
+
+/** P6.1 — Set de campos obrigatorios (criticos). */
+const CAMPOS_OBRIGATORIOS = new Set(
+  CAMPOS_PEDIDO_DDD_TODOS.filter((c) => c.obrigatorio).map((c) => c.campo)
+)
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -82,6 +103,9 @@ export function EtapaMapeamento({
 }: EtapaMapeamentoProps) {
   const [verDocumento, setVerDocumento] = useState(false)
   const [camposSistema, setCamposSistema] = useState<CampoSistemaOpcao[]>(CAMPOS_SISTEMA_FALLBACK)
+  // P6.1 — Estado do Modo Essencial e busca textual
+  const [modoEssencial, setModoEssencial] = useState(true)
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     // /campos enriquece o SSOT com colunas customizadas do tenant (P1.7).
@@ -139,6 +163,37 @@ export function EtapaMapeamento({
   const descartadas = mapeamento.filter(m => m.campo_sistema === '__drop__').length
   const total = mapeamento.length
 
+  // P6.1 — Indices originais (para preservar correspondencia com `mapeamento` ao chamar atualizarCampo)
+  const linhasFiltradas = useMemo(() => {
+    const buscaNorm = busca.trim().toLowerCase()
+    return mapeamento
+      .map((col, indexOriginal) => ({ col, indexOriginal }))
+      .filter(({ col }) => {
+        // Filtro 1: Modo Essencial — esconde linhas que NAO mapeiam para essencial
+        // (mas mantem visiveis as ainda nao mapeadas para o usuario decidir)
+        if (modoEssencial && col.campo_sistema && !CAMPOS_ESSENCIAIS.has(col.campo_sistema)) {
+          // Excecao: campo extra / descartado ficam ocultos no Modo Essencial tambem
+          return false
+        }
+        // Filtro 2: busca textual contra coluna_arquivo, valor_exemplo e rotulo do campo mapeado
+        if (buscaNorm.length > 0) {
+          const rotuloCampo = camposSistema.find(c => c.valor === col.campo_sistema)?.rotulo ?? ''
+          const haystack = `${col.coluna_arquivo} ${col.exemplo_valor ?? ''} ${rotuloCampo}`.toLowerCase()
+          if (!haystack.includes(buscaNorm)) return false
+        }
+        return true
+      })
+  }, [mapeamento, modoEssencial, busca, camposSistema])
+
+  // P6.1 — Contadores especificos para indicador "essenciais mapeados"
+  const essenciaisMapeados = mapeamento.filter(
+    m => m.campo_sistema && CAMPOS_ESSENCIAIS.has(m.campo_sistema)
+  ).length
+  const obrigatoriosMapeados = mapeamento.filter(
+    m => m.campo_sistema && CAMPOS_OBRIGATORIOS.has(m.campo_sistema)
+  ).length
+  const obrigatoriosFaltando = CAMPOS_OBRIGATORIOS.size - obrigatoriosMapeados
+
   return (
     <div style={{ position: 'relative' }}>
       {onVoltar && (
@@ -154,18 +209,17 @@ export function EtapaMapeamento({
 
       <div className="smart-import__mapa-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {/* P6.1 — Indicador focado em essenciais (em vez de "136 de 138" ruidoso) */}
           <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-            {mapeadas} de {total} colunas mapeadas
-            {extras > 0 && (
-              <span style={{ color: 'var(--color-info, #60a5fa)', marginLeft: '0.5rem' }} title="Dados preservados em campos extras do item">
-                · {extras} como campo extra
+            <strong style={{ color: 'var(--text-primary)' }}>{essenciaisMapeados} de {CAMPOS_ESSENCIAIS.size}</strong> campos essenciais mapeados
+            {obrigatoriosFaltando > 0 && (
+              <span style={{ color: '#ef4444', marginLeft: '0.5rem' }}>
+                · ⚠️ {obrigatoriosFaltando} obrigatorio{obrigatoriosFaltando > 1 ? 's' : ''} faltando
               </span>
             )}
-            {descartadas > 0 && (
-              <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                · {descartadas} descartadas
-              </span>
-            )}
+            <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem', fontSize: '0.6875rem' }}>
+              (total: {mapeadas}/{total})
+            </span>
           </p>
           {memoriaAplicada && (
             <>
@@ -208,9 +262,85 @@ export function EtapaMapeamento({
         </label>
       </div>
 
-      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-        Campos obrigatórios: <strong>Número do Pedido</strong> e <strong>Part Number</strong>
-      </p>
+      {/* P6.1 — Toolbar: toggle Essencial/Completo + busca */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        margin: '0.5rem 0',
+        padding: '0.5rem 0.75rem',
+        background: 'var(--bg-surface, #1e293b)',
+        borderRadius: '6px',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} role="group" aria-label="Modo de exibicao">
+          <button
+            type="button"
+            onClick={() => setModoEssencial(true)}
+            style={{
+              padding: '0.375rem 0.75rem',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              borderRadius: '4px',
+              border: '1px solid',
+              borderColor: modoEssencial ? 'var(--color-info, #60a5fa)' : 'transparent',
+              background: modoEssencial ? 'rgba(96,165,250,0.12)' : 'transparent',
+              color: modoEssencial ? 'var(--color-info, #60a5fa)' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+            }}
+            title="Mostra apenas campos criticos e principais (31 campos)"
+          >
+            <Star size={12} weight={modoEssencial ? 'fill' : 'regular'} aria-hidden="true" />
+            Essencial
+          </button>
+          <button
+            type="button"
+            onClick={() => setModoEssencial(false)}
+            style={{
+              padding: '0.375rem 0.75rem',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              borderRadius: '4px',
+              border: '1px solid',
+              borderColor: !modoEssencial ? 'var(--color-info, #60a5fa)' : 'transparent',
+              background: !modoEssencial ? 'rgba(96,165,250,0.12)' : 'transparent',
+              color: !modoEssencial ? 'var(--color-info, #60a5fa)' : 'var(--text-secondary)',
+              cursor: 'pointer',
+            }}
+            title="Mostra todos os campos do arquivo (incluindo secundarios)"
+          >
+            Completo
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: '180px', position: 'relative' }}>
+          <MagnifyingGlass size={14} aria-hidden="true" style={{ position: 'absolute', left: '0.5rem', color: 'var(--text-muted)' }} />
+          <input
+            type="search"
+            value={busca}
+            onChange={e => setBusca(e.target.value)}
+            placeholder="Buscar coluna do arquivo, valor ou campo..."
+            aria-label="Buscar campos do mapeamento"
+            style={{
+              flex: 1,
+              padding: '0.375rem 0.5rem 0.375rem 1.875rem',
+              fontSize: '0.75rem',
+              borderRadius: '4px',
+              border: '1px solid var(--bg-elevated, #334155)',
+              background: 'var(--bg-elevated, #0f172a)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+          Mostrando <strong style={{ color: 'var(--text-secondary)' }}>{linhasFiltradas.length}</strong> de {total}
+        </span>
+      </div>
 
       <div style={{ overflowX: 'auto' }}>
         <table className="smart-import__tabela" aria-label="Mapeamento de colunas">
@@ -224,57 +354,93 @@ export function EtapaMapeamento({
             </tr>
           </thead>
           <tbody>
-            {mapeamento.map((col, index) => (
-              <tr key={`${col.coluna_arquivo}-${index}`}>
-                <td style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
-                  {col.coluna_arquivo}
-                </td>
-                <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {col.exemplo_valor
-                    ? <span title={col.exemplo_valor}>{col.exemplo_valor}</span>
-                    : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
-                  }
-                </td>
-                <td>
-                  <select
-                    style={{
-                      minWidth: '200px',
-                      padding: '0.375rem 0.625rem',
-                      borderRadius: '6px',
-                      border: '1px solid var(--bg-elevated, #334155)',
-                      background: 'var(--bg-surface, #1e293b)',
-                      color: 'var(--text-primary)',
-                      fontSize: '0.8125rem',
-                      fontFamily: 'inherit',
-                      outline: 'none',
-                      cursor: 'pointer',
-                    }}
-                    value={col.campo_sistema ?? ''}
-                    onChange={e => atualizarCampo(index, e.target.value || null)}
-                    aria-label={`Campo sistema para ${col.coluna_arquivo}`}
-                  >
-                    <option value="">→ Campo extra (preservar)</option>
-                    <option value="__drop__">✕ Descartar este campo</option>
-                    {camposAgrupados.map(g => (
-                      <optgroup key={g.label} label={g.label}>
-                        {g.opcoes.map(c => (
-                          <option key={c.valor} value={c.valor}>{c.rotulo}</option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <BadgeConfianca confianca={col.confianca} nivel={col.nivel} campoSistema={col.campo_sistema} />
-                </td>
-                <td style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
-                  {col.inferido_por === 'memoria'  && 'Memoria'}
-                  {col.inferido_por === 'ia'       && 'IA'}
-                  {col.inferido_por === 'dados'    && 'Dados'}
-                  {col.inferido_por === 'usuario'  && 'Usuario'}
+            {linhasFiltradas.map(({ col, indexOriginal }) => {
+              // P6.1 — Determina destaque visual baseado em prioridade do campo mapeado
+              const ehObrigatorio = col.campo_sistema ? CAMPOS_OBRIGATORIOS.has(col.campo_sistema) : false
+              const ehEssencial = col.campo_sistema ? CAMPOS_ESSENCIAIS.has(col.campo_sistema) : false
+              return (
+                <tr
+                  key={`${col.coluna_arquivo}-${indexOriginal}`}
+                  style={ehObrigatorio ? { background: 'rgba(239,68,68,0.04)' } : undefined}
+                >
+                  <td style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+                    {ehObrigatorio && (
+                      <span
+                        title="Campo obrigatorio — sem isto nao cria pedido"
+                        style={{ color: '#ef4444', marginRight: '0.375rem', fontWeight: 700 }}
+                        aria-label="obrigatorio"
+                      >
+                        ⚠️
+                      </span>
+                    )}
+                    {!ehObrigatorio && ehEssencial && (
+                      <Star size={11} weight="fill" style={{ color: '#f59e0b', marginRight: '0.375rem', verticalAlign: '-1px' }} aria-label="essencial" />
+                    )}
+                    {col.coluna_arquivo}
+                  </td>
+                  <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {col.exemplo_valor
+                      ? <span title={col.exemplo_valor}>{col.exemplo_valor}</span>
+                      : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
+                    }
+                  </td>
+                  <td>
+                    <select
+                      style={{
+                        minWidth: '200px',
+                        padding: '0.375rem 0.625rem',
+                        borderRadius: '6px',
+                        border: '1px solid var(--bg-elevated, #334155)',
+                        background: 'var(--bg-surface, #1e293b)',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.8125rem',
+                        fontFamily: 'inherit',
+                        outline: 'none',
+                        cursor: 'pointer',
+                      }}
+                      value={col.campo_sistema ?? ''}
+                      onChange={e => atualizarCampo(indexOriginal, e.target.value || null)}
+                      aria-label={`Campo sistema para ${col.coluna_arquivo}`}
+                    >
+                      <option value="">→ Campo extra (preservar)</option>
+                      <option value="__drop__">✕ Descartar este campo</option>
+                      {camposAgrupados.map(g => (
+                        <optgroup key={g.label} label={g.label}>
+                          {g.opcoes.map(c => (
+                            <option key={c.valor} value={c.valor}>{c.rotulo}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <BadgeConfianca confianca={col.confianca} nivel={col.nivel} campoSistema={col.campo_sistema} />
+                  </td>
+                  <td style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
+                    {col.inferido_por === 'memoria'  && 'Memoria'}
+                    {col.inferido_por === 'ia'       && 'IA'}
+                    {col.inferido_por === 'dados'    && 'Dados'}
+                    {col.inferido_por === 'usuario'  && 'Usuario'}
+                  </td>
+                </tr>
+              )
+            })}
+            {linhasFiltradas.length === 0 && (
+              <tr>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
+                  Nenhum campo corresponde aos filtros atuais.{' '}
+                  {modoEssencial && (
+                    <button
+                      type="button"
+                      onClick={() => setModoEssencial(false)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-info, #60a5fa)', cursor: 'pointer', textDecoration: 'underline', padding: 0, fontSize: 'inherit' }}
+                    >
+                      Mostrar todos
+                    </button>
+                  )}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

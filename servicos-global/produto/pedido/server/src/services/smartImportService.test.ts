@@ -143,9 +143,10 @@ describe('inferirPorDados', () => {
   })
 
   it('detecta NCM com confianca >= 85', () => {
+    // P14 — campo `ncm` (legado) renomeado para `ncm_item` no SSOT atual
     const resultado = inferirPorDados(service, 'cod', ['8471.30.19', '8544.42.90', '8413.9100', '8409.91.00'])
     expect(resultado).not.toBeNull()
-    expect(resultado!.campo).toBe('ncm')
+    expect(resultado!.campo).toBe('ncm_item')
     expect(resultado!.confianca).toBeGreaterThanOrEqual(85)
   })
 
@@ -157,9 +158,11 @@ describe('inferirPorDados', () => {
   })
 
   it('detecta data (formato ISO) com confianca >= 70', () => {
+    // P14 — `data_embarque` (legado) nao existe no SSOT atual.
+    // Inferencia padrao agora retorna `data_emissao_pedido` (canonical do Pedido).
     const resultado = inferirPorDados(service, 'date', ['2026-01-15', '2026-03-01', '2025-12-20'])
     expect(resultado).not.toBeNull()
-    expect(resultado!.campo).toBe('data_embarque')
+    expect(resultado!.campo).toBe('data_emissao_pedido')
     expect(resultado!.confianca).toBeGreaterThanOrEqual(70)
   })
 

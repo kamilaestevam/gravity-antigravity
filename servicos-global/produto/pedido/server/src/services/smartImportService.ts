@@ -546,7 +546,12 @@ export class SmartImportService {
               select: { id: true },
             })
 
-            if (pedidoExistente && (dados['part_number'] || dados['descricao_item'])) {
+            // P14 — Reads e keys do Prisma alinhados ao SSOT/schema atual.
+            // Antes usava nomes LEGADOS (part_number, ncm, quantidade_inicial_pedido,
+            // peso_liquido_unitario, referencia_exportador, sequencia_item) que
+            // o Prisma .create() IGNORA silenciosamente — registros eram criados
+            // com campos NULL/0. Schema correto: part_number_item, ncm_item, etc.
+            if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
               // Calcular próxima sequencia_item no pedido existente
               const itemCountExistente = await (tx as Record<string, any>)['pedidoItem'].count({
                 where: { pedido_id: pedidoExistente.id, tenant_id: tenantId },
@@ -563,19 +568,19 @@ export class SmartImportService {
                     tenant_id:           tenantId,
                     company_id:          companyId ?? tenantId,
                     pedido_id:           pedidoExistente.id,
-                    sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : itemCountExistente + 1,
-                    part_number:         String(dados['part_number'] ?? ''),
-                    ncm:                 String(dados['ncm'] ?? ''),
-                    descricao_item:      String(dados['descricao_item'] ?? ''),
-                    quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
-                    quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
+                    sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : itemCountExistente + 1,
+                    part_number_item:       String(dados['part_number_item'] ?? ''),
+                    ncm_item:               String(dados['ncm_item'] ?? ''),
+                    descricao_item:         String(dados['descricao_item'] ?? ''),
+                    quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
+                    quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
                     casas_decimais_quantidade_item: casasConfig.quantidade,
                     unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
-                    moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
-                    valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                    moeda_item:             String(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
+                    valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
                     valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                    peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
-                    referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
+                    peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                    referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                     casas_decimais_valor_item:  casasConfig.valor,
                     campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
                   },
@@ -594,26 +599,26 @@ export class SmartImportService {
             }
           }
 
-          // Criar pedido novo com o item da linha atual
-          const itemPayload = (dados['part_number'] || dados['descricao_item']) ? {
+          // Criar pedido novo com o item da linha atual (P14 — nomes do SSOT)
+          const itemPayload = (dados['part_number_item'] || dados['descricao_item']) ? {
             itens: {
               create: [{
                 id:                  gerarId('pite'),
                 tenant_id:           tenantId,
                 company_id:          companyId ?? tenantId,
-                sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : 1,
-                part_number:         String(dados['part_number'] ?? ''),
-                ncm:                 String(dados['ncm'] ?? ''),
-                descricao_item:      String(dados['descricao_item'] ?? ''),
-                quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
-                quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
+                sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : 1,
+                part_number_item:       String(dados['part_number_item'] ?? ''),
+                ncm_item:               String(dados['ncm_item'] ?? ''),
+                descricao_item:         String(dados['descricao_item'] ?? ''),
+                quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
+                quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
                 casas_decimais_quantidade_item: casasConfig.quantidade,
                 unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
-                moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
-                valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                moeda_item:             String(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
+                valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
                 valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
-                referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
+                peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                 casas_decimais_valor_item:  casasConfig.valor,
                 campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
               }],
@@ -784,7 +789,8 @@ export class SmartImportService {
     // Detectar NCM (8 digitos)
     const ncmRegex = /^\d{4}[.\s]?\d{2}[.\s]?\d{2}$/
     if (amostras.filter(v => ncmRegex.test(v.trim())).length >= amostras.length * 0.7) {
-      return { campo: 'ncm', confianca: 88 }
+      // P14 — campo NCM no schema e' `ncm_item` (Pedido tem ncm via Item)
+      return { campo: 'ncm_item', confianca: 88 }
     }
 
     // Detectar moeda
@@ -793,10 +799,12 @@ export class SmartImportService {
       return { campo: 'moeda_pedido', confianca: 91 }
     }
 
-    // Detectar data
+    // Detectar data — P14: data_embarque nao existe mais no SSOT.
+    // data_emissao_pedido e' o canonical mais provavel para coluna de data
+    // sem contexto adicional (e' campo principal do Pedido).
     const dataRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}$/
     if (amostras.filter(v => dataRegex.test(v.trim())).length >= amostras.length * 0.8) {
-      return { campo: 'data_embarque', confianca: 72 }
+      return { campo: 'data_emissao_pedido', confianca: 72 }
     }
 
     return null
@@ -904,8 +912,17 @@ export class SmartImportService {
       }
     }
 
-    if (!dados['numero_pedido']) {
-      const partNumber = dados['part_number'] ? String(dados['part_number']) : ''
+    // P14 — Validacao por nivel da linha (master-detail).
+    // tipo_linha controla se o registro e' Pedido (master) ou Item (detail).
+    // Quando ausente, modo legado/flat — valida tudo como antes.
+    const tipoLinhaUpper = String(dados['tipo_linha'] ?? '').trim().toUpperCase()
+    const ehLinhaItem    = tipoLinhaUpper === 'ITEM'
+    const ehLinhaPedido  = tipoLinhaUpper === 'PEDIDO'
+    const ehFormatoFlat  = tipoLinhaUpper === ''  // sem tipo_linha — formato legado
+
+    // Numero do pedido (campo do Pedido — nao valida em linha ITEM isolada)
+    if (!dados['numero_pedido'] && (ehLinhaPedido || ehFormatoFlat)) {
+      const partNumber = dados['part_number_item'] ? String(dados['part_number_item']) : ''
       const sugestao = partNumber ? ` Sugestao: usar Part Number "${partNumber}" como referencia` : ''
       alertas.push({
         campo: 'numero_pedido',
@@ -915,34 +932,38 @@ export class SmartImportService {
       })
     }
 
-    if (!dados['part_number']) {
-      alertas.push({ campo: 'part_number', tipo: 'obrigatorio_ausente', mensagem: 'Part number ausente', nivel: 'aviso' })
+    // Part Number (campo do Item — so valida em linha ITEM ou flat)
+    if (!dados['part_number_item'] && (ehLinhaItem || ehFormatoFlat)) {
+      alertas.push({ campo: 'part_number_item', tipo: 'obrigatorio_ausente', mensagem: 'Part number ausente', nivel: 'aviso' })
     }
 
-    const qty = Number(dados['quantidade_inicial_pedido'])
-    if (dados['quantidade_inicial_pedido'] !== undefined && (isNaN(qty) || qty <= 0)) {
-      alertas.push({ campo: 'quantidade_inicial_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
+    // Quantidade inicial (campo do Item)
+    if (ehLinhaItem || ehFormatoFlat) {
+      const qty = Number(dados['quantidade_inicial_item'])
+      if (dados['quantidade_inicial_item'] !== undefined && (isNaN(qty) || qty <= 0)) {
+        alertas.push({ campo: 'quantidade_inicial_item', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
+      }
     }
 
+    // Valor por unidade (campo do Item)
     const val = Number(dados['valor_por_unidade_item'])
     if (dados['valor_por_unidade_item'] !== undefined && !isNaN(val) && val < 0) {
       alertas.push({ campo: 'valor_por_unidade_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
-    const ncm = String(dados['ncm'] ?? '').replace(/[.\s-]/g, '')
+    // NCM (campo do Item) — deve ter 8 digitos
+    const ncm = String(dados['ncm_item'] ?? '').replace(/[.\s-]/g, '')
     if (ncm && !/^\d{8}$/.test(ncm)) {
       alertas.push({
-        campo: 'ncm',
+        campo: 'ncm_item',
         tipo: 'formato_invalido',
-        mensagem: `NCM "${dados['ncm']}" invalido — deve ter 8 digitos numericos (ex: 84713019)`,
+        mensagem: `NCM "${dados['ncm_item']}" invalido — deve ter 8 digitos numericos (ex: 84713019)`,
         nivel: 'aviso',
       })
     }
-
-    const dataStr = String(dados['data_embarque'] ?? '')
-    if (dataStr && isNaN(new Date(dataStr).getTime())) {
-      alertas.push({ campo: 'data_embarque', tipo: 'formato_invalido', mensagem: 'Data de embarque com formato invalido', nivel: 'aviso' })
-    }
+    // P14 — Validacao de data_embarque removida: o campo nao existe no SSOT
+    // atual (substituido por datas especificas de etapa: data_emissao_pedido,
+    // data_documento_pedido, data_prevista_pedido_pronto, etc.).
 
     // ── Validacao de tipo de dados via SSOT (P1.1) ────────────────────────────
     // Para cada campo preenchido, valida conforme tipo declarado em CAMPOS_PEDIDO_DDD_TODOS:
@@ -950,12 +971,14 @@ export class SmartImportService {
     //   - tipo='numero': exige Number(v) sem NaN (rejeita texto livre)
     //   - tipo='select': exige valor em opcoesSelect (case-insensitive)
     //   - tipo='texto':  sem validacao adicional (qualquer string aceita)
-    // Pula campos ja validados especificamente acima (numero_pedido, part_number,
-    // quantidade_inicial_pedido, valor_por_unidade_item, ncm, data_embarque,
-    // tipo_linha, tipo_operacao) para evitar mensagens duplicadas.
+    // Pula campos ja validados especificamente acima (numero_pedido, part_number_item,
+    // quantidade_inicial_item, valor_por_unidade_item, ncm_item, tipo_linha,
+    // tipo_operacao) para evitar mensagens duplicadas.
+    // P14 — Nomes alinhados ao SSOT atual (eram legados: part_number, ncm,
+    // quantidade_inicial_pedido, data_embarque — que nao existem mais).
     const CAMPOS_JA_VALIDADOS = new Set([
-      'tipo_linha', 'tipo_operacao', 'numero_pedido', 'part_number',
-      'quantidade_inicial_pedido', 'valor_por_unidade_item', 'ncm', 'data_embarque',
+      'tipo_linha', 'tipo_operacao', 'numero_pedido', 'part_number_item',
+      'quantidade_inicial_item', 'valor_por_unidade_item', 'ncm_item',
     ])
     for (const def of CAMPOS_PEDIDO_DDD_TODOS as readonly CampoPedidoDDD[]) {
       if (CAMPOS_JA_VALIDADOS.has(def.campo)) continue
@@ -1010,7 +1033,8 @@ export class SmartImportService {
     }
 
     // valor_total_item = quantidade_inicial × valor_por_unidade (tolerancia 1%)
-    const qtyItem = numFlex(dados['quantidade_inicial_pedido'])
+    // P14 — quantidade_inicial_pedido (legado) -> quantidade_inicial_item
+    const qtyItem = numFlex(dados['quantidade_inicial_item'])
     const valorUnit = numFlex(dados['valor_por_unidade_item'])
     const valorTotal = numFlex(dados['valor_total_item'])
     if (qtyItem !== null && valorUnit !== null && valorTotal !== null && qtyItem > 0 && valorUnit > 0) {
@@ -1027,11 +1051,12 @@ export class SmartImportService {
     }
 
     // peso_bruto >= peso_liquido (impossibilidade fisica)
-    const pesoLiq = numFlex(dados['peso_liquido_unitario'])
-    const pesoBruto = numFlex(dados['peso_bruto_unitario'])
+    // P14 — schema PedidoItem usa _item: peso_liquido_unitario_item, peso_bruto_unitario_item
+    const pesoLiq = numFlex(dados['peso_liquido_unitario_item'])
+    const pesoBruto = numFlex(dados['peso_bruto_unitario_item'])
     if (pesoLiq !== null && pesoBruto !== null && pesoLiq > 0 && pesoBruto > 0 && pesoBruto < pesoLiq) {
       alertas.push({
-        campo: 'peso_bruto_unitario',
+        campo: 'peso_bruto_unitario_item',
         tipo: 'formato_invalido',
         mensagem: `Peso bruto (${pesoBruto}) menor que peso liquido (${pesoLiq}) — impossibilidade fisica`,
         nivel: 'aviso',

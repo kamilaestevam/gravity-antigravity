@@ -18,8 +18,11 @@
 }
 
 /* ── Container ───────────────────────────────────────────────────────────────── */
+/* P18.1 — Largura aumentada de 860px para 1100px para acomodar as 5 colunas
+   da etapa Mapeamento sem cortar a ultima ("Inferido Por"). Tela densa exige
+   espaco; max-width:100% protege monitores pequenos (modal encolhe). */
 .smart-import__container {
-  width: 860px;
+  width: 1100px;
   max-width: 100%;
   max-height: 90vh;
   background: var(--bg-base, #0f0f1a);

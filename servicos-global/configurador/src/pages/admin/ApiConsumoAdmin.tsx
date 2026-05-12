@@ -302,6 +302,7 @@ export function ApiConsumoAdmin() {
 
         <TabelaGlobal
           id="admin-api-consumo"
+          idKey="id_log_requisicao_api"
           colunas={colunas}
           dados={logs}
           acoesExportacao={getAcoesExportacaoPadrao(colunas, 'consumo-api-admin', 'Consumo da API (Admin)')}

@@ -276,6 +276,7 @@ export function ApiConsumo() {
 
         <TabelaGlobal
           id="api-consumo"
+          idKey="id_log_requisicao_api"
           colunas={colunas}
           dados={logs}
           acoesExportacao={getAcoesExportacaoPadrao(colunas, 'consumo-api', 'Consumo da API')}

@@ -626,6 +626,7 @@ export function FinanceiroWorkspace() {
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
             <TabelaGlobal<FaturaProdutoGravity>
               id="workspace-financeiro-faturas"
+              idKey="id_fatura_produto_gravity"
               dados={faturas}
               colunas={COLUNAS_FATURAS}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FATURAS, 'dados_tabela', 'Exportação de Dados')}
@@ -776,6 +777,7 @@ export function FinanceiroWorkspace() {
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<ProdutoCatalogo>
               id="workspace-financeiro-catalogo"
+              idKey="id_produto_gravity"
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}

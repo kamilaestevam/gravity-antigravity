@@ -58,6 +58,13 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 import { TabelaGlobal, type TabelaConfig } from '@nucleo/tabela-global'
 ```
 
+**Props obrigatórias** (TypeScript bloqueia build se faltar):
+- `dados: T[]` — array de itens
+- `colunas: TabelaGlobalColuna<T>[]` — definição das colunas
+- `idKey: keyof T & string` — campo único da linha (ex: `'id_workspace'`, `'codigo_ncm'`)
+
+> ⚠️ Sem `idKey`, a seleção em massa marca **todas** as linhas ao clicar **uma**. Bug histórico corrigido em 2026-05-06 — agora compile-time error. Sempre passe o campo identificador real do tipo.
+
 **Capacidades incluídas:**
 - Filtros configuráveis por campo
 - Busca global

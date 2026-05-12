@@ -64,6 +64,36 @@ import { PrismaClient } from '@prisma/client'
 
 ---
 
+## Contratos de Componente — Defaults Silenciosos Proibidos
+
+Em props que **afetam comportamento** (não apenas estilo), nunca use default value que possa falhar silenciosamente quando o tipo do consumidor não bate com a expectativa. Force a configuração explícita via TypeScript.
+
+❌ **Anti-padrão (causou bug em 2026-05-06):**
+```ts
+interface TabelaGlobalProps<T> {
+  idKey?: keyof T & string  // Padrão "id" — silencioso
+}
+// Componente faz: const id = String(item[idKey || 'id'])
+// Quando T não tem 'id', vira "undefined" em todas as linhas
+// → clicar 1 checkbox marca todas as linhas, sem erro
+```
+
+✅ **Padrão correto:**
+```ts
+interface TabelaGlobalProps<T> {
+  idKey: keyof T & string  // OBRIGATÓRIO — TS força explicitação
+}
+```
+
+**Princípio:** se uma prop pode introduzir bug invisível quando esquecida, **torne obrigatória**. TypeScript em compile-time é mais confiável que warning em runtime.
+
+**Quando defaults SÃO aceitáveis:**
+- Props puramente visuais (`tamanho='md'`, `variante='primario'`)
+- Props que controlam feature opcional (`ocultarBadge?: boolean`)
+- Props com valor que **sempre funciona** independente do tipo do consumidor
+
+---
+
 ## Validação de Dados — Zod em Toda Rota
 
 Nenhuma rota aceita `req.body` sem validação Zod. Todo endpoint valida a entrada antes de tocar o banco ou executar qualquer lógica.

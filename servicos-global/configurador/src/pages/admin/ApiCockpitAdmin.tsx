@@ -299,6 +299,7 @@ export function ApiCockpitAdmin() {
           {/* Painel GABI migrado para a aba "Monitor LLM" em 2026-05-07 */}
           <TabelaGlobal
             id="admin-servidores"
+            idKey="nome_servico_plataforma"
             colunas={colunasInventario}
             dados={servicosOrdenados}
             acoesExportacao={getAcoesExportacaoPadrao(colunasInventario, 'servidores-infraestrutura', 'Servidores de Infraestrutura')}

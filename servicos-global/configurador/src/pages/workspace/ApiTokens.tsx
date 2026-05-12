@@ -272,6 +272,7 @@ export function ApiTokens() {
 
         <TabelaGlobal
           id="api-tokens"
+          idKey="id_api_token"
           colunas={colunas}
           dados={tokens}
           acoesExportacao={getAcoesExportacaoPadrao(colunas, 'tokens-api', 'Tokens de API')}

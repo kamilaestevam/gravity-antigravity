@@ -202,6 +202,7 @@ export function ApiCockpit() {
         <div style={{ background: 'var(--ws-bg-card, rgba(30, 41, 59, 0.5))', borderRadius: '12px', padding: '1.5rem', border: '1px solid var(--border-color)' }}>
           <TabelaGlobal
             id="cockpit-services"
+            idKey="nome_servico_plataforma"
             colunas={colunasServicos}
             dados={servicosOrdenados}
             acoesExportacao={getAcoesExportacaoPadrao(colunasServicos, 'servidores-infraestrutura', 'Servidores')}

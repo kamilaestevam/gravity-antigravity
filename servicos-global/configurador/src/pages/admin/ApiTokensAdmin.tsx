@@ -320,6 +320,7 @@ export function ApiTokensAdmin() {
         ) : (
           <TabelaGlobal
             id="admin-api-tokens"
+            idKey="id_api_token"
             colunas={colunas}
             dados={tokens}
             acoesExportacao={getAcoesExportacaoPadrao(colunas, 'tokens-api-admin', 'Tokens de API (Admin)')}

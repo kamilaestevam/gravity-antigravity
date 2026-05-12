@@ -329,6 +329,7 @@ export function ApiWebhooks() {
 
         <TabelaGlobal
           id="api-webhooks"
+          idKey="id_webhook_configuracao"
           colunas={colunas}
           dados={webhooks}
           acoesExportacao={getAcoesExportacaoPadrao(colunas, 'webhooks', 'Webhooks')}

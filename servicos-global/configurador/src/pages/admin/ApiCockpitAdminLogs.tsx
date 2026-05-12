@@ -197,6 +197,7 @@ export function ApiCockpitAdminLogs() {
 
         <TabelaGlobal
           id="admin-logs-globais"
+          idKey="id_log_requisicao_api"
           colunas={colunas}
           dados={logs}
           acoesExportacao={getAcoesExportacaoPadrao(colunas, 'logs-globais', 'Logs Globais (Admin)')}

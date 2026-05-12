@@ -106,7 +106,13 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   colunas: TabelaGlobalColuna<T>[]
   acoes?: TabelaGlobalAcao<T>[]
   acoesExportacao?: TabelaExportAcao<T>[]
-  idKey?: keyof T & string // Padrão "id"
+  /** OBRIGATÓRIO — campo único que identifica cada linha. Sem ele, a seleção
+   *  com checkbox marca todas as linhas ao mesmo tempo (bug do default "id"
+   *  silencioso). Use o ID natural do tipo: `id_workspace`, `id_usuario`,
+   *  `id_assinatura_produto_gravity`, `codigo_ncm`, etc.
+   *  Decisão coord+lider 2026-05-06: tornado obrigatório para prevenir bug
+   *  de seleção em massa por falta de configuração. */
+  idKey: keyof T & string
   mensagemVazio?: string
   mensagemSemFiltro?: string
   renderExpandido?: (item: T) => React.ReactNode
@@ -510,7 +516,7 @@ function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void
 export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalProps<T>) {
   const { t } = useTranslation()
   const {
-    dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro,
+    dados, colunas, acoes, acoesExportacao, idKey, mensagemVazio, mensagemSemFiltro,
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
     id: tableId, kanban, frozenColunas = 0, ocultarSelecao = false,

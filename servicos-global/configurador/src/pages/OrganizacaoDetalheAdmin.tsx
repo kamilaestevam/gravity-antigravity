@@ -418,6 +418,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<LogAuditoria>
             id={`admin-organizacao-audit-${organizacao.id_organizacao}`}
+            idKey="id"
             dados={logs}
             colunas={COLUNAS_AUDIT}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_AUDIT, 'dados_tabela', 'Exportação de Dados')}
@@ -432,6 +433,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<WorkspaceApi>
             id={`admin-organizacao-workspaces-${organizacao.id_organizacao}`}
+            idKey="id_workspace"
             dados={workspacesLista}
             colunas={COLUNAS_WS}
             mensagemVazio="Nenhum workspace cadastrado para esta organização."

@@ -348,6 +348,7 @@ export function NcmIntegracaoAdmin() {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           <TabelaGlobal<NcmSyncLogApi>
+            idKey="id_ncm_sync_log"
             colunas={COLUNAS}
             dados={logs}
             carregando={carregando}

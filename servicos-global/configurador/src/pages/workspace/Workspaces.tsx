@@ -434,6 +434,7 @@ export function Workspaces() {
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<Workspace>
           id="workspace-list"
+          idKey="id_workspace"
           dados={workspaces}
           colunas={COLUNAS}
           acoes={ACOES}

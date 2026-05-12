@@ -172,13 +172,34 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
   async function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
     if (!orgEditando) return
     try {
-      await adminOrganizacoesApi.update(orgEditando.id_organizacao, {
-        nome_organizacao:       dados.nome,
-        subdominio_organizacao: dados.subdominio,
-      })
+      // Fix wiring 2026-05-06: antes só enviava nome+subdominio — cnpj/estado/
+      // cidade/segmento/tipo eram silenciosamente descartados. UI mostrava
+      // "salvo com sucesso" mentindo. Agora envia tudo que o modal coletou.
+      const { organizacao: atualizada } = await adminOrganizacoesApi.update(
+        orgEditando.id_organizacao,
+        {
+          nome_organizacao:       dados.nome,
+          subdominio_organizacao: dados.subdominio,
+          cnpj_organizacao:       dados.cnpj,
+          estado_organizacao:     dados.estado,
+          cidade_organizacao:     dados.cidade,
+          segmento_organizacao:   dados.segmento,
+          tipo_organizacao:       dados.tipo_empresa,
+        },
+      )
+      // Atualiza state local com a versão devolvida pelo backend (paridade).
       setOrganizacoes(prev => prev.map(o =>
         o.id_organizacao === orgEditando.id_organizacao
-          ? { ...o, nome_organizacao: dados.nome ?? o.nome_organizacao, subdominio_organizacao: dados.subdominio ?? o.subdominio_organizacao }
+          ? {
+              ...o,
+              nome_organizacao:       atualizada.nome_organizacao,
+              subdominio_organizacao: atualizada.subdominio_organizacao,
+              cnpj_organizacao:       atualizada.cnpj_organizacao ?? null,
+              estado_organizacao:     atualizada.estado_organizacao ?? null,
+              cidade_organizacao:     atualizada.cidade_organizacao ?? null,
+              segmento_organizacao:   atualizada.segmento_organizacao ?? null,
+              tipo_organizacao:       atualizada.tipo_organizacao ?? null,
+            }
           : o
       ))
       addNotification({ type: 'success', message: 'Organização atualizada com sucesso.' })
@@ -528,6 +549,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<OrganizacaoApi>
           id="admin-organizations"
+          idKey="id_organizacao"
           dados={organizacoes}
           colunas={COLUNAS}
           acoes={ACOES}
@@ -546,6 +568,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
                 <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                   <TabelaGlobal<WorkspaceApi>
                     id={`admin-organizacao-workspaces-${organizacao.id_organizacao}`}
+                    idKey="id_workspace"
                     dados={lista}
                     colunas={COLUNAS_FILHAS}
                     acoes={ACOES_FILHAS}

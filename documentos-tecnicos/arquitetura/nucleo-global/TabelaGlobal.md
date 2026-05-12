@@ -50,10 +50,25 @@ Posicionamento padrão no corpo principal de uma `PaginaGlobal`, abaixo dos Stat
 
 ---
 
+## 🔑 Propriedades Obrigatórias
+
+Estas três props devem **sempre** ser passadas — TypeScript bloqueia o build se faltarem.
+
+| Prop | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `dados` | `T[]` | Array de itens a renderizar. |
+| `colunas` | `TabelaGlobalColuna<T>[]` | Definição das colunas (chave, label, tipo, render). |
+| `idKey` | `keyof T & string` | Campo **único** que identifica cada linha. Ex: `'id_workspace'`, `'id_usuario'`, `'codigo_ncm'`. |
+
+> ⚠️ **Armadilha histórica corrigida em 2026-05-06:** `idKey` tinha default `"id"` silencioso. Quando o tipo `T` não tinha campo `id` (ex: `Workspace.id_workspace`), todas as linhas viravam `"undefined"` no Set de seleção — **clicar 1 checkbox marcava TODAS as linhas**. A prop é agora obrigatória em compile-time para prevenir esse bug.
+
+---
+
 ## 💻 Exemplo de Implementação
 
 ```tsx
-<TabelaGlobal
+<TabelaGlobal<Workspace>
+  idKey="id_workspace"          // OBRIGATÓRIO — campo único da linha
   dados={workspaces}
   colunas={colunas}
   acoes={acoes}

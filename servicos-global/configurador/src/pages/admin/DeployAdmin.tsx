@@ -474,6 +474,7 @@ export function DeployAdmin() {
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<DeployApi>
             id="admin-deploys-log"
+            idKey="id"
             dados={deploys}
             colunas={COLUNAS}
             acoes={ACOES}

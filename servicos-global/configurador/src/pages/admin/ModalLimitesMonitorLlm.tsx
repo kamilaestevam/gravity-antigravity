@@ -467,6 +467,7 @@ export function ModalLimitesMonitorLlm({ aberto, aoFechar }: Props) {
 
           <TabelaGlobal<LimiteUnificado>
             id="modal-llm-limites"
+            idKey="id"
             colunas={colunas}
             dados={linhas}
             mensagemVazio={

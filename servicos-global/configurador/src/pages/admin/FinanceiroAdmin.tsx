@@ -682,6 +682,7 @@ export function FinanceiroAdmin() {
         <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
           <TabelaGlobal<GravityInvoiceApi>
             id="admin-financeiro-invoices"
+            idKey="id"
             dados={invoices}
             colunas={COLUNAS}
             acoes={ACOES}

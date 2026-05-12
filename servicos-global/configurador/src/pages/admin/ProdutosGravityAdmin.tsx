@@ -671,6 +671,7 @@ export function ProdutosGravityAdmin() {
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<ProdutoCatalogo>
               id="admin-products-catalog"
+              idKey="id_produto_gravity"
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}
@@ -720,6 +721,7 @@ export function ProdutosGravityAdmin() {
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<NegociacaoEspecial>
               id="admin-products-negotiations"
+              idKey="id_negociacao_especial"
               dados={negociacoes}
               colunas={COLUNAS_NEGOCIACOES}
               acoes={ACOES_NEGOCIACOES}

@@ -334,6 +334,7 @@ export function MonitorLlmAdmin() {
         {/* Tabela de uso por modelo (mes corrente). */}
         <TabelaGlobal<ModeloLinhaUso>
           id="admin-monitor-llm-modelos"
+          idKey="modelo"
           colunas={colunasModelo}
           dados={linhasModelo}
           acoesExportacao={getAcoesExportacaoPadrao(

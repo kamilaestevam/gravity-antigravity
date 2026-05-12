@@ -547,6 +547,7 @@ export function EmpresasEParceiros() {
         ) : (
           <TabelaGlobal<EmpresaComTipos>
             id="workspace-empresas-e-parceiros"
+            idKey="suid_empresa"
             dados={empresas.map((e) => ({ ...e, tipos_empresa: derivarTiposEmpresa(e) }))}
             colunas={COLUNAS}
             acoes={ACOES}

@@ -699,6 +699,7 @@ export default function ImportarBloco() {
 
               {/* Preview table */}
               <TabelaGlobal<ValidatedRow>
+                idKey="id"
                 colunas={colunas}
                 dados={rows}
                 itensPorPagina={25}

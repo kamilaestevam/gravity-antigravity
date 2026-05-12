@@ -28,6 +28,7 @@ import {
   aoVincularUsuarioAoWorkspace,
   aoDesvincularUsuarioDoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
+import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
 
 export const usersRouter = Router()
 
@@ -266,106 +267,32 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       )
     }
 
-    const { email_usuario, nome_usuario, tipo_usuario, workspaces_alvo } = parsed.data
-
-    // Verifica se usuário já existe na organização
-    const existente = await prisma.usuario.findFirst({
-      where: { id_organizacao: req.auth.id_organizacao, email_usuario },
+    // Rota regular: alvo = própria organização do ator (intra-org).
+    // A rota admin (/admin/usuarios/convidar) usa o mesmo service mas
+    // passa id_organizacao_alvo do body (cross-org, SUPER_ADMIN only).
+    const resultado = await convidarUsuarioService({
+      ator: {
+        id_usuario: req.auth.id_usuario,
+        id_organizacao: req.auth.id_organizacao,
+        tipo_usuario: req.auth.tipo_usuario,
+        nome_usuario: req.auth.nome_usuario,
+        clerkUserId: req.auth.clerkUserId,
+        ip: req.ip,
+      },
+      id_organizacao_alvo: req.auth.id_organizacao,
+      email_usuario: parsed.data.email_usuario,
+      nome_usuario: parsed.data.nome_usuario,
+      tipo_usuario: parsed.data.tipo_usuario,
+      workspaces_alvo: parsed.data.workspaces_alvo,
     })
-    if (existente) {
-      throw new AppError('Usuário já pertence a esta organização', 409, 'CONFLICT')
-    }
-
-    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica).
-    // `redirectUrl` faz o link do e-mail apontar para a tela Gravity-styled
-    // /cadastro/continuar em vez do Account Portal hospedado em *.accounts.dev.
-    const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
-    const invitation = await clerkClient.invitations.createInvitation({
-      emailAddress: email_usuario,
-      redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
-    })
-
-    // Pré-computa workspaces fora da transação — evita lock de longa duração em reads
-    let workspacesParaVincular: { id_workspace: string }[] = []
-
-    if (tipo_usuario === 'MASTER' || workspaces_alvo === 'all') {
-      workspacesParaVincular = await prisma.workspace.findMany({
-        where: { id_organizacao: req.auth.id_organizacao, status_workspace: 'ATIVO' },
-        select: { id_workspace: true },
-      })
-    } else if (Array.isArray(workspaces_alvo) && workspaces_alvo.length > 0) {
-      // IDOR prevention: valida que todos os IDs pertencem à organização antes do insert
-      workspacesParaVincular = await prisma.workspace.findMany({
-        where: {
-          id_workspace: { in: workspaces_alvo },
-          id_organizacao: req.auth.id_organizacao,
-          status_workspace: 'ATIVO',
-        },
-        select: { id_workspace: true },
-      })
-      if (workspacesParaVincular.length !== workspaces_alvo.length) {
-        throw new AppError(
-          'Um ou mais workspaces não pertencem a esta organização',
-          403,
-          'FORBIDDEN',
-        )
-      }
-    }
-
-    // Auto-vínculo a workspaces futuros (decisão arquitetural 2026-05-05).
-    // Quando o admin convida com 'all', o usuário também recebe vínculo automático
-    // a workspaces criados depois (F3). MASTER tem bypass por Mand. 04 — flag false.
-    const acesso_workspaces_futuros =
-      workspaces_alvo === 'all' && (tipo_usuario === 'PADRAO' || tipo_usuario === 'FORNECEDOR')
-
-    // Cria usuário + vínculos atomicamente — se o createMany falhar, o usuário não é criado
-    const usuario = await prisma.$transaction(async (tx) => {
-      const criado = await tx.usuario.create({
-        data: {
-          id_organizacao: req.auth.id_organizacao,
-          id_clerk_usuario: `pending_${invitation.id}`,
-          email_usuario,
-          nome_usuario,
-          tipo_usuario,
-          acesso_workspaces_futuros,
-        },
-      })
-
-      if (workspacesParaVincular.length > 0) {
-        await tx.usuarioWorkspace.createMany({
-          data: workspacesParaVincular.map((w) => ({
-            id_organizacao: req.auth.id_organizacao,
-            id_usuario: criado.id_usuario,
-            id_workspace: w.id_workspace,
-            tipo_usuario_workspace: tipo_usuario,
-            ativo_usuario_workspace: true,
-          })),
-          skipDuplicates: true,
-        })
-      }
-
-      return criado
-    })
-
-    // PORTÃO 3 auto-sync (Interpretação 1) — propaga chaves para cada workspace
-    // vinculado no convite (best-effort, não bloqueia o convite).
-    if (workspacesParaVincular.length > 0 && tipo_usuario !== 'MASTER') {
-      for (const w of workspacesParaVincular) {
-        aoVincularUsuarioAoWorkspace({
-          id_organizacao: req.auth.id_organizacao,
-          id_workspace: w.id_workspace,
-          id_usuario: usuario.id_usuario,
-        }).catch(() => { /* best-effort */ })
-      }
-    }
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
       usuario: {
-        id_usuario: usuario.id_usuario,
-        email_usuario: usuario.email_usuario,
-        tipo_usuario: usuario.tipo_usuario,
-        acesso_workspaces_futuros: usuario.acesso_workspaces_futuros,
+        id_usuario: resultado.id_usuario,
+        email_usuario: resultado.email_usuario,
+        tipo_usuario: resultado.tipo_usuario,
+        acesso_workspaces_futuros: resultado.acesso_workspaces_futuros,
       },
     })
   } catch (err) {

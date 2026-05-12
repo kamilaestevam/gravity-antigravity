@@ -69,9 +69,16 @@ export async function requireAuth(
     })
 
     // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
-    // Seguro: aceita apenas se houver exatamente um usuário com esse email no sistema
-    // (sem ambiguidade → impossível cruzar tenant boundaries).
-    // Requer email primário verificado — nunca usa fallback de índice 0 (defense-in-depth).
+    // Requer email primário verificado (defense-in-depth).
+    //
+    // 3 cenários (Mand. 08 — sem fallback silencioso):
+    //   • 0 candidatos → não vincula, segue para 401
+    //   • 1 candidato  → caminho rápido, vincula direto (99% dos casos)
+    //   • >1 candidato → AMBIGUIDADE cross-org (mesmo email convidado em
+    //                    múltiplas orgs). Plan B v6 — lazy disambiguation:
+    //                    consulta Clerk por invitations ACEITAS desse email
+    //                    e usa a mais recente para deterministicamente saber
+    //                    qual `pending_inv_*` virou este `user_*`.
     if (!user) {
       try {
         const clerkUser = await clerkClient.users.getUser(verified.sub)
@@ -86,19 +93,74 @@ export async function requireAuth(
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({
             where: { email_usuario: primaryEmail },
-            select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true },
+            select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, id_clerk_usuario: true },
           })
+
           if (candidates.length === 1) {
+            // Caminho rápido — 99% dos casos
             const only = candidates[0]
             await prisma.usuario.update({
               where: { id_usuario: only.id_usuario },
               data: { id_clerk_usuario: verified.sub },
             })
-            user = only
+            user = { id_usuario: only.id_usuario, id_organizacao: only.id_organizacao, tipo_usuario: only.tipo_usuario, nome_usuario: only.nome_usuario }
+          } else if (candidates.length > 1) {
+            // Ambiguidade cross-org — log alto (Mand. 08) + tenta desambiguar
+            // pela invitation aceita no Clerk
+            // eslint-disable-next-line no-console
+            console.warn('[requireAuth] EMAIL_FALLBACK_AMBIGUO', {
+              email: primaryEmail,
+              candidates: candidates.length,
+              candidatesIds: candidates.map(c => c.id_usuario),
+            })
+
+            try {
+              const acceptedList = await clerkClient.invitations.getInvitationList({ status: 'accepted' })
+              const dataArr = Array.isArray(acceptedList) ? acceptedList : (acceptedList as { data?: unknown[] })?.data ?? []
+              const acceptedByEmail = (dataArr as { id: string; emailAddress: string; createdAt: number }[])
+                .filter(inv => inv.emailAddress === primaryEmail)
+                .sort((a, b) => b.createdAt - a.createdAt)
+
+              for (const inv of acceptedByEmail) {
+                const matched = candidates.find(c => c.id_clerk_usuario === `pending_${inv.id}`)
+                if (matched) {
+                  await prisma.usuario.update({
+                    where: { id_usuario: matched.id_usuario },
+                    data: { id_clerk_usuario: verified.sub },
+                  })
+                  user = {
+                    id_usuario: matched.id_usuario,
+                    id_organizacao: matched.id_organizacao,
+                    tipo_usuario: matched.tipo_usuario,
+                    nome_usuario: matched.nome_usuario,
+                  }
+                  // eslint-disable-next-line no-console
+                  console.log('[requireAuth] EMAIL_FALLBACK_DESAMBIGUADO_VIA_CLERK', {
+                    email: primaryEmail,
+                    invitation_id: inv.id,
+                    id_usuario: matched.id_usuario,
+                    id_organizacao: matched.id_organizacao,
+                  })
+                  break
+                }
+              }
+
+              if (!user) {
+                // eslint-disable-next-line no-console
+                console.error('[requireAuth] FALHA_DESAMBIGUAR_VIA_CLERK', {
+                  email: primaryEmail,
+                  candidates: candidates.length,
+                  invitations_aceitas: acceptedByEmail.length,
+                })
+              }
+            } catch (errClerk) {
+              // eslint-disable-next-line no-console
+              console.error('[requireAuth] CLERK_INVITATIONS_API_FALHOU', errClerk)
+            }
           }
         }
       } catch {
-        // Falha ao consultar Clerk — continua sem o fallback
+        // Falha ao consultar Clerk users.getUser — continua sem o fallback
       }
     }
 

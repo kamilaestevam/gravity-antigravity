@@ -22,6 +22,7 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
+import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
 import { join, resolve } from 'path'
@@ -136,6 +137,14 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
           nome_organizacao: true,
           subdominio_organizacao: true,
           status_organizacao: true,
+          // Fix 2026-05-06: select restrito antes omitia os 5 campos cadastrais,
+          // entao listagem admin nao mostrava valores que o usuario editou via
+          // PATCH /me. Modal de edicao abria vazio. Mand. 09 (paridade contrato).
+          cnpj_organizacao: true,
+          estado_organizacao: true,
+          cidade_organizacao: true,
+          segmento_organizacao: true,
+          tipo_organizacao: true,
           data_criacao_organizacao: true,
           _count: { select: { users_organizacao: true, companies_organizacao: true } },
           companies_organizacao: {
@@ -1549,23 +1558,30 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (_req, _res, next) => {
 
 /**
  * POST /api/v1/admin/usuarios/convidar
- * Convida um usuário com role de plataforma (SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER).
- * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
- * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
+ * Convida um usuário cross-org.
+ *
+ * Apenas SUPER_ADMIN pode usar (ADMIN é read-only). Diferente da rota regular
+ * `/v1/usuarios/convidar` (que cria na própria org do ator MASTER), aqui o
+ * ator passa explicitamente `id_organizacao_alvo` no body — útil para
+ * SUPER_ADMIN gerenciar usuários em organizações clientes.
+ *
+ * Toda a lógica (validações, transação atômica, audit, CP6 Portão 3) está
+ * em `convidar-usuario-service.ts` — compartilhado com a rota regular.
  */
-// Regra ε (skill `seguranca/permissoes`): SUPER_ADMIN/ADMIN só via seed do
-// banco. Convite via API pública aceita apenas tipos atribuíveis a usuários
-// de organização (cliente ou Gravity-interna).
-// Convite admin — aceita os 5 tipos. Regra condicional (decisão dono
-// 2026-05-11): SUPER_ADMIN/ADMIN só são atribuíveis se a organização do
-// destinatário tem hospeda_colaboradores_gravity = true. Como o convite
-// admin cria o usuário na PRÓPRIA organização do ator (req.auth.id_organizacao),
-// a validação em runtime (mais abaixo) checa essa flag na org do ator.
 const AdminInviteSchema = z.object({
+  id_organizacao_alvo: z.string().cuid(),
   email_usuario: z.string().email().max(255),
   nome_usuario: z.string().min(1).max(200),
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
-})
+  workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
+}).strict().refine(
+  (d) =>
+    d.tipo_usuario === 'MASTER'
+    || d.tipo_usuario === 'SUPER_ADMIN'
+    || d.tipo_usuario === 'ADMIN'
+    || d.workspaces_alvo !== undefined,
+  { message: 'Standard/Fornecedor exige pelo menos um workspace', path: ['workspaces_alvo'] },
+)
 
 adminRouter.post('/usuarios/convidar', async (req, res, next) => {
   try {
@@ -1574,12 +1590,9 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const { email_usuario, nome_usuario, tipo_usuario } = parsed.data
-
-    // Apenas SUPER_ADMIN pode convidar via admin panel. ADMIN é read-only
-    // (decisão dono 2026-05-11). Os outros tipos não chegam aqui — adminRouter
-    // já tem `requireAuth + requireGravityAdmin` (que aceita SAdmin/ADMIN), mas
-    // ADMIN é bloqueado neste endpoint explicitamente.
+    // SUPER_ADMIN-only — ADMIN é read-only global (decisão dono 2026-05-11).
+    // adminRouter já tem `requireAuth + requireGravityAdmin` (aceita SAdmin+ADMIN),
+    // mas este endpoint específico bloqueia ADMIN.
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError(
         'Apenas Super Admin pode convidar usuários (ADMIN é read-only)',
@@ -1588,71 +1601,25 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       )
     }
 
-    // Regra condicional: SAdmin/ADMIN só atribuíveis a usuários de organização
-    // que hospeda colaboradores Gravity. Como o convite cria o usuário na
-    // própria org do ator, checa a flag dessa org.
-    if (tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN') {
-      const orgAtor = await prisma.organizacao.findUnique({
-        where: { id_organizacao: req.auth.id_organizacao },
-        select: { hospeda_colaboradores_gravity: true },
-      })
-      if (!orgAtor?.hospeda_colaboradores_gravity) {
-        throw new AppError(
-          'SUPER_ADMIN/ADMIN só podem ser convidados em organizações que hospedam colaboradores da Gravity',
-          403,
-          'TIPO_GRAVITY_EXIGE_ORG_GRAVITY',
-        )
-      }
-    }
-
-    // Verifica se já existe usuário com esse e-mail na organização HQ
-    const existing = await prisma.usuario.findFirst({ where: { email_usuario, id_organizacao: req.auth.id_organizacao } })
-    if (existing) {
-      throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
-    }
-
-    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica).
-    // `redirectUrl` faz o link do e-mail apontar para a tela Gravity-styled
-    // /cadastro/continuar em vez do Account Portal hospedado em *.accounts.dev.
-    const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
-    const invitation = await clerkClient.invitations.createInvitation({
-      emailAddress: email_usuario,
-      redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
-    })
-
-    // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
-    const usuarioCriado = await prisma.usuario.create({
-      data: {
+    const resultado = await convidarUsuarioService({
+      ator: {
+        id_usuario: req.auth.id_usuario,
         id_organizacao: req.auth.id_organizacao,
-        id_clerk_usuario: `pending_${invitation.id}`,
-        email_usuario,
-        nome_usuario,
-        tipo_usuario,
+        tipo_usuario: req.auth.tipo_usuario,
+        nome_usuario: req.auth.nome_usuario,
+        clerkUserId: req.auth.clerkUserId,
+        ip: req.ip,
       },
+      id_organizacao_alvo: parsed.data.id_organizacao_alvo,
+      email_usuario: parsed.data.email_usuario,
+      nome_usuario: parsed.data.nome_usuario,
+      tipo_usuario: parsed.data.tipo_usuario,
+      workspaces_alvo: parsed.data.workspaces_alvo,
     })
-
-    AuditService.log({
-      id_organizacao: req.auth.id_organizacao,
-      tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.nome_usuario,
-      ip_ator_historico_log: req.ip,
-      modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Usuario',
-      id_recurso_historico_log: usuarioCriado.id_usuario,
-      acao_historico_log: 'CONVIDAR',
-      detalhe_acao_historico_log: `Convite enviado — tipo_usuario=${tipo_usuario}`,
-      estado_posterior_historico_log: { email_usuario: usuarioCriado.email_usuario, tipo_usuario: usuarioCriado.tipo_usuario },
-      status_historico_log: 'SUCESSO',
-    }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      usuario: {
-        id_usuario: usuarioCriado.id_usuario,
-        email_usuario: usuarioCriado.email_usuario,
-        tipo_usuario: usuarioCriado.tipo_usuario,
-      },
+      usuario: resultado,
     })
   } catch (err) {
     next(err)

@@ -322,8 +322,12 @@
 /* Quando TooltipGlobal envolve um campo do formulario, o tg-trigger (span
    inline-flex) shrinkwrap-a o conteudo e o input fica visualmente mais
    estreito que os demais. Forca o trigger a ocupar 100% dentro de
-   CampoGeralGlobal. */
+   CampoGeralGlobal e o filho direto (.ws-input-icon-wrap) a esticar — sem
+   width: 100% no filho, ele continua shrink-wrapping mesmo com o pai flex. */
 .login-global-panel .tg-trigger {
   display: flex;
+  width: 100%;
+}
+.login-global-panel .tg-trigger > .ws-input-icon-wrap {
   width: 100%;
 }

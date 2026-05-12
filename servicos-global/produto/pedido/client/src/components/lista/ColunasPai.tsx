@@ -104,22 +104,42 @@ export const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { curr
 export function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, tooltip?: { titulo: string; descricao: string }) {
   const itens = row.itens ?? []
   if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
-  const unidades = [...new Set(itens.map(i => i.unidade_comercializada_item ?? 'UN'))]
+
+  // Onda A8 — homogeneidade de unidade. Considera apenas itens que de fato
+  // contribuem para a soma (valor numérico > 0). Itens com qty zero não
+  // poluem a detecção de divergência (e a soma deles é 0 mesmo).
+  const unidadesContribuintes = new Set(
+    itens
+      .filter(i => (Number(i[campoItem]) || 0) > 0)
+      .map(i => i.unidade_comercializada_item ?? 'UN')
+  )
   const wrap = (node: React.ReactNode) => tooltip
     ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
     : <>{node}</>
+
+  // Unidades divergentes → não somar; mostrar alerta no padrão `renderAgregado`.
+  if (unidadesContribuintes.size > 1) {
+    return wrap(renderAgregado(null, true, 'Unidades divergentes entre itens'))
+  }
+
+  const unidade = [...unidadesContribuintes][0] ?? 'UN'
   const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
   return wrap(
     <span className="gtv-celula-moeda">
       {fmtQuantidade(soma, casas)}
-      <span className="gtv-celula-unidade-badge">{unidades[0]}</span>
+      <span className="gtv-celula-unidade-badge">{unidade}</span>
     </span>
   )
 }
 
 // ── Helper: badge de divergência entre itens ─────────────────────────────────
-// Usado pelas colunas que agregam valores dos filhos sem precisar de row.itens.
-// Backend já pré-computa os flags _divergente e _valor_unico na list view.
+// Usado pelas colunas que agregam valores dos filhos.
+// Os flags `_divergente` e `_valor_unico` são populados no FRONTEND (não no
+// backend, apesar de comentário antigo dizer o contrário). A função que
+// popula é `calcularDivergencias()` em `Pedidos.tsx`, disparada quando os
+// itens do pedido são carregados (expansão da linha). Backend só retorna
+// os campos brutos do Pedido — a divergência é detectada client-side por
+// `getAlertavelKeys()` em `shared/columnAlertConfig.ts`.
 const WarnIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -328,13 +348,20 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     tooltipDescricao: t('pedido.coluna_pai.valor_total_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
+      // Onda A8 — homogeneidade de moeda. Quando itens divergem em moeda,
+      // o helper recalcularAgregadosPedido grava `valor_total_pedido = null`
+      // e o front (via calcularDivergencias em Pedidos.tsx) seta a flag
+      // `moeda_item_divergente = true`. renderAgregado então mostra o
+      // alerta padrão "⚠ Moedas divergentes entre itens".
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
+      const valorFormatado = row.valor_total_pedido != null && !isNaN(num)
+        ? `${moeda} ${fmtQuantidade(num, 2)}`
+        : null
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.valor_total_pedido_titulo')} descricao={t('pedido.coluna_pai.valor_total_pedido_desc')}>
-          <span className="gtv-celula-moeda">
-            <span className="gtv-celula-moeda-badge">{moeda}</span>
-            {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          <span style={{ display: 'contents' }}>
+            {renderAgregado(valorFormatado, row.moeda_item_divergente, 'Moedas divergentes entre itens')}
           </span>
         </TooltipGlobal>
       )

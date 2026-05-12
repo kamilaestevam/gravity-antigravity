@@ -17,6 +17,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -453,41 +454,22 @@ export class EdicaoEmMassaService {
     }
   }
 
-  /** Recalcula campos agregados do pedido após edição de quantidades */
+  /**
+   * Recalcula os 5 agregados oficiais do Pedido a partir dos itens.
+   *
+   * Substituiu o método legado que populava só `quantidade_total_pedido` e
+   * `valor_total_pedido` com fórmula divergente (valor = unit × qty_atual).
+   * Agora delega ao helper canônico — cobre os 5 agregados de uma vez com
+   * fórmulas oficiais (qty = SUM quantidade_inicial_item; valor = SUM valor_total_item;
+   * peso/cubagem = SUM unitário × quantidade_inicial_item).
+   */
   private async recalcularAgregados(
     id_organizacao: string,
     pedidoId: string,
     tx: Tx,
   ): Promise<void> {
-    const itens = await tx.pedidoItem.findMany({
-      where: { id_organizacao: id_organizacao, id_pedido: pedidoId },
-      select: {
-        quantidade_inicial_item: true,
-        quantidade_transferida_item: true,
-        valor_por_unidade_item: true,
-        quantidade_atual_item: true,
-      },
-    })
-
-    const quantidadeInicialTotal = itens.reduce<number>(
-      (acc, i) => acc + Number((i as { quantidade_inicial_item?: unknown }).quantidade_inicial_item ?? 0),
-      0,
-    )
-    const valorTotal = itens.reduce<number>(
-      (acc, i) => {
-        const it = i as { valor_por_unidade_item?: unknown; quantidade_atual_item?: unknown }
-        return acc + (Number(it.valor_por_unidade_item ?? 0) * Number(it.quantidade_atual_item ?? 0))
-      },
-      0,
-    )
-
-    await tx.pedido.update({
-      where: { id_pedido: pedidoId },
-      data: {
-        quantidade_total_pedido: quantidadeInicialTotal,
-        valor_total_pedido: valorTotal,
-      },
-    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await recalcularAgregadosCanonico(tx as any, pedidoId, id_organizacao)
   }
 
   /** Valida que nenhum campo bloqueado está na lista — rejeita server-side */

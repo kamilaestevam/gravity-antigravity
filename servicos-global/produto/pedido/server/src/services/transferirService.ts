@@ -7,6 +7,7 @@
 
 import { PrismaClient, Prisma } from '@prisma/client'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -470,18 +471,20 @@ export class TransferirService {
     }
   }
 
+  /**
+   * Recalcula os 5 agregados oficiais do Pedido a partir dos itens.
+   *
+   * Substituiu o método privado legado que populava `quantidade_total_pedido`
+   * com `SUM(quantidade_atual_item)` — semântica errada (fragmento.prisma define
+   * `quantidade_total_pedido` como SUM de quantidade_inicial_item, não atual).
+   *
+   * Agora delega ao helper canônico `recalcularAgregadosPedido` em
+   * `processos-core/services/`. Cobre valor/qty/peso_liq/peso_br/cubagem em
+   * uma chamada — fonte única de verdade para todos os pontos do sistema.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async recalcularAgregados(id_organizacao: string, pedidoId: string, tx: Tx): Promise<void> {
-    const itens = await tx.pedidoItem.findMany({
-      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
-      select: { quantidade_atual_item: true },
-    })
-
-    const qtdAtualTotal = itens.reduce((acc: number, i: Record<string, unknown>) => acc + Number(i.quantidade_atual_item ?? 0), 0)
-
-    await tx.pedido.update({
-      where: { id_pedido: pedidoId },
-      data: { quantidade_total_pedido: qtdAtualTotal },
-    })
+    await recalcularAgregadosCanonico(tx as any, pedidoId, id_organizacao)
   }
 
   private async avaliarEncerramentoPedido(

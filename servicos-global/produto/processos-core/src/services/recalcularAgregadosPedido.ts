@@ -53,13 +53,21 @@ const CASAS_DEFAULT = {
 /**
  * Linhas relevantes de um item para o recalculo. Não traz colunas a mais
  * (performance: select específico, não findMany completo).
+ *
+ * `moeda_item` e `unidade_comercializada_item` são lidos para a regra de
+ * HOMOGENEIDADE (Onda A8): só somamos se todos os itens contribuintes têm
+ * a mesma moeda/unidade. Itens divergentes → agregado fica `null` no banco
+ * e o front mostra alerta "⚠ Moedas divergentes entre itens" via padrão
+ * `_divergente` (idem padrão de incoterm, ncm, refs, etc.).
  */
 interface ItemAgregado {
-  valor_total_item:           unknown
-  quantidade_inicial_item:    unknown
-  peso_liquido_unitario_item: unknown
-  peso_bruto_unitario_item:   unknown
-  cubagem_unitaria_item:      unknown
+  valor_total_item:                unknown
+  quantidade_inicial_item:         unknown
+  peso_liquido_unitario_item:      unknown
+  peso_bruto_unitario_item:        unknown
+  cubagem_unitaria_item:           unknown
+  moeda_item:                      string | null
+  unidade_comercializada_item:     string | null
 }
 
 /**
@@ -141,24 +149,47 @@ export async function recalcularAgregadosPedido(
   const itens = await (tx as any).pedidoItem.findMany({
     where: { id_pedido: idPedido, id_organizacao: idOrganizacao },
     select: {
-      valor_total_item:           true,
-      quantidade_inicial_item:    true,
-      peso_liquido_unitario_item: true,
-      peso_bruto_unitario_item:   true,
-      cubagem_unitaria_item:      true,
+      valor_total_item:            true,
+      quantidade_inicial_item:     true,
+      peso_liquido_unitario_item:  true,
+      peso_bruto_unitario_item:    true,
+      cubagem_unitaria_item:       true,
+      moeda_item:                  true,
+      unidade_comercializada_item: true,
     },
   }) as ItemAgregado[]
 
-  // ── 3. Calcular os 5 agregados ──────────────────────────────────────────────
-  // Fórmulas:
-  //   valor_total_pedido         = SUM(valor_total_item)
-  //   quantidade_total_pedido    = SUM(quantidade_inicial_item)
-  //   peso_liquido_total_pedido  = SUM(peso_liquido_unitario_item × quantidade_inicial_item)
-  //   peso_bruto_total_pedido    = SUM(peso_bruto_unitario_item   × quantidade_inicial_item)
-  //   cubagem_total_pedido       = SUM(cubagem_unitaria_item      × quantidade_inicial_item)
+  // ── 3. Detectar HOMOGENEIDADE (Onda A8) ─────────────────────────────────────
+  // Regra: só somamos quando todos os itens CONTRIBUINTES têm a mesma moeda
+  // (para valor) ou mesma unidade (para qty). Itens com `valor_total_item` zero
+  // ou null não contribuem para a soma de valor — então não contam para o
+  // Set de moedas. Idem qty: filtramos por itens com qty > 0.
   //
-  // Importante: peso/cubagem multiplicam pela quantidade. Bug histórico nas
-  // implementações antigas (pedidos.ts:1348-1357) somava só o unitário.
+  // Quando heterogêneo, agregado vai a NULL e o front mostra alerta via flag
+  // `_divergente` (mesmo padrão de incoterm/refs/nomes).
+  //
+  // Peso/cubagem NÃO checam homogeneidade — unidade física é homogênea
+  // (KG/M³ por convenção) e a soma faz sentido independente da moeda.
+  const moedasComValor = new Set<string>()
+  const unidadesComQty = new Set<string>()
+  for (const it of itens) {
+    if (n(it.valor_total_item) > 0 && it.moeda_item) {
+      moedasComValor.add(it.moeda_item)
+    }
+    if (n(it.quantidade_inicial_item) > 0 && it.unidade_comercializada_item) {
+      unidadesComQty.add(it.unidade_comercializada_item)
+    }
+  }
+  const valorHomogeneo = moedasComValor.size <= 1   // 0 ou 1 moeda → soma OK
+  const qtyHomogenea   = unidadesComQty.size <= 1   // 0 ou 1 unidade → soma OK
+
+  // ── 4. Calcular os 5 agregados ──────────────────────────────────────────────
+  // Fórmulas:
+  //   valor_total_pedido         = SUM(valor_total_item)             — só se moedas homogêneas
+  //   quantidade_total_pedido    = SUM(quantidade_inicial_item)      — só se unidades homogêneas
+  //   peso_liquido_total_pedido  = SUM(peso_liquido_unitario × qty)  — sempre (unidade física homogênea)
+  //   peso_bruto_total_pedido    = SUM(peso_bruto_unitario × qty)    — sempre
+  //   cubagem_total_pedido       = SUM(cubagem_unitaria × qty)       — sempre
   let somaValor   = 0
   let somaQtd     = 0
   let somaPesoLiq = 0
@@ -174,19 +205,23 @@ export async function recalcularAgregadosPedido(
     somaCubagem += n(it.cubagem_unitaria_item)      * qty
   }
 
-  const valorTotal       = parseFloat(somaValor.toFixed(casasValor))
-  const qtdTotal         = parseFloat(somaQtd.toFixed(casasQtd))
+  const valorTotal: number | null = valorHomogeneo
+    ? parseFloat(somaValor.toFixed(casasValor))
+    : null
+  const qtdTotal: number | null = qtyHomogenea
+    ? parseFloat(somaQtd.toFixed(casasQtd))
+    : null
   const pesoLiquidoTotal = parseFloat(somaPesoLiq.toFixed(casasPeso))
   const pesoBrutoTotal   = parseFloat(somaPesoBr.toFixed(casasPeso))
   const cubagemTotal     = parseFloat(somaCubagem.toFixed(casasCubagem))
 
-  // ── 4. UPDATE no pedido pai ─────────────────────────────────────────────────
+  // ── 5. UPDATE no pedido pai ─────────────────────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (tx as any).pedido.update({
     where: { id_pedido: idPedido },
     data: {
-      valor_total_pedido:         valorTotal,
-      quantidade_total_pedido:    qtdTotal,
+      valor_total_pedido:         valorTotal,         // null quando moedas mistas
+      quantidade_total_pedido:    qtdTotal,           // null quando unidades mistas
       peso_liquido_total_pedido:  pesoLiquidoTotal,
       peso_bruto_total_pedido:    pesoBrutoTotal,
       cubagem_total_pedido:       cubagemTotal,

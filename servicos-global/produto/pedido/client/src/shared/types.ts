@@ -349,6 +349,11 @@ export interface Pedido {
   cobertura_cambial_valor_unico?: string | null
   data_emissao_pedido_divergente?: boolean | null
   data_emissao_pedido_valor_unico?: string | null
+  // Onda A8 — homogeneidade de moeda/unidade. Quando itens divergem,
+  // `valor_total_pedido` / `quantidade_total_pedido` ficam `null` no banco
+  // e estas flags ficam `true` (via `calcularDivergencias` em Pedidos.tsx).
+  moeda_item_divergente?: boolean | null
+  unidade_comercializada_item_divergente?: boolean | null
 
   // Financeiro
   condicao_pagamento: string | null
@@ -677,10 +682,17 @@ export interface EdicaoMassaResultado {
   erros: { pedido_id: string; motivo: string }[]
 }
 
-/** Campos calculados do Pedido — nunca editáveis em massa */
+/** Campos calculados do Pedido — nunca editáveis em massa nem aceitos no
+ *  payload de criação/atualização. São derivados server-side por
+ *  `recalcularAgregadosPedido` a partir dos itens. */
 export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
+  // Os 5 agregados oficiais (helper canônico)
   'valor_total_pedido',
   'quantidade_total_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  // Outros agregados/sistema
   'quantidade_transferida_total',
   'status',
   'id',

@@ -3762,9 +3762,43 @@ export default function Pedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
+      // Bug fix: alinhar o caminho de edição de valor_total_item (que inclui moeda)
+      // ao caminho genérico — recomputa flags de divergência E reaplica a regra
+      // de homogeneidade (Onda A8) localmente. Sem isso, mudar moeda do item
+      // não dispara o flag `moeda_item_divergente` no front e o pai mostra
+      // valor stale ou alerta stale.
+      const itensAposEdicaoMv = getItensCache().map(i => i.id === id ? enriquecidoMv : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMv)
+      const divergenciasMv = calcularDivergencias(itensAposEdicaoMv)
+
+      // Regra de homogeneidade (espelha helper recalcularAgregadosPedido):
+      // moedas mistas → valor_total_pedido = null; unidades mistas → qty null.
+      const moedasContrib = new Set(
+        itensAposEdicaoMv
+          .filter(i => Number(i.valor_total_item ?? 0) > 0 && i.moeda_item)
+          .map(i => i.moeda_item as string)
+      )
+      const unidadesContrib = new Set(
+        itensAposEdicaoMv
+          .filter(i => Number(i.quantidade_inicial_pedido ?? 0) > 0 && i.unidade_comercializada_item)
+          .map(i => i.unidade_comercializada_item as string)
+      )
+      const valorTotalLocal = moedasContrib.size > 1
+        ? null
+        : itensAposEdicaoMv.reduce((s, i) => s + (Number(i.valor_total_item) || 0), 0)
+      const qtyTotalLocal = unidadesContrib.size > 1
+        ? null
+        : itensAposEdicaoMv.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0)
+
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        return { ...p, itens: p.itens?.map(i => i.id === id ? enriquecidoMv : i) }
+        return {
+          ...p,
+          ...divergenciasMv,
+          itens: itensAposEdicaoMv,
+          valor_total_pedido: valorTotalLocal,
+          quantidade_total_pedido: qtyTotalLocal,
+        }
       }))
       return enriquecidoMv
     }

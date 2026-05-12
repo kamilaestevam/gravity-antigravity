@@ -106,10 +106,13 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'nome_importador',                         rotulo: 'Nome do Importador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
   { campo: 'condicao_pagamento',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
-  // Dados físicos
-  { campo: 'peso_liquido_total_pedido',               rotulo: 'Peso Líquido Total',                     tipo: 'numero', nivel: 'pedido', grupo: 'Físico' },
-  { campo: 'peso_bruto_total_pedido',                 rotulo: 'Peso Bruto Total',                       tipo: 'numero', nivel: 'pedido', grupo: 'Físico' },
-  { campo: 'cubagem_total_pedido',                    rotulo: 'Cubagem Total',                          tipo: 'numero', nivel: 'pedido', grupo: 'Físico' },
+  // Dados físicos — campos UNITÁRIOS por item (peso/cubagem total do pedido
+  // são agregados derivados, calculados server-side por
+  // `recalcularAgregadosPedido`. Editá-los direto causaria divergência com
+  // a soma real dos itens — bloqueado pelo backend desde Onda A3.)
+  { campo: 'peso_liquido_unitario',                   rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
+  { campo: 'peso_bruto_unitario',                     rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
+  { campo: 'cubagem_unitaria',                        rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item',   grupo: 'Físico' },
 
   // Documentos
   { campo: 'numero_proforma',                         rotulo: 'Nº Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },

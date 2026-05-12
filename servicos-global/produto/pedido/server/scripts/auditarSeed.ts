@@ -33,7 +33,7 @@ type Check = {
 
 type Relatorio = {
   timestamp: string
-  tenant_id: string
+  id_organizacao: string
   ok: boolean
   checks: Check[]
   resumo: {
@@ -83,19 +83,22 @@ const RESET = '\x1b[0m'
 const BOLD = '\x1b[1m'
 
 async function main(): Promise<void> {
-  const tenantId = process.env.TENANT_ID || 'tenant-dev-gravity-2026'
+  // ENV var aceita TENANT_ID (legado) ou ID_ORGANIZACAO (DDD). DDD tem
+  // precedência se ambas estiverem definidas. Mantemos compatibilidade
+  // com setups antigos que ainda exportam TENANT_ID no shell.
+  const idOrganizacao = process.env.ID_ORGANIZACAO || process.env.TENANT_ID || 'tenant-dev-gravity-2026'
   const ts = new Date().toISOString()
   const checks: Check[] = []
 
-  console.log(`\n${BOLD}🔎 Auditoria do Seed — tenant: ${tenantId}${RESET}\n`)
+  console.log(`\n${BOLD}🔎 Auditoria do Seed — organizacao: ${idOrganizacao}${RESET}\n`)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = prisma as unknown as Record<string, { findMany: (args: unknown) => Promise<Record<string, unknown>[]> }>
   const pedidos: Record<string, unknown>[] = await db.pedido.findMany({
-    where: { tenant_id: tenantId },
+    where: { id_organizacao: idOrganizacao },
   })
   const itens: Record<string, unknown>[] = await db.pedidoItem.findMany({
-    where: { tenant_id: tenantId },
+    where: { id_organizacao: idOrganizacao },
   })
 
   const totalPedidos = pedidos.length
@@ -109,7 +112,7 @@ async function main(): Promise<void> {
   const distIncoterms: Record<string, number> = {}
 
   for (const p of pedidos) {
-    const idStr: string = String(p.id || '')
+    const idStr: string = String(p.id_pedido || '')
     // pedi_(peq|med|gra|grd|edg)_...
     const m = idStr.match(/^pedi_([a-z]+)_/i)
     const perfil = m ? m[1] : 'desconhecido'
@@ -123,9 +126,9 @@ async function main(): Promise<void> {
   // Index de itens por pedido
   const itensPorPedido = new Map<string, any[]>()
   for (const it of itens) {
-    const arr = itensPorPedido.get(it.pedido_id) || []
+    const arr = itensPorPedido.get(it.id_pedido) || []
     arr.push(it)
-    itensPorPedido.set(it.pedido_id, arr)
+    itensPorPedido.set(it.id_pedido, arr)
   }
 
   // ── 1. total pedidos > 0 ───────────────────────────────────────────────────
@@ -136,13 +139,13 @@ async function main(): Promise<void> {
   })
 
   // ── 2. todos pedidos têm pelo menos 1 item ────────────────────────────────
-  const pedidosSemItens = pedidos.filter((p) => !itensPorPedido.get(p.id)?.length)
+  const pedidosSemItens = pedidos.filter((p) => !itensPorPedido.get(p.id_pedido as string)?.length)
   checks.push({
     nome: '02. todos os pedidos têm pelo menos 1 item',
     ok: pedidosSemItens.length === 0,
     real: pedidosSemItens.length,
     detalhe: pedidosSemItens.length
-      ? `ids: ${pedidosSemItens.slice(0, 5).map((p) => p.id).join(', ')}...`
+      ? `ids: ${pedidosSemItens.slice(0, 5).map((p) => p.id_pedido).join(', ')}...`
       : undefined,
   })
 
@@ -152,9 +155,9 @@ async function main(): Promise<void> {
   for (const it of itens) {
     const esperado = Math.max(
       0,
-      n(it.quantidade_inicial_item_pedido) -
-        n(it.quantidade_cancelada_item_pedido) -
-        n(it.quantidade_transferida_item_pedido),
+      n(it.quantidade_inicial_item) -
+        n(it.quantidade_cancelada_item) -
+        n(it.quantidade_transferida_item),
     )
     const real = n(it.saldo_item_pedido)
     if (Math.abs(real - esperado) > 0.01) {
@@ -179,7 +182,7 @@ async function main(): Promise<void> {
 
   // ── 5. cancelada <= inicial ───────────────────────────────────────────────
   const canceladaExcedeu = itens.filter(
-    (it) => n(it.quantidade_cancelada_item_pedido) > n(it.quantidade_inicial_item_pedido) + 1e-6,
+    (it) => n(it.quantidade_cancelada_item) > n(it.quantidade_inicial_item) + 1e-6,
   )
   checks.push({
     nome: '05. cancelada <= inicial',
@@ -190,7 +193,7 @@ async function main(): Promise<void> {
   // ── 6. transferida <= inicial ─────────────────────────────────────────────
   const transferidaExcedeu = itens.filter(
     (it) =>
-      n(it.quantidade_transferida_item_pedido) > n(it.quantidade_inicial_item_pedido) + 1e-6,
+      n(it.quantidade_transferida_item) > n(it.quantidade_inicial_item) + 1e-6,
   )
   checks.push({
     nome: '06. transferida <= inicial',
@@ -292,7 +295,7 @@ async function main(): Promise<void> {
   // ── 16. importacao tem itens com nome_exportador preenchido ───────────────
   const pedidosImp = pedidos.filter((p) => p.tipo_operacao === 'importacao')
   const impSemExp = pedidosImp.filter((p) => {
-    const its = itensPorPedido.get(p.id) || []
+    const its = itensPorPedido.get(p.id_pedido as string) || []
     return its.some((it) => !it.nome_exportador)
   })
   checks.push({
@@ -305,7 +308,7 @@ async function main(): Promise<void> {
   // ── 17. exportacao tem itens com nome_importador preenchido ───────────────
   const pedidosExp = pedidos.filter((p) => p.tipo_operacao === 'exportacao')
   const expSemImp = pedidosExp.filter((p) => {
-    const its = itensPorPedido.get(p.id) || []
+    const its = itensPorPedido.get(p.id_pedido as string) || []
     return its.some((it) => !it.nome_importador)
   })
   checks.push({
@@ -316,14 +319,26 @@ async function main(): Promise<void> {
   })
 
   // ── 18. valor_total_pedido bate soma de itens ────────────────────────────
+  // Onda A8: se moedas dos itens divergem, espera-se `valor_total_pedido = null`
+  // (helper canônico grava null quando heterogêneo). Só consideramos itens
+  // com valor > 0 — itens "zerados" não poluem a detecção.
   let valorErrados = 0
   for (const p of pedidos) {
-    const its = itensPorPedido.get(p.id) || []
-    const soma = its.reduce((s, it) => s + n(it.valor_total_itens), 0)
-    if (Math.abs(n(p.valor_total_pedido) - soma) > 0.05) valorErrados++
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const moedasContribuintes = new Set(
+      its.filter((it) => n(it.valor_total_item) > 0).map((it) => it.moeda_item).filter(Boolean),
+    )
+    if (moedasContribuintes.size > 1) {
+      // Moedas mistas → esperado null no agregado
+      if (p.valor_total_pedido != null) valorErrados++
+    } else {
+      // Moeda homogênea → deve bater com soma (tol 0.05)
+      const soma = its.reduce((s, it) => s + n(it.valor_total_item), 0)
+      if (Math.abs(n(p.valor_total_pedido) - soma) > 0.05) valorErrados++
+    }
   }
   checks.push({
-    nome: '18. valor_total_pedido bate com soma de itens (tol 0.05)',
+    nome: '18. valor_total_pedido bate com soma OU é null quando moedas mistas (tol 0.05)',
     ok: valorErrados === 0,
     real: valorErrados,
   })
@@ -331,14 +346,80 @@ async function main(): Promise<void> {
   // ── 19. quantidade_total_inicial bate soma ───────────────────────────────
   let qtdErrados = 0
   for (const p of pedidos) {
-    const its = itensPorPedido.get(p.id) || []
-    const soma = its.reduce((s, it) => s + n(it.quantidade_inicial_item_pedido), 0)
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const soma = its.reduce((s, it) => s + n(it.quantidade_inicial_item), 0)
     if (Math.abs(n(p.quantidade_total_inicial_pedido) - soma) > 0.05) qtdErrados++
   }
   checks.push({
     nome: '19. quantidade_total_inicial bate com soma (tol 0.05)',
     ok: qtdErrados === 0,
     real: qtdErrados,
+  })
+
+  // ── 19b. quantidade_total_pedido (oficial) bate soma de qty_inicial_item ───
+  // Onda A1+A2: agregado canônico recalculado pelo helper.
+  // Onda A8: se unidades divergem, espera-se `quantidade_total_pedido = null`.
+  let qtdTotalErrados = 0
+  for (const p of pedidos) {
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const unidadesContribuintes = new Set(
+      its.filter((it) => n(it.quantidade_inicial_item) > 0).map((it) => it.unidade_comercializada_item).filter(Boolean),
+    )
+    if (unidadesContribuintes.size > 1) {
+      if (p.quantidade_total_pedido != null) qtdTotalErrados++
+    } else {
+      const soma = its.reduce((s, it) => s + n(it.quantidade_inicial_item), 0)
+      if (Math.abs(n(p.quantidade_total_pedido) - soma) > 0.05) qtdTotalErrados++
+    }
+  }
+  checks.push({
+    nome: '19b. quantidade_total_pedido bate com soma OU é null quando unidades mistas (tol 0.05)',
+    ok: qtdTotalErrados === 0,
+    real: qtdTotalErrados,
+  })
+
+  // ── 19c. peso_liquido_total_pedido = SUM(peso_liquido_unitario × qty) ─────
+  // Bug histórico antes da Onda A1+A2: somava só o unitário, sem multiplicar
+  // por qty. Helper canônico já aplica a fórmula correta.
+  let pesoLiqErrados = 0
+  for (const p of pedidos) {
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const soma = its.reduce((s, it) =>
+      s + (n(it.peso_liquido_unitario_item) * n(it.quantidade_inicial_item)), 0)
+    if (Math.abs(n(p.peso_liquido_total_pedido) - soma) > 0.05) pesoLiqErrados++
+  }
+  checks.push({
+    nome: '19c. peso_liquido_total_pedido = SUM(peso_liquido_unitario × qty) (tol 0.05)',
+    ok: pesoLiqErrados === 0,
+    real: pesoLiqErrados,
+  })
+
+  // ── 19d. peso_bruto_total_pedido = SUM(peso_bruto_unitario × qty) ─────────
+  let pesoBrErrados = 0
+  for (const p of pedidos) {
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const soma = its.reduce((s, it) =>
+      s + (n(it.peso_bruto_unitario_item) * n(it.quantidade_inicial_item)), 0)
+    if (Math.abs(n(p.peso_bruto_total_pedido) - soma) > 0.05) pesoBrErrados++
+  }
+  checks.push({
+    nome: '19d. peso_bruto_total_pedido = SUM(peso_bruto_unitario × qty) (tol 0.05)',
+    ok: pesoBrErrados === 0,
+    real: pesoBrErrados,
+  })
+
+  // ── 19e. cubagem_total_pedido = SUM(cubagem_unitaria × qty) ──────────────
+  let cubagemErrados = 0
+  for (const p of pedidos) {
+    const its = itensPorPedido.get(p.id_pedido as string) || []
+    const soma = its.reduce((s, it) =>
+      s + (n(it.cubagem_unitaria_item) * n(it.quantidade_inicial_item)), 0)
+    if (Math.abs(n(p.cubagem_total_pedido) - soma) > 0.05) cubagemErrados++
+  }
+  checks.push({
+    nome: '19e. cubagem_total_pedido = SUM(cubagem_unitaria × qty) (tol 0.05)',
+    ok: cubagemErrados === 0,
+    real: cubagemErrados,
   })
 
   // ── 20. range de datas (relata, não trava) ────────────────────────────────
@@ -359,7 +440,7 @@ async function main(): Promise<void> {
 
   // ── 21. >=5 pedidos com saldo total == 0 (cancelados/transferidos) ────────
   const pedidosSaldoZero = pedidos.filter((p) => {
-    const its = itensPorPedido.get(p.id) || []
+    const its = itensPorPedido.get(p.id_pedido as string) || []
     if (its.length === 0) return false
     return its.every((it) => n(it.saldo_item_pedido) === 0)
   })
@@ -372,12 +453,12 @@ async function main(): Promise<void> {
 
   // ── 22. >=5 pedidos virgens (transferida=0 e cancelada=0 em todos) ───────
   const pedidosVirgens = pedidos.filter((p) => {
-    const its = itensPorPedido.get(p.id) || []
+    const its = itensPorPedido.get(p.id_pedido as string) || []
     if (its.length === 0) return false
     return its.every(
       (it) =>
-        n(it.quantidade_cancelada_item_pedido) === 0 &&
-        n(it.quantidade_transferida_item_pedido) === 0,
+        n(it.quantidade_cancelada_item) === 0 &&
+        n(it.quantidade_transferida_item) === 0,
     )
   })
   checks.push({
@@ -392,7 +473,7 @@ async function main(): Promise<void> {
 
   const relatorio: Relatorio = {
     timestamp: ts,
-    tenant_id: tenantId,
+    id_organizacao: idOrganizacao,
     ok,
     checks,
     resumo: {
@@ -428,7 +509,7 @@ async function main(): Promise<void> {
   const dir = path.join(__dirname, 'audit-results')
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
   const slugTs = ts.replace(/[:.]/g, '-')
-  const filename = `audit-${tenantId}-${slugTs}.json`
+  const filename = `audit-${idOrganizacao}-${slugTs}.json`
   const full = path.join(dir, filename)
   fs.writeFileSync(full, JSON.stringify(relatorio, null, 2), 'utf-8')
   console.log(`📄 Relatório salvo em: ${full}\n`)

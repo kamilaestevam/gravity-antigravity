@@ -21,6 +21,7 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { resolverIdStatusPedidoOpcional } from '../services/statusPedidoLookup.js'
+import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -307,6 +308,8 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // 2. Criar o pedido consolidado
       const novo = await db.pedido.create({
+        // @lint-agregados: allow-create-placeholder — recalcularAgregadosPedido
+        // é chamado logo após para reconciliar os 5 agregados.
         data: {
           id_pedido:                       gerarId('pedi'),
           id_organizacao:                  tenantId,
@@ -324,6 +327,11 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
+
+      // Recalcular os 5 agregados do consolidado a partir dos itens fundidos.
+      // Nota da Onda A0: consolidação é CÓPIA — origens preservam itens (recebem
+      // soft delete), não precisam de recalc.
+      await recalcularAgregadosPedido(db, novo.id_pedido, tenantId)
 
       // 2. Soft delete dos pedidos originais — marcados como data_exclusao_pedido
       await db.pedido.updateMany({

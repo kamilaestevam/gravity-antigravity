@@ -38,6 +38,14 @@ const CAMPOS_ALERTAVEIS = new Set([
   'incoterm',
   'condicao_pagamento_pedido',
 
+  // Homogeneidade de moeda/unidade (Onda A8 — 2025-05-11):
+  // Quando itens divergem em moeda/unidade, o pai não soma os agregados
+  // (valor_total_pedido e quantidade_total_pedido ficam null no banco).
+  // O front detecta a divergência ao expandir o pedido e mostra o alerta
+  // "⚠ Moedas/Unidades divergentes entre itens" via padrão `_divergente`.
+  'moeda_item',
+  'unidade_comercializada_item',
+
   // Datas — pedido pronto (3)
   'data_prevista_pedido_pronto',
   'data_confirmada_pedido_pronto',

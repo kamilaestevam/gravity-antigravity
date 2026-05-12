@@ -19,6 +19,10 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
+import {
+  aoHabilitarProdutoNoWorkspace,
+  aoDesabilitarProdutoNoWorkspace,
+} from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import {
@@ -402,6 +406,29 @@ assinaturaProdutoGravityRouter.put(
         },
       })
 
+      // PORTÃO 3 auto-sync (Interpretação 1 — vínculo implícito): propaga/limpa
+      // chaves Portão 3 conforme o ativo_produto_gravity_workspace do toggle.
+      const slug = await prisma.produtoGravity.findUnique({
+        where: { id_produto_gravity: produto.id_produto_gravity },
+        select: { slug_produto_gravity: true },
+      })
+      if (slug) {
+        if (parsed.data.ativo_produto_gravity_workspace) {
+          aoHabilitarProdutoNoWorkspace({
+            id_organizacao,
+            id_workspace,
+            id_produto_gravity: produto.id_produto_gravity,
+            slug_produto: slug.slug_produto_gravity,
+          }).catch(() => { /* best-effort */ })
+        } else {
+          aoDesabilitarProdutoNoWorkspace({
+            id_organizacao,
+            id_workspace,
+            id_produto_gravity: produto.id_produto_gravity,
+          }).catch(() => { /* best-effort */ })
+        }
+      }
+
       res.json({ ativacao })
     } catch (err) {
       next(err)
@@ -439,6 +466,13 @@ assinaturaProdutoGravityRouter.delete(
           id_produto_gravity: produto.id_produto_gravity,
         },
       })
+
+      // PORTÃO 3 auto-sync: limpa todas permissões deste produto neste workspace
+      aoDesabilitarProdutoNoWorkspace({
+        id_organizacao,
+        id_workspace,
+        id_produto_gravity: produto.id_produto_gravity,
+      }).catch(() => { /* best-effort */ })
 
       res.json({ ok: true })
     } catch (err) {

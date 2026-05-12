@@ -11,6 +11,10 @@ import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAc
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
+import {
+  aoHabilitarProdutoNoWorkspace,
+  aoDesabilitarProdutoNoWorkspace,
+} from '../services/sincronizar-acesso-usuario-produtos-service.js'
 
 export const companyProductsRouter = Router({ mergeParams: true })
 
@@ -152,6 +156,16 @@ companyProductsRouter.post('/', requireAuth, requireConfiguradorMutation, async 
       },
     })
 
+    // PORTÃO 3 auto-sync (Interpretação 1, dono 2026-05-12) — best-effort,
+    // não bloqueia a resposta. Cria chaves Portão 3 para todos PADRAO/FORN
+    // ativos no workspace (idempotente via skipDuplicates).
+    aoHabilitarProdutoNoWorkspace({
+      id_organizacao: req.auth.id_organizacao,
+      id_workspace,
+      id_produto_gravity: produtoCatalogo.id_produto_gravity,
+      slug_produto: produtoCatalogo.slug_produto_gravity,
+    }).catch(() => { /* já logado dentro do service */ })
+
     // DTO: ProdutoGravityWorkspace rename → contrato legado
     res.status(201).json({
       companyProduct: {
@@ -195,6 +209,14 @@ companyProductsRouter.delete('/:id_produto_gravity', requireAuth, requireConfigu
       },
       data: { ativo_produto_gravity_workspace: false },
     })
+
+    // PORTÃO 3 auto-sync: limpa TODAS as permissões (Portão 3 + granulares)
+    // do produto neste workspace (de qualquer usuário). Idempotente.
+    aoDesabilitarProdutoNoWorkspace({
+      id_organizacao: req.auth.id_organizacao,
+      id_workspace,
+      id_produto_gravity: produtoCatalogo.id_produto_gravity,
+    }).catch(() => { /* já logado dentro do service */ })
 
     res.json({ ok: true })
   } catch (err) {

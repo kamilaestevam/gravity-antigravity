@@ -24,6 +24,10 @@ import {
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
   ehPermissaoAcessoUsuarioProdutoGravity,
 } from '../services/permissao-usuario-servico.js'
+import {
+  aoVincularUsuarioAoWorkspace,
+  aoDesvincularUsuarioDoWorkspace,
+} from '../services/sincronizar-acesso-usuario-produtos-service.js'
 
 export const usersRouter = Router()
 
@@ -343,6 +347,18 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       return criado
     })
 
+    // PORTÃO 3 auto-sync (Interpretação 1) — propaga chaves para cada workspace
+    // vinculado no convite (best-effort, não bloqueia o convite).
+    if (workspacesParaVincular.length > 0 && tipo_usuario !== 'MASTER') {
+      for (const w of workspacesParaVincular) {
+        aoVincularUsuarioAoWorkspace({
+          id_organizacao: req.auth.id_organizacao,
+          id_workspace: w.id_workspace,
+          id_usuario: usuario.id_usuario,
+        }).catch(() => { /* best-effort */ })
+      }
+    }
+
     res.status(201).json({
       message: 'Convite enviado com sucesso',
       usuario: {
@@ -409,6 +425,14 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
       update: { tipo_usuario_workspace, ativo_usuario_workspace: true },
     })
 
+    // PORTÃO 3 auto-sync — usuário vinculado ganha chaves de todos os produtos
+    // habilitados no workspace (best-effort).
+    aoVincularUsuarioAoWorkspace({
+      id_organizacao: req.auth.id_organizacao,
+      id_workspace,
+      id_usuario,
+    }).catch(() => { /* best-effort */ })
+
     res.status(201).json({ usuario_workspace: usuarioWorkspace })
   } catch (err) {
     next(err)
@@ -440,6 +464,15 @@ async function substituirWorkspacesAtomicamente(
   workspaceIds: string[],
   tipo_usuario_workspace: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
 ): Promise<void> {
+  // Snapshot do estado ANTES da transação — usado pelo auto-sync Portão 3
+  // para identificar workspaces removidos (limpar permissões) e adicionados.
+  const anteriores = await prisma.usuarioWorkspace.findMany({
+    where: { id_organizacao, id_usuario },
+    select: { id_workspace: true },
+  })
+  const workspacesAntes = new Set(anteriores.map(a => a.id_workspace))
+  const workspacesDepois = new Set(workspaceIds)
+
   await prisma.$transaction(async (tx) => {
     await tx.usuarioWorkspace.deleteMany({
       where: { id_organizacao, id_usuario },
@@ -455,6 +488,24 @@ async function substituirWorkspacesAtomicamente(
       skipDuplicates: true,
     })
   })
+
+  // PORTÃO 3 auto-sync (Interpretação 1) — best-effort, fora da transação.
+  // Workspaces REMOVIDOS → limpa todas as permissões do user lá.
+  // Workspaces ADICIONADOS → cria chaves Portão 3 para produtos do workspace.
+  for (const id_workspace of workspacesAntes) {
+    if (!workspacesDepois.has(id_workspace)) {
+      aoDesvincularUsuarioDoWorkspace({ id_organizacao, id_workspace, id_usuario })
+        .catch(() => { /* best-effort */ })
+    }
+  }
+  if (tipo_usuario_workspace !== 'MASTER') {
+    for (const id_workspace of workspacesDepois) {
+      if (!workspacesAntes.has(id_workspace)) {
+        aoVincularUsuarioAoWorkspace({ id_organizacao, id_workspace, id_usuario })
+          .catch(() => { /* best-effort */ })
+      }
+    }
+  }
 }
 
 /**

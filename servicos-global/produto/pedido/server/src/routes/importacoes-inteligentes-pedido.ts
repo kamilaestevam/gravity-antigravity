@@ -64,7 +64,13 @@ import {
 //              Porto Destino, Data de Emissao. Continuam disponiveis na zona
 //              DETALHES expansivel — apenas saem do bloco de preenchimento
 //              obrigatorio rapido.
-const TEMPLATE_VERSAO = '3.4'
+// 3.5 (P12)  — Outline grouping removido. ExcelJS adiciona `collapsed="1"`
+//              automaticamente em colunas com outlineLevel, e Google Sheets
+//              renderiza a mescla do super-header INVISIVEL atras das
+//              colunas colapsadas. Sem outline, os super-headers DETALHES
+//              (cinza V-EA) e OPE (ambar EB-EM) ficam sempre visiveis.
+//              Usuario pode ocultar colunas manualmente se quiser.
+const TEMPLATE_VERSAO = '3.5'
 
 export const smartImportRouter = Router()
 
@@ -220,7 +226,6 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     // (PEDIDO/ITEM) e a qual pedido pertence.
     const ws = wb.addWorksheet('Pedidos', {
       views: [{ showGridLines: true, state: 'frozen', xSplit: 2, ySplit: 2 }],
-      properties: { outlineLevelCol: 1 },
     })
 
     // P7-FIX — NAO usar `key` em ws.columns; com key o ExcelJS cria uma linha
@@ -305,20 +310,16 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       cell.border = { bottom: { style: 'thin', color: { argb: cores.borda } } }
     })
 
-    // P7.2 / P8.1 — Outline grouping: apenas zona DETALHES (secundarias
-    // NAO-OPE) recebe outlineLevel=1. OPE fica sempre visivel ao rolar para
-    // a direita — tem zona propria visualmente distinta (ambar) e usuario
-    // que precisa de OPE quer ver imediatamente. Quem nao usa OPE simplesmente
-    // nao rola ate la.
+    // P12 — Outline grouping removido. Bug confirmado: o ExcelJS adiciona
+    // automaticamente `collapsed="1"` quando uma coluna tem `outlineLevel`,
+    // e o Google Sheets ESCONDE o conteudo dessas colunas. Como o super-header
+    // DETALHES (V-EA) e OPE (EB-EM) sao celulas mescladas QUE CRUZAM colunas
+    // colapsadas, eles ficavam totalmente invisiveis no Google Sheets.
     //
-    // `collapsed` e' read-only no tipo ExcelJS — para colapsar por default
-    // seria necessario manipular o XML diretamente. Por ora a barra [+/-]
-    // permite colapsar em 1 clique.
-    camposOrdenados.forEach((c, idx) => {
-      if (prioridadeDeCampo(c) === 'secundaria' && c.grupo !== 'OPE') {
-        ws.getColumn(idx + 1).outlineLevel = 1
-      }
-    })
+    // Decisao: tirar outline e deixar as 3 zonas SEMPRE visiveis. Usuario
+    // ainda navega pelos super-headers coloridos como guias visuais. Quem
+    // quiser ocultar colunas secundarias pode fazer manualmente (Right-click
+    // > Ocultar coluna).
 
     // ── Aplicar numFmt por coluna conforme tipo do campo (data, numero) ───────
     camposOrdenados.forEach((c, idx) => {

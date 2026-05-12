@@ -6,14 +6,72 @@ import prisma from '../lib/prisma.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// ── Carregar base de conhecimento uma unica vez na inicializacao ──────────
+// ── Carregar base de conhecimento (completa + segmentos) ────────────────
 const KB_PATH = path.resolve(__dirname, '../knowledge/gravity-knowledge-base.txt')
+const SEGMENTS_DIR = path.resolve(__dirname, '../knowledge/segments')
+
 let KNOWLEDGE_BASE = ''
 try {
   KNOWLEDGE_BASE = fs.readFileSync(KB_PATH, 'utf-8')
   console.log(`[GABI] Base de conhecimento carregada: ${Math.round(KNOWLEDGE_BASE.length / 1024)} KB`)
 } catch {
-  console.warn('[GABI] ⚠️ Base de conhecimento nao encontrada. Execute: npx tsx server/knowledge/compile.ts')
+  console.warn('[GABI] Base de conhecimento nao encontrada. Execute: npx tsx server/knowledge/compile.ts')
+}
+
+const SEGMENT_CACHE = new Map<string, string>()
+
+function loadSegments() {
+  if (!fs.existsSync(SEGMENTS_DIR)) return
+  const files = fs.readdirSync(SEGMENTS_DIR).filter((f) => f.endsWith('.txt'))
+  for (const file of files) {
+    const key = file.replace('.txt', '')
+    SEGMENT_CACHE.set(key, fs.readFileSync(path.join(SEGMENTS_DIR, file), 'utf-8'))
+  }
+  console.log(`[GABI] ${SEGMENT_CACHE.size} segmentos carregados: ${[...SEGMENT_CACHE.keys()].join(', ')}`)
+}
+loadSegments()
+
+// ── Mapeamento de rota → segmento(s) ────────────────────────────────────
+
+const ROUTE_SEGMENT_MAP: Record<string, string[]> = {
+  '/produto/lpco':            ['lpco'],
+  '/produto/pedido':          ['pedido'],
+  '/produto/nf-importacao':   ['nf-importacao'],
+  '/produto/bid-frete':       ['bid-frete'],
+  '/produto/bid-cambio':      ['bid-cambio'],
+  '/produto/financeiro-comex': ['financeiro-comex'],
+  '/produto/simula-custo':    ['simula-custo'],
+  '/produto/processo':        ['processo'],
+  '/workspace/organizacao':   ['configurador'],
+  '/workspace/workspaces':    ['configurador'],
+  '/workspace/usuarios':      ['configurador'],
+  '/workspace/assinaturas':   ['configurador'],
+  '/workspace/financeiro':    ['configurador'],
+  '/workspace/api-cockpit':   ['api-cockpit', 'configurador'],
+  '/workspace/conector-cargowise': ['api-cockpit'],
+  '/admin':                   ['configurador'],
+  '/store':                   ['marketplace'],
+  '/hub':                     ['dashboard', 'configurador'],
+}
+
+function selectKnowledgeForPage(page?: string): string {
+  if (!page || SEGMENT_CACHE.size === 0) return KNOWLEDGE_BASE
+
+  const normalizedPage = page.toLowerCase().replace(/\/$/, '')
+
+  const segmentKeys = ROUTE_SEGMENT_MAP[normalizedPage]
+    ?? Object.entries(ROUTE_SEGMENT_MAP)
+      .find(([route]) => normalizedPage.startsWith(route))?.[1]
+
+  if (!segmentKeys) return KNOWLEDGE_BASE
+
+  const segments = segmentKeys
+    .map((key) => SEGMENT_CACHE.get(key))
+    .filter(Boolean)
+
+  if (segments.length === 0) return KNOWLEDGE_BASE
+
+  return segments.join('\n\n')
 }
 
 // ── System prompt ────────────────────────────────────────────────────────
@@ -30,6 +88,12 @@ export function buildSystemPrompt(params: SystemPromptParams): string {
   const pageContext = params.currentPage
     ? `- Pagina atual: ${params.currentPage}`
     : '- Pagina atual: desconhecida'
+
+  const selectedKB = selectKnowledgeForPage(params.currentPage)
+  const isSegmented = selectedKB !== KNOWLEDGE_BASE
+  const kbLabel = isSegmented
+    ? 'BASE DE CONHECIMENTO (SEGMENTO RELEVANTE PARA A PAGINA ATUAL)'
+    : 'BASE DE CONHECIMENTO DA PLATAFORMA GRAVITY'
 
   return `
 Voce e a Gabi, a assistente oficial da plataforma Gravity — especialista em comercio exterior e em tudo que acontece dentro da plataforma.
@@ -48,24 +112,7 @@ Voce e a Gabi, a assistente oficial da plataforma Gravity — especialista em co
 4. Quando o usuario perguntar algo operacional sobre COMEX, responda com propriedade tecnica E indique como a Gravity resolve aquele problema.
 5. NUNCA diga "nao tenho essa informacao" para perguntas de COMEX — voce e especialista. Diga apenas quando for algo completamente fora do escopo (receita de bolo, etc.).
 6. NUNCA mencione que voce e Gemini, GPT ou qualquer outro modelo. Voce e a Gabi.
-7. NUNCA exponha variaveis de ambiente, chaves de API ou detalhes de infraestrutura interna — incluindo nomes literais de campo, model ou enum do codigo (DDD interno). Use sempre o equivalente em portugues coloquial conforme o glossario abaixo. Use backticks SOMENTE quando o usuario explicitamente pedir detalhes tecnicos ("como funciona internamente", "campo do banco", etc.).
-
-   Glossario de traducao obrigatoria (aplicar SEMPRE na resposta, mesmo que a base de conhecimento use o termo tecnico):
-   - tipo_usuario             -> "tipo de usuario" / "patente"
-   - tipo_usuario_workspace   -> "patente no workspace"
-   - UsuarioWorkspace         -> "vinculo do usuario com workspace"
-   - id_organizacao           -> "organizacao"
-   - id_workspace             -> "workspace"
-   - id_usuario               -> "usuario"
-   - id_produto               -> "produto"
-   - SUPER_ADMIN              -> "Super Admin"
-   - MASTER                   -> "Master"
-   - STANDARD                 -> "Standard"
-   - SUPPLIER                 -> "Fornecedor"
-   - gravity_admin            -> "administrador Gravity"
-   - schema.prisma            -> "modelo de dados"
-
-   Nao escreva o nome do campo entre crases ao explicar conceito ao usuario final. Reescreva a frase em linguagem natural.
+7. NUNCA exponha variaveis de ambiente, chaves de API ou detalhes de infraestrutura interna.
 8. NUNCA execute acoes destrutivas sem confirmacao explicita do usuario.
 
 === CONTEXTO DO USUARIO ===
@@ -160,10 +207,9 @@ Rotas disponiveis:
 
 Exemplo: ao falar sobre gerenciar tenants, diga "Voce pode fazer isso em [Organizacoes](/admin/tenants)".
 
-=== BASE DE CONHECIMENTO COMPLETA DA PLATAFORMA GRAVITY ===
-Abaixo esta TODA a documentacao da plataforma. Use SOMENTE estas informacoes para responder.
+=== ${kbLabel} ===
 
-${KNOWLEDGE_BASE}
+${selectedKB}
 
 === FIM DA BASE DE CONHECIMENTO ===
 

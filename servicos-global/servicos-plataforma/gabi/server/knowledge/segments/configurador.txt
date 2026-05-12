@@ -1,0 +1,1784 @@
+=== Configurador (Auth, Billing, Permissoes, Multi-Workspace) ===
+
+--- skills/produtos-gravity/configurador/SKILL.md ---
+# Gravity — Configurador
+
+## O Que é o Configurador
+
+O Configurador é o **porteiro central** de toda a plataforma Gravity. Todo cliente passa por ele — antes de acessar qualquer produto.
+
+Responsabilidades:
+- Autenticação de todos os usuários da plataforma (Clerk — APENAS autenticação; permissões vêm do Prisma via `/api/v1/me` — Mandamento 01)
+- Gestão de Organizações e Workspaces
+- Gestão de usuários e permissões no nível da organização
+- Assinaturas, planos e billing (provedor de pagamento será definido pelo dono; boleto/PIX/cartão — Stripe NÃO é mais dependência da plataforma)
+- Emissão de NF-e
+- Gateway de redirecionamento para os produtos contratados
+
+> **Princípio:** nenhum produto gerencia login, usuários ou cobrança. Tudo isso é responsabilidade exclusiva do Configurador.
+
+---
+
+## Posição no Ecossistema
+
+```
+Marketplace
+  | clica "Teste Grátis" ou "Assinar"
+  ▼
+Configurador (configurador.gravity.com.br)   ← porteiro central
+  | cria conta, configura workspace,
+  | escolhe produtos, paga, convida usuários
+  ▼
+Produto contratado (ex: simulador-comex.gravity.com.br)
+  | JWT do Clerk já presente — sem novo login
+  ▼
+Produto valida token via @clerk/backend
+```
+
+---
+
+## Características Técnicas
+
+- **Banco próprio:** DB configurador — separado de todos os produtos
+- **Servidor próprio:** Express + TypeScript na porta 3000
+- **Autenticação:** Clerk vive exclusivamente aqui
+- **Sem acesso ao banco de outros produtos** — produtos chamam `/api/check-access`
+- **Schema Prisma:** `servicos-global/configurador/prisma/schema.prisma`
+
+---
+
+## Localização na Árvore
+
+```text
+servicos-global/
+├── organizacao/
+├── produto/
+├── marketplace/
+├── configurador/   ← AQUI
+└── devops/
+```
+
+---
+
+## Estrutura de Pastas
+
+```text
+servicos-global/configurador/
+├── server/
+│   ├── index.ts
+│   ├── routes/
+│   │   ├── auth.ts         ← Clerk webhooks (user.created resolve pending_*, user.updated, user.deleted)
+│   │   ├── organizacoes.ts ← Organizacao e Workspaces
+│   │   ├── users.ts        ← convite, UsuarioWorkspace, memberships
+│   │   ├── plans.ts        ← planos e assinaturas
+│   │   ├── billing.ts      ← boletos, cartão, NF-e
+│   │   └── access.ts       ← verificação de permissões por produto
+│   ├── services/
+│   │   ├── billing.ts      ← lógica de cobrança
+│   │   ├── nfe.ts          ← emissão de nota fiscal
+│   │   └── permissions.ts  ← o que cada workspace acessa
+│   └── prisma/
+│       └── schema.prisma   ← banco próprio do Configurador (INTOCÁVEL — Mandamento 02)
+└── src/                    ← frontend React
+```
+
+---
+
+## Modelo de Usuários e Permissões
+
+> **Skill dedicada:** toda a lógica de permissões está documentada em `antigravity-permissoes`. Leia-a antes de implementar qualquer tela de usuários, middleware de autorização ou lógica de acesso.
+
+### As Duas Cadeias
+
+O Gravity opera com dois sistemas complementares:
+
+1. **Cadeia 1 — `tipo_usuario` Global:** quem o usuário é (`SUPER_ADMIN`, `ADMIN`, `MASTER`, `STANDARD`, `SUPPLIER`)
+2. **Cadeia 2 — Permissões Granulares:** o que pode fazer dentro de cada produto
+
+### `tipo_usuario` do Sistema (Cadeia 1)
+
+```text
+Gravity (equipe interna — gravity_admin = true)
+├── SUPER_ADMIN     ← acesso total irrestrito
+└── ADMIN   ← visualiza tudo, edita conforme permissões do SUPER_ADMIN
+
+Organização (cliente)
+├── MASTER     ← acesso total à organização
+├── STANDARD   ← acesso conforme permissões do MASTER
+└── SUPPLIER   ← acesso conforme permissões do MASTER (cross-organização)
+```
+
+> **Mandamento 04:** MASTER, SUPER_ADMIN e ADMIN têm acesso global SEM depender de `UsuarioWorkspace`. STANDARD e SUPPLIER dependem do vínculo explícito.
+
+### Habilitação em Workspace
+
+Para um usuário `STANDARD` ou `SUPPLIER` trabalhar em um Workspace, ele precisa de um **Vínculo** (`UsuarioWorkspace`).
+- 1 Organização pode ter múltiplos Workspaces
+- Um `STANDARD` com vínculo no Workspace A **não acessa** o Workspace B
+- **MASTER** tem acesso a todos os Workspaces da organização SEM `UsuarioWorkspace` (Mandamento 04). O legado de Bulk Insert para MASTER foi removido — acesso é reconhecido pelo `tipo_usuario`, não pelo vínculo.
+
+#### UI de Vinculação — Editor inline na linha expandida (decisão dono 2026-05-05)
+
+A tela `/workspace/usuarios` adota o **padrão Assinaturas** documentado em [criacao-telas](../../ux/criacao-telas/SKILL.md):
+
+- **Master/SAdmin/Admin** — linha expandida exibe panel "Acesso implícito a todos os workspaces" (read-only). Para revogar acesso, alterar `tipo_usuario`.
+- **Standard/Fornecedor** — linha expandida exibe editor com checkboxes, multi-select, toggle individual Play/Pause, toolbar Habilitar/Bloquear em massa, Salvar/Descartar com badge de pendentes.
+- **Endpoint:** `PUT /api/v1/usuarios/:id_usuario/workspaces` — replace-all atômico. **Aceita array vazio** (revogar todos os vínculos sem alterar tipo do usuário) — Zod afrouxado de `min(1)` → `min(0)` em 2026-05-05. Defesa em camada continua bloqueando MASTER/SAdmin/ADMIN com 400 INVALID_OPERATION.
+- **Audit trail** — `securityAudit.permissionChanged` com `acao_permissao: 'GRANTED' | 'REVOKED'` consolidando o diff de adições/remoções no save.
+- **Modal `ModalEditarUsuario`** continua existindo como caminho avançado para permissões granulares por produto (não foi removido).
+
+### Regra Crítica — Permissões Granulares
+
+As permissões granulares dentro de cada produto **só existem após o produto as registrar no Configurador**.
+
+```typescript
+const productPermissions = await getProductPermissions(productId)
+if (!productPermissions || productPermissions.length === 0) {
+  return {
+    error: 'Permissões deste produto ainda não foram configuradas.',
+    canEdit: false
+  }
+}
+```
+
+---
+
+## Modelo Especial — Fornecedor Cross-Organização
+
+Um fornecedor pode prestar serviços para várias organizações da Gravity.
+- E-mail único no Clerk
+- Múltiplos vínculos de organização no Configurador
+- **Fluxo:** Login → Escolha de Organização/Workspace → Acesso ao contexto
+
+```prisma
+// Mandamento 02: schema.prisma é INTOCÁVEL — exemplo abaixo reflete o schema atual em DDD
+model SupplierOrganizacaoAccess {
+  id              String @id @default(cuid())
+  clerkId         String
+  id_organizacao  String
+  status          String @default("active")
+  @@unique([clerkId, id_organizacao])
+}
+```
+
+---
+
+## Schema Prisma — Entidades Principais
+
+```prisma
+// Mandamento 02: schema.prisma é INTOCÁVEL — exemplo reflete o schema atual
+// Mandamento 03: nomes DDD em Português — snake_case obrigatório
+
+model Organizacao {
+  id          String      @id @default(cuid())
+  nome        String
+  plano       String      @default("trial")
+  workspaces  Workspace[]
+}
+
+model Workspace {
+  id              String  @id @default(cuid())
+  id_organizacao  String
+  nome            String
+  subdominio      String? @unique
+  status          String  @default("ATIVA")
+}
+
+model UsuarioWorkspace {
+  id              String  @id @default(cuid())
+  id_organizacao  String
+  id_workspace    String  // FK para Workspace — nunca nullable (Regra FK Nullable Proibida)
+  id_usuario      String  // id Prisma do Usuario
+  tipo_usuario    String  @default("STANDARD")
+  is_active       Boolean @default(true)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, id_usuario])
+}
+```
+
+---
+
+## Política de Subdomínio (decisão 2026-05-03 — ADR 0002)
+
+**Domínio público:** `usegravity.com.br`. Cada Organização e cada Workspace tem seu próprio subdomínio canônico (`<sub>.usegravity.com.br`) usado em e-mails, integrações, webhooks.
+
+**Regras absolutas:**
+
+1. **Sistema gera, usuário NÃO escolhe.** O frontend deriva um slug do `nome_organizacao`/`nome_workspace`; o backend é a autoridade final.
+2. **Unicidade GLOBAL cross-tabela.** Helper `proximoSubdominioDisponivel(base)` em [`organizacaoService.ts`](../../../servicos-global/configurador/server/services/organizacaoService.ts) consulta **ambas** `organizacao.subdominio_organizacao` E `workspace.subdominio_workspace`. Workspace `acme` na Org A bloqueia `acme` em qualquer outra org/workspace.
+3. **Auto-suffix em colisão:** `<base>` → `<base>-2` → `<base>-3` → ... (teto 100; esgotou → 409).
+4. **Race-safe:** `prisma.create` envolto em try/catch capturando `P2002`; retry externo até 2× (helper já cobre 100 candidatos por chamada).
+5. **Imutabilidade pós-criação:** `PATCH /me/workspaces/:id` usa `z.object().strict()` e **rejeita** `subdominio_workspace` no body. URLs em uso dependem dele.
+6. **Preview ao vivo:** `GET /api/v1/me/sugestoes-subdominio?base=<slug>` — frontend chama com debounce 400ms via hook `useSugerirSubdominio` e exibe `<sub>.usegravity.com.br` em tempo real durante a digitação do nome. Usuário **vê o subdomínio antes** de clicar Criar.
+7. **Transparência:** payload de criação retorna `{ workspace | organizacao, subdominio_solicitado, subdominio_ajustado }`. Quando ajustado, frontend exibe banner amarelo informando.
+
+**`slugifySubdominio(base)`:** lowercase → NFD (remove acentos) → troca `[^a-z0-9-]` por `-` → colapsa repetidos → tira pontas → trunca em 60 chars.
+
+**Endpoints afetados:**
+- `POST /api/v1/organizacoes` (onboarding) — saga Cadastros-primeiro; helper resolve antes da chamada Cadastros.
+- `POST /api/v1/admin/organizacoes` (admin) — helper + retry P2002.
+- `POST /api/v1/me/workspaces` — helper + retry P2002.
+- `GET /api/v1/me/sugestoes-subdominio` — preview público para o modal de criação.
+- `PATCH /api/v1/me/workspaces/:id` — `strict()` sem subdomínio (imutável).
+
+**Testes:** [`server/__tests__/subdominio.helper.test.ts`](../../../servicos-global/configurador/server/__tests__/subdominio.helper.test.ts) — 11 casos cobrindo slugify, cross-tabela, auto-suffix, teto, edge cases.
+
+**Ver:** [ADR 0002](../../../documentos-tecnicos/decisoes-arquiteturais/0002-subdominio-system-generated-cross-tabela.md) para detalhes da decisão e pareceres.
+
+---
+
+## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
+
+> O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.
+
+**`GET /api/v1/me`** (Authorization: Bearer `<clerk_token>`)
+
+Retorna campos com nomes DDD em Português:
+
+```typescript
+{
+  usuario: {
+    id_usuario:              string,  // CUID do User no Prisma
+    nome_usuario:            string,  // user.name
+    email_usuario:           string,  // user.email
+    tipo_usuario:            string,  // MASTER, STANDARD, SUPPLIER, ADMIN, SUPER_ADMIN
+    gravity_admin:        boolean,
+    id_organizacao_usuario:  string,  // user.id_organizacao
+    preferred_workspace_id:  string | null,
+  },
+  organizacao: {
+    id_organizacao:         string,
+    nome_organizacao:       string,
+    subdominio_organizacao: string,
+    status_organizacao:     string,
+  },
+  workspaces: Array<{ id_workspace, nome_workspace, status, tipo_usuario, produtos }>
+}
+```
+
+> **Mandamento 06 + 09:** o consumo do `/me` no frontend SEMPRE passa por `meResponseSchema.parse()` (Zod). Sem `z.any()`, sem `.passthrough()`. Renomes de campo são contratos bilaterais — backend e frontend mudam no MESMO commit (Mandamento 07).
+
+**Consumo no frontend:** hook `useMeSync` em `servicos-global/shell/hooks/useMeSync.ts` — busca este endpoint com o Bearer token do Clerk, valida com `meResponseSchema.parse(json)` e popula `ShellStore.currentUser` + define `ShellStore.meStatus` (`'idle' → 'loading' → 'success'|'error'`). Se `/me` retornar 401/500 ou Zod falhar, `meStatus` vai para `'error'` e `Layout.tsx` bloqueia o render exibindo tela de erro com retry — **nenhum dado do Clerk é exibido sem confirmação do backend** (Mandamento 01 + 08). Todo produto chama `useMeSync()` no `App.tsx` standalone.
+
+**`injectOrganizacaoGetter` / `injectUserNameGetter`:** padrão em produtos (`pedido`, `processo`, etc.) para ler Zustand sincronamente no momento de cada request HTTP — elimina race conditions de Clerk refresh.
+
+---
+
+## APIs Disponíveis
+
+### APIs Públicas (Clerk Auth)
+- **`GET /api/v1/me`** — **identidade canônica** — retorna usuario + organizacao + workspaces (DDD)
+- `POST /api/v1/organizacoes` — criar organização
+- `GET /api/v1/workspaces` — listar Workspaces
+- `GET /api/v1/users` — listar usuários
+- `POST /api/v1/usuarios/invite` — convidar usuário (cria pending_* + vínculos `UsuarioWorkspace` para STANDARD/SUPPLIER)
+- `POST /api/v1/usuarios/:id/memberships` — adicionar/remover vínculo de usuário em Workspace
+- **`PUT /api/v1/usuarios/:id/workspaces`** — substituir atomicamente os workspaces de um usuário STANDARD/SUPPLIER (requireMasterRole, bloqueia MASTER com 400, IDOR via workspace.findMany com `id_organizacao`, $transaction deleteMany+createMany, audit trail GRANTED/REVOKED)
+- `GET /api/v1/plans` — listar planos
+- `GET /api/v1/billing/invoices` — histórico de faturas
+
+### APIs Internas (x-chave-interna obrigatória)
+- `POST /api/internal/validate-session` — valida ticket do gateway
+- `GET /api/internal/check-access` — checa acesso ao produto/workspace
+- `GET /api/internal/product-permissions` — busca definições do produto
+
+---
+
+## Assinaturas, Financeiro e Gateway
+
+### /workspace/assinaturas
+- Upgrade/Downgrade de planos; Adição de produtos avulsos
+- **Tipos de cobrança:** SaaS (mensal), Uso (por item), Setup (taxa única)
+
+### /workspace/financeiro
+- Histórico de faturas, Download de Boletos/NF-e
+
+### /gateway
+- Rota técnica: Valida permissão → Gera ticket JWT curto → Redireciona para o produto
+
+---
+
+## Variáveis de Ambiente
+
+```bash
+DATABASE_URL=postgresql://...
+CLERK_SECRET_KEY=sk_live_...
+# Provedor de pagamento: definido pelo dono — Stripe NÃO é mais dependência
+CHAVE_INTERNA_SERVICO=...
+PORT=3000
+```
+
+---
+
+## Fluxo Completo de um Cliente
+
+1. **DESCOBERTA:** Acessa marketplace
+2. **AQUISIÇÃO:** Clica "Assinar", vai para o Configurador
+3. **ONBOARDING:** Cria conta, cadastra empresa, paga, convida usuários
+4. **ACESSO:** Configurador libera acesso via Gateway
+
+---
+
+## Suites de Teste Existentes (2026-04-20)
+
+| Arquivo | Tipo | Testes | Config |
+|---|---|---|---|
+| `testes/testes-unitarios/configurador/use-carregar-tipo-usuario.test.ts` | Unitário (jsdom) | 17 | `testes/testes-unitarios/configurador/vitest.config.ts` |
+| `testes/testes-unitarios/configurador/usuarios/workspaces-put.test.ts` | Unitário (node) | 18 | mesma config |
+| `testes/testes-funcionais/configurador/me-contract.test.ts` | Funcional (node) | 7 | `testes/testes-funcionais/configurador/vitest.config.ts` |
+| `testes/testes-funcionais/configurador/requireAuth.test.ts` | Funcional (node) | 7 | mesma config |
+| `testes/testes-funcionais/configurador/usuarios/workspaces-put.test.ts` | Funcional (node) | 18 | mesma config |
+
+**Rodar unitários:**
+```bash
+npx vitest run --config testes/testes-unitarios/configurador/vitest.config.ts
+```
+
+**Rodar funcionais:**
+```bash
+npx vitest run --config testes/testes-funcionais/configurador/vitest.config.ts
+```
+
+**Cobertura obrigatória:** 70% linhas/funções/branches (thresholds em ambas as configs).
+
+### Padrão de mock nos testes funcionais do Configurador
+
+O Prisma é **mockado** nos testes funcionais do Configurador (não há banco de teste). O middleware `requireAuth` também é mockado para injetar `req.auth` diretamente:
+
+```typescript
+const { mockFindUnique } = vi.hoisted(() => ({ mockFindUnique: vi.fn() }))
+
+vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+  prisma: { usuario: { findUnique: mockFindUnique, update: vi.fn() } },
+}))
+
+vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
+  requireAuth: (req, _res, next) => {
+    req['auth'] = { idUsuario: 'usr_test_01', idOrganizacao: 'org_test_01', tipoUsuario: 'MASTER' }
+    next()
+  },
+}))
+```
+
+### Armadilha: Importar Schema Zod de Arquivo de Rota
+
+Ao testar um schema Zod exportado de um arquivo de rota (ex: `UpdateWorkspacesSchema` de `users.ts`), o `import` carrega o **módulo inteiro** — incluindo os imports de nível superior como `clerk.ts`, que lança `Error` se `CLERK_SECRET_KEY` não estiver definida.
+
+**Solução:** mockar todos os módulos com side-effects antes do import, mesmo que o teste não use nenhum deles:
+
+```typescript
+// ✅ CORRETO — todos os side-effects bloqueados antes do import do schema
+vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
+  clerkClient: { invitations: { createInvitation: vi.fn() } },
+}))
+vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+  prisma: { usuario: {}, empresa: {}, usuarioWorkspace: {}, $transaction: vi.fn() },
+}))
+vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
+  syncRoleToClerk: vi.fn(),
+}))
+vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
+  securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
+}))
+vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
+  requireAuth: vi.fn(),
+}))
+vi.mock('../../../../servicos-global/configurador/server/middleware/requireMasterRole.js', () => ({
+  requireMasterRole: vi.fn(),
+}))
+
+import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador/server/routes/users.js'
+```
+
+> **Regra:** ao criar plano de teste unitário para qualquer schema exportado de `routes/*.ts`, mapear todos os imports de nível superior desse arquivo e mocká-los.
+
+---
+
+## Checklist — Antes de Entregar o Configurador
+
+- [ ] Workspace lista Workspaces corretamente (somente status ATIVA)?
+- [ ] Botão "Acessar" redireciona para a URL do produto com token?
+- [ ] Webhook user.created resolve pending_* para clerk_user_id real (não cria organização)?
+- [ ] Convite de usuário dispara e-mail do Clerk?
+- [ ] Convite de MASTER NÃO cria UsuarioWorkspace (acesso global por `tipo_usuario`, Mandamento 04)?
+- [ ] Convite de STANDARD/SUPPLIER cria UsuarioWorkspace apenas nos Workspaces selecionados?
+- [ ] Usuário MASTER acessa todos os Workspaces sem vínculo (Mandamento 04), STANDARD segue permissões granulares?
+- [ ] Frontend: tela de usuários mostra Workspaces vinculados ao expandir linha (renderExpandido)?
+- [ ] Edição de workspaces de usuário existente: `PUT /api/v1/usuarios/:id/workspaces` bloqueia MASTER (400), valida workspaces da organização (IDOR), opera atomicamente ($transaction)?
+- [ ] Download de Boleto/NF-e disponível no financeiro?
+- [ ] API `/api/check-access` responde corretamente aos produtos?
+- [ ] Fornecedor com múltiplas organizações vê a tela de seleção ao logar?
+- [ ] **Mandamento 01:** nenhuma rota de autorização lê `publicMetadata.role` do Clerk — sempre via Prisma/`/me`?
+- [ ] **Mandamento 06+09:** toda resposta validada com `meResponseSchema.parse()` no front (sem `z.any()`)?
+
+--- skills/produtos-gravity/configurador/admin/SKILL.md ---
+# Gravity — Painel Admin (Interno)
+
+## O Que é Este Painel
+
+Interface exclusiva da equipe Gravity para gerenciar a plataforma como um todo. **Não é o Configurador** (que é para o cliente).
+
+- **Quem acessa:** apenas usuários com `tipo_usuario = 'ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado.
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 01: verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk.
+- **Princípio:** visibilidade total de todas as organizações, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
+
+---
+
+## Posição na Arquitetura
+
+O painel Admin vive **dentro do Configurador** como mais uma page, protegida por middleware:
+
+```text
+servicos-global/configurador/
+└── src/pages/
+    ├── workspace/          ← área do cliente
+    ├── usuarios/
+    ├── permissoes/
+    ├── assinaturas/
+    └── admin/              ← área exclusiva ADMIN (equipe Gravity)
+        ├── AdminLayout.tsx
+        ├── organizacoes/
+        ├── financeiro/
+        ├── deploy/
+        ├── gabi/
+        ├── consumo/
+        └── apis/           ← monitor de APIs em tempo real
+```
+
+```typescript
+// Middleware que protege todas as rotas /admin/*
+function requireGravityAdmin(req, res, next) {
+  if (req.auth.tipoUsuario !== 'ADMIN' && !req.auth.gravityAdmin) {
+    return res.status(403).json({ error: 'Acesso restrito à equipe Gravity' })
+  }
+  next()
+}
+```
+
+---
+
+## Tela 1 — Organizações
+
+**Stat cards:** Total de Organizações | Organizações Ativas | Organizações em Trial | Organizações Churn (últimos 30 dias)
+
+| Coluna | Descrição |
+|:---|:---|
+| ORGANIZAÇÃO | Nome da organização |
+| CNPJ | CNPJ da organização |
+| STATUS | Ativo / Trial / Suspenso / Churned |
+| PRODUTOS | Badges dos produtos contratados |
+| workspaces | quantidade de workspaces |
+| USUÁRIOS | Total de usuários ativos |
+| PLANO | Básico / Pro / Enterprise |
+| CRIADO EM | Data de cadastro |
+| AÇÕES | Ver detalhes / Suspender / Excluir |
+
+---
+
+## Tela 2 — Produtos Contratados
+
+Visão de quais produtos cada organização tem ativo.
+
+| Organização | Produto | Plano | Contratado em | Vencimento | Status |
+|:---|:---|:---|:---|:---|:---|
+| AgroMax | Simulador Comex | Pro | 01/01/2026 | 01/01/2027 | Ativo |
+
+---
+
+## Tela 3 — Usuários e Permissões (Global)
+
+Todos os usuários de todas as organizações em uma única visão.
+
+**Ações por usuário:**
+- Ver permissões detalhadas
+- Suspender acesso
+- Resetar senha (força reset no próximo login)
+- **Impersonar usuário** (para suporte)
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) — impersonação gera log obrigatório com `actor_type`, `triggered_by` e `impersonating`.
+
+### Editor inline de vínculos workspace (linha expandida)
+
+Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assinaturas** (cânone em [criacao-telas](../../../ux/criacao-telas/SKILL.md)). Detalhes da implementação:
+
+- **Master/SAdmin/Admin** — panel "Acesso implícito" read-only (Mand. 04). Para revogar, alterar `tipo_usuario`.
+- **Standard/Fornecedor** — editor com checkboxes, multi-select, toggle Play/Pause individual, toolbar Habilitar/Bloquear em massa, Salvar/Descartar com badge de pendentes.
+- **Lazy-load:** `GET /api/v1/admin/organizacoes/:id_organizacao/workspaces` (auth: `requireGravityAdmin` — SAdmin + ADMIN podem ler) — invocado quando a linha é expandida; cache em `workspacesPorOrg[id]` evita refetch.
+- **Mutação:** `PUT /api/v1/usuarios/:id_usuario/workspaces` (replace-all atômico). Backend já suporta SUPER_ADMIN cross-org via desvio do filtro `id_organizacao` no findFirst do alvo.
+- **Gating UI — opção α (decisão dono):** **apenas SUPER_ADMIN** edita vínculos via Admin Panel. ADMIN logado vê o editor em modo read-only (sem checkboxes, sem botões de ação). Para abrir esse poder ao ADMIN no futuro, mudar `podeEditar` em [UsuariosAdmin.tsx](../../../../servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx) e revisar [seguranca/permissoes](../../../seguranca/permissoes/SKILL.md).
+- **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/workspace/usuarios` (Configurador).
+- **Audit:** `securityAudit.permissionChanged` continua sendo emitido na org do **alvo** (não do ator), com `acao_permissao: 'GRANTED' | 'REVOKED'`.
+
+---
+
+## Tela 4 — Financeiro
+
+**Stat cards:** MRR | ARR | Churn do mês | Novos contratos do mês
+
+---
+
+## Tela 5 — Histórico de Alterações Global
+
+Igual ao histórico de alterações da organização, mas com visão de todas as organizações.
+
+**Filtros adicionais:** Por organização | Por tipo de ator: usuário, Gabi AI, sistema, Gravity Admin
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) — acesso de Gravity Admin a histórico de outra organização gera log próprio com `action: 'ACESSO_ADMIN'`.
+
+---
+
+## Tela 6 — Deploy
+
+Painel de controle de deploys de todos os serviços no Railway.
+
+| Serviço | Ambiente | Versão | Status | Último deploy | Uptime | Ações |
+|:---|:---|:---|:---|:---|:---|:---|
+| configurador | production | v2.1.4 | 🟢 Online | há 2h | 99.9% | Deploy / Rollback |
+| organizacao-services | production | v1.8.2 | 🟢 Online | há 5h | 100% | Deploy / Rollback |
+| simulador-comex | production | v3.0.1 | 🟡 Alerta | há 1h | 98.2% | Deploy / Rollback |
+
+---
+
+## Tela 7 — Gabi AI (Global)
+
+| Organização | Chamadas | Custo (USD) | % do limite | Status |
+|:---|:---|:---|:---|:---|
+| AgroMax | 1.243 | $8.40 | 42% | 🟢 Normal |
+| ConstrutArt | 891 | $15.80 | 79% | 🟡 Alerta |
+
+---
+
+## Tela 9 — Monitor de APIs (Tempo Real)
+
+Monitora dois tipos:
+1. **APIs de clientes** — clientes consumindo os serviços do Gravity via API sem frontend (integração com ERP, WMS, etc.)
+2. **APIs externas** — dependências da plataforma (Resend, Meta, Gemini, Clerk, Receita Federal, Railway)
+
+**APIs externas:**
+
+| API | Status | Latência | Uptime 30d |
+|:---|:---|:---|:---|
+| Resend | 🟢 Online | 120ms | 99.9% |
+| Meta Cloud API | 🟢 Online | 89ms | 99.8% |
+| Google Gemini | 🟡 Degradada | 2.400ms | 99.1% |
+| Clerk | 🟢 Online | 45ms | 100% |
+| Receita Federal | 🟢 Online | 890ms | 97.2% |
+
+**Alertas automáticos:**
+- API externa offline → email + WhatsApp para equipe Gravity
+- Latência > 3x a média → status "Degradada" + alerta
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) para health check obrigatório a cada 30s e métricas mínimas por API monitorada.
+
+---
+
+## Middleware de Observabilidade
+
+```typescript
+export function apiObservabilityMiddleware(req, res, next) {
+  const start = Date.now()
+
+  res.on('finish', () => {
+    const latency = Date.now() - start
+    setImmediate(() => {
+      prisma.apiRequestLog.create({
+        data: {
+          id_organizacao: req.auth.idOrganizacao,
+          endpoint:       req.path,
+          method:         req.method,
+          status_code:    res.statusCode,
+          latency_ms:     latency,
+          api_key_id:     req.auth?.apiKeyId,
+          created_at:     new Date()
+        }
+      }).catch(console.error)
+
+      checkApiAlerts(req.auth.idOrganizacao, req.path, res.statusCode, latency)
+    })
+  })
+  next()
+}
+```
+
+---
+
+## Schema Prisma
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 02: `schema.prisma` é INTOCÁVEL. Exemplos abaixo refletem o schema atual (campos em DDD: `id_organizacao`, `tipo_usuario`, `gravity_admin`).
+
+```prisma
+model ApiKey {
+  id              String    @id @default(cuid())
+  id_organizacao  String
+  name            String
+  key_hash        String    @unique  // hash SHA-256 — nunca plain text
+  key_preview     String             // últimos 4 chars para exibição
+  scopes          Json               // endpoints permitidos
+  rate_limit      Int       @default(60)  // req/min
+  expires_at      DateTime?
+  active          Boolean   @default(true)
+  last_used_at    DateTime?
+  created_at      DateTime  @default(now())
+
+  @@index([id_organizacao])
+  @@index([key_hash])
+}
+
+model ApiRequestLog {
+  id              String   @id @default(cuid())
+  id_organizacao  String
+  api_key_id      String?
+  endpoint        String
+  method          String
+  status_code     Int
+  latency_ms      Int
+  created_at      DateTime @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, created_at])
+  @@index([id_organizacao, status_code])
+  @@index([api_key_id])
+}
+
+model ApiMonitor {
+  id               String    @id @default(cuid())
+  name             String
+  service          String
+  health_check_url String
+  timeout_ms       Int       @default(5000)
+  check_interval_s Int       @default(30)
+  current_status   String    @default("unknown")
+  current_latency  Int?
+  last_checked_at  DateTime?
+  created_at       DateTime  @default(now())
+}
+
+model ApiIncident {
+  id          String    @id @default(cuid())
+  api_id      String
+  status      String
+  started_at  DateTime  @default(now())
+  resolved_at DateTime?
+  duration_s  Int?
+  error_msg   String?
+}
+
+model GravityAdmin {
+  id                String   @id @default(cuid())
+  clerk_id          String   @unique
+  name              String
+  email             String   @unique
+  tipo_usuario      String   @default("ADMIN")  // ADMIN | VIEWER (subtipos internos)
+  gravity_admin     Boolean  @default(true)
+  active            Boolean  @default(true)
+  created_at        DateTime @default(now())
+}
+```
+
+---
+
+## Checklist
+
+- [ ] Painel Admin restrito a `tipo_usuario = 'ADMIN'` conforme [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md)?
+- [ ] Impersonação e acessos sensíveis com log conforme [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md)?
+- [ ] Painel de Deploy Railway com logs e métricas em tempo real?
+- [ ] Gestão de API Keys com escopo, rate limit e expiração?
+- [ ] APIs externas com health check a cada 30s e histórico de incidentes?
+- [ ] Alertas de queda via email e WhatsApp para equipe Gravity?
+- [ ] Schema com ApiKey, ApiRequestLog, ApiMonitor, ApiIncident?
+
+
+---
+
+## Empresas e Parceiros (Cross-Org)
+
+Tela admin **read-only** que lista empresas/parceiros de TODAS as organizações da plataforma.
+Path: `/admin/empresas-e-parceiros`. Página: `EmpresasEParceirosAdmin.tsx`.
+
+### Audiência
+SUPER_ADMIN e ADMIN Gravity. Bloqueada para qualquer outro `tipo_usuario` por `requireGravityAdmin`.
+
+### Pipeline backend
+Frontend → `/api/v1/admin/empresas` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/empresas` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
+
+### Garantias
+- **Read-only por design** — admin investiga, não modifica. Edição/criação/inativação cross-org está desabilitada na UI; mudanças continuam exclusivas da tela do workspace.
+- **Banner permanente** topo da tela: `CardBasicoGlobal variante="aviso"` explicando modo cross-org + audit log + read-only. Não dispensável.
+- **Modal volume > 500** sempre aparece (sem checkbox "não perguntar mais"), sugerindo filtrar por organização ou tipo de parceiro antes de continuar.
+- **Teto duro 200 por página** no Cadastros (clamp em servidor).
+- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.empresas.list`, `recurso=empresa`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
+- **Filtro por organização** via `SelectOrganizacaoAdminGlobal` (autocomplete com debounce 300ms) — input livre de UUID proibido.
+- **Coluna `nome_organizacao`** sticky-left, clique navega para `/admin/organizacoes/:id`.
+- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas a empresa ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
+
+### Roadmap Fase 2
+A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
+
+### Skill relacionada
+- `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.
+
+--- documentos-tecnicos/produtos-gravity/cadastros/TIPO-DE-OPERACAO.md ---
+# Tipo de Operação — Documentação Técnica Completa
+
+**Última atualização:** 2026-04-07  
+**Produto:** Pedido  
+**Status:** ✅ Implementado
+
+---
+
+## 1. Conceito
+
+O campo `tipo_operacao` define se um pedido é uma **compra do exterior** (importação) ou uma **venda para o exterior** (exportação). Esse campo governa:
+
+- Qual parceiro é o **próprio tenant** (somente leitura, vem do Configurador)
+- Qual parceiro é o **terceiro externo** (editável pelo usuário)
+- Qual FK de parceiro é usada no banco
+- Quais campos são exibidos/editáveis no front-end
+- Como o pedido aparece em views como Kanban e Consolidação
+
+---
+
+## 2. Valores válidos
+
+| Valor | Sigla comercial | Descrição |
+|---|---|---|
+| `importacao` | PO — Purchase Order | O tenant **compra** de um fornecedor estrangeiro |
+| `exportacao` | SO — Sales Order | O tenant **vende** para um cliente estrangeiro |
+
+Definido no Zod como:
+```typescript
+// servicos-global/tenant/processos-core/src/routes/pedidos.ts:48
+tipo_operacao: z.enum(['importacao', 'exportacao'])
+```
+
+---
+
+## 3. Banco de Dados
+
+### 3.1 Fragment Prisma
+**Arquivo:** `servicos-global/tenant/processos-core/prisma/fragment.prisma`
+
+```prisma
+model Pedido {
+  tipo_operacao String  // 'importacao' | 'exportacao'
+
+  // FKs de parceiros — apenas UM é preenchido por pedido
+  importacao_exportador_id String?  // Se importacao: FK do fornecedor estrangeiro (Exterior)
+  exportacao_importador_id String?  // Se exportacao: FK do cliente estrangeiro (Exterior)
+  fabricante_id            String?  // FK do fabricante (independente do tipo)
+
+  // JSON polimórfico — nomes dos parceiros armazenados localmente
+  detalhes_operacionais Json?
+  // Estrutura do JSON (completa após implementação 2026-04-07):
+  // {
+  //   "exportador_nome": string | null,   ← nome do fornecedor (editável em importacao)
+  //   "importador_nome": string | null,   ← nome do cliente   (editável em exportacao)
+  //   "fabricante_nome": string | null
+  // }
+}
+```
+
+### 3.2 Índice relevante
+
+```prisma
+@@index([tenant_id, tipo_operacao])
+```
+
+### 3.3 Estado atual dos campos no JSON
+
+| Campo JSON | Existe | Surfaçado em mapPedido | Editável |
+|---|---|---|---|
+| `exportador_nome` | ✅ Sim | ✅ Sim | ✅ Apenas em `importacao` |
+| `importador_nome` | ✅ Sim | ✅ Sim | ✅ Apenas em `exportacao` |
+| `fabricante_nome` | ✅ Sim | ✅ Sim | ✅ Qualquer tipo |
+
+---
+
+## 4. Regra de Negócio — Parceiros por Tipo de Operação
+
+### 4.1 Tabela mestre
+
+| tipo_operacao | Campo             | FK no banco                | Origem                                        | Editável pelo usuário |
+|---            |---                |---                         |---                                            |---                    |
+| `importacao`  | `exportador_nome` | `importacao_exportador_id` | Parceiro externo (fornecedor)                 | ✅ Sim                |
+| `importacao`  | `importador_nome` | *(sem FK)*                 | Tenant = próprio importador (Configurador)    | ❌ Não                |
+| `exportacao`  | `exportador_nome` | *(sem FK)*                 | Tenant = próprio exportador (Configurador)    | ❌ Não                |
+| `exportacao`  | `importador_nome` | `exportacao_importador_id` | Parceiro externo (cliente)                    | ✅ Sim                |
+
+### 4.2 Lógica resumida
+
+> O nome que vem de uma FK externa (parceiro de fora) **pode ser editado**.  
+> O nome que representa o próprio tenant **vem do Configurador e é somente leitura**.
+
+### 4.3 Nota sobre FKs inexistentes
+
+Os campos `importacao_importador_id` e `exportacao_exportador_id` **não existem** no banco. Não são necessários porque o tenant é sempre uma das partes — seu nome já está no Configurador (workspace).
+
+---
+
+## 5. Backend
+
+### 5.1 Arquivo principal
+`servicos-global/tenant/processos-core/src/routes/pedidos.ts`
+
+### 5.2 Função `mapPedido` — estado atual
+```typescript
+// linha 140–160
+export function mapPedido(pedido: any): any {
+  const det = (pedido.detalhes_operacionais as Record<string, unknown> | null) ?? {}
+  return {
+    ...pedido,
+    exportador_nome: (det.exportador_nome as string | null | undefined) ?? null,
+    importador_nome: (det.importador_nome as string | null | undefined) ?? null,
+    fabricante_nome: (det.fabricante_nome as string | null | undefined) ?? null,
+  }
+}
+```
+
+### 5.3 `CAMPOS_EDITAVEIS` — estado atual
+```typescript
+const CAMPOS_EDITAVEIS = new Set([
+  'exportador_nome',  // validação condicional por tipo_operacao feita no handler
+  'importador_nome',  // validação condicional por tipo_operacao feita no handler
+  'fabricante_nome',
+  'importacao_exportador_id',
+  'exportacao_importador_id',
+  ...
+])
+```
+
+### 5.4 PATCH `/:id/campo` — validação por tipo_operacao
+```typescript
+// Bloqueia edição do campo errado para o tipo de operação
+if (campo === 'exportador_nome' && pedido.tipo_operacao === 'exportacao') {
+  throw new AppError(400, 'exportador_nome nao pode ser editado em pedidos de exportacao — vem do Configurador')
+}
+if (campo === 'importador_nome' && pedido.tipo_operacao === 'importacao') {
+  throw new AppError(400, 'importador_nome nao pode ser editado em pedidos de importacao — vem do Configurador')
+}
+```
+
+### 5.5 PATCH `/:id/campo` — merge em detalhes_operacionais
+```typescript
+} else if (campo === 'exportador_nome' || campo === 'importador_nome' || campo === 'fabricante_nome') {
+  const detAtual = typeof pedido.detalhes_operacionais === 'object' ...
+  dadosUpdate = { detalhes_operacionais: { ...detAtual, [campo]: valor } }
+}
+```
+
+### 5.6 PATCH `/:id/campo` — schema Zod
+```typescript
+const editarCampoSchema = z.object({
+  campo:      z.string().min(1),
+  valor:      z.unknown(),
+  updated_at: z.string().datetime(),
+})
+```
+
+### 5.7 Outros arquivos backend que referenciam os campos
+
+| Arquivo | O que faz |
+|---|---|
+| `servicos-global/.../importacao.ts:110` | Grava `exportador_nome` em `detalhes_operacionais` ao importar pedido |
+| `produto/pedido/server/src/routes/consolidar.ts:60` | `importador_nome` + `exportador_nome` como campos divergentes na comparação |
+| `produto/pedido/server/src/routes/consolidar.ts:246` | Preserva `exportador_nome`, `importador_nome` e `fabricante_nome` do primeiro pedido em `detalhes_operacionais` |
+| `produto/pedido/server/src/services/pdfService.ts:79` | Lê `exportador_nome` para gerar PDF |
+
+---
+
+## 6. Frontend
+
+### 6.1 Interface `Pedido`
+**Arquivo:** `produto/pedido/client/src/shared/types.ts`
+
+```typescript
+export interface Pedido {
+  exportador_nome?: string | null
+  importador_nome?: string | null
+  importacao_exportador_id: string | null
+  exportacao_importador_id: string | null
+  tipo_operacao: 'importacao' | 'exportacao'
+  ...
+}
+```
+
+### 6.2 Colunas na tabela — ListaPedidos.tsx
+
+As colunas `exportador_nome` e `importador_nome` são definidas com labels fixos. A editabilidade é controlada por `MAPA_COLUNAS_FILHO` via `editavel` condicional.
+
+### 6.3 `CAMPOS_PAI_TEXTO` — controla edição inline de filhos
+```typescript
+const CAMPOS_PAI_TEXTO = new Set([
+  'exportador_nome', 'importador_nome', 'fabricante_nome', ...
+])
+```
+
+### 6.4 `MAPA_COLUNAS_FILHO` — editabilidade condicional por tipo_operacao
+```typescript
+exportador_nome: {
+  editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
+  render: (row) => <span>{p?.exportador_nome ?? '—'}</span>,
+},
+importador_nome: {
+  editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
+  campo: 'importador_nome',
+  render: (row) => <span>{p?.importador_nome ?? '—'}</span>,
+},
+```
+
+> O tipo `GTMapaColunasFilho.editavel` foi estendido de `boolean` para `boolean | ((item: C) => boolean)` para suportar esse padrão.
+
+### 6.5 `handleEditarFilho` — propaga edição para o pedido pai
+```typescript
+const pedidoAtualizado = (campo === 'exportador_nome' || campo === 'importador_nome' || campo === 'fabricante_nome')
+  ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor, pedido.updated_at)
+  : await pedidoVirtualApi.editarCampo(pedido.id, campo, valor, pedido.updated_at)
+```
+
+### 6.6 Enriquecimento de item com dados do pedido pai
+```typescript
+_p: {
+  exportador_nome: pedido.exportador_nome ?? null,
+  importador_nome: pedido.importador_nome ?? null,
+  ...
+}
+```
+
+### 6.7 Edição em massa — ModalEdicaoEmMassa.tsx
+```typescript
+{ campo: 'exportador_nome', ...,
+  visivel: (pedidos: Pedido[]) => pedidos.some(p => p.tipo_operacao === 'importacao') },
+{ campo: 'importador_nome', rotulo: 'Importador — Nome', tipo: 'texto', nivel: 'pedido', grupo: 'Importador',
+  visivel: (pedidos: Pedido[]) => pedidos.some(p => p.tipo_operacao === 'exportacao') },
+```
+
+`camposParaNivel` filtra por `visivel` antes de renderizar os campos:
+```typescript
+function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = []): DefinicaoCampo[] {
+  const filtrar = (lista: DefinicaoCampo[]) =>
+    lista.filter(d => !d.visivel || d.visivel(pedidos))
+  ...
+}
+```
+
+### 6.8 Outros arquivos frontend
+
+| Arquivo | O que faz |
+|---|---|
+| `KanbanPedidos.tsx` linhas 54, 89, 91, 175 | Exibe `exportador_nome \|\| importador_nome` no card |
+| `api.ts` | Mock SmartImport com `exportador_nome` hardcoded |
+| `mockData.ts` linha 265 | Mock com `importador_nome: 'Argentina Importadora S.A.'` (exportacao) |
+
+---
+
+## 7. Nucleo Global — Alterações
+
+**Arquivo:** `nucleo-global/Tabelas/tabela-virtual-global/src/tipos.ts`
+
+```typescript
+// GTMapaColunasFilho — editavel agora aceita função
+export interface GTMapaColunasFilho<C = unknown> {
+  editavel?: boolean | ((item: C) => boolean)  // ← estendido
+  ...
+}
+```
+
+**Arquivo:** `nucleo-global/Tabelas/tabela-virtual-global/src/TabelaVirtualGlobal.tsx`
+
+```typescript
+// Handler para suportar editavel como função
+const editavelMapa = typeof mapa?.editavel === 'function' ? mapa.editavel(item) : !!mapa?.editavel
+const podeEditar = (editavelMapa || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
+```
+
+---
+
+## 8. Gaps fechados (2026-04-07)
+
+| # | Gap | Status |
+|---|---|---|
+| G1 | `importador_nome` não estava em `detalhes_operacionais` / `mapPedido` | ✅ Corrigido |
+| G2 | `exportador_nome` editável sem checar `tipo_operacao` | ✅ Corrigido — backend bloqueia em exportacao |
+| G3 | `importador_nome` ausente de `CAMPOS_EDITAVEIS` | ✅ Corrigido |
+| G4 | `importador_nome` ausente de `CAMPOS_PAI_TEXTO` | ✅ Corrigido |
+| G5 | Edição em massa sem restrição por `tipo_operacao` | ✅ Corrigido — `visivel` por tipo |
+| G6 | Kanban exibe campo sem lógica de tipo | ⚠️ Não alterado — `exportador_nome \|\| importador_nome` é aceitável por ora |
+| G7 | `handleEditarFilho` não tratava `importador_nome` | ✅ Corrigido |
+| G8 | Consolidação sem `importador_nome` nos campos divergentes | ✅ Corrigido |
+
+---
+
+## 9. Gaps pendentes / futuro
+
+| # | Gap | Prioridade |
+|---|---|---|
+| P1 | Kanban: exibir somente o campo correto por `tipo_operacao` (agora usa `\|\|`) | Baixa |
+| P2 | Permissões granulares para editar esses campos (Configurador) | Médio — pós-Configurador |
+| P3 | Spec Playwright para editabilidade condicional por tipo_operacao | Médio |
+| P4 | `duplicar-itens.spec.ts` com falha pré-existente (botão "Duplicar" toolbar) | Alto — issue separada |
+
+---
+
+## 10. Referências de código
+
+| Símbolo | Arquivo | Linha |
+|---|---|---|
+| `tipo_operacao` enum Zod | `pedidos.ts` | 48 |
+| `importacao_exportador_id` FK | `fragment.prisma` | 19 |
+| `exportacao_importador_id` FK | `fragment.prisma` | 20 |
+| `detalhes_operacionais` JSON | `fragment.prisma` | 58 |
+| `mapPedido` | `pedidos.ts` | 140–160 |
+| `CAMPOS_EDITAVEIS` | `pedidos.ts` | 489–510 |
+| PATCH `/:id/campo` validação tipo_operacao | `pedidos.ts` | ~549–556 |
+| PATCH `/:id/campo` detalhes_operacionais | `pedidos.ts` | 619 |
+| `CAMPOS_PAI_TEXTO` | `ListaPedidos.tsx` | ~3029 |
+| `MAPA_COLUNAS_FILHO` exportador/importador | `ListaPedidos.tsx` | ~545–560 |
+| `handleEditarFilho` | `ListaPedidos.tsx` | ~4198 |
+| Enriquecimento `_p.importador_nome` | `ListaPedidos.tsx` | ~4248, ~4284 |
+| `DefinicaoCampo.visivel` | `ModalEdicaoEmMassa.tsx` | — |
+| `camposParaNivel` filtro | `ModalEdicaoEmMassa.tsx` | — |
+| `importador_nome` em `CAMPOS_COMPARAR` | `consolidar.ts` | 60 |
+| `detalhes_operacionais` no consolidado | `consolidar.ts` | 246–257 |
+| `GTMapaColunasFilho.editavel` tipo | `tipos.ts` (nucleo-global) | 177 |
+| Handler `editavel` como função | `TabelaVirtualGlobal.tsx` | ~1641 |
+
+--- documentos-tecnicos/produtos-gravity/cadastros/cadastros-arquitetura.md ---
+# CADASTROS — Documento Técnico de Arquitetura
+
+**Versão:** 1.0 (final, aprovada)
+**Data:** 22/04/2026
+**Autor:** Sessão de governança Gravity
+**Decisores:** Daniel (dono), Coordenador (executor)
+
+---
+
+## 1. Objetivo
+
+Criar um **4º banco de dados** chamado `cadastros` no ecossistema Gravity, atuando como **cartório de identidades de domínio COMEX** — empresas, OPE, moedas, unidades, NCM e demais entidades compartilhadas entre múltiplos produtos.
+
+A motivação central é resolver o atual problema arquitetural onde entidades como Exportador, Fabricante, Importador aparecem implicitamente em vários produtos (Pedido, LPCO, NF Importação) sem fonte única de verdade, gerando duplicação de modelagem, inconsistência de dados e impossibilidade de rastreabilidade cross-produto.
+
+---
+
+## 2. Princípios fundamentais
+
+### 2.1 Database-per-Service mantido
+Cadastros é apenas mais um banco isolado. Comunicação com outros serviços ocorre via **API REST interna** com `x-internal-key`. Sem JOINs cross-database, sem FK física entre bancos.
+
+### 2.2 Cadastros é o cartório
+Toda empresa do mundo COMEX (Importador, Exportador, Fabricante, Agente, Despachante, Armador) é registrada **primeiro** em Cadastros e recebe um **SUID** único e estável. Esse SUID é a chave de referência usada por todos os outros bancos.
+
+### 2.3 SUID per-tenant
+Cada Empresa em Cadastros pertence a **um tenant** (`id_organizacao`). Se a CAOA cadastra "Shenzhen Trading Co." e a Fiat cadastra a mesma empresa, são **dois SUIDs distintos**. Não há reconciliação cross-tenant. Isolamento prevalece sobre unicidade global.
+
+### 2.4 Configurador espelha SUID
+Quando uma Empresa vira cliente Gravity, o Configurador cria `Organizacao.suid_empresa` referenciando o SUID já existente em Cadastros. **Cópia, não FK** — mantém Database-per-Service.
+
+### 2.5 Snapshot obrigatório (Opção δ — completo)
+Todo Pedido (e equivalentes em outros produtos) grava uma **cópia congelada (snapshot completo — Opção δ)** de **todos** os campos da entidade Cadastros (Empresa, OPE, NCM, Moeda, Unidade) no momento da emissão. Não é snapshot de campos selecionados — é a entidade inteira.
+
+Pedidos emitidos não dependem de Cadastros estar online ou inalterado. Implementação de referência: `Pedido.snapshots_empresa_pedido` e `Pedido.snapshots_ope_pedido` (relação 1:N) populadas em `db.pedido.create({ data: { snapshots_*: { create: [...] } } })`.
+
+**Por que δ puro e não snapshot parcial:** simplifica raciocínio (sempre tem tudo do que foi gravado), elimina decisão "qual campo é crítico" por produto/contexto, garante reconstrução fiel do pedido na época da emissão para fins legais COMEX.
+
+### 2.6 Atualização opcional e auditável
+Mudanças em Cadastros podem opcionalmente propagar pra pedidos via flag por **entidade × status**, com histórico imutável e UI de preview obrigatória.
+
+### 2.7 Configurador sem campos COMEX
+Configurador cuida de auth (Clerk), Organizacao (CNPJ do tenant pagante), Workspace e billing (Stripe). **Não armazena** estado/endereço/email de Exportador, Fabricante etc. — esses dados pertencem ao Cadastros e às tabelas de snapshot dos produtos.
+
+---
+
+## 3. Decisões consolidadas
+
+| # | Decisão | Justificativa |
+|---|---------|---------------|
+| 1 | Cadastros = 4º banco isolado | Database-per-Service, isolamento de domínio COMEX |
+| 2 | SUID nasce em Cadastros, sempre | Cartório único, evita ambiguidade |
+| 3 | SUID per-tenant (não global) | Isolamento de tenant > unicidade mundial |
+| 4 | Configurador espelha SUID por cópia | Mantém isolamento DB |
+| 5 | CNPJ obrigatório no Brasil, opcional exterior | Realidade operacional |
+| 6 | Empresa única com flags de papel (sem enum tipo, sem tabelas filhas) | Simplicidade; tipo é derivado das flags |
+| 7 | Snapshot obrigatório no Pedido | Rastreabilidade legal COMEX |
+| 8 | Atualização via flag por entidade × status | Compliance + flexibilidade |
+| 9 | Sem granularidade por campo | Simplicidade, evita explosão de toggles |
+| 10 | Histórico via serviço Histórico existente | Reuso, sem custo adicional |
+| 11 | Preview de impacto obrigatório ao salvar Cadastros | Transparência, evita surpresas |
+| 12 | Banner retroativo ao voltar status para editável | Usuário decide aplicar ou não |
+| 13 | OPE sincronizado de Portal Único (fonte da verdade) | Portal Único é fonte da verdade SISCOMEX |
+| 14 | Moedas, Unidades, NCM ficam em Cadastros | Compartilhados por múltiplos produtos |
+| 15 | Anexos modelo X2 (Draft + Original separados) | Documentos distintos no fluxo COMEX |
+| 16 | Onboarding cria Empresa + Organizacao atomicamente | UX transparente, SUID definitivo no primeiro insert |
+| 17 | Cache Redis 5min para hidratação de Empresa | Performance, alivia Cadastros |
+| 18 | Degradação graciosa: rascunho continua, criação de novo cadastro bloqueia | Fonte da verdade nunca tem fallback |
+| 19 | Regra anti-saco-de-gato (4 critérios) | Evita Cadastros virar lixeira |
+| 20 | Auditoria de campos espalhados via coluna extra na planilha DDD | Daniel preenche manualmente com a planilha em mãos |
+
+---
+
+## 4. Modelo de dados — banco Cadastros
+
+> **Convenção DDD Gravity (atualizada 24/04/2026 — fix_model_casing_revert):**
+> - **Model names em PascalCase** (convenção Prisma) — `Empresa`, `Moeda`, `Unidade`, `NCM`, `OPE`, `OpeHistoricoStatus`.
+> - **Nome de tabela PostgreSQL em snake_case** via `@@map("tabela")`.
+> - **Colunas em snake_case PT-BR** com **sufixo da tabela** (ex: `suid_empresa`, `codigo_moeda`) — exceções: FKs `id_<outra>` (ex: `id_organizacao`) e colunas já terminadas com o sufixo.
+> - Valores de enum em UPPER_SNAKE EN. Booleans sem prefixo `is_`.
+> - **Proibido** ficar apenas em `model empresa {}` sem `@@map`. O schema precisa ser válido tanto na ótica Prisma (PascalCase) quanto na ótica PG (snake_case).
+
+### 4.1 Empresa
+
+```prisma
+model Empresa {
+  suid_empresa                          String   @id           // ex: SHENZHEN-00042
+  id_organizacao                        String                 // tenant dono
+  nome_empresa                          String
+  cnpj_empresa                          String?                // obrigatório se pais_empresa = BR
+  tin_empresa                           String?                // estrangeiros (opcional)
+  pais_empresa                          String                 // ISO-2
+  estado_empresa                        String?
+  cidade_empresa                        String?
+  endereco_empresa                      String?
+  zipcode_empresa                       String?
+  email_empresa                         String?
+  telefone_empresa                      String?
+  whatsapp_empresa                      String?
+  pode_ser_importador_empresa           Boolean  @default(false)
+  pode_ser_exportador_empresa           Boolean  @default(false)
+  pode_ser_fabricante_empresa           Boolean  @default(false)
+  pode_ser_agente_empresa               Boolean  @default(false)
+  pode_ser_despachante_empresa          Boolean  @default(false)
+  pode_ser_armador_empresa              Boolean  @default(false)
+  pode_ser_armazem_alfandegado_empresa                          Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_empresa           Boolean @default(false)
+  pode_ser_cia_aerea_empresa                                    Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_internacional_empresa      Boolean @default(false)
+  pode_ser_seguradora_internacional_empresa                     Boolean @default(false)
+  pode_ser_seguradora_corretora_cambio_empresa                  Boolean @default(false)
+  pode_ser_banco_empresa                                        Boolean @default(false)
+  pode_ser_armazem_nacional_empresa                             Boolean @default(false)
+  ativo_empresa                         Boolean  @default(true)
+  criado_em_empresa                     DateTime @default(now())
+  atualizado_em_empresa                 DateTime @updatedAt
+
+  @@unique([id_organizacao, cnpj_empresa])
+  @@unique([id_organizacao, tin_empresa, pais_empresa])
+  @@index([id_organizacao])
+  @@index([id_organizacao, nome_empresa])
+  @@map("empresa")
+}
+```
+
+**Tipo da empresa é derivado das flags, NÃO é campo persistido.** Função utilitária `derivarTipoVisual(empresa)` retorna string formatada ("Importador", "Importador + Exportador", "Importador + Exportador + Agente").
+
+### 4.2 Catálogos compartilhados
+
+```prisma
+model Moeda {
+  codigo_moeda    String   @id           // BRL, USD, EUR, CNY — ISO 4217
+  simbolo_moeda   String
+  ativo_moeda     Boolean  @default(true)
+
+  @@map("moeda")
+}
+
+model Unidade {
+  codigo_unidade  String   @id           // KG, UN, M, L
+  nome_unidade    String
+  tipo_unidade    String                 // peso, quantidade, comprimento, volume
+  ativo_unidade   Boolean  @default(true)
+
+  @@map("unidade")
+}
+
+model NCM {
+  codigo_ncm      String   @id           // 8 dígitos
+  descricao_ncm   String
+  ipi_ncm         Float?
+  ii_ncm          Float?
+  pis_ncm         Float?
+  cofins_ncm      Float?
+  ativo_ncm       Boolean  @default(true)
+
+  @@map("ncm")
+}
+```
+
+### 4.3 OPE — sincronizado de Portal Único
+
+```prisma
+model OPE {
+  suid_ope                   String   @id
+  id_organizacao             String
+  codigo_portal_unico_ope    String   @unique
+  situacao_ope               String                 // espelho do status SISCOMEX
+  versao_ope                 String
+  nome_ope                   String
+  cnpj_raiz_empresa_ope      String
+  pais_ope                   String
+  estado_ope                 String?
+  cidade_ope                 String?
+  endereco_ope               String?
+  zip_ope                    String?
+  tin_ope                    String?
+  email_ope                  String?
+  ultima_sincronizacao_ope   DateTime
+  origem_ope                 String   @default("portal_unico")
+
+  @@index([id_organizacao])
+  @@map("ope")
+}
+
+model OpeHistoricoStatus {
+  id_historico_status_ope                String   @id @default(cuid())
+  suid_ope_historico_status_ope          String
+  status_anterior_historico_status_ope   String?
+  status_novo_historico_status_ope       String
+  origem_historico_status_ope            String                 // portal_unico, manual, sistema
+  payload_historico_status_ope           Json
+  registrado_em_historico_status_ope     DateTime @default(now())
+
+  @@index([suid_ope_historico_status_ope])
+  @@index([registrado_em_historico_status_ope])
+  @@map("ope_historico_status")
+}
+```
+
+OPE é sincronizado via job que consome Portal Único. Portal Único é a fonte da verdade — edições manuais são tecnicamente possíveis, mas serão sobrescritas na próxima sincronização.
+
+---
+
+## 5. Validações aplicacionais (Zod backend + Zod frontend)
+
+```
+Empresa:
+- nome_empresa: obrigatório, mínimo 2 caracteres
+- pais_empresa: obrigatório, ISO-2
+- if (pais_empresa === 'BR') { cnpj_empresa obrigatório, formato XX.XXX.XXX/XXXX-XX validado }
+- if (pais_empresa !== 'BR') { cnpj_empresa deve ser null; tin_empresa opcional mas recomendado }
+- pelo menos uma flag pode_ser_*_empresa deve ser true
+- email_empresa: se preenchido, formato válido
+- whatsapp_empresa: se preenchido, formato E.164
+
+Moeda:
+- codigo_moeda: obrigatório, ISO 4217 (3 letras maiúsculas)
+- simbolo_moeda: obrigatório
+
+Unidade:
+- codigo_unidade: obrigatório, até 8 caracteres
+- nome_unidade: obrigatório
+- tipo_unidade: enum (peso | quantidade | comprimento | volume)
+
+NCM:
+- codigo_ncm: obrigatório, 8 dígitos numéricos
+- descricao_ncm: obrigatório
+- ipi_ncm / ii_ncm / pis_ncm / cofins_ncm: opcionais, quando preenchidos >= 0
+```
+
+---
+
+## 6. Modelo de dados — Pedido (snapshot dentro do Pedido)
+
+> **Snapshot = cópia congelada dos dados da Empresa, gravada DENTRO do Pedido no momento da emissão.** Garante que pedidos antigos preservem o estado original mesmo se Cadastros mudar.
+
+### 6.1 Snapshot por entidade
+
+```prisma
+model PedidoSnapshotEmpresa {
+  id                String   @id @default(cuid())
+  id_pedido         String
+  papel             String                       // importador, exportador, fabricante, agente, despachante, armador
+  suid_empresa      String                       // referência ao Cadastros (sem FK física)
+  nome_empresa      String                       // congelado
+  cnpj              String?
+  tin               String?
+  pais              String
+  estado            String?
+  cidade            String?
+  endereco          String?
+  zipcode           String?
+  email             String?
+  telefone          String?
+  congelado_em      DateTime @default(now())
+
+  @@index([id_pedido])
+  @@index([suid_empresa])
+}
+
+model PedidoSnapshotOpe {
+  id                       String   @id @default(cuid())
+  id_pedido                String
+  suid_ope                 String
+  codigo_portal_unico      String
+  situacao_no_momento      String
+  versao                   String
+  nome_ope                 String
+  cnpj_raiz_empresa        String
+  pais                     String
+  estado                   String?
+  cidade                   String?
+  endereco                 String?
+  zip                      String?
+  tin                      String?
+  email                    String?
+  congelado_em             DateTime @default(now())
+
+  @@index([id_pedido])
+  @@index([suid_ope])
+}
+```
+
+### 6.2 Configuração de atualização por produto
+
+> Esta tabela é a persistência da decisão "atualizar dados alterados do cadastro com base no status". Configurada pelo tenant em `Configurações > Pedido > Cadastros`.
+
+```prisma
+model PedidoConfigAtualizacaoCadastros {
+  id_organizacao         String
+  papel                  String                  // importador, exportador, fabricante, agente, despachante, armador
+  status_permitidos      String[]                // ["rascunho", "em_emissao", ...status customizados do tenant]
+
+  @@id([id_organizacao, papel])
+}
+```
+
+UI: por linha, em `Configurações > Pedido > Cadastros`, mostra entidade + matriz de status (incluindo customizados criados pelo tenant) com toggle "atualizar quando Cadastros mudar?".
+
+---
+
+## 7. Modelo de dados — Configurador (alteração mínima)
+
+```prisma
+model Organizacao {
+  suid_organizacao       String   @id
+  suid_empresa           String?                 // espelho do Cadastros, opcional
+  // ... resto inalterado
+}
+```
+
+Sem FK física entre Configurador e Cadastros. `suid_empresa` é cópia.
+
+---
+
+## 8. Lista EXATA de mudanças estruturais
+
+### Fase 0 — Aprovação deste documento (BLOQUEIA tudo abaixo)
+- [x] Daniel revisa e aprova versão final do documento
+- [x] Documento salvo em `documentos-tecnicos/produtos-gravity/cadastros/cadastros-arquitetura.md`
+- [ ] Coordenador valida que documento está executável
+
+### Fase 1 — Criação do banco Cadastros (não toca em produtos existentes)
+- [x] Criar serviço `servicos-global/tenant/cadastros/`
+- [x] Criar `fragment.prisma` com models: `Empresa`, `Moeda`, `Unidade`, `NCM`, `OPE`, `OpeHistoricoStatus` (PascalCase + `@@map`)
+- [x] Coordenador roda script de composição → gera novo `schema.prisma` consolidado
+- [x] Migration inicial criando o banco `cadastros` no Railway
+- [x] Migration `fix_model_casing_revert` (24/04/2026) — PascalCase + `@@map`, tabelas snake_case com campos DDD e ghost flags
+- [x] Endpoints CRUD (Empresa, Moeda, Unidade, NCM, OPE) com `x-internal-key`
+- [x] Endpoint `GET /empresas/:suid/preview-impacto` (consulta produtos via API interna)
+- [ ] Job de sincronização Portal Único → OPE
+- [x] Cache Redis no client SDK (5min TTL por SUID)
+- [x] Validações Zod (backend + frontend)
+- [x] Função utilitária `derivarTipoVisual(empresa)`
+- [x] Testes unitários e funcionais (53/53 verdes em 24/04/2026, incluindo cross-tenant)
+
+### Fase 2 — Inclusão dos campos faltantes no Prisma do Pedido
+**(Independente da Fase 1, pode rodar em paralelo. Exige aprovação do Coordenador — Mandamento 02.)**
+
+Campos identificados como faltantes no schema atual de Pedido:
+- [ ] `data_documento_proforma` (DateTime?)
+- [ ] `data_documento_invoice` (DateTime?)
+- [ ] Modelo `PedidoSnapshotEmpresa` (substitui colunas espalhadas de Importador/Exportador/Fabricante)
+- [ ] Modelo `PedidoSnapshotOpe` (substitui colunas espalhadas de OPE)
+- [ ] `AnexoPedido.tipo_documento` (proforma | invoice | bl_draft | bl_original | apolice | etc.)
+- [x] Decisão fechada (22/04/2026): `AnexoPedido.tipo_documento` fica como String única (categoria pura — `proforma | invoice | certificado_origem | apolice | pedido | etc.`). Versão Draft/Original NÃO é atributo do anexo — vive em colunas de data explícitas no `model Pedido` (ex: `data_prev_aprovacao_rascunho_proforma` vs `data_prev_envio_original_proforma`).
+- [ ] Campos de prev/conf/meta para etapas (~20 campos)
+- [x] Decisão técnica fechada (22/04/2026): campos de etapa ficam em `model Pedido` como colunas. Sem tabela `PedidoEtapas` separada.
+- [ ] `dt_transferencia_qtd` em `TrackingItemsTransferidos`
+- [ ] Modelo `PedidoConfigAtualizacaoCadastros`
+
+### Fase 3 — Alteração mínima no Configurador
+- [ ] Adicionar `suid_empresa String?` em `Organizacao`
+- [ ] Atualizar fluxo de onboarding: criar Empresa em Cadastros via API → receber SUID → criar Organizacao com SUID (transação atômica com compensação)
+- [ ] Validação no onboarding: CNPJ obrigatório se país = BR
+- [ ] Migration: para Organizacoes existentes, criar Empresa correspondente em Cadastros e popular `suid_empresa`
+
+### Fase 4 — Migração de dados existentes
+**(Maior risco. Janela de manutenção obrigatória.)**
+- [ ] Script extrai todas as entidades implícitas dos produtos atuais (LPCO, NF Importação, Pedido)
+- [ ] Deduplica por `(id_organizacao, cnpj)` e `(id_organizacao, tin, pais)`
+- [ ] Cria registros em Cadastros recebendo SUID definitivo
+- [ ] Atualiza referências nos produtos: substitui FKs antigos por snapshots `PedidoSnapshotEmpresa`
+- [ ] Cria snapshots para todos os pedidos existentes (estado atual congelado)
+- [ ] Validação: 0 registros órfãos, 0 duplicatas, contagem de pedidos preservada
+- [ ] Backup completo antes de rodar
+- [ ] Plano de rollback documentado e testado em staging
+
+### Fase 5 — UI de gestão
+- [ ] Tela de Cadastros (Empresas, Moedas, Unidades, NCM) com CRUD
+- [ ] UI de cadastro de Empresa: checkboxes agrupados (quick options Importador / Exportador / Importador+Exportador) + checkboxes individuais (Fabricante / Agente / Despachante / Armador)
+- [ ] Componente reutilizável `<ConfiguracaoAtualizacaoCadastros />` em nucleo-global
+- [ ] `Configurações > Pedido > Cadastros`: matriz por linha (entidade × status com toggle)
+- [ ] Mesma tela replicada em `Configurações > LPCO > Cadastros`, `Configurações > NF Importação > Cadastros`
+- [ ] Endpoint `GET/PUT /api/v1/produtos-gravity/:produto/configuracao-atualizacao-cadastros`
+- [ ] Default ao criar produto novo: flags ligadas em "Rascunho" e "Em emissão", desligadas nos demais
+- [ ] UI de preview de impacto ao salvar Cadastros:
+  - Loading state com aviso de lentidão
+  - Lista de pedidos afetados por produto
+  - Aviso de drift entre preview e execução
+  - Aviso se algum produto estiver offline
+- [ ] Banner retroativo ao abrir pedido com mudanças represadas
+- [ ] Tooltip/help explicando comportamento
+
+### Fase 6 — Testes e validação
+- [ ] Testes cross-tenant (CAOA não vê Cadastros da Fiat)
+- [ ] Testes de degradação (Cadastros offline → fluxos continuam onde permitido)
+- [ ] Testes de snapshot (pedido emitido nunca muda)
+- [ ] Testes de propagação (flag ON → mudança aplica, flag OFF → não aplica)
+- [ ] Testes de preview (drift, offline, lentidão)
+- [ ] Testes de banner retroativo
+- [ ] Testes de validação CNPJ obrigatório BR / opcional exterior
+- [ ] QA aprovação final
+
+### Fase 7 — Deploy
+- [ ] Deploy Cadastros (banco + serviço)
+- [ ] Deploy Configurador atualizado
+- [ ] Deploy produtos atualizados (LPCO, NF Importação, Pedido)
+- [ ] Migração de dados (janela de manutenção)
+- [ ] Smoke tests pós-deploy
+- [ ] Monitoramento intensivo primeiras 48h
+
+### Fase 8 — Pós-conclusão (memory permanente)
+- [ ] Revisar 100% dos arquivos em `documentos-tecnicos/`
+- [ ] Revisar 100% dos arquivos em `skills/`
+- [ ] Identificar necessidade de edição/exclusão/criação
+- [ ] Possível criação de `skills/servicos/cadastros/SKILL.md`
+- [ ] Atualizar `MEMORY.md` com aprendizados pós-implementação
+
+---
+
+## 9. Roteiro de execução
+
+| Passo | Ação | Status |
+|-------|------|--------|
+| 01 | Fechar este documento | Concluído |
+| 02 | Criar banco Cadastros e modelar campos (Fase 1 + Fase 3) | Em andamento |
+| 03 | Incluir no Prisma do Pedido os campos faltantes (Fase 2) | Bloqueado por 02 |
+| 04 | Voltar à planilha DDD e seguir o PASSO 06 (com nova coluna "produtos que usam o campo") | Bloqueado por 03 |
+
+---
+
+## 10. Riscos identificados
+
+| Risco | Severidade | Mitigação |
+|-------|-----------|-----------|
+| Migração de dados pode corromper produtos em produção | ALTA | Backup completo, rollback testado em staging, janela de manutenção, validação rigorosa antes de aplicar |
+| Acoplamento Configurador ↔ Cadastros no onboarding | MÉDIA | Transação atômica com compensação; monitoramento de latência |
+| Cadastros offline impacta criação de novos pedidos | MÉDIA | Cache Redis + fallback manual na UI documentado |
+| Inflação de pedidos pra atualizar quando Cadastros muda | MÉDIA | Fila assíncrona, batch, monitoramento de throughput |
+| Decisão de SUID per-tenant pode gerar arrependimento futuro | BAIXA | Aceito conscientemente; reversível adicionando tabela de reconciliação se necessário |
+| Auditoria manual da planilha pode esquecer campos | MÉDIA | Coluna "produtos que usam" é preenchida pelo dono com a planilha em mãos; revisão pelo Coordenador antes de Fase 4 |
+
+---
+
+## 11. Itens em aberto
+
+1. **Janela de manutenção pra Fase 4:** quando? Quanto tempo?
+2. **Backup/rollback strategy:** snapshot full do banco ou point-in-time recovery?
+
+---
+
+## 12. Aprovação
+
+- [x] Daniel (dono): aprovado
+- [ ] Coordenador: validado executável
+- [ ] QA: ciente do escopo de teste
+
+---
+
+**Fim do documento — versão 1.0 final.**
+
+--- documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md ---
+# Configurador — Fluxo Pós-Login
+
+> Documentação técnica do skip automático `/hub → /core` e do escape hatch `?select=1`.
+> Skill associada: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+
+---
+
+## Visão Geral
+
+Após autenticar com sucesso no Clerk, o usuário cai em `/hub` (rota canônica DDD).
+
+A tela `<SelecionarWorkspace />` decide se mantém o usuário ali (mostrando os workspaces da organização) ou redireciona automaticamente para `/core` (workspace de trabalho) com base em 4 condições.
+
+---
+
+## Regra canônica
+
+| Cenário | Destino |
+|---|---|
+| Usuário **com** `id_workspace_preferido_usuario` salvo + outras 3 condições verdadeiras | Redirect automático para `/core` (skip dispara) |
+| Usuário **sem** preferência salva | Permanece em `/hub` (mostra `<SelecionarWorkspace />`) |
+| Usuário **com** `?select=1` na URL | Permanece em `/hub` (escape hatch — força a tela de seleção mesmo com preferência) |
+| Usuário com `tipo_usuario = FORNECEDOR` | **Sempre** permanece em `/hub` (cross-organização exige escolha explícita) |
+| Tenant com **0 produtos ativos** | Permanece em `/hub` (modal "Nenhum produto") |
+
+---
+
+## Fluxograma
+
+```
+[user clica "Continuar com Google" / e-mail+senha]
+                    │
+                    ▼
+            [Clerk autentica]
+                    │
+                    ▼
+   ┌──────[ signInFallbackRedirectUrl="/hub" ]──────┐
+   │                                                 │
+   ▼                                                 ▼
+[GET /api/v1/hub/init]                  [Componente <SelecionarWorkspace>]
+   │                                                 │
+   │ retorna: companies[], products[],               │
+   │ preferredCompanyId, tenant info                 │
+   ▼                                                 ▼
+   ┌────────── Avaliar 4 condições do skip ─────────┐
+   │  1. searchParams.get('select') !== '1'         │
+   │  2. preferredCompanyId !== null                │
+   │  3. produtos ativos > 0                        │
+   │  4. tipo_usuario !== 'FORNECEDOR'              │
+   └─────────────────────────────────────────────────┘
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+   TODAS true                 ANY false
+        │                       │
+        ▼                       ▼
+[navigate('/core', replace)]  [renderiza tela /hub com cards de workspace]
+```
+
+---
+
+## Onde o skip é avaliado
+
+📍 `servicos-global/configurador/src/pages/SelecionarWorkspace.tsx` — linhas ~461-481
+
+```ts
+const forceSelect = searchParams.get('select') === '1'
+if (
+  !forceSelect &&
+  serverPreferredId &&
+  totalAtivos > 0 &&
+  dbRole !== 'FORNECEDOR'
+) {
+  const targetWs = mapeados.find(w => w.id === serverPreferredId)
+  if (targetWs) {
+    sessionStorage.setItem('gravity_company_id', targetWs.id)
+    sessionStorage.setItem('gravity_company_name', targetWs.nome)
+    navigate('/core', { replace: true })
+    return
+  }
+}
+```
+
+> **Importante:** comparar pelo enum cru (`'FORNECEDOR'`), nunca pelo label traduzido (`'Fornecedor'`).
+> Mandamento 03 (DDD) e 08 (sem fallback silencioso).
+
+---
+
+## Escape hatch `?select=1`
+
+Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuários com preferência (skip volta a disparar). Por isso **TODOS os botões de navegação para o `/hub`** devem usar `?select=1`:
+
+| Local | Padrão correto |
+|---|---|
+| Botão "Voltar ao Hub" no header | `navigate('/hub?select=1')` ou `window.location.href = '/hub?select=1'` |
+| Item de menu na sidebar de produto | `to: '/hub?select=1'` |
+| Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` |
+
+**Exceção:** `App.tsx > RootRedirect` (rota `/`) mantém `Navigate to="/hub"` sem `?select=1` — quem digita `/` na URL espera "home", não "trocar workspace". O skip é desejado neste caso.
+
+---
+
+## Como o usuário desmarca uma preferência
+
+1. Acessa `/hub?select=1` (via botão "Voltar ao Hub" de qualquer tela autenticada)
+2. No card do workspace preferido atual, vê o ícone ★ (estrela cheia) com tooltip "Remover workspace principal"
+3. Clica → `togglePreferred()` envia `PUT /api/v1/me/preferencias { preferredCompanyId: null }`
+4. Toast "Workspace principal removido"
+5. Próximo login: `preferredCompanyId = null` → skip não dispara → vê `/hub` naturalmente
+
+📍 `SelecionarWorkspace.tsx:307-341` — implementação do `togglePreferred()`
+📍 `SelecionarWorkspace.tsx:851-860` — UI do botão estrela no card
+
+---
+
+## Comportamento por `tipo_usuario`
+
+| `tipo_usuario` | Pula `/hub → /core` se tem preferência? | Justificativa |
+|---|---|---|
+| `SUPER_ADMIN` | ✅ Sim (segue regra padrão) | Admin Gravity, mas se tem preferência salva é porque marcou explicitamente. Pode desmarcar via estrela. |
+| `ADMIN` | ✅ Sim | idem |
+| `MASTER` | ✅ Sim | UX otimizada — entra direto no workspace de trabalho |
+| `PADRAO` | ✅ Sim | idem |
+| `FORNECEDOR` | ❌ Não — sempre `/hub` | Cross-organização, escolha explícita obrigatória |
+
+> **Nota futura:** se o produto decidir que `gravity_admin = true` deve sempre ver `/hub` para enfatizar supervisão multi-organização, basta adicionar `&& dbRole !== 'SUPER_ADMIN' && dbRole !== 'ADMIN'` à condição.
+> Não é o comportamento atual (validado em 2026-04-30).
+
+---
+
+## Endpoints envolvidos
+
+| Endpoint | Método | Responsabilidade |
+|---|---|---|
+| `/api/v1/hub/init` | GET | Retorna `companies`, `products`, `preferredCompanyId`. Limpa `id_workspace_preferido_usuario` se aponta para workspace `INATIVO` ou inexistente (resilient cleanup). |
+| `/api/v1/me/preferencias` | GET | Retorna `preferredCompanyId` puro (sem joins). |
+| `/api/v1/me/preferencias` | PUT | Body: `{ preferredCompanyId: string \| null }`. Persiste no banco. `null` = desmarcar. |
+
+---
+
+## Fonte da verdade — campo do banco
+
+`Usuario.id_workspace_preferido_usuario` (`configurador/prisma/schema.prisma:116`)
+
+- Tipo: `String?` (nullable)
+- FK: `Workspace.id_workspace` (`onDelete: SetNull`, `map: "usuario_id_workspace_preferido_usuario_fkey"`)
+- Index: `@@index([id_workspace_preferido_usuario])`
+- Atualizado **apenas** via `PUT /api/v1/me/preferencias` (rota explícita) ou pela rotina de cleanup do `/hub/init` (que só sabe setar para `null`)
+
+---
+
+## Casos de teste
+
+| # | Cenário | Esperado |
+|---|---|---|
+| 1 | Login pela primeira vez (sem preferência) | Vê `/hub` com lista de workspaces |
+| 2 | Login com preferência salva | Pula direto para `/core` do workspace preferido |
+| 3 | Click em "Voltar ao Hub" do `/core` | Vê `/hub?select=1` com cards (skip não dispara) |
+| 4 | Click em "Voltar ao Hub" do `/store`, `/admin/*`, `/workspace/*` ou produto | idem ao caso 3 |
+| 5 | Click na estrela do workspace preferido (em `/hub?select=1`) | Toast "removido" + próximo login vê `/hub` |
+| 6 | FORNECEDOR com preferência | Vê `/hub` (skip não dispara — exceção) |
+| 7 | Tenant com 0 produtos ativos | Vê `/hub` com modal "Nenhum produto" (não pula) |
+| 8 | Workspace preferido apontando para empresa `INATIVO` | `/hub/init` limpa o campo automaticamente; user vê `/hub` |
+
+---
+
+## Verificação obrigatória ao mexer no fluxo
+
+Antes de qualquer alteração no SelecionarWorkspace, App.tsx (RootRedirect/PublicRoute/ProtectedRoute), Header, Core ou nas pages que têm botão "Voltar ao Hub", rodar:
+
+```bash
+grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos-global/
+```
+
+**O resultado deve ser zero.** Cada `'/hub'` deve ser `'/hub?select=1'` (exceto `RootRedirect` em `App.tsx:172` e a Route `<Route path="/hub">` em si).
+
+---
+
+## Bugs históricos relacionados
+
+| Data | Bug | Resolvido em |
+|---|---|---|
+| 2026-04-30 | Botões "Voltar ao Hub" em 12 lugares sem `?select=1` causavam loop. Apenas `Core.tsx:265` estava correto. Detectado durante teste manual. | Commit `16840c71` (8 arquivos, 13+/13-) |
+| 2026-04-30 | Comparação por label traduzido (`userRole !== 'Fornecedor'`) violava Mandamento 03 e podia falhar com mudança de i18n. | Commit `eb87bf01` |
+| 2026-04-30 | Rotas `/sign-in` e `/sign-up` órfãs após refactor DDD; `signInUrl` do Clerk apontava para rota inexistente. | Commit `eb87bf01` |
+| 2026-04-30 | Render inline `<AutenticacaoPage />` em `RootRedirect` para deslogados deixava URL `/` sem refletir estado. Migrado para redirect explícito para `/login`. | Commit `eb87bf01` |
+| 2026-04-30 | Props Clerk `afterSignInUrl` / `afterSignUpUrl` deprecated. Migradas para `signInFallbackRedirectUrl` / `signUpFallbackRedirectUrl`. | Commit `eb87bf01` |
+
+---
+
+## Arquitetura de rotas relacionadas
+
+```
+App.tsx (Routes)
+├── /                              → <RootRedirect />
+│                                     │
+│                                     ├─ logado:    Navigate to="/hub" (skip pode disparar)
+│                                     └─ deslogado: Navigate to="/login"
+│
+├── /login/*                       → <PublicRoute><AutenticacaoPage /></PublicRoute>
+├── /cadastro/continuar            → <PublicRoute><CadastroContinuarPage /></PublicRoute> (convite + OAuth missing-fields)
+├── /cadastro/sso-callback         → <AuthenticateWithRedirectCallback> (intercepta OAuth do Google)
+├── /cadastro/*                    → <PublicRoute><AutenticacaoPage /></PublicRoute>
+├── /recuperar-senha/redefinir     → <PublicRoute><RecuperarSenhaRedefinirPage /></PublicRoute> (codigo + nova senha)
+├── /recuperar-senha/*             → <PublicRoute><AutenticacaoPage /></PublicRoute>
+│
+├── /hub                           → <ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>
+│                                     │
+│                                     └─ avalia 4 condições do skip
+│                                        ├─ TODAS true: navigate('/core', replace)
+│                                        └─ ANY false: renderiza tela com cards
+│
+├── /core                          → <ProtectedRoute>
+│   ├── (index)                       <Hub /> (dashboard do core)
+│   └── /core/atividades, ...         <Core /> (com sidebar)
+│                                   </ProtectedRoute>
+│
+└── /produto/<slug>/*              → <ProtectedRoute>...{ProdutoApp}...</ProtectedRoute>
+```
+
+---
+
+## Configuração do ClerkProvider (`main.tsx`)
+
+```tsx
+<ClerkProvider
+  publishableKey={PUBLISHABLE_KEY}
+  localization={ptBR}
+  signUpFallbackRedirectUrl="/hub"   // após cadastro: vai para /hub (skip pode disparar)
+  signInFallbackRedirectUrl="/hub"   // após login:    idem
+  signInUrl="/login"                 // rota local de login (DDD canônica)
+  signUpUrl="/cadastro"              // rota local de cadastro (DDD canônica)
+>
+  ...
+</ClerkProvider>
+```
+
+> `Fallback` (não `Force`): se o usuário foi redirecionado para `/login` porque tentou acessar `/admin/visao-geral`, depois de logar volta para `/admin/visao-geral` (não `/hub`). Comportamento UX padrão.
+
+---
+
+## Fluxo de recuperação de senha (reset_password_email_code)
+
+Etapa 1 — `/recuperar-senha` (renderizada por `LoginGlobal` em modo `isForgotPassword`):
+- Usuário informa o e-mail e submete.
+- `useSignIn().create({ strategy: 'reset_password_email_code', identifier: email })` dispara o envio real do código de 6 dígitos pelo Clerk.
+- Estado `success` mostra "Verifique seu e-mail" + botão "Tenho o código" → `/recuperar-senha/redefinir?email=<email>`.
+
+Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
+- Recebe `?email=` na query (apenas para exibição) e usa o `signIn` ativo do contexto Clerk.
+- Form Gravity-styled (split panel) com:
+  - Código de 6 dígitos (validação `/^\d{6}$/`)
+  - Nova senha (`BannerRequisitosGlobal` com 5 requisitos + barra de força)
+  - Confirmação de senha
+- Ao submeter: `signIn.attemptFirstFactor({ strategy: 'reset_password_email_code', code, password })` + `setActive({ session: createdSessionId })` → `navigate('/hub')`.
+- Botão "Não recebi — reenviar código" repete o `signIn.create(...)`.
+
+**Mandamento 08 (sem fallback silencioso):** o componente legado fingia sucesso sem chamar o Clerk (TODO de 03/2026). Corrigido em 04/05/2026 — qualquer falha de rede / e-mail inválido / rate limit agora aparece via `setStatus('error')` + mensagem real do Clerk.
+
+---
+
+## Dependências externas
+
+- **Clerk SDK** (`@clerk/clerk-react`) — fornece `useAuth()`, `useUser()`, `RedirectToSignIn`, `<SignedIn>`, `<SignedOut>`. Versão atual usa `signInFallbackRedirectUrl` (props legadas `afterSignInUrl` foram migradas em 2026-04-30).
+- **react-router-dom v6** — `<Navigate>`, `useNavigate()`, `useSearchParams()`.
+
+---
+
+## Glossário
+
+| Termo | Significado |
+|---|---|
+| **Skip pós-login** | Redirect automático `/hub → /core` quando 4 condições batem |
+| **Escape hatch** | Query param `?select=1` que desabilita o skip por requisição |
+| **Workspace preferido** | Valor de `id_workspace_preferido_usuario` no banco |
+| **`<SelecionarWorkspace>`** | Componente da rota `/hub` — mostra cards de workspace ou aplica o skip |
+| **`<Hub>`** | Componente da rota `/core` index — dashboard do workspace selecionado (não confundir com a tela `/hub`) |
+
+---
+
+**Última revisão:** 2026-04-30
+**Commits relevantes:** `78eb5cae`, `2a112a65`, `eb87bf01`, `16840c71`

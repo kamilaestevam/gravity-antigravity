@@ -1,0 +1,569 @@
+# Processo (Gestao de Processos de Importacao/Exportacao)
+
+## documentos-tecnicos/produtos-gravity/processo/ARQUITETURA.md
+
+# Arquitetura Tecnica — Processo (Gestao de Processos Logisticos)
+
+> **Versao:** 1.0
+> **Data:** 31/03/2026
+> **Porta:** 8026
+> **Product ID:** processo
+> **Agente:** Tech Lead (Dream Team de Produtos)
+
+
+## 1. PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'processo',
+  productId: 'processo',
+  name: 'Processo',
+  port: 8026,
+
+  tenantServices: [
+    'atividades',      // Log de acoes
+    'dashboard',       // KPIs consolidados
+    'relatorios',      // Relatorios exportaveis
+    'historico',       // Audit trail imutavel
+    'notificacoes',    // Alertas in-app
+    'gabi',            // IA — analise de processos
+    'email',           // Comunicacao com despachantes, agentes
+    'whatsapp',        // Comunicacao WhatsApp
+    'api-cockpit',     // Tokens de API, playground, webhooks
+  ],
+
+  productServices: [
+    'workflow-engine',         // Motor de workflow (status + etapas)
+    'follow-up-tracker',       // Timeline de eventos
+    'documento-manager',       // Upload/download de documentos
+    'custo-estimator',         // Integracao com SimulaCusto
+  ],
+
+  navigation: [
+    { id: 'workflow',        label: 'Workflow',           icon: 'flow-arrow',        source: 'product' },
+    { id: 'pedidos',         label: 'Pedidos',            icon: 'package',           source: 'product' },
+    { id: 'li',              label: 'LI',                 icon: 'file-text',         source: 'product' },
+    { id: 'di',              label: 'DI',                 icon: 'file-dashed',       source: 'product' },
+    { id: 'duimp',           label: 'DUIMP',              icon: 'cloud-arrow-up',    source: 'product' },
+    { id: 'retificacao',     label: 'Retificacao',        icon: 'pencil-line',       source: 'product' },
+    { id: 'financeiro',      label: 'Financeiro',         icon: 'currency-dollar',   source: 'product' },
+    { id: 'containers',      label: 'Containers',         icon: 'cube',              source: 'product' },
+    { id: 'dados-tecnicos',  label: 'Dados Tecnicos',     icon: 'gear-six',          source: 'product' },
+    { id: 'dados-processo',  label: 'Dados do Processo',  icon: 'clipboard-text',    source: 'product' },
+    { id: 'taxas',           label: 'Taxas',              icon: 'receipt',           source: 'product' },
+    { id: 'email',           label: 'Email',              icon: 'envelope',          source: 'tenant' },
+    { id: 'todo',            label: 'To Do',              icon: 'check-square',      source: 'tenant' },
+  ],
+
+  features: {
+    workflow_automation: 'active',
+    followup_tracking: true,
+    documento_upload: true,
+    custo_estimativa: true,
+    email_integration: true,
+  },
+}
+```
+
+
+## 2. Estrutura de Pastas
+
+```
+produto/processo/
+├── client/
+│   └── src/
+│       ├── pages/
+│       │   ├── ProcessoLayout.tsx         # Layout principal com abas
+│       │   ├── WorkflowPage.tsx           # Timeline de status + etapas
+│       │   ├── PedidosPage.tsx            # Pedidos vinculados
+│       │   ├── FinanceiroPage.tsx         # Custos e estimativas
+│       │   ├── ContainersPage.tsx         # Gestao de containers
+│       │   ├── DadosTecnicosPage.tsx      # Dados tecnicos do processo
+│       │   ├── DadosProcessoPage.tsx      # Dados gerais do processo
+│       │   ├── DocumentosPage.tsx         # Documentos anexados
+│       │   └── EmailPage.tsx              # Email integrado
+│       └── shared/
+│           ├── api.ts                     # Client API functions
+│           ├── config.ts                  # PRODUCT_CONFIG
+│           └── types.ts                   # TypeScript types
+├── server/
+│   └── src/
+│       ├── index.ts                       # Express (porta 8026, 11 middlewares)
+│       ├── routes/
+│       │   ├── processos.ts               # CRUD de processos
+│       │   ├── followup.ts                # Timeline de follow-up
+│       │   └── documentos.ts              # Documentos anexados
+│       ├── middleware/
+│       │   ├── requireInternalKey.ts      # x-internal-key (S2S)
+│       │   └── tenantIsolation.ts         # Filtro por tenant_id
+│       └── (importa pedidos + importacao de processos-core)
+```
+
+**Dependencia compartilhada:**
+```
+servicos-global/tenant/processos-core/
+├── src/routes/
+│   ├── pedidos.ts                         # CRUD de pedidos (compartilhado com produto/pedido)
+│   └── importacao.ts                      # Importacao de arquivos (Excel, CSV, XML, TXT, JSON)
+└── prisma/
+    └── fragment.prisma                    # Modelo de dados (Processo, Pedido, PedidoItem, etc.)
+```
+
+
+## 3. API Completa
+
+### 3.1 Rotas Publicas
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/health` | Health check com status do banco |
+
+### 3.2 Rotas do Processo (protegidas)
+
+#### Processos CRUD (`/api/v1/processos/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/processos?status=&tipo=&search=&page=&limit=` | Listar processos com paginacao (inclui etapas) |
+| GET | `/processos/:id` | Detalhe completo (etapas, pedidos com itens, followUps, documentos, estimativaCusto, dadosTecnicos) |
+| POST | `/processos` | Criar processo (numero, tipo: importacao/exportacao, status, responsavel_id) |
+| PATCH | `/processos/:id` | Atualizar processo existente |
+
+#### Follow-Up (`/api/v1/follow-up/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/follow-up/processo/:processoId?tipo=&categoria=` | Listar follow-ups de um processo (filtro por tipo e categoria) |
+| POST | `/follow-up` | Criar entrada de follow-up (titulo, descricao, tipo, categoria) |
+
+**Tipos de follow-up:** `info`, `desvio`, `atualizacao`, `documento`
+**Categorias:** `exportador`, `logistica`, `despachante`, `financeiro`, `sistema`
+
+#### Documentos (`/api/v1/documentos/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/documentos/processo/:processoId?categoria=` | Listar documentos de um processo (filtro por categoria) |
+| POST | `/documentos` | Registrar metadados de documento (nome, tipo_arquivo, url, categoria) |
+| DELETE | `/documentos/:id` | Remover documento |
+
+**Tipos de arquivo:** `pdf`, `xlsx`, `xml`, `img`
+**Categorias:** `bl`, `po`, `di`, `li`, `nfe`, `outro`
+
+### 3.3 Rotas de Pedidos (herdadas de processos-core)
+
+O servidor do Processo monta as rotas do `processos-core` em `/api/v1/pedidos`:
+
+#### Pedidos CRUD
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/pedidos?status=&tipo_operacao=&busca=&page=&limit=` | Listar pedidos com paginacao |
+| GET | `/pedidos/:id` | Detalhe do pedido com itens |
+| POST | `/pedidos` | Criar pedido com array de itens |
+| PUT | `/pedidos/:id` | Atualizar pedido (apenas Rascunho/Aberto) |
+| DELETE | `/pedidos/:id` | Excluir pedido (apenas Rascunho) |
+| PATCH | `/pedidos/:id/status` | Transicao de status (rascunho→aberto, aberto→cancelado) |
+| POST | `/pedidos/:id/duplicar` | Duplicar pedido inteiro |
+
+#### Itens de Pedido
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/pedidos/:id/itens` | Adicionar item ao pedido |
+| PUT | `/pedidos/:id/itens/:itemId` | Atualizar item |
+| DELETE | `/pedidos/:id/itens/:itemId` | Remover item (apenas se quantidade_transferida == 0) |
+| PATCH | `/pedidos/:id/itens/:itemId/cancelar` | Cancelar quantidade (debita quantidade_atual) |
+| PATCH | `/pedidos/:id/itens/:itemId/pronta` | Atualizar quantidade_pronta |
+
+#### Importacao/Exportacao
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/pedidos/importar` | Upload + parse + preview (Excel, CSV, XML, TXT, JSON) |
+| POST | `/pedidos/importar/confirmar` | Confirmar importacao e criar pedidos em lote |
+| POST | `/pedidos/exportar` | Exportar pedidos filtrados (CSV, Excel) |
+
+
+## 4. Total de Endpoints
+
+| Categoria | Quantidade |
+|-----------|------------|
+| Health Check | 1 |
+| Processos CRUD | 4 |
+| Follow-Up | 2 |
+| Documentos | 3 |
+| Pedidos CRUD (via processos-core) | 7 |
+| Itens de Pedido (via processos-core) | 5 |
+| Importacao/Exportacao (via processos-core) | 3 |
+| **TOTAL** | **25** |
+
+
+## 5. Arquitetura 3-Tier
+
+O Processo e a Camada 3 da hierarquia logistica da Gravity:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Camada 1: PEDIDO (Comercial)                        │
+│   Purchase Order / Sales Order                      │
+│   → Incoterm, Moeda, Fornecedor/Cliente             │
+├─────────────────────────────────────────────────────┤
+│ Camada 2: PEDIDO ITEM (Rastreamento de Saldo)       │
+│   Linha do item com controle de quantidade          │
+│   → quantidade_inicial = quantidade_atual           │
+│     + quantidade_transferida + quantidade_cancelada  │
+├─────────────────────────────────────────────────────┤
+│ Camada 3: PROCESSO (Execucao Logistica)             │
+│   Evento decisorio de agrupamento e embarque        │
+│   → Workflow de 7+ status, 30+ datas de tracking    │
+│   → Pode carregar itens de multiplos pedidos        │
+└─────────────────────────────────────────────────────┘
+```
+
+### 5.1 Fluxo de Status do Processo
+
+```
+[Aberto] → [Booking Confirmado] → [Pronto Embarque] → [Embarcado]
+    → [Chegada Origem] → [Desembaracado] → [Entregue]
+```
+
+Cada transicao gera um `FollowUp` automatico na timeline.
+
+### 5.2 Transferencia de Saldo (Pedido → Processo)
+
+Quando itens de um Pedido sao vinculados a um Processo:
+1. `ProcessoItem` grava a porcao fatiada (`quantidade_transferida`)
+2. `PedidoItem.quantidade_atual` e debitada atomicamente
+3. O Pedido muda automaticamente de status quando todo saldo foi transferido
+
+**Cenarios suportados:**
+- Embarque parcial (parte do pedido num navio)
+- Backorder (restante num navio futuro)
+- Consolidacao (itens de varios pedidos num processo)
+- Cancelamento parcial (quantidade suprimida)
+
+### 5.3 Linha do Tempo (30+ eventos)
+
+O Processo rastreia eventos cronologicos estritamente tipados:
+- `data_previsao_embarque_origem_etd`
+- `data_embarque_efetivo`
+- `data_chegada_destino_eta`
+- `data_registro_duimp`
+- `data_deferimento_lpco`
+- `data_desembaraco`
+- `data_entrega_final`
+- *(e mais 20+ datas de tracking)*
+
+### 5.4 Engates Magneticos
+
+O Processo possui "engates" opcionais para dados de outros modulos:
+- `estimativa_base_id` → SimulaCusto (congela estimativa ao vincular)
+- `cotacao_frete_id` → BID Frete (referencia da cotacao aprovada)
+- Parceiros logisticos: Armador, Agente, Securadora, Corretora de Cambio
+
+
+## 6. Seguranca
+
+### 6.1 Autenticacao e Autorizacao
+
+| Camada | Implementacao |
+|--------|--------------|
+| S2S Authentication | `x-internal-key` validado via `requireInternalKey` middleware |
+| Tenant Isolation | `x-tenant-id` no header → Prisma Extension filtra automaticamente |
+| User Identity | `x-user-id` no header (propagado pelo Gateway) |
+| Security Headers | Helmet com CSP strict |
+
+### 6.2 Middlewares (ordem de execucao)
+
+1. Helmet (CSP)
+2. Body Parser
+3. CORS (allowlist: localhost:8002, localhost:8000)
+4. Static Files
+5. Health Check (sem auth)
+6. **requireInternalKey** (barreira de auth)
+7. **tenantIsolation** (injeta req.prisma filtrado)
+8. Rotas protegidas
+9. SPA Fallback
+10. Error Handler Global
+
+### 6.3 Validacao
+
+- `CreateProcessoSchema` — Zod: numero obrigatorio, tipo enum (importacao/exportacao)
+- `UpdateProcessoSchema` — Zod: todos campos opcionais, nullable onde aplicavel
+- `CreateFollowUpSchema` — Zod: processo_id e titulo obrigatorios, tipo e categoria enum
+- `CreateDocumentoSchema` — Zod: processo_id, nome, tipo_arquivo enum, url valida
+
+
+## 7. Modelo de Dados (Resumo)
+
+### Entidades Principais
+
+| Entidade | Descricao |
+|----------|-----------|
+| `Processo` | Processo logistico (numero, tipo, status, responsavel, 30+ datas de tracking) |
+| `Etapa` | Etapa do workflow (data_prevista, status) |
+| `Pedido` | Pedido comercial vinculado (via processos-core) |
+| `PedidoItem` | Linha do pedido com controle de saldo |
+| `ProcessoItem` | Porcao do item vinculada ao processo |
+| `FollowUp` | Evento de timeline (tipo, categoria, descricao) |
+| `Documento` | Documento anexado (BL, PO, DI, LI, NFe) |
+| `EstimativaCusto` | Referencia a estimativa do SimulaCusto |
+| `DadosTecnicos` | Dados tecnicos do processo |
+
+### Campos Obrigatorios (Tenant Isolation)
+
+Toda tabela possui:
+- `tenant_id String` — isolamento por tenant
+- `company_id String` — isolamento por workspace
+- Indices: `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])`
+
+### Escudo Anti-Conflito
+
+- Importacao: `importacao_exportador_id` (fornecedor exterior), importador = `company_id`
+- Exportacao: `exportacao_importador_id` (cliente exterior), exportador = `company_id`
+- Nunca existe `importador_id` generico
+
+
+## 8. Integracoes
+
+### 8.1 Dependencia Direta
+
+| Modulo | Tipo | Descricao |
+|--------|------|-----------|
+| processos-core | Import direto | Rotas de pedidos e importacao montadas no mesmo servidor |
+
+### 8.2 Engates Opcionais (via ID)
+
+| Modulo | Campo | Descricao |
+|--------|-------|-----------|
+| SimulaCusto | `estimativa_base_id` | Estimativa de custo vinculada (congela ao engate) |
+| BID Frete | `cotacao_frete_id` | Cotacao de frete aprovada |
+| BID Cambio | (via parcela) | Parcela de cambio do processo |
+
+### 8.3 Tenant Services (S2S)
+
+- atividades, dashboard, relatorios, historico, notificacoes, gabi, email, whatsapp
+
+
+## 9. Variaveis de Ambiente
+
+```env
+PORT=8026
+DATABASE_URL=postgresql://...
+INTERNAL_SERVICE_KEY=...
+CLIENT_URL=http://localhost:8002
+NODE_ENV=development
+```
+
+
+_Gravity — Processo Logistico · Arquitetura v1.0 · 31/03/2026_
+
+
+## documentos-tecnicos/produtos-gravity/processo/arquitetura-3-tier.md
+
+# Arquitetura 3-Tier: Módulos Standalone, Hierarquia de Pedidos e Processo Core
+
+Este documento é a "Constituição" do Backend da Plataforma Gravity na sua essência logística. Ele dita como os módulos interagem sem dependência travada, como a Hierarquia 3-Tier garante o rastreamento em nível de linha (Item), e a Matemática Universal que fundamenta embarques parciais/consolidados.
+
+## 1. O Ecossistema "Lego" (Desacoplamento de Módulos)
+Os módulos/produtos da Gravity (SimulaCusto, Bid Frete, Bid Câmbio, Gestão de Pedidos) têm a capacidade arquitetural de funcionar **sozinhos**. 
+- Um usuário pode cotar um Frete Avulso. Um usuário pode simular um Custo sem que exista um pedido formal.
+- **Herança de Dados (Zero Digitação):** O `Processo` logístico possui "engates" magnéticos (`estimativa_base_id` e `cotacao_frete_id`). Se um processo real é gerado a partir de um desses módulos soltos, ele automaticamente preenche suas colunas (Porto, NCMs, Valor Estimado). O módulo "Doador" permanece intacto como documento histórico da simulação.
+
+## 2. O Escudo Anti-Conflito de Parceiros (Inversão Semântica)
+Como a plataforma suporta tanto *Importação* quanto *Exportação* sob as mesmas tabelas (Pedido e Processo), os papéis "Importador" e "Exportador" se invertem em relação ao Workspace. Para impedir a morte do UX, implementamos a técnica de **Prefixo Restritivo Operacional**:
+- Em nenhuma tabela relacional existe a coluna solta `importador_id`.
+- Existe a coluna `importacao_exportador_id`. Se The `tipo_operacao == importacao`, esse ID representa o Fornecedor (Fabricante Exterior). Sabemos que o importador somos nós (`company_id`).
+- Existe a coluna `exportacao_importador_id`. Se The `tipo_operacao == exportacao`, esse ID representa o Cliente Final no exterior. Sabemos que o exportador somos nós.
+
+## 3. A Hierarquia 3-Tier (O Fluxo Real do ERP)
+Jamais misturemos as camadas de Negociação Comercial (`Pedido`) com a Execução Física do Embarque (`Processo`). O fluxo operacional linear funciona como as engrenagens de um relógio:
+
+```mermaid
+sequenceDiagram
+  actor Operador
+  participant P as Módulo Pedido
+  participant S as SaldoItem
+  participant C as Módulo Processo (Booking)
+  
+  Operador->>P: Cria Pedido (Ex: 1000 iPhones)
+  P->>S: Saldo Atual Travado em 1000
+  Operador->>C: Decide Agrupar "Booking Navio A"
+  C->>S: Solicita embarque de 900 unids
+  S-->>P: Atualiza Saldo Atual para 100
+  C->>C: Evolui status para "Embarcado"
+```
+
+### 2.1 Camada 1: O Pedido (`Pedido`)
+Nível Comercial. A Purchase Order (Importação) ou Sales Order (Exportação).
+- Representa a intenção de negociação (Incoterm acordado, Moeda transacionada).
+- A tabela `Pedido` agrupa dezenas de Linhas Físicas (`PedidoItem`).
+- **Natureza Híbrida:** Uma simples flag `tipo_operacao String (importacao | exportacao)` muda toda a visão do sistema.
+
+### 2.2 Camada 2: O Rastreador de Saldo (`PedidoItem`)
+Esta é a tabela mais crítica do sistema. O Embarque Parcial e Cargas Fatiadas (Consolidações e Backorders) não amarram no Pedido, mas na Linha do Item.
+- **A Matemática de Saldo (Balance Tracking):**
+  - `quantidade_inicial`: O que o chinês prometeu (Ex: 1000 pares). Imutável.
+  - `quantidade_atual`: Saldo Vivo. 
+  - `quantidade_pronta`: O que a fábrica produziu e que subirá no próximo Container.
+  - `quantidade_transferida`: Desmembrado (fatiado em Backorder num navio futuro).
+  - `quantidade_cancelada`: Itens suprimidos por quebra de fabricação.
+*Regra de Ouro:* A somatória da base e suas perdas sempre deve refletir o saldo ativo.
+
+### 2.3 Camada 3: A Execução "Logística" (`Processo`)
+Representa um **Evento Decisório e de Planejamento Logístico**.
+Um `Processo` não é estritamente "um navio". Ele nasce no milissegundo em que o analista toma a decisão: *"Vou agrupar estes pedidos e iniciar a operação"*, ou quando inicia um processo avulso do zero. Ele começa como uma intenção (booking/prontidão) e evolui ganhando dados do navio somente depois.
+
+**Fluxo de Status de um Processo Padrão:**
+```mermaid
+stateDiagram-v2
+    [*] --> Aberto: Analista tomou a Decisão
+    Aberto --> Booking_Confirmado: Espaço no Navio Garantido
+    Booking_Confirmado --> Pronto_Embarque: Carga Pronta
+    Pronto_Embarque --> Embarcado: Navio no Mar
+    Embarcado --> Chegada_Origem: Atraque
+    Chegada_Origem --> Desembaracado: DUIMP/DI Emitida
+    Desembaracado --> [*]: Entregue na Fábrica
+```
+
+- **A Linha do Tempo (Master Comex Tracking):** Um `Processo` não guarda datas genéricas. Ele abriga uma Linha do Tempo cronológica estrita de mais de 30 eventos (Ex: `data_previsao_embarque_origem_etd`, `data_registro_duimp`, `data_deferimento_lpco`). O desenvolvedor jamais deve criar variáveis de data soltas; deve usar a esteira referencial.
+- **Granularidade Documental & Parceiros:** O Processo possui "Engates" explícitos para dezenas de Parceiros Logísticos (Armador, Agente, Securadora, Corretora de Câmbio). A documentação primária não é mesclada: cada documento do globo possui sua coluna independente (`numero_bl`, `numero_awb`, `numero_crt`, `numero_duimp`).
+- **Single Source of Truth (DRY):** A tabela mestre e o nome oficial de todas essas dezenas de variáveis de Tracking e Documentos existem em **um único lugar no código fonte** para evitar colisão. A fronteira de dados definitiva reside fisicamente em: `servicos-global/tenant/processos-core/prisma/fragment.prisma`.
+- Pode carregar carga mista de Pedidos Diferentes.
+
+## 4. O Fiel da Balança (Casamento Processo x Pedido)
+Quando o analista concretiza a decisão de Booking (ou seja, quando o `Pedido` vira um `Processo`), a tabela `ProcessoItem` grava a porção fatiada daquele bem. Ela possui o elo sagrado `pedido_item_id String?`.
+Desta forma, os robôs e as consultas conseguem buscar aquele Item Embarcado e abater `10 unidades` da `quantidade_atual` do respectivo Pedido lá na primeira camada, garantindo Rastreabilidade Irrefutável.
+
+## 5. O Escudo (Zero-Trust Tier 1)
+Nenhuma dessas transações, de Simulação a Faturamento, consegue rodar no Prima sem ser blindada por Isolamento de Acesso Transacional:
+1. Todos os IDs usam radical amigável referencial restrito a 4 caracteres (`pedi_id_.../26`, `proc_id_.../26`).
+2. O "Locking" Universal: Toda query e insert precisa assinar com `company_id`. Um workspace nunca pode invadir a hierarquia logística do outro.
+
+_Gravity - Architected for Extreme Traceability_
+
+
+## documentos-tecnicos/produtos-gravity/processo/core-processos.md
+
+# Visão Arquitetural B2B: Módulo Core e Ecossistema de Produtos
+
+Este documento estabelece as diretrizes arquiteturais, de banco de dados e UX para a construção unificada do ecossistema de Importação da plataforma Gravity. O objetivo é garantir a orquestração coesa entre múltiplos produtos independentes sob o escopo de um "Processo de Importação" centralizado.
+
+## 1. O "Módulo Core" (A Raiz da Plataforma)
+
+A Gravity abandona a ideia de ser apenas uma suíte de "aplicativos desconexos" para se tornar um ERP Componível. Para isso, estabelece-se o **Módulo Core** como o eixo central da navegação e organização de dados da plataforma.
+
+### 1.1 O Que é o Módulo Core?
+O Core é a infraestrutura de pastas e gerenciamento do Workspace. Ele é o provedor do conceito **"Processo" (ou Dossiê)**.
+*   **Modelo Comercial:** O módulo Core é fundamentalmente gratuito para instâncias ativas da organização. É a porta de entrada.
+*   **Finalidade Principal:** Oferecer uma visão Global do andamento dos processos da empresa via listagens, quadros Kanban ágeis e Dashboards de volume.
+*   **O "Cavalo de Troia":** Ao clicar no Dossiê, o cliente acessa detalhes do processo onde são listados todos os *Plugins* (Produtos) disponíveis (Pedidos, DUIMP, L.I., Tracking, Financeiro). Produtos não contratados são renderizados com cadeados 🔒 (Upsell Direto).
+
+## 2. Nomenclatura Global e IDs Padrão-Ouro (Stripe-Like)
+
+Todo ID do banco de dados na Gravity deve possuir prefixos autoexplicativos curtos, concatenados com a entidade e a década atual. Este padrão garante rastreabilidade imediata em logs de sistema e URLs (Deep Linking), sem expor chaves cruas de UUIDv4 no frontend quando as informações possuírem significado de negócio frente ao despachante/importador.
+
+Exemplos
+
+**Formatação Técnica Estrita:** A plataforma deve gerar IDs curtos e sequenciais, injetados via código (middleware), abandonando os UUIDs crus visíveis para o cliente. 
+A máscara oficial é: `[prefixo]_id_[sequencial_9_digitos]/[YY]`. Exemplo: `esti_id_000000001/26`.
+
+**A Regra de Ouro do Gerador (Isolamento B2B):**
+1. **Sequência Incremental por Workspace e Produto:** A contagem (1, 2, 3...) é isolada por *Workspace* (Filial) e por *Produto*. (A Filial SP tem sua `esti_000000001` independente da Filial Rio).
+2. **Reset na Virada de Ano:** Quando o ano virar (ex: para `/27`), todas as sequências dos Workspaces são automaticamente reiniciadas para `000000001/27`.
+
+**Exemplos de Referências Formais:**
+*   Dossiê/Processo Central: `core_id_000001/26`
+*   Estimativas SimulaCusto: `esti_id_108422/26`
+*   Pedido (P.O.): `ped_id_108422/26`
+*   DUIMP: `duim_id_108422/26`
+*   Invoice/Fatura: `inv_id_001920/26`
+
+## 3. Topologia de Banco de Dados: Flexibilidade Standalone x Vinculada
+
+Os módulos de produto (Ex: SimulaCusto, Pedidos) foram construídos de maneira independente. A ligação entre eles e o Core deve ser **Relacional Flexível (Nullable / Opcional)** na camada do Prisma.
+
+### Regra de Ouro (Prisma Schema):
+> Toda entidade principal de um produto comercializado da Gravity **DEVE** possuir a coluna referencial `core_process_id String?`.
+
+Isso permite nativamente as duas modalidades de venda/uso do produto:
+
+**Modalidade 1: Produto "Solto" (Standalone)**
+*   O usuário contrata o Simulador apenas para realizar cálculos de *what-if* (cenários hipotéticos).
+*   Gera-se uma estimativa `esti_id_00001`. A coluna `core_process_id` é `NULL`. O sistema renderiza isso no painel isolado do "SimulaCusto".
+
+**Modalidade 2: Produto "Vinculado" (Embedded)**
+*   Uma Estimativa nasce a partir da visão interna do processo `core_id_000001/26`.
+*   A coluna `core_process_id` recebe o id correspondente.
+*   Quando o software consome a tela do Dossiê, o Frontend (React/Client) localiza e agrupa todos os artefatos `WHERE core_process_id = X`.
+
+## 4. Arquitetura UX 10: Inversão de Contexto e Menu Lateral
+
+A Gravity implementa o padrão *Nested Deep View* (Visão Submersa), resolvendo o paradoxo entre Visão Global de Negócios e Deep Work do Analista de Importação.
+
+### 4.1 A Visão "Mundo Inteiro" (Menu Global Ativo)
+Enquanto logado na plataforma raiz, a responsabilidade do Side Nav (Menu Lateral Global) é dar o acesso aos módulos de relatórios cruzados, faturamento, histórico e a **Central de Processos**.
+*   A "Home" exibe um Kanban massivo ou Tabela de Processos Ativos e Encerrados.
+*   *O usuário vê tudo.*
+
+### 4.2 A Ação de "Mergulho" (Deep Work Mode)
+Quando o analista abre um card do Kanban ou pesquisa o processo `core_id_000001/26`:
+1.  **Transição de Sidebar:** O *Menu Lateral Global* "desliza" para fora ou é substituído integralmente pelo **Menu do Processo (Contextual Sidebar)**.
+2.  **O Foco Estrito:** O menu do processo lista UNICAMENTE o workflow amarrado àquele dossiê: "Resumo, Workflow, Pedidos, L.I., D.I., DUIMP, Câmbio/Financeiro".
+3.  **Válvula de Escape (Breadcrumb / Back Button):** Acima da nova Sidebar Submersa, repousa invariavelmente o botão (ex: `< Processos > Acompanhamento`) para retornar ao "Mundo Inteiro".
+
+**Por que UX Nota 10?**
+Um operador conferindo centavos decimais de recolhimento de impostos na visão de DUIMP **não** pode dividir espaço mental (área de clique e poluição visual) com menus sobre "Assinaturas do Tenant". A experiência deve exigir zero ruído visual até a aba processual estar tecnicamente concluída.
+
+## 5. Serviços Transversais (Histórico Global, Emails, Tarefas)
+
+Tabelas transversais devem absorver o contexto do seu "Pai", se existente.
+
+**Tabelas Afetadas na Onda 3:**
+*   `HistoryLog`
+*   `EmailMessage` e `EmailThread`
+*   `Atividade` e `KanbanCard`
+*   `WhatsAppConversation`
+
+Se um email for trocado na aba "Pedido" dentro do processo "Core-001":
+*   O registro grava: `product_id = 'pedidocomex'`, `linked_id/process_id = 'core_001'`.
+*   Aba "Meus Emails Global": Filtra e mostra todos, independente do `linked_id`.
+*   Aba do Processo "Core-001": Filtra o Frontend para exibir apenas as conversas do `core_001`.
+*   Aba do "Pedido" no "Core-001": Filtra estritamente o `product_id = 'pedidocomex'` do `linked_id = 'core_001'`.
+
+Esta hierarquia permite que a "aba global" aja como radar amplo, e a "aba restrita" mantenha a organização focal do analista de importação, construindo um sistema inviolável, transparente e altamente escalável comercialmente.
+
+## 6. Segurança em Profundidade (Alta Resiliência) e Modelagem de Ameaças
+
+Como a plataforma lida com dados sensíveis de comércio exterior (valores, NCMs estratégicos, compliance, faturas cambiais), a arquitetura exige salvaguardas rigorosas. O vazamento de dados (ex: Cliente A ver a DUIMP do Cliente B) é classificado como um `Tier 1 Incident`.
+
+A Gravity adota uma postura **Zero-Trust**, estruturada em camadas lógicas e de infraestrutura desenhadas para serem testáveis e altamente resistentes a falhas técnicas ou humanas.
+
+### 6.1. Proteção Lógica: RLS Escopado à Transação (Database Layer)
+A linha de defesa mais profunda é o Row-Level Security (RLS) do PostgreSQL.
+*   **O Mecanismo:** O Prisma não injeta chaves globalmente. Toda a injeção é envelopada no utilitário núcleo (`withTenantContext`), utilizando a diretiva `SELECT set_config('app.current_tenant_id', $1, true)`.
+*   **Isolamento de Memória (O significado do `true`):** O argumento `true` no *set_config* instrui *exclusivamente o PostgreSQL* a tratar a variável como um `SET LOCAL`. A variável de sessão existe apenas dentro da transação corrente e é matematicamente destruída no `COMMIT` ou `ROLLBACK`. O *PgBouncer*, operando em *transaction mode*, devolve a conexão estruturalmente limpa ao pool, garantindo que a próxima requisição receba contexto residual nulo.
+*   **A Regra do Safe-Default (Prevenção contra Null):** Para garantir o *default-deny* verdadeiro, as regras de RLS do banco de dados obrigatoriamente invocam `AND current_tenant_id() IS NOT NULL`. Isso impede que, mediante um bug de middleware que gere "Contexto Nulo", a avaliação `NULL = NULL` abra a base de dados inteira. Erros de sistema devolvem acesso trancado.
+
+### 6.2. Proteção de Autenticação (Workspace Bleed) e Enumeração
+*   **Isolamento Lógico:** O Middleware HTTP exige validação da interseção `(user_id, company_id, product_key)` antes de consultar recursos do produto.
+*   **Combate à Força-Bruta (Rate Limits):** O uso de IDs Sequenciais (ex: `esti_00001`) torna os recursos vulneráveis a Enumeração. A plataforma reage limitando *Requests por Minuto (RPM)* e implementando falsos-negativos.
+*   **Decisão Arquitetural (404-Masking):** Caso um usuário de `Alpha` tente forçar por ID um recuso de `Beta`, a API é forçada a injetar falha silenciosa respondendo `HTTP 404 Not Found` em vez de `403 Forbidden`. Dessa forma, o atacante jamais consegue confirmar sequer a existência daquele processo na plataforma.
+
+### 6.3. Governança Tier 1 e Prevenção Ativa (DevSecOps)
+Para sustentar a proteção arquitetural contra degradação a longo prazo, o sistema opera sob baluartes estritos:
+
+1.  **Suíte de Ataques Automatizados (Vitest):** A arquitetura inverte o ônus da prova. Testes ativamente tentam extrair dados de forma ilegal ("Empresa Alpha" atacando o ID da "Empresa Beta"). Sem passar no crivo Alpha x Beta localmente, implementações são barradas.
+2.  **CI/CD Pipeline Security Gate:** Block de deploy caso a suite Vitest RLS retorne qualquer vulnerabilidade técnica que quebre o isolamento.
+3.  **Logs Forenses (Append-Only):** Tabelas como `HistoryLog` rodam com políticas imutáveis, gerando rastreabilidade não repudiável de todos os acessos.
+4.  **Job Workers Restritos:** Processos ETL noturnos e relatórios *não* operam via bypass deliberado (`BYPASSRLS`). A superfície de vazamento massivo é lacrada por design.
+5.  **Criptografia Estratégica In-Rest:** Dados de negócio nevrálgicos (como `valorAduaneiro`, dados cambiais e segredos) adotam criptografia simétrica na camada de aplicação. Um `dump` do banco ou administrador de infraestrutura não possui acesso aos dados sensitivos em *plaintext* (*Insider Threat Protection*).
+6.  **Invalidação Ativa de Sessão:** O mecanismo de Identidade (Clerk/Auth) suporta revogação sumária. Em caso de *Token Leak*, a validação via *Middleware* da API descarta o token vazado ativamente no Gateway, antes mesmo do expurgo do TTL natural (`exp`).
+
+### 6.4. Camadas Externas: Cache (Redis) e Object Storage
+O isolamento de dados multitenant não se limita ao banco PostgreSQL. O *Zero-Trust* engloba os ativos voláteis:
+*   **Isolamento de Cache de Borda:** Entradas no Redis utilizam namespace multidimensional estruturado que obriga colisão de chave: `t:{tenantId}:c:{companyId}:...`. Evita transbordamento acidental.
+*   **Armazenamento de Objetos (NF/D.I.):** PDFs e XMLs no Bucket AWS/R2 operam sem ACL Pública e seus paths reproduzem a hierarquia transacional. Antes da geração da URL pré-assinada (*Pre-Signed URL* de 300s), a API valida explícitamente se a *Object Key* solicitada pertence ao `tenant_id` ativo da sessão. Divergências retornam erro restritivo imediato na Autenticação (impedindo vazamento de objetos).
+
+**Conclusão de Design:** Através do RLS estritamente transacional *NULL-safe*, barreiras ativas anti-enumeração HTTP e blindagem completa da nuvem (Storage/Cache), o *Blast Radius* da Gravity Cloud é minimizado ativamente. O ecossistema repousa numa arquitetura de defesa em profundidade continuamente validada.

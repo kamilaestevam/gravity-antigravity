@@ -1,0 +1,2317 @@
+=== Bid Frete (Cotacao de Frete) ===
+
+--- documentos-tecnicos/produtos-gravity/bid-frete/ARQUITETURA.md ---
+# Arquitetura Tecnica — BID Frete Internacional
+
+> **Versao:** 1.0
+> **Data:** 31/03/2026
+> **Porta:** 8023
+> **Product ID:** bid-frete
+> **Agente:** Tech Lead (Dream Team de Produtos)
+
+---
+
+## 1. PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'bid-frete',
+  productId: 'bid-frete',
+  name: 'BID Frete',
+  port: 8023,
+
+  tenantServices: [
+    'atividades',      // Log de acoes
+    'dashboard',       // KPIs consolidados
+    'relatorios',      // Relatorios exportaveis
+    'historico',       // Audit trail imutavel
+    'notificacoes',    // Alertas in-app
+    'gabi',            // IA — analise de propostas
+    'email',           // Disparo de cotacoes para fornecedores
+    'whatsapp',        // Disparo de cotacoes via WhatsApp
+    'agendamento',     // Cron jobs (expiracao, alertas)
+    'api-cockpit',     // Tokens de API, playground, webhooks
+  ],
+
+  productServices: [
+    'bid-engine',              // Disparo de cotacoes para fornecedores
+    'comparativo-engine',      // Ranking de propostas e aprovacao
+    'rating-engine',           // Rating cross-tenant de fornecedores
+    'savings-engine',          // Calculo de economia (best vs worst)
+    'connectors',              // Agentes, Armadores, Cias Aereas, ERP
+  ],
+
+  navigation: [
+    { id: 'visao-geral',   label: 'Visao Geral',   icon: 'ChartPieSlice', source: 'product' },
+    { id: 'cotacoes',      label: 'Cotacoes',       icon: 'FileText',      source: 'product' },
+    { id: 'fornecedores',  label: 'Fornecedores',   icon: 'Buildings',     source: 'product' },
+    { id: 'configuracoes', label: 'Configuracoes',  icon: 'GearSix',       source: 'product' },
+    { id: 'atividades',    label: 'Atividades',     icon: 'BookOpen',      source: 'tenant' },
+    { id: 'historico',     label: 'Historico',       icon: 'ClockCounterClockwise', source: 'tenant' },
+  ],
+
+  features: {
+    cotacao_aberta: true,       // Cotacoes abertas (todos fornecedores ativos)
+    rating_global: true,        // Rating cross-tenant de fornecedores
+    monetizacao: false,         // Cobranca dos fornecedores (futuro)
+    portal_publico: true,       // Resposta via token (sem login)
+    importacao_bloco: true,     // Import de ate 500 cotacoes por vez
+    mapa_rotas: true,           // Mapa visual de rotas (futuro)
+    conectores_erp: false,      // Conector ERP (futuro)
+  },
+}
+```
+
+---
+
+## 2. Estrutura de Pastas
+
+```
+produto/bid-frete/
+├── client/
+│   └── src/
+│       ├── pages/
+│       │   ├── Dashboard.tsx              # KPIs comprador
+│       │   ├── ListaCotacoes.tsx          # Grid de cotacoes
+│       │   ├── NovaCotacao.tsx            # Criar + disparar cotacao
+│       │   ├── DetalheCotacao.tsx         # Detalhe com respostas
+│       │   ├── Comparativo.tsx            # Ranking de propostas
+│       │   ├── Fornecedores.tsx           # Lista de fornecedores
+│       │   ├── DetalheFornecedor.tsx      # Rating + tabela de precos
+│       │   ├── Configuracoes.tsx          # Preferencias
+│       │   └── portal/
+│       │       ├── PortalDashboard.tsx    # Dashboard fornecedor
+│       │       ├── CotacoesPendentes.tsx  # Cotacoes aguardando resposta
+│       │       ├── ResponderCotacao.tsx   # Formulario de resposta (auth)
+│       │       ├── ResponderPublico.tsx   # Formulario de resposta (token)
+│       │       ├── MinhasRespostas.tsx    # Historico de respostas
+│       │       └── MeuDesempenho.tsx      # Metricas e rating
+│       └── shared/
+│           ├── api.ts                     # Client API functions
+│           ├── config.ts                  # PRODUCT_CONFIG
+│           └── types.ts                   # TypeScript types + enums
+├── server/
+│   └── src/
+│       ├── index.ts                       # Express (porta 8023, 11 middlewares)
+│       ├── routes/
+│       │   ├── masterData.ts              # Portos, incoterms, modais, moedas, paises, containers
+│       │   ├── cotacoes.ts                # CRUD de cotacoes + importacao em bloco
+│       │   ├── fornecedores.ts            # CRUD de fornecedores + tabela de precos
+│       │   ├── bids.ts                    # Disparo de BIDs (direcionado + aberto)
+│       │   ├── comparativo.ts             # Ranking, aprovacao, reprovacao, analise IA
+│       │   ├── portal.ts                  # Portal do fornecedor (autenticado)
+│       │   ├── portalPublic.ts            # Portal publico (token, sem auth)
+│       │   ├── avaliacoes.ts              # Rating de fornecedores + ranking global
+│       │   └── dashboard.ts               # KPIs, calendario, funil
+│       ├── services/
+│       │   ├── bidEngine.ts               # Motor de disparo (email + whatsapp)
+│       │   ├── comparativoEngine.ts       # Ranking automatico de propostas
+│       │   ├── ratingEngine.ts            # Recalculo de rating cross-tenant
+│       │   ├── savingsEngine.ts           # Calculo de economia (spread)
+│       │   ├── monetizacao.ts             # Billing de fornecedores (futuro)
+│       │   ├── cronJobs.ts                # Expiracao automatica, alertas
+│       │   └── tenantIntegrations.ts      # S2S: atividades, historico, notificacoes, gabi
+│       ├── connectors/
+│       │   ├── agentes.ts                 # Conector para agentes de carga
+│       │   ├── armadores.ts               # Conector para armadores
+│       │   ├── ciasAereas.ts              # Conector para cias aereas
+│       │   └── erp.ts                     # Conector ERP (SAP, TOTVS)
+│       ├── middleware/
+│       │   ├── requireInternalKey.ts      # x-internal-key (S2S)
+│       │   └── tenantIsolation.ts         # Filtro por tenant_id
+│       └── lib/
+│           └── errors.ts                  # AppError padrao
+```
+
+---
+
+## 3. API Completa
+
+### 3.1 Rotas Publicas (sem autenticacao)
+
+#### Master Data (`/api/v1/master-data/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/master-data/portos?q=&tipo=&pais=&limit=` | Buscar portos/aeroportos (filtro por nome/codigo) |
+| GET | `/api/v1/master-data/incoterms` | Lista de 11 incoterms (EXW a DDP) |
+| GET | `/api/v1/master-data/modais` | Lista de modais com modalidades (FCL, LCL, etc.) |
+| GET | `/api/v1/master-data/moedas` | Lista de moedas (USD, BRL, EUR, CNY, GBP, JPY) |
+| GET | `/api/v1/master-data/paises` | Lista de 30 paises |
+| GET | `/api/v1/master-data/containers` | Tipos de container (20DRY a 20TK, 10 tipos) |
+
+#### Portal Publico (`/api/v1/bid-frete/portal/public/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/portal/public/cotacao/:token` | Ver cotacao via link publico (valida token + expiracao) |
+| POST | `/portal/public/responder/:token` | Responder cotacao via link publico (sem login) |
+
+#### Health Check
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/health` | Health check com status do banco |
+
+### 3.2 Rotas Protegidas (x-internal-key + tenant isolation)
+
+#### Cotacoes (`/api/v1/bid-frete/cotacoes/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/cotacoes` | Criar cotacao (manual) |
+| GET | `/cotacoes?status=&modal=&tipo_operacao=&origem=&destino=&page=&limit=&order_by=&order_dir=` | Listar cotacoes com filtros e paginacao |
+| GET | `/cotacoes/:id` | Detalhe da cotacao (com bid_requests e bid_responses) |
+| PATCH | `/cotacoes/:id` | Atualizar cotacao (apenas RASCUNHO ou FALTA_INFORMACAO) |
+| PATCH | `/cotacoes/:id/status` | Mudar status: APROVADA, REPROVADA ou CANCELADA |
+| DELETE | `/cotacoes/:id` | Excluir cotacao (apenas RASCUNHO) |
+| POST | `/cotacoes/bloco` | Importacao em bloco (ate 500 cotacoes por vez) |
+
+#### Fornecedores (`/api/v1/bid-frete/fornecedores/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/fornecedores` | Cadastrar fornecedor (tipos: AGENTE_CARGA, ARMADOR, CIA_AEREA, TRANSPORTADORA) |
+| GET | `/fornecedores?tipo=&status=&busca=&page=&limit=` | Listar fornecedores com filtros |
+| GET | `/fornecedores/:id` | Detalhe do fornecedor (com tabelas de preco + rating global) |
+| PUT | `/fornecedores/:id` | Atualizar fornecedor |
+| PATCH | `/fornecedores/:id/status` | Mudar status: ATIVO, INATIVO ou BLOQUEADO |
+| DELETE | `/fornecedores/:id` | Excluir fornecedor |
+| POST | `/fornecedores/:id/tabela` | Adicionar rota na tabela de precos |
+| GET | `/fornecedores/:id/tabela` | Listar tabela de precos do fornecedor |
+| PUT | `/fornecedores/:id/tabela/:tpId` | Atualizar item da tabela de precos |
+| DELETE | `/fornecedores/:id/tabela/:tpId` | Excluir item da tabela de precos |
+
+#### BIDs — Disparo (`/api/v1/bid-frete/bids/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/bids/disparar` | Disparar BIDs para fornecedores selecionados (canais: EMAIL, WHATSAPP) |
+| POST | `/bids/cotacao-aberta` | Disparar para todos fornecedores ativos que aceitam cotacao aberta |
+| GET | `/bids/cotacao/:id` | Listar BidRequests de uma cotacao (com fornecedor e response) |
+
+#### Comparativo (`/api/v1/bid-frete/comparativo/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/comparativo/:cotacaoId` | Ranking comparativo automatico de propostas |
+| POST | `/comparativo/:cotacaoId/aprovar` | Aprovar cotacao (2 cliques: selecionar fornecedor vencedor) |
+| POST | `/comparativo/:cotacaoId/reprovar` | Reprovar todas as respostas com justificativa |
+| GET | `/comparativo/:cotacaoId/analise-ia` | Analise Gabi AI das propostas (top 3 resumo) |
+
+#### Portal do Fornecedor — Autenticado (`/api/v1/bid-frete/portal/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/portal/dashboard` | Dashboard do fornecedor (metricas: pendentes, respondidas, aprovadas, taxa_resposta, taxa_aprovacao) |
+| GET | `/portal/cotacoes-pendentes` | Cotacoes pendentes para resposta (marca como VISUALIZADO) |
+| GET | `/portal/respostas?page=&limit=` | Historico de respostas do fornecedor |
+| POST | `/portal/responder/:bidRequestId` | Responder cotacao (com detalhes de taxas: origem, destino, frete) |
+| GET | `/portal/desempenho` | Rating + avaliacoes recentes (recalcula em tempo real) |
+| GET | `/portal/meu-billing` | Resumo de cobrancas do fornecedor |
+
+#### Avaliacoes (`/api/v1/bid-frete/avaliacoes/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/avaliacoes` | Avaliar fornecedor (notas 1-5: frete, atendimento, resposta, confiabilidade) |
+| GET | `/avaliacoes/fornecedor/:id` | Rating de um fornecedor (global + avaliacoes recentes) |
+| GET | `/avaliacoes/ranking?tipo=&limit=` | Ranking global de fornecedores (cross-tenant) |
+
+#### Dashboard (`/api/v1/bid-frete/dashboard/`)
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/dashboard` | KPIs gerais (cotacoes_andamento, cotacoes_passadas, valores, aprovacao, savings, funil) |
+| GET | `/dashboard/kpis` | Alias para `/dashboard` |
+| GET | `/dashboard/calendario` | Alertas: respostas recentes, proximo vencimento, vence hoje, fora do prazo |
+
+---
+
+## 4. Total de Endpoints
+
+| Categoria | Quantidade |
+|-----------|------------|
+| Master Data (publico) | 6 |
+| Portal Publico (token) | 2 |
+| Health Check | 1 |
+| Cotacoes (protegido) | 7 |
+| Fornecedores (protegido) | 10 |
+| BIDs (protegido) | 3 |
+| Comparativo (protegido) | 4 |
+| Portal Autenticado (protegido) | 6 |
+| Avaliacoes (protegido) | 3 |
+| Dashboard (protegido) | 3 |
+| **TOTAL** | **45** |
+
+---
+
+## 5. Regras de Negocio
+
+### 5.1 Ciclo de Vida da Cotacao
+
+```
+RASCUNHO → ENVIADA_FORNECEDORES → EM_COTACAO → AGUARDANDO_APROVACAO → APROVADA
+                                                                     → REPROVADA
+                                                                     → CANCELADA
+                                      → FALTA_INFORMACAO (volta para edicao)
+                                      → EXPIRADA (cron job automatico)
+```
+
+**Regras de transicao:**
+- Edicao so permitida em status `RASCUNHO` ou `FALTA_INFORMACAO`
+- Exclusao so permitida em `RASCUNHO`
+- Quando todas as respostas chegam → status muda automaticamente para `AGUARDANDO_APROVACAO`
+- Aprovacao requer `response_id` do fornecedor vencedor
+
+### 5.2 Cotacao Aberta vs Direcionada
+
+- **Direcionada:** Seleciona manualmente os fornecedores (com `fornecedor_ids`)
+- **Aberta:** Dispara para todos os fornecedores ativos com `aceita_cotacao_aberta: true`
+- Pode filtrar por tipo de fornecedor: AGENTE_CARGA, ARMADOR, CIA_AEREA, TRANSPORTADORA
+
+### 5.3 Importacao em Bloco
+
+- Ate 500 cotacoes por vez via `POST /cotacoes/bloco`
+- Processamento individual (nao transacional) — cada linha pode falhar independentemente
+- Retorna resultado por linha: `{ linha, id, numero, status: 'ok' | 'erro', erro? }`
+
+### 5.4 Portal Publico (Token)
+
+- Fornecedores recebem link com token unico via email/whatsapp
+- Token tem expiracao (`token_expira_em`)
+- Apos responder, token fica inutilizavel (`status: RESPONDIDO`)
+- Sem necessidade de login no Gravity
+
+### 5.5 Rating Cross-Tenant
+
+- Rating de fornecedores e calculado globalmente (cross-tenant) por email
+- Notas de 1 a 5 em 4 criterios: frete, atendimento, resposta, confiabilidade
+- `ratingEngine.recalcular()` usa `basePrisma` (sem filtro de tenant) para agregar
+- Ranking global visivel para todos os compradores
+
+### 5.6 BID Engine — Motor de Disparo
+
+- Dispara cotacoes via canais: EMAIL e/ou WHATSAPP
+- Cria `BidRequest` para cada fornecedor selecionado
+- Gera token unico de resposta para portal publico
+- Atualiza status da cotacao para `ENVIADA_FORNECEDORES`
+- Integracoes S2S: atividades, historico, notificacoes
+
+### 5.7 Comparativo Engine
+
+- Ranqueia automaticamente as propostas por valor_total (crescente)
+- Aprovacao em 2 cliques: selecionar proposta → confirmar
+- Reprovacao marca todas as respostas como `REPROVADA` com justificativa
+- Analise IA via Gabi: resume top 3 propostas com recomendacao
+
+### 5.8 Savings Engine
+
+- Calcula economia comparando melhor proposta vs pior proposta
+- Metricas: total economizado, percentual de economia, media por cotacao
+- Filtros por company_id e periodo (data_inicio, data_fim)
+
+---
+
+## 6. Seguranca
+
+### 6.1 Autenticacao e Autorizacao
+
+| Camada | Implementacao |
+|--------|--------------|
+| S2S Authentication | `x-internal-key` validado via `requireInternalKey` middleware (timing-safe compare) |
+| Tenant Isolation | `x-tenant-id` no header → Prisma Extension filtra automaticamente |
+| User Identity | `x-user-id` no header (propagado pelo Gateway) |
+| Rate Limiting | `rateLimitPresets.public()` para rotas publicas |
+| Security Headers | Helmet com CSP strict |
+
+### 6.2 Middlewares (ordem de execucao)
+
+1. Helmet (CSP)
+2. Body Parser (10mb limit)
+3. CORS (allowlist)
+4. Static Files
+5. Health Check (sem auth)
+6. Master Data (sem auth, rate limited)
+7. Portal Publico (sem auth, rate limited)
+8. **requireInternalKey** (barreira de auth)
+9. **tenantIsolation** (injeta req.prisma filtrado)
+10. Rotas protegidas
+11. SPA Fallback
+12. Error Handler Global
+
+### 6.3 Validacao
+
+- Toda rota usa Zod schemas antes do banco
+- Schemas tipados: CriarCotacaoSchema, FiltrosCotacaoSchema, AtualizarStatusSchema, CriarFornecedorSchema, TabelaPrecoSchema, DispararSchema, ResponderSchema, AvaliarSchema, etc.
+- Erros via `AppError` com codigo estruturado
+
+---
+
+## 7. Integracoes Externas
+
+### 7.1 Connectors
+
+| Conector | Arquivo | Descricao |
+|----------|---------|-----------|
+| Agentes de Carga | `connectors/agentes.ts` | Integracao com sistemas de agentes de carga |
+| Armadores | `connectors/armadores.ts` | Integracao com armadores (Maersk, MSC, etc.) |
+| Cias Aereas | `connectors/ciasAereas.ts` | Integracao com cias aereas de carga |
+| ERP | `connectors/erp.ts` | Conector ERP (SAP, TOTVS) |
+
+### 7.2 Integracoes S2S (Tenant Services)
+
+| Servico | Funcoes |
+|---------|---------|
+| Atividades | `cotacaoCriada()`, `aguardandoAprovacao()` |
+| Historico | `cotacaoCriada()`, `cotacaoAprovada()`, `cotacaoReprovada()`, `fornecedorRespondeu()`, `fornecedorAvaliado()`, `registrar()` (bloco) |
+| Notificacoes | `cotacaoAprovada()`, `fornecedorRespondeu()` |
+| Gabi | `analisarPropostas()` — analise IA das propostas do comparativo |
+
+### 7.3 Cron Jobs
+
+| Job | Descricao |
+|-----|-----------|
+| Expiracao | Marca cotacoes com `data_limite_resposta` expirada como `EXPIRADA` |
+| Alertas | Envia notificacoes de cotacoes proximas ao vencimento |
+
+---
+
+## 8. Modelo de Dados (Resumo)
+
+### Entidades Principais
+
+| Entidade | Descricao |
+|----------|-----------|
+| `Cotacao` | Cotacao de frete (referencia, rota, modal, modalidade, incoterm, target) |
+| `Fornecedor` | Fornecedor de frete (agente, armador, cia aerea, transportadora) |
+| `TabelaPreco` | Tabela de precos do fornecedor (rota + valores + validade) |
+| `BidRequest` | Solicitacao de proposta enviada ao fornecedor (com token publico) |
+| `BidResponse` | Proposta do fornecedor (valores, transit time, taxas detalhadas) |
+| `DetalheTaxa` | Breakdown de taxas da proposta (origem, destino, frete) |
+| `Avaliacao` | Avaliacao individual (notas 1-5 em 4 criterios) |
+| `RatingFornecedor` | Rating agregado cross-tenant (calculado por email) |
+
+### Campos Obrigatorios (Tenant Isolation)
+
+Toda tabela possui:
+- `tenant_id String` — isolamento por tenant
+- `product_id String` — sempre `'bid-frete'`
+- `user_id String` — usuario que criou
+- `created_at DateTime @default(now())`
+
+---
+
+## 9. Variaveis de Ambiente
+
+```env
+PORT=8023
+DATABASE_URL=postgresql://...
+INTERNAL_SERVICE_KEY=...
+CLIENT_URL=http://localhost:5175
+NODE_ENV=development
+```
+
+---
+
+_Gravity — BID Frete Internacional · Arquitetura v1.0 · 31/03/2026_
+
+--- documentos-tecnicos/produtos-gravity/bid-frete/PLANO-REFATORACAO-DDD-E-ENTREGA.md ---
+# BID Frete — Plano de Refatoracao DDD e Entrega
+
+> Status: documento de planejamento, sem alteracao de codigo.
+> Produto: `bid-frete`
+> Diretorio tecnico: `documentos-tecnicos/produtos-gravity/bid-frete/`
+> Diretorio de codigo: `produto/bid-frete/`
+> Branch recomendada para execucao futura: `bid-frete-ddd`
+> Data-base: 2026-04-24
+
+---
+
+## 1. Objetivo
+
+Consolidar o plano completo para transformar o draft atual do BID Frete em um produto alinhado ao padrao Gravity pos-refatoracao DDD, com foco em:
+
+- Separacao segura entre comprador e fornecedor.
+- Isolamento absoluto de Organizacao/Workspace.
+- Fluxo multi-organizacao para fornecedores.
+- Refatoracao DDD de nomes, contratos, rotas e schemas.
+- Priorizacao das engines proprias do produto antes das integracoes secundarias.
+- Plano de testes unitarios, funcionais, E2E, contratos e seguranca.
+- Distribuicao por ondas, agentes, dependencias e criterios de aceite.
+
+Este documento nao autoriza edicao direta em `schema.prisma`. Qualquer alteracao de schema deve passar pelo Coordenador, via fluxo controlado de fragment/composicao/migration.
+
+---
+
+## 2. Contexto Atual
+
+O BID Frete ja existe como draft em `produto/bid-frete/`.
+
+### Frontend existente
+
+Ha 16 telas em `produto/bid-frete/client/src/pages`:
+
+#### Comprador
+
+- `Dashboard.tsx` — visao geral, KPIs e funil.
+- `Cotacoes.tsx` — lista/kanban de cotacoes.
+- `NovaCotacao.tsx` — wizard de criacao de cotacao.
+- `ImportarBloco.tsx` — importacao em bloco.
+- `DetalheCotacao.tsx` — detalhe da cotacao e respostas.
+- `Comparativo.tsx` — ranking/comparativo de propostas.
+- `Fornecedores.tsx` — lista de fornecedores logisticos.
+- `DetalheFornecedor.tsx` — rating, historico e tabela de precos.
+- `Configuracoes.tsx` — preferencias do produto.
+
+#### Fornecedor
+
+- `portal/PortalDashboard.tsx` — dashboard do fornecedor.
+- `portal/CotacoesPendentes.tsx` — cotacoes aguardando resposta.
+- `portal/ResponderCotacao.tsx` — resposta autenticada.
+- `portal/ResponderPublico.tsx` — resposta via token publico.
+- `portal/MinhasRespostas.tsx` — historico de respostas.
+- `portal/TabelaPrecos.tsx` — tabela de precos do fornecedor.
+- `portal/MeuDesempenho.tsx` — metricas e desempenho.
+
+### Backend existente
+
+Rotas atuais:
+
+- `masterData.ts`
+- `cotacoes.ts`
+- `fornecedores.ts`
+- `bids.ts`
+- `comparativo.ts`
+- `portal.ts`
+- `portalPublic.ts`
+- `avaliacoes.ts`
+- `dashboard.ts`
+- `dashboard.routes.ts`
+
+Engines e servicos internos do produto:
+
+- `bidEngine.ts`
+- `comparativoEngine.ts`
+- `ratingEngine.ts`
+- `savingsEngine.ts`
+- `monetizacao.ts`
+- `cronJobs.ts`
+- `tenantIntegrations.ts`
+
+Conectores:
+
+- `agentes.ts`
+- `armadores.ts`
+- `ciasAereas.ts`
+- `erp.ts`
+
+### Estado tecnico atual
+
+O draft atual ainda carrega padroes antigos:
+
+- Campos legados: `tenant_id`, `company_id`, `user_id`, `product_id`, `created_at`, `updated_at`.
+- Nomes em ingles: `BidRequest`, `BidResponse`, `Saving`, `ConnectorConfig`.
+- Uso de `PrismaClient` direto em produto.
+- Middleware proprio de tenant isolation.
+- Frontend consumindo `fetch().json()` sem schema Zod de resposta.
+- Divergencias entre `fragment.prisma`, `types.ts`, `api.ts` e rotas reais.
+- Rotas frontend/backend desalinhadas em alguns pontos.
+
+---
+
+## 3. Decisoes Ja Definidas
+
+### 3.1 Prioridade de produto
+
+Prioridade 1: engines proprias do BID Frete.
+
+- Disparo de cotacoes.
+- Recebimento de respostas.
+- Comparativo/ranking.
+- Aprovacao.
+- Savings.
+- Rating do fornecedor.
+- Portal autenticado e portal publico.
+
+Prioridade 2: servicos tenant e integracoes complementares.
+
+- Atividades.
+- Historico.
+- Notificacoes.
+- Relatorios.
+- Email.
+- WhatsApp.
+- Gabi.
+- Agendamento.
+- API Cockpit.
+
+### 3.2 Comprador e fornecedor
+
+O produto tem dois perfis funcionais:
+
+- Comprador: Organizacao/Workspace que cria cotacoes e escolhe fornecedores.
+- Fornecedor: empresa ou usuario externo que recebe e responde cotacoes.
+
+Comprador ve apenas suas cotacoes, no seu escopo de Organizacao/Workspace.
+
+Fornecedor ve de forma consolidada as cotacoes destinadas a ele, mesmo que venham de varias Organizacoes/Workspaces.
+
+### 3.3 Fornecedor independente
+
+Fornecedor pode entrar no Gravity de duas formas:
+
+1. Convite por uma Organizacao/Workspace compradora.
+2. Entrada autonoma, criando sua propria Organizacao Gravity.
+
+Para fornecedor que entra sozinho, a solucao definida e criar uma Organizacao propria no Configurador, com `categoria_organizacao = SUPPLIER`.
+
+### 3.4 Categoria de Organizacao
+
+Categoria pertence a `Organizacao`, nao ao cadastro local de fornecedor.
+
+Campo proposto em codigo: `categoria_organizacao`.
+
+Nome do enum proposto: `CategoriaOrganizacao`.
+
+Valores tecnicos do enum, seguindo DDD (UPPER_SNAKE em ingles):
+
+- `BUYER`
+- `SUPPLIER`
+- `MIXED`
+
+Labels canonicos em tela:
+
+- `Compradora`
+- `Fornecedora`
+- `Mista`
+
+Fonte da verdade: banco do Configurador.
+
+Propagacao:
+
+- Banco Configurador: campo em `Organizacao`.
+- Backend Configurador: onboarding, `/api/v1/me`, APIs de organizacao.
+- Front Configurador: onboarding e HUB.
+- Shell/HUB: experiencia inicial por categoria.
+- Produto BID Frete: usa para UX e roteamento, nunca como unica trava de seguranca.
+
+---
+
+## 4. Modelo de Acesso Seguro
+
+### 4.1 Regra de ouro
+
+Comprador filtra por Organizacao/Workspace comprador.
+
+Fornecedor filtra por solicitacoes destinadas a ele.
+
+Nunca acessar cotacao por `id_cotacao` puro.
+
+### 4.2 Comprador
+
+Comprador pode ver uma cotacao se:
+
+- Esta autenticado.
+- Tem acesso ao produto BID Frete.
+- Pertence a Organizacao compradora da cotacao.
+- Tem acesso ao Workspace comprador da cotacao, quando aplicavel.
+- Tem permissao granular ou e `MASTER` dentro da Organizacao.
+
+Trava obrigatoria no contrato de autorizacao. Em banco de produto pos schema-per-organizacao, a Organizacao e inferida pelo schema ativo do `@gravity/tenant-resolver`, nao por coluna persistida.
+
+```text
+id_cotacao_frete
++ contexto de Organizacao resolvido pelo tenant-resolver
++ id_workspace_comprador permitido
+```
+
+### 4.3 Fornecedor autenticado
+
+Fornecedor pode ver uma cotacao se:
+
+- Esta autenticado como `SUPPLIER`.
+- Possui vinculo ativo com a Organizacao/Workspace compradora.
+- Possui permissao explicita para BID Frete.
+- Existe uma solicitacao de proposta destinada a ele.
+
+Trava obrigatoria no contrato de autorizacao. Para visao consolidada do fornecedor, cada Organizacao deve ser resolvida como contexto separado; nenhuma query deve misturar schemas.
+
+```text
+id_cotacao_frete
++ id_usuario_fornecedor ou id_fornecedor_frete
++ solicitacao destinada ao fornecedor
++ vinculo ativo Organizacao/Workspace/Produto
+```
+
+### 4.4 Portal publico
+
+Fornecedor sem login pode responder apenas via token.
+
+Trava obrigatoria:
+
+```text
+token_resposta
++ id_solicitacao_proposta_frete
++ status pendente
++ data_expiracao valida
++ uso unico
+```
+
+Token publico nao concede acesso ao portal autenticado, historico, dashboard ou qualquer outra cotacao.
+
+### 4.5 Pontos cegos que precisam ser bloqueados
+
+- `findUnique({ id })` sem escopo.
+- Dashboard agregando dados de mais de uma Organizacao sem regra explicita.
+- Fornecedor listado por organizacao e recebendo todas as cotacoes daquela organizacao.
+- Comprador acessando cotacao de outro Workspace dentro da mesma Organizacao.
+- Relatorios/exportacoes ignorando o mesmo filtro das telas.
+- Portal publico reutilizando token ja respondido.
+- Rating global revelando detalhes de outra Organizacao em vez de metrica agregada.
+- Logs, auditoria ou erros retornando dados sensiveis.
+
+---
+
+## 5. Modelo Conceitual Pos-DDD
+
+### 5.1 Entidades principais
+
+| Draft atual | Nome DDD proposto | Observacao |
+|---|---|---|
+| `Cotacao` | `CotacaoFrete` | Cotacao criada pelo comprador. |
+| `Fornecedor` | `FornecedorFrete` | Cadastro local do fornecedor no produto. |
+| `BidRequest` | `SolicitacaoPropostaFrete` | Convite/solicitacao enviada ao fornecedor. |
+| `BidResponse` | `RespostaCotacaoFrete` | Resposta/proposta do fornecedor. |
+| `TabelaPreco` | `TabelaPrecoFrete` | Rotas e precos padrao do fornecedor. |
+| `DetalheTaxa` | `DetalheTaxaFrete` | Breakdown de taxas. |
+| `Avaliacao` | `AvaliacaoFornecedorFrete` | Avaliacao manual. |
+| `RatingFornecedor` | `ClassificacaoFornecedorFrete` | Agregado global controlado. |
+| `Saving` | `EconomiaCotacaoFrete` | Economia calculada na aprovacao. |
+| `ConnectorConfig` | `ConfiguracaoConectorFrete` | Conectores ERP/API. |
+| `Porto` | `LocalidadeLogistica` | Pode representar porto, aeroporto ou ponto rodoviario. |
+
+### 5.2 Campos comuns
+
+| Draft atual | DDD esperado |
+|---|---|
+| `id` | `id_<entidade>` |
+| `tenant_id` | `id_organizacao` apenas durante janela de migracao; remover em produto apos schema-per-organizacao completo |
+| `company_id` | `id_workspace` |
+| `user_id` | `id_usuario` |
+| `product_id` | `id_produto` |
+| `created_at` | `data_criacao_<entidade>` |
+| `updated_at` | `data_atualizacao_<entidade>` |
+| `cotacao_id` | `id_cotacao_frete` |
+| `fornecedor_id` | `id_fornecedor_frete` |
+| `bid_request_id` | `id_solicitacao_proposta_frete` |
+| `response_id` | `id_resposta_cotacao_frete` |
+
+### 5.3 Campos especificos relevantes
+
+| Draft atual | DDD esperado |
+|---|---|
+| `valor_target` | `valor_alvo_cotacao_frete` |
+| `moeda_target` | `moeda_alvo_cotacao_frete` |
+| `saving_valor` | `valor_economia_cotacao_frete` |
+| `saving_percentual` | `percentual_economia_cotacao_frete` |
+| `transit_time_dias` | `prazo_transito_dias` |
+| `free_time_dias` | `prazo_livre_dias` |
+| `zip_code_origem` | `codigo_postal_origem` |
+| `zip_code_destino` | `codigo_postal_destino` |
+| `ocultar_nome_empresa` | `nome_empresa_oculto` |
+| `token_resposta` | `token_resposta_fornecedor` |
+| `token_expira_em` | `data_expiracao_token_resposta` |
+
+---
+
+## 6. Arquitetura Alvo
+
+### 6.1 Configurador
+
+Responsavel por:
+
+- Autenticacao via Clerk.
+- Fonte da verdade de `tipo_usuario`.
+- Categoria da Organizacao.
+- Criacao de Organizacao no onboarding.
+- Convite de usuarios `MASTER`, `STANDARD`, `SUPPLIER`.
+- Vinculos fornecedor-organizacao.
+- Permissoes granulares por produto.
+- Endpoint canonico `/api/v1/me`.
+
+### 6.2 Shell/HUB
+
+Responsavel por:
+
+- Sincronizar `/api/v1/me`.
+- Exibir contexto correto.
+- Para fornecedor com multiplos vinculos, exibir HUB consolidado.
+- Encaminhar para o BID Frete no contexto correto.
+
+### 6.3 BID Frete
+
+Responsavel por:
+
+- Cadastrar fornecedores logisticos no escopo do comprador.
+- Criar cotacoes de frete.
+- Disparar solicitacoes de proposta.
+- Receber respostas via portal autenticado ou token publico.
+- Comparar propostas.
+- Aprovar fornecedor vencedor.
+- Calcular economia.
+- Avaliar fornecedores.
+- Expor portal do fornecedor.
+
+### 6.4 Servicos tenant
+
+Entram em segundo plano:
+
+- Historico/auditoria.
+- Notificacoes.
+- Email.
+- WhatsApp.
+- Relatorios.
+- Gabi.
+- Agendamento.
+
+Para MVP, o fluxo principal nao pode depender criticamente desses servicos estarem completos. Eles devem ser chamados por integracao minima, fire-and-forget, com falha controlada.
+
+---
+
+## 7. Ondas de Execucao
+
+### Onda 0 — Congelamento e Preparacao
+
+Objetivo: evitar conflito com a refatoracao paralela do projeto.
+
+Tasks:
+
+- `BF-0001` Aguardar conclusao da refatoracao principal.
+- `BF-0002` Criar branch especifica `bid-frete-ddd`.
+- `BF-0003` Validar estado do git antes de iniciar.
+- `BF-0004` Reconfirmar skills obrigatorias.
+- `BF-0005` Revalidar `ARQUITETURA.md`, `bid-frete.md` e este plano.
+
+Agentes:
+
+- Lider: autoriza inicio.
+- Coordenador: valida pre-requisitos de schema/contratos.
+- Produto BID Frete: executa levantamento.
+
+Dependencias:
+
+- Refatoracao DDD principal concluida.
+- Nenhum conflito ativo em Configurador, Cadastros ou Pedido que impacte nomes globais.
+
+Entregaveis:
+
+- Branch criada.
+- Relatorio de estado inicial.
+- Plano confirmado pelo dono.
+
+---
+
+### Onda 1 — Configurador, Usuario e Onboarding Fornecedor
+
+Objetivo: permitir fornecedor entrar via convite ou autonomamente.
+
+Tasks:
+
+- `BF-0101` Adicionar `categoria_organizacao` com enum `CategoriaOrganizacao` (`BUYER`, `SUPPLIER`, `MIXED`) no fluxo controlado pelo Coordenador.
+- `BF-0102` Ajustar onboarding para perguntar como a empresa usara o Gravity.
+- `BF-0103` Criar fluxo "Entrar como fornecedor" gerando Organizacao propria com `categoria_organizacao = SUPPLIER`.
+- `BF-0104` Garantir que `/api/v1/me` retorne categoria da Organizacao.
+- `BF-0105` Revisar convite de `SUPPLIER`.
+- `BF-0106` Definir/validar vinculos fornecedor-organizacao-workspace-produto.
+- `BF-0107` Definir permissoes especificas do BID Frete no Configurador.
+
+Agentes:
+
+- Configurador Backend.
+- Configurador Frontend.
+- Coordenador.
+- QA.
+
+Dependencias:
+
+- Skill `permissoes`.
+- Skill `configurador`.
+- Mandamento 01: autorizacao nunca via Clerk `publicMetadata`.
+
+Entregaveis:
+
+- Fluxo de onboarding fornecedor.
+- Categoria da Organizacao persistida e exposta.
+- Convite SUPPLIER revisado.
+- Permissoes BID Frete registraveis.
+
+---
+
+### Onda 2 — HUB do Fornecedor
+
+Objetivo: fornecedor consolidar acessos sem vazar dados entre compradores.
+
+Tasks:
+
+- `BF-0201` Criar HUB do fornecedor no Configurador/Shell.
+- `BF-0202` Listar Organizacoes/Workspaces onde o fornecedor tem vinculo ativo.
+- `BF-0203` Exibir cotações pendentes consolidadas por solicitacao destinada ao fornecedor.
+- `BF-0204` Permitir troca de contexto sem perder isolamento.
+- `BF-0205` Bloquear preferencia automatica de workspace para `SUPPLIER`.
+
+Agentes:
+
+- Shell/Frontend.
+- Configurador Backend.
+- Produto BID Frete Frontend.
+- QA.
+
+Dependencias:
+
+- Onda 1 concluida.
+- `/api/v1/me` sincronizado.
+- Vinculo fornecedor-organizacao definido.
+
+Entregaveis:
+
+- HUB fornecedor.
+- Navegacao consolidada.
+- Testes de acesso multi-organizacao.
+
+---
+
+### Onda 3 — Refatoracao DDD do BID Frete
+
+Objetivo: alinhar schema, rotas, payloads, types e UI ao DDD.
+
+Tasks:
+
+- `BF-0301` Mapear nomes atuais para nomes DDD.
+- `BF-0302` Refatorar fragment/schema via fluxo do Coordenador.
+- `BF-0303` Atualizar backend routes e services.
+- `BF-0304` Atualizar `types.ts`, `api.ts` e schemas Zod do frontend.
+- `BF-0305` Corrigir rotas divergentes front/back.
+- `BF-0306` Versionar ou compatibilizar endpoints quando necessario.
+- `BF-0307` Atualizar documentacao tecnica.
+
+Agentes:
+
+- Coordenador: schema, migrations, contratos.
+- Backend Produto.
+- Frontend Produto.
+- QA.
+
+Dependencias:
+
+- Onda 1 e Onda 2.
+- Decisao final sobre nomes DDD.
+- Nenhum trabalho paralelo conflitante no BID Frete.
+
+Entregaveis:
+
+- DDD aplicado.
+- Contratos sincronizados.
+- Front/back alinhados.
+- Docs atualizadas.
+
+---
+
+### Onda 4 — Engines Prioritarias
+
+Objetivo: tornar o coracao do produto funcional.
+
+Tasks:
+
+- `BF-0401` Refatorar `bidEngine` para criar solicitacoes seguras.
+- `BF-0402` Refatorar portal publico com token de uso unico.
+- `BF-0403` Refatorar portal autenticado para fornecedor.
+- `BF-0404` Refatorar `comparativoEngine`.
+- `BF-0405` Refatorar `savingsEngine`.
+- `BF-0406` Refatorar `ratingEngine` com agregacao segura.
+- `BF-0407` Manter `monetizacao` desligada ou feature-flag ate decisao comercial.
+
+Agentes:
+
+- Backend Produto.
+- Frontend Produto.
+- QA.
+
+Dependencias:
+
+- Onda 3 concluida.
+- Contratos definidos.
+
+Entregaveis:
+
+- Fluxo principal funcional: criar cotacao, disparar, responder, comparar, aprovar, calcular economia.
+
+---
+
+### Onda 5 — Servicos Secundarios e Integracoes
+
+Objetivo: adicionar integracoes sem bloquear o MVP.
+
+Tasks:
+
+- `BF-0501` Integracao minima com Historico.
+- `BF-0502` Integracao minima com Atividades.
+- `BF-0503` Integracao com Email.
+- `BF-0504` Integracao com WhatsApp.
+- `BF-0505` Integracao com Notificacoes.
+- `BF-0506` Relatorios e exportacoes.
+- `BF-0507` Gabi para analise de propostas.
+- `BF-0508` Agendamento para expiracao e alertas.
+
+Agentes:
+
+- Servicos tenant especificos.
+- Backend Produto.
+- QA.
+
+Dependencias:
+
+- Onda 4 concluida.
+- Services tenant disponiveis e contratos publicados.
+
+Entregaveis:
+
+- Integracoes fire-and-forget.
+- Logs/auditoria.
+- Relatorios basicos.
+
+---
+
+### Onda 6 — QA, Hardening e Homologacao
+
+Objetivo: validar seguranca, UX, performance e regressao.
+
+Tasks:
+
+- `BF-0601` Testes unitarios.
+- `BF-0602` Testes funcionais.
+- `BF-0603` Contract tests com Zod.
+- `BF-0604` Testes anti-cross-organizacao.
+- `BF-0605` Testes anti-cross-fornecedor.
+- `BF-0606` Plano E2E aprovado pelo dono.
+- `BF-0607` Execucao E2E.
+- `BF-0608` Percy para telas principais.
+- `BF-0609` QA final.
+
+Agentes:
+
+- QA.
+- Backend Produto.
+- Frontend Produto.
+- Coordenador.
+- Lider.
+
+Dependencias:
+
+- Onda 4 concluida para MVP.
+- Onda 5 concluida para versao integrada.
+
+Entregaveis:
+
+- Relatorio QA.
+- Lista de pendencias ou aprovacao.
+- Evidencias de testes.
+
+---
+
+## 8. Tasks Priorizadas
+
+### P0 — Bloqueadoras de seguranca
+
+- `BF-P0-01` Nenhuma cotacao por ID puro.
+- `BF-P0-02` Fornecedor ve apenas solicitacoes destinadas a ele.
+- `BF-P0-03` Comprador ve apenas cotacoes da sua Organizacao/Workspace.
+- `BF-P0-04` Token publico com expiracao e uso unico.
+- `BF-P0-05` Frontend valida respostas com Zod.
+- `BF-P0-06` Remover `PrismaClient` direto do produto.
+- `BF-P0-07` Acesso ao banco via `@gravity/tenant-resolver`.
+- `BF-P0-08` Testes anti-cross-organizacao e anti-cross-fornecedor.
+
+### P1 — MVP funcional
+
+- `BF-P1-01` Criar cotacao.
+- `BF-P1-02` Cadastrar fornecedor.
+- `BF-P1-03` Disparar solicitacao.
+- `BF-P1-04` Responder cotacao via token.
+- `BF-P1-05` Responder cotacao via portal autenticado.
+- `BF-P1-06` Comparar propostas.
+- `BF-P1-07` Aprovar vencedor.
+- `BF-P1-08` Calcular savings.
+- `BF-P1-09` Exibir dashboard comprador.
+- `BF-P1-10` Exibir dashboard fornecedor.
+
+### P2 — Complementares
+
+- `BF-P2-01` Rating global controlado.
+- `BF-P2-02` Tabela de precos do fornecedor.
+- `BF-P2-03` Auto-resposta por tabela.
+- `BF-P2-04` Importacao em bloco.
+- `BF-P2-05` Exportacoes/relatorios.
+- `BF-P2-06` Gabi para analise de propostas.
+- `BF-P2-07` Email/WhatsApp reais.
+- `BF-P2-08` Monetizacao.
+
+---
+
+## 9. Agentes e Responsabilidades
+
+| Agente | Responsabilidade |
+|---|---|
+| Lider | Priorizar ondas, liberar inicio, resolver decisao de produto. |
+| Coordenador | Schema, migrations, contratos, validacao tecnica de ondas. |
+| Configurador Backend | Onboarding, categoria de Organizacao, vinculos, permissoes. |
+| Configurador Frontend | Telas de onboarding, usuarios, HUB. |
+| Shell/Frontend | Sincronizacao `/me`, HUB e navegacao entre contextos. |
+| Produto BID Frete Backend | Rotas, engines, seguranca de cotacoes e respostas. |
+| Produto BID Frete Frontend | Telas comprador/fornecedor e contratos Zod. |
+| Servicos Tenant | Email, WhatsApp, Historico, Notificacoes, Relatorios, Gabi. |
+| QA | Revisao final, testes unitarios/funcionais/E2E, Percy. |
+| DevOps | Variaveis, deploy, observabilidade e pipelines. |
+
+---
+
+## 10. Locais de Trabalho
+
+### Produto BID Frete
+
+- `produto/bid-frete/client/src/App.tsx`
+- `produto/bid-frete/client/src/pages/`
+- `produto/bid-frete/client/src/shared/api.ts`
+- `produto/bid-frete/client/src/shared/types.ts`
+- `produto/bid-frete/client/src/shared/config.ts`
+- `produto/bid-frete/server/src/routes/`
+- `produto/bid-frete/server/src/services/`
+- `produto/bid-frete/server/src/connectors/`
+- `produto/bid-frete/server/src/middleware/`
+- `produto/bid-frete/server/prisma/fragment.prisma`
+- `produto/bid-frete/server/prisma/schema.base.prisma`
+
+### Configurador
+
+- `servicos-global/configurador/server/routes/me.ts`
+- `servicos-global/configurador/server/routes/users.ts`
+- `servicos-global/configurador/server/routes/auth.ts`
+- `servicos-global/configurador/server/services/permissionsService.ts`
+- `servicos-global/configurador/src/pages/SelecionarWorkspace.tsx`
+- `servicos-global/configurador/src/pages/Hub.tsx`
+- `servicos-global/configurador/src/pages/workspace/Usuarios.tsx`
+
+### Documentacao
+
+- `documentos-tecnicos/produtos-gravity/bid-frete/ARQUITETURA.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/bid-frete.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/PLANO-REFATORACAO-DDD-E-ENTREGA.md`
+
+### Testes
+
+- `testes/testes-unitarios/produtos/bid-frete/`
+- `testes/testes-funcionais/produtos/bid-frete/`
+- `testes/testes-e2e/produtos/bid-frete/`
+- `testes/testes-unitarios/plano-de-testes/`
+- `testes/testes-funcionais/plano-de-testes/`
+- `testes/testes-e2e/plano-de-testes/`
+
+---
+
+## 11. Contratos e Rotas a Alinhar
+
+### Divergencias ja identificadas
+
+- Front chama `/api/v1/bid-frete/master-data/...`; backend expoe `/api/v1/master-data/...`.
+- Front chama `/portal/pendentes`; backend expoe `/portal/cotacoes-pendentes`.
+- Front chama `/portal/public/:token`; backend expoe `/portal/public/cotacao/:token`.
+- Front chama `/portal/public/:token/responder`; backend expoe `/portal/public/responder/:token`.
+- Front chama `/comparativo/:id/ranking`; backend expoe `GET /comparativo/:cotacaoId`.
+- `types.ts` nao bate com Prisma em campos como `valor_alvo`, `moeda_alvo`, `anonima`, `token_publico`, `validade`, `score_*`, `aprovada`.
+
+### Regra de correcao
+
+Toda correcao de contrato deve atualizar na mesma entrega:
+
+- Rota backend.
+- Schema Zod de request.
+- Schema Zod de response.
+- API client.
+- Types derivados de Zod.
+- Consumidores React.
+- Teste funcional.
+- Contract test.
+- Documentacao.
+
+---
+
+## 12. Plano de Testes
+
+### 12.1 Unitarios
+
+Local:
+
+```text
+testes/testes-unitarios/produtos/bid-frete/
+```
+
+Suites minimas:
+
+- `bid-engine.test.ts`
+- `comparativo-engine.test.ts`
+- `savings-engine.test.ts`
+- `rating-engine.test.ts`
+- `portal-token.test.ts`
+- `schemas-zod.test.ts`
+- `permissoes-fornecedor.test.ts`
+
+Cobertura minima:
+
+- 70% geral.
+- 80% nas engines criticas.
+
+### 12.2 Funcionais
+
+Local:
+
+```text
+testes/testes-funcionais/produtos/bid-frete/
+```
+
+Suites minimas:
+
+- `cotacoes.test.ts`
+- `fornecedores.test.ts`
+- `solicitacoes-proposta.test.ts`
+- `respostas-fornecedor.test.ts`
+- `comparativo.test.ts`
+- `portal-publico.test.ts`
+- `portal-fornecedor.test.ts`
+- `dashboard.test.ts`
+- `anti-cross-organizacao.test.ts`
+- `anti-cross-fornecedor.test.ts`
+
+Casos obrigatorios:
+
+- Comprador A nao ve cotacao da Organizacao B.
+- Comprador A workspace 1 nao ve cotacao do workspace 2 sem permissao.
+- Fornecedor A nao ve solicitacao enviada ao Fornecedor B.
+- Fornecedor A ve suas solicitacoes em mais de uma Organizacao.
+- Token expirado falha.
+- Token ja usado falha.
+- Cotacao nao enviada ao fornecedor nao aparece no portal.
+
+### 12.3 Contract tests
+
+Obrigatorio para:
+
+- `/cotacoes`
+- `/fornecedores`
+- `/solicitacoes-proposta`
+- `/respostas`
+- `/comparativo`
+- `/portal`
+- `/portal-publico`
+- `/dashboard`
+
+Regras:
+
+- Response de API sempre validado por Zod.
+- Frontend deriva tipos de schemas ou valida antes de usar.
+- Remover, renomear ou mudar tipo de campo sem versionar deve quebrar teste.
+
+### 12.4 E2E
+
+Local:
+
+```text
+testes/testes-e2e/produtos/bid-frete/
+```
+
+Plano E2E precisa ser aprovado pelo dono antes da execucao.
+
+Fluxos obrigatorios:
+
+- Onboarding comprador.
+- Onboarding fornecedor autonomo.
+- Convite fornecedor por comprador.
+- Fornecedor com multiplas Organizacoes.
+- Criar cotacao.
+- Disparar cotacao para fornecedor.
+- Responder por token.
+- Responder autenticado.
+- Comparar propostas.
+- Aprovar vencedor.
+- Validar que fornecedor B nao ve cotacao do fornecedor A.
+- Validar que Organizacao Y nao ve cotacao da Organizacao X.
+
+### 12.5 Percy / visual
+
+Snapshots minimos:
+
+- Dashboard comprador vazio.
+- Dashboard comprador com dados.
+- Lista de cotacoes.
+- Nova cotacao.
+- Detalhe cotacao.
+- Comparativo.
+- Portal fornecedor.
+- Responder cotacao.
+- HUB fornecedor.
+- Estados de erro e loading.
+
+---
+
+## 13. Criterios de Aceite do MVP
+
+O MVP do BID Frete esta pronto quando:
+
+- Comprador cria cotacao.
+- Comprador cadastra fornecedor.
+- Comprador dispara solicitacao para fornecedor.
+- Fornecedor responde por token publico.
+- Fornecedor responde autenticado.
+- Comprador compara propostas.
+- Comprador aprova vencedor.
+- Sistema calcula economia.
+- Comprador nao ve dados de outra Organizacao/Workspace.
+- Fornecedor nao ve cotacoes de outro fornecedor.
+- Contratos front/back estao validados por Zod.
+- Unitarios e funcionais passam.
+- Plano E2E aprovado pelo dono.
+- QA nao encontra violacao dos 9 Mandamentos.
+
+---
+
+## 14. Definition of Done
+
+Nenhuma entrega sera considerada pronta sem:
+
+- TypeScript strict.
+- Sem `any` explicito.
+- Sem `@ts-ignore`.
+- Sem `PrismaClient` direto em produto.
+- Sem autorizacao via Clerk `publicMetadata`.
+- Sem `fetch().json()` sem Zod.
+- Rotas com validacao Zod.
+- Erros via `AppError`.
+- Acesso ao banco via tenant resolver.
+- Testes unitarios.
+- Testes funcionais.
+- Teste anti-cross-organizacao.
+- Teste anti-cross-fornecedor.
+- Documentacao atualizada.
+- QA acionado apos entrega.
+
+---
+
+## 15. Riscos Principais
+
+| Risco | Severidade | Mitigacao |
+|---|---|---|
+| Fornecedor ver cotacao de outro fornecedor | Critica | Query sempre por solicitacao destinada ao fornecedor. |
+| Organizacao ver cotacao de outra Organizacao | Critica | Schema-per-organizacao + tenant resolver + testes anti-cross. |
+| Workspace acessar cotacao de outro workspace | Alta | Permissao granular por workspace. |
+| Token publico reutilizado | Alta | Status, expiracao e uso unico. |
+| Rating global vazar detalhes | Alta | Apenas metricas agregadas, sem payload de cotacoes. |
+| Front/back divergirem | Alta | Zod e contract tests. |
+| Servicos secundarios bloquearem MVP | Media | Fire-and-forget, feature flags e degradacao controlada. |
+| Refatoracao conflitar com trabalho paralelo | Alta | Aguardar, branch propria e validar git antes de iniciar. |
+
+---
+
+## 16. Perguntas Ainda Abertas
+
+- Nome final da categoria da Organizacao: manter `categoria_organizacao` ou usar outro nome DDD aprovado?
+- Organizacao com `categoria_organizacao = SUPPLIER` pode contratar produtos como compradora futuramente ou precisa virar `MIXED`?
+- Quais permissoes granulares exatas do BID Frete no Configurador?
+- Monetizacao entra no MVP ou permanece desligada?
+- Rating global sera visivel para compradores em quais detalhes?
+- Tabela de precos do fornecedor pertence a Organizacao propria do fornecedor ou e replicada por comprador?
+- Portal publico pode permitir anexos ou apenas campos estruturados?
+
+---
+
+## 17. Proxima Acao Recomendada
+
+Enquanto a refatoracao principal segue em paralelo, manter este documento como base de alinhamento.
+
+Quando liberado:
+
+1. Criar branch `bid-frete-ddd`.
+2. Revalidar estado atual do BID Frete.
+3. Confirmar decisoes abertas com o dono.
+4. Executar Onda 1.
+5. So iniciar Onda 3 depois de Configurador/HUB fornecedor estarem definidos.
+
+---
+
+## 18. Referencias
+
+- `skills/governanca/9-mandamentos/SKILL.md`
+- `skills/governanca/agent-policy/SKILL.md`
+- `skills/governanca/code-standards/SKILL.md`
+- `skills/governanca/lei/ddd-nomenclatura/SKILL.md`
+- `skills/seguranca/permissoes/SKILL.md`
+- `skills/produtos-gravity/configurador/SKILL.md`
+- `skills/governanca/lei/isolamento-organizacao/SKILL.md`
+- `skills/testes/padroes-vitest-playwright/SKILL.md`
+- `skills/papeis/qa/SKILL.md`
+- `skills/papeis/coordenador/SKILL.md`
+- `skills/papeis/lider/SKILL.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/ARQUITETURA.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/bid-frete.md`
+
+--- documentos-tecnicos/produtos-gravity/bid-frete/bid-frete-overview.md ---
+# BID Frete — Documentacao Tecnica
+
+> Plataforma de cotacao de fretes internacionais que conecta importadores/exportadores a fornecedores logisticos.
+
+**Produto:** BID Frete
+**Porta:** 8023
+**Diretorio:** `produto/bid-frete/`
+**Stack:** React 18 + Vite (client) | Express + Prisma + Zod (server)
+**Onda:** 3
+
+---
+
+## Indice
+
+1. [Visao Geral](#visao-geral)
+2. [Arquitetura](#arquitetura)
+3. [Modelos de Dados](#modelos-de-dados)
+4. [Endpoints da API](#endpoints-da-api)
+5. [Fluxos de Negocio](#fluxos-de-negocio)
+6. [Engines e Servicos](#engines-e-servicos)
+7. [Integracoes](#integracoes)
+8. [Portal do Fornecedor](#portal-do-fornecedor)
+9. [Monetizacao](#monetizacao)
+10. [Configuracao e Deploy](#configuracao-e-deploy)
+11. [Testes](#testes)
+
+---
+
+## 1. Visao Geral
+
+BID Frete permite que empresas criem solicitacoes de cotacao de frete (RFQs), disparem BIDs para fornecedores via email/WhatsApp/portal, recebam respostas, comparem propostas em ranking automatico e aprovem o vencedor com calculo automatico de savings.
+
+### Funcionalidades principais
+
+- **Wizard de 7 etapas** para criacao de cotacoes
+- **Disparo multicanal** (email, WhatsApp, API, portal)
+- **Resposta publica** via token (sem login)
+- **Auto-response** via tabela de precos do fornecedor
+- **Comparativo** com ranking por preco, transit time e rating
+- **Aprovacao 2-click** com calculo de savings
+- **Portal do fornecedor** (dashboard, respostas, desempenho)
+- **Rating cross-tenant** (40% automatico + 60% manual)
+- **Monetizacao** (free tier 10 cotacoes + USD 5.00/cotacao)
+- **Importacao em bloco** (CSV/Excel)
+
+---
+
+## 2. Arquitetura
+
+```
+produto/bid-frete/
+├── client/
+│   └── src/
+│       ├── pages/           # 16 paginas (9 buyer + 7 portal)
+│       ├── shared/          # types.ts, api.ts, config.ts
+│       ├── App.tsx          # Rotas React Router
+│       └── main.tsx         # Entry point Vite
+├── server/
+│   └── src/
+│       ├── routes/          # 9 modulos de rotas
+│       ├── services/        # 7 engines de negocio
+│       ├── connectors/      # 4 conectores externos
+│       ├── middleware/       # requireInternalKey, tenantIsolation
+│       ├── lib/             # errors.ts, prisma.ts
+│       └── index.ts         # Express (porta 8023)
+└── prisma/
+    ├── fragment.prisma      # Modelos do produto
+    ├── schema.base.prisma   # Config base
+    └── seed-*.ts            # Seeds de dados
+```
+
+### Stack de middleware (ordem no Express)
+
+1. Body parser (10MB limit)
+2. CORS (localhost:5175, localhost:8003, CLIENT_URL)
+3. Static files (client build)
+4. Health check (`GET /health`)
+5. Master data routes (publico)
+6. Portal public routes (publico via token)
+7. `requireInternalKey` — validacao x-internal-key
+8. `tenantIsolation` — injeta tenant context no req
+9. Rotas protegidas (cotacoes, fornecedores, bids, comparativo, portal, avaliacoes, dashboard)
+10. SPA fallback
+11. Global error handler
+
+---
+
+## 3. Modelos de Dados
+
+### Tabelas principais
+
+| Model | Tabela | Descricao |
+|:---|:---|:---|
+| Cotacao | `bid_cotacoes` | Solicitacao de cotacao de frete |
+| Fornecedor | `bid_fornecedores` | Cadastro de fornecedores logisticos |
+| BidRequest | `bid_requests` | Registro de disparo para cada fornecedor |
+| BidResponse | `bid_responses` | Resposta do fornecedor a uma cotacao |
+| TabelaPreco | `bid_tabelas_preco` | Tabela de precos padrao do fornecedor |
+| DetalheTaxa | `bid_detalhe_taxas` | Breakdown de taxas por tipo |
+| Avaliacao | `bid_avaliacoes` | Avaliacao manual (1-5) por criterio |
+| RatingFornecedor | `bid_rating_fornecedor_global` | Rating consolidado cross-tenant |
+| Saving | `bid_savings` | Calculo de economia por cotacao |
+| ConnectorConfig | `bid_connector_configs` | Config de conectores ERP/API |
+| Porto | `bid_portos` | Cache de portos/aeroportos (UN/LOCODE) |
+
+### Enums
+
+| Enum | Valores |
+|:---|:---|
+| TipoOperacao | IMPORTACAO, EXPORTACAO |
+| ModalFrete | MARITIMO, AEREO, RODOVIARIO |
+| ModalidadeCarga | FCL, LCL, AEREO_GERAL, RODOVIARIO_FTL, RODOVIARIO_LTL |
+| StatusCotacao | RASCUNHO, ENVIADA_FORNECEDORES, EM_COTACAO, AGUARDANDO_APROVACAO, APROVADA, REPROVADA, CANCELADA, FALTA_INFORMACAO, EXPIRADA |
+| TipoFornecedor | AGENTE_CARGA, ARMADOR, CIA_AEREA, TRANSPORTADORA |
+| CanalDisparo | EMAIL, WHATSAPP, API, PORTAL |
+
+### Multi-tenant
+
+- Todo model tem `tenant_id String` obrigatorio
+- Indices: `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])`
+- `RatingFornecedor` e a unica tabela cross-tenant (chave: email do fornecedor)
+
+---
+
+## 4. Endpoints da API
+
+### Rotas publicas (sem autenticacao)
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/health` | Health check com status do DB |
+| GET | `/api/v1/master-data/portos` | Busca de portos/aeroportos |
+| GET | `/api/v1/master-data/incoterms` | 11 incoterms (EXW a DDP) |
+| GET | `/api/v1/master-data/modais` | Modais com modalidades |
+| GET | `/api/v1/master-data/moedas` | Moedas (USD, BRL, EUR, CNY) |
+| GET | `/api/v1/master-data/paises` | Lista de paises |
+| GET | `/api/v1/master-data/containers` | Tipos de container |
+| GET | `/api/v1/bid-frete/portal/public/cotacao/:token` | Ver cotacao via link publico |
+| POST | `/api/v1/bid-frete/portal/public/responder/:token` | Responder cotacao via token |
+
+### Rotas protegidas (x-internal-key + tenant isolation)
+
+#### Cotacoes
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/cotacoes` | Criar cotacao |
+| POST | `/api/v1/bid-frete/cotacoes/bloco` | Importar em bloco |
+| GET | `/api/v1/bid-frete/cotacoes` | Listar com filtros (status, modal, datas) |
+| GET | `/api/v1/bid-frete/cotacoes/:id` | Detalhe |
+| PUT | `/api/v1/bid-frete/cotacoes/:id` | Atualizar |
+| PATCH | `/api/v1/bid-frete/cotacoes/:id/status` | Mudar status |
+| DELETE | `/api/v1/bid-frete/cotacoes/:id` | Deletar (somente RASCUNHO) |
+
+#### Fornecedores
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/fornecedores` | Cadastrar fornecedor |
+| GET | `/api/v1/bid-frete/fornecedores` | Listar com filtros |
+| GET | `/api/v1/bid-frete/fornecedores/:id` | Detalhe + rating |
+| PUT | `/api/v1/bid-frete/fornecedores/:id` | Atualizar |
+| PATCH | `/api/v1/bid-frete/fornecedores/:id/status` | Mudar status (ATIVO/INATIVO/BLOQUEADO) |
+| DELETE | `/api/v1/bid-frete/fornecedores/:id` | Remover |
+| POST | `/api/v1/bid-frete/fornecedores/:id/tabela-preco` | Adicionar rota de preco |
+| GET | `/api/v1/bid-frete/fornecedores/:id/tabela-preco` | Listar tabela |
+| PUT | `/api/v1/bid-frete/fornecedores/:id/tabela-preco/:tpId` | Atualizar rota |
+| DELETE | `/api/v1/bid-frete/fornecedores/:id/tabela-preco/:tpId` | Remover rota |
+
+#### BIDs (Disparo)
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/bids/disparar` | Disparar para fornecedores selecionados |
+| POST | `/api/v1/bid-frete/bids/cotacao-aberta` | Disparar para todos os ativos |
+| GET | `/api/v1/bid-frete/bids/cotacao/:id` | BidRequests de uma cotacao |
+
+#### Comparativo
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/comparativo/:cotacaoId` | Ranking com savings |
+| POST | `/api/v1/bid-frete/comparativo/:cotacaoId/aprovar` | Aprovar resposta (2-click) |
+| POST | `/api/v1/bid-frete/comparativo/:cotacaoId/reprovar` | Reprovar com motivo |
+
+#### Portal Autenticado
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/portal/dashboard` | Overview do fornecedor |
+| GET | `/api/v1/bid-frete/portal/cotacoes-pendentes` | Cotacoes pendentes |
+| GET | `/api/v1/bid-frete/portal/minhas-respostas` | Historico de respostas |
+| POST | `/api/v1/bid-frete/portal/responder/:bidRequestId` | Responder (autenticado) |
+| GET | `/api/v1/bid-frete/portal/meu-desempenho` | Metricas do fornecedor |
+| GET | `/api/v1/bid-frete/portal/tabela-precos` | Tabelas de preco |
+
+#### Avaliacoes
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/avaliacoes` | Criar avaliacao (1-5 por criterio) |
+| GET | `/api/v1/bid-frete/avaliacoes/fornecedor/:id` | Rating do fornecedor |
+| GET | `/api/v1/bid-frete/avaliacoes/ranking` | Ranking global |
+
+#### Dashboard
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/dashboard` | KPIs consolidados |
+| GET | `/api/v1/bid-frete/dashboard/calendario` | Calendario de alertas |
+
+---
+
+## 5. Fluxos de Negocio
+
+### 5.1 Ciclo de vida da cotacao
+
+```
+RASCUNHO ──disparar BID──> ENVIADA_FORNECEDORES ──resposta recebida──> EM_COTACAO
+                                                                           │
+                           ┌──────────────────────────────────────────────┘
+                           │
+                    AGUARDANDO_APROVACAO
+                           │
+               ┌───────────┼───────────┐
+               ▼           ▼           ▼
+           APROVADA    REPROVADA   CANCELADA
+                                       ▲
+                                       │
+                                   EXPIRADA (cron)
+```
+
+**Status terminal:** APROVADA, REPROVADA, CANCELADA, EXPIRADA
+
+### 5.2 Fluxo de disparo de BID
+
+1. Usuario seleciona fornecedores (ou "cotacao aberta" = todos ativos)
+2. Para cada fornecedor, sistema cria `BidRequest`
+3. Verifica se fornecedor tem `TabelaPreco` que faz match (origem, destino, modal, modalidade, datas)
+4. Se match: gera `BidResponse` automatica, marca BidRequest como RESPONDIDO
+5. Se nao: envia notificacao via canal escolhido (EMAIL, WHATSAPP)
+6. Gera token publico com validade de 7 dias
+7. Cotacao muda para ENVIADA_FORNECEDORES
+
+### 5.3 Fluxo de aprovacao (2-click)
+
+1. Usuario visualiza comparativo (ranking automatico)
+2. Clica "Aprovar" na resposta desejada → modal de confirmacao
+3. Confirma → sistema executa:
+   - `BidResponse.status = APROVADA`
+   - `Cotacao.status = APROVADA`
+   - `Cotacao.fornecedor_vencedor_id = fornecedor_id`
+   - Calcula e registra `Saving`
+   - Chama `monetizacao.registrarCobranca()`
+   - Chama `ratingEngine.recalcular()`
+
+### 5.4 Calculo de savings
+
+```
+Se target existe:
+  saving = target - melhor_preco
+  percentual = (saving / target) * 100
+
+Se target nao existe:
+  media = soma(respostas) / total
+  saving = media - melhor_preco
+  percentual = (saving / media) * 100
+```
+
+---
+
+## 6. Engines e Servicos
+
+### bidEngine.ts
+- `disparar(cotacao_id, fornecedor_ids, canal)` — Orquestra o disparo completo
+- `verificarTabelaPadrao(fornecedor, cotacao)` — Match com tabela de precos
+- `gerarRespostaAutomatica(bidRequest, tabela)` — Cria BidResponse automatica
+
+### comparativoEngine.ts
+- `ranquear(cotacao_id)` — Gera ranking com tags (MELHOR_PRECO, MELHOR_TRANSIT, MELHOR_AVALIACAO)
+- `aprovar(cotacao_id, response_id)` — Aprovacao com saving + monetizacao
+- `reprovar(cotacao_id, motivo)` — Reprovacao com motivo registrado
+
+### ratingEngine.ts
+- `recalcular(fornecedor_email)` — Rating cross-tenant
+  - **40% automatico:** taxa de resposta, taxa de aprovacao, tempo medio de resposta
+  - **60% manual:** frete, atendimento, resposta, confiabilidade (media das avaliacoes)
+
+### monetizacao.ts
+- `registrarCobranca(fornecedor_id, cotacao_id)` — Verifica free tier e registra
+  - Free tier: 10 primeiras cotacoes aprovadas = ISENTA
+  - Apos: USD 5.00 por cotacao = PENDENTE
+- `resumoFornecedor(fornecedor_id)` — Total cobrado, restante no free tier
+
+### savingsEngine.ts
+- `calcularMetricas(tenant_id, filtros)` — Agregacoes: total aprovado, savings total, media percentual
+
+### cronJobs.ts
+- Expiracao automatica de cotacoes sem resposta apos prazo
+- Recalculo periodico de ratings
+
+### tenantIntegrations.ts (fire-and-forget)
+- Notifica servicos tenant: Atividades, Historico, Notificacoes, GABI
+
+---
+
+## 7. Integracoes
+
+### Servicos internos (fire-and-forget via REST)
+
+| Servico | URL Padrao | Quando |
+|:---|:---|:---|
+| Atividades | http://localhost:3001 | Log de eventos da cotacao |
+| Historico | http://localhost:3001 | Audit trail imutavel |
+| Notificacoes | http://localhost:3001 | Alertas ao usuario |
+| GABI | interno | Alertas de procurement |
+
+### Servicos externos
+
+| Servico | Uso |
+|:---|:---|
+| Email (Resend) | Disparo de BID por email |
+| WhatsApp (Meta Cloud API) | Disparo de BID por WhatsApp |
+
+### Conectores ERP (`connectors/`)
+
+| Conector | Arquivo | Protocolos |
+|:---|:---|:---|
+| ERP/SAP | `erp.ts` | OData, REST, HANA |
+| Agentes de carga | `agentes.ts` | API REST |
+| Armadores | `armadores.ts` | API REST |
+| Cias aereas | `ciasAereas.ts` | API REST |
+
+---
+
+## 8. Portal do Fornecedor
+
+Duas modalidades de acesso:
+
+### Portal publico (sem login)
+- Acesso via token gerado no disparo (`/api/v1/bid-frete/portal/public/cotacao/:token`)
+- Permite visualizar dados da cotacao e enviar resposta
+- Token expira em 7 dias
+- Submissao unica (idempotente)
+
+### Portal autenticado (com login Gravity)
+- Dashboard com KPIs (pendentes, respondidas, aprovadas)
+- Lista de cotacoes pendentes
+- Historico de respostas
+- Gestao de tabelas de preco
+- Metricas de desempenho (taxa resposta, taxa aprovacao, tempo medio)
+
+### Paginas do portal
+
+| Pagina | Arquivo | Funcao |
+|:---|:---|:---|
+| Dashboard | `PortalDashboard.tsx` | Overview com KPIs |
+| Pendentes | `CotacoesPendentes.tsx` | Cotacoes aguardando resposta |
+| Respostas | `MinhasRespostas.tsx` | Historico de respostas enviadas |
+| Tabela Precos | `TabelaPrecos.tsx` | Gestao de rotas e precos |
+| Desempenho | `MeuDesempenho.tsx` | Metricas e avaliacao |
+| Responder (auth) | `ResponderCotacao.tsx` | Form de resposta autenticada |
+| Responder (pub) | `ResponderPublico.tsx` | Form de resposta via token |
+
+---
+
+## 9. Monetizacao
+
+### Modelo de cobranca
+
+```
+Cotacoes aprovadas 1-10:   ISENTA (free tier)
+Cotacoes aprovadas 11+:    USD 5.00 por cotacao (status PENDENTE)
+```
+
+### Campos da cobranca
+
+| Campo | Tipo | Descricao |
+|:---|:---|:---|
+| fornecedor_id | String | Fornecedor cobrado |
+| cotacao_id | String | Cotacao que gerou a cobranca |
+| valor | Decimal | 0.00 (isenta) ou 5.00 |
+| moeda | String | USD |
+| status | Enum | ISENTA ou PENDENTE |
+
+---
+
+## 10. Configuracao e Deploy
+
+### Variaveis de ambiente
+
+| Variavel | Obrigatoria | Descricao |
+|:---|:---|:---|
+| DATABASE_URL | Sim | URL do PostgreSQL |
+| INTERNAL_SERVICE_KEY | Sim | Chave de autenticacao inter-servico |
+| PORT | Nao | Porta do servidor (default: 8023) |
+| NODE_ENV | Nao | Ambiente (development, production) |
+| APP_URL | Sim | URL base da aplicacao |
+| CLIENT_URL | Sim | URL do frontend |
+| EMAIL_SERVICE_URL | Sim | URL do servico de email |
+| WHATSAPP_SERVICE_URL | Sim | URL do servico WhatsApp |
+| ATIVIDADES_SERVICE_URL | Sim | URL do servico de atividades |
+| HISTORICO_SERVICE_URL | Sim | URL do servico de historico |
+| NOTIFICACOES_SERVICE_URL | Sim | URL do servico de notificacoes |
+
+### Scripts
+
+```bash
+# Desenvolvimento
+npm run dev:client     # Vite dev server (porta 5175)
+npm run dev:server     # Express com tsx watch (porta 8023)
+
+# Build
+npm run build          # Build client + server
+
+# Testes
+npm run test           # Vitest
+npm run test:watch     # Vitest watch mode
+
+# Prisma
+npx prisma generate    # Gerar client
+npx prisma migrate dev # Migrar DB
+```
+
+### CORS
+
+Origens permitidas: `localhost:5175` (client dev), `localhost:8003` (configurador), `CLIENT_URL`
+
+---
+
+## 11. Testes
+
+### Estrutura
+
+```
+testes/
+├── testes-unitarios/bid-frete/
+│   ├── bidEngine.test.ts         # Engine de disparo
+│   ├── comparativoEngine.test.ts # Ranking e aprovacao
+│   ├── connectors.test.ts        # Validacao ERP
+│   ├── monetizacao.test.ts       # Free tier e cobranca
+│   └── savingsEngine.test.ts     # Calculo de economia
+├── testes-funcionais/bid-frete/
+│   ├── bloco.test.ts             # Importacao em bloco
+│   ├── cotacoes.test.ts          # CRUD de cotacoes
+│   ├── fornecedores.test.ts      # CRUD de fornecedores
+│   └── masterData.test.ts        # Dados mestres
+└── testes-e2e/bid-frete/
+    ├── helpers.ts                # Utilidades compartilhadas
+    ├── cotacoes-crud.spec.ts     # Cat 1 + 6 (CRUD, modais)
+    ├── filtros-busca.spec.ts     # Cat 2 + 9 (filtros, visualizacoes)
+    ├── fornecedores.spec.ts      # Cat 1 + 3 (CRUD, selects)
+    ├── fluxo-completo.spec.ts    # Cat 11 (fluxos de dominio)
+    ├── navegacao-estados.spec.ts # Cat 5 + 7 + 8 + 4 (navegacao, estados, massa, import)
+    └── regressao.spec.ts         # Regressao (tenant isolation, seguranca, validacao)
+```
+
+### Cobertura
+
+| Tipo | Suites | Cobertura |
+|:---|:---|:---|
+| Unitarios | 5 suites | Engines, monetizacao, savings, connectors |
+| Funcionais | 4 suites | Todas as rotas CRUD + master data |
+| E2E | 6 specs | 11 categorias obrigatorias + regressao |
+
+### Testes de regressao criticos
+
+| ID | O que valida |
+|:---|:---|
+| REG-01/02/03 | Tenant isolation (cotacoes e fornecedores) |
+| REG-04/05/06 | Autenticacao (x-internal-key, tenant_id) |
+| REG-07/08 | Validacao Zod (payloads invalidos) |
+| REG-09/10 | Integridade (transicao de status, delete nao-rascunho) |
+| REG-11 | Monetizacao (free tier de 10 cotacoes) |
+| REG-12/13/14 | Master data e health check |
+
+--- documentos-tecnicos/produtos-gravity/bid-frete/bid-frete.md ---
+# BID Frete — Documentacao Tecnica
+
+> Plataforma de cotacao de fretes internacionais que conecta importadores/exportadores a fornecedores logisticos.
+
+**Produto:** BID Frete
+**Porta:** 8023
+**Diretorio:** `produto/bid-frete/`
+**Stack:** React 18 + Vite (client) | Express + Prisma + Zod (server)
+**Onda:** 3
+
+---
+
+## Indice
+
+1. [Visao Geral](#visao-geral)
+2. [Arquitetura](#arquitetura)
+3. [Modelos de Dados](#modelos-de-dados)
+4. [Endpoints da API](#endpoints-da-api)
+5. [Fluxos de Negocio](#fluxos-de-negocio)
+6. [Engines e Servicos](#engines-e-servicos)
+7. [Integracoes](#integracoes)
+8. [Portal do Fornecedor](#portal-do-fornecedor)
+9. [Monetizacao](#monetizacao)
+10. [Configuracao e Deploy](#configuracao-e-deploy)
+11. [Testes](#testes)
+
+---
+
+## 1. Visao Geral
+
+BID Frete permite que empresas criem solicitacoes de cotacao de frete (RFQs), disparem BIDs para fornecedores via email/WhatsApp/portal, recebam respostas, comparem propostas em ranking automatico e aprovem o vencedor com calculo automatico de savings.
+
+### Funcionalidades principais
+
+- **Wizard de 7 etapas** para criacao de cotacoes
+- **Disparo multicanal** (email, WhatsApp, API, portal)
+- **Resposta publica** via token (sem login)
+- **Auto-response** via tabela de precos do fornecedor
+- **Comparativo** com ranking por preco, transit time e rating
+- **Aprovacao 2-click** com calculo de savings
+- **Portal do fornecedor** (dashboard, respostas, desempenho)
+- **Rating cross-tenant** (40% automatico + 60% manual)
+- **Monetizacao** (free tier 10 cotacoes + USD 5.00/cotacao)
+- **Importacao em bloco** (CSV/Excel)
+
+---
+
+## 2. Arquitetura
+
+```
+produto/bid-frete/
+├── client/
+│   └── src/
+│       ├── pages/           # 16 paginas (9 buyer + 7 portal)
+│       ├── shared/          # types.ts, api.ts, config.ts
+│       ├── App.tsx          # Rotas React Router
+│       └── main.tsx         # Entry point Vite
+├── server/
+│   └── src/
+│       ├── routes/          # 9 modulos de rotas
+│       ├── services/        # 7 engines de negocio
+│       ├── connectors/      # 4 conectores externos
+│       ├── middleware/       # requireInternalKey, tenantIsolation
+│       ├── lib/             # errors.ts, prisma.ts
+│       └── index.ts         # Express (porta 8023)
+└── prisma/
+    ├── fragment.prisma      # Modelos do produto
+    ├── schema.base.prisma   # Config base
+    └── seed-*.ts            # Seeds de dados
+```
+
+### Stack de middleware (ordem no Express)
+
+1. Body parser (10MB limit)
+2. CORS (localhost:5175, localhost:8003, CLIENT_URL)
+3. Static files (client build)
+4. Health check (`GET /health`)
+5. Master data routes (publico)
+6. Portal public routes (publico via token)
+7. `requireInternalKey` — validacao x-internal-key
+8. `tenantIsolation` — injeta tenant context no req
+9. Rotas protegidas (cotacoes, fornecedores, bids, comparativo, portal, avaliacoes, dashboard)
+10. SPA fallback
+11. Global error handler
+
+---
+
+## 3. Modelos de Dados
+
+### Tabelas principais
+
+| Model | Tabela | Descricao |
+|:---|:---|:---|
+| Cotacao | `bid_cotacoes` | Solicitacao de cotacao de frete |
+| Fornecedor | `bid_fornecedores` | Cadastro de fornecedores logisticos |
+| BidRequest | `bid_requests` | Registro de disparo para cada fornecedor |
+| BidResponse | `bid_responses` | Resposta do fornecedor a uma cotacao |
+| TabelaPreco | `bid_tabelas_preco` | Tabela de precos padrao do fornecedor |
+| DetalheTaxa | `bid_detalhe_taxas` | Breakdown de taxas por tipo |
+| Avaliacao | `bid_avaliacoes` | Avaliacao manual (1-5) por criterio |
+| RatingFornecedor | `bid_rating_fornecedor_global` | Rating consolidado cross-tenant |
+| Saving | `bid_savings` | Calculo de economia por cotacao |
+| ConnectorConfig | `bid_connector_configs` | Config de conectores ERP/API |
+| Porto | `bid_portos` | Cache de portos/aeroportos (UN/LOCODE) |
+
+### Enums
+
+| Enum | Valores |
+|:---|:---|
+| TipoOperacao | IMPORTACAO, EXPORTACAO |
+| ModalFrete | MARITIMO, AEREO, RODOVIARIO |
+| ModalidadeCarga | FCL, LCL, AEREO_GERAL, RODOVIARIO_FTL, RODOVIARIO_LTL |
+| StatusCotacao | RASCUNHO, ENVIADA_FORNECEDORES, EM_COTACAO, AGUARDANDO_APROVACAO, APROVADA, REPROVADA, CANCELADA, FALTA_INFORMACAO, EXPIRADA |
+| TipoFornecedor | AGENTE_CARGA, ARMADOR, CIA_AEREA, TRANSPORTADORA |
+| CanalDisparo | EMAIL, WHATSAPP, API, PORTAL |
+
+### Multi-tenant
+
+- Todo model tem `tenant_id String` obrigatorio
+- Indices: `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])`
+- `RatingFornecedor` e a unica tabela cross-tenant (chave: email do fornecedor)
+
+---
+
+## 4. Endpoints da API
+
+### Rotas publicas (sem autenticacao)
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/health` | Health check com status do DB |
+| GET | `/api/v1/master-data/portos` | Busca de portos/aeroportos |
+| GET | `/api/v1/master-data/incoterms` | 11 incoterms (EXW a DDP) |
+| GET | `/api/v1/master-data/modais` | Modais com modalidades |
+| GET | `/api/v1/master-data/moedas` | Moedas (USD, BRL, EUR, CNY) |
+| GET | `/api/v1/master-data/paises` | Lista de paises |
+| GET | `/api/v1/master-data/containers` | Tipos de container |
+| GET | `/api/v1/bid-frete/portal/public/cotacao/:token` | Ver cotacao via link publico |
+| POST | `/api/v1/bid-frete/portal/public/responder/:token` | Responder cotacao via token |
+
+### Rotas protegidas (x-internal-key + tenant isolation)
+
+#### Cotacoes
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/cotacoes` | Criar cotacao |
+| POST | `/api/v1/bid-frete/cotacoes/bloco` | Importar em bloco |
+| GET | `/api/v1/bid-frete/cotacoes` | Listar com filtros (status, modal, datas) |
+| GET | `/api/v1/bid-frete/cotacoes/:id` | Detalhe |
+| PUT | `/api/v1/bid-frete/cotacoes/:id` | Atualizar |
+| PATCH | `/api/v1/bid-frete/cotacoes/:id/status` | Mudar status |
+| DELETE | `/api/v1/bid-frete/cotacoes/:id` | Deletar (somente RASCUNHO) |
+
+#### Fornecedores
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/fornecedores` | Cadastrar fornecedor |
+| GET | `/api/v1/bid-frete/fornecedores` | Listar com filtros |
+| GET | `/api/v1/bid-frete/fornecedores/:id` | Detalhe + rating |
+| PUT | `/api/v1/bid-frete/fornecedores/:id` | Atualizar |
+| PATCH | `/api/v1/bid-frete/fornecedores/:id/status` | Mudar status (ATIVO/INATIVO/BLOQUEADO) |
+| DELETE | `/api/v1/bid-frete/fornecedores/:id` | Remover |
+| POST | `/api/v1/bid-frete/fornecedores/:id/tabela-preco` | Adicionar rota de preco |
+| GET | `/api/v1/bid-frete/fornecedores/:id/tabela-preco` | Listar tabela |
+| PUT | `/api/v1/bid-frete/fornecedores/:id/tabela-preco/:tpId` | Atualizar rota |
+| DELETE | `/api/v1/bid-frete/fornecedores/:id/tabela-preco/:tpId` | Remover rota |
+
+#### BIDs (Disparo)
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/bids/disparar` | Disparar para fornecedores selecionados |
+| POST | `/api/v1/bid-frete/bids/cotacao-aberta` | Disparar para todos os ativos |
+| GET | `/api/v1/bid-frete/bids/cotacao/:id` | BidRequests de uma cotacao |
+
+#### Comparativo
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/comparativo/:cotacaoId` | Ranking com savings |
+| POST | `/api/v1/bid-frete/comparativo/:cotacaoId/aprovar` | Aprovar resposta (2-click) |
+| POST | `/api/v1/bid-frete/comparativo/:cotacaoId/reprovar` | Reprovar com motivo |
+
+#### Portal Autenticado
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/portal/dashboard` | Overview do fornecedor |
+| GET | `/api/v1/bid-frete/portal/cotacoes-pendentes` | Cotacoes pendentes |
+| GET | `/api/v1/bid-frete/portal/minhas-respostas` | Historico de respostas |
+| POST | `/api/v1/bid-frete/portal/responder/:bidRequestId` | Responder (autenticado) |
+| GET | `/api/v1/bid-frete/portal/meu-desempenho` | Metricas do fornecedor |
+| GET | `/api/v1/bid-frete/portal/tabela-precos` | Tabelas de preco |
+
+#### Avaliacoes
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| POST | `/api/v1/bid-frete/avaliacoes` | Criar avaliacao (1-5 por criterio) |
+| GET | `/api/v1/bid-frete/avaliacoes/fornecedor/:id` | Rating do fornecedor |
+| GET | `/api/v1/bid-frete/avaliacoes/ranking` | Ranking global |
+
+#### Dashboard
+
+| Metodo | Rota | Descricao |
+|:---|:---|:---|
+| GET | `/api/v1/bid-frete/dashboard` | KPIs consolidados |
+| GET | `/api/v1/bid-frete/dashboard/calendario` | Calendario de alertas |
+
+---
+
+## 5. Fluxos de Negocio
+
+### 5.1 Ciclo de vida da cotacao
+
+```
+RASCUNHO ──disparar BID──> ENVIADA_FORNECEDORES ──resposta recebida──> EM_COTACAO
+                                                                           │
+                           ┌──────────────────────────────────────────────┘
+                           │
+                    AGUARDANDO_APROVACAO
+                           │
+               ┌───────────┼───────────┐
+               ▼           ▼           ▼
+           APROVADA    REPROVADA   CANCELADA
+                                       ▲
+                                       │
+                                   EXPIRADA (cron)
+```
+
+**Status terminal:** APROVADA, REPROVADA, CANCELADA, EXPIRADA
+
+### 5.2 Fluxo de disparo de BID
+
+1. Usuario seleciona fornecedores (ou "cotacao aberta" = todos ativos)
+2. Para cada fornecedor, sistema cria `BidRequest`
+3. Verifica se fornecedor tem `TabelaPreco` que faz match (origem, destino, modal, modalidade, datas)
+4. Se match: gera `BidResponse` automatica, marca BidRequest como RESPONDIDO
+5. Se nao: envia notificacao via canal escolhido (EMAIL, WHATSAPP)
+6. Gera token publico com validade de 7 dias
+7. Cotacao muda para ENVIADA_FORNECEDORES
+
+### 5.3 Fluxo de aprovacao (2-click)
+
+1. Usuario visualiza comparativo (ranking automatico)
+2. Clica "Aprovar" na resposta desejada → modal de confirmacao
+3. Confirma → sistema executa:
+   - `BidResponse.status = APROVADA`
+   - `Cotacao.status = APROVADA`
+   - `Cotacao.fornecedor_vencedor_id = fornecedor_id`
+   - Calcula e registra `Saving`
+   - Chama `monetizacao.registrarCobranca()`
+   - Chama `ratingEngine.recalcular()`
+
+### 5.4 Calculo de savings
+
+```
+Se target existe:
+  saving = target - melhor_preco
+  percentual = (saving / target) * 100
+
+Se target nao existe:
+  media = soma(respostas) / total
+  saving = media - melhor_preco
+  percentual = (saving / media) * 100
+```
+
+---
+
+## 6. Engines e Servicos
+
+### bidEngine.ts
+- `disparar(cotacao_id, fornecedor_ids, canal)` — Orquestra o disparo completo
+- `verificarTabelaPadrao(fornecedor, cotacao)` — Match com tabela de precos
+- `gerarRespostaAutomatica(bidRequest, tabela)` — Cria BidResponse automatica
+
+### comparativoEngine.ts
+- `ranquear(cotacao_id)` — Gera ranking com tags (MELHOR_PRECO, MELHOR_TRANSIT, MELHOR_AVALIACAO)
+- `aprovar(cotacao_id, response_id)` — Aprovacao com saving + monetizacao
+- `reprovar(cotacao_id, motivo)` — Reprovacao com motivo registrado
+
+### ratingEngine.ts
+- `recalcular(fornecedor_email)` — Rating cross-tenant
+  - **40% automatico:** taxa de resposta, taxa de aprovacao, tempo medio de resposta
+  - **60% manual:** frete, atendimento, resposta, confiabilidade (media das avaliacoes)
+
+### monetizacao.ts
+- `registrarCobranca(fornecedor_id, cotacao_id)` — Verifica free tier e registra
+  - Free tier: 10 primeiras cotacoes aprovadas = ISENTA
+  - Apos: USD 5.00 por cotacao = PENDENTE
+- `resumoFornecedor(fornecedor_id)` — Total cobrado, restante no free tier
+
+### savingsEngine.ts
+- `calcularMetricas(tenant_id, filtros)` — Agregacoes: total aprovado, savings total, media percentual
+
+### cronJobs.ts
+- Expiracao automatica de cotacoes sem resposta apos prazo
+- Recalculo periodico de ratings
+
+### tenantIntegrations.ts (fire-and-forget)
+- Notifica servicos tenant: Atividades, Historico, Notificacoes, GABI
+
+---
+
+## 7. Integracoes
+
+### Servicos internos (fire-and-forget via REST)
+
+| Servico | URL Padrao | Quando |
+|:---|:---|:---|
+| Atividades | http://localhost:3001 | Log de eventos da cotacao |
+| Historico | http://localhost:3001 | Audit trail imutavel |
+| Notificacoes | http://localhost:3001 | Alertas ao usuario |
+| GABI | interno | Alertas de procurement |
+
+### Servicos externos
+
+| Servico | Uso |
+|:---|:---|
+| Email (Resend) | Disparo de BID por email |
+| WhatsApp (Meta Cloud API) | Disparo de BID por WhatsApp |
+
+### Conectores ERP (`connectors/`)
+
+| Conector | Arquivo | Protocolos |
+|:---|:---|:---|
+| ERP/SAP | `erp.ts` | OData, REST, HANA |
+| Agentes de carga | `agentes.ts` | API REST |
+| Armadores | `armadores.ts` | API REST |
+| Cias aereas | `ciasAereas.ts` | API REST |
+
+---
+
+## 8. Portal do Fornecedor
+
+Duas modalidades de acesso:
+
+### Portal publico (sem login)
+- Acesso via token gerado no disparo (`/api/v1/bid-frete/portal/public/cotacao/:token`)
+- Permite visualizar dados da cotacao e enviar resposta
+- Token expira em 7 dias
+- Submissao unica (idempotente)
+
+### Portal autenticado (com login Gravity)
+- Dashboard com KPIs (pendentes, respondidas, aprovadas)
+- Lista de cotacoes pendentes
+- Historico de respostas
+- Gestao de tabelas de preco
+- Metricas de desempenho (taxa resposta, taxa aprovacao, tempo medio)
+
+### Paginas do portal
+
+| Pagina | Arquivo | Funcao |
+|:---|:---|:---|
+| Dashboard | `PortalDashboard.tsx` | Overview com KPIs |
+| Pendentes | `CotacoesPendentes.tsx` | Cotacoes aguardando resposta |
+| Respostas | `MinhasRespostas.tsx` | Historico de respostas enviadas |
+| Tabela Precos | `TabelaPrecos.tsx` | Gestao de rotas e precos |
+| Desempenho | `MeuDesempenho.tsx` | Metricas e avaliacao |
+| Responder (auth) | `ResponderCotacao.tsx` | Form de resposta autenticada |
+| Responder (pub) | `ResponderPublico.tsx` | Form de resposta via token |
+
+---
+
+## 9. Monetizacao
+
+### Modelo de cobranca
+
+```
+Cotacoes aprovadas 1-10:   ISENTA (free tier)
+Cotacoes aprovadas 11+:    USD 5.00 por cotacao (status PENDENTE)
+```
+
+### Campos da cobranca
+
+| Campo | Tipo | Descricao |
+|:---|:---|:---|
+| fornecedor_id | String | Fornecedor cobrado |
+| cotacao_id | String | Cotacao que gerou a cobranca |
+| valor | Decimal | 0.00 (isenta) ou 5.00 |
+| moeda | String | USD |
+| status | Enum | ISENTA ou PENDENTE |
+
+---
+
+## 10. Configuracao e Deploy
+
+### Variaveis de ambiente
+
+| Variavel | Obrigatoria | Descricao |
+|:---|:---|:---|
+| DATABASE_URL | Sim | URL do PostgreSQL |
+| INTERNAL_SERVICE_KEY | Sim | Chave de autenticacao inter-servico |
+| PORT | Nao | Porta do servidor (default: 8023) |
+| NODE_ENV | Nao | Ambiente (development, production) |
+| APP_URL | Sim | URL base da aplicacao |
+| CLIENT_URL | Sim | URL do frontend |
+| EMAIL_SERVICE_URL | Sim | URL do servico de email |
+| WHATSAPP_SERVICE_URL | Sim | URL do servico WhatsApp |
+| ATIVIDADES_SERVICE_URL | Sim | URL do servico de atividades |
+| HISTORICO_SERVICE_URL | Sim | URL do servico de historico |
+| NOTIFICACOES_SERVICE_URL | Sim | URL do servico de notificacoes |
+
+### Scripts
+
+```bash
+# Desenvolvimento
+npm run dev:client     # Vite dev server (porta 5175)
+npm run dev:server     # Express com tsx watch (porta 8023)
+
+# Build
+npm run build          # Build client + server
+
+# Testes
+npm run test           # Vitest
+npm run test:watch     # Vitest watch mode
+
+# Prisma
+npx prisma generate    # Gerar client
+npx prisma migrate dev # Migrar DB
+```
+
+### CORS
+
+Origens permitidas: `localhost:5175` (client dev), `localhost:8003` (configurador), `CLIENT_URL`
+
+---
+
+## 11. Testes
+
+### Estrutura
+
+```
+testes/
+├── testes-unitarios/bid-frete/
+│   ├── bidEngine.test.ts         # Engine de disparo
+│   ├── comparativoEngine.test.ts # Ranking e aprovacao
+│   ├── connectors.test.ts        # Validacao ERP
+│   ├── monetizacao.test.ts       # Free tier e cobranca
+│   └── savingsEngine.test.ts     # Calculo de economia
+├── testes-funcionais/bid-frete/
+│   ├── bloco.test.ts             # Importacao em bloco
+│   ├── cotacoes.test.ts          # CRUD de cotacoes
+│   ├── fornecedores.test.ts      # CRUD de fornecedores
+│   └── masterData.test.ts        # Dados mestres
+└── testes-e2e/bid-frete/
+    ├── helpers.ts                # Utilidades compartilhadas
+    ├── cotacoes-crud.spec.ts     # Cat 1 + 6 (CRUD, modais)
+    ├── filtros-busca.spec.ts     # Cat 2 + 9 (filtros, visualizacoes)
+    ├── fornecedores.spec.ts      # Cat 1 + 3 (CRUD, selects)
+    ├── fluxo-completo.spec.ts    # Cat 11 (fluxos de dominio)
+    ├── navegacao-estados.spec.ts # Cat 5 + 7 + 8 + 4 (navegacao, estados, massa, import)
+    └── regressao.spec.ts         # Regressao (tenant isolation, seguranca, validacao)
+```
+
+### Cobertura
+
+| Tipo | Suites | Cobertura |
+|:---|:---|:---|
+| Unitarios | 5 suites | Engines, monetizacao, savings, connectors |
+| Funcionais | 4 suites | Todas as rotas CRUD + master data |
+| E2E | 6 specs | 11 categorias obrigatorias + regressao |
+
+### Testes de regressao criticos
+
+| ID | O que valida |
+|:---|:---|
+| REG-01/02/03 | Tenant isolation (cotacoes e fornecedores) |
+| REG-04/05/06 | Autenticacao (x-internal-key, tenant_id) |
+| REG-07/08 | Validacao Zod (payloads invalidos) |
+| REG-09/10 | Integridade (transicao de status, delete nao-rascunho) |
+| REG-11 | Monetizacao (free tier de 10 cotacoes) |
+| REG-12/13/14 | Master data e health check |

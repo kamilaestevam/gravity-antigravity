@@ -1,0 +1,4500 @@
+=== Pedido (Gestao de Pedidos de Importacao/Exportacao) ===
+
+--- documentos-tecnicos/produtos-gravity/pedido/ANEXOS-GERAR-PDF-REGRAS-NEGOCIO.md ---
+# Anexos e Gerar PDF — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+
+---
+
+## Anexos
+
+### O que é
+Upload de arquivos vinculados a um pedido ou item. O usuário escolhe o nível (pedido ou item).
+
+### Formatos aceitos
+PDF, DOCX, DOC, XLSX, XLS, CSV, PNG, JPG, JPEG, TIFF, GIF, ZIP, RAR, TXT, XML, JSON
+
+### Limites (SLA)
+| Limite | Valor |
+|---|---|
+| Tamanho máximo por arquivo | 25 MB |
+| Total de anexos por pedido | 200 MB |
+| Quantidade de arquivos por pedido | 50 arquivos |
+
+### Vínculo
+- Usuário escolhe ao fazer upload: **Pedido** ou **Item**
+- Um arquivo é vinculado a um único nível — não é compartilhado entre pedido e item
+
+### Campos do anexo
+- `nome_arquivo` — nome original do arquivo
+- `tipo_arquivo` — extensão / MIME type
+- `tamanho_bytes`
+- `descricao` — campo livre opcional (ex: "Invoice Final", "BL Corrigido")
+- `categoria` — opcional, configurável pelo tenant (ex: Invoice, Packing List, BL, Certificado, Outros)
+- `vinculo` — `pedido` ou `item`
+- `vinculo_id` — id do pedido ou item
+- `uploaded_by`, `uploaded_at`
+
+### Ações disponíveis
+- **Upload** — drag-and-drop ou clique
+- **Download** — baixar o arquivo original
+- **Preview** — visualizar inline (PDF e imagens)
+- **Renomear** — editar descrição/nome
+- **Excluir** — remove com permissão
+
+### Permissões
+- Upload: permissão configurável
+- Download: permissão configurável (pode ser diferente de upload)
+- Excluir: só quem fez upload ou admin do tenant
+
+---
+
+## Gerar Pedido (PDF com Templates)
+
+### O que é
+Geração de PDF do pedido usando templates configurados no Configurador. O usuário escolhe o template e baixa o PDF — que também é salvo como anexo no pedido.
+
+### Templates
+- Criados e gerenciados no **Configurador** (tela de workspace)
+- Múltiplos templates por tenant (ex: Template PO, Template SO, Template Proforma)
+- Template usa **variáveis** (`{{numero_pedido}}`, `{{exportador}}`, etc.)
+- O sistema sugere variáveis disponíveis; usuário pode também usar variáveis próprias
+- Template pode incluir tabela de itens com loop automático
+
+### Variáveis disponíveis (sugeridas pelo sistema)
+| Variável | Campo |
+|---|---|
+| `{{numero_pedido}}` | Número do pedido |
+| `{{tipo_operacao}}` | Importação / Exportação |
+| `{{exportador}}` | Nome do exportador |
+| `{{fabricante}}` | Nome do fabricante |
+| `{{incoterm}}` | Incoterm |
+| `{{moeda}}` | Moeda |
+| `{{data_emissao}}` | Data de emissão |
+| `{{valor_total}}` | Valor total do pedido |
+| `{{quantidade_total}}` | Quantidade total |
+| `{{tenant_nome}}` | Nome da empresa |
+| `{{data_geracao}}` | Data de geração do PDF |
+| Colunas do usuário | `{{coluna_nome_da_coluna}}` |
+| Loop de itens | `{{#itens}} ... {{/itens}}` |
+| Dentro do loop | `{{item.part_number}}`, `{{item.descricao}}`, `{{item.quantidade}}`, etc. |
+
+### Fluxo
+1. Usuário abre pedido (drawer ou visualização)
+2. Clica em "Gerar PDF"
+3. Modal com lista de templates disponíveis
+4. Seleciona template → preview do PDF gerado
+5. Confirma → PDF é baixado E salvo como anexo no pedido automaticamente
+6. Anexo salvo com categoria "PDF Gerado" e nome `{template}_{numero_pedido}_{data}.pdf`
+
+### Restrições
+- Template sem variáveis obrigatórias gera PDF com campos em branco (não bloqueia)
+- Pedido sem itens: bloco de loop de itens fica vazio
+- PDF gerado é somente leitura — não pode ser editado no sistema
+
+--- documentos-tecnicos/produtos-gravity/pedido/ANEXOS-GERAR-PDF-TECNICO.md ---
+# Anexos e Gerar PDF — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+
+---
+
+## Stack adicional
+
+| Lib | Uso |
+|---|---|
+| `multer` | Upload multipart no Express |
+| `puppeteer` ou `@react-pdf/renderer` | Geração de PDF |
+| `handlebars` | Engine de templates com variáveis `{{campo}}` e loop `{{#itens}}` |
+| `sharp` (opcional) | Resize de imagens para preview |
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/src/
+│   ├── components/
+│   │   ├── PainelAnexos.tsx           ← Componente de anexos (usado no Drawer)
+│   │   ├── PainelAnexos.css
+│   │   ├── ModalGerarPdf.tsx          ← Modal seleção de template + preview
+│   │   └── ModalGerarPdf.css
+│   └── shared/
+│       ├── types.ts                   ← Tipos de Anexo, Template, PDF
+│       └── api.ts                     ← anexosApi, pdfApi
+└── server/src/
+    ├── routes/
+    │   ├── anexos.ts                  ← Upload/download/delete
+    │   └── pdf.ts                     ← Gerar PDF
+    └── services/
+        ├── anexosService.ts
+        └── pdfService.ts              ← Renderiza template + gera PDF
+```
+
+---
+
+## Tipos
+
+```ts
+// ── Anexos ────────────────────────────────────────────
+export interface Anexo {
+  id: string
+  tenant_id: string
+  vinculo: 'pedido' | 'item'
+  vinculo_id: string
+  nome_arquivo: string
+  tipo_arquivo: string          // MIME type
+  tamanho_bytes: number
+  descricao?: string
+  categoria?: string
+  storage_key: string           // path interno no storage
+  uploaded_by: string
+  uploaded_at: string
+}
+
+export interface AnexoUploadResultado {
+  id: string
+  nome_arquivo: string
+  tamanho_bytes: number
+  url_download: string
+}
+
+// ── PDF ───────────────────────────────────────────────
+export interface TemplatePdf {
+  id: string
+  tenant_id: string
+  nome: string
+  descricao?: string
+  conteudo_html: string         // HTML com variáveis Handlebars
+  created_at: string
+  updated_at: string
+}
+
+export interface GerarPdfPayload {
+  pedido_id: string
+  template_id: string
+  salvar_como_anexo: boolean    // sempre true conforme regra
+}
+
+export interface GerarPdfResultado {
+  url_download: string
+  anexo_id: string              // ID do anexo salvo
+}
+```
+
+---
+
+## API Client
+
+```ts
+export const anexosApi = {
+  listar: (vinculo: 'pedido' | 'item', vinculo_id: string) =>
+    request<Anexo[]>(`/api/v1/pedidos/anexos?vinculo=${vinculo}&vinculo_id=${vinculo_id}`),
+
+  upload: (vinculo: 'pedido' | 'item', vinculo_id: string, arquivo: File, descricao?: string, categoria?: string) => {
+    const form = new FormData()
+    form.append('arquivo', arquivo)
+    form.append('vinculo', vinculo)
+    form.append('vinculo_id', vinculo_id)
+    if (descricao) form.append('descricao', descricao)
+    if (categoria) form.append('categoria', categoria)
+    return request<AnexoUploadResultado>('/api/v1/pedidos/anexos', { method: 'POST', body: form })
+  },
+
+  download: (id: string) =>
+    request<Blob>(`/api/v1/pedidos/anexos/${id}/download`),
+
+  excluir: (id: string) =>
+    request<void>(`/api/v1/pedidos/anexos/${id}`, { method: 'DELETE' }),
+}
+
+export const pdfApi = {
+  listarTemplates: () =>
+    request<TemplatePdf[]>('/api/v1/pedidos/pdf/templates'),
+
+  gerar: (payload: GerarPdfPayload) =>
+    request<GerarPdfResultado>('/api/v1/pedidos/pdf/gerar', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+}
+```
+
+---
+
+## Backend — Rotas
+
+### `POST /api/v1/pedidos/anexos` (multipart/form-data)
+
+```
+1. multer valida: extensão permitida, tamanho ≤ 25MB
+2. Verificar total de anexos do pedido ≤ 50 e total bytes ≤ 200MB
+3. Salvar arquivo em storage local (dev) ou S3 (prod): path = tenant_id/pedido_id/uuid_filename
+4. Criar registro Anexo no banco com tenant_id
+5. Registrar audit trail
+6. Retornar AnexoUploadResultado
+```
+
+### `GET /api/v1/pedidos/anexos`
+Query params: `vinculo`, `vinculo_id` — filtra por pedido ou item com `tenant_id`
+
+### `GET /api/v1/pedidos/anexos/:id/download`
+Serve o arquivo com header `Content-Disposition: attachment`
+
+### `DELETE /api/v1/pedidos/anexos/:id`
+Verifica permissão (uploaded_by = user OU admin), remove do storage e do banco
+
+### `GET /api/v1/pedidos/pdf/templates`
+Lista templates do tenant — proxy para o Configurador ou tabela local
+
+### `POST /api/v1/pedidos/pdf/gerar`
+
+```ts
+const GerarPdfSchema = z.object({
+  pedido_id: z.string().uuid(),
+  template_id: z.string().uuid(),
+  salvar_como_anexo: z.boolean().default(true),
+})
+```
+
+```
+1. Buscar pedido + itens + colunas do usuário com tenant_id
+2. Buscar template pelo template_id (com tenant_id)
+3. Compilar variáveis: { numero_pedido, exportador, ..., itens: [...] }
+4. Renderizar Handlebars: template.conteudo_html + variáveis → HTML final
+5. Gerar PDF via Puppeteer (html → pdf buffer)
+6. Nome do arquivo: `{template.nome}_{numero_pedido}_{YYYY-MM-DD}.pdf`
+7. Salvar PDF no storage
+8. Criar Anexo no banco com categoria = 'PDF Gerado'
+9. Retornar GerarPdfResultado com url_download e anexo_id
+```
+
+---
+
+## Fragment Prisma
+
+```prisma
+model Anexo {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  vinculo       String              // 'pedido' | 'item'
+  vinculo_id    String
+  nome_arquivo  String
+  tipo_arquivo  String
+  tamanho_bytes Int
+  descricao     String?
+  categoria     String?
+  storage_key   String
+  uploaded_by   String
+  created_at    DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("pedido_anexos")
+}
+
+model TemplatePdf {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  nome          String
+  descricao     String?
+  conteudo_html String   @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_templates_pdf")
+}
+```
+
+---
+
+## Frontend — PainelAnexos.tsx
+
+Componente usado dentro do DrawerPedido e também na view de item:
+
+```
+┌─────────────────────────────────────┐
+│  Anexos (3)           [+ Adicionar] │
+├─────────────────────────────────────┤
+│  📄 Invoice_Final.pdf    2.3MB  [↓][🗑] │
+│  📊 Packing_List.xlsx    1.1MB  [↓][🗑] │
+│  🖼 BL_scan.jpg          4.7MB  [↓][🗑] │
+└─────────────────────────────────────┘
+```
+
+- Drag-and-drop para upload
+- Ícone por tipo de arquivo
+- Download inline
+- Preview para PDF e imagens
+- Barra de progresso durante upload
+
+---
+
+## Frontend — ModalGerarPdf.tsx
+
+```
+┌──────────────────────────────────────┐
+│  Gerar PDF — PO-2026/001             │
+├──────────────────────────────────────┤
+│  Template:                           │
+│  ○ Template PO Padrão               │
+│  ○ Template Proforma Invoice        │
+│  ● Template PO Detalhado            │
+│                                      │
+│  Preview:                            │
+│  ┌──────────────────────────────┐   │
+│  │  [miniatura do PDF]          │   │
+│  └──────────────────────────────┘   │
+│                                      │
+│  ✓ Salvar como anexo no pedido       │
+│                                      │
+│   [Cancelar]    [Baixar PDF]         │
+└──────────────────────────────────────┘
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/COLUNAS-USUARIO-REGRAS-NEGOCIO.md ---
+# Colunas do Usuário — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+
+---
+
+## O que é
+Permite que o usuário crie campos customizados para enriquecer pedidos e itens sem necessidade de desenvolvimento. Uma coluna criada pode aparecer no pedido, no item, ou em ambos.
+
+---
+
+## Tipos de Coluna
+
+| Tipo | Descrição | Exemplo |
+|---|---|---|
+| **Texto** | Campo de texto livre | Referência interna, Observação |
+| **Número** | Valor numérico | Taxa, Código numérico |
+| **Data** | Data (sem hora) | Data de vencimento, Prazo |
+| **Select** | Lista de opções configurável | Prioridade: Alta/Média/Baixa |
+| **Checkbox** | Verdadeiro / Falso | Aprovado, Revisado |
+| **Percentual (%)** | Número formatado como percentual | Margem, Desconto |
+| **Tipo de Documento** | Lista de tipos pré-definidos (Invoice, BL, Packing List, etc.) | Tipo de doc vinculado |
+
+---
+
+## Escopo da Coluna
+
+Ao criar uma coluna, o usuário escolhe onde ela aparece:
+
+| Opção | Aparece em |
+|---|---|
+| **Pedido** | Só no cabeçalho do pedido |
+| **Item** | Só nos itens do pedido |
+| **Ambos** | No cabeçalho e nos itens |
+
+---
+
+## Visibilidade
+
+Ao criar uma coluna, o usuário configura quem pode vê-la:
+
+| Opção | Descrição |
+|---|---|
+| **Todos do tenant** | Visível para todos os usuários da empresa |
+| **Por perfil/role** | Só usuários com determinado perfil veem |
+| **Só eu** | Coluna privada — só o criador vê |
+
+---
+
+## Propriedades de uma Coluna
+
+| Propriedade | Tipo | Obrigatório |
+|---|---|---|
+| `nome` | Texto | Sim |
+| `tipo` | Enum (ver tipos acima) | Sim |
+| `escopo` | `pedido` / `item` / `ambos` | Sim |
+| `visibilidade` | `todos` / `roles` / `privado` | Sim |
+| `roles_permitidas` | string[] | Se visibilidade = `roles` |
+| `obrigatorio` | boolean | Não (default: false) |
+| `opcoes` | string[] | Só para tipo `select` |
+| `descricao` | Texto | Não |
+| `valor_padrao` | Variado | Não |
+
+---
+
+## Comportamento nas Features Existentes
+
+| Feature | Comportamento |
+|---|---|
+| **Tabela (lista de pedidos)** | Colunas do usuário aparecem no seletor de colunas e podem ser exibidas/ocultadas |
+| **Drawer (criar/editar)** | Colunas do usuário aparecem como campos adicionais no formulário |
+| **Edição em Massa** | Colunas do usuário aparecem na lista de campos editáveis |
+| **Smart Import** | Colunas do usuário são incluídas no mapeamento de colunas |
+| **Exportação Excel** | Colunas do usuário são incluídas na exportação |
+| **Gerar PDF** | Disponíveis como variáveis `{{coluna_nome}}` no template |
+| **Filtros** | Colunas do usuário aparecem nos filtros disponíveis |
+| **Duplicar** | Valores das colunas do usuário são copiados junto com o pedido |
+
+---
+
+## Gerenciamento
+
+- Colunas são criadas/editadas/excluídas em **Configurações do Produto** (tela de settings do pedido)
+- Excluir uma coluna: dados existentes são **preservados** mas a coluna some da interface
+- Reativar uma coluna: dados voltam a aparecer
+- Ordenação das colunas: drag-and-drop na tela de configurações
+
+---
+
+## Regras Transversais
+
+| Regra | Valor |
+|---|---|
+| Máximo de colunas por tenant | 50 |
+| Nome único por tenant | Sim |
+| Tipo não pode ser alterado após criação | Sim (para não corromper dados existentes) |
+| Escopo pode ser alterado | Sim |
+
+--- documentos-tecnicos/produtos-gravity/pedido/COLUNAS-USUARIO-TECNICO.md ---
+# Colunas do Usuário — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/src/
+│   ├── components/
+│   │   └── ConfiguracaoColunas/
+│   │       ├── GerenciadorColunas.tsx     ← Tela de gerenciar colunas (em Configurações)
+│   │       ├── GerenciadorColunas.css
+│   │       ├── ModalNovaColuna.tsx        ← Modal criar/editar coluna
+│   │       └── ModalNovaColuna.css
+│   └── shared/
+│       ├── types.ts                       ← ColunaUsuario, TipoColunaUsuario
+│       └── api.ts                         ← colunasUsuarioApi
+└── server/src/
+    ├── routes/
+    │   └── colunasUsuario.ts
+    └── services/
+        └── colunasUsuarioService.ts
+```
+
+---
+
+## Tipos
+
+```ts
+export type TipoColunaUsuario =
+  | 'texto'
+  | 'numero'
+  | 'data'
+  | 'select'
+  | 'checkbox'
+  | 'percentual'
+  | 'tipo_documento'
+
+export type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
+export type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
+
+export interface ColunaUsuario {
+  id: string
+  tenant_id: string
+  nome: string
+  chave: string                         // slug do nome: ex "margem_negocio"
+  tipo: TipoColunaUsuario
+  escopo: EscopoColunaUsuario
+  visibilidade: VisibilidadeColunaUsuario
+  roles_permitidas?: string[]
+  obrigatorio: boolean
+  opcoes?: string[]                     // para tipo 'select' e 'tipo_documento'
+  descricao?: string
+  valor_padrao?: string
+  ordem: number
+  ativo: boolean
+  created_by: string
+  created_at: string
+}
+
+// Valor de uma coluna do usuário em um pedido/item
+export interface ValorColunaUsuario {
+  id: string
+  tenant_id: string
+  coluna_id: string
+  vinculo: 'pedido' | 'item'
+  vinculo_id: string
+  valor: string                         // sempre string, conversão no frontend
+}
+```
+
+---
+
+## API Client
+
+```ts
+export const colunasUsuarioApi = {
+  listar: () =>
+    request<ColunaUsuario[]>('/api/v1/pedidos/colunas-usuario'),
+
+  criar: (data: Omit<ColunaUsuario, 'id' | 'tenant_id' | 'chave' | 'created_by' | 'created_at'>) =>
+    request<ColunaUsuario>('/api/v1/pedidos/colunas-usuario', {
+      method: 'POST', body: JSON.stringify(data),
+    }),
+
+  atualizar: (id: string, data: Partial<ColunaUsuario>) =>
+    request<ColunaUsuario>(`/api/v1/pedidos/colunas-usuario/${id}`, {
+      method: 'PUT', body: JSON.stringify(data),
+    }),
+
+  excluir: (id: string) =>
+    request<void>(`/api/v1/pedidos/colunas-usuario/${id}`, { method: 'DELETE' }),
+
+  reordenar: (ids: string[]) =>
+    request<void>('/api/v1/pedidos/colunas-usuario/reordenar', {
+      method: 'POST', body: JSON.stringify({ ids }),
+    }),
+
+  // Valores
+  salvarValores: (vinculo: 'pedido' | 'item', vinculo_id: string, valores: Record<string, string>) =>
+    request<void>('/api/v1/pedidos/colunas-usuario/valores', {
+      method: 'POST', body: JSON.stringify({ vinculo, vinculo_id, valores }),
+    }),
+
+  listarValores: (vinculo: 'pedido' | 'item', vinculo_id: string) =>
+    request<ValorColunaUsuario[]>(`/api/v1/pedidos/colunas-usuario/valores?vinculo=${vinculo}&vinculo_id=${vinculo_id}`),
+}
+```
+
+---
+
+## Backend — Rotas (`routes/colunasUsuario.ts`)
+
+### `GET /api/v1/pedidos/colunas-usuario`
+Lista colunas ativas do tenant, filtrando por visibilidade (só retorna as que o usuário pode ver)
+
+### `POST /api/v1/pedidos/colunas-usuario`
+
+**Zod schema:**
+```ts
+z.object({
+  nome: z.string().min(1).max(60),
+  tipo: z.enum(['texto','numero','data','select','checkbox','percentual','tipo_documento']),
+  escopo: z.enum(['pedido','item','ambos']),
+  visibilidade: z.enum(['todos','roles','privado']),
+  roles_permitidas: z.array(z.string()).optional(),
+  obrigatorio: z.boolean().default(false),
+  opcoes: z.array(z.string()).optional(),
+  descricao: z.string().optional(),
+  valor_padrao: z.string().optional(),
+})
+```
+
+**Lógica:**
+```
+1. Validar Zod
+2. Verificar limite: tenant já tem < 50 colunas
+3. Verificar nome único no tenant
+4. Gerar chave: slugify(nome) — ex: "Margem %" → "margem_percentual"
+5. Calcular ordem: max(ordem) + 1
+6. Criar ColunaUsuario
+```
+
+### `PUT /api/v1/pedidos/colunas-usuario/:id`
+- Não permite alterar `tipo` (preserva integridade dos dados existentes)
+- Permite alterar: nome, escopo, visibilidade, opcoes, descricao, obrigatorio, valor_padrao
+
+### `DELETE /api/v1/pedidos/colunas-usuario/:id`
+- Soft delete: `ativo = false` (preserva dados, some da interface)
+- NÃO deleta os `ValorColunaUsuario` existentes
+
+### `POST /api/v1/pedidos/colunas-usuario/reordenar`
+Atualiza `ordem` de múltiplas colunas em `$transaction`
+
+### `POST /api/v1/pedidos/colunas-usuario/valores`
+Upsert de valores: para cada `{coluna_id, valor}`, faz `upsert` na tabela `ValorColunaUsuario`
+
+### `GET /api/v1/pedidos/colunas-usuario/valores`
+Retorna valores de todas as colunas do usuário para um pedido ou item
+
+---
+
+## Fragment Prisma
+
+```prisma
+model ColunaUsuarioPedido {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+  nome             String
+  chave            String
+  tipo             String
+  escopo           String   // 'pedido' | 'item' | 'ambos'
+  visibilidade     String   // 'todos' | 'roles' | 'privado'
+  roles_permitidas String[] @default([])
+  obrigatorio      Boolean  @default(false)
+  opcoes           String[] @default([])
+  descricao        String?
+  valor_padrao     String?
+  ordem            Int      @default(0)
+  ativo            Boolean  @default(true)
+  created_by       String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  valores ValorColunaUsuarioPedido[]
+
+  @@unique([tenant_id, chave])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("colunas_usuario_pedido")
+}
+
+model ValorColunaUsuarioPedido {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  coluna_id  String
+  vinculo    String   // 'pedido' | 'item'
+  vinculo_id String
+  valor      String
+
+  coluna ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
+
+  @@unique([tenant_id, coluna_id, vinculo_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("valores_colunas_usuario_pedido")
+}
+```
+
+---
+
+## Frontend — GerenciadorColunas.tsx
+
+Tela em Configurações do Produto:
+
+```
+┌──────────────────────────────────────────────────────┐
+│  Colunas Customizadas                  [+ Nova Coluna]│
+├──────────────────────────────────────────────────────┤
+│  ⠿  Margem %        Percentual  Pedido   Todos   ✏🗑  │
+│  ⠿  Prioridade      Select      Ambos    Todos   ✏🗑  │
+│  ⠿  Ref. Interna    Texto       Item     Privado ✏🗑  │
+│  ⠿  Tipo Doc        Tipo Doc    Pedido   Roles   ✏🗑  │
+└──────────────────────────────────────────────────────┘
+```
+
+- Drag-and-drop para reordenar (usando `onReordenar`)
+- Botão editar → abre `ModalNovaColuna` preenchido
+- Botão excluir → confirma e faz soft delete
+
+---
+
+## Frontend — ModalNovaColuna.tsx
+
+```
+┌───────────────────────────────────┐
+│  Nova Coluna                      │
+├───────────────────────────────────┤
+│  Nome          [________________] │
+│  Tipo          [Percentual    ▼]  │
+│  Escopo        [Ambos         ▼]  │
+│  Visibilidade  [Todos         ▼]  │
+│  Obrigatório   [ ] Sim            │
+│  Valor padrão  [________________] │
+│  Descrição     [________________] │
+│                                   │
+│  [Cancelar]          [Salvar]     │
+└───────────────────────────────────┘
+```
+
+Quando tipo = `select` ou `tipo_documento`: exibe campo para adicionar opções da lista.
+
+---
+
+## Integração nas Features Existentes
+
+### Tabela (ListaPedidos)
+- `colunasUsuarioApi.listar()` na inicialização
+- Adicionar ao `COLUNAS_PAI` as colunas do usuário com escopo `pedido` ou `ambos`
+- Passar para `SelectColunasGlobal` como colunas normais
+
+### Drawer (DrawerPedido)
+- Carregar valores com `colunasUsuarioApi.listarValores('pedido', pedidoId)`
+- Renderizar campos extras após os campos fixos
+- Salvar com `colunasUsuarioApi.salvarValores()` junto ao POST/PUT do pedido
+
+### Edição em Massa
+- `colunasUsuarioApi.listar()` para adicionar ao seletor de campos
+- Tipo da coluna define operações disponíveis (percentual → operações de número)
+
+### Smart Import
+- Incluir `chave` das colunas do usuário no dicionário de mapeamento
+- Sugerir como colunas mapeáveis durante o import
+
+### Exportação Excel
+- Incluir valores das colunas do usuário nas linhas exportadas
+
+### Gerar PDF
+- Disponibilizar `{{coluna_chave}}` como variável no template Handlebars
+
+---
+
+## Testes
+
+```
+testes/unitarios/pedido/colunasUsuarioService.test.ts
+  ├── criar coluna — chave gerada corretamente do nome
+  ├── criar coluna — bloqueia se limite 50 atingido
+  ├── criar coluna — bloqueia se nome duplicado no tenant
+  ├── atualizar coluna — não permite mudar tipo
+  ├── excluir coluna — soft delete, valores preservados
+  ├── visibilidade roles — oculta para usuário sem role
+  ├── salvar valores — upsert correto
+  └── cross-tenant — coluna de outro tenant não retornada
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md ---
+# Duplicar e Excluir Pedidos — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Definido — aguardando implementação
+
+---
+
+## Duplicar
+
+### O que é
+Cria uma cópia exata de um ou mais pedidos (ou itens), respeitando as configurações do tenant.
+
+### Escopo
+- Usuário pode selecionar **1 ou mais pedidos** → duplica todos
+- Usuário pode selecionar **1 ou mais itens** dentro de um pedido → duplica só os itens selecionados dentro do mesmo pedido
+- Pode duplicar pedidos em **qualquer status** (rascunho, aberto, transferencia, consolidado, cancelado)
+
+### Configurações
+
+| Configuração | Descrição | Default |
+|---|---|---|
+| `duplicar_numero_auto` | Se true: gera número automaticamente pela regra de numeração configurada. Se false: usuário digita o número | `false` (usuário digita) |
+| `duplicar_copiar_datas` | Se true: copia as datas do pedido original. Se false: reseta datas (ficam em branco) | `false` (reseta datas) |
+| `duplicar_status_inicial` | Status com que o pedido duplicado começa: `'copiar'` (mesmo do original) ou qualquer status válido | `'copiar'` |
+
+### Campos sempre copiados
+- Todos os campos do pedido (incoterm, moeda, exportador, referências, etc.)
+- Todos os itens (part_number, NCM, descrição, quantidades, valores)
+- Colunas customizadas do usuário
+
+### Campos nunca copiados
+- `id` — novo ID gerado
+- `created_at`, `updated_at` — timestamps da cópia
+- `pedidos_origem` — não é uma consolidação, começa limpo
+- Histórico de transferências
+
+### Campos condicionais (por configuração)
+- `numero_pedido` — auto ou usuário digita
+- `data_emissao_pedido`, `data_embarque` — copia ou reseta
+- `status` — copia ou começa em outro status
+
+### Fluxo UX
+1. Usuário seleciona pedido(s) ou item(s)
+2. Clica em "Duplicar"
+3. Se `duplicar_numero_auto = false`: modal pede o número (ou números, um por pedido)
+4. Se `duplicar_numero_auto = true`: modal exibe o(s) número(s) gerado(s) (editável)
+5. Preview com campos que serão copiados vs resetados
+6. Confirmar → pedidos/itens criados
+
+---
+
+## Excluir
+
+### O que é
+Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não há recuperação.
+
+### Escopo
+- Usuário pode selecionar **1 ou mais pedidos** → exclui todos
+- Usuário pode selecionar **1 ou mais itens** dentro de um pedido → exclui só os itens
+
+### Regras fixas (sempre válidas)
+- Excluir um pedido **remove todos os seus itens** automaticamente
+- Excluir um item **mantém o pedido pai** — verificar configuração `excluir_pedido_sem_item`
+- Requer permissão de exclusão configurada
+- Auditoria obrigatória: registra o que foi excluído, por quem e quando
+
+### Configurações
+
+| Configuração | Descrição | Default |
+|---|---|---|
+| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho']` |
+| `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `false` |
+
+### Fluxo de restrição por status
+- Se pedido não está em um status da lista `excluir_status_permitidos` → bloqueia com mensagem explicando quais status permitem exclusão
+
+### Fluxo UX
+1. Usuário seleciona pedido(s) ou item(s)
+2. Clica em "Excluir"
+3. Modal de confirmação: "Você está excluindo X pedido(s) com Y item(s). Esta ação não pode ser desfeita."
+4. Se algum pedido não pode ser excluído (status não permitido): lista os bloqueados com motivo
+5. Usuário pode excluir só os permitidos ou cancelar tudo
+6. Confirmar → exclusão permanente
+
+### Regra `excluir_pedido_sem_item_permitido`
+- `false` (default): ao excluir o último item de um pedido, o pedido é excluído junto automaticamente
+- `true`: pedido pode existir sem itens — ao excluir o último item, o pedido permanece vazio
+
+---
+
+## Configurações Consolidadas (Duplicar + Excluir)
+
+Adicionar ao model `ConfiguracaoPedido`:
+
+```prisma
+// Duplicar
+duplicar_numero_auto              Boolean  @default(false)
+duplicar_copiar_datas             Boolean  @default(false)
+duplicar_status_inicial           String   @default("copiar")
+
+// Excluir
+excluir_status_permitidos         String[] @default(["rascunho"])
+excluir_pedido_sem_item_permitido Boolean  @default(false)
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-TECNICO.md ---
+# Duplicar e Excluir Pedidos — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Aguardando implementação
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── ModalDuplicar.tsx         ← Modal de duplicação
+│       │   └── ModalDuplicar.css
+│       ├── shared/
+│       │   ├── types.ts                  ← Tipos de duplicar/excluir
+│       │   └── api.ts                    ← pedidoDuplicarApi, pedidoExcluirApi
+│       └── pages/
+│           └── ListaPedidos.tsx          ← Botões integrados
+└── server/
+    └── src/
+        ├── routes/
+        │   └── duplicarExcluir.ts        ← Rotas
+        └── services/
+            └── duplicarExcluirService.ts ← Lógica de negócio
+```
+
+---
+
+## Tipos (`client/src/shared/types.ts`)
+
+```ts
+// ── Duplicar ──────────────────────────────────────────────
+
+export interface DuplicarPayload {
+  ids: string[]                         // pedido_ids a duplicar
+  numeros?: Record<string, string>      // pedido_id → numero_pedido novo (quando não é auto)
+}
+
+export interface DuplicarItemPayload {
+  pedido_id: string
+  item_ids: string[]
+}
+
+export interface DuplicarResultado {
+  criados: { original_id: string; novo_id: string; numero_pedido: string }[]
+  erros: { id: string; motivo: string }[]
+}
+
+// ── Excluir ───────────────────────────────────────────────
+
+export interface ExcluirPreview {
+  permitidos: { id: string; numero_pedido: string; total_itens: number }[]
+  bloqueados: { id: string; numero_pedido: string; status: string; motivo: string }[]
+}
+
+export interface ExcluirResultado {
+  excluidos: number
+  itens_excluidos: number
+  pedidos_excluidos_por_sem_item: number   // pedidos removidos por ficar sem item
+}
+```
+
+---
+
+## API Client (`client/src/shared/api.ts`)
+
+```ts
+export const pedidoDuplicarApi = {
+  // Preview: verifica o que será copiado/resetado conforme config
+  preview: (ids: string[]) =>
+    request<{
+      config: { numero_auto: boolean; copiar_datas: boolean; status_inicial: string }
+      pedidos: { id: string; numero_pedido: string; total_itens: number }[]
+    }>('/api/v1/pedidos/duplicar/preview', { method: 'POST', body: JSON.stringify({ ids }) }),
+
+  // Confirmar duplicação de pedidos
+  confirmar: (payload: DuplicarPayload) =>
+    request<DuplicarResultado>('/api/v1/pedidos/duplicar/confirmar', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+
+  // Duplicar itens dentro de um pedido
+  duplicarItens: (payload: DuplicarItemPayload) =>
+    request<DuplicarResultado>('/api/v1/pedidos/duplicar/itens', {
+      method: 'POST', body: JSON.stringify(payload),
+    }),
+}
+
+export const pedidoExcluirApi = {
+  // Preview: quais podem ser excluídos, quais bloqueados
+  preview: (ids: string[]) =>
+    request<ExcluirPreview>('/api/v1/pedidos/excluir/preview', {
+      method: 'POST', body: JSON.stringify({ ids }),
+    }),
+
+  // Confirmar exclusão de pedidos
+  confirmar: (ids: string[]) =>
+    request<ExcluirResultado>('/api/v1/pedidos/excluir/confirmar', {
+      method: 'POST', body: JSON.stringify({ ids }),
+    }),
+
+  // Excluir itens de um pedido
+  excluirItens: (pedido_id: string, item_ids: string[]) =>
+    request<ExcluirResultado>('/api/v1/pedidos/excluir/itens', {
+      method: 'POST', body: JSON.stringify({ pedido_id, item_ids }),
+    }),
+}
+```
+
+---
+
+## Backend — Rotas (`server/src/routes/duplicarExcluir.ts`)
+
+### `POST /api/v1/pedidos/duplicar/preview`
+- Busca pedidos pelo `ids` com `tenant_id`
+- Lê configurações do tenant (`duplicar_numero_auto`, `duplicar_copiar_datas`, `duplicar_status_inicial`)
+- Retorna lista de pedidos + config para o frontend montar o modal
+
+### `POST /api/v1/pedidos/duplicar/confirmar`
+
+**Zod schema:**
+```ts
+z.object({
+  ids: z.array(z.string().uuid()).min(1),
+  numeros: z.record(z.string()).optional(),
+})
+```
+
+**Lógica em `$transaction`:**
+```
+Para cada pedido_id:
+  1. Buscar pedido + itens com tenant_id
+  2. Gerar novo ID
+  3. Definir numero_pedido:
+     - Se config.numero_auto: gerar pela regra de numeração
+     - Senão: usar payload.numeros[id] (obrigatório se !numero_auto)
+  4. Definir status:
+     - Se config.status_inicial = 'copiar': usar status do original
+     - Senão: usar config.status_inicial
+  5. Definir datas:
+     - Se config.copiar_datas: copiar do original
+     - Senão: null
+  6. tx.pedido.create({ ...campos, itens: { create: [...itens copiados] } })
+  7. Registrar audit trail: canal = 'duplicacao', original_id
+```
+
+**Resposta:** `201 DuplicarResultado`
+
+---
+
+### `POST /api/v1/pedidos/duplicar/itens`
+
+**Zod schema:**
+```ts
+z.object({
+  pedido_id: z.string().uuid(),
+  item_ids: z.array(z.string().uuid()).min(1),
+})
+```
+
+**Lógica:**
+```
+1. Verificar pedido pertence ao tenant
+2. Para cada item_id: clonar PedidoItem com novo ID
+   - quantidade_atual = quantidade_inicial (reset de saldo)
+   - quantidade_transferida = 0
+   - quantidade_cancelada = 0
+3. Recalcular agregados do pedido pai
+```
+
+---
+
+### `POST /api/v1/pedidos/excluir/preview`
+
+**Lógica:**
+```
+1. Buscar pedidos com tenant_id
+2. Ler config.excluir_status_permitidos
+3. Separar em permitidos (status na lista) e bloqueados (status fora da lista)
+4. Retornar ExcluirPreview
+```
+
+---
+
+### `POST /api/v1/pedidos/excluir/confirmar`
+
+**Zod schema:**
+```ts
+z.object({
+  ids: z.array(z.string().uuid()).min(1),
+})
+```
+
+**Lógica em `$transaction`:**
+```
+1. Buscar pedidos + itens com tenant_id
+2. Validar todos na lista excluir_status_permitidos (rejeitar se algum não está)
+3. Registrar audit trail ANTES de excluir (dados que serão perdidos)
+4. tx.pedidoItem.deleteMany({ where: { pedido_id: { in: ids }, tenant_id } })
+5. tx.pedido.deleteMany({ where: { id: { in: ids }, tenant_id } })
+```
+
+**Resposta:** `200 ExcluirResultado`
+
+---
+
+### `POST /api/v1/pedidos/excluir/itens`
+
+**Zod schema:**
+```ts
+z.object({
+  pedido_id: z.string().uuid(),
+  item_ids: z.array(z.string().uuid()).min(1),
+})
+```
+
+**Lógica:**
+```
+1. Verificar pedido pertence ao tenant
+2. Verificar pedido está em status permitido para excluir itens
+3. Registrar audit trail
+4. tx.pedidoItem.deleteMany({ where: { id: { in: item_ids }, pedido_id, tenant_id } })
+5. Verificar quantos itens restaram no pedido
+6. Se restaram 0:
+   - Se config.excluir_pedido_sem_item_permitido = false:
+     → tx.pedido.delete(pedido_id) + incrementar contador
+   - Se true: pedido fica vazio
+7. Se restaram > 0: recalcular agregados do pedido pai
+```
+
+---
+
+## Frontend — ModalDuplicar.tsx
+
+### Fluxo (2 passos)
+
+**Passo 1 — Números (quando !config.numero_auto)**
+```
+┌──────────────────────────────────────────────┐
+│  Duplicar Pedidos (3 selecionados)           │
+├──────────────────────────────────────────────┤
+│  PO-2026/001  →  Número da cópia: [_______]  │
+│  PO-2026/002  →  Número da cópia: [_______]  │
+│  PO-2026/003  →  Número da cópia: [_______]  │
+│                                              │
+│  ℹ Datas: serão resetadas                   │
+│  ℹ Status: copiado do original              │
+│                                              │
+│       [Cancelar]       [Duplicar]            │
+└──────────────────────────────────────────────┘
+```
+
+**Passo 1 — Confirmação (quando config.numero_auto)**
+```
+┌──────────────────────────────────────────────┐
+│  Duplicar Pedidos (3 selecionados)           │
+├──────────────────────────────────────────────┤
+│  PO-2026/001  →  PO-2026/006 (gerado)       │
+│  PO-2026/002  →  PO-2026/007 (gerado)       │
+│  PO-2026/003  →  PO-2026/008 (gerado)       │
+│                                              │
+│  ℹ Datas: copiadas do original              │
+│  ℹ Status: rascunho                            │
+│                                              │
+│       [Cancelar]       [Duplicar]            │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## Integração em ListaPedidos.tsx
+
+```tsx
+// Estado
+const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+
+// Botão Duplicar (adicionar ao toolbar de ações em lote)
+<BotaoGlobal
+  variante="secundario"
+  tamanho="pequeno"
+  icone={<CopySimple size={14} weight="duotone" />}
+  disabled={pedidosSelecionados.length === 0}
+  onClick={() => setModalDuplicarAberto(true)}
+>
+  Duplicar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+</BotaoGlobal>
+
+// Botão Excluir — já existe no código, substituir onClick por preview + modal de confirmação
+// (atualmente chama pedidoLoteApi.cancelarConfirmar — corrigir para excluirApi)
+
+// Modal
+{modalDuplicarAberto && (
+  <ModalDuplicar
+    pedidos={pedidosSelecionados}
+    onFechar={() => setModalDuplicarAberto(false)}
+    onConcluido={() => {
+      setModalDuplicarAberto(false)
+      setPedidosSelecionados([])
+      carregarInicial()
+    }}
+  />
+)}
+```
+
+---
+
+## Segurança
+
+- [x] `tenant_id` em todas as queries (origem e destino)
+- [x] Hard delete: audit trail obrigatório ANTES da exclusão
+- [x] Validação de status no backend (não confiar no frontend)
+- [x] Permissão separada: duplicar vs excluir
+
+---
+
+## Testes
+
+```
+testes/unitarios/pedido/duplicarExcluirService.test.ts
+  ├── duplicar — copia todos os campos do pedido
+  ├── duplicar — copia todos os itens com saldo zerado
+  ├── duplicar — config numero_auto gera número correto
+  ├── duplicar — config copiar_datas = false reseta datas
+  ├── duplicar — config status_inicial = 'rascunho' ignora status original
+  ├── excluir — hard delete remove pedido e itens
+  ├── excluir — status não permitido é bloqueado
+  ├── excluir item — pedido sem item é excluído (config false)
+  ├── excluir item — pedido sem item permanece (config true)
+  └── cross-tenant — não duplica/exclui pedido de outro tenant
+
+testes/funcionais/pedido/duplicarExcluir.test.ts
+  ├── POST /duplicar/preview — retorna config e pedidos
+  ├── POST /duplicar/confirmar — cria cópias com novos IDs
+  ├── POST /excluir/preview — separa permitidos e bloqueados
+  ├── POST /excluir/confirmar — remove definitivamente
+  └── POST /excluir/itens — remove itens e aplica regra sem-item
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-REGRAS-NEGOCIO.md ---
+# Edição em Massa — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Definido — aguardando implementação
+
+---
+
+## O que é "Editar em Massa"
+
+Editar em massa é a operação de **alterar campos de múltiplos pedidos e/ou seus itens simultaneamente**, a partir de uma seleção na lista. Elimina a necessidade de abrir cada pedido individualmente para aplicar a mesma alteração.
+
+---
+
+## Escopo de Campos Editáveis
+
+### Pedido (`Pedido`)
+
+Todos os campos são editáveis em massa, **exceto campos calculados automaticamente**:
+
+| Campo | Editável em massa? | Motivo bloqueio |
+|---|---|---|
+| `incoterm` | ✅ Sim | — |
+| `moeda_pedido` | ✅ Sim | — |
+| `data_embarque` | ✅ Sim | — |
+| `data_emissao_pedido` | ✅ Sim | — |
+| `cobertura_cambial` | ✅ Sim | — |
+| `condicao_pagamento` | ✅ Sim | — |
+| `exportador_nome` | ✅ Sim | — |
+| `porto_origem` | ✅ Sim | — |
+| `porto_destino` | ✅ Sim | — |
+| Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
+| `numero_pedido` | ✅ Sim (com permissão) | — |
+| `valor_total_pedido` | ❌ Não | Campo calculado (soma dos itens) |
+| `quantidade_inicial_total` | ❌ Não | Campo calculado (soma dos itens) |
+| `quantidade_transferida_total` | ❌ Não | Campo calculado (soma dos itens) |
+| `status` | ❌ Não | Gerenciado pelo saldoEngine / fluxo de status |
+| `id`, `tenant_id`, `created_at` | ❌ Não | Campos de sistema |
+
+### Item (`PedidoItem`)
+
+Mesma regra — todos editáveis exceto calculados:
+
+| Campo | Editável em massa? | Motivo bloqueio |
+|---|---|---|
+| `quantidade_inicial` | ✅ Sim | — |
+| `quantidade_transferida` | ✅ Sim | — |
+| `valor_unitario` | ✅ Sim | — |
+| `data_embarque_item` | ✅ Sim | — |
+| `part_number` | ✅ Sim (com permissão) | — |
+| Colunas criadas pelo usuário | ✅ Sim (com permissão) | — |
+| `valor_item` | ❌ Não | Campo calculado (qty × valor_unitario) |
+| `quantidade_atual` | ❌ Não | Campo calculado pelo saldoEngine |
+
+---
+
+## Operações por Tipo de Campo
+
+| Tipo | Operações disponíveis | Exemplo |
+|---|---|---|
+| **Numérico** | Substituir / Somar / Subtrair / Aplicar percentual | 1.000 + 100 = 1.100 · 1.000 × 1,1 = 1.100 |
+| **Texto** | Substituir | "FOB" → "CIF" |
+| **Data** | Substituir / Avançar N dias / Recuar N dias | 10/04 + 5 dias = 15/04 |
+| **Select / Enum** | Substituir | Status "Aberto" → outro valor válido |
+| **Coluna do usuário** | Igual ao tipo definido na criação da coluna | — |
+
+---
+
+## Regra de Conflito (Múltiplos Valores)
+
+Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
+
+- O campo aparece **em branco** com placeholder "Múltiplos valores"
+- O usuário só altera o campo se digitar/selecionar algo explicitamente
+- Campos **não tocados** mantêm o valor original de cada pedido individualmente
+- Não há merge automático — o que não foi editado não muda
+
+---
+
+## Níveis de Edição
+
+| Nível | O que edita | Quando usar |
+|---|---|---|
+| **Pedido** | Campos do `Pedido` nos pedidos selecionados | Mudar incoterm, data, condições de vários pedidos |
+| **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | Ajustar quantidades ou valores de itens |
+| **Combinado** | Pedido + Item na mesma operação | Alterar campos de ambos os níveis de uma vez |
+
+---
+
+## Permissões
+
+- Permissão separada do Consolidar e Transferir
+- Granularidade a ser definida em sprint de permissões
+- Default: desabilitado até permissão configurada
+- Colunas criadas pelo usuário exigem permissão adicional para edição em massa
+
+---
+
+## Regras Transversais
+
+| Regra | Descrição | Default |
+|---|---|---|
+| **Auditoria** | Toda edição em massa grava histórico com campos alterados, valores anteriores/novos, usuário e timestamp | Sempre ativo |
+| **Campos calculados** | Nunca podem ser editados em massa — são recalculados automaticamente após a edição | Sempre ativo |
+| **Preview** | Antes de confirmar, exibe resumo das alterações (quantos pedidos afetados, quais campos, quais valores) | Sempre ativo |
+| **Status automático** | Após edição de campos de quantidade, recalcula status dos pedidos afetados via saldoEngine | Sempre ativo |
+| **Colunas do usuário** | Edição em massa suporta colunas customizadas criadas pelo usuário, respeitando o tipo definido | Sempre ativo |
+
+---
+
+## UX do Modal de Edição em Massa
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Editar em Massa (5 pedidos selecionados)               │
+├─────────────────────────────────────────────────────────┤
+│  Nível: [● Pedido]  [○ Item]  [○ Combinado]             │
+│                                                         │
+│  Campos do Pedido                                       │
+│  ─────────────────                                      │
+│  Incoterm          [Múltiplos valores ▼]                │
+│  Data Embarque     [__/__/____] [+ dias] [- dias]       │
+│  Cond. Pagamento   [________________________]           │
+│  Moeda             [Múltiplos valores ▼]                │
+│                                                         │
+│  + Adicionar campo                                      │
+│                                                         │
+│  Preview                                                │
+│  ──────────────────                                     │
+│  5 pedidos serão afetados                               │
+│  2 campos serão alterados                               │
+│  ⚠ 3 pedidos têm valores diferentes em "Incoterm"      │
+│                                                         │
+│        [Cancelar]           [Aplicar em Massa]          │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Usuário seleciona quais campos quer editar (não precisa preencher todos)
+- Campos com múltiplos valores mostram placeholder "Múltiplos valores"
+- Preview em tempo real mostra impacto antes de confirmar
+- Campos calculados não aparecem na lista de edição
+
+--- documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-TECNICO.md ---
+# Edição em Massa — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Aguardando implementação
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + TypeScript strict, Vite |
+| Backend | Express + TypeScript, Prisma ORM |
+| Banco | PostgreSQL (tenant isolado via Prisma Extensions + RLS) |
+| Validação | Zod em todas as rotas |
+| Auth | Clerk JWT + `x-internal-key` S2S |
+| Erros | `AppError` — nunca `res.status().json()` direto |
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── ModalEdicaoEmMassa.tsx       ← Modal principal
+│       │   └── ModalEdicaoEmMassa.css
+│       ├── shared/
+│       │   ├── types.ts                     ← Tipos de edição em massa
+│       │   └── api.ts                       ← pedidoEdicaoMassaApi
+│       └── pages/
+│           └── ListaPedidos.tsx             ← Botão "Editar em Massa" integrado
+└── server/
+    └── src/
+        ├── routes/
+        │   └── edicaoEmMassa.ts             ← Rotas
+        └── services/
+            └── edicaoEmMassaService.ts      ← Lógica de negócio
+```
+
+---
+
+## Tipos TypeScript (`client/src/shared/types.ts`)
+
+```ts
+// Tipos de campo suportados
+export type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario'
+
+// Operação aplicada ao campo
+export type OperacaoCampo =
+  | 'substituir'       // todos os tipos
+  | 'somar'            // numero
+  | 'subtrair'         // numero
+  | 'percentual'       // numero (ex: +10% → ×1.1)
+  | 'avancar_dias'     // data
+  | 'recuar_dias'      // data
+
+// Um campo a ser editado
+export interface CampoEdicaoMassa {
+  campo: string                 // key do campo (ex: 'incoterm', 'data_embarque')
+  tipo: TipoCampoEdicao
+  nivel: 'pedido' | 'item'
+  operacao: OperacaoCampo
+  valor: string | number        // novo valor ou delta (para somar/percentual/dias)
+}
+
+// Payload enviado ao backend
+export interface EdicaoMassaPayload {
+  pedido_ids: string[]
+  campos: CampoEdicaoMassa[]
+  nivel: 'pedido' | 'item' | 'combinado'
+}
+
+// Resposta do preview
+export interface EdicaoMassaPreview {
+  pedidos_afetados: number
+  itens_afetados: number
+  campos: {
+    campo: string
+    nivel: 'pedido' | 'item'
+    operacao: OperacaoCampo
+    valor: string | number
+    multiplos_valores: boolean    // true se pedidos selecionados têm valores diferentes
+    valores_distintos?: string[]  // lista de valores atuais distintos (para exibir no UI)
+    alertas: string[]
+  }[]
+  alertas_globais: string[]
+}
+
+// Resposta do confirmar
+export interface EdicaoMassaResultado {
+  pedidos_atualizados: number
+  itens_atualizados: number
+  campos_alterados: string[]
+  erros: { pedido_id: string; motivo: string }[]
+}
+
+// Campos bloqueados (calculados — nunca editáveis em massa)
+export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
+  'valor_total_pedido',
+  'quantidade_inicial_total',
+  'quantidade_transferida_total',
+  'status',
+  'id',
+  'tenant_id',
+  'product_id',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+])
+
+export const CAMPOS_BLOQUEADOS_ITEM = new Set([
+  'valor_item',
+  'quantidade_atual',
+  'id',
+  'tenant_id',
+  'pedido_id',
+  'created_at',
+  'updated_at',
+])
+```
+
+---
+
+## API Client (`client/src/shared/api.ts`)
+
+```ts
+export const pedidoEdicaoMassaApi = {
+  // Preview — mostra impacto antes de confirmar
+  preview: (payload: EdicaoMassaPayload) =>
+    request<EdicaoMassaPreview>('/api/v1/pedidos/edicao-em-massa/preview', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  // Confirmar — executa a edição
+  confirmar: (payload: EdicaoMassaPayload) =>
+    request<EdicaoMassaResultado>('/api/v1/pedidos/edicao-em-massa/confirmar', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+}
+```
+
+### Mock DEV
+
+```ts
+function mockEdicaoMassaPreview(payload: EdicaoMassaPayload): EdicaoMassaPreview {
+  const pedidos = MOCK_PEDIDOS.filter(p => payload.pedido_ids.includes(p.id))
+  return {
+    pedidos_afetados: pedidos.length,
+    itens_afetados: pedidos.reduce((s, p) => s + (p.itens?.length ?? 0), 0),
+    campos: payload.campos.map(c => {
+      const valores = pedidos.map(p => String((p as Record<string,unknown>)[c.campo] ?? ''))
+      const distintos = [...new Set(valores)]
+      return {
+        campo: c.campo,
+        nivel: c.nivel,
+        operacao: c.operacao,
+        valor: c.valor,
+        multiplos_valores: distintos.length > 1,
+        valores_distintos: distintos,
+        alertas: [],
+      }
+    }),
+    alertas_globais: [],
+  }
+}
+
+function mockEdicaoMassaConfirmar(payload: EdicaoMassaPayload): EdicaoMassaResultado {
+  // Aplica alterações nos mocks em memória
+  payload.pedido_ids.forEach(id => {
+    const pedido = MOCK_PEDIDOS.find(p => p.id === id)
+    if (!pedido) return
+    payload.campos.forEach(c => {
+      if (c.nivel === 'pedido') {
+        aplicarOperacao(pedido, c)
+      } else {
+        pedido.itens?.forEach(item => aplicarOperacao(item, c))
+      }
+    })
+  })
+  return {
+    pedidos_atualizados: payload.pedido_ids.length,
+    itens_afetados: 0,
+    campos_alterados: payload.campos.map(c => c.campo),
+    erros: [],
+  }
+}
+
+function aplicarOperacao(obj: Record<string, unknown>, c: CampoEdicaoMassa): void {
+  const atual = obj[c.campo]
+  switch (c.operacao) {
+    case 'substituir':   obj[c.campo] = c.valor; break
+    case 'somar':        obj[c.campo] = Number(atual || 0) + Number(c.valor); break
+    case 'subtrair':     obj[c.campo] = Number(atual || 0) - Number(c.valor); break
+    case 'percentual':   obj[c.campo] = Number(atual || 0) * (1 + Number(c.valor) / 100); break
+    case 'avancar_dias': obj[c.campo] = adicionarDias(String(atual), Number(c.valor)); break
+    case 'recuar_dias':  obj[c.campo] = adicionarDias(String(atual), -Number(c.valor)); break
+  }
+}
+```
+
+---
+
+## Backend — Rotas (`server/src/routes/edicaoEmMassa.ts`)
+
+### `POST /api/v1/pedidos/edicao-em-massa/preview`
+
+**Zod schema:**
+```ts
+const CampoSchema = z.object({
+  campo: z.string().min(1),
+  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario']),
+  nivel: z.enum(['pedido', 'item']),
+  operacao: z.enum(['substituir', 'somar', 'subtrair', 'percentual', 'avancar_dias', 'recuar_dias']),
+  valor: z.union([z.string(), z.number()]),
+})
+
+const EdicaoMassaSchema = z.object({
+  pedido_ids: z.array(z.string().uuid()).min(1),
+  campos: z.array(CampoSchema).min(1),
+  nivel: z.enum(['pedido', 'item', 'combinado']),
+})
+```
+
+**Lógica:**
+1. Valida Zod
+2. Rejeita se `campo` está em `CAMPOS_BLOQUEADOS_PEDIDO` ou `CAMPOS_BLOQUEADOS_ITEM`
+3. Busca pedidos com `tenant_id` obrigatório
+4. Para cada campo, detecta se há múltiplos valores entre os pedidos selecionados
+5. Retorna `EdicaoMassaPreview` sem alterar o banco
+
+---
+
+### `POST /api/v1/pedidos/edicao-em-massa/confirmar`
+
+**Lógica em `$transaction`:**
+```
+1. Valida Zod + campos bloqueados
+2. Busca todos os pedidos com tenant_id
+3. Para cada pedido:
+   a. Aplica campos de nível 'pedido' via prisma.pedido.update()
+   b. Para campos de nível 'item': aplica em todos os PedidoItem do pedido
+4. Aplica operação conforme tipo:
+   - substituir → value direto
+   - somar/subtrair → campo atual ± valor
+   - percentual → campo atual × (1 + valor/100)
+   - avancar_dias/recuar_dias → data atual ± N dias
+5. Recalcula campos agregados (valor_total_pedido, quantidade_inicial_total, etc.)
+6. Recalcula status via saldoEngine se campos de quantidade foram alterados
+7. Registra audit trail: campos alterados, valores anteriores, valores novos, usuário
+```
+
+**Resposta:** `200 { EdicaoMassaResultado }`
+
+---
+
+## Backend — Serviço (`server/src/services/edicaoEmMassaService.ts`)
+
+```ts
+export class EdicaoEmMassaService {
+  async preview(tenantId: string, payload: EdicaoMassaPayload): Promise<EdicaoMassaPreview>
+  async confirmar(tenantId: string, userId: string, payload: EdicaoMassaPayload): Promise<EdicaoMassaResultado>
+
+  // Privados
+  private aplicarOperacao(valorAtual: unknown, operacao: OperacaoCampo, valor: string | number): unknown
+  private recalcularAgregados(tenantId: string, pedidoId: string): Promise<void>
+  private validarCamposEditaveis(campos: CampoEdicaoMassa[]): void  // rejeita CAMPOS_BLOQUEADOS
+}
+```
+
+---
+
+## Frontend — Modal (`ModalEdicaoEmMassa.tsx`)
+
+### Fluxo UX (2 passos)
+
+```
+Passo 1 — Selecionar campos e valores
+  ├── Toggle: Pedido / Item / Combinado
+  ├── Lista de campos disponíveis (exceto bloqueados)
+  │   ├── Cada campo: label + tipo de operação + input de valor
+  │   ├── Campos com múltiplos valores: placeholder "Múltiplos valores"
+  │   └── + Adicionar campo (para colunas do usuário)
+  └── Preview em tempo real (debounce 300ms → chama /preview)
+
+Passo 2 — Confirmar
+  ├── Resumo: X pedidos · Y itens · Z campos alterados
+  ├── Lista de campos com valor anterior → valor novo
+  ├── Alertas se houver
+  └── Botão "Aplicar em Massa"
+```
+
+### Props
+
+```ts
+interface ModalEdicaoEmMassaProps {
+  pedidos: Pedido[]
+  onFechar: () => void
+  onConcluido: () => void
+}
+```
+
+---
+
+## Integração em ListaPedidos.tsx
+
+```tsx
+// Estado
+const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+
+// Botão (substituir o onClick atual que tem console.info)
+<BotaoGlobal
+  variante="secundario"
+  tamanho="pequeno"
+  icone={<PencilLine size={14} weight="duotone" />}
+  disabled={pedidosSelecionados.length === 0}
+  onClick={() => setModalEdicaoMassaAberto(true)}
+>
+  Editar em Massa{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+</BotaoGlobal>
+
+// Modal
+{modalEdicaoMassaAberto && (
+  <ModalEdicaoEmMassa
+    pedidos={pedidosSelecionados}
+    onFechar={() => setModalEdicaoMassaAberto(false)}
+    onConcluido={() => {
+      setModalEdicaoMassaAberto(false)
+      setPedidosSelecionados([])
+      carregarInicial()
+    }}
+  />
+)}
+```
+
+---
+
+## Segurança — Checklist 5 Camadas
+
+- [x] **Rede**: rotas registradas após `tenantIsolationMiddleware`
+- [x] **Autenticação**: Clerk JWT validado em todas as rotas
+- [x] **Autorização**: verificar permissão de edição em massa antes de executar
+- [x] **Isolamento**: `tenant_id` em todas as queries Prisma
+- [x] **Auditoria**: histórico com campos, valores anteriores/novos, usuário e timestamp
+- [x] **Campos bloqueados**: validação server-side rejeita campos calculados mesmo se contornado no frontend
+
+---
+
+## Testes
+
+```
+testes/unitarios/pedido/edicaoEmMassaService.test.ts
+  ├── substituir texto — campo atualizado em todos os pedidos
+  ├── somar numero — 1000 + 100 = 1100
+  ├── subtrair numero — 1000 - 100 = 900
+  ├── percentual — 1000 + 10% = 1100
+  ├── avancar_dias — 10/04 + 5 = 15/04
+  ├── recuar_dias — 10/04 - 5 = 05/04
+  ├── campo bloqueado — rejeita valor_total_pedido
+  ├── multiplos_valores — detecta corretamente campos com valores distintos
+  ├── nivel item — aplica em todos os itens dos pedidos selecionados
+  ├── campo nao tocado — mantém valor original
+  └── cross-tenant — rejeita pedidos de outro tenant
+
+testes/funcionais/pedido/edicaoEmMassa.test.ts
+  ├── POST /preview — retorna multiplos_valores corretamente
+  ├── POST /confirmar — aplica alterações e retorna resultado
+  ├── POST /confirmar — rejeita campo bloqueado
+  └── POST /confirmar — rejeita pedidos de outro tenant
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md ---
+# HANDOFF — Pedido (Gestao de Pedidos COMEX)
+
+> **De:** Dream Team de Produtos (8 agentes)
+> **Para:** Dream Team de Tecnologia (11 papeis, 57 skills)
+> **Data:** 29/03/2026
+> **Product Owner:** Daniel Mendes
+> **Status:** Aprovado — pronto para implementacao
+
+---
+
+## 1. Contexto Executivo (PM — 10 min)
+
+### O que e
+
+Pedido e o produto de **gestao de pedidos de importacao e exportacao** da Gravity Platform. E o componente central para orquestrar fluxos de COMEX onde quantidades solicitadas raramente coincidem com uma entrega unica.
+
+O sistema resolve:
+- **Fatiamento de carga** em multiplos embarques
+- **Consolidacao** de itens de origens distintas
+- **Rastreabilidade extrema** de saldo por item (o "elo sagrado")
+- **Sincronizacao ERP** como espelho dinamico de Purchase Orders / Sales Orders
+
+### Arquitetura 3-Tier
+
+| Camada | Entidade | Papel |
+|--------|----------|-------|
+| **1 — Pedido** | `Pedido` | Documento comercial mestre (PO/SO). Define Incoterm, Moeda, Parceiros. |
+| **2 — Rastreador de Saldo** | `PedidoItem` | O "elo sagrado" — controla quantidade inicial, atual, transferida, pronta, cancelada. |
+| **3 — Execucao Logistica** | `Processo` | Booking/Embarque. **NAO faz parte deste produto** — existe apenas no produto Processo. |
+
+> **Regra:** O Pedido funciona standalone. A Camada 3 (Processo) so aparece quando o item e vinculado a um processo logistico, e isso acontece dentro do produto Processo.
+
+### Por que agora
+
+- Gestao de pedidos COMEX e feita em planilhas ou ERPs limitados
+- Saldo de itens se perde quando ha fatiamento entre embarques
+- O legado DATI valida que a matematica de saldo funciona por anos de uso real
+- E o pilar central que conecta todos os outros produtos (SimulaCusto, BID Frete, BID Cambio, Processo)
+
+### O que esta no MVP
+
+| Area | Funcionalidades |
+|------|----------------|
+| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
+| Gestao de Itens | Quantidade Inicial/Atual/Transferida/Pronta/Cancelada, unidade de medida, valores |
+| Entrada de Dados | Manual, importacao de arquivo (Excel, CSV, XML, TXT, JSON), integracao ERP via API Cockpit |
+| Ciclo de Vida | Draft -> Aberto -> Vinculado -> Liquidado |
+| Importacao/Exportacao | Suporte dual com Escudo Anti-Conflito (prefixos operacionais) |
+
+### O que NAO esta no MVP
+
+- Smart Read (leitura inteligente de documentos) — Fase 2 (produto Gravity ja existente, integracao futura)
+- Dashboard analitico de pedidos — Fase 2
+- Alertas automaticos de saldo baixo — Fase 2
+- Workflow de aprovacao de pedidos — Fase 3
+- Integracao bidirecional com ERP (push de status) — Fase 3
+
+---
+
+## 2. Regras de Negocio Criticas (SME — 10 min)
+
+### Top 5 que o time DEVE saber
+
+| # | Regra | Por que importa |
+|---|-------|----------------|
+| 1 | **Matematica de Saldo Imutavel:** `quantidade_inicial = quantidade_atual + quantidade_transferida + quantidade_cancelada` | A quantidade_inicial NUNCA muda apos criacao. E a constante que garante rastreabilidade. Toda operacao de transferencia/cancelamento e uma operacao atomica que debita de quantidade_atual. |
+| 2 | **Escudo Anti-Conflito:** Usar `importacao_exportador_id` e `exportacao_importador_id`, NUNCA `fornecedor_id` ou `cliente_id` genericos. | Importacao e Exportacao coexistem nas mesmas tabelas. O prefixo operacional impede ambiguidade de UX e dados. |
+| 3 | **Isolamento Zero-Trust:** Toda query exige `tenant_id` + `company_id`. | Uma filial NUNCA enxerga pedidos de outra, exceto com perfil Master Cross-Company. |
+| 4 | **Valores monetarios:** `casas_decimais_total_pedido` e `casas_decimais_quantidade` sao configuraveis por pedido. | Diferentes operacoes usam precisoes diferentes (2 casas para valores FOB, 3+ para quantidades fracionarias como TON, m3). |
+| 5 | **PedidoItem e o elo sagrado entre Comercial e Logistico.** | Quando um ProcessoItem e criado no produto Processo, ele debita de `quantidade_atual` do PedidoItem via `pedido_item_id`. O Pedido so sabe que foi debitado — quem faz o debito e o Processo. |
+
+### Regras de Saldo Detalhadas
+
+- **Transferencia:** Ao vincular item a um Processo, debita `quantidade_atual` e credita `quantidade_transferida`. Operacao atomica.
+- **Cancelamento:** Debita `quantidade_atual` e credita `quantidade_cancelada`. Irreversivel.
+- **Quantidade Pronta:** Quantidade produzida pela fabrica, pronta para o proximo embarque. Informativa — nao afeta a formula de saldo.
+- **Sobre-execucao:** IMPOSSIVEL. O sistema impede transferencia quando `quantidade_atual < quantidade_solicitada`.
+
+### Ciclo de Vida
+
+```
+Draft ──> Aberto ──> Vinculado ──> Liquidado
+  │                    │
+  │                    └── Quando algum PedidoItem tem quantidade_transferida > 0
+  │
+  └── Pedido espelhado do ERP ou criado manualmente, dados nao validados
+```
+
+- **Draft:** Dados iniciais, ainda nao validados
+- **Aberto:** Saldo positivo em `quantidade_atual`, apto para vincular a processos
+- **Vinculado:** Parte dos itens ja associada a um ou mais Processos
+- **Liquidado:** `quantidade_atual` = 0 em todos os itens (totalmente embarcado ou cancelado)
+
+---
+
+## 3. Publico-Alvo e Personas (UX Researcher)
+
+### 3 Personas
+
+| Persona | Perfil | JTBD Principal |
+|---------|--------|---------------|
+| **Ana** — Analista de Importacao | Mid-market, 20-80 POs/mes | "Controlar saldo de itens sem planilha, saber o que ja embarcou e o que falta" |
+| **Roberto** — Coordenador de Exportacao | Trading, 100+ SOs/mes | "Consolidar pedidos de clientes diferentes em embarques otimizados" |
+| **Marcos** — Gerente de Supply Chain | Industria, supervisiona 5 analistas | "Visao consolidada de todos os pedidos, com status e valores por exportador" |
+
+---
+
+## 4. Telas e Fluxos (Designer — 15 min)
+
+### 3 Telas Principais
+
+| # | Tela | Complexidade | Componentes Nucleo-Global | 5 Estados |
+|---|------|-------------|--------------------------|-----------|
+| 1 | Lista de Pedidos | G | TabelaCamadasGlobal, StatusBadgeGlobal, BotaoGlobal, CabecalhoGlobal, CardBasicoGlobal | empty (sem pedidos), loading (skeleton), error, filled (grid hierarquico), disabled (sem permissao) |
+| 2 | Novo/Editar Pedido | M | ModalGlobal ou PaginaGlobal, InputTexto, CaixaSelectGlobal, BotaoGlobal | empty (form limpo), loading (salvando), error (validacao), filled (editando), disabled (somente leitura) |
+| 3 | Importacao de Arquivo | M | ModalGlobal, BotaoGlobal, Loading | empty (nenhum arquivo), loading (processando), error (arquivo invalido), filled (preview dos dados), disabled |
+
+### Grid Principal — Lista de Pedidos (TabelaCamadasGlobal)
+
+**Colunas pai (Pedido):**
+
+| Coluna | Campo | Tipo | Filtro |
+|--------|-------|------|--------|
+| Pedido/Item | `numero_pedido` | String | Busca textual |
+| P.O Tipo | `tipo_operacao` | Enum | Select (importacao/exportacao) |
+| Importador | `tenant_id` (resolve nome) | FK | Select |
+| Ref. Importador | campo livre | String | — |
+| Exportador | `importacao_exportador_id` | FK | Select |
+| Ref. Exportador | campo livre | String | — |
+| Fabricante | FK cadastro | FK | Select |
+| Ref. Fabricante | campo livre | String | — |
+| Numero Proforma | `numero_proforma` | String | Busca |
+| Numero Invoice | `numero_invoice` | String | Busca |
+| Data P.O | `data_emissao_pedido` | Date | Range |
+
+**Colunas filha (PedidoItem) — expandidas via "Ver Itens":**
+
+| Coluna | Campo | Tipo |
+|--------|-------|------|
+| Quantidade Inicial | `quantidade_inicial` | Float (formatado pt-BR) |
+| Quantidade Atual | `quantidade_atual` | Float |
+| Quantidade Transferida | `quantidade_transferida` | Float |
+| Quantidade Pronta | `quantidade_pronta` | Float |
+| Quantidade Para Transferir | input editavel | Float (campo de entrada) |
+| Descricao Quantidade | `unidade_comercializada_item` | String (UoM: Unidade, Metro, Litro, cm3, Metro Quadrado) |
+
+### Toolbar (Barra de Ferramentas Superior)
+
+| Icone | Funcao | Descricao |
+|-------|--------|-----------|
+| Plus | Adicionar | Novo pedido manual |
+| Lixeira | Deletar | Remover pedido(s) selecionado(s) |
+| Copiar | Copiar | Duplicar pedido selecionado |
+| Filtros | Filtros avancados | Painel de filtros por coluna |
+| Engrenagem | Configuracao de colunas | Mostrar/ocultar colunas |
+| Expansao | Expandir lateral | Detalhe expandido |
+| Inversao | Inverter visualizacao | Alternar visao grid/cards |
+| Historico | Logs de auditoria | Acesso ao historico de alteracoes |
+| Calendario | Eventos | Calendario de datas relevantes |
+| Upload | Importar arquivo | Excel, CSV, XML, TXT, JSON |
+| Download | Exportar | Exportar dados filtrados |
+| Refresh | Atualizar | Sincronizar dados com ERP |
+| Localizar | Busca | Campo de busca textual |
+
+### Fluxos Navegacionais
+
+**Fluxo 1 — Visualizacao e Gestao:**
+```
+Login -> Produto Pedido -> Lista de Pedidos
+  -> Filtrar (Status, Tipo Operacao, Exportador, Datas)
+  -> Clicar no Pedido -> Expandir itens (TabelaCamadasGlobal chevron)
+  -> Ver saldos: Inicial, Atual, Transferida, Pronta, Cancelada
+```
+
+**Fluxo 2 — Criacao Manual:**
+```
+Lista de Pedidos -> [+] Novo Pedido -> Preencher header (PO, tipo, exportador, incoterm, moeda)
+  -> Adicionar itens (part_number, NCM, descricao, quantidade, valor)
+  -> Salvar -> Status = Draft
+  -> Validar -> Status = Aberto
+```
+
+**Fluxo 3 — Importacao de Arquivo:**
+```
+Lista de Pedidos -> [Upload] Importar -> Selecionar arquivo (Excel/CSV/XML/TXT/JSON)
+  -> Preview dos dados mapeados -> Confirmar -> Pedidos criados com status Draft
+```
+
+**Fluxo 4 — Integracao ERP (via API Cockpit):**
+```
+ERP envia PO via API -> Conector ERP recebe -> Cria Pedido com status Draft
+  -> Analista visualiza na lista -> Valida dados -> Status = Aberto
+```
+
+### Specs visuais
+
+- **Design System:** Solid Slate (variaveis CSS: --bg-body-dark, --bg-base, --bg-surface, --accent #6366f1)
+- **Tipografia:** Plus Jakarta Sans, DM Mono para codigos
+- **Icones:** Phosphor Icons (`@phosphor-icons/react`), weight="duotone"
+- **Botoes:** Pill (border-radius: 9999px), font-weight: 600
+- **Dark mode first**
+- **Breakpoints:** Desktop 1280px+, Tablet 768-1279px, Mobile <768px
+- **Acessibilidade:** Contraste 4.5:1 (AA), tab order, aria-labels, focus visible
+- **Expansao de itens:** Chevron rotacao 90deg, animacao fade-slide 0.18s, conectores de hierarquia
+
+---
+
+## 5. Arquitetura Tecnica (Tech Lead — 15 min)
+
+### Ficha do Produto
+
+| Item | Valor |
+|------|-------|
+| Product ID | `pedido` |
+| Servidor proprio | **NAO** — usa rotas do `processos-core` (tenant service) |
+| Database | Tenant DB (dados em `pedidos_comerciais` e `pedido_item`) |
+| Models Prisma | 2 tabelas proprias: `Pedido`, `PedidoItem` |
+| Fragment Prisma | `servicos-global/tenant/processos-core/prisma/fragment.prisma` (compartilhado) |
+| Client dev port | 5178 |
+
+### Por que NAO tem servidor proprio
+
+O Pedido opera sobre os models `Pedido` e `PedidoItem` que ja existem no fragment do `processos-core`. Os dados vivem no tenant DB, acessados via rotas do servico tenant `processos-core`. O produto Pedido e um **client standalone** que:
+
+1. Se comunica com o backend via rotas existentes de `processos-core`
+2. Usa `requireInternalKey` + `tenantIsolation` do servico tenant
+3. Pode tambem receber dados via API Cockpit (integracao ERP) e Conector ERP
+
+### O que reutilizar do Gravity
+
+| Servico/Componente | Uso no Pedido |
+|-------------------|--------------|
+| processos-core (tenant) | Backend: CRUD de Pedido e PedidoItem, logica de saldo |
+| Configurador (8003) | Auth Clerk, JWT, permissoes, workspace |
+| API Cockpit (8016) | Integracao ERP — entrada de pedidos via API |
+| Conector ERP (8017) | Sincronizacao bidirecional ERP |
+| Atividades (3001) | Log de acoes |
+| Historico (3001) | Audit trail |
+| Notificacoes (3001) | Alertas in-app |
+| TabelaCamadasGlobal | Grid hierarquico pai-filho com expansao |
+| StatusBadgeGlobal | Status do pedido (Draft, Aberto, Vinculado, Liquidado) |
+| CabecalhoGlobal | Header da pagina |
+| CardBasicoGlobal | Cards de KPI (total pedidos, valor FOB, etc.) |
+| BotaoGlobal | Acoes |
+| PaginaGlobal | Layout da pagina |
+| ModalGlobal | Formularios de criacao/edicao |
+| InputTexto | Campos de entrada |
+| CaixaSelectGlobal | Selects de filtro |
+
+### O que criar do zero
+
+| Componente | Justificativa |
+|-----------|-------------|
+| Rotas de Pedido no processos-core | CRUD completo: listar, criar, editar, deletar pedidos e itens |
+| saldoEngine | Logica de validacao da matematica de saldo (atomicidade, anti-sobre-execucao) |
+| importEngine | Parser de arquivos (Excel, CSV, XML, TXT, JSON) para criacao batch de pedidos |
+| Pagina Lista de Pedidos | Client React standalone usando TabelaCamadasGlobal |
+| Pagina Novo/Editar Pedido | Formulario de criacao/edicao com itens |
+| Modal Importacao | Upload + preview + mapeamento de colunas |
+
+### Estrutura de pastas
+
+```
+produto/pedido/
+├── client/
+│   └── src/
+│       ├── pages/
+│       │   ├── ListaPedidos.tsx          # Grid principal (TabelaCamadasGlobal)
+│       │   ├── NovoPedido.tsx            # Formulario de criacao
+│       │   └── ImportarArquivo.tsx        # Upload + preview + mapeamento
+│       ├── shared/
+│       │   ├── api.ts                     # Client API functions
+│       │   ├── config.ts                  # PRODUCT_CONFIG
+│       │   └── types.ts                   # TypeScript types
+│       ├── App.tsx
+│       └── main.tsx
+├── package.json
+└── README.md
+```
+
+**Backend (rotas adicionadas ao processos-core existente):**
+```
+servicos-global/tenant/processos-core/
+├── src/
+│   ├── routes/
+│   │   ├── pedidos.ts                    # CRUD Pedido + PedidoItem
+│   │   └── importacao.ts                 # Parse e criacao batch
+│   ├── services/
+│   │   ├── saldoEngine.ts               # Matematica de saldo atomica
+│   │   └── importEngine.ts              # Parser multi-formato
+│   └── ...
+└── prisma/
+    └── fragment.prisma                   # JA EXISTE — Pedido + PedidoItem
+```
+
+### PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'pedido',
+  productId: 'pedido',
+  name: 'Pedido',
+
+  tenantServices: [
+    'atividades',
+    'historico',
+    'notificacoes',
+    'api-cockpit',
+    'conector-erp',
+  ],
+
+  productServices: [
+    'saldo-engine',
+    'import-engine',
+  ],
+
+  navigation: [
+    { id: 'pedidos',     label: 'Pedidos',     icon: 'package',       source: 'product' },
+    { id: 'importar',    label: 'Importar',    icon: 'upload-simple', source: 'product' },
+  ],
+
+  features: {
+    importacao_exportacao: true,
+    importacao_arquivo: true,
+    integracao_erp: true,
+    smart_read: false,            // Fase 2
+    dashboard_analitico: false,   // Fase 2
+  },
+}
+```
+
+### API Endpoints (rotas em processos-core)
+
+#### Pedidos
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/pedidos` | Listar pedidos com itens (filtros: status, tipo_operacao, exportador, datas, paginacao) |
+| GET | `/api/v1/pedidos/:id` | Detalhe do pedido com itens expandidos |
+| POST | `/api/v1/pedidos` | Criar pedido com itens |
+| PUT | `/api/v1/pedidos/:id` | Atualizar pedido (so Draft/Aberto) |
+| DELETE | `/api/v1/pedidos/:id` | Deletar pedido (so Draft) |
+| PATCH | `/api/v1/pedidos/:id/status` | Transicao de status (Draft->Aberto, etc.) |
+| POST | `/api/v1/pedidos/:id/duplicar` | Duplicar pedido completo |
+
+#### Itens do Pedido
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/pedidos/:id/itens` | Adicionar item ao pedido |
+| PUT | `/api/v1/pedidos/:id/itens/:itemId` | Atualizar item |
+| DELETE | `/api/v1/pedidos/:id/itens/:itemId` | Remover item (so se quantidade_transferida == 0) |
+| PATCH | `/api/v1/pedidos/:id/itens/:itemId/cancelar` | Cancelar quantidade (debita atual, credita cancelada) |
+| PATCH | `/api/v1/pedidos/:id/itens/:itemId/pronta` | Atualizar quantidade pronta |
+
+#### Importacao
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/pedidos/importar` | Upload de arquivo (Excel, CSV, XML, TXT, JSON) |
+| POST | `/api/v1/pedidos/importar/preview` | Preview dos dados mapeados antes de confirmar |
+| POST | `/api/v1/pedidos/importar/confirmar` | Confirmar importacao e criar pedidos |
+
+#### Exportacao
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/pedidos/exportar` | Exportar pedidos filtrados (CSV, Excel) |
+
+---
+
+## 6. Criterios de Aceite (BA — 10 min)
+
+### Por funcionalidade do MVP
+
+| RF | Funcionalidade | Criterios | Cenarios-chave |
+|----|---------------|-----------|---------------|
+| RF-001 | Lista de Pedidos | CA-001 a CA-003 | Grid hierarquico, expansao de itens, filtros, busca |
+| RF-002 | Criacao Manual | CA-004, CA-005 | Criar pedido + itens, validacao de campos obrigatorios |
+| RF-003 | Edicao de Pedido | CA-006 | Editar header e itens (so Draft/Aberto) |
+| RF-004 | Matematica de Saldo | CA-007, CA-008 | Formula imutavel, anti-sobre-execucao |
+| RF-005 | Importacao de Arquivo | CA-009, CA-010 | Parse multi-formato, preview, confirmacao |
+| RF-006 | Ciclo de Vida | CA-011 | Transicoes de status validas |
+| RF-007 | Importacao/Exportacao | CA-012 | Escudo Anti-Conflito, prefixos operacionais |
+
+### Criterios detalhados
+
+```gherkin
+Cenario: CA-001 — Lista hierarquica de pedidos
+  Dado que existem pedidos cadastrados para o tenant
+  Quando o usuario acessa a lista de pedidos
+  Entao o grid exibe pedidos como linhas pai (TabelaCamadasGlobal)
+  E cada pedido mostra: numero, P.O Tipo, Importador, Exportador, Fabricante, Proforma, Invoice, Data P.O
+  E ao clicar no chevron, os itens expandem com: Qtd Inicial, Atual, Transferida, Pronta, Para Transferir, UoM
+
+Cenario: CA-004 — Criar pedido manualmente
+  Dado que o usuario esta na lista de pedidos
+  Quando clica em [+] Novo Pedido
+  E preenche tipo_operacao, numero_pedido, exportador, incoterm, moeda
+  E adiciona pelo menos 1 item com part_number, NCM, descricao, quantidade_inicial, valor
+  E clica em Salvar
+  Entao o pedido e criado com status "Draft"
+  E quantidade_atual = quantidade_inicial para cada item
+  E quantidade_transferida = 0, quantidade_cancelada = 0
+
+Cenario: CA-007 — Matematica de saldo imutavel
+  Dado que um PedidoItem tem quantidade_inicial = 1000
+  E quantidade_atual = 1000, transferida = 0, cancelada = 0
+  Quando o Processo solicita transferencia de 400 unidades
+  Entao quantidade_atual = 600
+  E quantidade_transferida = 400
+  E quantidade_inicial permanece 1000 (imutavel)
+  E a formula quantidade_inicial = atual + transferida + cancelada e valida
+
+Cenario: CA-008 — Anti-sobre-execucao
+  Dado que um PedidoItem tem quantidade_atual = 100
+  Quando o sistema tenta transferir 150 unidades
+  Entao a operacao e REJEITADA
+  E retorna erro "Quantidade solicitada (150) excede saldo disponivel (100)"
+  E nenhum dado e alterado
+
+Cenario: CA-009 — Importacao de arquivo Excel
+  Dado que o usuario clica em [Upload] Importar
+  Quando seleciona um arquivo Excel com colunas mapeadas
+  Entao o sistema exibe preview dos dados extraidos
+  E o usuario pode corrigir mapeamento de colunas
+  E ao confirmar, os pedidos sao criados com status "Draft"
+```
+
+### Criterios universais (todo endpoint)
+
+```gherkin
+Cenario: Isolamento de Tenant + Company
+  Dado que estou logado no tenant "A", company "Filial SP"
+  Quando faco qualquer operacao
+  Entao nenhum dado do tenant "B" ou company "Filial RJ" e acessivel
+
+Cenario: Validacao Zod
+  Dado que envio dados invalidos para qualquer endpoint
+  Entao recebo erro 400 com mensagem descritiva
+  E nenhum dado e gravado no banco
+
+Cenario: Autenticacao S2S
+  Dado que faco chamada sem x-internal-key
+  Entao recebo erro 401
+```
+
+---
+
+## 7. Metricas de Sucesso (Data Analyst — 5 min)
+
+| KPI | Meta (6 meses) | Como medir |
+|-----|----------------|-----------|
+| Pedidos gerenciados/mes | 500+ por tenant ativo | Count Pedido por tenant por mes |
+| Taxa de liquidacao | >80% dos pedidos liquidados em 90 dias | Pedidos com status=Liquidado / total |
+| Tempo de importacao | <30 seg para 100 pedidos via arquivo | Timestamp inicio/fim do importEngine |
+
+### Metricas secundarias
+
+- Itens com saldo zerado no prazo (%) — PedidoItem onde quantidade_atual = 0
+- Taxa de uso de importacao vs manual (%) — Pedidos criados via importEngine / total
+- Acuracia de saldo — Validacao diaria da formula imutavel (zero discrepancias)
+
+---
+
+## 8. Estimativas de Complexidade
+
+### Por funcionalidade
+
+| Funcionalidade | Tamanho | Dias |
+|---------------|---------|------|
+| Lista de Pedidos (TabelaCamadasGlobal) | G | 3-5 |
+| saldoEngine (matematica atomica) | M | 2-3 |
+| importEngine (parser multi-formato) | G | 3-5 |
+| Rotas CRUD pedidos + itens | M | 2-3 |
+| Formulario Novo/Editar Pedido | M | 2-3 |
+| Modal Importacao + Preview | M | 2-3 |
+| Ciclo de vida (estados) | P | 1 |
+| Exportacao (CSV/Excel) | P | 1 |
+
+### Estimativa total MVP
+
+| Categoria | Estimativa |
+|-----------|-----------|
+| Backend (rotas + engines em processos-core) | 1-2 semanas |
+| Frontend (3 telas + componentes) | 1-2 semanas |
+| Testes | 3-5 dias |
+| **TOTAL MVP** | **2-4 semanas** |
+
+---
+
+## 9. Riscos que o Time Deve Saber
+
+| Risco | Prob. | Impacto | Mitigacao |
+|-------|-------|---------|-----------|
+| Conflito de rotas no processos-core | Media | Alto | Namespace `/api/v1/pedidos` isolado, sem colisao com `/api/v1/processos` |
+| Parser de arquivo falha com formatos inesperados | Alta | Medio | Validacao rigorosa + preview antes de confirmar + mensagens de erro claras |
+| Sobre-execucao de saldo por race condition | Baixa | Critico | Transacao atomica no Prisma ($transaction), lock otimista |
+| Importacao ERP com dados incompletos | Media | Medio | Criar como Draft, analista valida antes de abrir |
+| Performance com muitos itens por pedido | Media | Medio | Paginacao server-side na expansao de itens, lazy loading |
+
+---
+
+## 10. Decisoes Tomadas
+
+| # | Data | Decisao | Razao |
+|---|------|---------|-------|
+| D-001 | 29/03/2026 | Sem servidor proprio — usa processos-core | Models ja existem no fragment, evita duplicacao de dados |
+| D-002 | 29/03/2026 | TabelaCamadasGlobal para grid hierarquico | Componente ja pronto com expansao pai-filho, animacoes e acessibilidade |
+| D-003 | 29/03/2026 | Camada 3 (Processo) nao faz parte deste produto | Separacao de responsabilidades — Pedido gerencia intencao comercial, Processo gerencia execucao logistica |
+| D-004 | 29/03/2026 | 5 formatos de importacao (Excel, CSV, XML, TXT, JSON) | Cobrir todos os formatos de ERP do mercado |
+| D-005 | 29/03/2026 | Casas decimais configuraveis por pedido | Diferentes operacoes usam precisoes diferentes |
+| D-006 | 29/03/2026 | Client dev port 5178 | Proxima disponivel apos bid-cambio (5176/5177) |
+
+---
+
+## 11. Indice dos Artefatos
+
+| # | Artefato | Local | Status |
+|---|---------|-------|--------|
+| 1 | Especificacao Tecnica (PDF) | `C:\Users\danie\Downloads\pedido.pdf` | Completo |
+| 2 | Arquitetura 3-Tier | `documentos-tecnicos/produtos-gravity/processo/arquitetura-3-tier.md` | Completo |
+| 3 | Fragment Prisma (Models) | `servicos-global/tenant/processos-core/prisma/fragment.prisma` | Completo |
+| 4 | PedidosPage (referencia dentro do Processo) | `produto/processo/client/src/pages/pedidos/PedidosPage.tsx` | Referencia |
+| 5 | TabelaCamadasGlobal (componente de grid) | `nucleo-global/Tabelas/tabela-camadas-global/src/TabelaCamadasGlobal.tsx` | Pronto |
+| 6 | HANDOFF | `documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md` | Este documento |
+
+---
+
+## 12. Contatos
+
+| Assunto | Quem Procurar |
+|---------|--------------|
+| Duvidas de produto/escopo | PM (este documento) |
+| Duvidas de regras de negocio/saldo | SME (secao 2) |
+| Duvidas de design/telas | Designer (screenshots no PDF + TabelaCamadasGlobal existente) |
+| Duvidas de arquitetura | Tech Lead (secao 5 + arquitetura-3-tier.md) |
+| Duvidas de fragment.prisma | Coordenador (processos-core/fragment.prisma) |
+| Aprovacao do dono | Daniel Mendes (Product Owner) |
+
+---
+
+## 13. Como Ativar o Dream Team Tecnologia
+
+Carregue a skill via Skill tool (ou peça ao agente):
+
+```
+skills/dream-team/tecnologia/README.md
+```
+
+Depois:
+
+> **"Novo produto: Pedido. O handoff completo esta em `documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md`. O fragment.prisma ja existe em `servicos-global/tenant/processos-core/prisma/fragment.prisma`. A referencia visual esta em `produto/processo/client/src/pages/pedidos/PedidosPage.tsx` e o componente de grid em `nucleo-global/Tabelas/tabela-camadas-global/`. Leiam o handoff e comecem pela implementacao."**
+
+### Ordem sugerida de implementacao
+
+1. **Backend:** Criar rotas CRUD em `processos-core/src/routes/pedidos.ts`
+2. **saldoEngine:** Implementar matematica de saldo atomica com validacao anti-sobre-execucao
+3. **importEngine:** Parser multi-formato (Excel, CSV, XML, TXT, JSON)
+4. **Frontend:** `produto/pedido/client/` com ListaPedidos.tsx usando TabelaCamadasGlobal
+5. **Formulario:** NovoPedido.tsx para criacao/edicao manual
+6. **Importacao:** ImportarArquivo.tsx com preview e confirmacao
+7. **Testes:** Unitarios do saldoEngine + funcionais das rotas + cross-tenant
+8. **QA:** Revisao com checklist de 6 categorias
+
+---
+
+## 14. Checklist Final — Handoff Completo?
+
+### Documentos
+- [x] Especificacao tecnica completa (PDF 8 paginas)
+- [x] Arquitetura 3-Tier documentada (arquitetura-3-tier.md)
+- [x] Regras de negocio operacionalizadas (matematica de saldo, escudo anti-conflito)
+- [x] Casos de uso (7 RFs com fluxos detalhados)
+- [x] Criterios de aceite em Gherkin para todo RF do MVP
+
+### Design
+- [x] Screenshots do sistema legado (4 imagens no PDF)
+- [x] Componente TabelaCamadasGlobal pronto para reuso
+- [x] PedidosPage.tsx como referencia visual existente
+- [x] Design system Solid Slate aplicado
+- [x] Dark mode first
+- [x] Acessibilidade especificada (chevron, aria-labels, tab order)
+
+### Tecnico
+- [x] Fragment.prisma completo (Pedido + PedidoItem ja existem)
+- [x] PRODUCT_CONFIG definido
+- [x] Endpoints detalhados (CRUD + importacao + exportacao)
+- [x] Mapa de reuso (servicos + componentes)
+- [x] Estimativas de complexidade (P/M/G)
+
+### Gestao
+- [x] Backlog priorizado (MVP vs Fase 2 vs Fase 3)
+- [x] Cronograma com estimativas (2-4 semanas MVP)
+- [x] Metricas de sucesso (3 KPIs)
+- [x] Riscos documentados com mitigacao (5 riscos)
+- [x] Decisoes registradas (6 decisoes com razao)
+
+### Aprovacoes
+- [x] Especificacao tecnica validada (PDF do PO)
+- [x] Arquitetura 3-Tier validada (documento existente)
+- [x] Fragment.prisma validado (em producao no processos-core)
+- [x] Product Owner aprovou escopo
+
+--- documentos-tecnicos/produtos-gravity/pedido/NOVO-PEDIDO-REGRAS-NEGOCIO.md ---
+# Novo Pedido — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Definido — aguardando implementação
+
+---
+
+## Canais de Criação de Pedido
+
+| Canal | Descrição | Status atual |
+|---|---|---|
+| **A. Manual** | Drawer lateral — criar e editar pelo mesmo painel | Substituir NovoPedido.tsx |
+| **B. Importar** | Smart import com IA, memória e validação linha a linha | Redesenhar ImportarArquivo.tsx |
+| **C. API Cockpit** | Via integração usando API Cockpit | Futuro |
+| **D. Smart Read** | Produto existente que lê documentos de pedido | Futuro |
+
+---
+
+## A. Criação Manual
+
+### Conceito
+Drawer (painel lateral deslizante) que abre pela direita. O usuário mantém o contexto da lista enquanto preenche. O mesmo drawer serve para **criar** e **editar**.
+
+### Comportamento
+- Botão "Novo" → abre drawer vazio
+- Clicar em um pedido na lista → abre drawer preenchido (modo edição)
+- A lista fica visível e desfocada atrás do drawer
+- Fechar sem salvar → confirma se há dados preenchidos
+
+### Campos obrigatórios
+**Nenhum campo é travado.** O sistema avisa o que está faltando mas não bloqueia o salvamento. O pedido salvo sem campos essenciais fica com status `rascunho`.
+
+### Itens
+- Grade dinâmica de itens dentro do drawer
+- Botão "+ Adicionar item" adiciona nova linha inline
+- Cada item: `part_number`, `ncm`, `descricao`, `quantidade_inicial`, `unidade`, `valor_unitario`
+
+---
+
+## B. Importar em Massa (Smart Import)
+
+### Filosofia
+**O sistema se adapta ao arquivo do usuário — não o contrário.**
+O usuário não precisa baixar um template. Pode usar qualquer planilha que já tem.
+
+### Formatos suportados
+- Excel (`.xlsx`, `.xls`)
+- CSV (`,` `;` `\t` `|`)
+- TXT
+- XML
+- JSON
+
+### Fluxo completo
+
+```
+Upload arquivo
+     ↓
+Parse + detecção de estrutura
+     ↓
+IA mapeia colunas (< 3 segundos)
+     ↓
+Usuário vê mapeamento + confirma/ajusta
+     ↓
+Validação linha a linha
+     ↓
+Preview: ✓ ok · ⚠ dúvida · ✗ erro
+     ↓
+Usuário decide o que fazer com cada problema
+     ↓
+Confirmar importação (parcial ou total)
+     ↓
+Pedidos criados com status rascunho
+```
+
+### Mapeamento inteligente de colunas (3 camadas)
+
+**Camada 1 — IA semântica (Gabi)**
+Analisa os cabeçalhos do arquivo e mapeia para campos do sistema. Funciona com qualquer idioma, abreviação, erro de digitação ou nome não-óbvio.
+
+**Camada 2 — Inferência pelos dados**
+Analisa os valores das primeiras linhas para confirmar ou corrigir o mapeamento:
+
+| Valor encontrado | Infere |
+|---|---|
+| "FOB", "CIF", "EXW", "DDP" | `incoterm` |
+| Número de 8 dígitos | `ncm` |
+| "USD", "EUR", "BRL" | `moeda_pedido` |
+| Padrão de data | `data_embarque` |
+| Valores decimais grandes | `valor_unitario` |
+| Texto alfanumérico curto | `part_number` |
+
+**Camada 3 — Memória por tenant**
+- Primeira importação com uma estrutura de arquivo: usuário confirma o mapeamento
+- Sistema salva o mapeamento associado à estrutura (hash dos cabeçalhos)
+- Próximas importações com mesmo arquivo: aplica automaticamente sem perguntar
+- Usuário pode resetar o mapeamento salvo se quiser
+
+### Níveis de confiança do mapeamento
+
+| Confiança | Comportamento | Visual |
+|---|---|---|
+| > 90% | Auto-mapeia sem perguntar | ✓ verde |
+| 50–90% | Exibe para o usuário confirmar | ⚠ amarelo |
+| < 50% | Usuário seleciona manualmente | ? cinza |
+| Coluna ignorada | Não mapeia | — |
+
+### Campos obrigatórios
+Nenhum campo é bloqueador. Sistema avisa o que está faltando mas não impede a importação. Pedidos com campos essenciais ausentes ficam com status `rascunho` e com alerta.
+
+### Número de pedido duplicado
+Quando o arquivo contém um `numero_pedido` que já existe no sistema:
+- Sistema avisa linha a linha
+- Usuário decide para cada duplicata:
+  - **Sobrescrever** — atualiza o pedido existente
+  - **Criar assim mesmo** — cria um novo pedido com o mesmo número
+  - **Pular** — ignora essa linha
+
+### Import parcial (erros em linhas)
+Quando algumas linhas têm problemas:
+- Sistema separa: ✓ válidas · ⚠ com aviso · ✗ com erro
+- Usuário decide por grupo ou linha a linha:
+  - Importar só as válidas
+  - Importar válidas + avisos
+  - Corrigir antes de importar
+  - Importar tudo assim mesmo
+
+### Validações por linha
+| Validação | Tipo |
+|---|---|
+| `numero_pedido` ausente | Aviso |
+| `part_number` ausente | Aviso |
+| `quantidade_inicial` ≤ 0 ou não numérico | Erro |
+| `ncm` com formato inválido | Aviso |
+| `valor_unitario` negativo | Erro |
+| `data_embarque` com formato inválido | Aviso |
+| `numero_pedido` duplicado no sistema | Aviso (usuário decide) |
+| `numero_pedido` duplicado dentro do arquivo | Agrupa como itens do mesmo pedido |
+
+### Agrupamento inteligente
+Linhas com o mesmo `numero_pedido` são agrupadas automaticamente em um único pedido com múltiplos itens.
+
+---
+
+## Regras Transversais
+
+| Regra | Descrição |
+|---|---|
+| **Status inicial** | Todo pedido criado (manual ou importado) começa com status `rascunho` |
+| **Auditoria** | Canal de criação registrado no histórico (`manual`, `importacao`, `api`, `smart_read`) |
+| **Colunas do usuário** | Colunas customizadas criadas pelo usuário aparecem no drawer e podem ser mapeadas no import |
+| **Permissão** | Permissão separada para criar manual vs importar em massa |
+
+--- documentos-tecnicos/produtos-gravity/pedido/NOVO-PEDIDO-TECNICO.md ---
+# Novo Pedido — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Aguardando implementação
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + TypeScript strict, Vite |
+| Backend | Express + TypeScript, Prisma ORM |
+| IA (mapeamento) | Gabi / Claude API (via `servicos-global/tenant/gabi`) |
+| Banco | PostgreSQL (tenant isolado) |
+| Validação | Zod em todas as rotas |
+| Parse Excel | SheetJS (`xlsx`) — instalar via `npm install xlsx` |
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── DrawerPedido.tsx              ← Drawer criar/editar (substitui NovoPedido.tsx como página)
+│       │   ├── DrawerPedido.css
+│       │   ├── SmartImport/
+│       │   │   ├── SmartImportModal.tsx      ← Modal de importação inteligente (substitui ImportarArquivo.tsx)
+│       │   │   ├── SmartImportModal.css
+│       │   │   ├── EtapaUpload.tsx           ← Passo 1: upload de arquivo
+│       │   │   ├── EtapaMapeamento.tsx       ← Passo 2: mapeamento de colunas (IA + usuário)
+│       │   │   ├── EtapaPreview.tsx          ← Passo 3: preview linha a linha com status
+│       │   │   └── EtapaConfirmacao.tsx      ← Passo 4: resultado final
+│       ├── shared/
+│       │   ├── types.ts                      ← Tipos de import + drawer
+│       │   └── api.ts                        ← smartImportApi + pedidoApi.criar/atualizar
+│       └── pages/
+│           └── ListaPedidos.tsx              ← Botões "Novo" e "Importar" integrados ao drawer/modal
+└── server/
+    └── src/
+        ├── routes/
+        │   └── smartImport.ts                ← Rotas de import inteligente
+        └── services/
+            ├── smartImportService.ts          ← Orquestra parse + IA + validação + criação
+            ├── importEngine.ts               ← Já existe — adicionar parser Excel (SheetJS)
+            └── mapeamentoMemoriaService.ts   ← Salva/recupera mapeamentos por tenant
+```
+
+---
+
+## A. Drawer de Criação/Edição
+
+### Tipos (`client/src/shared/types.ts`)
+
+```ts
+export interface DrawerPedidoProps {
+  aberto: boolean
+  pedidoId?: string          // undefined = criar, preenchido = editar
+  onFechar: () => void
+  onSalvo: (pedido: Pedido) => void
+}
+```
+
+### Comportamento
+
+- **Criar**: `pedidoId` undefined → drawer vazio → `POST /api/v1/pedidos`
+- **Editar**: `pedidoId` preenchido → carrega pedido → `PUT /api/v1/pedidos/:id`
+- Animação slide-in da direita, backdrop desfocado
+- Largura: `480px` (desktop) / `100vw` (mobile)
+- Fechar com Escape ou clique fora (confirmar se dados foram preenchidos)
+- Scroll interno para campos + itens
+
+### Integração em ListaPedidos.tsx
+
+```tsx
+// Estados
+const [drawerAberto, setDrawerAberto] = useState(false)
+const [pedidoEditandoId, setPedidoEditandoId] = useState<string | undefined>()
+
+// Botão Novo
+onClick={() => {
+  setPedidoEditandoId(undefined)
+  setDrawerAberto(true)
+}}
+
+// Clique na linha do pedido (para editar)
+onRowClick={(pedido) => {
+  setPedidoEditandoId(pedido.id)
+  setDrawerAberto(true)
+}}
+
+// Drawer
+<DrawerPedido
+  aberto={drawerAberto}
+  pedidoId={pedidoEditandoId}
+  onFechar={() => setDrawerAberto(false)}
+  onSalvo={() => {
+    setDrawerAberto(false)
+    carregarInicial()
+  }}
+/>
+```
+
+---
+
+## B. Smart Import
+
+### Tipos (`client/src/shared/types.ts`)
+
+```ts
+// Resultado do mapeamento de uma coluna
+export interface ColunaMapeada {
+  coluna_arquivo: string          // nome original da coluna no arquivo
+  campo_sistema: string | null    // campo mapeado (null = ignorar)
+  confianca: number               // 0-100
+  nivel: 'auto' | 'confirmado' | 'manual' | 'ignorado'
+  inferido_por: 'ia' | 'dados' | 'memoria' | 'usuario'
+}
+
+// Resultado do parse + mapeamento IA
+export interface SmartImportPreview {
+  total_linhas: number
+  total_pedidos: number           // após agrupamento por numero_pedido
+  total_itens: number
+  mapeamento: ColunaMapeada[]
+  confianca_global: number        // média ponderada
+  memoria_aplicada: boolean       // se veio de mapeamento salvo
+  linhas: SmartImportLinha[]
+}
+
+// Uma linha do arquivo após mapeamento
+export interface SmartImportLinha {
+  linha_arquivo: number
+  numero_pedido: string | null
+  status: 'ok' | 'aviso' | 'erro'
+  alertas: SmartImportAlerta[]
+  dados: Record<string, unknown>  // campos mapeados
+}
+
+export interface SmartImportAlerta {
+  campo: string
+  tipo: 'obrigatorio_ausente' | 'formato_invalido' | 'valor_negativo' | 'duplicado_sistema' | 'duplicado_arquivo'
+  mensagem: string
+  nivel: 'aviso' | 'erro'
+}
+
+// Decisão do usuário para cada duplicata
+export type DecisaoDuplicata = 'sobrescrever' | 'criar' | 'pular'
+
+// Payload de confirmação
+export interface SmartImportConfirmar {
+  preview_id: string              // token do preview em cache
+  mapeamento_confirmado: ColunaMapeada[]
+  decisoes_duplicatas: Record<string, DecisaoDuplicata>  // numero_pedido → decisão
+  linhas_incluidas: number[]      // índices das linhas a importar
+  salvar_mapeamento: boolean      // salvar para próxima vez
+}
+
+// Resultado final
+export interface SmartImportResultado {
+  criados: number
+  atualizados: number
+  pulados: number
+  erros: { linha: number; motivo: string }[]
+  ids_criados: string[]
+}
+```
+
+### API Client (`client/src/shared/api.ts`)
+
+```ts
+export const smartImportApi = {
+  // Upload + parse + mapeamento IA
+  analisar: (arquivo: File) => {
+    const formData = new FormData()
+    formData.append('arquivo', arquivo)
+    return request<SmartImportPreview>('/api/v1/pedidos/smart-import/analisar', {
+      method: 'POST',
+      body: formData,  // sem Content-Type — browser define boundary
+    })
+  },
+
+  // Confirmar importação com decisões do usuário
+  confirmar: (payload: SmartImportConfirmar) =>
+    request<SmartImportResultado>('/api/v1/pedidos/smart-import/confirmar', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  // Buscar mapeamento salvo para estrutura de arquivo
+  mapeamentoSalvo: (hashColunas: string) =>
+    request<ColunaMapeada[] | null>(`/api/v1/pedidos/smart-import/mapeamento/${hashColunas}`),
+}
+```
+
+---
+
+## Backend — Rotas (`server/src/routes/smartImport.ts`)
+
+### `POST /api/v1/pedidos/smart-import/analisar`
+
+**Entrada:** `multipart/form-data` com campo `arquivo`
+
+**Lógica:**
+```
+1. Detectar formato pelo nome/extensão
+2. Parse do arquivo → linhas brutas (importEngine)
+3. Extrair cabeçalhos
+4. Calcular hash dos cabeçalhos → buscar mapeamento salvo no banco
+5. Se mapeamento salvo: aplicar + marcar inferido_por = 'memoria'
+6. Se não: chamar Gabi/IA com cabeçalhos + amostra de dados (10 linhas)
+7. IA retorna mapeamento com scores de confiança
+8. Inferência pelos dados: confirmar/ajustar mapeamentos com baixa confiança
+9. Aplicar mapeamento nas linhas
+10. Agrupar por numero_pedido
+11. Validar cada linha (gerar alertas)
+12. Salvar preview em cache Redis (TTL 30min) → retornar preview_id
+13. Retornar SmartImportPreview
+```
+
+**Resposta:** `200 SmartImportPreview`
+
+---
+
+### `POST /api/v1/pedidos/smart-import/confirmar`
+
+**Zod schema:**
+```ts
+const ConfirmarSchema = z.object({
+  preview_id: z.string(),
+  mapeamento_confirmado: z.array(z.object({
+    coluna_arquivo: z.string(),
+    campo_sistema: z.string().nullable(),
+    confianca: z.number(),
+    nivel: z.enum(['auto', 'confirmado', 'manual', 'ignorado']),
+    inferido_por: z.enum(['ia', 'dados', 'memoria', 'usuario']),
+  })),
+  decisoes_duplicatas: z.record(z.enum(['sobrescrever', 'criar', 'pular'])),
+  linhas_incluidas: z.array(z.number()),
+  salvar_mapeamento: z.boolean(),
+})
+```
+
+**Lógica em `$transaction`:**
+```
+1. Recuperar preview do cache
+2. Para cada linha incluída:
+   a. Aplicar mapeamento confirmado
+   b. Se duplicata: aplicar decisão (sobrescrever/criar/pular)
+   c. Criar ou atualizar pedido com itens
+3. Se salvar_mapeamento: persistir ColunaMapeada[] no banco (MapeamentoImport)
+4. Registrar audit trail: canal = 'importacao', quantidade de pedidos
+5. Retornar SmartImportResultado
+```
+
+---
+
+### `GET /api/v1/pedidos/smart-import/mapeamento/:hash`
+
+Retorna mapeamento salvo para o hash de colunas ou `null`.
+
+---
+
+## Backend — Serviços
+
+### `smartImportService.ts`
+
+```ts
+export class SmartImportService {
+  async analisar(tenantId: string, arquivo: Buffer, nomeArquivo: string): Promise<SmartImportPreview>
+  async confirmar(tenantId: string, userId: string, payload: SmartImportConfirmar): Promise<SmartImportResultado>
+
+  // Privados
+  private async mapearComIA(cabecalhos: string[], amostra: Record<string,string>[]): Promise<ColunaMapeada[]>
+  private inferirPorDados(col: string, valores: string[]): { campo: string; confianca: number } | null
+  private calcularHashColunas(cabecalhos: string[]): string
+  private validarLinha(linha: Record<string,unknown>): SmartImportAlerta[]
+  private agruparPorNumeroPedido(linhas: Record<string,unknown>[]): PedidoImportado[]
+}
+```
+
+### `importEngine.ts` — Adicionar parser Excel
+
+```ts
+// Adicionar ao método parseArquivo():
+case 'xlsx':
+case 'xls': {
+  const XLSX = await import('xlsx')
+  const workbook = XLSX.read(buffer, { type: 'buffer' })
+  const sheet = workbook.Sheets[workbook.SheetNames[0]]
+  return XLSX.utils.sheet_to_json(sheet, { defval: '' }) as Record<string, string>[]
+}
+```
+
+### `mapeamentoMemoriaService.ts`
+
+```ts
+export class MapeamentoMemoriaService {
+  async buscar(tenantId: string, hashColunas: string): Promise<ColunaMapeada[] | null>
+  async salvar(tenantId: string, hashColunas: string, mapeamento: ColunaMapeada[]): Promise<void>
+  async resetar(tenantId: string, hashColunas: string): Promise<void>
+}
+```
+
+---
+
+## Chamada IA (Gabi/Claude)
+
+```ts
+// Prompt enviado para a IA
+const prompt = `
+Você é um especialista em COMEX (comércio exterior) brasileiro.
+Analise os cabeçalhos de uma planilha de pedidos e mapeie cada coluna para o campo correto do sistema.
+
+Campos disponíveis no sistema:
+- numero_pedido: Número/código do pedido (PO, SO, etc.)
+- tipo_operacao: "importacao" ou "exportacao"
+- exportador: Nome do fornecedor/exportador
+- fabricante: Nome do fabricante
+- incoterm: Termo de comércio (FOB, CIF, EXW, DDP, etc.)
+- moeda_pedido: Moeda (USD, EUR, BRL, etc.)
+- data_emissao_pedido: Data de emissão
+- part_number: Código do produto
+- ncm: Classificação fiscal NCM (8 dígitos)
+- descricao: Descrição do produto
+- quantidade_inicial: Quantidade
+- unidade: Unidade de medida
+- valor_unitario: Preço unitário
+- valor_item: Valor total do item
+
+Cabeçalhos do arquivo: ${JSON.stringify(cabecalhos)}
+Amostra dos primeiros dados: ${JSON.stringify(amostra)}
+
+Retorne JSON array com { coluna_arquivo, campo_sistema, confianca (0-100), motivo }.
+Se não souber mapear, coluna_arquivo com campo_sistema null e confianca 0.
+`
+```
+
+---
+
+## Banco de Dados — Fragment Prisma
+
+```prisma
+// Adicionar ao fragment.prisma
+
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  hash_colunas String               // SHA256 dos cabeçalhos ordenados
+  mapeamento   String               // JSON serializado de ColunaMapeada[]
+  uso_count    Int      @default(1) // quantas vezes foi usado
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, hash_colunas])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("mapeamento_import")
+}
+```
+
+---
+
+## Frontend — SmartImport (4 etapas)
+
+### Etapa 1 — Upload
+- Área drag-and-drop
+- Aceita: `.xlsx`, `.xls`, `.csv`, `.xml`, `.txt`, `.json`
+- Ao selecionar: chama `smartImportApi.analisar(file)`
+- Exibe loading "Analisando arquivo..." durante IA
+
+### Etapa 2 — Mapeamento
+- Tabela: coluna do arquivo | campo sistema | confiança | ação
+- Verde ✓ (>90%): auto-aplicado, usuário pode alterar
+- Amarelo ⚠ (50-90%): selecionar de dropdown
+- Cinza ? (<50%): selecionar de dropdown obrigatório
+- Badge "Memória aplicada" se veio de mapeamento salvo
+- Checkbox "Lembrar este mapeamento"
+
+### Etapa 3 — Preview
+- Tabela com todas as linhas do arquivo
+- Coluna de status: ✓ ok · ⚠ aviso · ✗ erro
+- Expandir linha para ver detalhes dos alertas
+- Para duplicatas: dropdown por linha (Sobrescrever/Criar/Pular)
+- Filtros: Mostrar tudo / Só erros / Só avisos
+- Seleção em massa: "Selecionar todas as válidas"
+- Contador: "X pedidos serão criados · Y atualizados · Z pulados"
+
+### Etapa 4 — Resultado
+- Resumo: criados / atualizados / pulados / erros
+- Lista de erros restantes
+- Botão "Ver Pedidos Importados" → filtra lista pelos IDs criados
+
+---
+
+## Integração em ListaPedidos.tsx
+
+```tsx
+// Estados
+const [drawerAberto, setDrawerAberto] = useState(false)
+const [pedidoEditandoId, setPedidoEditandoId] = useState<string | undefined>()
+const [smartImportAberto, setSmartImportAberto] = useState(false)
+
+// Botão Novo → abre drawer vazio
+onClick={() => { setPedidoEditandoId(undefined); setDrawerAberto(true) }}
+
+// Botão Importar → abre SmartImport (substituir console.info)
+onClick={() => setSmartImportAberto(true)}
+
+// Componentes
+<DrawerPedido
+  aberto={drawerAberto}
+  pedidoId={pedidoEditandoId}
+  onFechar={() => setDrawerAberto(false)}
+  onSalvo={() => { setDrawerAberto(false); carregarInicial() }}
+/>
+
+<SmartImportModal
+  aberto={smartImportAberto}
+  onFechar={() => setSmartImportAberto(false)}
+  onConcluido={(ids) => {
+    setSmartImportAberto(false)
+    carregarInicial()
+    // opcional: filtrar lista pelos ids criados
+  }}
+/>
+```
+
+---
+
+## Segurança — Checklist 5 Camadas
+
+- [x] **Rede**: rotas registradas após `tenantIsolationMiddleware`
+- [x] **Autenticação**: Clerk JWT validado
+- [x] **Autorização**: permissão separada criar manual vs importar
+- [x] **Isolamento**: `tenant_id` em todas as queries + mapeamentos
+- [x] **Auditoria**: canal de criação registrado (`manual` / `importacao`)
+- [x] **Upload**: validar tamanho máximo do arquivo (ex: 10MB), validar extensão
+
+---
+
+## Testes
+
+```
+testes/unitarios/pedido/
+  smartImportService.test.ts
+    ├── mapeamento IA — colunas em inglês mapeadas corretamente
+    ├── mapeamento IA — colunas com erro de digitação mapeadas
+    ├── inferência por dados — coluna com "FOB/CIF" → incoterm
+    ├── inferência por dados — coluna com 8 dígitos → ncm
+    ├── agrupamento — 3 linhas mesmo PO → 1 pedido, 3 itens
+    ├── validação — quantidade negativa → erro
+    ├── validação — duplicata → aviso
+    ├── decisão sobrescrever — atualiza pedido existente
+    ├── decisão pular — linha não importada
+    ├── memória — salva e recupera mapeamento por hash
+    └── cross-tenant — mapeamento de outro tenant não é retornado
+
+  importEngine.test.ts
+    ├── parse Excel — SheetJS retorna linhas corretas
+    ├── parse CSV — auto-detecta separador
+    └── parse XML — agrupa corretamente
+
+testes/funcionais/pedido/
+  smartImport.test.ts
+    ├── POST /analisar — retorna mapeamento com confiança
+    ├── POST /confirmar — cria pedidos e retorna IDs
+    ├── POST /confirmar — aplica decisão de duplicata
+    └── GET /mapeamento/:hash — retorna mapeamento salvo
+```
+
+--- documentos-tecnicos/produtos-gravity/pedido/SELECAO-ITENS-TECNICO.md ---
+# Seleção e Ações em Itens (Linhas Filho) — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+
+---
+
+## Contexto
+
+A tabela de pedidos tem hierarquia pai (Pedido) / filho (PedidoItem). Hoje apenas os pedidos têm checkbox e ações. Os itens precisam ter o mesmo suporte.
+
+O usuário pode selecionar itens de **pedidos diferentes** ao mesmo tempo — cada item carrega seu `pedido_id` para o backend saber a origem.
+
+---
+
+## Mudanças no TabelaVirtualGlobal (`nucleo-global`)
+
+### Novas props em `GTVirtualTableProps`
+
+```ts
+// Habilita checkbox e seleção nas linhas filho
+selecionavelFilhos?: boolean
+
+// Callback chamado quando seleção de itens muda
+onSelecaoFilho?: (itensSelecionados: C[]) => void
+
+// Ações inline na linha filho (menu de três pontos)
+acoesFilho?: (item: C) => GTAcaoLinha[]
+```
+
+### Comportamento
+
+- Checkbox aparece na primeira célula da linha filho quando `selecionavelFilhos=true`
+- Seleção de filho é **independente** da seleção do pai — selecionar o pedido não seleciona seus itens automaticamente
+- "Selecionar tudo" na linha pai seleciona todos os itens daquele pedido (opcional, configurável)
+- Itens de pedidos diferentes podem ser selecionados ao mesmo tempo
+
+---
+
+## Mudanças no ListaPedidos
+
+### Novo estado
+
+```ts
+const [itensSelecionados, setItensSelecionados] = useState<PedidoItem[]>([])
+```
+
+### Toolbar contextual
+
+Quando `itensSelecionados.length > 0`, mostrar toolbar de itens com:
+
+| Botão | Ação | Ícone |
+|---|---|---|
+| Transferir (N itens) | Abre ModalTransferir com itens pré-selecionados | ArrowsLeftRight |
+| Duplicar (N itens) | Abre ModalDuplicar em modo item | CopySimple |
+| Editar em Massa (N itens) | Abre ModalEdicaoEmMassa em modo item | PencilLine |
+| Excluir (N itens) | Preview + confirmação de exclusão de itens | Trash |
+
+Quando há **mix** (pedidos E itens selecionados), mostrar os dois toolbars separados:
+```
+[Pedidos: Consolidar · Transferir · Duplicar · Excluir]
+[Itens:   Transferir · Duplicar · Editar em Massa · Excluir]
+```
+
+### Passagem para os modais
+
+Cada `PedidoItem` selecionado já contém `pedido_id` — passado diretamente para os modais sem necessidade de lookup adicional.
+
+---
+
+## Menu de ação inline na linha filho
+
+Botão de três pontos (ou ícones rápidos) ao hover na linha filho:
+
+```
+PedidoItem row: [...] ⠿  ABC-001  100 un  $500  [→ Transferir] [⧉ Duplicar] [🗑]
+```
+
+Ações inline (sem seleção em massa):
+- **Transferir** — abre ModalTransferir com esse item pré-selecionado
+- **Duplicar** — duplica o item imediatamente (confirma inline)
+- **Excluir** — confirma inline e exclui
+
+---
+
+## Fluxo de seleção cruzada (itens de pedidos diferentes)
+
+```
+PO-001 [expandido]
+  ├── [✓] Item ABC-001  100 un
+  └── [ ] Item DEF-002   50 un
+
+PO-002 [expandido]
+  ├── [✓] Item ABC-001   30 un   ← mesmo part_number, pedido diferente
+  └── [ ] Item XYZ-003   20 un
+
+Toolbar itens: Transferir (2) · Duplicar (2) · Excluir (2)
+```
+
+Cada item selecionado carrega: `{ id, pedido_id, part_number, quantidade_atual, ... }`
+
+--- documentos-tecnicos/produtos-gravity/pedido/SMART-IMPORT-REGRAS-NEGOCIO.md ---
+# Smart Import — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.2
+> **Data:** Abril 2026
+> **Status:** Implementado e em produção
+
+---
+
+## O que é
+
+O Smart Import é o fluxo de importação inteligente de pedidos a partir de arquivos externos. Permite ao operador carregar uma planilha Excel, CSV, PDF de invoice ou outros formatos e transformar as linhas do arquivo em pedidos no sistema, com mapeamento automático de colunas via IA.
+
+---
+
+## Formatos Aceitos
+
+| Formato | Extensão | Observação |
+|---|---|---|
+| Excel | `.xlsx`, `.xls` | Recomendado. Suporte a múltiplas abas. |
+| CSV | `.csv` | Auto-detecta separador: `,` `;` `\t` `|` |
+| Texto tabulado | `.txt` | Mesmo parser do CSV |
+| JSON | `.json` | Deve ser um array de objetos |
+| XML | `.xml` | Tags de um nível (parser simples) |
+| PDF | `.pdf` | Apenas PDFs com texto selecionável. PDFs escaneados (imagem) não são suportados. |
+
+**Limite de tamanho:** 10 MB por arquivo.
+
+**PDFs escaneados:** não são suportados. O sistema retorna uma mensagem de aviso explicando que o PDF não contém texto extraível e orienta o usuário a usar Excel ou CSV.
+
+---
+
+## Fluxo do Usuário
+
+```
+1. Upload
+   ├── Usuário arrasta ou seleciona o arquivo
+   ├── Se Excel com múltiplas abas → seleciona qual aba importar
+   └── Sistema analisa e mapeia automaticamente
+
+2. Mapeamento
+   ├── Sistema exibe as colunas do arquivo e o campo correspondente no sistema
+   ├── Mostra um valor de exemplo de cada coluna para o usuário validar
+   ├── Mostra % de confiança por coluna e global
+   ├── Se mapeamento já foi feito antes (mesmas colunas) → aplicado automaticamente com badge "Mapeamento salvo"
+   ├── Usuário pode ajustar qualquer mapeamento manualmente
+   ├── Usuário pode ignorar colunas que não devem ser importadas
+   └── Checkbox "Lembrar este mapeamento" para reutilizar em próximos uploads
+
+3. Preview
+   ├── Exibe todas as linhas com status: OK / Aviso / Erro
+   ├── Pedidos que já existem no sistema são marcados com aviso de duplicata
+   ├── Para cada duplicata, usuário decide: Sobrescrever / Criar novo / Pular
+   ├── Usuário pode editar o número do pedido de cada linha
+   ├── Usuário seleciona quais linhas incluir na importação
+   └── Erros bloqueantes (quantidade negativa, formato inválido grave) ficam deselecionados por padrão
+
+4. Resultado
+   ├── Exibe: Criados / Atualizados / Pulados / Erros
+   ├── Se houver erros, oferece download de relatório .csv com linha e motivo
+   ├── Botão "Ver Pedidos Importados" navega para a lista filtrada pelos pedidos criados
+   └── Botão "Reverter esta importação" cancela os pedidos criados (status → Cancelado)
+```
+
+---
+
+## Extração de PDF (Gemini)
+
+Quando o arquivo é um PDF e a integração Gemini está ativa:
+
+- O sistema envia o PDF para o modelo **Gemini 2.5 Flash**
+- O modelo extrai automaticamente todos os itens da invoice (parte number, descrição, quantidade, valor, etc.)
+- O processo pode levar **até 60–90 segundos** para invoices com muitas páginas — uma mensagem informa o usuário durante o carregamento
+- Após extração, o mapeamento é automático (o Gemini já usa os nomes internos do sistema)
+- O UI exibe **"✦ Extraído com IA (Gemini)"** na barra de contexto do mapeamento
+
+Se o Gemini não estiver disponível ou falhar:
+1. O sistema tenta extrair o texto do PDF localmente
+2. Se o PDF não contiver texto selecionável, retorna aviso e orienta o usuário a usar Excel/CSV
+
+**Custo estimado:** ~$0,009 por invoice de 26 páginas / 66 itens.
+
+---
+
+## Mapeamento Automático de Colunas
+
+O sistema mapeia automaticamente as colunas do arquivo para os campos do sistema com base em:
+
+### 1. Nomes internos do sistema (exclusivo para PDF via Gemini)
+Quando o Gemini extrai um PDF, ele já usa os nomes internos (`moeda_pedido`, `valor_unitario_item`, etc.). Esses campos são reconhecidos com **99% de confiança** automaticamente.
+
+### 2. Aliases conhecidos (Excel/CSV)
+O sistema mantém uma lista de aliases para cada campo. Exemplos:
+
+| Campo no sistema | Aliases aceitos |
+|---|---|
+| Número do Pedido | PO Number, Order Number, Purchase Order, Referencia, PO#, SO Number |
+| Exportador | Supplier, Vendor, Shipper, Exporter, Company |
+| Fabricante | Manufacturer, Maker, Brand, Produced By |
+| Moeda | Currency, Moeda, CCY |
+| Data de Emissão | Order Date, PO Date, Issue Date, Data Emissão |
+| Part Number | Part Number, SKU, Item Code, Codigo, Reference |
+| Descrição | Description, Product Name, Goods Description |
+| Quantidade | Qty, Quantity, Qtd, Qtde, Pieces, Count |
+| Valor Unitário | Unit Price, Price, Unit Value, Unit Cost |
+| Valor Total Item | Total Value, Line Total, Line Amount |
+| NCM | NCM, HS Code, Tariff Code, Harmonized Code |
+
+> **Fabricante ≠ Exportador:** São campos distintos. "Manufacturer" só mapeia para Fabricante, nunca para Exportador.
+
+### 3. Inferência pelos dados
+Se o alias não identificou o campo, o sistema analisa os valores da coluna:
+- Todos os valores são `FOB`, `CIF`, `EXW`... → campo `incoterm`
+- Todos os valores são moedas ISO (`USD`, `EUR`, `BRL`)... → campo `moeda`
+- Maioria dos valores tem formato de NCM (8 dígitos) → campo `NCM`
+- Maioria dos valores são datas → campo `data_embarque`
+
+### Níveis de confiança
+
+| Nível | Confiança | O que significa |
+|---|---|---|
+| **Auto** (verde) | ≥ 90% | Sistema aplicou automaticamente — usuário pode aceitar sem revisar |
+| **Confirmado** (amarelo) | 50–89% | Sistema tem boa ideia mas recomenda o usuário confirmar |
+| **Ignorado** (cinza) | < 50% | Coluna não mapeada — usuário decide manualmente |
+
+---
+
+## Memória de Mapeamento
+
+Quando o usuário confirma um mapeamento e marca **"Lembrar este mapeamento"**, o sistema salva essa configuração associada ao padrão de colunas do arquivo (um "fingerprint" das colunas).
+
+**Na próxima vez** que um arquivo com as mesmas colunas for enviado (independente dos valores), o mapeamento salvo é aplicado automaticamente. Um badge **"Mapeamento salvo"** indica que a memória foi usada.
+
+Isso é especialmente útil para operadores que recebem planilhas do mesmo fornecedor periodicamente.
+
+---
+
+## Pedidos Duplicados
+
+Se um pedido com o mesmo número já existir no sistema, o usuário escolhe, linha a linha:
+
+| Decisão | Efeito |
+|---|---|
+| **Sobrescrever** | Atualiza o pedido existente com os dados do arquivo |
+| **Criar novo** | Cria um segundo pedido com o mesmo número (permitido para rastreabilidade) |
+| **Pular** | A linha é ignorada — o pedido existente não é alterado |
+
+A decisão é tomada por número de pedido, ou seja, todas as linhas do mesmo pedido seguem a mesma decisão.
+
+---
+
+## Validações por Linha
+
+Cada linha é validada automaticamente antes do Preview:
+
+| Campo | Regra | Gravidade |
+|---|---|---|
+| Número do pedido | Se ausente, gera automaticamente (`IMP-<timestamp>`) | Aviso |
+| Part number | Campo recomendado para identificação do item | Aviso |
+| Quantidade | Deve ser maior que zero | **Erro** (bloqueia linha) |
+| Valor unitário | Não pode ser negativo (preview e confirmação) | **Erro** (bloqueia linha) |
+| NCM | Deve ter exatamente 8 dígitos numéricos | Aviso |
+| Data de embarque | Deve ser uma data válida | Aviso |
+
+**Linhas com erro** ficam deselecionadas por padrão no Preview. O usuário pode forçar a inclusão, mas o erro é registrado.
+
+---
+
+## Pedidos Criados — Status Inicial
+
+Todos os pedidos criados via importação recebem status **Rascunho**.
+
+Isso garante que o operador revise e ajuste os dados importados antes de colocar o pedido em operação. Para ativar, basta alterar o status para **Aberto**.
+
+---
+
+## Reversão de Importação
+
+Após a importação, o usuário pode reverter a operação clicando em **"Reverter esta importação"**.
+
+- Reverte apenas pedidos com status **Rascunho** — pedidos já abertos não são afetados
+- Marca os pedidos criados como **Cancelado** (soft delete — os registros continuam no banco para auditoria)
+- A reversão inclui tanto pedidos **criados** quanto **atualizados** na importação
+
+---
+
+## Limite de Linhas
+
+O sistema suporta arquivos de qualquer tamanho (até 10 MB), mas recomenda **até 1.000 linhas** por importação para melhor desempenho. Para arquivos maiores, uma faixa de aviso é exibida recomendando dividir em lotes.
+
+---
+
+## O que não é suportado
+
+- PDFs escaneados (imagem) — não há texto extraível
+- Arquivos HTML com extensão `.pdf`
+- JSON que não seja um array de objetos
+- Planilhas com dados em múltiplas linhas de cabeçalho
+- Fórmulas Excel — apenas os valores calculados são lidos
+
+--- documentos-tecnicos/produtos-gravity/pedido/SMART-IMPORT-TECNICO.md ---
+# Smart Import — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.3
+> **Data:** Maio 2026
+> **Status:** Implementado e em produção
+>
+> **Changelog 1.3 (maio/2026):**
+> - Estrutura de arquivos atualizada — `ModalPedidoSmartImport.tsx` (antes `SmartImportModal.tsx`)
+>   e `routes/importacoes-inteligentes-pedido.ts` (antes `routes/smartImport.ts`)
+> - Nova seção **§ Robustez — 13 pontos cegos cobertos (P0/P1/P2/P3)** documentando
+>   todos os AppError codes (`JSON_MALFORMADO`, `JSON_VAZIO`, `PDF_PROTEGIDO`,
+>   `PDF_ESCANEADO`, encoding fallback latin1, conflitos de mapeamento, etc.)
+> - Schema Zod compartilhado `smartImportPreviewSchema` em
+>   `produto/pedido/shared/smart-import-schemas.ts` (REGRA 06+09 — contrato bilateral)
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + TypeScript strict, Vite |
+| Backend | Express + TypeScript, Prisma ORM |
+| IA — extração PDF | Google Gemini 2.5 Flash (via `@google/generative-ai`) |
+| Parse Excel | SheetJS (`xlsx`) |
+| Parse PDF fallback | `pdf-parse` |
+| Validação | Zod bilateral (request + response) — schema único em `shared/smart-import-schemas.ts` |
+| Auth | JWT Clerk (frontend) + `x-id-organizacao` + `x-id-usuario` + `x-chave-interna-servico` S2S |
+| Hash | SHA-256 via Node.js `node:crypto` |
+| Testes | Vitest (45+ testes) |
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── shared/                                              ← Cross-tier (server + client)
+│   ├── campos-pedido-ddd.ts                            ← SSOT dos 92 campos Pedido+Item
+│   └── smart-import-schemas.ts                          ← Zod bilateral (REGRA 06+09)
+├── client/
+│   └── src/
+│       ├── components/
+│       │   └── SmartImport/
+│       │       ├── ModalPedidoSmartImport.tsx          ← Orquestra as 4 etapas + estados globais
+│       │       ├── EtapaUpload.tsx                     ← Passo 1: drag-and-drop de arquivo
+│       │       ├── EtapaMapeamento.tsx                 ← Passo 2: mapeamento coluna → campo sistema
+│       │       ├── EtapaPreview.tsx                    ← Passo 3: validação linha a linha
+│       │       └── EtapaConfirmacao.tsx                ← Passo 4: resultado + opção de reverter
+│       ├── shared/
+│       │   ├── types.ts                                ← SmartImportPreview, ConflitoMapeamento, etc.
+│       │   └── api.ts                                  ← smartImportApi (parse Zod na resposta)
+│       └── vite.config.ts                              ← Proxy /api com timeout 120s
+└── server/
+    └── src/
+        ├── routes/
+        │   └── importacoes-inteligentes-pedido.ts      ← Rotas, Zod, rate limit, magic bytes PDF
+        └── services/
+            ├── smartImportService.ts                    ← Orquestrador principal + validações P0..P3
+            ├── importEngine.ts                         ← Parser multi-formato + encoding fallback
+            ├── geminiPdfExtractor.ts                   ← Extração de invoice PDF com Gemini
+            └── mapeamentoMemoriaService.ts              ← Persistência de mapeamento por hash
+```
+
+---
+
+## Tipos TypeScript
+
+### Backend (`server/src/services/smartImportService.ts`)
+
+```ts
+export interface SmartImportPreview {
+  total_linhas:         number
+  total_pedidos:        number
+  total_itens:          number
+  mapeamento:           ColunaMapeadaBackend[]
+  confianca_global:     number
+  memoria_aplicada:     boolean
+  preview_id:           string
+  linhas:               SmartImportLinha[]
+  limite_excedido:      boolean
+  extrator_usado:       string   // 'gemini' | 'pdf-parse' | 'xlsx' | 'csv' | 'json' | 'xml' | 'txt'
+  dados_brutos:         Array<{ linha: number; valores: Record<string, string> }>
+  conflitos_mapeamento: ConflitoMapeamento[]   // P2.4 — 2+ colunas -> mesmo campo_sistema
+}
+
+// P2.4 — Conflito quando 2+ colunas apontam para o mesmo campo do sistema
+export interface ConflitoMapeamento {
+  campo_sistema:   string
+  colunas_arquivo: string[]
+}
+
+export interface SmartImportLinha {
+  linha_arquivo: number
+  numero_pedido: string | null
+  status:        'ok' | 'aviso' | 'erro'
+  alertas:       SmartImportAlerta[]
+  dados:         Record<string, unknown>
+}
+
+export interface SmartImportAlerta {
+  campo:    string
+  tipo:     'obrigatorio_ausente' | 'formato_invalido' | 'valor_negativo' | 'duplicado_sistema' | 'duplicado_arquivo'
+  mensagem: string
+  nivel:    'aviso' | 'erro'
+}
+
+export interface SmartImportConfirmar {
+  preview_id:            string
+  mapeamento_confirmado: ColunaMapeadaBackend[]
+  decisoes_duplicatas:   Record<string, 'sobrescrever' | 'criar' | 'pular'>
+  linhas_incluidas:      number[]
+  salvar_mapeamento:     boolean
+  numeros_editados?:     Record<number, string>
+  linhas?:               SmartImportLinha[]  // fallback stateless (multi-instância)
+}
+
+export interface SmartImportResultado {
+  criados:     number
+  atualizados: number
+  pulados:     number
+  erros:       { linha: number; motivo: string }[]
+  ids_criados: string[]
+}
+```
+
+### `importEngine.ts`
+
+```ts
+export interface ParseResultado {
+  linhas:        LinhaArquivo[]
+  extrator_usado: string
+}
+
+export type LinhaArquivo = Record<string, string>
+```
+
+---
+
+## API Endpoints
+
+Todas as rotas ficam em `/api/v1/pedidos/importacoes-inteligentes`.
+
+### `POST /analisar`
+
+**Tipo:** `multipart/form-data` (campo `arquivo`)
+
+**Headers obrigatórios:**
+- `Authorization: Bearer <jwt>` (Clerk)
+- `x-id-organizacao: <string>`
+- `x-id-usuario: <string>`
+- `x-chave-interna-servico: <string>` (S2S)
+
+**Query params opcionais:**
+- `?sheet=<nome-da-aba>` — para xlsx com múltiplas abas
+
+**Rate limit:** 10 uploads por tenant por minuto.
+
+**Validações (antes de chegar ao service):**
+- Extensão: `.xlsx .xls .csv .xml .txt .json .pdf`
+- Tamanho: máximo 10 MB (via multer)
+- Magic bytes: PDF deve começar com `%PDF` (rejeita HTML com extensão .pdf)
+
+**Resposta `200`:** `SmartImportPreview`
+
+**Resposta especial (xlsx com múltiplas abas sem `?sheet`):**
+```json
+{ "multiplas_planilhas": true, "planilhas": ["Aba1", "Aba2"], "preview": null }
+```
+
+---
+
+### `POST /confirmar`
+
+**Body:** `SmartImportConfirmar` (validado por Zod)
+
+**Segurança:** `preview_id` deve começar com `<tenant_id>-` (validado na rota **e** no service — defense in depth).
+
+**Resposta `200`:** `SmartImportResultado`
+
+---
+
+### `POST /reverter`
+
+**Body:** `{ ids_criados: string[] }` (máx. 500 IDs)
+
+Cancela pedidos criados pelo import (soft delete via `status = 'cancelado'`). Só afeta pedidos com `status = 'rascunho'`.
+
+**Resposta `200`:** `{ revertidos: number, ids: string[] }`
+
+---
+
+### `GET /campos`
+
+Lista todos os campos mapeáveis, incluindo colunas customizadas do tenant.
+
+**Resposta `200`:** `Array<{ valor: string; rotulo: string }>`
+
+---
+
+### `GET /template`
+
+Download de planilha modelo (.xlsx) com cabeçalhos e uma linha de exemplo.
+
+---
+
+### `GET /mapeamento/:hash`
+
+Retorna o mapeamento salvo para o hash de colunas informado, ou `null` se não houver memória.
+
+---
+
+### `POST /mapeamento/salvar`
+
+Salva mapeamento confirmado associado ao hash de colunas.
+
+---
+
+## Serviço Principal (`smartImportService.ts`)
+
+### Fluxo de `analisar()`
+
+```
+1. parseArquivo(buffer, nome) → { linhas, extrator_usado }
+2. Extrair cabeçalhos + calcular hashColunas (SHA-256, 16 chars)
+3. Buscar mapeamento salvo na memória (memoriaService.buscar)
+   ├── Encontrou → aplicar memoria + popular exemplo_valor
+   └── Não encontrou → mapearComIA() + inferirPorDados()
+4. Aplicar mapeamento nas linhas (aplicarMapeamento)
+5. Agrupar por numero_pedido para contagem
+6. Buscar duplicatas no banco (pedido.findMany)
+7. Marcar linhas duplicadas com alerta 'duplicado_sistema'
+8. Salvar preview no previewCache (TTL 30 min, chave = tenantId-hash-timestamp)
+9. Construir dados_brutos (linhas originais sem mapeamento)
+10. Retornar SmartImportPreview com extrator_usado e dados_brutos
+```
+
+### Algoritmo de Mapeamento (`mapearComIA`)
+
+Dois casos, avaliados em ordem:
+
+**Caso 1 — Exact system field match (confiança 99%)**
+> Quando o Gemini extrai um PDF, ele usa os nomes internos do sistema (`moeda_pedido`, `valor_unitario_item`, etc.) como nomes de coluna. Nesse caso, a coluna já é o campo — não precisa de matching.
+
+```ts
+if (camposSistema.includes(cabecalho)) {
+  return { campo_sistema: cabecalho, confianca: 99, nivel: 'auto' }
+}
+```
+
+**Caso 2 — Alias matching (arquivos Excel/CSV com nomes humanos)**
+
+```ts
+const cab = cabecalho.toLowerCase().trim().replace(/[_-]/g, ' ')
+// "po_number" → "po number" → bate com alias "po number" do numero_pedido
+```
+
+- Match exato → score 97
+- Match parcial (cab.includes(alias) ou alias.includes(cab)) → score 70–95
+  - Requer `alias.length >= 4` para evitar falsos positivos
+- Nível: score ≥ 90 → `auto` | score ≥ 50 → `confirmado` | resto → `ignorado`
+
+**`exemplo_valor`:** primeiro valor não-vazio das 10 primeiras linhas da amostra, truncado a 80 chars.
+
+### Inferência pelos dados (`inferirPorDados`)
+
+Quando o alias matching não identificou o campo, analisa os valores:
+
+| Detecção | Critério | Confiança |
+|---|---|---|
+| `incoterm` | 100% dos valores são Incoterms conhecidos (FOB, CIF, EXW…) | 92% |
+| `moeda_pedido` | 100% dos valores são moedas ISO (USD, EUR, BRL…) | 91% |
+| `ncm` | ≥ 70% dos valores têm 8 dígitos (padrão NCM/HS) | 88% |
+| `data_embarque` | ≥ 80% dos valores são datas (DD/MM/AAAA, AAAA-MM-DD) | 72% |
+| `valor_unitario_item` | ≥ 90% numéricos, algum > 10 | 58% |
+
+### Validações por linha
+
+| Campo | Regra | Nível |
+|---|---|---|
+| `numero_pedido` | Ausente → gerar automaticamente | aviso |
+| `part_number` | Ausente | aviso |
+| `quantidade_inicial_item_pedido` | Zero ou negativo | erro |
+| `valor_unitario_item` | Negativo (preview) | erro |
+| `ncm` | ≠ 8 dígitos numéricos | aviso |
+| `data_embarque` | Data inválida | aviso |
+
+### Validações adicionais em `confirmar()`
+
+- `preview_id` deve começar com `tenantId + '-'` (defense in depth)
+- `valor_unitario_item` negativo → linha vai para `erros[]`, não é criada
+- Linhas não presentes em `linhas_incluidas` são ignoradas
+
+---
+
+## Extrator Gemini (`geminiPdfExtractor.ts`)
+
+Ativo somente se `GEMINI_PDF_ENABLED=true` e `GEMINI_API_KEY` definido.
+
+**Modelo:** `gemini-2.5-flash`
+
+**Custo estimado:** ~$0.009 por invoice de 26 páginas / 66 itens.
+
+**Timeout:** 90 segundos via `Promise.race`.
+
+**Validação da resposta:** Schema Zod (`InvoiceArraySchema`) valida o JSON antes de usar.
+
+**Mapeamento de campos Gemini → sistema:**
+
+| Campo Gemini | Campo sistema |
+|---|---|
+| `po_number` (ou `invoice_number`) | `numero_pedido` |
+| `shipper` | `exportador` |
+| `manufacturer` | `fabricante` |
+| `incoterms` | `incoterm` |
+| `currency` | `moeda_pedido` |
+| `invoice_date` | `data_emissao_pedido` |
+| `code` | `part_number` |
+| `description` | `descricao` |
+| `unit` | `unidade` |
+| `quantity` | `quantidade_inicial_item_pedido` |
+| `unit_price` | `valor_unitario_item` |
+| `total_amount` | `valor_item` |
+| `customs_tariff` | `ncm` |
+
+**Fallback:** se Gemini retornar `null` (inativo, timeout ou JSON inválido), tenta `pdf-parse`. Se também falhar, retorna linha com `_aviso` e `_conteudo` para que o usuário veja o erro.
+
+---
+
+## Hash de Colunas
+
+```ts
+// SHA-256 via Node.js crypto — 16 chars do digest hex
+import { createHash } from 'node:crypto'
+
+export function calcularHashColunas(cabecalhos: string[]): string {
+  const str = cabecalhos.slice().sort().join('|').toLowerCase()
+  return createHash('sha256').update(str).digest('hex').slice(0, 16)
+}
+```
+
+- **Order-independent:** cabeçalhos são ordenados antes de hash
+- **Case-insensitive:** convertido para minúsculas
+- **16 chars hex** (suficiente para colisões desprezíveis em contexto de tenant)
+
+Usado como chave de memória: mesmo arquivo com mesmas colunas reutiliza o mapeamento anterior.
+
+---
+
+## Memória de Mapeamento (`mapeamentoMemoriaService.ts`)
+
+Persiste no banco o mapeamento confirmado para um hash de colunas de um tenant.
+
+```ts
+// Buscar
+const salvo = await memoriaService.buscar(tenantId, hashColunas)
+
+// Salvar (ao confirmar, se salvar_mapeamento = true)
+await memoriaService.salvar(tenantId, hashColunas, mapeamentoConfirmado)
+```
+
+Quando memória é encontrada, `memoria_aplicada: true` é retornado no preview e exibido no UI.
+
+---
+
+## Preview Cache (em memória)
+
+```ts
+const previewCache = new Map<string, {
+  data:      SmartImportLinha[]
+  mapeamento: ColunaMapeadaBackend[]
+  ts:        number
+}>()
+
+const PREVIEW_TTL_MS = 30 * 60 * 1000  // 30 minutos
+```
+
+- **Chave:** `${tenantId}-${hashColunas}-${Date.now()}`
+- **Isolamento:** chave contém `tenantId`; `confirmar()` valida que `preview_id` começa com `tenantId + '-'`
+- **TTL:** entradas expiradas são removidas a cada novo `analisar()`
+- **Fallback stateless:** se o cache não tiver o preview (multi-instância / restart), usa `payload.linhas` enviado pelo client
+
+---
+
+## Frontend — SmartImportModal
+
+### Estados e fluxo
+
+```
+Etapa 'upload'
+  ├── Usuário arrasta/seleciona arquivo
+  ├── Se xlsx com múltiplas abas → mostra seletor de aba (sem avançar)
+  └── POST /analisar → loading com mensagens rotativas (PDF: 4s/msg, outros: 1.8s/msg)
+      ├── PDF: "Enviando PDF para análise com IA... (pode levar até 60s)..."
+      └── Outros: "Lendo colunas do arquivo...", "Mapeando campos com IA..."...
+
+Etapa 'mapeamento'
+  ├── Tabela de colunas com campo mapeado, confiança visual e exemplo_valor
+  ├── Exibe extrator_usado: "✦ Extraído com IA (Gemini)" ou "parser: csv"
+  ├── Badge "Mapeamento salvo" se memoria_aplicada
+  ├── Aviso se confianca_global < 60%
+  └── Usuário ajusta mapeamento manualmente
+
+Etapa 'preview'
+  ├── Lista linhas com status (ok/aviso/erro), dados mapeados e alertas
+  ├── Decisão por pedido duplicado: sobrescrever / criar novo / pular
+  ├── Edição inline do número do pedido
+  └── Seleção de quais linhas incluir
+
+Etapa 'confirmacao'
+  ├── Criados / Atualizados / Pulados / Erros
+  ├── Download de erros (.csv) se houver
+  ├── Botão "Ver Pedidos Importados"
+  └── Botão "Reverter esta importação" (cancela pedidos criados em rascunho)
+```
+
+### Mensagens de progresso por tipo de arquivo
+
+```ts
+const msgs = isPdf
+  ? [
+      'Enviando PDF para análise com IA...',
+      'Extraindo itens do documento (pode levar até 60s)...',
+      'Identificando campos: número do pedido, exportador, itens...',
+      'Mapeando campos com IA...',
+      'Verificando duplicatas no sistema...',
+      'Preparando preview...',
+    ]
+  : [
+      'Lendo colunas do arquivo...',
+      'Mapeando campos com IA...',
+      'Verificando duplicatas no sistema...',
+      'Preparando preview...',
+    ]
+```
+
+---
+
+## Proxy Vite (dev)
+
+```ts
+'/api': {
+  target: 'http://localhost:8026',
+  changeOrigin: true,
+  timeout:      120000,   // 120s — necessário para PDFs grandes via Gemini
+  proxyTimeout: 120000,
+}
+```
+
+---
+
+## Segurança — Checklist 5 Camadas
+
+- [x] **Rede**: rotas registradas após `tenantIsolationMiddleware`
+- [x] **Autenticação**: `x-tenant-id` + `x-internal-key` obrigatórios
+- [x] **Autorização**: `preview_id` validado na rota e no service (defense in depth)
+- [x] **Isolamento**: `tenant_id` em todas as queries Prisma; cache isolado por `tenantId` no prefixo da chave
+- [x] **Auditoria**: reversão via `status = 'cancelado'` (soft delete rastreável)
+- [x] **Input**: extensão + tamanho + magic bytes PDF validados antes de processar
+- [x] **Rate limit**: 10 uploads por tenant por minuto
+- [x] **Validação IA**: resposta do Gemini validada via Zod antes de usar
+- [x] **Timeout IA**: `Promise.race` com 90s para evitar hang indefinido
+
+---
+
+## Variáveis de Ambiente
+
+| Variável | Obrigatório | Descrição |
+|---|---|---|
+| `DATABASE_URL` | Sim | PostgreSQL (schema `pedido`) |
+| `INTERNAL_SERVICE_KEY` | Sim | Chave S2S para autenticação entre serviços |
+| `GEMINI_API_KEY` | Não | API Key do Google para extração de PDF |
+| `GEMINI_PDF_ENABLED` | Não | `'true'` para ativar Gemini (padrão: desativado) |
+
+---
+
+## Banco de Dados — Modelos Relevantes
+
+### `Pedido`
+
+```prisma
+model Pedido {
+  id               String  @id
+  tenant_id        String
+  numero_pedido    String
+  ...
+  @@unique([tenant_id, numero_pedido])  // garante unicidade por tenant
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, status])
+  @@map("pedidos_comerciais")
+}
+```
+
+### `PedidoItem`
+
+```prisma
+model PedidoItem {
+  id                             String   @id
+  tenant_id                      String
+  pedido_id                      String
+  descricao_item                 String
+  quantidade_inicial_pedido      Decimal  @db.Decimal(18, 6)
+  quantidade_atual_pedido        Decimal  @db.Decimal(18, 6)
+  casas_decimais_quantidade_item Int      @default(2)
+  valor_por_unidade_item         Decimal? @db.Decimal(18, 6)
+  valor_total_item               Decimal? @db.Decimal(18, 6)
+  casas_decimais_total_item      Int      @default(2)
+  ...
+  @@map("pedido_item")
+}
+```
+
+> **Nota de nomenclatura:** Os campos Prisma usam nomes distintos dos campos lógicos de mapeamento:
+> - Campo mapeado `descricao` → Prisma `descricao_item`
+> - Campo mapeado `valor_unitario_item` → Prisma `valor_por_unidade_item`
+> - Campo mapeado `valor_item` → Prisma `valor_total_item`
+>
+> Essa separação é intencional: os nomes de mapeamento (em `ALIASES_CAMPOS` e na extração Gemini) refletem o vocabulário do usuário, enquanto os nomes Prisma seguem a convenção interna do schema.
+
+---
+
+## Testes
+
+```
+server/src/services/
+├── importEngine.test.ts          (18 testes)
+│   ├── parseArquivo — csv (separador vírgula, ponto-e-vírgula, tab, aspas, linhas vazias)
+│   ├── parseArquivo — json (array, conversão para string, erro se não-array)
+│   ├── parseArquivo — xml (tags folha, conteúdo vazio)
+│   ├── parseArquivo — formato desconhecido (lança erro)
+│   ├── calcularHashColunas (length 16, determinístico, order-independent, case-insensitive)
+│   └── listarPlanilhas (retorna [] para não-excel)
+│
+├── smartImportService.test.ts    (19 testes)
+│   ├── mapearComIA — exact match sistema (confiança 99, todos os campos Gemini)
+│   ├── mapearComIA — alias match ("Currency"→moeda_pedido, "Unit Price"→valor_unitario_item)
+│   ├── mapearComIA — "PO Number"→numero_pedido
+│   ├── mapearComIA — "Unit" mapeia para valor_unitario_item via "unit price" (score 80)
+│   ├── mapearComIA — fabricante ≠ exportador (Manufacturer→fabricante, não exportador)
+│   ├── mapearComIA — exemplo_valor: primeiro não-vazio, null se todos vazios, truncado a 80
+│   ├── mapearComIA — normalização underscore ("po_number"→"po number"→numero_pedido)
+│   ├── mapearComIA — ignorado para coluna sem correspondência
+│   └── inferirPorDados — incoterm, ncm, moeda, data, valor, vazio, limiar ncm
+│
+└── confirmar.test.ts             (8 testes)
+    ├── rejeita preview_id de outro tenant
+    ├── cria pedido e retorna criados=1
+    ├── pula linha com decisão 'pular'
+    ├── atualiza pedido existente com decisão 'sobrescrever'
+    ├── registra erro para valor_unitario_item negativo
+    ├── exclui linhas não presentes em linhas_incluidas
+    ├── retorna ids_criados com prefixo 'pedi_'
+    └── captura erros do banco e registra por linha
+```
+
+**Total: 45 testes, todos passando.**
+
+---
+
+## Campos Mapeáveis
+
+| Campo sistema | Aliases principais |
+|---|---|
+| `numero_pedido` | PO Number, Order Number, Purchase Order, Referencia |
+| `tipo_operacao` | Type, Tipo, Operation |
+| `exportador` | Supplier, Vendor, Shipper, Exporter |
+| `fabricante` | Manufacturer, Maker, Brand |
+| `incoterm` | Incoterm, Delivery Terms, Trade Terms |
+| `moeda_pedido` | Currency, Moeda |
+| `data_emissao_pedido` | Order Date, PO Date, Issue Date, Data Emissao |
+| `data_embarque` | Ship Date, ETD, ETA, Data Embarque |
+| `part_number` | Part Number, SKU, Item Code, Codigo |
+| `ncm` | NCM, HS Code, Tariff Code, Harmonized Code |
+| `descricao` | Description, Product Name, Goods Description |
+| `quantidade_inicial_item_pedido` | Qty, Quantity, Qtd, Qtde |
+| `unidade` | UOM, Unit of Measure |
+| `valor_unitario_item` | Unit Price, Price, Unit Value, Unit Cost |
+| `valor_item` | Total Value, Line Total, Line Amount |
+
+> **Nota:** `fabricante` e `exportador` são campos distintos — `manufacturer` é alias exclusivo de `fabricante`, não de `exportador`.
+
+---
+
+## Decisões de Design Registradas
+
+| Decisão | Motivo |
+|---|---|
+| `nodemon` ao invés de `tsx watch` | `tsx watch` no Windows causa EADDRINUSE loop (restart antes de liberar porta) |
+| `Promise.race` para timeout Gemini | SDK `@google/generative-ai` não expõe `AbortSignal` de forma estável |
+| Validação Zod na resposta do Gemini | Gemini ocasionalmente retorna JSON com campos extras ou ausentes |
+| `dados_brutos` no preview | Permite que o usuário veja os valores originais do arquivo na tela de mapeamento |
+| `extrator_usado` no preview | Transparência: usuário vê se o PDF foi extraído via IA ou parser local |
+| SHA-256 no hash de colunas | XOR32 tem alta taxa de colisão para strings longas; SHA-256 é determinístico e collision-free na prática |
+| `@@unique([tenant_id, numero_pedido])` | Impede duplicatas silenciosas de pedidos no mesmo tenant; migration inclui deduplicação automática de dados |
+| Defense in depth no `confirmar()` | Validar `preview_id` tanto na rota quanto no service protege contra chamadas diretas ao service |
+| `casas_decimais_quantidade_item = 2` | Alinhado com `@default(2)` do schema Prisma; valor 3 estava desincronizado |
+
+---
+
+## Robustez — 13 Pontos Cegos Cobertos (P0/P1/P2/P3)
+
+Após relato do dono em maio/2026 ("queremos 0 pontos cegos dizendo exatamente
+ao usuário por que a planilha não carregou e dando sugestões"), o fluxo foi
+auditado e endurecido em 4 fases por prioridade.
+
+### P0 — Erros do backend padronizados (AppError + code)
+
+| Code | Significado |
+|---|---|
+| `ARQUIVO_AUSENTE` | Upload chegou sem arquivo anexado |
+| `ARQUIVO_SEM_DADOS` | Planilha vazia (zero linhas de dado) |
+| `FORMATO_NAO_SUPORTADO` | Extensão fora de .xlsx/.xls/.csv/.xml/.txt/.json/.pdf |
+| `RATE_LIMIT_EXCEEDED` | >10 uploads/min para o mesmo tenant |
+| `UNAUTHORIZED_PREVIEW` | `preview_id` não pertence ao tenant da sessão |
+| `JSON_FORMATO_INVALIDO` | JSON válido mas sem array de objetos detectável |
+
+Antes: backend jogava `new Error()` genérico → cliente exibia "Erro desconhecido".
+Depois: cada erro tem code + message + sugestão contextual via `traduzirErroDetalhado()` no client.
+
+### P1 — Master-detail e erros silenciosos de INSERT
+
+- **P1.1 — Detecção de super-header**: heurística combinada (esparsidade × baixa
+  diversidade) em `importEngine.ts` evita perder colunas em templates com agrupador na linha 1
+- **P1.2 — Coerência master-detail** (`validarCoerenciaMasterDetail`):
+  - PEDIDO duplicado no arquivo
+  - ITEM antes de qualquer PEDIDO (ordem invertida)
+  - ITEM com `numero_pedido` órfão
+  - PEDIDO sem nenhum ITEM associado (aviso)
+- **P1.3 — Falhas de INSERT param de ser silenciadas**: erros do banco não
+  são mais engolidos — REGRA 08 (sem fallback silencioso)
+
+### P2 — Coerência matemática, encoding, conflitos de mapeamento
+
+- **P2.1 — Coerência matemática**: validar `qtd_inicial - qtd_pronta - qtd_transferida - qtd_cancelada ≥ 0`
+- **P2.2 — CNPJ + email**:
+  - CNPJ valida dígitos verificadores via `cnpjDigitoVerificadorValido()`
+  - Email valida regex padrão (RFC 5322 simplificado)
+- **P2.3 — Encoding latin1 vs UTF-8**: `decodificarComFallback()` em `importEngine.ts`
+  tenta UTF-8 primeiro, conta replacement chars (`�`), cai para latin1 quando
+  taxa > 0.1%. Log `[importEngine] encoding detectado como latin1 (...)`
+  quando o fallback é usado (REGRA 08)
+- **P2.4 — Conflitos de mapeamento** (2+ colunas → mesmo `campo_sistema`):
+  - Server: `detectarConflitosMapeamento()` retorna `ConflitoMapeamento[]` no preview
+  - Client: banner vermelho fixo + botão "Continuar" disabled enquanto houver conflito
+  - Cálculo em tempo real do mapeamento atual (reflete edições do usuário)
+  - Sem isso, último valor sobrescrevia o anterior em `aplicarMapeamento` (bug invisível)
+
+### P3 — Edge cases
+
+| Code | Detecção |
+|---|---|
+| `JSON_MALFORMADO` | `SyntaxError` ao fazer `JSON.parse()` |
+| `JSON_VAZIO` | Array `[]` (válido mas sem dados) |
+| `PDF_PROTEGIDO` | Erro do `pdf-parse` contendo `password\|encrypt\|protected` |
+| `PDF_ESCANEADO` | Texto extraído < 30 chars (provavelmente só imagens) |
+| Excel formula errors | Células com `#REF!`, `#N/A`, `#VALUE!`, `#DIV/0!`, `#NAME?`, `#NULL!`, `#NUM!` viram alertas de nível `erro` em `validarLinha()` |
+
+Cada code tem entrada correspondente em `traduzirErroDetalhado()` no client
+com título, mensagem, causa, sugestões e ações ("Baixar template", "Recarregar").
+
+### Contrato bilateral Zod (REGRA 06 + REGRA 09)
+
+`smart-import-schemas.ts` em `produto/pedido/shared/` define o contrato único:
+
+- **Server** (`importacoes-inteligentes-pedido.ts:275`): `.parse()` antes de
+  `res.json()` — defensive serialization. Falha alta se o service mudar payload
+  sem atualizar o schema.
+- **Client** (`api.ts:855`): `.parse()` a resposta antes de devolver à UI.
+  Falha alta se o backend mudar payload sem atualizar o schema.
+
+Schemas exportados: `colunaMapeadaSchema`, `smartImportAlertaSchema`,
+`smartImportLinhaSchema`, `smartImportLinhaRawSchema`, `conflitoMapeamentoSchema`,
+`smartImportPreviewSchema`.
+
+--- documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-REGRAS-NEGOCIO.md ---
+# Transferir Pedidos — Regras de Negócio
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Definido — aguardando implementação
+
+---
+
+## O que é "Transferir"
+
+Transferir é a operação de **realocar quantidade de itens** de um pedido para outro destino. Cobre desde reduções simples até splits complexos com substituição de produto, múltiplos destinos, datas diferentes e transferências entre empresas.
+
+O sistema foi desenhado para cobrir **todos os cenários de um só vez via configuração**, eliminando a necessidade de customização por cliente.
+
+---
+
+## Cenários
+
+| # | Cenário | Descrição + Exemplo | Part# muda? | Qty origem | Pedido destino | Qty destino | Cria novo pedido? | Origem encerra? | Destino logístico muda? | Data muda? | Reversível? |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | **Redução simples** | Quantidade entregue é menor e a diferença é cancelada. _Ex: PO-001 tinha 1.000 computadores, entregará 800 — os 200 são cancelados._ | Não | Reduz 200 | Nenhum | — | Não | Só se qty=0 + config | Não | Não | Não |
+| 2 | **Split → novo pedido** | Diferença sai do pedido original e vira um novo pedido. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 viram PO-002 (novo)._ | Não | Reduz 200 | Novo criado | +200 | Sim | Só se qty=0 + config | Não | Não | Sim |
+| 3 | **Split → pedido existente** | Diferença vai para um pedido que já existe. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 vão para PO-005 que já existia._ | Não | Reduz 200 | Existente | +200 | Não | Só se qty=0 + config | Não | Não | Sim |
+| 4 | **Multi-split** | Diferença é dividida entre múltiplos destinos (existentes ou novos). _Ex: PO-001 tinha 1.000 — 600 ficam, 300 vão para PO-005, 100 viram PO-006 (novo)._ | Não | Reduz 400 | Múltiplos | Cada um recebe sua parte | Opcional | Só se qty=0 + config | Não | Não | Sim |
+| 5a | **Substituição pura** | Mesma quantidade, troca só o produto. _Ex: PO-001 tinha 100 notebooks — vira 100 computadores (mesmo pedido, mesmo qty, outro part#)._ | Sim | Não muda | Mesmo pedido | Não muda | Não | Não | Não | Não | Sim |
+| 5b | **Split + substituição** | Parte da quantidade vira outro produto. _Ex: PO-001 tinha 100 notebooks — 80 viram computadores + 20 continuam notebook ou são cancelados._ | Sim (parcial) | Reduz 20 | Existente ou novo | +20 com novo part# | Opcional | Só se qty=0 + config | Não | Não | Sim |
+| 6 | **Split por data** | Quantidade dividida em entregas em datas diferentes. _Ex: PO-001 tinha 1.000 para abril — 500 ficam em abril, 500 viram novo pedido para maio._ | Não | Reduz 500 | Novo com nova data | +500 | Sim | Não | Não | Sim | Sim |
+| 7 | **Split por destino logístico** | Quantidade dividida por porto/consignatário de destino. _Ex: PO-001 tinha 1.000 para Santos — 800 ficam em Santos, 200 vão para Itajaí (pedido existente ou novo)._ | Não | Reduz 200 | Existente ou novo | +200 | Opcional | Não | Sim | Não | Sim |
+| 8 | **Transfer intercompany** | Quantidade transferida para pedido de outra empresa do mesmo tenant. _Ex: Filial SP tinha 1.000 — repassa 300 para Filial RJ que tem pedido próprio._ | Não | Reduz 300 | Pedido outra empresa | +300 | Não | Só se qty=0 + config | Não | Não | Não |
+| 9 | **Reversão** | Desfaz uma transferência anterior, devolvendo a quantidade à origem. _Ex: PO-002 recebeu 200 via split de PO-001 — reversão devolve os 200 para PO-001._ | Não | +restaura qty | Pedido origem original | -qty devolvida | Não | Não | Não | Não | — |
+| 10 | **Agrupamento inverso** | Vários pedidos cedem quantidade para um único pedido destino. _Ex: PO-001 cede 100, PO-002 cede 150, PO-003 cede 50 — todos vão para PO-010 que recebe 300._ | Não | Reduz (N origens) | 1 destino | +soma das origens | Opcional | Só se qty=0 + config | Não | Não | Sim |
+
+---
+
+## Regras Transversais
+
+| Regra | Descrição | Default |
+|---|---|---|
+| **Permissão** | Cada tipo de cenário tem permissão configurável separadamente | Desabilitado por tipo |
+| **Qty mínima** | Quantidade transferida deve ser > 0 | Sempre ativo |
+| **Auditoria** | Todo cenário grava histórico com origem, destino, qty e usuário | Sempre ativo |
+| **Status automático** | Recalcula status do pedido origem e destino após qualquer operação | Sempre ativo |
+| **Encerrar pedido quando qty = 0** | Pedido origem muda status para "consolidado" quando qty total = 0 | Configuração — **desabilitado** |
+| **Excluir item quando qty = 0** | Remove o `PedidoItem` do pedido quando sua quantidade chega a zero | Configuração — **desabilitado** |
+| **Excluir pedido quando todos itens = 0** | Remove o `Pedido` quando todos os seus itens chegam a zero | Configuração — **desabilitado** |
+
+---
+
+## Operações Primitivas
+
+Todos os 10 cenários são combinações de 3 operações primitivas:
+
+| Operação | O que faz |
+|---|---|
+| **Reduzir** | Diminui quantidade de um item no pedido origem |
+| **Alocar** | Coloca quantidade em um destino (novo pedido, existente, mesmo pedido) |
+| **Transformar** | Muda atributo do item (part_number, data, destino logístico, empresa) |
+
+---
+
+## Consolidar Pedidos
+
+Consolidar é a operação de **juntar dois ou mais pedidos em um só** (diferente de Transferir, que opera em quantidades).
+
+### Regras
+
+| # | Regra | Default |
+|---|---|---|
+| 1 | Qualquer pedido pode ser consolidado (usuário precisa ter permissão) | — |
+| 2 | Pedidos originais são removidos após consolidação — fica apenas histórico (audit trail) | Sempre |
+| 3 | Campos divergentes (ex: datas diferentes): usuário escolhe qual valor prevalece | Configuração — **desabilitado** |
+| 4 | Aviso de divergência de campos | Configuração — **ativado** |
+| 5 | Itens com mesmo `part_number`: usuário decide se soma ou mantém separado | Configuração — **desabilitado** |
+| 6 | Número do novo pedido consolidado: usuário digita ou segue regra de numeração configurada | — |
+| 7 | Pedido consolidado guarda `pedidos_origem[]` para rastreabilidade | Sempre |
+| 8 | Exportação Excel: modo simplificado (1 linha) e detalhado (1 linha por origem) | Configuração |
+
+### UX do Modal de Consolidação
+
+```
+┌─────────────────────────────────────────────────┐
+│  Consolidar Pedidos (3 selecionados)            │
+├─────────────────────────────────────────────────┤
+│  Número do pedido:  [PO-CONS-2026/001     ]     │
+│                                                 │
+│  Campo          Valor consolidado   Origens     │
+│  ──────────     ─────────────────   ──────────  │
+│  Embarque       [10/04/2026 ▼]      3 datas ⚠   │
+│  Incoterm       [FOB        ▼]      2 valores ⚠ │
+│  Fornecedor     Empresa A           ✓ igual      │
+│  Moeda          USD                 ✓ igual      │
+│  Valor total    R$ 3.500,00         soma         │
+│                                                 │
+│  Itens                                          │
+│  ✓ Fundir itens com mesmo part_number           │
+│                                                 │
+│  ⚠ 2 divergências encontradas                  │
+│                                                 │
+│        [Cancelar]        [Consolidar]           │
+└─────────────────────────────────────────────────┘
+```
+
+- Campos iguais: exibem valor sem indicador
+- Campos divergentes: exibem valor escolhido + badge "N origens ⚠" + tooltip com todos os valores por pedido
+- Datas divergentes: exibem como intervalo `10/04–20/04` + tooltip com detalhe
+- Mínimo de 2 pedidos selecionados para habilitar o botão
+
+--- documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-TECNICO.md ---
+# Transferir Pedidos — Documento Técnico
+
+> **Produto:** Pedido (COMEX)
+> **Versão:** 1.0
+> **Data:** Abril 2026
+> **Status:** Aguardando implementação
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | React + TypeScript strict, Vite, TanStack Virtual |
+| Backend | Express + TypeScript, Prisma ORM |
+| Banco | PostgreSQL (tenant isolado via Prisma Extensions + RLS) |
+| Validação | Zod em todas as rotas |
+| Auth | Clerk JWT + `x-internal-key` S2S |
+| Erros | `AppError` — nunca `res.status().json()` direto |
+
+---
+
+## Estrutura de Arquivos
+
+```
+produto/pedido/
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ModalTransferir.tsx          ← Modal principal de transferência
+│   │   │   ├── ModalTransferir.css
+│   │   │   ├── ModalConsolidar.tsx          ← Já implementado
+│   │   │   └── ModalConsolidar.css
+│   │   ├── shared/
+│   │   │   ├── types.ts                     ← Tipos de Transferência
+│   │   │   ├── api.ts                       ← pedidoTransferirApi
+│   │   │   └── mockData.ts                  ← Mocks DEV
+│   │   └── pages/
+│   │       └── ListaPedidos.tsx             ← Botão Transferir integrado
+└── server/
+    └── src/
+        ├── routes/
+        │   ├── transferir.ts                ← Rotas de transferência
+        │   └── consolidar.ts                ← Já implementado
+        └── services/
+            └── transferirService.ts         ← Lógica de negócio
+```
+
+---
+
+## Tipos TypeScript (`client/src/shared/types.ts`)
+
+```ts
+// Operações primitivas
+export type OperacaoTransfer = 'reduzir' | 'alocar' | 'transformar'
+
+// Cenários disponíveis
+export type CenarioTransfer =
+  | 'reducao_simples'
+  | 'split_novo_pedido'
+  | 'split_pedido_existente'
+  | 'multi_split'
+  | 'substituicao_pura'
+  | 'split_substituicao'
+  | 'split_data'
+  | 'split_destino_logistico'
+  | 'transfer_intercompany'
+  | 'reversao'
+  | 'agrupamento_inverso'
+
+// Destino de um split
+export interface TransferDestino {
+  tipo: 'novo' | 'existente' | 'mesmo'
+  pedido_id?: string              // preenchido se tipo = 'existente'
+  quantidade: number
+  // campos sobrepostos no destino (opcional por cenário)
+  part_number?: string            // cenários 5a, 5b
+  data_embarque?: string          // cenário 6
+  porto_destino?: string          // cenário 7
+  company_id?: string             // cenário 8
+}
+
+// Payload enviado ao backend
+export interface TransferPayload {
+  cenario: CenarioTransfer
+  pedido_id: string               // pedido origem
+  item_id: string                 // item origem
+  quantidade_origem: number       // qty que será removida do origem
+  destinos: TransferDestino[]     // onde vai a qty (1 para cenários simples, N para multi-split)
+  numero_pedido_novo?: string     // quando cria novo pedido
+  reverter_transfer_id?: string   // apenas para cenário 'reversao'
+}
+
+// Resposta do preview
+export interface TransferPreview {
+  cenario: CenarioTransfer
+  origem: {
+    pedido_numero: string
+    item_part_number: string
+    quantidade_atual: number
+    quantidade_apos: number
+    encerra: boolean
+  }
+  destinos: {
+    tipo: 'novo' | 'existente'
+    pedido_numero?: string
+    quantidade: number
+    alertas: string[]
+  }[]
+  alertas_globais: string[]
+}
+
+// Resposta do confirmar
+export interface TransferResultado {
+  pedido_origem_id: string
+  pedidos_destino_ids: string[]
+  pedidos_criados: string[]
+  itens_excluidos: string[]       // se config excluir item qty=0 ativo
+  pedidos_encerrados: string[]    // se config encerrar pedido qty=0 ativo
+}
+
+// Histórico de transferências (para reversão)
+export interface TransferHistorico {
+  id: string
+  pedido_origem_id: string
+  item_origem_id: string
+  cenario: CenarioTransfer
+  quantidade: number
+  destinos: TransferDestino[]
+  revertido: boolean
+  created_at: string
+  created_by: string
+}
+```
+
+---
+
+## API Client (`client/src/shared/api.ts`)
+
+```ts
+export const pedidoTransferirApi = {
+  // Pré-visualização — mostra impacto antes de confirmar
+  preview: (payload: Omit<TransferPayload, 'numero_pedido_novo'>) =>
+    request<TransferPreview>('/api/v1/pedidos/transferir/preview', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  // Confirmação — executa a transferência
+  confirmar: (payload: TransferPayload) =>
+    request<TransferResultado>('/api/v1/pedidos/transferir/confirmar', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  // Lista histórico de transferências de um pedido (para reversão)
+  historico: (pedido_id: string) =>
+    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
+
+  // Reverter uma transferência específica
+  reverter: (transfer_id: string) =>
+    request<TransferResultado>(`/api/v1/pedidos/transferir/${transfer_id}/reverter`, {
+      method: 'POST',
+    }),
+}
+```
+
+---
+
+## Backend — Rotas (`server/src/routes/transferir.ts`)
+
+### `POST /api/v1/pedidos/transferir/preview`
+
+**Zod schema de entrada:**
+```ts
+const PreviewSchema = z.object({
+  cenario: z.enum([
+    'reducao_simples', 'split_novo_pedido', 'split_pedido_existente',
+    'multi_split', 'substituicao_pura', 'split_substituicao',
+    'split_data', 'split_destino_logistico', 'transfer_intercompany',
+    'reversao', 'agrupamento_inverso'
+  ]),
+  pedido_id: z.string().uuid(),
+  item_id: z.string().uuid(),
+  quantidade_origem: z.number().positive(),
+  destinos: z.array(z.object({
+    tipo: z.enum(['novo', 'existente', 'mesmo']),
+    pedido_id: z.string().uuid().optional(),
+    quantidade: z.number().positive(),
+    part_number: z.string().optional(),
+    data_embarque: z.string().optional(),
+    porto_destino: z.string().optional(),
+    company_id: z.string().optional(),
+  })).min(1),
+})
+```
+
+**Lógica:**
+1. Valida Zod
+2. Busca pedido e item (com `tenant_id` obrigatório)
+3. Verifica se `quantidade_origem` ≤ `item.quantidade_atual`
+4. Para cada destino: valida se pedido existente pertence ao mesmo tenant
+5. Detecta alertas (encerramento, qty zerada, destino logístico diferente)
+6. Retorna `TransferPreview` sem alterar o banco
+
+**Resposta:** `200 { TransferPreview }`
+
+---
+
+### `POST /api/v1/pedidos/transferir/confirmar`
+
+**Lógica em `$transaction`:**
+```
+1. Buscar e validar pedido origem + item (tenant_id obrigatório)
+2. Verificar permissão do usuário para o cenário
+3. Para cada destino:
+   a. Se tipo = 'existente': buscar pedido destino (tenant_id obrigatório)
+   b. Se tipo = 'novo': criar novo Pedido com número fornecido + copiar campos base
+   c. Criar ou atualizar PedidoItem no destino com quantidade
+4. Reduzir quantidade do item origem
+5. Se config 'excluir_item_qty_zero' ativo E item.quantidade_atual = 0: deletar item
+6. Se config 'encerrar_pedido_qty_zero' ativo E todos itens = 0: status = 'consolidado'
+7. Se config 'excluir_pedido_qty_zero' ativo E todos itens = 0: soft delete pedido
+8. Criar registro em TransferHistorico
+9. Registrar audit trail (historico service)
+10. Recalcular agregados: quantidade_inicial_total, quantidade_transferida_total
+```
+
+**Resposta:** `201 { TransferResultado }`
+
+---
+
+### `GET /api/v1/pedidos/:id/transferencias`
+
+Retorna histórico de transferências do pedido para uso na reversão.
+
+---
+
+### `POST /api/v1/pedidos/transferir/:transfer_id/reverter`
+
+**Lógica:**
+1. Busca `TransferHistorico` pelo id (com `tenant_id`)
+2. Verifica se já foi revertido (`revertido = true` → erro)
+3. Verifica se cenário é reversível (cenário `reducao_simples` e `transfer_intercompany` NÃO são reversíveis)
+4. Devolve quantidade para o item origem
+5. Remove quantidade dos destinos (se chegou a 0 e config ativo, exclui item/pedido)
+6. Marca `TransferHistorico.revertido = true`
+7. Registra audit trail
+
+---
+
+## Backend — Serviço (`server/src/services/transferirService.ts`)
+
+```ts
+export class TransferirService {
+  async preview(tenantId: string, payload: PreviewInput): Promise<TransferPreview>
+  async confirmar(tenantId: string, userId: string, payload: TransferPayload): Promise<TransferResultado>
+  async reverter(tenantId: string, userId: string, transferId: string): Promise<TransferResultado>
+  async historico(tenantId: string, pedidoId: string): Promise<TransferHistorico[]>
+
+  // Privados
+  private async validarQuantidade(tenantId: string, itemId: string, qtd: number): Promise<void>
+  private async criarPedidoDestino(tenantId: string, numero: string, base: Pedido): Promise<Pedido>
+  private async recalcularAgregados(tenantId: string, pedidoId: string): Promise<void>
+  private async avaliarEncerramentoPedido(tenantId: string, pedidoId: string): Promise<void>
+}
+```
+
+---
+
+## Banco de Dados — Fragment Prisma
+
+```prisma
+// Adicionar ao fragment.prisma do processos-core
+
+model TransferHistorico {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+  pedido_origem_id String
+  item_origem_id   String
+  cenario          String
+  quantidade       Float
+  destinos_json    String   // JSON serializado de TransferDestino[]
+  revertido        Boolean  @default(false)
+  revertido_em     DateTime?
+  revertido_por    String?
+  created_at       DateTime @default(now())
+  created_by       String
+
+  pedido_origem    PedidoComercial @relation(fields: [pedido_origem_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, pedido_origem_id])
+  @@map("transfer_historico")
+}
+
+// Adicionar relação em PedidoComercial:
+// transferencias TransferHistorico[]
+```
+
+---
+
+## Configurações (`ConfiguracaoPedido`)
+
+Adicionar ao model de configurações do produto:
+
+```prisma
+// Transferências
+transferir_encerrar_pedido_qty_zero    Boolean @default(false)
+transferir_excluir_item_qty_zero       Boolean @default(false)
+transferir_excluir_pedido_qty_zero     Boolean @default(false)
+
+// Permissões por cenário (quais cenários estão habilitados)
+transferir_cenarios_habilitados        String[] @default([])
+
+// Consolidação
+consolidar_aviso_divergencia           Boolean @default(true)
+consolidar_fundir_itens_part_number    Boolean @default(false)
+consolidar_usuario_escolhe_campos      Boolean @default(false)
+```
+
+---
+
+## Frontend — Modal de Transferência
+
+### Fluxo UX
+
+```
+1. Usuário seleciona pedido(s) na lista
+2. Clica em "Transferir"
+3. Modal abre:
+   a. Passo 1 — Selecionar cenário (cards visuais com descrição)
+   b. Passo 2 — Selecionar item e quantidade
+   c. Passo 3 — Configurar destinos (varia por cenário)
+   d. Passo 4 — Preview do impacto (chamada /preview)
+   e. Passo 5 — Confirmar
+4. Após confirmar: recarregar lista
+```
+
+### Componente
+
+```
+ModalTransferir.tsx
+├── Passo 1: SeletorCenario (cards com ícone + descrição)
+├── Passo 2: SeletorItemQuantidade (tabela de itens do pedido)
+├── Passo 3: ConfigurarDestinos
+│   ├── DestinoSimples (cenários 1, 2, 3, 5a)
+│   ├── DestinoMultiplo (cenário 4)
+│   ├── DestinoData (cenário 6)
+│   ├── DestinoLogistico (cenário 7)
+│   └── DestinoIntercompany (cenário 8)
+├── Passo 4: PreviewImpacto (resultado do /preview com alertas)
+└── Passo 5: Confirmação
+```
+
+---
+
+## Integração em ListaPedidos.tsx
+
+```tsx
+// Estado
+const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
+
+// Botão (já existe no código, substituir o onClick)
+<BotaoGlobal
+  variante="secundario"
+  tamanho="pequeno"
+  icone={<ArrowsLeftRight size={14} weight="duotone" />}
+  disabled={pedidosSelecionados.length === 0}
+  onClick={() => setModalTransferirAberto(true)}
+>
+  Transferir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+</BotaoGlobal>
+
+// Modal
+{modalTransferirAberto && (
+  <ModalTransferir
+    pedidos={pedidosSelecionados}
+    onFechar={() => setModalTransferirAberto(false)}
+    onConcluido={() => {
+      setModalTransferirAberto(false)
+      setPedidosSelecionados([])
+      carregarInicial()
+    }}
+  />
+)}
+```
+
+---
+
+## Segurança — Checklist 5 Camadas
+
+- [x] **Rede**: rotas registradas após `tenantIsolationMiddleware`
+- [x] **Autenticação**: Clerk JWT validado em todas as rotas
+- [x] **Autorização**: verificar permissão por cenário antes de executar
+- [x] **Isolamento**: `tenant_id` em todas as queries Prisma (origem e destino)
+- [x] **Auditoria**: `TransferHistorico` + `historico service` em toda operação
+
+---
+
+## Testes
+
+```
+testes/
+├── unitarios/
+│   └── pedido/
+│       └── transferirService.test.ts
+│           ├── reducao_simples — qty reduz corretamente
+│           ├── split_novo_pedido — novo pedido criado com qty correta
+│           ├── split_pedido_existente — qty somada ao destino
+│           ├── multi_split — soma de destinos = qty transferida
+│           ├── substituicao_pura — part_number alterado, qty intacta
+│           ├── reversao — qty restaurada, revertido=true
+│           ├── config encerrar_pedido_qty_zero — pedido encerra quando tudo = 0
+│           ├── config excluir_item_qty_zero — item removido quando qty = 0
+│           └── cross-tenant — rejeita destino de outro tenant
+└── funcionais/
+    └── pedido/
+        └── transferir.test.ts
+            ├── POST /preview — retorna impacto sem alterar banco
+            ├── POST /confirmar — executa e retorna resultado
+            ├── POST /confirmar — rejeita qty > disponível
+            └── POST /reverter — restaura estado anterior
+```

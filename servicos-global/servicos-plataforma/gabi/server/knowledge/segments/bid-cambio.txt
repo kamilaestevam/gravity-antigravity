@@ -1,0 +1,1867 @@
+=== Bid Cambio (Cotacao de Cambio) ===
+
+--- documentos-tecnicos/produtos-gravity/bid-cambio/ARQUITETURA.md ---
+# Arquitetura Tecnica — BID Cambio
+
+> **Versao:** 1.0
+> **Data:** 29/03/2026
+> **Porta:** 8025
+> **Product ID:** bid-cambio
+> **Agente:** Tech Lead (Dream Team de Produtos)
+
+---
+
+## 1. PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'bid-cambio',
+  productId: 'bid-cambio',
+  name: 'BID Cambio',
+  port: 8025,
+
+  tenantServices: [
+    'atividades',      // Log de acoes
+    'dashboard',       // KPIs consolidados
+    'relatorios',      // Relatorios exportaveis
+    'historico',       // Audit trail imutavel (compliance BACEN)
+    'notificacoes',    // Alertas in-app
+    'gabi',            // IA — analise de taxas
+    'email',           // Disparo de cotacoes + alertas de vencimento
+    'agendamento',     // Cron job diario 7h (alertas)
+  ],
+
+  productServices: [
+    'bid-engine',              // Disparo de cotacoes para corretoras
+    'comparativo-engine',      // Ranking de taxas e aprovacao
+    'rating-engine',           // Rating de corretoras (cross-tenant)
+    'parcela-engine',          // Gestao de parcelas (agendamento, pagamento, recalculo)
+    'savings-engine',          // Calculo de economia (spread)
+    'vencimento-engine',       // Calculo de datas de vencimento (metodos)
+    'email-engine',            // Templates e disparo de e-mails especificos
+  ],
+
+  navigation: [
+    { id: 'visao-geral',    label: 'Visao Geral',    icon: 'LayoutDashboard' },
+    { id: 'cambios',        label: 'Cambios',        icon: 'FileText' },
+    { id: 'cotacoes',       label: 'Cotacoes',       icon: 'ArrowLeftRight' },
+    { id: 'corretoras',     label: 'Corretoras',     icon: 'Building2' },
+    { id: 'configuracoes',  label: 'Configuracoes',  icon: 'Settings' },
+  ],
+
+  // Navegacao do Portal da Corretora (separado)
+  navigationCorretora: [
+    { id: 'dashboard',          label: 'Dashboard',          icon: 'LayoutDashboard' },
+    { id: 'cotacoes-pendentes', label: 'Cotacoes Pendentes', icon: 'Clock' },
+    { id: 'minhas-respostas',   label: 'Minhas Respostas',   icon: 'CheckCircle' },
+    { id: 'meu-desempenho',     label: 'Meu Desempenho',     icon: 'TrendingUp' },
+    { id: 'configuracoes',      label: 'Configuracoes',      icon: 'Settings' },
+  ],
+
+  features: {
+    cotacao_aberta: true,         // Cotacoes abertas (todas corretoras ativas)
+    rating_global: true,          // Rating cross-tenant de corretoras
+    monetizacao_corretora: true,  // Cobranca das corretoras
+    portal_publico: true,         // Resposta via token (sem login)
+    gestao_parcelas: true,        // Pilar 1 — gestao completa
+    integracao_processo: true,    // Leitura de dados do Processo (opcional)
+    alerta_vencimento: true,      // Cron job de e-mails
+    exportacao: true,             // CSV, Excel, PDF
+  },
+}
+```
+
+---
+
+## 2. Estrutura de Pastas
+
+```
+produto/bid-cambio/
+├── client/
+│   └── src/
+│       ├── pages/
+│       │   ├── Dashboard.tsx              # KPIs comprador
+│       │   ├── ListaCambios.tsx           # Grid 25+ colunas customizavel
+│       │   ├── NovaCotacao.tsx            # Criar + disparar cotacao
+│       │   ├── DetalheCotacao.tsx         # Detalhe com respostas
+│       │   ├── Comparativo.tsx            # Ranking de taxas
+│       │   ├── Corretoras.tsx             # Lista de corretoras
+│       │   ├── DetalheCorretora.tsx       # Rating + historico
+│       │   ├── Configuracoes.tsx          # Preferencias do comprador
+│       │   └── portal/
+│       │       ├── PortalDashboard.tsx    # Dashboard corretora
+│       │       ├── CotacoesPendentes.tsx  # Cotacoes aguardando resposta
+│       │       ├── ResponderCotacao.tsx   # Formulario de resposta (auth)
+│       │       ├── ResponderPublico.tsx   # Formulario de resposta (token)
+│       │       ├── MinhasRespostas.tsx    # Historico de respostas
+│       │       ├── MeuDesempenho.tsx      # Metricas da corretora
+│       │       └── ConfigCorretora.tsx    # Dados e preferencias
+│       └── shared/
+│           ├── api.ts                     # Client API functions
+│           ├── config.ts                  # PRODUCT_CONFIG
+│           └── types.ts                   # TypeScript types + enums
+│
+├── server/
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── cambios.ts                # CRUD parcelas de cambio
+│   │   │   ├── cotacoes.ts               # CRUD cotacoes de cambio
+│   │   │   ├── bids.ts                   # Disparo para corretoras
+│   │   │   ├── comparativo.ts            # Ranking + aprovacao
+│   │   │   ├── corretoras.ts             # Cadastro de corretoras
+│   │   │   ├── portal.ts                 # Portal autenticado corretora
+│   │   │   ├── portalPublic.ts           # Portal publico (token)
+│   │   │   ├── avaliacoes.ts             # Rating de corretoras
+│   │   │   ├── dashboard.ts              # KPIs agregados
+│   │   │   ├── masterData.ts             # Moedas, bancos, PTAX
+│   │   │   └── preferencias.ts           # Preferencias de cambio do tenant
+│   │   │
+│   │   ├── services/
+│   │   │   ├── bidEngine.ts              # Orquestracao de disparo
+│   │   │   ├── comparativoEngine.ts      # Ranking + aprovacao 2-click
+│   │   │   ├── parcelaEngine.ts          # Gestao de parcelas (agendar, pagar, recalcular)
+│   │   │   ├── ratingEngine.ts           # Rating cross-tenant de corretoras
+│   │   │   ├── savingsEngine.ts          # Calculo de economia (spread)
+│   │   │   ├── vencimentoEngine.ts       # Calculo de datas de vencimento
+│   │   │   ├── emailEngine.ts            # Templates de e-mail + disparo
+│   │   │   ├── monetizacao.ts            # Cobranca das corretoras
+│   │   │   ├── tenantIntegrations.ts     # Fire-and-forget S2S
+│   │   │   └── cronJobs.ts              # Alertas de vencimento (7h) + expiracao cotacoes
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── requireInternalKey.ts     # Auth S2S
+│   │   │   └── tenantIsolation.ts        # Injeta tenant_id
+│   │   │
+│   │   ├── lib/
+│   │   │   ├── errors.ts                 # AppError
+│   │   │   └── prisma.ts                 # Prisma client com extension
+│   │   │
+│   │   ├── types/
+│   │   │   └── express.d.ts
+│   │   │
+│   │   └── index.ts                      # Express server (porta 8025)
+│   │
+│   └── prisma/
+│       ├── fragment.prisma               # Models do BID Cambio
+│       ├── schema.base.prisma
+│       ├── schema.prisma
+│       └── compose-schema.js
+│
+└── package.json
+```
+
+---
+
+## 3. fragment.prisma
+
+```prisma
+// ============================================
+// BID Cambio — Fragment Prisma
+// Produto: bid-cambio | Porta: 8025
+// ============================================
+
+// ---- ENUMS ----
+
+enum TipoOperacaoCambio {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum ModalidadeCambio {
+  PRONTO        // D+0, D+1, D+2
+  FUTURO        // NDF/Trava (Fase 2)
+}
+
+enum LiquidacaoCambio {
+  D0
+  D1
+  D2
+}
+
+enum MoedaCambio {
+  USD
+  EUR
+  GBP
+  CHF
+  BRL
+  CNY
+  JPY
+}
+
+enum StatusParcela {
+  PENDENTE
+  AGENDADO
+  PAGO
+}
+
+enum StatusCotacaoCambio {
+  RASCUNHO
+  ENVIADA_CORRETORAS
+  EM_COTACAO
+  AGUARDANDO_APROVACAO
+  APROVADA
+  REPROVADA
+  CANCELADA
+  EXPIRADA
+}
+
+enum CanalDisparoCambio {
+  EMAIL
+  PORTAL
+}
+
+enum StatusBidRequestCambio {
+  PENDENTE
+  ENVIADO
+  VISUALIZADO
+  RESPONDIDO
+  EXPIRADO
+  ERRO_ENVIO
+}
+
+enum StatusBidResponseCambio {
+  RECEBIDA
+  EM_ANALISE
+  MELHOR_TAXA
+  MELHOR_SPREAD
+  MELHOR_AVALIACAO
+  APROVADA
+  REPROVADA
+}
+
+enum TipoCorretora {
+  CORRETORA_CAMBIO
+  BANCO_COMERCIAL
+  BANCO_CAMBIO
+  FINTECH
+}
+
+enum StatusCorretora {
+  ATIVA
+  INATIVA
+  BLOQUEADA
+}
+
+enum MetodoVencimento {
+  DATA_EMBARQUE
+  DATA_CHEGADA
+  DATA_REGISTRO_DI
+  DATA_DESEMBARACO
+  DATA_ENTREGA
+  PRONTIDAO_CARGA    // Usa Data Carga Pronta; fallback: Data Esperada da Prontidao
+  DATA_FIXA
+}
+
+// ---- MODELS ----
+
+/// Parcela de cambio vinculada a um pedido/processo
+model ParcelaCambio {
+  id                    String          @id @default(cuid())
+  tenant_id             String
+  product_id            String          @default("bid-cambio")
+  user_id               String
+
+  // Dados do processo/pedido (pode vir do Processo ou ser manual)
+  referencia_processo   String?         // DATI NUMBER ou referencia externa
+  numero_pedido         String?         // PO Number
+  exportador            String?
+  numero_di             String?
+  numero_invoice        String?
+  numero_bl             String?
+  numero_contrato_cambio String?
+  numero_transmissao_di String?
+  referencia_cliente    String?
+
+  // Valores
+  moeda                 MoedaCambio     @default(USD)
+  cambio_total          Decimal         @db.Decimal(18, 4)
+  porcentagem_parcela   Decimal         @db.Decimal(5, 2)   // ex: 24.50
+  valor_a_pagar         Decimal         @db.Decimal(18, 2)   // em moeda
+  valor_a_pagar_brl     Decimal         @db.Decimal(18, 2)   // em reais
+  valor_pago            Decimal?        @db.Decimal(18, 2)   // valor efetivamente pago
+  valor_pago_brl        Decimal?        @db.Decimal(18, 2)
+
+  // Parcela
+  numero_parcela        Int                                   // 1, 2, 3...
+  total_parcelas        Int                                   // total do pedido
+  // Display: "numero_parcela/total_parcelas" => "1/3"
+
+  // Status
+  status                StatusParcela   @default(PENDENTE)
+
+  // Datas
+  data_vencimento       DateTime?
+  data_agendamento      DateTime?
+  data_pagamento        DateTime?
+  data_vencimento_original DateTime?     // guardada para retorno a pendente
+
+  // Metodo de vencimento
+  metodo_vencimento     MetodoVencimento?
+  prazo_dias            Int?             // dias apos o marco
+
+  // Datas do processo (para calculo de vencimento)
+  data_carga_pronta     DateTime?
+  data_esperada_prontidao DateTime?
+  data_embarque_final   DateTime?
+  data_chegada_final    DateTime?
+  data_registro_di      DateTime?
+  data_desembaraco      DateTime?
+  data_entrega          DateTime?
+  data_abertura_pedido  DateTime?
+
+  // Pagamento
+  taxa_fechamento       Decimal?        @db.Decimal(10, 4)   // 4 casas decimais
+  banco_corretora       String?
+  condicao_pagamento    String?
+
+  // Enderecos
+  endereco_desembaraco  String?          // CNPJ + Nome
+  endereco_entrega      String?          // CNPJ + Nome
+
+  // Vinculacao com cotacao (Pilar 2)
+  cotacao_cambio_id     String?
+  bid_response_id       String?          // Resposta aprovada que gerou o pagamento
+
+  // Anexos
+  anexos                AnexoCambio[]
+
+  // Timestamps
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, data_vencimento])
+  @@map("cambio_parcelas")
+}
+
+/// Anexo de comprovante de pagamento
+model AnexoCambio {
+  id                    String          @id @default(cuid())
+  tenant_id             String
+  parcela_id            String
+  parcela               ParcelaCambio   @relation(fields: [parcela_id], references: [id])
+  nome_arquivo          String?         // nome customizado (opcional)
+  nome_original         String          // nome real do arquivo
+  url                   String          // URL do storage
+  categoria             String          @default("Contrato de Cambio")
+  tamanho_bytes         Int?
+  created_at            DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, parcela_id])
+  @@map("cambio_anexos")
+}
+
+/// Forma de pagamento do cambio (config por pedido)
+model FormaPagamentoCambio {
+  id                    String              @id @default(cuid())
+  tenant_id             String
+  product_id            String              @default("bid-cambio")
+  user_id               String
+  referencia_processo   String?             // Vinculo com processo/pedido
+  numero_pedido         String?
+
+  descricao             String?             // Nome da forma de pagamento
+  parcelas              ConfigParcelaCambio[]
+
+  created_at            DateTime            @default(now())
+  updated_at            DateTime            @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("cambio_formas_pagamento")
+}
+
+/// Configuracao de cada parcela dentro da forma de pagamento
+model ConfigParcelaCambio {
+  id                    String                  @id @default(cuid())
+  tenant_id             String
+  forma_pagamento_id    String
+  forma_pagamento       FormaPagamentoCambio    @relation(fields: [forma_pagamento_id], references: [id])
+
+  a_partir_de           MetodoVencimento        // "A partir de qual momento"
+  prazo_dias            Int                     // Prazo em dias
+  porcentagem           Decimal                 @db.Decimal(5, 2) // ex: 24.50
+  ordem                 Int                     // Ordem da parcela
+
+  @@index([tenant_id])
+  @@index([tenant_id, forma_pagamento_id])
+  @@map("cambio_config_parcelas")
+}
+
+/// Cotacao de cambio (Pilar 2 — Marketplace)
+model CotacaoCambio {
+  id                    String                  @id @default(cuid())
+  tenant_id             String
+  product_id            String                  @default("bid-cambio")
+  user_id               String
+
+  // Dados da cotacao
+  moeda                 MoedaCambio             @default(USD)
+  valor                 Decimal                 @db.Decimal(18, 2)
+  tipo_operacao         TipoOperacaoCambio      @default(IMPORTACAO)
+  modalidade            ModalidadeCambio        @default(PRONTO)
+  liquidacao            LiquidacaoCambio        @default(D2)
+
+  // Vinculacao com processo (opcional)
+  referencia_processo   String?
+  numero_pedido         String?
+  exportador            String?
+
+  // Status
+  status                StatusCotacaoCambio     @default(RASCUNHO)
+
+  // PTAX de referencia no momento da cotacao
+  ptax_referencia       Decimal?                @db.Decimal(10, 4)
+  ptax_data             DateTime?
+
+  // Validade
+  data_expiracao        DateTime?
+
+  // Resultado
+  economia_brl          Decimal?                @db.Decimal(18, 2)
+  economia_percentual   Decimal?                @db.Decimal(5, 2)
+
+  // Relacoes
+  bid_requests          BidRequestCambio[]
+  bid_responses         BidResponseCambio[]
+
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@map("cambio_cotacoes")
+}
+
+/// Disparo de cotacao para uma corretora
+model BidRequestCambio {
+  id                    String                      @id @default(cuid())
+  tenant_id             String
+  cotacao_id            String
+  cotacao               CotacaoCambio               @relation(fields: [cotacao_id], references: [id])
+  corretora_id          String
+  corretora             Corretora                   @relation(fields: [corretora_id], references: [id])
+
+  canal                 CanalDisparoCambio          @default(EMAIL)
+  status                StatusBidRequestCambio      @default(PENDENTE)
+
+  // Token publico para resposta sem login
+  token_publico         String?                     @unique
+  token_expiracao       DateTime?
+
+  // Timestamps de tracking
+  enviado_em            DateTime?
+  visualizado_em        DateTime?
+  respondido_em         DateTime?
+
+  // Resposta vinculada
+  response              BidResponseCambio?
+
+  created_at            DateTime                    @default(now())
+  updated_at            DateTime                    @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([token_publico])
+  @@map("cambio_bid_requests")
+}
+
+/// Resposta de uma corretora a uma cotacao
+model BidResponseCambio {
+  id                    String                      @id @default(cuid())
+  tenant_id             String
+  cotacao_id            String
+  cotacao               CotacaoCambio               @relation(fields: [cotacao_id], references: [id])
+  corretora_id          String
+  corretora             Corretora                   @relation(fields: [corretora_id], references: [id])
+  bid_request_id        String                      @unique
+  bid_request           BidRequestCambio            @relation(fields: [bid_request_id], references: [id])
+
+  // Proposta
+  taxa_oferecida        Decimal                     @db.Decimal(10, 4) // ex: 5.2350
+  spread                Decimal                     @db.Decimal(10, 4) // diferenca vs PTAX
+  valor_total_brl       Decimal                     @db.Decimal(18, 2) // valor x taxa
+  iof_percentual        Decimal                     @db.Decimal(5, 2)  // ex: 0.38
+  iof_valor             Decimal                     @db.Decimal(18, 2)
+  liquidacao_proposta   LiquidacaoCambio
+  validade_minutos      Int                          // ex: 10 (minutos)
+  validade_ate          DateTime                     // timestamp exato
+  condicoes             String?                      // observacoes da corretora
+
+  // Status
+  status                StatusBidResponseCambio     @default(RECEBIDA)
+
+  created_at            DateTime                    @default(now())
+  updated_at            DateTime                    @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([tenant_id, corretora_id])
+  @@map("cambio_bid_responses")
+}
+
+/// Cadastro de corretoras de cambio / bancos
+model Corretora {
+  id                    String                  @id @default(cuid())
+  tenant_id             String
+  product_id            String                  @default("bid-cambio")
+  user_id               String
+
+  // Dados
+  razao_social          String
+  nome_fantasia         String?
+  cnpj                  String?
+  tipo                  TipoCorretora           @default(CORRETORA_CAMBIO)
+  status                StatusCorretora         @default(ATIVA)
+
+  // Contato
+  email                 String
+  telefone              String?
+  contato_nome          String?
+  contato_cargo         String?
+
+  // Portal
+  portal_habilitado     Boolean                 @default(false)
+
+  // Moedas que opera
+  moedas_operadas       String?                 // JSON array: ["USD","EUR","GBP"]
+
+  // Relacoes
+  bid_requests          BidRequestCambio[]
+  bid_responses         BidResponseCambio[]
+  avaliacoes            AvaliacaoCorretora[]
+
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([email])
+  @@map("cambio_corretoras")
+}
+
+/// Avaliacao manual de corretora (1-5 por criterio)
+model AvaliacaoCorretora {
+  id                    String          @id @default(cuid())
+  tenant_id             String
+  user_id               String
+  corretora_id          String
+  corretora             Corretora       @relation(fields: [corretora_id], references: [id])
+  cotacao_id            String?
+
+  nota_taxa             Int             // 1-5 — competitividade da taxa
+  nota_agilidade        Int             // 1-5 — velocidade de resposta
+  nota_atendimento      Int             // 1-5 — qualidade do servico
+  nota_confiabilidade   Int             // 1-5 — cumpre o que promete
+  comentario            String?
+
+  created_at            DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, corretora_id])
+  @@map("cambio_avaliacoes")
+}
+
+/// Rating global de corretora (cross-tenant, por e-mail)
+model RatingCorretora {
+  id                    String          @id @default(cuid())
+  corretora_email       String          @unique
+  // Cross-tenant: NAO tem tenant_id como filtro unico
+
+  // Metricas automaticas (40%)
+  taxa_resposta         Decimal         @db.Decimal(5, 2)  // % de cotacoes respondidas
+  taxa_aprovacao        Decimal         @db.Decimal(5, 2)  // % de respostas aprovadas
+  tempo_medio_resposta  Int             // minutos
+  total_cotacoes        Int             @default(0)
+  total_aprovacoes      Int             @default(0)
+
+  // Metricas manuais (60%)
+  nota_media_taxa       Decimal         @db.Decimal(3, 2)  // media 1-5
+  nota_media_agilidade  Decimal         @db.Decimal(3, 2)
+  nota_media_atendimento Decimal        @db.Decimal(3, 2)
+  nota_media_confiabilidade Decimal     @db.Decimal(3, 2)
+  total_avaliacoes      Int             @default(0)
+
+  // Score final
+  score_global          Decimal         @db.Decimal(3, 2)  // 0-5
+
+  updated_at            DateTime        @updatedAt
+
+  @@map("cambio_rating_corretora_global")
+}
+
+/// Saving por cotacao aprovada
+model SavingCambio {
+  id                    String          @id @default(cuid())
+  tenant_id             String
+  cotacao_id            String
+  corretora_id          String
+
+  valor_operacao        Decimal         @db.Decimal(18, 2)
+  moeda                 MoedaCambio
+  taxa_aprovada         Decimal         @db.Decimal(10, 4)
+  taxa_media_respostas  Decimal         @db.Decimal(10, 4)  // media das outras propostas
+  ptax_referencia       Decimal         @db.Decimal(10, 4)
+  economia_brl          Decimal         @db.Decimal(18, 2)
+  economia_percentual   Decimal         @db.Decimal(5, 2)
+
+  created_at            DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@map("cambio_savings")
+}
+
+/// Preferencias de cambio do tenant
+model PreferenciaCambio {
+  id                              String      @id @default(cuid())
+  tenant_id                       String      @unique
+  product_id                      String      @default("bid-cambio")
+
+  // Preferencias (do legado DATI)
+  mostrar_no_financeiro           Boolean     @default(false)  // Apresentar cambios pagos no financeiro?
+  alerta_email_vencimento         Boolean     @default(false)  // Alertar por e-mail?
+  dias_antecedencia_alerta        Int?                          // Quantos dias antes?
+  enviar_email_exportador         Boolean     @default(false)  // E-mail ao exportador apos pagamento?
+  enviar_email_fim_de_semana      Boolean     @default(true)   // Enviar nos fins de semana?
+
+  updated_at                      DateTime    @updatedAt
+
+  @@index([tenant_id])
+  @@map("cambio_preferencias")
+}
+
+/// Preferencia de grid do usuario (colunas, ordem, filtros)
+model PreferenciaGridCambio {
+  id                    String      @id @default(cuid())
+  tenant_id             String
+  user_id               String
+
+  colunas_visiveis      String      // JSON array de nomes de colunas
+  ordem_colunas         String      // JSON array com ordem
+  filtros_salvos        String?     // JSON object com filtros ativos
+  ordenacao             String?     // JSON: { campo: "data_vencimento", direcao: "asc" }
+
+  updated_at            DateTime    @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@map("cambio_preferencias_grid")
+}
+```
+
+---
+
+## 4. API Endpoints
+
+### Rotas Publicas (sem auth)
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/health` | Health check com status do DB |
+| GET | `/api/v1/master-data/moedas` | Lista de moedas (USD, EUR, etc.) |
+| GET | `/api/v1/master-data/bancos` | Lista de bancos/corretoras publicos |
+| GET | `/api/v1/master-data/ptax` | PTAX do dia (cache BCB) |
+| GET | `/api/v1/master-data/ptax/historico` | Historico PTAX (ultimos 30 dias) |
+| GET | `/api/v1/bid-cambio/portal/public/cotacao/:token` | Ver cotacao via link publico |
+| POST | `/api/v1/bid-cambio/portal/public/responder/:token` | Responder cotacao via token |
+
+### Rotas Protegidas — Comprador (x-internal-key + tenant isolation)
+
+#### Parcelas de Cambio (Gestao — Pilar 1)
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/cambios` | Listar parcelas (filtros: status, moeda, datas, paginacao) |
+| GET | `/api/v1/bid-cambio/cambios/:id` | Detalhe da parcela |
+| POST | `/api/v1/bid-cambio/cambios` | Criar parcela manual |
+| PATCH | `/api/v1/bid-cambio/cambios/:id` | Atualizar parcela |
+| POST | `/api/v1/bid-cambio/cambios/agendar` | Agendar parcelas (batch) |
+| POST | `/api/v1/bid-cambio/cambios/pagar` | Registrar pagamento (3 etapas) |
+| POST | `/api/v1/bid-cambio/cambios/retornar-pendente` | Retornar parcela para pendente |
+| GET | `/api/v1/bid-cambio/cambios/totais` | Totais em aberto por moeda |
+| POST | `/api/v1/bid-cambio/cambios/exportar` | Exportar (CSV, Excel, PDF) |
+
+#### Forma de Pagamento
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/formas-pagamento` | Listar formas de pagamento |
+| POST | `/api/v1/bid-cambio/formas-pagamento` | Criar forma (parcelas com %) |
+| PUT | `/api/v1/bid-cambio/formas-pagamento/:id` | Editar (so se nenhuma parcela paga) |
+| DELETE | `/api/v1/bid-cambio/formas-pagamento/:id` | Remover |
+
+#### Cotacoes de Cambio (Marketplace — Pilar 2)
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/bid-cambio/cotacoes` | Criar cotacao |
+| GET | `/api/v1/bid-cambio/cotacoes` | Listar cotacoes (status, moeda, datas) |
+| GET | `/api/v1/bid-cambio/cotacoes/:id` | Detalhe com requests/responses |
+| PATCH | `/api/v1/bid-cambio/cotacoes/:id` | Atualizar (so RASCUNHO) |
+| DELETE | `/api/v1/bid-cambio/cotacoes/:id` | Deletar (so RASCUNHO) |
+
+#### Disparo de BIDs
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/bid-cambio/bids/disparar` | Disparar para corretoras selecionadas |
+| POST | `/api/v1/bid-cambio/bids/cotacao-aberta` | Disparar para todas ativas |
+| GET | `/api/v1/bid-cambio/bids/cotacao/:id` | Listar BidRequests da cotacao |
+
+#### Comparativo
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/comparativo/:cotacaoId` | Ranking com tags |
+| POST | `/api/v1/bid-cambio/comparativo/:cotacaoId/aprovar` | Aprovar resposta (2-click) |
+| POST | `/api/v1/bid-cambio/comparativo/:cotacaoId/reprovar` | Reprovar com motivo |
+
+#### Corretoras
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/bid-cambio/corretoras` | Cadastrar corretora |
+| GET | `/api/v1/bid-cambio/corretoras` | Listar (tipo, status) |
+| GET | `/api/v1/bid-cambio/corretoras/:id` | Detalhe + rating |
+| PUT | `/api/v1/bid-cambio/corretoras/:id` | Atualizar |
+| PATCH | `/api/v1/bid-cambio/corretoras/:id/status` | Ativar/Inativar/Bloquear |
+
+#### Avaliacoes
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/bid-cambio/avaliacoes` | Avaliar corretora (1-5, 4 criterios) |
+| GET | `/api/v1/bid-cambio/avaliacoes/corretora/:id` | Rating da corretora |
+| GET | `/api/v1/bid-cambio/avaliacoes/ranking` | Ranking global |
+
+#### Dashboard
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/dashboard` | KPIs consolidados |
+| GET | `/api/v1/bid-cambio/dashboard/vencimentos` | Calendario de vencimentos |
+
+#### Preferencias
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/preferencias` | Preferencias do tenant |
+| PUT | `/api/v1/bid-cambio/preferencias` | Atualizar preferencias |
+| GET | `/api/v1/bid-cambio/preferencias/grid` | Grid do usuario |
+| PUT | `/api/v1/bid-cambio/preferencias/grid` | Salvar grid do usuario |
+
+### Rotas Protegidas — Portal da Corretora (auth separado)
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/bid-cambio/portal/dashboard` | Dashboard da corretora |
+| GET | `/api/v1/bid-cambio/portal/cotacoes-pendentes` | Cotacoes aguardando resposta |
+| GET | `/api/v1/bid-cambio/portal/minhas-respostas` | Historico de respostas |
+| POST | `/api/v1/bid-cambio/portal/responder/:bidRequestId` | Responder cotacao (auth) |
+| GET | `/api/v1/bid-cambio/portal/meu-desempenho` | Metricas da corretora |
+
+---
+
+## 5. Middleware Stack (index.ts)
+
+```
+1.  Helmet (security headers)
+2.  Body parser (JSON, 10MB limit)
+3.  CORS (localhost:5176, localhost:8003, CLIENT_URL)
+4.  Static files (client build)
+5.  Health check (GET /health — sem auth)
+6.  Master data routes (GET /api/v1/master-data/* — sem auth)
+7.  Portal public routes (token-based — sem auth)
+8.  requireInternalKey middleware
+9.  tenantIsolationMiddleware
+10. Portal corretora routes (auth corretora)
+11. Cambios routes (gestao parcelas)
+12. Cotacoes routes (marketplace)
+13. Bids routes (disparo)
+14. Comparativo routes (ranking/aprovacao)
+15. Corretoras routes (cadastro)
+16. Avaliacoes routes (rating)
+17. Dashboard routes (KPIs)
+18. Preferencias routes
+19. SPA fallback
+20. Global error handler
+```
+
+---
+
+## 6. Mapa de Reuso
+
+### Servicos Gravity Reutilizados
+
+| Servico | Porta | Uso no BID Cambio |
+|---------|-------|-------------------|
+| Configurador | 8003 | Auth Clerk, JWT, permissoes, workspace |
+| Atividades | 3001 | Log de todas as acoes |
+| Notificacoes | 3001 | Alertas in-app |
+| Historico | 3001 | Audit trail (compliance BACEN) |
+| GABI | 3001 | Analise IA de taxas |
+| Agendamento | 3001 | Cron job diario 7h |
+| Email | 3001 | Disparo de cotacoes + alertas |
+| Dashboard | 3001 | KPIs cross-product |
+| Relatorios | 3001 | Exportacao de relatorios |
+
+### Componentes nucleo-global Reutilizados
+
+| Componente | Uso |
+|-----------|-----|
+| TabelaGlobal | Grid de parcelas (25+ colunas, customizavel) |
+| CaixaSelectGlobal | Filtros de status, moeda, corretora |
+| InputTexto | Formularios (cotacao, pagamento) |
+| ModalGlobal | Agendamento, pagamento (3 etapas), avaliacao |
+| BadgeStatus | Status de parcelas e cotacoes |
+| BotaoGlobal | Acoes (Agendar, Pagar, Disparar, Aprovar) |
+| Loading | Skeleton/spinner |
+
+### O que precisa ser criado do zero
+
+| Componente/Engine | Justificativa |
+|-------------------|-------------|
+| parcelaEngine | Logica de gestao de parcelas (recalculo, retorno a pendente) — nao existe em BID Frete |
+| vencimentoEngine | Calculo de datas de vencimento por metodo — especifico de cambio |
+| emailEngine | Templates de e-mail especificos (alerta vencimento PT-BR, exportador EN) |
+| CountdownTimer | Componente visual de validade da taxa (minutos) |
+| GridCustomizavel | Extensao do TabelaGlobal com drag-and-drop de colunas + preferencia salva |
+
+---
+
+## 7. Estimativas de Complexidade
+
+### Por Funcionalidade
+
+| Funcionalidade | Tamanho | Justificativa |
+|---------------|---------|-------------|
+| Lista de Cambios (grid customizavel) | G | Grid com 25+ colunas, drag-and-drop, preferencia por usuario, filtros por coluna |
+| Agendamento de Parcelas | P | Modal simples, batch update, follow-up |
+| Pagamento de Cambio (3 etapas) | M | Fluxo multi-step, recalculo de saldo, anexos |
+| parcelaEngine (recalculos) | G | Logica complexa: pagamento parcial, retorno a pendente, recalculo proporcional |
+| vencimentoEngine | M | 7 metodos de calculo, fallback Data Esperada |
+| Cotacao + Disparo | M | Formulario + bidEngine (reuso do padrao BID Frete) |
+| Portal da Corretora | M | 7 telas, auth separado, dashboard |
+| Comparativo + Aprovacao | M | Ranking, tags, savings (reuso do padrao BID Frete) |
+| Rating de Corretoras | P | CRUD + calculo cross-tenant (reuso BID Frete) |
+| E-mails Automaticos | M | 2 templates, cron job, logica de dias uteis/fim de semana |
+| Preferencias do Tenant | P | CRUD de configuracao |
+| Exportacao (CSV/Excel/PDF) | P | Biblioteca de export |
+| Dashboard | M | KPIs, graficos, calendario de vencimentos |
+| Resposta Publica (token) | P | Reuso do padrao BID Frete |
+
+### Por Tela
+
+| Tela | Complexidade |
+|------|-------------|
+| Dashboard Comprador | M |
+| Lista de Cambios | G |
+| Nova Cotacao | M |
+| Detalhe Cotacao | M |
+| Comparativo | M |
+| Corretoras | P |
+| Detalhe Corretora | P |
+| Configuracoes | P |
+| Modal Pagamento | M |
+| Dashboard Corretora | M |
+| Cotacoes Pendentes | P |
+| Responder Cotacao | P |
+| Minhas Respostas | P |
+| Meu Desempenho | P |
+| Responder Publico | P |
+| Config Corretora | P |
+
+### Estimativa Total MVP
+
+| Categoria | Complexidade | Estimativa |
+|-----------|-------------|-----------|
+| Backend (models + engines + routes) | GG | 2-3 semanas |
+| Frontend Comprador (9 telas) | G | 1-2 semanas |
+| Frontend Corretora (7 telas) | M | 1 semana |
+| Integracoes tenant | P | 2-3 dias |
+| Testes | M | 1 semana |
+| **TOTAL MVP** | **GG** | **4-6 semanas** |
+
+---
+
+## 8. Checklist de Seguranca
+
+- [ ] Todo model Prisma tem `tenant_id` obrigatorio
+- [ ] Todo endpoint tem validacao Zod
+- [ ] `tenantIsolationMiddleware` no servidor
+- [ ] `requireInternalKey` protege chamadas S2S
+- [ ] JWT validado nas rotas protegidas
+- [ ] Nenhuma query sem filtro `tenant_id` (exceto RatingCorretora)
+- [ ] Health check sem auth em `/health`
+- [ ] Nenhum `console.log` com dados sensiveis
+- [ ] Variaveis via `process.env`, nunca hardcoded
+- [ ] Erros via `AppError`, nunca `res.status().json()` direto
+- [ ] Taxa de cambio nunca exposta sem auth (exceto PTAX publica)
+- [ ] Token publico com expiracao (7 dias)
+- [ ] Valores monetarios com precisao controlada (2 ou 4 casas)
+
+---
+
+## 9. Variaveis de Ambiente
+
+```bash
+PORT=8025
+NODE_ENV=development
+DATABASE_URL=postgresql://user:pass@localhost:5432/bid_cambio_db
+INTERNAL_SERVICE_KEY=dev-key
+
+# Tenant Services (todos no super-servidor único)
+TENANT_SERVER_URL=http://localhost:3001
+
+# Application URLs
+APP_URL=http://localhost:5176
+CLIENT_URL=http://localhost:5176
+PORTAL_CORRETORA_URL=http://localhost:5177
+
+# PTAX (BCB)
+BCB_PTAX_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX
+```
+
+--- documentos-tecnicos/produtos-gravity/bid-cambio/HANDOFF.md ---
+# HANDOFF — BID Cambio
+
+> **De:** Dream Team de Produtos (8 agentes)
+> **Para:** Dream Team de Tecnologia (11 papeis, 57 skills)
+> **Data:** 29/03/2026
+> **Product Owner:** Daniel Mendes
+> **Status:** Aprovado — pronto para implementacao
+
+---
+
+## 1. Contexto Executivo (PM — 10 min)
+
+### O que e
+
+BID Cambio e uma plataforma de **gestao e cotacao de cambio comercial** para operacoes de COMEX. Dois pilares:
+
+- **Pilar 1 — Gestao:** Controle completo do ciclo de vida de parcelas de cambio (PENDENTE -> AGENDADO -> PAGO), com agendamento, pagamento em 3 etapas, recalculo de saldo, alertas de vencimento por e-mail e integracao com o financeiro do processo.
+
+- **Pilar 2 — Marketplace:** Conecta compradores (importadores, exportadores, tradings, agentes de carga) a corretoras de cambio e bancos para cotacao competitiva de taxas, com comparativo automatico, aprovacao 2-click e calculo de economia.
+
+### Por que agora
+
+- Empresas de COMEX cotam cambio manualmente (telefone, WhatsApp, planilha)
+- Nenhum concorrente oferece marketplace B2B de cambio comercial integrado a COMEX
+- Volume de cambio comercial BR: ~USD 500 bi/ano
+- O legado DATI ja tem modulo de gestao de parcelas validado por anos de uso real
+
+### O que esta no MVP
+
+| Pilar | Funcionalidades |
+|-------|----------------|
+| Gestao | Lista 25+ colunas, agendamento batch, pagamento 3 etapas, recalculo de parcelas, exportacao, alertas e-mail, preferencias por tenant/usuario |
+| Marketplace | Criar cotacao, disparar para N corretoras, portal da corretora (auth + publico), comparativo de taxas, aprovacao 2-click, rating, economia |
+
+### O que NAO esta no MVP
+
+- Hedge/NDF (cambio futuro) — Fase 2
+- Integracao API real-time com corretoras/bancos — Fase 2
+- Registro automatico BACEN — Fase 2
+- Auto-matching (corretora responde via tabela de precos) — Fase 3
+- Analytics avancado de tendencia de taxas — Fase 3
+- WhatsApp como canal de disparo — Fase 3
+
+### Modelo de Negocio
+
+- **Gratuito** para compradores (importadores, exportadores, tradings, agentes de carga)
+- **Monetizacao** exclusivamente nas corretoras de cambio
+- **Duas visoes separadas** com logins e dashboards independentes
+
+---
+
+## 2. Regras de Negocio Criticas (SME — 10 min)
+
+### Top 5 que o time DEVE saber
+
+| # | Regra | Por que importa |
+|---|-------|----------------|
+| 1 | **Valores monetarios: 2 casas decimais. Taxas: 4 casas decimais.** | O legado DATI teve problemas com 4+ casas em valores — centavos residuais impediam fechamento de parcelas. Decimal(18,2) para valores, Decimal(10,4) para taxas. |
+| 2 | **Parcela com saldo zero apos recalculo deve ser eliminada (RN-105).** | Se o cambio total do pedido diminuir e uma parcela ficar zerada, ela nao pode existir no sistema. |
+| 3 | **Vencimento usa Data Carga Pronta; fallback Data Esperada da Prontidao (RN-107).** | Se Data Carga Pronta estiver vazia mas Data Esperada da Prontidao estiver preenchida, usar esta. Quando ambas preenchidas, Data Carga Pronta prevalece. |
+| 4 | **Pagamento parcial: diferenca vai para proxima parcela (RN-104).** | Se pagar 8,50 de uma parcela de 8,75, os 0,25 restantes vao para o saldo da proxima. Se pagar 10,00 de uma parcela de 8,75, a proxima recebe 1,25 a menos. |
+| 5 | **Taxa de cambio tem validade em minutos, nao horas (RN-002).** | O frontend DEVE ter countdown visual. Se a taxa expirar, a proposta nao pode ser aprovada. |
+
+### Armadilhas regulatorias
+
+- PTAX nao e taxa de mercado — e referencia contabil D-1. Cotacoes reais variam 0,5-2%.
+- IOF e 0,38% para cambio comercial, mas pode mudar por decreto a qualquer momento — campo configuravel, nunca hardcoded.
+- Operacoes >USD 50k com pagamento antecipado requerem registro BACEN (ROF) — alertar usuario.
+- Mercado opera 9h-17h Brasilia — cotacoes fora do horario sao indicativas.
+- Reforma Tributaria pode mudar IOF sobre cambio — acompanhar PLP.
+
+### Todas as regras de negocio
+
+**Regulatorio (RN-001 a RN-008):** Ver PRD secao 4, tabela "Regulatorio".
+
+**Gestao de Parcelas (RN-100 a RN-110):** Ver PRD secao 4, tabela "Gestao de Parcelas".
+
+---
+
+## 3. Publico-Alvo e Personas (UX Researcher)
+
+### 4 Personas
+
+| Persona | Perfil | JTBD Principal |
+|---------|--------|---------------|
+| **Carlos** — Analista de Cambio | Importador mid-market, 30-50 ops/mes | "Comparar taxas de 3+ corretoras em <5 min" |
+| **Fernanda** — Gerente Financeira | Trading, 200+ ops/mes | "Ver dashboard com spread medio e economia para reportar" |
+| **Ricardo** — Agente de Carga | Despachante, intermedia cambio | "Oferecer cotacao integrada ao frete" |
+| **Marina** — Operadora de Corretora | Corretora especializada COMEX | "Receber e responder cotacoes rapidamente" |
+
+**Detalhes completos:** PRD secao 3.
+
+---
+
+## 4. Telas e Fluxos (Designer — 15 min)
+
+### 16 Telas — 9 Comprador + 7 Corretora
+
+#### Portal do Comprador
+
+| # | Tela | Complexidade | Componentes Nucleo-Global | 5 Estados |
+|---|------|-------------|--------------------------|-----------|
+| 1 | Dashboard | M | TabelaGlobal, BadgeStatus, Loading | empty (sem operacoes), loading (skeleton), error, filled (KPIs), disabled (sem permissao) |
+| 2 | Lista de Cambios | G | TabelaGlobal (customizavel), CaixaSelectGlobal, BotaoGlobal | empty (sem parcelas), loading, error, filled (grid 25+), disabled |
+| 3 | Nova Cotacao | M | InputTexto, CaixaSelectGlobal, BotaoGlobal, ModalGlobal | empty (form limpo), loading (buscando corretoras), error, filled, disabled (fora horario) |
+| 4 | Detalhe Cotacao | M | BadgeStatus, TabelaGlobal | empty (sem respostas), loading, error, filled, disabled |
+| 5 | Comparativo | M | TabelaGlobal, BadgeStatus, BotaoGlobal | empty (aguardando), loading, error, filled (ranking), disabled |
+| 6 | Corretoras | P | TabelaGlobal, CaixaSelectGlobal | empty, loading, error, filled, disabled |
+| 7 | Detalhe Corretora | P | BadgeStatus | empty, loading, error, filled, disabled |
+| 8 | Configuracoes | P | InputTexto, CaixaSelectGlobal | empty, loading, error, filled, disabled |
+| 9 | Modal Pagamento (3 etapas) | M | ModalGlobal, InputTexto, BotaoGlobal | empty, loading, error, filled, disabled |
+
+#### Portal da Corretora
+
+| # | Tela | Complexidade |
+|---|------|-------------|
+| 1 | Dashboard Corretora | M |
+| 2 | Cotacoes Pendentes | P |
+| 3 | Responder Cotacao (auth) | P |
+| 4 | Responder Publico (token) | P |
+| 5 | Minhas Respostas | P |
+| 6 | Meu Desempenho | P |
+| 7 | Config Corretora | P |
+
+### Fluxos Navegacionais
+
+**Fluxo 1 — Gestao de Parcelas:**
+```
+Login -> Dashboard -> Lista de Cambios
+  -> Filtrar (Pendentes/Agendados/Pagos)
+  -> Selecionar parcela(s)
+    -> [Agendar] -> Modal data -> Salvar -> Status=AGENDADO -> Follow-up
+    -> [Pagar] -> Etapa 1 (valor) -> Etapa 2 (contrato/taxa) -> Etapa 3 (anexo) -> Salvar -> Status=PAGO
+```
+
+**Fluxo 2 — Cotacao (Comprador):**
+```
+Dashboard -> Nova Cotacao -> Preencher -> Selecionar corretoras -> Disparar
+  -> Aguardar -> Comparativo (ranking) -> Aprovar melhor taxa -> Economia calculada
+```
+
+**Fluxo 3 — Resposta (Corretora auth):**
+```
+Login Portal -> Dashboard -> Cotacoes Pendentes -> Responder (taxa + spread + validade) -> Enviar
+```
+
+**Fluxo 4 — Resposta (Corretora publica):**
+```
+E-mail com link (token 7 dias) -> Ver cotacao -> Responder -> Confirmacao
+```
+
+### Specs visuais
+
+- **Design System:** Solid Slate (variaveis CSS: --bg-body-dark, --bg-base, --bg-surface, --accent #6366f1)
+- **Tipografia:** Plus Jakarta Sans (Google Fonts), DM Mono para code blocks
+- **Icones:** Lucide React (`lucide-react`), strokeWidth={2}
+- **Botoes:** Pill (border-radius: 9999px), font-weight: 600
+- **Dark mode first:** Todas as telas desenhadas primeiro em dark
+- **Breakpoints:** Desktop 1280px+, Tablet 768-1279px, Mobile <768px
+- **Acessibilidade:** Contraste 4.5:1 (AA), tab order, aria-labels, focus visible
+
+### Codigo de referencia
+
+Todas as 16 telas ja estao scaffoldadas como componentes React em:
+```
+produto/bid-cambio/client/src/pages/          # 9 telas comprador
+produto/bid-cambio/client/src/pages/portal/   # 7 telas corretora
+```
+
+---
+
+## 5. Arquitetura Tecnica (Tech Lead — 15 min)
+
+### Ficha do Produto
+
+| Item | Valor |
+|------|-------|
+| Product ID | `bid-cambio` |
+| Porta servidor | 8025 |
+| Porta client dev (comprador) | 5176 |
+| Porta client dev (corretora) | 5177 |
+| Database | `bid_cambio_db` (PostgreSQL) |
+| Models Prisma | 15 tabelas |
+| Enums | 12 |
+| Endpoints | ~45 rotas |
+| Engines | 7 servicos internos |
+
+### O que reutilizar do Gravity
+
+| Servico/Componente | Porta | Uso |
+|-------------------|-------|-----|
+| Configurador | 8003 | Auth Clerk, JWT, permissoes |
+| Atividades | 3001 | Log de acoes |
+| Notificacoes | 3001 | Alertas in-app |
+| Historico | 3001 | Audit trail (compliance BACEN) |
+| GABI | 3001 | Analise IA |
+| Agendamento | 3001 | Cron job diario 7h |
+| Email | 3001 | Disparo de cotacoes + alertas |
+| Dashboard | 3001 | KPIs cross-product |
+| Relatorios | 3001 | Exportacao |
+| TabelaGlobal | nucleo-global | Grid de parcelas |
+| CaixaSelectGlobal | nucleo-global | Filtros |
+| InputTexto | nucleo-global | Formularios |
+| ModalGlobal | nucleo-global | Agendamento, pagamento |
+| BadgeStatus | nucleo-global | Status de parcelas/cotacoes |
+| BotaoGlobal | nucleo-global | Acoes |
+| Loading | nucleo-global | Skeleton/spinner |
+
+### O que criar do zero
+
+| Componente/Engine | Justificativa |
+|-------------------|-------------|
+| parcelaEngine | Logica de gestao de parcelas — nao existe em BID Frete |
+| vencimentoEngine | Calculo de datas de vencimento por metodo — especifico de cambio |
+| emailEngine | Templates especificos (alerta vencimento PT-BR, exportador EN) |
+| CountdownTimer | Validade da taxa em minutos |
+| GridCustomizavel | Extensao do TabelaGlobal com drag-and-drop + preferencia salva |
+
+### Codigo scaffoldado
+
+O scaffold completo ja esta em `produto/bid-cambio/` com 44 arquivos:
+
+```
+produto/bid-cambio/
+├── client/src/
+│   ├── pages/           # 9 paginas comprador
+│   ├── pages/portal/    # 7 paginas corretora
+│   └── shared/          # config.ts, types.ts, api.ts
+└── server/
+    ├── src/
+    │   ├── index.ts           # Express (porta 8025)
+    │   ├── routes/            # 11 routers
+    │   ├── services/          # 4 engines
+    │   ├── middleware/        # requireInternalKey, tenantIsolation
+    │   ├── lib/               # errors, prisma
+    │   └── types/             # express.d.ts
+    └── prisma/
+        └── fragment.prisma    # 15 models, 12 enums
+```
+
+### Documento tecnico completo
+
+Ver `documentos-tecnicos/produtos-gravity/bid-cambio/ARQUITETURA.md` para:
+- PRODUCT_CONFIG completo
+- fragment.prisma completo
+- Todos os endpoints detalhados
+- Middleware stack (20 camadas)
+- Mapa de reuso completo
+- Variaveis de ambiente
+- Checklist de seguranca
+
+---
+
+## 6. Criterios de Aceite (BA — 10 min)
+
+### Por funcionalidade do MVP
+
+Todos os criterios estao em formato Gherkin no PRD secao 5. Resumo:
+
+| RF | Funcionalidade | Criterios | Cenarios-chave |
+|----|---------------|-----------|---------------|
+| RF-001 | Lista de Cambios | CA-001 a CA-003 | Filtro por status, salvar preferencia, exportacao |
+| RF-002 | Agendamento | CA-004 | Agendar multiplas parcelas com follow-up |
+| RF-003 | Pagamento | CA-005 a CA-007 | Pagamento parcial, valor menor, isolamento tenant |
+| RF-004 | Cotacao + Disparo | CA-008 | Criar e disparar para corretoras |
+| RF-005 | Portal Corretora | CA-009, CA-010 | Responder cotacao, isolamento de dados |
+| RF-006 | Comparativo | CA-011 | Aprovar melhor taxa com calculo de economia |
+| RF-007 | E-mails | CA-012 | Alerta de vencimento com logica de fim de semana |
+
+### Criterios universais (todo endpoint)
+
+```gherkin
+Cenario: Isolamento de Tenant
+  Dado que estou logado no tenant "A"
+  Quando faco qualquer operacao
+  Entao nenhum dado do tenant "B" e acessivel ou modificado
+
+Cenario: Validacao Zod
+  Dado que envio dados invalidos para qualquer endpoint
+  Entao recebo erro 400 com mensagem descritiva
+  E nenhum dado e gravado no banco
+
+Cenario: Autenticacao S2S
+  Dado que faco chamada sem x-internal-key
+  Entao recebo erro 401
+```
+
+---
+
+## 7. Metricas de Sucesso (Data Analyst — 5 min)
+
+| KPI | Meta (6 meses) | Como medir | Instrumentacao |
+|-----|----------------|-----------|---------------|
+| Economia media por operacao | >0,5% spread | (spread manual - spread BID) / spread manual | SavingCambio.economia_percentual |
+| Tempo medio de cotacao | <5 min | Timestamp criacao -> aprovacao | CotacaoCambio.created_at vs updated_at (status=APROVADA) |
+| Corretoras ativas | 20+ | Distinct corretoras com >=1 resposta/mes | BidResponseCambio.corretora_id |
+
+### Metricas secundarias
+
+- Parcelas pagas no prazo (%) — ParcelaCambio onde data_pagamento <= data_vencimento
+- Taxa de resposta de corretoras (%) — BidResponseCambio / BidRequestCambio
+- NPS (pesquisa trimestral)
+
+---
+
+## 8. Estimativas de Complexidade
+
+### Por funcionalidade
+
+| Funcionalidade | Tamanho | Dias |
+|---------------|---------|------|
+| Lista de Cambios (grid customizavel) | G | 5-10 |
+| parcelaEngine (recalculos) | G | 5-10 |
+| Cotacao + Disparo | M | 3-5 |
+| Portal da Corretora (7 telas) | M | 3-5 |
+| Comparativo + Aprovacao | M | 3-5 |
+| Pagamento de Cambio (3 etapas) | M | 3-5 |
+| vencimentoEngine | M | 3-5 |
+| E-mails Automaticos | M | 3-5 |
+| Dashboard | M | 3-5 |
+| Rating de Corretoras | P | 1-2 |
+| Preferencias do Tenant | P | 1-2 |
+| Exportacao (CSV/Excel/PDF) | P | 1-2 |
+| Resposta Publica (token) | P | 1-2 |
+
+### Estimativa total MVP
+
+| Categoria | Estimativa |
+|-----------|-----------|
+| Backend (models + engines + routes) | 2-3 semanas |
+| Frontend Comprador (9 telas) | 1-2 semanas |
+| Frontend Corretora (7 telas) | 1 semana |
+| Integracoes tenant | 2-3 dias |
+| Testes | 1 semana |
+| **TOTAL MVP** | **4-6 semanas** |
+
+---
+
+## 9. Riscos que o Time Deve Saber
+
+| Risco | Prob. | Impacto | Mitigacao |
+|-------|-------|---------|-----------|
+| Corretoras nao aderirem | Media | Alto | Link publico (token) como alternativa ao portal |
+| Taxa expira antes de aprovar | Alta | Medio | Countdown visual + refresh + notificacao |
+| IOF muda por decreto | Baixa | Alto | Campo configuravel, nunca hardcoded |
+| PTAX indisponivel (BCB fora) | Baixa | Medio | Cache ultima PTAX + fallback manual |
+| Complexidade de parcelas | Media | Medio | Testes extensivos com cenarios do legado DATI |
+| Compliance BACEN insuficiente | Baixa | Critico | Audit trail via Historico + validacao SME |
+
+---
+
+## 10. Decisoes Tomadas
+
+| # | Data | Decisao | Razao |
+|---|------|---------|-------|
+| D-001 | 29/03/2026 | Gratuito para compradores, monetizacao nas corretoras | Modelo marketplace classico — atrair volume primeiro |
+| D-002 | 29/03/2026 | Duas visoes separadas (Comprador + Corretora) | UX mais limpa, dashboards especificos |
+| D-003 | 29/03/2026 | MVP inclui Gestao + Marketplace | Gestao de parcelas e core — sem ela nao resolve o problema |
+| D-004 | 29/03/2026 | Campos do legado DATI migrados | Validados por anos de uso real |
+| D-005 | 29/03/2026 | Produto standalone com integracao opcional | Arquitetura Gravity: produtos independentes |
+| D-006 | 29/03/2026 | Porta 8025, client 5176/5177 | Proximas disponiveis em contracts.json |
+
+---
+
+## 11. Indice dos 18 Artefatos
+
+| # | Artefato | Local | Status |
+|---|---------|-------|--------|
+| 1 | PRD final | `documentos-tecnicos/produtos-gravity/bid-cambio/PRD.md` | Completo |
+| 2 | Personas | PRD secao 3 | 4 personas com JTBD |
+| 3 | Mapas de Jornada | PRD secao 7 | 4 fluxos completos |
+| 4 | Regras de Negocio | PRD secao 4 | RN-001 a RN-110 |
+| 5 | Casos de Uso | PRD secao 5 | RF-001 a RF-007 |
+| 6 | Criterios de Aceite | PRD secao 5 (Gherkin) | CA-001 a CA-012 |
+| 7 | Fluxo Navegacional | PRD secao 7 + este documento secao 4 | 4 fluxos |
+| 8 | Wireframes/Telas | `produto/bid-cambio/client/src/pages/` | 16 paginas React |
+| 9 | Hi-Fi Dark | Codigo React com CSS vars dark-first | 16 telas |
+| 10 | Hi-Fi Light | Variaveis CSS suportam toggle | Via CSS vars |
+| 11 | Specs por Tela | PRD secao 8 + ARQUITETURA secao 6 | Componentes mapeados |
+| 12 | Arquitetura Tecnica | `documentos-tecnicos/produtos-gravity/bid-cambio/ARQUITETURA.md` | Completo |
+| 13 | Mapa de Reuso | ARQUITETURA secao 6 | 9 servicos + 7 componentes |
+| 14 | Estimativas | ARQUITETURA secao 7 + este documento secao 8 | P/M/G/GG |
+| 15 | Analise de Mercado | PRD secao 2 + Fase 1 (TAM/SAM/SOM) | Completo |
+| 16 | Benchmark Competitivo | Fase 1 — 6 concorrentes + 4 gaps | Completo |
+| 17 | Backlog Priorizado | PRD secao 5 (MVP vs Fase 2 vs Fase 3) | Por fase |
+| 18 | Metricas + Instrumentacao | PRD secao 10 + este documento secao 7 | 3 KPIs + instrumentacao |
+
+---
+
+## 12. Contatos
+
+| Assunto | Quem Procurar |
+|---------|--------------|
+| Duvidas de produto/escopo | PM (este documento) |
+| Duvidas de regras de negocio/legislacao | SME (PRD secao 4) |
+| Duvidas de design/telas | Designer (codigo em pages/) |
+| Duvidas de arquitetura | Tech Lead (ARQUITETURA.md) |
+| Duvidas de dados/metricas | Data Analyst (PRD secao 10) |
+| Duvidas de comportamento do usuario | UX Researcher (PRD secao 3) |
+| Duvidas de criterios de aceite | BA (PRD secao 5, Gherkin) |
+| Aprovacao do dono | Daniel Mendes (Product Owner) |
+
+---
+
+## 13. Como Ativar o Dream Team Tecnologia
+
+Carregue a skill via Skill tool (ou peça ao agente):
+
+```
+skills/dream-team/tecnologia/README.md
+```
+
+Depois:
+
+> **"Novo produto: BID Cambio. O handoff completo esta em `documentos-tecnicos/produtos-gravity/bid-cambio/HANDOFF.md`. O codigo scaffoldado esta em `produto/bid-cambio/`. Leiam o handoff e comecem pela implementacao."**
+
+### Ordem sugerida de implementacao
+
+1. **Registrar** `bid-cambio` em `contracts.json` (porta 8025)
+2. **Database:** `prisma migrate dev` com fragment.prisma
+3. **Backend core:** parcelaEngine + vencimentoEngine (regras criticas)
+4. **Rotas de gestao:** cambios (CRUD + agendar + pagar)
+5. **Rotas de marketplace:** cotacoes + bids + comparativo
+6. **Frontend comprador:** ListaCambios (tela mais complexa) -> Dashboard -> NovaCotacao -> Comparativo
+7. **Frontend corretora:** PortalDashboard -> CotacoesPendentes -> ResponderCotacao -> ResponderPublico
+8. **Integracoes:** tenantIntegrations (fire-and-forget) + cronJobs (alertas 7h)
+9. **Testes:** unitarios dos engines + funcionais das rotas + cross-tenant
+10. **QA:** revisao com checklist de 6 categorias
+
+---
+
+## 14. Checklist Final — Handoff Completo?
+
+### Documentos
+- [x] PRD com 13 secoes preenchidas, sem TBDs
+- [x] Personas (4) com JTBD
+- [x] Fluxos navegacionais (4 fluxos completos)
+- [x] Regras de negocio operacionalizadas com excecoes (18 regras)
+- [x] Casos de uso (7 RFs com fluxos detalhados)
+- [x] Criterios de aceite em Gherkin para todo RF do MVP (12 cenarios)
+
+### Design
+- [x] Fluxo navegacional completo
+- [x] 16 telas como codigo React (referencia visual)
+- [x] Specs por tela (componentes, propriedades)
+- [x] Design system Solid Slate aplicado
+- [x] Dark mode first
+- [x] Acessibilidade especificada (contraste, tab order, aria-labels)
+
+### Tecnico
+- [x] Arquitetura (pastas, models, endpoints)
+- [x] Mapa de reuso (servicos + componentes)
+- [x] PRODUCT_CONFIG definido
+- [x] fragment.prisma completo (15 models, 12 enums)
+- [x] Estimativas de complexidade (P/M/G/GG)
+- [x] Seguranca (tenant isolation, Zod, auth, 5 camadas)
+
+### Gestao
+- [x] Backlog priorizado (MVP vs Fase 2 vs Fase 3)
+- [x] Cronograma com fases e estimativas (4-6 semanas MVP)
+- [x] Metricas de sucesso (3 KPIs + instrumentacao)
+- [x] Riscos documentados com mitigacao (6 riscos)
+- [x] Decisoes registradas (6 decisoes com razao)
+
+### Aprovacoes
+- [x] Checkpoint 1 aprovado (validacao do problema)
+- [x] Checkpoint 2 aprovado (validacao da solucao — PRD + arquitetura)
+- [x] Checkpoint 3 aprovado (handoff completo)
+- [x] SME validou regras regulatorias
+- [x] Tech Lead validou viabilidade tecnica
+- [x] Product Owner aprovou escopo e modelo de negocio
+
+--- documentos-tecnicos/produtos-gravity/bid-cambio/PRD.md ---
+# PRD — BID Cambio v1.0
+
+> **Versao:** 1.0
+> **Data:** 29/03/2026
+> **Status:** Fase 2 — Especificacao
+> **Product Owner:** Daniel Mendes
+> **Elaborado por:** Dream Team de Produtos (8 agentes)
+
+---
+
+## 1. Sumario Executivo
+
+**BID Cambio** e uma plataforma de gestao e cotacao de cambio comercial para operacoes de COMEX. Combina dois pilares: (1) gestao completa do ciclo de vida de parcelas de cambio (pendente -> agendado -> pago), com controle financeiro, alertas e rastreabilidade; e (2) marketplace que conecta compradores (importadores, exportadores, tradings, agentes de carga) a corretoras de cambio e bancos para cotacao competitiva de taxas.
+
+**Modelo de negocio:** Gratuito para compradores. Monetizacao exclusivamente nas corretoras de cambio.
+
+**Duas visoes separadas:** Portal do Comprador e Portal da Corretora, com logins, dashboards e experiencias independentes.
+
+**Integracao:** Funciona standalone ou integrado aos demais produtos Gravity (Processo, BID Frete, SimulaCusto) via servicos tenant.
+
+---
+
+## 2. Contexto e Motivacao
+
+Empresas de COMEX no Brasil movimentam ~USD 500 bi/ano em cambio comercial. PMEs e mid-market (sem mesa de cambio propria) cotam manualmente — ligam para corretoras, recebem taxas por WhatsApp, anotam em planilhas, perdem janelas de taxa por demora, e nao tem rastreabilidade para compliance BACEN.
+
+O sistema legado (DATI) ja possui um modulo de controle de cambio com funcionalidades maduras (parcelas, agendamento, pagamento, e-mails), mas sem marketplace de cotacao e sem design moderno.
+
+**Oportunidade:** Nenhum concorrente oferece um marketplace B2B de cambio comercial integrado a gestao de parcelas e ao ecossistema de COMEX (frete + fiscal + processo).
+
+---
+
+## 3. Publico-Alvo
+
+### Persona 1: Carlos — Analista de Cambio (Importador)
+- 32 anos, Comercio Exterior, 6 anos de experiencia
+- Importadora mid-market, 30-50 operacoes/mes
+- **JTBD Funcional:** "Quando preciso fechar cambio para pagar uma DI, quero comparar taxas de pelo menos 3 corretoras em <5 min"
+- **JTBD Emocional:** "Quero ter certeza de que consegui a melhor taxa"
+- **Dores:** Liga para 3-5 corretoras; anota em Post-it; perde taxa por demora; sem historico; compliance pede documentos que nao encontra
+
+### Persona 2: Fernanda — Gerente Financeira (Trading Company)
+- 41 anos, MBA Financas, 15 anos em COMEX
+- Trading, 200+ operacoes/mes
+- **JTBD Funcional:** "Quero ver dashboard com spread medio e economia acumulada para reportar a diretoria"
+- **JTBD Emocional:** "Quero parar de depender do feeling do analista"
+- **Dores:** Sem visibilidade do spread real; auditoria e pesadelo; nao sabe se analista cota com melhores corretoras
+
+### Persona 3: Ricardo — Agente de Carga
+- 38 anos, despachante aduaneiro, 10 anos
+- **JTBD Funcional:** "Quero oferecer cotacao de cambio integrada ao frete para nao perder o servico"
+- **Dores:** Nao tem ferramenta; perde receita de intermediacao
+
+### Persona 4: Marina — Operadora de Corretora de Cambio
+- 29 anos, corretora de cambio especializada em COMEX
+- **JTBD Funcional:** "Quero receber solicitacoes de cotacao e responder rapidamente para ganhar o fechamento"
+- **JTBD Emocional:** "Quero visibilidade sobre minha performance e taxa de aprovacao"
+- **Dores:** Depende de WhatsApp para receber pedidos; nao sabe taxa de conversao; sem pipeline organizado
+
+---
+
+## 4. Regras de Negocio
+
+### Regulatorio (validadas pelo SME)
+
+| RN | Regra | Base Legal | Excecoes |
+|----|-------|-----------|----------|
+| RN-001 | Toda operacao de cambio comercial requer contrato de cambio | Res. BCB 277/2022 | Operacoes <USD 50k podem usar boleto simplificado |
+| RN-002 | Taxa tem validade em minutos, nao horas | Pratica de mercado | Sistema deve exibir countdown de validade |
+| RN-003 | IOF: 0,38% (comercial), 1,1% (financeiro) | Dec. 6.306/2007 | Aliquota pode mudar por decreto |
+| RN-004 | Liquidacao D+0, D+1 ou D+2 conforme contrato | Res. BCB 277 | Impacta fluxo de caixa |
+| RN-005 | Operacoes >USD 50.000 antecipadas requerem registro BACEN (ROF) | Res. BCB 277 | Multa pesada se nao registrar |
+| RN-006 | Spread = taxa cotada - PTAX | Pratica de mercado | PTAX e D-1, referencia contabil |
+| RN-007 | Vinculacao cambio-DI obrigatoria para importacao | IN SRF 680/2006 | N do contrato vai na DI/DUIMP |
+| RN-008 | Mercado opera 9h-17h (Brasilia) | BCB | Cotacoes fora do horario sao indicativas |
+
+### Gestao de Parcelas (do legado — regras validadas)
+
+| RN | Regra |
+|----|-------|
+| RN-100 | Parcelas divididas por % do cambio total, soma = 100%, duas casas decimais (ex: 24,50%) |
+| RN-101 | Status: PENDENTE -> AGENDADO (ao definir data) -> PAGO (ao registrar pagamento) |
+| RN-102 | Forma de pagamento so editavel se nenhuma parcela paga no pedido |
+| RN-103 | Valor pago pode ser diferente do valor da parcela, desde que nao ultrapasse (cambio total - parcelas ja pagas) |
+| RN-104 | Pagamento parcial: diferenca vai para saldo da proxima parcela pendente |
+| RN-105 | Parcela com saldo zerado apos recalculo deve ser eliminada |
+| RN-106 | Parcela retornada a pendente: volta com valor original, data original, sem recalculo automatico |
+| RN-107 | Vencimento: usa "Data Carga Pronta"; se vazia, usa "Data Esperada da Prontidao" como fallback |
+| RN-108 | Valores monetarios sempre com 2 casas decimais (moeda e R$) |
+| RN-109 | Numeracao de parcelas no formato "1/3", "2/3", "3/3" — ajusta se pagamento parcial gerar nova parcela |
+| RN-110 | Se "Cambio Total" do pedido mudar, diferenca (+ ou -) reflete nas parcelas pendentes/agendadas proporcionalmente |
+
+---
+
+## 5. Requisitos Funcionais
+
+### MVP (Pilar 1 — Gestao + Pilar 2 — Marketplace)
+
+#### RF-001: Lista de Cambios (Comprador)
+Grid customizavel com 25+ colunas, filtros por status (Pendentes/Agendados/Pagos/Todos), selecao de colunas drag-and-drop, filtro por coluna (rotulos ou intervalo de datas), busca global, preferencia salva por usuario (colunas + ordem + filtros). Totais em aberto por moeda no topo (USD, EUR, CHF, GBP, BRL, CNY).
+
+**Criterios de Aceite:**
+```gherkin
+Cenario: CA-001 — Listagem com filtro por status
+  Dado que estou logado como "Analista de Cambio" do tenant "acme-import"
+  E existem 15 parcelas pendentes e 5 pagas
+  Quando seleciono o filtro "Pendentes"
+  Entao vejo apenas as 15 parcelas pendentes
+  E os totais no topo refletem apenas parcelas pendentes
+  E nenhuma parcela de outro tenant e exibida
+
+Cenario: CA-002 — Salvar preferencia de colunas
+  Dado que removi a coluna "Numero do B.L" e reordenei "Exportador" para segunda posicao
+  Quando clico em "Salvar"
+  E faco logout e login novamente
+  Entao a lista abre com minha configuracao salva
+
+Cenario: CA-003 — Exportacao
+  Dado que tenho parcelas listadas
+  Quando clico em "Exportar" e seleciono "Excel"
+  Entao um arquivo .xlsx e baixado com as colunas visiveis e filtros aplicados
+```
+
+#### RF-002: Agendamento de Parcelas (Comprador)
+Selecionar uma ou mais parcelas pendentes -> botao "Agendar" -> modal com selecao de data -> salvar. Status muda de PENDENTE para AGENDADO. Data de vencimento atualizada. Follow-up gerado no processo (se integrado). Total selecionado exibido no topo.
+
+```gherkin
+Cenario: CA-004 — Agendar multiplas parcelas
+  Dado que selecionei 3 parcelas pendentes com total USD 25.000
+  Quando clico "Agendar" e seleciono data 15/04/2026
+  E clico "Salvar"
+  Entao as 3 parcelas mudam para status "Agendado"
+  E a data de vencimento das 3 e atualizada para 15/04/2026
+  E o total selecionado exibe "USD 25.000,00"
+  E um follow-up e gerado em cada processo vinculado
+```
+
+#### RF-003: Pagamento de Cambio (Comprador)
+Fluxo em 3 etapas: (1) Selecao de parcelas + valor a pagar (editavel, 2 casas decimais, nao ultrapassa limite); (2) Dados do pagamento (contrato de cambio, banco/corretora, taxa de fechamento, valor em R$); (3) Anexos (comprovante + nome do arquivo opcional) -> Salvar -> Status = PAGO.
+
+```gherkin
+Cenario: CA-005 — Pagamento parcial
+  Dado que a parcela 1/2 tem valor USD 8,75
+  Quando informo "Valor a ser pago" = USD 10,00
+  E o cambio total do pedido e USD 17,50
+  E nenhuma outra parcela foi paga
+  Entao o sistema aceita o pagamento (10,00 < 17,50)
+  E a parcela 2/2 fica com saldo = USD 7,50
+  E a parcela 1/2 muda para status "Pago"
+
+Cenario: CA-006 — Pagamento com valor menor
+  Dado que a parcela 1/2 tem valor USD 8,75
+  Quando informo "Valor a ser pago" = USD 8,50
+  Entao a diferenca de USD 0,25 e somada ao saldo da parcela 2/2
+
+Cenario: CA-007 — Isolamento de tenant
+  Dado que estou logado no tenant "acme-import"
+  Quando consulto parcelas de cambio
+  Entao nenhuma parcela do tenant "delta-com" e retornada
+```
+
+#### RF-004: Cotacao de Cambio — Criar e Disparar (Comprador)
+Criar solicitacao de cotacao com: moeda, valor, tipo de operacao (importacao/exportacao), modalidade (pronto/futuro), data de liquidacao desejada, dados do processo vinculado (opcional). Disparar para N corretoras/bancos selecionados via e-mail + portal.
+
+```gherkin
+Cenario: CA-008 — Criar cotacao e disparar
+  Dado que estou na tela "Nova Cotacao de Cambio"
+  Quando preencho moeda "USD", valor "50.000,00", operacao "Importacao", liquidacao "D+2"
+  E seleciono 4 corretoras
+  E clico "Disparar Cotacao"
+  Entao 4 BidRequests sao criados com status "ENVIADO"
+  E cada corretora recebe e-mail com link para responder
+  E a cotacao muda para status "ENVIADA_CORRETORAS"
+```
+
+#### RF-005: Portal da Corretora
+Dashboard com: cotacoes pendentes, minhas respostas, taxa de aprovacao, volume operado. Responder cotacao: informar taxa, spread, validade da taxa (em minutos), condicoes. Historico de operacoes.
+
+```gherkin
+Cenario: CA-009 — Corretora responde cotacao
+  Dado que estou logada como corretora "Abrao Filho"
+  E recebi uma cotacao de USD 50.000 para importacao
+  Quando informo taxa "5,2350", spread "0,015", validade "10 minutos"
+  E clico "Enviar Proposta"
+  Entao minha resposta e registrada com status "RECEBIDA"
+  E o comprador ve minha proposta no comparativo
+
+Cenario: CA-010 — Corretora nao ve dados de outro tenant
+  Dado que estou logada como corretora
+  Entao vejo apenas cotacoes enderecadas a mim
+  E nao vejo cotacoes de compradores que nao me selecionaram
+```
+
+#### RF-006: Comparativo de Taxas (Comprador)
+Ranking automatico de respostas: spread vs PTAX, valor total em R$, tempo de resposta, rating da corretora. Tags: MELHOR_TAXA, MELHOR_SPREAD, MELHOR_AVALIACAO. Aprovacao 2-click com calculo de economia.
+
+```gherkin
+Cenario: CA-011 — Aprovar melhor taxa
+  Dado que recebi 4 propostas para USD 50.000
+  E a corretora "Abrao" ofereceu taxa 5,2350 (spread 0,015)
+  E a corretora "Bexs" ofereceu taxa 5,2500 (spread 0,030)
+  Quando aprovo a proposta da "Abrao"
+  Entao a proposta e marcada como "APROVADA"
+  E as demais como "REPROVADA"
+  E a economia calculada = (5,2500 - 5,2350) x 50.000 = R$ 750,00
+  E a corretora "Abrao" recebe notificacao de aprovacao
+```
+
+#### RF-007: E-mails Automaticos
+- **Alerta de vencimento:** X dias antes (configuravel), enviado as 7h, para departamento financeiro. Lista processos com link. Respeita preferencia de fim de semana (sexta inclui sab/dom).
+- **Notificacao ao exportador:** Apos pagamento, em ingles, com comprovante anexo.
+
+```gherkin
+Cenario: CA-012 — E-mail de alerta de vencimento
+  Dado que a preferencia "dias de antecedencia" esta configurada para 3
+  E existem 2 parcelas vencendo em 3 dias
+  E hoje e sexta-feira
+  E a preferencia "enviar nos finais de semana" esta desativada
+  Quando o cron executa as 07:00
+  Entao 1 e-mail e enviado ao departamento financeiro
+  E o e-mail lista os 2 processos + parcelas que vencem segunda e terca
+  E sabado e domingo nao havera envio
+```
+
+### Fase 2 (Pos-MVP)
+- **RF-F2-001:** Hedge/NDF (cambio futuro) — regras e IOF diferentes
+- **RF-F2-002:** Integracao API direta com corretoras/bancos (taxas em tempo real)
+- **RF-F2-003:** Registro automatico BACEN para operacoes >USD 50k
+- **RF-F2-004:** Vinculacao automatica contrato de cambio <-> DI/DUIMP
+
+### Fase 3
+- **RF-F3-001:** Motor de matching automatico (corretora responde automaticamente via tabela de precos)
+- **RF-F3-002:** Analytics avancado (spread medio por corretora, tendencia de taxas, previsao)
+- **RF-F3-003:** WhatsApp como canal de disparo/resposta de cotacao
+
+---
+
+## 6. Requisitos Nao-Funcionais
+
+| Categoria | Requisito |
+|-----------|----------|
+| **Performance** | Listagem <200ms (p95), comparativo <300ms |
+| **Seguranca** | JWT (Clerk), tenant isolation 4 camadas, Zod em toda rota, x-internal-key S2S |
+| **Disponibilidade** | 99,9% uptime |
+| **Escalabilidade** | 50k req/dia no MVP, 500k req/dia na Fase 3 |
+| **Acessibilidade** | WCAG 2.1 AA, contraste 4.5:1, tab order, aria-labels |
+| **Precisao** | Valores monetarios: 2 casas decimais. Taxas de cambio: 4 casas decimais |
+| **Dados** | Backup diario, RPO 24h, RTO 1h |
+| **Compliance** | Audit trail imutavel (servico Historico), rastreabilidade completa BACEN |
+
+---
+
+## 7. Fluxos de Usuario
+
+### Fluxo 1: Gestao de Parcelas (Comprador)
+```
+Login -> Dashboard -> Lista de Cambios
+  -> Filtrar (Pendentes/Agendados/Pagos)
+  -> Selecionar parcela(s)
+    -> [Agendar] -> Modal data -> Salvar -> Status=AGENDADO -> Follow-up
+    -> [Pagar] -> Etapa 1 (valor) -> Etapa 2 (contrato/taxa/banco) -> Etapa 3 (anexo) -> Salvar -> Status=PAGO -> Follow-up + E-mail exportador
+```
+
+### Fluxo 2: Cotacao de Cambio (Comprador)
+```
+Login -> Dashboard -> Nova Cotacao
+  -> Preencher (moeda, valor, operacao, liquidacao)
+  -> Selecionar corretoras
+  -> Disparar -> Aguardar respostas
+  -> Comparativo (ranking automatico)
+  -> Aprovar melhor taxa -> Economia calculada
+  -> (Opcional) Vincular a parcela de gestao
+```
+
+### Fluxo 3: Resposta de Cotacao (Corretora)
+```
+Login Portal Corretora -> Dashboard
+  -> Cotacoes Pendentes -> Selecionar
+  -> Informar taxa + spread + validade
+  -> Enviar Proposta
+  -> Aguardar resultado (Aprovada/Reprovada)
+```
+
+### Fluxo 4: Resposta Publica (Corretora sem login)
+```
+Recebe e-mail com link (token 7 dias)
+  -> Abre cotacao publica
+  -> Informa taxa + spread + validade
+  -> Envia -> Confirmacao
+```
+
+---
+
+## 8. Wireframes e Telas
+
+### Telas do Comprador (9 telas)
+
+| # | Tela | 5 Estados | Componentes Gravity |
+|---|------|-----------|-------------------|
+| 1 | **Dashboard** | empty (sem operacoes), loading, error, filled (KPIs + graficos), disabled (sem permissao) | TabelaGlobal, BadgeStatus, Loading |
+| 2 | **Lista de Cambios** | empty (sem parcelas), loading (skeleton), error, filled (grid 25+ colunas), disabled | TabelaGlobal (customizavel), CaixaSelectGlobal, BotaoGlobal |
+| 3 | **Nova Cotacao** | empty (formulario limpo), loading (buscando corretoras), error, filled (pronto para disparar), disabled (fora do horario) | InputTexto, CaixaSelectGlobal, BotaoGlobal, ModalGlobal |
+| 4 | **Detalhe da Cotacao** | empty (sem respostas ainda), loading, error, filled (com respostas), disabled | BadgeStatus, TabelaGlobal |
+| 5 | **Comparativo** | empty (aguardando respostas), loading, error, filled (ranking), disabled | TabelaGlobal, BadgeStatus, BotaoGlobal |
+| 6 | **Corretoras** | empty, loading, error, filled (lista), disabled | TabelaGlobal, CaixaSelectGlobal |
+| 7 | **Detalhe Corretora** | empty, loading, error, filled (rating + historico), disabled | BadgeStatus |
+| 8 | **Configuracoes** | empty, loading, error, filled, disabled | InputTexto, CaixaSelectGlobal |
+| 9 | **Modal Pagamento** (3 etapas) | empty, loading, error, filled, disabled | ModalGlobal, InputTexto, BotaoGlobal |
+
+### Telas do Portal da Corretora (7 telas)
+
+| # | Tela | Descricao |
+|---|------|-----------|
+| 1 | **Dashboard Corretora** | KPIs: cotacoes pendentes, respondidas, aprovadas, taxa de conversao, volume |
+| 2 | **Cotacoes Pendentes** | Lista de cotacoes aguardando resposta |
+| 3 | **Responder Cotacao** | Formulario: taxa, spread, validade, condicoes |
+| 4 | **Minhas Respostas** | Historico de respostas (aprovadas/reprovadas) |
+| 5 | **Meu Desempenho** | Metricas: tempo medio de resposta, taxa de aprovacao, rating |
+| 6 | **Responder Publico** | Via token (sem login) — mesmos campos |
+| 7 | **Configuracoes** | Dados da corretora, contatos, preferencias |
+
+**Total: 16 telas** (9 comprador + 7 corretora) — mesmo padrao do BID Frete.
+
+---
+
+## 9. Integracoes com Gravity
+
+| Servico | Tipo | Uso |
+|---------|------|-----|
+| **Atividades** (3001) | Fire-and-forget | Log de toda acao (criar cotacao, disparar, aprovar, pagar) |
+| **Historico** (3001) | Fire-and-forget | Audit trail imutavel (compliance BACEN) |
+| **Notificacoes** (3001) | Fire-and-forget | Alertas in-app (nova cotacao, resposta recebida, vencimento) |
+| **GABI** (3001) | Fire-and-forget | Analise IA de melhores taxas, sugestoes |
+| **Email** (3001) | Sincrono | Disparo de cotacoes, alertas de vencimento, notificacao exportador |
+| **Dashboard** (3001) | API | KPIs consolidados cross-product |
+| **Relatorios** (3001) | API | Relatorios de cambio exportaveis |
+| **Agendamento** (3001) | Cron | Job diario 7h (alertas de vencimento) |
+| **Configurador** (8003) | API | Auth, permissoes, workspace |
+| **Processo** (quando integrado) | API (REST) | Leitura de dados do pedido (DI, Invoice, datas, exportador) |
+| **BID Frete** (quando integrado) | Via Dashboard | Visao consolidada frete + cambio |
+
+**Regra:** Nenhuma dependencia direta. BID Cambio funciona 100% standalone. Integracoes sao opcionais e via servicos tenant.
+
+---
+
+## 10. Metricas de Sucesso
+
+| KPI | Meta (6 meses) | Como medir |
+|-----|----------------|-----------|
+| **Economia media por operacao** | >0,5% de spread vs cotacao manual | (spread manual medio - spread BID) / spread manual |
+| **Tempo medio de cotacao** | <5 min (vs 30+ min manual) | Timestamp: criacao -> aprovacao |
+| **Corretoras ativas no marketplace** | 20+ corretoras | Count distinct corretoras com >=1 resposta/mes |
+
+---
+
+## 11. Cronograma e Fases
+
+| Fase | Escopo | Estimativa |
+|------|--------|-----------|
+| **MVP** | Gestao de parcelas (lista, agendar, pagar, e-mails) + Marketplace (cotacao, comparativo, portal corretora) | 3-4 semanas (G/GG) |
+| **Fase 2** | Hedge/NDF, API real-time corretoras, registro BACEN automatico | 2-3 semanas |
+| **Fase 3** | Auto-matching, analytics avancado, WhatsApp | 2-3 semanas |
+
+---
+
+## 12. Riscos e Mitigacoes
+
+| Risco | Probabilidade | Impacto | Mitigacao |
+|-------|--------------|---------|-----------|
+| Corretoras nao aderirem ao portal | Media | Alto | Onboarding assistido + link publico (sem login) como alternativa |
+| Taxa expira antes do usuario aprovar | Alta | Medio | Countdown visual + notificacao push + refresh automatico |
+| Mudanca de IOF por decreto | Baixa | Alto | Campo IOF configuravel por tenant, nao hardcoded |
+| PTAX indisponivel (BCB fora do ar) | Baixa | Medio | Cache de ultima PTAX + fallback manual |
+| Complexidade de parcelas (pagamento parcial, recalculo) | Media | Medio | Testes extensivos com cenarios reais do legado DATI |
+| Compliance BACEN insuficiente | Baixa | Critico | Audit trail via Historico + SME valida a cada entrega |
+
+---
+
+## 13. Decisoes Tomadas
+
+| # | Data | Decisao | Alternativa Descartada | Razao |
+|---|------|---------|----------------------|-------|
+| D-001 | 2026-03-29 | Gratuito para compradores, monetizacao nas corretoras | Cobrar dos dois lados | Atrair volume de compradores primeiro (marketplace classico) |
+| D-002 | 2026-03-29 | Duas visoes separadas (Comprador + Corretora) | Portal unico com roles | UX mais limpa, login independente, dashboards especificos |
+| D-003 | 2026-03-29 | MVP inclui Gestao + Marketplace | So marketplace primeiro | Gestao de parcelas e core — sem ela o produto nao resolve o problema completo |
+| D-004 | 2026-03-29 | Campos do legado DATI migrados para Gravity | Redesign do zero | Campos ja validados por anos de uso real, reduz risco |
+| D-005 | 2026-03-29 | Produto standalone com integracao opcional | Dependencia do Processo | Arquitetura Gravity: produtos independentes via servicos tenant |
+
+---
+
+## Campos Mapeados (25+ colunas — extraidos do legado DATI)
+
+| Campo | Tipo | Origem |
+|-------|------|--------|
+| DATI NUMBER / Referencia | String | Processo |
+| PARCELA | String "1/3" | Calculado |
+| EXPORTADOR | String | Pedido |
+| DATA DE VENCIMENTO | Date | Calculado (metodo + prazo) |
+| NUMERO DA DI | String | Processo/SISCOMEX |
+| NUMERO DA INVOICE | String | Pedido |
+| MOEDA | Enum (USD, EUR, GBP, CHF, BRL, CNY) | Pedido |
+| NUMERO PO | String | Pedido |
+| A PAGAR (moeda) | Decimal(2) | Calculado |
+| A PAGAR R$ | Decimal(2) | Calculado (valor x taxa) |
+| REFERENCIA DO CLIENTE | String | Pedido |
+| BANCO / CORRETORA | String | Pagamento |
+| CONDICAO DE PAGAMENTO | String | Pedido |
+| DATA DE CHEGADA FINAL | Date | Processo |
+| DATA DE DESEMBARACO | Date | Processo |
+| DATA DE EMBARQUE FINAL | Date | Processo |
+| DATA DE ENTREGA | Date | Processo |
+| DATA DO PAGAMENTO | Date | Pagamento |
+| DATA REGISTRO DE DI | Date | Processo |
+| NUMERO DE CONTRATO (cambio) | String | Pagamento |
+| NUMERO DE TRANSMISSAO DA D.I. | String | Processo |
+| NUMERO DO B.L | String | Processo |
+| STATUS | Enum (Pendente/Agendado/Pago) | Parcela |
+| TAXA DE FECHAMENTO | Decimal(4) | Pagamento |
+| ENDERECO DESEMBARACO (CNPJ+Nome) | String | Processo |
+| ENDERECO ENTREGA (CNPJ+Nome) | String | Processo |
+| DATA ABERTURA PEDIDO | Date | Pedido |
+| DATA ESPERADA DA PRONTIDAO | Date | Pedido |
+| FORMA DE PAGAMENTO DO CAMBIO | Config | Pedido |
+| VALOR A SER PAGO | Decimal(2) | Input do usuario |
+| CAMBIO TOTAL | Decimal | Pedido |
+| CATEGORIA (anexo) | String | Pagamento |
+| NOME DO ARQUIVO | String (opcional) | Pagamento |
+
+---
+
+## Regras de E-mail (do legado DATI)
+
+### E-mail 1: Alerta de Vencimento (Interno)
+- **Destinatario:** Contato do departamento financeiro (Preferencias > Contatos)
+- **Horario:** 07:00 do dia corrente
+- **Condicao:** Parcelas com vencimento dentro de X dias (configuravel)
+- **Fim de semana:** Respeita preferencia; sexta inclui sab/dom se desativado
+- **Assunto:** FECHAMENTO DE CAMBIO PARA PAGAMENTO
+- **Corpo:** Lista de processos com hiperlink + link para tela de cambio
+- **Nao dispara** se nao houver parcelas a vencer no periodo
+
+### E-mail 2: Notificacao ao Exportador (Externo)
+- **Destinatario:** Contato financeiro do exportador (Preferencias > Exportadores > Contatos)
+- **Condicao:** Ativada nas preferencias + parcela paga
+- **Idioma:** Ingles
+- **Assunto:** NEW PAYMENT // [IMPORTADOR] TO [EXPORTADOR] // [REF PEDIDO] // [REF DATI]
+- **Corpo:** Confirmacao de pagamento com numero do pedido
+- **Anexos:** Arquivos anexados no momento do pagamento
+
+---
+
+## Preferencias do Tenant (Categoria "Cambio")
+
+| Preferencia | Padrao | Tipo |
+|-------------|--------|------|
+| Apresentar cambios pagos no menu financeiro do processo? | Desativado | Toggle |
+| Desejar ser avisado por e-mail sobre as parcelas de cambio a vencer? | Desativado | Toggle |
+| Quantos dias antes do vencimento deseja ser avisado? | - | Numerico (max 3 digitos) |
+| Enviar e-mail ao exportador avisando sobre o pagamento do cambio? | Desativado | Toggle |

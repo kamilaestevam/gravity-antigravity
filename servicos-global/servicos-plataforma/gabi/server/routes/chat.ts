@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { getConversationContext, buildSystemPrompt } from '../services/chat.js'
 import { generateContentWithFallback, generateWithTools } from '../services/gemini.js'
 import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
+import { auditGabiAction } from '../services/audit.js'
+import type { GabiChatResponse, GabiChatStreamEvent } from '../lib/schemas.js'
 
 export const chatRouter = Router()
 
@@ -29,10 +31,6 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Autenticação necessária' } })
     }
 
-    // F2-H: gate de hard-block (limite monetario USD).
-    // Avaliamos com modelo sentinela "__pre__" pra capturar limites de
-    // escopo "todos os modelos" (GLOBAL e ORGANIZACAO). Limites por modelo
-    // especifico sao avaliados pelo worker horario / proxima chamada.
     const limite = await avaliarLimite(tenantId, '__pre__')
     if (limite.status === 'bloqueio') {
       return res.status(429).json({
@@ -68,21 +66,29 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
 
     const { cleanText, suggestions } = extractSuggestions(result.text)
 
-    // F2-H: invalida cache de spend MTD pos-chamada para a proxima checagem
-    // pegar o gasto atualizado em <= 60s (combina TTL + invalidacao).
+    void auditGabiAction(userId, tenantId, 'chat', message, undefined, {
+      modelo: result.modelUsed,
+      tokensInput: result.tokensInput,
+      tokensOutput: result.tokensOutput,
+      custoUsd: result.costUsd,
+    }).catch((e) =>
+      console.warn('[chat] falha registrando uso LLM', (e as Error).message),
+    )
+
     void invalidarCacheGastoMtd(tenantId).catch((e) =>
       console.warn('[chat] falha invalidando cache de gasto MTD', (e as Error).message),
     )
 
-    res.json({
+    const payload: GabiChatResponse = {
       response: cleanText,
       suggestions,
       model: result.modelUsed,
-      tokens: { input: result.tokensInput, output: result.tokensOutput },
+      tokens: { input: result.tokensInput, output: result.tokensOutput, cached: result.cachedTokens },
       cost_usd: result.costUsd,
       actions_performed: result.actionsPerformed,
       data_changed: result.dataChanged,
-    })
+    }
+    res.json(payload)
   } catch (error) {
     next(error)
   }
@@ -168,8 +174,31 @@ chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
 
     const result = await generateWithTools(sysPrompt, message, history, streamToolCtx)
 
+    void auditGabiAction(userId, tenantId, 'chat_stream', message, undefined, {
+      modelo: result.modelUsed,
+      tokensInput: result.tokensInput,
+      tokensOutput: result.tokensOutput,
+      custoUsd: result.costUsd,
+    }).catch((e) =>
+      console.warn('[chat/stream] falha registrando uso LLM', (e as Error).message),
+    )
+
+    void invalidarCacheGastoMtd(tenantId).catch((e) =>
+      console.warn('[chat/stream] falha invalidando cache de gasto MTD', (e as Error).message),
+    )
+
     const { cleanText: streamClean, suggestions: streamSuggestions } = extractSuggestions(result.text)
-    res.write(`data: ${JSON.stringify({ type: 'message', content: streamClean, suggestions: streamSuggestions, model: result.modelUsed, cost: result.costUsd, actions_performed: result.actionsPerformed, data_changed: result.dataChanged })}\n\n`)
+    const streamEvent: GabiChatStreamEvent = {
+      type: 'message',
+      content: streamClean,
+      suggestions: streamSuggestions,
+      model: result.modelUsed,
+      cost: result.costUsd,
+      cached_tokens: result.cachedTokens,
+      actions_performed: result.actionsPerformed,
+      data_changed: result.dataChanged,
+    }
+    res.write(`data: ${JSON.stringify(streamEvent)}\n\n`)
     res.write(`data: [DONE]\n\n`)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erro interno'

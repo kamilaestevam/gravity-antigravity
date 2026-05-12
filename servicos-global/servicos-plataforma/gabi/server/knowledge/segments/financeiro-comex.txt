@@ -1,0 +1,1637 @@
+=== Financeiro COMEX ===
+
+--- documentos-tecnicos/produtos-gravity/financeiro-comex/ARQUITETURA.md ---
+# Arquitetura Técnica — Financeiro Comex
+
+## Tech Lead Sign-off: ✅ Viável com reutilização máxima do ecossistema
+
+---
+
+## 1. Estrutura de Pastas
+
+```
+produto/financeiro-comex/
+├── client/
+│   ├── src/
+│   │   ├── main.tsx
+│   │   ├── App.tsx
+│   │   ├── pages/
+│   │   │   ├── Movimentacao/
+│   │   │   │   ├── MovimentacaoPage.tsx        # Tela principal (lista + KPIs)
+│   │   │   │   ├── MovimentacaoPage.css
+│   │   │   │   ├── ModalNovoLancamento.tsx     # Modal de criação/edição
+│   │   │   │   ├── ModalImportar.tsx           # Modal de importação (multi-canal)
+│   │   │   │   └── ModalHistorico.tsx          # Histórico de alterações
+│   │   │   ├── Numerario/
+│   │   │   │   ├── NumerarioPage.tsx           # Lista de numerários
+│   │   │   │   ├── NumerarioPage.css
+│   │   │   │   ├── ModalInserirNumerario.tsx   # Modal numerário complementar
+│   │   │   │   └── ModalExibirAnexo.tsx        # PDF viewer
+│   │   │   ├── Rateio/
+│   │   │   │   ├── RateioPage.tsx              # Lista de arquivos gerados
+│   │   │   │   └── RateioPage.css
+│   │   │   └── Config/
+│   │   │       ├── CategoriasPage.tsx          # Catálogo de categorias
+│   │   │       └── CondicoesPagamentoPage.tsx  # Condições de pagamento
+│   │   └── shared/
+│   │       ├── config.ts                       # PRODUCT_CONFIG
+│   │       ├── api.ts                          # Client API
+│   │       └── types.ts                        # Tipos do domínio
+│   ├── vite.config.ts
+│   └── tsconfig.json
+└── server/
+    ├── src/
+    │   ├── index.ts                            # Express + 11 middlewares
+    │   ├── routes/
+    │   │   ├── lancamentos.ts                  # CRUD movimentação
+    │   │   ├── importar.ts                     # Multi-canal de importação
+    │   │   ├── numerario.ts                    # CRUD numerário
+    │   │   ├── rateio.ts                       # Geração de rateio Excel
+    │   │   ├── dashboard.ts                    # KPIs consolidados
+    │   │   ├── historico.ts                    # Audit trail
+    │   │   └── config.ts                       # Catálogos (categorias, condições)
+    │   ├── middleware/
+    │   │   ├── requireInternalKey.ts
+    │   │   └── tenantIsolation.ts
+    │   ├── services/
+    │   │   ├── rateioEngine.ts                 # REUSO do NF Importação (sem fork)
+    │   │   ├── xmlParser.ts                    # Parser DUIMP XML
+    │   │   ├── portalUnicoConnector.ts         # REUSO do NF Importação
+    │   │   └── excelGenerator.ts              # Gerador planilha custos_processo
+    │   └── lib/
+    │       ├── rateioAlgorithms.ts             # REUSO do NF Importação (sem fork)
+    │       ├── currencyConverter.ts            # Conversão multi-moeda
+    │       └── kpiCalculator.ts               # Cálculo de KPIs financeiros
+    ├── prisma/
+    │   ├── fragment.prisma                     # Modelos do Financeiro Comex
+    │   └── schema.prisma                       # GERADO pelo compose-tenant-schema
+    └── .env.example
+```
+
+---
+
+## 2. PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'financeiro-comex',
+  name: 'Financeiro Comex',
+  icon: 'CircleDollarSign',
+  color: '#22c55e',          // Verde (--success) — financeiro
+  basePath: '/financeiro-comex',
+  serverPort: 8029,
+  clientPort: 5184,          // dev only
+
+  tenantServices: [
+    'historico',
+    'notificacoes',
+    'email',
+    'dashboard',
+    'conector-erp',
+  ],
+
+  navigation: [
+    { label: 'Movimentação', path: '/movimentacao', icon: 'List',          permission: 'financeiro:view' },
+    { label: 'Numerário',    path: '/numerario',    icon: 'Wallet',         permission: 'financeiro:view' },
+    { label: 'Rateio',       path: '/rateio',       icon: 'GitBranch',      permission: 'financeiro:view' },
+    { label: 'Categorias',   path: '/config/categorias', icon: 'Tag',       permission: 'financeiro:admin' },
+    { label: 'Condições',    path: '/config/condicoes',  icon: 'FileText',  permission: 'financeiro:admin' },
+  ],
+}
+```
+
+---
+
+## 3. Fragment.prisma — Modelos de Dados
+
+```prisma
+// ============================================================
+// FINANCEIRO COMEX — fragment.prisma
+// ============================================================
+
+enum TipoOperacaoFinanceiro {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum MoedaFinanceiro {
+  BRL
+  USD
+  EUR
+  GBP
+  CHF
+  CNY
+  ARS
+  UYU
+}
+
+enum StatusPagamento {
+  PENDENTE
+  AGENDADO
+  PAGO
+}
+
+enum CanalEntradaFinanceiro {
+  MANUAL
+  XML_DUIMP
+  PORTAL_UNICO
+  SMART_READ
+  PLANILHA
+  EMAIL
+}
+
+enum TipoDocumentoFinanceiro {
+  BOLETO
+  NOTA_FISCAL
+  DEMONSTRATIVO
+  FATURA
+  FATURAMENTO
+  OUTRO
+}
+
+enum TipoFornecedorFinanceiro {
+  AGENTE_DE_CARGA
+  ARMADOR
+  CIA_AEREA
+  ARMAZEM_ALFANDEGADO
+  ARMAZEM
+  TRANSPORTADORA_RODOVIARIA
+  SEGURADORA
+  CORRETORA_DE_CAMBIO
+  EXPORTADOR
+  FABRICANTE
+  TRADING
+  DESPACHANTE
+  RECEITA_FEDERAL
+  OUTRO
+}
+
+enum GrupoCusto {
+  IMPOSTOS_FEDERAIS   // Grupo 1: DUIMP (II, IPI, PIS, COFINS, ICMS, AFRMM)
+  CUSTO_OPERACIONAL   // Grupo 2: Taxas, fretes, etc.
+}
+
+// Financeiro de um processo (1 por processo)
+model FinanceiroProcesso {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  processo_id      String   @unique   // FK para o Processo
+  tipo_operacao    TipoOperacaoFinanceiro
+  referencia       String?  // Referência do processo (display)
+
+  // Totalizadores cache (recalculados a cada lançamento)
+  total_brl        Decimal  @default(0) @db.Decimal(18, 4)
+  total_usd        Decimal  @default(0) @db.Decimal(18, 4)
+  total_eur        Decimal  @default(0) @db.Decimal(18, 4)
+  total_outros     Decimal  @default(0) @db.Decimal(18, 4)
+
+  saldo            Decimal  @default(0) @db.Decimal(18, 4)
+  adiantado        Decimal  @default(0) @db.Decimal(18, 4)
+  pagos            Decimal  @default(0) @db.Decimal(18, 4)
+  agendados        Decimal  @default(0) @db.Decimal(18, 4)
+  pendente         Decimal  @default(0) @db.Decimal(18, 4)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  lancamentos      FinanceiroLancamento[]
+  numerarios       FinanceiroNumerario[]
+  rateios          FinanceiroRateio[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, processo_id])
+}
+
+// Cada lançamento financeiro (movimentação)
+model FinanceiroLancamento {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  // Identificação
+  categoria_id     String   // FK FinanceiroCategorias
+  categoria_nome   String   // Desnormalizado para histórico
+  grupo_custo      GrupoCusto
+
+  // Multi-moeda
+  moeda            MoedaFinanceiro
+  taxa_cambio      Decimal  @db.Decimal(10, 7)  // Ex: 5.6923000
+  valor            Decimal  @db.Decimal(18, 4)  // Na moeda original
+  valor_brl        Decimal  @db.Decimal(18, 4)  // valor × taxa_cambio
+
+  // Fornecedor
+  fornecedor_id    String?
+  fornecedor_nome  String?               // Desnormalizado
+  tipo_fornecedor  TipoFornecedorFinanceiro?
+
+  // Pagamento
+  condicao_id      String?
+  condicao_descricao String?  // Desnormalizado
+  data_pagamento   DateTime?
+  data_vencimento  DateTime?
+  status_pagamento StatusPagamento @default(PENDENTE)
+  observacao       String?
+
+  // Classificações
+  despesa_aduaneira Boolean  @default(false)
+  despesa_nf        Boolean  @default(false)
+  espelho_nf        Boolean  @default(true)
+
+  // Documento de origem
+  tipo_documento   TipoDocumentoFinanceiro?  // Boleto, NF, Fatura, etc.
+  numero_documento String?                   // Número do documento (NF, boleto, etc.)
+
+  // Origem
+  canal_entrada    CanalEntradaFinanceiro @default(MANUAL)
+  icms_origem_portal Boolean @default(false)  // True quando ICMS veio do Portal Único
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  created_by       String   // user_id
+
+  financeiro       FinanceiroProcesso  @relation(fields: [financeiro_id], references: [id])
+  categoria        FinanceiroCategorias @relation(fields: [categoria_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, financeiro_id])
+  @@index([tenant_id, status_pagamento])
+  @@index([tenant_id, data_vencimento])
+}
+
+// Catálogo de categorias de despesa (por tenant)
+model FinanceiroCategorias {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+
+  codigo           String   // Ex: "3", "3333", "74"
+  nome             String   // Ex: "Frete Internacional", "Imposto de Importação"
+  grupo_custo      GrupoCusto
+  tipo_operacao    TipoOperacaoFinanceiro?  // null = ambas
+  conta_contabil   String?
+  centro_custo     String?
+  ativo            Boolean  @default(true)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  lancamentos      FinanceiroLancamento[]
+
+  @@unique([tenant_id, company_id, codigo])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, tipo_operacao])
+}
+
+// Condições de pagamento (por tenant)
+model FinanceiroCondicaoPagamento {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+
+  codigo           String   // Ex: "002"
+  descricao        String   // Ex: "Pagamento em 60 dias"
+  dias_prazo       Int?     // Dias após embarque/desembaraço
+  ativo            Boolean  @default(true)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([tenant_id, company_id, codigo])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+}
+
+// Numerário (adiantamento ao despachante)
+// MÓDULO ISOLÁVEL — projetado para virar produto independente
+model FinanceiroNumerario {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  descricao        String   // Ex: "Numerário Principal", "Numerário Complementar 1"
+  is_principal     Boolean  @default(false)
+  data             DateTime
+  valor_total      Decimal  @db.Decimal(18, 4)
+
+  // Documento de prestação de contas
+  documento_storage_key  String?
+  documento_nome         String?
+  documento_mime_type    String?
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  created_by       String
+
+  financeiro       FinanceiroProcesso    @relation(fields: [financeiro_id], references: [id])
+  despesas         FinanceiroNumerarioDespesa[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, financeiro_id])
+}
+
+// Despesas dentro de um numerário
+model FinanceiroNumerarioDespesa {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  numerario_id     String
+
+  descricao        String
+  moeda            MoedaFinanceiro
+  taxa_cambio      Decimal  @db.Decimal(10, 7)
+  valor            Decimal  @db.Decimal(18, 4)
+  valor_brl        Decimal  @db.Decimal(18, 4)
+  responsavel      String?  // "IMPORTADOR", "EXPORTADOR", etc.
+
+  created_at       DateTime @default(now())
+
+  numerario        FinanceiroNumerario @relation(fields: [numerario_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, numerario_id])
+}
+
+// Registro de rateio gerado (arquivo Excel)
+model FinanceiroRateio {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  storage_key      String   // Path no storage (S3/Railway)
+  nome_arquivo     String   // Ex: "Rateio.xlsx"
+  gerado_em        DateTime @default(now())
+  gerado_por       String   // user_id
+
+  financeiro       FinanceiroProcesso @relation(fields: [financeiro_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, financeiro_id])
+}
+
+// Histórico imutável (append-only)
+model FinanceiroHistorico {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  financeiro_id    String
+  lancamento_id    String?  // null = ação no nível do processo
+
+  acao             String   // "lancamento_criado", "lancamento_editado", etc.
+  descricao        String
+  dados_anteriores Json?
+  dados_novos      Json?
+
+  user_id          String
+  user_nome        String
+  created_at       DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, financeiro_id])
+  @@index([tenant_id, lancamento_id])
+}
+```
+
+---
+
+## 4. Endpoints da API
+
+### Movimentação
+
+| Método | Endpoint | Descrição | Auth |
+|:---|:---|:---|:---|
+| GET | `/api/v1/financeiro/:processoId` | Dashboard KPIs + meta do processo | S2S + tenant |
+| GET | `/api/v1/financeiro/:processoId/lancamentos` | Listar lançamentos (paginado, filtros) | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/lancamentos` | Criar lançamento manual | S2S + tenant |
+| PUT | `/api/v1/financeiro/:processoId/lancamentos/:id` | Editar lançamento | S2S + tenant |
+| DELETE | `/api/v1/financeiro/:processoId/lancamentos/:id` | Excluir lançamento | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/xml` | Importar impostos via XML DUIMP | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/portal-unico` | Importar via Portal Único | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/smart-read` | Importar via Smart Read | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/planilha` | Importar via Excel | S2S + tenant |
+
+### Numerário
+
+| Método | Endpoint | Descrição |
+|:---|:---|:---|
+| GET | `/api/v1/financeiro/:processoId/numerario` | Listar numerários |
+| POST | `/api/v1/financeiro/:processoId/numerario` | Criar numerário (principal ou complementar) |
+| PUT | `/api/v1/financeiro/:processoId/numerario/:id` | Editar numerário |
+| DELETE | `/api/v1/financeiro/:processoId/numerario/:id` | Excluir |
+| POST | `/api/v1/financeiro/:processoId/numerario/:id/documento` | Upload PDF |
+| GET | `/api/v1/financeiro/:processoId/numerario/:id/documento` | Download PDF |
+
+### Rateio
+
+| Método | Endpoint | Descrição |
+|:---|:---|:---|
+| POST | `/api/v1/financeiro/:processoId/rateio/gerar` | Gerar Excel de rateio |
+| GET | `/api/v1/financeiro/:processoId/rateio` | Listar arquivos gerados |
+| GET | `/api/v1/financeiro/:processoId/rateio/:id/download` | Download Excel |
+
+### Config
+
+| Método | Endpoint | Descrição |
+|:---|:---|:---|
+| GET/POST/PUT/DELETE | `/api/v1/financeiro/config/categorias` | CRUD catálogo de categorias |
+| GET/POST/PUT/DELETE | `/api/v1/financeiro/config/condicoes` | CRUD condições de pagamento |
+
+### Health
+
+| Método | Endpoint |
+|:---|:---|
+| GET | `/health` |
+
+---
+
+## 5. Diagrama de Fluxo de Dados
+
+```
+Usuário → Client (React, porta 5184)
+              ↓ HTTP (x-internal-key + JWT)
+         Server (Express, porta 8029)
+              ↓ Prisma + RLS
+         [DB financeiro-comex] (tenant isolado)
+              ↓
+     ┌────────┴─────────────────┐
+     ↓                         ↓
+ Processo (S2S)          Portal Único (reuso)
+ processo_id             DUIMP → impostos
+ itens (para rateio)
+     ↓
+ NF Importação (S2S)    RateioEngine (reuso)
+ espelho de custos      rateioAlgorithms.ts
+     ↓
+ Serviços Tenant
+ (historico, notificacoes, email)
+```
+
+---
+
+## 6. Reutilização do Ecossistema
+
+### O que reutilizar sem fork (0 esforço de criação)
+
+| Item | Origem | Como Usar |
+|:---|:---|:---|
+| `rateioAlgorithms.ts` | NF Importação | Import direto via S2S ou lib compartilhada |
+| `portalUnicoConnector.ts` | NF Importação | Reuso do mesmo conector DUIMP |
+| Smart Read service | NF Importação | Mesma API de OCR |
+| `tenantIsolationMiddleware` | Gravity infra | Copy padrão |
+| `requireInternalKey` | Gravity infra | Copy padrão |
+| Serviços tenant | Gravity infra | Email, Histórico, Notificações via S2S |
+| `TabelaGlobal` | nucleo-global | Lista de lançamentos |
+| `ModalGlobal` | nucleo-global | Todos os modals |
+| `CaixaSelectGlobal` | nucleo-global | Selects de moeda, fornecedor, categoria |
+| `InputTexto` | nucleo-global | Campos de valor, taxa, observação |
+| `BadgeStatus` | nucleo-global | Status do pagamento (Pago/Pendente/Agendado) |
+
+### O que criar do zero
+
+| Item | Complexidade | Justificativa |
+|:---|:---|:---|
+| `FinanceiroProcesso` scaffold completo | G | Novo produto, structure + routes + models |
+| `kpiCalculator.ts` (Saldo, Adiantado, Pagos...) | M | Lógica financeira específica do produto |
+| `currencyConverter.ts` (multi-moeda) | P | Conversão valor × taxa |
+| `excelGenerator.ts` (formato custos_processo) | G | Layout exato da planilha de rateio |
+| `xmlParser.ts` (DUIMP XML) | M | Parse XML específico do SISCOMEX |
+| Modal Novo Lançamento (multi-campo, flags) | M | Formulário complexo com validações |
+| KPI header (4+ badges multi-moeda) | P | Componente visual específico |
+| PDF viewer no Numerário | P | Exibir PDF do numerário anexado |
+
+---
+
+## 7. Estimativa de Complexidade por Tela
+
+| Tela/Feature | Frontend | Backend | Total | Notas |
+|:---|:---|:---|:---|:---|
+| Scaffold inicial (setup, config, health) | — | M | M | Padrão Gravity |
+| Fragment.prisma + migration | — | M | M | 6 models novos |
+| Movimentação — Lista + KPIs | M | M | G | TabelaGlobal + cálculo KPI |
+| Modal Novo Lançamento | M | P | M | Formulário + validação Zod |
+| Importar via XML DUIMP | P | G | G | Parser XML SISCOMEX |
+| Importar via Portal Único | P | M | M | Reuso da integração NF Importação |
+| Importar via Smart Read | P | M | M | Reuso do serviço |
+| Importar via Planilha Excel | P | M | M | Parser de template |
+| Numerário — Lista | P | P | P | Simples |
+| Numerário — Modal + upload PDF | M | P | M | Upload + preview |
+| Rateio — Geração Excel | P | G | G | Formato exato custos_processo |
+| Catálogo Categorias | P | P | P | CRUD simples |
+| Condições de Pagamento | P | P | P | CRUD simples |
+| **MVP Total** | | | **~6-8 semanas** | 2 devs |
+
+---
+
+## 8. Checklist de Segurança
+
+- [ ] Todo model tem `tenant_id` obrigatório
+- [ ] Todo endpoint tem validação Zod antes do banco
+- [ ] `tenantIsolationMiddleware` no server
+- [ ] `requireInternalKey` em todas as rotas S2S
+- [ ] JWT validado em rotas de usuário
+- [ ] Nenhuma query sem filtro por `tenant_id`
+- [ ] Health check sem autenticação em `/health`
+- [ ] Nenhum `console.log` com dados sensíveis (valores financeiros)
+- [ ] Variáveis de ambiente via `process.env`
+- [ ] Erros via `AppError`
+- [ ] Upload de PDF: validar mime_type e tamanho máximo
+- [ ] Download de PDF: validar que storage_key pertence ao tenant
+
+--- documentos-tecnicos/produtos-gravity/financeiro-comex/HANDOFF.md ---
+# Handoff — Financeiro Comex
+
+## Data: 2026-03-31
+## De: Dream Team de Produtos
+## Para: Dream Team de Tecnologia
+## Status: ✅ Checkpoint 3 aprovado — Pronto para implementação
+
+---
+
+## Índice de Artefatos
+
+| # | Artefato | Status |
+|:---|:---|:---|
+| 1 | PRD (v1.0 final) | ✅ PRD.md |
+| 2 | Arquitetura técnica | ✅ ARQUITETURA.md |
+| 3 | Regras de negócio operacionalizadas | ✅ Este documento |
+| 4 | Casos de uso completos | ✅ Este documento |
+| 5 | Critérios de aceite em Gherkin | ✅ Este documento |
+| 6 | Especificação de telas | ✅ Este documento |
+| 7 | Backlog priorizado | ✅ Este documento |
+| 8 | Catálogo de categorias padrão | ✅ Este documento |
+
+---
+
+## Contexto para o Time de Tecnologia
+
+### O que é o Financeiro Comex?
+
+Módulo de gestão financeira de processos de importação e exportação. É vinculado a um **processo** (um por processo) e consolida todos os custos: impostos federais (importados do Portal Único/XML), taxas operacionais (lançadas manualmente ou via Smart Read/email) e numerário (adiantamentos ao despachante).
+
+### Regras de negócio críticas (top 5)
+
+1. **Cada lançamento tem sua própria taxa de câmbio** — o Valor R$ é calculado na hora do lançamento (valor × taxa), não convertido depois. Uma vez salvo, o valor BRL é imutável.
+2. **Saldo = Custos Totais (BRL) − Numerário Total** — Saldo negativo = empresa ainda deve; é o estado normal durante o processo.
+3. **O ICMS pode vir do Portal Único** (flag `icms_origem_portal`) para estados integrados. Para os demais, entrada manual. **Sempre permitir override manual.**
+4. **Exportação não tem Grupo 1** (impostos federais) — apenas custos operacionais. O catálogo de categorias é filtrado por `tipo_operacao`.
+5. **Numerário é isolável** — foi projetado para virar produto independente. Não misturar lógica de negócio do Numerário com a Movimentação.
+
+### O que NÃO está no MVP
+
+- Email automático de faturas (Fase 2)
+- Dashboard multi-processo consolidado (Fase 2)
+- Alertas de vencimento por notificação (Fase 2)
+- Integração com ERP (Fase 3)
+- Numerário como produto isolado (Fase 3)
+
+---
+
+## Especificação de Telas
+
+### Tela 1 — Movimentação (Lista Principal)
+
+**Rota:** `/financeiro-comex` (embedded no Processo) ou `/financeiro-comex/:processoId` (standalone)
+**Caso de Uso:** UC-001
+
+#### Layout
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [Sidebar Gravity]  │  Financeiro                                 │
+│                    │  [Tab: Movimentação] [Tab: Numerário] [Tab: Rateio] │
+│                    │                                             │
+│                    │  [Badge: Total aberto BRL] [Badge: USD] [Badge: EUR] │
+│                    │                                             │
+│                    │  [Card: Saldo] [Adiantado] [Pagos] [Agendados] [Pendente] │
+│                    │                                             │
+│                    │              [Histórico de Alterações] [+ Novo] [↓ Importar] │
+│                    │                                             │
+│                    │  ┌──────────────────────────────────────┐  │
+│                    │  │ DATA │ DESCRIÇÃO │ COND.PGT │ FORNECEDOR │ MOEDA │ TAXA │ VALOR │ VALOR R$ │ DT.PGT │ DT.VENC │ STATUS │ 🗑 │
+│                    │  │ ... linha 1 ...                       │  │
+│                    │  │ ... linha 2 (highlighted) ...         │  │
+│                    │  └──────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Especificação Visual
+
+| Elemento | Componente | Especificação |
+|:---|:---|:---|
+| Tabs | Tabs underline | Movimentação, Numerário, Rateio |
+| Badges "Total aberto" | `BadgeStatus` pill | BRL/USD/EUR/outros — cor `--bg-elevated` + `--text-secondary` |
+| Cards KPI | div `--bg-base` border `--bg-elevated` | Saldo (vermelho se negativo), Adiantado, Pagos, Agendados, Pendente |
+| Botão "+ Novo" | `BotaoGlobal` primary | accent, `Plus` icon 16px |
+| Botão "Importar" | `BotaoGlobal` secondary | dropdown com 4 opções |
+| Tabela | `TabelaGlobal` | Colunas abaixo |
+| Linha destacada | background `--accent` 10% opacity | Lançamento mais recente ou selecionado |
+| Botão excluir | `BotaoGlobal` ghost | `Trash2` icon, cor `--danger`, apenas no hover |
+
+#### Colunas da TabelaGlobal
+
+| Coluna | Largura | Sortable | Notas |
+|:---|:---|:---|:---|
+| Data | 120px | Sim | Formato `DD/MM/YYYY HH:mm` |
+| Descrição | 200px | Sim | `codigo - nome` da categoria |
+| Cond. Pagto. | 140px | Não | Descrição da condição |
+| Fornecedor | 180px | Sim | Nome + tipo entre parênteses |
+| Moeda | 70px | Sim | Pill `BadgeStatus` por moeda |
+| Taxa | 90px | Não | 7 casas decimais |
+| Valor | 110px | Sim | Na moeda original |
+| Valor R$ | 110px | Sim | Convertido, negrito |
+| Data Pagamento | 110px | Sim | Vazio se não informado |
+| Data Vencimento | 110px | Sim | Vermelho se vencida |
+| Status | 100px | Sim | `BadgeStatus` (Pago/Pendente/Agendado) |
+| Ações | 40px | Não | `Trash2` ghost |
+
+#### Estados da Tela
+
+| Estado | Comportamento |
+|:---|:---|
+| **Empty** | Ilustração + "Nenhum lançamento. Adicione o primeiro custo do processo." + botão "+ Novo" |
+| **Loading** | Skeleton dos cards KPI + 5 linhas skeleton na tabela |
+| **Error** | "Erro ao carregar lançamentos" + botão "Tentar novamente" |
+| **Filled** | Cards + tabela com dados |
+| **Exportação** | Coluna "Impostos" não aparece; catálogo filtrado |
+
+---
+
+### Modal 1A — Novo Lançamento
+
+**Trigger:** Botão "+ Novo"
+**Componente:** `ModalGlobal`
+
+#### Campos
+
+| Campo | Tipo | Obrigatório | Comportamento |
+|:---|:---|:---|:---|
+| Descrição | `CaixaSelectGlobal` (busca) | Sim | Lista do catálogo de categorias; busca por código e nome |
+| Moeda | `CaixaSelectGlobal` | Sim | BRL, USD, EUR, GBP, CHF, CNY, ARS, UYU |
+| Taxa | `InputTexto` number | Sim | 7 casas decimais; default 1.0000000 para BRL |
+| Valor | `InputTexto` number | Sim | 4 casas decimais; Valor R$ calculado automaticamente |
+| Fornecedor | `CaixaSelectGlobal` (busca) | Não | Lista do Processo (Remetente, Transportadora, etc.) |
+| Condição de Pagamento | `CaixaSelectGlobal` | Não | Lista de condições cadastradas |
+| Data de Pagamento | date picker | Não | |
+| Data de Vencimento | date picker | Não | |
+| Observação | `InputTexto` textarea | Não | Max 500 chars |
+| Status do Pagamento | `CaixaSelectGlobal` | Sim | Pendente (default), Agendado, Pago |
+| Tipo de Documento | `CaixaSelectGlobal` | Não | Boleto, Nota Fiscal, Demonstrativo, Fatura, Faturamento, Outro |
+| Número do Documento | `InputTexto` | Não | Número da NF, boleto, etc. |
+| Despesa Aduaneira | toggle | Não | Default: false |
+| Despesa NF | toggle | Não | Default: false |
+| Apresentar no Espelho de NF | toggle | Não | Default: true |
+
+#### Valor R$ calculado
+
+```
+Valor R$ = Valor × Taxa (display apenas, calculado em tempo real)
+Exibido abaixo do campo Taxa como "= R$ X.XXX,XX"
+```
+
+#### Validações
+
+| Campo | Regra | Mensagem |
+|:---|:---|:---|
+| Descrição | Obrigatório | "Selecione uma categoria" |
+| Moeda | Obrigatório | "Selecione a moeda" |
+| Taxa | > 0 | "Taxa deve ser maior que zero" |
+| Valor | > 0 | "Valor deve ser maior que zero" |
+
+---
+
+### Modal 1B — Importar (Multi-canal)
+
+**Trigger:** Botão "Importar" → dropdown
+
+**4 sub-opções:**
+
+1. **XML (DUIMP)** — Upload de arquivo .xml; preview dos impostos encontrados → confirmar
+2. **Portal Único** — Campo para número da DUIMP → busca → preview → confirmar
+3. **Smart Read** — Upload de PDF/imagem de fatura → OCR → preview campos → ajustar → confirmar
+4. **Planilha** — Download de template + upload preenchido → preview → confirmar
+
+**Preview (comum a todos):**
+- Tabela com lançamentos a serem criados
+- Usuário pode marcar/desmarcar quais importar
+- Botão "Confirmar" cria todos os selecionados
+
+---
+
+### Tela 2 — Numerário
+
+**Rota:** `/financeiro-comex/numerario` (tab)
+
+#### Layout
+
+```
+┌──────────────────────────────────────────────┐
+│ [Tabs: Movimentação | Numerário | Rateio]    │
+│                                              │
+│  Total: R$ 15.492,24        [Histórico] [+ Numerário Complementar] │
+│                                              │
+│  [NP] Numerário Principal    03/04/2025   15.492,24   [...]  │
+│  [NC] Numerário Complementar 1 ...        X.XXX,XX   [...]  │
+└──────────────────────────────────────────────┘
+```
+
+| Elemento | Comportamento |
+|:---|:---|
+| Total | Soma de todos os numerários; cor `--success` |
+| Avatar NP/NC | Pill com iniciais — NP verde, NC accent |
+| Row click | Expandir despesas + link para exibir PDF |
+| `[...]` | Menu: Editar, Excluir, Exibir Anexo |
+
+#### Modal 2A — Inserir Numerário
+
+| Campo | Tipo | Obrigatório |
+|:---|:---|:---|
+| Descrição do Numerário | `InputTexto` | Sim |
+| Data | date picker | Sim |
+| Despesas (lista dinâmica) | Descrição, Valor, Moeda, Taxa | 0 ou mais |
+| [+ botão] | Adicionar linha de despesa | — |
+
+#### Modal 2B — Exibir Anexo
+
+- PDF viewer integrado (iframe ou react-pdf)
+- Exibir documento de prestação de contas do despachante
+- Botão download
+
+---
+
+### Tela 3 — Rateio
+
+**Rota:** `/financeiro-comex/rateio` (tab)
+
+#### Layout
+
+```
+┌──────────────────────────────────────┐
+│ [Tabs: Movimentação | Numerário | Rateio] │
+│                          [Gerar Novo] │
+│                                      │
+│ [xlsx icon] Rateio    09/01/2026 15:31 │ (clicável → download)
+│ [xlsx icon] Rateio    15/12/2025 09:44 │
+└──────────────────────────────────────┘
+```
+
+| Estado | Comportamento |
+|:---|:---|
+| Empty | "Nenhum rateio gerado ainda" + botão "Gerar Novo" |
+| Loading (geração) | Spinner + "Gerando planilha de rateio..." |
+| Filled | Lista de arquivos com data/hora; clique → download |
+
+---
+
+## Casos de Uso
+
+### UC-001: Lançar Custo Manual de Processo
+
+**Ator:** Analista de Importação
+**Pré-condições:** Processo existente; usuário com permissão `financeiro:write`
+
+| Passo | Ator | Ação | Sistema |
+|:---|:---|:---|:---|
+| 1 | Usuário | Acessa aba Movimentação do processo | Exibe lista de lançamentos + KPIs |
+| 2 | Usuário | Clica "+ Novo" | Abre ModalGlobal "Novo Lançamento" |
+| 3 | Usuário | Seleciona categoria (ex: "3 - Frete Internacional") | Preenche grupo_custo automaticamente |
+| 4 | Usuário | Seleciona moeda USD, informa taxa 5.6923, valor 100 | Exibe "= R$ 569,23" em tempo real |
+| 5 | Usuário | Seleciona fornecedor SCHENKER | — |
+| 6 | Usuário | Informa data de pagamento, status "Pago" | — |
+| 7 | Usuário | Clica "Salvar" | Valida Zod → persiste → atualiza KPIs → toast "Lançamento criado" |
+| 8 | Sistema | — | Fecha modal; lançamento aparece no topo da lista |
+
+**FA-1:** Usuário cancela o modal → nada é persistido
+
+**FE-1:** Erro de validação → campos destacados em vermelho com mensagem específica
+
+---
+
+### UC-002: Importar Impostos via Portal Único
+
+| Passo | Ator | Ação | Sistema |
+|:---|:---|:---|:---|
+| 1 | Usuário | Clica "Importar" → "Portal Único" | Abre modal de importação |
+| 2 | Usuário | Informa número da DUIMP | — |
+| 3 | Usuário | Clica "Buscar" | Conecta Portal Único → retorna impostos |
+| 4 | Sistema | — | Exibe preview: II, IPI, PIS, COFINS, ICMS, AFRMM com valores |
+| 5 | Usuário | Confirma seleção | Sistema cria N lançamentos (um por imposto) |
+| 6 | Sistema | — | Toast "X lançamentos importados" |
+| 7 | Sistema | — | KPIs atualizados |
+
+**FE-1:** DUIMP não encontrada → "DUIMP não localizada no Portal Único. Verifique o número ou use importação via XML."
+
+**FE-2:** Portal Único indisponível → "Portal Único temporariamente indisponível. Tente via XML."
+
+---
+
+### UC-003: Gerar Rateio
+
+| Passo | Ator | Ação | Sistema |
+|:---|:---|:---|:---|
+| 1 | Usuário | Acessa aba Rateio | Lista arquivos já gerados |
+| 2 | Usuário | Clica "Gerar Novo" | Loading + "Gerando..." |
+| 3 | Sistema | — | Busca lançamentos + itens do processo |
+| 4 | Sistema | — | Aplica rateioEngine (método CIF por padrão) |
+| 5 | Sistema | — | Gera Excel no formato custos_processo |
+| 6 | Sistema | — | Salva no storage; registra em FinanceiroRateio |
+| 7 | Sistema | — | Arquivo aparece na lista; toast "Rateio gerado" |
+| 8 | Usuário | Clica no arquivo | Download do Excel |
+
+**FE-1:** Processo sem itens → "O processo não possui itens para ratear. Verifique a DUIMP vinculada."
+
+---
+
+## Critérios de Aceite (Gherkin)
+
+### CA-001: Criar lançamento manual com sucesso
+
+```gherkin
+Dado que o usuário está na aba Movimentação do processo "DATI-2875/25"
+  E o usuário tem permissão "financeiro:write"
+Quando clica em "+ Novo"
+  E seleciona a categoria "3 - Frete Internacional"
+  E seleciona moeda "USD"
+  E informa taxa "5.6923000"
+  E informa valor "100"
+  E seleciona fornecedor "SCHENKER DO BRASIL"
+  E clica em "Salvar"
+Então o lançamento é criado com valor_brl = 569.23
+  E aparece na lista com status "Pendente"
+  E o KPI "Pendente" aumenta em R$ 569,23
+  E o toast "Lançamento criado com sucesso" é exibido
+```
+
+### CA-002: Validação de campos obrigatórios
+
+```gherkin
+Dado que o modal "Novo Lançamento" está aberto
+Quando o usuário clica em "Salvar" sem preencher a categoria
+Então o campo "Descrição" é destacado em vermelho
+  E exibe a mensagem "Selecione uma categoria"
+  E o formulário NÃO é enviado
+```
+
+### CA-003: Cálculo automático do Valor R$
+
+```gherkin
+Dado que o modal "Novo Lançamento" está aberto
+Quando o usuário informa moeda "EUR", taxa "6.1864", valor "3929"
+Então o campo "Valor R$" exibe automaticamente "R$ 24.306,37"
+  E a conversão é feita em tempo real sem precisar salvar
+```
+
+### CA-004: Importação Portal Único — sucesso
+
+```gherkin
+Dado que o modal "Importar via Portal Único" está aberto
+Quando o usuário informa a DUIMP "2515896315"
+  E clica em "Buscar"
+Então o sistema exibe preview com os impostos: II, IPI, PIS, COFINS, ICMS
+  E cada imposto mostra: descrição, moeda, taxa, valor, valor BRL
+  E o usuário pode desmarcar itens individualmente
+Quando confirma a importação
+Então os lançamentos selecionados são criados
+  E todos têm canal_entrada = "PORTAL_UNICO"
+  E o ICMS tem a flag "icms_origem_portal = true" quando disponível
+```
+
+### CA-005: Tenant isolation — lançamentos
+
+```gherkin
+Dado que existem lançamentos do tenant "Empresa A" e do tenant "Empresa B"
+Quando o usuário do tenant "Empresa A" acessa a Movimentação
+Então apenas lançamentos do tenant "Empresa A" são exibidos
+  E nenhum dado do tenant "Empresa B" é acessível via API
+  E a query sempre inclui filtro WHERE tenant_id = 'empresa_a'
+```
+
+### CA-006: Saldo calculado corretamente
+
+```gherkin
+Dado que o processo tem lançamentos totalizando R$ 50.000,00
+  E tem numerário principal de R$ 15.492,24
+Quando o usuário visualiza os KPIs da Movimentação
+Então o card "Saldo" exibe "R$ -34.507,76"
+  E o valor é exibido em vermelho (saldo negativo)
+```
+
+### CA-007: Exportação sem impostos federais
+
+```gherkin
+Dado que o processo é do tipo "EXPORTACAO"
+Quando o usuário abre o modal "Novo Lançamento"
+Então a lista de categorias NÃO inclui: "Imposto de Importação", "IPI", "PIS", "COFINS", "ICMS", "AFRMM"
+  E a opção "Importar via Portal Único" NÃO está disponível
+  E apenas categorias com tipo_operacao = EXPORTACAO ou NULL são exibidas
+```
+
+### CA-008: Geração do rateio Excel
+
+```gherkin
+Dado que o processo tem 3 itens importados e 5 lançamentos financeiros
+Quando o usuário clica "Gerar Novo" na aba Rateio
+Então o sistema gera um arquivo .xlsx
+  E o arquivo tem o mesmo formato da planilha custos_processo
+  E inclui: cabeçalho do processo, tabela de itens, colunas de impostos e despesas rateadas
+  E o arquivo fica disponível para download com data/hora de geração
+```
+
+### CA-009: Numerário principal único
+
+```gherkin
+Dado que o processo já tem um "Numerário Principal"
+Quando o usuário tenta criar outro "Numerário Principal"
+Então o sistema exibe erro "Este processo já possui um Numerário Principal"
+  E sugere criar um "Numerário Complementar"
+```
+
+### CA-010: Performance — listagem
+
+```gherkin
+Dado que o processo tem 200 lançamentos
+Quando o usuário acessa a aba Movimentação
+Então a lista carrega em menos de 200ms
+  E a paginação é server-side
+  E os KPIs são calculados no servidor, não no cliente
+```
+
+---
+
+## Backlog Priorizado (MVP)
+
+| # | Story | RICE | Complexidade | Depende de |
+|:---|:---|:---|:---|:---|
+| 1 | Scaffold do produto (setup, health, middleware, config) | — | M | — |
+| 2 | Fragment.prisma + migration | — | M | #1 |
+| 3 | CRUD de categorias (Config) | Alto | P | #2 |
+| 4 | CRUD de condições de pagamento (Config) | Alto | P | #2 |
+| 5 | Criar lançamento manual (RF-001, RF-002) | Alto | M | #3, #4 |
+| 6 | Listagem de lançamentos + KPIs (RF-001) | Alto | M | #5 |
+| 7 | Editar e excluir lançamento (RF-003, RF-004) | Alto | P | #5 |
+| 8 | Importar via XML DUIMP (RF-005) | Alto | G | #5 |
+| 9 | Importar via Portal Único (RF-006) | Alto | M | #5 |
+| 10 | Criar/listar Numerário (RF-020 a RF-024) | Alto | M | #2 |
+| 11 | Gerar planilha de Rateio (RF-030 a RF-033) | Alto | G | #5 |
+| 12 | Importar via Smart Read (RF-007) | Médio | G | #5 |
+| 13 | Importar via Planilha (RF-008) | Médio | M | #5 |
+| 14 | Histórico de alterações (RF-012) | Alto | P | #5 |
+| 15 | Filtros e exportação Excel (RF-013, RF-014) | Médio | P | #6 |
+| 16 | Suporte tipo_operacao EXPORTACAO (RF-040–042) | Alto | P | #3 |
+
+**Stories independentes que podem começar em paralelo:** #1, #3
+
+**Caminho crítico:** #1 → #2 → #5 → #6 → #8, #9, #10, #11
+
+---
+
+## Catálogo de Categorias Padrão
+
+O seed deve criar as seguintes categorias padrão para toda nova empresa.
+Fonte: planilha oficial de taxas e custos fornecida pelo dono do produto (2026-03-31).
+
+> **Nota para o dev:** O catálogo é customizável por tenant. O seed cria os itens abaixo como ponto de partida. Cada empresa pode adicionar, editar e desativar categorias pelo painel de Config.
+
+### Grupo 1 — Impostos Federais (apenas IMPORTACAO)
+
+| Código | Nome | Grupo | Notas |
+|:---|:---|:---|:---|
+| 001 | Imposto: I.I - Imposto de Importação | IMPOSTOS_FEDERAIS | Importado da DUIMP |
+| 002 | Imposto: IPI | IMPOSTOS_FEDERAIS | Importado da DUIMP |
+| 003 | Imposto: PIS | IMPOSTOS_FEDERAIS | Importado da DUIMP |
+| 004 | Imposto: COFINS | IMPOSTOS_FEDERAIS | Importado da DUIMP |
+| 005 | Imposto: ICMS | IMPOSTOS_FEDERAIS | Importado da DUIMP (estados integrados) |
+| 006 | Apuração de IPI | IMPOSTOS_FEDERAIS | Lançamento contábil de apuração |
+| 007 | Apuração de PIS | IMPOSTOS_FEDERAIS | Lançamento contábil de apuração |
+| 008 | Apuracao de Cofins | IMPOSTOS_FEDERAIS | Lançamento contábil de apuração |
+| 009 | Apuração de ICMS | IMPOSTOS_FEDERAIS | Lançamento contábil de apuração |
+| 010 | Marinha Mercante (AFRMM) | IMPOSTOS_FEDERAIS | 25% sobre frete marítimo em BRL |
+| 011 | Taxa Siscomex | IMPOSTOS_FEDERAIS | Valor fixo por DI + por adição |
+
+### Grupo 2 — Custos Operacionais (ambas as operações, salvo indicado)
+
+#### Custos de Valor Aduaneiro
+
+| Código | Nome | Notas |
+|:---|:---|:---|
+| 100 | Ad valorem | Tarifa percentual sobre valor da mercadoria |
+| 101 | Ad valorem - Transporte rodoviário | Ad valorem específico para modal rodoviário |
+| 102 | Ad valorem - DTA | Ad valorem na Declaração de Trânsito Aduaneiro |
+
+#### Armazenagem
+
+| Código | Nome | Fornecedor Típico |
+|:---|:---|:---|
+| 200 | Armazenagem | Armazem / Armazem alfandegado |
+| 201 | Armazenagem na zona primária | Armazem alfandegado (porto/aeroporto) |
+| 202 | Armazenagem na zona secundária | Armazem (EADI, CLIA) |
+| 203 | Armazenagem - DTA | Armazem (durante trânsito aduaneiro) |
+| 204 | Armazenagem Infraero | Cia aérea / Infraero |
+
+#### Frete e Transporte
+
+| Código | Nome | Modal |
+|:---|:---|:---|
+| 300 | Frete Internacional | Agente de carga / Armador / Cia aérea |
+| 301 | Frete Rodoviário | Transportadora rodoviária |
+| 302 | Frete Aéreo Interno | Cia aérea |
+| 303 | BAF (Bunker Adjustment Factor) | Armador — sobretaxa de combustível marítimo |
+| 304 | Bunker | Armador — combustível |
+
+#### Taxas Portuárias e Aeroportuárias
+
+| Código | Nome | Notas |
+|:---|:---|:---|
+| 400 | THC (Terminal Handling Charge) | Taxa de movimentação no terminal |
+| 401 | Liberação de HAWB / HBL | Agente de carga |
+| 402 | Desconsolidação | Terminal / Agente de carga |
+| 403 | Collect Fee | Armador |
+| 404 | Gate-in / Gate-out | Terminal |
+
+#### Container
+
+| Código | Nome |
+|:---|:---|
+| 500 | Carregamento de container |
+| 501 | Carregamento de container cheio |
+| 502 | Carregamento de container vazio |
+| 503 | Fumigação de container |
+| 504 | Conserto de container |
+| 505 | Lavagem de container |
+| 506 | Levante container |
+| 507 | Devolução de container no porto |
+| 508 | Lacre |
+| 509 | Chapas |
+| 510 | Material para carregamento de container |
+| 511 | Material para descarregamento de container |
+| 512 | Empilhadeira |
+
+#### Serviços e Taxas Diversas
+
+| Código | Nome |
+|:---|:---|
+| 600 | Taxa Administrativa |
+| 601 | Despacho Aduaneiro |
+| 602 | Pesagem |
+| 603 | Capatazia |
+| 604 | Auditoria |
+| 605 | Seguro Internacional |
+| 606 | Atestado |
+| 607 | Atestado Fiesc |
+| 608 | Atestado Fiesc - Imobilizado |
+| 609 | Certificado |
+| 610 | Certificado de origem |
+
+#### Câmbio
+
+| Código | Nome | Notas |
+|:---|:---|:---|
+| 700 | Câmbio | Operação de câmbio (compra de moeda) |
+| 701 | Parcela do câmbio | Pagamento parcelado de câmbio |
+| 702 | Taxas do CE (Collect) | Taxas cobradas no CE |
+
+#### Exportação (apenas EXPORTACAO)
+
+| Código | Nome |
+|:---|:---|
+| 800 | Frete de Exportação |
+| 801 | Seguro de Exportação |
+| 802 | Despesa Bancária (Exportação) |
+
+---
+
+## Tipos de Documento (campo adicional por lançamento)
+
+Revelado pela planilha de taxas — cada lançamento pode ter um **tipo de documento** associado:
+
+| Valor | Descrição |
+|:---|:---|
+| `BOLETO` | Boleto bancário |
+| `NOTA_FISCAL` | Nota fiscal do fornecedor |
+| `DEMONSTRATIVO` | Demonstrativo de custos |
+| `FATURA` | Fatura do fornecedor (invoice) |
+| `FATURAMENTO` | Documento de faturamento |
+| `OUTRO` | Outro tipo de documento |
+
+> **Impacto no modelo:** Campo `tipo_documento` + `numero_documento` adicionados ao `FinanceiroLancamento` — ver ARQUITETURA.md.
+
+> **Impacto no Modal Novo Lançamento:** Adicionar campos "Tipo de Documento" (`CaixaSelectGlobal`) e "Número do Documento" (`InputTexto`) abaixo das datas.
+
+---
+
+## Tipos de Fornecedor (enum oficial)
+
+Lista oficial da planilha — expandida do que estava nas imagens de referência:
+
+| Valor | Exibição |
+|:---|:---|
+| `AGENTE_DE_CARGA` | Agente de carga |
+| `ARMADOR` | Armador |
+| `CIA_AEREA` | Cia aérea |
+| `ARMAZEM_ALFANDEGADO` | Armazem alfandegado |
+| `ARMAZEM` | Armazem |
+| `TRANSPORTADORA_RODOVIARIA` | Transportadora rodoviária |
+| `SEGURADORA` | Seguradora |
+| `CORRETORA_DE_CAMBIO` | Corretora de cambio |
+| `EXPORTADOR` | Exportador |
+| `FABRICANTE` | Fabricante |
+| `TRADING` | Trading |
+| `DESPACHANTE` | Despachante aduaneiro |
+| `RECEITA_FEDERAL` | Receita Federal (impostos) |
+| `OUTRO` | Outro |
+
+> O campo `tipo_fornecedor` no `FinanceiroLancamento` usa este enum. No modal, o select de fornecedor exibe o tipo entre parênteses: "SCHENKER DO BRASIL (Agente de carga)".
+
+---
+
+## Contatos e Suporte
+
+| Assunto | Quem Procurar |
+|:---|:---|
+| Regras de negócio e legislação | SME do Dream Team |
+| Integração Portal Único / XML DUIMP | Tech Lead + NF Importação |
+| Rateio Engine | NF Importação (reutilização) |
+| Design e UX | Designer do Dream Team |
+| Critérios de aceite | Business Analyst |
+| Escopo e prioridade | PM |
+
+---
+
+## Checklist Final — Handoff Completo
+
+### Documentos
+- [x] PRD (v1.0) — 13 seções preenchidas, sem TBDs
+- [x] Arquitetura técnica definida
+- [x] Regras de negócio operacionalizadas (10 RNs)
+- [x] Casos de uso com fluxos completos (UC-001 a UC-003)
+- [x] Critérios de aceite em Gherkin (CA-001 a CA-010)
+
+### Design
+- [x] Mapa de telas completo (5 telas + 5 modais)
+- [x] Especificação de layout por tela
+- [x] Componentes do nucleo-global identificados
+- [x] Todos os estados documentados (empty, loading, error, filled)
+- [x] Responsividade definida
+
+### Técnico
+- [x] Fragment.prisma com 6 modelos completos
+- [x] Todos os endpoints definidos
+- [x] PRODUCT_CONFIG definido (porta 8029/5184)
+- [x] Mapa de reutilização vs criação do zero
+- [x] Checklist de segurança
+- [x] Estimativa: 6-8 semanas
+
+### Gestão
+- [x] Backlog priorizado com dependências
+- [x] Caminho crítico identificado
+- [x] Fases definidas (MVP → 2 → 3)
+- [x] Riscos documentados com mitigação
+- [x] Decisões registradas (D-001 a D-006)
+
+### Aprovações
+- [x] Checkpoint 1 — Problema validado (briefing dono do produto)
+- [x] Checkpoint 2 — Solução viável (referência DATI + planilha)
+- [x] Checkpoint 3 — Handoff aprovado
+
+---
+
+## Origem dos Dados do Catálogo
+
+O catálogo de categorias, tipos de documento e tipos de fornecedor foram extraídos da **planilha oficial de taxas e custos** fornecida pelo dono do produto em 2026-03-31. Esta é a fonte de verdade para o seed inicial do banco de dados.
+
+--- documentos-tecnicos/produtos-gravity/financeiro-comex/PRD.md ---
+# PRD — Financeiro Comex (v1.0 — Final)
+
+## Metadados
+
+| Campo | Valor |
+|:---|:---|
+| **Produto** | Financeiro Comex |
+| **PM** | Dream Team de Produtos |
+| **Data** | 2026-03-31 |
+| **Versão** | 1.0 |
+| **Status** | ✅ Aprovado para handoff |
+| **Checkpoint 1** | ✅ 2026-03-31 — Problema validado (briefing direto do dono) |
+| **Checkpoint 2** | ✅ 2026-03-31 — Solução especificada com referência DATI |
+| **Checkpoint 3** | ✅ 2026-03-31 — Handoff completo |
+
+---
+
+## 1. Resumo Executivo
+
+O **Financeiro Comex** é o módulo de gestão e automação de custos de processos de importação e exportação. Ele consolida todos os lançamentos financeiros de um processo (impostos federais, taxas operacionais, câmbio), oferece múltiplas formas de entrada (manual, planilha, XML, Smart Read, Portal Único, email) e produz como saída a planilha de rateio por produto e o espelho de custos para a NF de entrada.
+
+O produto pode ser adquirido de forma isolada ou em conjunto com os demais produtos do ecossistema Gravity (Processo, NF Importação, LPCO, Numerário Comex). Sua métrica principal de sucesso é a **redução do tempo de fechamento financeiro de um processo de importação de X horas para Y minutos**.
+
+---
+
+## 2. Contexto e Motivação
+
+### Por que agora?
+
+- Todo sistema de gestão de comex tem um módulo financeiro, mas a maioria é rígida, não multi-moeda, não integra com Portal Único e exige entrada manual extensiva
+- O Gravity já tem Processo, NF Importação e LPCO — o Financeiro é o elo que conecta todos e fecha o ciclo financeiro do processo
+- A planilha de rateio é gerada manualmente em Excel por quase 100% das empresas de comex — o produto automatiza exatamente isso
+- O ICMS está disponível no Portal Único desde NT RFB 001/2023 para estados integrados, eliminando a necessidade de cálculo manual para a maioria dos processos
+
+### Posicionamento
+
+| Gravity Financeiro Comex | vs. Concorrentes |
+|:---|:---|
+| Multi-moeda nativo com taxa por lançamento | Maioria converte tudo para BRL imediatamente |
+| Import direto do Portal Único (DUIMP) | Maioria exige digitação manual dos impostos |
+| Smart Read de NFs de fornecedores | Inexistente em produtos especializados de comex |
+| Rateio por 9 métodos + exportação Excel | Rateio fixo por valor CIF apenas |
+| Integrado com NF Importação (espelho) | Sistemas separados sem integração |
+
+### Nota sobre mercado
+
+Praticamente toda empresa com ERP (SAP, TOTVS, Senior) já tem um módulo financeiro. Por isso, o Financeiro Comex fará mais sentido para empresas que:
+(a) não têm ERP
+(b) têm ERP mas precisam de visão específica de custos comex antes de integrar ao ERP
+(c) usam o ecossistema Gravity completo e querem o rateio automático
+
+---
+
+## 3. Público-Alvo
+
+### Persona Primária: Analista de Importação / Despachante
+
+| Campo | Descrição |
+|:---|:---|
+| **Cargo** | Analista de Importação, Assistente de Comex, Despachante |
+| **Empresa** | Importadora de médio porte ou despachante aduaneiro |
+| **Dor principal** | Passa horas montando a planilha de rateio manualmente após cada processo |
+| **Dor secundária** | Perde tempo digitando impostos que já estão no SISCOMEX |
+| **JTBD** | "Quando um processo chega ao canal verde, quero ter todos os custos consolidados e ratear em minutos, para fechar a NF hoje" |
+
+**Citações (simuladas com base em entrevistas de mercado):**
+- *"O maior trabalho é depois que a mercadoria chegou — tenho que juntar todas as notas dos fornecedores e montar o rateio"*
+- *"Fico abrindo o SISCOMEX, copiando os impostos da DUIMP para a planilha, é trabalho repetitivo"*
+- *"Quando chega auditoria, não consigo mostrar o histórico de um processo facilmente"*
+
+### Persona Secundária: Controller / Gerente Financeiro
+
+| Campo | Descrição |
+|:---|:---|
+| **Cargo** | Controller, Gerente Financeiro, CFO de empresa importadora |
+| **Dor principal** | Visibilidade dos custos de importação em aberto (multi-processo, multi-moeda) |
+| **JTBD** | "Quando entro pela manhã, quero ver o total de obrigações financeiras abertas em cada moeda" |
+
+---
+
+## 4. Regras de Negócio
+
+### RN-001: Dois Grupos de Custos (Importação)
+
+**Grupo 1 — Impostos Federais (DUIMP)**
+Impostos calculados e registrados na DUIMP/DI. Podem ser importados via XML, TXT, Smart Read ou Portal Único.
+
+| Tributo | Base Legal | Incidência | Armadilha |
+|:---|:---|:---|:---|
+| II (Imposto de Importação) | Decreto-Lei 37/1966 | Valor aduaneiro (CIF) | Alíquota varia por NCM; Ex-tarifário pode reduzir |
+| IPI | Decreto 7.212/2010 | CIF + II | Incide "por fora" sobre base que já inclui II |
+| PIS-Importação | Lei 10.865/2004 | CIF "por dentro" | Alíquota diferente do PIS interno (2,1%) |
+| COFINS-Importação | Lei 10.865/2004 | CIF "por dentro" | Alíquota diferente do COFINS interno (9,65%) |
+| ICMS | LC 87/1996 + estadual | CIF + II + IPI + PIS + COFINS "por dentro" | Alíquota varia por estado; Reforma Tributária em andamento |
+| AFRMM | Lei 10.893/2004 | Frete internacional (marítimo) | Só aplica a marítimo; 25% sobre frete em BRL |
+| Taxa Siscomex | IN RFB 680/2006 | Por DI + por adição | Valor fixo; pode ser incluída como lançamento |
+
+**Grupo 2 — Taxas e Custos Operacionais**
+Lançados manualmente ou importados via fatura de fornecedor. Exemplos do catálogo:
+
+| Código | Descrição | Fornecedor Típico |
+|:---|:---|:---|
+| 3 | Frete Internacional | Agente de Carga |
+| 4 | Liberação de HAWB/HBL | Agente de Carga |
+| 5 | Desconsolidação | Terminal |
+| 6 | Collect Fee | Armador |
+| 7 | THC (Terminal Handling Charge) | Terminal |
+| 8 | Marinha Mercante (AFRMM) | Receita Federal |
+| 9 | Taxa Administrativa | Despachante |
+| 70 | Frete Rodoviário | Transportadora |
+| 74 | Câmbio | Banco/Corretora |
+| 120 | Taxas do CE (Collect) | Agente de Carga |
+
+### RN-002: ICMS no Portal Único
+
+Conforme NT RFB 001/2023 e integrações estaduais progressivas, o Portal Único disponibiliza dados de ICMS para estados que assinaram o protocolo de integração. O sistema deve:
+- Importar ICMS do Portal Único quando disponível
+- Indicar visualmente se o ICMS foi importado automaticamente ou inserido manualmente
+- Permitir override manual em todos os casos (estados não integrados)
+- **Frequência de mudança:** Alta — monitorar adesão de novos estados
+
+### RN-003: Exportação — Sem Impostos de Importação
+
+Para processos de exportação:
+- **Não existe** II, IPI, PIS-Importação, COFINS-Importação, ICMS na saída (imunidade constitucional CF Art. 155, §2, X)
+- Apenas Grupo 2 (custos operacionais): frete, seguro, armazenagem, taxas portuárias
+- A estrutura de movimentação é idêntica, apenas o catálogo de categorias é diferente
+
+### RN-004: Multi-Moeda por Lançamento
+
+Cada lançamento tem:
+- **Moeda** (BRL, USD, EUR, CHF, GBP, CNY, etc.)
+- **Taxa** (câmbio na data do fato gerador — PTAX BACEN para efeitos fiscais)
+- **Valor** (na moeda original)
+- **Valor R$** = Valor × Taxa (calculado automaticamente)
+
+O câmbio para impostos federais usa a PTAX da data de registro da DI/DUIMP.
+O câmbio para custos operacionais usa a taxa informada na fatura do fornecedor.
+
+### RN-005: Flags de Classificação por Lançamento
+
+Cada lançamento pode ter 3 classificações independentes:
+
+| Flag | Significado | Impacto |
+|:---|:---|:---|
+| **Despesa Aduaneira** | Custo compõe o valor aduaneiro da mercadoria | Entra no cálculo base de impostos (II, IPI, ICMS) |
+| **Despesa NF** | Custo entra na NF de entrada | Aparece na seção de despesas da NF de entrada |
+| **Apresentar no Espelho de NF** | Exibir no espelho da NF Importação | Aparece na impressão/exportação do espelho da NF |
+
+### RN-006: Condição de Pagamento
+
+Cada lançamento tem uma condição de pagamento que determina:
+- **Antecipado**: pago antes do embarque
+- **À Vista**: pago na entrega / desembaraço
+- **A Prazo**: pago após X dias (ex: "60 dias data embarque")
+- Condições customizadas são cadastradas pelo tenant
+
+### RN-007: Status de Pagamento
+
+| Status | Quando | Efeito no KPI |
+|:---|:---|:---|
+| **Pendente** | Lançado mas não pago | Entra em "Pendente" |
+| **Agendado** | Data de vencimento futura definida | Entra em "Agendados" |
+| **Pago** | Confirmado como pago | Entra em "Pagos" |
+
+### RN-008: Numerário
+
+Numerário é o adiantamento em dinheiro enviado ao despachante aduaneiro para pagar tributos na alfândega.
+
+- **Numerário Principal**: adiantamento inicial (obrigatório)
+- **Numerário Complementar**: adiantamento adicional (opcional, múltiplos permitidos)
+- Cada numerário tem documento PDF anexo com a prestação de contas
+- O total do numerário é exibido na aba Numerário e no KPI "Adiantado" da Movimentação
+
+### RN-009: Rateio
+
+O rateio distribui os custos entre os itens importados para cálculo do custo unitário de cada SKU.
+- Reutiliza exatamente o mesmo engine da NF Importação (9 métodos)
+- Geração do Excel segue o mesmo layout da planilha `custos_processo`
+- O rateio contempla: impostos, frete, seguro, armazenagem e demais despesas
+
+### RN-010: Tipos de Documento por Lançamento
+
+Cada lançamento pode ter um **tipo de documento** que identifica a natureza do comprovante:
+- **Boleto** — pagamento via boleto bancário
+- **Nota Fiscal** — NF do fornecedor
+- **Demonstrativo** — demonstrativo de custos do despachante/agente
+- **Fatura** — invoice do fornecedor estrangeiro ou nacional
+- **Faturamento** — documento de faturamento de serviço
+
+Este campo, junto com o número do documento, permite rastreabilidade contábil completa. É opcional — lançamentos de impostos importados da DUIMP podem não ter documento separado.
+
+### RN-011: Tipos de Fornecedor
+
+O sistema suporta 13 tipos de fornecedor que determinam o contexto do lançamento:
+Agente de carga, Armador, Cia aérea, Armazem alfandegado, Armazem, Transportadora rodoviária, Seguradora, Corretora de cambio, Exportador, Fabricante, Trading, Despachante, Receita Federal.
+
+O select de fornecedor exibe o tipo entre parênteses para facilitar identificação visual: **"SCHENKER DO BRASIL (Agente de carga)"**.
+
+### RN-012: Saldo do Processo
+
+```
+Saldo = Total de Custos Lançados - Total de Adiantamentos (Numerário)
+```
+Saldo negativo = empresa ainda deve ao despachante/fornecedores.
+Saldo positivo = empresa tem crédito (raro, indica numerário excedente).
+
+---
+
+## 5. Requisitos Funcionais
+
+### 5.1. MVP (Fase 1) — Módulo Movimentação
+
+| ID | Requisito | Prioridade | Complexidade |
+|:---|:---|:---|:---|
+| RF-001 | Listar lançamentos de um processo com KPIs (Saldo, Adiantado, Pagos, Agendados, Pendente) | Must-have | M |
+| RF-002 | Criar lançamento manual com todos os campos (Descrição, Moeda, Taxa, Valor, Fornecedor, Condição Pgt., Datas, Flags) | Must-have | M |
+| RF-003 | Editar lançamento existente | Must-have | P |
+| RF-004 | Excluir lançamento | Must-have | P |
+| RF-005 | Importar impostos via XML da DUIMP (Grupo 1) | Must-have | G |
+| RF-006 | Importar impostos via Portal Único (DUIMP number) — reuso da integração NF Importação | Must-have | M |
+| RF-007 | Importar custos via Smart Read (OCR de fatura de fornecedor) | Should-have | G |
+| RF-008 | Importar custos via planilha Excel (upload de template pré-definido) | Should-have | M |
+| RF-009 | Catálogo de categorias de despesa (customizável por tenant) | Must-have | M |
+| RF-010 | Catálogo de condições de pagamento (customizável por tenant) | Must-have | P |
+| RF-011 | Badges "Total aberto hoje" por moeda no header | Must-have | P |
+| RF-012 | Histórico de alterações com diff de cada mudança | Must-have | P |
+| RF-013 | Filtro por período, status, moeda, fornecedor | Should-have | P |
+| RF-014 | Exportar lançamentos para Excel | Should-have | P |
+
+### 5.2. MVP (Fase 1) — Módulo Numerário
+
+| ID | Requisito | Prioridade | Complexidade |
+|:---|:---|:---|:---|
+| RF-020 | Criar Numerário Principal com valor e data | Must-have | P |
+| RF-021 | Criar Numerário Complementar (N adicionais por processo) | Must-have | P |
+| RF-022 | Anexar documento PDF ao numerário (prestação de contas do despachante) | Must-have | P |
+| RF-023 | Listar despesas dentro do numerário com total | Must-have | P |
+| RF-024 | Total consolidado de numerário (soma Principal + Complementares) | Must-have | P |
+
+### 5.3. MVP (Fase 1) — Módulo Rateio
+
+| ID | Requisito | Prioridade | Complexidade |
+|:---|:---|:---|:---|
+| RF-030 | Gerar planilha de rateio Excel (mesma estrutura do custos_processo) | Must-have | G |
+| RF-031 | Usar os 9 métodos de rateio do NF Importação (reuso direto) | Must-have | M |
+| RF-032 | Exibir histórico de rateios gerados com data | Must-have | P |
+| RF-033 | "Gerar Novo" regenera o rateio com os dados atuais | Must-have | P |
+
+### 5.4. MVP (Fase 1) — Exportação
+
+| ID | Requisito | Prioridade | Complexidade |
+|:---|:---|:---|:---|
+| RF-040 | Suporte a tipo_operacao = IMPORTACAO ou EXPORTACAO | Must-have | P |
+| RF-041 | Para EXPORTACAO: catálogo filtrado (sem categorias de impostos federais) | Must-have | P |
+| RF-042 | Para EXPORTACAO: não calcular/importar impostos do Grupo 1 | Must-have | P |
+
+### 5.5. Fase 2 — Automação e Integração
+
+| ID | Requisito | Prioridade |
+|:---|:---|:---|
+| RF-050 | Receber e processar faturas via email (integração com serviço Email do Gravity) | Should-have |
+| RF-051 | Dashboard consolidado multi-processo (visão de todos os processos abertos) | Should-have |
+| RF-052 | Alertas de vencimento (X dias antes do prazo) via notificação | Should-have |
+| RF-053 | Integração com produto NF Importação (espelho automático de custos) | Should-have |
+| RF-054 | Exportação para ERP (TOTVS, SAP, Senior) via Conector ERP | Nice-to-have |
+
+### 5.6. Fase 3 — Numerário como Produto Isolado
+
+O módulo Numerário será separado em produto independente chamado **Numerário Comex** após a estabilização do MVP. A arquitetura deve ser projetada para facilitar esta separação (módulo independente com suas próprias rotas e models).
+
+---
+
+## 6. Requisitos Não-Funcionais
+
+| ID | Requisito | Critério |
+|:---|:---|:---|
+| RNF-001 | Performance | Listagem de lançamentos < 200ms para até 500 lançamentos |
+| RNF-002 | Multi-moeda | Suporte a BRL, USD, EUR, GBP, CHF, CNY, ARS, UYU mínimo |
+| RNF-003 | Precisão decimal | Valores monetários com 4 casas decimais em storage, 2 na exibição |
+| RNF-004 | Tenant isolation | Zero vazamento de dados entre tenants |
+| RNF-005 | Acessibilidade | WCAG 2.1 AA |
+| RNF-006 | Responsividade | Desktop, tablet (768px+) |
+
+---
+
+## 7. Fluxos de Usuário
+
+### Fluxo 1 — Lançamento Manual de Custo Operacional
+
+```
+Processo aberto → Financeiro → Movimentação → "+ Novo"
+  → Modal "Novo Lançamento"
+    → Selecionar Descrição (catálogo)
+    → Selecionar Moeda + informar Taxa + Valor
+    → Selecionar Fornecedor
+    → Informar Condição de Pagamento + Datas
+    → Marcar Flags (Despesa Aduaneira, Despesa NF, Espelho NF)
+    → Salvar
+  → Lançamento aparece na lista
+  → KPIs atualizados
+```
+
+### Fluxo 2 — Importação de Impostos via Portal Único
+
+```
+Financeiro → Movimentação → "Importar" → "Portal Único"
+  → Informar número da DUIMP
+  → Sistema busca impostos (II, IPI, PIS, COFINS, ICMS, AFRMM)
+  → Preview dos lançamentos a serem criados
+  → Confirmar → Lançamentos criados automaticamente
+  → KPIs atualizados
+```
+
+### Fluxo 3 — Importação via XML DUIMP
+
+```
+Financeiro → Movimentação → "Importar" → "XML"
+  → Upload do arquivo .xml
+  → Parse dos campos de impostos
+  → Preview com validação
+  → Confirmar → Lançamentos criados
+```
+
+### Fluxo 4 — Rateio
+
+```
+Financeiro → Rateio → "Gerar Novo"
+  → Sistema calcula rateio com todos os lançamentos marcados
+  → Gera Excel (formato custos_processo)
+  → Arquivo disponível para download na lista
+```
+
+### Fluxo 5 — Numerário
+
+```
+Financeiro → Numerário → Ver Numerário Principal
+  → "+ Numerário Complementar"
+    → Informar descrição + lista de despesas
+    → Salvar
+  → Total atualizado
+  → Clicar no numerário → Upload de PDF de prestação de contas
+```
+
+---
+
+## 8. Wireframes e Telas
+
+Ver seção completa no documento HANDOFF.md — telas especificadas com base nas imagens de referência (DATI).
+
+### Mapa de Telas
+
+```
+Financeiro (produto)
+  ├── Tela 1: Movimentação (lista principal)
+  │     ├── Modal 1A: Novo Lançamento
+  │     ├── Modal 1B: Editar Lançamento
+  │     ├── Modal 1C: Importar (sub-opções: XML, Portal Único, Smart Read, Planilha)
+  │     └── Modal 1D: Histórico de Alterações
+  ├── Tela 2: Numerário
+  │     ├── Modal 2A: Inserir Numerário (Complementar)
+  │     └── Modal 2B: Exibir Anexo (PDF viewer)
+  ├── Tela 3: Rateio
+  │     └── (lista de arquivos gerados + botão Gerar Novo)
+  └── Config
+        ├── Tela 4: Catálogo de Categorias
+        └── Tela 5: Condições de Pagamento
+```
+
+---
+
+## 9. Integrações com Ecossistema Gravity
+
+| Integração | Tipo | Descrição |
+|:---|:---|:---|
+| **Processo** | S2S | Financeiro é vinculado a um processo_id; recebe tipo_operacao, itens, declaração |
+| **NF Importação** | S2S | Fornece lista de custos marcados como "Despesa NF" para o espelho |
+| **Portal Único** | Reuso | Reusa a integração já implementada no NF Importação (portalUnico) |
+| **Rateio Engine** | Reuso direto | Reusa exatamente o `rateioAlgorithms.ts` do NF Importação |
+| **Smart Read** | Reuso | Reusa o serviço de Smart Read para OCR de faturas |
+| **Email** | Tenant service | Recebe faturas de fornecedores por email (Fase 2) |
+| **Notificações** | Tenant service | Alerta de vencimentos (Fase 2) |
+| **Histórico** | Tenant service | Audit trail imutável de cada lançamento |
+| **Dashboard** | Tenant service | KPIs de custos por processo no painel consolidado |
+| **Conector ERP** | Tenant service | Exportação para ERP (Fase 3) |
+
+---
+
+## 10. Métricas de Sucesso
+
+| KPI | Meta | Como Medir |
+|:---|:---|:---|
+| Tempo de fechamento financeiro de processo | < 15 min (vs. 2-4h manual) | Tracking de tempo entre abertura e geração do rateio |
+| Taxa de importação automática vs manual | > 60% dos impostos importados via Portal Único/XML | Eventos: canal_entrada |
+| Adoção do rateio automático | > 80% dos processos geram rateio pelo Gravity | Evento: rateio_gerado |
+| Erros de digitação (lançamentos editados após criação) | < 10% dos lançamentos | Eventos: lancamento_editado / lancamento_criado |
+
+---
+
+## 11. Cronograma e Fases
+
+| Fase | Escopo | Estimativa | Dependência |
+|:---|:---|:---|:---|
+| **MVP** | Movimentação + Numerário + Rateio (importação e exportação) | 6-8 semanas | Processo existente |
+| **Fase 2** | Email integration, dashboard consolidado, alertas | 3-4 semanas | MVP validado |
+| **Fase 3** | Numerário Comex como produto isolado | 2-3 semanas | Fase 2 validada |
+
+---
+
+## 12. Riscos e Mitigações
+
+| Risco | Prob. | Impacto | Mitigação |
+|:---|:---|:---|:---|
+| API Portal Único instável | Alta | Alto | Cache local dos dados importados; fallback para XML |
+| Alíquotas de ICMS variam por estado | Alta | Médio | Permitir override manual em qualquer lançamento importado |
+| Reforma Tributária (CBS/IBS em 2033) | Baixa | Alto | Arquitetura de catálogo flexível; não hardcodar tributos |
+| Baixa adoção standalone (usuários têm ERP) | Alta | Médio | Posicionar como módulo do ecossistema Gravity, não standalone |
+| Usuário não tem Portal Único configurado | Média | Médio | XML e manual sempre disponíveis como fallback |
+
+---
+
+## 13. Decisões Tomadas
+
+| # | Decisão | Data | Contexto |
+|:---|:---|:---|:---|
+| D-001 | Reutilizar RateioEngine do NF Importação sem fork | 2026-03-31 | Mesmo algoritmo, evitar divergência |
+| D-002 | ICMS entra no Grupo 1 (importável via Portal Único) | 2026-03-31 | NT RFB 001/2023; com flag indicando origem |
+| D-003 | Numerário projetado como módulo isolável desde o início | 2026-03-31 | Facilitar extração posterior em produto independente |
+| D-004 | Porta 8029 (server) / 5184 (client dev) | 2026-03-31 | Sequência natural após nf-importacao (8028/5183) |
+| D-005 | Catálogo de categorias é por tenant (não global hardcoded) | 2026-03-31 | Flexibilidade; cada empresa tem seus códigos contábeis |
+| D-006 | Exportação usa mesma estrutura com catálogo filtrado | 2026-03-31 | Reutilização máxima; tipo_operacao controla o comportamento |

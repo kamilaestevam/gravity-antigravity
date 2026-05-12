@@ -5,12 +5,20 @@ import { AppError } from '../lib/errors.js'
 // ---------------------------------------------------------------------------
 // Barreira 2 & 5 — Snapshot da Conversa e Identificação de Ator
 // ---------------------------------------------------------------------------
+export interface LlmUsage {
+  modelo: string
+  tokensInput: number
+  tokensOutput: number
+  custoUsd: number
+}
+
 export async function auditGabiAction(
   userId: string,
   tenantId: string,
   actionTaken: string,
   conversationSnapshot: string,
   productId?: string,
+  llmUsage?: LlmUsage,
 ) {
   if (!conversationSnapshot) {
     throw new AppError(
@@ -28,8 +36,12 @@ export async function auditGabiAction(
       id_usuario_gabi_log_uso: userId,
       acao_gabi_log_uso: actionTaken,
       snapshot_conversa_gabi_log_uso: conversationSnapshot,
-      tipo_ator_gabi_log_uso: 'gabi', // Barreira 5: Ator identificado como gabi
+      tipo_ator_gabi_log_uso: 'gabi',
       disparado_por_gabi_log_uso: userId,
+      modelo_gabi_log_uso: llmUsage?.modelo ?? null,
+      tokens_input_gabi_log_uso: llmUsage?.tokensInput ?? 0,
+      tokens_output_gabi_log_uso: llmUsage?.tokensOutput ?? 0,
+      custo_usd_gabi_log_uso: llmUsage?.custoUsd ?? 0,
     },
   })
 

@@ -18,6 +18,7 @@
 
 // Funções públicas
 export { resolverOrganizacao } from './middleware.js';
+export { verificarAcessoProduto } from './verificar-acesso-produto.js';
 export { withOrganizacao, withOrganizacaoContext } from './with-tenant.js';
 
 // Tipos públicos

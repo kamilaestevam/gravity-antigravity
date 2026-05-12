@@ -99,7 +99,24 @@ export interface ConfiguradorClientOptions {
 export interface ConfiguradorClient {
   resolveOrganizacaoById(idOrganizacao: string, idCorrelacao?: string): Promise<ContextoOrganizacao>;
   resolveOrganizacaoByIdUsuario(idUsuario: string, idCorrelacao?: string): Promise<ContextoOrganizacao>;
+  /**
+   * PORTÃO 3 — verifica se um usuário tem acesso a um produto em um workspace.
+   * Master/SuperAdmin/Admin sempre `true` (bypass server-side no Configurador).
+   * Falha de comunicação → throws AppError(503). Caller decide se nega ou permite.
+   */
+  verificarAcessoProduto(args: {
+    idOrganizacao: string;
+    idUsuario: string;
+    idWorkspace: string;
+    slugProduto: string;
+    idCorrelacao?: string;
+  }): Promise<{ permitido: boolean; motivo?: string }>;
 }
+
+const AcessoProdutoResponseSchema = z.object({
+  permitido: z.boolean(),
+  motivo: z.string().optional(),
+});
 
 export function createConfiguradorClient(opts: ConfiguradorClientOptions): ConfiguradorClient {
   const timeoutMs = opts.timeoutMs ?? 5_000;
@@ -198,6 +215,40 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
         tiposUsuario: parsed.data.tiposUsuario,
         idCorrelacao,
       };
+    },
+
+    async verificarAcessoProduto({ idOrganizacao, idUsuario, idWorkspace, slugProduto, idCorrelacao = randomUUID() }) {
+      const params = new URLSearchParams({
+        id_organizacao: idOrganizacao,
+        id_usuario: idUsuario,
+        id_workspace: idWorkspace,
+        slug_produto: slugProduto,
+      });
+      const res = await fetchWithRetry(
+        `${opts.baseUrl}/api/v1/internal/acesso-produto/verificar?${params.toString()}`,
+        baseHeaders(idCorrelacao),
+        timeoutMs,
+        retries,
+      );
+
+      if (!res.ok) {
+        throw new AppError(
+          `Configurador retornou HTTP ${res.status} ao verificar acesso ao produto`,
+          503,
+          'CONFIGURADOR_UNAVAILABLE',
+        );
+      }
+
+      const raw: unknown = await res.json();
+      const parsed = AcessoProdutoResponseSchema.safeParse(raw);
+      if (!parsed.success) {
+        throw new AppError(
+          'Resposta inválida do Configurador (acesso-produto)',
+          503,
+          'CONFIGURADOR_INVALID_RESPONSE',
+        );
+      }
+      return parsed.data;
     },
   };
 }

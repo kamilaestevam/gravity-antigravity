@@ -110,7 +110,96 @@ Sem as 3 primeiras camadas em sincronia, `curl` burla. **Backend é mandatório.
 
 ---
 
+---
+
+## 🚪 Portão 3 — Acesso granular usuário × produto Gravity
+
+Modelo de 3 portões para acesso a produto (decisão dono 2026-05-12):
+
+| Portão | Pergunta | Onde |
+|---|---|---|
+| **1** | Org contratou o produto? | `ProdutoGravityConfiguracao.ativo` + `ProdutoGravityAssinatura.status IN [ATIVA, EM_TESTE]` |
+| **2** | Workspace habilitou o produto? | `ProdutoGravityWorkspace.ativo_produto_gravity_workspace = true` |
+| **3** | Usuário pode abrir esse produto neste workspace? | Linha `<slug>:acesso_usuario_produtos_gravity:permitido` em `UsuarioPermissao` |
+
+### Convenção da chave Portão 3
+
+String canônica em `UsuarioPermissao.permissao_usuario`:
+
+```
+<slug_produto>:acesso_usuario_produtos_gravity:permitido
+```
+
+Exemplo: `pedido:acesso_usuario_produtos_gravity:permitido`
+
+**Helpers em `shared/permissoes-canonicas.ts`:**
+- `buildAcessoUsuarioProdutosGravityString(slug)` → constrói a chave
+- `ehPermissaoAcessoUsuarioProdutoGravity(str)` → detecta família
+- `extrairSlugDaPermissao(str)` → extrai slug (granular ou Portão 3)
+
+### Implementação (5 camadas)
+
+| Camada | Arquivo | Responsabilidade |
+|---|---|---|
+| **Constantes** | `shared/permissoes-canonicas.ts` | `SECAO_ACESSO_PRODUTO`, `ACAO_ACESSO_PERMITIDO`, regex aceita 2 famílias |
+| **Service Configurador** | `server/services/permissao-usuario-servico.ts` | `verificarAcessoUsuarioProdutoGravity(org, user, ws, slug)` |
+| **Service SSOT Hub+Core** | `server/services/produtos-acessiveis-service.ts` | `listarSlugsProdutosAcessiveis(org, user, ws?)` — aplica os 3 portões |
+| **S2S endpoint** | `server/routes/acesso.ts` `/internal/acesso-produto/verificar` | Permite produtos consultarem Portão 3 via HTTP |
+| **Middleware shared** | `@gravity/resolver-organizacao` `verificarAcessoProduto()` | Factory para produtos; lê `x-id-workspace` do header e chama S2S |
+| **Modal admin** | `src/pages/workspace/ModalEditarUsuario.tsx` (aba "Produtos") | Master configura quais produtos cada Standard pode acessar |
+
+### Default α (rapa-tapete)
+
+Standards/Fornecedores **existentes** recebem chave Portão 3 para todos os produtos habilitados nos workspaces deles via script de backfill:
+
+```bash
+npx tsx server/scripts/backfill-acesso-usuario-produtos-gravity.ts          # dry-run
+npx tsx server/scripts/backfill-acesso-usuario-produtos-gravity.ts --apply  # aplica
+```
+
+Idempotente. Ator: `SISTEMA_BACKFILL_PORTAO_3_2026_05_12`.
+Reversível: `DELETE FROM usuario_permissao WHERE permissao_usuario_concedido_por = 'SISTEMA_BACKFILL_PORTAO_3_2026_05_12'`.
+
+### Aplicação em produtos
+
+**Padrão (produtos que usam `resolverOrganizacao`):**
+
+```ts
+import { resolverOrganizacao, verificarAcessoProduto } from '@gravity/resolver-organizacao'
+
+app.use(resolverOrganizacao({ chaveProduto: 'pedido', ... }))
+app.use(verificarAcessoProduto({ chaveProduto: 'pedido',
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  chaveInterna: process.env.CHAVE_INTERNA_SERVICO!,
+}))
+```
+
+**Estado atual dos 7 produtos:**
+
+| Produto | Auth atual | Portão 3 aplicado? |
+|---|---|---|
+| Pedido | `resolverOrganizacao` (JWT do browser) | ✅ Aplicado em 2026-05-12 (piloto) |
+| BID-Frete | `requireInternalKey` (S2S) | ⏳ Pendente — exige primeiro migrar pra `resolverOrganizacao` |
+| BID-Câmbio | `requireInternalKey` (S2S) | ⏳ idem |
+| LPCO | `requireInternalKey` (S2S) | ⏳ idem |
+| NF-Importação | `requireInternalKey` (S2S) | ⏳ idem |
+| SimulaCusto | `requireInternalKey` (S2S) | ⏳ idem |
+| Processo | `requireInternalKey` (S2S) | ⏳ idem |
+
+**Mitigação para os 6 pendentes:** o Hub (`/hub/init`) e o Core (`/workspaces/:id/produtos-gravity`) já filtram via `produtos-acessiveis-service` — Standards sem acesso não veem o produto no menu/Hub. URL direta para esses 6 produtos atualmente passa o `requireInternalKey` mas não tem gate de Portão 3 (risco baixo em dev; precisa migração arquitetural para fechar).
+
+### Mandamentos atendidos
+
+- **01** — `tipo_usuario` do banco (não Clerk metadata)
+- **04** — Master/SuperAdmin/Admin bypass em todos os portões (service-side)
+- **06** — Zod no request S2S
+- **08** — fail-closed: erro de comunicação → 503 (não fallback "permitido")
+- **09** — Zod bilateral no request/response S2S
+
+---
+
 ## Histórico
 
-- **2026-05-12** — Skill criada. Matriz travada em conjunto com dono. 7 arquivos backend hardened, 1 wrapper frontend criado, Store + Hub gateados.
+- **2026-05-12 (manhã)** — Skill criada. Matriz Cadeia 1 travada. Hub + Configurador route guard. Store botão Comprar bloqueado.
+- **2026-05-12 (tarde)** — Portão 3 implementado em 5 checkpoints (CP1 fundação backend, CP2 Hub/Core filtros, CP3 aba Produtos no modal, CP4 backfill α, CP5 middleware piloto Pedido + skill).
 - **Bug raiz**: Standard acessava Configurador via card "Criar novo workspace" no Hub porque `ProtectedRoute` genérico só checava `isSignedIn`. Líder Técnico identificou que múltiplas rotas mutativas backend também estavam sem guard — bypass via `curl` era possível.

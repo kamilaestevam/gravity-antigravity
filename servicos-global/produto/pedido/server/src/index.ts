@@ -29,7 +29,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
-import { resolverOrganizacao, AppError } from '@gravity/resolver-organizacao'
+import { resolverOrganizacao, verificarAcessoProduto, AppError } from '@gravity/resolver-organizacao'
 import { analyticsRouter } from './routes/analytics-pedido.js'
 import { dashboardWidgetsRouter } from './routes/dashboard-pedido-widgets.js'
 import { dashboardDataRouter } from './routes/dashboard-pedido-dados.js'
@@ -120,6 +120,16 @@ app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
 app.use(resolverOrganizacao({
+  chaveProduto:        'pedido',
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
+}))
+
+// ── 6.1. Portão 3 — autorização granular usuário × produto Gravity ───────────
+// Skill: seguranca/route-authorization. Master/SAdmin/Admin têm bypass (Mand. 04).
+// Standard/Fornecedor exigem chave `pedido:acesso_usuario_produtos_gravity:permitido`
+// em UsuarioPermissao do workspace (header x-id-workspace).
+app.use(verificarAcessoProduto({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,

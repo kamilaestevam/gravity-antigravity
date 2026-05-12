@@ -113,6 +113,55 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
 })
 
 /**
+ * GET /api/v1/internal/acesso-produto/verificar
+ *
+ * PORTÃO 3 — verifica se um usuário tem acesso a UM produto em UM workspace.
+ *
+ * Usado por:
+ *   - Middleware de produtos (após resolverOrganizacao) para gate de acesso.
+ *   - Hub/Core já fazem o filtro de listagem via produtos-acessiveis-service
+ *     (chamado direto no Prisma do Configurador) — esta rota é para serviços
+ *     externos (servers de produto) que não têm acesso ao banco do Configurador.
+ *
+ * Query params: id_organizacao, id_usuario, id_workspace, slug_produto
+ * Response: { permitido: boolean, motivo?: string }
+ *
+ * Master/SuperAdmin/Admin → sempre `permitido: true` (Mand. 04 — Limbo).
+ * Standard/Fornecedor sem linha `<slug>:acesso_usuario_produtos_gravity:permitido` → false.
+ */
+const VerificarAcessoProdutoSchema = z.object({
+  id_organizacao: z.string().min(1),
+  id_usuario: z.string().min(1),
+  id_workspace: z.string().min(1),
+  slug_produto: z.string().min(1),
+})
+
+accessRouter.get('/acesso-produto/verificar', async (req, res, next) => {
+  try {
+    const parsed = VerificarAcessoProdutoSchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Parâmetros inválidos',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const { id_organizacao, id_usuario, id_workspace, slug_produto } = parsed.data
+
+    const permitido = await servicoPermissaoUsuario.verificarAcessoUsuarioProdutoGravity({
+      id_organizacao,
+      id_usuario,
+      id_workspace,
+      slug_produto,
+    })
+
+    res.json({ permitido, motivo: permitido ? undefined : 'ACESSO_PRODUTO_NEGADO' })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/internal/organizacao-produtos
  * Retorna TODOS os produtos habilitados para uma organização.
  * Usado pelo Shell para filtrar o sidebar dinamicamente.

@@ -119,7 +119,7 @@ export function ModalPedidosExcluir({ pedidos, onFechar, onConcluido }: ModalPed
 
           <div className="modal-excluir__footer">
             <BotaoGlobal variante="primario" onClick={onConcluido}>
-              Concluir
+              Fechar
             </BotaoGlobal>
           </div>
         </div>

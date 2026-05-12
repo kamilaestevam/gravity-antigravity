@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useClerk, useAuth, useUser } from '@clerk/clerk-react'
+import { useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   SpinnerGap,
@@ -26,6 +26,7 @@ import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { produtosWorkspaceApi, type ProdutoWorkspaceItem } from '../services/api-client'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -37,19 +38,7 @@ import {
 } from '@nucleo/localizador-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 
-const API_URL = '/api/v1'
-
-interface CompanyProduct {
-  product_key: string
-  is_active: boolean
-  catalog: {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    backend_module: string | null
-  } | null
-}
+// Tipo dos produtos vem do api-client (Zod-validado, contrato bilateral REGRA 09)
 
 // ── Mapa visual por produto ────────────────────────────────────────────────
 interface ProdVisual {
@@ -145,11 +134,10 @@ export function Hub() {
     document.body.classList.toggle('light-theme', currentTheme === 'light')
   }, [currentTheme])
 
-  const [products, setProducts] = useState<CompanyProduct[]>([])
+  const [products, setProducts] = useState<ProdutoWorkspaceItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const { signOut } = useClerk()
-  const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
   const { gravityAdmin: isAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
@@ -175,20 +163,16 @@ export function Hub() {
       if (!id_workspace) { setLoading(false); return }
 
       try {
-        const token = await getToken()
-        const res = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        // Wrapper Zod-validado (REGRA 06 — sem cast direto da response)
+        const data = await produtosWorkspaceApi.listar(id_workspace)
+        const active = data.products.filter((p) => p.is_active)
 
-        if (res.ok) {
-          const data = await res.json()
-          const active = data.products.filter((p: CompanyProduct) => p.is_active)
-
-          // Empty state quando nenhum produto está habilitado neste workspace.
-          // Habilitação é manual via /workspace/assinaturas (sem auto-bootstrap).
-          setProducts(active)
-        }
+        // Empty state quando nenhum produto está habilitado neste workspace.
+        // Habilitação é manual via /workspace/assinaturas (sem auto-bootstrap).
+        setProducts(active)
       } catch (err) {
+        // REGRA 08 — log alto na falha (Opção B); não engole o erro com fallback silencioso
+        console.warn('[Hub] Falha ao carregar produtos do workspace:', err)
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
       } finally {
         setLoading(false)

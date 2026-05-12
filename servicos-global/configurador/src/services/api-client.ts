@@ -1289,3 +1289,36 @@ export const produtosWorkspaceApi = {
     return produtosWorkspaceResponseSchema.parse(raw)
   },
 }
+
+// ─── Catálogo público de produtos Gravity ───────────────────────────────────
+
+// Shape devolvido por GET /api/v1/produtos-gravity (catálogo global).
+// Difere do produtosWorkspaceResponseSchema: aqui não há habilitação por workspace —
+// é o catálogo bruto que alimenta a Store e o menu lateral.
+export const catalogoProdutoItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  status: z.string(), // 'Ativo' | 'Em Breve' | 'Suspenso' | ...
+  unit_price: z.union([z.string(), z.number()]).nullable().optional(),
+  unit_currency: z.string().nullable().optional(),
+  backend_module: z.string().nullable().optional(),
+  billing_type: z.string().nullable().optional(),
+  type_billing: z.string().nullable().optional(),
+  currency: z.string().nullable().optional(),
+})
+
+export const catalogoProdutosResponseSchema = z.object({
+  products: z.array(catalogoProdutoItemSchema),
+})
+
+export type CatalogoProdutoItem = z.infer<typeof catalogoProdutoItemSchema>
+
+export const catalogoProdutosApi = {
+  /** Lista todos os produtos do catálogo Gravity (rota pública). */
+  async listar() {
+    const raw = await request<unknown>('/v1/produtos-gravity')
+    return catalogoProdutosResponseSchema.parse(raw)
+  },
+}

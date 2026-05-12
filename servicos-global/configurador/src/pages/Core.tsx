@@ -38,7 +38,8 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystem-nodes'
+import { buildTenantProductNodes } from '../utils/ecosystem-nodes'
+import { produtosWorkspaceApi } from '../services/api-client'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import './workspace/workspace.css'
@@ -116,36 +117,33 @@ export function Core() {
     if (!id_workspace) return
     async function loadProducts() {
       try {
-        const token = await getToken()
-        const res = await fetch(`/api/v1/workspaces/${id_workspace}/produtos-gravity`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (res.ok) {
-          const data = await res.json()
-          const allProds: CompanyProductItem[] = data.products
-          // Menu lateral — só os produtos ativos
-          const ativos = allProds
-            .filter(p => p.is_active)
-            .map(p => ({
-              nome: p.catalog?.name ?? p.product_key,
-              slug: p.catalog?.slug ?? p.product_key,
-              rota: `/produto/${p.catalog?.slug ?? p.product_key}`,
-            }))
-          setProdutosAtivos(ativos)
-          // Mapa do ecossistema — usa builder único
-          const productNodes = buildTenantProductNodes(allProds)
-          setCoreEcosystemNodes(buildEcosystemNodes({
-            currentProductId: 'core',
-            produtoNodes: productNodes,
-            includeAdmin: isGravityAdmin,
+        // Wrapper Zod-validado (REGRA 06 — sem cast direto da response)
+        const data = await produtosWorkspaceApi.listar(id_workspace!)
+        const allProds = data.products
+        // Menu lateral — só os produtos ativos
+        const ativos = allProds
+          .filter(p => p.is_active)
+          .map(p => ({
+            nome: p.catalog?.name ?? p.product_key,
+            slug: p.catalog?.slug ?? p.product_key,
+            rota: `/produto/${p.catalog?.slug ?? p.product_key}`,
           }))
-        }
+        setProdutosAtivos(ativos)
+        // Mapa do ecossistema — usa builder único
+        const productNodes = buildTenantProductNodes(allProds)
+        setCoreEcosystemNodes(buildEcosystemNodes({
+          currentProductId: 'core',
+          produtoNodes: productNodes,
+          includeAdmin: isGravityAdmin,
+        }))
       } catch (err) {
+        // REGRA 08 — log alto na falha (Opção B); não engole o erro com fallback silencioso
+        console.warn('[Core] Falha ao carregar produtos do workspace:', err)
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
       }
     }
     loadProducts()
-  }, [id_workspace, getToken, isGravityAdmin])
+  }, [id_workspace, isGravityAdmin])
 
   // Menu lateral
   const navItems: NavItem[] = useMemo(() => {

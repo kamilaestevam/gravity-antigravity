@@ -175,7 +175,8 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConf
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')
     }
 
-    // 2. Transação: cria/reativa assinatura + configuracao
+    // 2. Transação: cria/reativa assinatura + configuracao + habilita em TODOS
+    //    os workspaces ATIVOS da org (default — decisão dono 2026-05-12).
     const resultado = await prisma.$transaction(async (tx) => {
       const assinatura = await tx.produtoGravityAssinatura.upsert({
         where: {
@@ -220,8 +221,50 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConf
         },
       })
 
-      return { assinatura, configuracao }
+      // Auto-habilita em todos os workspaces ATIVOS da org (decisão dono
+      // 2026-05-12 — produto contratado começa habilitado em todo workspace).
+      // Idempotente: workspaces que já têm linha são apenas reativados.
+      const workspacesAtivos = await tx.workspace.findMany({
+        where: { id_organizacao, status_workspace: 'ATIVO' },
+        select: { id_workspace: true },
+      })
+      if (workspacesAtivos.length > 0) {
+        for (const ws of workspacesAtivos) {
+          await tx.produtoGravityWorkspace.upsert({
+            where: {
+              id_workspace_id_produto_gravity: {
+                id_workspace: ws.id_workspace,
+                id_produto_gravity: produto.id_produto_gravity,
+              },
+            },
+            create: {
+              id_organizacao,
+              id_workspace: ws.id_workspace,
+              id_produto_gravity: produto.id_produto_gravity,
+              ativo_produto_gravity_workspace: true,
+            },
+            update: { ativo_produto_gravity_workspace: true },
+          })
+        }
+      }
+
+      return { assinatura, configuracao, workspaces_habilitados: workspacesAtivos.length }
     })
+
+    // PORTÃO 3 auto-sync (CP6) — propaga chaves para Standards/Fornecedores
+    // em TODOS os workspaces que receberam a habilitação. Best-effort.
+    const workspacesAtivos = await prisma.workspace.findMany({
+      where: { id_organizacao, status_workspace: 'ATIVO' },
+      select: { id_workspace: true },
+    })
+    for (const ws of workspacesAtivos) {
+      aoHabilitarProdutoNoWorkspace({
+        id_organizacao,
+        id_workspace: ws.id_workspace,
+        id_produto_gravity: produto.id_produto_gravity,
+        slug_produto: slug_produto_gravity,
+      }).catch(() => { /* best-effort */ })
+    }
 
     res.status(201).json(resultado)
   } catch (err) {

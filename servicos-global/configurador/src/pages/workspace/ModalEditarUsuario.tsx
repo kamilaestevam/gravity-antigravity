@@ -602,23 +602,18 @@ function AbaProdutosAcesso({
         <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
       )}
 
-      {/* Seletor de workspace — mesmo padrão visual da aba Permissões */}
+      {/* Seletor de workspace — SelectGlobal (padrão do sistema) */}
       {workspacesVinculados.length > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem',
-                      background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
-          <Buildings size={16} color="#818cf8" />
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Workspace:</span>
-          <select
-            value={workspaceSelecionado ?? ''}
-            onChange={e => onSelecionarWorkspace(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-                     borderRadius: 6, color: 'var(--ws-text)', padding: '0.375rem 0.625rem', fontSize: '0.8125rem' }}
-          >
-            {workspacesVinculados.map(w => (
-              <option key={w.id_workspace} value={w.id_workspace}>{w.nome_workspace}</option>
-            ))}
-          </select>
-        </div>
+        <CampoGeralGlobal label="Workspace">
+          <SelectGlobal
+            opcoes={workspacesVinculados.map(w => ({ valor: w.id_workspace, rotulo: w.nome_workspace }))}
+            valor={workspaceSelecionado ?? ''}
+            aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
+            iconeEsquerda={<Buildings size={18} weight="duotone" />}
+            buscavel={false}
+            placeholder="Selecione um workspace"
+          />
+        </CampoGeralGlobal>
       )}
 
       <div>
@@ -700,23 +695,18 @@ function AbaPermissoes({
         <AvisoErroCarga mensagem={erroSalvar} contexto="salvar permissões" />
       )}
 
-      {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) */}
+      {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) — SelectGlobal */}
       {workspacesVinculados.length > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem',
-                      background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
-          <Buildings size={16} color="#818cf8" />
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Workspace:</span>
-          <select
-            value={workspaceSelecionado ?? ''}
-            onChange={e => onSelecionarWorkspace(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-                     borderRadius: 6, color: 'var(--ws-text)', padding: '0.375rem 0.625rem', fontSize: '0.8125rem' }}
-          >
-            {workspacesVinculados.map(w => (
-              <option key={w.id_workspace} value={w.id_workspace}>{w.nome_workspace}</option>
-            ))}
-          </select>
-        </div>
+        <CampoGeralGlobal label="Workspace">
+          <SelectGlobal
+            opcoes={workspacesVinculados.map(w => ({ valor: w.id_workspace, rotulo: w.nome_workspace }))}
+            valor={workspaceSelecionado ?? ''}
+            aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
+            iconeEsquerda={<Buildings size={18} weight="duotone" />}
+            buscavel={false}
+            placeholder="Selecione um workspace"
+          />
+        </CampoGeralGlobal>
       )}
 
       {/* Bloco 1: Acesso geral (informativo, sem toggle) */}

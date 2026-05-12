@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   BannerRequisitosGlobal,
@@ -216,28 +217,20 @@ function AbaDados({ nome, email, tipo, tiposPermitidos, workspaces, workspacesSa
         </CampoGeralGlobal>
 
         <CampoGeralGlobal label={t('workspace.users.tabela.tipo')}>
-          <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-            <select
-              value={tipo}
-              disabled={!tipoEditavel}
-              onChange={e => onValoresChange('tipo', e.target.value)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                color: tipoEditavel ? 'var(--ws-text)' : 'var(--ws-muted)',
-                cursor: tipoEditavel ? 'pointer' : 'not-allowed',
-                padding: '0 1rem 0 2.5rem',
-                appearance: 'none',
-                height: '100%'
-              }}
-            >
-              {opcoesTipo.map((op) => (
-                <option key={op} value={op}>{LABEL_TIPO_USUARIO[op] ?? op}</option>
-              ))}
-            </select>
-            <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-          </div>
+          <SelectGlobal
+            opcoes={opcoesTipo.map((op) => ({
+              valor: op,
+              rotulo: LABEL_TIPO_USUARIO[op] ?? op,
+            }))}
+            valor={tipo}
+            // Guard contra null — SelectGlobal pode sinalizar desselecionar;
+            // tipo_usuario nunca pode ficar vazio (Mand. 04 — limbo de patente).
+            aoMudarValor={(v) => { if (v) onValoresChange('tipo', v as NivelAcesso) }}
+            iconeEsquerda={<ShieldCheck size={18} weight="duotone" />}
+            desabilitado={!tipoEditavel}
+            buscavel={false}
+            placeholder={t('comum.selecione')}
+          />
         </CampoGeralGlobal>
 
         <CampoGeralGlobal label={t('workspace.users.workspace_vinculado')}>

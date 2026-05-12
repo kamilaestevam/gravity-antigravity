@@ -80,6 +80,27 @@ Endpoint admin pra editar dados cadastrais da organização.
 
 ---
 
+### Desativação de Usuário (PATCH /api/v1/usuarios/:id/status)
+
+Endpoint admin pra desativar/reativar usuário com campo **persistido** `status_usuario` (enum `StatusUsuario { ATIVO, INATIVO }`).
+
+- **Quem pode:** SUPER_ADMIN/ADMIN (cross-org), MASTER (intra-org). Whitelist via `requireUserManagementRole`.
+- **Body:** `{ status_usuario: 'ATIVO' | 'INATIVO' }` (Zod `.strict()`).
+- **5 validações:**
+  1. Auto-proteção — ator não pode inativar a si mesmo (`403 AUTO_ALTERACAO_BLOQUEADA`).
+  2. CONVIDADO não é inativável (`409 USUARIO_CONVIDADO_NAO_PODE_INATIVAR`) — usar `cancelarConvite`.
+  3. Anti-bricking: bloqueia inativação do último MASTER ativo da org (`409 ULTIMO_MASTER_ATIVO_ORGANIZACAO`).
+  4. Alvo cross-org só pra SAdmin/Admin; MASTER fica restrito ao próprio `id_organizacao`.
+  5. Idempotência (mesmo status atual não regrava) + `404 NOT_FOUND` sem vazar existência.
+- **Side-effects:**
+  - `AuditService.log` / `securityAudit.roleChanged` com diff completo (Mand. 08 — sem fallback silencioso).
+  - `invalidarCacheRequireAuth(idClerkUsuario)` — kick-out efetivo em ms no próximo request.
+  - `requireAuth.ts` retorna `401 USUARIO_INATIVO` para sessão inativada. **Mand. 01 — sem chamada a Clerk.**
+- **Modal frontend:** `Usuarios.tsx` (workspace) e `UsuariosAdmin.tsx` (admin). Toggle dispara HTTP real.
+- **Bug histórico:** até 2026-05-12 o toggle era UI-only — Configurador mostrava INATIVO temporário e Admin sempre mostrava ATIVO (Mand. 08 — fallback silencioso). Corrigido com migration `20260512_status_usuario` (enum + coluna + índice) e 10 testes funcionais em `testes/testes-funcionais/configurador/usuarios/atualizar-status.test.ts`.
+
+---
+
 ## Tela 2 — Produtos Contratados
 
 Visão de quais produtos cada organização tem ativo.

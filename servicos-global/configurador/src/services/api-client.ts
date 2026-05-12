@@ -339,11 +339,15 @@ export const usuarioListItemSchema = z.object({
   tipo_usuario: tipoUsuarioEnum,
   acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
-  /** Status derivado pelo backend de `id_clerk_usuario`:
-   *  - 'CONVIDADO': convite Clerk pendente (id_clerk_usuario começa com 'pending_')
-   *  - 'ATIVO': cadastro Clerk completo (id_clerk_usuario = user_*)
-   *  INATIVO é estado UI-only — toggle local sem persistência. */
-  status_usuario: z.enum(['ATIVO', 'CONVIDADO']),
+  /** Status do usuário (3 valores no DTO — alinhado com decisão 2026-05-12):
+   *  - 'CONVIDADO': convite Clerk pendente (`id_clerk_usuario.startsWith('pending_')`).
+   *                 Derivado em runtime — não persistido (evita duplicar fonte
+   *                 da verdade do Clerk no fluxo de invite).
+   *  - 'ATIVO' | 'INATIVO': valor persistido em `Usuario.status_usuario`
+   *                          (enum StatusUsuario no schema Prisma).
+   *  PATCH `/api/v1/usuarios/:id/status` muda ATIVO ↔ INATIVO. requireAuth
+   *  bloqueia INATIVO com 401 USUARIO_INATIVO. */
+  status_usuario: z.enum(['ATIVO', 'INATIVO', 'CONVIDADO']),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
 export type UsuarioListItem = z.infer<typeof usuarioListItemSchema>
@@ -394,6 +398,16 @@ export const alterarAcessoWorkspacesFuturosResponseSchema = z.object({
     acesso_workspaces_futuros: z.boolean(),
   }),
 })
+
+/** Response do PATCH /usuarios/:id/status — Mand. 09 (contrato bilateral). */
+export const atualizarStatusUsuarioResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario: z.string(),
+    email_usuario: z.string().email(),
+    status_usuario: z.enum(['ATIVO', 'INATIVO']),
+  }),
+})
+export type AtualizarStatusUsuarioResponse = z.infer<typeof atualizarStatusUsuarioResponseSchema>
 
 export const substituirWorkspacesResponseSchema = z.object({
   workspaces: z.array(z.string()),
@@ -629,10 +643,10 @@ export interface UsuarioGlobalApi {
   tipo_usuario: string
   data_criacao_usuario: string
   id_organizacao: string
-  /** Derivado pelo backend de id_clerk_usuario:
-   *  - 'CONVIDADO': convite Clerk pendente
-   *  - 'ATIVO': cadastro Clerk completo */
-  status_usuario: 'ATIVO' | 'CONVIDADO'
+  /** Status do usuário (3 valores no DTO — alinhado com decisão 2026-05-12):
+   *  - 'CONVIDADO': convite Clerk pendente (derivado em runtime)
+   *  - 'ATIVO' | 'INATIVO': valor persistido em Usuario.status_usuario */
+  status_usuario: 'ATIVO' | 'INATIVO' | 'CONVIDADO'
   organizacao: {
     nome_organizacao: string
     subdominio_organizacao: string
@@ -1299,6 +1313,34 @@ export const usuariosApi = {
       body: JSON.stringify({ tipo_usuario }),
     })
     return alterarTipoUsuarioResponseSchema.parse(raw)
+  },
+
+  /**
+   * Atualiza o status do usuário (ATIVO ↔ INATIVO). Persiste em
+   * Usuario.status_usuario e invalida cache do requireAuth para kick-out
+   * imediato. CONVIDADO não pode ser inativado por aqui — use cancelarConvite.
+   *
+   * Codes de erro do backend (Mand. 08 — falha alta):
+   *   - 403 AUTO_ALTERACAO_BLOQUEADA — usuário tentou inativar a si mesmo
+   *   - 409 USUARIO_CONVIDADO_NAO_PODE_INATIVAR — alvo ainda é CONVIDADO
+   *   - 409 ULTIMO_MASTER_ATIVO_ORGANIZACAO — anti-bricking (Mand. 04)
+   *   - 400 VALIDATION_ERROR — body fora do contrato
+   *   - 404 NOT_FOUND — alvo não existe (com escopo de org)
+   */
+  async atualizarStatus(
+    id_usuario: string,
+    status_usuario: 'ATIVO' | 'INATIVO',
+  ) {
+    const raw = await request<unknown>(`/v1/usuarios/${id_usuario}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status_usuario }),
+    })
+    const parsed = atualizarStatusUsuarioResponseSchema.safeParse(raw)
+    if (!parsed.success) {
+      console.error('[usuariosApi.atualizarStatus] payload fora do contrato', parsed.error)
+      throw new Error('Falha de contrato na resposta do servidor.')
+    }
+    return parsed.data
   },
 
   /**

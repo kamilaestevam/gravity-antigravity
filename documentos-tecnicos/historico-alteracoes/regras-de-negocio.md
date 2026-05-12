@@ -436,3 +436,24 @@ Sim, desde que esses produtos estejam instrumentados para enviar eventos ao hist
 - 10 testes funcionais em `admin-organizacao-patch-cadastrais.test.ts` cobrem o caminho.
 
 **Skills atualizadas:** `database-governance` (REGRA Paridade de Cadeia 5 elos), `api-design` (PATCH parcial), `code-review` (checklist wiring), `qa` (persistência), `9-mandamentos` (exemplo Mand. 09), `observabilidade-minima` (log em catch), `configurador/admin` (edição de org).
+
+---
+
+## 2026-05-12 — Feature: `status_usuario` persistido (ATIVO/INATIVO)
+
+**Sintoma anterior:** botão "pause/play" no Configurador era UI-only — `setUsuarios` local sem persistência. Admin sempre mostrava ATIVO (porque INATIVO não existia no banco). Configurador mostrava INATIVO temporário até refresh.
+
+**Causa raiz:** sem coluna `status_usuario` no schema. Refator anterior (commit `8b5894ed`, 12/05/2026) só implementou derivação CONVIDADO vs ATIVO; INATIVO ficou como UI-only deliberadamente.
+
+**Implementação:**
+- Migration `20260512_status_usuario`: enum `StatusUsuario { ATIVO, INATIVO }` + coluna `Usuario.status_usuario` (default `ATIVO`) + índice.
+- Backend: `PATCH /api/v1/usuarios/:id/status` com 5 validações + invalidação de cache (`invalidarCacheRequireAuth`).
+- `requireAuth.ts`: bloqueia INATIVO com `401 USUARIO_INATIVO` (Mand. 01 — sem Clerk).
+- Frontend: handler dispara HTTP real (`Usuarios.tsx` + `UsuariosAdmin.tsx`).
+- 10 testes funcionais cobrindo persistência, anti-bricking, cross-tenant.
+- Validações: auto-proteção, CONVIDADO não-inativável, último MASTER ativo da org, MASTER intra-org apenas, SAdmin/Admin cross-org.
+
+**Decisão arquitetural:** Clerk fora (Mand. 01) — bloqueio só no banco interno. "Desativar usuário" é AUTORIZAÇÃO (banco), não AUTENTICAÇÃO (Clerk).
+
+**Skills atualizadas:** `9-mandamentos` (exemplo Mand. 01), `seguranca/permissoes` (seção Status do usuário), `ddd-nomenclatura` (REGRA 7 — exceção PT-BR + alinhamento `status_<entidade>`), `produtos-gravity/configurador/admin` (seção Desativação de Usuário).
+**Docs atualizadas:** este histórico. Atlas DDD (`02-rotas-api.md`, `04-enums.md`) é auto-gerado da planilha mestre — re-executar `scripts/sob-demanda/gerar-atlas-ddd.py` após adicionar `StatusUsuario` + rota PATCH na planilha v53+.

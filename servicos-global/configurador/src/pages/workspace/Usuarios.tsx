@@ -41,19 +41,22 @@ import { useAuth } from '@clerk/clerk-react'
 // existe coluna correspondente no schema.prisma (Mand. 02 não permite criar).
 
 /**
- * Status do usuário na UI:
- * - 'ATIVO': backend derivou de cadastro Clerk completo (id_clerk_usuario = user_*)
- * - 'CONVIDADO': backend derivou de convite Clerk pendente (id_clerk_usuario = pending_*)
- * - 'INATIVO': UI-only — toggle local sem persistência (não vem do backend,
- *   só existe na sessão atual; reload retorna ATIVO/CONVIDADO real).
+ * Status do usuário (3 valores reais — alinhado com decisão 2026-05-12):
+ * - 'ATIVO': valor persistido em `Usuario.status_usuario` (enum no banco).
+ * - 'INATIVO': valor persistido — admin/master desativou. requireAuth bloqueia
+ *   login com 401 USUARIO_INATIVO.
+ * - 'CONVIDADO': derivado em runtime pelo backend de `id_clerk_usuario.
+ *   startsWith('pending_')`. Não persistido para evitar duplicar fonte da
+ *   verdade do Clerk no fluxo de invite.
+ *
+ * Persistência via PATCH /api/v1/usuarios/:id/status (apenas ATIVO/INATIVO).
+ * CONVIDADO transita pra ATIVO automaticamente quando Clerk completa cadastro.
  */
-export type StatusUsuarioUI = 'ATIVO' | 'INATIVO' | 'CONVIDADO'
+export type StatusUsuarioUI = UsuarioListItem['status_usuario']
 
-// Omit status_usuario do UsuarioListItem (backend retorna 2 valores: 'ATIVO' | 'CONVIDADO')
-// e re-adiciona como StatusUsuarioUI (3 valores, incluindo 'INATIVO' UI-only).
-export interface UsuarioOrg extends Omit<UsuarioListItem, 'status_usuario'> {
-  status_usuario: StatusUsuarioUI
-}
+// Alias mantido pra retrocompatibilidade dos consumidores. Schema Zod do
+// api-client já retorna 'ATIVO' | 'INATIVO' | 'CONVIDADO' (validado bilateralmente).
+export type UsuarioOrg = UsuarioListItem
 
 // Tipo restrito para o convite/edição — backend só aceita esse subset.
 export type TipoUsuarioConvidavel = 'MASTER' | 'PADRAO' | 'FORNECEDOR'
@@ -403,18 +406,47 @@ export function Usuarios() {
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
   }
 
-  function handleAlternarStatusUsuario(u: UsuarioOrg) {
-    // Toggle ATIVO ↔ INATIVO é UI-only (sem persistência). CONVIDADO não
-    // alterna — não faz sentido "desativar" quem nunca esteve ativo. Para
-    // CONVIDADO, a ação correta é "Cancelar convite" (delete + revoke Clerk).
+  async function handleAlternarStatusUsuario(u: UsuarioOrg) {
+    // CONVIDADO não alterna — não faz sentido "desativar" quem nunca esteve
+    // ativo. Para CONVIDADO, a ação correta é "Cancelar convite" (delete +
+    // revoke Clerk).
     if (u.status_usuario === 'CONVIDADO') return
-    setUsuarios((prev) =>
-      prev.map((x) =>
-        x.id_usuario === u.id_usuario
-          ? { ...x, status_usuario: x.status_usuario === 'ATIVO' ? 'INATIVO' : 'ATIVO' }
-          : x,
-      ),
-    )
+
+    const novoStatus = u.status_usuario === 'ATIVO' ? 'INATIVO' : 'ATIVO'
+    try {
+      const { usuario: atualizado } = await usuariosApi.atualizarStatus(
+        u.id_usuario,
+        novoStatus,
+      )
+      // Atualiza state local com valor persistido devolvido pelo backend (paridade).
+      setUsuarios((prev) =>
+        prev.map((x) =>
+          x.id_usuario === u.id_usuario
+            ? { ...x, status_usuario: atualizado.status_usuario }
+            : x,
+        ),
+      )
+      addNotification({
+        type: 'success',
+        message: novoStatus === 'INATIVO'
+          ? `Usuário ${u.nome_usuario} desativado.`
+          : `Usuário ${u.nome_usuario} reativado.`,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao alterar status do usuário.'
+      // Mensagens específicas pra Mand. 04 anti-bricking e auto-protecao —
+      // backend retorna codes claros, frontend amplifica pra usuário não ficar cego.
+      addNotification({
+        type: 'error',
+        message: msg.includes('último Master')
+          ? '⚠️ Não é possível inativar o último Master ativo da organização. Promova outro usuário a Master primeiro.'
+          : msg.includes('próprio status') || msg.includes('a si mesmo')
+            ? '⚠️ Você não pode alterar o próprio status. Peça a outro admin.'
+            : msg.includes('CONVIDADO')
+              ? '⚠️ Este usuário ainda é Convidado. Use "Cancelar Convite" para revogar.'
+              : msg,
+      })
+    }
   }
 
   async function handleCancelarConvite(u: UsuarioOrg) {

@@ -613,9 +613,10 @@ adminRouter.get('/usuarios', async (req, res, next) => {
           nome_usuario: true,
           email_usuario: true,
           tipo_usuario: true,
+          status_usuario: true,
           data_criacao_usuario: true,
           id_organizacao: true,
-          // Lido APENAS para derivar status_usuario — não exposto no DTO (Mand. 01).
+          // Lido APENAS para derivar CONVIDADO — não exposto no DTO (Mand. 01).
           id_clerk_usuario: true,
           tenant: {
             select: {
@@ -659,10 +660,14 @@ adminRouter.get('/usuarios', async (req, res, next) => {
 
     // PARIDADE ABSOLUTA: nomes Prisma direto. Renomeia apenas relações back:
     // `tenant` (relação) → `organizacao`, `company` (relação) → `workspace`.
-    // Deriva status_usuario de id_clerk_usuario (sem expor o campo Clerk).
-    const usuarios = users.map(({ memberships, tenant, id_clerk_usuario, ...rest }) => ({
+    // Deriva status_usuario (3 valores no DTO, 2 no banco):
+    //   - 'CONVIDADO': id_clerk_usuario começa com 'pending_' (Clerk pendente)
+    //   - 'ATIVO' | 'INATIVO': vem da coluna persistida status_usuario
+    const usuarios = users.map(({ memberships, tenant, id_clerk_usuario, status_usuario, ...rest }) => ({
       ...rest,
-      status_usuario: (id_clerk_usuario.startsWith('pending_') ? 'CONVIDADO' : 'ATIVO') as 'CONVIDADO' | 'ATIVO',
+      status_usuario: id_clerk_usuario.startsWith('pending_')
+        ? ('CONVIDADO' as const)
+        : status_usuario,
       organizacao: tenant,
       memberships: memberships.map(({ company, ...m }) => ({
         ...m,

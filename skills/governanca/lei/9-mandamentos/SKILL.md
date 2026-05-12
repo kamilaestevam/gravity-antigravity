@@ -23,6 +23,13 @@ O Frontend deve ler a patente do usuário a partir do nosso próprio backend (ex
 
 **Por quê:** Clerk é provedor terceirizado. Manter autorização lá cria acoplamento, dificulta auditoria, viola o Isolamento de Organizacao e impede que o banco seja a fonte única de verdade.
 
+**Exemplo 2026-05-12 — `status_usuario` desativa usuário SEM tocar Clerk:**
+- `PATCH /api/v1/usuarios/:id/status` grava `Usuario.status_usuario = INATIVO` no Prisma.
+- `requireAuth.ts` bloqueia o próximo request com 401 `USUARIO_INATIVO` (lendo direto do banco).
+- `invalidarCacheRequireAuth(idClerkUsuario)` força releitura — kick-out efetivo em milissegundos.
+- Zero chamada a `clerkClient.users.deleteSession()` ou similar — Clerk só faz authn.
+- Lição: "desativar usuário" é AUTORIZAÇÃO (banco), não AUTENTICAÇÃO (Clerk).
+
 ---
 
 ## REGRA 02 — O `schema.prisma` É INTOCÁVEL

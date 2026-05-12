@@ -10,7 +10,19 @@ import { auditLog } from '../../../servicos-plataforma/historico-global/src/audi
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { id_usuario: string; id_organizacao: string; tipo_usuario: string; nome_usuario: string; expiry: number }>()
+const userCache = new Map<string, { id_usuario: string; id_organizacao: string; tipo_usuario: string; nome_usuario: string; status_usuario: 'ATIVO' | 'INATIVO'; expiry: number }>()
+
+/**
+ * Invalida cache do usuário para forçar releitura do banco no próximo request.
+ * Usado por PATCH /usuarios/:id/status — após mudar status_usuario do alvo,
+ * a próxima request do usuário desativado bate no banco e leva 401 imediato
+ * (kick-out efetivo sem chamar Clerk — Mand. 01).
+ *
+ * Recebe o id_clerk_usuario do alvo (que vem do select da rota PATCH).
+ */
+export function invalidarCacheRequireAuth(idClerkUsuario: string): void {
+  userCache.delete(`user:${idClerkUsuario}`)
+}
 
 declare global {
   namespace Express {
@@ -58,6 +70,11 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
+      // Mesmo no cache hit, bloqueia se status_usuario === INATIVO.
+      if (cached.status_usuario === 'INATIVO') {
+        logAuthFailure(req, `USUARIO_INATIVO: cached id_usuario=${cached.id_usuario}`)
+        throw new AppError('Seu acesso foi desativado. Contate um administrador.', 401, 'USUARIO_INATIVO')
+      }
       req.auth = { id_usuario: cached.id_usuario, id_organizacao: cached.id_organizacao, clerkUserId: verified.sub, tipo_usuario: cached.tipo_usuario, nome_usuario: cached.nome_usuario }
       next()
       return
@@ -65,7 +82,7 @@ export async function requireAuth(
 
     let user = await prisma.usuario.findFirst({
       where: { id_clerk_usuario: verified.sub },
-      select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true },
+      select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, status_usuario: true },
     })
 
     // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
@@ -93,7 +110,7 @@ export async function requireAuth(
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({
             where: { email_usuario: primaryEmail },
-            select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, id_clerk_usuario: true },
+            select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, status_usuario: true, id_clerk_usuario: true },
           })
 
           if (candidates.length === 1) {
@@ -103,7 +120,7 @@ export async function requireAuth(
               where: { id_usuario: only.id_usuario },
               data: { id_clerk_usuario: verified.sub },
             })
-            user = { id_usuario: only.id_usuario, id_organizacao: only.id_organizacao, tipo_usuario: only.tipo_usuario, nome_usuario: only.nome_usuario }
+            user = { id_usuario: only.id_usuario, id_organizacao: only.id_organizacao, tipo_usuario: only.tipo_usuario, nome_usuario: only.nome_usuario, status_usuario: only.status_usuario }
           } else if (candidates.length > 1) {
             // Ambiguidade cross-org — log alto (Mand. 08) + tenta desambiguar
             // pela invitation aceita no Clerk
@@ -140,6 +157,7 @@ export async function requireAuth(
                     id_organizacao: matched.id_organizacao,
                     tipo_usuario: matched.tipo_usuario,
                     nome_usuario: matched.nome_usuario,
+                    status_usuario: matched.status_usuario,
                   }
                   // eslint-disable-next-line no-console
                   console.log('[requireAuth] EMAIL_FALLBACK_DESAMBIGUADO_VIA_CLERK', {
@@ -176,6 +194,14 @@ export async function requireAuth(
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')
     }
 
+    // Bloqueio de INATIVO (Mand. 01 — Clerk NÃO é invalidado; o bloqueio
+    // é todo via banco interno). Resposta 401 USUARIO_INATIVO orienta o
+    // frontend a deslogar e mostrar mensagem clara. Decisão dono 2026-05-12.
+    if (user.status_usuario === 'INATIVO') {
+      logAuthFailure(req, `USUARIO_INATIVO: id_usuario=${user.id_usuario}`)
+      throw new AppError('Seu acesso foi desativado. Contate um administrador.', 401, 'USUARIO_INATIVO')
+    }
+
     // Limpa entradas expiradas quando o cache atinge o limite
     if (userCache.size >= USER_CACHE_MAX) {
       const now = Date.now()
@@ -194,6 +220,7 @@ export async function requireAuth(
       id_organizacao: user.id_organizacao,
       tipo_usuario: user.tipo_usuario,
       nome_usuario: user.nome_usuario ?? '',
+      status_usuario: user.status_usuario,
       expiry: Date.now() + USER_CACHE_TTL,
     })
 

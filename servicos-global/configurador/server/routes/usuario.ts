@@ -11,7 +11,7 @@
 
 import { Router } from 'express'
 import { z } from 'zod'
-import { requireAuth } from '../middleware/requireAuth.js'
+import { requireAuth, invalidarCacheRequireAuth } from '../middleware/requireAuth.js'
 import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { requireUserManagementRole } from '../middleware/requireUserManagementRole.js'
 import { prisma } from '../lib/prisma.js'
@@ -81,6 +81,16 @@ const AlterarTipoUsuarioSchema = z.object({
   tipo_usuario: TipoUsuarioPatenteEnum,
 })
 
+// PATCH /status — 2 valores persistidos. CONVIDADO não pode ser SET pelo
+// admin (transição é automática quando Clerk completa cadastro do invite).
+const AlterarStatusUsuarioSchema = z.object({
+  status_usuario: z.enum(['ATIVO', 'INATIVO']),
+}).strict()
+
+// Status no DTO de saída — 3 valores (CONVIDADO derivado em runtime).
+export const StatusUsuarioDtoEnum = z.enum(['ATIVO', 'INATIVO', 'CONVIDADO'])
+export type StatusUsuarioDto = z.infer<typeof StatusUsuarioDtoEnum>
+
 // ─── Schemas Zod de resposta (Mand. 09) ─────────────────────────────────────
 // Exportados para uso no frontend (.parse) e em testes de contrato.
 
@@ -96,6 +106,7 @@ export const usuarioListItemSchema = z.object({
   nome_usuario: z.string(),
   email_usuario: z.string().email(),
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  status_usuario: StatusUsuarioDtoEnum,
   acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
@@ -158,9 +169,10 @@ usersRouter.get('/', async (req, res, next) => {
         nome_usuario: true,
         email_usuario: true,
         tipo_usuario: true,
+        status_usuario: true,
         acesso_workspaces_futuros: true,
         data_criacao_usuario: true,
-        // id_clerk_usuario é lido APENAS para derivar status_usuario.
+        // id_clerk_usuario é lido APENAS para derivar CONVIDADO.
         // NÃO é exposto no DTO (informação mínima — Clerk = autenticação interna,
         // Mand. 01). Frontend só recebe o status derivado.
         id_clerk_usuario: true,
@@ -178,15 +190,19 @@ usersRouter.get('/', async (req, res, next) => {
     // Renomeia relation Prisma `memberships` → `usuario_workspaces` no DTO (campo do
     // schema é intocável — Mand. 02). Demais campos passam direto (paridade Prisma↔DTO).
     //
-    // Deriva status_usuario:
-    //   - 'CONVIDADO': id_clerk_usuario começa com 'pending_' (convite Clerk pendente)
-    //   - 'ATIVO': cadastro Clerk completo (id_clerk_usuario = user_*)
+    // Deriva status_usuario (3 valores no DTO, 2 no banco):
+    //   - 'CONVIDADO': id_clerk_usuario começa com 'pending_' (convite Clerk pendente).
+    //                  Derivado em runtime — não persistido (decisão dono 2026-05-12,
+    //                  validada por Coordenador + Líder Técnico — evita duplicar a
+    //                  fonte da verdade do Clerk no fluxo de invite).
+    //   - 'ATIVO' | 'INATIVO': vem da coluna persistida status_usuario.
     // A transição CONVIDADO → ATIVO acontece automaticamente no primeiro login,
     // via fallback do requireAuth.ts (Clerk getUser por email).
-    // INATIVO é estado UI-only, sem persistência (toggle local apenas).
-    const dto = usuarios.map(({ memberships, id_clerk_usuario, ...rest }) => ({
+    const dto = usuarios.map(({ memberships, id_clerk_usuario, status_usuario, ...rest }) => ({
       ...rest,
-      status_usuario: (id_clerk_usuario.startsWith('pending_') ? 'CONVIDADO' : 'ATIVO') as 'CONVIDADO' | 'ATIVO',
+      status_usuario: id_clerk_usuario.startsWith('pending_')
+        ? ('CONVIDADO' as const)
+        : status_usuario,
       usuario_workspaces: memberships,
     }))
     res.json({ usuarios: dto })
@@ -754,6 +770,162 @@ usersRouter.patch('/:id_usuario/patente', requireUserManagementRole, async (req,
       tipo_usuario_anterior:  alvo.tipo_usuario,
       tipo_usuario_novo:      novoTipo,
     }, req.auth.nome_usuario).catch(() => {})
+
+    res.json({ usuario: atualizado })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── PATCH /:id_usuario/status — ativar/desativar usuário (Mand. 08 anti-bricking) ──
+
+/**
+ * PATCH /api/v1/usuarios/:id_usuario/status
+ *
+ * Atualiza `status_usuario` (ATIVO ↔ INATIVO) — desativa ou reativa um usuário.
+ * O middleware `requireAuth` bloqueia 401 USUARIO_INATIVO em requests subsequentes.
+ *
+ * Validações (decisão dono + Coordenador + Líder Técnico, 2026-05-12):
+ *   1. CONVIDADO não pode ser INATIVADO (use DELETE /convite). Status é derivado
+ *      em runtime de `id_clerk_usuario.startsWith('pending_')` — não persistido.
+ *   2. Não pode auto-desativar (id_usuario === auth.id_usuario) — 403 FORBIDDEN.
+ *   3. Não pode INATIVAR último MASTER ativo da organização (Mand. 04 anti-bricking).
+ *      Transação Serializable previne race com promoções/inativações simultâneas.
+ *   4. MASTER intra-org; SUPER_ADMIN/ADMIN cross-org (`requireUserManagementRole`).
+ *   5. Sem chamada ao Clerk (Mand. 01 — Clerk só faz autenticação).
+ *
+ * Mand. 06 + 09: Zod request + response. Audit log com diff completo.
+ */
+usersRouter.patch('/:id_usuario/status', requireUserManagementRole, async (req, res, next) => {
+  try {
+    const parsed = AlterarStatusUsuarioSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Status inválido',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const novoStatus = parsed.data.status_usuario
+
+    // Self-protection (validação #2)
+    if (req.params.id_usuario === req.auth.id_usuario) {
+      throw new AppError(
+        'Não é possível alterar o próprio status. Peça a outro Master/Admin.',
+        403,
+        'AUTO_ALTERACAO_BLOQUEADA',
+      )
+    }
+
+    // Busca alvo com escopo (intra-org para MASTER; cross-org para SAdmin/Admin).
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario },
+          select: {
+            id_usuario: true,
+            id_organizacao: true,
+            tipo_usuario: true,
+            status_usuario: true,
+            id_clerk_usuario: true,
+            nome_usuario: true,
+            email_usuario: true,
+          },
+        })
+      : await prisma.usuario.findFirst({
+          where: {
+            id_usuario: req.params.id_usuario,
+            id_organizacao: req.auth.id_organizacao,
+          },
+          select: {
+            id_usuario: true,
+            id_organizacao: true,
+            tipo_usuario: true,
+            status_usuario: true,
+            id_clerk_usuario: true,
+            nome_usuario: true,
+            email_usuario: true,
+          },
+        })
+
+    if (!alvo) {
+      // 404 sem vazar existência cross-org (IDOR defense)
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    // Validação #1 — CONVIDADO não persiste status (use DELETE /convite).
+    if (alvo.id_clerk_usuario.startsWith('pending_')) {
+      throw new AppError(
+        'Usuário CONVIDADO ainda não aceitou o convite. Use "Cancelar Convite" para revogar.',
+        409,
+        'USUARIO_CONVIDADO_NAO_PODE_INATIVAR',
+      )
+    }
+
+    // No-op: já está no status pedido. Retorna 200 idempotente.
+    if (alvo.status_usuario === novoStatus) {
+      return res.json({
+        usuario: {
+          id_usuario: alvo.id_usuario,
+          email_usuario: alvo.email_usuario,
+          status_usuario: alvo.status_usuario,
+        },
+      })
+    }
+
+    // Update + anti-bricking (validação #3) em transação Serializable.
+    const atualizado = await prisma.$transaction(async (tx) => {
+      // Anti-bricking: rebaixar/INATIVAR último MASTER ATIVO da org bloqueia.
+      // Aplica APENAS quando alvo é MASTER e está sendo INATIVADO.
+      if (alvo.tipo_usuario === 'MASTER' && novoStatus === 'INATIVO') {
+        const totalMastersAtivos = await tx.usuario.count({
+          where: {
+            id_organizacao: alvo.id_organizacao,
+            tipo_usuario: 'MASTER',
+            status_usuario: 'ATIVO',
+            // CONVIDADO não conta (id_clerk pending)
+            id_clerk_usuario: { not: { startsWith: 'pending_' } },
+          },
+        })
+        if (totalMastersAtivos <= 1) {
+          throw new AppError(
+            'Não é possível inativar o último Master ativo da organização. Promova outro usuário a Master primeiro.',
+            409,
+            'ULTIMO_MASTER_ATIVO_ORGANIZACAO',
+          )
+        }
+      }
+
+      return tx.usuario.update({
+        where: { id_usuario: alvo.id_usuario },
+        data: { status_usuario: novoStatus },
+        select: {
+          id_usuario: true,
+          email_usuario: true,
+          status_usuario: true,
+        },
+      })
+    }, { isolationLevel: 'Serializable' })
+
+    // Invalida cache do requireAuth para kick-out imediato — próximo request
+    // do usuário desativado bate no banco e leva 401 USUARIO_INATIVO.
+    // Sem isso, o cache TTL de 60s mantém o usuário "logado" temporariamente.
+    invalidarCacheRequireAuth(alvo.id_clerk_usuario)
+
+    // Audit log com diff completo (Mand. 09 + observabilidade-mínima).
+    // Não engole erro silencioso — log estruturado em catch.
+    securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
+      id_usuario_alvo:        alvo.id_usuario,
+      tipo_usuario_anterior:  alvo.tipo_usuario,
+      tipo_usuario_novo:      alvo.tipo_usuario, // tipo não muda nesse PATCH
+    }, req.auth.nome_usuario).catch((err) => {
+      console.error('[usuarios.patch.status] securityAudit falhou', {
+        id_alvo: alvo.id_usuario,
+        ator: req.auth.id_usuario,
+        status_anterior: alvo.status_usuario,
+        status_novo: novoStatus,
+        err: err instanceof Error ? { name: err.name, message: err.message } : err,
+      })
+    })
 
     res.json({ usuario: atualizado })
   } catch (err) {

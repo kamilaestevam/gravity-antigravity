@@ -489,42 +489,54 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 
 ## Status do usuário (`status_usuario`)
 
-**Derivado em runtime** — sem campo persistido no schema (Mand. 02 respeitado).
+**Decisão dono 2026-05-12** (validada por Coordenador + Líder Técnico):
+
+- Persistido em `Usuario.status_usuario` (enum `StatusUsuario { ATIVO, INATIVO }`, default `ATIVO`).
+- 3 valores no DTO: `ATIVO | INATIVO | CONVIDADO`. **CONVIDADO é DERIVADO em runtime** de `id_clerk_usuario.startsWith('pending_')` — não persistido.
+- `PATCH /api/v1/usuarios/:id/status` muda `ATIVO ↔ INATIVO`.
+- **Quem pode mudar:** `MASTER` (intra-org), `SUPER_ADMIN`/`ADMIN` (cross-org via `requireUserManagementRole`).
+- **5 validações:**
+  1. Auto-proteção (ator não pode inativar a si mesmo).
+  2. CONVIDADO não é inativável — usar `DELETE /usuarios/:id/convite` (`cancelarConvite`).
+  3. Anti-bricking: bloqueia inativação do último MASTER ativo da organização.
+  4. Alvo cross-org só pra SAdmin/Admin (MASTER fica restrito ao próprio `id_organizacao`).
+  5. Body Zod `.strict()` com enum `{ ATIVO, INATIVO }`.
+- **Bloqueio de login:** `requireAuth.ts` retorna `401 USUARIO_INATIVO` no próximo request. **Sem Clerk** (Mand. 01). `invalidarCacheRequireAuth(idClerkUsuario)` força kick-out em ms.
+- **Audit log:** `securityAudit.roleChanged` com diff completo (sem fallback silencioso — Mand. 08).
 
 ### Os 3 estados
 
 | Estado | Origem | Significado | Persistência |
 |---|---|---|---|
-| **`ATIVO`** | Backend deriva de `id_clerk_usuario` começando com `user_*` | Cadastro Clerk completo, pode acessar | Persistente (via Clerk) |
-| **`CONVIDADO`** | Backend deriva de `id_clerk_usuario` começando com `pending_*` | Convite Clerk enviado, ainda não aceito | Persistente (via Clerk) |
-| **`INATIVO`** | UI-only — toggle local no frontend | Desativação temporária na sessão atual | **Sem persistência** — reload retorna ao estado real do backend |
+| **`ATIVO`** | Coluna `Usuario.status_usuario = ATIVO` | Usuário pode autenticar e operar | Banco (Prisma) |
+| **`INATIVO`** | Coluna `Usuario.status_usuario = INATIVO` | Login bloqueado em `requireAuth.ts` | Banco (Prisma) |
+| **`CONVIDADO`** | Backend deriva de `id_clerk_usuario.startsWith('pending_')` | Convite Clerk enviado, ainda não aceito | Persistente via Clerk (não duplicado no enum) |
 
 ### Ciclo de vida
 
 ```
 [criação via convite]
        ↓
-  CONVIDADO  (id_clerk_usuario = pending_inv_XXX)
+  CONVIDADO  (id_clerk_usuario = pending_inv_XXX, status_usuario = ATIVO mas mascarado)
        ↓ usuário clica no e-mail Clerk e completa cadastro
-       ↓ Clerk dispara webhook user.created OU usuário loga primeira vez
        ↓ requireAuth.ts fallback por email atualiza id_clerk_usuario → user_YYY
        ↓
      ATIVO
-       ↕ (toggle UI local — sem persistir)
+       ↕ PATCH /usuarios/:id/status (persistido)
     INATIVO
+       ↓ requireAuth.ts → 401 USUARIO_INATIVO no próximo request
 ```
 
-### Onde é derivado
+### Onde é exposto
 
-**Backend** (`server/routes/usuario.ts:142-186` e `server/routes/admin.ts:565-582`):
-- Select inclui `id_clerk_usuario: true` (lido apenas para derivar — NÃO exposto no DTO, Mand. 01)
-- DTO retorna `status_usuario: 'ATIVO' | 'CONVIDADO'`
+**Backend** (`server/routes/usuario.ts` e `server/routes/admin.ts`):
+- Select lê `status_usuario` direto da coluna + `id_clerk_usuario` para derivar CONVIDADO.
+- DTO retorna `status_usuario: 'ATIVO' | 'INATIVO' | 'CONVIDADO'`.
 
 **Frontend**:
-- Zod `usuarioListItemSchema` aceita os 2 valores
-- Tipo `StatusUsuarioUI = 'ATIVO' | 'INATIVO' | 'CONVIDADO'` adiciona INATIVO UI-only
-- Toggle ATIVO ↔ INATIVO desabilitado para CONVIDADO (não faz sentido "desativar" quem nunca aceitou)
-- Para CONVIDADO, ação alternativa é **"Cancelar Convite"** via `DELETE /v1/usuarios/:id/convite`
+- Zod `usuarioListItemSchema` aceita os 3 valores.
+- Toggle dispara `PATCH /usuarios/:id/status` (HTTP real — antes de 2026-05-12 era UI-only).
+- Toggle desabilitado para CONVIDADO. Para CONVIDADO, ação é **"Cancelar Convite"** via `DELETE /v1/usuarios/:id/convite`.
 
 ### Cancelar Convite
 
@@ -542,10 +554,10 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 - SUPER_ADMIN: cross-org permitido
 - ADMIN: bloqueado por `requireUserManagementRole` (read-only global, decisão dono 2026-05-11)
 
-### Decisão dono 2026-05-12
+### Histórico — Decisão dono 2026-05-12
 
-- Enum valores em PT-BR (`ATIVO`/`CONVIDADO`) — exceção aprovada à REGRA 7 da `ddd-nomenclatura`. Registrada em `skills/governanca/lei/ddd-nomenclatura/SKILL.md` (seção REGRA 7 → "Exceções aprovadas pelo dono").
-- INATIVO permanece UI-only (sem campo persistido). Toggle sobrescreve localmente — refresh restaura o real.
+- Enum valores em PT-BR (`ATIVO`/`INATIVO`/`CONVIDADO`) — exceção aprovada à REGRA 7 da `ddd-nomenclatura`. Registrada em `skills/governanca/lei/ddd-nomenclatura/SKILL.md` (seção REGRA 7 → "Exceções aprovadas pelo dono").
+- INATIVO passou a ser **persistido** (antes era UI-only). Migration `20260512_status_usuario` adicionou enum + coluna + índice. Bug histórico: até 2026-05-12 o Configurador mostrava INATIVO temporário e o Admin sempre mostrava ATIVO — Mand. 08 (fallback silencioso) violado.
 
 ---
 
@@ -657,3 +669,38 @@ PR separado criará `PATCH /api/v1/usuarios/:id_usuario` quando o fluxo de sync 
 - [ ] PUT /workspaces opera via `$transaction` (deleteMany + createMany) — nunca estado parcial?
 - [ ] Schema Zod do front (`/api/v1/me`) reflete payload do back no MESMO commit (Mandamento 09)?
 - [ ] Sem fallback silencioso de autorização: `(data?.usuario?.tipo_usuario ?? null) as TipoUsuario` é PROIBIDO (Mandamento 08)?
+
+---
+
+## Convite Cross-Org (Admin Panel) — adicionado 2026-05-12
+
+### Cenário
+
+`POST /api/v1/admin/usuarios/convidar` permite **SUPER_ADMIN** criar usuários em **qualquer organização da plataforma** — não apenas na própria org do ator. Diferente da rota regular `POST /api/v1/usuarios/convidar`, que cria intra-org (Master da própria org).
+
+### Regras
+
+| Regra | Detalhe |
+|---|---|
+| Ator | Apenas SUPER_ADMIN. ADMIN é **read-only** (403 `ADMIN_SOMENTE_LEITURA`) |
+| Org alvo no body | Campo `id_organizacao_alvo` (CUID) **obrigatório** |
+| Regra Gravity-interna | `hospeda_colaboradores_gravity` é checado na **org ALVO** (não na do ator). Bug anterior em `admin.ts:1582` checava no ator |
+| Workspaces obrigatórios | PADRAO/FORNECEDOR exigem `workspaces_alvo` no body (`'all'` ou `string[]`) |
+| Anti-IDOR workspaces | Workspaces passados devem pertencer à **org ALVO** e estar `status_workspace=ATIVO` |
+| Audit log | `id_organizacao = id_organizacao_alvo`; `metadata_ator_historico_log.id_organizacao_ator` carrega a org do SUPER_ADMIN para forense |
+
+### SSOT
+
+Ambas as rotas (regular Master + admin cross-org) chamam `convidar-usuario-service.ts` com `id_organizacao_alvo` parametrizado. Service aplica 9 validações + transação atômica + rollback do Clerk se DB falhar. Ver documento técnico completo em `documentos-tecnicos/arquitetura/convite-admin-cross-org.md`.
+
+### Plan B v6 — Lazy Disambiguation (requireAuth)
+
+Quando um mesmo email tem **>1 pending** cross-org e o convidado faz primeiro login, `requireAuth.ts` consulta `clerkClient.invitations.getInvitationList({status:'accepted', limit:100})` para escolher deterministicamente qual `pending_inv_*` virou o `user_*` real, usando `invitation.id` mais recente. Pay-for-use: API extra apenas em ambiguidade (~1% dos casos).
+
+### Checklist convite cross-org
+
+- [ ] Frontend envia `id_organizacao_alvo` (CUID) — não nome da org
+- [ ] `workspaces_alvo` enviado para PADRAO/FORNECEDOR
+- [ ] Backend usa Zod `.strict()` para rejeitar campos desconhecidos
+- [ ] Pre-existence check na **org ALVO** (não na do ator)
+- [ ] Audit log usa `id_organizacao_alvo` com metadata do ator

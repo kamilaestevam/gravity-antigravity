@@ -86,8 +86,13 @@ function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
   // Antes (bug Mand. 04): derivava por `vinculos.length > 0` — MASTER nunca
   // tem UsuarioWorkspace (Mand. 04: acesso global por tipo_usuario), então
   // todo MASTER aparecia 'Inativo' mesmo sendo usuário ativo.
-  // INATIVO permanece apenas UI-only (toggle local sem persistência).
-  const status: UserStatus = u.status_usuario === 'CONVIDADO' ? 'Convidado' : 'Ativo'
+  //
+  // Atualização 2026-05-12: INATIVO agora é VALOR PERSISTIDO em
+  // Usuario.status_usuario (enum StatusUsuario). Mapeia direto.
+  const status: UserStatus =
+    u.status_usuario === 'CONVIDADO' ? 'Convidado' :
+    u.status_usuario === 'INATIVO'   ? 'Inativo'   :
+    'Ativo'
   return {
     id_usuario:        u.id_usuario,
     nome_usuario:      u.nome_usuario,
@@ -721,6 +726,9 @@ export function UsuariosAdmin() {
           nome_usuario:         usuarioEditando.nome_usuario,
           email_usuario:        usuarioEditando.email_usuario,
           tipo_usuario:         nivelToRole(usuarioEditando.tipo),
+          // Campo só consultado/modificado pela tela de workspace; no admin
+          // global default false (não muda o comportamento do modal).
+          acesso_workspaces_futuros: false,
           data_criacao_usuario: new Date().toISOString(),
           usuario_workspaces:   usuarioEditando.vinculos_workspace.map(v => {
             const tipoEnum = nivelToRole(v.perfil as NivelAcesso)
@@ -734,7 +742,8 @@ export function UsuariosAdmin() {
               ativo_usuario_workspace: true,
             }
           }),
-          status_usuario: usuarioEditando.status === 'Ativo' ? 'ATIVO' : 'INATIVO',
+          status_usuario: usuarioEditando.status === 'Ativo' ? 'ATIVO'
+            : usuarioEditando.status === 'Inativo' ? 'INATIVO' : 'CONVIDADO',
         } : null}
         abaInicial={abaEditando}
         workspaces={usuarioEditando ? usuarioEditando.vinculos_workspace.map(v => ({

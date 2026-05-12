@@ -41,6 +41,15 @@ enum UsuarioTipo {
   FORNECEDOR // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
+// Status persistido do usuário. CONVIDADO é derivado em runtime quando
+// id_clerk_usuario.startsWith('pending_') — não persistido para não duplicar
+// a fonte da verdade do Clerk no fluxo de convite (decisão dono 2026-05-12).
+// SUSPENSO ficou fora do enum (YAGNI — sem job/billing/rate-limit que use).
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
 enum WorkspaceStatus {
   ATIVO
   INATIVO
@@ -112,12 +121,18 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id_usuario                     String      @id @default(cuid())
+  id_usuario                     String        @id @default(cuid())
   id_organizacao                 String
-  id_clerk_usuario               String      @unique(map: "usuario_id_clerk_usuario_key")
+  id_clerk_usuario               String        @unique(map: "usuario_id_clerk_usuario_key")
   email_usuario                  String
   nome_usuario                   String
-  tipo_usuario                   UsuarioTipo @default(PADRAO)
+  tipo_usuario                   UsuarioTipo   @default(PADRAO)
+
+  // Status persistido (ATIVO/INATIVO). CONVIDADO é derivado em runtime quando
+  // id_clerk_usuario.startsWith('pending_') — backend retorna 3 valores no DTO.
+  // requireAuth bloqueia 401 USUARIO_INATIVO. PATCH /usuarios/:id/status grava.
+  // (decisão dono 2026-05-12, validada por Coordenador + Líder Técnico)
+  status_usuario                 StatusUsuario @default(ATIVO)
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
@@ -148,6 +163,7 @@ model Usuario {
   @@index([id_organizacao, tipo_usuario],                map: "usuario_id_organizacao_tipo_usuario_idx")
   @@index([id_workspace_preferido_usuario],              map: "usuario_id_workspace_preferido_usuario_idx")
   @@index([id_organizacao, acesso_workspaces_futuros],   map: "usuario_id_organizacao_acesso_workspaces_futuros_idx")
+  @@index([id_organizacao, status_usuario],              map: "usuario_id_organizacao_status_usuario_idx")
   @@map("usuario")
 }
 

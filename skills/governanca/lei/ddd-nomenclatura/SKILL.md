@@ -222,9 +222,11 @@ Quando a operação de negócio do projeto é majoritariamente PT-BR e o conceit
 | Enum | Valores | Aprovado em | Motivo |
 |---|---|---|---|
 | `UsuarioTipo` | `SUPER_ADMIN`, `ADMIN`, `MASTER`, `PADRAO`, `FORNECEDOR` | implícito (legado pré-skill) | "PADRAO"/"FORNECEDOR" são termos PT-BR sem equivalente direto e curto em inglês |
-| `status_usuario` (derivado em runtime) | `ATIVO`, `CONVIDADO` | dono 2026-05-12 | Consistência com `UsuarioTipo` (mesma família Usuario); INATIVO continua UI-only |
+| `StatusUsuario` (persistido + CONVIDADO derivado) | `ATIVO`, `INATIVO` (banco) + `CONVIDADO` (runtime) | dono 2026-05-12 | Consistência com `UsuarioTipo` (mesma família Usuario). Persistido em `Usuario.status_usuario` desde migration `20260512_status_usuario`. CONVIDADO continua derivado de `id_clerk_usuario.startsWith('pending_')` |
 
 **Regra para futuras exceções:** sempre que um novo enum cair nesse padrão (PT-BR), registrar nesta tabela com data + motivo. Próximo agente DDD não deve "corrigir" sem checar.
+
+**Atualização 2026-05-12:** `status_usuario` segue padrão `status_<entidade>` (enum), alinhado com `status_organizacao`, `status_workspace`, `status_assinatura_produto_gravity`. Não confundir com `acesso_workspaces_futuros` (boolean flag — exceção documentada acima). Enum Prisma: `StatusUsuario { ATIVO, INATIVO }`. CONVIDADO continua derivado em runtime de `id_clerk_usuario.startsWith('pending_')`, não persistido.
 
 ---
 

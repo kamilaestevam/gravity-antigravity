@@ -7,7 +7,12 @@ import { useTranslation } from 'react-i18next'
 import type { Page } from '../App'
 import { HardDrives, Buildings, TreeStructure, ChartPieSlice, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, PencilSimple } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
-import { adminOrganizacoesApi, type OrganizacaoApi, type WorkspaceApi } from '../services/api-client'
+import {
+  adminOrganizacoesApi,
+  adminOrganizacaoUpdateResponseSchema,
+  type OrganizacaoApi,
+  type WorkspaceApi,
+} from '../services/api-client'
 
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -175,7 +180,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       // Fix wiring 2026-05-06: antes só enviava nome+subdominio — cnpj/estado/
       // cidade/segmento/tipo eram silenciosamente descartados. UI mostrava
       // "salvo com sucesso" mentindo. Agora envia tudo que o modal coletou.
-      const { organizacao: atualizada } = await adminOrganizacoesApi.update(
+      const respostaBruta = await adminOrganizacoesApi.update(
         orgEditando.id_organizacao,
         {
           nome_organizacao:       dados.nome,
@@ -187,6 +192,16 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
           tipo_organizacao:       dados.tipo_empresa,
         },
       )
+      // Mand. 09 (contrato bilateral) + Mand. 06 (Zod strict) + Mand. 08
+      // (sem fallback silencioso): parse Zod da response. Se backend mudar
+      // nome de campo, o parse falha ruidoso aqui — não esconde drift.
+      const parsed = adminOrganizacaoUpdateResponseSchema.safeParse(respostaBruta)
+      if (!parsed.success) {
+        console.error('[handleUpdateOrg] payload de PATCH /admin/organizacoes fora do contrato', parsed.error)
+        throw new Error('Falha de contrato na resposta do servidor.')
+      }
+      const atualizada = parsed.data.organizacao
+
       // Atualiza state local com a versão devolvida pelo backend (paridade).
       setOrganizacoes(prev => prev.map(o =>
         o.id_organizacao === orgEditando.id_organizacao

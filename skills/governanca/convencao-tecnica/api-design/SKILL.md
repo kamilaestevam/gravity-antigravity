@@ -388,6 +388,32 @@ DELETE /api/v1/agendas/:id_agenda/disponibilidade-config   → remove
 
 ---
 
+## PATCH parcial + normalização de vazio
+
+> **Aprendizado validado em produção — 2026-05-06.**
+
+PATCH parcial deve aceitar `string` vazio significando "limpar campo" (vira `null` no banco). Diferenciar `undefined` (não tocar) de `""` (apagar) é parte do contrato.
+
+**Helper canônico:**
+
+```ts
+const vazioParaNull = (v: string | undefined): string | null | undefined => {
+  if (v === undefined) return undefined  // não toca campo
+  const t = v.trim()
+  return t === '' ? null : t              // "" → null
+}
+```
+
+**Regras:**
+- Schema Zod do request usa `z.string().optional()` com `.refine(v => v === '' || regex.test(v), ...)` pra aceitar limpar OU valor válido.
+- Schema Zod da **response** deve existir em paralelo ao do request — sem isso, drift de contrato fica invisível (Mandamento 09).
+- Backend deve retornar a entidade completa após mutação (paridade request/response) — frontend atualiza state local sem refetch.
+- Frontend faz `responseSchema.parse(json)` antes de usar — nunca consumir `await fetch().json()` cru.
+
+**Caso real (2026-05-06):** PATCH `/admin/organizacoes/:id` aceitava o body mas descartava 5 campos. Sem Zod de response no front, o drift entre o que era enviado e o que voltava ficou invisível por meses.
+
+---
+
 ## PUT vs PATCH
 
 | Método | Semântica | Quando usar |

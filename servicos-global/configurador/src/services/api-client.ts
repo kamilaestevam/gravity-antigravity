@@ -236,6 +236,25 @@ export interface OrganizacaoApi {
 // Espelham as respostas das rotas /api/v1/organizacoes/me e /api/v1/me/workspaces.
 // Atualizar SEMPRE no mesmo commit em que o backend mudar o payload.
 
+// Schema Zod para a resposta do PATCH /admin/organizacoes/:id_organizacao
+// Mand. 09 (contrato bilateral): atualizar SEMPRE em sincronia com o
+// `select` do prisma.update em `server/routes/admin.ts` (PATCH handler).
+export const organizacaoAdminResponseSchema = z.object({
+  id_organizacao:         z.string(),
+  nome_organizacao:       z.string(),
+  subdominio_organizacao: z.string(),
+  status_organizacao:     z.string(),
+  cnpj_organizacao:       z.string().nullable().optional(),
+  estado_organizacao:     z.string().nullable().optional(),
+  cidade_organizacao:     z.string().nullable().optional(),
+  segmento_organizacao:   z.string().nullable().optional(),
+  tipo_organizacao:       z.string().nullable().optional(),
+})
+export const adminOrganizacaoUpdateResponseSchema = z.object({
+  organizacao: organizacaoAdminResponseSchema,
+})
+export type AdminOrganizacaoUpdateResponse = z.infer<typeof adminOrganizacaoUpdateResponseSchema>
+
 export const meResponseSchema = z.object({
   organizacao: z.object({
     id_organizacao: z.string(),
@@ -551,7 +570,18 @@ export const adminOrganizacoesApi = {
     })
   },
 
-  async update(id_organizacao: string, data: { nome_organizacao?: string; subdominio_organizacao?: string }) {
+  async update(
+    id_organizacao: string,
+    data: {
+      nome_organizacao?:       string
+      subdominio_organizacao?: string
+      cnpj_organizacao?:       string
+      estado_organizacao?:     string
+      cidade_organizacao?:     string
+      segmento_organizacao?:   string
+      tipo_organizacao?:       string
+    },
+  ) {
     return request<{ organizacao: OrganizacaoApi }>(`/v1/admin/organizacoes/${id_organizacao}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

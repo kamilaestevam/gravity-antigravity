@@ -106,25 +106,29 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
-  // Preenche dados quando a modal abre
+  // Preenche dados quando a modal abre.
+  // Fix 2026-05-06 (Bug #6): antes sempre limpava cnpj/estado/cidade/segmento/
+  // tipo_empresa — usuário NUNCA via valores já gravados na org. Agora popula
+  // com os campos vindos da prop (e suporta null para orgs antigas sem dado).
   useEffect(() => {
     if (aberto && organizacao) {
       setNome(organizacao.nome_organizacao || '')
-      setCnpj('')
-      setEstado('')
-      setCidade('')
-      setSegmento('')
-      setTipoEmpresa('')
+      setCnpj(organizacao.cnpj_organizacao ?? '')
+      setEstado(organizacao.estado_organizacao ?? '')
+      setCidade(organizacao.cidade_organizacao ?? '')
+      setSegmento(organizacao.segmento_organizacao ?? '')
+      setTipoEmpresa(organizacao.tipo_organizacao ?? '')
     }
   }, [aberto, organizacao])
 
+  // dirty compara cada campo com o valor original da organização.
   const dirty = !!(
     nome !== (organizacao?.nome_organizacao || '') ||
-    cnpj !== '' ||
-    estado !== '' ||
-    cidade !== '' ||
-    segmento !== '' ||
-    tipoEmpresa !== ''
+    cnpj !== (organizacao?.cnpj_organizacao ?? '') ||
+    estado !== (organizacao?.estado_organizacao ?? '') ||
+    cidade !== (organizacao?.cidade_organizacao ?? '') ||
+    segmento !== (organizacao?.segmento_organizacao ?? '') ||
+    tipoEmpresa !== (organizacao?.tipo_organizacao ?? '')
   )
   const requisitos: RequisitoSalvar[] = [
     { chave: 'nome', ok: nome.trim().length >= 2, mensagem: 'Nome da organização (mín. 2 caracteres)' },

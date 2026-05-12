@@ -49,6 +49,24 @@ Toda ação privilegiada DEVE gerar log no `historico` com `actor_type` e `trigg
 
 > Ação sensível sem log → falha de compliance, **trabalho rejeitado pelo QA**.
 
+### Log estruturado em catch de mutações sensíveis
+
+Toda mutação administrativa (admin alterando organização, usuário, permissão, etc.) que dispara `AuditService.log` deve SEMPRE logar a falha do próprio log:
+
+```ts
+AuditService.log({ ... }).catch((err) => {
+  console.error('[admin.patch.organizacoes] AuditService.log falhou', {
+    id_organizacao: tenant.id_organizacao,
+    id_ator: req.auth.id_usuario,
+    campos_alterados: Object.keys(diff),
+    err: err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : err,
+  })
+})
+```
+
+- NUNCA use `.catch(() => {})` em audit log — auditoria de ação sensível silenciosamente quebrada = forense comprometido.
+- Mínimo do log estruturado: actor, resource, campos alterados, err detalhado (name + message + stack).
+
 ---
 
 ## Middleware Mínimo de Observabilidade

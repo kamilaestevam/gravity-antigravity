@@ -417,3 +417,22 @@ Sim, desde que esses produtos estejam instrumentados para enviar eventos ao hist
 - **Imutável após criação** — PATCH não aceita `subdominio_workspace` no body.
 - **Preview ao vivo** no modal: `GET /api/v1/me/sugestoes-subdominio?base=<slug>` com debounce 400ms.
 - **Domínio canônico:** `usegravity.com.br` (substituiu `gravity.com.br` em 73 ocorrências do código).
+
+---
+
+## 2026-05-06 — Bug fix: edição de dados cadastrais da organização (admin)
+
+**Sintoma:** `PATCH /api/v1/admin/organizacoes/:id` ignorava silenciosamente 5 campos (`cnpj_organizacao`, `estado_organizacao`, `cidade_organizacao`, `segmento_organizacao`, `tipo_organizacao`). UI mostrava "salvo com sucesso" mas os dados nunca persistiam.
+
+**Causa raiz:** wiring incompleto em 5 elos da cadeia (Zod backend + Prisma update + tipo TS api-client + handler frontend + `useEffect` do modal). Mandamento 09 violado por décadas — sem teste de persistência cobrindo essa rota.
+
+**Correção:**
+- Zod backend expandido com regex CNPJ (`XX.XXX.XXX/XXXX-XX`) e UF maiúscula (2 chars).
+- Rota PATCH grava todos os 5 campos + retorna org completa.
+- AuditService.log captura diff de todos os campos alterados.
+- Frontend faz `.parse()` Zod da response (`adminOrganizacaoUpdateResponseSchema`).
+- Modal `ModalEditarOrganizacao` popula state com valores existentes da prop `organizacao` (antes sempre limpava ao abrir).
+- Helper `vazioParaNull` (`""` → `null`) padronizado para limpeza de campos opcionais.
+- 10 testes funcionais em `admin-organizacao-patch-cadastrais.test.ts` cobrem o caminho.
+
+**Skills atualizadas:** `database-governance` (REGRA Paridade de Cadeia 5 elos), `api-design` (PATCH parcial), `code-review` (checklist wiring), `qa` (persistência), `9-mandamentos` (exemplo Mand. 09), `observabilidade-minima` (log em catch), `configurador/admin` (edição de org).

@@ -67,6 +67,19 @@ function requireGravityAdmin(req, res, next) {
 
 ---
 
+### Edição de Organização (PATCH /admin/organizacoes/:id)
+
+Endpoint admin pra editar dados cadastrais da organização.
+
+- **Campos suportados:** `nome_organizacao`, `subdominio_organizacao`, `status_organizacao`, `cnpj_organizacao`, `estado_organizacao` (UF maiúscula), `cidade_organizacao`, `segmento_organizacao`, `tipo_organizacao`. Todos opcionais. String vazia `""` significa "limpar campo" (vira `null` no banco — usar helper `vazioParaNull`).
+- **Validação:** regex CNPJ `XX.XXX.XXX/XXXX-XX`, estado obrigatório UF (2 chars maiúsculas).
+- **Auditoria:** `AuditService.log` captura diff de TODOS os campos alterados em `estado_anterior` e `estado_posterior_historico_log`.
+- **Auto-edição** da própria org HQ (status) bloqueada — preserva integridade do tenant da plataforma.
+- **Modal frontend:** `ModalEditarOrganizacao.tsx`. Popula state com valores existentes ao abrir (não limpa).
+- **Histórico:** bug detectado em 2026-05-06 — 5 campos cadastrais (CNPJ, estado, cidade, segmento, tipo) eram silenciosamente ignorados. Correção alinhou os 5 elos da cadeia (Prisma/Zod req/rota/tipo TS/Zod resp) — ver REGRA "Paridade de Cadeia" em `database-governance`.
+
+---
+
 ## Tela 2 — Produtos Contratados
 
 Visão de quais produtos cada organização tem ativo.
@@ -278,3 +291,33 @@ model GravityAdmin {
 - [ ] APIs externas com health check a cada 30s e histórico de incidentes?
 - [ ] Alertas de queda via email e WhatsApp para equipe Gravity?
 - [ ] Schema com ApiKey, ApiRequestLog, ApiMonitor, ApiIncident?
+
+
+---
+
+## Empresas e Parceiros (Cross-Org)
+
+Tela admin **read-only** que lista empresas/parceiros de TODAS as organizações da plataforma.
+Path: `/admin/empresas-e-parceiros`. Página: `EmpresasEParceirosAdmin.tsx`.
+
+### Audiência
+SUPER_ADMIN e ADMIN Gravity. Bloqueada para qualquer outro `tipo_usuario` por `requireGravityAdmin`.
+
+### Pipeline backend
+Frontend → `/api/v1/admin/empresas` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/empresas` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
+
+### Garantias
+- **Read-only por design** — admin investiga, não modifica. Edição/criação/inativação cross-org está desabilitada na UI; mudanças continuam exclusivas da tela do workspace.
+- **Banner permanente** topo da tela: `CardBasicoGlobal variante="aviso"` explicando modo cross-org + audit log + read-only. Não dispensável.
+- **Modal volume > 500** sempre aparece (sem checkbox "não perguntar mais"), sugerindo filtrar por organização ou tipo de parceiro antes de continuar.
+- **Teto duro 200 por página** no Cadastros (clamp em servidor).
+- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.empresas.list`, `recurso=empresa`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
+- **Filtro por organização** via `SelectOrganizacaoAdminGlobal` (autocomplete com debounce 300ms) — input livre de UUID proibido.
+- **Coluna `nome_organizacao`** sticky-left, clique navega para `/admin/organizacoes/:id`.
+- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas a empresa ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
+
+### Roadmap Fase 2
+A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
+
+### Skill relacionada
+- `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.

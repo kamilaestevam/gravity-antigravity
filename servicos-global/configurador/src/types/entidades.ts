@@ -108,6 +108,16 @@ export interface Organizacao {
   subdominio_organizacao: string
   status_organizacao: string
   data_criacao_organizacao: string
+
+  // Campos cadastrais — opcionais (nullable no banco) porque podem estar
+  // NULL para organizações antigas (criadas antes do form coletar esses dados).
+  // Paridade absoluta com Organizacao do Prisma (linhas 404-408 do schema).
+  cnpj_organizacao?:     string | null
+  estado_organizacao?:   string | null
+  cidade_organizacao?:   string | null
+  segmento_organizacao?: string | null
+  tipo_organizacao?:     string | null
+
   _count?: {
     usuarios: number
     workspaces: number

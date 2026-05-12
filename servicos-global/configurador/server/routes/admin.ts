@@ -70,11 +70,29 @@ adminRouter.use(auditMiddleware({
 // O preset admin (60 req/min por tenant:IP) evita flood.
 adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
 
+// Validação flexível pra campos opcionais cadastrais — aceita string vazia
+// (usuário limpou) e converte pra null no backend. Trim em todos os strings.
+const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
+
 const UpdateOrganizacaoSchema = z.object({
   status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
   nome_organizacao: z.string().min(2).max(200).optional(),
   subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
   note: z.string().optional(),
+
+  // Campos cadastrais — todos opcionais e aceitando "" (significa "limpar").
+  // Validações específicas só quando o usuário envia valor não-vazio.
+  cnpj_organizacao: z.string()
+    .max(20, 'CNPJ excede 20 caracteres')
+    .refine(v => v === '' || cnpjRegex.test(v), 'CNPJ inválido (formato XX.XXX.XXX/XXXX-XX)')
+    .optional(),
+  estado_organizacao: z.string()
+    .max(2, 'Estado é a sigla UF (2 chars)')
+    .refine(v => v === '' || /^[A-Z]{2}$/.test(v), 'Estado deve ser UF maiúscula (ex: SP)')
+    .optional(),
+  cidade_organizacao: z.string().max(120, 'Cidade excede 120 caracteres').optional(),
+  segmento_organizacao: z.string().max(80, 'Segmento excede 80 caracteres').optional(),
+  tipo_organizacao: z.string().max(80, 'Tipo excede 80 caracteres').optional(),
 })
 
 const CreateOrganizacaoSchema = z.object({
@@ -247,15 +265,62 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       throw new AppError('Organização não encontrada', 404, 'NOT_FOUND')
     }
 
+    // Helper: converte "" em null (significa "limpar" no banco), preserva
+    // undefined (significa "não tocar este campo na atualização").
+    const vazioParaNull = (v: string | undefined): string | null | undefined => {
+      if (v === undefined) return undefined
+      const t = v.trim()
+      return t === '' ? null : t
+    }
+
     const tenant = await prisma.organizacao.update({
       where: { id_organizacao: req.params.id_organizacao },
       data: {
         ...(parsed.data.status_organizacao && { status_organizacao: parsed.data.status_organizacao }),
         ...(parsed.data.nome_organizacao && { nome_organizacao: parsed.data.nome_organizacao.trim() }),
         ...(parsed.data.subdominio_organizacao && { subdominio_organizacao: parsed.data.subdominio_organizacao }),
+        ...(parsed.data.cnpj_organizacao     !== undefined && { cnpj_organizacao:     vazioParaNull(parsed.data.cnpj_organizacao) }),
+        ...(parsed.data.estado_organizacao   !== undefined && { estado_organizacao:   vazioParaNull(parsed.data.estado_organizacao) }),
+        ...(parsed.data.cidade_organizacao   !== undefined && { cidade_organizacao:   vazioParaNull(parsed.data.cidade_organizacao) }),
+        ...(parsed.data.segmento_organizacao !== undefined && { segmento_organizacao: vazioParaNull(parsed.data.segmento_organizacao) }),
+        ...(parsed.data.tipo_organizacao     !== undefined && { tipo_organizacao:     vazioParaNull(parsed.data.tipo_organizacao) }),
       },
-      select: { id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true },
+      select: {
+        id_organizacao: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
+        status_organizacao: true,
+        cnpj_organizacao: true,
+        estado_organizacao: true,
+        cidade_organizacao: true,
+        segmento_organizacao: true,
+        tipo_organizacao: true,
+      },
     })
+
+    // Audit completo: registra diff de TODOS os campos atualizados.
+    // Antes só logava mudança de status — silenciava edição de dados cadastrais.
+    const estadoAnterior: Record<string, unknown> = {}
+    const estadoPosterior: Record<string, unknown> = {}
+    const camposMonitorados = [
+      'status_organizacao',
+      'nome_organizacao',
+      'subdominio_organizacao',
+      'cnpj_organizacao',
+      'estado_organizacao',
+      'cidade_organizacao',
+      'segmento_organizacao',
+      'tipo_organizacao',
+    ] as const
+    for (const campo of camposMonitorados) {
+      const antes = (existing as Record<string, unknown>)[campo]
+      const depois = (tenant as Record<string, unknown>)[campo]
+      if (antes !== depois) {
+        estadoAnterior[campo] = antes ?? null
+        estadoPosterior[campo] = depois ?? null
+      }
+    }
+    const houveMudanca = Object.keys(estadoAnterior).length > 0
 
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
@@ -266,14 +331,32 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       modulo_historico_log: 'admin',
       tipo_recurso_historico_log: 'Organização',
       id_recurso_historico_log: tenant.id_organizacao,
-      acao_historico_log: 'ALTERAR_STATUS',
-      detalhe_acao_historico_log: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
-      estado_anterior_historico_log: { status: existing.status_organizacao },
-      estado_posterior_historico_log: { status: tenant.status_organizacao },
+      // Heurística: se a mudança não envolve status_organizacao, considera
+      // ATUALIZAR (edição de dados cadastrais). Se envolve, mantém o
+      // ALTERAR_STATUS histórico (compatibilidade com dashboards já filtrando).
+      acao_historico_log: !('status_organizacao' in estadoAnterior)
+        ? 'ATUALIZAR'
+        : 'ALTERAR_STATUS',
+      detalhe_acao_historico_log: houveMudanca
+        ? `Campos alterados: ${Object.keys(estadoAnterior).join(', ')}`
+        : 'Nenhuma alteração detectada',
+      estado_anterior_historico_log: estadoAnterior,
+      estado_posterior_historico_log: estadoPosterior,
       status_historico_log: 'SUCESSO',
-    }).catch(() => { /* fire-and-forget */ })
+    }).catch((err) => {
+      // Mand. 08 (sem fallback silencioso) + observabilidade-mínima: auditoria
+      // de ação sensível (admin alterando organização) NUNCA pode falhar em
+      // silêncio. Log estruturado garante captura por Sentry/forense.
+      console.error('[admin.patch.organizacoes] AuditService.log falhou', {
+        id_organizacao: tenant.id_organizacao,
+        id_ator: req.auth.id_usuario,
+        campos_alterados: Object.keys(estadoAnterior),
+        err: err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : err,
+      })
+    })
 
-    // PARIDADE ABSOLUTA
+    // PARIDADE ABSOLUTA — retorna org completa com todos os campos cadastrais
+    // pra o frontend atualizar state local sem refetch.
     res.json({ organizacao: tenant })
   } catch (err) {
     next(err)

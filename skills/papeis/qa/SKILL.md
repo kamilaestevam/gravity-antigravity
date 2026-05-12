@@ -53,6 +53,14 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] **Mandamento 07**: renomear campo de API atualizou TODOS os consumidores no MESMO commit
 - [ ] **Mandamento 09**: backend mudou → schema Zod do front mudou no MESMO commit
 
+#### Persistência (obrigatório em todo endpoint de update)
+
+- [ ] Para todo `PATCH`/`PUT`/`POST` com campos editáveis, existe teste funcional que:
+  - Envia TODOS os campos editáveis com valores não-default
+  - Re-lê via `GET` (ou inspeciona a chamada do Prisma mock)
+  - Confirma que TODOS os campos persistiram (não só o "happy path" dos 2-3 campos óbvios)
+- Esse era o teste ausente no bug `/admin/organizacoes` (2026-05-06) — 5 campos eram silenciosamente descartados sem nenhum teste pegar.
+
 ### 2 — Isolamento de Organização (Schema-per-Organização)
 
 > Consultar `antigravity-isolamento-organizacao`.

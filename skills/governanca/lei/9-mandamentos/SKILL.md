@@ -193,6 +193,12 @@ const meResponseSchema = z.object({
 
 **Por quê:** o Zod só protege se estiver correto. Um schema desatualizado dá falsa sensação de segurança — o parse "passa" mas retorna campos errados ou `undefined`, exatamente o mesmo bug que aconteceria sem validação nenhuma.
 
+**Caso real (2026-05-06) — PATCH parcial sem Zod de response:**
+- Bug: `PATCH /admin/organizacoes/:id` retornava `{ organizacao: {...} }` mas o frontend consumia com `?? null` sem `.parse()`.
+- 5 campos cadastrais novos (`cnpj`, `estado`, `cidade`, `segmento`, `tipo`) foram adicionados ao request, mas o schema Zod da response não existia. A UI usava só `nome` e `subdominio` (ok), ignorando silenciosamente os 5 novos.
+- Quando o backend mudou nome de campo, nada quebrou — frontend virou `null` em silêncio e ainda exibia "salvo com sucesso".
+- Lição: SEMPRE escrever o schema Zod da RESPONSE em paralelo ao do request. Sem `.parse()` da response, mudança de contrato vira bug invisível.
+
 ---
 
 ## Checklist Antes de Cada Entrega

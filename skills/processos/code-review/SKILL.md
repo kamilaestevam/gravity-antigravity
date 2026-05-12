@@ -62,6 +62,22 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Teste de cross-organizacao (se serviço da Organizacao)?
 - [ ] Cobertura ≥ 70%?
 
+### Wiring de cadeia completa em endpoints de mutação (pós-bug 2026-05-06)
+
+Pra cada PATCH/POST/PUT adicionado/modificado, validar:
+
+- [ ] Campo existe no schema Prisma (migration aplicada)?
+- [ ] Schema Zod do **request** lista o campo + validações específicas?
+- [ ] Rota grava via `prisma.update/create({ data: ... })` (não silenciosamente descartado)?
+- [ ] Tipo TS da entidade no frontend (e do api-client) tem o campo?
+- [ ] Schema Zod da **response** existe + frontend faz `.parse()` antes de usar?
+- [ ] Modal/form `useEffect` popula state com valor existente (não limpa ao abrir)?
+- [ ] Teste funcional cobre PATCH→GET confirmando persistência (não só status 200)?
+
+> Faltar qualquer item = bug silencioso (UI mente sobre persistência). Esse foi exatamente o padrão do bug `/admin/organizacoes` em 2026-05-06: 5 campos cadastrais ignorados por meses porque a cadeia de 5 elos (Prisma → Zod request → rota → tipo TS → Zod response) tinha wiring incompleto.
+
+---
+
 ### Arquitetura
 
 - [ ] Escopo respeitado (agente só escreveu na sua pasta)?

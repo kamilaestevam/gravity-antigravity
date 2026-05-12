@@ -398,6 +398,24 @@ Migration aplicada em qualquer ambiente **nunca** é editada, renomeada ou remov
 
 ---
 
+### REGRA — Paridade de Cadeia (5 elos) em endpoints de mutação
+
+> **Aprendizado validado em produção — 2026-05-06.**
+
+Pra cada campo gravado num PATCH/POST/PUT, **OS 5 ELOS** precisam estar alinhados. Faltar qualquer um = bug silencioso (UI mente sobre persistência).
+
+1. **Schema Prisma** tem a coluna (migration aplicada no banco).
+2. **Schema Zod do request** lista o campo + validações específicas.
+3. **Rota** grava o campo no `prisma.update({ data: {...} })` (ou `create`).
+4. **Tipo TS** do api-client + tipo da entidade no frontend incluem o campo.
+5. **Schema Zod da response** valida o campo + frontend faz `.parse()` antes de usar.
+
+**Checklist mental** ao adicionar/editar endpoint de mutação: "esse campo existe e é validado nos 5 elos?". Se a resposta for "não sei" pra qualquer um, parar e verificar.
+
+**Caso real (2026-05-06):** o `PATCH /api/v1/admin/organizacoes/:id` ignorou silenciosamente 5 campos cadastrais (`cnpj_organizacao`, `estado_organizacao`, `cidade_organizacao`, `segmento_organizacao`, `tipo_organizacao`) por meses. A coluna existia no Prisma, mas o Zod do request não listava, a rota não gravava, o tipo TS não tinha, o Zod da response também não — e a UI mostrava "salvo com sucesso" mentindo. Dono detectou empiricamente. Correção exigiu mexer nos 5 elos simultaneamente + helper `vazioParaNull` + AuditService logando diff completo + 10 testes funcionais de persistência.
+
+---
+
 ### Regra 5 — Validar drift schema↔DB antes de toda alteração
 
 Antes de adicionar migration, alterar `fragment.prisma` ou propor RENAME COLUMN, **sempre** verificar se o estado físico do banco bate com o schema Prisma:

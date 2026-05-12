@@ -57,7 +57,14 @@ import {
 //              do Item"; "Unidade Comercializada" -> "...do Pedido" / "...do
 //              Item". Referencia Importador/Exportador movidas no SSOT para
 //              logo apos "Fabricante — Nome" (preservam grupo Documentos).
-const TEMPLATE_VERSAO = '3.3'
+// 3.4 (P11)  — Zona ESSENCIAL encolhe para A-U (Incoterm). 10 campos do PEDIDO
+//              rebaixados de 'principal' para 'secundaria': Moeda do Pedido,
+//              Valor Total, Quantidade Total, Unidade Comercializada,
+//              Condicao de Pagamento, No Proforma, No Invoice, Porto Origem,
+//              Porto Destino, Data de Emissao. Continuam disponiveis na zona
+//              DETALHES expansivel — apenas saem do bloco de preenchimento
+//              obrigatorio rapido.
+const TEMPLATE_VERSAO = '3.4'
 
 export const smartImportRouter = Router()
 

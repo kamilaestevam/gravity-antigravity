@@ -134,11 +134,15 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 
   // Comercial
   { campo: 'incoterm_pedido',                              rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['incoterms', 'delivery terms', 'trade terms'] },
-  { campo: 'moeda_pedido',                                 rotulo: 'Moeda do Pedido',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy', 'moeda'] },
-  { campo: 'valor_total_pedido',                           rotulo: 'Valor Total do Pedido',                  tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['total amount', 'po total', 'order total'] },
-  { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['total quantity', 'total qty'] },
-  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
-  { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', prioridade: 'principal', aliasesLegados: ['payment terms', 'pay terms'] },
+  // P11 — Os campos abaixo eram 'principal' mas foram rebaixados a 'secundaria'
+  // por decisao do dono em 11/05/2026: a zona ESSENCIAL do template deve
+  // terminar em Incoterm (coluna U). Estes campos continuam aparecendo no
+  // template e no modal de mapeamento, mas na zona DETALHES (expansivel).
+  { campo: 'moeda_pedido',                                 rotulo: 'Moeda do Pedido',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy', 'moeda'] },
+  { campo: 'valor_total_pedido',                           rotulo: 'Valor Total do Pedido',                  tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total amount', 'po total', 'order total'] },
+  { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total quantity', 'total qty'] },
+  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
+  { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['payment terms', 'pay terms'] },
   { campo: 'quantidade_volumes_pedido',                    rotulo: 'Qtd. de Volumes',                        tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
@@ -154,18 +158,21 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'cubagem_total_pedido',                         rotulo: 'Cubagem Total',                          tipo: 'numero', nivel: 'pedido', grupo: 'Fisico' },
 
   // Documentos
-  { campo: 'numero_proforma_pedido',                       rotulo: 'No Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal' },
-  { campo: 'numero_invoice_pedido',                        rotulo: 'No Invoice',                             tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', prioridade: 'principal', aliasesLegados: ['invoice no', 'invoice number', 'inv no', 'inv number'] },
+  // P11 — Rebaixados a 'secundaria' por decisao do dono (ESSENCIAL para em U).
+  { campo: 'numero_proforma_pedido',                       rotulo: 'No Proforma',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
+  { campo: 'numero_invoice_pedido',                        rotulo: 'No Invoice',                             tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', aliasesLegados: ['invoice no', 'invoice number', 'inv no', 'inv number'] },
   // referencia_importador_pedido e referencia_exportador_pedido foram movidos
   // para logo apos `nome_fabricante` (decisao do dono em 11/05/2026, fase P10).
   { campo: 'referencia_fabricante_pedido',                 rotulo: 'Referencia Fabricante',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos', aliasesLegados: ['manufacturer ref', 'maker ref', 'factory ref'] },
 
   // Logistica
-  { campo: 'porto_origem_pedido',                          rotulo: 'Porto de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', prioridade: 'principal' },
-  { campo: 'porto_destino_pedido',                         rotulo: 'Porto de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', prioridade: 'principal' },
+  // P11 — Rebaixados a 'secundaria' por decisao do dono (ESSENCIAL para em U).
+  { campo: 'porto_origem_pedido',                          rotulo: 'Porto de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
+  { campo: 'porto_destino_pedido',                         rotulo: 'Porto de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
 
   // Datas principais
-  { campo: 'data_emissao_pedido',                          rotulo: 'Data de Emissao',                        tipo: 'data',   nivel: 'pedido', grupo: 'Datas', prioridade: 'principal', aliasesLegados: ['order date', 'po date', 'issue date', 'doc date', 'invoice date', 'data emissao', 'data pedido'] },
+  // P11 — Rebaixado a 'secundaria' por decisao do dono (ESSENCIAL para em U = Incoterm).
+  { campo: 'data_emissao_pedido',                          rotulo: 'Data de Emissao',                        tipo: 'data',   nivel: 'pedido', grupo: 'Datas', aliasesLegados: ['order date', 'po date', 'issue date', 'doc date', 'invoice date', 'data emissao', 'data pedido'] },
   { campo: 'data_documento_pedido',                        rotulo: 'Data do Documento',                      tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_documento_proforma_pedido',               rotulo: 'Data do Documento Proforma',             tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_documento_invoice_pedido',                rotulo: 'Data do Documento Invoice',              tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },

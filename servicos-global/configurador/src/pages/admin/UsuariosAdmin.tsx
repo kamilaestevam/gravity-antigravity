@@ -142,17 +142,38 @@ export function UsuariosAdmin() {
   const [carregando, setCarregando] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
-  const [showForm, setShowForm]   = useState(false)
-  const [fNome, setFNome]         = useState('')
-  const [fEmail, setFEmail]       = useState('')
-  const [fTipo, setFTipo]         = useState<NivelAcesso>('Standard')
-  const [fOrg, setFOrg]           = useState('')
+  const [showForm, setShowForm]                     = useState(false)
+  const [fNome, setFNome]                           = useState('')
+  const [fEmail, setFEmail]                         = useState('')
+  const [fTipo, setFTipo]                           = useState<NivelAcesso>('Standard')
+  // Antes era `fOrg` (nome_organizacao). Bug histórico: o backend ignorava o
+  // valor e criava o usuário sempre na org do ator (Gravity HQ). Agora é o
+  // id_organizacao real (CUID), enviado para o backend como id_organizacao_alvo.
+  const [fIdOrganizacaoAlvo, setFIdOrganizacaoAlvo] = useState('')
+  // Workspaces alvo do convite — só preenchido para PADRAO/FORNECEDOR (MASTER tem bypass).
+  // Convenção do backend: 'all' = todos ATIVOs da org alvo; string[] = subset explícito.
+  const [fWorkspacesAlvo, setFWorkspacesAlvo]       = useState<'all' | string[]>([])
 
-  // Organizações extraídas dos dados reais
+  // Organizações derivadas dos dados reais (usado em cards de estatística:
+  // total, orgs com/sem usuários). Diferente de `orgsAdmin` (lista da API
+  // usada apenas para o select do modal de convite).
   const ORGS = useMemo(() => {
     const orgs = new Set(usuarios.map(u => u.nome_organizacao))
     return Array.from(orgs).sort()
   }, [usuarios])
+
+  // Lista de orgs para o select do modal de convite — fonte real (com CUID),
+  // não derivado de `usuarios` (que dava nome_organizacao como string).
+  const [orgsAdmin, setOrgsAdmin] = useState<Array<{ id_organizacao: string; nome_organizacao: string }>>([])
+
+  // Carrega lista de orgs uma vez ao montar
+  useEffect(() => {
+    let cancel = false
+    adminOrganizacoesApi.list({ limit: 200 })
+      .then(res => { if (!cancel) setOrgsAdmin(res.organizacoes.map(o => ({ id_organizacao: o.id_organizacao, nome_organizacao: o.nome_organizacao }))) })
+      .catch(() => { /* mantém vazio — UI mostra placeholder */ })
+    return () => { cancel = true }
+  }, [])
 
   // Carregar usuários da API (com suporte a retry manual)
   async function loadUsers() {
@@ -318,7 +339,14 @@ export function UsuariosAdmin() {
   // Sem filtro condicional por perfil aqui — o backend é a fonte da verdade.
   const opcoesDisponiveis = OPCOES_TIPO_ADMIN
 
-  async function handleInvite() {
+  /**
+   * Submit do form de convite admin (cross-org).
+   *
+   * Renomeado de `handleInvite` para DDD-PT (2026-05-12). Agora envia
+   * id_organizacao_alvo (CUID) + workspaces_alvo. PADRAO/FORNECEDOR exigem
+   * pelo menos 1 workspace (ou 'all'). MASTER/SAdmin/Admin não precisam.
+   */
+  async function aoConvidarUsuario() {
     const nome  = fNome.trim()
     const email = fEmail.trim()
     if (!nome || !email) return
@@ -326,18 +354,38 @@ export function UsuariosAdmin() {
       addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_email_invalido') })
       return
     }
+    if (!fIdOrganizacaoAlvo) {
+      addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_org_obrigatoria', 'Selecione a organização alvo do convite') })
+      return
+    }
+    const tipoBackend = nivelToRole(fTipo)
+    // Standard/Fornecedor exige workspaces (Mand. 08 — fail-closed)
+    const exigeWorkspaces = tipoBackend === 'PADRAO' || tipoBackend === 'FORNECEDOR'
+    let workspacesPayload: 'all' | string[] | undefined
+    if (exigeWorkspaces) {
+      if (fWorkspacesAlvo === 'all') {
+        workspacesPayload = 'all'
+      } else if (Array.isArray(fWorkspacesAlvo) && fWorkspacesAlvo.length > 0) {
+        workspacesPayload = fWorkspacesAlvo
+      } else {
+        addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_ws_obrigatorio', 'Selecione pelo menos um workspace para Standard/Fornecedor') })
+        return
+      }
+    }
     try {
       await adminUsuariosApi.convidar({
+        id_organizacao_alvo: fIdOrganizacaoAlvo,
         email_usuario: email,
         nome_usuario:  nome,
-        tipo_usuario:  nivelToRole(fTipo),
+        tipo_usuario:  tipoBackend,
+        workspaces_alvo: workspacesPayload,
       })
       // Refetch é a fonte da verdade — backend retorna id_organizacao real e
       // demais campos completos (UsuarioGlobalUI exige id_organizacao desde
       // 2026-05-05 para alimentar o lazy-load do editor de vínculos).
       await loadUsers()
       addNotification({ type: 'success', message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome: fNome.trim() }) })
-      setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
+      setFNome(''); setFEmail(''); setFTipo('Standard'); setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setShowForm(false)
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_convidar') })
     }
@@ -772,21 +820,33 @@ export function UsuariosAdmin() {
 
       {/* ── Modal Convidar Usuário ────────────────────────────────────────── */}
       {(() => {
+        const tipoBackendForm = nivelToRole(fTipo)
+        const exigeWorkspacesForm = tipoBackendForm === 'PADRAO' || tipoBackendForm === 'FORNECEDOR'
         const requisitosConviteAdmin: RequisitoSalvar[] = [
           { chave: 'fNome',  ok: !!fNome.trim(),  mensagem: 'Nome completo' },
           { chave: 'fEmail', ok: !!fEmail.trim(), mensagem: 'E-mail de acesso' },
+          { chave: 'fOrg',   ok: !!fIdOrganizacaoAlvo, mensagem: 'Organização alvo' },
+          {
+            chave: 'fWorkspaces',
+            ok: !exigeWorkspacesForm || fWorkspacesAlvo === 'all' || (Array.isArray(fWorkspacesAlvo) && fWorkspacesAlvo.length > 0),
+            mensagem: 'Workspaces vinculados (Standard/Fornecedor)',
+          },
         ]
         return (
       <ModalFormularioGlobal
         aberto={showForm}
-        aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0]) }}
-        aoSalvar={handleInvite}
+        aoFechar={() => {
+          setShowForm(false)
+          setFNome(''); setFEmail(''); setFTipo('Standard')
+          setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([])
+        }}
+        aoSalvar={aoConvidarUsuario}
         icone={<User size={20} weight="duotone" />}
         titulo={t('admin.usuarios-globais.btn_convidar')}
         subtitulo={t('admin.usuarios-globais.modal_convidar_subtitulo')}
         tamanho="md"
-        altura="560px"
-        dirty={!!(fNome || fEmail)}
+        altura="640px"
+        dirty={!!(fNome || fEmail || fIdOrganizacaoAlvo)}
         podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
       >
         <BannerRequisitosContexto requisitos={requisitosConviteAdmin}>
@@ -854,17 +914,100 @@ export function UsuariosAdmin() {
 
           <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.organizacao')}
+            obrigatorio
             tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
             tooltipDescricao={t('admin.usuarios-globais.tabela.org_desc')}
           >
             <SelectGlobal
-              opcoes={ORGS.filter(o => o !== 'Gravity').map(o => ({ valor: o, rotulo: o }))}
-              valor={fOrg}
-              aoMudarValor={(v) => setFOrg(v as string)}
+              opcoes={orgsAdmin.map(o => ({ valor: o.id_organizacao, rotulo: o.nome_organizacao }))}
+              valor={fIdOrganizacaoAlvo}
+              aoMudarValor={(v) => {
+                const novoId = String(v)
+                setFIdOrganizacaoAlvo(novoId)
+                // Reset workspaces ao trocar org (workspaces são por org)
+                setFWorkspacesAlvo([])
+                // Dispara lazy load reusando o cache compartilhado com o editor de vínculos
+                if (novoId) void carregarWorkspacesOrg(novoId)
+              }}
               iconeEsquerda={<Buildings size={18} weight="duotone" />}
+              buscavel
               placeholder={t('admin.usuarios-globais.form_org_placeholder')}
             />
           </CampoGeralGlobal>
+
+          {/* Workspaces — só para PADRAO/FORNECEDOR (MASTER/SAdmin/Admin têm bypass).
+              Lazy-load: lista aparece após seleção da org. Default = nenhum selecionado. */}
+          {exigeWorkspacesForm && fIdOrganizacaoAlvo && (
+            <CampoGeralGlobal
+              label="Workspaces vinculados"
+              obrigatorio
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {!workspacesPorOrg[fIdOrganizacaoAlvo] ? (
+                  <div style={{ padding: '0.75rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8125rem' }}>
+                    Carregando workspaces…
+                  </div>
+                ) : workspacesPorOrg[fIdOrganizacaoAlvo].filter(w => w.status_workspace === 'ATIVO').length === 0 ? (
+                  <div style={{ padding: '0.75rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8125rem' }}>
+                    Nenhum workspace ativo nesta organização.
+                  </div>
+                ) : (
+                  <>
+                    <label
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.625rem',
+                        padding: '0.5rem 0.75rem', borderRadius: '6px',
+                        background: fWorkspacesAlvo === 'all' ? 'rgba(129,140,248,0.12)' : 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={fWorkspacesAlvo === 'all'}
+                        onChange={(e) => setFWorkspacesAlvo(e.target.checked ? 'all' : [])}
+                      />
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                        Todos os workspaces ATIVOs (acesso a futuros também)
+                      </span>
+                    </label>
+                    {fWorkspacesAlvo !== 'all' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingLeft: '0.5rem' }}>
+                        {workspacesPorOrg[fIdOrganizacaoAlvo].filter(w => w.status_workspace === 'ATIVO').map(w => {
+                          const checked = Array.isArray(fWorkspacesAlvo) && fWorkspacesAlvo.includes(w.id_workspace)
+                          return (
+                            <label
+                              key={w.id_workspace}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                padding: '0.375rem 0.625rem', borderRadius: '4px',
+                                background: checked ? 'rgba(34,197,94,0.08)' : 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.8125rem',
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => {
+                                  setFWorkspacesAlvo(prev => {
+                                    const atuais = Array.isArray(prev) ? prev : []
+                                    if (e.target.checked) return [...atuais, w.id_workspace]
+                                    return atuais.filter(id => id !== w.id_workspace)
+                                  })
+                                }}
+                              />
+                              <span>{w.nome_workspace}</span>
+                            </label>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </CampoGeralGlobal>
+          )}
 
           <BannerRequisitosGlobal />
         </div>

@@ -660,8 +660,32 @@ export const adminUsuariosApi = {
     )
   },
 
-  async convidar(data: { email_usuario: string; nome_usuario: string; tipo_usuario: string }) {
-    return request<{ usuario: { id_usuario: string; email_usuario: string; tipo_usuario: string } }>(
+  /**
+   * Convida usuário cross-org via admin panel.
+   *
+   * Schema bilateral (Mand. 09): backend exige `id_organizacao_alvo` + payload
+   * `.strict()` que rejeita campos desconhecidos. `workspaces_alvo` obrigatório
+   * para PADRAO/FORNECEDOR (validado no service + backend).
+   *
+   * Apenas SUPER_ADMIN pode chamar (ADMIN é read-only — backend retorna 403).
+   */
+  async convidar(data: {
+    id_organizacao_alvo: string
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario: string
+    workspaces_alvo?: 'all' | string[]
+  }) {
+    return request<{
+      message: string
+      usuario: {
+        id_usuario: string
+        email_usuario: string
+        tipo_usuario: string
+        acesso_workspaces_futuros: boolean
+        workspaces_vinculados: number
+      }
+    }>(
       '/v1/admin/usuarios/convidar',
       { method: 'POST', body: JSON.stringify(data) }
     )

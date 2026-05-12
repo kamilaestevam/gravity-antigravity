@@ -202,4 +202,50 @@ app.use(verificarAcessoProduto({ chaveProduto: 'pedido',
 
 - **2026-05-12 (manhã)** — Skill criada. Matriz Cadeia 1 travada. Hub + Configurador route guard. Store botão Comprar bloqueado.
 - **2026-05-12 (tarde)** — Portão 3 implementado em 5 checkpoints (CP1 fundação backend, CP2 Hub/Core filtros, CP3 aba Produtos no modal, CP4 backfill α, CP5 middleware piloto Pedido + skill).
+- **2026-05-12 (noite)** — Convite admin cross-org (P0) + Lazy Disambiguation no requireAuth (P1).
 - **Bug raiz**: Standard acessava Configurador via card "Criar novo workspace" no Hub porque `ProtectedRoute` genérico só checava `isSignedIn`. Líder Técnico identificou que múltiplas rotas mutativas backend também estavam sem guard — bypass via `curl` era possível.
+
+---
+
+## 🚪 Plan B v6 — Lazy Disambiguation no requireAuth (2026-05-12)
+
+### Problema
+
+`UserJSON` do Clerk v5 **não contém `invitation_id`** no payload de `user.created` webhook. A transição `pending_inv_*` → `user_*` acontece no primeiro login via fallback por email em `requireAuth.ts`.
+
+Quando o mesmo email tem **>1 pending** em organizações diferentes (cross-org), o fallback antes da entrega bloqueava silenciosamente com 401 — **DoS de login** para o convidado.
+
+### Solução
+
+`server/middleware/requireAuth.ts:124-187` — quando `candidates.length > 1`:
+
+1. Log alto: `[requireAuth] EMAIL_FALLBACK_AMBIGUO` (Mand. 08 — sem silêncio)
+2. Consulta `clerkClient.invitations.getInvitationList({ status: 'accepted', limit: 100 })`
+3. Filtra por email, ordena por `createdAt` DESC
+4. Encontra o primeiro candidato cujo `id_clerk_usuario === 'pending_' + inv.id`
+5. UPDATE deterministico → segue fluxo normal
+6. Se não resolver: 401 explícito com log de erro
+
+### Características
+
+| Aspecto | Valor |
+|---|---|
+| Pay-for-use | API Clerk extra **apenas** em ambiguidade |
+| Determinismo | `invitation.id` é único globalmente |
+| Idempotência | UPDATE só ocorre se acha match |
+| Fail-loud | Log alto + 401 se não conseguir desambiguar (Mand. 08) |
+| Mand. 01 | Sem `publicMetadata` Clerk — só consulta lista de invitations |
+
+### Cenários cobertos
+
+| # | Cenário | Comportamento |
+|---|---|---|
+| 1 | 1 candidato | Caminho rápido — UPDATE direto (99% dos casos) |
+| 2 | >1 candidatos, invitation aceita encontrada | Desambigua via Clerk + UPDATE |
+| 3 | >1 candidatos, nenhuma invitation aceita bate | 401 + log de erro `FALHA_DESAMBIGUAR_VIA_CLERK` |
+| 4 | Clerk API falhou | 401 + log `CLERK_INVITATIONS_API_FALHOU` |
+| 5 | 0 candidatos | 401 padrão `Usuário não encontrado no sistema` |
+
+### Documento técnico
+
+`documentos-tecnicos/arquitetura/convite-admin-cross-org.md` (seção Plan B v6).

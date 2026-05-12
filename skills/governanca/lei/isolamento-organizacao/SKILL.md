@@ -262,3 +262,48 @@ Antes do pivô de 2026-04-17, o isolamento era feito por:
 
 Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. Decisão consolidada no Pivô Arquitetural de 2026-04-17.
 
+---
+
+## Exceção Controlada — SUPER_ADMIN cross-org (2026-05-12)
+
+### Princípio
+
+O isolamento `id_organizacao` é a regra **geral**, mas há **uma exceção autorizada**: SUPER_ADMIN (equipe Gravity interna) pode criar usuários em qualquer organização da plataforma via `POST /api/v1/admin/usuarios/convidar`. É a única operação cross-org legítima na API pública.
+
+### Por que é seguro
+
+1. **Whitelist de papel:** apenas `tipo_usuario === 'SUPER_ADMIN'` passa. ADMIN é read-only (`ADMIN_SOMENTE_LEITURA`).
+2. **Body explícito:** `id_organizacao_alvo` é parâmetro obrigatório no body, validado por Zod `.strict()`. Sem implicit (não vem de query, header, ou `req.auth`).
+3. **Validações na org ALVO:** existência, `status_organizacao=ATIVO`, `hospeda_colaboradores_gravity` (para SAdmin/ADMIN), pre-existence de email — todas verificadas contra `id_organizacao_alvo`, não `req.auth.id_organizacao`.
+4. **Anti-IDOR workspaces:** `workspaces_alvo` validados via `prisma.workspace.findMany` filtrado por `id_organizacao_alvo` — IDs de outra org retornam 403 `WORKSPACE_FORA_DA_ORG_ALVO`.
+5. **Audit log com rastreio cross-org:** `id_organizacao = id_organizacao_alvo` (org afetada) + `metadata_ator_historico_log.id_organizacao_ator` (org do SAdmin) + `metadata.cross_org: boolean`.
+6. **Service compartilhado:** `convidar-usuario-service.ts` é o único ponto de criação de usuário no Configurador. Rota regular (Master intra-org) e rota admin (SAdmin cross-org) chamam o mesmo service com `id_organizacao_alvo` parametrizado.
+
+### Audit obrigatório
+
+Qualquer ação cross-org **DEVE** gravar:
+```ts
+AuditService.log({
+  id_organizacao: id_organizacao_alvo,        // org AFETADA (rastreio "quem mexeu na minha org?")
+  id_ator_historico_log: ator.id_usuario,
+  metadata_ator_historico_log: {
+    id_organizacao_ator: ator.id_organizacao, // org do executor (rastreio "o que SAdmin X fez?")
+    tipo_usuario_ator: ator.tipo_usuario,
+    cross_org: true,
+  },
+  ...
+})
+```
+
+### Anti-padrões proibidos
+
+❌ **Outra rota lendo `id_organizacao_alvo` do body** sem ser cross-org legítima — manda direto para `req.auth.id_organizacao` (rota regular).
+
+❌ **Skip do audit cross-org** — auditoria é parte da exceção.
+
+❌ **Validação `hospeda_colaboradores_gravity` no ator** quando deveria ser no alvo. Bug histórico em `admin.ts:1582` corrigido em 2026-05-12.
+
+### Documento técnico completo
+
+`documentos-tecnicos/arquitetura/convite-admin-cross-org.md`
+

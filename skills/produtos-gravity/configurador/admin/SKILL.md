@@ -135,6 +135,42 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 - **Componente compartilhado:** [src/components/expandido-editor-vinculos](../../../../servicos-global/configurador/src/components/expandido-editor-vinculos/index.tsx) — mesmo componente usado em `/workspace/usuarios` (Configurador).
 - **Audit:** `securityAudit.permissionChanged` continua sendo emitido na org do **alvo** (não do ator), com `acao_permissao: 'GRANTED' | 'REVOKED'`.
 
+### Convite Cross-Org (Admin) — 2026-05-12
+
+`POST /api/v1/admin/usuarios/convidar` (SUPER_ADMIN apenas) permite criar usuário **em qualquer organização** da plataforma. Diferente do convite regular `/v1/usuarios/convidar` (Master da própria org).
+
+**Body obrigatório:**
+```ts
+{
+  id_organizacao_alvo: string  // CUID — org onde será criado
+  email_usuario: string
+  nome_usuario: string
+  tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+  workspaces_alvo?: 'all' | string[]  // obrigatório para PADRAO/FORNECEDOR
+}
+```
+
+**Fluxo UI (`UsuariosAdmin.tsx`):**
+1. `adminOrganizacoesApi.list({ limit: 200 })` carrega lista de orgs (CUID + nome)
+2. Select de organização — `SelectGlobal` com `buscavel` habilitado
+3. Ao escolher org, lazy-load workspaces via `adminOrganizacoesApi.listarWorkspaces(id)` (cache compartilhado com editor de vínculos)
+4. Multiselect de workspaces (só aparece para PADRAO/FORNECEDOR): checkbox "Todos os workspaces ATIVOs" OU lista individual
+5. Submit: `aoConvidarUsuario()` chama `adminUsuariosApi.convidar({...})`
+
+**Regras de segurança** (validadas no service):
+- ADMIN é read-only — 403 `ADMIN_SOMENTE_LEITURA`
+- Org alvo existe e ATIVA — 404 `ORG_NOT_FOUND`
+- SUPER_ADMIN/ADMIN exige `hospeda_colaboradores_gravity=true` na **org ALVO** — 403 `TIPO_GRAVITY_EXIGE_ORG_GRAVITY`
+- Workspaces devem pertencer à org alvo — 403 `WORKSPACE_FORA_DA_ORG_ALVO`
+- Email duplicado na org alvo — 409 `CONFLICT`
+- Clerk recusa email duplicado — 409 `INVITATION_OR_USER_ALREADY_EXISTS`
+
+**Service compartilhado:** `convidar-usuario-service.ts` (consumido por ambas as rotas).
+
+**Audit:** `id_organizacao = id_organizacao_alvo` + `metadata_ator_historico_log.id_organizacao_ator` + `metadata.cross_org: boolean`.
+
+**Documentação completa:** `documentos-tecnicos/arquitetura/convite-admin-cross-org.md`.
+
 ---
 
 ## Tela 4 — Financeiro

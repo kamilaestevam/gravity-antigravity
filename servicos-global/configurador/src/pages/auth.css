@@ -318,3 +318,12 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* Quando TooltipGlobal envolve um campo do formulario, o tg-trigger (span
+   inline-flex) shrinkwrap-a o conteudo e o input fica visualmente mais
+   estreito que os demais. Forca o trigger a ocupar 100% dentro de
+   CampoGeralGlobal. */
+.login-global-panel .tg-trigger {
+  display: flex;
+  width: 100%;
+}

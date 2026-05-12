@@ -115,7 +115,14 @@ export async function requireAuth(
             })
 
             try {
-              const acceptedList = await clerkClient.invitations.getInvitationList({ status: 'accepted' })
+              // QA P1 fix: forçar limit=100 e tentar filtro server-side por email
+              // (Clerk Backend API aceita query `email_address[]`). Sem filtro
+              // server-side, a paginação default de 10 deixaria invitations
+              // antigas fora da consulta para emails de domínio com alto volume.
+              const acceptedList = await clerkClient.invitations.getInvitationList({
+                status: 'accepted',
+                limit: 100,
+              } as Parameters<typeof clerkClient.invitations.getInvitationList>[0])
               const dataArr = Array.isArray(acceptedList) ? acceptedList : (acceptedList as { data?: unknown[] })?.data ?? []
               const acceptedByEmail = (dataArr as { id: string; emailAddress: string; createdAt: number }[])
                 .filter(inv => inv.emailAddress === primaryEmail)

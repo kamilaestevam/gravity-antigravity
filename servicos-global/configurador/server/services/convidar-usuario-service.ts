@@ -167,11 +167,29 @@ export async function convidarUsuarioService(
     workspaces_alvo === 'all' && (tipo_usuario === 'PADRAO' || tipo_usuario === 'FORNECEDOR')
 
   // ─── 7. Cria invitation no Clerk ───────────────────────────────────────
+  // QA P2 fix: captura `duplicate_record` do Clerk (mesmo email com convite
+  // ainda pendente) e traduz para 409 amigável, em vez de propagar 500.
   const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
-  const invitation = await clerkClient.invitations.createInvitation({
-    emailAddress: email_usuario,
-    redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
-  })
+  let invitation: { id: string }
+  try {
+    invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email_usuario,
+      redirectUrl: `${APP_BASE_URL}/cadastro/continuar`,
+    })
+  } catch (clerkErr) {
+    const errMsg = clerkErr instanceof Error ? clerkErr.message : String(clerkErr)
+    const errAny = clerkErr as { errors?: Array<{ code?: string }>; status?: number }
+    const isDuplicate = errAny?.errors?.some((e) => e.code === 'duplicate_record')
+      || /already.*exist|duplicate/i.test(errMsg)
+    if (isDuplicate) {
+      throw new AppError(
+        'Já existe um convite Clerk pendente para este e-mail. Revogue o convite anterior antes de tentar novamente.',
+        409,
+        'INVITATION_ALREADY_EXISTS',
+      )
+    }
+    throw clerkErr
+  }
 
   // ─── 8/9. Transação atômica + rollback do Clerk se o DB falhar ─────────
   let usuarioCriado: { id_usuario: string; email_usuario: string; tipo_usuario: string; acesso_workspaces_futuros: boolean }

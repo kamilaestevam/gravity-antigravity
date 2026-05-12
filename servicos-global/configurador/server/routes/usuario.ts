@@ -46,7 +46,11 @@ export const ConvidarUsuarioSchema = z.object({
   // workspaces_alvo: lista de workspaces a vincular OU 'all' (todos os ATIVOs).
   // Obrigatório para PADRAO/FORNECEDOR; ignorado para MASTER (acesso implícito a todos).
   workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
-}).refine(
+}).strict().refine(
+  // .strict() (QA P2 fix 2026-05-12): rejeita campos desconhecidos no body,
+  // incluindo tentativa de injetar `id_organizacao_alvo` na rota regular
+  // (essa rota força alvo = req.auth.id_organizacao, então o campo seria
+  // ignorado em silêncio — viola Mand. 06/09).
   (data) => data.tipo_usuario === 'MASTER' || data.workspaces_alvo !== undefined,
   { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces_alvo'] },
 )

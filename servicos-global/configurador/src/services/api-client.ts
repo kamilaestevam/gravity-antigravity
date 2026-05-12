@@ -320,6 +320,11 @@ export const usuarioListItemSchema = z.object({
   tipo_usuario: tipoUsuarioEnum,
   acesso_workspaces_futuros: z.boolean(),
   data_criacao_usuario: z.union([z.string(), z.date()]),
+  /** Status derivado pelo backend de `id_clerk_usuario`:
+   *  - 'CONVIDADO': convite Clerk pendente (id_clerk_usuario começa com 'pending_')
+   *  - 'ATIVO': cadastro Clerk completo (id_clerk_usuario = user_*)
+   *  INATIVO é estado UI-only — toggle local sem persistência. */
+  status_usuario: z.enum(['ATIVO', 'CONVIDADO']),
   usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
 })
 export type UsuarioListItem = z.infer<typeof usuarioListItemSchema>
@@ -335,6 +340,9 @@ export const convidarUsuarioResponseSchema = z.object({
     email_usuario: z.string().email(),
     tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
+    /** Sempre 'CONVIDADO' no momento do convite — transição para 'ATIVO'
+     *  ocorre no primeiro login (via fallback requireAuth.ts). */
+    status_usuario: z.enum(['ATIVO', 'CONVIDADO']).optional().default('CONVIDADO'),
   }),
 })
 
@@ -591,6 +599,10 @@ export interface UsuarioGlobalApi {
   tipo_usuario: string
   data_criacao_usuario: string
   id_organizacao: string
+  /** Derivado pelo backend de id_clerk_usuario:
+   *  - 'CONVIDADO': convite Clerk pendente
+   *  - 'ATIVO': cadastro Clerk completo */
+  status_usuario: 'ATIVO' | 'CONVIDADO'
   organizacao: {
     nome_organizacao: string
     subdominio_organizacao: string
@@ -1208,6 +1220,15 @@ export const usuariosApi = {
       body: JSON.stringify({ workspaces }),
     })
     return substituirWorkspacesResponseSchema.parse(raw)
+  },
+
+  /**
+   * Cancela convite pendente: deleta o registro Usuario + revoga invitation
+   * no Clerk. Aceita apenas usuários em status CONVIDADO. 204 No Content em sucesso.
+   * 409 CONVITE_JA_ACEITO se o usuário já completou cadastro.
+   */
+  async cancelarConvite(id_usuario: string): Promise<void> {
+    await request<void>(`/v1/usuarios/${id_usuario}/convite`, { method: 'DELETE' })
   },
 
   async alterarTipoUsuario(

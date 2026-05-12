@@ -215,6 +215,17 @@ enum OrganizacaoStatus {
 }
 ```
 
+**Exceções aprovadas pelo dono (PT-BR em valores de enum):**
+
+Quando a operação de negócio do projeto é majoritariamente PT-BR e o conceito tem nome técnico claro em português, o dono pode autorizar enum em PT-BR. Casos atuais:
+
+| Enum | Valores | Aprovado em | Motivo |
+|---|---|---|---|
+| `UsuarioTipo` | `SUPER_ADMIN`, `ADMIN`, `MASTER`, `PADRAO`, `FORNECEDOR` | implícito (legado pré-skill) | "PADRAO"/"FORNECEDOR" são termos PT-BR sem equivalente direto e curto em inglês |
+| `status_usuario` (derivado em runtime) | `ATIVO`, `CONVIDADO` | dono 2026-05-12 | Consistência com `UsuarioTipo` (mesma família Usuario); INATIVO continua UI-only |
+
+**Regra para futuras exceções:** sempre que um novo enum cair nesse padrão (PT-BR), registrar nesta tabela com data + motivo. Próximo agente DDD não deve "corrigir" sem checar.
+
 ---
 
 ### REGRA 8 — JSON / blobs técnicos

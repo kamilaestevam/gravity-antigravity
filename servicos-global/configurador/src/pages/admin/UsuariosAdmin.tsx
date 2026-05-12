@@ -81,10 +81,13 @@ function mapearApiParaUsuarioGlobal(u: UsuarioGlobalApi): UsuarioGlobalUI {
     subdominio_workspace: m.workspace?.subdominio_workspace ?? '',
     perfil:               mapRole(m.tipo_usuario_workspace),
   }))
-  // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem vínculos mas sempre ativos.
-  // Demais: considerados ativos se tiverem ao menos um workspace ativo.
-  const ehGravity = u.tipo_usuario === 'SUPER_ADMIN' || u.tipo_usuario === 'ADMIN'
-  const status: UserStatus = ehGravity || vinculos.length > 0 ? 'Ativo' : 'Inativo'
+  // Status vem derivado do backend (CONVIDADO se id_clerk_usuario começa com
+  // 'pending_', ATIVO caso contrário). Decisão dono 2026-05-12.
+  // Antes (bug Mand. 04): derivava por `vinculos.length > 0` — MASTER nunca
+  // tem UsuarioWorkspace (Mand. 04: acesso global por tipo_usuario), então
+  // todo MASTER aparecia 'Inativo' mesmo sendo usuário ativo.
+  // INATIVO permanece apenas UI-only (toggle local sem persistência).
+  const status: UserStatus = u.status_usuario === 'CONVIDADO' ? 'Convidado' : 'Ativo'
   return {
     id_usuario:        u.id_usuario,
     nome_usuario:      u.nome_usuario,

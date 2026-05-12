@@ -150,6 +150,10 @@ usersRouter.get('/', async (req, res, next) => {
         tipo_usuario: true,
         acesso_workspaces_futuros: true,
         data_criacao_usuario: true,
+        // id_clerk_usuario é lido APENAS para derivar status_usuario.
+        // NÃO é exposto no DTO (informação mínima — Clerk = autenticação interna,
+        // Mand. 01). Frontend só recebe o status derivado.
+        id_clerk_usuario: true,
         memberships: {
           select: {
             id_usuario_workspace: true,
@@ -163,11 +167,80 @@ usersRouter.get('/', async (req, res, next) => {
     })
     // Renomeia relation Prisma `memberships` → `usuario_workspaces` no DTO (campo do
     // schema é intocável — Mand. 02). Demais campos passam direto (paridade Prisma↔DTO).
-    const dto = usuarios.map(({ memberships, ...rest }) => ({
+    //
+    // Deriva status_usuario:
+    //   - 'CONVIDADO': id_clerk_usuario começa com 'pending_' (convite Clerk pendente)
+    //   - 'ATIVO': cadastro Clerk completo (id_clerk_usuario = user_*)
+    // A transição CONVIDADO → ATIVO acontece automaticamente no primeiro login,
+    // via fallback do requireAuth.ts (Clerk getUser por email).
+    // INATIVO é estado UI-only, sem persistência (toggle local apenas).
+    const dto = usuarios.map(({ memberships, id_clerk_usuario, ...rest }) => ({
       ...rest,
+      status_usuario: (id_clerk_usuario.startsWith('pending_') ? 'CONVIDADO' : 'ATIVO') as 'CONVIDADO' | 'ATIVO',
       usuario_workspaces: memberships,
     }))
     res.json({ usuarios: dto })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/usuarios/:id_usuario/convite
+ * Cancela convite pendente: deleta o registro Usuario do banco e revoga o
+ * convite Clerk. Aceita apenas usuários em status CONVIDADO (id_clerk_usuario
+ * começa com 'pending_'). Requer MASTER (intra-org) ou SUPER_ADMIN (cross-org).
+ *
+ * Mand. 04 — SAdmin cross-org permitido; Master limitado à própria org.
+ * Mand. 08 — falha alto se status já não for CONVIDADO (evita deletar
+ * ATIVO acidentalmente).
+ */
+usersRouter.delete('/:id_usuario/convite', requireUserManagementRole, async (req, res, next) => {
+  try {
+    // Busca com escopo de organização (MASTER/ADMIN intra-org; SAdmin global)
+    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+      ? await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario },
+          select: { id_usuario: true, id_organizacao: true, email_usuario: true, id_clerk_usuario: true },
+        })
+      : await prisma.usuario.findFirst({
+          where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
+          select: { id_usuario: true, id_organizacao: true, email_usuario: true, id_clerk_usuario: true },
+        })
+
+    if (!alvo) {
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    // Só permite cancelar se ainda é convite pendente (Mand. 08 — falha alta)
+    if (!alvo.id_clerk_usuario.startsWith('pending_')) {
+      throw new AppError(
+        'Convite já foi aceito — não é possível cancelar. Use a ação de inativar usuário.',
+        409,
+        'CONVITE_JA_ACEITO',
+      )
+    }
+
+    // Extrai invitation_id do prefixo `pending_${invitationId}`
+    const invitationId = alvo.id_clerk_usuario.replace(/^pending_/, '')
+
+    // 1. Revoga convite no Clerk (fire-and-forget — se já expirou, segue)
+    try {
+      await clerkClient.invitations.revokeInvitation(invitationId)
+    } catch {
+      // Convite pode ter expirado/já revogado no Clerk — não bloqueia delete
+    }
+
+    // 2. Deleta Usuario do banco (cascade via @relation cuida de UsuarioWorkspace/UsuarioPermissao)
+    await prisma.usuario.delete({ where: { id_usuario: alvo.id_usuario } })
+
+    securityAudit.permissionChanged(alvo.id_organizacao, req.auth.id_usuario, {
+      id_usuario_alvo: alvo.id_usuario,
+      nome_permissao: 'convite_cancelado',
+      acao_permissao: 'REVOKED',
+    }, req.auth.nome_usuario).catch(() => { /* fire-and-forget */ })
+
+    res.status(204).end()
   } catch (err) {
     next(err)
   }

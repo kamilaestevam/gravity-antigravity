@@ -28,7 +28,17 @@
 
 export type NivelAcesso = 'Super Admin' | 'Admin' | 'Master' | 'Standard' | 'Fornecedor'
 
-export type UserStatus = 'Ativo' | 'Inativo'
+/**
+ * Status do usuário na plataforma (labels canônicos PT-BR).
+ *
+ * - 'Convidado': backend derivou de id_clerk_usuario começando com 'pending_'
+ *   — convite Clerk enviado mas não aceito. Transição para 'Ativo' acontece
+ *   automaticamente no primeiro login (fallback do requireAuth.ts).
+ * - 'Ativo': cadastro Clerk completo, pode acessar o sistema.
+ * - 'Inativo': UI-only — toggle local sem persistência (desativação temporária
+ *   exibida apenas na sessão atual; reload retorna o estado real do backend).
+ */
+export type UserStatus = 'Ativo' | 'Inativo' | 'Convidado'
 
 export interface UserBase {
   id: string

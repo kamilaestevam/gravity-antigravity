@@ -40,9 +40,18 @@ import { useAuth } from '@clerk/clerk-react'
 // só é calculada no render via mapRole(). Status do usuário é UI-only — não
 // existe coluna correspondente no schema.prisma (Mand. 02 não permite criar).
 
-export type StatusUsuarioUI = 'ATIVO' | 'INATIVO'
+/**
+ * Status do usuário na UI:
+ * - 'ATIVO': backend derivou de cadastro Clerk completo (id_clerk_usuario = user_*)
+ * - 'CONVIDADO': backend derivou de convite Clerk pendente (id_clerk_usuario = pending_*)
+ * - 'INATIVO': UI-only — toggle local sem persistência (não vem do backend,
+ *   só existe na sessão atual; reload retorna ATIVO/CONVIDADO real).
+ */
+export type StatusUsuarioUI = 'ATIVO' | 'INATIVO' | 'CONVIDADO'
 
-export interface UsuarioOrg extends UsuarioListItem {
+// Omit status_usuario do UsuarioListItem (backend retorna 2 valores: 'ATIVO' | 'CONVIDADO')
+// e re-adiciona como StatusUsuarioUI (3 valores, incluindo 'INATIVO' UI-only).
+export interface UsuarioOrg extends Omit<UsuarioListItem, 'status_usuario'> {
   status_usuario: StatusUsuarioUI
 }
 
@@ -266,10 +275,10 @@ export function Usuarios() {
       usuariosApi.listar(),
       workspaceApi.getWorkspaces(),
     ])
-    const usuariosUI: UsuarioOrg[] = usuariosResp.usuarios.map((u) => ({
-      ...u,
-      status_usuario: 'ATIVO',
-    }))
+    // status_usuario vem do backend derivado de id_clerk_usuario.
+    // Spread preserva o campo — sem hardcode 'ATIVO' como existia antes (bug
+    // que mascarava CONVIDADO até o usuário aceitar o convite Clerk).
+    const usuariosUI: UsuarioOrg[] = usuariosResp.usuarios.map((u) => ({ ...u }))
     setUsuarios(usuariosUI)
     const mapa: Record<string, string[]> = {}
     for (const u of usuariosResp.usuarios) {
@@ -358,7 +367,9 @@ export function Usuarios() {
         acesso_workspaces_futuros: criado.acesso_workspaces_futuros,
         data_criacao_usuario: new Date().toISOString(),
         usuario_workspaces: [],
-        status_usuario: 'ATIVO',
+        // Recém-convidado — sempre CONVIDADO até webhook/login fazer transição
+        // para ATIVO via requireAuth.ts fallback (Clerk getUser por email).
+        status_usuario: 'CONVIDADO',
       }
 
       if (tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR') {
@@ -393,7 +404,10 @@ export function Usuarios() {
   }
 
   function handleAlternarStatusUsuario(u: UsuarioOrg) {
-    // Status é UI-only (sem persistência) — alterna localmente.
+    // Toggle ATIVO ↔ INATIVO é UI-only (sem persistência). CONVIDADO não
+    // alterna — não faz sentido "desativar" quem nunca esteve ativo. Para
+    // CONVIDADO, a ação correta é "Cancelar convite" (delete + revoke Clerk).
+    if (u.status_usuario === 'CONVIDADO') return
     setUsuarios((prev) =>
       prev.map((x) =>
         x.id_usuario === u.id_usuario
@@ -401,6 +415,26 @@ export function Usuarios() {
           : x,
       ),
     )
+  }
+
+  async function handleCancelarConvite(u: UsuarioOrg) {
+    // Confirmação simples — pode ser substituída por ModalConfirmar futuro.
+    if (!window.confirm(`Cancelar convite de ${u.email_usuario}? O usuário não receberá mais o e-mail.`)) return
+    try {
+      await usuariosApi.cancelarConvite(u.id_usuario)
+      // Remove localmente — refetch também garante consistência
+      setUsuarios((prev) => prev.filter((x) => x.id_usuario !== u.id_usuario))
+      addNotification({
+        type: 'success',
+        message: `Convite de ${u.email_usuario} cancelado.`,
+      })
+      await recarregarUsuarios()
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Falha ao cancelar convite.',
+      })
+    }
   }
 
   // ── Handlers do modo edição em lote (padrão Assinaturas) ──────────────────
@@ -556,9 +590,15 @@ export function Usuarios() {
       key: 'status_usuario', label: t('workspace.users.tabela.status'), tipo: 'texto',
       tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o usuário pode acessar a plataforma',
       render: (v) => {
-        const ativo = v === 'ATIVO'
+        // 3 estados — ATIVO/CONVIDADO vêm do backend (derivados), INATIVO é UI-only.
+        const ESTILO_BADGE: Record<StatusUsuarioUI, { bg: string; fg: string; border: string; label: string }> = {
+          ATIVO:     { bg: 'rgba(52,211,153,0.12)', fg: '#34d399', border: 'rgba(52,211,153,0.2)', label: t('comum.ativo') },
+          CONVIDADO: { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24', border: 'rgba(251,191,36,0.2)', label: t('workspace.users.status.convidado') },
+          INATIVO:   { bg: 'rgba(248,113,113,0.12)', fg: '#f87171', border: 'rgba(248,113,113,0.2)', label: t('comum.inativo') },
+        }
+        const e = ESTILO_BADGE[v as StatusUsuarioUI] ?? ESTILO_BADGE.INATIVO
         return (
-          <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: ativo ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: ativo ? '#34d399' : '#f87171', border: `1px solid ${ativo ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{ativo ? 'Ativo' : 'Inativo'}</span>
+          <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: e.bg, color: e.fg, border: `1px solid ${e.border}` }}>{e.label}</span>
         )
       },
     },

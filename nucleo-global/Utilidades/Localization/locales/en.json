@@ -1548,6 +1548,13 @@
         "tipo": "Type",
         "status": "Status"
       },
+      "status": {
+        "convidado": "Invited"
+      },
+      "cancelar_convite": "Cancel invite",
+      "cancelar_convite_confirmar": "Cancel invite for {{email}}? The user will no longer receive the email.",
+      "cancelar_convite_sucesso": "Invite for {{email}} cancelled.",
+      "cancelar_convite_erro": "Failed to cancel invite.",
       "modal_editar_titulo": "Edit User",
       "modal_editar_subtitulo": "Manage data, permissions and access for this user",
       "aba_dados": "User Data",

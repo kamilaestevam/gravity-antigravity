@@ -487,6 +487,68 @@ A rota [`PUT /api/v1/usuarios/:id_usuario/workspaces`](../../../servicos-global/
 - **Mand. 04 mantido** — alvo MASTER/SAdmin/ADMIN ainda retorna 400 INVALID_OPERATION mesmo para SAdmin
 - **Anti-self-edit mantido** — `id_usuario === req.auth.id_usuario` retorna 403 mesmo para SAdmin
 
+## Status do usuário (`status_usuario`)
+
+**Derivado em runtime** — sem campo persistido no schema (Mand. 02 respeitado).
+
+### Os 3 estados
+
+| Estado | Origem | Significado | Persistência |
+|---|---|---|---|
+| **`ATIVO`** | Backend deriva de `id_clerk_usuario` começando com `user_*` | Cadastro Clerk completo, pode acessar | Persistente (via Clerk) |
+| **`CONVIDADO`** | Backend deriva de `id_clerk_usuario` começando com `pending_*` | Convite Clerk enviado, ainda não aceito | Persistente (via Clerk) |
+| **`INATIVO`** | UI-only — toggle local no frontend | Desativação temporária na sessão atual | **Sem persistência** — reload retorna ao estado real do backend |
+
+### Ciclo de vida
+
+```
+[criação via convite]
+       ↓
+  CONVIDADO  (id_clerk_usuario = pending_inv_XXX)
+       ↓ usuário clica no e-mail Clerk e completa cadastro
+       ↓ Clerk dispara webhook user.created OU usuário loga primeira vez
+       ↓ requireAuth.ts fallback por email atualiza id_clerk_usuario → user_YYY
+       ↓
+     ATIVO
+       ↕ (toggle UI local — sem persistir)
+    INATIVO
+```
+
+### Onde é derivado
+
+**Backend** (`server/routes/usuario.ts:142-186` e `server/routes/admin.ts:565-582`):
+- Select inclui `id_clerk_usuario: true` (lido apenas para derivar — NÃO exposto no DTO, Mand. 01)
+- DTO retorna `status_usuario: 'ATIVO' | 'CONVIDADO'`
+
+**Frontend**:
+- Zod `usuarioListItemSchema` aceita os 2 valores
+- Tipo `StatusUsuarioUI = 'ATIVO' | 'INATIVO' | 'CONVIDADO'` adiciona INATIVO UI-only
+- Toggle ATIVO ↔ INATIVO desabilitado para CONVIDADO (não faz sentido "desativar" quem nunca aceitou)
+- Para CONVIDADO, ação alternativa é **"Cancelar Convite"** via `DELETE /v1/usuarios/:id/convite`
+
+### Cancelar Convite
+
+**Rota:** `DELETE /api/v1/usuarios/:id_usuario/convite` (`requireUserManagementRole`)
+
+**Comportamento:**
+1. Valida que `id_clerk_usuario` começa com `pending_` (409 `CONVITE_JA_ACEITO` se não)
+2. Revoga invitation no Clerk (`clerkClient.invitations.revokeInvitation`) — fire-and-forget
+3. Deleta registro `Usuario` (cascade limpa `UsuarioWorkspace` e `UsuarioPermissao`)
+4. 204 No Content
+5. Auditoria: `securityAudit.permissionChanged` com `nome_permissao: 'convite_cancelado'`, `acao_permissao: 'REVOKED'`
+
+**Autorização:**
+- MASTER: intra-org apenas (filtro `id_organizacao`)
+- SUPER_ADMIN: cross-org permitido
+- ADMIN: bloqueado por `requireUserManagementRole` (read-only global, decisão dono 2026-05-11)
+
+### Decisão dono 2026-05-12
+
+- Enum valores em PT-BR (`ATIVO`/`CONVIDADO`) — exceção aprovada à REGRA 7 da `ddd-nomenclatura`. Registrada em `skills/governanca/lei/ddd-nomenclatura/SKILL.md` (seção REGRA 7 → "Exceções aprovadas pelo dono").
+- INATIVO permanece UI-only (sem campo persistido). Toggle sobrescreve localmente — refresh restaura o real.
+
+---
+
 ## Edição de patente (`tipo_usuario`)
 
 **`PATCH /api/v1/usuarios/:id_usuario/patente`** (`requireUserManagementRole`)

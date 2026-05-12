@@ -1709,6 +1709,13 @@
         "status": "Estado",
         "nome_completo": "Nombre Completo"
       },
+      "status": {
+        "convidado": "Invitado"
+      },
+      "cancelar_convite": "Cancelar invitación",
+      "cancelar_convite_confirmar": "¿Cancelar invitación de {{email}}? El usuario no recibirá más el correo electrónico.",
+      "cancelar_convite_sucesso": "Invitación de {{email}} cancelada.",
+      "cancelar_convite_erro": "Error al cancelar invitación.",
       "modal_editar_titulo": "Editar Usuario",
       "modal_editar_subtitulo": "Gestione datos, permisos y accesos de este usuario",
       "aba_dados": "Datos del Usuario",

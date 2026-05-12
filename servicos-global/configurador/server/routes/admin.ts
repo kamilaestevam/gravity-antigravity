@@ -523,6 +523,8 @@ adminRouter.get('/usuarios', async (req, res, next) => {
           tipo_usuario: true,
           data_criacao_usuario: true,
           id_organizacao: true,
+          // Lido APENAS para derivar status_usuario — não exposto no DTO (Mand. 01).
+          id_clerk_usuario: true,
           tenant: {
             select: {
               nome_organizacao: true,
@@ -565,8 +567,10 @@ adminRouter.get('/usuarios', async (req, res, next) => {
 
     // PARIDADE ABSOLUTA: nomes Prisma direto. Renomeia apenas relações back:
     // `tenant` (relação) → `organizacao`, `company` (relação) → `workspace`.
-    const usuarios = users.map(({ memberships, tenant, ...rest }) => ({
+    // Deriva status_usuario de id_clerk_usuario (sem expor o campo Clerk).
+    const usuarios = users.map(({ memberships, tenant, id_clerk_usuario, ...rest }) => ({
       ...rest,
+      status_usuario: (id_clerk_usuario.startsWith('pending_') ? 'CONVIDADO' : 'ATIVO') as 'CONVIDADO' | 'ATIVO',
       organizacao: tenant,
       memberships: memberships.map(({ company, ...m }) => ({
         ...m,

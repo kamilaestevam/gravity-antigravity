@@ -1684,6 +1684,13 @@
         "tipo": "Tipo",
         "status": "Status"
       },
+      "status": {
+        "convidado": "Convidado"
+      },
+      "cancelar_convite": "Cancelar convite",
+      "cancelar_convite_confirmar": "Cancelar convite de {{email}}? O usuário não receberá mais o e-mail.",
+      "cancelar_convite_sucesso": "Convite de {{email}} cancelado.",
+      "cancelar_convite_erro": "Falha ao cancelar convite.",
       "modal_editar_titulo": "Editar Usuário",
       "modal_editar_subtitulo": "Gerencie dados, permissões e acessos deste usuário",
       "aba_dados": "Dados do Usuário",

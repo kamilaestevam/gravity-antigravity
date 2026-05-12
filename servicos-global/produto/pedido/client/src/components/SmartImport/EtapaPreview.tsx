@@ -18,6 +18,7 @@ import {
 } from '@phosphor-icons/react'
 import type { SmartImportLinha, DecisaoDuplicata } from '../../shared/types'
 import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
+import { ROTULO_POR_CAMPO } from '../../../../shared/campos-pedido-ddd'
 
 /**
  * P13.2-UI — Formata valor de campo para exibicao no preview.
@@ -45,26 +46,16 @@ interface EtapaPreviewProps {
 type FiltroPreview = 'todos' | 'ok' | 'aviso' | 'erro'
 
 // ── Rotulos legíveis para os campos ──────────────────────────────────────────
-
-const ROTULOS_CAMPO: Record<string, string> = {
-  numero_pedido:       'Nº Pedido',
-  exportador:          'Exportador (Shipper)',
-  fabricante:          'Fabricante',
-  incoterm:            'Incoterm',
-  moeda_pedido:        'Moeda',
-  data_emissao_pedido: 'Data Emissão',
-  data_embarque:       'Data Embarque',
-  part_number:         'Part Number',
-  ncm:                 'NCM',
-  descricao_item:      'Descrição do Item',
-  quantidade_inicial_pedido:  'Quantidade',
-  unidade:             'Unidade',
-  valor_por_unidade_item:   'Valor do Item',
-  valor_total_item:   'Valor Total',
-}
+//
+// P5.4 — Antes existia um Record<string, string> hardcoded com 15 rotulos
+// legados (`exportador`, `fabricante`, `ncm`, `data_embarque` etc. — nomes
+// que nao existem mais no SSOT). Trocado por `ROTULO_POR_CAMPO` do
+// `campos-pedido-ddd.ts` que cobre os 143 campos. Quando o campo nao tem
+// rotulo (campos extras "custom_*" ou campos novos), faz fallback humano:
+// "data_emissao_pedido" -> "Data emissao pedido".
 
 function rotulo(campo: string): string {
-  return ROTULOS_CAMPO[campo] ?? campo.replace(/_/g, ' ')
+  return ROTULO_POR_CAMPO[campo] ?? campo.replace(/_/g, ' ')
 }
 
 // ── Componente de status ──────────────────────────────────────────────────────

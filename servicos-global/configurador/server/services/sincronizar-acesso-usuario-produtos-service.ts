@@ -143,7 +143,12 @@ export async function aoVincularUsuarioAoWorkspace(args: {
       return { linhasCriadas: 0, produtosVinculados: 0 }
     }
 
-    // Produtos habilitados no workspace, com assinatura ATIVA/EM_TESTE
+    // Produtos habilitados no workspace, com assinatura ATIVA/EM_TESTE/SUSPENSA.
+    // Inclui SUSPENSA — decisão dono 2026-05-12: chaves Portão 3 são pré-criadas
+    // mesmo para produto suspenso, para que reativação seja transparente.
+    // Hub/Core continuam filtrando por ATIVA/EM_TESTE na exibição (em
+    // produtos-acessiveis-service) — produto suspenso não aparece na UI mas
+    // a chave está pronta. CANCELADA é excluído (relação morta).
     const produtosDoWs = await prisma.produtoGravityWorkspace.findMany({
       where: {
         id_organizacao,
@@ -153,7 +158,7 @@ export async function aoVincularUsuarioAoWorkspace(args: {
           assinaturas_produto_gravity: {
             some: {
               id_organizacao,
-              status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+              status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE', 'SUSPENSA'] },
             },
           },
         },

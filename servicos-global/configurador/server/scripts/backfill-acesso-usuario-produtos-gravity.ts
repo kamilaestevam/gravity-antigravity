@@ -98,7 +98,9 @@ async function main() {
             assinaturas_produto_gravity: {
               some: {
                 id_organizacao: usuario.id_organizacao,
-                status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+                // Inclui SUSPENSA — decisão dono 2026-05-12: chaves Portão 3
+                // pré-criadas mesmo para produto suspenso. CANCELADA é excluído.
+                status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE', 'SUSPENSA'] },
               },
             },
           },

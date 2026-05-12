@@ -551,11 +551,15 @@ export const organizacaoService = {
     nome_workspace: string,
   ): Promise<number> {
     try {
-      // Produtos com assinatura ATIVA/EM_TESTE na org
+      // Produtos contratados pela org — inclui SUSPENSA (decisão dono 2026-05-12):
+      // workspace novo recebe a linha ProdutoGravityWorkspace mesmo se o produto
+      // está suspenso. Assim, quando o Master REATIVA, todos os workspaces já
+      // têm a linha em ordem — sem precisar de auto-sync no PATCH de status.
+      // CANCELADA é excluído: relação morta, não materializa.
       const assinaturas = await prisma.produtoGravityAssinatura.findMany({
         where: {
           id_organizacao,
-          status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+          status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE', 'SUSPENSA'] },
         },
         select: {
           id_produto_gravity: true,

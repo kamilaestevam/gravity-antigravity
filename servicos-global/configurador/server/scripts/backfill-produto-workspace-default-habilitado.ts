@@ -35,7 +35,10 @@ async function main() {
 
   // Assinaturas ATIVAS/EM_TESTE de todas as orgs
   const assinaturas = await prisma.produtoGravityAssinatura.findMany({
-    where: { status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] } },
+    // Inclui SUSPENSA — decisão dono 2026-05-12: workspace é pré-habilitado
+    // para produto suspenso para que reativação fique transparente.
+    // CANCELADA é excluído (relação morta).
+    where: { status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE', 'SUSPENSA'] } },
     select: {
       id_organizacao: true,
       id_produto_gravity: true,

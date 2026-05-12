@@ -713,7 +713,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
   const [passo, setPasso] = useState<1 | 2>(1)
-  const [nivel, setNivel] = useState<NivelEdicao>('pedido')
+  const [nivel, setNivel] = useState<NivelEdicao>('combinado')
   const [campos, setCampos] = useState<CampoEmEdicao[]>([])
   const [preview, setPreview] = useState<EdicaoMassaPreview | null>(null)
   const [carregandoPreview, setCarregandoPreview] = useState(false)
@@ -884,7 +884,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
       {/* Toggle de nível */}
       <div className="modal-edicao-massa__secao">
         <div className="modal-edicao-massa__nivel-toggle" role="group" aria-label={t('pedido.modal_massa.aria_nivel_edicao')}>
-          {(['pedido', 'item', 'combinado'] as NivelEdicao[]).map(n => (
+          {(['combinado', 'pedido', 'item'] as NivelEdicao[]).map(n => (
             <button
               key={n}
               type="button"

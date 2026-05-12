@@ -338,6 +338,11 @@ export const FORMATO_EXCEL_POR_TIPO: Record<TipoCampoDDD, string | undefined> = 
  */
 export function normalizarNomeCampo(s: string): string {
   return s
+    // P13.1 — Remove marcador "* " que o templateHandler prefixa em rotulos
+    // de campos obrigatorios (sinalizacao UX no Excel). Sem isso, ao re-upload
+    // o cabecalho "* Tipo Linha" nao bate com o rotulo "Tipo Linha" no SSOT.
+    // Decisao 11/05/2026: normalizador idempotente, asterisco e' so visual.
+    .replace(/^\*+\s+/, '')
     .normalize('NFD').replace(/[̀-ͯ]/g, '')   // remove diacriticos (a -> a, e -> e)
     .replace(/([a-z])([A-Z])/g, '$1 $2')                // camelCase -> "camel Case"
     .toLowerCase()

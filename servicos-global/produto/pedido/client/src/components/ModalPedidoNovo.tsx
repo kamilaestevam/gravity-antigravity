@@ -116,17 +116,10 @@ function validarPasso2(_itens: ItemForm[]): ErrosValidacao {
 
 // ── Formatadores ───────────────────────────────────────────────────────────────
 
-/**
- * Normaliza entrada de NCM para o padrão "XXXX.XX.XX" (8 dígitos com pontos).
- * Aceita: "22021000", "2202.10.00", "2202-10-00", "2202 10 00" etc.
- * Devolve: "2202.10.00" (até 8 dígitos com pontos automáticos).
- */
-function formatarNcmInput(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 8)
-  if (digits.length <= 4)      return digits
-  if (digits.length <= 6)      return `${digits.slice(0, 4)}.${digits.slice(4)}`
-  return `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6, 8)}`
-}
+// P13.2 — formatarNcmInput migrado para `shared/formatadores.ts` (DRY:
+// usado tambem pelo Smart Import). Wrapper aqui mantem assinatura local.
+import { formatarNcm } from '../../../shared/formatadores'
+const formatarNcmInput = formatarNcm
 
 // ── Tradução de erros da API ───────────────────────────────────────────────────
 
@@ -193,24 +186,30 @@ const s = {
     flexDirection: 'column' as const,
     gap: '0.375rem',
   } as React.CSSProperties,
+  // Padrão sistêmico: alinhado com .cg-label (CampoGeralGlobal) — --text-micro
+  // (0.75rem / 12px), uppercase, muted color, letter-spacing 0.05em.
   label: {
-    fontSize: '0.6875rem',
+    fontSize: '0.75rem',
     fontWeight: 600,
     color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.04em',
+    letterSpacing: '0.05em',
+    lineHeight: 1.3,
   } as React.CSSProperties,
+  // Padrão sistêmico: alinhado com .sg-campo (SelectGlobal) — fundo abaixo do
+  // modal, borda visível (1.5px) com acento sutil. Diferenciação clara entre
+  // editável e bloqueado fica via opacity (apenas locked).
   input: {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--bg-elevated)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--text-primary)',
-    fontSize: '0.875rem',
-    padding: '0.5rem 0.75rem',
-    outline: 'none',
-    transition: 'border-color 0.15s',
-    width: '100%',
-    boxSizing: 'border-box' as const,
+    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
+    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
+    borderRadius:  'var(--radius-md, 8px)',
+    color:         'var(--text-primary)',
+    fontSize:      '0.875rem',
+    padding:       '0.5625rem 0.875rem',
+    outline:       'none',
+    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
+    width:         '100%',
+    boxSizing:     'border-box' as const,
   } as React.CSSProperties,
   secaoTitulo: {
     fontSize: '0.75rem',
@@ -241,7 +240,7 @@ const s = {
   } as React.CSSProperties,
   legendaObrigatorios: {
     marginTop: '0.5rem',
-    fontSize: '0.6875rem',
+    fontSize: '0.75rem',
     color: 'var(--text-muted, #94a3b8)',
     fontStyle: 'italic' as const,
   } as React.CSSProperties,
@@ -277,35 +276,38 @@ const s = {
     transition: 'color 0.15s',
   } as React.CSSProperties,
   inputCompacto: {
-    background: 'var(--bg-base)',
-    border: '1px solid var(--bg-elevated)',
-    borderRadius: 'var(--radius-sm)',
-    color: 'var(--text-primary)',
-    fontSize: '0.8125rem',
-    padding: '0.375rem 0.5rem',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box' as const,
+    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
+    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
+    borderRadius:  'var(--radius-sm, 6px)',
+    color:         'var(--text-primary)',
+    fontSize:      '0.8125rem',
+    padding:       '0.375rem 0.625rem',
+    outline:       'none',
+    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
+    width:         '100%',
+    boxSizing:     'border-box' as const,
   } as React.CSSProperties,
   labelCompacto: {
-    fontSize: '0.625rem',
+    fontSize: '0.75rem',
     fontWeight: 600,
     color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.04em',
+    letterSpacing: '0.05em',
+    lineHeight: 1.3,
     marginBottom: '0.25rem',
     display: 'block',
   } as React.CSSProperties,
   selectCompacto: {
-    background: 'var(--bg-base)',
-    border: '1px solid var(--bg-elevated)',
-    borderRadius: 'var(--radius-sm)',
-    color: 'var(--text-primary)',
-    fontSize: '0.8125rem',
-    padding: '0.375rem 0.5rem',
-    outline: 'none',
-    width: '100%',
-    cursor: 'pointer',
+    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
+    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
+    borderRadius:  'var(--radius-sm, 6px)',
+    color:         'var(--text-primary)',
+    fontSize:      '0.8125rem',
+    padding:       '0.375rem 0.625rem',
+    outline:       'none',
+    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
+    width:         '100%',
+    cursor:        'pointer',
   } as React.CSSProperties,
 }
 
@@ -773,7 +775,7 @@ function CampoEmpresaSelect({
       >
         <span
           style={{
-            fontSize: '0.6875rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
@@ -795,7 +797,7 @@ function CampoEmpresaSelect({
             background: 'transparent',
             border: 'none',
             color: desabilitado ? 'var(--text-muted)' : 'var(--ws-accent, #818cf8)',
-            fontSize: '0.6875rem',
+            fontSize: '0.75rem',
             fontWeight: 500,
             padding: 0,
             cursor: desabilitado ? 'not-allowed' : 'pointer',
@@ -857,7 +859,7 @@ function CampoEmpresaDaOrg({
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
         <span
           style={{
-            fontSize: '0.6875rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
@@ -1252,7 +1254,7 @@ function Passo2Itens({
         <div key={item.key} style={s.itemCard}>
           <div style={s.itemGrid}>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-pn-${index}`}>{t('pedido.campos.part_number')}</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-pn-${index}`}>{t('pedido.item.part_number')}</label>
               <input
                 id={`mnp-pn-${index}`}
                 style={s.inputCompacto}
@@ -1262,7 +1264,7 @@ function Passo2Itens({
               />
             </div>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>{t('pedido.campos.ncm')}</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>{t('pedido.item.ncm')}</label>
               <input
                 id={`mnp-ncm-${index}`}
                 style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
@@ -1280,7 +1282,7 @@ function Passo2Itens({
                 style={s.inputCompacto}
                 value={item.descricao_item}
                 onChange={e => onChangeItem(index, 'descricao_item', e.target.value)}
-                placeholder={t('pedido.campos.descricao_item')}
+                placeholder={t('pedido.item.descricao_item')}
               />
             </div>
             <div>

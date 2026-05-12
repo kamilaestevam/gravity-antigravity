@@ -156,5 +156,44 @@ describe('P4.3 — Integracao template <-> mapeador', () => {
     // Bug #1d — Casas Decimais — Peso nao mapeia para peso_liquido_unitario
     expect(mapa.get('Casas Decimais — Peso')).toBe('casas_decimais_peso_item')
   })
+
+  it('P13.1 — regressao: cabecalho com prefixo "* " (do template) mapeia para o campo correto', () => {
+    // O templateHandler prefixa "* " em rotulos de campos obrigatorios para
+    // sinalizar visualmente. Ao re-upload, o cabecalho chega como "* Tipo Linha".
+    // O normalizador (normalizarNomeCampo) deve remover o prefixo antes do match.
+    // Bug reportado em 11/05/2026: "Tipo Linha", "Numero do Pedido", "Part Number"
+    // e "Qtd. Inicial" viravam "Campo extra" porque o "* " quebrava o match exato.
+    const cabecalhosComAsterisco = [
+      '* Tipo Linha',
+      '* Numero do Pedido',
+      '* Tipo de Operacao',
+      '* Part Number',
+      '* Qtd. Inicial',
+      // Variantes adicionais (mais de um asterisco, espacos extras)
+      '**  Numero do Pedido',
+      '*   Part Number',
+    ]
+    const resultados = mapearComIA(service, cabecalhosComAsterisco)
+    const mapa = new Map(resultados.map(r => [r.coluna_arquivo, { campo: r.campo_sistema, conf: r.confianca }]))
+
+    expect(mapa.get('* Tipo Linha')!.campo).toBe('tipo_linha')
+    expect(mapa.get('* Tipo Linha')!.conf).toBe(99)
+
+    expect(mapa.get('* Numero do Pedido')!.campo).toBe('numero_pedido')
+    expect(mapa.get('* Numero do Pedido')!.conf).toBe(99)
+
+    expect(mapa.get('* Tipo de Operacao')!.campo).toBe('tipo_operacao')
+    expect(mapa.get('* Tipo de Operacao')!.conf).toBe(99)
+
+    expect(mapa.get('* Part Number')!.campo).toBe('part_number_item')
+    expect(mapa.get('* Part Number')!.conf).toBe(99)
+
+    expect(mapa.get('* Qtd. Inicial')!.campo).toBe('quantidade_inicial_item')
+    expect(mapa.get('* Qtd. Inicial')!.conf).toBe(99)
+
+    // Variantes com asterisco multiplo / espacos extras tambem devem funcionar
+    expect(mapa.get('**  Numero do Pedido')!.campo).toBe('numero_pedido')
+    expect(mapa.get('*   Part Number')!.campo).toBe('part_number_item')
+  })
 })
 

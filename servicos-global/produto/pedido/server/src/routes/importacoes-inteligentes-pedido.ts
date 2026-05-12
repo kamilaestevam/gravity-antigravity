@@ -70,7 +70,14 @@ import {
 //              colunas colapsadas. Sem outline, os super-headers DETALHES
 //              (cinza V-EA) e OPE (ambar EB-EM) ficam sempre visiveis.
 //              Usuario pode ocultar colunas manualmente se quiser.
-const TEMPLATE_VERSAO = '3.5'
+// 3.6 (P13)  — (1) normalizarNomeCampo remove prefixo "* " — campos obrigatorios
+//              voltam a mapear em tier 1 (era bug: o asterisco do template
+//              quebrava match exato no re-upload). (2) Coluna NCM no Excel
+//              ganha numFmt "0000.00.00" — usuario digita "22021000" e ve
+//              "2202.10.00". (3) UI do Smart Import: fonte normal (nao mais
+//              monospace) na coluna do arquivo + nowrap + tooltip; "* " do
+//              template e' escondido do display (badge ⚠️ ja sinaliza).
+const TEMPLATE_VERSAO = '3.6'
 
 export const smartImportRouter = Router()
 
@@ -322,8 +329,14 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     // > Ocultar coluna).
 
     // ── Aplicar numFmt por coluna conforme tipo do campo (data, numero) ───────
+    // P13.2 — Campos NCM recebem numFmt "0000\".\"00\".\"00" para Excel
+    // exibir "22021000" como "2202.10.00" automaticamente. Usuario digita
+    // 8 digitos puros, Excel formata. (Quando o campo e' texto puro, usuario
+    // tambem pode digitar com pontos — parser remove via formatarNcm).
+    const NUMFMT_NCM = '0000"."00"."00'
     camposOrdenados.forEach((c, idx) => {
-      const numFmt = FORMATO_EXCEL_POR_TIPO[c.tipo]
+      const ehNcm = c.campo === 'ncm_item' || c.campo === 'ncm_duimp'
+      const numFmt = ehNcm ? NUMFMT_NCM : FORMATO_EXCEL_POR_TIPO[c.tipo]
       if (numFmt) {
         ws.getColumn(idx + 1).numFmt = numFmt
       }

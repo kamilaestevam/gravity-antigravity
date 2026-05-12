@@ -17,6 +17,18 @@ import {
   Check,
 } from '@phosphor-icons/react'
 import type { SmartImportLinha, DecisaoDuplicata } from '../../shared/types'
+import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
+
+/**
+ * P13.2-UI — Formata valor de campo para exibicao no preview.
+ * Hoje cobre NCM ("22021000" -> "2202.10.00"). Pode crescer no futuro para
+ * outros campos com formato visual padrao (CNPJ, CPF, telefone, etc.).
+ */
+function formatarValor(campo: string, valor: unknown): string {
+  const str = String(valor)
+  if (ehCampoNcm(campo)) return formatarNcm(str)
+  return str
+}
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -234,7 +246,7 @@ function CardPedido({
               .map(([campo, valor]) => (
                 <React.Fragment key={campo}>
                   <span style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{rotulo(campo)}:</span>
-                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(valor)}</span>
+                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatarValor(campo, valor)}</span>
                 </React.Fragment>
               ))
             }
@@ -269,7 +281,7 @@ function CardPedido({
               {camposVisiveis.map(([campo, valor]) => (
                 <div key={campo} className="smart-import__campo-item">
                   <span className="smart-import__campo-label">{rotulo(campo)}</span>
-                  <span className="smart-import__campo-valor">{String(valor)}</span>
+                  <span className="smart-import__campo-valor">{formatarValor(campo, valor)}</span>
                 </div>
               ))}
             </div>

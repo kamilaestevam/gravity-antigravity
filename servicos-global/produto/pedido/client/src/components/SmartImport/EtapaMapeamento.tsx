@@ -16,6 +16,7 @@ import {
 } from '@phosphor-icons/react'
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
 import { CAMPOS_PEDIDO_DDD_TODOS, prioridadeDeCampo, type PrioridadeCampoDDD } from '../../../../shared/campos-pedido-ddd'
+import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
 
 // ── Campos disponiveis no sistema ─────────────────────────────────────────────
 //
@@ -225,10 +226,12 @@ export function EtapaMapeamento({
           // Excecao: campo extra / descartado ficam ocultos no Modo Essencial tambem
           return false
         }
-        // Filtro 2: busca textual contra coluna_arquivo, valor_exemplo e rotulo do campo mapeado
+        // Filtro 2: busca textual contra coluna_arquivo (sem prefixo "* "),
+        // valor_exemplo e rotulo do campo mapeado
         if (buscaNorm.length > 0) {
           const rotuloCampo = camposSistema.find(c => c.valor === col.campo_sistema)?.rotulo ?? ''
-          const haystack = `${col.coluna_arquivo} ${col.exemplo_valor ?? ''} ${rotuloCampo}`.toLowerCase()
+          const nomeColuna = col.coluna_arquivo.replace(/^\*+\s+/, '')
+          const haystack = `${nomeColuna} ${col.exemplo_valor ?? ''} ${rotuloCampo}`.toLowerCase()
           if (!haystack.includes(buscaNorm)) return false
         }
         return true
@@ -408,12 +411,26 @@ export function EtapaMapeamento({
               // P6.1 — Determina destaque visual baseado em prioridade do campo mapeado
               const ehObrigatorio = col.campo_sistema ? CAMPOS_OBRIGATORIOS.has(col.campo_sistema) : false
               const ehEssencial = col.campo_sistema ? CAMPOS_ESSENCIAIS.has(col.campo_sistema) : false
+              // P13.3 — Remove "* " literal do template ao exibir (redundancia visual:
+              // o badge ⚠️ ja sinaliza obrigatorio com mais clareza).
+              const nomeColunaExibido = col.coluna_arquivo.replace(/^\*+\s+/, '')
+              // P13.2-UI — Formata NCM como "XXXX.XX.XX" no preview do valor extraido
+              const valorExibido = col.exemplo_valor && ehCampoNcm(col.campo_sistema)
+                ? formatarNcm(col.exemplo_valor)
+                : col.exemplo_valor
               return (
                 <tr
                   key={`${col.coluna_arquivo}-${indexOriginal}`}
                   style={ehObrigatorio ? { background: 'rgba(239,68,68,0.04)' } : undefined}
                 >
-                  <td style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+                  {/* P13.3 — Fonte normal (nao monospace) + nowrap + tooltip com nome completo */}
+                  <td style={{
+                    fontSize: '0.8125rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: 220,
+                  }} title={col.coluna_arquivo}>
                     {ehObrigatorio && (
                       <span
                         title="Campo obrigatorio — sem isto nao cria pedido"
@@ -426,11 +443,11 @@ export function EtapaMapeamento({
                     {!ehObrigatorio && ehEssencial && (
                       <Star size={11} weight="fill" style={{ color: '#f59e0b', marginRight: '0.375rem', verticalAlign: '-1px' }} aria-label="essencial" />
                     )}
-                    {col.coluna_arquivo}
+                    {nomeColunaExibido}
                   </td>
-                  <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {col.exemplo_valor
-                      ? <span title={col.exemplo_valor}>{col.exemplo_valor}</span>
+                  <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {valorExibido
+                      ? <span title={col.exemplo_valor ?? ''}>{valorExibido}</span>
                       : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
                     }
                   </td>

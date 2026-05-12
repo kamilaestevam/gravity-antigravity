@@ -610,7 +610,7 @@ function AbaProdutosAcesso({
             valor={workspaceSelecionado ?? ''}
             aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
             iconeEsquerda={<Buildings size={18} weight="duotone" />}
-            buscavel={false}
+            buscavel
             placeholder="Selecione um workspace"
           />
         </CampoGeralGlobal>
@@ -703,7 +703,7 @@ function AbaPermissoes({
             valor={workspaceSelecionado ?? ''}
             aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
             iconeEsquerda={<Buildings size={18} weight="duotone" />}
-            buscavel={false}
+            buscavel
             placeholder="Selecione um workspace"
           />
         </CampoGeralGlobal>

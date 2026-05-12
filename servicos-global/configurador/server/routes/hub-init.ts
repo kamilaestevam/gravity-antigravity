@@ -54,10 +54,43 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const id_usuario = req.auth.id_usuario
     const role = req.auth.tipo_usuario
 
+    // Bug descoberto em smoke 2026-05-12 (dono): Standard/Fornecedor estavam
+    // vendo TODOS os workspaces da org no Hub, em vez de apenas os habilitados
+    // pelo Master via UsuarioWorkspace. Causa: getWorkspaces(org) sem filtro.
+    //
+    // Fix: para Master/SAdmin/Admin mantém acesso global (Mand. 04 — não tem
+    // UsuarioWorkspace, mas vê tudo da própria org). Para Standard/Fornecedor,
+    // filtra workspaces onde existe membership ativo do usuário.
+    const ehAdminPlataforma = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'MASTER'
+    const workspacesPromise = ehAdminPlataforma
+      ? organizacaoService.getWorkspaces(id_organizacao)
+      : prisma.workspace.findMany({
+          where: {
+            id_organizacao,
+            memberships: {
+              some: { id_usuario, ativo_usuario_workspace: true },
+            },
+          },
+          select: {
+            id_workspace: true,
+            nome_workspace: true,
+            subdominio_workspace: true,
+            cnpj_workspace: true,
+            status_workspace: true,
+            data_criacao_workspace: true,
+            _count: { select: { memberships: true } },
+          },
+          orderBy: { data_criacao_workspace: 'desc' },
+        }).then((rows) => rows.map(({ _count, ...rest }) => ({
+          ...rest,
+          quantidade_usuarios_workspace: _count.memberships,
+          _count: { vinculos_workspace: _count.memberships },
+        })))
+
     // Tudo em paralelo — 1 único requireAuth
     const [organizacao, workspaces, configs, mergedCatalog, userPref] = await Promise.all([
       organizacaoService.getOrganizacaoById(id_organizacao),
-      organizacaoService.getWorkspaces(id_organizacao),
+      workspacesPromise,
       prisma.produtoGravityConfiguracao.findMany({
         where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
         orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },

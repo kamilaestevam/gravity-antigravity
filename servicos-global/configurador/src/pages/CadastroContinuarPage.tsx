@@ -289,25 +289,37 @@ export function CadastroContinuarPage() {
           </div>
         )}
 
-        {/* Botão Google OAuth */}
-        <button
-          type="button"
-          className="cadastro-google-btn"
-          disabled={oauthCarregando || !isLoaded}
-          onClick={handleGoogleOAuth}
-        >
-          {oauthCarregando ? (
-            <CircleNotch size={18} weight="bold" className="cadastro-spinner" />
-          ) : (
-            <GoogleLogo size={18} weight="bold" />
-          )}
-          <span>{t('cadastro.continuar.google', 'Continuar com Google')}</span>
-        </button>
+        {/* Botão Google OAuth + Divisor
+            Decisão dono 2026-05-12 — Opção A: esconder ambos quando o usuário
+            vem de um convite Clerk (isInvitation === true). O convite já
+            confirmou a identidade via link no e-mail; mostrar "Continuar com
+            Google" logo após "Convite recebido para X" gera confusão (usuário
+            pensa que precisa re-confirmar via Google). Para o fluxo OAuth
+            missing fields (isOAuthMissing) o botão continua visível — embora
+            redundante naquele caminho, mantém comportamento original e não é
+            o foco do ajuste. */}
+        {!isInvitation && (
+          <>
+            <button
+              type="button"
+              className="cadastro-google-btn"
+              disabled={oauthCarregando || !isLoaded}
+              onClick={handleGoogleOAuth}
+            >
+              {oauthCarregando ? (
+                <CircleNotch size={18} weight="bold" className="cadastro-spinner" />
+              ) : (
+                <GoogleLogo size={18} weight="bold" />
+              )}
+              <span>{t('cadastro.continuar.google', 'Continuar com Google')}</span>
+            </button>
 
-        {/* Divisor */}
-        <div className="cadastro-divider">
-          <span>{t('cadastro.continuar.ou', 'ou crie com senha')}</span>
-        </div>
+            {/* Divisor */}
+            <div className="cadastro-divider">
+              <span>{t('cadastro.continuar.ou', 'ou crie com senha')}</span>
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleCriarConta} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Nome completo */}

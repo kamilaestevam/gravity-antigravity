@@ -219,7 +219,7 @@ const meResponseSchema = z.object({
 >
 > Se você for escrever uma regra absoluta em uma vertical/operação — pare. Mova para `governanca/lei/` ou `governanca/convencao-tecnica/` e referencie da vertical.
 
-**Estrutura:** 64 SKILL.md em 11 grupos. Governança subdividida em 3 categorias (lei + convenção técnica + operação).
+**Estrutura:** 65 SKILL.md em 11 grupos. Governança subdividida em 3 categorias (lei + convenção técnica + operação).
 
 ---
 
@@ -351,7 +351,7 @@ const meResponseSchema = z.object({
 
 ---
 
-### 10. Produtos Gravity (5 skills + futuros) — Verticais da empresa Gravity
+### 10. Produtos Gravity (6 skills + futuros) — Verticais da empresa Gravity
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
@@ -359,9 +359,10 @@ const meResponseSchema = z.object({
 | Configurador › Admin | `skills/produtos-gravity/configurador/admin/SKILL.md` | Painel admin interno (impersonação, deploy Railway, monitor de APIs) |
 | API Cockpit | `skills/produtos-gravity/api-cockpit/SKILL.md` | Tokens, playground, webhooks, conector ERP/SAP, fluxo Gabi OData |
 | Marketplace | `skills/produtos-gravity/marketplace/SKILL.md` | Landing pública, pricing, onboarding (sem auth, sem backend) |
+| Pedido | `skills/produtos-gravity/pedido/SKILL.md` | Lista, edição em massa (cascade Pedido→Item), consolidação, transferência. Convenção `@@unique` e anti-padrões |
 | Simulador COMEX | `skills/produtos-gravity/simulador-comex/SKILL.md` | **BLOQUEADO — não iniciar sem regras de negócio** |
 
-> Futuros: `pedido/`, `bid-frete/`, etc. seguem o mesmo padrão (vertical em `produtos-gravity/`, **sem** regras absolutas embutidas — referenciar SSOT).
+> Futuros: `bid-frete/`, etc. seguem o mesmo padrão (vertical em `produtos-gravity/`, **sem** regras absolutas embutidas — referenciar SSOT).
 
 ---
 
@@ -445,7 +446,7 @@ gravity/
 ├── produtos/                ← Cada produto isolado (client/ + server/)
 ├── scripts/                 ← compose-tenant-schema.ts, etc.
 ├── testes/                  ← Unitários, funcionais, E2E centralizados
-├── skills/                  ← 64 SKILL.md em 11 grupos (governança como SSOT)
+├── skills/                  ← 65 SKILL.md em 11 grupos (governança como SSOT)
 └── documentos-tecnicos/     ← Documentação técnica
 ```
 
@@ -479,7 +480,7 @@ gravity/
 
 Use `/comando` para ativar papéis e fluxos específicos:
 
-- `/dream-team-tecnologia` — **Carregar o time de tecnologia (64 skills em 11 grupos)**
+- `/dream-team-tecnologia` — **Carregar o time de tecnologia (65 skills em 11 grupos)**
 - `/dream-team-produtos` — **Carregar o time de produtos (11 arquivos, 8 agentes)**
 - `/dream-team-detetive-tela` — **Análise forense completa de uma tela (front + back + banco + segurança + UX)**
 - `/lider` — Ativar modo Líder (análise + distribuição)

@@ -120,8 +120,14 @@ export function EtapaMapeamento({
     // /campos enriquece o SSOT com colunas customizadas do tenant (P1.7).
     // Mesmo se o fetch falhar, o fallback ja' tem os 143 campos do SSOT
     // (P5.2 — antes era hardcode de 15 legados).
+    // P17 — Portao 3 exige x-id-workspace (sessao paralela 12/05/2026).
+    const idWorkspace = sessionStorage.getItem('gravity_company_id') || ''
     fetch('/api/v1/pedidos/importacoes-inteligentes/campos', {
-      headers: { 'x-id-organizacao': '', 'x-internal-key': '' },
+      headers: {
+        'x-id-organizacao': '',
+        'x-internal-key': '',
+        ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
+      },
     })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (Array.isArray(data) && data.length > 0) setCamposSistema(data) })

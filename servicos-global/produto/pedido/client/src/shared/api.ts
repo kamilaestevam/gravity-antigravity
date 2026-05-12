@@ -55,7 +55,7 @@ import type {
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
 
-let context = { idOrganizacao: '', userId: '', userName: '' }
+let context = { idOrganizacao: '', userId: '', userName: '', idWorkspace: '' }
 
 const LS_TENANT_KEY = 'gravity:idOrganizacao'
 
@@ -82,6 +82,20 @@ export const injectTenantGetter = (fn: () => string | undefined): void => {
       lsSet(live)
     }
     return context.idOrganizacao || lsGet() || undefined
+  }
+}
+
+// Getter dinâmico do id_workspace ativo — exigido pelo middleware
+// verificarAcessoProduto (Portão 3 / Mandamento 04) no backend do Pedido.
+// O Shell guarda o workspace selecionado em sessionStorage('gravity_company_id'),
+// definido em SelecionarWorkspace.tsx. Lemos sincronamente no momento do request.
+let getDynamicWorkspaceId: () => string | undefined = () => undefined
+
+export const injectWorkspaceGetter = (fn: () => string | undefined): void => {
+  getDynamicWorkspaceId = () => {
+    const live = fn()
+    if (live) context.idWorkspace = live
+    return context.idWorkspace || undefined
   }
 }
 
@@ -134,6 +148,7 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
 
 export async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
   const token = await getAuthToken()
 
   const response = await fetch(endpoint, {
@@ -144,6 +159,7 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
       'x-id-organizacao': idOrganizacao,
       'x-id-usuario':   context.userId,
       'x-nome-usuario': context.userName,
+      ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
       'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       ...options?.headers,
     },
@@ -830,6 +846,8 @@ export const smartImportApi = {
   analisar: (arquivo: File) => {
     const formData = new FormData()
     formData.append('arquivo', arquivo)
+    // P17 — Portao 3 (12/05/2026) exige x-id-workspace.
+    const idWorkspace = getDynamicWorkspaceId() || context.idWorkspace || ''
     // Omitir Content-Type — browser define boundary automaticamente
     return fetch('/api/v1/pedidos/importacoes-inteligentes/analisar', {
       method: 'POST',
@@ -837,6 +855,7 @@ export const smartImportApi = {
         'x-id-organizacao': context.idOrganizacao,
         'x-id-usuario': context.userId,
         'x-nome-usuario': context.userName,
+        ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
         'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
       },
       body: formData,

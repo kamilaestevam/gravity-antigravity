@@ -87,11 +87,14 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
     setErroReversao(null)
     try {
       const idOrganizacao = sessionStorage.getItem('gravity_id_organizacao') ?? ''
+      // P17 — Portao 3 exige x-id-workspace (sessao paralela 12/05/2026).
+      const idWorkspace = sessionStorage.getItem('gravity_company_id') ?? ''
       const res = await fetch('/api/v1/pedidos/importacoes-inteligentes/reverter', {
         method: 'POST',
         headers: {
           'Content-Type':   'application/json',
           'x-id-organizacao':    idOrganizacao,
+          ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
           'x-internal-key': (import.meta as Record<string, Record<string, string>>).env?.VITE_INTERNAL_SERVICE_KEY || '',
         },
         body: JSON.stringify({ ids_criados: resultado.ids_criados }),

@@ -471,6 +471,10 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         sessionStorage.getItem('gravity_id_organizacao') ||
         import.meta.env.VITE_DEV_ID_ORGANIZACAO ||
         ''
+      // P17 — Portao 3 (security 12/05/2026 sessao paralela) exige x-id-workspace
+      // em rotas do produto Pedido. Header vem do sessionStorage definido pelo
+      // Shell em SelecionarWorkspace.tsx (chave gravity_company_id por convencao).
+      const idWorkspace = sessionStorage.getItem('gravity_company_id') || ''
       const token = await getToken()
       const res = await fetch(url, {
         method: 'POST',
@@ -478,6 +482,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         headers: {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           'x-id-organizacao':       idOrganizacao,
+          ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
           'x-chave-interna-servico': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
         },
       })

@@ -5201,17 +5201,17 @@
     }
   },
   "auth": {
-    "headline": "The marketplace of your",
-    "headline_destaque": "operational efficiency.",
-    "subheadline": "Independent or connected modules to scale your business. Reduce manual input with AI and take real control of your costs.",
-    "ecossistema_titulo": "Modular Ecosystem",
-    "ecossistema_desc": "Products that operate in isolation or in harmony, without data loss.",
-    "zero_digitacao_titulo": "Zero Input",
-    "zero_digitacao_desc": "Gabi AI automates manual processes and eliminates filling errors.",
-    "gestao_custos_titulo": "Cost Management",
-    "gestao_custos_desc": "Full visibility and financial control integrated into every module of the system.",
-    "padrao_enterprise_titulo": "Enterprise Standard",
-    "padrao_enterprise_desc": "Absolute privacy with full organization isolation in SaaS architecture."
+    "headline": "The marketplace for",
+    "headline_destaque": "foreign trade.",
+    "subheadline": "Modules for every stage of your operation — connected to each other and powered by AI.",
+    "ecossistema_titulo": "Modular by design",
+    "ecossistema_desc": "Integrates with ERPs, foreign trade systems and government data sources.",
+    "zero_digitacao_titulo": "AI that works for you",
+    "zero_digitacao_desc": "Gabi reads documents, fills in fields and flags errors — before they cost you money.",
+    "gestao_custos_titulo": "Full cost visibility",
+    "gestao_custos_desc": "Every dollar tracked by operation, module and team. Decisions based on data, not gut feeling.",
+    "padrao_enterprise_titulo": "Enterprise isolation",
+    "padrao_enterprise_desc": "A dedicated database for your company. No sharing, no exceptions."
   },
   "cadastro": {
     "continuar": {

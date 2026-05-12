@@ -5619,17 +5619,17 @@
     }
   },
   "auth": {
-    "headline": "El marketplace de tu",
-    "headline_destaque": "eficiencia operativa.",
-    "subheadline": "Cada módulo resuelve un problema real. Juntos, transforman toda tu operación. IA para eliminar el retrabajo — datos para controlar cada centavo.",
-    "ecossistema_titulo": "Ecosistema Modular",
-    "ecossistema_desc": "Contrata lo que necesitas ahora. Expande cuando quieras. Tus datos siempre conectados.",
-    "zero_digitacao_titulo": "Cero Digitación",
-    "zero_digitacao_desc": "Gabi lee, interpreta y rellena por ti. Se acabó el retrabajo y los errores humanos.",
-    "gestao_custos_titulo": "Gestión de Costos",
-    "gestao_custos_desc": "Mira a dónde va cada real de tu operación — por módulo, por equipo, en tiempo real.",
-    "padrao_enterprise_titulo": "Estándar Enterprise",
-    "padrao_enterprise_desc": "Sus datos son exclusivamente suyos. Ningún otro cliente de Gravity ve lo que es de su empresa."
+    "headline": "El marketplace del",
+    "headline_destaque": "comercio exterior.",
+    "subheadline": "Módulos para cada etapa de tu operación — conectados entre sí e impulsados por IA.",
+    "ecossistema_titulo": "Modular por diseño",
+    "ecossistema_desc": "Se integra con ERPs, sistemas de comercio exterior y fuentes de datos del gobierno.",
+    "zero_digitacao_titulo": "IA que trabaja por ti",
+    "zero_digitacao_desc": "Gabi lee documentos, completa campos y señala errores — antes de que te cuesten dinero.",
+    "gestao_custos_titulo": "Visibilidad total de costos",
+    "gestao_custos_desc": "Cada peso rastreado por operación, módulo y equipo. Decisiones con datos, no con intuición.",
+    "padrao_enterprise_titulo": "Aislamiento enterprise",
+    "padrao_enterprise_desc": "Una base de datos exclusiva para tu empresa. Sin compartir, sin excepciones."
   },
   "cadastro": {
     "continuar": {

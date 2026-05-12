@@ -225,9 +225,9 @@ export function CadastroContinuarPage() {
           </div>
 
           <h1 className="auth-headline">
-            {t('auth.headline', 'O ecossistema completo para')}{' '}
+            {t('auth.headline', 'O marketplace do')}{' '}
             <span className="auth-headline-accent">
-              {t('auth.headline_destaque', 'comércio exterior')}
+              {t('auth.headline_destaque', 'comércio exterior.')}
             </span>
           </h1>
 

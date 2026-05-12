@@ -36,10 +36,15 @@ import {
   type CampoPedidoDDD,
 } from '../../../shared/campos-pedido-ddd.js'
 
-// P6.2 — Versao do template. Atualize quando a ordem/estrutura mudar de
-// forma incompativel. O parser e' agnostico de ordem (matcheia por rotulo),
-// entao versoes antigas continuam abrindo no v2 sem retrabalho.
-const TEMPLATE_VERSAO = '2.0'
+// Versao do template. Atualize quando a ordem/estrutura mudar de forma
+// incompativel. O parser e' agnostico de ordem (matcheia por rotulo via SSOT
+// na fase P4), entao versoes antigas continuam abrindo na nova sem retrabalho.
+//
+// 2.0 (P6.2) — Ordenacao por prioridade DENTRO de cada nivel (pedido depois item)
+// 3.0 (P7.1) — Ordenacao GLOBAL por prioridade (intercala pedido+item) +
+//              outline grouping para colapsar zona DETALHES + super-header
+//              ESSENCIAL/DETALHES + cor por nivel no sub-header
+const TEMPLATE_VERSAO = '3.0'
 
 export const smartImportRouter = Router()
 
@@ -134,68 +139,112 @@ const ConfirmarSchema = z.object({
  */
 export const templateHandler = (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
-    // P6.2 — Reordena dentro de cada nivel (Pedido/Item) por prioridade.
-    // Ordem: critica -> principal -> secundaria. Dentro da mesma prioridade,
-    // mantem ordem natural do SSOT (preserva agrupamento por grupo).
+    // ─── P7.1 — Reordenacao GLOBAL por prioridade ──────────────────────────────
+    // Ordem: critica (5) -> principal (26) -> secundaria (112), intercalando
+    // Pedido e Item. Resultado: usuario ve Tipo Linha, Numero Pedido, Tipo
+    // Operacao, Part Number, Qtd. Inicial (5 criticos), seguidos pelos 26
+    // principais (Exportador, Importador, Incoterm, NCM, Valor por Unidade,
+    // Valor Total Item, etc.) — todos contiguos nas 31 primeiras colunas.
     //
-    // Beneficio: usuario ve Part Number (item, critica) logo apos os campos
-    // criticos do Pedido, sem precisar rolar 100 colunas. Parser e' agnostico
-    // de ordem — qualquer template antigo (v1) continua funcionando.
+    // Sort estavel (Array.prototype.sort com retorno numerico) preserva
+    // ordem do SSOT dentro de cada prioridade — agrupamento por bloco
+    // (Identificacao, Exportador, Comercial) e' mantido.
     const ordemPrioridade = { critica: 0, principal: 1, secundaria: 2 } as const
     const sortPorPrioridade = (a: CampoPedidoDDD, b: CampoPedidoDDD): number => {
-      const pa = ordemPrioridade[prioridadeDeCampo(a)]
-      const pb = ordemPrioridade[prioridadeDeCampo(b)]
-      return pa - pb // estavel: campos com mesma prioridade mantem ordem original
+      return ordemPrioridade[prioridadeDeCampo(a)] - ordemPrioridade[prioridadeDeCampo(b)]
     }
-    const pedidoOrdenado = [...CAMPOS_PEDIDO_DDD].sort(sortPorPrioridade)
-    const itemOrdenado   = [...CAMPOS_ITEM_DDD].sort(sortPorPrioridade)
-    const camposOrdenados: CampoPedidoDDD[] = [...pedidoOrdenado, ...itemOrdenado]
-    const totalPedido = CAMPOS_PEDIDO_DDD.length
-    const totalItem   = CAMPOS_ITEM_DDD.length
+    const todosOrdenados: CampoPedidoDDD[] = [
+      ...CAMPOS_PEDIDO_DDD,
+      ...CAMPOS_ITEM_DDD,
+    ].sort(sortPorPrioridade)
+    const camposOrdenados = todosOrdenados
+    const totalColunas = camposOrdenados.length
+    const totalEssenciais = camposOrdenados.filter(c => prioridadeDeCampo(c) !== 'secundaria').length
+    const totalDetalhes   = totalColunas - totalEssenciais
 
     const wb = new ExcelJS.Workbook()
     wb.creator     = 'Gravity Platform'
     wb.created     = new Date()
-    // P6.2 — Metadados versionados (Excel Document Properties)
     wb.title       = `Template Importacao Pedidos v${TEMPLATE_VERSAO}`
-    wb.description = `Gravity Pedido Template v${TEMPLATE_VERSAO} — campos organizados por prioridade (criticos -> principais -> secundarios). Parser aceita qualquer ordem; ordem visual otimizada para UX.`
+    wb.description = `Gravity Pedido Template v${TEMPLATE_VERSAO} — ` +
+      `intercalado por prioridade (5 criticos + 26 principais nas primeiras 31 colunas). ` +
+      `Zona DETALHES (112 colunas) inicia colapsada via outline grouping. ` +
+      `Parser aceita qualquer ordem; ordem visual otimizada para UX.`
     wb.subject     = 'Smart Import - Pedido'
     wb.company     = 'Gravity'
 
-    const ws = wb.addWorksheet('Pedidos', { views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }] })
+    // P7.2 — Outline grouping: zona DETALHES inicia colapsada
+    const ws = wb.addWorksheet('Pedidos', {
+      views: [{ showGridLines: true, state: 'frozen', ySplit: 2 }],
+      properties: { outlineLevelCol: 1 },
+    })
 
-    // Largura por coluna — minimo 18, max length(rotulo) + 4
+    // P7-FIX — NAO usar `key` em ws.columns; com key o ExcelJS cria uma linha
+    // de header automatica que conflita com nosso mergeCells manual (bug
+    // raiz do super-header nao aparecer no template v1/v2). Usamos apenas
+    // `width` e controlamos as 2 primeiras linhas manualmente.
     ws.columns = camposOrdenados.map(c => ({
-      key:   c.campo,
       width: Math.max(c.rotulo.length + 4, 18),
     }))
 
-    // ── Linha 1 — Super-header: PEDIDO | ITEM ─────────────────────────────────
-    ws.addRow([])
-    ws.getRow(1).height = 24
-    // Mesclar colunas 1..totalPedido como "PEDIDO"
-    ws.mergeCells(1, 1, 1, totalPedido)
-    const cellPedido = ws.getCell(1, 1)
-    cellPedido.value = 'PEDIDO'
-    cellPedido.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0f172a' } }
-    cellPedido.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FF38bdf8' } }
-    cellPedido.alignment = { horizontal: 'center', vertical: 'middle' }
-    // Mesclar colunas (totalPedido+1)..(totalPedido+totalItem) como "ITEM"
-    ws.mergeCells(1, totalPedido + 1, 1, totalPedido + totalItem)
-    const cellItem = ws.getCell(1, totalPedido + 1)
-    cellItem.value = 'ITEM'
-    cellItem.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0f172a' } }
-    cellItem.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FFa78bfa' } }
-    cellItem.alignment = { horizontal: 'center', vertical: 'middle' }
+    // ── P7.1 Linha 1 — Super-header: ESSENCIAL | DETALHES OPCIONAIS ───────────
+    // Mescla A1..[totalEssenciais] = ESSENCIAL (verde)
+    // Mescla [totalEssenciais+1]..[totalColunas] = DETALHES OPCIONAIS (cinza)
+    const linha1 = ws.getRow(1)
+    linha1.height = 26
+    ws.mergeCells(1, 1, 1, totalEssenciais)
+    const cellEssencial = ws.getCell(1, 1)
+    cellEssencial.value = '⭐ ESSENCIAL — preencha este bloco'
+    cellEssencial.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF065F46' } } // verde-escuro
+    cellEssencial.font  = { name: 'Calibri', bold: true, size: 13, color: { argb: 'FF6EE7B7' } } // verde-claro
+    cellEssencial.alignment = { horizontal: 'center', vertical: 'middle' }
+    cellEssencial.border = { right: { style: 'medium', color: { argb: 'FF334155' } } }
 
-    // ── Linha 2 — Sub-header: rotulos PT-BR canonical ─────────────────────────
-    const subHeader = ws.addRow(camposOrdenados.map(c => c.rotulo))
-    subHeader.height = 22
-    subHeader.eachCell(cell => {
-      cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3256' } }
-      cell.font      = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF38bdf8' } }
+    if (totalDetalhes > 0) {
+      ws.mergeCells(1, totalEssenciais + 1, 1, totalColunas)
+      const cellDetalhes = ws.getCell(1, totalEssenciais + 1)
+      cellDetalhes.value = '📋 DETALHES OPCIONAIS — expanda apenas se necessario'
+      cellDetalhes.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } } // cinza
+      cellDetalhes.font  = { name: 'Calibri', bold: true, size: 12, color: { argb: 'FF94A3B8' } } // cinza-claro
+      cellDetalhes.alignment = { horizontal: 'center', vertical: 'middle' }
+    }
+
+    // ── P7.1 Linha 2 — Sub-header com cor por nivel (azul=pedido, lilas=item) ──
+    const linha2 = ws.getRow(2)
+    linha2.height = 24
+    camposOrdenados.forEach((c, i) => {
+      const cell = linha2.getCell(i + 1)
+      cell.value = c.rotulo
+      const ehItem = c.nivel === 'item'
+      const ehObrigatorio = c.obrigatorio === true
+      cell.fill  = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: ehItem ? 'FF2A1E4D' : 'FF1E3256' }, // lilas-escuro vs azul-escuro
+      }
+      cell.font  = {
+        name:  'Calibri',
+        bold:  true,
+        size:  11,
+        color: { argb: ehObrigatorio ? 'FFFCA5A5' : (ehItem ? 'FFA78BFA' : 'FF38BDF8') }, // vermelho-claro / lilas / azul
+      }
       cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-      cell.border    = { bottom: { style: 'medium', color: { argb: 'FF38bdf8' } } }
+      cell.border    = {
+        bottom: { style: 'medium', color: { argb: ehItem ? 'FFA78BFA' : 'FF38BDF8' } },
+      }
+    })
+
+    // P7.2 — Outline grouping: marca colunas secundarias com outlineLevel=1
+    // e collapsed=true. Excel mostra um [-/+] acima do header para
+    // expandir/colapsar todo o bloco em 1 clique.
+    // P7.2 — outlineLevel marca o agrupamento (Excel renderiza barra [+/-]).
+    // `collapsed` e' propriedade read-only no tipo ExcelJS — o estado inicial
+    // colapsado vem do worksheet via outlineProperties (summaryBelow/Right);
+    // marcar outlineLevel ja' garante a barra. Usuario clica para expandir.
+    camposOrdenados.forEach((c, idx) => {
+      if (prioridadeDeCampo(c) === 'secundaria') {
+        ws.getColumn(idx + 1).outlineLevel = 1
+      }
     })
 
     // ── Aplicar numFmt por coluna conforme tipo do campo (data, numero) ───────
@@ -211,8 +260,6 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     camposOrdenados.forEach((c, idx) => {
       if (c.tipo === 'select' && c.opcoesSelect && c.opcoesSelect.length > 0) {
         const colLetter = ws.getColumn(idx + 1).letter
-        const opcoes = c.opcoesSelect.map(o => `"${o}"`).join(',')
-        // Aplica em cada celula da faixa 3:1000 — eachCell + dataValidation
         for (let row = 3; row <= 1000; row++) {
           ws.getCell(`${colLetter}${row}`).dataValidation = {
             type:           'list',
@@ -228,12 +275,12 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     })
 
     // ── Linha 3 — Exemplo de Pedido (vazia, em negrito) ───────────────────────
-    const linhaPedidoExemplo = ws.addRow([])
+    const linhaPedidoExemplo = ws.getRow(3)
     linhaPedidoExemplo.height = 20
     linhaPedidoExemplo.font   = { name: 'Calibri', bold: true, size: 11 }
 
     // ── Linha 4 — Exemplo de Item (vazia, regular) ────────────────────────────
-    const linhaItemExemplo = ws.addRow([])
+    const linhaItemExemplo = ws.getRow(4)
     linhaItemExemplo.height = 18
     linhaItemExemplo.font   = { name: 'Calibri', bold: false, size: 11 }
 

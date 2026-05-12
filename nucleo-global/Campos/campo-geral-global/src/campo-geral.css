@@ -44,10 +44,18 @@
 }
 
 /* ─── Wrapper com erro ───────────────────────────────────────────────────────── */
+/* Seletor amplo: pega QUALQUER input/select/textarea filho — alinha o
+   comportamento real com a regra documentada `obrigatorio + vazio = vermelho`
+   no JSDoc do componente.
+   `!important` justificado: muitos consumidores aplicam `border` inline via
+   `style={s.input}` (especificidade 1000), o que sobrescreveria a cor vermelha
+   sem o !important. Estado de erro é exceção e ganha prioridade — sinal de
+   acessibilidade (corresponde a aria-invalid). */
 .cg-wrapper--erro .sg-campo,
-.cg-wrapper--erro .ws-field input,
-.cg-wrapper--erro .ws-field select {
-  border-color: #f87171;
+.cg-wrapper--erro input,
+.cg-wrapper--erro select,
+.cg-wrapper--erro textarea {
+  border-color: #f87171 !important;
 }
 
 /* ── Light theme ─────────────────────────────────────────────────────────── */
@@ -60,7 +68,8 @@ body.light-theme .cg-erro {
 }
 
 body.light-theme .cg-wrapper--erro .sg-campo,
-body.light-theme .cg-wrapper--erro .ws-field input,
-body.light-theme .cg-wrapper--erro .ws-field select {
-  border-color: #dc2626;
+body.light-theme .cg-wrapper--erro input,
+body.light-theme .cg-wrapper--erro select,
+body.light-theme .cg-wrapper--erro textarea {
+  border-color: #dc2626 !important;
 }

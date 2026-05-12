@@ -233,29 +233,23 @@ const s = {
   } as React.CSSProperties,
   // (Bloco "PARA AVANÇAR, AINDA FALTA" agora vem do BannerRequisitosGlobal —
   // styles removidos. CSS oficial em @nucleo/banner-requisitos-global.)
-  asteriscoObrigatorio: {
-    color: 'var(--danger, #ef4444)',
-    fontWeight: 700,
-    marginLeft: '0.125rem',
-  } as React.CSSProperties,
-  legendaObrigatorios: {
-    marginTop: '0.5rem',
-    fontSize: '0.75rem',
-    color: 'var(--text-muted, #94a3b8)',
-    fontStyle: 'italic' as const,
-  } as React.CSSProperties,
+  // (P14: `asteriscoObrigatorio` e `legendaObrigatorios` removidos junto com
+  // a legenda do rodapé — asterisco no label do CampoGeralGlobal já cobre
+  // o sinal estático; banner cobre o consolidado.)
   itensHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: '0.875rem',
   } as React.CSSProperties,
+  // P14 UX: card de item migrou de --bg-elevated (cinza claro, baixo contraste
+  // com labels) → --bg-base (escuro do modal). Borda sutil pra delimitar.
   itemCard: {
-    padding: '0.875rem',
-    background: 'var(--bg-elevated)',
-    borderRadius: 'var(--radius-md)',
-    marginBottom: '0.625rem',
-    border: '1px solid transparent',
+    padding:       '0.875rem',
+    background:    'var(--bg-base)',
+    borderRadius:  'var(--radius-md)',
+    marginBottom:  '0.625rem',
+    border:        '1px solid var(--border-default, rgba(255,255,255,0.06))',
   } as React.CSSProperties,
   itemGrid: {
     display: 'grid',
@@ -263,17 +257,20 @@ const s = {
     gap: '0.5rem',
     alignItems: 'flex-start',
   } as React.CSSProperties,
+  // P14 UX: lixeira visível em repouso (--text-secondary), hover destrutivo
+  // (--danger) sinaliza ação irreversível. onMouseEnter/Leave aplicados inline
+  // no JSX porque estilos inline não suportam :hover.
   btnRemover: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    color: 'var(--text-muted)',
-    padding: '0.375rem',
-    borderRadius: 'var(--radius-sm)',
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '1.25rem',
-    transition: 'color 0.15s',
+    background:    'transparent',
+    border:        'none',
+    cursor:        'pointer',
+    color:         'var(--text-secondary)',
+    padding:       '0.375rem',
+    borderRadius:  'var(--radius-sm)',
+    display:       'flex',
+    alignItems:    'center',
+    marginTop:     '1.25rem',
+    transition:    'color 0.15s',
   } as React.CSSProperties,
   inputCompacto: {
     background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
@@ -290,7 +287,7 @@ const s = {
   labelCompacto: {
     fontSize: '0.75rem',
     fontWeight: 600,
-    color: 'var(--text-muted)',
+    color: 'var(--text-secondary)',  // P14: contraste WCAG AA (#94a3b8 vs --bg-base #1e293b)
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     lineHeight: 1.3,
@@ -742,6 +739,7 @@ interface OpcaoEmpresaSelect {
  */
 function CampoEmpresaSelect({
   label,
+  obrigatorio,
   opcoes,
   valor,
   carregando,
@@ -753,6 +751,7 @@ function CampoEmpresaSelect({
   invalido,
 }: {
   label: string
+  obrigatorio?: boolean
   opcoes: OpcaoEmpresaSelect[]
   valor: string | null
   carregando: boolean
@@ -783,6 +782,9 @@ function CampoEmpresaSelect({
           }}
         >
           {label}
+          {obrigatorio && (
+            <span style={{ color: '#f87171', marginLeft: '0.125rem' }}>*</span>
+          )}
         </span>
         <button
           type="button"
@@ -813,17 +815,10 @@ function CampoEmpresaSelect({
           {labelNova}
         </button>
       </div>
-      <div
-        style={
-          invalido && !desabilitado
-            ? {
-                borderRadius: 'var(--radius-md)',
-                outline: '1px solid var(--danger, #ef4444)',
-                outlineOffset: '-1px',
-              }
-            : undefined
-        }
-      >
+      {/* P14: usa a classe canônica `cg-wrapper--erro` do CampoGeralGlobal pra
+          aplicar a borda vermelha no SelectGlobal filho — mesmo CSS que pinta
+          os inputs Número Pedido / Data Emissão. Unifica o padrão obrigatório+vazio. */}
+      <div className={invalido && !desabilitado ? 'cg-wrapper cg-wrapper--erro' : undefined}>
         <SelectGlobal
           opcoes={opcoes}
           valor={valor}
@@ -1048,7 +1043,8 @@ function Passo1Dados({
             </div>
             <div style={s.campo}>
               <CampoEmpresaSelect
-                label={`${t('pedido.drawer.label_exportador')} *`}
+                label={t('pedido.drawer.label_exportador')}
+                obrigatorio
                 opcoes={opcoesContraparteExportador}
                 valor={form.suid_exportador || null}
                 carregando={carregandoEmpresas}
@@ -1067,7 +1063,8 @@ function Passo1Dados({
           <>
             <div style={s.campo}>
               <CampoEmpresaSelect
-                label={`${t('pedido.drawer.label_importador', 'Importador')} *`}
+                label={t('pedido.drawer.label_importador', 'Importador')}
+                obrigatorio
                 opcoes={opcoesContraparteImportador}
                 valor={form.suid_importador || null}
                 carregando={carregandoEmpresas}
@@ -1209,10 +1206,9 @@ function Passo1Dados({
         titulo={t('pedido.modal_novo.pendencias_titulo')}
       />
 
-      {/* Legenda permanente: explicação do asterisco vermelho */}
-      <p style={s.legendaObrigatorios}>
-        <span style={s.asteriscoObrigatorio}>*</span> {t('pedido.modal_novo.legenda_obrigatorios')}
-      </p>
+      {/* P14 UX: legenda "* Campos obrigatórios" removida — asterisco no label
+          já tem semântica universal, e o banner consolidado lista pendências.
+          Padrão alinhado com Material Design / Apple HIG. */}
     </div>
   )
 }
@@ -1306,6 +1302,8 @@ function Passo2Itens({
               title={itens.length <= 1 ? t('pedido.modal_novo.remover_unico_hint') : t('pedido.modal_novo.remover_item_hint')}
               aria-label={t('pedido.modal_novo.remover_item_aria', { n: index + 1 })}
               type="button"
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.color = 'var(--danger)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}
             >
               <Trash size={14} weight="duotone" />
             </button>

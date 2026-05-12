@@ -3803,6 +3803,79 @@ export default function Pedidos() {
       return enriquecidoMv
     }
 
+    // valor_por_unidade_item: também retorna GTValorMoeda { currency, amount }
+    // (configurado em valor_por_unidade_item.getValorEditar:2317). Caminho
+    // dedicado igual ao do valor_total_item — extrai amount + currency e envia
+    // separados. Sem isso, o caminho genérico empacotava o objeto inteiro no
+    // payload e o backend Zod (que espera number) rejeitava silenciosamente
+    // (catch DEV mascarava), resultando em "USD —" no front (NaN render).
+    if (campo === 'valor_por_unidade_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
+      const mv = valor as { currency: string; amount: number }
+      const itemAtualVu = getItensCache().find(i => i.id === id)
+      const atualizadoVu = await pedidoItemApi.atualizar(pedido.id, id, {
+        valor_por_unidade_item: mv.amount,
+        moeda_item: mv.currency,
+      } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualVu) return { ...itemAtualVu, valor_por_unidade_item: mv.amount, moeda_item: mv.currency } as PedidoItem
+          throw new Error('Erro ao editar valor_por_unidade_item')
+        })
+      const enriquecidoVu: PedidoItemEnriquecido = {
+        ...atualizadoVu,
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        },
+      }
+
+      // Mesma lógica de recompute do caminho valor_total_item: divergências
+      // + agregados locais (homogeneidade Onda A8).
+      const itensAposEdicaoVu = getItensCache().map(i => i.id === id ? enriquecidoVu : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoVu)
+      const divergenciasVu = calcularDivergencias(itensAposEdicaoVu)
+      const moedasContribVu = new Set(
+        itensAposEdicaoVu
+          .filter(i => Number(i.valor_total_item ?? 0) > 0 && i.moeda_item)
+          .map(i => i.moeda_item as string)
+      )
+      const unidadesContribVu = new Set(
+        itensAposEdicaoVu
+          .filter(i => Number(i.quantidade_inicial_pedido ?? 0) > 0 && i.unidade_comercializada_item)
+          .map(i => i.unidade_comercializada_item as string)
+      )
+      const valorTotalLocalVu = moedasContribVu.size > 1
+        ? null
+        : itensAposEdicaoVu.reduce((s, i) => s + (Number(i.valor_total_item) || 0), 0)
+      const qtyTotalLocalVu = unidadesContribVu.size > 1
+        ? null
+        : itensAposEdicaoVu.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0)
+
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...divergenciasVu,
+          itens: itensAposEdicaoVu,
+          valor_total_pedido: valorTotalLocalVu,
+          quantidade_total_pedido: qtyTotalLocalVu,
+        }
+      }))
+      return enriquecidoVu
+    }
+
     // quantidade_pronta_total_item_pedido → endpoint dedicado PATCH /pronta
     if (campo === 'quantidade_pronta_total_item_pedido') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)

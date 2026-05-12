@@ -155,8 +155,13 @@ export function renderAgregado(
   opts?: { fontMono?: boolean }
 ): React.ReactElement {
   const centro: React.CSSProperties = { display: 'block', textAlign: 'center' }
+
+  // Nada para mostrar — célula vazia.
   if (!valor && !divergente) return <span style={centro}>—</span>
-  if (divergente) {
+
+  // Sem valor canônico (caso clássico de agregado puro, ex: unidades divergentes
+  // que nem podem ser somadas) — mostra só o alerta.
+  if (!valor && divergente) {
     return (
       <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}
         title={labelDivergente}>
@@ -164,7 +169,25 @@ export function renderAgregado(
       </span>
     )
   }
-  return <span style={opts?.fontMono ? { fontFamily: 'var(--font-mono, monospace)' } : undefined}>{valor ?? '—'}</span>
+
+  // Renderização do valor (estilo mantido com fontMono opcional).
+  const conteudoValor = (
+    <span style={opts?.fontMono ? { fontFamily: 'var(--font-mono, monospace)' } : undefined}>{valor}</span>
+  )
+
+  // Pedido tem valor próprio, mas itens divergem dele — mostra valor + badge
+  // de alerta ao lado. Tooltip detalha a divergência.
+  if (divergente) {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+        title={labelDivergente ?? 'Itens divergem do pedido'}>
+        {conteudoValor}
+        <span style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}><WarnIcon /></span>
+      </span>
+    )
+  }
+
+  return conteudoValor
 }
 
 export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
@@ -377,7 +400,14 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     tooltipTitulo: t('pedido.coluna_pai.valor_unitario_item_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.valor_unitario_item_desc'),
     grupo: 'Financeiro',
-    render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
+    // valor_por_unidade_item é por item — não há somatória no nível pai.
+    // MAS se as moedas dos itens divergem, mostramos alerta (Mand. 08 — faz
+    // barulho explícito em vez de "—" silencioso). Flag populada pelo
+    // `calcularDivergencias` em Pedidos.tsx ao expandir o pedido.
+    render: (_val: unknown, row: Pedido) =>
+      row.moeda_item_divergente
+        ? renderAgregado(null, true, 'Moedas divergentes entre itens')
+        : <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   {
     key: 'quantidade_total_pedido',

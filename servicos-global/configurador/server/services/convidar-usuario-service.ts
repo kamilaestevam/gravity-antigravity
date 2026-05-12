@@ -167,8 +167,13 @@ export async function convidarUsuarioService(
     workspaces_alvo === 'all' && (tipo_usuario === 'PADRAO' || tipo_usuario === 'FORNECEDOR')
 
   // ─── 7. Cria invitation no Clerk ───────────────────────────────────────
-  // QA P2 fix: captura `duplicate_record` do Clerk (mesmo email com convite
-  // ainda pendente) e traduz para 409 amigável, em vez de propagar 500.
+  // QA P2 fix + ampliação 2026-05-12 (smoke do dono):
+  // Captura erros do Clerk relacionados a email duplicado e traduz para
+  // 409 amigável. Inclui:
+  //   - duplicate_record (invitation já pendente)
+  //   - identifier_exists / form_identifier_exists (já existe USER Clerk com
+  //     este email — caso típico após deletar Usuario do DB mas user_*
+  //     real do Clerk ainda existe)
   const APP_BASE_URL = process.env.APP_BASE_URL ?? 'http://localhost:8000'
   let invitation: { id: string }
   try {
@@ -178,17 +183,40 @@ export async function convidarUsuarioService(
     })
   } catch (clerkErr) {
     const errMsg = clerkErr instanceof Error ? clerkErr.message : String(clerkErr)
-    const errAny = clerkErr as { errors?: Array<{ code?: string }>; status?: number }
-    const isDuplicate = errAny?.errors?.some((e) => e.code === 'duplicate_record')
-      || /already.*exist|duplicate/i.test(errMsg)
+    const errAny = clerkErr as { errors?: Array<{ code?: string; message?: string }>; status?: number }
+    const codesProblema = ['duplicate_record', 'identifier_exists', 'form_identifier_exists']
+    const isDuplicate =
+      errAny?.errors?.some((e) => e.code && codesProblema.includes(e.code))
+      || /already.*exist|duplicate|identifier.*exist/i.test(errMsg)
     if (isDuplicate) {
+      // Log alto para rastreio — o usuário pode ter Clerk user real mas
+      // foi deletado do DB, ou ter invitation pendente em paralelo.
+      // eslint-disable-next-line no-console
+      console.warn('[convidarUsuarioService] Clerk recusou createInvitation por duplicidade', {
+        email: email_usuario,
+        errCode: errAny?.errors?.[0]?.code,
+        errMsg,
+      })
       throw new AppError(
-        'Já existe um convite Clerk pendente para este e-mail. Revogue o convite anterior antes de tentar novamente.',
+        'Já existe um usuário ou convite Clerk para este e-mail. Revogue o convite anterior ou peça ao Admin para limpar o usuário Clerk órfão.',
         409,
-        'INVITATION_ALREADY_EXISTS',
+        'INVITATION_OR_USER_ALREADY_EXISTS',
       )
     }
-    throw clerkErr
+    // Outros erros Clerk: logar e propagar como AppError 502 (Clerk como
+    // dependência externa) em vez de 500 (servidor próprio).
+    // eslint-disable-next-line no-console
+    console.error('[convidarUsuarioService] Falha inesperada Clerk createInvitation', {
+      email: email_usuario,
+      errCode: errAny?.errors?.[0]?.code,
+      status: errAny?.status,
+      errMsg,
+    })
+    throw new AppError(
+      `Falha ao criar convite no Clerk: ${errAny?.errors?.[0]?.message ?? errMsg}`,
+      502,
+      'CLERK_INVITATION_ERROR',
+    )
   }
 
   // ─── 8/9. Transação atômica + rollback do Clerk se o DB falhar ─────────

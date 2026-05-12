@@ -12,10 +12,16 @@ import { useAuth } from '@clerk/clerk-react'
 export type TipoUsuario = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR' | null
 
 const cacheTipoUsuario = new Map<string, TipoUsuario>()
+// Cache da flag `hospeda_colaboradores_gravity` da organização do usuário.
+// Mesma chave (userId Clerk) do cache de tipo_usuario — consistência.
+// Usada pelo hook usePodeEditarUsuario para decidir whitelist de tipos
+// atribuíveis (regra condicional 2026-05-11).
+const cacheHospedaColaboradoresGravity = new Map<string, boolean>()
 
 /** Limpa o cache de tipo_usuario — deve ser chamado no logout para evitar vazamento entre sessoes */
 export function limparCacheTipoUsuario(): void {
   cacheTipoUsuario.clear()
+  cacheHospedaColaboradoresGravity.clear()
 }
 
 export function useCarregarTipoUsuario() {
@@ -23,6 +29,9 @@ export function useCarregarTipoUsuario() {
 
   const [tipoUsuario, setTipoUsuario] = useState<TipoUsuario>(() =>
     userId ? (cacheTipoUsuario.get(userId) ?? null) : null
+  )
+  const [hospedaColaboradoresGravity, setHospedaColaboradoresGravity] = useState<boolean>(() =>
+    userId ? (cacheHospedaColaboradoresGravity.get(userId) ?? false) : false
   )
   const [pronto, setPronto] = useState(() =>
     !!(userId && cacheTipoUsuario.has(userId))
@@ -36,6 +45,7 @@ export function useCarregarTipoUsuario() {
     if (cacheTipoUsuario.has(userId)) {
       const armazenado = cacheTipoUsuario.get(userId)!
       setTipoUsuario(armazenado)
+      setHospedaColaboradoresGravity(cacheHospedaColaboradoresGravity.get(userId) ?? false)
       setPronto(true)
       return
     }
@@ -56,8 +66,11 @@ export function useCarregarTipoUsuario() {
           .then(r => (r.ok ? r.json() : null))
           .then(data => {
             const tipoUsuarioBanco = (data?.usuario?.tipo_usuario ?? null) as TipoUsuario
+            const flagOrg = Boolean(data?.organizacao?.hospeda_colaboradores_gravity)
             cacheTipoUsuario.set(userId, tipoUsuarioBanco)
+            cacheHospedaColaboradoresGravity.set(userId, flagOrg)
             setTipoUsuario(tipoUsuarioBanco)
+            setHospedaColaboradoresGravity(flagOrg)
             setPronto(true)
           })
       })
@@ -69,5 +82,13 @@ export function useCarregarTipoUsuario() {
 
   const gravityAdmin = tipoUsuario === 'SUPER_ADMIN' || tipoUsuario === 'ADMIN'
 
-  return { pronto, gravityAdmin, tipoUsuario }
+  return {
+    pronto,
+    gravityAdmin,
+    tipoUsuario,
+    /** Flag da organização do usuário (regra condicional 2026-05-11) — true se
+     *  hospeda colaboradores Gravity. Usado para decidir whitelist de tipos
+     *  no usePodeEditarUsuario. */
+    hospedaColaboradoresGravity,
+  }
 }

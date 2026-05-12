@@ -170,7 +170,7 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
     expect(res.status).toBe(200)
   })
 
-  it('Auditoria: roleChanged é chamado com oldRole/newRole corretos', async () => {
+  it('Auditoria: roleChanged é chamado com tipo_usuario_anterior/tipo_usuario_novo corretos', async () => {
     setAuth(ATOR_SUPER_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
     mockUsuarioCount.mockResolvedValue(99)
@@ -182,9 +182,9 @@ describe('TST-FUN-CONFIG-PAT-001..006 — PATCH /:id/patente — Caminho Feliz',
       'org_gravity',
       'usr_sa',
       expect.objectContaining({
-        targetUserId: 'tgt',
-        oldRole: 'PADRAO',
-        newRole: 'FORNECEDOR',
+        id_usuario_alvo: 'tgt',
+        tipo_usuario_anterior: 'PADRAO',
+        tipo_usuario_novo: 'FORNECEDOR',
       }),
     )
   })
@@ -222,27 +222,30 @@ describe('TST-FUN-CONFIG-PAT-007..014 — PATCH /:id/patente — Bloqueios', () 
     expect(mockUsuarioUpdate).not.toHaveBeenCalled()
   })
 
-  it('ADMIN tenta editar SUPER_ADMIN → 403 FORBIDDEN_ADMIN_VS_SUPER_ADMIN', async () => {
+  it('ADMIN tenta editar SUPER_ADMIN → 403 ADMIN_SOMENTE_LEITURA (decisão dono 2026-05-11)', async () => {
+    // ADMIN é read-only global (decisão dono 2026-05-11). autorizarAlteracaoPatente
+    // bloqueia ADMIN cedo, independente do alvo. Substitui FORBIDDEN_ADMIN_VS_SUPER_ADMIN
+    // que existia quando ADMIN podia editar org-internas mas não SAdmin.
     setAuth(ATOR_ADMIN)
-    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: false } })
+    mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_gravity', tipo_usuario: 'SUPER_ADMIN', tenant: { hospeda_colaboradores_gravity: true } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_ADMIN_VS_SUPER_ADMIN')
+    expect(res.body.error.code).toBe('ADMIN_SOMENTE_LEITURA')
   })
 
-  it('ADMIN tenta promover a SUPER_ADMIN → 403 FORBIDDEN_PROMOTE_GRAVITY_TIER (regra ε)', async () => {
-    // Após regra ε (2026-05-11), o guard `FORBIDDEN_PROMOTE_GRAVITY_TIER` é
-    // aplicado ANTES dos blocks de ator específicos — captura esta tentativa
-    // antes do antigo `FORBIDDEN_ADMIN_PROMOTE_SUPER_ADMIN`.
+  it('ADMIN tenta promover a SUPER_ADMIN → 403 ADMIN_SOMENTE_LEITURA', async () => {
+    // ADMIN é read-only global — bloqueia ANTES de qualquer regra de
+    // alvo/novoTipo. Substitui o antigo FORBIDDEN_PROMOTE_GRAVITY_TIER da
+    // regra ε universal (descartada em favor da regra condicional).
     setAuth(ATOR_ADMIN)
     mockUsuarioFindFirst.mockResolvedValue({ id_usuario: 'tgt', id_organizacao: 'org_b', tipo_usuario: 'PADRAO', tenant: { hospeda_colaboradores_gravity: false } })
 
     const res = await request(app).patch('/api/v1/usuarios/tgt/patente').send({ tipo_usuario: 'SUPER_ADMIN' })
 
     expect(res.status).toBe(403)
-    expect(res.body.error.code).toBe('FORBIDDEN_PROMOTE_GRAVITY_TIER')
+    expect(res.body.error.code).toBe('ADMIN_SOMENTE_LEITURA')
   })
 
   it('MASTER tenta editar outro MASTER → 403 MASTER_NAO_EDITA_MASTER', async () => {

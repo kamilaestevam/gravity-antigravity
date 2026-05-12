@@ -77,9 +77,14 @@ interface BotaoAcaoUsuarioProps {
 }
 
 function BotaoAcaoUsuario({ alvo, idUsuarioAtor, icone, tooltip, onClick }: BotaoAcaoUsuarioProps) {
+  // Workspace lista usuários da MESMA org do ator (filtro id_organizacao no findMany).
+  // Logo todos os alvos têm a mesma flag da org. Lemos do /me via useCarregarTipoUsuario
+  // (regra condicional 2026-05-11 — usePodeEditarUsuario exige o campo).
+  const { hospedaColaboradoresGravity } = useCarregarTipoUsuario()
   const gating = usePodeEditarUsuario({
     id_usuario: alvo.id_usuario,
     tipo_usuario: alvo.tipo_usuario as TipoUsuarioBackend,
+    organizacao_hospeda_colaboradores_gravity: hospedaColaboradoresGravity,
   })
   // Anti-escalada por id_usuario — hook só compara por tipo_usuario
   const ehProprio = idUsuarioAtor !== null && idUsuarioAtor === alvo.id_usuario
@@ -180,9 +185,12 @@ interface WrapperConfiguradorProps {
 }
 
 function ExpandidoEditorVinculosConfigurador(props: WrapperConfiguradorProps) {
+  // Mesma justificativa do BotaoAcaoUsuario — flag da org via /me.
+  const { hospedaColaboradoresGravity } = useCarregarTipoUsuario()
   const gating = usePodeEditarUsuario({
     id_usuario: props.usuario.id_usuario,
     tipo_usuario: props.usuario.tipo_usuario as TipoUsuarioBackend,
+    organizacao_hospeda_colaboradores_gravity: hospedaColaboradoresGravity,
   })
   const ehProprio = props.idUsuarioAtor !== null && props.idUsuarioAtor === props.usuario.id_usuario
   const podeEditar = gating.podeAlterarVinculosWorkspace && !ehProprio
@@ -308,9 +316,15 @@ export function Usuarios() {
   // Whitelist de tipos que o ator atual pode atribuir ao usuário em edição.
   // Hook chamado incondicionalmente; quando usuarioEditando=null, retorna lista
   // vazia. Convertemos enum (BackendUserRole) → label UI (NivelAcesso) para o modal.
+  // Flag da org vem do /me — todos os usuários listados são da mesma org do ator.
+  const { hospedaColaboradoresGravity } = useCarregarTipoUsuario()
   const gatingEdicao = usePodeEditarUsuario(
     usuarioEditando
-      ? { id_usuario: usuarioEditando.id_usuario, tipo_usuario: usuarioEditando.tipo_usuario as TipoUsuarioBackend }
+      ? {
+          id_usuario: usuarioEditando.id_usuario,
+          tipo_usuario: usuarioEditando.tipo_usuario as TipoUsuarioBackend,
+          organizacao_hospeda_colaboradores_gravity: hospedaColaboradoresGravity,
+        }
       : null,
   )
   const tiposPermitidosUI: NivelAcesso[] = gatingEdicao.tiposPermitidosParaPatente.map(mapRole)

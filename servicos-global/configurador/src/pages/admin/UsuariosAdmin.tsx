@@ -309,8 +309,10 @@ export function UsuariosAdmin() {
     }
   }
 
-  // OPCOES_TIPO_ADMIN já está limitado a Master/Standard/Fornecedor (regra ε —
-  // SAdmin/Admin só via seed do banco). Sem filtro condicional por perfil.
+  // OPCOES_TIPO_ADMIN expõe todos os 5 tipos. A filtragem (SAdmin/Admin só
+  // se a org do destinatário hospeda colaboradores Gravity — decisão dono
+  // 2026-05-11) acontece em runtime via tiposPermitidosUI/usePodeEditarUsuario.
+  // Sem filtro condicional por perfil aqui — o backend é a fonte da verdade.
   const opcoesDisponiveis = OPCOES_TIPO_ADMIN
 
   async function handleInvite() {

@@ -421,9 +421,9 @@ describe('PUT /api/v1/usuarios/:id_usuario/permissoes', () => {
     const [orgId, atorId, payload] = mockPermissionChanged.mock.calls[0]
     expect(orgId).toBe('org_a')
     expect(atorId).toBe(ATOR_MASTER.id_usuario)
-    expect(payload.targetUserId).toBe(CUID_USR_ALVO)
-    expect(payload.permission).toMatch(/^pedido:/)
-    expect(['GRANTED', 'REVOKED']).toContain(payload.action)
+    expect(payload.id_usuario_alvo).toBe(CUID_USR_ALVO)
+    expect(payload.nome_permissao).toMatch(/^pedido:/)
+    expect(['GRANTED', 'REVOKED']).toContain(payload.acao_permissao)
   })
 })
 

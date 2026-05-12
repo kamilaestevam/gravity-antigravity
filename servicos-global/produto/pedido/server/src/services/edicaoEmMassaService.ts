@@ -113,6 +113,48 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_atual_item',
 ])
 
+// ── Cascade Pedido → Item (Aba "Combinado") ───────────────────────────────────
+//
+// Regra de negócio: quando o usuário usa a aba **Combinado**, a alteração de
+// um campo de pedido também é propagada para o campo equivalente de cada item.
+// Whitelist canônica abaixo (22 pares). Campos fora da whitelist não cascadeiam
+// — alteram apenas o nível em que foram declarados.
+//
+// Atenção: o cascade SOBRESCREVE overrides individuais nos itens. O preview
+// avisa o usuário antes da confirmação.
+
+const PARES_CASCADE_PEDIDO_ITEM: Record<string, string> = {
+  // Identificação
+  tipo_operacao_pedido:             'tipo_operacao_item',
+  // Comerciais / financeiros (12)
+  incoterm_pedido:                  'incoterm_item',
+  moeda_pedido:                     'moeda_item',
+  condicao_pagamento_pedido:        'condicao_pagamento_item',
+  data_emissao_pedido:              'data_emissao_item',
+  referencia_importador_pedido:     'referencia_importador_item',
+  referencia_exportador_pedido:     'referencia_exportador_item',
+  referencia_fabricante_pedido:     'referencia_fabricante_item',
+  unidade_comercializada_pedido:    'unidade_comercializada_item',
+  casas_decimais_valor_pedido:      'casas_decimais_valor_item',
+  casas_decimais_quantidade_pedido: 'casas_decimais_quantidade_item',
+  casas_decimais_peso_pedido:       'casas_decimais_peso_item',
+  casas_decimais_cubagem_pedido:    'casas_decimais_cubagem_item',
+  // Datas de fluxo (pronto/inspeção/coleta) — 9 pares
+  data_prevista_pedido_pronto:      'data_prevista_item_pronto',
+  data_confirmada_pedido_pronto:    'data_confirmada_item_pronto',
+  data_meta_pedido_pronto:          'data_meta_item_pronto',
+  data_prevista_inspecao_pedido:    'data_prevista_inspecao_item',
+  data_confirmada_inspecao_pedido:  'data_confirmada_inspecao_item',
+  data_meta_inspecao_pedido:        'data_meta_inspecao_item',
+  data_prevista_coleta_pedido:      'data_prevista_coleta_item',
+  data_confirmada_coleta_pedido:    'data_confirmada_coleta_item',
+  data_meta_coleta_pedido:          'data_meta_coleta_item',
+  // JSON detalhes_operacionais_pedido → coluna item (3 pares — só nomes têm equivalente)
+  nome_exportador:                  'nome_exportador_item',
+  nome_importador:                  'nome_importador_item',
+  nome_fabricante:                  'nome_fabricante_item',
+}
+
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -136,6 +178,8 @@ interface EdicaoMassaPayload {
 interface EdicaoMassaPreview {
   pedidos_afetados: number
   itens_afetados: number
+  campos_pedido_alterados: number     // # de gravações no Pedido (pedidos × campos)
+  campos_item_alterados: number       // # de gravações em Item (itens × campos, incluindo cascade)
   campos: {
     campo: string
     nivel: 'pedido' | 'item'
@@ -144,6 +188,8 @@ interface EdicaoMassaPreview {
     multiplos_valores: boolean
     valores_distintos?: string[]
     alertas: string[]
+    cascade_para?: string             // se o campo cascadeia, nome da coluna de item-alvo
+    overrides_sobrescritos?: number   // # de itens cujo valor atual diverge do que será aplicado
   }[]
   alertas_globais: string[]
 }
@@ -151,7 +197,9 @@ interface EdicaoMassaPreview {
 interface EdicaoMassaResultado {
   pedidos_atualizados: number
   itens_atualizados: number
-  campos_alterados: string[]
+  campos_pedido_alterados: number     // total de gravações no Pedido (pedidos × campos pedido)
+  campos_item_alterados: number       // total de gravações em Item (itens × campos item, incluindo cascade)
+  campos_alterados: string[]          // nomes únicos de campos alterados (uniao pedido + item após cascade)
   erros: { pedido_id: string; motivo: string }[]
 }
 
@@ -202,19 +250,26 @@ export class EdicaoEmMassaService {
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
-    // Itens só são contados quando algum campo de nível 'item' está sendo editado.
-    // Sem isso, o preview informa itens afetados mesmo em edições puramente de pedido,
-    // induzindo o usuário a achar que itens serão alterados quando não serão.
-    const temCamposItem = payload.campos.some(c => c.nivel === 'item')
-    const itensAfetados = temCamposItem
-      ? pedidos.reduce<number>(
-          (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
-          0,
-        )
-      : 0
+    // Cascade Pedido → Item ativo apenas na aba "Combinado".
+    const ehCombinado = payload.nivel === 'combinado'
+    const camposPedidoComCascade = payload.campos.filter(
+      c => c.nivel === 'pedido' && ehCombinado && PARES_CASCADE_PEDIDO_ITEM[c.campo],
+    )
+    const totalItensSomados = pedidos.reduce<number>(
+      (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
+      0,
+    )
+
+    // Itens são contados se há campos de nível 'item' OU cascade ativo
+    const temCamposItem = payload.campos.some(c => c.nivel === 'item') || camposPedidoComCascade.length > 0
+    const itensAfetados = temCamposItem ? totalItensSomados : 0
 
     const camposPreview = payload.campos.map(c => {
       const valores: string[] = []
+      const cascadePara = c.nivel === 'pedido' && ehCombinado
+        ? PARES_CASCADE_PEDIDO_ITEM[c.campo]
+        : undefined
+      let overridesSobrescritos = 0
 
       if (c.nivel === 'pedido') {
         pedidos.forEach((p: Record<string, unknown>) => {
@@ -222,6 +277,17 @@ export class EdicaoEmMassaService {
             ? ((p.detalhes_operacionais_pedido as Record<string, unknown> | null)?.[c.campo] ?? '')
             : (p[c.campo] ?? '')
           valores.push(String(valor))
+
+          // Cascade: contar itens cujo valor atual diverge do que será aplicado
+          if (cascadePara) {
+            const itens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+            itens.forEach(item => {
+              const valorItem = String(item[cascadePara] ?? '')
+              if (valorItem !== String(c.valor) && valorItem !== '') {
+                overridesSobrescritos++
+              }
+            })
+          }
         })
       } else {
         pedidos.forEach((p: Record<string, unknown>) => {
@@ -238,6 +304,9 @@ export class EdicaoEmMassaService {
       if (distintos.length > 1) {
         alertas.push(`${distintos.length} valores distintos encontrados`)
       }
+      if (cascadePara && overridesSobrescritos > 0) {
+        alertas.push(`${overridesSobrescritos} ${overridesSobrescritos === 1 ? 'item será sobrescrito' : 'itens serão sobrescritos'} (cascade para ${cascadePara})`)
+      }
 
       return {
         campo: c.campo,
@@ -247,12 +316,25 @@ export class EdicaoEmMassaService {
         multiplos_valores: distintos.length > 1,
         valores_distintos: distintos,
         alertas,
+        cascade_para: cascadePara,
+        overrides_sobrescritos: cascadePara ? overridesSobrescritos : undefined,
       }
     })
+
+    // Contagens granulares para o preview
+    const camposPedidoNivel = payload.campos.filter(c => c.nivel === 'pedido').length
+    const camposItemNivel   = payload.campos.filter(c => c.nivel === 'item').length
+
+    const campos_pedido_alterados = pedidos.length * camposPedidoNivel
+    const campos_item_alterados   =
+      totalItensSomados * camposItemNivel                                // campos item explícitos
+      + totalItensSomados * camposPedidoComCascade.length                // campos cascade
 
     return {
       pedidos_afetados: pedidos.length,
       itens_afetados: itensAfetados,
+      campos_pedido_alterados,
+      campos_item_alterados,
       campos: camposPreview,
       alertas_globais: [],
     }
@@ -282,17 +364,31 @@ export class EdicaoEmMassaService {
     const erros: { pedido_id: string; motivo: string }[] = []
     let pedidosAtualizados = 0
     let itensAtualizados = 0
+    let camposPedidoGravados = 0
+    let camposItemGravados = 0
+
+    // Cascade Pedido→Item: ativo apenas na aba "Combinado". Para cada campo de
+    // pedido cujo nome está na whitelist, propagar o valor para o campo de item
+    // equivalente em todos os itens dos pedidos selecionados.
+    const ehCombinado = payload.nivel === 'combinado'
+    const camposCascade: { campoPedido: CampoEdicaoMassa; campoItem: string }[] = ehCombinado
+      ? camposPedido
+          .filter(c => PARES_CASCADE_PEDIDO_ITEM[c.campo])
+          .map(c => ({ campoPedido: c, campoItem: PARES_CASCADE_PEDIDO_ITEM[c.campo] }))
+      : []
 
     const precisaRecalcularAgregados = camposItem.some(c => CAMPOS_QUANTIDADE_ITEM.has(c.campo))
     const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id_pedido as string)
 
     // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
     // Condição: todos os campos de pedido são "substituir" em campos diretos do
-    // schema (não estão em detalhes_operacionais) e não há campos de item.
+    // schema (não estão em detalhes_operacionais), não há campos de item E não
+    // há cascade pendente (cascade exige update por item, então cai no slow).
     // Uma única query SQL atualiza todos os pedidos independente do volume.
     const todosCamposPedidoSaoRapidos =
       camposPedido.length > 0 &&
       camposItem.length === 0 &&
+      camposCascade.length === 0 &&
       camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
 
     if (todosCamposPedidoSaoRapidos) {
@@ -305,9 +401,12 @@ export class EdicaoEmMassaService {
         data: dadosUpdateMany,
       })
       pedidosAtualizados = pedidos.length
+      camposPedidoGravados = pedidos.length * camposPedido.length
       return {
         pedidos_atualizados: pedidosAtualizados,
         itens_atualizados: 0,
+        campos_pedido_alterados: camposPedidoGravados,
+        campos_item_alterados: 0,
         campos_alterados: payload.campos.map(c => c.campo),
         erros: [],
       }
@@ -351,21 +450,36 @@ export class EdicaoEmMassaService {
               where: { id_pedido: pedidoId },
               data: dadosPedido,
             })
+            camposPedidoGravados += camposPedido.length
           }
 
-          // Aplicar campos de nível item — frontend já envia nome DDD da coluna
-          if (camposItem.length > 0) {
+          // Aplicar campos de nível item — frontend já envia nome DDD da coluna.
+          // Inclui também cascade Pedido→Item (camposCascade) quando aba é Combinado.
+          const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0
+          if (temUpdateItem) {
             const itens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
+              // Campos item explícitos (aba Item ou Combinado com campos item)
               for (const c of camposItem) {
                 dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
+              }
+              // Cascade Pedido→Item (Combinado). Sempre 'substituir' — não faz
+              // sentido somar/percentual em cascade. Campo item explícito tem
+              // prioridade sobre cascade se ambos tocarem o mesmo destino.
+              for (const { campoPedido, campoItem } of camposCascade) {
+                if (!(campoItem in dadosItem)) {
+                  dadosItem[campoItem] = campoPedido.valor
+                }
               }
               const resultado = await tx.pedidoItem.update({
                 where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
                 data: dadosItem,
               })
-              if (resultado) itensAtualizados++
+              if (resultado) {
+                itensAtualizados++
+                camposItemGravados += Object.keys(dadosItem).length
+              }
             }
           }
 
@@ -374,7 +488,7 @@ export class EdicaoEmMassaService {
             await this.recalcularAgregados(id_organizacao, pedidoId, tx)
           }
 
-          if (camposPedido.length > 0 || camposItem.length > 0) pedidosAtualizados++
+          if (camposPedido.length > 0 || temUpdateItem) pedidosAtualizados++
         } catch (err: unknown) {
           erros.push({
             pedido_id: pedidoId,
@@ -401,10 +515,17 @@ export class EdicaoEmMassaService {
       }
     }, { timeout: 60000, maxWait: 10000 })
 
+    // Campos únicos alterados — inclui os de cascade (pedido + alvo item)
+    const camposUnicos = new Set<string>()
+    payload.campos.forEach(c => camposUnicos.add(c.campo))
+    camposCascade.forEach(({ campoItem }) => camposUnicos.add(campoItem))
+
     return {
       pedidos_atualizados: pedidosAtualizados,
       itens_atualizados: itensAtualizados,
-      campos_alterados: payload.campos.map(c => c.campo),
+      campos_pedido_alterados: camposPedidoGravados,
+      campos_item_alterados: camposItemGravados,
+      campos_alterados: [...camposUnicos],
       erros,
     }
   }

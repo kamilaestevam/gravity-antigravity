@@ -27,7 +27,7 @@ const service = new EdicaoEmMassaService()
 
 const CampoSchema = z.object({
   campo: z.string().min(1),
-  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario']),
+  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario', 'ncm']),
   nivel: z.enum(['pedido', 'item']),
   operacao: z.enum(['substituir', 'somar', 'subtrair', 'percentual', 'avancar_dias', 'recuar_dias']),
   valor: z.union([z.string(), z.number()]),

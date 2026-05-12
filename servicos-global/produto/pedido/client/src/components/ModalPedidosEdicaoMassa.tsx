@@ -206,7 +206,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
 const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação do produto
   { campo: 'part_number_item',                        rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'ncm_item',                                rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'ncm_item',                                rotulo: 'NCM',                                    tipo: 'ncm',    nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_item',                          rotulo: 'Descrição do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa_item_pt',              rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa_item_en',              rotulo: 'Descrição (EN)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
@@ -245,8 +245,20 @@ const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, OperacaoCampo[]> = {
   texto:   ['substituir'],
   select:  ['substituir'],
   usuario: ['substituir'],
+  ncm:     ['substituir'],
   numero:  ['substituir', 'somar', 'subtrair', 'percentual'],
   data:    ['substituir', 'avancar_dias', 'recuar_dias'],
+}
+
+/**
+ * formataNcm — máscara de NCM (0000.00.00).
+ * Recebe entrada bruta, descarta não-dígitos, limita a 8 dígitos e formata.
+ */
+function formataNcm(raw: string): string {
+  const d = raw.replace(/\D/g, '').slice(0, 8)
+  if (d.length <= 4) return d
+  if (d.length <= 6) return `${d.slice(0, 4)}.${d.slice(4)}`
+  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}`
 }
 
 const OP_NOME_KEYS: Record<OperacaoCampo, string> = {
@@ -937,7 +949,19 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                         ))}
                       </select>
                     )
-                  })() : (
+                  })() : campo.tipo === 'ncm' ? (
+                    <input
+                      className="modal-edicao-massa__input"
+                      type="text"
+                      inputMode="numeric"
+                      value={campo.valor}
+                      onChange={e => handleMudarValor(campo.uid, formataNcm(String(e.target.value)))}
+                      placeholder="0000.00.00"
+                      maxLength={10}
+                      aria-label={`Valor para ${campo.campo}`}
+                      style={{ fontFamily: 'var(--font-mono, monospace)' }}
+                    />
+                  ) : (
                     <input
                       className="modal-edicao-massa__input"
                       type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
@@ -1008,10 +1032,18 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                   <span>{t('pedido.modal_massa.preview_itens')}</span>
                 </div>
               )}
-              <div className="modal-edicao-massa__preview-stat">
-                <strong>{preview.campos.length}</strong>
-                <span>{t('pedido.modal_massa.preview_campos')}</span>
-              </div>
+              {(preview.campos_pedido_alterados ?? 0) > 0 && (
+                <div className="modal-edicao-massa__preview-stat">
+                  <strong>{preview.campos_pedido_alterados}</strong>
+                  <span>campos pedido</span>
+                </div>
+              )}
+              {(preview.campos_item_alterados ?? 0) > 0 && (
+                <div className="modal-edicao-massa__preview-stat">
+                  <strong>{preview.campos_item_alterados}</strong>
+                  <span>campos item</span>
+                </div>
+              )}
             </div>
 
             {preview.campos.length > 0 && (

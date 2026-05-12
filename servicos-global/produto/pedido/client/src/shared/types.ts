@@ -621,7 +621,7 @@ export interface TransferHistorico {
 // ── Edição em Massa ───────────────────────────────────────────────────────────
 
 /** Tipos de campo suportados para edição em massa */
-export type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario'
+export type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario' | 'ncm'
 
 /** Operação aplicada ao campo */
 export type OperacaoCampo =
@@ -652,6 +652,10 @@ export interface EdicaoMassaPayload {
 export interface EdicaoMassaPreview {
   pedidos_afetados: number
   itens_afetados: number
+  /** Total de gravações no Pedido = pedidos × campos pedido */
+  campos_pedido_alterados: number
+  /** Total de gravações em Item = itens × (campos item explícitos + campos cascade) */
+  campos_item_alterados: number
   campos: {
     campo: string
     nivel: 'pedido' | 'item'
@@ -660,6 +664,10 @@ export interface EdicaoMassaPreview {
     multiplos_valores: boolean    // true se pedidos selecionados têm valores diferentes
     valores_distintos?: string[]  // lista de valores atuais distintos (para exibir no UI)
     alertas: string[]
+    /** Coluna item-alvo se o campo cascadeia (aba Combinado) */
+    cascade_para?: string
+    /** Quantos itens terão valor sobrescrito por cascade */
+    overrides_sobrescritos?: number
   }[]
   alertas_globais: string[]
   /** Detalhamento por pedido — valor atual e novo valor para cada campo */
@@ -678,6 +686,8 @@ export interface EdicaoMassaPreview {
 export interface EdicaoMassaResultado {
   pedidos_atualizados: number
   itens_atualizados: number
+  campos_pedido_alterados: number
+  campos_item_alterados: number
   campos_alterados: string[]
   erros: { pedido_id: string; motivo: string }[]
 }

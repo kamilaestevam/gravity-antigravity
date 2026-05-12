@@ -679,30 +679,26 @@ function mockTransferirReverter(transfer_id: string): TransferResultado {
 // ── Edição em Massa ───────────────────────────────────────────────────────────
 
 export const pedidoEdicaoMassaApi = {
-  /** Preview — mostra impacto antes de confirmar */
+  /**
+   * Preview — mostra impacto antes de confirmar.
+   *
+   * SEM mock fallback (Mand. 08 — falha ruidosa em vez de silenciosa).
+   * Se a API real falhar, propaga o erro para o componente exibir mensagem
+   * ao usuário. Mascarar com mock em DEV induz a confiar em dados falsos
+   * (caso real: preview retornou 5 itens de mock quando a API real falhava
+   * por Zod desatualizado).
+   */
   preview: (payload: EdicaoMassaPayload) =>
     request<EdicaoMassaPreview>('/api/v1/pedidos/edicoes-em-massa/preview', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) {
-        console.warn('[EdicaoMassa] preview caiu no mock:', err?.message)
-        return mockEdicaoMassaPreview(payload)
-      }
-      throw err
     }),
 
-  /** Confirmar — executa a edição em massa */
+  /** Confirmar — executa a edição em massa. Sem mock fallback (Mand. 08). */
   confirmar: (payload: EdicaoMassaPayload) =>
     request<EdicaoMassaResultado>('/api/v1/pedidos/edicoes-em-massa/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) {
-        console.warn('[EdicaoMassa] confirmar caiu no mock:', err?.message)
-        return mockEdicaoMassaConfirmar(payload)
-      }
-      throw err
     }),
 }
 

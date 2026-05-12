@@ -252,4 +252,129 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       expect(preview.campos[0].valores_distintos).toContain('100')
     })
   })
+
+  // ── Cascade Pedido → Item (aba Combinado) ───────────────────────────────────
+
+  describe('Cascade Pedido → Item (aba Combinado)', () => {
+
+    it('NÃO faz cascade na aba Pedido (mesmo com campo cascadeável)', async () => {
+      const { db, itemUpdateMock } = criarDbMock()
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'incoterm_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' }],
+        nivel: 'pedido',
+      })
+
+      // updateMany usado (fast path) — sem update individual de item
+      expect(itemUpdateMock).not.toHaveBeenCalled()
+    })
+
+    it('faz cascade na aba Combinado para campo na whitelist', async () => {
+      const { db, itemUpdateMock } = criarDbMock()
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'incoterm_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' }],
+        nivel: 'combinado',
+      })
+
+      expect(itemUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ incoterm_item: 'CIF' }),
+        })
+      )
+    })
+
+    it('NÃO faz cascade na aba Combinado para campo fora da whitelist', async () => {
+      const { db, itemUpdateMock } = criarDbMock()
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'numero_pedido', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'PO-NEW' }],
+        nivel: 'combinado',
+      })
+
+      // numero_pedido não está em PARES_CASCADE → sem update de item
+      expect(itemUpdateMock).not.toHaveBeenCalled()
+    })
+
+    it('campo item explícito sobrescreve cascade do mesmo destino', async () => {
+      const { db, itemUpdateMock } = criarDbMock()
+
+      // incoterm_pedido cascadeia para incoterm_item, mas o usuário também
+      // editou incoterm_item explicitamente — o explícito vence.
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [
+          { campo: 'incoterm_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' },
+          { campo: 'incoterm_item',   tipo: 'select', nivel: 'item',   operacao: 'substituir', valor: 'FOB' },
+        ],
+        nivel: 'combinado',
+      })
+
+      expect(itemUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ incoterm_item: 'FOB' }), // explícito vence
+        })
+      )
+    })
+
+    it('preview Combinado retorna campos_pedido_alterados e campos_item_alterados', async () => {
+      const { db } = criarDbMock()
+
+      const preview = await service.preview(ID_ORG, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'incoterm_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' }],
+        nivel: 'combinado',
+      })
+
+      expect(preview.pedidos_afetados).toBe(1)
+      expect(preview.itens_afetados).toBe(1)             // mock tem 1 item
+      expect(preview.campos_pedido_alterados).toBe(1)    // 1 pedido × 1 campo pedido
+      expect(preview.campos_item_alterados).toBe(1)      // 1 item × 1 cascade
+      expect(preview.campos[0].cascade_para).toBe('incoterm_item')
+    })
+
+    it('cascade Combinado para campo JSON (nome_exportador → nome_exportador_item)', async () => {
+      const { db, itemUpdateMock, pedidoUpdateMock } = criarDbMock()
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'nome_exportador', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'Acme Co.' }],
+        nivel: 'combinado',
+      })
+
+      // Pedido grava em detalhes_operacionais_pedido (JSON)
+      expect(pedidoUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            detalhes_operacionais_pedido: expect.objectContaining({ nome_exportador: 'Acme Co.' }),
+          }),
+        })
+      )
+
+      // Item recebe cascade na coluna real
+      expect(itemUpdateMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ nome_exportador_item: 'Acme Co.' }),
+        })
+      )
+    })
+
+    it('preview aba Pedido: itens_afetados=0, campos_item_alterados=0', async () => {
+      const { db } = criarDbMock()
+
+      const preview = await service.preview(ID_ORG, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'incoterm_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' }],
+        nivel: 'pedido',
+      })
+
+      expect(preview.itens_afetados).toBe(0)
+      expect(preview.campos_pedido_alterados).toBe(1)
+      expect(preview.campos_item_alterados).toBe(0)
+      expect(preview.campos[0].cascade_para).toBeUndefined()
+    })
+  })
 })

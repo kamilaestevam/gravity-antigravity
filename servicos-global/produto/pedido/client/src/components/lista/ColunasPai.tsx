@@ -307,19 +307,15 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     tooltipDescricao: t('pedido.coluna_pai.ncm_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      if (row.ncm_divergente) {
-        const label = `⚠ ${row.ncms_distintos_count ?? '?'} NCMs`
-        return (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)' }}
-            title="Itens com NCMs diferentes">
-            <WarnIcon />{label}
-          </span>
-        )
-      }
-      if (!row.ncm_valor_unico) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const d = row.ncm_valor_unico.replace(/\D/g, '')
-      const fmt = d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : row.ncm_valor_unico
-      return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{fmt}</span>
+      // Formata NCM (8 dígitos → 0000.00.00) para consistência visual.
+      const raw = row.ncm_valor_unico ?? null
+      const d = (raw ?? '').replace(/\D/g, '')
+      const fmt = d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : raw
+      // Quando divergente, label informa quantos NCMs distintos existem nos itens.
+      // Usa renderAgregado para padronizar com as demais colunas (valor + ícone
+      // de alerta lado a lado). Sem ⚠ na string — o ícone SVG já sinaliza.
+      const labelDivergente = `${row.ncms_distintos_count ?? '?'} NCMs diferentes nos itens`
+      return renderAgregado(fmt, row.ncm_divergente, labelDivergente, { fontMono: true })
     },
   },
   {

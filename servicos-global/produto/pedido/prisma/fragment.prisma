@@ -158,6 +158,7 @@ model PedidoItem {
   id_organizacao                   String
   id_workspace                     String
   id_pedido                        String
+  tipo_operacao_item               String?
   sequencia_item_pedido            Int?
   part_number_item                 String
   ncm_item                         String

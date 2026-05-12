@@ -32,9 +32,9 @@ describe('securityAudit', () => {
 
   it('TST-UNIT-TENANT-SAL-001: permissionChanged → AuditService.log com actor_type=AcaoExecutadaPor.USUARIO', async () => {
     await securityAudit.permissionChanged('t-1', 'u-1', {
-      targetUserId: 'u-2',
-      permission: 'pedido:create',
-      action: 'GRANTED',
+      id_usuario_alvo: 'u-2',
+      nome_permissao: 'pedido:create',
+      acao_permissao: 'GRANTED',
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
@@ -104,10 +104,10 @@ describe('securityAudit', () => {
 
   it('TST-UNIT-TENANT-SAL-007: dataDeleted → actor_type=AcaoExecutadaPor.USUARIO e module=admin', async () => {
     await securityAudit.dataDeleted('t-1', 'admin-1', {
-      targetUserId: 'u-2',
-      tablesAffected: ['pedido', 'item_pedido'],
-      recordCount: 150,
-      reason: 'LGPD_REQUEST',
+      id_usuario_alvo: 'u-2',
+      tabelas_afetadas: ['pedido', 'item_pedido'],
+      quantidade_registros_excluidos: 150,
+      motivo_exclusao: 'LGPD_REQUEST',
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(

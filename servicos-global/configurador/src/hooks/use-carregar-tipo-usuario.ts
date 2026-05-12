@@ -8,8 +8,25 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react'
+import { z } from 'zod'
 
 export type TipoUsuario = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR' | null
+
+// Mand. 09 — Zod bilateral: schema mínimo dos campos que este hook lê de
+// /api/v1/me. Espelha exatamente o que o backend `me.ts` emite. Outros campos
+// (workspaces, dados cadastrais, etc.) podem existir e são ignorados sem erro
+// (comportamento default do z.object — não usa .passthrough() para evitar
+// falsa permissividade condenada pelo Mandamento 09).
+const tipoUsuarioEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR'])
+
+const meContextoMinimoSchema = z.object({
+  usuario: z.object({
+    tipo_usuario: tipoUsuarioEnum,
+  }),
+  organizacao: z.object({
+    hospeda_colaboradores_gravity: z.boolean(),
+  }).nullable(),
+})
 
 const cacheTipoUsuario = new Map<string, TipoUsuario>()
 // Cache da flag `hospeda_colaboradores_gravity` da organização do usuário.
@@ -65,8 +82,25 @@ export function useCarregarTipoUsuario() {
         })
           .then(r => (r.ok ? r.json() : null))
           .then(data => {
-            const tipoUsuarioBanco = (data?.usuario?.tipo_usuario ?? null) as TipoUsuario
-            const flagOrg = Boolean(data?.organizacao?.hospeda_colaboradores_gravity)
+            if (!data) {
+              setPronto(true)
+              return
+            }
+            // Mand. 09 — parse Zod bilateral. safeParse usa: se contrato
+            // quebrar (campo ausente/tipo errado), loga warn (Mand. 08 — sem
+            // fallback silencioso) e mantém tipo nulo. Isso impede que o front
+            // funcione com permissões erradas por causa de payload divergente.
+            const parsed = meContextoMinimoSchema.safeParse(data)
+            if (!parsed.success) {
+              console.warn(
+                '[useCarregarTipoUsuario] payload /me não bate com contrato Zod — autorização indefinida',
+                parsed.error.issues,
+              )
+              setPronto(true)
+              return
+            }
+            const tipoUsuarioBanco: TipoUsuario = parsed.data.usuario.tipo_usuario
+            const flagOrg = parsed.data.organizacao?.hospeda_colaboradores_gravity ?? false
             cacheTipoUsuario.set(userId, tipoUsuarioBanco)
             cacheHospedaColaboradoresGravity.set(userId, flagOrg)
             setTipoUsuario(tipoUsuarioBanco)

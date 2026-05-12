@@ -1050,7 +1050,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
               <div className="modal-edicao-massa__preview-campos">
                 {preview.campos.map((c, i) => (
                   <div key={i} className="modal-edicao-massa__preview-campo">
-                    <span className="modal-edicao-massa__preview-campo-nome">{c.campo}</span>
+                    <span className="modal-edicao-massa__preview-campo-nome">
+                      {disponiveis.find(d => d.campo === c.campo)?.rotulo ?? c.campo}
+                    </span>
                     <span className="modal-edicao-massa__preview-campo-op">
                       {t(OP_LABEL_KEYS[c.operacao])}
                     </span>

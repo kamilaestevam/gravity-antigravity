@@ -48,7 +48,12 @@ import {
 //              2 colunas (Tipo Linha + Numero do Pedido), zona OPE propria
 //              no final, asterisco vermelho em obrigatorios (em vez de
 //              texto inteiro vermelho), fix super-header invisivel
-const TEMPLATE_VERSAO = '3.1'
+// 3.2 (P9)   — Dentro de PRINCIPAL, ITEM vem antes de PEDIDO. Resultado:
+//              F-O sao todos os 10 principais do ITEM (Sequencia, NCM,
+//              Descricao, Unidade, Moeda, Valor Unidade, Valor Total Item,
+//              Incoterm Item, Peso Liq/Bruto Unit); P-AE sao os 16 principais
+//              do PEDIDO. Foco em fluxo de digitacao continuo por nivel.
+const TEMPLATE_VERSAO = '3.2'
 
 export const smartImportRouter = Router()
 
@@ -157,7 +162,26 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     // agrupamento por bloco (Identificacao, Exportador, Comercial) mantido.
     const ordemPrioridade = { critica: 0, principal: 1, secundaria: 2 } as const
     const sortPorPrioridade = (a: CampoPedidoDDD, b: CampoPedidoDDD): number => {
-      return ordemPrioridade[prioridadeDeCampo(a)] - ordemPrioridade[prioridadeDeCampo(b)]
+      const pa = ordemPrioridade[prioridadeDeCampo(a)]
+      const pb = ordemPrioridade[prioridadeDeCampo(b)]
+      if (pa !== pb) return pa - pb
+      // P9 — Dentro de PRINCIPAL, ITEM vem antes de PEDIDO.
+      // Decisao do dono em 11/05/2026: quando o usuario edita uma linha ITEM,
+      // os campos de item devem ficar CONTIGUOS aos criticos do item (D, E),
+      // sem precisar saltar pelos 16 campos do Pedido (~16 colunas) para
+      // chegar em "Valor por Unidade". Resultado:
+      //   A-C  : Criticos Pedido (Tipo Linha, Numero, Tipo Operacao)
+      //   D-E  : Criticos Item   (Part Number, Qtd. Inicial)
+      //   F-O  : Principais Item (Sequencia, NCM, Descricao, Unidade,
+      //                           Moeda, Valor Unidade, Valor Total Item,
+      //                           Incoterm Item, Peso Liq/Bruto Unit)
+      //   P-AE : Principais Pedido (Exportador, Importador, Fabricante,
+      //                             Incoterm, Moeda, Valor Total Pedido, ...)
+      if (pa === ordemPrioridade.principal) {
+        if (a.nivel === 'item' && b.nivel === 'pedido') return -1
+        if (a.nivel === 'pedido' && b.nivel === 'item') return 1
+      }
+      return 0
     }
     const todos = [...CAMPOS_PEDIDO_DDD, ...CAMPOS_ITEM_DDD]
     const camposOPE     = todos.filter(c => c.grupo === 'OPE')

@@ -184,36 +184,9 @@ export function Hub() {
           const data = await res.json()
           const active = data.products.filter((p: CompanyProduct) => p.is_active)
 
-          if (active.length > 0) {
-            setProducts(active)
-          } else {
-            // Auto-habilita produtos do tenant nesta company
-            const tenantRes = await fetch(`${API_URL}/assinaturas`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            if (tenantRes.ok) {
-              const tenantData = await tenantRes.json()
-              const tenantActive = (tenantData.products as CompanyProduct[] | undefined)?.filter(p => p.is_active) ?? []
-
-              for (const tp of tenantActive) {
-                await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                  body: JSON.stringify({ product_key: tp.product_key }),
-                }).catch(() => {})
-              }
-
-              if (tenantActive.length > 0) {
-                const refresh = await fetch(`${API_URL}/workspaces/${id_workspace}/produtos-gravity`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                })
-                if (refresh.ok) {
-                  const d = await refresh.json()
-                  setProducts(d.products.filter((p: CompanyProduct) => p.is_active))
-                }
-              }
-            }
-          }
+          // Empty state quando nenhum produto está habilitado neste workspace.
+          // Habilitação é manual via /workspace/assinaturas (sem auto-bootstrap).
+          setProducts(active)
         }
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })

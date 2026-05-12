@@ -33,40 +33,32 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
     }
 
-    const [companyProducts, tenantConfigs] = await Promise.all([
-      prisma.produtoGravityWorkspace.findMany({
-        where: {
-          id_workspace: id_workspace,
-          id_organizacao: req.auth.id_organizacao,
+    // Fonte única: ProdutoGravityWorkspace habilitado E assinatura ATIVA/EM_TESTE.
+    // - ativo_produto_gravity_workspace: o usuário precisa ter habilitado o produto neste workspace
+    // - status_assinatura_produto_gravity: produto não pode estar SUSPENSA ou CANCELADA na organização
+    // - id_organizacao no `some` da assinatura: isolamento por organização (Mandamento)
+    const companyProducts = await prisma.produtoGravityWorkspace.findMany({
+      where: {
+        id_workspace: id_workspace,
+        id_organizacao: req.auth.id_organizacao,
+        ativo_produto_gravity_workspace: true,
+        produto: {
+          assinaturas_produto_gravity: {
+            some: {
+              id_organizacao: req.auth.id_organizacao,
+              status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+            },
+          },
         },
-        include: { produto: true },
-        orderBy: { data_contratacao_produto_gravity_workspace: 'desc' },
-      }),
-      // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
-      prisma.produtoGravityConfiguracao.findMany({
-        where: {
-          id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
-          ativo_configuracao_produto_gravity: true,
-        },
-      }),
-    ])
-
-    // Merge: prefere companyProduct; preenche com productConfig se não existir
-    const companyProductSlugs = new Set(
-      companyProducts.map(cp => cp.produto.slug_produto_gravity),
-    )
-    const fallbackConfigs = tenantConfigs.filter(
-      tc => !companyProductSlugs.has(tc.chave_produto_configuracao_produto_gravity),
-    )
-
-    const allKeys = [
-      ...companyProducts.map(cp => cp.produto.slug_produto_gravity),
-      ...fallbackConfigs.map(tc => tc.chave_produto_configuracao_produto_gravity),
-    ]
+      },
+      include: { produto: true },
+      orderBy: { data_contratacao_produto_gravity_workspace: 'desc' },
+    })
 
     // Enriquece com dados do catálogo
+    const slugs = companyProducts.map(cp => cp.produto.slug_produto_gravity)
     const catalogRows = await prisma.produtoGravity.findMany({
-      where: { slug_produto_gravity: { in: allKeys } },
+      where: { slug_produto_gravity: { in: slugs } },
     })
     // DTO: ProdutoGravity rename → contrato legado
     const catalog = catalogRows.map(p => ({
@@ -78,23 +70,14 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     }))
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
-    // DTO: ProdutoGravityWorkspace + ConfiguracaoProduto rename → contrato legado
-    const products = [
-      ...companyProducts.map(cp => ({
-        id: cp.id_produto_gravity_workspace,
-        product_key: cp.produto.slug_produto_gravity,
-        is_active: cp.ativo_produto_gravity_workspace,
-        activated_at: cp.data_contratacao_produto_gravity_workspace,
-        catalog: catalogMap.get(cp.produto.slug_produto_gravity) ?? null,
-      })),
-      ...fallbackConfigs.map(tc => ({
-        id: tc.id_configuracao_produto_gravity,
-        product_key: tc.chave_produto_configuracao_produto_gravity,
-        is_active: true,
-        activated_at: tc.data_criacao_configuracao_produto_gravity,
-        catalog: catalogMap.get(tc.chave_produto_configuracao_produto_gravity) ?? null,
-      })),
-    ]
+    // DTO: ProdutoGravityWorkspace rename → contrato legado
+    const products = companyProducts.map(cp => ({
+      id: cp.id_produto_gravity_workspace,
+      product_key: cp.produto.slug_produto_gravity,
+      is_active: cp.ativo_produto_gravity_workspace,
+      activated_at: cp.data_contratacao_produto_gravity_workspace,
+      catalog: catalogMap.get(cp.produto.slug_produto_gravity) ?? null,
+    }))
 
     res.json({ products })
   } catch (err) {

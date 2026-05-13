@@ -3912,14 +3912,32 @@ export default function Pedidos() {
     if (campo === 'quantidade_pronta_total_item_pedido') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
+      const novaUnidade = isUnidade ? (valor as { unit: string }).unit : undefined
       const itemAtualPronta = getItensCache().find(i => i.id === id)
+      const unidadeMudou = !!(novaUnidade && itemAtualPronta && itemAtualPronta.unidade_comercializada_item !== novaUnidade)
+
+      // Se o usuário trocou a unidade junto com a qty, persiste a nova unidade
+      // ANTES via PUT no item (PATCH /pronta só aceita qty — descarta unit).
+      // Mesmo padrão aplicado a peso/cubagem: unidade do item deve persistir.
+      if (unidadeMudou) {
+        await pedidoItemApi.atualizar(pedido.id, id, { unidade_comercializada_item: novaUnidade } as Partial<PedidoItem>)
+          .catch(() => {
+            if (!import.meta.env.DEV) throw new Error('Erro ao atualizar unidade do item')
+          })
+      }
+
       const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
         .catch(() => {
-          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd } as PedidoItem
+          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd, unidade_comercializada_item: novaUnidade ?? itemAtualPronta.unidade_comercializada_item } as PedidoItem
           throw new Error('Erro ao atualizar quantidade pronta')
         })
+      // Garante que a unidade persistida via PUT acima esteja no objeto retornado
+      // (atualizarPronta devolve apenas o item — pode não refletir a unidade nova).
+      const itemComUnidade: PedidoItem = unidadeMudou && novaUnidade
+        ? { ...atualizadoPronta, unidade_comercializada_item: novaUnidade }
+        : atualizadoPronta
       const enriquecidoPronta: PedidoItemEnriquecido = {
-        ...atualizadoPronta,
+        ...itemComUnidade,
         _p: {
           id: pedido.id,
           tipo_operacao: pedido.tipo_operacao,
@@ -3940,9 +3958,18 @@ export default function Pedidos() {
       }
       const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecidoPronta : i)
       itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
+      // Recalcula divergencias: se unidade mudou e divergem entre itens, a flag
+      // `unidade_comercializada_item_divergente` é setada e a coluna mostra o
+      // alerta "⚠ Unidades divergentes entre itens" via renderQtdPedido.
+      const divergenciasPronta = calcularDivergencias(itensAposEdicao)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        return { ...p, quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0) }
+        return {
+          ...p,
+          ...divergenciasPronta,
+          itens: itensAposEdicao,
+          quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0),
+        }
       }))
       return enriquecidoPronta
     }

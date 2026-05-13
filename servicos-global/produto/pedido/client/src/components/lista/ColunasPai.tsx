@@ -593,12 +593,41 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.data_emissao_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.data_emissao_pedido_desc'),
     grupo: 'Datas',
-    render: (_val: unknown, row: Pedido) =>
-      renderAgregado(
+    render: (_val: unknown, row: Pedido) => {
+      // Recomputa divergência DIRETAMENTE a partir dos itens carregados no row,
+      // ignorando qualquer flag stale em row.data_emissao_pedido_divergente.
+      // Decisão UX 2026-05-13: alerta deve refletir o estado ATUAL dos dados
+      // sem depender de quando calcularDivergencias rodou pela última vez.
+      // Custo: O(itens.length) por render — aceitável (poucos itens por pedido).
+      const itens = row.itens ?? []
+      // Normaliza qualquer formato (Date, ISO completo, date-only, com fuso) em
+      // YYYY-MM-DD canônico via UTC. Mesma função que está em calcularDivergencias.
+      const dateKey = (v: unknown): string | null => {
+        if (v == null) return null
+        const s = String(v)
+        if (!s) return null
+        const d = new Date(s)
+        if (!isNaN(d.getTime())) {
+          const y = d.getUTCFullYear()
+          const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+          const dd = String(d.getUTCDate()).padStart(2, '0')
+          return `${y}-${m}-${dd}`
+        }
+        return s.substring(0, 10) || null
+      }
+      const datasItens = itens.map(i => dateKey(i.data_emissao_pedido)).filter((v): v is string => v != null)
+      const datasUnicas = new Set(datasItens)
+      const dataPai = dateKey(row.data_emissao_pedido)
+      let divergente = datasUnicas.size > 1
+      if (!divergente && dataPai && datasUnicas.size === 1) {
+        if ([...datasUnicas][0] !== dataPai) divergente = true
+      }
+      return renderAgregado(
         row.data_emissao_pedido ? fmtData(row.data_emissao_pedido) : null,
-        row.data_emissao_pedido_divergente,
+        divergente,
         'Datas de emissão divergentes entre itens',
-      ),
+      )
+    },
   },
   {
     key: 'status',

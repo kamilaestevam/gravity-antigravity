@@ -294,7 +294,16 @@ export function CampoCalendarioGlobal({
     return (
       <div
         className="ws-calendario-panel"
-        style={inline ? undefined : panelPos ? {
+        // Inline (semTrigger): position static + sem min-width para caber em
+        // containers estreitos (ex: popover de 340px da TabelaVirtualGlobal).
+        // CSS default tem `position: absolute` + `min-width: 380px` — sem este
+        // override, o painel renderiza fora do fluxo e pode ser cortado por
+        // `overflow: hidden` do container pai.
+        style={inline ? {
+          position: 'static',
+          minWidth: 'auto',
+          width: '100%',
+        } : panelPos ? {
           position: 'fixed',
           top: panelPos.top,
           left: panelPos.left,

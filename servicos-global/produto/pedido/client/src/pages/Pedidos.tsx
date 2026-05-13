@@ -83,6 +83,7 @@ import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
+import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
 import '../components/ModalPedidosConsolidar.css'
 import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
@@ -382,6 +383,51 @@ function FiltroPopoverColuna({
               />
             </div>
           )}
+          {/* Selecionar tudo / Limpar — opera sobre valoresFiltrados (respeita busca) */}
+          {valoresFiltrados.length > 0 && (() => {
+            const totalFiltrados = valoresFiltrados.length
+            const selecionadosFiltrados = valoresFiltrados.filter(v => enumLocal.has(v)).length
+            const todosSelecionados = selecionadosFiltrados === totalFiltrados
+            const algumSelecionado = selecionadosFiltrados > 0 && !todosSelecionados
+            return (
+              <label
+                className="gtv-export-item"
+                style={{
+                  cursor: 'pointer',
+                  gap: '0.5rem',
+                  padding: '0.3rem 0.5rem',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  borderBottom: '1px solid var(--gtv-border, rgba(255,255,255,0.07))',
+                  marginBottom: '0.125rem',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={todosSelecionados}
+                  ref={el => { if (el) el.indeterminate = algumSelecionado }}
+                  style={{ accentColor: 'var(--gtv-accent, #818cf8)', cursor: 'pointer', flexShrink: 0 }}
+                  onChange={() => {
+                    const novo = new Set(enumLocal)
+                    if (todosSelecionados) {
+                      // Desmarca todos os filtrados (mantém os não-filtrados marcados)
+                      for (const v of valoresFiltrados) novo.delete(v)
+                    } else {
+                      // Marca todos os filtrados
+                      for (const v of valoresFiltrados) novo.add(v)
+                    }
+                    setEnumLocal(novo)
+                    if (novo.size > 0) onAplicar(campo, { tipo: 'enum', valor: novo })
+                    else onLimpar(campo)
+                  }}
+                />
+                <span style={{ fontSize: '0.8125rem' }}>
+                  {todosSelecionados ? 'Limpar seleção' : 'Selecionar tudo'}
+                  {enumBusca ? ` (${totalFiltrados})` : ''}
+                </span>
+              </label>
+            )
+          })()}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem', maxHeight: 168, overflowY: 'auto', padding: '0.25rem 0' }}>
             {valoresFiltrados.length > 0 ? valoresFiltrados.map(v => (
               <label
@@ -448,6 +494,10 @@ function FiltroPopoverColuna({
 function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' {
   if (col.tipo === 'numero') return 'numero'
   if (col.tipo === 'badge' || col.key === 'tipo_operacao' || col.key === 'status' || col.key === 'incoterm') return 'enum'
+  // id_workspace: filtro multi-workspace usa popover enum (nomes legíveis), e o
+  // efeito de seleção é propagado ao backend via workspacesSelecionados.
+  // Exceção ao padrão client-side — ver useEffect adiante.
+  if (col.key === 'id_workspace') return 'enum'
   return 'texto'
 }
 
@@ -603,6 +653,7 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
 
 const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'numero_pedido',
+  'id_workspace',  // coluna "Workspace" — sempre visível, alta importância em multi-tenant
   'tipo_operacao',
   'nome_importador',
   'nome_exportador',
@@ -2806,9 +2857,17 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           />
         </TooltipGlobal>
 
-        {/* Duplicar */}
+        {/* Duplicar — aceita pedido E/OU item (modal único trata mistura) */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.duplicar')}
+          titulo={
+            pedidosSelecionados.length > 0 && itensSelecionados.length > 0
+              ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''} + ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
+              : pedidosSelecionados.length > 0
+                ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
+                : itensSelecionados.length > 0
+                  ? `${t('pedido.barra.duplicar')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
+                  : t('pedido.barra.duplicar')
+          }
           descricao={t('pedido.barra.duplicar_desc')}
         >
           <BotaoGlobal
@@ -2816,7 +2875,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             tamanho="pequeno"
             icone={<CopySimple size={14} weight="duotone" />}
             aria-label={t('pedido.barra.duplicar')}
-            disabled={pedidosSelecionados.length === 0}
+            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => setModalDuplicarAberto(true)}
           />
         </TooltipGlobal>
@@ -2887,9 +2946,33 @@ export default function Pedidos() {
   const { t, i18n } = useTranslation()
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
+  // Workspaces disponíveis ao usuário — carregados de /api/v1/hub/init.
+  // Usado em (i) FiltroMultiWorkspace e (ii) coluna "Workspace" da Lista.
+  // Carregamento elevado aqui para evitar fetch duplicado.
+  const [workspacesDisponiveis, setWorkspacesDisponiveis] = useState<WorkspaceDisponivel[]>([])
+  useEffect(() => {
+    let cancelado = false
+    workspacesDisponiveisApi
+      .listar()
+      .then((lista) => { if (!cancelado) setWorkspacesDisponiveis(lista) })
+      .catch((err) => {
+        if (cancelado) return
+        // eslint-disable-next-line no-console
+        console.warn('[Pedidos] falha ao carregar workspaces:', err)
+      })
+    return () => { cancelado = true }
+  }, [])
+  const workspacesMap = useMemo(() => {
+    const m = new Map<string, { nome: string; cnpj?: string | null }>()
+    for (const w of workspacesDisponiveis) {
+      m.set(w.id_workspace, { nome: w.nome_workspace, cnpj: w.cnpj_workspace ?? null })
+    }
+    return m
+  }, [workspacesDisponiveis])
+
   const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({ unidadesPeso, unidadesCubagem }),
-    [unidadesPeso, unidadesCubagem],
+    () => ({ unidadesPeso, unidadesCubagem, workspacesMap }),
+    [unidadesPeso, unidadesCubagem, workspacesMap],
   )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
@@ -2909,6 +2992,36 @@ export default function Pedidos() {
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
   const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
+
+  // ── Filtro multi-workspace ──────────────────────────────────────────────────
+  // Default = workspace ativo (lido do sessionStorage 'gravity_company_id').
+  // Lista de workspaces e workspacesMap já carregados acima.
+  const workspaceAtivo = useMemo(() => {
+    if (typeof sessionStorage === 'undefined') return ''
+    return sessionStorage.getItem('gravity_company_id') ?? ''
+  }, [])
+  const [workspacesSelecionados, setWorkspacesSelecionados] = useState<string[]>(() =>
+    workspaceAtivo ? [workspaceAtivo] : [],
+  )
+
+  // ── Filtro multi-workspace — sincronização filtro-da-coluna → backend ──────
+  //
+  // EXCEÇÃO AO PADRÃO. Os demais filtros de coluna são CLIENT-SIDE: aplicam
+  // sobre o array `pedidos` já carregado. Para `id_workspace` isso não basta,
+  // pois os pedidos de outros workspaces ainda não foram trazidos do backend.
+  //
+  // Fluxo:
+  //   1. Usuário marca/desmarca workspaces no popover do header da coluna
+  //   2. filtrosAtivos['id_workspace'] = { tipo: 'enum', valor: Set<nome> }
+  //   3. Este useEffect converte NOMES → IDs (via workspacesMap)
+  //   4. Atualiza workspacesSelecionados
+  //   5. Outro useEffect (já existente) detecta a mudança e re-fetch o backend
+  //      passando ?ids_workspaces=...
+  //
+  // Quando o filtro é limpo (filtrosAtivos['id_workspace'] === undefined),
+  // volta ao default (somente workspaceAtivo). Isso evita estado vazio que
+  // dispararia "ver tudo" indesejado.
+  // (definido abaixo, após filtrosAtivos ser declarado)
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
@@ -3152,6 +3265,62 @@ export default function Pedidos() {
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
   const popoverAnchorRefs                   = useRef<Record<string, React.MutableRefObject<HTMLElement | null>>>({})
 
+  // ── Garantia: filtrosAtivos['id_workspace'] sempre tem AO MENOS o ativo ────
+  // Sempre que `filtrosAtivos['id_workspace']` ficar vazio (mount inicial OU
+  // usuário clicou "× Limpar filtro"), repopulamos com o workspace ativo.
+  // Isso garante que:
+  //   1. O popover sempre abre com o workspace ativo já MARCADO (reflete a
+  //      realidade — a lista está sendo filtrada por ele via header).
+  //   2. O chip "Workspace: <nome>" sempre aparece, sinalizando ao usuário
+  //      qual(is) workspace(s) está(ão) sendo exibido(s).
+  //   3. Não há loop: quando o filtro vira undefined, este useEffect repopula
+  //      com [ativo] → estável.
+  useEffect(() => {
+    if (workspacesMap.size === 0) return                 // mapa ainda carregando
+    if (!workspaceAtivo) return                          // sem ativo, nada a fazer
+    if (filtrosAtivos['id_workspace']) return            // filtro já presente — não toca
+    const w = workspacesMap.get(workspaceAtivo)
+    if (!w) return                                       // ativo não está em workspacesMap (?)
+    // eslint-disable-next-line no-console
+    console.log('[DIAG-init] (re)populando filtro id_workspace com workspace ativo:', w.nome)
+    setFiltrosAtivos(prev => ({
+      ...prev,
+      id_workspace: { tipo: 'enum', valor: new Set([w.nome]) },
+    }))
+  }, [workspacesMap, workspaceAtivo, filtrosAtivos])
+
+  // ── Sincronia: filtrosAtivos['id_workspace'] → workspacesSelecionados ─────
+  // Ver comentário acima (próximo a `workspacesSelecionados`) para a motivação.
+  useEffect(() => {
+    const filtro = filtrosAtivos['id_workspace']
+    if (!filtro || filtro.tipo !== 'enum') {
+      // Filtro limpo — restaura default (workspace ativo)
+      const target = workspaceAtivo ? [workspaceAtivo] : []
+      // eslint-disable-next-line no-console
+      console.log('[DIAG-filtro-ws] filtro limpo, restaurando ao ativo:', target)
+      setWorkspacesSelecionados(prev =>
+        prev.length === target.length && prev.every((v, i) => v === target[i]) ? prev : target,
+      )
+      return
+    }
+    const nomes = filtro.valor
+    // Converte nomes em ids via workspacesMap
+    const idsSelecionados: string[] = []
+    for (const [id, w] of workspacesMap.entries()) {
+      if (nomes.has(w.nome)) idsSelecionados.push(id)
+    }
+    // eslint-disable-next-line no-console
+    console.log('[DIAG-filtro-ws] filtro aplicado', {
+      nomesSelecionados: Array.from(nomes),
+      workspacesMapSize: workspacesMap.size,
+      workspacesMapEntries: Array.from(workspacesMap.entries()).map(([id, w]) => ({ id, nome: w.nome })),
+      idsResolvidos: idsSelecionados,
+    })
+    setWorkspacesSelecionados(prev =>
+      prev.length === idsSelecionados.length && prev.every((v, i) => v === idsSelecionados[i]) ? prev : idsSelecionados,
+    )
+  }, [filtrosAtivos, workspacesMap, workspaceAtivo])
+
   function getAnchorRef(campo: string): React.MutableRefObject<HTMLElement | null> {
     if (!popoverAnchorRefs.current[campo]) {
       popoverAnchorRefs.current[campo] = React.createRef<HTMLElement>() as React.MutableRefObject<HTMLElement | null>
@@ -3180,6 +3349,9 @@ export default function Pedidos() {
     return resultado.filter(p => {
       const row = p as Record<string, unknown>
       for (const [campo, filtro] of Object.entries(filtrosAtivos)) {
+        // Exceção: id_workspace é aplicado server-side via workspacesSelecionados
+        // (sincronizado por useEffect adiante). Não filtra client-side.
+        if (campo === 'id_workspace') continue
         const val = row[campo]
         if (filtro.tipo === 'texto') {
           if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
@@ -3305,6 +3477,26 @@ export default function Pedidos() {
     setErroCarga(null)
     setPaginaAtual(novaPagina)
     try {
+      // Filtro multi-workspace: envia query param sempre que a seleção do usuário
+      // diferir do default (= apenas o workspace ativo). Isso inclui:
+      //  - usuário escolheu OUTRO workspace único (ex: ativo=CDE, filtro=ABC)
+      //  - usuário escolheu múltiplos workspaces
+      //  - usuário desmarcou tudo (envia lista vazia → server retorna 0 pedidos
+      //    em vez de cair pro header)
+      // Quando seleção == [workspaceAtivo] o header x-id-workspace cuida sozinho.
+      const ehSelecaoDefault =
+        workspacesSelecionados.length === 1 &&
+        workspacesSelecionados[0] === workspaceAtivo
+      const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionados
+
+      // eslint-disable-next-line no-console
+      console.log('[DIAG-fetch] carregarInicial', {
+        workspaceAtivo,
+        workspacesSelecionados,
+        ehSelecaoDefault,
+        idsWorkspacesFiltro,
+      })
+
       const res = await pedidoVirtualApi.listar({
         sort: novaOrdem,
         dir: novaDir,
@@ -3312,6 +3504,7 @@ export default function Pedidos() {
         page: novaPagina,
         status: novaAba !== 'todos' ? novaAba : undefined,
         busca: novaBusca || undefined,
+        idsWorkspacesFiltro,
       })
       setPedidos(res.data)
       setTotal(res.total)
@@ -3323,12 +3516,21 @@ export default function Pedidos() {
       // mesmo quando o usuário tem dados válidos carregados.
       // Mand. 08 — registramos o erro no estado para que o empty state possa
       // diferenciar "vazio legítimo" de "falhou ao carregar" (sem fallback silencioso).
+      // eslint-disable-next-line no-console
+      console.error('[DIAG-fetch] carregarInicial FALHOU:', err)
       setErroCarga(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setCarregando(false)
       carregandoRef.current = false
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo])
+
+  // Recarrega lista quando mudou seleção de workspaces (filtro multi-workspace)
+  useEffect(() => {
+    if (!idOrganizacao) return
+    carregarInicial()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspacesSelecionados])
 
   const acoesPai = useMemo(() => ([
     {
@@ -3379,8 +3581,14 @@ export default function Pedidos() {
   ]), [carregarInicial, addNotification])
 
   const onSelecaoFilhoEstavel = useCallback(
-    (itens: PedidoItem[]) => setItensSelecionados(itens),
-    [],
+    (itens: PedidoItem[]) => {
+      // TEMP DIAG — diagnosticando perda de seleção de itens no modal de duplicar.
+      // REMOVER antes do commit final (Mandamento sobre console.log).
+      // eslint-disable-next-line no-console
+      console.log('[TEMP DIAG] onSelecaoFilho recebeu', itens.length, 'itens:', itens.map(i => ({ id: i.id, seq: i.sequencia_item, pn: i.part_number })))
+      setItensSelecionados(itens)
+    },
+    [setItensSelecionados],
   )
 
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
@@ -3403,32 +3611,35 @@ export default function Pedidos() {
   }, [navigate])
 
   const acoesBarra = useMemo(() => (
-    <BarraAcoesPedido
-      novoDropdownRef={novoDropdownRef}
-      novoDropdownAberto={novoDropdownAberto}
-      novoSubmenu={novoSubmenu}
-      pedidosSelecionados={pedidosSelecionados}
-      itensSelecionados={itensSelecionados}
-      excluindoLote={excluindoLote}
-      filtrosAtivos={filtrosAtivos}
-      setNovoDropdownAberto={setNovoDropdownAberto}
-      setNovoSubmenu={setNovoSubmenu}
-      setSmartImportAberto={setSmartImportAberto}
-      setModalCockpitAberto={setModalCockpitAberto}
-      setModalNovoPedidoAberto={setModalNovoPedidoAberto}
-      setModalNovoItemAberto={setModalNovoItemAberto}
-      setModalTransferirAberto={setModalTransferirAberto}
-      setModalConsolidarAberto={setModalConsolidarAberto}
-      setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
-      setModalGerarPdfAberto={setModalGerarPdfAberto}
-      setModalDuplicarAberto={setModalDuplicarAberto}
-      onExcluirLote={handleExcluirLote}
-      onNavigateToConfiguracoes={handleNavConfiguracoes}
-      handleLimparFiltro={handleLimparFiltro}
-      handleLimparTodosFiltros={handleLimparTodosFiltros}
-      busca={busca}
-      onLimparBusca={() => handleBuscar('')}
-    />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+      {/* Filtro multi-workspace agora vive na COLUNA "Workspace" (header). */}
+      <BarraAcoesPedido
+        novoDropdownRef={novoDropdownRef}
+        novoDropdownAberto={novoDropdownAberto}
+        novoSubmenu={novoSubmenu}
+        pedidosSelecionados={pedidosSelecionados}
+        itensSelecionados={itensSelecionados}
+        excluindoLote={excluindoLote}
+        filtrosAtivos={filtrosAtivos}
+        setNovoDropdownAberto={setNovoDropdownAberto}
+        setNovoSubmenu={setNovoSubmenu}
+        setSmartImportAberto={setSmartImportAberto}
+        setModalCockpitAberto={setModalCockpitAberto}
+        setModalNovoPedidoAberto={setModalNovoPedidoAberto}
+        setModalNovoItemAberto={setModalNovoItemAberto}
+        setModalTransferirAberto={setModalTransferirAberto}
+        setModalConsolidarAberto={setModalConsolidarAberto}
+        setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
+        setModalGerarPdfAberto={setModalGerarPdfAberto}
+        setModalDuplicarAberto={setModalDuplicarAberto}
+        onExcluirLote={handleExcluirLote}
+        onNavigateToConfiguracoes={handleNavConfiguracoes}
+        handleLimparFiltro={handleLimparFiltro}
+        handleLimparTodosFiltros={handleLimparTodosFiltros}
+        busca={busca}
+        onLimparBusca={() => handleBuscar('')}
+      />
+    </div>
   ), [
     novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
@@ -3444,6 +3655,16 @@ export default function Pedidos() {
     for (const col of colunasPai) {
       if (!col.filtravel) continue
       if (detectarTipoColuna(col) === 'numero') continue // range — sem lista
+      // Exceção: id_workspace usa a lista completa de workspaces disponíveis
+      // (não apenas os presentes na página atual), pois o filtro afeta o que
+      // será carregado do backend.
+      if (col.key === 'id_workspace') {
+        const nomes = workspacesDisponiveis
+          .map(w => w.nome_workspace)
+          .filter((n): n is string => !!n)
+        if (nomes.length > 0) result[col.key] = Array.from(new Set(nomes)).sort()
+        continue
+      }
       const labelMap = LABELS_FILTRO[col.key]
       const vals = new Set<string>()
       for (const p of pedidos) {
@@ -3455,7 +3676,7 @@ export default function Pedidos() {
       if (vals.size > 0) result[col.key] = Array.from(vals).sort()
     }
     return result
-  }, [pedidos])
+  }, [pedidos, colunasPai, workspacesDisponiveis])
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
@@ -3512,9 +3733,26 @@ export default function Pedidos() {
       const savedSet = new Set(savedVisible)
       const novas = activeCustomKeys.filter(k => !savedSet.has(k))
 
-      const finalVisible = novas.length > 0 ? [...savedVisible, ...novas] : savedVisible
+      // Migração: colunas built-in novas (adicionadas após save de prefs do usuário)
+      // — entrega 2026-05-13 adicionou `id_workspace`. Injeta logo após numero_pedido.
+      let visivelComMigracao = [...savedVisible]
+      const COLUNAS_BUILTIN_NOVAS = ['id_workspace']
+      const novasBuiltin = COLUNAS_BUILTIN_NOVAS.filter(k => !savedSet.has(k))
+      if (novasBuiltin.length > 0) {
+        // Injeta após numero_pedido se existir; senão, no início
+        const idxNumero = visivelComMigracao.indexOf('numero_pedido')
+        if (idxNumero >= 0) {
+          visivelComMigracao.splice(idxNumero + 1, 0, ...novasBuiltin)
+        } else {
+          visivelComMigracao = [...novasBuiltin, ...visivelComMigracao]
+        }
+      }
 
-      if (novas.length > 0) {
+      const finalVisible = novas.length > 0 || novasBuiltin.length > 0
+        ? [...visivelComMigracao, ...novas]
+        : savedVisible
+
+      if (novas.length > 0 || novasBuiltin.length > 0) {
         // Persistir preferências com as novas colunas para que hide/show funcione corretamente
         pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({ colunas_visiveis: finalVisible }).catch(() => {})
       }
@@ -4036,12 +4274,16 @@ export default function Pedidos() {
         // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
       }
-      // Salva a unidade de exibição para campos de peso (valor é persistido em KG)
+      // Salva a unidade de exibição para campos de peso (valor é persistido em KG).
+      // Espelhamento (decisão UX 2026-05-13): peso líquido e peso bruto do
+      // MESMO item devem ter sempre a mesma unidade — não faz sentido mostrar
+      // "1,5 ton" de bruto e "1500 kg" de líquido lado a lado. Quando o
+      // usuário troca a unidade em qualquer um dos dois, gravamos os DOIS
+      // campos com o mesmo valor no payload — backend persiste ambos atomicamente.
       if (isUnidade && CAMPOS_PESO_ITEM.has(campo)) {
-        const unidadeField = campo === 'peso_liquido_unitario'
-          ? 'peso_liquido_unidade_item'
-          : 'peso_bruto_unidade_item'
-        ;(payload as Record<string, unknown>)[unidadeField] = (valor as { unit: string }).unit
+        const novaUnidade = (valor as { unit: string }).unit
+        ;(payload as Record<string, unknown>).peso_liquido_unidade_item = novaUnidade
+        ;(payload as Record<string, unknown>).peso_bruto_unidade_item   = novaUnidade
       }
       // Cubagem: aceita 1D/2D/3D (CM/M/CM2/M2/ML/LT/M3 — decisão UX 2026-05-12).
       // Sem conversão numérica entre dimensões; valor é persistido como digitado
@@ -4777,17 +5019,28 @@ export default function Pedidos() {
         />
       )}
 
-      {/* ── Modal Duplicar Pedidos ── */}
-      {modalDuplicarAberto && pedidosSelecionados.length > 0 && (
-        <ModalDuplicarPedidos
-          pedidos={pedidosSelecionados}
-          onFechar={() => setModalDuplicarAberto(false)}
-          onConcluido={() => {
-            setModalDuplicarAberto(false)
-            setPedidosSelecionados([])
-            carregarInicial()
-          }}
-        />
+      {/* ── Modal Duplicar Pedidos e/ou Itens (modal único, misto) ── */}
+      {modalDuplicarAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
+        <>
+          {/* TEMP DIAG — REMOVER antes do commit final */}
+          {(() => {
+            // eslint-disable-next-line no-console
+            console.log('[TEMP DIAG] Modal Duplicar abrindo — pedidos:', pedidosSelecionados.length, 'itens:', itensSelecionados.length, '| itens detalhe:', itensSelecionados.map(i => ({ id: i.id, seq: i.sequencia_item, pn: i.part_number, pai: i.pedido_id })))
+            return null
+          })()}
+          <ModalDuplicarPedidos
+            pedidos={pedidosSelecionados}
+            itens={itensSelecionados}
+            todosPedidos={pedidos}
+            onFechar={() => setModalDuplicarAberto(false)}
+            onConcluido={() => {
+              setModalDuplicarAberto(false)
+              setPedidosSelecionados([])
+              setItensSelecionados([])
+              carregarInicial()
+            }}
+          />
+        </>
       )}
 
       {/* ── Modal Excluir Pedidos (substitui window.confirm) ── */}

@@ -13,6 +13,9 @@ import {
   Table,
   MagnifyingGlass,
   Star,
+  PencilSimple,
+  Check,
+  X,
 } from '@phosphor-icons/react'
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
 import { CAMPOS_PEDIDO_DDD_TODOS, prioridadeDeCampo, type PrioridadeCampoDDD } from '../../../../shared/campos-pedido-ddd'
@@ -73,6 +76,8 @@ interface EtapaMapeamentoProps {
   onLembrarChange: (valor: boolean) => void
   onVoltar?: () => void
   onResetarMapeamento?: () => void
+  /** P18.2 — Callback ao editar o valor exemplo da 1a linha de uma coluna do arquivo */
+  onValorExemploEditado?: (indexColuna: number, novoValor: string) => void
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -99,6 +104,7 @@ export function EtapaMapeamento({
   dadosBrutos,
   onMapeamentoChange,
   onLembrarChange,
+  onValorExemploEditado,
   onVoltar,
   onResetarMapeamento,
 }: EtapaMapeamentoProps) {
@@ -107,6 +113,26 @@ export function EtapaMapeamento({
   // P6.1 — Estado do Modo Essencial e busca textual
   const [modoEssencial, setModoEssencial] = useState(true)
   const [busca, setBusca] = useState('')
+  // P18.2 — Estado de edicao inline do valor exemplo de uma coluna do arquivo
+  const [colunaArquivoEditando, setColunaArquivoEditando] = useState<number | null>(null)
+  const [valorTempEdicao, setValorTempEdicao] = useState('')
+
+  function iniciarEdicaoValorExemplo(indexColuna: number, valorAtual: string | null | undefined) {
+    setColunaArquivoEditando(indexColuna)
+    setValorTempEdicao(String(valorAtual ?? ''))
+  }
+
+  function confirmarEdicaoValorExemplo() {
+    if (colunaArquivoEditando !== null && onValorExemploEditado) {
+      onValorExemploEditado(colunaArquivoEditando, valorTempEdicao)
+    }
+    setColunaArquivoEditando(null)
+  }
+
+  function cancelarEdicaoValorExemplo() {
+    setColunaArquivoEditando(null)
+    setValorTempEdicao('')
+  }
 
   // P6.3 — Telemetria leve (console.info em DEV; futuro: Sentry/Mixpanel).
   // Mede tempo gasto na etapa Mapeamento e padroes de uso (toggle, busca).
@@ -451,11 +477,67 @@ export function EtapaMapeamento({
                     )}
                     {nomeColunaExibido}
                   </td>
-                  <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {valorExibido
-                      ? <span title={col.valor_exemplo_coluna_pedido ?? ''}>{valorExibido}</span>
-                      : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
-                    }
+                  {/* P18.2 — Valor extraido editavel inline (mesmo padrao do
+                       numero_pedido no Preview: PencilSimple -> Input -> Check
+                       + Enter confirma + Esc cancela). Edicao atinge apenas
+                       a 1a linha do arquivo (a que originou o valor exemplo). */}
+                  <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', maxWidth: 180, whiteSpace: 'nowrap' }}>
+                    {colunaArquivoEditando === indexOriginal ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <input
+                          className="smart-import__numero-input"
+                          value={valorTempEdicao}
+                          onChange={e => setValorTempEdicao(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') confirmarEdicaoValorExemplo()
+                            if (e.key === 'Escape') cancelarEdicaoValorExemplo()
+                          }}
+                          autoFocus
+                          aria-label={`Editar valor exemplo de ${col.coluna_arquivo}`}
+                          style={{ flex: 1, minWidth: 0, maxWidth: 140 }}
+                        />
+                        <button
+                          type="button"
+                          className="smart-import__btn-icone"
+                          onClick={confirmarEdicaoValorExemplo}
+                          aria-label="Confirmar edicao"
+                          title="Confirmar (Enter)"
+                        >
+                          <Check size={12} weight="bold" />
+                        </button>
+                        <button
+                          type="button"
+                          className="smart-import__btn-icone"
+                          onClick={cancelarEdicaoValorExemplo}
+                          aria-label="Cancelar edicao"
+                          title="Cancelar (Esc)"
+                        >
+                          <X size={12} weight="bold" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        title={col.valor_exemplo_coluna_pedido ?? ''}
+                      >
+                        {valorExibido
+                          ? <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{valorExibido}</span>
+                          : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
+                        }
+                        {onValorExemploEditado && (
+                          <button
+                            type="button"
+                            className="smart-import__btn-icone"
+                            onClick={() => iniciarEdicaoValorExemplo(indexOriginal, col.valor_exemplo_coluna_pedido)}
+                            aria-label={`Editar valor exemplo de ${col.coluna_arquivo}`}
+                            title="Editar valor (afeta apenas a 1a linha — para alteracoes por linha, use o Preview)"
+                            style={{ opacity: 0.6, flexShrink: 0 }}
+                          >
+                            <PencilSimple size={11} weight="bold" />
+                          </button>
+                        )}
+                      </span>
+                    )}
                   </td>
                   <td>
                     <select

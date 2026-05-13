@@ -594,6 +594,46 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
     setNumerosEditados(prev => ({ ...prev, [linhaArquivo]: numero }))
   }
 
+  // P18.2 — Edita o valor exemplo da coluna do arquivo (1a linha) na etapa Mapeamento.
+  //
+  // 2 efeitos simultaneos:
+  //   (a) Atualiza `mapeamento[i].valor_exemplo_coluna_pedido` — afeta o que aparece
+  //       na celula "Valor Extraido" do mapeamento.
+  //   (b) Atualiza `preview.dados_brutos[0].valores[col.coluna_arquivo]` E
+  //       `preview.linhas[0].dados[col.campo_sistema]` — afeta o valor real que
+  //       sera gravado quando o usuario confirmar (payload.linhas no /confirmar).
+  //
+  // Para edicao por linha (qualquer outra linha alem da 1a), o usuario usa o
+  // Preview (P15.2 — onEditarCampoLinha).
+  function handleValorExemploEditado(indexColuna: number, novoValor: string) {
+    setMapeamento(prev => {
+      const novo = [...prev]
+      if (novo[indexColuna]) {
+        novo[indexColuna] = { ...novo[indexColuna], valor_exemplo_coluna_pedido: novoValor }
+      }
+      return novo
+    })
+    setPreview(prev => {
+      if (!prev) return prev
+      const colArquivo = mapeamento[indexColuna]?.coluna_arquivo
+      const campoSis   = mapeamento[indexColuna]?.campo_sistema
+      if (!colArquivo) return prev
+      // (b1) Atualiza dados_brutos[0] (visualizacao do documento)
+      const dadosBrutosAtualizados = prev.dados_brutos
+        ? prev.dados_brutos.map((row, i) =>
+            i === 0 ? { ...row, valores: { ...row.valores, [colArquivo]: novoValor } } : row
+          )
+        : prev.dados_brutos
+      // (b2) Atualiza linhas[0].dados[campo_sistema] (valor real para o /confirmar)
+      const linhasAtualizadas = prev.linhas.map((l, i) => {
+        if (i !== 0) return l
+        if (!campoSis) return l
+        return { ...l, dados: { ...l.dados, [campoSis]: novoValor } }
+      })
+      return { ...prev, dados_brutos: dadosBrutosAtualizados, linhas: linhasAtualizadas }
+    })
+  }
+
   // P15.1 — Adiciona uma nova SmartImportLinha (tipo ITEM) ao preview
   function handleAdicionarItemInline(linhaPedido: SmartImportLinha, dadosItem: Record<string, unknown>) {
     setPreview(prev => {
@@ -789,6 +829,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
               dadosBrutos={preview.dados_brutos}
               onMapeamentoChange={setMapeamento}
               onLembrarChange={setLembrarMapeamento}
+              onValorExemploEditado={handleValorExemploEditado}
               onVoltar={() => setEtapa('upload')}
               onResetarMapeamento={() => {
                 // Recriar mapeamento sem memória — manter colunas mas limpar campo_sistema

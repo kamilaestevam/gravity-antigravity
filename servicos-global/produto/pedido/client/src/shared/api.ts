@@ -373,21 +373,41 @@ export const pedidoVirtualApi = {
    *  replicar_em_itens: quando true, replica o valor para TODOS os itens do
    *  pedido na mesma transação backend. Decisão UX 2026-05-13.
    */
-  editarCampo: (id: string, campo: string, valor: unknown, replicar_em_itens = false) =>
-    request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
+  editarCampo: (id: string, campo: string, valor: unknown, replicar_em_itens = false) => {
+    // Log diagnóstico — facilita debug de erros que ficam mascarados pela
+    // mensagem default "Erro ao salvar" e que não aparecem claramente no
+    // Network (ex: requests muito rápidos, filtros do DevTools).
+    // eslint-disable-next-line no-console
+    console.log('[pedidoVirtualApi.editarCampo] →', { id, campo, valor, replicar_em_itens })
+    return request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
       body: JSON.stringify({
         campo,
         valor: valor === undefined ? null : valor,
         replicar_em_itens,
       }),
+    }).then(r => {
+      // eslint-disable-next-line no-console
+      console.log('[pedidoVirtualApi.editarCampo] ← OK', { id, campo })
+      return r
     }).catch(err => {
+      // eslint-disable-next-line no-console
+      console.error('[pedidoVirtualApi.editarCampo] ← ERRO', {
+        id,
+        campo,
+        valor,
+        replicar_em_itens,
+        mensagem: err instanceof Error ? err.message : String(err),
+        details: (err as { details?: unknown })?.details,
+        stack: err instanceof Error ? err.stack?.split('\n').slice(0, 5) : undefined,
+      })
       if (import.meta.env.DEV) {
         const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === id)
         if (pedido) return { ...pedido, [campo]: valor } as Pedido
       }
       throw err
-    }),
+    })
+  },
 }
 
 // ── Init — agrega 4 queries em 1 request ─────────────────────────────────────

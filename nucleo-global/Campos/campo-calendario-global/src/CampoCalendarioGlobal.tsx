@@ -16,6 +16,18 @@ export interface CalendarioCampoGlobalProps extends Omit<CampoGeralGlobalProps, 
   initialOpen?: boolean
   /** Omite o trigger e renderiza o painel diretamente inline (uso em dropdowns externos) */
   semTrigger?: boolean
+  /**
+   * Modo data única (sem range). Decisão UX 2026-05-13.
+   * Quando true:
+   *   - Esconde sidebar de presets (Hoje/Ontem/...)
+   *   - Esconde a faixa INICIO/FIM
+   *   - Esconde o footer com botões Cancelar/Aplicar
+   *   - Click em um dia define inicio = fim = data e dispara aoMudarValor
+   *     imediatamente (sem precisar do botão Aplicar)
+   * Usado no popover de edição inline da TabelaVirtualGlobal — célula tem
+   * uma data única, não um intervalo.
+   */
+  modoUnico?: boolean
 }
 
 const MESES_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -32,6 +44,7 @@ export function CampoCalendarioGlobal({
   disabled = false,
   initialOpen = false,
   semTrigger = false,
+  modoUnico = false,
   className,
   ...geralProps
 }: CalendarioCampoGlobalProps) {
@@ -115,6 +128,15 @@ export function CampoCalendarioGlobal({
   }, [isOpen])
 
   function handleDayClick(d: Date) {
+    // Modo único (data, não range) — UX 2026-05-13:
+    // click define inicio = fim = d e dispara aoMudarValor imediatamente,
+    // dispensando o botão Aplicar.
+    if (modoUnico) {
+      setInicio(d)
+      setFim(d)
+      aoMudarValor?.({ inicio: d, fim: d })
+      return
+    }
     if (etapa === 'inicio' || (inicio && d < inicio && (!fim || fim === inicio))) {
       setInicio(d)
       setFim(null)
@@ -279,18 +301,20 @@ export function CampoCalendarioGlobal({
           zIndex: 10001,
         } : undefined}
       >
-        {/* Sidebar Periods */}
-        <div className="ws-calendario-sidebar">
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('hoje')}>{t('calendario.hoje')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('ontem')}>{t('calendario.ontem')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('7dias')}>{t('calendario.ultimos_7')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('30dias')}>{t('calendario.ultimos_30')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteMes')}>{t('calendario.este_mes')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('mesPassado')}>{t('calendario.mes_passado')}</button>
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteAno')}>{t('calendario.este_ano')}</button>
-          <div style={{ flex: 1 }} />
-          <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('todos')} style={{ color: '#f87171' }}>{t('calendario.limpar_periodo')}</button>
-        </div>
+        {/* Sidebar Periods — escondido em modoUnico (sem "Últimos 7 dias" etc.) */}
+        {!modoUnico && (
+          <div className="ws-calendario-sidebar">
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('hoje')}>{t('calendario.hoje')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('ontem')}>{t('calendario.ontem')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('7dias')}>{t('calendario.ultimos_7')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('30dias')}>{t('calendario.ultimos_30')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteMes')}>{t('calendario.este_mes')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('mesPassado')}>{t('calendario.mes_passado')}</button>
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteAno')}>{t('calendario.este_ano')}</button>
+            <div style={{ flex: 1 }} />
+            <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('todos')} style={{ color: '#f87171' }}>{t('calendario.limpar_periodo')}</button>
+          </div>
+        )}
 
         {/* Main Calendar Body */}
         <div className="ws-calendario-body">
@@ -315,17 +339,20 @@ export function CampoCalendarioGlobal({
             <button className="ws-calendario-nav-btn" onClick={() => mudaMes(1)}><CaretRight size={16} weight="bold" /></button>
           </div>
 
-          <div className="ws-calendario-range-display">
-            <div className={`ws-calendario-range-item ${etapa === 'inicio' ? 'ws-calendario-range-item--ativo' : ''}`}>
-              <span className="ws-calendario-range-label">{t('calendario.inicio')}</span>
-              <span className="ws-calendario-range-value">{inicio ? formatarDataBR(inicio) : '—'}</span>
+          {/* Faixa INICIO/FIM — escondida em modoUnico (data, não range) */}
+          {!modoUnico && (
+            <div className="ws-calendario-range-display">
+              <div className={`ws-calendario-range-item ${etapa === 'inicio' ? 'ws-calendario-range-item--ativo' : ''}`}>
+                <span className="ws-calendario-range-label">{t('calendario.inicio')}</span>
+                <span className="ws-calendario-range-value">{inicio ? formatarDataBR(inicio) : '—'}</span>
+              </div>
+              <span className="ws-calendario-range-separator">→</span>
+              <div className={`ws-calendario-range-item ${etapa === 'fim' ? 'ws-calendario-range-item--ativo' : ''}`}>
+                <span className="ws-calendario-range-label">{t('calendario.fim')}</span>
+                <span className="ws-calendario-range-value">{fim ? formatarDataBR(fim) : '—'}</span>
+              </div>
             </div>
-            <span className="ws-calendario-range-separator">→</span>
-            <div className={`ws-calendario-range-item ${etapa === 'fim' ? 'ws-calendario-range-item--ativo' : ''}`}>
-              <span className="ws-calendario-range-label">{t('calendario.fim')}</span>
-              <span className="ws-calendario-range-value">{fim ? formatarDataBR(fim) : '—'}</span>
-            </div>
-          </div>
+          )}
 
           <div className="ws-calendario-grid">
             {DIAS_SEMANA.map(d => (
@@ -380,22 +407,25 @@ export function CampoCalendarioGlobal({
             })}
           </div>
 
-          <div className="ws-calendario-footer">
-            <BotaoGlobal
-              variante="fantasma"
-              tamanho="pequeno"
-              onClick={() => setIsOpen(false)}
-            >
-              {t('calendario.cancelar')}
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="primario"
-              tamanho="pequeno"
-              onClick={doConfirm}
-            >
-              {t('calendario.aplicar')}
-            </BotaoGlobal>
-          </div>
+          {/* Footer — escondido em modoUnico (click no dia já dispara aoMudarValor) */}
+          {!modoUnico && (
+            <div className="ws-calendario-footer">
+              <BotaoGlobal
+                variante="fantasma"
+                tamanho="pequeno"
+                onClick={() => setIsOpen(false)}
+              >
+                {t('calendario.cancelar')}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="primario"
+                tamanho="pequeno"
+                onClick={doConfirm}
+              >
+                {t('calendario.aplicar')}
+              </BotaoGlobal>
+            </div>
+          )}
         </div>
       </div>
     )

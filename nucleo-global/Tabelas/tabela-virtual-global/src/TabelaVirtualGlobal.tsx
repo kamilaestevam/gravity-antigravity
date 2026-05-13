@@ -731,12 +731,15 @@ const GTEditPopover = memo(function GTEditPopover({
                 }}
               />
               {/* Calendário como opção visual — selecionar preenche o input acima.
-                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário. */}
+                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário.
+                  modoUnico: célula tem 1 data, não range — sem sidebar de presets
+                  nem INICIO/FIM nem footer Aplicar; click no dia já dispara. */}
               <div style={{ marginTop: 8 }}>
                 <CampoCalendarioGlobal
                   valor={parseDateValor(valorEditando)}
                   aoMudarValor={handleCalendarioMudar}
                   disabled={salvando}
+                  modoUnico
                 />
               </div>
             </>

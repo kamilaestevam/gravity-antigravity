@@ -79,6 +79,11 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     // Modal com alias diferente do nome da pasta
     '@nucleo/modal-campo-select-global': path.resolve(nucleoRoot, 'Modais/modal-select-global/src/index.ts'),
 
+    // 2026-05-13 — fallback explicito para modal-tabela-incoterm pra cobrir
+    // casos onde o scan dinamico nao resolve (caches stale do Vite, HMR,
+    // pasta criada com dev server rodando). Espelha modal-tabela-unidades.
+    '@nucleo/modal-tabela-incoterm': path.resolve(nucleoRoot, 'Modais/modal-tabela-incoterm/src/index.ts'),
+
     // Tokens (estrutura flat, sem subpasta)
     '@nucleo/tokens': path.resolve(nucleoRoot, 'Tokens/index.ts'),
   }

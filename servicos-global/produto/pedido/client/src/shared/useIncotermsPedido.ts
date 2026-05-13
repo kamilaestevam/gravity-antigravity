@@ -17,11 +17,16 @@
  * Cadastros. Aqui só transformamos a saída em `GTOpcao` (formato do select).
  */
 import { useMemo } from 'react'
+// Path relativo (não alias) — fallback para garantir resolução em qualquer
+// configuração do Vite (alias scan pode ficar stale após criar pacotes novos
+// com dev server rodando; o cache não invalida sempre com restart).
+// Quando o monorepo migrar para workspace gerenciado, voltar a usar
+// `@nucleo/modal-tabela-incoterm`.
 import {
   useIncoterms,
   type Incoterm,
   type ModalTransporte,
-} from '@nucleo/modal-tabela-incoterm'
+} from '../../../../../../nucleo-global/Modais/modal-tabela-incoterm/src/useIncoterms'
 
 export interface GTOpcaoIncoterm {
   valor: string

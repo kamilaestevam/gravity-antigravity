@@ -68,6 +68,9 @@ export function CadastroContinuarPage() {
   const [senha, setSenha] = useState('')
   const [confirmacao, setConfirmacao] = useState('')
   const [verSenha, setVerSenha] = useState(false)
+  // Estado independente: alguns usuários querem ver SÓ uma das senhas
+  // (típico em fluxo de cadastro — confirmar senha digitada cegamente).
+  const [verConfirmacao, setVerConfirmacao] = useState(false)
   const [aceiteTermos, setAceiteTermos] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -267,7 +270,37 @@ export function CadastroContinuarPage() {
           </p>
         </div>
 
-        {/* Banner contextual — convite ou continuação OAuth */}
+        {/* Banner contextual — convite ou continuação OAuth.
+            Skeleton durante o round-trip ao Clerk (signUp.create com ticket
+            leva tempo perceptível — dono reportou em smoke 2026-05-12).
+            Mostra placeholder imediato em vez de "nada" durante a espera. */}
+        {(isInvitation || isOAuthMissing) && !emailConvite && !erro && (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              padding: '0.75rem 1rem', borderRadius: '10px',
+              background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
+              display: 'flex', alignItems: 'center', gap: '0.625rem',
+              marginBottom: '1.25rem', fontSize: '0.8125rem',
+            }}
+          >
+            <CheckCircle size={18} weight="fill" style={{ color: 'rgba(129,140,248,0.4)', flexShrink: 0 }} />
+            <span style={{
+              color: 'rgba(199,210,254,0.6)',
+              display: 'inline-block',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.04) 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 1.4s ease-in-out infinite',
+              borderRadius: 4,
+              padding: '0.125rem 0.5rem',
+              minWidth: '14rem',
+            }}>
+              Carregando dados do convite…
+            </span>
+            <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+          </div>
+        )}
         {emailConvite && (
           <div
             role="note"
@@ -401,17 +434,29 @@ export function CadastroContinuarPage() {
 
           {/* Confirmar senha */}
           <CampoGeralGlobal label={t('cadastro.continuar.label_confirmar', 'Confirmar senha')} obrigatorio>
-            <div className="ws-input-icon-wrap">
+            <div className="ws-input-icon-wrap" style={{ position: 'relative' }}>
               <Lock size={16} />
               <input
                 value={confirmacao}
-                type={verSenha ? 'text' : 'password'}
+                type={verConfirmacao ? 'text' : 'password'}
                 placeholder="Digite a senha novamente"
                 onChange={(e) => setConfirmacao(e.target.value)}
-                style={{ width: '100%' }}
+                style={{ width: '100%', paddingRight: '2.5rem' }}
                 disabled={enviando}
                 autoComplete="new-password"
               />
+              <button
+                type="button"
+                aria-label={verConfirmacao ? 'Ocultar senha' : 'Mostrar senha'}
+                onClick={() => setVerConfirmacao((v) => !v)}
+                style={{
+                  position: 'absolute', right: '0.625rem', top: '50%', transform: 'translateY(-50%)',
+                  background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer',
+                  padding: '0.25rem', display: 'flex', alignItems: 'center',
+                }}
+              >
+                {verConfirmacao ? <EyeSlash size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </CampoGeralGlobal>
 

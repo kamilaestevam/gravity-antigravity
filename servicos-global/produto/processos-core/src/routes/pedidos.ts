@@ -1743,7 +1743,27 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         dadosUpdate = { detalhes_operacionais_pedido: { ...detAtual, [campo]: valor } }
       } else {
         const colunaPrisma = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
-        dadosUpdate = { [colunaPrisma]: valor }
+        // Campos de data Prisma exigem ISO-8601 completo (YYYY-MM-DDTHH:mm:ss.sssZ),
+        // mas o frontend envia apenas YYYY-MM-DD (date-only). Convertemos aqui em
+        // Date para o Prisma serializar corretamente. Decisão UX 2026-05-13: backend
+        // tolerante a date-only (start-of-day UTC), fronts não precisam saber.
+        // Mandamento 06: parsing local; null/string vazia → null (limpa o campo).
+        const ehCampoData = campo.startsWith('data_') || colunaPrisma.startsWith('data_')
+        let valorFinal: unknown = valor
+        if (ehCampoData) {
+          if (valor === null || valor === undefined || valor === '') {
+            valorFinal = null
+          } else if (typeof valor === 'string') {
+            // Aceita 'YYYY-MM-DD' (date-only) e 'YYYY-MM-DDTHH:mm:ssZ' (já ISO).
+            // new Date('YYYY-MM-DD') é interpretado como UTC pelo JS — OK.
+            const d = new Date(valor)
+            if (isNaN(d.getTime())) {
+              throw new AppError(400, `Data invalida para o campo "${campo}": "${valor}". Esperado YYYY-MM-DD ou ISO-8601.`)
+            }
+            valorFinal = d
+          }
+        }
+        dadosUpdate = { [colunaPrisma]: valorFinal }
       }
 
       const updated = await db.pedido.update({
@@ -1781,9 +1801,19 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
             `Inconsistência: "${campoPedido}" está em isPropagavel mas obterCampoItemPropagado retornou null.`,
           )
         }
+        // Mesma conversão de data ISO-8601 aplicada ao pai (acima): se o
+        // campoItem é DateTime, string YYYY-MM-DD → Date object.
+        const ehDataItem = campoItem.startsWith('data_')
+        let valorItem: unknown = valor === undefined ? null : valor
+        if (ehDataItem && typeof valorItem === 'string' && valorItem !== '') {
+          const d = new Date(valorItem)
+          if (!isNaN(d.getTime())) valorItem = d
+        } else if (ehDataItem && valorItem === '') {
+          valorItem = null
+        }
         const resultado = await db.pedidoItem.updateMany({
           where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-          data: { [campoItem]: valor === undefined ? null : valor },
+          data: { [campoItem]: valorItem },
         })
         // Audit log agregado (1 evento por replicação, não N por item) —
         // economiza espaço e facilita auditoria pela equipe.

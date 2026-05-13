@@ -3564,7 +3564,16 @@ export default function Pedidos() {
         busca: novaBusca || undefined,
         idsWorkspacesFiltro,
       })
-      setPedidos(res.data)
+      // Pré-computa flags de divergência no carregamento inicial — pedidos vem
+      // com itens populados do backend (include itens_pedido na rota /listar).
+      // Sem isso, alertas como data_emissao_pedido_divergente ficavam undefined
+      // até o usuário expandir manualmente o pedido (handleCarregarFilhos).
+      // Decisão UX 2026-05-13: alerta deve aparecer no list view sem expansão.
+      const pedidosComDivergencias = res.data.map(p => {
+        if (!p.itens || p.itens.length === 0) return p
+        return { ...p, ...calcularDivergencias(p.itens, p) }
+      })
+      setPedidos(pedidosComDivergencias)
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
     } catch (err) {

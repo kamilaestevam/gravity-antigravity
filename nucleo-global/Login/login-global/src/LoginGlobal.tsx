@@ -1,8 +1,8 @@
-import { SignIn, SignUp, useSignIn } from '@clerk/clerk-react'
+import { SignUp, useSignIn } from '@clerk/clerk-react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Envelope, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
+import { Envelope, Lock, Eye, EyeSlash, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './login-global.css'
 
@@ -158,17 +158,7 @@ export function LoginGlobal() {
           </Link>
         </>
       ) : (
-        <>
-          <SignIn
-            routing="hash"
-            signUpUrl="/cadastro"
-            fallbackRedirectUrl="/hub"
-            appearance={clerkAppearance as any}
-          />
-          <div className="login-forgot-manual">
-            <Link to="/recuperar-senha">{t('login.esqueceu_senha')}</Link>
-          </div>
-        </>
+        <SignInFlow />
       )}
 
       {!isForgotPassword && (
@@ -183,12 +173,6 @@ export function LoginGlobal() {
                 {t('login.sem_conta')} <Link to="/cadastro">{t('login.registrar')}</Link>
               </>
             )}
-          </p>
-          <p className="login-footer-secondary">
-            {isSignUp ? `${t('login.ja_conhece')} ` : `${t('login.sem_conta', 'Novo por aqui?')} `}
-            <a href={import.meta.env.VITE_MARKETPLACE_URL ?? '/marketplace'} target="_blank" rel="noreferrer">
-              {isSignUp ? t('login.saiba_mais') : t('login.conheca_plataforma')}
-            </a>
           </p>
         </div>
       )}
@@ -297,6 +281,247 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         <ArrowLeft size={16} />
         {t('login.voltar_login')}
       </Link>
+    </div>
+  )
+}
+
+/**
+ * Logo Google "G" oficial (4 cores). Usado pelo botao "Continuar com Google".
+ * SVG inline equivalente ao logo que o Clerk renderiza no <SignUp>/<SignIn>,
+ * pra manter consistencia visual entre /login e /cadastro.
+ */
+function GoogleLogoColorido({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#FBBC05" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+      <path fill="#EA4335" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+      <path fill="#34A853" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+      <path fill="#4285F4" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+    </svg>
+  )
+}
+
+/**
+ * SignInFlow — form custom de login com email+senha empilhados no mesmo card.
+ *
+ * Substitui o componente <SignIn> do Clerk (que renderizava em 2 passos: email
+ * primeiro, depois senha em outra tela) pelo hook oficial `useSignIn()`. Mantém
+ * 100% da cadeia pos-login intacta:
+ *   - setActive({ session }) cria a sessao Clerk
+ *   - navigate('/hub') dispara o ciclo do useCarregarTipoUsuario
+ *   - banner USUARIO_INATIVO continua aparecendo via sessionStorage
+ *
+ * Mandamentos respeitados:
+ *   - Mand. 01 (Clerk isolado): apenas autenticacao, sem ler publicMetadata
+ *   - Mand. 05 (sem casting vazio): estados null/string, nunca {} as ...
+ *   - Mand. 08 (sem fallback silencioso): switch exaustivo no result.status com console.error
+ */
+function SignInFlow() {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { isLoaded, signIn, setActive } = useSignIn()
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [verSenha, setVerSenha] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'oauth_loading'>('idle')
+
+  const aoSubmeter = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !senha || !isLoaded || !signIn) return
+
+    setStatus('loading')
+    setErro(null)
+
+    try {
+      const resultado = await signIn.create({ identifier: email, password: senha })
+
+      // Mand. 08 — discriminated union explicita com console.error em todo ramo nao-sucesso
+      switch (resultado.status) {
+        case 'complete':
+          await setActive({ session: resultado.createdSessionId })
+          navigate('/hub')
+          return
+
+        case 'needs_second_factor':
+          console.error('[LoginGlobal] 2FA solicitado mas tela atual nao suporta', { resultado })
+          setErro(t('login.erro_2fa_nao_suportado'))
+          setStatus('idle')
+          return
+
+        default:
+          // needs_identifier, needs_first_factor inesperado, needs_new_password, etc.
+          console.error('[LoginGlobal] Status inesperado de signIn.create', {
+            status: resultado.status,
+            resultado,
+          })
+          setErro(t('login.erro_status_incompleto'))
+          setStatus('idle')
+          return
+      }
+    } catch (err) {
+      const erroClerk = err as {
+        errors?: Array<{ code?: string; longMessage?: string; message?: string }>
+      }
+      const codigoClerk = erroClerk?.errors?.[0]?.code
+      const mensagemClerk =
+        erroClerk?.errors?.[0]?.longMessage ?? erroClerk?.errors?.[0]?.message
+
+      let mensagemFinal: string
+      if (
+        codigoClerk === 'form_password_incorrect' ||
+        codigoClerk === 'form_identifier_not_found' ||
+        codigoClerk === 'strategy_for_user_invalid'
+      ) {
+        mensagemFinal = t('login.erro_credenciais_invalidas')
+      } else if (
+        codigoClerk === 'form_captcha_invalid' ||
+        codigoClerk === 'captcha_required' ||
+        codigoClerk === 'captcha_not_enabled'
+      ) {
+        // Mand. 08 — o dono optou por nao adicionar <div id="clerk-captcha"/>
+        console.error('[LoginGlobal] Clerk exigiu CAPTCHA mas form custom nao tem suporte', {
+          codigoClerk,
+          erro: err,
+        })
+        mensagemFinal = t('login.erro_generico')
+      } else if (mensagemClerk) {
+        mensagemFinal = mensagemClerk
+      } else if (err instanceof Error) {
+        mensagemFinal = err.message
+      } else {
+        mensagemFinal = t('login.erro_generico')
+      }
+
+      setErro(mensagemFinal)
+      setStatus('idle')
+    }
+  }
+
+  const entrarComGoogle = async () => {
+    if (!isLoaded || !signIn) return
+    setStatus('oauth_loading')
+    setErro(null)
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/login/sso-callback',
+        redirectUrlComplete: '/hub',
+      })
+    } catch (err) {
+      console.error('[LoginGlobal] Falha ao iniciar OAuth Google', { err })
+      const erroClerk = err as {
+        errors?: Array<{ longMessage?: string; message?: string }>
+      }
+      const mensagem =
+        erroClerk?.errors?.[0]?.longMessage ??
+        erroClerk?.errors?.[0]?.message ??
+        (err instanceof Error ? err.message : t('login.erro_generico'))
+      setErro(mensagem)
+      setStatus('idle')
+    }
+  }
+
+  const carregando = status === 'loading' || status === 'oauth_loading'
+
+  return (
+    <div className="signin-container">
+      <div className="signin-card">
+      <button
+        type="button"
+        className="signin-social-google"
+        onClick={entrarComGoogle}
+        disabled={carregando}
+        aria-label={t('login.continuar_com_google')}
+      >
+        {status === 'oauth_loading' ? (
+          <CircleNotch size={20} className="spin" />
+        ) : (
+          <GoogleLogoColorido size={20} />
+        )}
+        <span>{t('login.continuar_com_google')}</span>
+      </button>
+
+      <div className="signin-divider" role="separator" aria-orientation="horizontal">
+        <span>OU</span>
+      </div>
+
+      <form onSubmit={aoSubmeter} className="signin-form" noValidate>
+        <div className="signin-field">
+          <label htmlFor="signin-email">{t('comum.email')}</label>
+          <div className="signin-input-wrapper">
+            <input
+              id="signin-email"
+              type="email"
+              placeholder={t('login.placeholder_email')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={carregando}
+              aria-invalid={erro ? 'true' : 'false'}
+              aria-describedby={erro ? 'signin-erro' : undefined}
+            />
+            <Envelope size={20} className="signin-input-icon" />
+          </div>
+        </div>
+
+        <div className="signin-field">
+          <label htmlFor="signin-senha">{t('comum.senha')}</label>
+          <div className="signin-input-wrapper signin-input-wrapper--senha">
+            <input
+              id="signin-senha"
+              type={verSenha ? 'text' : 'password'}
+              placeholder={t('login.placeholder_senha')}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required
+              disabled={carregando}
+              aria-invalid={erro ? 'true' : 'false'}
+              aria-describedby={erro ? 'signin-erro' : undefined}
+            />
+            <Lock size={20} className="signin-input-icon" />
+            <button
+              type="button"
+              className="signin-input-toggle"
+              onClick={() => setVerSenha((v) => !v)}
+              aria-label={verSenha ? 'Ocultar senha' : 'Mostrar senha'}
+              tabIndex={-1}
+            >
+              {verSenha ? <EyeSlash size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+
+        {erro && (
+          <div id="signin-erro" className="signin-error-msg" role="alert">
+            <WarningCircle size={18} />
+            <span>{erro}</span>
+          </div>
+        )}
+
+        <TooltipGlobal descricao={t('login.tooltip_entrar')}>
+          <button
+            type="submit"
+            className={`signin-button ${status === 'loading' ? 'loading' : ''}`}
+            disabled={carregando || !email || !senha}
+          >
+            {status === 'loading' ? (
+              <>
+                <CircleNotch size={20} className="spin" />
+                {t('login.entrando')}
+              </>
+            ) : (
+              t('login.entrar')
+            )}
+          </button>
+        </TooltipGlobal>
+      </form>
+      </div>
+
+      <div className="signin-forgot-link">
+        <Link to="/recuperar-senha">{t('login.esqueceu_senha')}</Link>
+      </div>
     </div>
   )
 }

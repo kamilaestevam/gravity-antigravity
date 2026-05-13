@@ -273,6 +273,14 @@ export default function App() {
       <Routes>
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
+        {/* /login/sso-callback — intercepta retorno do OAuth (Google) do form custom de SignIn.
+            DEVE preceder o catch-all /login/* para nao ser engolida pela AutenticacaoPage. */}
+        <Route path="/login/sso-callback" element={
+          <AuthenticateWithRedirectCallback
+            signInFallbackRedirectUrl="/hub"
+            signUpFallbackRedirectUrl="/hub"
+          />
+        } />
         <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
         {/* /cadastro/continuar — fluxo de convite Clerk customizado (precede o catch-all /cadastro/*) */}
         <Route path="/cadastro/continuar" element={<PublicRoute><CadastroContinuarPage /></PublicRoute>} />

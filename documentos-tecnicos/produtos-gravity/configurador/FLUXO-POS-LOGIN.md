@@ -185,6 +185,7 @@ grep -rE "navigate\\('/hub'\\)|window\\.location\\.href\\s*=\\s*'/hub'" servicos
 | 2026-04-30 | Rotas `/sign-in` e `/sign-up` órfãs após refactor DDD; `signInUrl` do Clerk apontava para rota inexistente. | Commit `eb87bf01` |
 | 2026-04-30 | Render inline `<AutenticacaoPage />` em `RootRedirect` para deslogados deixava URL `/` sem refletir estado. Migrado para redirect explícito para `/login`. | Commit `eb87bf01` |
 | 2026-04-30 | Props Clerk `afterSignInUrl` / `afterSignUpUrl` deprecated. Migradas para `signInFallbackRedirectUrl` / `signUpFallbackRedirectUrl`. | Commit `eb87bf01` |
+| 2026-05-13 | Layout do `<SignIn>` Clerk em `/login` virou 2-passos (email → senha em telas separadas) por mudança no Clerk Dashboard. Substituído por form custom `<SignInFlow>` em `nucleo-global/Login/login-global/src/LoginGlobal.tsx` usando hook `useSignIn()`. Inclui botão Google via `signIn.authenticateWithRedirect` + nova rota `/login/sso-callback` (`AuthenticateWithRedirectCallback`). Email + senha empilhados no mesmo card. Cadeia pós-login intacta (`setActive` → `/hub` → hook `useCarregarTipoUsuario` → banner USUARIO_INATIVO). Ponto seguro: tag `seguro-pre-login-custom-2026-05-13`. | Esta sessão |
 
 ---
 

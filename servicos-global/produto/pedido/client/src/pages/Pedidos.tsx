@@ -84,6 +84,7 @@ import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
+import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
 import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
 import '../components/ModalPedidosConsolidar.css'
 import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
@@ -3784,36 +3785,26 @@ export default function Pedidos() {
       const savedSet = new Set(savedVisible)
       const novas = activeCustomKeys.filter(k => !savedSet.has(k))
 
-      // Migração: colunas built-in novas (adicionadas após save de prefs do usuário)
-      // — entrega 2026-05-13 adicionou `id_workspace`. Injeta logo após tipo_operacao.
-      let visivelComMigracao = [...savedVisible]
-      const COLUNAS_BUILTIN_NOVAS = ['id_workspace']
-      const novasBuiltin = COLUNAS_BUILTIN_NOVAS.filter(k => !savedSet.has(k))
-      let mudouPosicao = false
-      if (novasBuiltin.length > 0) {
-        // Injeta após tipo_operacao se existir; senão após numero_pedido; senão no início
-        const idxTipo = visivelComMigracao.indexOf('tipo_operacao')
-        const idxNumero = visivelComMigracao.indexOf('numero_pedido')
-        if (idxTipo >= 0) {
-          visivelComMigracao.splice(idxTipo + 1, 0, ...novasBuiltin)
-        } else if (idxNumero >= 0) {
-          visivelComMigracao.splice(idxNumero + 1, 0, ...novasBuiltin)
-        } else {
-          visivelComMigracao = [...novasBuiltin, ...visivelComMigracao]
-        }
-      } else {
-        // Reposicionamento 2026-05-13: usuários que abriram a tela entre versões
-        // podem ter id_workspace salvo na posição ANTIGA (após numero_pedido).
-        // Move para a posição CORRETA (após tipo_operacao).
-        const idxWs = visivelComMigracao.indexOf('id_workspace')
-        const idxTipoOp = visivelComMigracao.indexOf('tipo_operacao')
-        if (idxWs >= 0 && idxTipoOp >= 0 && idxWs < idxTipoOp) {
-          visivelComMigracao.splice(idxWs, 1)
-          const novoIdxTipo = visivelComMigracao.indexOf('tipo_operacao')
-          visivelComMigracao.splice(novoIdxTipo + 1, 0, 'id_workspace')
-          mudouPosicao = true
-        }
-      }
+      // Migração de prefs salvas → padrão atual via helpers de `migracaoColunas`.
+      // Refactor D12 (2026-05-13): lógica antes inline aqui (40+ linhas duplicadas)
+      // foi extraída para shared/migracaoColunas.ts com cobertura unitária.
+      //
+      // Caso 1: id_workspace NÃO está nas prefs → inserir (entrega 2026-05-13).
+      //         Tenta inserir após tipo_operacao; fallback para numero_pedido; fallback no início.
+      // Caso 2: id_workspace JÁ está, mas em posição antiga (antes de tipo_operacao) → mover.
+      const passoInserir = inserirColunaAposAncora(
+        savedVisible,
+        'id_workspace',
+        ['tipo_operacao', 'numero_pedido'],
+      )
+      const passoMover = moverColunaParaAposAncora(
+        passoInserir.resultado,
+        'id_workspace',
+        'tipo_operacao',
+      )
+      const visivelComMigracao = passoMover.resultado
+      const mudouPosicao = passoMover.mudou
+      const novasBuiltin = passoInserir.mudou ? ['id_workspace'] : []
 
       const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
         ? [...visivelComMigracao, ...novas]
@@ -3967,7 +3958,12 @@ export default function Pedidos() {
     if (isPropagavel(campo)) {
       itensCarregadosRef.current.delete(id)
     }
-    setPedidos(prev => prev.map(p => p.id === id ? updatedPedido : p))
+    // Recalcula flags de divergência com o novo valor do pai. Necessário pra
+    // campos como data_emissao_pedido onde a regra é "pai != filhos -> alerta"
+    // (decisão UX 2026-05-13). Sem isso, a flag continua stale após edição do pai.
+    const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+    const divergenciasPos = itensAtuais.length > 0 ? calcularDivergencias(itensAtuais, updatedPedido) : {}
+    setPedidos(prev => prev.map(p => p.id === id ? { ...updatedPedido, ...divergenciasPos } : p))
     return updatedPedido
   }, [pedidos, colunasUsuario])
 
@@ -3976,7 +3972,7 @@ export default function Pedidos() {
   // Convenção: {key}_divergente (boolean), {key}_valor_unico (string|null) para campos ghost.
   const CAMPOS_GHOST = new Set(['ncm', 'cobertura_cambial', 'data_emissao_pedido'])
 
-  function calcularDivergencias(itens: PedidoItem[]): Partial<Pedido> {
+  function calcularDivergencias(itens: PedidoItem[], pedidoPai?: Pedido): Partial<Pedido> {
     const result: Record<string, unknown> = {}
     for (const campo of getAlertavelKeys()) {
       const valores = itens
@@ -3998,6 +3994,27 @@ export default function Pedidos() {
     result.ncms_distintos_count = ncmsUnicos.size
     result.ncm_divergente = ncmsUnicos.size > 1
     result.ncm_valor_unico = ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null
+
+    // data_emissao_pedido (campo ghost) — decisão UX 2026-05-13:
+    // alerta no pai quando algum item tem data ≠ pai (ou itens divergem entre si).
+    // O pai pode ter sido editado pelo usuário com uma data diferente da dos itens
+    // (e vice-versa). Padrão: mostra o valor + ⚠ ao lado, não esconde o valor.
+    const datasItens = itens
+      .map(i => i.data_emissao_pedido)
+      .filter((v): v is string => v != null && v !== '')
+      .map(s => s.substring(0, 10)) // só a parte da data, sem hora
+    const datasUnicas = new Set(datasItens)
+    const dataPai = pedidoPai?.data_emissao_pedido?.substring(0, 10)
+    // Divergente se: (a) itens divergem entre si OU (b) pai tem valor e difere
+    // de algum item OU (c) algum item tem valor e o pai não (e os itens divergem).
+    let dataEmissaoDivergente = datasUnicas.size > 1
+    if (!dataEmissaoDivergente && dataPai && datasUnicas.size === 1) {
+      const dataUnicaItens = [...datasUnicas][0]
+      if (dataUnicaItens !== dataPai) dataEmissaoDivergente = true
+    }
+    result.data_emissao_pedido_divergente = dataEmissaoDivergente
+    result.data_emissao_pedido_valor_unico = datasUnicas.size === 1 ? [...datasUnicas][0] : null
+
     return result as Partial<Pedido>
   }
 
@@ -4107,7 +4124,7 @@ export default function Pedidos() {
       // valor stale ou alerta stale.
       const itensAposEdicaoMv = getItensCache().map(i => i.id === id ? enriquecidoMv : i)
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMv)
-      const divergenciasMv = calcularDivergencias(itensAposEdicaoMv)
+      const divergenciasMv = calcularDivergencias(itensAposEdicaoMv, pedido)
 
       // Regra de homogeneidade (espelha helper recalcularAgregadosPedido):
       // moedas mistas → valor_total_pedido = null; unidades mistas → qty null.
@@ -4183,7 +4200,7 @@ export default function Pedidos() {
       // + agregados locais (homogeneidade Onda A8).
       const itensAposEdicaoVu = getItensCache().map(i => i.id === id ? enriquecidoVu : i)
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoVu)
-      const divergenciasVu = calcularDivergencias(itensAposEdicaoVu)
+      const divergenciasVu = calcularDivergencias(itensAposEdicaoVu, pedido)
       const moedasContribVu = new Set(
         itensAposEdicaoVu
           .filter(i => Number(i.valor_total_item ?? 0) > 0 && i.moeda_item)
@@ -4267,7 +4284,7 @@ export default function Pedidos() {
       // Recalcula divergencias: se unidade mudou e divergem entre itens, a flag
       // `unidade_comercializada_item_divergente` é setada e a coluna mostra o
       // alerta "⚠ Unidades divergentes entre itens" via renderQtdPedido.
-      const divergenciasPronta = calcularDivergencias(itensAposEdicao)
+      const divergenciasPronta = calcularDivergencias(itensAposEdicao, pedido)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
@@ -4406,7 +4423,7 @@ export default function Pedidos() {
     // Atualiza cache e recalcula os aggregates do pedido pai
     const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecido : i)
     itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
-    const divergencias = calcularDivergencias(itensAposEdicao)
+    const divergencias = calcularDivergencias(itensAposEdicao, pedido)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
       return {
@@ -4456,7 +4473,7 @@ export default function Pedidos() {
     // Atualiza pedidos state com itens carregados + recalcula aggregates e divergências.
     // Isso habilita alertas de peso (unidades mistas), renderQtdPedido (soma por unidade)
     // e qualquer outra lógica que depende de row.itens na renderização do pai.
-    const divergencias = calcularDivergencias(itensEnriquecidos)
+    const divergencias = calcularDivergencias(itensEnriquecidos, pedido)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
       return {

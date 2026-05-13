@@ -208,10 +208,16 @@ export function renderAgregado(
 export interface OpcoesUnidadesColunas {
   unidadesPeso: GTUnidadeOpcao[]
   unidadesCubagem: GTUnidadeOpcao[]
+  /**
+   * Mapa de id_workspace → nome_workspace para renderizar a coluna "Workspace".
+   * Carregado da Lista (Pedidos.tsx) via `/api/v1/hub/init`. Quando vazio,
+   * a coluna mostra o próprio id_workspace como fallback.
+   */
+  workspacesMap?: Map<string, { nome: string; cnpj?: string | null }>
 }
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+  const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
   return [
   {
     key: 'numero_pedido',
@@ -224,6 +230,30 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_pedido_desc'),
     grupo: 'Identificação',
+  },
+  // ── Coluna "Workspace" — filtro multi-workspace (entrega 2026-05-13) ────────
+  // key = 'id_workspace' (DDD-puro). mapPedido() em api.ts injeta id_workspace
+  // no objeto Pedido via spread, então leitura row.id_workspace funciona.
+  // O popover de filtro exibe NOMES (não IDs) — handled em Pedidos.tsx via
+  // valoresUnicosPorCampo special-case. Sempre visível, posicionada logo após
+  // "Nº Pedido" pela alta importância em multi-tenant.
+  //
+  // DÍVIDA: o framework GTColuna (nucleo-global) usa `label` no header e em
+  // `opcoes[].label`. DDD-puro pede `rotulo`. Refactor é multi-arquivo (todas
+  // as colunas de todos os produtos consumindo a tabela virtual) e foi
+  // pulled-out para uma entrega dedicada.
+  {
+    key: 'id_workspace',
+    label: 'Workspace',
+    tipo: 'texto',           // promovido para 'enum' em Pedidos.tsx → detectarTipoColuna
+    filtravel: true,
+    sortavel: false,         // backend ordena por id_workspace, não nome — manter simples
+    grupo: 'Identificação',
+    render: (_val: unknown, row: Pedido) => {
+      const id = (row as unknown as { id_workspace?: string }).id_workspace ?? ''
+      const nome = workspacesMap?.get(id)?.nome ?? id
+      return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+    },
   },
   {
     key: 'tipo_operacao',
@@ -449,26 +479,73 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'saldo_itens_do_pedido',
     label: t('pedido.coluna_pai.saldo_itens_do_pedido'),
-    tipo: 'numero',
+    // tipo: 'unidade' (espelhado com as outras 4 colunas de qty) — mostra badge
+    // da unidade homogênea ou alerta "Unidades divergentes" via mesma lógica
+    // de renderQtdPedido. Decisão UX 2026-05-13.
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
     tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
     tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
-      const total = row.quantidade_total_pedido ?? null
-      const transf = row.quantidade_transferida_total ?? null
-      const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
-      return (
+      const itens = row.itens ?? []
+      // Sem itens carregados (ex: lista colapsada) — usa o valor agregado do backend
+      // ou calcula inicial - transferida como fallback. Sem alerta porque não há
+      // como saber se diverge sem inspecionar os itens.
+      if (itens.length === 0) {
+        const total = row.quantidade_total_pedido ?? null
+        const transf = row.quantidade_transferida_total ?? null
+        const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
+        return (
+          <TooltipGlobal
+            titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            interativo
+          >
+            <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+              {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0)) : '—'}
+            </span>
+          </TooltipGlobal>
+        )
+      }
+
+      // Detecção de divergência de unidade entre itens — mesma regra de
+      // renderQtdPedido (contribuintes com saldo>0; fallback declaradas).
+      const saldoPorItem = (i: PedidoItem) =>
+        Math.max(0, (Number(i.quantidade_inicial_pedido) || 0)
+          - (Number(i.quantidade_transferida_pedido) || 0)
+          - (Number(i.quantidade_cancelada_pedido) || 0))
+
+      const unidadesContribuintes = new Set(
+        itens.filter(i => saldoPorItem(i) > 0).map(i => i.unidade_comercializada_item ?? 'UN')
+      )
+      const unidadesDeclaradas = new Set(
+        itens.map(i => i.unidade_comercializada_item).filter((u): u is string => u != null && u !== '')
+      )
+      const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
+
+      const tooltipWrap = (node: React.ReactNode) => (
         <TooltipGlobal
           titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
           descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
           interativo
         >
-          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0)) : '—'}
-          </span>
+          <span style={{ display: 'contents' }}>{node}</span>
         </TooltipGlobal>
+      )
+
+      if (unidadesEfetivas.size > 1) {
+        return tooltipWrap(renderAgregado(null, true, 'Unidades divergentes entre itens'))
+      }
+
+      const unidade = [...unidadesEfetivas][0] ?? 'UN'
+      const soma = itens.reduce((s, i) => s + saldoPorItem(i), 0)
+      return tooltipWrap(
+        <span className="gtv-celula-moeda" style={{ color: soma > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(soma, getCasas('quantidade_total_pedido', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
       )
     },
   },

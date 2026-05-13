@@ -161,7 +161,7 @@ Diferença: rota regular passa `id_organizacao_alvo = req.auth.id_organizacao`; 
 
 ## 🗃️ Schema das tabelas envolvidas
 
-> ⚠️ **Mand. 02 preservado:** nenhuma alteração de schema na entrega.
+> ⚠️ **Mand. 02 preservado no escopo "convite":** os 8 commits diretamente relacionados ao convite cross-org (`14512725` → `6e4ce9cb`) não alteram `schema.prisma`. O commit paralelo `74670de9` (feature `status_usuario` INATIVO) estendeu o model `Usuario`, com autorização explícita do dono + Coordenador + Líder Técnico documentada na mensagem do commit.
 
 ### `Usuario` (`configurador/prisma/schema.prisma:114`)
 | Campo | Tipo | Uso na entrega |
@@ -261,7 +261,7 @@ for (const inv of acceptedByEmail) {
 | **01** (Clerk só auth) | Nenhum uso de `publicMetadata` para autorização. `id_clerk_usuario` é só identificador, decisões vêm do banco |
 | **02** (schema intocável) | Zero migration. Tudo reusa modelos existentes |
 | **04** (Limbo) | Master/SAdmin/Admin não precisam de `UsuarioWorkspace` quando alvo de convite (acesso por `tipo_usuario`) |
-| **06** (Zod) | `AdminInviteSchema.strict().refine(...)` em `admin.ts:1571` e `ConvidarUsuarioSchema.strict().refine(...)` em `usuario.ts:42` |
+| **06** (Zod) | `AdminInviteSchema.strict().refine(...)` em `admin.ts:1576` e `ConvidarUsuarioSchema.strict().refine(...)` em `usuario.ts:42` |
 | **08** (fail-closed) | Todas as falhas lançam `AppError` específico com `code` único. Lazy disambig logs ruidosos |
 | **09** (Zod bilateral) | Frontend `adminUsuariosApi.convidar` tipo bate com `AdminInviteSchema`. Response tipada |
 
@@ -289,7 +289,7 @@ Lazy disambig chama Clerk API extra em ambiguidade. Em pior caso (email genéric
 ### Imediatos
 1. **Linter `@gravity/eslint-plugin-tenant-safety` não existe** — skill marcada como NÃO IMPLEMENTADO em `6621fbef`. Anti-padrões como `req.auth.id_organizacao` em rota cross-org não são detectados em CI. Defesa atual: revisão humana + testes funcionais.
 
-2. **Unificação dos 2 modais (admin + workspace)** — Coord+Líder Técnico aprovaram como follow-up. Plano detalhado em `documentos-tecnicos/arquitetura/admin-cross-org-pattern.md` (não escrito ainda — registrar tarefa).
+2. **Unificação dos 2 modais (admin + workspace)** — Coord+Líder Técnico aprovaram como follow-up. Documento de pattern a escrever em sessão dedicada (`documentos-tecnicos/arquitetura/admin-cross-org-pattern.md` — referência futura).
    - Localização correta: `servicos-global/configurador/src/components/`, **NÃO** nucleo-global
    - Padrão: discriminated union via prop `contexto`
    - Sub-componente: `<SeletorWorkspaces>` em `nucleo-global/Campos/seletor-workspaces-global/`
@@ -300,6 +300,10 @@ Lazy disambig chama Clerk API extra em ambiguidade. Em pior caso (email genéric
 4. **Webhook `user.created` ativo** — hoje só log. Quando Clerk adicionar `invitation_id` no payload (ou aceitar `external_id` na invitation), webhook poderá fazer match deterministico imediatamente, eliminando dependência do fallback.
 
 5. **Rate limit em `/admin/usuarios/convidar`** — Coord recomendou ~20 convites/hora para mitigar abuso por SUPER_ADMIN comprometido. Não implementado nesta entrega.
+
+6. **Rename `handleInvite` → `aoConvidarUsuario` em `workspace/Usuarios.tsx`** — convite Master intra-org ainda usa nome legado EN. Não tocado nesta entrega (escopo limitou-se ao admin). DDD-PT só foi aplicado em `UsuariosAdmin.tsx`. Tarefa de 5 minutos para próxima sessão.
+
+7. **Cache stale após lazy disambiguation** — `userCache` em `requireAuth.ts:13` armazena entrada por 60s. Após o fallback fazer UPDATE de `id_clerk_usuario`, a entrada antiga (ainda apontando para `pending_inv_*` se houvesse — improvável porque `verify.sub` é o real) não interfere, mas se o admin REVERTER o vínculo (`DELETE /usuarios/:id/convite`), o cache pode permanecer stale por até 60s. Mitigação: cache TTL é curto; documentar comportamento esperado.
 
 ---
 
@@ -394,7 +398,7 @@ Não recomendado — `dmmltda+fornecedor71@gmail.com` e `daniel@godati.com.br` f
 
 ### Arquivos principais
 - `servicos-global/configurador/server/services/convidar-usuario-service.ts` (NOVO)
-- `servicos-global/configurador/server/routes/admin.ts:1571-1620`
+- `servicos-global/configurador/server/routes/admin.ts:1576-1620`
 - `servicos-global/configurador/server/routes/usuario.ts:258-360`
 - `servicos-global/configurador/server/middleware/requireAuth.ts:88-200`
 - `servicos-global/configurador/src/services/api-client.ts:660-700`

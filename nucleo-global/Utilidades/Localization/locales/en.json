@@ -4003,7 +4003,8 @@
       "label_item_singular": "item",
       "label_item_plural": "items",
       "req_titulo": "To proceed, still pending:",
-      "req_numero_pendente": "Copy number for {{pedido}}"
+      "req_numero_pendente": "Copy number for {{pedido}}",
+      "itens_extras_titulo": "+{{count}} items"
     },
     "modal_cons": {
       "titulo": "Consolidate Orders ({{count}} selected)",

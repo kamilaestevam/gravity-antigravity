@@ -24,6 +24,7 @@ import { Info, CheckCircle, Spinner, X, Warning, Files, Package } from '@phospho
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem, DuplicarPayload, DuplicarResultado } from '../shared/types'
 import { pedidoDuplicarApi } from '../shared/api'
@@ -392,7 +393,9 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     if (n === 0) return <span className="modal-duplicar__itens-vazio">—</span>
     const inline = itensDoPedido.slice(0, MAX_INLINE_ITENS)
     const resto = itensDoPedido.slice(MAX_INLINE_ITENS)
-    const tooltipResto = resto.map(formatItemLabel).join('\n')
+    // TooltipGlobal usa portal + position fixed (zero flash, padrão do sistema).
+    // Lista os itens restantes separados por vírgula — `descricao` aceita uma linha.
+    const tooltipResto = resto.map(formatItemLabel).join(', ')
     return (
       <div className="modal-duplicar__itens-lista">
         <strong className="modal-duplicar__itens-count" aria-label={`${n} itens`}>{n}</strong>
@@ -408,13 +411,17 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
             </span>
           ))}
           {resto.length > 0 && (
-            <span
-              className="modal-duplicar__item-chip modal-duplicar__item-chip--mais"
-              title={tooltipResto}
-              aria-label={`Mais ${resto.length} itens`}
+            <TooltipGlobal
+              titulo={t('pedido.modal_dup.itens_extras_titulo', { count: resto.length })}
+              descricao={tooltipResto}
             >
-              +{resto.length}
-            </span>
+              <span
+                className="modal-duplicar__item-chip modal-duplicar__item-chip--mais"
+                aria-label={`Mais ${resto.length} itens`}
+              >
+                +{resto.length}
+              </span>
+            </TooltipGlobal>
           )}
         </div>
       </div>
@@ -506,7 +513,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
                     <thead>
                       <tr>
                         <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
-                        <th className="modal-duplicar__th">{t('pedido.modal_dup.col_itens')}</th>
+                        <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
                         <th className="modal-duplicar__th">
                           {config.numero_auto
                             ? t('pedido.modal_dup.col_num_gerado')
@@ -583,7 +590,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
                     <thead>
                       <tr>
                         <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
-                        <th className="modal-duplicar__th">{t('pedido.modal_dup.col_itens')}</th>
+                        <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
                         <th className="modal-duplicar__th" aria-hidden="true"></th>
                       </tr>
                     </thead>

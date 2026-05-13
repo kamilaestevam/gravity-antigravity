@@ -25,6 +25,7 @@ import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -266,6 +267,15 @@ function brToIso(text: string): string | null {
   const d = new Date(yyyy, mm - 1, dd)
   if (isNaN(d.getTime()) || d.getDate() !== dd) return null
   return dateToIso(d)
+}
+
+// Converte valor ISO/Date para o formato {inicio, fim} do CampoCalendarioGlobal.
+// Usado no popover de edição inline da célula tipo='periodo' para sincronizar
+// o calendário com o input texto.
+function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
+  if (!val || typeof val !== 'string') return { inicio: null, fim: null }
+  const d = new Date(val)
+  return { inicio: isNaN(d.getTime()) ? null : d, fim: null }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -530,6 +540,18 @@ const GTEditPopover = memo(function GTEditPopover({
     if (iso) onAtualizar(iso)
   }
 
+  // Calendário selecionou uma data — preenche o input texto sem confirmar.
+  // Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário; ambos
+  // alimentam o mesmo estado periodoText. Confirma com Enter ou botão.
+  function handleCalendarioMudar(val: { inicio: Date | null; fim: Date | null }) {
+    if (val.inicio) {
+      const iso = dateToIso(val.inicio)
+      const br  = val.inicio.toLocaleDateString('pt-BR')
+      setPeriodoText(br)
+      onAtualizar(iso)
+    }
+  }
+
   return (
     <>
       {/* Backdrop — clique fora cancela */}
@@ -693,20 +715,31 @@ const GTEditPopover = memo(function GTEditPopover({
               </div>
             </div>
           ) : isPeriodo ? (
-            /* Input de data com máscara no formato configurado pelo tenant */
-            <input
-              ref={inputRef}
-              autoFocus
-              className="gtv-edit-popover-input"
-              placeholder={placeholderData}
-              value={periodoText}
-              disabled={salvando}
-              onChange={e => handlePeriodoTextChange(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
-              }}
-            />
+            <>
+              {/* Input de data com máscara no formato configurado pelo tenant */}
+              <input
+                ref={inputRef}
+                autoFocus
+                className="gtv-edit-popover-input"
+                placeholder={placeholderData}
+                value={periodoText}
+                disabled={salvando}
+                onChange={e => handlePeriodoTextChange(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                }}
+              />
+              {/* Calendário como opção visual — selecionar preenche o input acima.
+                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário. */}
+              <div style={{ marginTop: 8 }}>
+                <CampoCalendarioGlobal
+                  valor={parseDateValor(valorEditando)}
+                  aoMudarValor={handleCalendarioMudar}
+                  disabled={salvando}
+                />
+              </div>
+            </>
           ) : (
             <input
               ref={inputRef}

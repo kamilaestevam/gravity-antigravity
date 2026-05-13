@@ -69,6 +69,9 @@
 .modal-duplicar__body {
   flex: 1;
   overflow-y: auto;
+  /* `overflow-x: hidden` impede scroll horizontal — nada deve vazar do modal.
+     Conteúdo largo (chips de itens) deve quebrar via flex-wrap, não criar scroll. */
+  overflow-x: hidden;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -127,6 +130,10 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  /* `table-layout: fixed` faz a tabela respeitar as larguras do <colgroup>,
+     impedindo que o conteúdo dos chips (não-quebrável por padrão) force a
+     coluna a crescer e empurrar o input "Número da cópia" pra fora do modal. */
+  table-layout: fixed;
 }
 
 .modal-duplicar__th {
@@ -158,6 +165,12 @@
 .modal-duplicar__td--itens {
   color: var(--color-text-secondary, #94a3b8);
   font-size: 12px;
+  text-align: center;
+}
+
+/* Centraliza header da coluna ITENS (para casar com o conteúdo centralizado) */
+.modal-duplicar__th--itens {
+  text-align: center;
 }
 
 /* Input número */
@@ -395,8 +408,10 @@
 .modal-duplicar__itens-lista {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  max-width: 100%;
+  width: 100%;
+  min-width: 0;
 }
 
 .modal-duplicar__itens-count {
@@ -421,7 +436,11 @@
   flex-wrap: wrap;
   gap: 4px;
   align-items: center;
+  justify-content: center;
+  /* min-width: 0 + flex: 1 1 0 permite o container encolher abaixo do max-content
+     dos filhos — necessário pra flex-wrap funcionar dentro de table-layout: fixed. */
   min-width: 0;
+  flex: 1 1 0;
 }
 
 .modal-duplicar__item-chip {

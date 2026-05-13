@@ -4148,7 +4148,8 @@
       "label_item_singular": "ítem",
       "label_item_plural": "ítems",
       "req_titulo": "Para avanzar, aún falta:",
-      "req_numero_pendente": "Número de la copia para {{pedido}}"
+      "req_numero_pendente": "Número de la copia para {{pedido}}",
+      "itens_extras_titulo": "+{{count}} ítems"
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} seleccionados)",

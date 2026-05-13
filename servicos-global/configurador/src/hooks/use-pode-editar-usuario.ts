@@ -28,6 +28,15 @@ interface AlvoUsuario {
 interface PodeEditarUsuario {
   /** Pode abrir o modal de edição (lápis aparece). */
   podeEditar: boolean
+  /**
+   * Modal abre em modo somente-leitura — todos os campos visíveis mas nenhum
+   * editável, footer sem botão Salvar. Decisão dono 2026-05-13:
+   * - Alvo Master/SAdmin/Admin → sempre read-only (ninguém edita esses tipos via UI)
+   * - Ator ADMIN → sempre read-only (Admin é "read-only global" pela skill)
+   * Combina com Mand. 04 (REGRA LIMBO): Master/SAdmin/Admin têm acesso total
+   * por natureza, não há permissão granular pra "editar".
+   */
+  somenteLeitura: boolean
   /** Pode alterar `tipo_usuario` do alvo (select habilitado). */
   podeAlterarPatente: boolean
   /** Pode substituir vínculos de workspace (PUT /:id/workspaces). */
@@ -40,6 +49,7 @@ interface PodeEditarUsuario {
 
 const DENY: PodeEditarUsuario = {
   podeEditar: false,
+  somenteLeitura: false,
   podeAlterarPatente: false,
   podeAlterarVinculosWorkspace: false,
   tiposPermitidosParaPatente: [],
@@ -80,18 +90,38 @@ export function usePodeEditarUsuario(alvo: AlvoUsuario | null | undefined): Pode
     return { ...DENY, motivoBloqueio: 'Apenas Master ou Super Admin podem editar usuários' }
   }
 
-  // ADMIN é read-only global (decisão dono 2026-05-11 — skill seguranca/permissoes)
+  // ADMIN é read-only global (decisão dono 2026-05-11 — skill seguranca/permissoes).
+  // Atualizado 2026-05-13: agora abre o modal em modo somenteLeitura em vez de
+  // esconder o lápis. Permite visualizar dados/permissões/workspaces/produtos
+  // sem botão Salvar.
   if (ator === 'ADMIN') {
-    return { ...DENY, motivoBloqueio: 'ADMIN é read-only global — visualiza tudo mas não edita' }
+    return {
+      podeEditar: true,
+      somenteLeitura: true,
+      podeAlterarPatente: false,
+      podeAlterarVinculosWorkspace: false,
+      tiposPermitidosParaPatente: [],
+      motivoBloqueio: null,
+    }
   }
 
-  // MASTER: só edita dentro da própria org, e nunca outro MASTER/SAdmin/ADMIN
-  if (ator === 'MASTER') {
-    if (alvo.tipo_usuario === 'MASTER') {
-      return { ...DENY, motivoBloqueio: 'Master não pode editar outro Master' }
-    }
-    if (alvo.tipo_usuario === 'SUPER_ADMIN' || alvo.tipo_usuario === 'ADMIN') {
-      return { ...DENY, motivoBloqueio: 'Master não pode editar usuários Gravity' }
+  // Alvo Master/SAdmin/Admin: modal abre em modo somenteLeitura para qualquer
+  // ator com poder de gestão (decisão dono 2026-05-13). Esses tipos têm
+  // bypass total por natureza (Mand. 04 REGRA LIMBO) — não há o que "editar"
+  // em termos de permissão/workspace/produto. Manter o lápis visível dá a
+  // qualquer gestor a visibilidade do estado atual.
+  const alvoEhAdminLimbo =
+    alvo.tipo_usuario === 'MASTER' ||
+    alvo.tipo_usuario === 'SUPER_ADMIN' ||
+    alvo.tipo_usuario === 'ADMIN'
+  if (alvoEhAdminLimbo) {
+    return {
+      podeEditar: true,
+      somenteLeitura: true,
+      podeAlterarPatente: false,
+      podeAlterarVinculosWorkspace: false,
+      tiposPermitidosParaPatente: [],
+      motivoBloqueio: null,
     }
   }
 
@@ -104,6 +134,7 @@ export function usePodeEditarUsuario(alvo: AlvoUsuario | null | undefined): Pode
 
   return {
     podeEditar: true,
+    somenteLeitura: false,
     podeAlterarPatente: tipos.length > 0,
     podeAlterarVinculosWorkspace: podeAlterarVinculos,
     tiposPermitidosParaPatente: tipos,

@@ -30,9 +30,19 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
     const { id_workspace } = req.params
 
-    // Verifica se o workspace pertence ao tenant
+    // ADMIN/SUPER_ADMIN têm visibilidade cross-org (admin panel global) — não
+    // podem ficar travados no próprio id_organizacao do JWT. Para os demais
+    // (MASTER/PADRAO/FORNECEDOR), mantém o portão tenant-safe (Mand. — isolamento).
+    // Decisão dono 2026-05-12 / bug Admin modal "Editar Usuário" → "Falha ao
+    // carregar produtos contratados" quando o workspace alvo era de outra org.
+    const ehAdminGlobal =
+      req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+
+    // Verifica se o workspace existe (cross-org pra admin, intra-org pros demais)
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: id_workspace, id_organizacao: req.auth.id_organizacao },
+      where: ehAdminGlobal
+        ? { id_workspace: id_workspace }
+        : { id_workspace: id_workspace, id_organizacao: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -42,16 +52,41 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     // Aplica os 3 portões conforme tipo_usuario:
     //   - Master/SAdmin/Admin: Portões 1+2 (assinatura ATIVA + workspace habilitou)
     //   - Standard/Fornecedor: Portões 1+2+3 (+ chave acesso_usuario_produtos_gravity)
-    const slugsAcessiveis = await listarSlugsProdutosAcessiveis(
-      req.auth.id_organizacao,
-      req.auth.id_usuario,
-      id_workspace,
-    )
+    //
+    // Admin cross-org: o serviço busca o usuário pelo par (id_usuario, id_organizacao)
+    // e o ator-admin não existe na org do workspace alvo (vive em Gravity HQ).
+    // Para esse cenário, aplica direto Portões 1+2 contra a org do workspace
+    // (admin tem bypass por natureza — Mand. 04 REGRA LIMBO).
+    const idOrgEfetivo = ehAdminGlobal ? company.id_organizacao : req.auth.id_organizacao
+    const slugsAcessiveis = ehAdminGlobal
+      ? new Set(
+          (await prisma.produtoGravityWorkspace.findMany({
+            where: {
+              id_organizacao: idOrgEfetivo,
+              id_workspace,
+              ativo_produto_gravity_workspace: true,
+              produto: {
+                assinaturas_produto_gravity: {
+                  some: {
+                    id_organizacao: idOrgEfetivo,
+                    status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
+                  },
+                },
+              },
+            },
+            select: { produto: { select: { slug_produto_gravity: true } } },
+          })).map(r => r.produto.slug_produto_gravity),
+        )
+      : await listarSlugsProdutosAcessiveis(
+          idOrgEfetivo,
+          req.auth.id_usuario,
+          id_workspace,
+        )
 
     const companyProducts = await prisma.produtoGravityWorkspace.findMany({
       where: {
         id_workspace: id_workspace,
-        id_organizacao: req.auth.id_organizacao,
+        id_organizacao: idOrgEfetivo,
         ativo_produto_gravity_workspace: true,
         produto: { slug_produto_gravity: { in: [...slugsAcessiveis] } },
       },

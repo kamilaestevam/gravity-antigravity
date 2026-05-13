@@ -286,15 +286,12 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
           href={`${SHELL_URL}/workspace/${item.subdominio_organizacao}`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
+          style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
           onClick={ev => ev.stopPropagation()}
+          onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.color = '#818cf8'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+          onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.color = 'var(--ws-text)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
         >
-          <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s', cursor: 'pointer' }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-          >
-            {item.subdominio_organizacao}.usegravity.com.br
-          </code>
+          {item.subdominio_organizacao}.usegravity.com.br
         </a>
       )
     },
@@ -371,15 +368,12 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
           href={item.subdominio_workspace ? `${SHELL_URL}/workspace/${item.subdominio_workspace}` : '#'}
           target={item.subdominio_workspace ? '_blank' : undefined}
           rel="noopener noreferrer"
-          style={{ textDecoration: 'none' }}
+          style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
           onClick={ev => ev.stopPropagation()}
+          onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.color = '#818cf8'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+          onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.color = 'var(--ws-text)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
         >
-          <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-          >
-            {item.subdominio_workspace}.usegravity.com.br
-          </code>
+          {item.subdominio_workspace}.usegravity.com.br
         </a>
       )
     },

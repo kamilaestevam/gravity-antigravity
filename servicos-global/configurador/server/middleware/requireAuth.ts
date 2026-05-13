@@ -8,7 +8,18 @@ import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 import { auditLog } from '../../../servicos-plataforma/historico-global/src/audit-client.js'
 
-const USER_CACHE_TTL = 60_000 // 1 minuto
+// TTL do cache de usuário no requireAuth.
+// Configurável via env REQUIRE_AUTH_CACHE_TTL_MS — mitigação para kick-out
+// stale em deploy multi-replica (Railway max=3, sem sticky session — ver skill
+// `governanca/operacao/auto-scaling`). Sem fix de Redis pub/sub, baixar TTL
+// reduz a janela onde réplicas-vizinhas mantêm usuário INATIVO no cache.
+// Default 60s preserva comportamento anterior; mínimo defensivo 1s evita
+// cache desabilitado por engano (que dobraria carga no Prisma sem aviso).
+// TODO(multi-replica): substituir por invalidação distribuída via Redis
+// pub/sub canal `requireAuth:invalidate` quando Redis chegar ao Configurador
+// (consolidar com plano em skill `seguranca/rate-limiting`).
+const TTL_RAW = Number.parseInt(process.env.REQUIRE_AUTH_CACHE_TTL_MS ?? '60000', 10)
+const USER_CACHE_TTL = Math.max(1000, Number.isFinite(TTL_RAW) ? TTL_RAW : 60_000)
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
 const userCache = new Map<string, { id_usuario: string; id_organizacao: string; tipo_usuario: string; nome_usuario: string; status_usuario: 'ATIVO' | 'INATIVO'; expiry: number }>()
 

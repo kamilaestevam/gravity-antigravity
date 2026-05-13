@@ -912,11 +912,14 @@ usersRouter.patch('/:id_usuario/status', requireUserManagementRole, async (req, 
     invalidarCacheRequireAuth(alvo.id_clerk_usuario)
 
     // Audit log com diff completo (Mand. 09 + observabilidade-mínima).
-    // Não engole erro silencioso — log estruturado em catch.
-    securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
-      id_usuario_alvo:        alvo.id_usuario,
-      tipo_usuario_anterior:  alvo.tipo_usuario,
-      tipo_usuario_novo:      alvo.tipo_usuario, // tipo não muda nesse PATCH
+    // Fix 2026-05-13: troca roleChanged por statusChanged (dedicada).
+    // Antes: gerava 'ALTERAR_PATENTE' CRITICAL com tipo_usuario_anterior ===
+    // novo (mensagem absurda "de PADRAO para PADRAO"). Agora: 'ALTERAR_
+    // STATUS_USUARIO' WARNING com diff real do status. Não engole erro.
+    securityAudit.statusChanged(req.auth.id_organizacao, req.auth.id_usuario, {
+      id_usuario_alvo:  alvo.id_usuario,
+      status_anterior:  alvo.status_usuario as 'ATIVO' | 'INATIVO',
+      status_novo:      novoStatus,
     }, req.auth.nome_usuario).catch((err) => {
       console.error('[usuarios.patch.status] securityAudit falhou', {
         id_alvo: alvo.id_usuario,
@@ -971,8 +974,11 @@ usersRouter.get('/:id_usuario/permissoes', requireUserManagementRole, async (req
     const id_usuario = req.params.id_usuario
     const id_workspace = typeof req.query.id_workspace === 'string' ? req.query.id_workspace : undefined
 
-    // SUPER_ADMIN tem escopo global; demais limitam à própria organização
-    const alvo = req.auth.tipo_usuario === 'SUPER_ADMIN'
+    // SUPER_ADMIN/ADMIN têm escopo global (admin panel cross-org); MASTER limita
+    // à própria organização. Decisão dono 2026-05-12 — paridade com GET produtos-gravity.
+    const ehAdminGlobal =
+      req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
+    const alvo = ehAdminGlobal
       ? await prisma.usuario.findFirst({
           where: { id_usuario },
           select: { id_organizacao: true },

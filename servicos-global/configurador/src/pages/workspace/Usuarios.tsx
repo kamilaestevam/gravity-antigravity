@@ -98,9 +98,13 @@ function BotaoAcaoUsuario({ alvo, idUsuarioAtor, icone, tooltip, onClick }: Bota
     tipo_usuario: alvo.tipo_usuario as TipoUsuarioBackend,
     organizacao_hospeda_colaboradores_gravity: hospedaColaboradoresGravity,
   })
-  // Anti-escalada por id_usuario — hook só compara por tipo_usuario
+  // Anti-escalada por id_usuario — hook só compara por tipo_usuario.
+  // Em modo somenteLeitura, permite ver a si mesmo (sem risco de auto-edição —
+  // footer sem Salvar). Decisão dono 2026-05-13 — paridade com Admin que
+  // sempre mostra o lápis. ehProprio só bloqueia em modo editável.
   const ehProprio = idUsuarioAtor !== null && idUsuarioAtor === alvo.id_usuario
-  if (!gating.podeEditar || ehProprio) return null
+  if (!gating.podeEditar) return null
+  if (ehProprio && !gating.somenteLeitura) return null
 
   return (
     <TooltipGlobal descricao={tooltip}>
@@ -291,7 +295,12 @@ export function Usuarios() {
       if (ativos.length > 0) mapa[u.id_usuario] = ativos
     }
     setVinculosMap(mapa)
-    setWorkspaces(workspacesResp.workspaces)
+    // Ordem alfabética por nome (paridade UX com Admin) — backend não garante.
+    setWorkspaces(
+      [...workspacesResp.workspaces].sort((a, b) =>
+        a.nome_workspace.localeCompare(b.nome_workspace, 'pt-BR', { sensitivity: 'base' }),
+      ),
+    )
   }
 
   // Carregar usuários e workspaces da API real
@@ -1157,6 +1166,7 @@ export function Usuarios() {
         workspacesSalvos={usuarioEditando ? (vinculosMap[usuarioEditando.id_usuario] ?? []) : []}
         carregandoWorkspaces={carregando}
         tiposPermitidos={tiposPermitidosUI}
+        somenteLeitura={gatingEdicao.somenteLeitura}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, permissoesParaPersistir, workspaceIds) => {
           // Estado original para rollback de UI em caso de erro

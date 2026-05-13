@@ -259,6 +259,49 @@ export const securityAudit = {
   },
 
   /**
+   * Mudança de `status_usuario` (ATIVO ↔ INATIVO). Persistido no enum
+   * `StatusUsuario` do Prisma (decisão dono 2026-05-12).
+   *
+   * Distinto de `roleChanged` (que loga mudança de patente/tipo_usuario):
+   *   - `acao_historico_log = 'ALTERAR_STATUS_USUARIO'` (filtrável separadamente)
+   *   - severidade `WARNING` (não CRITICAL — não muda autorização permanente,
+   *      só bloqueia login. Reversível pelo mesmo admin)
+   *   - diff `{ status_usuario: ... }` reconstrói cronologia
+   *
+   * Histórico (2026-05-13): rotas de PATCH /status usavam roleChanged com
+   * `tipo_usuario_anterior === novo` (mesmo valor) — inflava painel /admin/
+   * seguranca com CRITICAL falsos. Substituído por esta função dedicada.
+   */
+  statusChanged(
+    id_organizacao: string,
+    id_usuario: string,
+    details: {
+      id_usuario_alvo:    string
+      status_anterior:    'ATIVO' | 'INATIVO'
+      status_novo:        'ATIVO' | 'INATIVO'
+    },
+    nome_usuario?: string,
+  ) {
+    return logSecurityEvent({
+      id_organizacao,
+      id_ator_historico_log:          id_usuario,
+      nome_ator_historico_log:        nome_usuario,
+      tipo_ator_historico_log:        AcaoExecutadaPor.USUARIO,
+      acao_historico_log:             'ALTERAR_STATUS_USUARIO',
+      modulo_historico_log:           'configuracao',
+      tipo_recurso_historico_log:     'Usuario',
+      id_recurso_historico_log:       details.id_usuario_alvo,
+      id_usuario:                     details.id_usuario_alvo,
+      detalhe_acao_historico_log:     details.status_novo === 'INATIVO'
+        ? `Desativou usuário ${details.id_usuario_alvo}`
+        : `Reativou usuário ${details.id_usuario_alvo}`,
+      estado_anterior_historico_log:  { status_usuario: details.status_anterior },
+      estado_posterior_historico_log: { status_usuario: details.status_novo },
+      severidade_evento_seguranca:    'WARNING',
+    })
+  },
+
+  /**
    * Tentativa REAL de acesso a outra organização (cross-tenant).
    * Status sempre FALHA — só é logado quando a tentativa foi bloqueada.
    */

@@ -423,7 +423,13 @@ export function UsuariosAdmin() {
           }}>
             {item.nome_usuario.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
-          <span style={{ fontWeight: 600 }}>{item.nome_usuario}</span>
+          {/* Stack vertical: nome em cima, org embaixo, alinhados horizontalmente
+              à direita do avatar. Decisão dono 2026-05-13 — paridade com Configurador
+              (que não tem org), preservando visibilidade cross-org no Admin. */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', minWidth: 0 }}>
+            <span style={{ fontWeight: 600 }}>{item.nome_usuario}</span>
+            <OrgBadge nome={item.nome_organizacao} />
+          </div>
         </div>
       )
     },
@@ -431,11 +437,6 @@ export function UsuariosAdmin() {
       key: 'email_usuario', label: t('admin.usuarios-globais.tabela.email'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.email_acesso'), tooltipDescricao: t('admin.usuarios-globais.tabela.email_acesso_desc'),
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
-    },
-    {
-      key: 'nome_organizacao', label: t('admin.usuarios-globais.tabela.organizacao'), tipo: 'texto',
-      tooltipTitulo: t('admin.usuarios-globais.tabela.org_tooltip'), tooltipDescricao: t('admin.usuarios-globais.tabela.org_desc'),
-      render: (v) => <OrgBadge nome={v as string} />
     },
     {
       key: 'tipo', label: t('admin.usuarios-globais.tabela.tipo'), tipo: 'texto',
@@ -477,6 +478,55 @@ export function UsuariosAdmin() {
           }}>{e.label}</span>
         )
       }
+    },
+    {
+      // ACESSO — paridade com Configurador (workspace/Usuarios.tsx:647).
+      // Master/SAdmin/Admin: chip "✶ Todos os workspaces" (LIMBO Mand. 04).
+      // Standard/Fornecedor: chips com nomes dos workspaces vinculados.
+      // Decisão dono 2026-05-13.
+      key: 'id_usuario', label: t('workspace.users.tabela_acesso', 'Acesso'), tipo: 'texto',
+      tooltipTitulo: 'Workspaces vinculados',
+      tooltipDescricao: 'Workspaces aos quais este usuário tem acesso liberado',
+      render: (_, item) => {
+        const acessoTotal = item.tipo === 'Master' || item.tipo === 'Super Admin' || item.tipo === 'Admin'
+        if (acessoTotal) {
+          return (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+              padding: '0.2rem 0.625rem', borderRadius: '9999px',
+              background: 'rgba(129,140,248,0.1)', color: '#818cf8',
+              fontSize: '0.75rem', fontWeight: 600, fontStyle: 'italic',
+              border: '1px solid rgba(129,140,248,0.2)', whiteSpace: 'nowrap',
+            }}>✶ Todos os workspaces</span>
+          )
+        }
+        if (item.vinculos_workspace.length === 0) {
+          return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>—</span>
+        }
+        const MAX = 2
+        const visiveis = item.vinculos_workspace.slice(0, MAX)
+        const extras = item.vinculos_workspace.length - MAX
+        return (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
+            {visiveis.map(w => (
+              <span key={w.id_workspace} style={{
+                padding: '0.15rem 0.5rem', borderRadius: 6, fontSize: '0.6875rem', fontWeight: 600,
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                color: '#cbd5e1', whiteSpace: 'nowrap',
+              }}>{w.nome_workspace}</span>
+            ))}
+            {extras > 0 && (
+              <TooltipGlobal descricao={item.vinculos_workspace.slice(MAX).map(w => w.nome_workspace).join(', ')}>
+                <span style={{
+                  padding: '0.15rem 0.5rem', borderRadius: 6, fontSize: '0.6875rem', fontWeight: 700,
+                  background: 'rgba(129,140,248,0.1)', color: '#818cf8',
+                  border: '1px solid rgba(129,140,248,0.2)', cursor: 'help',
+                }}>+{extras}</span>
+              </TooltipGlobal>
+            )}
+          </div>
+        )
+      },
     },
   ]
 
@@ -581,7 +631,17 @@ export function UsuariosAdmin() {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" aria-label={t('admin.usuarios-globais.acao_editar')} />,
       tooltip: t('admin.usuarios-globais.acao_editar'),
-      onClick: (u) => { setUsuarioEditando(u); setAbaEditando('dados') },
+      onClick: (u) => {
+        setUsuarioEditando(u)
+        setAbaEditando('dados')
+        // Lazy-load workspaces da org do alvo para que as abas Workspaces
+        // Vinculados / Produtos / Permissões do modal mostrem o catálogo
+        // completo (com selecionados + disponíveis), não só os já vinculados.
+        // Bug histórico: passava apenas u.vinculos_workspace → modal exibia
+        // workspace inexistente "ABC IMPORTADOR" usando id_usuario_workspace
+        // como id_workspace, quebrando o lookup de produtos contratados.
+        void carregarWorkspacesOrg(u.id_organizacao)
+      },
     },
   ]
 
@@ -842,7 +902,7 @@ export function UsuariosAdmin() {
               tipoEnum === 'MASTER' || tipoEnum === 'FORNECEDOR' ? tipoEnum : 'PADRAO'
             return {
               id_usuario_workspace:    v.id_usuario_workspace,
-              id_workspace:            v.id_usuario_workspace,
+              id_workspace:            v.id_workspace, // FK correta — antes usava id_usuario_workspace (bug)
               tipo_usuario_workspace:  tipoVinculo,
               ativo_usuario_workspace: true,
             }
@@ -851,15 +911,14 @@ export function UsuariosAdmin() {
             : usuarioEditando.status === 'Inativo' ? 'INATIVO' : 'CONVIDADO',
         } : null}
         abaInicial={abaEditando}
-        workspaces={usuarioEditando ? usuarioEditando.vinculos_workspace.map(v => ({
-          id_workspace:           v.id_usuario_workspace,
-          nome_workspace:         v.nome_workspace,
-          subdominio_workspace:   v.subdominio_workspace,
-          status_workspace:       'ATIVO',
-          data_criacao_workspace: new Date().toISOString(),
-        })) : []}
-        workspacesSalvos={usuarioEditando?.vinculos_workspace.map(e => e.id_usuario_workspace) ?? []}
+        // Mostra catálogo completo de workspaces da org do alvo (Admin global
+        // pode ver/editar qualquer org). Lazy-load disparado no onClick da
+        // ação de edição via carregarWorkspacesOrg(u.id_organizacao).
+        workspaces={usuarioEditando ? (workspacesPorOrg[usuarioEditando.id_organizacao] ?? []) : []}
+        workspacesSalvos={usuarioEditando?.vinculos_workspace.map(e => e.id_workspace) ?? []}
+        carregandoWorkspaces={usuarioEditando ? carregandoWsOrg.has(usuarioEditando.id_organizacao) : false}
         tiposPermitidos={tiposPermitidosUI}
+        somenteLeitura={podeEditarAlvo.somenteLeitura}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, permissoesParaPersistir, workspaceIds) => {
           // Estado original para rollback em caso de erro (Mand. 08).

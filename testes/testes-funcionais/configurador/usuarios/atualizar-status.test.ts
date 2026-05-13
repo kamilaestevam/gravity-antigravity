@@ -24,14 +24,14 @@ const {
   mockUsuarioUpdate,
   mockUsuarioCount,
   mockTransaction,
-  mockSecurityAuditRoleChanged,
+  mockSecurityAuditStatusChanged,
   mockInvalidarCache,
 } = vi.hoisted(() => ({
   mockUsuarioFindFirst: vi.fn(),
   mockUsuarioUpdate:    vi.fn(),
   mockUsuarioCount:     vi.fn(),
   mockTransaction:      vi.fn(),
-  mockSecurityAuditRoleChanged: vi.fn().mockResolvedValue(undefined),
+  mockSecurityAuditStatusChanged: vi.fn().mockResolvedValue(undefined),
   mockInvalidarCache:   vi.fn(),
 }))
 
@@ -91,7 +91,8 @@ vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
 
 vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: {
-    roleChanged:       mockSecurityAuditRoleChanged,
+    roleChanged:       vi.fn().mockResolvedValue(undefined),
+    statusChanged:     mockSecurityAuditStatusChanged,
     permissionChanged: vi.fn().mockResolvedValue(undefined),
   },
 }))
@@ -178,7 +179,7 @@ const prismaTx = {
 
 // ─── TST-FUN-CONFIG-UAS — PATCH /usuarios/:id/status ─────────────────────────
 describe('TST-FUN-CONFIG-UAS — PATCH /api/v1/usuarios/:id/status', () => {
-  it('1. MASTER inativa PADRAO da mesma org → 200 + Prisma update + cache invalido', async () => {
+  it('1. MASTER inativa PADRAO da mesma org → 200 + Prisma update + cache invalido + audit log correto', async () => {
     const res = await request(app)
       .patch(`/api/v1/usuarios/${ID_USUARIO_ALVO}/status`)
       .send({ status_usuario: 'INATIVO' })
@@ -187,6 +188,15 @@ describe('TST-FUN-CONFIG-UAS — PATCH /api/v1/usuarios/:id/status', () => {
     expect(res.body.usuario.status_usuario).toBe('INATIVO')
     expect(mockUsuarioUpdate).toHaveBeenCalledTimes(1)
     expect(mockInvalidarCache).toHaveBeenCalledWith('user_clerk_001')
+
+    // Audit log usa statusChanged (não roleChanged) — fix 2026-05-13.
+    expect(mockSecurityAuditStatusChanged).toHaveBeenCalledTimes(1)
+    const [idOrg, idAtor, details] = mockSecurityAuditStatusChanged.mock.calls[0]
+    expect(idOrg).toBe(ATOR_MASTER.id_organizacao)
+    expect(idAtor).toBe(ATOR_MASTER.id_usuario)
+    expect(details.id_usuario_alvo).toBe(ID_USUARIO_ALVO)
+    expect(details.status_anterior).toBe('ATIVO')
+    expect(details.status_novo).toBe('INATIVO')
   })
 
   it('2. Auto-protecao — usuário tenta inativar a si mesmo → 403 AUTO_ALTERACAO_BLOQUEADA', async () => {
@@ -293,5 +303,30 @@ describe('TST-FUN-CONFIG-UAS — PATCH /api/v1/usuarios/:id/status', () => {
 
     expect(res.status).toBe(404)
     expect(res.body.error.code).toBe('NOT_FOUND')
+  })
+
+  it('11. MASTER reativa PADRAO INATIVO → audit_log status_anterior=INATIVO → ATIVO', async () => {
+    // Cobertura do branch "Reativou usuário" em securityAuditLogger.statusChanged
+    // (gap apontado pelo QA — antes só validávamos a inativação).
+    mockUsuarioFindFirst.mockResolvedValue({
+      ...ALVO_PADRAO_ATIVO,
+      status_usuario: 'INATIVO', // alvo está INATIVO
+    })
+    mockUsuarioUpdate.mockResolvedValue({
+      id_usuario:     ID_USUARIO_ALVO,
+      email_usuario:  'alvo@example.com',
+      status_usuario: 'ATIVO',
+    })
+
+    const res = await request(app)
+      .patch(`/api/v1/usuarios/${ID_USUARIO_ALVO}/status`)
+      .send({ status_usuario: 'ATIVO' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.usuario.status_usuario).toBe('ATIVO')
+    expect(mockSecurityAuditStatusChanged).toHaveBeenCalledTimes(1)
+    const [, , details] = mockSecurityAuditStatusChanged.mock.calls[0]
+    expect(details.status_anterior).toBe('INATIVO')
+    expect(details.status_novo).toBe('ATIVO')
   })
 })

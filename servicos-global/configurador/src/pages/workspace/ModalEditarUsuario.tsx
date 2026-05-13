@@ -56,6 +56,14 @@ interface ModalEditarUsuarioProps {
    * fica desabilitado (somente leitura).
    */
   tiposPermitidos?: NivelAcesso[]
+  /**
+   * Quando true: footer sem botão Salvar, todos os campos efetivamente desabilitados.
+   * Vem do hook `usePodeEditarUsuario`. Usado quando:
+   * - Alvo é Master/SAdmin/Admin (Mand. 04 — bypass total, nada para editar)
+   * - Ator é ADMIN (read-only global por design)
+   * Decisão dono 2026-05-13.
+   */
+  somenteLeitura?: boolean
   aoFechar: () => void
   /**
    * Recebe as alterações para persistir. `permissoesParaPersistir` é a lista
@@ -462,11 +470,13 @@ function CardEmBreve({ titulo, descricao, icone: Icone }: {
   )
 }
 
-function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto }: {
+function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto, desabilitarEdicao = false }: {
   produto: ProdutoWorkspaceItem
   permissoesDoWorkspace: Set<string>
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
+  /** Read-only mode (Master/SAdmin/Admin) — botoes Tudo/Limpar somem, toggles ficam disabled. */
+  desabilitarEdicao?: boolean
 }) {
   const slug = produto.product_key
   const nome = produto.catalog?.name ?? slug
@@ -487,20 +497,22 @@ function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, o
           <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#e2e8f0' }}>{nome}</span>
           <span style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>{ativasNoProduto}/{TOGGLES_POR_PRODUTO}</span>
         </div>
-        <div style={{ display: 'flex', gap: '0.375rem' }}>
-          <button type="button" onClick={() => onSelecionarTudoProduto(slug, true)}
-            style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
-                     border: '1px solid #10b981', color: '#10b981', fontSize: '0.6875rem', fontWeight: 600,
-                     cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <CheckSquare size={11} weight="bold" /> Tudo
-          </button>
-          <button type="button" onClick={() => onSelecionarTudoProduto(slug, false)}
-            style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
-                     border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.6875rem', fontWeight: 600,
-                     cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <Square size={11} weight="bold" /> Limpar
-          </button>
-        </div>
+        {!desabilitarEdicao && (
+          <div style={{ display: 'flex', gap: '0.375rem' }}>
+            <button type="button" onClick={() => onSelecionarTudoProduto(slug, true)}
+              style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
+                       border: '1px solid #10b981', color: '#10b981', fontSize: '0.6875rem', fontWeight: 600,
+                       cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <CheckSquare size={11} weight="bold" /> Tudo
+            </button>
+            <button type="button" onClick={() => onSelecionarTudoProduto(slug, false)}
+              style={{ padding: '0.25rem 0.625rem', borderRadius: 4, background: 'transparent',
+                       border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.6875rem', fontWeight: 600,
+                       cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Square size={11} weight="bold" /> Limpar
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '0.75rem 1rem' }}>
@@ -526,13 +538,15 @@ function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, o
                   <button
                     key={a.id}
                     type="button"
-                    onClick={() => onTogglePermissao(chave, !marcada)}
+                    disabled={desabilitarEdicao}
+                    onClick={() => { if (!desabilitarEdicao) onTogglePermissao(chave, !marcada) }}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: '0.4rem', borderRadius: 6, cursor: 'pointer',
+                      padding: '0.4rem', borderRadius: 6, cursor: desabilitarEdicao ? 'not-allowed' : 'pointer',
                       background: marcada ? 'rgba(129,140,248,0.15)' : 'rgba(255,255,255,0.02)',
                       border: marcada ? '1px solid rgba(129,140,248,0.4)' : '1px solid rgba(255,255,255,0.08)',
                       color: marcada ? '#818cf8' : '#475569', transition: 'all 0.15s',
+                      opacity: desabilitarEdicao ? 0.85 : 1,
                     }}
                   >
                     {marcada ? <CheckSquare size={16} weight="fill" /> : <Square size={16} weight="regular" />}
@@ -574,15 +588,11 @@ function AbaProdutosAcesso({
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos,
   onSelecionarWorkspace, onToggleAcessoProduto,
 }: AbaProdutosAcessoProps) {
-  if (master) {
-    return (
-      <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <BannerBypassMasterAdmin tipo={tipo} />
-      </div>
-    )
-  }
+  // master = bypass total (Mand. 04). Banner em cima + visualizacao read-only abaixo.
+  // Implementacao: prossegue com o render normal mas com checkboxes disabled.
+  // Decisao dono 2026-05-13.
 
-  if (workspacesVinculados.length === 0) {
+  if (!master && workspacesVinculados.length === 0) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
         Vincule este usuário a pelo menos um workspace na aba &quot;Workspaces Vinculados&quot;
@@ -595,10 +605,13 @@ function AbaProdutosAcesso({
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {erroCargaPermissoes && (
+      {/* Master/SAdmin/Admin (Mand. 04) — banner no topo + visualizacao read-only abaixo */}
+      {master && <BannerBypassMasterAdmin tipo={tipo} />}
+
+      {!master && erroCargaPermissoes && (
         <AvisoErroCarga mensagem={erroCargaPermissoes} contexto="permissões existentes" />
       )}
-      {erroCargaProdutos && (
+      {!master && erroCargaProdutos && (
         <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
       )}
 
@@ -645,6 +658,7 @@ function AbaProdutosAcesso({
                   label={nome}
                   selecionado={marcado}
                   onChange={(v) => onToggleAcessoProduto(slug, v)}
+                  desabilitado={master}
                 />
               )
             })}
@@ -660,17 +674,14 @@ function AbaPermissoes({
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
   onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto,
 }: AbaPermissoesProps & { tipo: NivelAcesso }) {
-  // Bypass — exibe apenas banner informativo
-  if (master) {
-    return (
-      <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <BannerBypassMasterAdmin tipo={tipo} />
-      </div>
-    )
-  }
+  // master = bypass total (Mand. 04). Renderiza banner em cima e abaixo a
+  // visualizacao read-only do que esse usuario enxerga (tudo marcado + disabled).
+  // Implementacao: prossegue com o render normal mas com `desabilitarEdicao={master}`
+  // propagado pra checkboxes/botoes. Default 2026-05-13 — decisao dono.
 
-  // Standard/Fornecedor sem workspaces vinculados — orienta a vincular antes
-  if (workspacesVinculados.length === 0) {
+  // Standard/Fornecedor sem workspaces vinculados — orienta a vincular antes.
+  // Master nao cai aqui (workspacesVinculados ja vem com todos os ws da org).
+  if (!master && workspacesVinculados.length === 0) {
     return (
       <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
         Vincule este usuário a pelo menos um workspace na aba "Workspaces Vinculados"
@@ -684,14 +695,17 @@ function AbaPermissoes({
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Avisos de erro de carga (Mandamento 08) */}
-      {erroCargaPermissoes && (
+      {/* Master/SAdmin/Admin (Mand. 04) — banner no topo + visualizacao read-only abaixo */}
+      {master && <BannerBypassMasterAdmin tipo={tipo} />}
+
+      {/* Avisos de erro de carga (Mandamento 08) — ocultos em modo leitura para nao confundir */}
+      {!master && erroCargaPermissoes && (
         <AvisoErroCarga mensagem={erroCargaPermissoes} contexto="permissões existentes" />
       )}
-      {erroCargaProdutos && (
+      {!master && erroCargaProdutos && (
         <AvisoErroCarga mensagem={erroCargaProdutos} contexto="produtos contratados" />
       )}
-      {erroSalvar && (
+      {!master && erroSalvar && (
         <AvisoErroCarga mensagem={erroSalvar} contexto="salvar permissões" />
       )}
 
@@ -765,6 +779,7 @@ function AbaPermissoes({
                 permissoesDoWorkspace={permissoesDoWorkspace}
                 onTogglePermissao={onTogglePermissao}
                 onSelecionarTudoProduto={onSelecionarTudoProduto}
+                desabilitarEdicao={master}
               />
             ))}
             {produtosEmBreve.map(p => (
@@ -782,7 +797,7 @@ function AbaPermissoes({
   )
 }
 
-export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, tiposPermitidos = [], aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, tiposPermitidos = [], somenteLeitura = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -814,7 +829,13 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     setWorkspacesAtivos(workspacesSalvos)
 
     // Default workspace selecionado: primeiro vinculado.
-    setWorkspaceSelecionado(workspacesSalvos[0] ?? null)
+    // Master/SAdmin/Admin não têm linhas em UsuarioWorkspace (bypass Mand. 04),
+    // mas o modal-leitura precisa de um ws selecionado pra carregar o catálogo
+    // de produtos/permissões. Fallback: primeiro workspace da org.
+    const ehMasterLimbo = nivel === 'Master' || nivel === 'Super Admin' || nivel === 'Admin'
+    setWorkspaceSelecionado(
+      workspacesSalvos[0] ?? (ehMasterLimbo ? workspaces[0]?.id_workspace ?? null : null),
+    )
 
     // Busca permissões reais do banco. Master/SAdmin/Admin têm bypass — não há
     // linhas em UsuarioPermissao para eles (Mand. 04). Para Standard/Fornecedor,
@@ -949,10 +970,12 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   }, [master, workspaceSelecionado, produtosPorWorkspace])
 
   // Workspaces vinculados (apenas linhas em UsuarioWorkspace) — para o seletor
-  // da aba Permissões. Master/Admin/SAdmin não passam por aqui (banner cobre).
+  // da aba Permissões. Master/Admin/SAdmin não têm linhas em UsuarioWorkspace
+  // (bypass Mand. 04), mas o modo-leitura precisa exibir todos os ws da org
+  // para mostrar permissões/produtos. Quando master, usa o catálogo inteiro.
   const workspacesVinculados = useMemo<WorkspaceItem[]>(
-    () => workspaces.filter(w => workspacesAtivos.includes(w.id_workspace)),
-    [workspaces, workspacesAtivos],
+    () => master ? workspaces : workspaces.filter(w => workspacesAtivos.includes(w.id_workspace)),
+    [master, workspaces, workspacesAtivos],
   )
 
   // Total de toggles disponíveis = produtos ativos no ws selecionado × 12 (6 seções × 2 ações).
@@ -960,7 +983,26 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   const produtosAtivosNoWs = produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key))
   const totalToggles = master ? 0 : produtosAtivosNoWs.length * TOGGLES_POR_PRODUTO
   const permissoesAtivasDoWs = workspaceSelecionado ? (permissoesPorWorkspace[workspaceSelecionado] ?? []) : []
-  const permissoesDoWorkspaceSet = useMemo(() => new Set(permissoesAtivasDoWs), [permissoesAtivasDoWs])
+  // Master/SAdmin/Admin: modo-leitura mostra TUDO marcado (bypass total — Mand. 04).
+  // Gera as 12 chaves granulares (6 secoes x 2 acoes) + chave Portao 3 para cada
+  // produto ativo do ws selecionado. Permite ao gestor ver "o que esse usuario enxerga".
+  const permissoesDoWorkspaceSet = useMemo(() => {
+    if (!master) return new Set(permissoesAtivasDoWs)
+    const todas = new Set<string>()
+    for (const p of produtosDoWsSelecionado) {
+      if (!p.is_active) continue
+      // Portao 3 — acesso ao produto inteiro (aba Produtos)
+      todas.add(buildAcessoUsuarioProdutosGravityString(p.product_key))
+      // Granulares (aba Permissoes) — so produtos que ja tem permissoes implementadas
+      if (!PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key)) continue
+      for (const s of SECOES_PRODUTO_RENDER) {
+        for (const a of ACOES_PRODUTO_RENDER) {
+          todas.add(`${p.product_key}:${s.id}:${a.id}`)
+        }
+      }
+    }
+    return todas
+  }, [master, permissoesAtivasDoWs, produtosDoWsSelecionado])
   // Count para a aba "Permissões" — só toggles granulares (exclui chaves de Portão 3)
   const countPermissoes = master ? '✶' : permissoesAtivasDoWs.filter(p => !ehPermissaoAcessoUsuarioProdutoGravity(p)).length
 
@@ -997,6 +1039,9 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       id: 'dados',
       rotulo: t('workspace.users.aba_dados'),
       icone: 'user',
+      // Modo somente-leitura (alvo Master/SAdmin/Admin ou ator ADMIN) — esconde
+      // todo o footer (Salvar + Cancelar). Decisão dono 2026-05-13.
+      ocultarBotoesSalvar: somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaDados nome={nome} email={email} tipo={tipo} tiposPermitidos={tiposPermitidos} workspaces={workspaces} workspacesSalvos={workspacesSalvos} onValoresChange={handleValoresChange} />
@@ -1012,6 +1057,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         ? `${t('workspace.users.aba_permissoes')} (✶)`
         : `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${totalToggles})`,
       icone: 'shield-check',
+      ocultarBotoesSalvar: somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaPermissoes
@@ -1039,6 +1085,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       id: 'espacos',
       rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
+      ocultarBotoesSalvar: somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaWorkspaces
@@ -1062,6 +1109,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         ? `${t('workspace.users.aba_produtos', 'Produtos')} (✶)`
         : `${t('workspace.users.aba_produtos', 'Produtos')} (${countProdutosAcesso}/${totalProdutosAcessiveis})`,
       icone: 'cube',
+      ocultarBotoesSalvar: somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaProdutosAcesso
@@ -1083,7 +1131,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, countProdutosAcesso, totalProdutosAcessiveis, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos])
+  ], [nome, email, tipo, tiposPermitidos, master, countPermissoes, totalToggles, countProdutosAcesso, totalProdutosAcessiveis, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
 
   // Dirty: comparar mapa atual de permissões com mapa carregado do backend
   // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões

@@ -34,6 +34,7 @@ import { organizacoesRouter } from './routes/organizacao.js'
 import { usersRouter } from './routes/usuario.js'
 import { billingRouter } from './routes/fatura-produto-gravity.js'
 import { accessRouter } from './routes/acesso.js'
+import { workspacesHabilitadosInternalRouter } from './routes/workspaces-habilitados-internal.js'
 import { adminRouter } from './routes/admin.js'
 import { productsRouter } from './routes/produto-gravity.js'
 import { assinaturaProdutoGravityRouter } from './routes/assinatura-produto-gravity.js'
@@ -53,6 +54,12 @@ import { prisma } from './lib/prisma.js'
 
 export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
+
+// ─── Trust proxy ────────────────────────────────────────────────────────────
+// Necessário em produção (Railway / load balancer): faz Express ler IP real
+// do cliente em `X-Forwarded-For` em vez de usar o IP do LB.
+// Audit log forense (admin-empresas, etc.) depende disso.
+app.set('trust proxy', true)
 
 // ─── Middlewares globais ────────────────────────────────────────────────────
 
@@ -161,6 +168,7 @@ app.use('/api/v1/tokens-servico', serviceTokenRouter)
 
 app.use('/api/v1/internal', accessRouter)
 app.use('/api/v1/internal', serviceTokenRouter)
+app.use('/api/v1/internal/usuarios', workspacesHabilitadosInternalRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
@@ -216,9 +224,11 @@ app.use(authErrorLogger)
 
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/api-cockpit.js'
 import { adminNcmIntegracaoRouter } from './routes/admin-ncm-integracao.js'
+import { adminEmpresasRouter } from './routes/admin-empresas.js'
 app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por organização
 app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
+app.use('/api/v1/admin/empresas', adminEmpresasRouter)            // admin: empresas/parceiros cross-organização (audit logged)
 
 // ─── Taxas de moeda (PTAX) — sem auth (dados públicos do BCB) ──────────────
 

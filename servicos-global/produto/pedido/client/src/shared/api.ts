@@ -202,6 +202,45 @@ function pid(id: string): string {
   return encodeURIComponent(id)
 }
 
+// ── Workspaces disponíveis ao usuário (consumido pela Lista — filtro multi-workspace)
+//
+// Reaproveita o endpoint do Configurador `/api/v1/hub/init`, que já aplica a
+// regra correta de visibilidade:
+//   - SUPER_ADMIN/ADMIN/MASTER → todos workspaces ATIVOS da org
+//   - PADRAO/FORNECEDOR        → apenas workspaces habilitados (UsuarioWorkspace.ativo)
+//
+// Dívida sinalizada: quando outro produto precisar dessa lista, migrar para
+// ShellStore global (evita duplicação de fetch). Hoje cada produto faz o
+// próprio request — caminho isolado por questão de escopo.
+
+export interface WorkspaceDisponivel {
+  id_workspace: string
+  nome_workspace: string
+  cnpj_workspace?: string | null
+  status_workspace: string
+}
+
+export const workspacesDisponiveisApi = {
+  listar: async (): Promise<WorkspaceDisponivel[]> => {
+    const raw = await request<unknown>('/api/v1/hub/init')
+    // /hub/init retorna muitos campos. Só precisamos da lista de workspaces.
+    if (typeof raw !== 'object' || raw === null || !('workspaces' in raw)) {
+      return []
+    }
+    const lista = (raw as { workspaces?: unknown }).workspaces
+    if (!Array.isArray(lista)) return []
+    return lista
+      .filter((w): w is Record<string, unknown> => typeof w === 'object' && w !== null)
+      .map((w) => ({
+        id_workspace:    String(w.id_workspace ?? w.id ?? ''),
+        nome_workspace:  String(w.nome_workspace ?? ''),
+        cnpj_workspace:  w.cnpj_workspace == null ? null : String(w.cnpj_workspace),
+        status_workspace: String(w.status_workspace ?? 'ATIVO'),
+      }))
+      .filter((w) => w.id_workspace && w.nome_workspace)
+  },
+}
+
 export const pedidoApi = {
   listar: (params?: Record<string, string>) => {
     const query = params ? '?' + new URLSearchParams(params).toString() : ''
@@ -286,7 +325,13 @@ export const pedidoItemApi = {
 // ── Cursor pagination + inline edit ───────────────────────────────────────────
 
 export const pedidoVirtualApi = {
-  /** Listagem com cursor keyset — para TabelaVirtualGlobal */
+  /**
+   * Listagem com cursor keyset — para TabelaVirtualGlobal.
+   *
+   * Filtro multi-workspace via `idsWorkspacesFiltro` (vira query param CSV
+   * `?ids_workspaces=cmo1,cmo2`). Backend valida contra UsuarioWorkspace
+   * habilitados; se algum não autorizado → 403.
+   */
   listar: (params: {
     cursor?: string
     page?: number
@@ -295,6 +340,8 @@ export const pedidoVirtualApi = {
     limit?: number
     status?: string
     busca?: string
+    /** Filtro multi-workspace (lista de IDs). Vence sobre o header x-id-workspace. */
+    idsWorkspacesFiltro?: string[]
   } = {}) => {
     const q = new URLSearchParams()
     if (params.cursor)         q.set('cursor', params.cursor)
@@ -304,15 +351,21 @@ export const pedidoVirtualApi = {
     if (params.limit)            q.set('limit', String(params.limit))
     if (params.status)           q.set('status', params.status)
     if (params.busca)            q.set('busca', params.busca)
+    if (params.idsWorkspacesFiltro && params.idsWorkspacesFiltro.length > 0) {
+      q.set('ids_workspaces', params.idsWorkspacesFiltro.join(','))
+    }
     return request<PedidosListResponse>(`/api/v1/pedidos?${q}`)
   },
 
   /** Contar total de matches find-in-page no banco (pedidos + itens) */
-  localizar: (params: { termo: string; status?: string; busca?: string }) => {
+  localizar: (params: { termo: string; status?: string; busca?: string; idsWorkspacesFiltro?: string[] }) => {
     const q = new URLSearchParams()
     q.set('termo', params.termo)
     if (params.status) q.set('status', params.status)
     if (params.busca)  q.set('busca', params.busca)
+    if (params.idsWorkspacesFiltro && params.idsWorkspacesFiltro.length > 0) {
+      q.set('ids_workspaces', params.idsWorkspacesFiltro.join(','))
+    }
     return request<{ total: number }>(`/api/v1/pedidos/localizar?${q}`)
   },
 

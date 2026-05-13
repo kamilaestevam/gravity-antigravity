@@ -20,6 +20,16 @@
 export { resolverOrganizacao } from './middleware.js';
 export { verificarAcessoProduto } from './verificar-acesso-produto.js';
 export { withOrganizacao, withOrganizacaoContext } from './with-tenant.js';
+export { obterWorkspacesHabilitadosDoUsuario } from './obter-workspaces-habilitados.js';
+export type {
+  ObterWorkspacesHabilitadosInput,
+  ObterWorkspacesHabilitadosOutput,
+} from './obter-workspaces-habilitados.js';
+export { obterWorkspaces } from './obter-workspaces.js';
+export type {
+  ObterWorkspacesInput,
+  WorkspaceLookupItem,
+} from './obter-workspaces.js';
 
 // Tipos públicos
 export type {

@@ -62,12 +62,36 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     // Fix: para Master/SAdmin/Admin mantém acesso global (Mand. 04 — não tem
     // UsuarioWorkspace, mas vê tudo da própria org). Para Standard/Fornecedor,
     // filtra workspaces onde existe membership ativo do usuário.
+    //
+    // Bug adicional descoberto em 2026-05-13 (dono): TODOS os usuários (inclusive
+    // Master/SAdmin/Admin) viam workspaces INATIVO. A regra correta é:
+    //   - Admin/SAdmin/Master → workspaces ATIVO da org (ainda sem UsuarioWorkspace)
+    //   - PADRAO/FORNECEDOR  → workspaces ATIVO da org AND habilitado via UsuarioWorkspace
+    // Em ambos os casos: status_workspace = 'ATIVO'. Workspaces INATIVO só
+    // aparecem em telas administrativas (Configurações).
     const ehAdminPlataforma = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'MASTER'
     const workspacesPromise = ehAdminPlataforma
-      ? organizacaoService.getWorkspaces(id_organizacao)
+      ? prisma.workspace.findMany({
+          where: { id_organizacao, status_workspace: 'ATIVO' },
+          select: {
+            id_workspace: true,
+            nome_workspace: true,
+            subdominio_workspace: true,
+            cnpj_workspace: true,
+            status_workspace: true,
+            data_criacao_workspace: true,
+            _count: { select: { memberships: true } },
+          },
+          orderBy: { data_criacao_workspace: 'desc' },
+        }).then((rows) => rows.map(({ _count, ...rest }) => ({
+          ...rest,
+          quantidade_usuarios_workspace: _count.memberships,
+          _count: { vinculos_workspace: _count.memberships },
+        })))
       : prisma.workspace.findMany({
           where: {
             id_organizacao,
+            status_workspace: 'ATIVO',
             memberships: {
               some: { id_usuario, ativo_usuario_workspace: true },
             },

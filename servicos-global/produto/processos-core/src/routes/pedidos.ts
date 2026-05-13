@@ -27,7 +27,7 @@ import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
-import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
+import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario } from '@gravity/resolver-organizacao'
 import { saldoPedido, AppError } from '../services/saldo-pedido.js'
 import {
   parsearFormula,
@@ -470,7 +470,20 @@ async function injetarValoresColunasUsuario<T extends { id_pedido: string }>(
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
 
 // Campos suportados como sort key no cursor pagination
-export const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'created_at', 'updated_at'] as const
+// P19/Q2 — `data_atualizacao_pedido` adicionado e promovido a sort default em
+// inicializacao-pedido.ts. Garante que pedidos recem-criados ou recem-editados
+// aparecam no topo da lista (Prisma @updatedAt atualiza em todo write).
+// `created_at` e `updated_at` mantidos por compat com clientes antigos, mas
+// nao mapeiam para colunas reais do banco — uso desencorajado.
+export const CURSOR_SORT_FIELDS = [
+  'data_emissao_pedido',
+  'data_atualizacao_pedido',
+  'data_criacao_pedido',
+  'numero_pedido',
+  'valor_total_pedido',
+  'created_at',
+  'updated_at',
+] as const
 export type CursorSortField = typeof CURSOR_SORT_FIELDS[number]
 
 export interface CursorPayload {
@@ -503,10 +516,67 @@ function decodeCursor(encoded: string): CursorPayload | null {
   }
 }
 
+// ── Helper: parse de query param CSV ─────────────────────────────────────────
+//
+// Express expõe `req.query[chave]` como `string | string[] | ParsedQs | undefined`.
+// Para CSV (ex: ?ids_workspaces=cmo1,cmo2,cmo3) precisamos normalizar.
+// Retorna `string[]` válido (trim, dedup, sem vazios) ou `undefined` se ausente.
+function parseCsvQueryParam(raw: unknown): string[] | undefined {
+  if (raw === undefined || raw === null) return undefined
+  // Express pode entregar array (ex: ?ids=a&ids=b) ou string ("a,b"). Aceita ambos.
+  const items = Array.isArray(raw)
+    ? raw.flatMap((v) => (typeof v === 'string' ? v.split(',') : []))
+    : typeof raw === 'string'
+      ? raw.split(',')
+      : []
+  const limpos = Array.from(new Set(items.map((s) => s.trim()).filter(Boolean)))
+  return limpos.length > 0 ? limpos : undefined
+}
+
+// ── Validação multi-workspace ────────────────────────────────────────────────
+//
+// Quando o query param `ids_workspaces` vem na requisição, chamamos o
+// Configurador (S2S) para obter a lista de workspaces que o usuário pode
+// acessar. Cruzamos com o que foi solicitado:
+//   - SUPER_ADMIN/ADMIN/MASTER → S2S retorna todos os workspaces ATIVOS da org
+//   - PADRAO/FORNECEDOR        → S2S retorna apenas habilitados (UsuarioWorkspace.ativo)
+//
+// IDs solicitados que não estão em `habilitados` = bloqueados → resposta 403
+// com a lista explícita (Mand. 08 — falha ruidosa, sem fallback silencioso).
+// Cross-org coberto automaticamente: workspace de outra org não aparece em
+// `habilitados`, cai em `bloqueados`.
+async function validarMultiWorkspace(
+  ctx: ContextoOrganizacao,
+  idsSolicitados: string[],
+): Promise<{ valido: true } | { valido: false; bloqueados: string[] }> {
+  const baseUrl = process.env.CONFIGURATOR_URL
+  const chave = process.env.CHAVE_INTERNA_SERVICO
+  if (!baseUrl || !chave) {
+    throw new AppError(
+      'Configuração ausente: CONFIGURATOR_URL ou CHAVE_INTERNA_SERVICO',
+      500,
+      'CONFIG_ERROR',
+    )
+  }
+  const { workspacesHabilitados } = await obterWorkspacesHabilitadosDoUsuario({
+    configuradorBaseUrl: baseUrl,
+    chaveInterna: chave,
+    idOrganizacao: ctx.idOrganizacao,
+    idUsuario: ctx.idUsuario,
+  })
+  const habilitadosSet = new Set(workspacesHabilitados)
+  const bloqueados = idsSolicitados.filter((id) => !habilitadosSet.has(id))
+  if (bloqueados.length > 0) return { valido: false, bloqueados }
+  return { valido: true }
+}
+
 // ── GET / — Listar pedidos ────────────────────────────────────────────────────
 // Suporta dois modos de paginação:
 //   - Cursor: ?cursor=<base64>&sort=data_emissao_pedido&dir=desc&limit=50
 //   - Offset: ?page=1&limit=20 (backward compat)
+// Suporta filtro multi-workspace via ?ids_workspaces=cmo1,cmo2 (CSV).
+// Header x-id-workspace continua single (Portão 3 exige). Query param vence
+// sobre header quando ambos vêm.
 
 pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -520,10 +590,33 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // que criava filtro impossivel (id_workspace = id_organizacao nunca bate).
       const idWorkspace = req.headers['x-id-workspace'] as string | undefined
 
-      const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
+      const { status, tipo_operacao, busca, cursor, page, limit, sort, dir, ids_workspaces } = req.query
+
+      // Filtro multi-workspace (query param vence sobre header). Header continua
+      // single para o Portão 3. Quando ids_workspaces vem com >= 1 valor, ele
+      // substitui o filtro do header — validado a seguir contra permissões.
+      const idsWorkspacesQuery = parseCsvQueryParam(ids_workspaces)
+
+      if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+        const validacao = await validarMultiWorkspace(ctx, idsWorkspacesQuery)
+        if (!validacao.valido) {
+          return res.status(403).json({
+            error: {
+              code: 'WORKSPACE_NAO_AUTORIZADO',
+              message:
+                `${validacao.bloqueados.length} workspace(s) não autorizado(s) para este usuário`,
+              workspaces_bloqueados: validacao.bloqueados,
+            },
+          })
+        }
+      }
 
       const where: Record<string, unknown> = { id_organizacao: idOrganizacao, data_exclusao_pedido: null }
-      if (idWorkspace) where.id_workspace = idWorkspace
+      if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+        where.id_workspace = { in: idsWorkspacesQuery }
+      } else if (idWorkspace) {
+        where.id_workspace = idWorkspace
+      }
       if (status) {
         const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
         where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]
@@ -535,7 +628,9 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 
       // ── Cursor pagination ──
       if (cursor !== undefined) {
-        const sortField = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_emissao_pedido') as CursorSortField
+        // P19/Q2 — default `data_atualizacao_pedido` para garantir que criados/editados
+        // apareçam no topo. Consistente com inicializacao-pedido.ts.
+        const sortField = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_atualizacao_pedido') as CursorSortField
         const sortDir = dir === 'asc' ? 'asc' : 'desc'
         const limitNum = Math.min(Math.max(Number(limit ?? 50), 1), 200)
 
@@ -657,17 +752,18 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 
 pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFunction) => {
   const localizarSchema = z.object({
-    termo:         z.string().min(1).max(200),
-    status:        z.string().optional(),
-    tipo_operacao: z.string().optional(),
-    busca:         z.string().optional(),
+    termo:           z.string().min(1).max(200),
+    status:          z.string().optional(),
+    tipo_operacao:   z.string().optional(),
+    busca:           z.string().optional(),
+    ids_workspaces:  z.string().optional(),    // CSV — filtro multi-workspace
   })
   const result = localizarSchema.safeParse(req.query)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Parametros invalidos', details: result.error.flatten() } })
   }
 
-  const { termo, status, tipo_operacao, busca } = result.data
+  const { termo, status, tipo_operacao, busca, ids_workspaces } = result.data
 
   try {
     await withOrganizacao(req, async (rawDb) => {
@@ -677,8 +773,31 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
       const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      // WHERE base (tenant_id injetado também pelo $extends após fix do count)
-      const whereBase: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
+      // Filtro multi-workspace (query param vence sobre header). Mesma regra
+      // do GET principal — valida permissões antes de aplicar.
+      const idsWorkspacesQuery = parseCsvQueryParam(ids_workspaces)
+      if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+        const validacao = await validarMultiWorkspace(ctx, idsWorkspacesQuery)
+        if (!validacao.valido) {
+          return res.status(403).json({
+            error: {
+              code: 'WORKSPACE_NAO_AUTORIZADO',
+              message:
+                `${validacao.bloqueados.length} workspace(s) não autorizado(s) para este usuário`,
+              workspaces_bloqueados: validacao.bloqueados,
+            },
+          })
+        }
+      }
+
+      // WHERE base. Mantém nomes legacy (tenant_id/company_id) para
+      // compatibilidade com o resto desta rota — refactor DDD pendente.
+      const whereBase: Record<string, unknown> = { tenant_id, deleted_at: null }
+      if (idsWorkspacesQuery && idsWorkspacesQuery.length > 0) {
+        whereBase.company_id = { in: idsWorkspacesQuery }
+      } else {
+        whereBase.company_id = company_id
+      }
       if (status) {
         const statusList = status.split(',').map(s => s.trim()).filter(Boolean)
         whereBase.status = statusList.length > 1 ? { in: statusList } : statusList[0]

@@ -111,11 +111,55 @@ export interface ConfiguradorClient {
     slugProduto: string;
     idCorrelacao?: string;
   }): Promise<{ permitido: boolean; motivo?: string }>;
+  /**
+   * Resolve a lista de workspaces que o usuário pode acessar dentro de uma
+   * organização. SSOT do projeto para validação de listas multi-workspace.
+   *
+   * Master/SAdmin/Admin → todos os workspaces ATIVOS da org.
+   * Padrão/Fornecedor   → apenas workspaces onde UsuarioWorkspace.ativo = true.
+   *
+   * Response sempre `string[]` (lista de IDs). Consumer faz set intersection
+   * sem branching extra.
+   */
+  obterWorkspacesHabilitadosDoUsuario(args: {
+    idOrganizacao: string;
+    idUsuario: string;
+    idCorrelacao?: string;
+  }): Promise<{ tipoUsuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'; workspacesHabilitados: string[] }>;
+  /**
+   * Batch lookup de dados de workspaces — usado por produtos que precisam
+   * snapshot de nome+CNPJ do workspace (ex: Pedido auto-fill ao trocar
+   * tipo_operacao). IDs ausentes simplesmente não aparecem na resposta
+   * (Mand. 08: chamador decide tratamento).
+   */
+  obterWorkspaces(args: {
+    ids: string[];
+    idCorrelacao?: string;
+  }): Promise<Array<{
+    idWorkspace: string;
+    idOrganizacao: string;
+    nomeWorkspace: string;
+    cnpjWorkspace: string | null;
+  }>>;
 }
 
 const AcessoProdutoResponseSchema = z.object({
   permitido: z.boolean(),
   motivo: z.string().optional(),
+});
+
+const WorkspacesHabilitadosResponseSchema = z.object({
+  tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  workspaces_habilitados: z.array(z.string()),
+});
+
+const WorkspacesBatchResponseSchema = z.object({
+  workspaces: z.array(z.object({
+    id_workspace:   z.string(),
+    id_organizacao: z.string(),
+    nome_workspace: z.string(),
+    cnpj_workspace: z.string().nullable(),
+  })),
 });
 
 export function createConfiguradorClient(opts: ConfiguradorClientOptions): ConfiguradorClient {
@@ -250,6 +294,83 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
       }
       return parsed.data;
     },
+
+    async obterWorkspacesHabilitadosDoUsuario({ idOrganizacao, idUsuario, idCorrelacao = randomUUID() }) {
+      const params = new URLSearchParams({ id_organizacao: idOrganizacao });
+      const res = await fetchWithRetry(
+        `${opts.baseUrl}/api/v1/internal/usuarios/${encodeURIComponent(idUsuario)}/workspaces-habilitados?${params.toString()}`,
+        baseHeaders(idCorrelacao),
+        timeoutMs,
+        retries,
+      );
+
+      if (res.status === 404) {
+        throw new AppError('Usuário não encontrado', 404, 'USUARIO_NOT_FOUND');
+      }
+      if (res.status === 403) {
+        throw new AppError(
+          'Usuário não pertence à organização informada',
+          403,
+          'ORGANIZACAO_MISMATCH',
+        );
+      }
+      if (!res.ok) {
+        throw new AppError(
+          `Configurador retornou HTTP ${res.status} ao obter workspaces habilitados`,
+          503,
+          'CONFIGURADOR_UNAVAILABLE',
+        );
+      }
+
+      const raw: unknown = await res.json();
+      const parsed = WorkspacesHabilitadosResponseSchema.safeParse(raw);
+      if (!parsed.success) {
+        throw new AppError(
+          'Resposta inválida do Configurador (workspaces-habilitados)',
+          503,
+          'CONFIGURADOR_INVALID_RESPONSE',
+        );
+      }
+      return {
+        tipoUsuario: parsed.data.tipo_usuario,
+        workspacesHabilitados: parsed.data.workspaces_habilitados,
+      };
+    },
+
+    async obterWorkspaces({ ids, idCorrelacao = randomUUID() }) {
+      if (ids.length === 0) return [];
+      const params = new URLSearchParams({ ids: ids.join(',') });
+      const res = await fetchWithRetry(
+        `${opts.baseUrl}/api/v1/internal/workspaces?${params.toString()}`,
+        baseHeaders(idCorrelacao),
+        timeoutMs,
+        retries,
+      );
+
+      if (!res.ok) {
+        throw new AppError(
+          `Configurador retornou HTTP ${res.status} ao obter workspaces`,
+          503,
+          'CONFIGURADOR_UNAVAILABLE',
+        );
+      }
+
+      const raw: unknown = await res.json();
+      const parsed = WorkspacesBatchResponseSchema.safeParse(raw);
+      if (!parsed.success) {
+        throw new AppError(
+          'Resposta inválida do Configurador (workspaces batch)',
+          503,
+          'CONFIGURADOR_INVALID_RESPONSE',
+        );
+      }
+      return parsed.data.workspaces.map((w) => ({
+        idWorkspace:   w.id_workspace,
+        idOrganizacao: w.id_organizacao,
+        nomeWorkspace: w.nome_workspace,
+        cnpjWorkspace: w.cnpj_workspace,
+      }));
+    },
   };
 }
 
@@ -307,4 +428,20 @@ export async function resolveOrganizacaoByIdUsuario(
   idCorrelacao?: string,
 ): Promise<ContextoOrganizacao> {
   return getDefaultClient().resolveOrganizacaoByIdUsuario(idUsuario, idCorrelacao);
+}
+
+/**
+ * Batch lookup de workspaces por IDs. Usado por produtos para snapshot de
+ * nome+CNPJ do workspace (ex: Pedido auto-fill ao trocar tipo_operacao).
+ */
+export async function obterWorkspaces(
+  ids: string[],
+  idCorrelacao?: string,
+): Promise<Array<{
+  idWorkspace: string;
+  idOrganizacao: string;
+  nomeWorkspace: string;
+  cnpjWorkspace: string | null;
+}>> {
+  return getDefaultClient().obterWorkspaces({ ids, idCorrelacao });
 }

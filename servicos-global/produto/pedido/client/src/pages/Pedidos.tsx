@@ -3338,8 +3338,6 @@ export default function Pedidos() {
     const w = workspacesMap.get(workspaceAtivo)
     if (!w) return                                       // ativo não está em workspacesMap (?)
     initializedFilterRef.current = true
-    // eslint-disable-next-line no-console
-    console.log('[DIAG-init] inicializando filtro id_workspace com workspace ativo:', w.nome)
     setFiltrosAtivos(prev => ({
       ...prev,
       id_workspace: { tipo: 'enum', valor: new Set([w.nome]) },
@@ -3359,8 +3357,6 @@ export default function Pedidos() {
     const filtro = filtrosAtivos['id_workspace']
     if (!filtro || filtro.tipo !== 'enum') {
       if (!initializedFilterRef.current) return  // mount — aguarda init
-      // eslint-disable-next-line no-console
-      console.log('[DIAG-filtro-ws] usuário limpou filtro → seleção vazia (lista vazia esperada)')
       setWorkspacesSelecionados(prev => (prev.length === 0 ? prev : []))
       return
     }
@@ -3370,12 +3366,6 @@ export default function Pedidos() {
     for (const [id, w] of workspacesMap.entries()) {
       if (nomes.has(w.nome)) idsSelecionados.push(id)
     }
-    // eslint-disable-next-line no-console
-    console.log('[DIAG-filtro-ws] filtro aplicado', {
-      nomesSelecionados: Array.from(nomes),
-      workspacesMapSize: workspacesMap.size,
-      idsResolvidos: idsSelecionados,
-    })
     setWorkspacesSelecionados(prev =>
       prev.length === idsSelecionados.length && prev.every((v, i) => v === idsSelecionados[i]) ? prev : idsSelecionados,
     )
@@ -3537,8 +3527,6 @@ export default function Pedidos() {
     // Precisa rodar mesmo se outro fetch está em-flight (caso contrário a UI
     // fica presa mostrando os pedidos antigos).
     if (workspacesSelecionados.length === 0) {
-      // eslint-disable-next-line no-console
-      console.log('[DIAG-fetch] workspacesSelecionados vazio → setPedidos([]) sem fetch')
       setPedidos([])
       setTotal(0)
       setTotalItensBanco(0)
@@ -3556,7 +3544,6 @@ export default function Pedidos() {
     setErroCarga(null)
     setPaginaAtual(novaPagina)
     try {
-
       // Filtro multi-workspace: envia query param sempre que a seleção do usuário
       // diferir do default (= apenas o workspace ativo). Isso inclui:
       //  - usuário escolheu OUTRO workspace único (ex: ativo=CDE, filtro=ABC)
@@ -3566,14 +3553,6 @@ export default function Pedidos() {
         workspacesSelecionados.length === 1 &&
         workspacesSelecionados[0] === workspaceAtivo
       const idsWorkspacesFiltro = ehSelecaoDefault ? undefined : workspacesSelecionados
-
-      // eslint-disable-next-line no-console
-      console.log('[DIAG-fetch] carregarInicial', {
-        workspaceAtivo,
-        workspacesSelecionados,
-        ehSelecaoDefault,
-        idsWorkspacesFiltro,
-      })
 
       const res = await pedidoVirtualApi.listar({
         sort: novaOrdem,
@@ -3594,8 +3573,6 @@ export default function Pedidos() {
       // mesmo quando o usuário tem dados válidos carregados.
       // Mand. 08 — registramos o erro no estado para que o empty state possa
       // diferenciar "vazio legítimo" de "falhou ao carregar" (sem fallback silencioso).
-      // eslint-disable-next-line no-console
-      console.error('[DIAG-fetch] carregarInicial FALHOU:', err)
       setErroCarga(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
       setCarregando(false)
@@ -3606,8 +3583,6 @@ export default function Pedidos() {
   // Recarrega lista quando mudou seleção de workspaces (filtro multi-workspace)
   useEffect(() => {
     if (!idOrganizacao) return
-    // eslint-disable-next-line no-console
-    console.log('[DIAG-trigger] useEffect workspacesSelecionados disparou → carregarInicial()', { workspacesSelecionados })
     carregarInicial()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspacesSelecionados])

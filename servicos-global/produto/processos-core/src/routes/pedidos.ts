@@ -37,6 +37,7 @@ import {
 } from '../services/formulaEngine.js'
 import {
   isPropagavel,
+  obterCampoItemPropagado,
   construirCamposPropagadosParaItem,
   derivarNomesEmpresaParaItem,
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
@@ -49,6 +50,7 @@ import {
   type CadastrosRequestContext,
 } from '../services/cadastrosClient.js'
 import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
+import { validarIncotermPedidoItem } from '../services/validarIncotermPedidoItem.js'
 import {
   montarSnapshotEmpresa,
   montarSnapshotOpe,
@@ -1319,6 +1321,15 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
         throw new AppError(400, 'Pedido so pode ser editado nos status Rascunho ou Aberto')
       }
 
+      // Validação cruzada Incoterm (Mandamentos 06+09) — incoterm_pedido
+      // contra cadastros.incoterm. Falha alta se sigla inexistente/inativa.
+      const correlationIdPed = (req.headers['x-correlation-id'] as string | undefined) ?? 'no-corr'
+      const ctxCadastrosPed: CadastrosRequestContext = {
+        id_organizacao: tenant_id,
+        correlation_id: correlationIdPed,
+      }
+      await validarIncotermPedidoItem(result.data as Record<string, unknown>, ctxCadastrosPed)
+
       // Defesa em profundidade: mesmo que o schema Zod já não aceite agregados
       // (Onda A3), filtramos explicitamente — quem tentar passar via campo
       // dinâmico/legado não consegue sobrescrever os agregados derivados.
@@ -1550,6 +1561,12 @@ const CAMPOS_RECALCULAVEIS = new Set([
 const editarCampoSchema = z.object({
   campo: z.string().min(1),
   valor: z.unknown(),
+  // Quando true, replica o valor para TODOS os itens do pedido na mesma
+  // transação. Default false — preserva o comportamento divergente (item
+  // mantém seu valor próprio, pedido pai pode mostrar alerta de divergência).
+  // Decisão UX 2026-05-13: usuário marca checkbox no popover de edição da
+  // linha pai para acionar a replicação. Whitelist em CAMPOS_PEDIDO_PROPAGAVEIS.
+  replicar_em_itens: z.boolean().optional().default(false),
 })
 
 pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, next: NextFunction) => {
@@ -1558,7 +1575,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
   }
 
-  const { campo, valor } = result.data
+  const { campo, valor, replicar_em_itens } = result.data
 
   if (!CAMPOS_EDITAVEIS.has(campo) && !CAMPOS_RECALCULAVEIS.has(campo)) {
     return next(new AppError(400, `Campo "${campo}" nao pode ser editado inline. Campos permitidos: ${[...CAMPOS_EDITAVEIS, ...CAMPOS_RECALCULAVEIS].join(', ')}`))
@@ -1735,12 +1752,51 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
-      // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
-      if (isPropagavel(campo)) {
-        await db.pedidoItem.updateMany({
+      // Replicação pai → todos os itens (decisão UX 2026-05-13).
+      //
+      // Antes: SEMPRE tentava propagar (linha legada com bug — usava o nome
+      // legado do campo (e.g. 'incoterm') diretamente no updateMany do item,
+      // mas a coluna do item é 'incoterm_item'. Resultado: Prisma rejeitava
+      // silenciosamente, propagação nunca funcionou.
+      //
+      // Agora: só replica quando `replicar_em_itens=true` (checkbox marcado
+      // no popover da linha pai). Tradução pedido→item via
+      // obterCampoItemPropagado — SSOT em mapaPropagacaoPedidoItem.ts.
+      // Mandamento 08: falha alta se whitelist rejeitar o campo (sem
+      // fallback silencioso).
+      if (replicar_em_itens) {
+        // Traduz: campo legado (ex: 'incoterm') → campo DDD pedido (ex:
+        // 'incoterm_pedido') → campo DDD item (ex: 'incoterm_item').
+        const campoPedido = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
+        if (!isPropagavel(campoPedido)) {
+          throw new AppError(
+            400,
+            `Campo "${campo}" não é replicável para itens. Whitelist: ver CAMPOS_PEDIDO_PROPAGAVEIS em mapaPropagacaoPedidoItem.ts.`,
+          )
+        }
+        const campoItem = obterCampoItemPropagado(campoPedido)
+        if (!campoItem) {
+          throw new AppError(
+            500,
+            `Inconsistência: "${campoPedido}" está em isPropagavel mas obterCampoItemPropagado retornou null.`,
+          )
+        }
+        const resultado = await db.pedidoItem.updateMany({
           where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-          data: { [campo]: valor === undefined ? null : valor },
+          data: { [campoItem]: valor === undefined ? null : valor },
         })
+        // Audit log agregado (1 evento por replicação, não N por item) —
+        // economiza espaço e facilita auditoria pela equipe.
+        console.log(JSON.stringify({
+          event: 'PEDIDO_FIELD_REPLICATED_TO_ITEMS',
+          id_organizacao: idOrganizacao,
+          id_pedido: req.params.id_pedido,
+          campo_pedido: campoPedido,
+          campo_item: campoItem,
+          itens_afetados: resultado.count,
+          valor_novo: valor,
+          ts: new Date().toISOString(),
+        }))
       }
 
       res.json(mapPedido(updated))
@@ -2027,6 +2083,8 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
         correlation_id: correlationId,
       }
       await validarUnidadesItem(result.data as Record<string, unknown>, ctxCadastros)
+      // Validação cruzada Incoterm — mesma estratégia das unidades.
+      await validarIncotermPedidoItem(result.data as Record<string, unknown>, ctxCadastros)
 
       // ACL: traduz chaves do contrato público (atualizarItemSchema) para nomes DDD Prisma
       const prismaData: Record<string, unknown> = {}

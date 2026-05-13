@@ -209,6 +209,11 @@ export interface OpcoesUnidadesColunas {
   unidadesPeso: GTUnidadeOpcao[]
   unidadesCubagem: GTUnidadeOpcao[]
   /**
+   * Opções de Incoterm vindas de cadastros.incoterm via useIncotermsPedido.
+   * Formato `{ valor, label }` esperado pelo popover de edição inline (select).
+   */
+  incotermsOpcoes?: Array<{ valor: string; label: string }>
+  /**
    * Mapa de id_workspace → nome_workspace para renderizar a coluna "Workspace".
    * Carregado da Lista (Pedidos.tsx) via `/api/v1/hub/init`. Quando vazio,
    * a coluna mostra o próprio id_workspace como fallback.
@@ -217,7 +222,7 @@ export interface OpcoesUnidadesColunas {
 }
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
-  const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
+  const { unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap } = opcoes
   return [
   {
     key: 'numero_pedido',
@@ -396,7 +401,11 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'incoterm',
     label: t('pedido.coluna_pai.incoterm'),
-    tipo: 'texto',
+    // tipo: 'select' (decisão UX 2026-05-13) — substitui input texto livre por
+    // dropdown com opções de cadastros.incoterm (SSOT). incotermsOpcoes vem
+    // do useIncotermsPedido em Pedidos.tsx via factory.
+    tipo: 'select',
+    opcoes: incotermsOpcoes ?? [],
     filtravel: true,
     editavel: getEditavel('incoterm'),
     tooltipTitulo: t('pedido.coluna_pai.incoterm_titulo'),

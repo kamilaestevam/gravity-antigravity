@@ -117,6 +117,7 @@ import {
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import { useUnidadesPedido } from '../shared/useUnidadesPedido'
+import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
 
@@ -3006,6 +3007,8 @@ export default function Pedidos() {
   const { t, i18n } = useTranslation()
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
+  // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
+  const { incotermsOpcoes } = useIncotermsPedido()
   // Workspaces disponíveis ao usuário — carregados de /api/v1/hub/init.
   // Usado em (i) FiltroMultiWorkspace e (ii) coluna "Workspace" da Lista.
   // Carregamento elevado aqui para evitar fetch duplicado.
@@ -3031,8 +3034,8 @@ export default function Pedidos() {
   }, [workspacesDisponiveis])
 
   const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({ unidadesPeso, unidadesCubagem, workspacesMap }),
-    [unidadesPeso, unidadesCubagem, workspacesMap],
+    () => ({ unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap }),
+    [unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap],
   )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
@@ -3907,7 +3910,12 @@ export default function Pedidos() {
   const CAMPOS_GHOST_ITENS = new Set(['ncm', 'cobertura_cambial'])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
-  const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
+  const handleEditar = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+    opts?: { replicar_em_itens?: boolean },
+  ): Promise<Pedido> => {
     // Coluna customizada do usuário — salva via endpoint próprio
     const colunaCustom = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustom) {
@@ -3960,11 +3968,14 @@ export default function Pedidos() {
           return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
         })()
       : valor
-    const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai)
-    // Para campos propagáveis: o servidor actualizou os itens filhos.
+    // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
+    // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
+    const replicar = opts?.replicar_em_itens ?? false
+    const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
+    // Quando replicou, o servidor atualizou os itens filhos via updateMany.
     // Invalida o cache local e usa updated_at novo para que itemVersion
     // dispare o refetch automático das linhas expandidas.
-    if (isPropagavel(campo)) {
+    if (replicar && isPropagavel(campo)) {
       itensCarregadosRef.current.delete(id)
     }
     // Recalcula flags de divergência com o novo valor do pai. Necessário pra
@@ -4914,14 +4925,18 @@ export default function Pedidos() {
           sortDir={sortDir}
 
           camposEditaveis={CAMPOS_EDITAVEIS_PAI}
-          onEditar={async (id: string, campo: string, valor: unknown) => {
+          onEditar={async (id: string, campo: string, valor: unknown, opts) => {
             let idReal = id;
             if (!pedidosFiltrados.some(p => p.id === idReal)) {
                const pedidoCerto = pedidosFiltrados.find(p => p.numero_pedido === idReal || (p as any)._idVirtual === idReal);
                if (pedidoCerto) idReal = pedidoCerto.id;
             }
-            return handleEditar(idReal, campo, valor);
+            return handleEditar(idReal, campo, valor, opts);
           }}
+          // Permite replicar valor do pai para todos os itens — checkbox no
+          // popover (Decisão UX 2026-05-13). Whitelist em mapaPropagacaoPedidoItem
+          // (apenas campos que existem tanto no Pedido quanto no Item).
+          permiteReplicacaoPaiEmItens={(campo) => isPropagavel(campo)}
 
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={handleEditarFilho}

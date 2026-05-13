@@ -8,6 +8,7 @@
 export * from './empresa.schema.js'
 export * from './moeda.schema.js'
 export * from './unidade.schema.js'
+export * from './incoterm.schema.js'
 export * from './ncm.schema.js'
 export * from './ope.schema.js'
 export * from './pais.schema.js'

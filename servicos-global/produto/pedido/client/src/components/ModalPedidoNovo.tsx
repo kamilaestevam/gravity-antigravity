@@ -16,7 +16,9 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
@@ -52,6 +54,11 @@ interface ItemForm {
   ncm_item: string
   descricao_item: string
   quantidade_inicial_item: string
+  // Moeda por item — default herdado do pedido (hoje 'USD' via Zod default).
+  // Usuário pode override por item se necessário (ex: pedido multi-moeda).
+  moeda_item: string
+  // Valor unitário — usuário digita; valor_total é computado (qtd × unitário).
+  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -76,12 +83,17 @@ const ITEM_VAZIO = (): ItemForm => ({
   ncm_item: '',
   descricao_item: '',
   quantidade_inicial_item: '',
+  moeda_item: '',  // P16: sem default — usuário escolhe (Mandamento 08, mesma regra do FOB)
+  valor_por_unidade_item: '',
 })
 
-// ── Opções de select ───────────────────────────────────────────────────────────
+// Lista de moedas NÃO é hardcoded — vem do hook `useMoedas()` (@nucleo/modal-tabela-moeda)
+// que fetcha `/api/v1/cadastros/moedas` (SSOT: banco Cadastros). Componentização
+// alinhada com DrawerPedido e demais consumidores do sistema (Mandamento 03+06+09).
 
-const OPCOES_INCOTERM = ['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS']
-  .map(v => ({ valor: v, rotulo: v }))
+// ── Opções de select ───────────────────────────────────────────────────────────
+// OPCOES_INCOTERM removido em 2026-05-13 — SSOT migrada para cadastros.incoterm.
+// Consumir via useIncotermsPedido() dentro do componente (dispatch via hook).
 
 // OPCOES_TIPO_OPERACAO e OPCOES_COBERTURA movidos para dentro dos sub-componentes (dependem de t())
 
@@ -211,12 +223,13 @@ const s = {
     width:         '100%',
     boxSizing:     'border-box' as const,
   } as React.CSSProperties,
+  // P15: letter-spacing 0.05em alinhado com labels (era 0.06em — inconsistência).
   secaoTitulo: {
     fontSize: '0.75rem',
     fontWeight: 700,
     color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.06em',
+    letterSpacing: '0.05em',
     marginBottom: '1rem',
   } as React.CSSProperties,
   erroGeral: {
@@ -251,26 +264,33 @@ const s = {
     marginBottom:  '0.625rem',
     border:        '1px solid var(--border-default, rgba(255,255,255,0.06))',
   } as React.CSSProperties,
+  // P15: grid de 8 colunas — PartNum / NCM / Descricao / Qtd / Moeda / Valor / Total / lixeira.
+  // Valores numéricos (qtd, valor, total) à direita pra alinhamento contábil.
+  // Modal `tamanho="xl"` (960px) acomoda os 7 labels + lixeira sem wrap.
   itemGrid: {
     display: 'grid',
-    gridTemplateColumns: '1.6fr 1fr 2fr 0.8fr auto',
+    gridTemplateColumns: '1.1fr 0.9fr 1.3fr 0.7fr 0.55fr 1.15fr 1.2fr auto',
     gap: '0.5rem',
     alignItems: 'flex-start',
   } as React.CSSProperties,
-  // P14 UX: lixeira visível em repouso (--text-secondary), hover destrutivo
-  // (--danger) sinaliza ação irreversível. onMouseEnter/Leave aplicados inline
-  // no JSX porque estilos inline não suportam :hover.
+  // P15 UX: padrão alinhado com `.drawer-pedido__item-remover` (DrawerPedido.css):
+  // estado base levemente apagado (opacity 0.6 + text-muted), hover destrutivo
+  // (--danger) com opacity 1 — sinaliza ação irreversível. Padding 0.25rem
+  // (mesmo do drawer). Hover via onMouseEnter/Leave inline (estilos inline
+  // não suportam :hover).
   btnRemover: {
     background:    'transparent',
     border:        'none',
     cursor:        'pointer',
-    color:         'var(--text-secondary)',
-    padding:       '0.375rem',
-    borderRadius:  'var(--radius-sm)',
+    color:         'var(--text-muted, #64748b)',
+    opacity:       0.6,
+    padding:       '0.25rem',
+    borderRadius:  'var(--radius-sm, 6px)',
     display:       'flex',
     alignItems:    'center',
+    justifyContent: 'center',
     marginTop:     '1.25rem',
-    transition:    'color 0.15s',
+    transition:    'color 0.15s, opacity 0.15s',
   } as React.CSSProperties,
   inputCompacto: {
     background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
@@ -284,10 +304,12 @@ const s = {
     width:         '100%',
     boxSizing:     'border-box' as const,
   } as React.CSSProperties,
+  // P15: cor alinhada com `.cg-label` do CampoGeralGlobal (canônico do sistema)
+  // — `--text-muted` é o padrão de label em todo o nucleo-global.
   labelCompacto: {
     fontSize: '0.75rem',
     fontWeight: 600,
-    color: 'var(--text-secondary)',  // P14: contraste WCAG AA (#94a3b8 vs --bg-base #1e293b)
+    color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     lineHeight: 1.3,
@@ -312,6 +334,8 @@ const s = {
 
 export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoProps) {
   const { t } = useTranslation()
+  // SSOT: incoterms vêm de cadastros.incoterm via hook (2026-05-13).
+  const { incotermsOpcoes } = useIncotermsPedido()
   const [passo, setPasso]       = useState(1)
   const [form, setForm]         = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens]       = useState<ItemForm[]>([ITEM_VAZIO()])
@@ -608,13 +632,22 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setErros({})
     try {
       const itensMapped = itens
-        .filter(it => it.part_number_item.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm_item.trim() !== '' || it.quantidade_inicial_item.trim() !== '')
-        .map(it => ({
-          part_number_item:        it.part_number_item,
-          ncm_item:                it.ncm_item,
-          descricao_item:          it.descricao_item,
-          quantidade_inicial_item: parseFloat(it.quantidade_inicial_item) || 0,
-        }))
+        .filter(it => it.part_number_item.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm_item.trim() !== '' || it.quantidade_inicial_item.trim() !== '' || it.valor_por_unidade_item.trim() !== '')
+        .map(it => {
+          const qtd = parseFloat(it.quantidade_inicial_item) || 0
+          const valorUnit = it.valor_por_unidade_item.trim() === '' ? null : (parseFloat(it.valor_por_unidade_item) || 0)
+          return {
+            part_number_item:        it.part_number_item,
+            ncm_item:                it.ncm_item,
+            descricao_item:          it.descricao_item,
+            quantidade_inicial_item: qtd,
+            moeda_item:              it.moeda_item,
+            valor_por_unidade_item:  valorUnit,
+            // valor_total_item: NÃO enviado — backend recalcula via
+            // recalcularAgregadosPedido a partir de qtd × valor_por_unidade.
+            // Mandamento 08 (sem fallback): fonte única de verdade é o backend.
+          }
+        })
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
       const dataISO = form.data_emissao_pedido
@@ -671,7 +704,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         onFechar={handleFechar}
         podeAvancar={podeAvancar && !salvando}
         labelBotaoFinal={salvando ? t('pedido.modal_novo.criando') : t('pedido.modal_novo.criar')}
-        tamanho="lg"
+        tamanho="2xl"
         altura="620px"
       >
         {passo === 1 && (
@@ -690,6 +723,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             requisitos={requisitosPasso1}
             requisitoOk={requisitoOk}
             aoCadastrarNova={(papel) => setCadastroEmpresaPapel(papel)}
+            incotermsOpcoes={incotermsOpcoes}
           />
         )}
         {passo === 2 && (
@@ -909,6 +943,7 @@ function Passo1Dados({
   requisitos,
   requisitoOk,
   aoCadastrarNova,
+  incotermsOpcoes,
 }: {
   form: PedidoForm
   erros: ErrosValidacao
@@ -924,6 +959,8 @@ function Passo1Dados({
   requisitos: RequisitoSalvar[]
   requisitoOk: Map<string, boolean>
   aoCadastrarNova: (papel: PapelEmpresaRapido) => void
+  /** Opções de Incoterm vindas de cadastros.incoterm (SSOT). */
+  incotermsOpcoes: Array<{ valor: string; label: string }>
 }) {
   const { t } = useTranslation()
   const opcoesTipoOperacao = useMemo(() => [
@@ -1102,7 +1139,7 @@ function Passo1Dados({
         <div style={s.campo}>
           <SelectGlobal
             label="Incoterm"
-            opcoes={OPCOES_INCOTERM}
+            opcoes={incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label }))}
             valor={form.incoterm_pedido}
             aoMudarValor={v => onChange('incoterm_pedido', String(v ?? ''))}
             desabilitado={camposBloqueados}
@@ -1230,6 +1267,21 @@ function Passo2Itens({
 }) {
   const { t } = useTranslation()
 
+  // Lista canônica de moedas — SSOT vem do banco Cadastros via /api/v1/cadastros/moedas.
+  // Hook tem cache singleton (não re-fetch), Zod-validado, ordem prioritária UX
+  // (USD/EUR/BRL/CNY/GBP/JPY no topo, demais alfabético).
+  const { moedas, loading: carregandoMoedas } = useMoedas()
+  const opcoesMoeda = useMemo(
+    () => moedas
+      .filter((m) => m.ativo_moeda)
+      .map((m) => ({
+        valor: m.codigo_moeda,
+        rotulo: m.codigo_moeda,
+        descricao: m.nome_moeda,
+      })),
+    [moedas],
+  )
+
   return (
     <div>
       <div style={s.itensHeader}>
@@ -1263,7 +1315,7 @@ function Passo2Itens({
               <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>{t('pedido.item.ncm')}</label>
               <input
                 id={`mnp-ncm-${index}`}
-                style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
+                style={{ ...s.inputCompacto, fontFamily: 'var(--font-mono, monospace)' }}
                 value={item.ncm_item}
                 onChange={e => onChangeItem(index, 'ncm_item', formatarNcmInput(e.target.value))}
                 placeholder="0000.00.00"
@@ -1295,6 +1347,53 @@ function Passo2Itens({
                 textAlign="right"
               />
             </div>
+            <div>
+              <label style={s.labelCompacto} htmlFor={`mnp-moeda-${index}`}>{t('pedido.item.moeda', 'Moeda')}</label>
+              {/* P15 UX: SelectGlobal canônico do nucleo com `tamanho="compacto"` —
+                  altura ~24px alinha com inputs vizinhos. Mantém consistência
+                  sistêmica (Mandamento 03) e funcionalidade (foco, ESC, ARIA). */}
+              <SelectGlobal
+                id={`mnp-moeda-${index}`}
+                opcoes={opcoesMoeda}
+                valor={item.moeda_item || null}
+                aoMudarValor={(v) => onChangeItem(index, 'moeda_item', String(v ?? ''))}
+                placeholder="Moeda"
+                tamanho="compacto"
+                monoValor
+                buscavel
+                carregando={carregandoMoedas}
+              />
+            </div>
+            <div>
+              <label style={s.labelCompacto} htmlFor={`mnp-valor-${index}`}>{t('pedido.item.valor_do_item')}</label>
+              {/* P15: Live mask BR (10.000,00). Sem `vazio`/`obrigatorio` — opcional */}
+              <CampoDecimalGlobal
+                id={`mnp-valor-${index}`}
+                valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
+                aoMudarValor={(n) => onChangeItem(index, 'valor_por_unidade_item', n === null ? '' : String(n))}
+                casasDecimais={2}
+                style={s.inputCompacto}
+                textAlign="right"
+              />
+            </div>
+            <div>
+              <label style={s.labelCompacto} htmlFor={`mnp-total-${index}`}>{t('pedido.item.valor_total_dos_itens')}</label>
+              {/* P15: computed read-only = qtd × valor_por_unidade. Não enviado ao
+                  backend — backend recalcula via recalcularAgregadosPedido. */}
+              <CampoDecimalGlobal
+                id={`mnp-total-${index}`}
+                valor={
+                  item.valor_por_unidade_item === '' || item.quantidade_inicial_item === ''
+                    ? null
+                    : Number(item.valor_por_unidade_item) * Number(item.quantidade_inicial_item)
+                }
+                aoMudarValor={() => { /* read-only: ignora mudanças */ }}
+                casasDecimais={2}
+                style={{ ...s.inputCompacto, opacity: 0.7, cursor: 'not-allowed' }}
+                textAlign="right"
+                desabilitado
+              />
+            </div>
             <button
               style={s.btnRemover}
               onClick={() => onRemoverItem(index)}
@@ -1302,8 +1401,8 @@ function Passo2Itens({
               title={itens.length <= 1 ? t('pedido.modal_novo.remover_unico_hint') : t('pedido.modal_novo.remover_item_hint')}
               aria-label={t('pedido.modal_novo.remover_item_aria', { n: index + 1 })}
               type="button"
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.color = 'var(--danger)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) { e.currentTarget.style.color = 'var(--danger, #ef4444)'; e.currentTarget.style.opacity = '1' } }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted, #64748b)'; e.currentTarget.style.opacity = '0.6' }}
             >
               <Trash size={14} weight="duotone" />
             </button>

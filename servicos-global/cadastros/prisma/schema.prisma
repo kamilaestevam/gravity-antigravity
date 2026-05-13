@@ -168,6 +168,24 @@ model Unidade {
 }
 
 // ---------------------------------------------------------------------
+// Incoterm — catálogo global dos termos da ICC (Incoterms 2020).
+// Catálogo global sem id_organizacao — padrão internacional fixo.
+// Produtos (ex: Pedido) consomem via leitura ao vivo (REST API), sem
+// snapshot — a sigla nunca muda de significado dentro de uma versão.
+// Quando a ICC publicar Incoterms 2030, criar nova versao_incoterm.
+// ---------------------------------------------------------------------
+model Incoterm {
+  codigo_incoterm    String  @id   // FOB, CIF, EXW, CFR, DDP, DAP, FCA, CPT, CIP, DPU, FAS
+  nome_incoterm      String        // "Free On Board", "Cost Insurance and Freight"
+  descricao_incoterm String?       // descrição longa opcional
+  modal_transporte   String        // "maritimo" (FOB/CIF/CFR/FAS) | "qualquer" (demais)
+  versao_incoterm    String  @default("2020")
+  ativo_incoterm     Boolean @default(true)
+
+  @@map("incoterm")
+}
+
+// ---------------------------------------------------------------------
 // NcmSync — catálogo NCM sincronizado do Portal Único Siscomex
 // (renomeado de "Ncm" para evitar confusão com a coluna "ncm_item" das
 // tabelas de produto. O job diário de sync mora aqui no Cadastros).

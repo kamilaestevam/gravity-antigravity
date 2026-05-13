@@ -469,9 +469,16 @@ export class SmartImportService {
     )
 
     const criados:    string[] = []
-    const atualizados: number[] = []
+    const atualizados: number[] = []  // numeros de linha do arquivo (resposta ao cliente)
     const pulados:     number[] = []
     const erros:       { linha: number; motivo: string }[] = []
+    // Q5 — Set separado para guardar IDs de pedido que precisam de recalculo
+    // de agregados. ANTES o codigo passava `atualizados.map(String)` direto pro
+    // recalcularAgregadosPedido — mas `atualizados` guarda numero de LINHA do
+    // arquivo, nao id de pedido. recalcularAgregadosPedido recebia "2" e
+    // crashava com "Pedido nao encontrado", abortando toda a transacao.
+    // Resultado: nenhum pedido era persistido apesar da UI nao mostrar erro.
+    const idsPedidosParaRecalcular: Set<string> = new Set()
 
     // Ler casas decimais do workspace para aplicar nos registros criados
     const casasConfig = await this.lerCasasDecimais(tenantId)
@@ -522,16 +529,17 @@ export class SmartImportService {
           }
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
-            // Atualizar pedido existente
+            // Atualizar pedido existente. Q5 — tenant_id → id_organizacao, id → id_pedido.
             const existente = await (tx as Record<string, any>)['pedido'].findFirst({
-              where: { numero_pedido: numeroPedido, tenant_id: tenantId },
+              where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
             })
             if (existente) {
               await (tx as Record<string, any>)['pedido'].update({
-                where: { id: existente.id },
+                where: { id_pedido: existente.id_pedido },
                 data:  dadosPedido,
               })
               atualizados.push(linha.linha_arquivo)
+              idsPedidosParaRecalcular.add(existente.id_pedido)
               continue
             }
           }
@@ -540,10 +548,11 @@ export class SmartImportService {
           const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
 
           if (numeroPedidoFinal && !payload.decisoes_duplicatas[numeroPedidoFinal]) {
-            // Tentar encontrar pedido existente para append incremental de item
+            // Q5 — Tentar encontrar pedido existente para append incremental de item.
+            // tenant_id → id_organizacao, status → status_pedido, id → id_pedido.
             const pedidoExistente = await (tx as Record<string, any>)['pedido'].findFirst({
-              where: { numero_pedido: numeroPedidoFinal, tenant_id: tenantId, status: { not: 'cancelado' } },
-              select: { id: true },
+              where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
+              select: { id_pedido: true },
             })
 
             // P14 — Reads e keys do Prisma alinhados ao SSOT/schema atual.
@@ -552,9 +561,10 @@ export class SmartImportService {
             // o Prisma .create() IGNORA silenciosamente — registros eram criados
             // com campos NULL/0. Schema correto: part_number_item, ncm_item, etc.
             if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
-              // Calcular próxima sequencia_item no pedido existente
+              // Q5 — Calcular próxima sequencia_item no pedido existente.
+              // pedido_id → id_pedido, tenant_id → id_organizacao.
               const itemCountExistente = await (tx as Record<string, any>)['pedidoItem'].count({
-                where: { pedido_id: pedidoExistente.id, tenant_id: tenantId },
+                where: { id_pedido: pedidoExistente.id_pedido, id_organizacao: tenantId },
               })
               // Adicionar item ao pedido existente. P1.3 — REMOVIDO `.catch(() => null)`
               // que silenciava erros de banco. Agora qualquer erro (FK violou, unique
@@ -564,10 +574,10 @@ export class SmartImportService {
               try {
                 await (tx as Record<string, any>)['pedidoItem'].create({
                   data: {
-                    id:                  gerarId('pite'),
-                    tenant_id:           tenantId,
-                    company_id:          companyId ?? tenantId,
-                    pedido_id:           pedidoExistente.id,
+                    id_item:                gerarId('pite'),
+                    id_organizacao:         tenantId,
+                    id_workspace:           companyId ?? tenantId,
+                    id_pedido:              pedidoExistente.id_pedido,
                     sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : itemCountExistente + 1,
                     part_number_item:       String(dados['part_number_item'] ?? ''),
                     ncm_item:               String(dados['ncm_item'] ?? ''),
@@ -582,10 +592,11 @@ export class SmartImportService {
                     peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                     referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                     casas_decimais_valor_item:  casasConfig.valor,
-                    campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
+                    dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
                   },
                 })
                 atualizados.push(linha.linha_arquivo)
+                idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               } catch (errInsert: unknown) {
                 const motivo = errInsert instanceof Error
                   ? `${errInsert.name}: ${errInsert.message}`
@@ -600,12 +611,14 @@ export class SmartImportService {
           }
 
           // Criar pedido novo com o item da linha atual (P14 — nomes do SSOT)
+          // Q5 — Relacao no schema chama `itens_pedido` (nao `itens`). Tambem
+          // troca id/tenant_id/company_id por id_item/id_organizacao/id_workspace.
           const itemPayload = (dados['part_number_item'] || dados['descricao_item']) ? {
-            itens: {
+            itens_pedido: {
               create: [{
-                id:                  gerarId('pite'),
-                tenant_id:           tenantId,
-                company_id:          companyId ?? tenantId,
+                id_item:                gerarId('pite'),
+                id_organizacao:         tenantId,
+                id_workspace:           companyId ?? tenantId,
                 sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : 1,
                 part_number_item:       String(dados['part_number_item'] ?? ''),
                 ncm_item:               String(dados['ncm_item'] ?? ''),
@@ -620,7 +633,7 @@ export class SmartImportService {
                 peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                 referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                 casas_decimais_valor_item:  casasConfig.valor,
-                campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
+                dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
               }],
             },
           } : {}
@@ -628,7 +641,8 @@ export class SmartImportService {
           const novo = await (tx as Record<string, any>)['pedido'].create({
             data: { ...dadosPedido, ...itemPayload },
           })
-          criados.push(novo.id)
+          criados.push(novo.id_pedido)
+          idsPedidosParaRecalcular.add(novo.id_pedido)
         } catch (err: unknown) {
           erros.push({
             linha: linha.linha_arquivo,
@@ -647,11 +661,10 @@ export class SmartImportService {
 
       // Recalcular os 5 agregados de cada pedido criado/atualizado a partir
       // dos itens. Roda DENTRO da transação principal (regra "tx obrigatório"
-      // do helper). Substitui o bloco legado que atualizava só `quantidade_total_pedido`
-      // e usava nomes de coluna desatualizados (pedido_id/tenant_id em vez de
-      // id_pedido/id_organizacao).
-      const idsAfetados = Array.from(new Set([...criados, ...atualizados.map(String)]))
-      for (const pedidoId of idsAfetados) {
+      // do helper). Q5 — usa `idsPedidosParaRecalcular` (Set de id_pedido reais)
+      // em vez de `atualizados.map(String)` que continha numero de linha do
+      // arquivo (bug que abortava toda a transacao).
+      for (const pedidoId of idsPedidosParaRecalcular) {
         // Loop serial (não Promise.all) — evita deadlock no PG quando vários
         // pedidos estão sendo lockados na mesma tx.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -781,6 +794,10 @@ export class SmartImportService {
     if (amostras.length === 0) return null
 
     // Detectar Incoterm
+    // SSOT: cadastros.incoterm. Esta lista é cache local da heurística de
+    // detecção de coluna no Smart Import (rodada para cada coluna no upload).
+    // Buscar do Cadastros aqui adicionaria latência por linha — TODO refatorar
+    // para lazy-load cacheado se a lista de Incoterms 2020 mudar.
     const incoterms = ['FOB', 'CIF', 'EXW', 'DDP', 'DAP', 'FCA', 'CPT', 'CIP', 'DPU', 'FAS', 'CFR']
     if (amostras.every(v => incoterms.includes(v.toUpperCase().trim()))) {
       return { campo: 'incoterm', confianca: 92 }
@@ -1160,25 +1177,49 @@ export class SmartImportService {
     return dv1 === parseInt(cnpj[12], 10) && dv2 === parseInt(cnpj[13], 10)
   }
 
+  /**
+   * Q5 — Atualizado para schema DDD atual.
+   *
+   * Antes (P14 corrigiu apenas o lado do PedidoItem): usava nomes LEGADOS
+   *   id, tenant_id, company_id, tipo_operacao, status,
+   *   importacao_exportador_id, fabricante_id, incoterm
+   * que NAO existem no schema atual. Prisma 5.22 ignora unknown silenciosamente,
+   * o create efetivava com NULL em id_pedido/id_organizacao/id_workspace
+   * (campos obrigatorios) → erro NOT NULL ou pedido invisivel.
+   *
+   * Agora alinhado com schema (fragment.prisma:15 — Pedido):
+   *   id_pedido, id_organizacao, id_workspace, tipo_operacao_pedido,
+   *   status_pedido, id_importacao_exportador_pedido, id_fabricante_pedido,
+   *   incoterm_pedido, moeda_pedido, data_emissao_pedido, casas_decimais_*.
+   * Tambem leu data_emissao do nome legado `data_emissao_pedido` (idem).
+   */
   private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO): Record<string, unknown> {
-    // P1.3 — validar enum tipo_operacao para evitar valores arbitrarios
+    // P1.3 — validar enum tipo_operacao_pedido para evitar valores arbitrarios.
+    // SSOT (campos-pedido-ddd.ts) usa `tipo_operacao` como nome do campo no
+    // upload; schema usa `tipo_operacao_pedido`. Aceitamos ambos no `dados[]`
+    // por tolerancia (preview pode ter usado um ou outro alias).
     const TIPOS_OPERACAO_VALIDOS = ['importacao', 'exportacao'] as const
-    const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(dados['tipo_operacao'] as typeof TIPOS_OPERACAO_VALIDOS[number])
-      ? dados['tipo_operacao'] as string
+    const tipoOperacaoRaw = (dados['tipo_operacao_pedido'] ?? dados['tipo_operacao']) as string | undefined
+    const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(tipoOperacaoRaw as typeof TIPOS_OPERACAO_VALIDOS[number])
+      ? tipoOperacaoRaw as string
       : 'importacao'
 
     return {
-      id:                gerarId('pedi'),
-      tenant_id:         tenantId,
-      company_id:        companyId,
-      numero_pedido:     String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
-      tipo_operacao:     tipoOperacao,
-      status:            'rascunho',
-      importacao_exportador_id: dados['exportador'] ? String(dados['exportador']) : null,
-      fabricante_id:     dados['fabricante'] ? String(dados['fabricante']) : null,
-      incoterm:          dados['incoterm'] ?? null,
-      moeda_pedido:      dados['moeda_pedido'] ?? 'USD',
-      data_emissao_pedido:             normalizarData(dados['data_emissao_pedido']),
+      id_pedido:                        gerarId('pedi'),
+      id_organizacao:                   tenantId,
+      id_workspace:                     companyId,
+      numero_pedido:                    String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
+      tipo_operacao_pedido:             tipoOperacao,
+      status_pedido:                    'rascunho',
+      id_importacao_exportador_pedido:  dados['id_importacao_exportador_pedido']
+                                          ? String(dados['id_importacao_exportador_pedido'])
+                                          : null,
+      id_fabricante_pedido:             dados['id_fabricante_pedido']
+                                          ? String(dados['id_fabricante_pedido'])
+                                          : null,
+      incoterm_pedido:                  (dados['incoterm_pedido'] ?? dados['incoterm']) as string ?? null,
+      moeda_pedido:                     (dados['moeda_pedido'] as string) ?? 'USD',
+      data_emissao_pedido:              normalizarData(dados['data_emissao_pedido']),
       casas_decimais_valor_pedido:      casas.valor,
       casas_decimais_quantidade_pedido: casas.quantidade,
     }
@@ -1188,7 +1229,7 @@ export class SmartImportService {
     if (numeros.length === 0) return new Set()
     try {
       const existentes = await this.db['pedido'].findMany({
-        where: { tenant_id: tenantId, numero_pedido: { in: numeros } },
+        where: { id_organizacao: tenantId, numero_pedido: { in: numeros } },
         select: { numero_pedido: true },
       })
       return new Set((existentes as { numero_pedido: string }[]).map(p => p.numero_pedido))

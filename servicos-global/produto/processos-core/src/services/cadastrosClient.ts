@@ -17,11 +17,13 @@
 
 import {
   empresaSchema,
+  incotermSchema,
   moedaSchema,
   ncmSchema,
   opeSchema,
   unidadeSchema,
   type Empresa,
+  type Incoterm,
   type Moeda,
   type NCM,
   type OPE,
@@ -297,4 +299,43 @@ export async function buscarUnidadePorCodigo(
 
   const raw = await response.json()
   return unidadeSchema.parse(raw)
+}
+
+/**
+ * Busca um Incoterm no Cadastros pelo código (sigla — FOB, CIF, EXW, etc.).
+ *
+ * Endpoint: GET {CADASTROS_URL}/api/v1/cadastros/incoterms/:codigo
+ * Usado por `validarIncotermPedidoItem` na rota PUT do Pedido/Item.
+ * Retorna null em 404 (sigla não cadastrada) — falha alta nos demais erros.
+ */
+export async function buscarIncotermPorCodigo(
+  codigoIncoterm: string,
+  ctx: CadastrosRequestContext,
+): Promise<Incoterm | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${getCadastrosUrl()}/api/v1/cadastros/incoterms/${encodeURIComponent(codigoIncoterm)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de Incoterm: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return incotermSchema.parse(raw)
 }

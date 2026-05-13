@@ -41,11 +41,11 @@ A política vale para **todo produto e serviço** que referencia entidade de Cad
 
 ### Master Data (catálogos globais — leitura ao vivo única)
 
-`Pais`, `Moeda`, `Unidade`, `NcmSync` são **catálogos globais** sem `id_organizacao`. Diferente das entidades por organização (Empresa), eles:
+`Pais`, `Moeda`, `Unidade`, `Incoterm`, `NcmSync` são **catálogos globais** sem `id_organizacao`. Diferente das entidades por organização (Empresa), eles:
 
 - Têm **fonte única** em Cadastros — código fora de Cadastros não pode ter cópia hardcoded da lista
 - Sempre acessados via leitura ao vivo (REST direto)
-- Cache em memória client-side é permitido (lista raramente muda) — `usePaises()`, `useMoedas()`, `useUnidades()` etc. (singletons em `nucleo-global/Modais/modal-tabela-*` com cache + Zod). Produtos podem envolver com wrapper local que filtra por categoria — ex: `useUnidadesPedido({ categorias: ['peso'] })` no produto Pedido.
+- Cache em memória client-side é permitido (lista raramente muda) — `usePaises()`, `useMoedas()`, `useUnidades()`, `useIncoterms()` etc. (singletons em `nucleo-global/Modais/modal-tabela-*` com cache + Zod). Produtos podem envolver com wrapper local que filtra por categoria — ex: `useUnidadesPedido({ categorias: ['peso'] })` ou `useIncotermsPedido()` no produto Pedido.
 - **NÃO** geram snapshot por documento (mesma moeda hoje e ontem; mudar valor de moeda = nova moeda)
 - Quando uma entidade que se usa um deles for emitida em documento (Pedido cita Empresa-em-país-X), o snapshot da entidade-pai inclui os campos relevantes do master data como cópia denormalizada
 

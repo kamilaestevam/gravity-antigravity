@@ -15,10 +15,12 @@ import cors from 'cors'
 import { empresasRouter } from './routes/empresas.js'
 import { moedasRouter } from './routes/moedas.js'
 import { unidadesRouter } from './routes/unidades.js'
+import { incotermsRouter } from './routes/incoterms.js'
 import { ncmRouter } from './routes/ncm.js'
 import { opeRouter } from './routes/ope.js'
 import { paisesRouter } from './routes/paises.js'
 import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
+import { adminEmpresasRouter } from './routes/admin-empresas.js'
 import { errorHandler } from './lib/app-error.js'
 import { initNcmSync } from './initNcmSync.js'
 
@@ -42,6 +44,7 @@ app.use((req, _res, next) => {
 app.use('/api/v1/empresas', empresasRouter)
 app.use('/api/v1/cadastros/moedas', moedasRouter)
 app.use('/api/v1/cadastros/unidades', unidadesRouter)
+app.use('/api/v1/cadastros/incoterms', incotermsRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 app.use('/api/v1/cadastros/paises', paisesRouter)
@@ -49,6 +52,10 @@ app.use('/api/v1/cadastros/paises', paisesRouter)
 // Admin NCM Sync — chamado pelo configurador via S2S (x-internal-key).
 // Endpoints: /, /historico, /sincronizar, /agendamento, /agendamento/executar
 app.use('/api/v1/cadastros/admin/ncm-sync', adminNcmSyncRouter)
+
+// Admin Empresas — listagem CROSS-ORGANIZAÇÃO (S2S only, audit logged
+// pelo proxy do Configurador). Ver routes/admin-empresas.ts (LINT-EXCEPTION).
+app.use('/api/v1/admin/empresas', adminEmpresasRouter)
 
 app.get('/health', (_req, res) => {
   res.status(200).json({

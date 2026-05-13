@@ -221,6 +221,10 @@ export interface OrganizacaoApi {
   cidade_organizacao?: string | null
   segmento_organizacao?: string | null
   tipo_organizacao?: string | null
+  /** Indica se a organização hospeda colaboradores Gravity. Usado no
+   *  modal de convite admin para filtrar orgs onde SUPER_ADMIN/ADMIN
+   *  podem ser criados. Decisão dono 2026-05-12. */
+  hospeda_colaboradores_gravity?: boolean
   data_criacao_organizacao: string
   _count?: { usuarios: number; workspaces: number }
   usuarios?: UsuarioOrgApi[]
@@ -249,6 +253,9 @@ export const organizacaoAdminResponseSchema = z.object({
   cidade_organizacao:     z.string().nullable().optional(),
   segmento_organizacao:   z.string().nullable().optional(),
   tipo_organizacao:       z.string().nullable().optional(),
+  // Flag para filtrar orgs no modal de convite admin: SUPER_ADMIN/ADMIN só
+  // podem ser criados em organizações que hospedam colaboradores Gravity.
+  hospeda_colaboradores_gravity: z.boolean().optional(),
 })
 export const adminOrganizacaoUpdateResponseSchema = z.object({
   organizacao: organizacaoAdminResponseSchema,

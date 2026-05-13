@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import {
   Users, UserCircleCheck, UserCircleMinus,
-  PencilSimple,
+  PencilSimple, PauseCircle, PlayCircle,
   ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning, ArrowClockwise
 } from '@phosphor-icons/react'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
@@ -167,15 +167,23 @@ export function UsuariosAdmin() {
     return Array.from(orgs).sort()
   }, [usuarios])
 
-  // Lista de orgs para o select do modal de convite — fonte real (com CUID),
-  // não derivado de `usuarios` (que dava nome_organizacao como string).
-  const [orgsAdmin, setOrgsAdmin] = useState<Array<{ id_organizacao: string; nome_organizacao: string }>>([])
+  // Lista de orgs para o select do modal de convite — fonte real (com CUID +
+  // flag hospeda_colaboradores_gravity), não derivado de `usuarios`.
+  // Decisão dono 2026-05-12: para SUPER_ADMIN/ADMIN, filtrar pra mostrar
+  // apenas orgs que hospedam colaboradores Gravity (auto-seleção se só 1).
+  const [orgsAdmin, setOrgsAdmin] = useState<Array<{ id_organizacao: string; nome_organizacao: string; hospeda_colaboradores_gravity: boolean }>>([])
 
   // Carrega lista de orgs uma vez ao montar
   useEffect(() => {
     let cancel = false
     adminOrganizacoesApi.list({ limit: 200 })
-      .then(res => { if (!cancel) setOrgsAdmin(res.organizacoes.map(o => ({ id_organizacao: o.id_organizacao, nome_organizacao: o.nome_organizacao }))) })
+      .then(res => {
+        if (!cancel) setOrgsAdmin(res.organizacoes.map(o => ({
+          id_organizacao: o.id_organizacao,
+          nome_organizacao: o.nome_organizacao,
+          hospeda_colaboradores_gravity: !!o.hospeda_colaboradores_gravity,
+        })))
+      })
       .catch(() => { /* mantém vazio — UI mostra placeholder */ })
     return () => { cancel = true }
   }, [])
@@ -450,20 +458,67 @@ export function UsuariosAdmin() {
     {
       key: 'status', label: t('admin.usuarios-globais.tabela.status'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.status_operacional'), tooltipDescricao: t('admin.usuarios-globais.tabela.status_desc'),
-      render: (v) => (
-        <span style={{
-          display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
-          fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
-          background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-          color: v === 'Ativo' ? '#34d399' : '#f87171',
-          border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}`
-        }}>{v as string}</span>
-      )
+      render: (v) => {
+        // Alinhado ao padrão da tela workspace/Usuarios.tsx (decisão dono
+        // 2026-05-12): 3 estados com cores idênticas no Configurador e Admin.
+        // ATIVO/CONVIDADO vêm do backend, INATIVO é persistido em
+        // Usuario.status_usuario (commit 74670de9).
+        const ESTILO_BADGE: Record<string, { bg: string; fg: string; border: string; label: string }> = {
+          Ativo:     { bg: 'rgba(52,211,153,0.12)', fg: '#34d399', border: 'rgba(52,211,153,0.2)', label: t('comum.ativo') },
+          Convidado: { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24', border: 'rgba(251,191,36,0.2)', label: t('workspace.users.status.convidado') },
+          Inativo:   { bg: 'rgba(248,113,113,0.12)', fg: '#f87171', border: 'rgba(248,113,113,0.2)', label: t('comum.inativo') },
+        }
+        const e = ESTILO_BADGE[v as string] ?? ESTILO_BADGE.Inativo
+        return (
+          <span style={{
+            display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
+            fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+            background: e.bg, color: e.fg, border: `1px solid ${e.border}`,
+          }}>{e.label}</span>
+        )
+      }
     },
   ]
 
   // COLUNAS_FILHAS removido em 2026-05-05 — o expandido agora usa
   // ExpandidoEditorVinculos (componente compartilhado, padrão Assinaturas).
+
+  // Handler de toggle status (ATIVO ↔ INATIVO). Espelha o do Configurador
+  // workspace (Usuarios.tsx). CONVIDADO não alterna — use Cancelar Convite.
+  // Backend: PATCH /api/v1/usuarios/:id/status com 5 validações + Mand. 04
+  // anti-bricking. Decisão dono 2026-05-12.
+  async function handleAlternarStatusUsuario(u: UsuarioGlobalUI) {
+    if (u.status === 'Convidado') return // CONVIDADO usa Cancelar Convite
+    const novoStatus: 'ATIVO' | 'INATIVO' = u.status === 'Ativo' ? 'INATIVO' : 'ATIVO'
+    try {
+      const { usuario: atualizado } = await usuariosApi.atualizarStatus(u.id_usuario, novoStatus)
+      // Atualiza estado local pra refletir imediatamente sem refetch.
+      setUsuarios((prev) => prev.map((x) =>
+        x.id_usuario === u.id_usuario
+          ? { ...x, status: atualizado.status_usuario === 'ATIVO' ? 'Ativo' : 'Inativo' }
+          : x,
+      ))
+      addNotification({
+        type: 'success',
+        message: novoStatus === 'INATIVO'
+          ? `Usuário ${u.nome_usuario} desativado.`
+          : `Usuário ${u.nome_usuario} reativado.`,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao alterar status do usuário.'
+      // Mensagens específicas (Mand. 04 — usuário não fica cego):
+      addNotification({
+        type: 'error',
+        message: msg.includes('último Master')
+          ? '⚠️ Não é possível inativar o último Master ativo da organização. Promova outro usuário a Master primeiro.'
+          : msg.includes('próprio status') || msg.includes('a si mesmo')
+            ? '⚠️ Você não pode alterar o próprio status. Peça a outro admin.'
+            : msg.includes('CONVIDADO')
+              ? '⚠️ Este usuário ainda é Convidado. Use "Cancelar Convite" para revogar.'
+              : msg,
+      })
+    }
+  }
 
   const ACOES: TabelaGlobalAcao<UsuarioGlobalUI>[] = [
     {
@@ -471,6 +526,56 @@ export function UsuariosAdmin() {
       icone: <Key size={15} weight="bold" aria-label={t('admin.usuarios-globais.acao_permissoes')} />,
       tooltip: t('admin.usuarios-globais.acao_permissoes'),
       onClick: setUsuarioPermissoes,
+    },
+    {
+      id: 'toggle-status',
+      // Ícone alterna entre Play (pra ATIVAR) e Pause (pra INATIVAR).
+      // CONVIDADO: botão fica desabilitado (use Cancelar Convite).
+      icone: <PauseCircle size={15} weight="bold" />,
+      tooltip: (u) =>
+        u.status === 'Convidado' ? 'Convidado — use Cancelar Convite' :
+        u.status === 'Ativo'     ? 'Inativar usuário' :
+        'Reativar usuário',
+      disabled: (u) => u.status === 'Convidado',
+      onClick: handleAlternarStatusUsuario,
+      renderCustom: (u) => (
+        <TooltipGlobal descricao={
+          u.status === 'Convidado' ? 'Convidado — use Cancelar Convite' :
+          u.status === 'Ativo'     ? 'Inativar usuário' :
+          'Reativar usuário'
+        }>
+          <button
+            type="button"
+            disabled={u.status === 'Convidado'}
+            onClick={(e) => { e.stopPropagation(); handleAlternarStatusUsuario(u) }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'transparent', border: '1px solid transparent',
+              color: u.status === 'Convidado' ? '#475569' : '#64748b',
+              cursor: u.status === 'Convidado' ? 'not-allowed' : 'pointer',
+              opacity: u.status === 'Convidado' ? 0.4 : 1,
+              transition: 'all 0.15s', flexShrink: 0,
+            }}
+            onMouseEnter={(ev) => {
+              if (u.status === 'Convidado') return
+              const isAtivando = u.status === 'Inativo'
+              ev.currentTarget.style.background = isAtivando ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)'
+              ev.currentTarget.style.borderColor = isAtivando ? 'rgba(52,211,153,0.3)' : 'rgba(251,191,36,0.3)'
+              ev.currentTarget.style.color = isAtivando ? '#34d399' : '#fbbf24'
+            }}
+            onMouseLeave={(ev) => {
+              ev.currentTarget.style.background = 'transparent'
+              ev.currentTarget.style.borderColor = 'transparent'
+              ev.currentTarget.style.color = '#64748b'
+            }}
+          >
+            {u.status === 'Inativo'
+              ? <PlayCircle size={16} weight="bold" />
+              : <PauseCircle size={16} weight="bold" />}
+          </button>
+        </TooltipGlobal>
+      ),
     },
     {
       id: 'edit',
@@ -921,28 +1026,85 @@ export function UsuariosAdmin() {
             />
           </CampoGeralGlobal>
 
-          <CampoGeralGlobal
-            label={t('admin.usuarios-globais.tabela.organizacao')}
-            obrigatorio
-            tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
-            tooltipDescricao={t('admin.usuarios-globais.tabela.org_desc')}
-          >
-            <SelectGlobal
-              opcoes={orgsAdmin.map(o => ({ valor: o.id_organizacao, rotulo: o.nome_organizacao }))}
-              valor={fIdOrganizacaoAlvo}
-              aoMudarValor={(v) => {
-                const novoId = String(v)
-                setFIdOrganizacaoAlvo(novoId)
-                // Reset workspaces ao trocar org (workspaces são por org)
-                setFWorkspacesAlvo([])
-                // Dispara lazy load reusando o cache compartilhado com o editor de vínculos
-                if (novoId) void carregarWorkspacesOrg(novoId)
-              }}
-              iconeEsquerda={<Buildings size={18} weight="duotone" />}
-              buscavel
-              placeholder={t('admin.usuarios-globais.form_org_placeholder')}
-            />
-          </CampoGeralGlobal>
+          {/* Organização ALVO — comportamento condicional (decisão dono 2026-05-12):
+              - SUPER_ADMIN/ADMIN: só pode ser criado em org que hospeda colaboradores
+                Gravity (regra do backend). Filtra orgs elegíveis. Se há só 1, esconde
+                o select e auto-seleciona (esses tipos têm acesso global por Mand. 04
+                — a org é só um vínculo administrativo).
+              - MASTER/PADRAO/FORNECEDOR: mostra todas as orgs ATIVAS. */}
+          {(() => {
+            const isGravityInterno = tipoBackendForm === 'SUPER_ADMIN' || tipoBackendForm === 'ADMIN'
+            const orgsFiltradas = isGravityInterno
+              ? orgsAdmin.filter(o => o.hospeda_colaboradores_gravity)
+              : orgsAdmin
+
+            // Auto-selecionar única opção (Admin/SAdmin geralmente só tem Gravity HQ)
+            if (isGravityInterno && orgsFiltradas.length === 1 && fIdOrganizacaoAlvo !== orgsFiltradas[0].id_organizacao) {
+              // Sincroniza no próximo tick (evita setState dentro do render)
+              queueMicrotask(() => setFIdOrganizacaoAlvo(orgsFiltradas[0].id_organizacao))
+            }
+            // Limpa seleção se mudou tipo e a org atual não é mais elegível
+            if (isGravityInterno && fIdOrganizacaoAlvo && !orgsFiltradas.find(o => o.id_organizacao === fIdOrganizacaoAlvo)) {
+              queueMicrotask(() => setFIdOrganizacaoAlvo(''))
+            }
+
+            // Esconde o seletor quando há exatamente 1 org elegível p/ Admin/SAdmin
+            const escondeSelect = isGravityInterno && orgsFiltradas.length === 1
+
+            if (escondeSelect) {
+              const orgEscolhida = orgsFiltradas[0]
+              return (
+                <CampoGeralGlobal
+                  label={t('admin.usuarios-globais.tabela.organizacao')}
+                  tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
+                  tooltipDescricao="Admin/Super Admin têm acesso global — vinculado automaticamente à organização Gravity."
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.625rem',
+                    padding: '0.75rem 1rem', borderRadius: 10,
+                    background: 'rgba(34,197,94,0.06)',
+                    border: '1px solid rgba(34,197,94,0.18)',
+                    color: '#e2e8f0', fontSize: '0.8125rem',
+                  }}>
+                    <Buildings size={16} weight="duotone" color="#22c55e" />
+                    <span style={{ fontWeight: 600 }}>{orgEscolhida.nome_organizacao}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Acesso global (automático)
+                    </span>
+                  </div>
+                </CampoGeralGlobal>
+              )
+            }
+
+            return (
+              <CampoGeralGlobal
+                label={t('admin.usuarios-globais.tabela.organizacao')}
+                obrigatorio
+                tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
+                tooltipDescricao={
+                  isGravityInterno
+                    ? 'SUPER_ADMIN/ADMIN só podem ser criados em organizações que hospedam colaboradores Gravity.'
+                    : t('admin.usuarios-globais.tabela.org_desc')
+                }
+              >
+                <SelectGlobal
+                  opcoes={orgsFiltradas.map(o => ({ valor: o.id_organizacao, rotulo: o.nome_organizacao }))}
+                  valor={fIdOrganizacaoAlvo}
+                  aoMudarValor={(v) => {
+                    const novoId = String(v)
+                    setFIdOrganizacaoAlvo(novoId)
+                    // Reset workspaces ao trocar org (workspaces são por org)
+                    setFWorkspacesAlvo([])
+                    // Dispara lazy load reusando o cache compartilhado com o editor de vínculos
+                    if (novoId) void carregarWorkspacesOrg(novoId)
+                  }}
+                  iconeEsquerda={<Buildings size={18} weight="duotone" />}
+                  buscavel
+                  placeholder={t('admin.usuarios-globais.form_org_placeholder')}
+                />
+              </CampoGeralGlobal>
+            )
+          })()}
 
           {/* Workspaces — só para PADRAO/FORNECEDOR (MASTER/SAdmin/Admin têm bypass).
               Lazy-load: lista aparece após seleção da org. Default = nenhum selecionado. */}

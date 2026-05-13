@@ -145,6 +145,10 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
           cidade_organizacao: true,
           segmento_organizacao: true,
           tipo_organizacao: true,
+          // Decisão dono 2026-05-12: necessário no modal de convite admin para
+          // filtrar orgs onde SUPER_ADMIN/ADMIN podem ser criados (apenas as
+          // que hospedam colaboradores Gravity). Veja UsuariosAdmin.tsx.
+          hospeda_colaboradores_gravity: true,
           data_criacao_organizacao: true,
           _count: { select: { users_organizacao: true, companies_organizacao: true } },
           companies_organizacao: {

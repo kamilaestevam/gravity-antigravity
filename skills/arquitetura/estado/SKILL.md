@@ -203,6 +203,44 @@ function SimulacaoPage() {
 
 ---
 
+## Pattern — Invalidação de cache de filhos via touch do `updated_at`
+
+> Aprovado em 2026-05-11 durante a entrega Duplicar Pedido (commit `0ab3cc99`). Pattern reusável para qualquer tabela hierárquica com lazy load de filhos.
+
+**Problema:** componentes que cacheiam filhos sob demanda (ex: `useGTExpandir` do `@nucleo/tabela-virtual-global`) precisam saber quando o cache ficou stale. Re-fetch a cada mutation é caro; manter cache para sempre dá UI fantasma.
+
+**Solução:** o componente usa um `itemVersion(pai) => string` como chave de invalidação. O hook só re-fetcha filhos quando essa versão muda. O pattern obrigatório:
+
+| Camada | O que faz |
+|---|---|
+| **Banco** | Coluna `data_atualizacao_*` com `@updatedAt` no Prisma (já existe nos models) |
+| **Backend** | Toda mutation que afeta a hierarquia (criar/excluir/duplicar/transferir filhos) **toca explicitamente** o `data_atualizacao_*` do pai. Mesmo quando a mutation só mexe nos filhos: `tx.pedido.update({ where: { id_pedido }, data: { data_atualizacao_pedido: new Date() } })` |
+| **API** | O mapper expõe esse campo como `updated_at` no payload |
+| **Frontend** | `itemVersion = pai => pai.updated_at` no `useGTExpandir` ou hook equivalente |
+
+**Exemplo real** (`servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts`):
+
+```ts
+// Após shift de sequência + criação dos itens novos
+await tx.pedido.update({
+  where: { id_pedido: payload.pedido_id },
+  data: { data_atualizacao_pedido: new Date() },
+})
+```
+
+Sem essa linha, a Lista expandida do Pedido continuaria mostrando o cache stale após duplicar item — item duplicado só apareceria após F5.
+
+**Quando aplicar este pattern:**
+- Sempre que uma mutation mexe nos filhos de uma entidade exibida em tabela hierárquica
+- Mesmo quando a entidade pai não muda diretamente — basta que os filhos dela mudem
+- Em consolidações, transferências entre pedidos, exclusão de itens, etc.
+
+**Quando NÃO aplicar:**
+- Mutações que mudam o próprio pai (essas já tocam `updated_at` automaticamente via `@updatedAt`)
+- Tabelas sem hierarquia ou sem lazy load — não há cache de filhos para invalidar
+
+---
+
 ## Event Bus — Padrão Obrigatório entre Módulos da Organização
 
 Quando múltiplos serviços da organização estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus tipado por generics:

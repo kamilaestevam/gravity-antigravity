@@ -1,53 +1,90 @@
 # Duplicar e Excluir Pedidos — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Versão:** 2.0
+> **Última atualização:** 2026-05-13
+> **Status:** Implementado (commit `0ab3cc99`)
 
 ---
 
 ## Duplicar
 
 ### O que é
-Cria uma cópia exata de um ou mais pedidos (ou itens), respeitando as configurações do tenant.
+Cria cópia(s) de pedidos e/ou itens, respeitando configurações da organização e a regra arquitetural de sincronização pai↔filhos do `nucleo-global`.
 
-### Escopo
-- Usuário pode selecionar **1 ou mais pedidos** → duplica todos
-- Usuário pode selecionar **1 ou mais itens** dentro de um pedido → duplica só os itens selecionados dentro do mesmo pedido
-- Pode duplicar pedidos em **qualquer status** (rascunho, aberto, transferencia, consolidado, cancelado)
+### Escopo — 3 cenários no mesmo modal
+
+| Seleção | O que acontece | Endpoint backend |
+|---|---|---|
+| **Só pedidos** | N pedidos novos são criados (cada um com todos seus itens via cascade) | `POST /api/v1/pedidos/duplicacoes/confirmar` |
+| **Só itens** | M itens duplicados DENTRO do(s) pedido(s) pai(s), sem criar pedido novo | `POST /api/v1/pedidos/duplicacoes/itens` (1× por pedido pai) |
+| **Misto** (pedido + item) | Ambos em paralelo via `Promise.all` — toast consolidado: "N pedidos e M itens duplicados" | Os 2 endpoints |
+
+Pode duplicar pedidos em **qualquer status** (rascunho, aberto, em_andamento, aprovado, transferencia, consolidado, cancelado).
+
+### Regra universal de sync pai↔filhos (nucleo-global)
+
+> Documentada em `skills/arquitetura/nucleo-global/SKILL.md` — não é específica do Pedido.
+
+A `TabelaVirtualGlobal` sincroniza pais e filhos automaticamente: **pai marcado ⟺ todos os filhos do pai marcados**. Marcar o checkbox do pedido marca todos os itens; marcar o último item que faltava marca o pai. Sem prop opcional — comportamento fixo.
+
+**Para evitar duplicação dupla** (item seria criado 2 vezes — uma via cascade do pai, outra via `/duplicacoes/itens`), o modal **filtra** os itens cujo `pedido_id` já está em `pedidos` selecionados. O cascade do pai cuida deles.
+
+### Regra de ordenação após duplicação (invioláveis)
+
+| Tipo de duplicado | Posição na Lista | Como é garantido |
+|---|---|---|
+| **Pedido novo** | Primeira linha | `orderBy: data_criacao_pedido DESC` no GET /pedidos + `data_criacao_pedido @default(now())` no INSERT |
+| **Item novo** (dentro do pedido pai) | Linha imediatamente abaixo do original | Algoritmo "renumerar limpo" em `duplicarExcluirService.ts:duplicarItens` |
 
 ### Configurações
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `duplicar_numero_auto` | Se true: gera número automaticamente pela regra de numeração configurada. Se false: usuário digita o número | `false` (usuário digita) |
-| `duplicar_copiar_datas` | Se true: copia as datas do pedido original. Se false: reseta datas (ficam em branco) | `false` (reseta datas) |
-| `duplicar_status_inicial` | Status com que o pedido duplicado começa: `'copiar'` (mesmo do original) ou qualquer status válido | `'copiar'` |
+| `duplicar_numero_auto` | Se true: gera número automaticamente pela regra de numeração. Se false: usuário digita o número | `false` (usuário digita) |
+| `duplicar_copiar_datas` | Se true: copia datas do original. Se false: reseta datas (ficam em branco). **NÃO afeta `data_emissao_pedido`** — ver exceção abaixo | `false` |
+| `duplicar_status_inicial` | `'copiar'` (mesmo do original) ou qualquer status válido | `'copiar'` |
 
-### Campos sempre copiados
+**Exceção arquitetural** — `data_emissao_pedido` é regra fixa, não respeita `duplicar_copiar_datas`. Razão: é chave de ordenação da Lista. Pedido duplicado sempre nasce com `new Date()` para garantir que apareça no topo.
+
+### Campos sempre copiados (pedido novo)
+
 - Todos os campos do pedido (incoterm, moeda, exportador, referências, etc.)
-- Todos os itens (part_number, NCM, descrição, quantidades, valores)
+- Todos os itens via cascade (part_number, NCM, descrição, etc.)
 - Colunas customizadas do usuário
+- Snapshots de empresa congelados do original (não re-consulta Cadastros — duplicar não é re-emissão)
 
-### Campos nunca copiados
-- `id` — novo ID gerado
-- `created_at`, `updated_at` — timestamps da cópia
-- `pedidos_origem` — não é uma consolidação, começa limpo
-- Histórico de transferências
+### Campos NUNCA copiados
 
-### Campos condicionais (por configuração)
-- `numero_pedido` — auto ou usuário digita
-- `data_emissao_pedido`, `data_embarque` — copia ou reseta
-- `status` — copia ou começa em outro status
+| Campo | Razão |
+|---|---|
+| `id_pedido` | Novo ID gerado |
+| `data_criacao_pedido`, `data_atualizacao_pedido` | Timestamps da cópia |
+| `ids_origem_consolidacao_pedido` | Pedido novo não é consolidação |
+| `data_consolidacao_pedido`, `data_transferencia_saldo_pedido` | Histórico não é herdado |
+
+### Quantidades de execução SEMPRE zeradas no item duplicado
+
+| Campo do `pedido_item` | Por que é zerado |
+|---|---|
+| `quantidade_pronta_item` | Representa marcação real de "pronto" — não pode ser copiada sem ação correspondente |
+| `quantidade_transferida_item` | Representa transferência para processo de embarque — copiar geraria saldo fantasma sem processo correspondente |
+| `quantidade_cancelada_item` | Representa cancelamento real — não faz sentido herdar |
+
+`quantidade_atual_item` recebe `quantidade_inicial_item` (item nasce íntegro). Sem essa regra, soma do dashboard ficaria inflada por execução fantasma.
+
+### Aviso pré-duplicação (transparência com o usuário)
+
+Se algum item selecionado tem qualquer das 3 quantidades de execução > 0, o modal exibe um banner amarelo **antes do botão Duplicar**, listando que esses campos serão zerados e o motivo (evita saldo fantasma).
 
 ### Fluxo UX
-1. Usuário seleciona pedido(s) ou item(s)
-2. Clica em "Duplicar"
-3. Se `duplicar_numero_auto = false`: modal pede o número (ou números, um por pedido)
-4. Se `duplicar_numero_auto = true`: modal exibe o(s) número(s) gerado(s) (editável)
-5. Preview com campos que serão copiados vs resetados
-6. Confirmar → pedidos/itens criados
+1. Usuário seleciona pedido(s), item(s), ou mistura
+2. Clica em "Duplicar" (toolbar) ou ação "Duplicar" do dropdown da linha
+3. Modal abre com título dinâmico ("Duplicar 1 pedido e 2 itens")
+4. Se há pedidos: usuário digita o número da cópia de cada um (ou aceita o auto-gerado)
+5. Se há itens com execução > 0: banner amarelo de aviso aparece
+6. Confirma → backend processa em paralelo, toast consolidado
+7. Modal final mostra resumo dos novos pedidos + itens criados
 
 ---
 
@@ -61,17 +98,17 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 - Usuário pode selecionar **1 ou mais itens** dentro de um pedido → exclui só os itens
 
 ### Regras fixas (sempre válidas)
-- Excluir um pedido **remove todos os seus itens** automaticamente
-- Excluir um item **mantém o pedido pai** — verificar configuração `excluir_pedido_sem_item`
+- Excluir um pedido **remove todos os seus itens** automaticamente (cascade do schema Prisma)
+- Excluir um item **mantém o pedido pai** — verificar configuração `excluir_pedido_sem_item_permitido`
 - Requer permissão de exclusão configurada
-- Auditoria obrigatória: registra o que foi excluído, por quem e quando
+- Auditoria obrigatória via `auditLog`: registra o que foi excluído, por quem e quando
 
 ### Configurações
 
 | Configuração | Descrição | Default |
 |---|---|---|
-| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho']` |
-| `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `false` |
+| `excluir_status_permitidos` | Lista de status que podem ser excluídos | `['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']` |
+| `excluir_pedido_sem_item_permitido` | Se false: ao excluir o último item, exclui o pedido pai também | `true` |
 
 ### Fluxo de restrição por status
 - Se pedido não está em um status da lista `excluir_status_permitidos` → bloqueia com mensagem explicando quais status permitem exclusão
@@ -85,14 +122,14 @@ Remove definitivamente um ou mais pedidos (ou itens). **Hard delete** — não h
 6. Confirmar → exclusão permanente
 
 ### Regra `excluir_pedido_sem_item_permitido`
-- `false` (default): ao excluir o último item de um pedido, o pedido é excluído junto automaticamente
-- `true`: pedido pode existir sem itens — ao excluir o último item, o pedido permanece vazio
+- `true` (default): pedido pode existir sem itens — ao excluir o último item, o pedido permanece vazio
+- `false`: ao excluir o último item de um pedido, o pedido é excluído junto automaticamente
 
 ---
 
 ## Configurações Consolidadas (Duplicar + Excluir)
 
-Adicionar ao model `ConfiguracaoPedido`:
+Tabela `configuracao_pedido` (model `ConfiguracaoPedido`):
 
 ```prisma
 // Duplicar
@@ -101,6 +138,14 @@ duplicar_copiar_datas             Boolean  @default(false)
 duplicar_status_inicial           String   @default("copiar")
 
 // Excluir
-excluir_status_permitidos         String[] @default(["rascunho"])
-excluir_pedido_sem_item_permitido Boolean  @default(false)
+excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+excluir_pedido_sem_item_permitido Boolean  @default(true)
 ```
+
+---
+
+## Referências cruzadas
+
+- **Documento técnico:** [`DUPLICAR-EXCLUIR-TECNICO.md`](./DUPLICAR-EXCLUIR-TECNICO.md) — arquitetura, endpoints, algoritmo de shift
+- **Skill do produto:** [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4
+- **Skill do componente:** [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — seção "Tabelas hierárquicas — sync pai↔filhos"

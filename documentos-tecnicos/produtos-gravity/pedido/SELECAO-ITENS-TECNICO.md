@@ -1,86 +1,131 @@
 # Seleção e Ações em Itens (Linhas Filho) — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
+> **Versão:** 2.0
+> **Última atualização:** 2026-05-13
+> **Status:** Implementado (selecionável + sync universal pai↔filhos)
 
 ---
 
 ## Contexto
 
-A tabela de pedidos tem hierarquia pai (Pedido) / filho (PedidoItem). Hoje apenas os pedidos têm checkbox e ações. Os itens precisam ter o mesmo suporte.
+A tabela de pedidos tem hierarquia pai (Pedido) / filho (PedidoItem). A seleção de itens (linhas filho) está habilitada via `selecionavelFilhos={true}` no `TabelaVirtualGlobal`, e segue a **regra universal de sincronização pai↔filhos** do `nucleo-global` (aprovada 2026-05-11).
 
 O usuário pode selecionar itens de **pedidos diferentes** ao mesmo tempo — cada item carrega seu `pedido_id` para o backend saber a origem.
 
 ---
 
-## Mudanças no TabelaVirtualGlobal (`nucleo-global`)
+## Regra universal de sync pai↔filhos
 
-### Novas props em `GTVirtualTableProps`
+> Documentada em [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — seção "Tabelas hierárquicas — sync pai↔filhos".
 
-```ts
-// Habilita checkbox e seleção nas linhas filho
-selecionavelFilhos?: boolean
+**Invariante:** pai marcado ⟺ todos os filhos do pai marcados. Sem prop opcional — comportamento fixo do componente.
 
-// Callback chamado quando seleção de itens muda
-onSelecaoFilho?: (itensSelecionados: C[]) => void
-
-// Ações inline na linha filho (menu de três pontos)
-acoesFilho?: (item: C) => GTAcaoLinha[]
-```
-
-### Comportamento
-
-- Checkbox aparece na primeira célula da linha filho quando `selecionavelFilhos=true`
-- Seleção de filho é **independente** da seleção do pai — selecionar o pedido não seleciona seus itens automaticamente
-- "Selecionar tudo" na linha pai seleciona todos os itens daquele pedido (opcional, configurável)
-- Itens de pedidos diferentes podem ser selecionados ao mesmo tempo
+| Ação | Resultado automático |
+|---|---|
+| Marca pai | Todos os filhos cached do pai marcam |
+| Desmarca pai | Todos desmarcam |
+| Marca último filho que faltava | Pai marca automaticamente |
+| Desmarca qualquer filho com pai marcado | Pai desmarca |
+| Header "selecionar todos" | Todos pais visíveis + todos os filhos cached |
 
 ---
 
-## Mudanças no ListaPedidos
-
-### Novo estado
+## Props ativas no `TabelaVirtualGlobal`
 
 ```ts
-const [itensSelecionados, setItensSelecionados] = useState<PedidoItem[]>([])
+selecionavelFilhos: boolean           // habilita checkbox nas linhas filho (true no Pedido)
+onSelecaoFilho?: (itens: C[]) => void  // callback ao mudar seleção de filhos
+acoesFilho?: (item: C) => GTAcaoLinha[] // dropdown de ações inline na linha filho
+filhoId?: (filho: C) => string         // extrai id do filho (default: `(f) => f.id`)
 ```
 
-### Toolbar contextual
+A `TabelaVirtualGlobal` mantém internamente:
+- `selecionados: Set<string>` — ids dos pedidos pais marcados (hook `useGTSelecao`)
+- `filhosSelecionados: Set<string>` — ids dos itens marcados (`useState` local)
+- `filhosCacheMap: Map<string, C>` — objetos dos filhos marcados (ref local)
 
-Quando `itensSelecionados.length > 0`, mostrar toolbar de itens com:
-
-| Botão | Ação | Ícone |
-|---|---|---|
-| Transferir (N itens) | Abre ModalTransferir com itens pré-selecionados | ArrowsLeftRight |
-| Duplicar (N itens) | Abre ModalDuplicar em modo item | CopySimple |
-| Editar em Massa (N itens) | Abre ModalEdicaoEmMassa em modo item | PencilLine |
-| Excluir (N itens) | Preview + confirmação de exclusão de itens | Trash |
-
-Quando há **mix** (pedidos E itens selecionados), mostrar os dois toolbars separados:
-```
-[Pedidos: Consolidar · Transferir · Duplicar · Excluir]
-[Itens:   Transferir · Duplicar · Editar em Massa · Excluir]
-```
-
-### Passagem para os modais
-
-Cada `PedidoItem` selecionado já contém `pedido_id` — passado diretamente para os modais sem necessidade de lookup adicional.
+Os 2 estados são sincronizados automaticamente pela lógica do componente (não pelo consumidor).
 
 ---
 
-## Menu de ação inline na linha filho
+## Estado no `Pedidos.tsx` (`selecaoStore`)
 
-Botão de três pontos (ou ícones rápidos) ao hover na linha filho:
-
+```ts
+// store Zustand em produto/pedido/client/src/shared/state/selecaoStore.ts
+interface SelecaoState {
+  pedidosSelecionados: Pedido[]
+  itensSelecionados: PedidoItem[]
+  hasMixedTipos: boolean    // true quando há importação + exportação juntos
+}
 ```
-PedidoItem row: [...] ⠿  ABC-001  100 un  $500  [→ Transferir] [⧉ Duplicar] [🗑]
+
+Consumido pela página via `usePedidosSelecionados()` e `useItensSelecionados()` (selectors estáveis).
+
+---
+
+## Toolbar contextual (compartilhada)
+
+Os botões da toolbar aceitam **pedido OU item OU mistura** — não há toolbars separadas. Label e tooltip são dinâmicos.
+
+Exemplo do botão **Duplicar**:
+
+```tsx
+disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
+titulo={
+  pedidosSelecionados.length > 0 && itensSelecionados.length > 0
+    ? `Duplicar · ${nP} pedido(s) + ${nI} item(ns)`
+    : pedidosSelecionados.length > 0
+      ? `Duplicar · ${nP} pedido(s)`
+      : `Duplicar · ${nI} item(ns)`
+}
 ```
 
-Ações inline (sem seleção em massa):
-- **Transferir** — abre ModalTransferir com esse item pré-selecionado
-- **Duplicar** — duplica o item imediatamente (confirma inline)
-- **Excluir** — confirma inline e exclui
+Botões que se comportam assim hoje: **Duplicar**, **Transferir**.
+
+| Botão | Aceita só pedido | Aceita só item | Aceita misto |
+|---|:-:|:-:|:-:|
+| Transferir | ✅ | ✅ | ✅ |
+| Duplicar | ✅ | ✅ | ✅ |
+| Consolidar | ✅ (≥2) | ❌ | ❌ |
+| Editar em Massa | ✅ | — | — |
+| Gerar Documento | ✅ | — | — |
+| Excluir | ✅ | (via dropdown da linha) | — |
+
+---
+
+## Dropdown de ações da linha filho
+
+Botão de três pontos ao hover. Implementado via prop `acoesFilho` da `TabelaVirtualGlobal`:
+
+```ts
+const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
+  {
+    label: 'Transferir',
+    icone: <ArrowsLeftRight size={13} weight="duotone" />,
+    onClick: () => {
+      setItensSelecionados([item])
+      setModalTransferirAberto(true)
+    },
+  },
+  {
+    label: 'Duplicar',
+    icone: <CopySimple size={13} weight="duotone" />,
+    onClick: () => {
+      setItensSelecionados([item])
+      setModalDuplicarAberto(true)
+    },
+  },
+  {
+    label: 'Excluir',
+    icone: <Trash size={13} weight="duotone" />,
+    perigo: true,
+    onClick: async () => { /* excluirApi.excluirItens(...) */ },
+  },
+]), [/* deps */])
+```
+
+Quando o usuário clica em "Duplicar" no dropdown, o handler popula `itensSelecionados` com aquele item e abre o modal — que então trata o cenário "só item" do fluxo misto.
 
 ---
 
@@ -88,14 +133,26 @@ Ações inline (sem seleção em massa):
 
 ```
 PO-001 [expandido]
-  ├── [✓] Item ABC-001  100 un
+  ├── [✓] Item ABC-001  100 un      ← seq 1, marcado
   └── [ ] Item DEF-002   50 un
 
 PO-002 [expandido]
-  ├── [✓] Item ABC-001   30 un   ← mesmo part_number, pedido diferente
+  ├── [✓] Item ABC-001   30 un      ← mesmo part_number, pedido diferente
   └── [ ] Item XYZ-003   20 un
-
-Toolbar itens: Transferir (2) · Duplicar (2) · Excluir (2)
 ```
 
-Cada item selecionado carrega: `{ id, pedido_id, part_number, quantidade_atual, ... }`
+`itensSelecionados` = `[item1_PO001, item1_PO002]`. Toolbar mostra "Duplicar (2 itens)".
+
+Quando o usuário confirma Duplicar:
+- Modal agrupa por `pedido_id` (`itensPorPedido` no `ModalPedidosDuplicar.tsx`)
+- Faz **1 chamada `duplicarItens` por pedido pai distinto** — 2 chamadas em paralelo
+- Backend renumera filhos do pai (cada cópia abaixo do original)
+
+---
+
+## Referências cruzadas
+
+- [`DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md`](./DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md) e [`DUPLICAR-EXCLUIR-TECNICO.md`](./DUPLICAR-EXCLUIR-TECNICO.md)
+- [`TRANSFERIR-REGRAS-NEGOCIO.md`](./TRANSFERIR-REGRAS-NEGOCIO.md)
+- [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — Sync pai↔filhos
+- [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4 (Duplicar) + Parte 3 (Transferir)

@@ -16,6 +16,8 @@ import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { extractCatchError } from '../../utils/extract-api-error'
 import { useShellStore } from '@gravity/shell'
 import { workspaceApi } from '../../services/api-client'
+import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
+import { podeMutarConfigurador } from '../../routing/route-policy'
 
 // Status canonical em DDD: valor do enum no banco é PT-UPPER (ATIVO/INATIVO),
 // dívida documentada para migração futura para EN UPPER_SNAKE (REGRA 7).
@@ -44,6 +46,12 @@ export function Workspaces() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((s) => s.addNotification)
+  // Decisão dono 2026-05-12: ADMIN é read-only no Configurador (Mand. 04).
+  // Esconde botões/ações de mutação (Suspender, Editar, Excluir, Novo
+  // Workspace) — backend já bloqueia via requireConfiguradorMutation, mas
+  // a UI deve refletir o estado correto. Master/SuperAdmin têm acesso total.
+  const { tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  const podeMutar = podeMutarConfigurador(dbRole)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [carregando, setCarregando] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -249,7 +257,9 @@ export function Workspaces() {
     }
   ]
 
-  const ACOES: TabelaGlobalAcao<Workspace>[] = [
+  // Ações da linha. ADMIN é read-only (Mand. 04 — decisão dono 2026-05-11):
+  // esconde Suspender/Editar/Excluir. Master/SuperAdmin têm acesso total.
+  const ACOES: TabelaGlobalAcao<Workspace>[] = podeMutar ? [
     {
       id: 'suspend',
       icone: <PauseCircle size={16} weight="bold" />,
@@ -297,7 +307,7 @@ export function Workspaces() {
         </TooltipGlobal>
       )
     }
-  ]
+  ] : []
 
   const COLUNAS_EXPORT: ColunasExport[] = [
     { header: 'Nome',        key: 'nome_workspace'                 },
@@ -420,15 +430,17 @@ export function Workspaces() {
         </>
       }
       acoes={
-        <TooltipGlobal descricao={showForm && !workspaceEditando ? "Cancelar criação" : "Cadastrar um novo workspace na organização"}>
-          <BotaoGlobal
-            variante={showForm && !workspaceEditando ? 'fantasma' : 'primario'}
-            icone={showForm && !workspaceEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
-            onClick={() => { setWorkspaceEditando(null); setShowForm(true); }}
-          >
-            {showForm && !workspaceEditando ? t('workspace.workspaces.cancelar') : t('workspace.workspaces.novo_workspace')}
-          </BotaoGlobal>
-        </TooltipGlobal>
+        podeMutar ? (
+          <TooltipGlobal descricao={showForm && !workspaceEditando ? "Cancelar criação" : "Cadastrar um novo workspace na organização"}>
+            <BotaoGlobal
+              variante={showForm && !workspaceEditando ? 'fantasma' : 'primario'}
+              icone={showForm && !workspaceEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
+              onClick={() => { setWorkspaceEditando(null); setShowForm(true); }}
+            >
+              {showForm && !workspaceEditando ? t('workspace.workspaces.cancelar') : t('workspace.workspaces.novo_workspace')}
+            </BotaoGlobal>
+          </TooltipGlobal>
+        ) : null
       }
     >
       <div style={{ position: 'relative', zIndex: 10 }}>

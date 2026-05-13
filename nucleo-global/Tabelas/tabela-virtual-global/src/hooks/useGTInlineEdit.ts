@@ -17,12 +17,20 @@ export interface UseGTInlineEditRetorno<T> {
   erro: string | null
   iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => void
   atualizarValor: (valor: unknown) => void
-  confirmarEdicao: () => Promise<void>
+  confirmarEdicao: (opts?: OpcoesConfirmacaoEdicao) => Promise<void>
   cancelarEdicao: () => void
 }
 
+// Opcoes que o popover passa ao confirmar — capturadas via confirmarEdicao(opts).
+// Decisao UX 2026-05-13: checkbox "Aplicar a todos os itens" no popover da
+// linha PAI dispara replicar_em_itens=true. Default false preserva o
+// comportamento divergente (item mantem valor proprio, pai mostra alerta).
+export interface OpcoesConfirmacaoEdicao {
+  replicar_em_itens?: boolean
+}
+
 export function useGTInlineEdit<T>(
-  onEditar?: (id: string, campo: string, valor: unknown) => Promise<T>,
+  onEditar?: (id: string, campo: string, valor: unknown, opts?: OpcoesConfirmacaoEdicao) => Promise<T>,
   onAtualizarItem?: (item: T) => void,
   onSucesso?: () => void,
   onErro?: (mensagem: string) => void,
@@ -50,7 +58,7 @@ export function useGTInlineEdit<T>(
     valorEditandoRef.current = valor
   }, [])
 
-  const confirmarEdicao = useCallback(async () => {
+  const confirmarEdicao = useCallback(async (opts?: OpcoesConfirmacaoEdicao) => {
     if (!editandoCelula || confirmandoRef.current) return
 
     // Sem handler de save → fecha a célula como noop
@@ -60,8 +68,10 @@ export function useGTInlineEdit<T>(
       return
     }
 
-    // Não salva se o valor não mudou — usa JSON para comparar objetos compostos (moeda, unidade)
-    if (JSON.stringify(valorEditandoRef.current) === JSON.stringify(valorOriginalRef.current)) {
+    // Não salva se o valor não mudou — EXCETO quando o popover pediu
+    // replicar_em_itens (a intenção é propagar mesmo valor para os filhos).
+    const valorIgual = JSON.stringify(valorEditandoRef.current) === JSON.stringify(valorOriginalRef.current)
+    if (valorIgual && !opts?.replicar_em_itens) {
       setEditandoCelula(null)
       return
     }
@@ -72,7 +82,7 @@ export function useGTInlineEdit<T>(
     setErro(null)
 
     try {
-      const itemAtualizado = await onEditar(id, campo, valorEditandoRef.current)
+      const itemAtualizado = await onEditar(id, campo, valorEditandoRef.current, opts)
       onAtualizarItem?.(itemAtualizado)
       onSucesso?.()
       setEditandoCelula(null)

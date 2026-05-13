@@ -334,14 +334,20 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /**
    * Chamado ao confirmar edição de linha pai. Deve retornar o item atualizado.
    * Em caso de conflito (409), lançar erro — o componente faz rollback.
+   *
+   * `opts` carrega configurações do popover (decisão UX 2026-05-13):
+   *   - `replicar_em_itens`: quando true, backend replica o valor para TODOS
+   *     os itens do pedido (whitelist em CAMPOS_PEDIDO_PROPAGAVEIS).
    */
-  onEditar?: (id: string, campo: string, valor: unknown) => Promise<T>
+  onEditar?: (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => Promise<T>
 
   // ── Edição inline (filho) ──────────────────────────────────────────────────
   /** Keys das colunas filho que permitem edição inline */
   camposEditaveisFilhos?: string[]
   /**
    * Chamado ao confirmar edição de linha filha. Deve retornar o filho atualizado.
+   *
+   * Linhas filho não recebem `opts` — só o pai tem opção de replicar.
    */
   onEditarFilho?: (id: string, campo: string, valor: unknown) => Promise<C>
 
@@ -382,4 +388,19 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * o input de data mostre o padrão correto (ex: 'MM/DD/AAAA' para tenants EUA).
    */
   placeholderData?: string
+
+  // ── Replicação Pai → Itens (Decisão UX 2026-05-13) ─────────────────────────
+  /**
+   * Predicate que indica se o campo permite replicação do valor para todos os
+   * itens do pedido. Quando retorna `true` E o usuário está editando uma linha
+   * pai (não-filho), o popover exibe o checkbox "Aplicar a todos os itens".
+   *
+   * Default: undefined → checkbox nunca aparece (comportamento atual).
+   *
+   * Implementação típica em produto Pedido:
+   *   permiteReplicacaoPaiEmItens={campo =>
+   *     isCampoPropagavel(campo) // checa whitelist em mapaPropagacaoPedidoItem
+   *   }
+   */
+  permiteReplicacaoPaiEmItens?: (campo: string) => boolean
 }

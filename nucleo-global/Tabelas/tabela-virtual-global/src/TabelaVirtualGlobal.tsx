@@ -399,11 +399,16 @@ interface GTEditPopoverProps {
   valorEditando: unknown
   salvando: boolean
   onAtualizar: (valor: unknown) => void
-  onConfirmar: () => void
+  /** onConfirmar pode receber opts (ex: replicar_em_itens) — popover propaga
+   *  via aqui quando o usuario marca o checkbox da linha pai. */
+  onConfirmar: (opts?: { replicar_em_itens?: boolean }) => void
   onCancelar: () => void
   onSmartPaste?: (valores: string[]) => void
   /** Placeholder para o input de data (tipo 'periodo'). Ex: 'DD/MM/AAAA', 'MM/DD/AAAA' */
   placeholderData?: string
+  /** Quando true, o popover exibe o checkbox "Aplicar a todos os itens" — usuário
+   *  controla se a edição replica para os items filhos. Padrão: false. */
+  mostrarCheckboxReplicar?: boolean
 }
 
 const POPOVER_W = 340
@@ -417,7 +422,17 @@ const GTEditPopover = memo(function GTEditPopover({
   onCancelar,
   onSmartPaste,
   placeholderData = 'DD/MM/AAAA',
+  mostrarCheckboxReplicar = false,
 }: GTEditPopoverProps) {
+  // Estado do checkbox "Aplicar a todos os itens" (Decisão UX 2026-05-13).
+  // Só relevante quando mostrarCheckboxReplicar=true (linha pai + campo elegível).
+  const [replicarEmItens, setReplicarEmItens] = useState(false)
+  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
+  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
+  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
+  const confirmarComOpts = useCallback(() => {
+    onConfirmar({ replicar_em_itens: replicarEmItens })
+  }, [onConfirmar, replicarEmItens])
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
@@ -620,7 +635,15 @@ const GTEditPopover = memo(function GTEditPopover({
                   className={`gtv-edit-popover-opcao${String(valorEditando) === op.valor ? ' gtv-edit-popover-opcao--ativo' : ''}`}
                   disabled={salvando}
                   onMouseDown={e => e.preventDefault()}
-                  onClick={() => { onAtualizar(op.valor); onConfirmar() }}
+                  // Decisão UX 2026-05-13: quando há checkbox "Aplicar a todos
+                  // os itens", clique na opção apenas SELECIONA (não confirma) —
+                  // usuário precisa decidir se marca o checkbox antes de
+                  // confirmar via Enter/botão. Sem o checkbox, mantém o
+                  // comportamento original (clique auto-confirma).
+                  onClick={() => {
+                    onAtualizar(op.valor)
+                    if (!mostrarCheckboxReplicar) confirmarComOpts()
+                  }}
                 >
                   {op.label}
                 </button>
@@ -659,14 +682,14 @@ const GTEditPopover = memo(function GTEditPopover({
                   onAtualizar({ ...mv, amount: parseBRNum(raw) })
                 }}
                 onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                   if (e.key === 'Escape') { e.preventDefault(); setMoedaAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayMoedaAmt)
                   setDisplayMoedaAmt(fmtBR(parsed, 2))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
                 }}
                 onPaste={handleSmartPasteDetect}
               />
@@ -688,14 +711,14 @@ const GTEditPopover = memo(function GTEditPopover({
                   onAtualizar({ ...uv, quantity: parseBRNum(raw) })
                 }}
                 onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                   if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayQty)
                   setDisplayQty(fmtBR(parsed, casas))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
                 }}
                 onPaste={handleSmartPasteDetect}
               />
@@ -732,7 +755,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   style={{ paddingRight: 36 }}
                   onChange={e => handlePeriodoTextChange(e.target.value)}
                   onKeyDown={e => {
-                    if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                    if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                     if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
                   }}
                 />
@@ -817,7 +840,7 @@ const GTEditPopover = memo(function GTEditPopover({
                 }
               }}
               onKeyDown={e => {
-                if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                 if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
               }}
               onBlur={e => {
@@ -825,15 +848,47 @@ const GTEditPopover = memo(function GTEditPopover({
                   const parsed = parseBRNum(displayNumero)
                   setDisplayNumero(fmtBR(parsed, casas))
                 }
-                if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
               }}
               onPaste={handleSmartPasteDetect}
             />
           )}
         </div>
 
-        {/* Footer: hints + botões (oculto no modo opcoes — clique já confirma) */}
-        <div className={`gtv-edit-popover-footer${isOpcoes ? ' gtv-edit-popover-footer--hidden' : ''}`}>
+        {/* Checkbox "Aplicar a todos os itens" — só aparece quando a coluna pai
+            é elegível para replicação (linha pai + campo na whitelist). Decisão
+            UX 2026-05-13: usuário decide explicitamente; default desligado
+            preserva o comportamento divergente (alerta no pai). */}
+        {mostrarCheckboxReplicar && (
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 12px',
+              fontSize: '0.8125rem',
+              color: '#cbd5e1',
+              cursor: 'pointer',
+              userSelect: 'none',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
+            onMouseDown={e => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={replicarEmItens}
+              onChange={e => setReplicarEmItens(e.target.checked)}
+              disabled={salvando}
+              style={{ cursor: salvando ? 'not-allowed' : 'pointer' }}
+            />
+            Aplicar a todos os itens deste pedido
+          </label>
+        )}
+
+        {/* Footer: hints + botões. Oculto no modo opcoes (clique já confirma)
+            EXCETO quando há checkbox de replicação — usuário precisa do botão
+            Confirmar pra finalizar após decidir se replica nos itens. */}
+        <div className={`gtv-edit-popover-footer${(isOpcoes && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
             <span>Confirmar</span>
@@ -855,7 +910,7 @@ const GTEditPopover = memo(function GTEditPopover({
               type="button"
               className="gtv-edit-popover-btn gtv-edit-popover-btn--primary"
               onMouseDown={e => e.stopPropagation()}
-              onClick={() => onConfirmar()}
+              onClick={() => confirmarComOpts()}
               disabled={salvando}
               tabIndex={-1}
             >
@@ -958,7 +1013,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     key={sigla}
                     type="button"
                     className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); onConfirmar() }}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); confirmarComOpts() }}
                   >{rotulo}</button>
                 )
               })
@@ -1031,6 +1086,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   ariaLabel = 'Tabela de dados',
   placeholderData = 'DD/MM/AAAA',
   onExpandidosMudar,
+  permiteReplicacaoPaiEmItens,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -2576,6 +2632,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
           onSmartPaste={handleSmartPaste}
           placeholderData={placeholderData}
+          // Checkbox "Aplicar a todos os itens" — só na linha PAI E quando o
+          // campo está na whitelist (decisão UX 2026-05-13).
+          mostrarCheckboxReplicar={
+            !overlayInfo.isFilho &&
+            !!permiteReplicacaoPaiEmItens?.(overlayInfo.campo)
+          }
         />,
         document.body
       )}

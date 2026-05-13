@@ -369,11 +369,18 @@ export const pedidoVirtualApi = {
     return request<{ total: number }>(`/api/v1/pedidos/localizar?${q}`)
   },
 
-  /** Edição inline de um campo */
-  editarCampo: (id: string, campo: string, valor: unknown) =>
+  /** Edição inline de um campo.
+   *  replicar_em_itens: quando true, replica o valor para TODOS os itens do
+   *  pedido na mesma transação backend. Decisão UX 2026-05-13.
+   */
+  editarCampo: (id: string, campo: string, valor: unknown, replicar_em_itens = false) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
-      body: JSON.stringify({ campo, valor: valor === undefined ? null : valor }),
+      body: JSON.stringify({
+        campo,
+        valor: valor === undefined ? null : valor,
+        replicar_em_itens,
+      }),
     }).catch(err => {
       if (import.meta.env.DEV) {
         const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === id)

@@ -2,7 +2,7 @@
  * smartImportService.test.ts — Testes unitários do SmartImportService
  *
  * Cobre:
- *   - mapearComIA: exact match, alias match, normalization, exemplo_valor
+ *   - mapearComIA: exact match, alias match, normalization, valor_exemplo_coluna_pedido
  *   - inferirPorDados: incoterm, ncm, moeda, data, valor
  *   - confirmar: criar, atualizar, pular, erro
  */
@@ -93,25 +93,25 @@ describe('mapearComIA', () => {
     expect(resultado[0].campo_sistema).not.toBe('nome_exportador')
   })
 
-  it('popula exemplo_valor com o primeiro valor nao-vazio da amostra', () => {
+  it('popula valor_exemplo_coluna_pedido com o primeiro valor nao-vazio da amostra', () => {
     const amostra = [
       { Currency: '' },
       { Currency: 'USD' },
       { Currency: 'EUR' },
     ]
     const resultado = mapearComIA(service, ['Currency'], amostra)
-    expect(resultado[0].exemplo_valor).toBe('USD')
+    expect(resultado[0].valor_exemplo_coluna_pedido).toBe('USD')
   })
 
-  it('exemplo_valor e null se todos os valores sao vazios', () => {
+  it('valor_exemplo_coluna_pedido e null se todos os valores sao vazios', () => {
     const resultado = mapearComIA(service, ['ColunaSemDados'], [{ ColunaSemDados: '' }, { ColunaSemDados: '   ' }])
-    expect(resultado[0].exemplo_valor).toBeNull()
+    expect(resultado[0].valor_exemplo_coluna_pedido).toBeNull()
   })
 
-  it('limita exemplo_valor a 80 caracteres', () => {
+  it('limita valor_exemplo_coluna_pedido a 80 caracteres', () => {
     const valorLongo = 'a'.repeat(200)
     const resultado = mapearComIA(service, ['Descricao'], [{ Descricao: valorLongo }])
-    expect(resultado[0].exemplo_valor!.length).toBe(80)
+    expect(resultado[0].valor_exemplo_coluna_pedido!.length).toBe(80)
   })
 
   it('retorna nivel ignorado para coluna sem correspondencia com nenhum alias', () => {

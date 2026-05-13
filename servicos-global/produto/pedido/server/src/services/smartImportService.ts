@@ -172,7 +172,7 @@ export class SmartImportService {
     let mapeamento: ColunaMapeadaBackend[]
     let memoriaAplicada = false
 
-    // Amostra para exemplo_valor (usada tanto na memória quanto no mapearComIA)
+    // Amostra para valor_exemplo_coluna_pedido (usada tanto na memória quanto no mapearComIA)
     const amostra = linhasBrutas.slice(0, 10)
     const exemplosPorColuna: Record<string, string> = {}
     for (const cab of cabecalhos) {
@@ -185,7 +185,7 @@ export class SmartImportService {
       mapeamento = mapeamentoSalvo.map(m => ({
         ...m,
         inferido_por: 'memoria' as const,
-        exemplo_valor: exemplosPorColuna[m.coluna_arquivo] ?? null,
+        valor_exemplo_coluna_pedido: exemplosPorColuna[m.coluna_arquivo] ?? null,
       }))
       memoriaAplicada = true
     } else {
@@ -768,7 +768,7 @@ export class SmartImportService {
         confianca,
         nivel,
         inferido_por:   'ia',
-        exemplo_valor:  exemploStr,
+        valor_exemplo_coluna_pedido:  exemploStr,
       }
     })
   }

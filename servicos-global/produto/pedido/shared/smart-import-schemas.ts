@@ -25,7 +25,7 @@ export const colunaMapeadaSchema = z.object({
   confianca:      z.number(),
   nivel:          z.enum(['auto', 'confirmado', 'manual', 'ignorado']),
   inferido_por:   z.enum(['ia', 'dados', 'memoria', 'usuario']),
-  exemplo_valor:  z.string().nullable().optional(),
+  valor_exemplo_coluna_pedido:  z.string().nullable().optional(),
 })
 
 export const smartImportAlertaSchema = z.object({

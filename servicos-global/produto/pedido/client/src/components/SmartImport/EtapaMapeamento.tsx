@@ -237,7 +237,7 @@ export function EtapaMapeamento({
         if (buscaNorm.length > 0) {
           const rotuloCampo = camposSistema.find(c => c.valor === col.campo_sistema)?.rotulo ?? ''
           const nomeColuna = col.coluna_arquivo.replace(/^\*+\s+/, '')
-          const haystack = `${nomeColuna} ${col.exemplo_valor ?? ''} ${rotuloCampo}`.toLowerCase()
+          const haystack = `${nomeColuna} ${col.valor_exemplo_coluna_pedido ?? ''} ${rotuloCampo}`.toLowerCase()
           if (!haystack.includes(buscaNorm)) return false
         }
         return true
@@ -421,9 +421,9 @@ export function EtapaMapeamento({
               // o badge ⚠️ ja sinaliza obrigatorio com mais clareza).
               const nomeColunaExibido = col.coluna_arquivo.replace(/^\*+\s+/, '')
               // P13.2-UI — Formata NCM como "XXXX.XX.XX" no preview do valor extraido
-              const valorExibido = col.exemplo_valor && ehCampoNcm(col.campo_sistema)
-                ? formatarNcm(col.exemplo_valor)
-                : col.exemplo_valor
+              const valorExibido = col.valor_exemplo_coluna_pedido && ehCampoNcm(col.campo_sistema)
+                ? formatarNcm(col.valor_exemplo_coluna_pedido)
+                : col.valor_exemplo_coluna_pedido
               return (
                 <tr
                   key={`${col.coluna_arquivo}-${indexOriginal}`}
@@ -453,7 +453,7 @@ export function EtapaMapeamento({
                   </td>
                   <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {valorExibido
-                      ? <span title={col.exemplo_valor ?? ''}>{valorExibido}</span>
+                      ? <span title={col.valor_exemplo_coluna_pedido ?? ''}>{valorExibido}</span>
                       : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
                     }
                   </td>

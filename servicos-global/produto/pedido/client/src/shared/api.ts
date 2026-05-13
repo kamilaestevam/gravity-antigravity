@@ -919,7 +919,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     confianca: c.conf,
     nivel: c.conf >= 90 ? 'auto' : c.conf >= 50 ? 'confirmado' : 'ignorado',
     inferido_por: c.conf >= 90 ? 'ia' : c.conf >= 50 ? 'dados' : 'ia',
-    exemplo_valor: c.exemplo,
+    valor_exemplo_coluna_pedido: c.exemplo,
   }))
 
   const alertasDuplicata: SmartImportAlerta[] = [{

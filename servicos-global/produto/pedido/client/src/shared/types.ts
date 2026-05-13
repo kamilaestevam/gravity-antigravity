@@ -76,12 +76,14 @@ export interface PedidoItem {
   referencia_exportador?: string | null
   referencia_fabricante?: string | null
 
-  // Pesos e cubagem
+  // Pesos e cubagem — unidades vêm de cadastros.unidade (SSOT).
+  // Defaults do backend (mapItem): 'KG' para peso, 'M3' para cubagem.
   peso_liquido_unitario?: number | null
   peso_liquido_unidade_item?: string | null
   peso_bruto_unitario?: number | null
   peso_bruto_unidade_item?: string | null
   cubagem_unitaria?: number | null
+  cubagem_unidade_item?: string | null
   casas_decimais_peso_item?: number
   casas_decimais_cubagem_item?: number
 
@@ -734,7 +736,7 @@ export interface ColunaMapeada {
   nivel: 'auto' | 'confirmado' | 'manual' | 'ignorado'
   inferido_por: 'ia' | 'dados' | 'memoria' | 'usuario'
   /** Primeiro valor real encontrado no arquivo para esta coluna */
-  exemplo_valor?: string | null
+  valor_exemplo_coluna_pedido?: string | null
 }
 
 /** Uma linha bruta do arquivo (para exibição do documento original) */

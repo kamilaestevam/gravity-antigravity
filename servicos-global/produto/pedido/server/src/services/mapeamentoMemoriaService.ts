@@ -13,7 +13,7 @@ export interface ColunaMapeadaBackend {
   confianca: number
   nivel: 'auto' | 'confirmado' | 'manual' | 'ignorado'
   inferido_por: 'ia' | 'dados' | 'memoria' | 'usuario'
-  exemplo_valor?: string | null
+  valor_exemplo_coluna_pedido?: string | null
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────

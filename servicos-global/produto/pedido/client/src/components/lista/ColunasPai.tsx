@@ -475,31 +475,27 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'quantidade_transferida_total',
     label: t('pedido.coluna_pai.quantidade_transferida_total'),
-    tipo: 'numero',
+    // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido
+    // pra exibir badge de unidade + alerta "Unidades divergentes" quando itens
+    // têm unidade_comercializada_item diferente. Decisão UX 2026-05-13.
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
     tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_pedido de todos os itens. Alterado apenas por operações de transferência.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', 0)) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_transferida_total_desc') }),
   },
   {
     key: 'quantidade_cancelada_total_pedido',
     label: t('pedido.coluna_pai.quantidade_cancelada_total_pedido'),
-    tipo: 'numero',
+    // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido.
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
-        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_pedido', 0)) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc') }),
   },
   {
     key: 'data_emissao_pedido',

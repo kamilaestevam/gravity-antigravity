@@ -138,8 +138,8 @@ export function WorkspaceLayout() {
     <div className="ws-shell">
       {/* ── Sidebar ── */}
       <MenuLateralGlobal 
-        tenantName={nomeOrganizacao}
-        tenantPlan={tipoEmpresa}
+        tenantName={currentUser?.nomeWorkspacePreferido ?? nomeOrganizacao}
+        tenantPlan={nomeOrganizacao}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
         moduleColor="#f59e0b"

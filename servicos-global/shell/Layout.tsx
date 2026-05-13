@@ -40,7 +40,7 @@ export function Layout({
   tenantPlan
 }: LayoutProps) {
   const { t, i18n } = useTranslation()
-  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser, meStatus } = useShellStore()
+  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser, meStatus, workspaces: wsStore, idWorkspaceAtivo } = useShellStore()
   const location = useLocation()
   
   // Detecção de contexto de navegação
@@ -107,28 +107,31 @@ export function Layout({
     )
   }
 
+  const wsAtivoShell = wsStore.find(ws => ws.id === idWorkspaceAtivo)
+  const nomeWsAtivo = wsAtivoShell?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')
+
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
       {isProcessoRoute ? (
         <ContextualSidebar
-          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
-          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
+          tenantName={tenantName ?? nomeWsAtivo}
+          tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />
       ) : isProdutoRoute ? (
         <ProductSidebar
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
-          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
-          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
+          tenantName={tenantName ?? nomeWsAtivo}
+          tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />
       ) : (
         <Sidebar
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
-          tenantName={tenantName ?? currentUser.nomeOrganizacao ?? t('shell.organizacao_padrao')}
-          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
+          tenantName={tenantName ?? nomeWsAtivo}
+          tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />
       )}
       <Header moduleName={moduleName} moduleColor={moduleColor} />

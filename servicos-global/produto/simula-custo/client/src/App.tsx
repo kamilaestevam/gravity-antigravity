@@ -160,15 +160,15 @@ export default function App() {
     <TelaProdutoGlobal
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={currentUser.nomeOrganizacao ?? 'Minha Empresa'}
-      tenantPlan="Pro"
+      tenantName={currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'}
+      tenantPlan={currentUser.nomeOrganizacao ?? ''}
       navItems={navItems}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
       localizador={{
-        workspaceName:    currentUser.nomeOrganizacao ?? 'Minha Empresa',
+        workspaceName:    currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa',
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,

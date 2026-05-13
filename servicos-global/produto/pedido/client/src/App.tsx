@@ -9,7 +9,7 @@ import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
-import { setApiContext, injectTenantGetter, injectTokenGetter } from './shared/api'
+import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // Injeta o getter uma vez quando o módulo carrega — lê o Zustand sincronamente
@@ -18,6 +18,14 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 // aqui — caso contrário, quando o store pisca (Clerk refresh), o env sobrescreve
 // o cache com um valor que pode não ser o do usuário atual.
 injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
+
+// Injeta o getter de id_workspace — exigido pelo middleware verificarAcessoProduto
+// (Portão 3 / Mandamento 04) no backend do Pedido. Workspace ativo mora em
+// sessionStorage('gravity_company_id'), definido pelo Shell em SelecionarWorkspace.tsx.
+injectWorkspaceGetter(() => {
+  try { return sessionStorage.getItem('gravity_company_id') || undefined }
+  catch { return undefined }
+})
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const Pedidos          = lazy(() => import('./pages/Pedidos'))
@@ -116,6 +124,9 @@ export function App() {
   const toggleTheme      = useShellStore(s => s.toggleTheme)
   const currentTheme     = useShellStore(s => s.currentTheme)
   const clearCurrentUser = useShellStore(s => s.clearCurrentUser)
+  const workspacesStore  = useShellStore(s => s.workspaces)
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const setWorkspaceAtivo = useShellStore(s => s.setWorkspaceAtivo)
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
@@ -160,15 +171,27 @@ export function App() {
   const routeKey     = relSegments.join('/')
   const pageLabel    = ROUTE_LABELS[routeKey] ?? 'Lista'
 
+  const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
+  const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
+
+  const workspacesSidebar = workspacesStore.length > 0
+    ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
+    : DEMO_WORKSPACES
+
   return (
     <TelaProdutoGlobal
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={currentUser.nomeOrganizacao ?? 'Minha Empresa'}
-      tenantPlan="Pro"
+      tenantName={nomeWorkspaceAtivo}
+      tenantPlan={currentUser.nomeOrganizacao ?? ''}
       navItems={navItems}
-      workspaces={DEMO_WORKSPACES}
-      onSwitchWorkspace={(id: string) => { console.info('switch workspace', id) }}
+      workspaces={workspacesSidebar}
+      onSwitchWorkspace={(id: string) => {
+        const ws = workspacesStore.find(w => w.id === id)
+        sessionStorage.setItem('gravity_company_id', id)
+        if (ws) sessionStorage.setItem('gravity_company_name', ws.nome_workspace)
+        window.location.reload()
+      }}
       onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
       onManageWorkspace={() => { window.location.href = '/configurador/workspace' }}
       tooltipsDisabled={tooltipsDisabled}
@@ -178,7 +201,7 @@ export function App() {
       onNavigateSettings={() => { navigate('/produto/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
-        workspaceName:    currentUser.nomeOrganizacao ?? 'Minha Empresa',
+        workspaceName:    nomeWorkspaceAtivo,
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,

@@ -31,6 +31,14 @@ export interface AvisoShell {
   href?: string
 }
 
+export interface WorkspaceShell {
+  id: string
+  nome_workspace: string
+  status: string
+  tipo_usuario: string
+  produtos: string[]
+}
+
 export interface CurrentUser {
   id: string
   name: string
@@ -38,6 +46,8 @@ export interface CurrentUser {
   avatarUrl?: string
   idOrganizacao?: string
   nomeOrganizacao?: string
+  idWorkspacePreferido?: string
+  nomeWorkspacePreferido?: string
   role?: string
 }
 
@@ -54,6 +64,10 @@ export interface ShellState {
 
   // --- Usuário ativo ---
   currentUser: CurrentUser
+
+  // --- Workspaces da organização ---
+  workspaces: WorkspaceShell[]
+  idWorkspaceAtivo: string | null
 
   // --- Produtos habilitados para o tenant ---
   allowedProducts: AllowedProduct[]
@@ -85,6 +99,8 @@ export interface ShellState {
   toggleTooltips: () => void
   setCurrentUser: (user: CurrentUser) => void
   clearCurrentUser: () => void
+  setWorkspaces: (workspaces: WorkspaceShell[]) => void
+  setWorkspaceAtivo: (id: string) => void
   setAllowedProducts: (products: AllowedProduct[]) => void
   isProductAllowed: (productKey: string) => boolean
 

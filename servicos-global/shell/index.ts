@@ -34,4 +34,5 @@ export type {
   Notification,
   NotificationType,
   Theme,
+  WorkspaceShell,
 } from './store'

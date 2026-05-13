@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell, MeStatus } from './types'
+import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell, MeStatus, WorkspaceShell } from './types'
 
 // Gera ID único para cada notificação
 function generateId(): string {
@@ -18,6 +18,8 @@ const DEFAULT_USER: CurrentUser = {
   avatarUrl: undefined,
   idOrganizacao: undefined,
   nomeOrganizacao: undefined,
+  idWorkspacePreferido: undefined,
+  nomeWorkspacePreferido: undefined,
 }
 
 export const useShellStore = create<ShellState>()(
@@ -28,6 +30,8 @@ export const useShellStore = create<ShellState>()(
       currentTheme: 'dark' as Theme,
       tooltipsDisabled: false,
       currentUser: DEFAULT_USER,
+      workspaces: [],
+      idWorkspaceAtivo: null,
       allowedProducts: [],
       productsLoaded: false,
       notifications: [],
@@ -69,7 +73,13 @@ export const useShellStore = create<ShellState>()(
         set({ currentUser: user }),
 
       clearCurrentUser: () =>
-        set({ currentUser: DEFAULT_USER, allowedProducts: [], productsLoaded: false, meStatus: 'idle' }),
+        set({ currentUser: DEFAULT_USER, workspaces: [], idWorkspaceAtivo: null, allowedProducts: [], productsLoaded: false, meStatus: 'idle' }),
+
+      setWorkspaces: (workspaces: WorkspaceShell[]) =>
+        set({ workspaces }),
+
+      setWorkspaceAtivo: (id: string) =>
+        set({ idWorkspaceAtivo: id }),
 
       // ─── Produtos permitidos ──────────────────────────────────────────────
       setAllowedProducts: (products: AllowedProduct[]) =>

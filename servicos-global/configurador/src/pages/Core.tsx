@@ -245,7 +245,7 @@ export function Core() {
       {/* ── Menu Lateral ── */}
       <MenuLateralGlobal
         tenantName={companyName}
-        tenantPlan={tipoEmpresa}
+        tenantPlan={currentUser?.nomeOrganizacao ?? ''}
         navItems={navItems}
         moduleName="Core"
         moduleColor="#818cf8"

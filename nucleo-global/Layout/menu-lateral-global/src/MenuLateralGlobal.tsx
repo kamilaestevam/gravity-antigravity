@@ -249,7 +249,7 @@ export function MenuLateralGlobal({
             </div>
             <div className="mlg-tenant-info">
               <span className="mlg-tenant-name">{tenantName}</span>
-              <span className="mlg-tenant-plan" style={{ color: moduleColor }}>{tenantPlan}</span>
+              <span className="mlg-tenant-plan">{tenantPlan}</span>
             </div>
             <CaretDown className={`mlg-tenant-chevron ${wsOpen ? 'open' : ''}`} size={13} weight="bold" />
           </button>

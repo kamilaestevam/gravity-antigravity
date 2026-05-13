@@ -8,4 +8,5 @@ export type {
   AllowedProduct,
   AvisoShell,
   AvisoTipo,
+  WorkspaceShell,
 } from './types'

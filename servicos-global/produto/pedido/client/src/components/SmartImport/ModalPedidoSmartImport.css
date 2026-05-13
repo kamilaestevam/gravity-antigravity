@@ -482,18 +482,32 @@
   align-items: center;
 }
 
+/*
+ * P18.3 — Tipografia alinhada ao Solid Slate.
+ *
+ * Antes: `font-family: ui-monospace, ...` (DM Mono-like). Faz sentido
+ * historicamente em "numero do pedido" (codigo identificador), mas a
+ * classe foi reaproveitada em VARIOS inputs (Part Number, NCM,
+ * descricao, valor extraido editavel, etc.) onde monospace destoa
+ * do resto da plataforma.
+ *
+ * Decisao Coord+LT 12/05/2026: coerencia visual com Plus Jakarta Sans
+ * (fonte UI do Solid Slate) > convencao ERP legada de mono para codigos.
+ *
+ * Tambem: borda do input no estado NORMAL e' cinza neutro
+ * (var(--bg-elevated)) em vez de accent ativado. Accent so' aparece
+ * no :focus (UX padrao de form da plataforma).
+ */
 .smart-import__numero-pedido {
-  font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--ws-accent, #6366f1);
 }
 
 .smart-import__numero-input {
-  font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
   font-size: 0.875rem;
   background: transparent;
-  border: 1px solid var(--ws-accent, #6366f1);
+  border: 1px solid var(--bg-elevated, #475569);
   border-radius: 0.25rem;
   padding: 0.125rem 0.375rem;
   color: inherit;

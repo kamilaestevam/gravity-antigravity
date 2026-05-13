@@ -398,7 +398,11 @@ meRouter.get('/sugestoes-subdominio', async (req, res, next) => {
  */
 meRouter.get('/workspaces', async (req, res, next) => {
   try {
-    const workspaces = await organizacaoService.getWorkspaces(req.auth.id_organizacao)
+    // Filtra somente ATIVO — paridade com Admin /admin/organizacoes/:id/workspaces
+    // (admin.ts:398). Workspaces INATIVO não devem aparecer em telas de gestão
+    // de usuário (modal Editar Usuário, listagem, etc). Decisão dono 2026-05-13.
+    const todos = await organizacaoService.getWorkspaces(req.auth.id_organizacao)
+    const workspaces = todos.filter(w => w.status_workspace === 'ATIVO')
     res.json({ workspaces })
   } catch (err) {
     next(err)

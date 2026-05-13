@@ -23,7 +23,6 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
-import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import {
   adminUsuariosApi,
@@ -210,7 +209,6 @@ export function UsuariosAdmin() {
   }, [])
 
   const [usuarioEditando, setUsuarioEditando] = useState<UsuarioGlobalUI | null>(null)
-  const [usuarioPermissoes, setUsuarioPermissoes] = useState<UsuarioGlobalUI | null>(null)
   const [abaEditando, setAbaEditando]         = useState<string>('dados')
 
   // id_usuario do ator (anti-escalada por id — hook usePodeEditarUsuario só
@@ -575,7 +573,14 @@ export function UsuariosAdmin() {
       id: 'permissions',
       icone: <Key size={15} weight="bold" aria-label={t('admin.usuarios-globais.acao_permissoes')} />,
       tooltip: t('admin.usuarios-globais.acao_permissoes'),
-      onClick: setUsuarioPermissoes,
+      // Abre o mesmo modal Editar Usuário, já na aba "Permissões". Paridade
+      // com Configurador (workspace/Usuarios.tsx) — modal único unificado.
+      // ModalPermissoesUsuario antigo foi descontinuado (decisão dono 2026-05-13).
+      onClick: (u) => {
+        setUsuarioEditando(u)
+        setAbaEditando('permissoes')
+        void carregarWorkspacesOrg(u.id_organizacao)
+      },
     },
     {
       id: 'toggle-status',
@@ -804,29 +809,64 @@ export function UsuariosAdmin() {
               const acessoTotal =
                 user.tipo === 'Master' || user.tipo === 'Super Admin' || user.tipo === 'Admin'
               if (acessoTotal) {
+                // Lazy-load workspaces da org alvo (paridade com Configurador
+                // workspace/Usuarios.tsx que lista todos os ws como chips abaixo
+                // do banner). Decisão dono 2026-05-13.
+                if (!workspacesPorOrg[user.id_organizacao] && !carregandoWsOrg.has(user.id_organizacao)) {
+                  void carregarWorkspacesOrg(user.id_organizacao)
+                }
+                const carregando = carregandoWsOrg.has(user.id_organizacao)
+                // Backend /admin/organizacoes/:id/workspaces ja retorna so ATIVO
+                // (admin.ts:398 — `where: { id_organizacao, status_workspace: 'ATIVO' }`).
+                const wsDaOrg = workspacesPorOrg[user.id_organizacao] ?? []
                 return (
                   <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
                     <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
                     </div>
-                    <div
-                      role="note"
-                      aria-label={`Acesso implícito de ${user.tipo}`}
-                      style={{
-                        padding: '0.875rem 1rem', borderRadius: '10px',
-                        background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.25)',
-                        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                      }}
-                    >
-                      <ShieldCheck size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
-                      <div>
-                        <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#c7d2fe' }}>
-                          Acesso implícito a todos os workspaces da organização
-                        </p>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
-                          Como <strong>{user.tipo}</strong>, <strong>{user.nome_usuario}</strong> tem acesso a todos os workspaces de <strong>{user.nome_organizacao}</strong> sem necessidade de vínculo individual. Para revogar, altere o tipo do usuário.
-                        </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                      <div
+                        role="note"
+                        aria-label={`Acesso implícito de ${user.tipo}`}
+                        style={{
+                          padding: '0.875rem 1rem', borderRadius: '10px',
+                          background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.25)',
+                          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                        }}
+                      >
+                        <ShieldCheck size={18} weight="fill" style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#c7d2fe' }}>
+                            Acesso implícito a todos os workspaces ({wsDaOrg.length})
+                          </p>
+                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                            Como <strong>{user.tipo}</strong>, <strong>{user.nome_usuario}</strong> tem acesso a todos os workspaces de <strong>{user.nome_organizacao}</strong> sem necessidade de vínculo individual. Para revogar, altere o tipo do usuário.
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Lista de chips dos workspaces (paridade Configurador) */}
+                      {carregando ? (
+                        <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+                          Carregando workspaces de <strong>{user.nome_organizacao}</strong>…
+                        </div>
+                      ) : wsDaOrg.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                          {wsDaOrg.map((w) => (
+                            <span
+                              key={w.id_workspace}
+                              style={{
+                                padding: '0.25rem 0.625rem', borderRadius: '9999px',
+                                background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)',
+                                color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 500,
+                                display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                              }}
+                            >
+                              <Buildings size={12} weight="duotone" /> {w.nome_workspace}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 )
@@ -924,21 +964,17 @@ export function UsuariosAdmin() {
           // Estado original para rollback em caso de erro (Mand. 08).
           const original = usuarios.find(u => u.id_usuario === uEditado.id_usuario) ?? null
           const tipoMudou = original !== null && nivelToRole(original.tipo) !== uEditado.tipo_usuario
+          const ehVinculavel = uEditado.tipo_usuario === 'PADRAO' || uEditado.tipo_usuario === 'FORNECEDOR'
 
-          // Admin global edita APENAS tipo_usuario. Permissões granulares e vínculos
-          // de workspace têm fluxo dedicado (ModalPermissoesUsuario / ExpandidoEditorVinculos).
-          // Mand. 08 — se vierem do modal, avisar explicitamente (não silenciar).
-          if (permissoesParaPersistir.length > 0 || workspaceIds.length > 0) {
-            addNotification({
-              type: 'info',
-              message: t('admin.usuarios-globais.msg_apenas_tipo_editavel_admin'),
-            })
-          }
-
+          // SUPER_ADMIN no Admin Panel persiste tipo + vínculos workspace +
+          // permissões granulares — mesmo fluxo do Configurador (workspace/Usuarios.tsx
+          // aoSalvar). Backend já suporta SAdmin cross-org em PUT /workspaces e
+          // PUT /permissoes (usuario.ts:485, 1033). Decisão dono 2026-05-13 —
+          // remove a restricão "apenas tipo" que existia antes.
+          // ADMIN continua read-only (somenteLeitura=true via hook → Salvar oculto).
           try {
-            // Persiste alteração de tipo_usuario via PATCH /patente — backend valida
-            // matriz ator×alvo (autorizarAlteracaoPatente). Regra ε: SUPER_ADMIN/ADMIN
-            // só via seed — defesa em profundidade no frontend antes do request.
+            // 1) Persiste tipo_usuario (PATCH /patente) — Regra ε: SUPER_ADMIN/ADMIN
+            //    só via seed; defesa em profundidade antes do request.
             if (tipoMudou) {
               const novoTipo = uEditado.tipo_usuario
               if (novoTipo === 'SUPER_ADMIN' || novoTipo === 'ADMIN') {
@@ -948,6 +984,31 @@ export function UsuariosAdmin() {
               }
               await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, novoTipo)
             }
+
+            // 2) Persiste vínculos de workspace — só p/ PADRAO/FORNECEDOR (Mand. 04
+            //    LIMBO: MASTER/SAdmin/ADMIN não passam por UsuarioWorkspace).
+            if (ehVinculavel && workspaceIds.length > 0) {
+              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+            }
+
+            // 3) Persiste permissões granulares — uma chamada por (workspace, produto)
+            //    que mudou. Sequencial para preservar ordem de auditoria e
+            //    mensagem de erro apontar exatamente qual item falhou (Mand. 08).
+            for (const item of permissoesParaPersistir) {
+              try {
+                await usuariosApi.configurarPermissoes(uEditado.id_usuario, {
+                  id_workspace: item.id_workspace,
+                  id_produto_gravity: item.id_produto_gravity,
+                  permissoes: item.permissoes,
+                })
+              } catch (errItem) {
+                const baseMsg = errItem instanceof Error ? errItem.message : 'falha desconhecida'
+                throw new Error(
+                  `Permissões do produto ${item.id_produto_gravity} no workspace ${item.id_workspace}: ${baseMsg}`,
+                )
+              }
+            }
+
             // Refetch — servidor é fonte da verdade após qualquer mutação.
             await loadUsers()
             addNotification({
@@ -971,25 +1032,10 @@ export function UsuariosAdmin() {
         }}
       />
 
-      <ModalPermissoesUsuario
-        usuario={usuarioPermissoes ? {
-          id_usuario:   usuarioPermissoes.id_usuario,
-          nome_usuario: usuarioPermissoes.nome_usuario,
-          tipo_usuario: nivelToRole(usuarioPermissoes.tipo),
-        } : null}
-        contextoAdmin={true}
-        aoFechar={() => setUsuarioPermissoes(null)}
-        aoSalvar={() => {
-          // TODO: persistir permissões via PUT /admin/usuarios-globais/:id/permissions
-          // quando endpoint for criado pelo Coordenador (servicoPermissaoUsuario.configurarPermissoes).
-          // Enquanto isso, o modal exibe banner de preview (contextoAdmin=true).
-          addNotification({
-            type: 'info',
-            message: t('admin.usuarios-globais.msg_permissoes_preview'),
-          })
-          setUsuarioPermissoes(null)
-        }}
-      />
+      {/* ModalPermissoesUsuario descontinuado em 2026-05-13. O ícone 🔑 agora
+          abre o ModalEditarUsuario unificado já na aba "Permissões", em modo
+          somenteLeitura para Master/SAdmin/Admin (Mand. 04 LIMBO). Paridade
+          com Configurador workspace/Usuarios.tsx. */}
 
       {/* ── Modal Convidar Usuário ────────────────────────────────────────── */}
       {(() => {

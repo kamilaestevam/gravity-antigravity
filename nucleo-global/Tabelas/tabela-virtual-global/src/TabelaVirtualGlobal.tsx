@@ -433,6 +433,8 @@ const GTEditPopover = memo(function GTEditPopover({
   const dropdownAbrindoRef = useRef(false)
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
+  // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
+  const [calendarioAberto, setCalendarioAberto] = useState(false)
   const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number; width: number } | null>(null)
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
@@ -716,32 +718,70 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isPeriodo ? (
             <>
-              {/* Input de data com máscara no formato configurado pelo tenant */}
-              <input
-                ref={inputRef}
-                autoFocus
-                className="gtv-edit-popover-input"
-                placeholder={placeholderData}
-                value={periodoText}
-                disabled={salvando}
-                onChange={e => handlePeriodoTextChange(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
-                }}
-              />
-              {/* Calendário como opção visual — selecionar preenche o input acima.
-                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário.
-                  modoUnico: célula tem 1 data, não range — sem sidebar de presets
-                  nem INICIO/FIM nem footer Aplicar; click no dia já dispara. */}
-              <div style={{ marginTop: 8 }}>
-                <CampoCalendarioGlobal
-                  valor={parseDateValor(valorEditando)}
-                  aoMudarValor={handleCalendarioMudar}
+              {/* Input com ícone de calendário inline à direita.
+                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no
+                  ícone para abrir o calendário (padrão de date picker). */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  ref={inputRef}
+                  autoFocus
+                  className="gtv-edit-popover-input"
+                  placeholder={placeholderData}
+                  value={periodoText}
                   disabled={salvando}
-                  modoUnico
+                  style={{ paddingRight: 36 }}
+                  onChange={e => handlePeriodoTextChange(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                    if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setCalendarioAberto(v => !v)}
+                  disabled={salvando}
+                  aria-label="Abrir calendário"
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 28,
+                    height: 28,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: salvando ? 'not-allowed' : 'pointer',
+                    color: calendarioAberto ? '#a78bfa' : '#94a3b8',
+                    borderRadius: 4,
+                    padding: 0,
+                  }}
+                >
+                  {/* Ícone calendário (mesmo desenho de Phosphor CalendarBlank) */}
+                  <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                    <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/>
+                  </svg>
+                </button>
               </div>
+              {/* Calendário só aparece quando o ícone é clicado. modoUnico:
+                  célula tem 1 data, sem sidebar de presets/INICIO-FIM/footer.
+                  Click num dia dispara aoMudarValor imediatamente e fecha. */}
+              {calendarioAberto && (
+                <div style={{ marginTop: 8 }}>
+                  <CampoCalendarioGlobal
+                    valor={parseDateValor(valorEditando)}
+                    aoMudarValor={(val) => {
+                      handleCalendarioMudar(val)
+                      setCalendarioAberto(false)
+                    }}
+                    disabled={salvando}
+                    modoUnico
+                    semTrigger
+                  />
+                </div>
+              )}
             </>
           ) : (
             <input

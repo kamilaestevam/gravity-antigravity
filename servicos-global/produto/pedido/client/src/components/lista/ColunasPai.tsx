@@ -669,6 +669,27 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
+      // Espelhamento estrito com qty (decisão UX 2026-05-13 — Opção A):
+      // itens que divergem em peso_liquido_unidade_item -> alerta, sem soma.
+      // Fonte das unidades: cadastros.unidade categoria=peso (KG/G/TON).
+      const itens = row.itens ?? []
+      if (itens.length > 0) {
+        const unidadesContribuintes = new Set(
+          itens.filter(i => (Number(i.peso_liquido_unitario) || 0) > 0)
+            .map(i => i.peso_liquido_unidade_item ?? 'KG')
+        )
+        const unidadesDeclaradas = new Set(
+          itens.map(i => i.peso_liquido_unidade_item).filter((u): u is string => u != null && u !== '')
+        )
+        const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
+        if (unidadesEfetivas.size > 1) {
+          return (
+            <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de peso líquido divergentes entre itens')}</span>
+            </TooltipGlobal>
+          )
+        }
+      }
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
           <span className="gtv-celula-moeda">
@@ -694,6 +715,26 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
+      // Espelhamento estrito (Opção A — 2026-05-13) — divergencia em
+      // peso_bruto_unidade_item -> alerta. Fonte: cadastros.unidade categoria=peso.
+      const itens = row.itens ?? []
+      if (itens.length > 0) {
+        const unidadesContribuintes = new Set(
+          itens.filter(i => (Number(i.peso_bruto_unitario) || 0) > 0)
+            .map(i => i.peso_bruto_unidade_item ?? 'KG')
+        )
+        const unidadesDeclaradas = new Set(
+          itens.map(i => i.peso_bruto_unidade_item).filter((u): u is string => u != null && u !== '')
+        )
+        const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
+        if (unidadesEfetivas.size > 1) {
+          return (
+            <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de peso bruto divergentes entre itens')}</span>
+            </TooltipGlobal>
+          )
+        }
+      }
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
           <span className="gtv-celula-moeda">

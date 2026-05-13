@@ -7,8 +7,12 @@
 // compartilhada entre todos os componentes que usam o hook.
 
 import { useState, useEffect, useRef } from 'react'
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth, useClerk } from '@clerk/clerk-react'
 import { z } from 'zod'
+
+/** Chave no sessionStorage usada pra carregar mensagem de erro na tela de
+ *  login. Lida pelo LoginGlobal no mount e limpa após exibir. */
+export const STORAGE_KEY_ERRO_LOGIN = 'gravity_login_error'
 
 export type TipoUsuario = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR' | null
 
@@ -43,6 +47,7 @@ export function limparCacheTipoUsuario(): void {
 
 export function useCarregarTipoUsuario() {
   const { isLoaded, isSignedIn, getToken, userId } = useAuth()
+  const { signOut } = useClerk()
 
   const [tipoUsuario, setTipoUsuario] = useState<TipoUsuario>(() =>
     userId ? (cacheTipoUsuario.get(userId) ?? null) : null
@@ -80,7 +85,27 @@ export function useCarregarTipoUsuario() {
         return fetch('/api/v1/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
-          .then(r => (r.ok ? r.json() : null))
+          .then(async (r) => {
+            // Intercepta 401 USUARIO_INATIVO (Mand. 08 — fail loud).
+            // Não é "falha silenciosa" — usuário foi desativado pelo admin
+            // e precisa ver mensagem clara na tela de login.
+            if (r.status === 401) {
+              try {
+                const body = await r.clone().json()
+                if (body?.error?.code === 'USUARIO_INATIVO') {
+                  sessionStorage.setItem(
+                    STORAGE_KEY_ERRO_LOGIN,
+                    body?.error?.message ?? 'Seu acesso foi desativado. Contate um administrador.',
+                  )
+                  limparCacheTipoUsuario()
+                  // signOut limpa session Clerk + redireciona pra /login
+                  await signOut({ redirectUrl: '/login' })
+                  return null
+                }
+              } catch { /* corpo não-JSON, segue fluxo padrão */ }
+            }
+            return r.ok ? r.json() : null
+          })
           .then(data => {
             if (!data) {
               setPronto(true)

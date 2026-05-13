@@ -1,10 +1,15 @@
 import { SignIn, SignUp, useSignIn } from '@clerk/clerk-react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Envelope, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './login-global.css'
+
+/** Chave no sessionStorage onde o consumer salva uma mensagem de erro pra
+ *  exibir no topo da tela de login (ex: usuário INATIVO redirecionado pelo
+ *  middleware do backend). Lê e LIMPA no mount. */
+const STORAGE_KEY_ERRO_LOGIN = 'gravity_login_error'
 
 export function LoginGlobal() {
   const location = useLocation()
@@ -12,6 +17,20 @@ export function LoginGlobal() {
   const { t } = useTranslation()
   const isSignUp = location.pathname.includes('/cadastro')
   const isForgotPassword = location.pathname.includes('/recuperar-senha')
+
+  // Mensagem de erro vinda do backend (ex: USUARIO_INATIVO, ORGANIZACAO_SUSPENSA).
+  // Salva em sessionStorage pelo hook useCarregarTipoUsuario antes do signOut.
+  // Lê uma vez no mount, exibe, e limpa pra não persistir entre tentativas.
+  const [erroLogin, setErroLogin] = useState<string | null>(null)
+  useEffect(() => {
+    try {
+      const msg = sessionStorage.getItem(STORAGE_KEY_ERRO_LOGIN)
+      if (msg) {
+        setErroLogin(msg)
+        sessionStorage.removeItem(STORAGE_KEY_ERRO_LOGIN)
+      }
+    } catch { /* sessionStorage não disponível em SSR/privacy */ }
+  }, [])
 
   const clerkAppearance = {
     variables: {
@@ -98,6 +117,30 @@ export function LoginGlobal() {
               : t('login.acessar_subtitulo')}
         </p>
       </div>
+
+      {/* Banner de erro vindo do backend (ex: USUARIO_INATIVO). Aparece SÓ se
+          sessionStorage tinha mensagem ao montar — sumir nas próximas tentativas. */}
+      {erroLogin && !isForgotPassword && (
+        <div
+          role="alert"
+          style={{
+            margin: '0 0 1rem',
+            padding: '0.875rem 1rem',
+            borderRadius: '8px',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.3)',
+            color: '#fca5a5',
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.625rem',
+            lineHeight: 1.4,
+          }}
+        >
+          <WarningCircle size={20} weight="fill" style={{ flexShrink: 0, marginTop: '1px' }} />
+          <span>{erroLogin}</span>
+        </div>
+      )}
 
       {isForgotPassword ? (
         <ForgotPasswordFlow onBack={() => navigate('/login')} />

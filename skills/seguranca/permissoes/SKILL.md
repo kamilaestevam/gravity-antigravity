@@ -704,3 +704,81 @@ Quando um mesmo email tem **>1 pending** cross-org e o convidado faz primeiro lo
 - [ ] Backend usa Zod `.strict()` para rejeitar campos desconhecidos
 - [ ] Pre-existence check na **org ALVO** (não na do ator)
 - [ ] Audit log usa `id_organizacao_alvo` com metadata do ator
+
+---
+
+## Regra de visibilidade de workspaces (SSOT)
+
+Quando um produto precisa saber **quais workspaces o usuário pode acessar** (ex: filtro multi-workspace em listas, dropdowns de seleção, validações server-side), a regra é a mesma em todos os pontos. Replicada em:
+
+- `GET /api/v1/hub/init` (Configurador) — alimenta UIs
+- `GET /api/v1/internal/usuarios/:id/workspaces-habilitados` (Configurador, S2S) — alimenta validações server-side dos produtos
+
+### A regra
+
+| Tipo Usuário | Workspaces visíveis/habilitados |
+|---|---|
+| `SUPER_ADMIN` | Todos com `status_workspace='ATIVO'` da organização |
+| `ADMIN` | Todos com `status_workspace='ATIVO'` da organização |
+| `MASTER` | Todos com `status_workspace='ATIVO'` da organização |
+| `PADRAO` | ATIVO **AND** `UsuarioWorkspace.ativo_usuario_workspace=true` |
+| `FORNECEDOR` | ATIVO **AND** `UsuarioWorkspace.ativo_usuario_workspace=true` (cross-organização aceita) |
+
+### Pontos críticos da regra
+
+1. **`status_workspace='ATIVO'` é obrigatório para TODOS os tipos.** Mand. 04 não exenta Master/Admin de "ver INATIVOS" em telas operacionais. Workspaces inativados só aparecem em telas administrativas (Configurações).
+
+2. **PADRAO/FORNECEDOR exigem AND duplo:**
+   - Membership ativo: `UsuarioWorkspace.ativo_usuario_workspace = true`
+   - Workspace ativo: `Workspace.status_workspace = 'ATIVO'`
+   
+   Se o Master inativar o workspace mantendo o membership, o usuário PADRAO **deixa de ver automaticamente**.
+
+3. **FORNECEDOR pode ser cross-organização.** Único tipo que pode ter `UsuarioWorkspace.id_organizacao ≠ Usuario.id_organizacao`. Útil para fornecedores de plataforma que atendem múltiplos clientes.
+
+4. **Não há bypass para PADRAO/FORNECEDOR.** Diferente de Master (Mand. 04), eles dependem 100% do membership.
+
+### Como produtos consomem
+
+```typescript
+// Backend do produto, dentro de uma rota
+import { obterWorkspacesHabilitadosDoUsuario } from '@gravity/resolver-organizacao'
+
+const { workspacesHabilitados } = await obterWorkspacesHabilitadosDoUsuario({
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
+  idOrganizacao:       ctx.idOrganizacao,
+  idUsuario:           ctx.idUsuario,
+})
+
+// Validação contra ids solicitados (Mand. 08 — falha ruidosa)
+const habilitadosSet = new Set(workspacesHabilitados)
+const bloqueados = idsSolicitados.filter(id => !habilitadosSet.has(id))
+if (bloqueados.length > 0) {
+  return res.status(403).json({
+    error: {
+      code: 'WORKSPACE_NAO_AUTORIZADO',
+      message: `${bloqueados.length} workspace(s) não autorizado(s)`,
+      workspaces_bloqueados: bloqueados,
+    },
+  })
+}
+```
+
+### Dívida D11 — extração para serviço comum
+
+Hoje a regra está duplicada em `/hub/init` (linhas 65-114) e no endpoint S2S `workspaces-habilitados-internal.ts`. Se mudar uma, **lembrar de mudar a outra**. TODO: extrair para `organizacaoService.workspacesAcessiveis(idUsuario, idOrganizacao, tipo)`.
+
+### Primeiro consumidor
+
+Filtro multi-workspace na Lista do produto **Pedido** — ver `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md`.
+
+### Defesa em 3 camadas (recomendação para outros produtos)
+
+| Camada | Onde | O que faz |
+|---|---|---|
+| 1 — UI | `/hub/init` no frontend | Mostra só workspaces acessíveis no popover/dropdown |
+| 2 — Backend | S2S `obterWorkspacesHabilitadosDoUsuario` | Valida ids do request → 403 com lista bloqueada |
+| 3 — Portão 3 | Middleware `verificarAcessoProduto` | Garante que produto está habilitado no workspace ativo (header) |
+
+Mesmo se Camada 1 for adulterada (request forjada), Camada 2 garante. Mesmo se Camada 2 falhar (bug), Camada 3 impede acesso ao produto. Defense in depth.

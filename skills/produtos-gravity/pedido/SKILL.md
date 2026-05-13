@@ -258,12 +258,64 @@ Sempre editar `fragment.prisma` + rodar `npx tsx scripts/ativamente/compose-pedi
 
 ---
 
+## Filtro Multi-Workspace (entrega 2026-05-13, commit `4bafb1b6`)
+
+### Visão de 1 minuto
+
+A Lista de Pedidos suporta filtro multi-workspace: usuário escolhe N workspaces no popover do header da coluna "Workspace" e vê pedidos+itens de todos juntos. Defesa em 3 camadas: UI (popover só mostra acessíveis), backend (`validarMultiWorkspace` via S2S → 403 com `workspaces_bloqueados[]`), Portão 3 (header `x-id-workspace` inalterado).
+
+### Contratos críticos
+
+- **Endpoint S2S**: `GET /api/v1/internal/usuarios/:id/workspaces-habilitados?id_organizacao=X` no Configurador retorna `{ tipo_usuario, workspaces_habilitados: string[] }`. SSOT da regra de visibilidade replica `/hub/init`.
+- **Helper SDK**: `obterWorkspacesHabilitadosDoUsuario` em `@gravity/resolver-organizacao` — consumido pelos produtos para validar listas.
+- **Query param**: `GET /api/v1/pedidos?ids_workspaces=cmo1,cmo2` (CSV). **Sobrepõe** o header `x-id-workspace` quando vem com ≥1 valor. Header continua sendo validado pelo Portão 3 separadamente.
+- **Mand. 08**: ids fora da lista do usuário → 403 com `workspaces_bloqueados[]` explícito. NÃO há fallback silencioso.
+
+### Regra de visibilidade (idêntica em `/hub/init` e endpoint S2S)
+
+| Tipo | Workspaces visíveis |
+|------|---------------------|
+| MASTER / SUPER_ADMIN / ADMIN | Todos com `status_workspace='ATIVO'` da org |
+| PADRAO / FORNECEDOR | ATIVO **AND** `UsuarioWorkspace.ativo_usuario_workspace=true` |
+
+FORNECEDOR pode ser cross-organização (não exige org match). Mand. 04 NÃO se aplica a PADRAO/FORNECEDOR (sem bypass).
+
+### Comportamento frontend (Lista)
+
+- **Coluna "Workspace"** sempre visível na 3ª posição (após "Tipo de Operação"). Migração automática reposiciona para usuários com prefs antigas.
+- **Mount**: filtro inicia com workspace ATIVO pré-marcado (init useEffect, UMA vez via `initializedFilterRef`).
+- **Empty selection**: usuário desmarcar tudo = lista vazia (curto-circuito local, **sem fetch**). Coerência popover ↔ dados.
+- **Chip híbrido**: 1-2 nomes diretos, 3+ "N selecionados". Clicável (reabre popover ancorado no chip). Tooltip `TooltipGlobal` com lista numerada.
+
+### Quando mexer aqui — checklist
+
+- [ ] Mudou regra de visibilidade? Atualizar **DOIS** lugares: `/hub/init` E `workspaces-habilitados-internal.ts`. Dívida D11 pede extração para serviço comum.
+- [ ] Adicionou novo workspace status (além de ATIVO/INATIVO)? Verificar ambos endpoints + Portão 3.
+- [ ] Tocou em `parseCsvQueryParam` no `processos-core/pedidos.ts`? Mantém dedup, trim, ignore vazios — invariantes do contrato.
+- [ ] Mudou shape do `WorkspaceDisponivel` no `/hub/init`? Atualizar Zod schema `workspacesDisponiveisApi` em api.ts (Mand. 09 — Zod bilateral).
+
+### Anti-padrões específicos (não repetir)
+
+- **AP1**: enviar `?ids_workspaces=` quando `workspacesSelecionados === [workspaceAtivo]` — duplicaria trabalho do header. O `ehSelecaoDefault` checa exatamente isso.
+- **AP2**: fazer fetch quando `workspacesSelecionados.length === 0` — backend cairia no header e mostraria pedidos do ativo. Curto-circuito local força lista vazia.
+- **AP3**: repopular filtro automaticamente após "× Limpar" — quebra o modelo mental (usuário desmarcou de propósito). Init é UMA vez no mount.
+- **AP4**: hardcoded "consolidar quando há N+" no chip — usar `rotulofiltro` único (`<=2 nomes / 3+ contagem`). Vale para todos os filtros enum.
+
+### Documentos relacionados
+
+- **Técnico**: `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md`
+- **Regras**: `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-REGRAS-NEGOCIO.md`
+- **Auditoria DB**: `scripts/auditar-workspaces-pedidos.mjs`
+
+---
+
 ## Status da skill
 
 | Parte | Status |
 |-------|--------|
 | 1 — Edição em Massa | ✅ Consolidada |
 | 2 — Lista de Pedidos | 🟡 Placeholder — a desenvolver |
+| 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — a desenvolver |
 
 ---

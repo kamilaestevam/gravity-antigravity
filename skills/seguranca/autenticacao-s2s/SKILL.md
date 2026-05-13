@@ -289,3 +289,66 @@ app.use('/api/organizacao', createTenantProxy({
 - [ ] Se for retry/job, tem `x-chave-idempotencia` para evitar duplicação?
 - [ ] O serviço receptor valida o JWT independentemente?
 - [ ] O proxy de organização está configurado no servidor do produto?
+
+---
+
+## Endpoints S2S internos do Configurador
+
+Catálogo dos endpoints que produtos chamam para validações de autorização. Todos exigem `x-chave-interna-servico` (sem isso → 401). NÃO recebem JWT do usuário (são S2S puro).
+
+| Endpoint | Helper SDK | Quando usar | Resposta |
+|---|---|---|---|
+| `GET /api/v1/internal/acesso-produto/verificar` | `verificarAcessoProduto` (middleware) | Portão 3 — valida acesso usuário×workspace×produto | `{ permitido, motivo? }` |
+| `GET /api/v1/internal/usuarios/:id/workspaces-habilitados?id_organizacao=X` | `obterWorkspacesHabilitadosDoUsuario` | Listas multi-workspace — quais workspaces o usuário pode acessar | `{ tipo_usuario, workspaces_habilitados: string[] }` |
+| `GET /api/v1/internal/workspaces?ids=a,b,c` | `obterWorkspaces` (batch lookup) | Snapshot de nome+CNPJ de workspaces para produtos | `{ workspaces: [{ id, nome, cnpj, id_organizacao }] }` |
+
+### Padrão de uso (`obterWorkspacesHabilitadosDoUsuario`)
+
+```typescript
+import { obterWorkspacesHabilitadosDoUsuario } from '@gravity/resolver-organizacao'
+
+// Dentro de uma rota Express, após resolverOrganizacao
+const { tipoUsuario, workspacesHabilitados } = await obterWorkspacesHabilitadosDoUsuario({
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
+  idOrganizacao:       ctx.idOrganizacao,
+  idUsuario:           ctx.idUsuario,
+})
+
+// Validar intersecção com o que foi solicitado
+const habilitadosSet = new Set(workspacesHabilitados)
+const bloqueados = idsSolicitados.filter((id) => !habilitadosSet.has(id))
+if (bloqueados.length > 0) {
+  return res.status(403).json({
+    error: {
+      code: 'WORKSPACE_NAO_AUTORIZADO',
+      message: `${bloqueados.length} workspace(s) não autorizado(s)`,
+      workspaces_bloqueados: bloqueados,
+    },
+  })
+}
+```
+
+### Cross-organização (FORNECEDOR)
+
+`obterWorkspacesHabilitadosDoUsuario` aceita usuário FORNECEDOR em organização diferente da `Usuario.id_organizacao` (cross-tenant). Para os demais tipos, divergência → 403 `ORGANIZACAO_MISMATCH`. Defesa em profundidade automática contra cross-org sem código extra.
+
+### SSOT — regra de visibilidade
+
+O endpoint replica a regra do `/api/v1/hub/init`:
+- MASTER / SAdmin / Admin → todos workspaces `status_workspace='ATIVO'` da org
+- PADRAO / FORNECEDOR → ATIVO **AND** `UsuarioWorkspace.ativo_usuario_workspace=true`
+
+**Dívida D11** pede extração para `organizacaoService.workspacesAcessiveis(idUsuario, idOrganizacao, tipo)` para eliminar drift. Se mudar a regra, **mudar nos DOIS endpoints**.
+
+### Testes que NÃO podem regredir
+
+`servicos-global/configurador/server/__tests__/workspaces-habilitados-internal.test.ts` — 6 testes funcionais:
+1. MASTER → todos ATIVO
+2. PADRAO → só habilitados
+3. FORNECEDOR → ignora cross-tenant mismatch
+4. Usuário inexistente → 404
+5. Sem chave interna → 401
+6. PADRAO cross-org → 403
+
+Sem essa cobertura, o endpoint pode regredir silenciosamente. Pre-commit hook roda Vitest.

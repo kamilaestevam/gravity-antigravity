@@ -45,9 +45,9 @@ export const PRODUCT_CONFIG = {
     {
       id: 'meu-espaco', label: 'Meu Espaço', labelKey: 'pedido.nav.meu_espaco', icon: 'user-circle', source: 'tenant',
       children: [
-        { id: '/core/atividades', label: 'Minhas Atividades', labelKey: 'pedido.nav.minhas_atividades', icon: 'check-circle',  source: 'tenant' },
-        { id: '/core/email',      label: 'Email',             labelKey: 'pedido.nav.email',             icon: 'envelope',      source: 'tenant' },
-        { id: '/core/whatsapp',   label: 'WhatsApp',          labelKey: 'pedido.nav.whatsapp',          icon: 'whatsapp-logo', source: 'tenant' },
+        { id: '/core/atividades', label: 'Minhas Atividades', labelKey: 'pedido.nav.minhas_atividades', icon: 'check-circle',  source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+        { id: '/core/email',      label: 'Email',             labelKey: 'pedido.nav.email',             icon: 'envelope',      source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+        { id: '/core/whatsapp',   label: 'WhatsApp',          labelKey: 'pedido.nav.whatsapp',          icon: 'whatsapp-logo', source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
       ],
     },
 

@@ -341,6 +341,9 @@
   font-size: 0.6875rem;
   font-weight: 500;
   white-space: nowrap;
+  color: var(--text-muted, #888);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Navigation ── */
@@ -523,13 +526,13 @@
 }
 
 .mlg-nav-badge--muted {
-  color: var(--text-muted, #475569);
-  opacity: 0.6;
+  color: var(--mlg-accent, #818cf8);
+  opacity: 0.75;
 }
 
 /* Disabled com badge — mais suave que com Lock */
 .mlg-nav-item.mlg-disabled {
-  opacity: 0.45;
+  opacity: 0.7;
   cursor: default;
   pointer-events: none;
 }

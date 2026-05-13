@@ -4141,10 +4141,14 @@
       "aviso_zerados_titulo": "Atención — campos que se restablecerán en los ítems duplicados",
       "aviso_zerados_campos": "Las cantidades Lista, Transferida y Cancelada se restablecerán a cero en el ítem duplicado.",
       "aviso_zerados_motivo": "Esos valores representan ejecución real (transferencias para embarque, marcaciones de listo, cancelaciones) y no pueden copiarse — evita saldo fantasma.",
-      "toast_misto": "{{n_pedidos}} pedido{{s_p}} y {{n_itens}} ítem{{s_i}} duplicado(s) con éxito.",
+      "toast_misto": "{{n_pedidos}} pedido{{s_p}} y {{n_itens}} {{label_i}} duplicado(s) con éxito.",
       "copia_label": "(copia)",
-      "titulo_itens": "Duplicar {{count}} ítem{{ns}}",
-      "titulo_misto": "Duplicar {{n_p}} pedido{{s_p}} y {{n_i}} ítem{{s_i}}"
+      "titulo_itens": "Duplicar {{count}} {{label_i}}",
+      "titulo_misto": "Duplicar {{n_p}} pedido{{s_p}} y {{n_i}} {{label_i}}",
+      "label_item_singular": "ítem",
+      "label_item_plural": "ítems",
+      "req_titulo": "Para avanzar, aún falta:",
+      "req_numero_pendente": "Número de la copia para {{pedido}}"
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} seleccionados)",

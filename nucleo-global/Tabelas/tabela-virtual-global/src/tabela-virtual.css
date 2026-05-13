@@ -1549,13 +1549,16 @@
 }
 
 /* ─── Checkbox ────────────────────────────────────────────────────────────── */
+/* Borda usa `--color-text-muted` (não `--gtv-border-solid`) porque essa última
+   resolve para `--bg-elevated` (cor de fundo), o que faz o checkbox ficar
+   praticamente invisível sobre fundo escuro. Text-muted dá contraste real. */
 .gtv-checkbox {
   appearance: none;
   -webkit-appearance: none;
   width: 15px;
   height: 15px;
   border-radius: 4px;
-  border: 1.5px solid var(--gtv-border-solid);
+  border: 1.5px solid var(--color-text-muted, #94a3b8);
   background: transparent;
   cursor: pointer;
   display: inline-flex;

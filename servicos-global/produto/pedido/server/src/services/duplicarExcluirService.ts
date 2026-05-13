@@ -382,23 +382,36 @@ export class DuplicarService {
       throw new AppError('Um ou mais itens não encontrados', 404, 'NOT_FOUND')
     }
 
-    // Buscar maior sequencia_item atual para continuar de onde parou
+    // REGRA DE ORDENAÇÃO (aprovada pelo Coordenador + Líder Técnico, 2026-05-11):
+    // Item duplicado fica IMEDIATAMENTE ABAIXO do original, não no final.
+    //
+    // Estratégia "renumerar limpo": carrega ordem atual de todos os itens do pedido
+    // pai, monta a ordem final (cada original seguido da sua cópia, quando aplicável)
+    // e renumera 1..N. Mesma estratégia já usada em consolidacoes-pedido.ts:269-270.
+    //
+    // Vantagens vs. SHIFT por UPDATE em massa: lógica óbvia, sem risco de duplicatas
+    // temporárias mid-update, atômico via tx aberta pelo withOrganizacao.
+    // Custo: N updates sequenciais — aceitável dado que pedidos com >100 itens são raros.
+    //
+    // Sem $transaction aninhado — `db` já é TransactionClient (ver confirmar()).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const todosItens = await (db as any).pedidoItem.findMany({
+    const tx = db as any
+
+    // 1. Carregar ordem atual do pedido pai (já ordenada)
+    const todosItens = await tx.pedidoItem.findMany({
       where: {
         id_pedido: payload.pedido_id,
         id_organizacao: id_organizacao,
         ...(id_workspace ? { id_workspace } : {}),
       },
-      select: { sequencia_item_pedido: true },
+      select: { id_item: true, sequencia_item_pedido: true },
+      orderBy: { sequencia_item_pedido: 'asc' },
     })
-    const maxSequencia = todosItens.reduce((max: number, i: Record<string, unknown>) => Math.max(max, (i.sequencia_item_pedido as number | undefined) ?? 0), 0)
-    let proximaSequencia = maxSequencia + 1
 
-    // Sem $transaction aninhado — `db` já é TransactionClient (ver confirmar()).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tx = db as any
+    // 2. Criar os novos itens (sequência temporária = null; será reescrita no passo 4)
+    const itensASerDuplicados = new Set(payload.item_ids)
     const criados: DuplicarResultado['criados'] = []
+    const novoPorOriginal = new Map<string, string>() // originalId -> novoId
 
     for (const itemRaw of itens) {
       const item = itemRaw as Record<string, unknown>
@@ -415,6 +428,9 @@ export class DuplicarService {
         ...itemBase
       } = item
 
+      // Zera as 3 quantidades de execução para evitar saldo fantasma —
+      // copiar valores reais de pronta/transferida/cancelada criaria registros
+      // sem correspondência em transferências/processos de embarque reais.
       const novoItem = await tx.pedidoItem.create({
         data: {
           ...itemBase,
@@ -422,7 +438,7 @@ export class DuplicarService {
           id_organizacao: id_organizacao,
           id_workspace: id_workspace_alvo,
           id_pedido: payload.pedido_id,
-          sequencia_item_pedido: proximaSequencia++,
+          sequencia_item_pedido: null, // será reescrita no passo 4
           quantidade_atual_item: item.quantidade_inicial_item as number,
           quantidade_pronta_item: 0,
           quantidade_transferida_item: 0,
@@ -430,12 +446,40 @@ export class DuplicarService {
         } as unknown as Prisma.PedidoItemUncheckedCreateInput,
       })
 
+      novoPorOriginal.set(item.id_item as string, novoItem.id_item)
       criados.push({
         original_id: item.id_item as string,
         novo_id: novoItem.id_item,
         numero_pedido: pedido.numero_pedido as string,
       })
     }
+
+    // 3. Construir ordem final: cada original seguido da sua cópia (se duplicado)
+    const ordemFinal: string[] = []
+    for (const item of todosItens as Array<{ id_item: string; sequencia_item_pedido: number | null }>) {
+      ordemFinal.push(item.id_item)
+      if (itensASerDuplicados.has(item.id_item)) {
+        const novoId = novoPorOriginal.get(item.id_item)
+        if (novoId) ordemFinal.push(novoId)
+      }
+    }
+
+    // 4. Renumerar tudo em 1..N na ordem final
+    for (let i = 0; i < ordemFinal.length; i++) {
+      await tx.pedidoItem.update({
+        where: { id_item: ordemFinal[i] },
+        data: { sequencia_item_pedido: i + 1 },
+      })
+    }
+
+    // 5. Tocar o pedido pai para disparar @updatedAt → frontend detecta via
+    //    `itemVersion(p) = p.updated_at` no useGTExpandir e recarrega os filhos
+    //    expandidos automaticamente. Sem isso, o cache de filhos fica stale e
+    //    o item duplicado não aparece na linha expandida (Bug 2 reportado).
+    await tx.pedido.update({
+      where: { id_pedido: payload.pedido_id },
+      data: { data_atualizacao_pedido: new Date() },
+    })
 
     return { criados, erros: [] }
   }

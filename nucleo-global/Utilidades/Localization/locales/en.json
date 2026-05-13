@@ -3996,10 +3996,14 @@
       "aviso_zerados_titulo": "Heads-up — fields that will be reset on duplicated items",
       "aviso_zerados_campos": "Ready, Transferred and Cancelled quantities will be reset to zero on the duplicated item.",
       "aviso_zerados_motivo": "These values represent real execution (transfers to shipping, ready markings, cancellations) and cannot be copied — prevents phantom balance.",
-      "toast_misto": "{{n_pedidos}} order{{s_p}} and {{n_itens}} item{{s_i}} duplicated successfully.",
+      "toast_misto": "{{n_pedidos}} order{{s_p}} and {{n_itens}} {{label_i}} duplicated successfully.",
       "copia_label": "(copy)",
-      "titulo_itens": "Duplicate {{count}} item{{ns}}",
-      "titulo_misto": "Duplicate {{n_p}} order{{s_p}} and {{n_i}} item{{s_i}}"
+      "titulo_itens": "Duplicate {{count}} {{label_i}}",
+      "titulo_misto": "Duplicate {{n_p}} order{{s_p}} and {{n_i}} {{label_i}}",
+      "label_item_singular": "item",
+      "label_item_plural": "items",
+      "req_titulo": "To proceed, still pending:",
+      "req_numero_pendente": "Copy number for {{pedido}}"
     },
     "modal_cons": {
       "titulo": "Consolidate Orders ({{count}} selected)",

@@ -160,6 +160,45 @@ export default defineConfig({
 
 ---
 
+## Tabelas hierárquicas — sync pai↔filhos (regra universal)
+
+> Aprovado por Coordenador + Líder Técnico em 2026-05-11. **Padrão universal e fixo** — não é opcional, não é prop.
+
+Em **qualquer tabela do `nucleo-global` que tenha hierarquia pai/filho com seleção de filhos ativa**, a relação pai↔filhos é sincronizada automaticamente. **Invariante:** pai marcado ⟺ todos os filhos do pai marcados.
+
+### Comportamento obrigatório
+
+| Ação do usuário | Resultado automático |
+|---|---|
+| Marca o pai | Todos os filhos cached do pai são marcados |
+| Desmarca o pai | Todos os filhos cached do pai são desmarcados |
+| Marca o último filho que faltava | Pai marca automaticamente |
+| Desmarca qualquer filho com pai marcado | Pai desmarca automaticamente |
+| Marca header "selecionar todos" | Todos os pais visíveis + todos os filhos cached deles |
+
+### Onde está implementado
+
+- **`@nucleo/tabela-virtual-global`** (`TabelaVirtualGlobal.tsx`): 3 wrappers que substituem chamadas diretas a `toggleItem`/`toggleTodos`/`toggleFilho`:
+  - `toggleItemComSync(id)` — checkbox do pai
+  - `toggleTodosComSync(todosIds)` — checkbox header
+  - `toggleFilho` (modificado) — checkbox do filho, com sync reverso
+- **`@nucleo/tabela-camadas-global`**: não tem seleção de filhos hoje. Se um dia for ativada, deve nascer com sync por design (não criar comportamento alternativo).
+
+### Quando ativar seleção de filhos numa nova tabela
+
+Se você for habilitar `selecionavelFilhos` numa tabela nova que herda do nucleo-global:
+
+1. O sync já vem por padrão — nada a configurar
+2. Se a tabela emite os filhos via `onSelecaoFilho` para um modal/ação em lote, o **consumidor** deve filtrar duplicação dupla (ver exemplo em `produto/pedido/.../ModalPedidosDuplicar.tsx:itensFiltrados`). Quando pai está marcado, os filhos do mesmo pai NÃO devem ser processados separadamente — o cascade do pai já cuida deles.
+
+### O que NÃO fazer
+
+- ❌ Adicionar prop `sincronizarFilhosAoSelecionarPai`/`sincronizar` — não é opt-in
+- ❌ Implementar "indeterminado" no pai (parcialmente marcado) — quebra a invariante. Pai só tem 2 estados visuais (marcado / desmarcado), assim como o resto do sistema
+- ❌ Permitir que o consumidor passe os filhos sincronizados como ação independente sem filtrar duplicação dupla
+
+---
+
 ## Hooks de Master-Data — referência canônica
 
 Quando um componente do `nucleo-global` precisar de catálogo global do Cadastros (Moeda, Unidade, NCM, País, etc.), **o padrão obrigatório** é o hook `useMoedas` em `@nucleo/modal-tabela-moeda` (commit 2026-05-08). Replicar a arquitetura, não criar variantes.

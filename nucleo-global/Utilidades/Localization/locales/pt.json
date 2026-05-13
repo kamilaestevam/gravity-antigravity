@@ -3802,10 +3802,14 @@
       "aviso_zerados_titulo": "Atenção — campos que serão zerados nos itens duplicados",
       "aviso_zerados_campos": "Quantidade Pronta, Quantidade Transferida e Quantidade Cancelada serão zeradas no item duplicado.",
       "aviso_zerados_motivo": "Esses valores representam execução real (transferências para embarque, marcações de pronto, cancelamentos) e não podem ser copiados — evita saldo fantasma.",
-      "toast_misto": "{{n_pedidos}} pedido{{s_p}} e {{n_itens}} item{{s_i}} duplicado(s) com sucesso.",
+      "toast_misto": "{{n_pedidos}} pedido{{s_p}} e {{n_itens}} {{label_i}} duplicado(s) com sucesso.",
       "copia_label": "(cópia)",
-      "titulo_itens": "Duplicar {{count}} item{{ns}}",
-      "titulo_misto": "Duplicar {{n_p}} pedido{{s_p}} e {{n_i}} item{{s_i}}"
+      "titulo_itens": "Duplicar {{count}} {{label_i}}",
+      "titulo_misto": "Duplicar {{n_p}} pedido{{s_p}} e {{n_i}} {{label_i}}",
+      "label_item_singular": "item",
+      "label_item_plural": "itens",
+      "req_titulo": "Para avançar, ainda falta:",
+      "req_numero_pendente": "Número da cópia para {{pedido}}"
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} selecionados)",

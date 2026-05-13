@@ -1137,6 +1137,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const toggleFilho = useCallback(
     (id: string, item: C) => {
+      const estavaMarcado = filhosSelecionados.has(id)
       setFilhosSelecionados(prev => {
         const novo = new Set(prev)
         if (novo.has(id)) {
@@ -1148,8 +1149,93 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         }
         return novo
       })
+
+      // REGRA UNIVERSAL DE SYNC PAI↔FILHOS (Coordenador + Líder Técnico, 2026-05-11):
+      //   • Desmarcar UM filho desmarca o pai (se estava marcado) — a afirmação
+      //     "todos os filhos estão marcados" deixa de ser verdade.
+      //   • Marcar o ÚLTIMO filho que faltava marca o pai automaticamente —
+      //     simetria total: pai marcado ⟺ todos os filhos marcados.
+      // Documentado em skills/arquitetura/nucleo-global.
+      for (const [paiId, filhosArr] of filhosCache.entries()) {
+        const idsDoPai = filhosArr.map(f => filhoId ? filhoId(f) : (f as { id?: string }).id).filter((x): x is string => !!x)
+        const achou = idsDoPai.includes(id)
+        if (!achou) continue
+
+        if (estavaMarcado) {
+          // Desmarcando filho → desmarca pai se estava marcado
+          if (selecionados.has(paiId)) toggleItem(paiId)
+        } else {
+          // Marcando filho → marca pai se TODOS os filhos do pai ficarão marcados
+          // após esta operação. Considera `id` (atual) como já marcado.
+          const todosMarcados = idsDoPai.every(fId => fId === id || filhosSelecionados.has(fId))
+          if (todosMarcados && !selecionados.has(paiId)) toggleItem(paiId)
+        }
+        break
+      }
     },
-    [],
+    [filhosSelecionados, filhosCache, selecionados, toggleItem, filhoId],
+  )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: selecionar todos (header) também sincroniza
+  // todos os filhos cached dos pais visíveis. Coerência com checkbox hierárquico.
+  const toggleTodosComSync = useCallback(
+    (todosIds: string[]) => {
+      // Snapshot do estado ANTES do toggle (para saber se vai marcar ou desmarcar)
+      const todosJaMarcados = todosIds.length > 0 && todosIds.every(id => selecionados.has(id))
+      toggleTodos(todosIds)
+
+      if (!selecionavelFilhos) return
+
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const paiId of todosIds) {
+          const filhosDoPai = filhosCache.get(paiId) ?? []
+          for (const filho of filhosDoPai) {
+            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+            if (!fId) continue
+            if (todosJaMarcados) {
+              novo.delete(fId)
+              filhosCacheMap.current.delete(fId)
+            } else {
+              novo.add(fId)
+              filhosCacheMap.current.set(fId, filho)
+            }
+          }
+        }
+        return novo
+      })
+    },
+    [selecionados, toggleTodos, filhosCache, selecionavelFilhos, filhoId],
+  )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: marcar pai marca todos os filhos cached;
+  // desmarcar pai desmarca todos os filhos. Sem prop opcional — comportamento fixo.
+  const toggleItemComSync = useCallback(
+    (id: string) => {
+      const estavaMarcado = selecionados.has(id)
+      toggleItem(id)
+
+      if (!selecionavelFilhos) return
+      const filhosDoPai = filhosCache.get(id) ?? []
+      if (filhosDoPai.length === 0) return
+
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const filho of filhosDoPai) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (!fId) continue
+          if (estavaMarcado) {
+            novo.delete(fId)
+            filhosCacheMap.current.delete(fId)
+          } else {
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
+          }
+        }
+        return novo
+      })
+    },
+    [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId],
   )
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
@@ -1730,7 +1816,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               className="gtv-checkbox"
               checked={selecionados.has(id)}
               aria-label={`Selecionar linha`}
-              onChange={() => toggleItem(id)}
+              onChange={() => toggleItemComSync(id)}
               onClick={e => e.stopPropagation()}
             />
           </div>
@@ -2267,7 +2353,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       checked={todosSel}
                       ref={el => { if (el) el.indeterminate = parcialSel }}
                       aria-label="Selecionar todos"
-                      onChange={() => toggleTodos(todosIds)}
+                      onChange={() => toggleTodosComSync(todosIds)}
                     />
                   </div>
                 )}

@@ -192,7 +192,14 @@ type FiltrosAtivosMap = Record<string, FiltroAtivo>
 
 function rotulofiltro(campo: string, filtro: FiltroAtivo): string {
   if (filtro.tipo === 'texto') return filtro.valor
-  if (filtro.tipo === 'enum') return Array.from(filtro.valor).join(', ')
+  if (filtro.tipo === 'enum') {
+    const valores = Array.from(filtro.valor)
+    // Quando há até 2 valores, mostra os nomes. Quando há 3+, mostra contagem
+    // para o chip não estourar a toolbar. (UX 2026-05-13)
+    if (valores.length === 0) return '(nenhum)'
+    if (valores.length <= 2) return valores.join(', ')
+    return `${valores.length} selecionados`
+  }
   if (filtro.tipo === 'numero') {
     const { min, max } = filtro.valor
     if (min != null && max != null) return `${min} — ${max}`
@@ -653,8 +660,8 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
 
 const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'numero_pedido',
-  'id_workspace',  // coluna "Workspace" — sempre visível, alta importância em multi-tenant
   'tipo_operacao',
+  'id_workspace',  // coluna "Workspace" — sempre visível após Tipo de Operação (UX 2026-05-13)
   'nome_importador',
   'nome_exportador',
   'status',
@@ -2617,6 +2624,8 @@ interface BarraAcoesPedidoProps {
   handleLimparTodosFiltros: () => void
   busca: string
   onLimparBusca: () => void
+  /** Abre o popover de filtro da coluna ao clicar no body do chip — UX 2026-05-13 */
+  onFiltroColuna?: (key: string, anchor: HTMLElement) => void
 }
 
 const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
@@ -2644,6 +2653,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   handleLimparTodosFiltros,
   busca,
   onLimparBusca,
+  onFiltroColuna,
 }: BarraAcoesPedidoProps) {
   const { t } = useTranslation()
   return (
@@ -2859,15 +2869,22 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Duplicar — aceita pedido E/OU item (modal único trata mistura) */}
         <TooltipGlobal
-          titulo={
-            pedidosSelecionados.length > 0 && itensSelecionados.length > 0
-              ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''} + ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
-              : pedidosSelecionados.length > 0
-                ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
-                : itensSelecionados.length > 0
-                  ? `${t('pedido.barra.duplicar')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
-                  : t('pedido.barra.duplicar')
-          }
+          titulo={(() => {
+            // Plural de "item" em PT é "itens" (irregular). NUNCA usar `item + 'ns'` aqui:
+            // gera "itemns" (bug do typo plural reportado 2026-05-11).
+            const labelItem = itensSelecionados.length === 1 ? 'item' : 'itens'
+            const labelPedido = pedidosSelecionados.length === 1 ? 'pedido' : 'pedidos'
+            if (pedidosSelecionados.length > 0 && itensSelecionados.length > 0) {
+              return `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} ${labelPedido} + ${itensSelecionados.length} ${labelItem}`
+            }
+            if (pedidosSelecionados.length > 0) {
+              return `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} ${labelPedido}`
+            }
+            if (itensSelecionados.length > 0) {
+              return `${t('pedido.barra.duplicar')} · ${itensSelecionados.length} ${labelItem}`
+            }
+            return t('pedido.barra.duplicar')
+          })()}
           descricao={t('pedido.barra.duplicar_desc')}
         >
           <BotaoGlobal
@@ -2917,10 +2934,52 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           )}
           {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
             const filtro = filtrosAtivos[col.key]!
-            return (
-              <span key={col.key} className="lp-filtro-chip">
+            // Tooltip único — sem hint redundante. Lista numerada (1. Nome /
+            // 2. Nome / ...) para leitura limpa quando há vários workspaces.
+            // Renderizada apenas para filtros enum (multi-select).
+            const valores = filtro.tipo === 'enum' ? Array.from(filtro.valor) : []
+            const tooltipLista = valores.length > 0 ? (
+              <ol style={{
+                margin: 0,
+                padding: 0,
+                listStyle: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.125rem',
+                lineHeight: 1.45,
+              }}>
+                {valores.map((v, i) => (
+                  <li key={v} style={{ display: 'flex', gap: '0.45rem' }}>
+                    <span style={{ opacity: 0.55, minWidth: '1.4rem', textAlign: 'right' }}>{i + 1}.</span>
+                    <span>{v}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : null
+            const chipBody = (
+              <button
+                type="button"
+                className="lp-filtro-chip-body"
+                onClick={onFiltroColuna ? (e) => onFiltroColuna(col.key, e.currentTarget) : undefined}
+                style={{
+                  background: 'transparent', border: 'none', padding: 0, color: 'inherit',
+                  cursor: onFiltroColuna ? 'pointer' : 'default',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                  font: 'inherit',
+                }}
+                aria-label={t('pedido.barra.editar_filtro', { defaultValue: 'Editar filtro' })}
+              >
                 <span className="lp-filtro-chip-label">{col.label}:</span>
                 <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
+              </button>
+            )
+            return (
+              <span key={col.key} className="lp-filtro-chip">
+                {tooltipLista ? (
+                  <TooltipGlobal titulo={col.label} descricao={tooltipLista}>
+                    <span style={{ display: 'contents' }}>{chipBody}</span>
+                  </TooltipGlobal>
+                ) : chipBody}
                 <button
                   className="lp-filtro-chip-remove"
                   onClick={() => handleLimparFiltro(col.key)}
@@ -3265,24 +3324,22 @@ export default function Pedidos() {
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
   const popoverAnchorRefs                   = useRef<Record<string, React.MutableRefObject<HTMLElement | null>>>({})
 
-  // ── Garantia: filtrosAtivos['id_workspace'] sempre tem AO MENOS o ativo ────
-  // Sempre que `filtrosAtivos['id_workspace']` ficar vazio (mount inicial OU
-  // usuário clicou "× Limpar filtro"), repopulamos com o workspace ativo.
-  // Isso garante que:
-  //   1. O popover sempre abre com o workspace ativo já MARCADO (reflete a
-  //      realidade — a lista está sendo filtrada por ele via header).
-  //   2. O chip "Workspace: <nome>" sempre aparece, sinalizando ao usuário
-  //      qual(is) workspace(s) está(ão) sendo exibido(s).
-  //   3. Não há loop: quando o filtro vira undefined, este useEffect repopula
-  //      com [ativo] → estável.
+  // ── Inicialização (UMA VEZ): popover abre com workspace ativo marcado ─────
+  // No mount, populamos `filtrosAtivos['id_workspace']` com o workspace ativo
+  // para que o popover já apareça refletindo a realidade (lista filtrada por
+  // ele via header). Roda UMA vez (initializedFilterRef) — depois o usuário
+  // tem controle TOTAL: pode desmarcar tudo e ver lista vazia (intencional).
+  const initializedFilterRef = useRef(false)
   useEffect(() => {
+    if (initializedFilterRef.current) return
     if (workspacesMap.size === 0) return                 // mapa ainda carregando
     if (!workspaceAtivo) return                          // sem ativo, nada a fazer
-    if (filtrosAtivos['id_workspace']) return            // filtro já presente — não toca
+    if (filtrosAtivos['id_workspace']) return            // filtro já presente (ex: deep-link)
     const w = workspacesMap.get(workspaceAtivo)
     if (!w) return                                       // ativo não está em workspacesMap (?)
+    initializedFilterRef.current = true
     // eslint-disable-next-line no-console
-    console.log('[DIAG-init] (re)populando filtro id_workspace com workspace ativo:', w.nome)
+    console.log('[DIAG-init] inicializando filtro id_workspace com workspace ativo:', w.nome)
     setFiltrosAtivos(prev => ({
       ...prev,
       id_workspace: { tipo: 'enum', valor: new Set([w.nome]) },
@@ -3290,17 +3347,21 @@ export default function Pedidos() {
   }, [workspacesMap, workspaceAtivo, filtrosAtivos])
 
   // ── Sincronia: filtrosAtivos['id_workspace'] → workspacesSelecionados ─────
-  // Ver comentário acima (próximo a `workspacesSelecionados`) para a motivação.
+  //
+  // Casos:
+  //   - Mount inicial, antes da inicialização: filtro undefined →
+  //     initializedFilterRef.current = false → não toca (espera init).
+  //   - Após init, usuário clicou "× Limpar filtro" ou desmarcou último item:
+  //     filtro undefined → workspacesSelecionados = [] → lista vazia (intencional).
+  //   - Filtro presente com Set não vazio: resolve nomes em ids.
+  //   - Filtro presente com Set vazio: workspacesSelecionados = [] → lista vazia.
   useEffect(() => {
     const filtro = filtrosAtivos['id_workspace']
     if (!filtro || filtro.tipo !== 'enum') {
-      // Filtro limpo — restaura default (workspace ativo)
-      const target = workspaceAtivo ? [workspaceAtivo] : []
+      if (!initializedFilterRef.current) return  // mount — aguarda init
       // eslint-disable-next-line no-console
-      console.log('[DIAG-filtro-ws] filtro limpo, restaurando ao ativo:', target)
-      setWorkspacesSelecionados(prev =>
-        prev.length === target.length && prev.every((v, i) => v === target[i]) ? prev : target,
-      )
+      console.log('[DIAG-filtro-ws] usuário limpou filtro → seleção vazia (lista vazia esperada)')
+      setWorkspacesSelecionados(prev => (prev.length === 0 ? prev : []))
       return
     }
     const nomes = filtro.valor
@@ -3313,13 +3374,12 @@ export default function Pedidos() {
     console.log('[DIAG-filtro-ws] filtro aplicado', {
       nomesSelecionados: Array.from(nomes),
       workspacesMapSize: workspacesMap.size,
-      workspacesMapEntries: Array.from(workspacesMap.entries()).map(([id, w]) => ({ id, nome: w.nome })),
       idsResolvidos: idsSelecionados,
     })
     setWorkspacesSelecionados(prev =>
       prev.length === idsSelecionados.length && prev.every((v, i) => v === idsSelecionados[i]) ? prev : idsSelecionados,
     )
-  }, [filtrosAtivos, workspacesMap, workspaceAtivo])
+  }, [filtrosAtivos, workspacesMap])
 
   function getAnchorRef(campo: string): React.MutableRefObject<HTMLElement | null> {
     if (!popoverAnchorRefs.current[campo]) {
@@ -3471,18 +3531,36 @@ export default function Pedidos() {
     novaBusca: string = busca,
     novaPagina = 1,
   ) => {
+    // Curto-circuito ANTES do guard carregandoRef:
+    // 0 workspaces selecionados = usuário desmarcou tudo intencionalmente →
+    // lista vazia, sem fetch (evita falar com backend que cairia no header).
+    // Precisa rodar mesmo se outro fetch está em-flight (caso contrário a UI
+    // fica presa mostrando os pedidos antigos).
+    if (workspacesSelecionados.length === 0) {
+      // eslint-disable-next-line no-console
+      console.log('[DIAG-fetch] workspacesSelecionados vazio → setPedidos([]) sem fetch')
+      setPedidos([])
+      setTotal(0)
+      setTotalItensBanco(0)
+      setCarregando(false)
+      setErroCarga(null)
+      setPaginaAtual(novaPagina)
+      // Aborta o flag de carga se estava setado por uma chamada anterior
+      carregandoRef.current = false
+      return
+    }
+
     if (carregandoRef.current) return
     carregandoRef.current = true
     setCarregando(true)
     setErroCarga(null)
     setPaginaAtual(novaPagina)
     try {
+
       // Filtro multi-workspace: envia query param sempre que a seleção do usuário
       // diferir do default (= apenas o workspace ativo). Isso inclui:
       //  - usuário escolheu OUTRO workspace único (ex: ativo=CDE, filtro=ABC)
       //  - usuário escolheu múltiplos workspaces
-      //  - usuário desmarcou tudo (envia lista vazia → server retorna 0 pedidos
-      //    em vez de cair pro header)
       // Quando seleção == [workspaceAtivo] o header x-id-workspace cuida sozinho.
       const ehSelecaoDefault =
         workspacesSelecionados.length === 1 &&
@@ -3528,6 +3606,8 @@ export default function Pedidos() {
   // Recarrega lista quando mudou seleção de workspaces (filtro multi-workspace)
   useEffect(() => {
     if (!idOrganizacao) return
+    // eslint-disable-next-line no-console
+    console.log('[DIAG-trigger] useEffect workspacesSelecionados disparou → carregarInicial()', { workspacesSelecionados })
     carregarInicial()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspacesSelecionados])
@@ -3581,13 +3661,7 @@ export default function Pedidos() {
   ]), [carregarInicial, addNotification])
 
   const onSelecaoFilhoEstavel = useCallback(
-    (itens: PedidoItem[]) => {
-      // TEMP DIAG — diagnosticando perda de seleção de itens no modal de duplicar.
-      // REMOVER antes do commit final (Mandamento sobre console.log).
-      // eslint-disable-next-line no-console
-      console.log('[TEMP DIAG] onSelecaoFilho recebeu', itens.length, 'itens:', itens.map(i => ({ id: i.id, seq: i.sequencia_item, pn: i.part_number })))
-      setItensSelecionados(itens)
-    },
+    (itens: PedidoItem[]) => setItensSelecionados(itens),
     [setItensSelecionados],
   )
 
@@ -3638,6 +3712,7 @@ export default function Pedidos() {
         handleLimparTodosFiltros={handleLimparTodosFiltros}
         busca={busca}
         onLimparBusca={() => handleBuscar('')}
+        onFiltroColuna={onFiltroColuna}
       />
     </div>
   ), [
@@ -3647,6 +3722,7 @@ export default function Pedidos() {
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
+    onFiltroColuna,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
@@ -3734,26 +3810,43 @@ export default function Pedidos() {
       const novas = activeCustomKeys.filter(k => !savedSet.has(k))
 
       // Migração: colunas built-in novas (adicionadas após save de prefs do usuário)
-      // — entrega 2026-05-13 adicionou `id_workspace`. Injeta logo após numero_pedido.
+      // — entrega 2026-05-13 adicionou `id_workspace`. Injeta logo após tipo_operacao.
       let visivelComMigracao = [...savedVisible]
       const COLUNAS_BUILTIN_NOVAS = ['id_workspace']
       const novasBuiltin = COLUNAS_BUILTIN_NOVAS.filter(k => !savedSet.has(k))
+      let mudouPosicao = false
       if (novasBuiltin.length > 0) {
-        // Injeta após numero_pedido se existir; senão, no início
+        // Injeta após tipo_operacao se existir; senão após numero_pedido; senão no início
+        const idxTipo = visivelComMigracao.indexOf('tipo_operacao')
         const idxNumero = visivelComMigracao.indexOf('numero_pedido')
-        if (idxNumero >= 0) {
+        if (idxTipo >= 0) {
+          visivelComMigracao.splice(idxTipo + 1, 0, ...novasBuiltin)
+        } else if (idxNumero >= 0) {
           visivelComMigracao.splice(idxNumero + 1, 0, ...novasBuiltin)
         } else {
           visivelComMigracao = [...novasBuiltin, ...visivelComMigracao]
         }
+      } else {
+        // Reposicionamento 2026-05-13: usuários que abriram a tela entre versões
+        // podem ter id_workspace salvo na posição ANTIGA (após numero_pedido).
+        // Move para a posição CORRETA (após tipo_operacao).
+        const idxWs = visivelComMigracao.indexOf('id_workspace')
+        const idxTipoOp = visivelComMigracao.indexOf('tipo_operacao')
+        if (idxWs >= 0 && idxTipoOp >= 0 && idxWs < idxTipoOp) {
+          visivelComMigracao.splice(idxWs, 1)
+          const novoIdxTipo = visivelComMigracao.indexOf('tipo_operacao')
+          visivelComMigracao.splice(novoIdxTipo + 1, 0, 'id_workspace')
+          mudouPosicao = true
+        }
       }
 
-      const finalVisible = novas.length > 0 || novasBuiltin.length > 0
+      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
         ? [...visivelComMigracao, ...novas]
         : savedVisible
 
-      if (novas.length > 0 || novasBuiltin.length > 0) {
-        // Persistir preferências com as novas colunas para que hide/show funcione corretamente
+      if (novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao) {
+        // Persistir preferências com as novas colunas (ou reposicionamento) para
+        // que hide/show e a ordem funcionem corretamente em todos os dispositivos.
         pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({ colunas_visiveis: finalVisible }).catch(() => {})
       }
 
@@ -5021,26 +5114,18 @@ export default function Pedidos() {
 
       {/* ── Modal Duplicar Pedidos e/ou Itens (modal único, misto) ── */}
       {modalDuplicarAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
-        <>
-          {/* TEMP DIAG — REMOVER antes do commit final */}
-          {(() => {
-            // eslint-disable-next-line no-console
-            console.log('[TEMP DIAG] Modal Duplicar abrindo — pedidos:', pedidosSelecionados.length, 'itens:', itensSelecionados.length, '| itens detalhe:', itensSelecionados.map(i => ({ id: i.id, seq: i.sequencia_item, pn: i.part_number, pai: i.pedido_id })))
-            return null
-          })()}
-          <ModalDuplicarPedidos
-            pedidos={pedidosSelecionados}
-            itens={itensSelecionados}
-            todosPedidos={pedidos}
-            onFechar={() => setModalDuplicarAberto(false)}
-            onConcluido={() => {
-              setModalDuplicarAberto(false)
-              setPedidosSelecionados([])
-              setItensSelecionados([])
-              carregarInicial()
-            }}
-          />
-        </>
+        <ModalDuplicarPedidos
+          pedidos={pedidosSelecionados}
+          itens={itensSelecionados}
+          todosPedidos={pedidos}
+          onFechar={() => setModalDuplicarAberto(false)}
+          onConcluido={() => {
+            setModalDuplicarAberto(false)
+            setPedidosSelecionados([])
+            setItensSelecionados([])
+            carregarInicial()
+          }}
+        />
       )}
 
       {/* ── Modal Excluir Pedidos (substitui window.confirm) ── */}

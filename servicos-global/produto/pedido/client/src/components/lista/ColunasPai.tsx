@@ -231,30 +231,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.numero_pedido_desc'),
     grupo: 'Identificação',
   },
-  // ── Coluna "Workspace" — filtro multi-workspace (entrega 2026-05-13) ────────
-  // key = 'id_workspace' (DDD-puro). mapPedido() em api.ts injeta id_workspace
-  // no objeto Pedido via spread, então leitura row.id_workspace funciona.
-  // O popover de filtro exibe NOMES (não IDs) — handled em Pedidos.tsx via
-  // valoresUnicosPorCampo special-case. Sempre visível, posicionada logo após
-  // "Nº Pedido" pela alta importância em multi-tenant.
-  //
-  // DÍVIDA: o framework GTColuna (nucleo-global) usa `label` no header e em
-  // `opcoes[].label`. DDD-puro pede `rotulo`. Refactor é multi-arquivo (todas
-  // as colunas de todos os produtos consumindo a tabela virtual) e foi
-  // pulled-out para uma entrega dedicada.
-  {
-    key: 'id_workspace',
-    label: 'Workspace',
-    tipo: 'texto',           // promovido para 'enum' em Pedidos.tsx → detectarTipoColuna
-    filtravel: true,
-    sortavel: false,         // backend ordena por id_workspace, não nome — manter simples
-    grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const id = (row as unknown as { id_workspace?: string }).id_workspace ?? ''
-      const nome = workspacesMap?.get(id)?.nome ?? id
-      return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
-    },
-  },
   {
     key: 'tipo_operacao',
     label: t('pedido.coluna_pai.tipo_operacao'),
@@ -281,6 +257,30 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       />
     ),
     findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação',
+  },
+  // ── Coluna "Workspace" — filtro multi-workspace (entrega 2026-05-13) ────────
+  // key = 'id_workspace' (DDD-puro). mapPedido() em api.ts injeta id_workspace
+  // no objeto Pedido via spread, então leitura row.id_workspace funciona.
+  // O popover de filtro exibe NOMES (não IDs) — handled em Pedidos.tsx via
+  // valoresUnicosPorCampo special-case. Sempre visível, posicionada logo após
+  // "Tipo de Operação" (decisão de UX 2026-05-13 — dono).
+  //
+  // DÍVIDA: o framework GTColuna (nucleo-global) usa `label` no header e em
+  // `opcoes[].label`. DDD-puro pede `rotulo`. Refactor é multi-arquivo (todas
+  // as colunas de todos os produtos consumindo a tabela virtual) e foi
+  // pulled-out para uma entrega dedicada.
+  {
+    key: 'id_workspace',
+    label: 'Workspace',
+    tipo: 'texto',           // promovido para 'enum' em Pedidos.tsx → detectarTipoColuna
+    filtravel: true,
+    sortavel: false,         // backend ordena por id_workspace, não nome — manter simples
+    grupo: 'Identificação',
+    render: (_val: unknown, row: Pedido) => {
+      const id = (row as unknown as { id_workspace?: string }).id_workspace ?? ''
+      const nome = workspacesMap?.get(id)?.nome ?? id
+      return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+    },
   },
   {
     key: 'nome_exportador',
@@ -760,6 +760,29 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('cubagem_total_pedido', 4)
       const num = Number(row.cubagem_total_pedido ?? 0)
+      // Espelhamento estrito (Opção A — 2026-05-13): itens com cubagem_unidade_item
+      // divergente -> alerta. Cubagem aceita 1D/2D/3D (CM/M/CM2/M2/ML/LT/M3 —
+      // categorias comprimento|area|volume do cadastros.unidade). Não há fator
+      // de conversão entre dimensões, então soma divergente é semanticamente
+      // inválida (somar "5 cm" com "3 m²" não faz sentido).
+      const itens = row.itens ?? []
+      if (itens.length > 0) {
+        const unidadesContribuintes = new Set(
+          itens.filter(i => (Number(i.cubagem_unitaria) || 0) > 0)
+            .map(i => i.cubagem_unidade_item ?? 'M3')
+        )
+        const unidadesDeclaradas = new Set(
+          itens.map(i => i.cubagem_unidade_item).filter((u): u is string => u != null && u !== '')
+        )
+        const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
+        if (unidadesEfetivas.size > 1) {
+          return (
+            <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
+              <span style={{ display: 'contents' }}>{renderAgregado(null, true, 'Unidades de cubagem divergentes entre itens')}</span>
+            </TooltipGlobal>
+          )
+        }
+      }
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
           <span className="gtv-celula-moeda">

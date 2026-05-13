@@ -738,7 +738,15 @@ const GTEditPopover = memo(function GTEditPopover({
                 />
                 <button
                   type="button"
-                  onClick={() => setCalendarioAberto(v => !v)}
+                  // onMouseDown ao invés de onClick + preventDefault para NÃO tirar
+                  // o foco do input (igual aos triggers de moeda/unidade no mesmo
+                  // popover). stopPropagation impede que o handler global fecharFora
+                  // (linha ~1332) interprete o click como "clicou fora" e cancele.
+                  onMouseDown={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (!salvando) setCalendarioAberto(v => !v)
+                  }}
                   disabled={salvando}
                   aria-label="Abrir calendário"
                   style={{

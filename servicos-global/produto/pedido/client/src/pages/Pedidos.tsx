@@ -3999,12 +3999,30 @@ export default function Pedidos() {
     // alerta no pai quando algum item tem data ≠ pai (ou itens divergem entre si).
     // O pai pode ter sido editado pelo usuário com uma data diferente da dos itens
     // (e vice-versa). Padrão: mostra o valor + ⚠ ao lado, não esconde o valor.
+    //
+    // Normalização: backend pode devolver date em formatos diferentes para pai vs
+    // filhos (Date object via Prisma, ISO completo `2026-05-12T00:00:00.000Z`, ou
+    // date-only `2026-05-12` se recém-editado). Usamos `new Date().toISOString()`
+    // para canonizar antes de comparar — evita falsos positivos por timezone ou
+    // por formato. Falha silenciosa só se a data for inválida (volta a substring).
+    function dateKey(v: unknown): string | null {
+      if (v == null) return null
+      const s = String(v)
+      if (!s) return null
+      const d = new Date(s)
+      if (!isNaN(d.getTime())) {
+        const y = d.getUTCFullYear()
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+        const dd = String(d.getUTCDate()).padStart(2, '0')
+        return `${y}-${m}-${dd}`
+      }
+      return s.substring(0, 10) || null
+    }
     const datasItens = itens
-      .map(i => i.data_emissao_pedido)
-      .filter((v): v is string => v != null && v !== '')
-      .map(s => s.substring(0, 10)) // só a parte da data, sem hora
+      .map(i => dateKey(i.data_emissao_pedido))
+      .filter((v): v is string => v != null)
     const datasUnicas = new Set(datasItens)
-    const dataPai = pedidoPai?.data_emissao_pedido?.substring(0, 10)
+    const dataPai = dateKey(pedidoPai?.data_emissao_pedido)
     // Divergente se: (a) itens divergem entre si OU (b) pai tem valor e difere
     // de algum item OU (c) algum item tem valor e o pai não (e os itens divergem).
     let dataEmissaoDivergente = datasUnicas.size > 1

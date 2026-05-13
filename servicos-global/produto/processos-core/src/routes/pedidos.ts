@@ -1802,7 +1802,25 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       res.json(mapPedido(updated))
     })
   } catch (err) {
-    next(err)
+    // Logging detalhado para diagnosticar erros 500 difíceis de reproduzir.
+    // O usuário consegue ver a stack trace no response (DEV) sem precisar de
+    // acesso ao terminal do backend.
+    const isPrismaErr = err && typeof err === 'object' && 'code' in err
+    const detalhe = {
+      mensagem: err instanceof Error ? err.message : String(err),
+      codigo: isPrismaErr ? (err as { code?: string }).code : undefined,
+      meta:    isPrismaErr ? (err as { meta?: unknown }).meta  : undefined,
+      stack:   err instanceof Error ? err.stack?.split('\n').slice(0, 6) : undefined,
+      campo:   req.body?.campo,
+      replicar_em_itens: req.body?.replicar_em_itens,
+    }
+    console.error('[PATCH /pedidos/:id/campo] ERRO:', JSON.stringify(detalhe, null, 2))
+    // Se for AppError, deixa o handler padrão tratar. Se for erro genérico
+    // (500), devolve o detalhe no response pra facilitar diagnóstico.
+    if (err instanceof AppError) {
+      return next(err)
+    }
+    return res.status(500).json({ error: { message: detalhe.mensagem, detalhe } })
   }
 })
 

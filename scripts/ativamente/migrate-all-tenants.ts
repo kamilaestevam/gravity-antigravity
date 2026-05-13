@@ -112,12 +112,16 @@ function toSchemaName(tenantId: string): string {
 const MONOREPO_ROOT = resolve(import.meta.dirname, '../..')
 
 const PRODUCT_MIGRATIONS: Record<string, string> = {
-  pedido:           'servicos-global/produto/pedido/server/prisma/migrations',
-  processo:         'servicos-global/produto/processo/server/prisma/migrations',
-  'simula-custo':   'servicos-global/produto/simula-custo/server/prisma/migrations',
-  'bid-frete':      'servicos-global/produto/bid-frete/server/prisma/migrations',
-  'bid-cambio':     'servicos-global/produto/bid-cambio/server/prisma/migrations',
-  'nf-importacao':  'servicos-global/produto/nf-importacao/server/prisma/migrations',
+  // 2026-05-12: paths corrigidos de `server/prisma/migrations` para
+  // `prisma/migrations` — estrutura real do monorepo após FASES 4-5.
+  // Script estava stale; nenhuma migration multi-tenant rodou desde então.
+  pedido:           'servicos-global/produto/pedido/prisma/migrations',
+  processo:         'servicos-global/produto/processo/prisma/migrations',
+  'simula-custo':   'servicos-global/produto/simula-custo/prisma/migrations',
+  'bid-frete':      'servicos-global/produto/bid-frete/prisma/migrations',
+  'bid-cambio':     'servicos-global/produto/bid-cambio/prisma/migrations',
+  'nf-importacao':  'servicos-global/produto/nf-importacao/prisma/migrations',
+  lpco:             'servicos-global/produto/lpco/prisma/migrations',
   'taxas-cambio':   'servicos-global/servicos-plataforma/taxas-cambio/server/prisma/migrations',
   tenant:           'servicos-global/servicos-plataforma/prisma/migrations',
 }

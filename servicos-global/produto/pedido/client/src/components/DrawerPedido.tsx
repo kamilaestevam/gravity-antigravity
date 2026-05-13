@@ -32,6 +32,7 @@ import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
+import { useUnidadesPedido } from '../shared/useUnidadesPedido'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi, obterSnapshotStatusPedido, type PapelSnapshot } from '../shared/api'
 import { BannerSnapshotAtualizado } from './BannerSnapshotAtualizado'
@@ -120,6 +121,8 @@ function formFoiAlterado(form: PedidoForm, itens: ItemForm[]): boolean {
 export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, focusField }: DrawerPedidoProps) {
   const { t, i18n } = useTranslation()
   const modoEdicao = Boolean(pedidoId)
+  // Unidades comercializadas do item — SSOT cadastros.unidade (substitui literal hardcoded antes).
+  const { unidadesComercializadas } = useUnidadesPedido()
 
   const [form, setForm]       = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens]     = useState<ItemForm[]>([ITEM_VAZIO()])
@@ -712,8 +715,8 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                           onChange={e => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
                           aria-label={t('pedido.drawer.label_uom')}
                         >
-                          {['UN','MT','M2','KG','LT','TON','CM3','PC'].map(u => (
-                            <option key={u} value={u}>{u}</option>
+                          {unidadesComercializadas.map(u => (
+                            <option key={u.sigla} value={u.sigla}>{u.rotulo}</option>
                           ))}
                         </select>
                       </div>

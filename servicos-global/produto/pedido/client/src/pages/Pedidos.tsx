@@ -114,7 +114,8 @@ import {
   fmtData,
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
-import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../shared/unidadesPesoColuna'
+import { useUnidadesPedido } from '../shared/useUnidadesPedido'
+import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
@@ -584,9 +585,13 @@ function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, to
   )
 }
 
-// Colunas pai agora vem de buildColunasPai(t) — ver colunasPai.tsx
-// Variavel module-level para codigo que precisa das colunas fora do componente React
-const COLUNAS_PAI: GTColuna<Pedido>[] = buildColunasPai(i18next.t.bind(i18next))
+// Colunas pai agora vem de buildColunasPai(t, opcoes) — ver colunasPai.tsx
+// Variavel module-level para codigo que precisa das colunas fora do componente React.
+// Aqui só usamos as KEYS (COLUNAS_PAI_CHAVES) — unidades podem ser vazias.
+const COLUNAS_PAI: GTColuna<Pedido>[] = buildColunasPai(
+  i18next.t.bind(i18next),
+  { unidadesPeso: [], unidadesCubagem: [] },
+)
 
 // ── Chaves das colunas estáticas do Pedido (para camposDisponiveis em fórmulas) ──
 
@@ -2089,7 +2094,9 @@ type PedidoItemEnriquecido = PedidoItem & {
   }
 }
 
-const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
+function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
+  const { unidadesPeso, unidadesCubagem } = opcoes
+  return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
     editavel: true,
@@ -2227,7 +2234,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_liquido_unitario',
     casasDecimais: getCasas('peso_liquido_unitario', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
@@ -2251,7 +2258,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_bruto_unitario',
     casasDecimais: getCasas('peso_bruto_unitario', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
@@ -2275,19 +2282,22 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'cubagem_unitaria',
     casasDecimais: getCasas('cubagem_unitaria', 4),
-    unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
+    unidades: unidadesCubagem,
     getValorEditar: (row: PedidoItem) => ({
-      unit: 'm³',
+      unit: row.cubagem_unidade_item ?? 'M3',
       quantity: Number(row.cubagem_unitaria ?? 0),
     }),
-    render: (row: PedidoItem) => (
-      <span className="gtv-celula-moeda">
-        {row.cubagem_unitaria != null
-          ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">m³</span>
-      </span>
-    ),
+    render: (row: PedidoItem) => {
+      const unit = row.cubagem_unidade_item ?? 'M3'
+      return (
+        <span className="gtv-celula-moeda">
+          {row.cubagem_unitaria != null
+            ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+        </span>
+      )
+    },
   },
   // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
@@ -2424,6 +2434,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       )
     },
   },
+  }
 }
 
 // ── Colunas para exportação ───────────────────────────────────────────────────
@@ -2874,11 +2885,25 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
 export default function Pedidos() {
   const { t, i18n } = useTranslation()
-  // Colunas pai reativas — rebuild quando o idioma muda.
+  // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
+  const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
+  const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
+    () => ({ unidadesPeso, unidadesCubagem }),
+    [unidadesPeso, unidadesCubagem],
+  )
+  // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
+  // de unidades do Cadastros termina de carregar (primeiro render: vazio).
   // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo
   // após troca de idioma, então depender só de `[t]` NUNCA invalida o memo.
   // i18n.language muda de string a cada troca ("pt" → "en"), forçando o rebuild.
-  const colunasPai = useMemo(() => buildColunasPai(t), [t, i18n.language])
+  const colunasPai = useMemo(
+    () => buildColunasPai(t, opcoesUnidadesColunas),
+    [t, i18n.language, opcoesUnidadesColunas],
+  )
+  const mapaColunasFilho = useMemo(
+    () => buildMapaColunasFilho(opcoesUnidadesColunas),
+    [opcoesUnidadesColunas],
+  )
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
   const location = useLocation()
@@ -3991,6 +4016,12 @@ export default function Pedidos() {
           : 'peso_bruto_unidade_item'
         ;(payload as Record<string, unknown>)[unidadeField] = (valor as { unit: string }).unit
       }
+      // Cubagem: aceita 1D/2D/3D (CM/M/CM2/M2/ML/LT/M3 — decisão UX 2026-05-12).
+      // Sem conversão numérica entre dimensões; valor é persistido como digitado
+      // e a unidade fica em cubagem_unidade_item.
+      if (isUnidade && campo === 'cubagem_unitaria') {
+        ;(payload as Record<string, unknown>).cubagem_unidade_item = (valor as { unit: string }).unit
+      }
     }
 
     const itemAtual = getItensCache().find(i => i.id === id)
@@ -4452,7 +4483,7 @@ export default function Pedidos() {
           colunas={colunasComUsuario}
           itemId={pedidoItemId}
 
-          mapaColunasFilho={MAPA_COLUNAS_FILHO}
+          mapaColunasFilho={mapaColunasFilho}
           onCarregarFilhos={handleCarregarFilhos}
           onExpandidosMudar={(count) => setTemExpandido(count > 0)}
           itemVersion={pedidoItemVersion}

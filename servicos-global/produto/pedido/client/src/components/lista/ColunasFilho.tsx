@@ -13,8 +13,7 @@ import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global
 import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
-import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './ColunasPai'
-import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../../shared/unidadesPesoColuna'
+import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -129,7 +128,8 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
-export function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
+export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<PedidoItem>[] {
+  const { unidadesPeso, unidadesCubagem } = opcoes
   return [
   {
     key: 'part_number',
@@ -1422,7 +1422,9 @@ type PedidoItemEnriquecido = PedidoItem & {
 // Fator de conversão reversa: KG armazenado → unidade de exibição
 const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
 
-export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
+export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
+  const { unidadesPeso, unidadesCubagem } = opcoes
+  return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
     editavel: true,
@@ -1572,7 +1574,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     editavel: true,
     campo: 'peso_liquido_unitario',
     casasDecimais: getCasas('peso_liquido_unitario', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
@@ -1596,7 +1598,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     editavel: true,
     campo: 'peso_bruto_unitario',
     casasDecimais: getCasas('peso_bruto_unitario', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
@@ -1620,19 +1622,22 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     editavel: true,
     campo: 'cubagem_unitaria',
     casasDecimais: getCasas('cubagem_unitaria', 4),
-    unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
+    unidades: unidadesCubagem,
     getValorEditar: (row: PedidoItem) => ({
-      unit: 'm³',
+      unit: row.cubagem_unidade_item ?? 'M3',
       quantity: Number(row.cubagem_unitaria ?? 0),
     }),
-    render: (row: PedidoItem) => (
-      <span className="gtv-celula-moeda">
-        {row.cubagem_unitaria != null
-          ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">m³</span>
-      </span>
-    ),
+    render: (row: PedidoItem) => {
+      const unit = row.cubagem_unidade_item ?? 'M3'
+      return (
+        <span className="gtv-celula-moeda">
+          {row.cubagem_unitaria != null
+            ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+        </span>
+      )
+    },
   },
   // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
@@ -1726,4 +1731,5 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
       )
     },
   },
+  }
 }

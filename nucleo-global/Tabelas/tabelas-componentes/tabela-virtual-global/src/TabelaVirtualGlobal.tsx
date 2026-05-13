@@ -455,9 +455,12 @@ const GTEditPopover = memo(function GTEditPopover({
   const listaMoedasSiscomex = overlayInfo.moedas
     ? moedasCadastros.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.codigo_moeda))
     : moedasCadastros
+  // Formato `SIGLA — Nome` (decisão UX 2026-05-12 — padrão global para todos
+  // os dropdowns de unidade nas tabelas Gravity). Coluna pode sobrescrever
+  // passando `unidades: [...]` com rótulos próprios.
   const unidadesPadrao: GTUnidadeOpcao[] = unidadesCadastros.map((u) => ({
     sigla: u.codigo_unidade,
-    rotulo: u.nome_unidade,
+    rotulo: `${u.codigo_unidade} — ${u.nome_unidade}`,
   }))
   const listaUnidades = overlayInfo.unidades ?? unidadesPadrao
   const casas = overlayInfo.casasDecimais ?? 0

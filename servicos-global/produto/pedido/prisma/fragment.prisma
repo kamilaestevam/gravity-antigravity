@@ -185,8 +185,11 @@ model PedidoItem {
   condicao_pagamento_item          String?
   data_emissao_item                DateTime?
   peso_liquido_unitario_item       Decimal?       @db.Decimal(18, 6)
+  peso_liquido_unidade_item        String?        @default("KG")
   peso_bruto_unitario_item         Decimal?       @db.Decimal(18, 6)
+  peso_bruto_unidade_item          String?        @default("KG")
   cubagem_unitaria_item            Decimal?       @db.Decimal(18, 6)
+  cubagem_unidade_item             String?        @default("M3")
   casas_decimais_peso_item         Int            @default(3)
   casas_decimais_cubagem_item      Int            @default(3)
   dados_extras_importacao_item     Json?

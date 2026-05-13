@@ -48,6 +48,7 @@ import {
   buscarUnidadePorCodigo,
   type CadastrosRequestContext,
 } from '../services/cadastrosClient.js'
+import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
 import {
   montarSnapshotEmpresa,
   montarSnapshotOpe,
@@ -208,12 +209,15 @@ const atualizarItemSchema = z.object({
   incoterm: z.string().optional().nullable(),
   condicao_pagamento: z.string().optional().nullable(),
   data_emissao_pedido: z.string().optional().nullable(),
-  // Dados físicos unitários
-  peso_liquido_unitario: z.number().optional().nullable(),
-  peso_liquido_unidade_item:  z.string().optional().nullable(),
-  peso_bruto_unitario:   z.number().optional().nullable(),
-  peso_bruto_unidade_item:    z.string().optional().nullable(),
-  cubagem_unitaria:      z.number().optional().nullable(),
+  // Dados físicos unitários — sigla validada cruzada com cadastros.unidade
+  // (categoria=peso para peso_*; categorias=comprimento|area|volume para cubagem).
+  // Validação cruzada com Cadastros é feita em runtime no handler (validarUnidades).
+  peso_liquido_unitario:     z.number().optional().nullable(),
+  peso_liquido_unidade_item: z.string().min(1).max(8).optional().nullable(),
+  peso_bruto_unitario:       z.number().optional().nullable(),
+  peso_bruto_unidade_item:   z.string().min(1).max(8).optional().nullable(),
+  cubagem_unitaria:          z.number().optional().nullable(),
+  cubagem_unidade_item:      z.string().min(1).max(8).optional().nullable(),
 })
 
 const cancelarQuantidadeSchema = z.object({
@@ -289,10 +293,16 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     condicao_pagamento_pedido: item.condicao_pagamento_item,
     data_emissao_pedido:       item.data_emissao_item,
 
-    // Decimal → number (dados físicos unitários)
-    peso_liquido_unitario: num(item.peso_liquido_unitario_item, null),
-    peso_bruto_unitario:   num(item.peso_bruto_unitario_item, null),
-    cubagem_unitaria:      num(item.cubagem_unitaria_item, null),
+    // Decimal → number (dados físicos unitários) + unidade
+    // Unidades vêm de cadastros.unidade (SSOT). Front lê via
+    // row.peso_liquido_unidade_item, row.peso_bruto_unidade_item,
+    // row.cubagem_unidade_item — usados pelo dropdown e badge.
+    peso_liquido_unitario:     num(item.peso_liquido_unitario_item, null),
+    peso_liquido_unidade_item: item.peso_liquido_unidade_item ?? 'KG',
+    peso_bruto_unitario:       num(item.peso_bruto_unitario_item, null),
+    peso_bruto_unidade_item:   item.peso_bruto_unidade_item ?? 'KG',
+    cubagem_unitaria:          num(item.cubagem_unitaria_item, null),
+    cubagem_unidade_item:      item.cubagem_unidade_item ?? 'M3',
 
     casas_decimais_peso_item:    item.casas_decimais_peso_item,
     casas_decimais_cubagem_item: item.casas_decimais_cubagem_item,
@@ -1856,9 +1866,15 @@ const publicToDddItem: Record<string, string> = {
   condicao_pagamento:          'condicao_pagamento_item',
   data_emissao_pedido:         'data_emissao_item',
   peso_liquido_unitario:       'peso_liquido_unitario_item',
+  peso_liquido_unidade_item:   'peso_liquido_unidade_item',
   peso_bruto_unitario:         'peso_bruto_unitario_item',
+  peso_bruto_unidade_item:     'peso_bruto_unidade_item',
   cubagem_unitaria:            'cubagem_unitaria_item',
+  cubagem_unidade_item:        'cubagem_unidade_item',
 }
+
+// Validação cruzada de unidades com cadastros.unidade — extraída para
+// `services/validarUnidadesItem` (Mandamentos 06+09).
 
 // ── PUT /:id/itens/:itemId — Atualizar item ──────────────────────────────────
 
@@ -1882,6 +1898,16 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
       if (!item) {
         throw new AppError(404, 'Item do pedido nao encontrado')
       }
+
+      // Validação cruzada de unidades contra cadastros.unidade (SSOT).
+      // Mandamento 06 + 09 — Zod só valida o shape; runtime valida o conteúdo.
+      // Falha alta (HTTP 400) se sigla inexistente ou categoria errada.
+      const correlationId = (req.headers['x-correlation-id'] as string | undefined) ?? 'no-corr'
+      const ctxCadastros: CadastrosRequestContext = {
+        id_organizacao: idOrganizacao,
+        correlation_id: correlationId,
+      }
+      await validarUnidadesItem(result.data as Record<string, unknown>, ctxCadastros)
 
       // ACL: traduz chaves do contrato público (atualizarItemSchema) para nomes DDD Prisma
       const prismaData: Record<string, unknown> = {}

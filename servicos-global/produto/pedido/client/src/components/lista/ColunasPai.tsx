@@ -14,7 +14,7 @@ import type { Pedido, PedidoItem } from '../../shared/types'
 import { STATUS_PEDIDO_LABELS, fmtQuantidade, fmtData } from '../../shared/types'
 import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
-import { UNIDADES_PESO_OPCOES_PEDIDO as UNIDADES_PESO_OPCOES } from '../../shared/unidadesPesoColuna'
+import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 
 // Re-export so callers that used to import from ListaPedidos still work
@@ -205,7 +205,13 @@ export function renderAgregado(
   return conteudoValor
 }
 
-export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
+export interface OpcoesUnidadesColunas {
+  unidadesPeso: GTUnidadeOpcao[]
+  unidadesCubagem: GTUnidadeOpcao[]
+}
+
+export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
+  const { unidadesPeso, unidadesCubagem } = opcoes
   return [
   {
     key: 'numero_pedido',
@@ -583,7 +589,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     tooltipTitulo: t('pedido.coluna_pai.peso_liquido_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_liquido_total_pedido_desc'),
     grupo: 'Dados Físicos',
@@ -608,7 +614,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
-    unidades: UNIDADES_PESO_OPCOES,
+    unidades: unidadesPeso,
     tooltipTitulo: t('pedido.coluna_pai.peso_bruto_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_bruto_total_pedido_desc'),
     grupo: 'Dados Físicos',
@@ -633,7 +639,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('cubagem_total_pedido', 4),
-    unidades: [{ sigla: 'm³', rotulo: 'Metro Cúbico' }],
+    unidades: unidadesCubagem,
     tooltipTitulo: t('pedido.coluna_pai.cubagem_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cubagem_total_pedido_desc'),
     grupo: 'Dados Físicos',

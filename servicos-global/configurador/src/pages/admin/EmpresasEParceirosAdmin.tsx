@@ -70,7 +70,7 @@ const organizacoesListaSchema = z.object({
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export default function EmpresasEParceirosAdmin(): JSX.Element {
+export function EmpresasEParceirosAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
 

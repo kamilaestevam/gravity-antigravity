@@ -29,9 +29,17 @@ import { requireAuth } from '../middleware/requireAuth.js'
 export const coreRouter = Router()
 
 // ─── Constantes de serviço (alinhadas com hub-insights-service.ts) ──────────
-const PEDIDO_URL = process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 const FETCH_TIMEOUT_MS = 3_000
+
+// Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
+function getPedidoUrl(): string {
+  return process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030'
+}
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  if (!chave) console.warn('[core] CHAVE_INTERNA_SERVICO ausente — chamadas inter-serviço falharão')
+  return chave ?? ''
+}
 
 // ─── Helper: fetch inter-service com headers padronizados ───────────────────
 async function fetchProdutoInterno(
@@ -39,7 +47,7 @@ async function fetchProdutoInterno(
   ctx: { id_organizacao: string; id_workspace?: string | null },
 ): Promise<unknown> {
   const headers: Record<string, string> = {
-    'x-internal-key': INTERNAL_SERVICE_KEY,
+    'x-internal-key': getChaveInterna(),
     'x-id-organizacao': ctx.id_organizacao,
     'Content-Type': 'application/json',
   }
@@ -81,7 +89,7 @@ coreRouter.get('/kpis', requireAuth, async (req, res, next) => {
 
     const [pedidoResult] = await Promise.allSettled([
       fetchProdutoInterno(
-        `${PEDIDO_URL}/api/v1/pedidos/dashboard/kpis`,
+        `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
         { id_organizacao, id_workspace },
       ),
     ])
@@ -142,7 +150,7 @@ coreRouter.get('/processos-recentes', requireAuth, async (req, res, next) => {
     const limiteParam = Number(req.query.limite)
     const limite = Number.isFinite(limiteParam) ? Math.max(1, Math.min(10, limiteParam)) : 3
 
-    const url = new URL(`${PEDIDO_URL}/api/v1/pedidos`)
+    const url = new URL(`${getPedidoUrl()}/api/v1/pedidos`)
     url.searchParams.set('sort', 'updated_at')
     url.searchParams.set('dir', 'desc')
     url.searchParams.set('limit', String(limite))

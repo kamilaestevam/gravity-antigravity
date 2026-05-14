@@ -31,9 +31,18 @@ import { logger } from '../lib/logger.js'
 
 const log = logger.child({ module: 'cadastros-client' })
 
-const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8030'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 const FETCH_TIMEOUT_MS = 5_000
+
+// Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
+// NOTA: porta corrigida de 8030 (Pedido) para 8031 (Cadastros) — contracts.json
+function getCadastrosUrl(): string {
+  return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+}
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  if (!chave) console.warn('[cadastros-client] CHAVE_INTERNA_SERVICO ausente — chamadas ao Cadastros falharão')
+  return chave ?? ''
+}
 
 export interface CadastrosRequestContext {
   id_organizacao: string
@@ -43,7 +52,7 @@ export interface CadastrosRequestContext {
 function headersPadrao(ctx: CadastrosRequestContext): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    'x-internal-key': INTERNAL_SERVICE_KEY,
+    'x-internal-key': getChaveInterna(),
     'x-organizacao-id': ctx.id_organizacao,
     'x-correlation-id': ctx.correlation_id,
   }
@@ -80,7 +89,7 @@ export async function criarEmpresa(
 
   let response: Response
   try {
-    response = await fetch(`${CADASTROS_URL}/empresas`, {
+    response = await fetch(`${getCadastrosUrl()}/empresas`, {
       method: 'POST',
       headers: headersPadrao(ctx),
       body: JSON.stringify(payload),
@@ -140,7 +149,7 @@ export async function listarEmpresasPorOrganizacao(
   ctx: CadastrosRequestContext,
 ): Promise<Empresa[]> {
   const response = await fetch(
-    `${CADASTROS_URL}/empresas?id_organizacao=${encodeURIComponent(ctx.id_organizacao)}&por_pagina=200`,
+    `${getCadastrosUrl()}/empresas?id_organizacao=${encodeURIComponent(ctx.id_organizacao)}&por_pagina=200`,
     {
       method: 'GET',
       headers: headersPadrao(ctx),
@@ -182,7 +191,7 @@ export async function compensarEmpresa(
 
   try {
     const response = await fetch(
-      `${CADASTROS_URL}/empresas/${encodeURIComponent(suid)}/compensacao`,
+      `${getCadastrosUrl()}/empresas/${encodeURIComponent(suid)}/compensacao`,
       {
         method: 'DELETE',
         headers: headersPadrao(ctx),

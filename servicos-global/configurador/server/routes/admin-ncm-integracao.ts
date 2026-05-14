@@ -26,12 +26,17 @@ export const adminNcmIntegracaoRouter = Router()
 
 adminNcmIntegracaoRouter.use(requireAuth, requireGravityAdmin)
 
-const CADASTROS_URL =
-  process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
-
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
-
 const FETCH_TIMEOUT_MS = 30_000  // sync pode demorar (download + diff de 12k NCMs)
+
+// Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
+function getCadastrosUrl(): string {
+  return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+}
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  if (!chave) console.warn('[admin-ncm-integracao] CHAVE_INTERNA_SERVICO ausente — chamadas ao Cadastros falharão')
+  return chave ?? ''
+}
 
 // ─── Helper: encaminhar request para o cadastros ─────────────────────────────
 
@@ -42,11 +47,11 @@ async function chamarCadastros(
 ): Promise<{ status: number; data: unknown }> {
   let response: Response
   try {
-    response = await fetch(`${CADASTROS_URL}${caminho}`, {
+    response = await fetch(`${getCadastrosUrl()}${caminho}`, {
       method:  metodo,
       headers: {
         'Content-Type':   'application/json',
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-internal-key': getChaveInterna(),
       },
       body:    body !== undefined ? JSON.stringify(body) : undefined,
       signal:  AbortSignal.timeout(FETCH_TIMEOUT_MS),

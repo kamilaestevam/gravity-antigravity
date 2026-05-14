@@ -39,9 +39,17 @@ export const adminEmpresasRouter = Router()
 
 adminEmpresasRouter.use(requireAuth, requireGravityAdmin)
 
-const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 const FETCH_TIMEOUT_MS = 10_000
+
+// Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
+function getCadastrosUrl(): string {
+  return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+}
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  if (!chave) console.warn('[admin-empresas] CHAVE_INTERNA_SERVICO ausente — chamadas ao Cadastros falharão')
+  return chave ?? ''
+}
 
 // ---------------------------------------------------------------------------
 // Mand. 06 — Zod no req.query do proxy.
@@ -98,9 +106,9 @@ function extrairIpCliente(req: Request): string {
 // ---------------------------------------------------------------------------
 adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!INTERNAL_SERVICE_KEY) {
+    if (!getChaveInterna()) {
       throw new AppError(
-        'INTERNAL_SERVICE_KEY ausente no Configurador — proxy admin desabilitado',
+        'CHAVE_INTERNA_SERVICO ausente no Configurador — proxy admin desabilitado',
         500,
         'CONFIG_ERROR',
       )
@@ -127,7 +135,7 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
     const porPaginaClampado = clampPorPagina(filtros.por_pagina)
     if (porPaginaClampado !== undefined) qsParams.set('por_pagina', String(porPaginaClampado))
     const qs = qsParams.toString()
-    const url = `${CADASTROS_URL}/api/v1/admin/empresas${qs ? `?${qs}` : ''}`
+    const url = `${getCadastrosUrl()}/api/v1/admin/empresas${qs ? `?${qs}` : ''}`
 
     let response: Response
     try {
@@ -135,7 +143,7 @@ adminEmpresasRouter.get('/', async (req: Request, res: Response, next: NextFunct
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-internal-key': INTERNAL_SERVICE_KEY,
+          'x-internal-key': getChaveInterna(),
           'x-correlation-id': (req.headers['x-correlation-id'] as string) ?? '',
         },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),

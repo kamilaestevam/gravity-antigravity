@@ -37,13 +37,18 @@ interface ProductFetcherContext {
 
 // ── Constantes de serviço (portas do contracts.json) ────────────────────────
 
-const PEDIDO_URL = process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030'
-const BID_CAMBIO_URL = process.env.BID_CAMBIO_URL ?? 'http://localhost:8025'
-const BID_FRETE_URL = process.env.BID_FRETE_SERVICE_URL ?? 'http://localhost:8023'
-const SIMULA_CUSTO_URL = process.env.SIMULA_CUSTO_SERVICE_URL ?? 'http://localhost:8020'
-const LPCO_URL = process.env.LPCO_SERVICE_URL ?? 'http://localhost:8027'
-const NF_IMPORT_URL = process.env.NF_IMPORTACAO_SERVICE_URL ?? 'http://localhost:8028'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
+// Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
+function getPedidoUrl(): string { return process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030' }
+function getBidCambioUrl(): string { return process.env.BID_CAMBIO_URL ?? 'http://localhost:8025' }
+function getBidFreteUrl(): string { return process.env.BID_FRETE_SERVICE_URL ?? 'http://localhost:8023' }
+function getSimulaCustoUrl(): string { return process.env.SIMULA_CUSTO_SERVICE_URL ?? 'http://localhost:8020' }
+function getLpcoUrl(): string { return process.env.LPCO_SERVICE_URL ?? 'http://localhost:8027' }
+function getNfImportUrl(): string { return process.env.NF_IMPORTACAO_SERVICE_URL ?? 'http://localhost:8028' }
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  if (!chave) console.warn('[hub-insights] CHAVE_INTERNA_SERVICO ausente — chamadas inter-serviço falharão')
+  return chave ?? ''
+}
 
 const FETCH_TIMEOUT_MS = 3_000
 
@@ -200,7 +205,7 @@ async function fetchPedidoInsights(
   const insights: HubInsight[] = []
 
   const data = await fetchProduct(
-    `${PEDIDO_URL}/api/v1/pedidos/dashboard/kpis`,
+    `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
     ctx,
   ) as Record<string, number>
 
@@ -311,7 +316,7 @@ async function fetchBidCambioInsights(
   // Vencimentos próximos (30 dias)
   try {
     const venc = await fetchProduct(
-      `${BID_CAMBIO_URL}/api/v1/bid-cambio/dashboard/vencimentos?dias=30`,
+      `${getBidCambioUrl()}/api/v1/bid-cambio/dashboard/vencimentos?dias=30`,
       ctx,
     ) as { proximos_vencimentos?: { total?: number } }
     const total = venc.proximos_vencimentos?.total ?? 0
@@ -334,7 +339,7 @@ async function fetchBidCambioInsights(
   // Economia acumulada
   try {
     const dash = await fetchProduct(
-      `${BID_CAMBIO_URL}/api/v1/bid-cambio/dashboard`,
+      `${getBidCambioUrl()}/api/v1/bid-cambio/dashboard`,
       ctx,
     ) as { financeiro?: { economia_acumulada_mes?: number } }
     const eco = dash.financeiro?.economia_acumulada_mes ?? 0
@@ -366,7 +371,7 @@ async function fetchBidFreteInsights(
   const insights: HubInsight[] = []
 
   const data = await fetchProduct(
-    `${BID_FRETE_URL}/api/v1/bid-frete/dashboard/calendario`,
+    `${getBidFreteUrl()}/api/v1/bid-frete/dashboard/calendario`,
     ctx,
   ) as { alertas?: Array<{ tipo: string; count: number }> }
 
@@ -401,7 +406,7 @@ async function fetchSimulaCustoInsights(
   const insights: HubInsight[] = []
 
   const data = await fetchProduct(
-    `${SIMULA_CUSTO_URL}/api/v1/simula-custo/dashboard/kpis`,
+    `${getSimulaCustoUrl()}/api/v1/simula-custo/dashboard/kpis`,
     ctx,
   ) as { inviavel?: number; atencao?: number; mediaLandedCostBrl?: number }
 
@@ -448,7 +453,7 @@ async function fetchLpcoInsights(
   const insights: HubInsight[] = []
 
   const data = await fetchProduct(
-    `${LPCO_URL}/api/v1/lpcos/stats`,
+    `${getLpcoUrl()}/api/v1/lpcos/stats`,
     ctx,
   ) as Record<string, number>
 
@@ -478,7 +483,7 @@ async function fetchNfImportInsights(
   const insights: HubInsight[] = []
 
   const data = await fetchProduct(
-    `${NF_IMPORT_URL}/api/v1/nf-importacao/dashboard/kpis`,
+    `${getNfImportUrl()}/api/v1/nf-importacao/dashboard/kpis`,
     ctx,
   ) as { pendentes?: number; total?: number }
 
@@ -690,7 +695,7 @@ export async function generateHubInsights(
   const ctx: ProductFetcherContext = {
     id_organizacao,
     token: '', // Inter-service: usamos x-internal-key, não JWT
-    internalKey: INTERNAL_SERVICE_KEY,
+    internalKey: getChaveInterna(),
   }
 
   // 3. Build fetcher array based on active products

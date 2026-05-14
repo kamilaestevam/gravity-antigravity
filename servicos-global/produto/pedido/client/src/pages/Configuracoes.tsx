@@ -579,7 +579,7 @@ function carregarCasasDecimais(): Record<string, number> {
 const NOVA_COLUNA_PADRAO: NovaColuna = {
   nome: '',
   tipo: 'texto',
-  escopo: 'pedido',
+  escopo: 'ambos',
   visibilidade: 'todos',
   obrigatorio: false,
   valor_padrao: '',
@@ -972,6 +972,8 @@ export default function Configuracoes() {
 
   // ── Estado: colunas personalizadas (via API) ──
   const [novaColuna, setNovaColuna] = useState<NovaColuna>(NOVA_COLUNA_PADRAO)
+  const [novaItensDif, setNovaItensDif] = useState(true)
+  const [novaPedidoEdit, setNovaPedidoEdit] = useState(true)
   const [novaOpcao, setNovaOpcao] = useState('')
   const [salvandoColuna, setSalvandoColuna] = useState(false)
   const [erroColuna, setErroColuna] = useState<string | null>(null)
@@ -1430,7 +1432,7 @@ export default function Configuracoes() {
       await colunasUsuarioApi.criar({
         nome: nomeTrimmed,
         tipo: novaColuna.tipo,
-        escopo: novaColuna.escopo,
+        escopo: escopoDeToggle(novaItensDif, novaPedidoEdit),
         visibilidade: novaColuna.visibilidade,
         obrigatorio: novaColuna.obrigatorio,
         valor_padrao: novaColuna.valor_padrao.trim() || undefined,
@@ -1443,6 +1445,8 @@ export default function Configuracoes() {
       const lista = await colunasUsuarioApi.listar()
       setColunasUsuarioApi(lista)
       setNovaColuna(NOVA_COLUNA_PADRAO)
+      setNovaItensDif(true)
+      setNovaPedidoEdit(true)
       setNovaOpcao('')
       setFormulaTokens([])
     } catch (err) {
@@ -4170,6 +4174,38 @@ export default function Configuracoes() {
                     />
                   </div>
 
+                  {/* Itens com dados diferentes */}
+                  <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes')}</label>
+                      <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes_hint')}</p>
+                    </div>
+                    <Toggle
+                      checked={novaItensDif}
+                      onChange={v => setNovaItensDif(v)}
+                    />
+                  </div>
+
+                  {novaItensDif && (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.625rem 0.75rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                      <Warning size={16} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
+                      <span>{t('pedido.config.colunas.personalizadas.form_alerta_migr')}</span>
+                    </div>
+                  )}
+
+                  {novaItensDif && (
+                    <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel')}</label>
+                        <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel_hint')}</p>
+                      </div>
+                      <Toggle
+                        checked={novaPedidoEdit}
+                        onChange={v => setNovaPedidoEdit(v)}
+                      />
+                    </div>
+                  )}
+
                   {/* Obrigatório */}
                   {novaColuna.tipo !== 'anexo' && (
                     <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -4262,7 +4298,7 @@ export default function Configuracoes() {
                       <BotaoCancelar
                         dirty={formDirty}
                         rotulo={t('pedido.config.colunas.personalizadas.btn_limpar')}
-                        onClick={() => { setNovaColuna(NOVA_COLUNA_PADRAO); setNovaOpcao(''); setFormulaTokens([]) }}
+                        onClick={() => { setNovaColuna(NOVA_COLUNA_PADRAO); setNovaItensDif(true); setNovaPedidoEdit(true); setNovaOpcao(''); setFormulaTokens([]) }}
                       />
                       <BotaoSalvar
                         dirty={canSave}

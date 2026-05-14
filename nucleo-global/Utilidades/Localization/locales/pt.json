@@ -3405,6 +3405,7 @@
           "vis_roles_desc": "Visível apenas para os perfis selecionados",
           "vis_privado_label": "Só eu",
           "vis_privado_desc": "Coluna visível apenas para você",
+          "tooltip_escopo_pedido": "Esta coluna é exclusiva do pedido. Para editar, clique na linha do pedido.",
           "tipo_texto": "Texto",
           "tipo_numero": "Numérico",
           "tipo_data": "Data",

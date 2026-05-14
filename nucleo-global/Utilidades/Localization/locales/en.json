@@ -3599,6 +3599,7 @@
           "vis_roles_desc": "Visible only to selected roles",
           "vis_privado_label": "Only me",
           "vis_privado_desc": "Column visible only to you",
+          "tooltip_escopo_pedido": "This column is order-only. To edit, click the order row.",
           "tipo_texto": "Text",
           "tipo_numero": "Numeric",
           "tipo_data": "Date",

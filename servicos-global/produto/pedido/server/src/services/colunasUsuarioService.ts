@@ -128,6 +128,35 @@ export class ColunasUsuarioService {
       )
     }
 
+    // 3b. Se existe coluna inativa com mesma chave (soft-deleted), reativar com novos dados
+    const inativa = await prisma.pedidoListaColunaUsuario.findFirst({
+      where: { id_organizacao: tenantId, chave_coluna_usuario_pedido: chave, ativo_coluna_usuario_pedido: false },
+    })
+    if (inativa) {
+      const maxOrdem = await prisma.pedidoListaColunaUsuario.aggregate({
+        where: { id_organizacao: tenantId },
+        _max: { ordem_coluna_usuario_pedido: true },
+      })
+      const novaOrdem = (maxOrdem._max.ordem_coluna_usuario_pedido ?? 0) + 1
+      const reativada = await prisma.pedidoListaColunaUsuario.update({
+        where: { id_coluna_usuario_pedido: inativa.id_coluna_usuario_pedido },
+        data: {
+          nome_coluna_usuario_pedido:        input.nome,
+          tipo_coluna_usuario_pedido:        input.tipo,
+          escopo_coluna_usuario_pedido:      input.escopo,
+          visibilidade_coluna_usuario_pedido: input.visibilidade,
+          tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas ?? [],
+          obrigatorio_coluna_usuario_pedido: input.obrigatorio ?? false,
+          opcoes_coluna_usuario_pedido:      input.opcoes ?? [],
+          descricao_coluna_usuario_pedido:   input.descricao,
+          valor_padrao_coluna_usuario_pedido: input.valor_padrao,
+          ordem_coluna_usuario_pedido:       novaOrdem,
+          ativo_coluna_usuario_pedido:       true,
+        },
+      })
+      return mapColuna(reativada)
+    }
+
     // 4. Calcular próxima ordem
     const maxOrdem = await prisma.pedidoListaColunaUsuario.aggregate({
       where: { id_organizacao: tenantId },

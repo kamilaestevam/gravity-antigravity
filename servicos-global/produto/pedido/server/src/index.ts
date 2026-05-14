@@ -242,7 +242,10 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
   // Traduzir erros conhecidos do Prisma para HTTP semântico
   const prismaCode = (err as unknown as { code?: string }).code
   if (prismaCode === 'P2002') {
-    // Unique constraint — ex: numero_pedido duplicado no mesmo tenant
+    const target = ((err as unknown as { meta?: { target?: string[] } }).meta?.target ?? []) as string[]
+    if (target.some(f => f.includes('coluna_usuario'))) {
+      return res.status(409).json({ error: { message: 'Já existe uma coluna com este nome. Se você excluiu anteriormente, tente um nome diferente.', code: 'DUPLICATE_COLUNA' } })
+    }
     return res.status(409).json({ error: { message: 'Já existe um pedido com este número neste workspace. Use um número diferente.', code: 'DUPLICATE_NUMERO_PEDIDO' } })
   }
   if (prismaCode === 'P2025') {

@@ -2737,7 +2737,15 @@ export default function Pedidos() {
     const base = buildMapaColunasFilho(opcoesUnidadesColunas)
     const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
     for (const col of colunasUsuario) {
-      if (col.escopo !== 'item' && col.escopo !== 'ambos') continue
+      const escopo = col.escopo || 'ambos'
+      if (escopo === 'pedido') {
+        custom[col.chave] = {
+          editavel: false,
+          tooltipBloqueado: t('pedido.config.colunas.personalizadas.tooltip_escopo_pedido', 'Esta coluna é exclusiva do pedido. Para editar, clique na linha do pedido.'),
+          render: () => <span style={{ opacity: 0.4 }}>—</span>,
+        }
+        continue
+      }
       custom[col.chave] = {
         editavel: col.tipo !== 'formula' && col.tipo !== 'checkbox',
         render: (row: PedidoItem) => {
@@ -2944,7 +2952,7 @@ export default function Pedidos() {
   // O render da coluna status é sobreposto aqui para ter acesso ao setPedidos
   const colunasComUsuario = useMemo<GTColuna<Pedido>[]>(() => {
     const custom = colunasUsuario
-      .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos')
+      .filter(c => { const e = c.escopo || 'ambos'; return e === 'pedido' || e === 'ambos' })
       .map(mapColunaUsuarioParaGTColuna)
 
     const STATUS_OPTS = statusOpts
@@ -3030,7 +3038,8 @@ export default function Pedidos() {
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
     const customKeys = colunasUsuario
-      .filter(c => c.tipo !== 'formula' && c.tipo !== 'checkbox' && c.tipo !== 'anexo')
+      .filter(c => c.tipo !== 'formula' && c.tipo !== 'checkbox' && c.tipo !== 'anexo'
+                 && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
   }, [colunasUsuario])
@@ -3510,7 +3519,7 @@ export default function Pedidos() {
       // Colunas customizadas ativas que ainda não estão nas preferências salvas
       // (criadas após o último save de prefs) → adicionar como visíveis por padrão
       const activeCustomKeys = lista
-        .filter(c => c.ativo && (c.escopo === 'pedido' || c.escopo === 'ambos'))
+        .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
         .map(c => c.chave)
       const savedSet = new Set(savedVisible)
       const novas = activeCustomKeys.filter(k => !savedSet.has(k))
@@ -4089,7 +4098,8 @@ export default function Pedidos() {
       // grava no nível do item (vinculo='item', id=item.id). Caso contrário
       // (escopo='pedido' apenas), grava no nível do pedido — embora o ideal
       // seria a coluna nem ser editável na linha do item neste cenário.
-      const aceitaPorItem = colunaCustomFilho.escopo === 'item' || colunaCustomFilho.escopo === 'ambos'
+      const escopoFilho = colunaCustomFilho.escopo || 'ambos'
+      const aceitaPorItem = escopoFilho === 'item' || escopoFilho === 'ambos'
       const vinculo: 'pedido' | 'item' = aceitaPorItem ? 'item' : 'pedido'
       const vinculoId = vinculo === 'item' ? id : pedido.id
       await colunasUsuarioApi.salvarValores(vinculo, vinculoId, { [colunaCustomFilho.id]: String(valor) })

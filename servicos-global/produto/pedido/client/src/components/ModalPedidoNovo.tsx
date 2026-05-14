@@ -209,15 +209,10 @@ const s = {
     flexDirection: 'column' as const,
     gap: '0.375rem',
   } as React.CSSProperties,
-  // Padrão sistêmico: alinhado com .cg-label (CampoGeralGlobal) — --text-micro
-  // (0.75rem / 12px), uppercase, muted color, letter-spacing 0.05em.
   label: {
-    fontSize: '0.75rem',
+    fontSize: '0.8125rem',
     fontWeight: 600,
-    color: 'var(--text-muted)',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    lineHeight: 1.3,
+    color: 'var(--text-secondary)',
   } as React.CSSProperties,
   // Padrão sistêmico: alinhado com .sg-campo (SelectGlobal) — fundo abaixo do
   // modal, borda visível (1.5px) com acento sutil. Diferenciação clara entre
@@ -707,6 +702,8 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     <>
       <ModalPassoPassoGlobal
         titulo={t('pedido.modal_novo.titulo')}
+        icone={<Package size={20} weight="duotone" />}
+        subtitulo="Preencha os dados do pedido e adicione os itens"
         aberto={aberto}
         passos={PASSOS}
         passoAtual={passo}
@@ -1016,6 +1013,7 @@ function Passo1Dados({
 
   return (
     <div>
+      <style>{`.mnp-campo-data .tg-trigger { display: flex; width: 100%; }`}</style>
       <p style={s.secaoTitulo}>{t('pedido.modal_novo.passo_dados')}</p>
 
       {/* Bloco em destaque: TIPO_OPERACAO em linha cheia, único campo
@@ -1217,7 +1215,7 @@ function Passo1Dados({
             onChange={e => onChange('referencia_fabricante_pedido', e.target.value)}
           />
         </div>
-        <div style={s.campo}>
+        <div style={s.campo} className="mnp-campo-data">
           <CampoCalendarioGlobal
             label={t('pedido.drawer.label_data_emissao')}
             obrigatorio

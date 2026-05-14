@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
+import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
@@ -2438,7 +2439,7 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       return (
         <TooltipGlobal
           titulo="Saldo do Pedido"
-          descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
           interativo
         >
           <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
@@ -2628,6 +2629,7 @@ interface BarraAcoesPedidoProps {
   onLimparBusca: () => void
   /** Abre o popover de filtro da coluna ao clicar no body do chip — UX 2026-05-13 */
   onFiltroColuna?: (key: string, anchor: HTMLElement) => void
+  podeEditarLista: boolean
 }
 
 const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
@@ -2656,6 +2658,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   busca,
   onLimparBusca,
   onFiltroColuna,
+  podeEditarLista,
 }: BarraAcoesPedidoProps) {
   const { t } = useTranslation()
   return (
@@ -2680,8 +2683,14 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           }}>
 
             {/* ── Novo Pedido ── */}
-            <div style={{ position: 'relative' }}
-              onMouseEnter={() => setNovoSubmenu('pedido')}
+            <div
+              style={{
+                position: 'relative',
+                ...(podeEditarLista ? {} : { opacity: 0.45, pointerEvents: 'none', cursor: 'not-allowed' }),
+              }}
+              title={podeEditarLista ? undefined : 'Sem permissão para criar pedidos'}
+              aria-disabled={!podeEditarLista}
+              onMouseEnter={() => podeEditarLista && setNovoSubmenu('pedido')}
               onMouseLeave={() => setNovoSubmenu(null)}
             >
               <button type="button" style={{
@@ -2734,8 +2743,14 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             </div>
 
             {/* ── Novo Item ── */}
-            <div style={{ position: 'relative' }}
-              onMouseEnter={() => setNovoSubmenu('item')}
+            <div
+              style={{
+                position: 'relative',
+                ...(podeEditarLista ? {} : { opacity: 0.45, pointerEvents: 'none', cursor: 'not-allowed' }),
+              }}
+              title={podeEditarLista ? undefined : 'Sem permissão para criar itens'}
+              aria-disabled={!podeEditarLista}
+              onMouseEnter={() => podeEditarLista && setNovoSubmenu('item')}
               onMouseLeave={() => setNovoSubmenu(null)}
             >
               <button type="button" style={{
@@ -2818,7 +2833,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="secundario"
             tamanho="pequeno"
             icone={<ArrowRight size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
+            disabled={!podeEditarLista || (pedidosSelecionados.length === 0 && itensSelecionados.length === 0)}
             onClick={() => { setModalTransferirAberto(true) }}
           >
             {pedidosSelecionados.length > 0 ? `${t('pedido.barra.transferir')} (${pedidosSelecionados.length})` :
@@ -2836,7 +2851,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="secundario"
             tamanho="pequeno"
             icone={<CheckSquare size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length < 2}
+            disabled={!podeEditarLista || pedidosSelecionados.length < 2}
             onClick={() => { setModalConsolidarAberto(true) }}
           />
         </TooltipGlobal>
@@ -2850,7 +2865,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="secundario"
             tamanho="pequeno"
             icone={<PencilLine size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
+            disabled={!podeEditarLista || pedidosSelecionados.length === 0}
             onClick={() => { setModalEdicaoMassaAberto(true) }}
           />
         </TooltipGlobal>
@@ -2894,7 +2909,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             tamanho="pequeno"
             icone={<CopySimple size={14} weight="duotone" />}
             aria-label={t('pedido.barra.duplicar')}
-            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
+            disabled={!podeEditarLista || (pedidosSelecionados.length === 0 && itensSelecionados.length === 0)}
             onClick={() => setModalDuplicarAberto(true)}
           />
         </TooltipGlobal>
@@ -2908,7 +2923,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="perigo"
             tamanho="pequeno"
             icone={<Trash size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0 || excluindoLote}
+            disabled={!podeEditarLista || pedidosSelecionados.length === 0 || excluindoLote}
             onClick={onExcluirLote}
           />
         </TooltipGlobal>
@@ -2919,7 +2934,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         <div
           role="status"
           aria-label={t('pedido.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}
-          style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
+          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', flex: 1 }}
         >
           {busca && (
             <span className="lp-filtro-chip">
@@ -3005,6 +3020,12 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
 export default function Pedidos() {
   const { t, i18n } = useTranslation()
+  // Gating granular `pedido:lista:editar` (decisão dono 2026-05-13).
+  // bypass=Master/SAdmin/Admin, carregando=enquanto fetch /permissoes.
+  // Quando false → botões de mutação (Novo, Transferir, Duplicar, Excluir,
+  // Edição em Massa, Smart Import, Consolidar) ficam opacos com tag "🔒".
+  const { podeEditar: pPodeEditar, bypass: pBypass, carregando: pCarregando } = usePermissoesPedido()
+  const podeEditarLista = pBypass || pCarregando || pPodeEditar('lista')
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
   // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
@@ -3275,7 +3296,7 @@ export default function Pedidos() {
         const tooltipSaldo = (conteudo: React.ReactNode) => (
           <TooltipGlobal
             titulo="Saldo do Pedido"
-            descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
             interativo
           >
             <span style={{ display: 'contents' }}>{conteudo}</span>
@@ -3668,12 +3689,16 @@ export default function Pedidos() {
   }, [pedidosSelecionados.length])
 
   const handleNavConfiguracoes = useCallback(() => {
-    navigate('/configuracoes?tab=colunas&acao=nova')
+    // Rota do produto Pedido montada sob /produto/pedido/* (ver App.tsx).
+    // Usar '/configuracoes' (sem prefixo) bate no shell e dá 404.
+    // tab=colunas-personalizadas (não 'colunas' — id de categoria precisa
+    // bater com COLUNAS_FILHOS para o effect de scroll+focus disparar).
+    navigate('/produto/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
     setNovoDropdownAberto(false)
   }, [navigate])
 
   const acoesBarra = useMemo(() => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
       {/* Filtro multi-workspace agora vive na COLUNA "Workspace" (header). */}
       <BarraAcoesPedido
         novoDropdownRef={novoDropdownRef}
@@ -3701,6 +3726,7 @@ export default function Pedidos() {
         busca={busca}
         onLimparBusca={() => handleBuscar('')}
         onFiltroColuna={onFiltroColuna}
+        podeEditarLista={podeEditarLista}
       />
     </div>
   ), [
@@ -3710,7 +3736,7 @@ export default function Pedidos() {
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
-    onFiltroColuna,
+    onFiltroColuna, podeEditarLista,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
@@ -5007,9 +5033,16 @@ export default function Pedidos() {
       <ModalNovoPedido
         aberto={modalNovoPedidoAberto}
         onFechar={() => setModalNovoPedidoAberto(false)}
-        onSalvo={() => {
+        onSalvo={async (pedidoCriado) => {
           setModalNovoPedidoAberto(false)
-          carregarInicial()
+          // Reseta para página 1 — pedido recém-criado vem no topo (orderBy
+          // data_criacao_pedido desc) — e abre os itens para conferência.
+          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1)
+          // requestAnimationFrame garante que setPedidos já comitou antes do
+          // expandir tentar localizar a linha em dadosRef.
+          requestAnimationFrame(() => {
+            if (pedidoCriado?.id) tabelaRef.current?.expandir(pedidoCriado.id)
+          })
         }}
       />
 
@@ -5017,9 +5050,13 @@ export default function Pedidos() {
       <ModalNovoItemPedido
         aberto={modalNovoItemAberto}
         onFechar={() => setModalNovoItemAberto(false)}
-        onSalvo={() => {
+        onSalvo={async (itemCriado) => {
           setModalNovoItemAberto(false)
-          carregarInicial()
+          await carregarInicial()
+          // Abre o pedido que recebeu o item novo para conferência imediata.
+          requestAnimationFrame(() => {
+            if (itemCriado?.pedido_id) tabelaRef.current?.expandir(itemCriado.pedido_id)
+          })
         }}
       />
 
@@ -5041,9 +5078,16 @@ export default function Pedidos() {
       <ModalSmartImportPedido
         aberto={smartImportAberto}
         onFechar={() => setSmartImportAberto(false)}
-        onConcluido={(_ids) => {
+        onConcluido={async (idsCriados) => {
           setSmartImportAberto(false)
-          carregarInicial()
+          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1)
+          // Abre o(s) pedido(s) recém-importado(s) para conferência. Se mais
+          // de um, expande todos — vêm no topo via orderBy data_criacao desc.
+          requestAnimationFrame(() => {
+            for (const id of idsCriados ?? []) {
+              tabelaRef.current?.expandir(id)
+            }
+          })
         }}
       />
 

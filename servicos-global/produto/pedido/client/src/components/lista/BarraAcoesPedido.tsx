@@ -359,7 +359,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         <div
           role="status"
           aria-label={t('pedido.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}
-          style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
+          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem' }}
         >
           {colunasVisiveis.filter(col => filtrosAtivos[col.key] != null).map(col => {
             const filtro = filtrosAtivos[col.key]!

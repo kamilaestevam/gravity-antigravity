@@ -113,7 +113,14 @@
   flex-wrap: wrap;
 }
 
-.gtv-toolbar-esquerda,
+.gtv-toolbar-esquerda {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
 .gtv-toolbar-direita {
   display: flex;
   align-items: center;

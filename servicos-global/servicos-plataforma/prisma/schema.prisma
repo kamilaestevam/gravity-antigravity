@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-08T12:04:29.915Z
+// Gerado em: 2026-05-14T19:09:30.627Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes, api-cockpit
 // Serviços ausentes (fragment não encontrado): processos-core, ncm-sync
 // ============================================================================
@@ -1345,6 +1345,31 @@ model GabiLimiteMonetario {
   @@index([id_organizacao_gabi_limite_monetario], map: "glm_org_idx")
   @@index([id_organizacao_gabi_limite_monetario, modelo_gabi_limite_monetario], map: "glm_org_modelo_idx")
   @@map("gabi_limite_monetario")
+}
+
+// ---------------------------------------------------------------------------
+// GabiKbChunk — chunk da base de conhecimento para RAG com pgvector
+// ---------------------------------------------------------------------------
+
+model GabiKbChunk {
+  id_gabi_kb_chunk             String  @id @default(cuid())
+
+  hash_conteudo_gabi_kb_chunk  String  @unique
+  conteudo_gabi_kb_chunk       String  @db.Text
+  embedding_gabi_kb_chunk      Unsupported("vector(768)")
+  segmento_gabi_kb_chunk       String
+  titulo_secao_gabi_kb_chunk   String
+  nivel_gabi_kb_chunk          Int     @default(1)
+  tokens_gabi_kb_chunk         Int
+  versao_kb_gabi_kb_chunk      String
+  ordem_gabi_kb_chunk          Int     @default(0)
+
+  data_criacao_gabi_kb_chunk     DateTime @default(now())
+  data_atualizacao_gabi_kb_chunk DateTime @updatedAt
+
+  @@index([segmento_gabi_kb_chunk], map: "gkc_seg_idx")
+  @@index([versao_kb_gabi_kb_chunk], map: "gkc_ver_idx")
+  @@map("gabi_kb_chunk")
 }
 
 // ---------------------------------------------------------------------------

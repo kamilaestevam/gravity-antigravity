@@ -79,7 +79,16 @@ import {
 //              template e' escondido do display (badge ⚠️ ja sinaliza).
 const TEMPLATE_VERSAO = '3.6'
 
+import { exigirPermissao } from '../permissoes.js'
+
 export const smartImportRouter = Router()
+
+// Cadeia 2 granular: todas as rotas deste router são mutação (POST analisar/
+// confirmar). Exigem `pedido:lista:editar`. Gating mora aqui (não no index.ts)
+// pra evitar bug de middleware chain do Express — middleware em
+// `app.use(prefix, mw, router)` roda em qualquer método que case com `prefix`,
+// inclusive GETs de routers vizinhos. Decisão Líder Técnico 2026-05-13.
+smartImportRouter.use(exigirPermissao('lista', 'editar'))
 
 // ── Rate limit: máximo 10 uploads por tenant por minuto ───────────────────────
 
@@ -479,6 +488,14 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
       res.json(resultado)
     })
   } catch (err) {
+    // Q5 — Log explicito do stack para diagnosticar 500s no smart import.
+    // Sem este log, o frontend so' ve 500 sem detalhe e o middleware de erro
+    // global do Express engole o stack trace original.
+    console.error('[smart-import:confirmar] ERRO 500:', err instanceof Error ? err.stack : err)
+    if (err instanceof Error && 'meta' in err) {
+      // Prisma errors tem `.meta` com info do field/constraint
+      console.error('[smart-import:confirmar] Prisma meta:', (err as Error & { meta?: unknown }).meta)
+    }
     next(err)
   }
 })

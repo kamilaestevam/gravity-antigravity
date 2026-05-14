@@ -21,8 +21,8 @@ import { lpcoHistoricoRouter } from './routes/lpcoHistorico.js'
 import { simuladorTARouter } from './routes/simulador-tratamento-administrativo.js'
 import { lpcoPortalRouter } from './routes/lpcoPortal.js'
 import { credenciaisRouter } from './routes/credenciais-portal-unico.js'
-import { apiObservability } from '../../../middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

@@ -166,3 +166,54 @@ describe('DELETE /empresas/:suid', () => {
     expect(restante).not.toBeNull()
   })
 })
+
+// ----------------------------------------------------------------------------
+// BLOQUEANTE DE MERGE — Líder Técnico
+//
+// Garante que após adicionar a rota /api/v1/admin/empresas (cross-org S2S,
+// LINT-EXCEPTION), a rota tenant /api/v1/empresas continua exigindo
+// `x-id-organizacao` e NÃO vaza dados cross-org.
+//
+// Se este teste cair, o isolamento foi quebrado — não fazer merge.
+// ----------------------------------------------------------------------------
+describe('GET /api/v1/empresas — isolamento tenant preservado pós-admin', () => {
+  it('rejeita 400 com ORGANIZACAO_AUSENTE quando header x-id-organizacao falta', async () => {
+    const res = await request(app).get('/api/v1/empresas').set(headers)
+    expect(res.status).toBe(400)
+    expect(res.body.codigo).toBe('ORGANIZACAO_AUSENTE')
+  })
+
+  it('mesmo com chave interna válida, rota tenant NUNCA é cross-org', async () => {
+    // Cria empresas em duas orgs diferentes
+    const suidA = `${PREFIXO_SUID_TESTE}iso-A-${Date.now()}`
+    const suidB = `${PREFIXO_SUID_TESTE}iso-B-${Date.now()}`
+    await prismaTeste.empresa.createMany({
+      data: [
+        {
+          suid_empresa: suidA,
+          id_organizacao_empresa: TENANT_A,
+          nome_empresa: 'Iso A',
+          cnpj_empresa: '99.999.999/0001-91',
+          pais_empresa: 'BR',
+          pode_ser_importador_empresa: true,
+        },
+        {
+          suid_empresa: suidB,
+          id_organizacao_empresa: TENANT_B,
+          nome_empresa: 'Iso B',
+          cnpj_empresa: '99.999.999/0001-92',
+          pais_empresa: 'BR',
+          pode_ser_importador_empresa: true,
+        },
+      ],
+    })
+
+    const resA = await request(app)
+      .get('/api/v1/empresas')
+      .set({ ...headers, 'x-id-organizacao': TENANT_A })
+    expect(resA.status).toBe(200)
+    const itensA = resA.body.itens as Array<{ suid_empresa: string }>
+    expect(itensA.some((e) => e.suid_empresa === suidA)).toBe(true)
+    expect(itensA.some((e) => e.suid_empresa === suidB)).toBe(false)
+  })
+})

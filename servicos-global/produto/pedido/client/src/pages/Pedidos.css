@@ -181,69 +181,13 @@
   padding: 0.375rem 0;
 }
 
-.lp-filtro-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.5rem 0.2rem 0.625rem;
-  border-radius: 9999px;
-  background: rgba(129, 140, 248, 0.12);
-  border: 1px solid rgba(129, 140, 248, 0.28);
-  font-size: 0.71875rem;
-  white-space: nowrap;
-  max-width: 240px;
-}
-
-.lp-filtro-chip-label {
-  color: rgba(129, 140, 248, 0.75);
-  font-weight: 500;
-}
-
-.lp-filtro-chip-valor {
-  color: #818cf8;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-  white-space: nowrap;
-}
-
-.lp-filtro-chip-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  background: none;
-  border: none;
-  color: #818cf8;
-  cursor: pointer;
-  border-radius: 50%;
-  padding: 0;
-  flex-shrink: 0;
-  opacity: 0.75;
-  transition: opacity 0.15s;
-}
-
-.lp-filtro-chip-remove:hover {
-  opacity: 1;
-  background: rgba(129, 140, 248, 0.2);
-}
-
-.lp-filtros-limpar-tudo {
-  background: none;
-  border: none;
-  color: var(--text-muted, #64748b);
-  cursor: pointer;
-  font-size: 0.71875rem;
-  text-decoration: underline;
-  padding: 0 0.25rem;
-  white-space: nowrap;
-}
-
-.lp-filtros-limpar-tudo:hover {
-  color: var(--text-secondary, #94a3b8);
-}
+/* Classes `.lp-filtro-chip*` e `.lp-filtros-limpar-tudo` removidas em D9
+ * (2026-05-13). Agora vivem em `@nucleo/tabela-virtual-global/FiltrosColuna.css`
+ * com prefix `.fc-*`. Pedidos.tsx importa o CSS do nucleo-global no topo.
+ *
+ * Classes `.lp-filtro-coluna-nome` e `.lp-filtro-section-title` também
+ * removidas — o popover promovido usa `.fc-popover-titulo` e
+ * `.fc-popover-section-title`. */
 
 /* ── Barra de filtros por coluna ─────────────────────────────────────────── */
 
@@ -282,25 +226,8 @@
   color: #818cf8;
 }
 
-/* ── Popover de filtro — usa classes gtv-* do nucleo-global ──────────────── */
-
-/* Cabeçalho interno do popover (nome da coluna) */
-.lp-filtro-coluna-nome {
-  padding: 0.5rem 0.75rem 0.375rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--gtv-text, #f1f5f9);
-  border-bottom: 1px solid var(--gtv-border, rgba(255,255,255,0.07));
-}
-
-/* Título de seção dentro do popover */
-.lp-filtro-section-title {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--gtv-muted, #64748b);
-  padding: 0.125rem 0;
-}
+/* Estilos do popover (.lp-filtro-coluna-nome, .lp-filtro-section-title)
+ * promovidos para `.fc-popover-titulo` e `.fc-popover-section-title` em
+ * @nucleo/tabela-virtual-global/FiltrosColuna.css (refactor D9 — 2026-05-13).
+ * Importado pelo Pedidos.tsx no topo. */
 

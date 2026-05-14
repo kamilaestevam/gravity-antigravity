@@ -53,11 +53,43 @@ export const permissaoStringSchema = z.string().regex(
   'Formato inválido — esperado <slug>:<secao>:<acao>',
 )
 
+/**
+ * Validação cruzada: `<slug>:<secao>:editar` exige `<slug>:<secao>:ver` na mesma lista.
+ * Editar sem Ver é estado impossível na UX (não dá pra editar o que não vê) e
+ * complica o gating. Rejeitar no save evita estado inconsistente no banco.
+ * Decisão dono 2026-05-13.
+ *
+ * EXCEÇÃO: chave de Portão 3 (`<slug>:acesso_usuario_produtos_gravity:permitido`)
+ * é independente — não casa com nenhuma seção granular.
+ */
+function validarEditarImplicaVer(permissoes: string[]): { valido: true } | { valido: false; chaveSemVer: string } {
+  const set = new Set(permissoes)
+  for (const chave of permissoes) {
+    // Casa apenas chaves granulares no formato <slug>:<secao>:editar
+    const match = /^([a-z][a-z0-9-]*):([a-z_]+):editar$/.exec(chave)
+    if (!match) continue
+    const [, slug, secao] = match
+    const chaveVer = `${slug}:${secao}:ver`
+    if (!set.has(chaveVer)) return { valido: false, chaveSemVer: chave }
+  }
+  return { valido: true }
+}
+
 export const setPermissoesUsuarioInputSchema = z.object({
   id_workspace: z.string().cuid(),
   id_produto_gravity: z.string().cuid(),
   permissoes: z.array(permissaoStringSchema)
-    .refine(arr => new Set(arr).size === arr.length, 'Permissões duplicadas não são permitidas'),
+    .refine(arr => new Set(arr).size === arr.length, 'Permissões duplicadas não são permitidas')
+    .refine(
+      arr => validarEditarImplicaVer(arr).valido,
+      arr => {
+        const r = validarEditarImplicaVer(arr)
+        if (r.valido) return { message: '' }
+        return {
+          message: `Permissão "${r.chaveSemVer}" exige a chave ":ver" correspondente da mesma seção (editar sem ver é estado inconsistente)`,
+        }
+      },
+    ),
 })
 
 export type SetPermissoesUsuarioInput = z.infer<typeof setPermissoesUsuarioInputSchema>

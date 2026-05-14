@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useNavigate } from 'react-router-dom'
 import { useShellStore } from '@shell'
+import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import {
   DashboardGrid,
   DashboardPainelContainer,
@@ -869,11 +870,23 @@ export default function PedidosDashboard() {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
     slicers, setPeriod, setStatusFilter,
     activeFilters, clearFilters,
-    editMode, setEditMode,
+    editMode, setEditMode: _setEditModeRaw,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
     paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
   } = useDashboardStore()
+
+  // Gating `pedido:dashboard:editar` (decisao dono + Líder + Coordenador 2026-05-13).
+  // `podeEditar` é ESTRITO durante load — não permite entrar em editMode até
+  // dados confirmados. Evita flash de affordance que dispararia 403 ao salvar.
+  // Backend POST/PUT/DELETE widgets retornam 403 em caso real.
+  const { podeEditar } = usePermissoesPedido()
+  const podeEditarDashboard = podeEditar('dashboard')
+  // Wrapper que bloqueia o setEditMode quando sem permissao.
+  const setEditMode = (v: boolean) => {
+    if (v && !podeEditarDashboard) return // ignora pedido de entrar em edicao
+    _setEditModeRaw(v)
+  }
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()

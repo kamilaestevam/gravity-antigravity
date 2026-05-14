@@ -60,6 +60,21 @@ import type {
   GTPreferencias,
   GTVirtualHandle,
 } from '@nucleo/tabela-virtual-global'
+// Subsistema FiltrosColuna — refactor D9 (2026-05-13). Promovido do Pedido.
+import {
+  FiltroChips,
+  FiltroPopoverColuna,
+  rotulofiltro,
+  detectarTipoColuna as detectarTipoColunaCore,
+} from '@nucleo/tabela-virtual-global'
+import type {
+  FiltroAtivo,
+  FiltrosAtivosMap,
+  FiltroTipo,
+} from '@nucleo/tabela-virtual-global'
+// CSS dos chips e popover — vem do nucleo-global. Necessário pra que os
+// componentes promovidos tenham aparência correta no Pedido.
+import '@nucleo/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
 import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
@@ -184,331 +199,37 @@ function getStatusLabel(status: string): string {
   return config[status]?.label ?? STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
 }
 
-// ── Tipos de filtro ───────────────────────────────────────────────────────────
+// ── Tipos e helpers de filtro ─────────────────────────────────────────────────
+//
+// Refactor D9 (2026-05-13): tipos `FiltroAtivo`/`FiltrosAtivosMap`, o helper
+// `rotulofiltro` e o componente `FiltroPopoverColuna` foram promovidos para
+// `@nucleo/tabela-virtual-global`. Os imports abaixo expõem o mesmo contrato
+// para outros produtos (LPCO, NF Importação, bid-frete) reusarem sem cópia.
+//
+// `detectarTipoColuna` Pedido-específico: o nucleo-global expõe o helper
+// genérico, mas as keys "tipo_operacao", "status", "incoterm", "id_workspace"
+// são forçadas a 'enum' via `tipoFiltroOverrides` abaixo — lógica do produto,
+// não do framework.
+//
+// `FILTRO_TIPO_OVERRIDES_PEDIDO` é declarado abaixo, em escopo do módulo,
+// para ser usado em `detectarTipoColunaLocal`.
 
-type FiltroTexto  = { tipo: 'texto';  valor: string }
-type FiltroEnum   = { tipo: 'enum';   valor: Set<string> }
-type FiltroNumero = { tipo: 'numero'; valor: { min?: number; max?: number } }
-type FiltroAtivo  = FiltroTexto | FiltroEnum | FiltroNumero
-
-type FiltrosAtivosMap = Record<string, FiltroAtivo>
-
-function rotulofiltro(campo: string, filtro: FiltroAtivo): string {
-  if (filtro.tipo === 'texto') return filtro.valor
-  if (filtro.tipo === 'enum') {
-    const valores = Array.from(filtro.valor)
-    // Quando há até 2 valores, mostra os nomes. Quando há 3+, mostra contagem
-    // para o chip não estourar a toolbar. (UX 2026-05-13)
-    if (valores.length === 0) return '(nenhum)'
-    if (valores.length <= 2) return valores.join(', ')
-    return `${valores.length} selecionados`
-  }
-  if (filtro.tipo === 'numero') {
-    const { min, max } = filtro.valor
-    if (min != null && max != null) return `${min} — ${max}`
-    if (min != null) return `≥ ${min}`
-    if (max != null) return `≤ ${max}`
-  }
-  return ''
+// ── Helpers de filtragem (Pedido-specific) ───────────────────────────────────
+//
+// Overrides do Pedido para `detectarTipoColuna`: força 'enum' em colunas que
+// não usam `tipo: 'badge'` mas têm valores discretos. O nucleo-global usa
+// regras default (`tipo === 'badge'` → enum, `tipo === 'numero'` → numero),
+// e cada produto contribui com seus overrides.
+const FILTRO_TIPO_OVERRIDES_PEDIDO: Record<string, FiltroTipo> = {
+  tipo_operacao: 'enum',
+  status:        'enum',
+  incoterm:      'enum',
+  id_workspace:  'enum',  // filtro multi-workspace usa popover enum
 }
 
-// ── Subcomponente: Popover de filtro por coluna ───────────────────────────────
-
-interface FiltroPopoverColunaProps {
-  campo: string
-  label: string
-  tipo: 'texto' | 'numero' | 'enum'
-  filtroAtual: FiltroAtivo | undefined
-  valoresUnicos: string[]
-  onAplicar: (campo: string, filtro: FiltroAtivo) => void
-  onLimpar: (campo: string) => void
-  onOrdenar: (campo: string, dir: 'asc' | 'desc') => void
-  onFechar: () => void
-  anchorRef: React.RefObject<HTMLElement>
-}
-
-function FiltroPopoverColuna({
-  campo,
-  label,
-  tipo,
-  filtroAtual,
-  valoresUnicos,
-  onAplicar,
-  onLimpar,
-  onOrdenar,
-  onFechar,
-  anchorRef,
-}: FiltroPopoverColunaProps) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  const [pos, setPos] = React.useState({ top: 0, left: 0 })
-  useEffect(() => {
-    if (anchorRef.current) {
-      const rect = anchorRef.current.getBoundingClientRect()
-      const left = Math.max(8, rect.left - 20)
-      const top = rect.bottom + 6
-      setPos({ top, left })
-    }
-  }, [anchorRef])
-
-  useEffect(() => {
-    function fora(e: MouseEvent) {
-      if (
-        ref.current &&
-        !ref.current.contains(e.target as Node) &&
-        anchorRef.current &&
-        !anchorRef.current.contains(e.target as Node)
-      ) {
-        onFechar()
-      }
-    }
-    document.addEventListener('mousedown', fora)
-    return () => document.removeEventListener('mousedown', fora)
-  }, [onFechar, anchorRef])
-
-  const [textoLocal, setTextoLocal] = React.useState(
-    filtroAtual?.tipo === 'texto' ? filtroAtual.valor : '',
-  )
-  const [enumLocal, setEnumLocal] = React.useState<Set<string>>(
-    filtroAtual?.tipo === 'enum' ? new Set(filtroAtual.valor) : new Set(),
-  )
-  const [enumBusca, setEnumBusca] = React.useState('')
-  const [minLocal, setMinLocal] = React.useState(
-    filtroAtual?.tipo === 'numero' && filtroAtual.valor.min != null
-      ? String(filtroAtual.valor.min)
-      : '',
-  )
-  const [maxLocal, setMaxLocal] = React.useState(
-    filtroAtual?.tipo === 'numero' && filtroAtual.valor.max != null
-      ? String(filtroAtual.valor.max)
-      : '',
-  )
-
-  function aplicar() {
-    if (tipo === 'texto' && valoresUnicos.length === 0) {
-      if (textoLocal.trim()) {
-        onAplicar(campo, { tipo: 'texto', valor: textoLocal.trim() })
-      } else {
-        onLimpar(campo)
-      }
-    } else if (tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) {
-      if (enumLocal.size > 0) {
-        onAplicar(campo, { tipo: 'enum', valor: new Set(enumLocal) })
-      } else {
-        onLimpar(campo)
-      }
-    } else if (tipo === 'numero') {
-      const min = minLocal !== '' ? Number(minLocal) : undefined
-      const max = maxLocal !== '' ? Number(maxLocal) : undefined
-      if (min != null || max != null) {
-        onAplicar(campo, { tipo: 'numero', valor: { min, max } })
-      } else {
-        onLimpar(campo)
-      }
-    }
-    onFechar()
-  }
-
-  function limpar() {
-    onLimpar(campo)
-    onFechar()
-  }
-
-  const valoresFiltrados = valoresUnicos.filter(v =>
-    v.toLowerCase().includes(enumBusca.toLowerCase()),
-  )
-
-  return (
-    <div
-      ref={ref}
-      className="gtv-export-menu"
-      style={{
-        position: 'fixed',
-        top: pos.top,
-        left: pos.left,
-        minWidth: 230,
-        maxWidth: 290,
-        padding: 0,
-        zIndex: 9999,
-        background: '#1e2130',
-      }}
-      role="dialog"
-      aria-label={`Filtrar coluna ${label}`}
-    >
-      {/* Cabeçalho — nome da coluna */}
-      <div className="lp-filtro-coluna-nome">{label.toUpperCase()}</div>
-
-      {/* Ordenar */}
-      <div className="gtv-col-acoes" style={{ flexDirection: 'row', gap: '0.25rem', padding: '0.375rem 0.5rem' }}>
-        <button
-          type="button"
-          className="gtv-col-acao-btn"
-          style={{ flex: 1, justifyContent: 'center' }}
-          onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
-        >
-          <ArrowUp size={11} weight="bold" /> Cresc.
-        </button>
-        <button
-          type="button"
-          className="gtv-col-acao-btn"
-          style={{ flex: 1, justifyContent: 'center' }}
-          onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
-        >
-          <ArrowDown size={11} weight="bold" /> Decresc.
-        </button>
-      </div>
-
-      <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
-
-      {/* Filtrar por — texto (livre, apenas quando não há valores conhecidos) */}
-      {tipo === 'texto' && valoresUnicos.length === 0 && (
-        <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">FILTRAR POR</div>
-          <div className="gtv-col-busca" style={{ borderRadius: '6px', marginTop: '0.25rem' }}>
-            <input
-              type="text"
-              className="gtv-col-busca-input"
-              placeholder="Buscar..."
-              value={textoLocal}
-              onChange={e => setTextoLocal(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
-              autoFocus
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Filtrar por — enum (checkboxes) — também para texto com valores conhecidos */}
-      {(tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) && (
-        <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">FILTRAR POR</div>
-          {valoresUnicos.length > 6 && (
-            <div className="gtv-col-busca" style={{ borderRadius: '6px', margin: '0.25rem 0' }}>
-              <input
-                type="text"
-                className="gtv-col-busca-input"
-                placeholder="Buscar..."
-                value={enumBusca}
-                onChange={e => setEnumBusca(e.target.value)}
-              />
-            </div>
-          )}
-          {/* Selecionar tudo / Limpar — opera sobre valoresFiltrados (respeita busca) */}
-          {valoresFiltrados.length > 0 && (() => {
-            const totalFiltrados = valoresFiltrados.length
-            const selecionadosFiltrados = valoresFiltrados.filter(v => enumLocal.has(v)).length
-            const todosSelecionados = selecionadosFiltrados === totalFiltrados
-            const algumSelecionado = selecionadosFiltrados > 0 && !todosSelecionados
-            return (
-              <label
-                className="gtv-export-item"
-                style={{
-                  cursor: 'pointer',
-                  gap: '0.5rem',
-                  padding: '0.3rem 0.5rem',
-                  borderRadius: '6px',
-                  fontWeight: 600,
-                  borderBottom: '1px solid var(--gtv-border, rgba(255,255,255,0.07))',
-                  marginBottom: '0.125rem',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={todosSelecionados}
-                  ref={el => { if (el) el.indeterminate = algumSelecionado }}
-                  style={{ accentColor: 'var(--gtv-accent, #818cf8)', cursor: 'pointer', flexShrink: 0 }}
-                  onChange={() => {
-                    const novo = new Set(enumLocal)
-                    if (todosSelecionados) {
-                      // Desmarca todos os filtrados (mantém os não-filtrados marcados)
-                      for (const v of valoresFiltrados) novo.delete(v)
-                    } else {
-                      // Marca todos os filtrados
-                      for (const v of valoresFiltrados) novo.add(v)
-                    }
-                    setEnumLocal(novo)
-                    if (novo.size > 0) onAplicar(campo, { tipo: 'enum', valor: novo })
-                    else onLimpar(campo)
-                  }}
-                />
-                <span style={{ fontSize: '0.8125rem' }}>
-                  {todosSelecionados ? 'Limpar seleção' : 'Selecionar tudo'}
-                  {enumBusca ? ` (${totalFiltrados})` : ''}
-                </span>
-              </label>
-            )
-          })()}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem', maxHeight: 168, overflowY: 'auto', padding: '0.25rem 0' }}>
-            {valoresFiltrados.length > 0 ? valoresFiltrados.map(v => (
-              <label
-                key={v}
-                className="gtv-export-item"
-                style={{ cursor: 'pointer', gap: '0.5rem', padding: '0.3rem 0.5rem', borderRadius: '6px' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={enumLocal.has(v)}
-                  style={{ accentColor: 'var(--gtv-accent, #818cf8)', cursor: 'pointer', flexShrink: 0 }}
-                  onChange={() => {
-                    const novo = new Set(enumLocal)
-                    if (novo.has(v)) novo.delete(v)
-                    else novo.add(v)
-                    setEnumLocal(novo)
-                    if (novo.size > 0) onAplicar(campo, { tipo: 'enum', valor: novo })
-                    else onLimpar(campo)
-                  }}
-                />
-                <span style={{ fontSize: '0.8125rem' }}>{v || '(vazio)'}</span>
-              </label>
-            )) : (
-              <div className="gtv-col-vazio">Nenhum valor encontrado</div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Filtrar por — intervalo numérico */}
-      {tipo === 'numero' && (
-        <div style={{ padding: '0.375rem 0.5rem' }}>
-          <div className="lp-filtro-section-title">INTERVALO</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem' }}>
-            <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
-              <input type="number" className="gtv-col-busca-input" placeholder="Mín" value={minLocal} onChange={e => setMinLocal(e.target.value)} />
-            </div>
-            <span style={{ color: 'var(--gtv-muted, #64748b)', fontSize: '0.75rem', flexShrink: 0 }}>—</span>
-            <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
-              <input type="number" className="gtv-col-busca-input" placeholder="Máx" value={maxLocal} onChange={e => setMaxLocal(e.target.value)} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.375rem 0.5rem' }}>
-        <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={limpar}>
-          × Limpar filtro
-        </button>
-        {(tipo === 'texto' || tipo === 'numero') && (
-          <button type="button" className="gtv-btn gtv-btn--ativo" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }} onClick={aplicar}>
-            Aplicar
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Helpers de filtragem ──────────────────────────────────────────────────────
-
-function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' {
-  if (col.tipo === 'numero') return 'numero'
-  if (col.tipo === 'badge' || col.key === 'tipo_operacao' || col.key === 'status' || col.key === 'incoterm') return 'enum'
-  // id_workspace: filtro multi-workspace usa popover enum (nomes legíveis), e o
-  // efeito de seleção é propagado ao backend via workspacesSelecionados.
-  // Exceção ao padrão client-side — ver useEffect adiante.
-  if (col.key === 'id_workspace') return 'enum'
-  return 'texto'
+/** Wrapper Pedido-specific de detectarTipoColuna — aplica overrides do produto */
+function detectarTipoColunaPedido(col: GTColuna<Pedido>): FiltroTipo {
+  return detectarTipoColunaCore(col, FILTRO_TIPO_OVERRIDES_PEDIDO)
 }
 
 /** Mapeia valor raw → label legível para exibição no filtro */
@@ -2929,88 +2650,32 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         </TooltipGlobal>
       </>
 
-      {/* ── Chips de filtros ativos (dentro da toolbar) ── */}
+      {/* ── Chips de filtros ativos (dentro da toolbar) ──
+       * Refactor D9 (2026-05-13): JSX inline substituído por <FiltroChips> do
+       * nucleo-global. O chip de BUSCA fica como `prefixo` (composição), porque
+       * busca é responsabilidade do produto Pedido — não do framework de chips. */}
       {(Object.keys(filtrosAtivos).length > 0 || busca) && (
-        <div
-          role="status"
-          aria-label={t('pedido.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}
-          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', flex: 1 }}
-        >
-          {busca && (
-            <span className="lp-filtro-chip">
-              <span className="lp-filtro-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
-              <span className="lp-filtro-chip-valor">{busca}</span>
+        <FiltroChips
+          colunas={COLUNAS_PAI}
+          filtrosAtivos={filtrosAtivos}
+          onLimparFiltro={handleLimparFiltro}
+          onLimparTodos={handleLimparTodosFiltros}
+          onEditarFiltro={onFiltroColuna}
+          thresholdConsolidar={2}
+          prefixo={busca ? (
+            <span className="fc-chip">
+              <span className="fc-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
+              <span className="fc-chip-valor">{busca}</span>
               <button
-                className="lp-filtro-chip-remove"
+                className="fc-chip-remove"
                 onClick={onLimparBusca}
                 aria-label={t('pedido.barra.remover_busca', { defaultValue: 'Remover busca' })}
               >
                 <X size={10} weight="bold" />
               </button>
             </span>
-          )}
-          {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
-            const filtro = filtrosAtivos[col.key]!
-            // Tooltip único — sem hint redundante. Lista numerada (1. Nome /
-            // 2. Nome / ...) para leitura limpa quando há vários workspaces.
-            // Renderizada apenas para filtros enum (multi-select).
-            const valores = filtro.tipo === 'enum' ? Array.from(filtro.valor) : []
-            const tooltipLista = valores.length > 0 ? (
-              <ol style={{
-                margin: 0,
-                padding: 0,
-                listStyle: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.125rem',
-                lineHeight: 1.45,
-              }}>
-                {valores.map((v, i) => (
-                  <li key={v} style={{ display: 'flex', gap: '0.45rem' }}>
-                    <span style={{ opacity: 0.55, minWidth: '1.4rem', textAlign: 'right' }}>{i + 1}.</span>
-                    <span>{v}</span>
-                  </li>
-                ))}
-              </ol>
-            ) : null
-            const chipBody = (
-              <button
-                type="button"
-                className="lp-filtro-chip-body"
-                onClick={onFiltroColuna ? (e) => onFiltroColuna(col.key, e.currentTarget) : undefined}
-                style={{
-                  background: 'transparent', border: 'none', padding: 0, color: 'inherit',
-                  cursor: onFiltroColuna ? 'pointer' : 'default',
-                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                  font: 'inherit',
-                }}
-                aria-label={t('pedido.barra.editar_filtro', { defaultValue: 'Editar filtro' })}
-              >
-                <span className="lp-filtro-chip-label">{col.label}:</span>
-                <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
-              </button>
-            )
-            return (
-              <span key={col.key} className="lp-filtro-chip">
-                {tooltipLista ? (
-                  <TooltipGlobal titulo={col.label} descricao={tooltipLista}>
-                    <span style={{ display: 'contents' }}>{chipBody}</span>
-                  </TooltipGlobal>
-                ) : chipBody}
-                <button
-                  className="lp-filtro-chip-remove"
-                  onClick={() => handleLimparFiltro(col.key)}
-                  aria-label={t('pedido.barra.remover_filtro', { label: col.label })}
-                >
-                  <X size={10} weight="bold" />
-                </button>
-              </span>
-            )
-          })}
-          <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
-            {t('pedido.barra.limpar_tudo')}
-          </button>
-        </div>
+          ) : null}
+        />
       )}
     </>
   )
@@ -3744,7 +3409,7 @@ export default function Pedidos() {
     const result: Record<string, string[]> = {}
     for (const col of colunasPai) {
       if (!col.filtravel) continue
-      if (detectarTipoColuna(col) === 'numero') continue // range — sem lista
+      if (detectarTipoColunaPedido(col) === 'numero') continue // range — sem lista
       // Exceção: id_workspace usa a lista completa de workspaces disponíveis
       // (não apenas os presentes na página atual), pois o filtro afeta o que
       // será carregado do backend.
@@ -4390,7 +4055,15 @@ export default function Pedidos() {
     //                        NÃO toca no PAI nem nos outros itens
     const colunaCustomFilho = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustomFilho) {
-      const vinculo: 'pedido' | 'item' = colunaCustomFilho.escopo === 'item' ? 'item' : 'pedido'
+      // BUG fix 2026-05-13 (parte 2): a versão anterior tratava `escopo='ambos'`
+      // como pedido-level mesmo quando o usuário editava na LINHA DO ITEM.
+      // Como esse handler é exatamente o de edição na linha do item, a regra
+      // correta é: se a coluna ACEITA valores por item ('item' ou 'ambos'),
+      // grava no nível do item (vinculo='item', id=item.id). Caso contrário
+      // (escopo='pedido' apenas), grava no nível do pedido — embora o ideal
+      // seria a coluna nem ser editável na linha do item neste cenário.
+      const aceitaPorItem = colunaCustomFilho.escopo === 'item' || colunaCustomFilho.escopo === 'ambos'
+      const vinculo: 'pedido' | 'item' = aceitaPorItem ? 'item' : 'pedido'
       const vinculoId = vinculo === 'item' ? id : pedido.id
       await colunasUsuarioApi.salvarValores(vinculo, vinculoId, { [colunaCustomFilho.id]: String(valor) })
 
@@ -4935,7 +4608,7 @@ export default function Pedidos() {
           <FiltroPopoverColuna
             campo={col.key}
             label={col.label}
-            tipo={detectarTipoColuna(col)}
+            tipo={detectarTipoColunaPedido(col)}
             filtroAtual={filtrosAtivos[col.key]}
             valoresUnicos={valoresUnicosPorCampo[col.key] ?? []}
             onAplicar={handleAplicarFiltro}
@@ -4943,6 +4616,7 @@ export default function Pedidos() {
             onOrdenar={handleOrdenar}
             onFechar={() => setPopoverAberto(null)}
             anchorRef={anchorRef}
+            labelInverso={LABELS_FILTRO_INVERSO[col.key]}
           />
         )
       })()}

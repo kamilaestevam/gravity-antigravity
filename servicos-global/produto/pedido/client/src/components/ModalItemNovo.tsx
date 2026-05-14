@@ -11,30 +11,52 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Tag, MagnifyingGlass } from '@phosphor-icons/react'
+import { Tag, MagnifyingGlass, Lock } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
+import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
+import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem } from '../shared/types'
 import { pedidoApi, pedidoItemApi } from '../shared/api'
+import { getCasas } from './lista/ColunasPai'
+
+// Casas decimais padrão alinhadas com Configurações › Casas Decimais
+// (`COLUNAS_NUMERICAS` em pages/Configuracoes.tsx) e com `getCasas` usado em
+// renderQtdPedido / colunas da lista. Defaults:
+//   - quantidade_item     → 0 casas  (herda de quantidade_total_pedido na config)
+//   - valor_por_unidade_item → 2 casas
+//   - valor_total_pedido     → 2 casas  (Valor Total dos Itens herda)
+function casasQtdItem()        { return getCasas('quantidade_item', 0) }
+function casasValorUnitario()  { return getCasas('valor_por_unidade_item', 2) }
+function casasValorTotal()     { return getCasas('valor_total_pedido', 2) }
 
 // ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 
+// P15: nomes DDD (Mandamento 03) + Moeda + Valor do Item (mesmos nomes
+// usados no ModalPedidoNovo Passo 2 — consistência cross-modal).
 interface ItemForm {
-  part_number: string
-  ncm: string
+  part_number_item: string
+  ncm_item: string
   descricao_item: string
-  quantidade_inicial_pedido: string
+  quantidade_inicial_item: string
+  moeda_item: string
+  valor_por_unidade_item: string
 }
 
 const ITEM_VAZIO: ItemForm = {
-  part_number: '',
-  ncm: '',
+  part_number_item: '',
+  ncm_item: '',
   descricao_item: '',
-  quantidade_inicial_pedido: '',
+  quantidade_inicial_item: '',
+  // P16: sem default — usuário escolhe explicitamente (Mandamento 08, mesma
+  // regra usada em ModalPedidoNovo › ITEM_VAZIO e no Incoterm). Placeholder
+  // "USD" no SelectGlobal só sinaliza a sigla canônica esperada.
+  moeda_item: '',
+  valor_por_unidade_item: '',
 }
 
 // ── Props ──────────────────────────────────────────────────────────────────────
@@ -51,6 +73,11 @@ export interface ModalNovoItemPedidoProps {
 
 // ── Estilos inline ─────────────────────────────────────────────────────────────
 
+// P15: styles padronizados com o sistema (alinha com ModalPedidoNovo):
+// - label: --text-micro (0.75rem) + --text-muted (canônico .cg-label)
+// - input: --bg-body (dark) + border 1.5px acento sutil + radius-md
+// - secaoTitulo: letter-spacing 0.05em (alinha labels)
+// - pedidoSelecionado: vira campo locked (cinza + ícone Lock — espelha CampoEmpresaDaOrg)
 const s = {
   grid: {
     display: 'grid',
@@ -66,39 +93,48 @@ const s = {
     gap: '0.375rem',
   } as React.CSSProperties,
   label: {
-    fontSize: '0.6875rem',
+    fontSize: '0.75rem',
     fontWeight: 600,
     color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.04em',
+    letterSpacing: '0.05em',
+    lineHeight: 1.3,
   } as React.CSSProperties,
   input: {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--bg-elevated)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--text-primary)',
-    fontSize: '0.875rem',
-    padding: '0.5rem 0.75rem',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box' as const,
+    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
+    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
+    borderRadius:  'var(--radius-md, 8px)',
+    color:         'var(--text-primary)',
+    fontSize:      '0.875rem',
+    padding:       '0.5625rem 0.875rem',
+    outline:       'none',
+    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
+    width:         '100%',
+    boxSizing:     'border-box' as const,
   } as React.CSSProperties,
   secaoTitulo: {
     fontSize: '0.75rem',
     fontWeight: 700,
     color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.06em',
+    letterSpacing: '0.05em',
     marginBottom: '1rem',
   } as React.CSSProperties,
-  pedidoSelecionado: {
-    padding: '0.75rem 1rem',
-    background: 'rgba(99,102,241,0.08)',
-    border: '1px solid rgba(99,102,241,0.2)',
-    borderRadius: 'var(--radius-md)',
-    fontSize: '0.875rem',
-    color: 'var(--text-primary)',
-    marginBottom: '1.5rem',
+  // P15: card de pedido fixado vira campo locked (cinza + Lock) pra sinalizar
+  // que não é editável aqui (usuário já selecionou o pedido no passo anterior).
+  pedidoLocked: {
+    display:       'flex',
+    alignItems:    'center',
+    gap:           '0.5rem',
+    padding:       '0.5625rem 0.875rem',
+    background:    'var(--bg-elevated)',
+    border:        '1px solid var(--bg-elevated)',
+    borderRadius:  'var(--radius-md, 8px)',
+    color:         'var(--text-secondary)',
+    fontSize:      '0.875rem',
+    opacity:       0.7,
+    cursor:        'not-allowed',
+    marginBottom:  '1.5rem',
   } as React.CSSProperties,
   erro: {
     fontSize: '0.8125rem',
@@ -121,6 +157,13 @@ export function ModalNovoItemPedido({
 }: ModalNovoItemPedidoProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
+
+  // P15: moedas via SSOT (banco Cadastros). Mapeia pra SelectOpcao do SelectGlobal.
+  const { moedas } = useMoedas()
+  const opcoesMoedas = useMemo(
+    () => moedas.map((m) => ({ valor: m.codigo_moeda, rotulo: m.codigo_moeda, descricao: m.nome_moeda })),
+    [moedas],
+  )
 
   const PASSOS_COMPLETO = useMemo<PassoConfig[]>(() => [
     { id: 1, label: t('pedido.modal_item.passo_selecionar'), icone: <MagnifyingGlass size={14} weight="duotone" /> },
@@ -155,6 +198,20 @@ export function ModalNovoItemPedido({
       .finally(() => setCarregandoPedidos(false))
   }, [aberto, modoContexto])
 
+  // P16: reset garantido a cada abertura do modal (idempotente). Sem isso o
+  // estado pode persistir de uma sessão anterior — usuário viu USD pré-selecionado
+  // mesmo após ITEM_VAZIO.moeda_item ser zerado (HMR + estado preso).
+  useEffect(() => {
+    if (!aberto) return
+    setItem(ITEM_VAZIO)
+    setErro(null)
+    setPasso(modoContexto ? 1 : 1)
+    if (modoContexto) {
+      setPedidoSelecionadoId(pedidoIdProp ?? '')
+      setNumeroPedido(numeroPedidoProp ?? '')
+    }
+  }, [aberto, modoContexto, pedidoIdProp, numeroPedidoProp])
+
   const handleFechar = useCallback(() => {
     setPasso(1)
     setItem(ITEM_VAZIO)
@@ -171,13 +228,17 @@ export function ModalNovoItemPedido({
   const passos = modoContexto ? PASSOS_DIRETO : PASSOS_COMPLETO
   const ultimoPasso = passos[passos.length - 1].id
 
-  // Validação por passo
+  // Validação por passo (item pode ser salvo com qualquer campo preenchido)
   const podeAvancar = (() => {
-    if (modoContexto) {
-      return item.part_number.trim() !== '' || item.descricao_item.trim() !== ''
-    }
+    const itemTemDado =
+      item.part_number_item.trim() !== '' ||
+      item.descricao_item.trim() !== '' ||
+      item.ncm_item.trim() !== '' ||
+      item.valor_por_unidade_item.trim() !== '' ||
+      item.quantidade_inicial_item.trim() !== ''
+    if (modoContexto) return itemTemDado
     if (passo === 1) return pedidoSelecionadoId.trim() !== ''
-    return item.part_number.trim() !== '' || item.descricao_item.trim() !== ''
+    return itemTemDado
   })()
 
   async function handleProximo() {
@@ -189,18 +250,24 @@ export function ModalNovoItemPedido({
       return
     }
 
-    // Salvar item
+    // Salvar item (DDD-puro — Mandamento 03; alinha com criarItemSchema do backend)
     setSalvando(true)
     setErro(null)
     try {
       const pedidoAlvo = modoContexto ? pedidoIdProp! : pedidoSelecionadoId
+      const qtd = parseFloat(item.quantidade_inicial_item) || 0
+      const valorUnit = item.valor_por_unidade_item.trim() === '' ? null : (parseFloat(item.valor_por_unidade_item) || 0)
       const resultado = await pedidoItemApi.adicionar(pedidoAlvo, {
-        part_number: item.part_number,
-        ncm: item.ncm,
-        descricao_item: item.descricao_item,
-        quantidade_inicial_pedido: parseFloat(item.quantidade_inicial_pedido) || 0,
+        part_number_item:        item.part_number_item,
+        ncm_item:                item.ncm_item,
+        descricao_item:          item.descricao_item,
+        quantidade_inicial_item: qtd,
+        moeda_item:              item.moeda_item,
+        valor_por_unidade_item:  valorUnit,
+        // valor_total_item: NÃO enviado — backend recalcula via
+        // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
       } as Partial<PedidoItem>)
-      const pn = item.part_number.trim() || item.descricao_item.trim() || 'item'
+      const pn = item.part_number_item.trim() || item.descricao_item.trim() || 'item'
       addNotification({ type: 'success', message: `Item ${pn} adicionado ao PO.`, duration: 4000 })
       onSalvo(resultado)
       handleFechar()
@@ -236,7 +303,7 @@ export function ModalNovoItemPedido({
       podeAvancar={podeAvancar && !salvando}
       labelBotaoFinal={labelBotaoFinal}
       tamanho="md"
-      altura="480px"
+      altura="580px"
     >
       {/* Passo seletor (apenas sem contexto) */}
       {!modoContexto && passo === 1 && (
@@ -266,32 +333,35 @@ export function ModalNovoItemPedido({
       {/* Passo dados do item */}
       {(modoContexto ? passo === 1 : passo === 2) && (
         <div>
+          {/* Pedido selecionado vira campo "locked" (cinza + ícone Lock).
+              Sinaliza que não é editável aqui — usuário já escolheu o pedido. */}
           {numeroPedido && (
-            <div style={s.pedidoSelecionado}>
-              {t('pedido.modal_item.pedido_info', { numero: numeroPedido })}
+            <div style={s.pedidoLocked}>
+              <Lock size={14} weight="duotone" style={{ flexShrink: 0 }} />
+              <span>{t('pedido.modal_item.pedido_info', { numero: numeroPedido })}</span>
             </div>
           )}
           <p style={s.secaoTitulo}>{t('pedido.modal_item.secao_dados')}</p>
           <div style={s.grid}>
             <div style={s.campo}>
-              <label style={s.label} htmlFor="mni-pn">Part Number</label>
+              <label style={s.label} htmlFor="mni-pn">{t('pedido.item.part_number')}</label>
               <input
                 id="mni-pn"
                 style={s.input}
-                value={item.part_number}
-                onChange={e => setItemField('part_number', e.target.value)}
+                value={item.part_number_item}
+                onChange={e => setItemField('part_number_item', e.target.value)}
                 placeholder={t('pedido.modal_item.ph_sku')}
               />
             </div>
             <div style={s.campo}>
               <SelectNcmGlobal
-                label="NCM"
-                value={item.ncm}
-                onChange={(codigo) => setItemField('ncm', codigo)}
+                label={t('pedido.item.ncm')}
+                value={item.ncm_item}
+                onChange={(codigo) => setItemField('ncm_item', codigo)}
               />
             </div>
             <div style={{ ...s.campo, ...s.gridFull }}>
-              <label style={s.label} htmlFor="mni-desc">Descrição</label>
+              <label style={s.label} htmlFor="mni-desc">{t('pedido.drawer.label_descricao')}</label>
               <input
                 id="mni-desc"
                 style={s.input}
@@ -301,16 +371,57 @@ export function ModalNovoItemPedido({
               />
             </div>
             <div style={s.campo}>
-              <label style={s.label} htmlFor="mni-qty">Quantidade Inicial</label>
-              <input
+              <label style={s.label} htmlFor="mni-qty">{t('pedido.drawer.label_qtd')}</label>
+              {/* P15: Live mask BR (10.000,00) — padrão sistêmico CampoDecimalGlobal */}
+              <CampoDecimalGlobal
                 id="mni-qty"
-                type="number"
-                style={{ ...s.input, textAlign: 'right' }}
-                value={item.quantidade_inicial_pedido}
-                onChange={e => setItemField('quantidade_inicial_pedido', e.target.value)}
-                placeholder="0"
-                min="0"
-                step="0.01"
+                valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
+                aoMudarValor={(n) => setItemField('quantidade_inicial_item', n === null ? '' : String(n))}
+                casasDecimais={casasQtdItem()}
+                style={s.input}
+                textAlign="right"
+              />
+            </div>
+            <div style={s.campo}>
+              <label style={s.label} htmlFor="mni-moeda">{t('pedido.item.moeda', 'Moeda')}</label>
+              {/* P15: SelectGlobal canônico (Mandamento 03), lista vem do hook
+                  useMoedas() — SSOT é banco Cadastros (Mandamento 06+09). */}
+              <SelectGlobal
+                id="mni-moeda"
+                opcoes={opcoesMoedas}
+                valor={item.moeda_item || null}
+                aoMudarValor={(v) => setItemField('moeda_item', String(v ?? ''))}
+                buscavel
+                placeholder="Selecionar moeda"
+              />
+            </div>
+            <div style={s.campo}>
+              <label style={s.label} htmlFor="mni-valor">{t('pedido.item.valor_por_unidade_item', 'Valor do Item')}</label>
+              <CampoDecimalGlobal
+                id="mni-valor"
+                valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
+                aoMudarValor={(n) => setItemField('valor_por_unidade_item', n === null ? '' : String(n))}
+                casasDecimais={casasValorUnitario()}
+                style={s.input}
+                textAlign="right"
+              />
+            </div>
+            <div style={s.campo}>
+              <label style={s.label} htmlFor="mni-total">{t('pedido.item.valor_total_item', 'Valor Total dos Itens')}</label>
+              {/* P15: computed read-only = qtd × valor_por_unidade. Não enviado ao
+                  backend — fonte única é o backend via recalcularAgregadosPedido. */}
+              <CampoDecimalGlobal
+                id="mni-total"
+                valor={
+                  item.valor_por_unidade_item === '' || item.quantidade_inicial_item === ''
+                    ? null
+                    : Number(item.valor_por_unidade_item) * Number(item.quantidade_inicial_item)
+                }
+                aoMudarValor={() => { /* read-only */ }}
+                casasDecimais={casasValorTotal()}
+                style={{ ...s.input, opacity: 0.7, cursor: 'not-allowed' }}
+                textAlign="right"
+                desabilitado
               />
             </div>
           </div>

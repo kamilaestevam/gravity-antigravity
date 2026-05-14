@@ -41,6 +41,15 @@ enum UsuarioTipo {
   FORNECEDOR // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
+// Status persistido do usuário. CONVIDADO é derivado em runtime quando
+// id_clerk_usuario.startsWith('pending_') — não persistido para não duplicar
+// a fonte da verdade do Clerk no fluxo de convite (decisão dono 2026-05-12).
+// SUSPENSO ficou fora do enum (YAGNI — sem job/billing/rate-limit que use).
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
 enum WorkspaceStatus {
   ATIVO
   INATIVO
@@ -79,6 +88,12 @@ model Organizacao {
   segmento_organizacao String?
   tipo_organizacao     String?
 
+  // Flag de organização que hospeda colaboradores da Gravity (true) vs cliente (false).
+  // Decisão dono 2026-05-11: SUPER_ADMIN/ADMIN só são atribuíveis a usuários cuja
+  // organização tenha esta flag = true. Detalhes em skill `seguranca/permissoes`.
+  // Default false — apenas org(s) da equipe Gravity recebem true via seed.
+  hospeda_colaboradores_gravity Boolean @default(false)
+
   // Metadata
   data_criacao_organizacao     DateTime @default(now())
   data_atualizacao_organizacao DateTime @updatedAt
@@ -113,6 +128,12 @@ model Usuario {
   nome_usuario     String
   tipo_usuario     UsuarioTipo @default(PADRAO)
 
+  // Status persistido (ATIVO/INATIVO). CONVIDADO é derivado em runtime quando
+  // id_clerk_usuario.startsWith('pending_') — backend retorna 3 valores no DTO.
+  // requireAuth bloqueia 401 USUARIO_INATIVO. PATCH /usuarios/:id/status grava.
+  // (decisão dono 2026-05-12, validada por Coordenador + Líder Técnico)
+  status_usuario StatusUsuario @default(ATIVO)
+
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
   id_workspace_preferido_usuario String?
@@ -142,6 +163,7 @@ model Usuario {
   @@index([id_organizacao, tipo_usuario], map: "usuario_id_organizacao_tipo_usuario_idx")
   @@index([id_workspace_preferido_usuario], map: "usuario_id_workspace_preferido_usuario_idx")
   @@index([id_organizacao, acesso_workspaces_futuros], map: "usuario_id_organizacao_acesso_workspaces_futuros_idx")
+  @@index([id_organizacao, status_usuario], map: "usuario_id_organizacao_status_usuario_idx")
   @@map("usuario")
 }
 
@@ -957,8 +979,10 @@ model GabiLimiteMonetarioGlobal {
   data_criacao_gabi_limite_monetario_global        DateTime @default(now())
   data_atualizacao_gabi_limite_monetario_global    DateTime @updatedAt
 
-  // unicidade: 1 limite por modelo (null = "todos os modelos" tambem unico)
-  @@unique([modelo_gabi_limite_monetario_global], map: "gabi_limite_monetario_global_unq_modelo")
+  // unicidade gerenciada pela migration (UNIQUE ... COALESCE(modelo,'__ALL__'))
+  // — Prisma nao expressa NULLS-DISTINCT-FALSE de forma portatil entao o
+  // constraint vive no SQL. Mantemos @@index para queries.
+  @@index([modelo_gabi_limite_monetario_global], map: "gabi_limite_monetario_global_modelo_idx")
   @@map("gabi_limite_monetario_global")
 }
 
@@ -981,4 +1005,36 @@ model GabiAlertaEmitidoGlobal {
   @@unique([id_limite_gabi_alerta_emitido_global, mes_ref_gabi_alerta_emitido_global, nivel_gabi_alerta_emitido_global], map: "gabi_alerta_emitido_global_unq")
   @@index([mes_ref_gabi_alerta_emitido_global], map: "gabi_alerta_emitido_global_mes_idx")
   @@map("gabi_alerta_emitido_global")
+}
+
+// ---------------------------------------------------------------------------
+// AUDIT LOG ADMIN (Auditoria de ações cross-organização)
+//
+// Registra TODA chamada feita por SUPER_ADMIN/ADMIN em endpoints admin que
+// atravessam organizações (ex: GET /api/v1/admin/empresas).
+//
+// Tabela GLOBAL — não tem id_organizacao (a ação É cross-org). Filtros e
+// resultados são gravados em JSON para auditoria forense.
+//
+// Lei de governança: skills/governanca/convencao-tecnica/lint-tenant-safety
+// (seção "Exceções permitidas") — endpoints admin S2S sem extrairIdOrganizacao
+// só são autorizados se persistem aqui.
+// ---------------------------------------------------------------------------
+
+model AuditLogAdmin {
+  id_audit_log_admin             String   @id @default(cuid())
+  id_usuario_audit_log_admin     String // id_usuario do admin que executou
+  tipo_usuario_audit_log_admin   String // SUPER_ADMIN | ADMIN
+  acao_audit_log_admin           String // ex: "admin.empresas.list"
+  recurso_audit_log_admin        String // ex: "empresa"
+  filtros_audit_log_admin        Json // query params aplicados
+  qtd_resultados_audit_log_admin Int // total de registros retornados
+  ip_origem_audit_log_admin      String
+  correlation_id_audit_log_admin String
+  data_criacao_audit_log_admin   DateTime @default(now())
+
+  @@index([id_usuario_audit_log_admin, data_criacao_audit_log_admin], map: "ala_usuario_data_idx")
+  @@index([acao_audit_log_admin, data_criacao_audit_log_admin], map: "ala_acao_data_idx")
+  @@index([data_criacao_audit_log_admin], map: "ala_data_idx")
+  @@map("audit_log_admin")
 }

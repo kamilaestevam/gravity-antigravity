@@ -20,8 +20,14 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { ExcluirService, AppError } from '../services/duplicarExcluirService.js'
+import { exigirPermissao } from '../permissoes.js'
 
 export const exclusoesPedidoRouter = Router()
+
+// Cadeia 2 granular: todas as rotas são POST/DELETE (excluir pedido / item).
+// Exigem `pedido:lista:editar`. Decisão Líder Técnico 2026-05-13 — gating no
+// router (não no index.ts) evita bug de middleware chain do Express.
+exclusoesPedidoRouter.use(exigirPermissao('lista', 'editar'))
 
 const excluirService = new ExcluirService()
 

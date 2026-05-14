@@ -39,6 +39,11 @@ export type Moeda = $Result.DefaultSelection<Prisma.$MoedaPayload>
  */
 export type Unidade = $Result.DefaultSelection<Prisma.$UnidadePayload>
 /**
+ * Model Incoterm
+ * 
+ */
+export type Incoterm = $Result.DefaultSelection<Prisma.$IncotermPayload>
+/**
  * Model NcmSync
  * 
  */
@@ -256,6 +261,16 @@ export class PrismaClient<
     * ```
     */
   get unidade(): Prisma.UnidadeDelegate<ExtArgs>;
+
+  /**
+   * `prisma.incoterm`: Exposes CRUD operations for the **Incoterm** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Incoterms
+    * const incoterms = await prisma.incoterm.findMany()
+    * ```
+    */
+  get incoterm(): Prisma.IncotermDelegate<ExtArgs>;
 
   /**
    * `prisma.ncmSync`: Exposes CRUD operations for the **NcmSync** model.
@@ -751,6 +766,7 @@ export namespace Prisma {
     Pais: 'Pais',
     Moeda: 'Moeda',
     Unidade: 'Unidade',
+    Incoterm: 'Incoterm',
     NcmSync: 'NcmSync',
     NcmSyncLog: 'NcmSyncLog',
     NcmSyncAgendamento: 'NcmSyncAgendamento',
@@ -771,7 +787,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1052,6 +1068,76 @@ export namespace Prisma {
           count: {
             args: Prisma.UnidadeCountArgs<ExtArgs>
             result: $Utils.Optional<UnidadeCountAggregateOutputType> | number
+          }
+        }
+      }
+      Incoterm: {
+        payload: Prisma.$IncotermPayload<ExtArgs>
+        fields: Prisma.IncotermFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.IncotermFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.IncotermFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          findFirst: {
+            args: Prisma.IncotermFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.IncotermFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          findMany: {
+            args: Prisma.IncotermFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>[]
+          }
+          create: {
+            args: Prisma.IncotermCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          createMany: {
+            args: Prisma.IncotermCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.IncotermCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>[]
+          }
+          delete: {
+            args: Prisma.IncotermDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          update: {
+            args: Prisma.IncotermUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          deleteMany: {
+            args: Prisma.IncotermDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.IncotermUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.IncotermUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IncotermPayload>
+          }
+          aggregate: {
+            args: Prisma.IncotermAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateIncoterm>
+          }
+          groupBy: {
+            args: Prisma.IncotermGroupByArgs<ExtArgs>
+            result: $Utils.Optional<IncotermGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.IncotermCountArgs<ExtArgs>
+            result: $Utils.Optional<IncotermCountAggregateOutputType> | number
           }
         }
       }
@@ -5459,6 +5545,896 @@ export namespace Prisma {
      * Select specific fields to fetch from the Unidade
      */
     select?: UnidadeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Incoterm
+   */
+
+  export type AggregateIncoterm = {
+    _count: IncotermCountAggregateOutputType | null
+    _min: IncotermMinAggregateOutputType | null
+    _max: IncotermMaxAggregateOutputType | null
+  }
+
+  export type IncotermMinAggregateOutputType = {
+    codigo_incoterm: string | null
+    nome_incoterm: string | null
+    descricao_incoterm: string | null
+    modal_transporte: string | null
+    versao_incoterm: string | null
+    ativo_incoterm: boolean | null
+  }
+
+  export type IncotermMaxAggregateOutputType = {
+    codigo_incoterm: string | null
+    nome_incoterm: string | null
+    descricao_incoterm: string | null
+    modal_transporte: string | null
+    versao_incoterm: string | null
+    ativo_incoterm: boolean | null
+  }
+
+  export type IncotermCountAggregateOutputType = {
+    codigo_incoterm: number
+    nome_incoterm: number
+    descricao_incoterm: number
+    modal_transporte: number
+    versao_incoterm: number
+    ativo_incoterm: number
+    _all: number
+  }
+
+
+  export type IncotermMinAggregateInputType = {
+    codigo_incoterm?: true
+    nome_incoterm?: true
+    descricao_incoterm?: true
+    modal_transporte?: true
+    versao_incoterm?: true
+    ativo_incoterm?: true
+  }
+
+  export type IncotermMaxAggregateInputType = {
+    codigo_incoterm?: true
+    nome_incoterm?: true
+    descricao_incoterm?: true
+    modal_transporte?: true
+    versao_incoterm?: true
+    ativo_incoterm?: true
+  }
+
+  export type IncotermCountAggregateInputType = {
+    codigo_incoterm?: true
+    nome_incoterm?: true
+    descricao_incoterm?: true
+    modal_transporte?: true
+    versao_incoterm?: true
+    ativo_incoterm?: true
+    _all?: true
+  }
+
+  export type IncotermAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Incoterm to aggregate.
+     */
+    where?: IncotermWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Incoterms to fetch.
+     */
+    orderBy?: IncotermOrderByWithRelationInput | IncotermOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: IncotermWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Incoterms from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Incoterms.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Incoterms
+    **/
+    _count?: true | IncotermCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: IncotermMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: IncotermMaxAggregateInputType
+  }
+
+  export type GetIncotermAggregateType<T extends IncotermAggregateArgs> = {
+        [P in keyof T & keyof AggregateIncoterm]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateIncoterm[P]>
+      : GetScalarType<T[P], AggregateIncoterm[P]>
+  }
+
+
+
+
+  export type IncotermGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IncotermWhereInput
+    orderBy?: IncotermOrderByWithAggregationInput | IncotermOrderByWithAggregationInput[]
+    by: IncotermScalarFieldEnum[] | IncotermScalarFieldEnum
+    having?: IncotermScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: IncotermCountAggregateInputType | true
+    _min?: IncotermMinAggregateInputType
+    _max?: IncotermMaxAggregateInputType
+  }
+
+  export type IncotermGroupByOutputType = {
+    codigo_incoterm: string
+    nome_incoterm: string
+    descricao_incoterm: string | null
+    modal_transporte: string
+    versao_incoterm: string
+    ativo_incoterm: boolean
+    _count: IncotermCountAggregateOutputType | null
+    _min: IncotermMinAggregateOutputType | null
+    _max: IncotermMaxAggregateOutputType | null
+  }
+
+  type GetIncotermGroupByPayload<T extends IncotermGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<IncotermGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof IncotermGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], IncotermGroupByOutputType[P]>
+            : GetScalarType<T[P], IncotermGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type IncotermSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_incoterm?: boolean
+    nome_incoterm?: boolean
+    descricao_incoterm?: boolean
+    modal_transporte?: boolean
+    versao_incoterm?: boolean
+    ativo_incoterm?: boolean
+  }, ExtArgs["result"]["incoterm"]>
+
+  export type IncotermSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_incoterm?: boolean
+    nome_incoterm?: boolean
+    descricao_incoterm?: boolean
+    modal_transporte?: boolean
+    versao_incoterm?: boolean
+    ativo_incoterm?: boolean
+  }, ExtArgs["result"]["incoterm"]>
+
+  export type IncotermSelectScalar = {
+    codigo_incoterm?: boolean
+    nome_incoterm?: boolean
+    descricao_incoterm?: boolean
+    modal_transporte?: boolean
+    versao_incoterm?: boolean
+    ativo_incoterm?: boolean
+  }
+
+
+  export type $IncotermPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Incoterm"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      codigo_incoterm: string
+      nome_incoterm: string
+      descricao_incoterm: string | null
+      modal_transporte: string
+      versao_incoterm: string
+      ativo_incoterm: boolean
+    }, ExtArgs["result"]["incoterm"]>
+    composites: {}
+  }
+
+  type IncotermGetPayload<S extends boolean | null | undefined | IncotermDefaultArgs> = $Result.GetResult<Prisma.$IncotermPayload, S>
+
+  type IncotermCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<IncotermFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: IncotermCountAggregateInputType | true
+    }
+
+  export interface IncotermDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Incoterm'], meta: { name: 'Incoterm' } }
+    /**
+     * Find zero or one Incoterm that matches the filter.
+     * @param {IncotermFindUniqueArgs} args - Arguments to find a Incoterm
+     * @example
+     * // Get one Incoterm
+     * const incoterm = await prisma.incoterm.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends IncotermFindUniqueArgs>(args: SelectSubset<T, IncotermFindUniqueArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Incoterm that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {IncotermFindUniqueOrThrowArgs} args - Arguments to find a Incoterm
+     * @example
+     * // Get one Incoterm
+     * const incoterm = await prisma.incoterm.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends IncotermFindUniqueOrThrowArgs>(args: SelectSubset<T, IncotermFindUniqueOrThrowArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Incoterm that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermFindFirstArgs} args - Arguments to find a Incoterm
+     * @example
+     * // Get one Incoterm
+     * const incoterm = await prisma.incoterm.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends IncotermFindFirstArgs>(args?: SelectSubset<T, IncotermFindFirstArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Incoterm that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermFindFirstOrThrowArgs} args - Arguments to find a Incoterm
+     * @example
+     * // Get one Incoterm
+     * const incoterm = await prisma.incoterm.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends IncotermFindFirstOrThrowArgs>(args?: SelectSubset<T, IncotermFindFirstOrThrowArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Incoterms that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Incoterms
+     * const incoterms = await prisma.incoterm.findMany()
+     * 
+     * // Get first 10 Incoterms
+     * const incoterms = await prisma.incoterm.findMany({ take: 10 })
+     * 
+     * // Only select the `codigo_incoterm`
+     * const incotermWithCodigo_incotermOnly = await prisma.incoterm.findMany({ select: { codigo_incoterm: true } })
+     * 
+     */
+    findMany<T extends IncotermFindManyArgs>(args?: SelectSubset<T, IncotermFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Incoterm.
+     * @param {IncotermCreateArgs} args - Arguments to create a Incoterm.
+     * @example
+     * // Create one Incoterm
+     * const Incoterm = await prisma.incoterm.create({
+     *   data: {
+     *     // ... data to create a Incoterm
+     *   }
+     * })
+     * 
+     */
+    create<T extends IncotermCreateArgs>(args: SelectSubset<T, IncotermCreateArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Incoterms.
+     * @param {IncotermCreateManyArgs} args - Arguments to create many Incoterms.
+     * @example
+     * // Create many Incoterms
+     * const incoterm = await prisma.incoterm.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends IncotermCreateManyArgs>(args?: SelectSubset<T, IncotermCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Incoterms and returns the data saved in the database.
+     * @param {IncotermCreateManyAndReturnArgs} args - Arguments to create many Incoterms.
+     * @example
+     * // Create many Incoterms
+     * const incoterm = await prisma.incoterm.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Incoterms and only return the `codigo_incoterm`
+     * const incotermWithCodigo_incotermOnly = await prisma.incoterm.createManyAndReturn({ 
+     *   select: { codigo_incoterm: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends IncotermCreateManyAndReturnArgs>(args?: SelectSubset<T, IncotermCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Incoterm.
+     * @param {IncotermDeleteArgs} args - Arguments to delete one Incoterm.
+     * @example
+     * // Delete one Incoterm
+     * const Incoterm = await prisma.incoterm.delete({
+     *   where: {
+     *     // ... filter to delete one Incoterm
+     *   }
+     * })
+     * 
+     */
+    delete<T extends IncotermDeleteArgs>(args: SelectSubset<T, IncotermDeleteArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Incoterm.
+     * @param {IncotermUpdateArgs} args - Arguments to update one Incoterm.
+     * @example
+     * // Update one Incoterm
+     * const incoterm = await prisma.incoterm.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends IncotermUpdateArgs>(args: SelectSubset<T, IncotermUpdateArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Incoterms.
+     * @param {IncotermDeleteManyArgs} args - Arguments to filter Incoterms to delete.
+     * @example
+     * // Delete a few Incoterms
+     * const { count } = await prisma.incoterm.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends IncotermDeleteManyArgs>(args?: SelectSubset<T, IncotermDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Incoterms.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Incoterms
+     * const incoterm = await prisma.incoterm.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends IncotermUpdateManyArgs>(args: SelectSubset<T, IncotermUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Incoterm.
+     * @param {IncotermUpsertArgs} args - Arguments to update or create a Incoterm.
+     * @example
+     * // Update or create a Incoterm
+     * const incoterm = await prisma.incoterm.upsert({
+     *   create: {
+     *     // ... data to create a Incoterm
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Incoterm we want to update
+     *   }
+     * })
+     */
+    upsert<T extends IncotermUpsertArgs>(args: SelectSubset<T, IncotermUpsertArgs<ExtArgs>>): Prisma__IncotermClient<$Result.GetResult<Prisma.$IncotermPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Incoterms.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermCountArgs} args - Arguments to filter Incoterms to count.
+     * @example
+     * // Count the number of Incoterms
+     * const count = await prisma.incoterm.count({
+     *   where: {
+     *     // ... the filter for the Incoterms we want to count
+     *   }
+     * })
+    **/
+    count<T extends IncotermCountArgs>(
+      args?: Subset<T, IncotermCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], IncotermCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Incoterm.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends IncotermAggregateArgs>(args: Subset<T, IncotermAggregateArgs>): Prisma.PrismaPromise<GetIncotermAggregateType<T>>
+
+    /**
+     * Group by Incoterm.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IncotermGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends IncotermGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: IncotermGroupByArgs['orderBy'] }
+        : { orderBy?: IncotermGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, IncotermGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetIncotermGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Incoterm model
+   */
+  readonly fields: IncotermFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Incoterm.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__IncotermClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Incoterm model
+   */ 
+  interface IncotermFieldRefs {
+    readonly codigo_incoterm: FieldRef<"Incoterm", 'String'>
+    readonly nome_incoterm: FieldRef<"Incoterm", 'String'>
+    readonly descricao_incoterm: FieldRef<"Incoterm", 'String'>
+    readonly modal_transporte: FieldRef<"Incoterm", 'String'>
+    readonly versao_incoterm: FieldRef<"Incoterm", 'String'>
+    readonly ativo_incoterm: FieldRef<"Incoterm", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Incoterm findUnique
+   */
+  export type IncotermFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter, which Incoterm to fetch.
+     */
+    where: IncotermWhereUniqueInput
+  }
+
+  /**
+   * Incoterm findUniqueOrThrow
+   */
+  export type IncotermFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter, which Incoterm to fetch.
+     */
+    where: IncotermWhereUniqueInput
+  }
+
+  /**
+   * Incoterm findFirst
+   */
+  export type IncotermFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter, which Incoterm to fetch.
+     */
+    where?: IncotermWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Incoterms to fetch.
+     */
+    orderBy?: IncotermOrderByWithRelationInput | IncotermOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Incoterms.
+     */
+    cursor?: IncotermWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Incoterms from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Incoterms.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Incoterms.
+     */
+    distinct?: IncotermScalarFieldEnum | IncotermScalarFieldEnum[]
+  }
+
+  /**
+   * Incoterm findFirstOrThrow
+   */
+  export type IncotermFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter, which Incoterm to fetch.
+     */
+    where?: IncotermWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Incoterms to fetch.
+     */
+    orderBy?: IncotermOrderByWithRelationInput | IncotermOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Incoterms.
+     */
+    cursor?: IncotermWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Incoterms from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Incoterms.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Incoterms.
+     */
+    distinct?: IncotermScalarFieldEnum | IncotermScalarFieldEnum[]
+  }
+
+  /**
+   * Incoterm findMany
+   */
+  export type IncotermFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter, which Incoterms to fetch.
+     */
+    where?: IncotermWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Incoterms to fetch.
+     */
+    orderBy?: IncotermOrderByWithRelationInput | IncotermOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Incoterms.
+     */
+    cursor?: IncotermWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Incoterms from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Incoterms.
+     */
+    skip?: number
+    distinct?: IncotermScalarFieldEnum | IncotermScalarFieldEnum[]
+  }
+
+  /**
+   * Incoterm create
+   */
+  export type IncotermCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Incoterm.
+     */
+    data: XOR<IncotermCreateInput, IncotermUncheckedCreateInput>
+  }
+
+  /**
+   * Incoterm createMany
+   */
+  export type IncotermCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Incoterms.
+     */
+    data: IncotermCreateManyInput | IncotermCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Incoterm createManyAndReturn
+   */
+  export type IncotermCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Incoterms.
+     */
+    data: IncotermCreateManyInput | IncotermCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Incoterm update
+   */
+  export type IncotermUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Incoterm.
+     */
+    data: XOR<IncotermUpdateInput, IncotermUncheckedUpdateInput>
+    /**
+     * Choose, which Incoterm to update.
+     */
+    where: IncotermWhereUniqueInput
+  }
+
+  /**
+   * Incoterm updateMany
+   */
+  export type IncotermUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Incoterms.
+     */
+    data: XOR<IncotermUpdateManyMutationInput, IncotermUncheckedUpdateManyInput>
+    /**
+     * Filter which Incoterms to update
+     */
+    where?: IncotermWhereInput
+  }
+
+  /**
+   * Incoterm upsert
+   */
+  export type IncotermUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Incoterm to update in case it exists.
+     */
+    where: IncotermWhereUniqueInput
+    /**
+     * In case the Incoterm found by the `where` argument doesn't exist, create a new Incoterm with this data.
+     */
+    create: XOR<IncotermCreateInput, IncotermUncheckedCreateInput>
+    /**
+     * In case the Incoterm was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<IncotermUpdateInput, IncotermUncheckedUpdateInput>
+  }
+
+  /**
+   * Incoterm delete
+   */
+  export type IncotermDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
+    /**
+     * Filter which Incoterm to delete.
+     */
+    where: IncotermWhereUniqueInput
+  }
+
+  /**
+   * Incoterm deleteMany
+   */
+  export type IncotermDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Incoterms to delete
+     */
+    where?: IncotermWhereInput
+  }
+
+  /**
+   * Incoterm without action
+   */
+  export type IncotermDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Incoterm
+     */
+    select?: IncotermSelect<ExtArgs> | null
   }
 
 
@@ -10434,6 +11410,18 @@ export namespace Prisma {
   export type UnidadeScalarFieldEnum = (typeof UnidadeScalarFieldEnum)[keyof typeof UnidadeScalarFieldEnum]
 
 
+  export const IncotermScalarFieldEnum: {
+    codigo_incoterm: 'codigo_incoterm',
+    nome_incoterm: 'nome_incoterm',
+    descricao_incoterm: 'descricao_incoterm',
+    modal_transporte: 'modal_transporte',
+    versao_incoterm: 'versao_incoterm',
+    ativo_incoterm: 'ativo_incoterm'
+  };
+
+  export type IncotermScalarFieldEnum = (typeof IncotermScalarFieldEnum)[keyof typeof IncotermScalarFieldEnum]
+
+
   export const NcmSyncScalarFieldEnum: {
     codigo_ncm_sync: 'codigo_ncm_sync',
     descricao_ncm_sync: 'descricao_ncm_sync',
@@ -11037,6 +12025,63 @@ export namespace Prisma {
     nome_unidade?: StringWithAggregatesFilter<"Unidade"> | string
     tipo_unidade?: StringWithAggregatesFilter<"Unidade"> | string
     ativo_unidade?: BoolWithAggregatesFilter<"Unidade"> | boolean
+  }
+
+  export type IncotermWhereInput = {
+    AND?: IncotermWhereInput | IncotermWhereInput[]
+    OR?: IncotermWhereInput[]
+    NOT?: IncotermWhereInput | IncotermWhereInput[]
+    codigo_incoterm?: StringFilter<"Incoterm"> | string
+    nome_incoterm?: StringFilter<"Incoterm"> | string
+    descricao_incoterm?: StringNullableFilter<"Incoterm"> | string | null
+    modal_transporte?: StringFilter<"Incoterm"> | string
+    versao_incoterm?: StringFilter<"Incoterm"> | string
+    ativo_incoterm?: BoolFilter<"Incoterm"> | boolean
+  }
+
+  export type IncotermOrderByWithRelationInput = {
+    codigo_incoterm?: SortOrder
+    nome_incoterm?: SortOrder
+    descricao_incoterm?: SortOrderInput | SortOrder
+    modal_transporte?: SortOrder
+    versao_incoterm?: SortOrder
+    ativo_incoterm?: SortOrder
+  }
+
+  export type IncotermWhereUniqueInput = Prisma.AtLeast<{
+    codigo_incoterm?: string
+    AND?: IncotermWhereInput | IncotermWhereInput[]
+    OR?: IncotermWhereInput[]
+    NOT?: IncotermWhereInput | IncotermWhereInput[]
+    nome_incoterm?: StringFilter<"Incoterm"> | string
+    descricao_incoterm?: StringNullableFilter<"Incoterm"> | string | null
+    modal_transporte?: StringFilter<"Incoterm"> | string
+    versao_incoterm?: StringFilter<"Incoterm"> | string
+    ativo_incoterm?: BoolFilter<"Incoterm"> | boolean
+  }, "codigo_incoterm">
+
+  export type IncotermOrderByWithAggregationInput = {
+    codigo_incoterm?: SortOrder
+    nome_incoterm?: SortOrder
+    descricao_incoterm?: SortOrderInput | SortOrder
+    modal_transporte?: SortOrder
+    versao_incoterm?: SortOrder
+    ativo_incoterm?: SortOrder
+    _count?: IncotermCountOrderByAggregateInput
+    _max?: IncotermMaxOrderByAggregateInput
+    _min?: IncotermMinOrderByAggregateInput
+  }
+
+  export type IncotermScalarWhereWithAggregatesInput = {
+    AND?: IncotermScalarWhereWithAggregatesInput | IncotermScalarWhereWithAggregatesInput[]
+    OR?: IncotermScalarWhereWithAggregatesInput[]
+    NOT?: IncotermScalarWhereWithAggregatesInput | IncotermScalarWhereWithAggregatesInput[]
+    codigo_incoterm?: StringWithAggregatesFilter<"Incoterm"> | string
+    nome_incoterm?: StringWithAggregatesFilter<"Incoterm"> | string
+    descricao_incoterm?: StringNullableWithAggregatesFilter<"Incoterm"> | string | null
+    modal_transporte?: StringWithAggregatesFilter<"Incoterm"> | string
+    versao_incoterm?: StringWithAggregatesFilter<"Incoterm"> | string
+    ativo_incoterm?: BoolWithAggregatesFilter<"Incoterm"> | boolean
   }
 
   export type NcmSyncWhereInput = {
@@ -11921,6 +12966,69 @@ export namespace Prisma {
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type IncotermCreateInput = {
+    codigo_incoterm: string
+    nome_incoterm: string
+    descricao_incoterm?: string | null
+    modal_transporte: string
+    versao_incoterm?: string
+    ativo_incoterm?: boolean
+  }
+
+  export type IncotermUncheckedCreateInput = {
+    codigo_incoterm: string
+    nome_incoterm: string
+    descricao_incoterm?: string | null
+    modal_transporte: string
+    versao_incoterm?: string
+    ativo_incoterm?: boolean
+  }
+
+  export type IncotermUpdateInput = {
+    codigo_incoterm?: StringFieldUpdateOperationsInput | string
+    nome_incoterm?: StringFieldUpdateOperationsInput | string
+    descricao_incoterm?: NullableStringFieldUpdateOperationsInput | string | null
+    modal_transporte?: StringFieldUpdateOperationsInput | string
+    versao_incoterm?: StringFieldUpdateOperationsInput | string
+    ativo_incoterm?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type IncotermUncheckedUpdateInput = {
+    codigo_incoterm?: StringFieldUpdateOperationsInput | string
+    nome_incoterm?: StringFieldUpdateOperationsInput | string
+    descricao_incoterm?: NullableStringFieldUpdateOperationsInput | string | null
+    modal_transporte?: StringFieldUpdateOperationsInput | string
+    versao_incoterm?: StringFieldUpdateOperationsInput | string
+    ativo_incoterm?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type IncotermCreateManyInput = {
+    codigo_incoterm: string
+    nome_incoterm: string
+    descricao_incoterm?: string | null
+    modal_transporte: string
+    versao_incoterm?: string
+    ativo_incoterm?: boolean
+  }
+
+  export type IncotermUpdateManyMutationInput = {
+    codigo_incoterm?: StringFieldUpdateOperationsInput | string
+    nome_incoterm?: StringFieldUpdateOperationsInput | string
+    descricao_incoterm?: NullableStringFieldUpdateOperationsInput | string | null
+    modal_transporte?: StringFieldUpdateOperationsInput | string
+    versao_incoterm?: StringFieldUpdateOperationsInput | string
+    ativo_incoterm?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type IncotermUncheckedUpdateManyInput = {
+    codigo_incoterm?: StringFieldUpdateOperationsInput | string
+    nome_incoterm?: StringFieldUpdateOperationsInput | string
+    descricao_incoterm?: NullableStringFieldUpdateOperationsInput | string | null
+    modal_transporte?: StringFieldUpdateOperationsInput | string
+    versao_incoterm?: StringFieldUpdateOperationsInput | string
+    ativo_incoterm?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type NcmSyncCreateInput = {
     codigo_ncm_sync: string
     descricao_ncm_sync: string
@@ -12751,6 +13859,33 @@ export namespace Prisma {
     ativo_unidade?: SortOrder
   }
 
+  export type IncotermCountOrderByAggregateInput = {
+    codigo_incoterm?: SortOrder
+    nome_incoterm?: SortOrder
+    descricao_incoterm?: SortOrder
+    modal_transporte?: SortOrder
+    versao_incoterm?: SortOrder
+    ativo_incoterm?: SortOrder
+  }
+
+  export type IncotermMaxOrderByAggregateInput = {
+    codigo_incoterm?: SortOrder
+    nome_incoterm?: SortOrder
+    descricao_incoterm?: SortOrder
+    modal_transporte?: SortOrder
+    versao_incoterm?: SortOrder
+    ativo_incoterm?: SortOrder
+  }
+
+  export type IncotermMinOrderByAggregateInput = {
+    codigo_incoterm?: SortOrder
+    nome_incoterm?: SortOrder
+    descricao_incoterm?: SortOrder
+    modal_transporte?: SortOrder
+    versao_incoterm?: SortOrder
+    ativo_incoterm?: SortOrder
+  }
+
   export type FloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -13479,6 +14614,10 @@ export namespace Prisma {
      * @deprecated Use UnidadeDefaultArgs instead
      */
     export type UnidadeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UnidadeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use IncotermDefaultArgs instead
+     */
+    export type IncotermArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = IncotermDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NcmSyncDefaultArgs instead
      */

@@ -18,6 +18,10 @@ export {
   buildAcessoUsuarioProdutosGravityString,
   ehPermissaoAcessoUsuarioProdutoGravity,
   extrairSlugDaPermissao,
+  DEFAULTS_GRANULARES_POR_PRODUTO,
+  chavesDefaultGranulares,
   type SecaoProduto,
   type AcaoProduto,
+  type TipoUsuarioComGranular,
+  type PermissaoGranular,
 } from './permissoes-canonicas.js'

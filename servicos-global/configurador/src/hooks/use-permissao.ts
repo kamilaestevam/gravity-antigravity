@@ -46,8 +46,8 @@ export function usePermissao(
   secao: string,
   acao: 'ver' | 'editar',
 ): UsePermissaoResult {
-  const { isLoaded, isSignedIn, getToken, userId } = useAuth()
-  const { tipoUsuario: role, pronto: roleReady } = useCarregarTipoUsuario()
+  const { isLoaded, isSignedIn, getToken } = useAuth()
+  const { tipoUsuario: role, pronto: roleReady, idUsuarioPrisma } = useCarregarTipoUsuario()
 
   const [permitido, setPermitido] = useState(false)
   const [isReady, setIsReady] = useState(false)
@@ -55,7 +55,10 @@ export function usePermissao(
   const fetchingRef = useRef(false)
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !userId || !roleReady) {
+    // idUsuarioPrisma (CUID Prisma) e necessario pra montar URL self-read.
+    // Antes (bug) usava `userId` do Clerk, que era `user_xxx` em vez de `cmxxx`,
+    // causando 404 silencioso. Fix 2026-05-13.
+    if (!isLoaded || !isSignedIn || !idUsuarioPrisma || !roleReady) {
       setIsReady(false)
       return
     }
@@ -71,8 +74,8 @@ export function usePermissao(
     // 2. Granular — busca permissões do usuário (cacheado por sessão)
     const chaveAlvo = `${slug_produto}:${secao}:${acao}`
 
-    if (permissoesCache.has(userId)) {
-      const set = permissoesCache.get(userId)!
+    if (permissoesCache.has(idUsuarioPrisma)) {
+      const set = permissoesCache.get(idUsuarioPrisma)!
       setPermitido(set.has(chaveAlvo))
       setIsReady(true)
       setErro(null)
@@ -89,7 +92,7 @@ export function usePermissao(
           setErro('Sem token de autenticação')
           return
         }
-        const resp = await fetch(`/api/v1/usuarios/${userId}/permissoes`, {
+        const resp = await fetch(`/api/v1/usuarios/${idUsuarioPrisma}/permissoes`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!resp.ok) {
@@ -106,7 +109,7 @@ export function usePermissao(
           ? data.permissoes.map((p: { permissao_usuario: string }) => p.permissao_usuario)
           : []
         const set = new Set(lista)
-        permissoesCache.set(userId, set)
+        permissoesCache.set(idUsuarioPrisma, set)
         setPermitido(set.has(chaveAlvo))
         setIsReady(true)
         setErro(null)
@@ -121,7 +124,7 @@ export function usePermissao(
       .finally(() => {
         fetchingRef.current = false
       })
-  }, [isLoaded, isSignedIn, userId, roleReady, role, slug_produto, secao, acao])
+  }, [isLoaded, isSignedIn, idUsuarioPrisma, roleReady, role, slug_produto, secao, acao, getToken])
 
   return { permitido, isReady, erro }
 }

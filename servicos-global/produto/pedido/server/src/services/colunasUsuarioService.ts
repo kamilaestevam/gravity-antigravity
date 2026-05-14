@@ -250,42 +250,50 @@ export class ColunasUsuarioService {
   async reordenar(tenantId: string, ids: string[], db: Record<string, unknown>) {
     const prisma = db as any
 
-    await prisma.$transaction(
-      ids.map((id, idx) =>
-        prisma.pedidoListaColunaUsuario.updateMany({
-          where: { id_coluna_usuario_pedido: id, id_organizacao: tenantId },
-          data: { ordem_coluna_usuario_pedido: idx + 1 },
-        }),
-      ),
-    )
+    // Mesmo bug do salvarValores: `db` recebido já é TransactionClient (sem `.$transaction`).
+    // Rodar updates sequencialmente dentro da transação que `withOrganizacao` abriu.
+    for (let idx = 0; idx < ids.length; idx++) {
+      await prisma.pedidoListaColunaUsuario.updateMany({
+        where: { id_coluna_usuario_pedido: ids[idx], id_organizacao: tenantId },
+        data: { ordem_coluna_usuario_pedido: idx + 1 },
+      })
+    }
   }
 
-  // ── Salvar valores (upsert) ─────────────────────────────���────────────────────
+  // ── Salvar valores (upsert) ────────────────────────────────────────────────
+  //
+  // BUG fix 2026-05-13: a versão anterior chamava `prisma.$transaction(...)` no
+  // `db` recebido. Mas o caller (`POST /colunas-usuario/valores`) embrulha em
+  // `withOrganizacao(req, async (rawDb) => { await service.salvarValores(..., db) })`,
+  // e o `rawDb` JÁ É um TransactionClient — TransactionClient não tem `.$transaction`.
+  // Resultado: TODA tentativa de save lançava "prisma.$transaction is not a function"
+  // → 500 silencioso (frontend mostrava sucesso por update local, mas o banco
+  // nunca recebia nada — daí "salva e some no reload" no pedido e "nem
+  // momentaneamente" no item). Agora rodamos os upserts sequencialmente DENTRO
+  // da transação que `withOrganizacao` já abriu — mesma garantia atômica.
 
   async salvarValores(tenantId: string, input: SalvarValoresInput, db: Record<string, unknown>) {
     const prisma = db as any
 
-    await prisma.$transaction(
-      Object.entries(input.valores).map(([coluna_id, valor]) =>
-        prisma.pedidoListaColunaUsuarioValor.upsert({
-          where: {
-            id_organizacao_id_coluna_usuario_pedido_id_vinculo_valor_coluna_usuario_pedido: {
-              id_organizacao:                         tenantId,
-              id_coluna_usuario_pedido:               coluna_id,
-              id_vinculo_valor_coluna_usuario_pedido: input.vinculo_id,
-            },
-          },
-          create: {
+    for (const [coluna_id, valor] of Object.entries(input.valores)) {
+      await prisma.pedidoListaColunaUsuarioValor.upsert({
+        where: {
+          id_organizacao_id_coluna_usuario_pedido_id_vinculo_valor_coluna_usuario_pedido: {
             id_organizacao:                         tenantId,
             id_coluna_usuario_pedido:               coluna_id,
-            vinculo_valor_coluna_usuario_pedido:    input.vinculo,
             id_vinculo_valor_coluna_usuario_pedido: input.vinculo_id,
-            valor_coluna_usuario_pedido:            valor,
           },
-          update: { valor_coluna_usuario_pedido: valor },
-        }),
-      ),
-    )
+        },
+        create: {
+          id_organizacao:                         tenantId,
+          id_coluna_usuario_pedido:               coluna_id,
+          vinculo_valor_coluna_usuario_pedido:    input.vinculo,
+          id_vinculo_valor_coluna_usuario_pedido: input.vinculo_id,
+          valor_coluna_usuario_pedido:            valor,
+        },
+        update: { valor_coluna_usuario_pedido: valor },
+      })
+    }
   }
 
   // ── Listar valores ──────────────��──────────────────────────────���─────────────

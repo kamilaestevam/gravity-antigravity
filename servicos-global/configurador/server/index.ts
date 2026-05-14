@@ -35,6 +35,7 @@ import { usersRouter } from './routes/usuario.js'
 import { billingRouter } from './routes/fatura-produto-gravity.js'
 import { accessRouter } from './routes/acesso.js'
 import { workspacesHabilitadosInternalRouter } from './routes/workspaces-habilitados-internal.js'
+import { permissoesVerificarInternalRouter } from './routes/permissoes-verificar-internal.js'
 import { adminRouter } from './routes/admin.js'
 import { productsRouter } from './routes/produto-gravity.js'
 import { assinaturaProdutoGravityRouter } from './routes/assinatura-produto-gravity.js'
@@ -169,6 +170,7 @@ app.use('/api/v1/tokens-servico', serviceTokenRouter)
 app.use('/api/v1/internal', accessRouter)
 app.use('/api/v1/internal', serviceTokenRouter)
 app.use('/api/v1/internal/usuarios', workspacesHabilitadosInternalRouter)
+app.use('/api/v1/internal/permissoes', permissoesVerificarInternalRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 

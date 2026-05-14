@@ -20,8 +20,14 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { DuplicarService, AppError } from '../services/duplicarExcluirService.js'
+import { exigirPermissao } from '../permissoes.js'
 
 export const duplicacoesPedidoRouter = Router()
+
+// Cadeia 2 granular: todas as rotas são POST (duplicar pedido / item).
+// Exigem `pedido:lista:editar`. Decisão Líder Técnico 2026-05-13 — gating no
+// router (não no index.ts) evita bug de middleware chain do Express.
+duplicacoesPedidoRouter.use(exigirPermissao('lista', 'editar'))
 
 const duplicarService = new DuplicarService()
 

@@ -28,9 +28,14 @@
 //   'SISTEMA_AUTO_SYNC_PORTAO_3' (rastreável, distinguível do backfill α).
 
 import { prisma } from '../lib/prisma.js'
-import { buildAcessoUsuarioProdutosGravityString } from '../../shared/index.js'
+import {
+  buildAcessoUsuarioProdutosGravityString,
+  chavesDefaultGranulares,
+} from '../../shared/index.js'
 
 const ATOR_AUTO_SYNC = 'SISTEMA_AUTO_SYNC_PORTAO_3'
+/** Ator do seed de granulares default — distinguir do Portão 3 e do backfill. */
+const ATOR_DEFAULTS_GRANULARES = 'SISTEMA_DEFAULTS_GRANULARES_VINCULO'
 
 /** Tipos que ganham linhas Portão 3 (Master/SAdmin/Admin têm bypass). */
 const TIPOS_QUE_RECEBEM_PORTAO_3 = ['PADRAO', 'FORNECEDOR'] as const
@@ -52,7 +57,8 @@ export async function aoHabilitarProdutoNoWorkspace(args: {
   const { id_organizacao, id_workspace, id_produto_gravity, slug_produto } = args
 
   try {
-    // Standards/Fornecedores ativos no workspace
+    // Standards/Fornecedores ativos no workspace — pega tambem tipo_usuario
+    // pra resolver defaults granulares por tipo na mesma passada.
     const memberships = await prisma.usuarioWorkspace.findMany({
       where: {
         id_organizacao,
@@ -60,25 +66,53 @@ export async function aoHabilitarProdutoNoWorkspace(args: {
         ativo_usuario_workspace: true,
         user: { tipo_usuario: { in: [...TIPOS_QUE_RECEBEM_PORTAO_3] } },
       },
-      select: { id_usuario: true },
+      select: { id_usuario: true, user: { select: { tipo_usuario: true } } },
     })
 
     if (memberships.length === 0) return { linhasCriadas: 0, usuariosAfetados: 0 }
 
-    const chave = buildAcessoUsuarioProdutosGravityString(slug_produto)
-    const result = await prisma.usuarioPermissao.createMany({
+    // (1) Portão 3 — chave de acesso ao produto.
+    const chavePortao3 = buildAcessoUsuarioProdutosGravityString(slug_produto)
+    const resultPortao3 = await prisma.usuarioPermissao.createMany({
       data: memberships.map((m) => ({
         id_organizacao,
         id_workspace,
         id_usuario: m.id_usuario,
         id_produto_gravity,
-        permissao_usuario: chave,
+        permissao_usuario: chavePortao3,
         permissao_usuario_concedido_por: ATOR_AUTO_SYNC,
       })),
       skipDuplicates: true,
     })
 
-    return { linhasCriadas: result.count, usuariosAfetados: memberships.length }
+    // (2) Defaults granulares — paridade com aoVincularUsuarioAoWorkspace.
+    // REGRA 2026-05-13: produto novo no ws => Padrao/Fornecedor ja existentes
+    // ganham defaults granulares conforme tabela DEFAULTS_GRANULARES_POR_PRODUTO.
+    const dadosGranulares = memberships.flatMap((m) => {
+      const chaves = chavesDefaultGranulares(slug_produto, m.user.tipo_usuario)
+      return chaves.map((chave) => ({
+        id_organizacao,
+        id_workspace,
+        id_usuario: m.id_usuario,
+        id_produto_gravity,
+        permissao_usuario: chave,
+        permissao_usuario_concedido_por: ATOR_DEFAULTS_GRANULARES,
+      }))
+    })
+
+    let granularesCriadas = 0
+    if (dadosGranulares.length > 0) {
+      const resultGranulares = await prisma.usuarioPermissao.createMany({
+        data: dadosGranulares,
+        skipDuplicates: true,
+      })
+      granularesCriadas = resultGranulares.count
+    }
+
+    return {
+      linhasCriadas: resultPortao3.count + granularesCriadas,
+      usuariosAfetados: memberships.length,
+    }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -171,7 +205,8 @@ export async function aoVincularUsuarioAoWorkspace(args: {
 
     if (produtosDoWs.length === 0) return { linhasCriadas: 0, produtosVinculados: 0 }
 
-    const result = await prisma.usuarioPermissao.createMany({
+    // (1) Portão 3 — chave de acesso ao produto (idempotente).
+    const resultPortao3 = await prisma.usuarioPermissao.createMany({
       data: produtosDoWs.map((p) => ({
         id_organizacao,
         id_workspace,
@@ -183,7 +218,37 @@ export async function aoVincularUsuarioAoWorkspace(args: {
       skipDuplicates: true,
     })
 
-    return { linhasCriadas: result.count, produtosVinculados: produtosDoWs.length }
+    // (2) Defaults granulares por (slug × tipo_usuario) — REGRA 2026-05-13.
+    // Aplica APENAS aos produtos que tem entrada em DEFAULTS_GRANULARES_POR_PRODUTO
+    // (chavesDefaultGranulares retorna [] caso contrário). Idempotente
+    // via skipDuplicates + UNIQUE index (org, ws, user, produto, permissao).
+    //
+    // Master pode refinar via modal Editar Usuário > Permissões depois.
+    const dadosGranulares = produtosDoWs.flatMap((p) => {
+      const chaves = chavesDefaultGranulares(p.produto.slug_produto_gravity, usuario.tipo_usuario)
+      return chaves.map((chave) => ({
+        id_organizacao,
+        id_workspace,
+        id_usuario,
+        id_produto_gravity: p.id_produto_gravity,
+        permissao_usuario: chave,
+        permissao_usuario_concedido_por: ATOR_DEFAULTS_GRANULARES,
+      }))
+    })
+
+    let granularesCriadas = 0
+    if (dadosGranulares.length > 0) {
+      const resultGranulares = await prisma.usuarioPermissao.createMany({
+        data: dadosGranulares,
+        skipDuplicates: true,
+      })
+      granularesCriadas = resultGranulares.count
+    }
+
+    return {
+      linhasCriadas: resultPortao3.count + granularesCriadas,
+      produtosVinculados: produtosDoWs.length,
+    }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(

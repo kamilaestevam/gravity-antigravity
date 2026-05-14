@@ -241,20 +241,11 @@ export function opcoesSsotDeCampo(campo: string): Array<{ valor: string; rotulo:
   return meta.opcoesSelect.map(v => ({ valor: v, rotulo: v }))
 }
 
-/**
- * Opcoes de Moeda — usadas para todos os campos `kind === 'moeda_codigo'`.
- * Lista alinhada com ModalPedidoNovo.OPCOES_MOEDA_ITEM (mesma fonte de UX).
- */
-export const OPCOES_MOEDA_PEDIDO: Array<{ valor: string; rotulo: string }> = [
-  { valor: 'USD', rotulo: 'USD' },
-  { valor: 'EUR', rotulo: 'EUR' },
-  { valor: 'BRL', rotulo: 'BRL' },
-  { valor: 'CNY', rotulo: 'CNY' },
-  { valor: 'GBP', rotulo: 'GBP' },
-  { valor: 'JPY', rotulo: 'JPY' },
-  { valor: 'CHF', rotulo: 'CHF' },
-  { valor: 'CAD', rotulo: 'CAD' },
-]
+// OPCOES_MOEDA_PEDIDO removido em 2026-05-13 (Q6) — SSOT migrada para
+// cadastros.moeda. Consumidores devem usar useMoedasPedido() do
+// pedido/client/src/shared/useMoedasPedido.ts. Para contextos onde o hook
+// nao e' possivel (modulo top-level, scripts de teste/seed), buscar na
+// API REST GET /api/v1/cadastros/moedas.
 
 // OPCOES_INCOTERM_PEDIDO removido em 2026-05-13 — SSOT migrada para
 // cadastros.incoterm. Consumidores devem usar useIncotermsPedido() do

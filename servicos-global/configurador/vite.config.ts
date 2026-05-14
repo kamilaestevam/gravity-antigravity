@@ -66,7 +66,7 @@ export default defineConfig({
   server: {
     port: 8000,
     fs: {
-      allow: ['../..'],
+      allow: [monorepoRoot],
     },
     proxy: {
       '/api/v1/gabi': {

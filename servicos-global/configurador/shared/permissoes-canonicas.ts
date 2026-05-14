@@ -90,6 +90,81 @@ export function buildPermissaoString(
   return `${slug}:${secao}:${acao}`
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// REGRA — Defaults granulares por (produto × tipo_usuario)
+//
+// Aplicados automaticamente quando um Standard/Fornecedor é vinculado a um
+// workspace que tem o produto contratado (Portão 1 + Portão 2 satisfeitos).
+//
+// Decisão dono 2026-05-13:
+//   - PADRAO (operador interno):
+//       opera Lista + Kanban (ver+editar)
+//       vê Dashboard + Configurações + Histórico
+//   - FORNECEDOR (externo, escopo restrito):
+//       só consulta Lista + Dashboard + Histórico (read-only)
+//
+// Master pode refinar via modal Editar Usuário > Permissões depois do convite.
+// Master/SAdmin/Admin não passam por aqui (bypass natural — Mand. 04 LIMBO).
+//
+// Convenção: produto AUSENTE deste mapa = sem defaults granulares (só Portão 3).
+// Adicionar entrada conforme cada produto for "ligando" permissões granulares
+// na UI (vide PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Tipo de usuário que recebe defaults granulares (Master/SAdmin/Admin = bypass). */
+export type TipoUsuarioComGranular = 'PADRAO' | 'FORNECEDOR'
+
+/** Par (secao, acao) — usado nas tabelas de defaults pra evitar strings soltas. */
+export interface PermissaoGranular {
+  secao: SecaoProduto
+  acao: AcaoProduto
+}
+
+export const DEFAULTS_GRANULARES_POR_PRODUTO: Record<
+  string,
+  Record<TipoUsuarioComGranular, ReadonlyArray<PermissaoGranular>>
+> = {
+  pedido: {
+    PADRAO: [
+      { secao: 'dashboard',    acao: 'ver' },
+      { secao: 'lista',        acao: 'ver' },
+      { secao: 'lista',        acao: 'editar' },
+      { secao: 'kanban',       acao: 'ver' },
+      { secao: 'kanban',       acao: 'editar' },
+      { secao: 'configuracao', acao: 'ver' },
+      { secao: 'historico',    acao: 'ver' },
+    ],
+    FORNECEDOR: [
+      { secao: 'dashboard', acao: 'ver' },
+      { secao: 'lista',     acao: 'ver' },
+      { secao: 'historico', acao: 'ver' },
+    ],
+  },
+}
+
+/**
+ * Retorna as chaves canônicas que devem ser inseridas em UsuarioPermissao
+ * quando o usuário do tipo X é vinculado ao workspace que tem o produto Y.
+ *
+ * Inclui APENAS as chaves granulares — o Portão 3
+ * (`<slug>:acesso_usuario_produtos_gravity:permitido`) é responsabilidade
+ * separada do auto-sync do Portão 3 (sincronizar-acesso-usuario-produtos-service).
+ *
+ * Retorna [] quando:
+ *   - O produto não está em DEFAULTS_GRANULARES_POR_PRODUTO (sem regra granular)
+ *   - O tipo_usuario não está no mapa (Master/SAdmin/Admin)
+ */
+export function chavesDefaultGranulares(
+  slug: string,
+  tipo_usuario: string,
+): string[] {
+  const porProduto = DEFAULTS_GRANULARES_POR_PRODUTO[slug]
+  if (!porProduto) return []
+  if (tipo_usuario !== 'PADRAO' && tipo_usuario !== 'FORNECEDOR') return []
+  const pares = porProduto[tipo_usuario]
+  return pares.map(p => buildPermissaoString(slug, p.secao, p.acao))
+}
+
 /**
  * Parseia uma string canônica granular `<slug>:<secao>:<acao>`.
  * Retorna null se inválida OU se for chave de Portão 3 (acesso ao produto).

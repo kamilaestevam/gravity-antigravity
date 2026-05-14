@@ -950,7 +950,16 @@ export const smartImportApi = {
       const raw = await res.json()
       return smartImportPreviewSchema.parse(raw) as SmartImportPreview
     }).catch(err => {
-      if (import.meta.env.DEV) return mockSmartImportAnalisar(arquivo.name)
+      // Q5 — Antes: `if (DEV) return mockSmartImportAnalisar(...)` engolia QUALQUER erro
+      // (incluindo 500 do servidor) e retornava mock fake. Resultado: UI mostrava
+      // "sucesso" com dados ficticios e o desenvolvedor ficava cego ao bug real.
+      // Agora: so' usa mock se o servidor estiver UNREACHABLE (TypeError de fetch),
+      // nunca para HTTP errors (500/400/etc). Erros HTTP sao propagados para a UI.
+      const ehNetworkError = err instanceof TypeError && /fetch|network/i.test(err.message)
+      if (import.meta.env.DEV && ehNetworkError) {
+        console.warn('[smartImportApi.analisar] servidor offline, usando mock DEV:', err.message)
+        return mockSmartImportAnalisar(arquivo.name)
+      }
       throw err
     })
   },
@@ -961,7 +970,16 @@ export const smartImportApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
-      if (import.meta.env.DEV) return mockSmartImportConfirmar(payload)
+      // Q5 — Mesmo fix do `analisar` acima. Mock so' substitui em network error
+      // (servidor offline), nao em erros HTTP do servidor. Antes: UI fake "1 CRIADO"
+      // com IDs ficticios `pedi_imp_<timestamp>_*` que NAO existiam no banco —
+      // por isso voce via "sucesso" mas o pedido nao aparecia na lista.
+      const ehNetworkError = err instanceof TypeError && /fetch|network/i.test(err.message)
+      if (import.meta.env.DEV && ehNetworkError) {
+        console.warn('[smartImportApi.confirmar] servidor offline, usando mock DEV:', err.message)
+        return mockSmartImportConfirmar(payload)
+      }
+      console.error('[smartImportApi.confirmar] erro real do servidor:', err)
       throw err
     }),
 

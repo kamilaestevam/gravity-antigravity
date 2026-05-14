@@ -302,6 +302,68 @@ export const securityAudit = {
   },
 
   /**
+   * Negação de acesso por falta de permissão granular `<slug>:<secao>:<acao>`.
+   *
+   * Emitida pelo middleware `requirePermissao` no backend quando bloqueia
+   * uma request HTTP por falta da chave em `UsuarioPermissao` (e o ator
+   * NÃO tem bypass — Master/SAdmin/Admin nunca disparam).
+   *
+   * Distinto de `crossTenantAttempt`:
+   *   - `crossTenantAttempt`: ator tentou acessar OUTRA org (isolamento).
+   *   - `permissionDenied`:   ator dentro da própria org, sem chave granular.
+   *
+   * Severidade `WARNING` (não CRITICAL): é fluxo normal de gating, não
+   * tentativa de escalada. CRITICAL fica reservado para crossTenantAttempt
+   * e roleChanged (mudança de patente).
+   *
+   * Payload em DDD canônico (Mand. 03 — PT-BR + sufixo _alvo nos campos do
+   * recurso afetado). Decisão dono 2026-05-13.
+   */
+  permissionDenied(
+    id_organizacao: string,
+    id_usuario_ator: string,
+    details: {
+      /** Geralmente == id_usuario_ator (auto-negação). Mantido por simetria com
+       *  outras funções e para casos S2S onde ator e alvo divergem. */
+      id_usuario_alvo:         string
+      slug_produto_gravity:    string  // 'pedido', 'bid-cambio', etc.
+      secao_produto:           string  // 'lista', 'kanban', 'dashboard', ...
+      acao_produto:            'ver' | 'editar'
+      rota_negada:             string  // '/api/v1/pedidos/kanban/preferencias'
+      metodo_http:             string  // 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+    },
+    nome_usuario?: string,
+    ip_ator_historico_log?: string,
+  ) {
+    const chave = `${details.slug_produto_gravity}:${details.secao_produto}:${details.acao_produto}`
+    return logSecurityEvent({
+      id_organizacao,
+      id_ator_historico_log:          id_usuario_ator,
+      nome_ator_historico_log:        nome_usuario,
+      tipo_ator_historico_log:        AcaoExecutadaPor.USUARIO,
+      acao_historico_log:             'NEGAR_ACESSO_PERMISSAO',
+      modulo_historico_log:           details.slug_produto_gravity,
+      tipo_recurso_historico_log:     'Permissao',
+      id_recurso_historico_log:       chave,
+      id_usuario:                     details.id_usuario_alvo,
+      id_produto_historico_log:       details.slug_produto_gravity,
+      ip_ator_historico_log,
+      detalhe_acao_historico_log:
+        `Negado acesso a "${chave}" em ${details.metodo_http} ${details.rota_negada}`,
+      status_historico_log:           EventoStatus.FALHA,
+      severidade_evento_seguranca:    'WARNING',
+      metadata_ator_historico_log:    {
+        slug_produto_gravity: details.slug_produto_gravity,
+        secao_produto:        details.secao_produto,
+        acao_produto:         details.acao_produto,
+        chave_permissao:      chave,
+        rota_negada:          details.rota_negada,
+        metodo_http:          details.metodo_http,
+      },
+    })
+  },
+
+  /**
    * Tentativa REAL de acesso a outra organização (cross-tenant).
    * Status sempre FALHA — só é logado quando a tentativa foi bloqueada.
    */

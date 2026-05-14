@@ -12,6 +12,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
+import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import {
   Package,
   FloppyDisk,
@@ -116,6 +117,12 @@ export default function PedidoFormulario() {
   const { id_pedido } = useParams<{ id_pedido: string }>()
   const navigate = useNavigate()
   const modoEdicao = Boolean(id_pedido)
+  // Gating `pedido:lista:editar` (decisao dono + Líder + Coordenador 2026-05-13).
+  // `podeEditar` é ESTRITO durante load — botão Salvar fica disabled até dados
+  // confirmados. Evita flash de affordance que dispararia 403. Backend POST/PUT
+  // /pedidos retornam 403 em caso real.
+  const { podeEditar } = usePermissoesPedido()
+  const podeEditarLista = podeEditar('lista')
 
   const [form, setForm] = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens] = useState<ItemForm[]>([ITEM_VAZIO()])
@@ -229,7 +236,8 @@ export default function PedidoFormulario() {
             variante="primario"
             icone={<FloppyDisk size={16} />}
             onClick={handleSalvar}
-            disabled={salvando}
+            disabled={salvando || !podeEditarLista}
+            title={podeEditarLista ? undefined : 'Sem permissão para salvar pedido'}
           >
             {salvando ? t('comum.salvando', 'Salvando...') : t('comum.salvar', 'Salvar')}
           </BotaoGlobal>

@@ -14,6 +14,7 @@ import { z } from 'zod'
 import { requireAuth, invalidarCacheRequireAuth } from '../middleware/requireAuth.js'
 import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { requireUserManagementRole } from '../middleware/requireUserManagementRole.js'
+import { requireSelfOrUserManagementRole } from '../middleware/requireSelfOrUserManagementRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
@@ -21,6 +22,7 @@ import { securityAudit } from '../../../servicos-plataforma/historico-global/ser
 import {
   servicoPermissaoUsuario,
   permissaoStringSchema,
+  setPermissoesUsuarioInputSchema,
   PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS,
   ehPermissaoAcessoUsuarioProdutoGravity,
 } from '../services/permissao-usuario-servico.js'
@@ -938,15 +940,9 @@ usersRouter.patch('/:id_usuario/status', requireUserManagementRole, async (req, 
 
 // ─── Permissões granulares (formato canônico <slug>:<secao>:<acao>) ──────────
 
-export const SetPermissoesUsuarioSchema = z.object({
-  id_workspace: z.string().cuid(),
-  id_produto_gravity: z.string().cuid(),
-  permissoes: z
-    .array(permissaoStringSchema)
-    .refine((arr) => new Set(arr).size === arr.length, {
-      message: 'Permissões duplicadas não são permitidas',
-    }),
-})
+// Re-export: schema centralizado em permissao-usuario-servico (SSOT — Mand. 09).
+// Inclui dedupe + validacao "editar implica ver" (2026-05-13).
+export const SetPermissoesUsuarioSchema = setPermissoesUsuarioInputSchema
 
 export const permissaoUsuarioItemSchema = z.object({
   id_organizacao: z.string(),
@@ -969,24 +965,32 @@ export const permissoesResponseSchema = z.object({
  * Autorização: SUPER_ADMIN (escopo global), ADMIN/MASTER (mesma id_organizacao do alvo).
  * STANDARD/FORNECEDOR não acessam — bloqueado por requireUserManagementRole.
  */
-usersRouter.get('/:id_usuario/permissoes', requireUserManagementRole, async (req, res, next) => {
+usersRouter.get('/:id_usuario/permissoes', requireSelfOrUserManagementRole, async (req, res, next) => {
   try {
     const id_usuario = req.params.id_usuario
     const id_workspace = typeof req.query.id_workspace === 'string' ? req.query.id_workspace : undefined
 
-    // SUPER_ADMIN/ADMIN têm escopo global (admin panel cross-org); MASTER limita
-    // à própria organização. Decisão dono 2026-05-12 — paridade com GET produtos-gravity.
+    // 3 caminhos de leitura (decisão dono 2026-05-13):
+    // 1) Self-read: ator lê as próprias permissões (qualquer tipo, incluindo
+    //    STANDARD/FORNECEDOR). Middleware requireSelfOrUserManagementRole já
+    //    deixou passar. Resolvemos a org pelo próprio req.auth (sem query).
+    // 2) SUPER_ADMIN/ADMIN: leitura cross-org (admin panel global).
+    // 3) MASTER: leitura intra-org (limita à própria id_organizacao).
+    const ehSelfRead = id_usuario === req.auth.id_usuario
     const ehAdminGlobal =
       req.auth.tipo_usuario === 'SUPER_ADMIN' || req.auth.tipo_usuario === 'ADMIN'
-    const alvo = ehAdminGlobal
-      ? await prisma.usuario.findFirst({
-          where: { id_usuario },
-          select: { id_organizacao: true },
-        })
-      : await prisma.usuario.findFirst({
-          where: { id_usuario, id_organizacao: req.auth.id_organizacao },
-          select: { id_organizacao: true },
-        })
+
+    const alvo = ehSelfRead
+      ? { id_organizacao: req.auth.id_organizacao }
+      : ehAdminGlobal
+        ? await prisma.usuario.findFirst({
+            where: { id_usuario },
+            select: { id_organizacao: true },
+          })
+        : await prisma.usuario.findFirst({
+            where: { id_usuario, id_organizacao: req.auth.id_organizacao },
+            select: { id_organizacao: true },
+          })
 
     if (!alvo) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
 

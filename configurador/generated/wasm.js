@@ -146,6 +146,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   email_usuario: 'email_usuario',
   nome_usuario: 'nome_usuario',
   tipo_usuario: 'tipo_usuario',
+  status_usuario: 'status_usuario',
   id_workspace_preferido_usuario: 'id_workspace_preferido_usuario',
   acesso_workspaces_futuros: 'acesso_workspaces_futuros',
   data_criacao_usuario: 'data_criacao_usuario',
@@ -591,6 +592,11 @@ exports.UsuarioTipo = exports.$Enums.UsuarioTipo = {
   MASTER: 'MASTER',
   PADRAO: 'PADRAO',
   FORNECEDOR: 'FORNECEDOR'
+};
+
+exports.StatusUsuario = exports.$Enums.StatusUsuario = {
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO'
 };
 
 exports.StatusAssinaturaProdutoGravity = exports.$Enums.StatusAssinaturaProdutoGravity = {

@@ -66,6 +66,7 @@ import type {
 } from '../shared/types'
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
+import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import './Configuracoes.css'
 
@@ -729,6 +730,11 @@ function ToggleRow({
 export default function Configuracoes() {
   const { t } = useTranslation()
   const addNotification = useShellStore(s => s.addNotification)
+  // Gating `pedido:configuracao:editar` (decisão dono + Líder + Coordenador 2026-05-13).
+  // `podeEditar` é ESTRITO durante load — evita flash de campos editáveis em
+  // estado intermediário. Backend rejeita 403 nos PUT/POST de config.
+  const { podeEditar } = usePermissoesPedido()
+  const podeEditarConfig = podeEditar('configuracao')
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
@@ -2228,7 +2234,31 @@ export default function Configuracoes() {
       </aside>
 
       {/* ── Conteúdo ── */}
-      <main className="cfg-conteudo">
+      {/* Gating `configuracao:editar` (2026-05-13): usuário sem permissão
+          vê área opaca + banner. Defesa em profundidade: backend rejeita 403. */}
+      {!podeEditarConfig && (
+        <div
+          role="note"
+          aria-label="Sem permissão para editar configurações"
+          style={{
+            margin: '0 1.25rem',
+            marginTop: '1rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.25)',
+            color: '#fca5a5',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+          }}
+        >
+          🔒 Sem permissão para editar configurações. Os campos estão em modo leitura.
+        </div>
+      )}
+      <main
+        className="cfg-conteudo"
+        style={podeEditarConfig ? undefined : { opacity: 0.65, pointerEvents: 'none' }}
+      >
 
         {/* ════════════════════════ CARDS ════════════════════════ */}
         {categoria === 'cards' && (

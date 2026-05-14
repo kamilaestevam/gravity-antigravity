@@ -718,6 +718,28 @@ exports.Prisma.GabiPersonalizacaoOrganizacaoScalarFieldEnum = {
   data_atualizacao_gabi_personalizacao: 'data_atualizacao_gabi_personalizacao'
 };
 
+exports.Prisma.GabiLimiteMonetarioScalarFieldEnum = {
+  id_gabi_limite_monetario: 'id_gabi_limite_monetario',
+  id_organizacao_gabi_limite_monetario: 'id_organizacao_gabi_limite_monetario',
+  modelo_gabi_limite_monetario: 'modelo_gabi_limite_monetario',
+  limite_aviso_usd_gabi_limite_monetario: 'limite_aviso_usd_gabi_limite_monetario',
+  limite_bloqueio_usd_gabi_limite_monetario: 'limite_bloqueio_usd_gabi_limite_monetario',
+  destinatarios_email_gabi_limite_monetario: 'destinatarios_email_gabi_limite_monetario',
+  ativo_gabi_limite_monetario: 'ativo_gabi_limite_monetario',
+  data_criacao_gabi_limite_monetario: 'data_criacao_gabi_limite_monetario',
+  data_atualizacao_gabi_limite_monetario: 'data_atualizacao_gabi_limite_monetario'
+};
+
+exports.Prisma.GabiAlertaEmitidoScalarFieldEnum = {
+  id_gabi_alerta_emitido: 'id_gabi_alerta_emitido',
+  id_organizacao_gabi_alerta_emitido: 'id_organizacao_gabi_alerta_emitido',
+  id_limite_gabi_alerta_emitido: 'id_limite_gabi_alerta_emitido',
+  mes_ref_gabi_alerta_emitido: 'mes_ref_gabi_alerta_emitido',
+  nivel_gabi_alerta_emitido: 'nivel_gabi_alerta_emitido',
+  gasto_usd_gabi_alerta_emitido: 'gasto_usd_gabi_alerta_emitido',
+  data_criacao_gabi_alerta_emitido: 'data_criacao_gabi_alerta_emitido'
+};
+
 exports.Prisma.WorkspacePreferenciaUsuarioScalarFieldEnum = {
   id_preferencia_workspace: 'id_preferencia_workspace',
   id_organizacao_preferencia_workspace: 'id_organizacao_preferencia_workspace',
@@ -1011,6 +1033,8 @@ exports.Prisma.ModelName = {
   GabiTokenConsumido: 'GabiTokenConsumido',
   GabiTokenOrganizacao: 'GabiTokenOrganizacao',
   GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
+  GabiLimiteMonetario: 'GabiLimiteMonetario',
+  GabiAlertaEmitido: 'GabiAlertaEmitido',
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',

@@ -48,10 +48,13 @@ import {
   aplicarMaskCpf,
   aplicarMaskTelefone,
   removerMask,
-  OPCOES_MOEDA_PEDIDO,
   type KindUI,
 } from '../../../../shared/kind-ui-pedido'
+// Q6 — Moeda, Incoterm e Unidade vem do Cadastros (SSOT), nao hardcoded.
+// Mesmo padrao do `useIncotermsPedido` ja' usado aqui.
 import { useIncotermsPedido } from '../../shared/useIncotermsPedido'
+import { useMoedasPedido } from '../../shared/useMoedasPedido'
+import { useUnidadesPedido } from '../../shared/useUnidadesPedido'
 import { ROTULO_POR_CAMPO } from '../../../../shared/campos-pedido-ddd'
 
 // ── Le casas decimais do localStorage (mesma fonte de Pedidos.tsx) ────────────
@@ -117,8 +120,11 @@ export interface CampoSmartImportProps {
 
 export function CampoSmartImport(props: CampoSmartImportProps) {
   const { campo, valor, onChange, obrigatorio, autoFocus, labelOverride, semLabel, kindOverride } = props
-  // SSOT: incoterms vêm de cadastros.incoterm via hook (2026-05-13).
-  const { incotermsOpcoes } = useIncotermsPedido()
+  // Q6 — SSOT: incoterms, moedas e unidades vem de cadastros via hooks
+  // (paridade com useIncotermsPedido — mesma estrutura).
+  const { incotermsOpcoes }       = useIncotermsPedido()
+  const { moedasOpcoes }          = useMoedasPedido()
+  const { unidadesComercializadas } = useUnidadesPedido()
 
   const kind = kindOverride ?? kindUiDeCampo(campo)
   const rotulo = labelOverride ?? ROTULO_POR_CAMPO[campo] ?? campo.replace(/_/g, ' ')
@@ -247,14 +253,16 @@ export function CampoSmartImport(props: CampoSmartImportProps) {
           />
         )
 
-      // ─── Moeda (select fixo) ──────────────────────────────────────────────
+      // ─── Moeda — SSOT cadastros.moeda via useMoedasPedido ────────────────
+      // Q6 — antes era array hardcoded `OPCOES_MOEDA_PEDIDO` em kind-ui-pedido;
+      // agora vem do mesmo cadastros que o resto da plataforma usa.
       case 'moeda_codigo':
         return (
           <SelectGlobal
-            opcoes={OPCOES_MOEDA_PEDIDO}
+            opcoes={moedasOpcoes.map(o => ({ valor: o.valor, rotulo: o.label }))}
             valor={valor || null}
             aoMudarValor={(v) => onChange(String(v ?? ''))}
-            buscavel={false}
+            buscavel
             placeholder="Selecionar moeda…"
           />
         )
@@ -271,19 +279,17 @@ export function CampoSmartImport(props: CampoSmartImportProps) {
           />
         )
 
-      // ─── Unidade Comercializada ───────────────────────────────────────────
-      // Por enquanto input livre (lista oficial sera adicionada quando produto
-      // definir o catalogo de unidades — atualmente sao livres tipo PC/KG/M/UN).
+      // ─── Unidade Comercializada — SSOT cadastros.unidade via useUnidadesPedido ─
+      // Q6 — antes era input livre uppercase 8 chars; agora SelectGlobal
+      // populado do cadastros (mesma fonte de TabelaUnidades, ModalPedidoNovo).
       case 'unidade':
         return (
-          <input
-            className="smart-import__input"
-            value={valor}
-            onChange={(e) => onChange(e.target.value.toUpperCase().slice(0, 8))}
-            autoFocus={autoFocus}
-            placeholder="PC / KG / M / UN"
-            maxLength={8}
-            aria-label={rotulo}
+          <SelectGlobal
+            opcoes={unidadesComercializadas.map(o => ({ valor: o.sigla, rotulo: o.rotulo }))}
+            valor={valor || null}
+            aoMudarValor={(v) => onChange(String(v ?? ''))}
+            buscavel
+            placeholder="Selecionar unidade…"
           />
         )
 

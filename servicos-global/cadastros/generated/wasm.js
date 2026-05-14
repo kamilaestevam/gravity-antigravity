@@ -186,6 +186,15 @@ exports.Prisma.UnidadeScalarFieldEnum = {
   ativo_unidade: 'ativo_unidade'
 };
 
+exports.Prisma.IncotermScalarFieldEnum = {
+  codigo_incoterm: 'codigo_incoterm',
+  nome_incoterm: 'nome_incoterm',
+  descricao_incoterm: 'descricao_incoterm',
+  modal_transporte: 'modal_transporte',
+  versao_incoterm: 'versao_incoterm',
+  ativo_incoterm: 'ativo_incoterm'
+};
+
 exports.Prisma.NcmSyncScalarFieldEnum = {
   codigo_ncm_sync: 'codigo_ncm_sync',
   descricao_ncm_sync: 'descricao_ncm_sync',
@@ -300,6 +309,7 @@ exports.Prisma.ModelName = {
   Pais: 'Pais',
   Moeda: 'Moeda',
   Unidade: 'Unidade',
+  Incoterm: 'Incoterm',
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',
   NcmSyncAgendamento: 'NcmSyncAgendamento',

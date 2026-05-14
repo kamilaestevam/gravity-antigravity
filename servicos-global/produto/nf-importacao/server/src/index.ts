@@ -29,8 +29,8 @@ import { nfImportarRouter } from './routes/nfImportar.js'
 import { nfDocumentoRouter } from './routes/nfDocumento.js'
 import { nfHistoricoRouter } from './routes/nfHistorico.js'
 import { configRouter } from './routes/config.js'
-import { apiObservability } from '../../../middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

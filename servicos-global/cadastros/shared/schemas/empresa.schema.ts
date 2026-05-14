@@ -160,7 +160,34 @@ export const listaEmpresasSchema = z.object({
   por_pagina: z.number().int().positive(),
 })
 
+/**
+ * Schema da resposta do endpoint admin cross-organização
+ * (`GET /api/v1/admin/empresas` no Cadastros e no Configurador).
+ *
+ * Diferenças em relação ao endpoint tenant:
+ * - Acrescenta `nome_organizacao` em cada empresa (enriquecido pelo proxy
+ *   do Configurador via batch `IN (...)` em `Configurador.Organizacao`).
+ * - `alerta_volume = true` quando `total > 500` — frontend exibe modal
+ *   sugerindo filtro antes de paginar.
+ * - Teto duro `por_pagina <= 200`.
+ *
+ * Skill: skills/governanca/convencao-tecnica/lint-tenant-safety (exceções).
+ */
+export const empresaAdminSchema = empresaSchema.extend({
+  nome_organizacao: z.string(),
+})
+
+export const listaEmpresasAdminSchema = z.object({
+  itens: z.array(empresaAdminSchema),
+  total: z.number().int().nonnegative(),
+  pagina: z.number().int().positive(),
+  por_pagina: z.number().int().positive().max(200),
+  alerta_volume: z.boolean().optional(),
+})
+
 export type Empresa = z.infer<typeof empresaSchema>
+export type EmpresaAdmin = z.infer<typeof empresaAdminSchema>
 export type CriarEmpresaInput = z.infer<typeof criarEmpresaSchema>
 export type AtualizarEmpresaInput = z.infer<typeof atualizarEmpresaSchema>
 export type ListaEmpresas = z.infer<typeof listaEmpresasSchema>
+export type ListaEmpresasAdmin = z.infer<typeof listaEmpresasAdminSchema>

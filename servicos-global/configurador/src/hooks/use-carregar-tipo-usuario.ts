@@ -25,6 +25,7 @@ const tipoUsuarioEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FOR
 
 const meContextoMinimoSchema = z.object({
   usuario: z.object({
+    id_usuario: z.string().cuid(),
     tipo_usuario: tipoUsuarioEnum,
   }),
   organizacao: z.object({
@@ -38,6 +39,13 @@ const cacheTipoUsuario = new Map<string, TipoUsuario>()
 // Usada pelo hook usePodeEditarUsuario para decidir whitelist de tipos
 // atribuíveis (regra condicional 2026-05-11).
 const cacheHospedaColaboradoresGravity = new Map<string, boolean>()
+/**
+ * Cache do id_usuario (CUID Prisma) — chave Clerk userId, valor CUID.
+ * Necessário para chamadas que precisam do id_usuario Prisma (ex: hook
+ * usePermissao -> GET /usuarios/:id_usuario/permissoes). Antes o usePermissao
+ * usava `userId` (Clerk) na URL, causando 404 silencioso. Fix 2026-05-13.
+ */
+const cacheIdUsuarioPrisma = new Map<string, string>()
 
 /** Limpa o cache de tipo_usuario — deve ser chamado no logout para evitar vazamento entre sessoes */
 export function limparCacheTipoUsuario(): void {
@@ -55,6 +63,9 @@ export function useCarregarTipoUsuario() {
   const [hospedaColaboradoresGravity, setHospedaColaboradoresGravity] = useState<boolean>(() =>
     userId ? (cacheHospedaColaboradoresGravity.get(userId) ?? false) : false
   )
+  const [idUsuarioPrisma, setIdUsuarioPrisma] = useState<string | null>(() =>
+    userId ? (cacheIdUsuarioPrisma.get(userId) ?? null) : null
+  )
   const [pronto, setPronto] = useState(() =>
     !!(userId && cacheTipoUsuario.has(userId))
   )
@@ -68,6 +79,7 @@ export function useCarregarTipoUsuario() {
       const armazenado = cacheTipoUsuario.get(userId)!
       setTipoUsuario(armazenado)
       setHospedaColaboradoresGravity(cacheHospedaColaboradoresGravity.get(userId) ?? false)
+      setIdUsuarioPrisma(cacheIdUsuarioPrisma.get(userId) ?? null)
       setPronto(true)
       return
     }
@@ -126,10 +138,13 @@ export function useCarregarTipoUsuario() {
             }
             const tipoUsuarioBanco: TipoUsuario = parsed.data.usuario.tipo_usuario
             const flagOrg = parsed.data.organizacao?.hospeda_colaboradores_gravity ?? false
+            const idUserPrisma = parsed.data.usuario.id_usuario
             cacheTipoUsuario.set(userId, tipoUsuarioBanco)
             cacheHospedaColaboradoresGravity.set(userId, flagOrg)
+            cacheIdUsuarioPrisma.set(userId, idUserPrisma)
             setTipoUsuario(tipoUsuarioBanco)
             setHospedaColaboradoresGravity(flagOrg)
+            setIdUsuarioPrisma(idUserPrisma)
             setPronto(true)
           })
       })
@@ -149,5 +164,11 @@ export function useCarregarTipoUsuario() {
      *  hospeda colaboradores Gravity. Usado para decidir whitelist de tipos
      *  no usePodeEditarUsuario. */
     hospedaColaboradoresGravity,
+    /**
+     * id_usuario (CUID Prisma) do usuário logado. Diferente do `userId` do
+     * `useAuth` do Clerk (que é o clerk_user_id). Necessário para chamadas
+     * GET /api/v1/usuarios/:id_usuario/permissoes (self-read). Fix 2026-05-13.
+     */
+    idUsuarioPrisma,
   }
 }

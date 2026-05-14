@@ -20,6 +20,18 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { CampoBuscarNcm, type NcmOpcao } from './CampoBuscarNcm.js'
 import { useNcmValidation } from './useNcmValidation.js'
 
+/**
+ * Formata 8 dígitos brutos no padrão visual NCM "XXXX.XX.XX".
+ * Aceita entrada parcial (1-8 dígitos) — útil para display ao digitar.
+ * Inline no nucleo pra evitar dependência de produto/pedido.
+ */
+function formatarNcmDisplay(raw: string): string {
+  const d = raw.replace(/\D/g, '').slice(0, 8)
+  if (d.length <= 4) return d
+  if (d.length <= 6) return `${d.slice(0, 4)}.${d.slice(4)}`
+  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6, 8)}`
+}
+
 export interface NcmSelectGlobalProps {
   value:        string
   onChange:     (codigo: string, descricao?: string) => void
@@ -107,11 +119,13 @@ export function SelectNcmGlobal({
             id={id}
             type="text"
             inputMode="numeric"
-            value={value}
+            // Display formatado "XXXX.XX.XX" — storage interno (prop `value`) é
+            // raw 8 dígitos. Padrão sistêmico de exibição de NCM.
+            value={formatarNcmDisplay(value)}
             onChange={handleChange}
             disabled={disabled}
-            maxLength={8}
-            placeholder="00000000"
+            maxLength={10}
+            placeholder="0000.00.00"
             aria-label={label}
             aria-describedby={badgeElement ? `${id}-status` : undefined}
             style={{
@@ -122,7 +136,7 @@ export function SelectNcmGlobal({
               borderRadius: '0.375rem',
               color: 'var(--ws-text, #f1f5f9)',
               fontSize: '0.875rem',
-              fontFamily: 'monospace',
+              fontFamily: 'var(--font-mono, monospace)',
               letterSpacing: '0.05em',
               outline: 'none',
               transition: 'border-color 0.15s',

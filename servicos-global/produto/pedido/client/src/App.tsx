@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth } from '@clerk/clerk-react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -10,7 +11,21 @@ import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, Use
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
+import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePermissoesPedido'
+import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
 import type { NavItem } from '@nucleo/tela-produto-global'
+
+/**
+ * Mapa `id da navItem → seção do produto Pedido`. Decisão dono 2026-05-13.
+ * Itens cujo id NÃO está aqui não são gateados (Meu Espaço, section divider).
+ */
+const ID_NAV_PARA_SECAO: Record<string, SecaoPedido> = {
+  '/produto/pedido/pedidos/dashboard': 'dashboard',
+  '/produto/pedido/pedidos/lista':     'lista',
+  '/produto/pedido/pedidos/kanban':    'kanban',
+  '/produto/pedido/configuracoes':     'configuracao',
+  '/workspace/historico-organizacao?id_produto_historico_log=pedido': 'historico',
+}
 
 // Injeta o getter uma vez quando o módulo carrega — lê o Zustand sincronamente
 // no exato momento de cada request, sem depender do ciclo de vida do React.
@@ -100,10 +115,26 @@ function LoadingFallback() {
   )
 }
 
-export function App() {
+// QueryClient único do produto Pedido — instanciado fora do componente
+// para sobreviver a re-renders. Stale 60s espelha a config recomendada
+// no comentário de usePermissoesPedido.ts.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 60_000, refetchOnWindowFocus: true },
+  },
+})
+
+function AppInner() {
   useMeSync()
   const { t } = useTranslation()
   const { getToken } = useAuth()
+  // Pivô 2026-05-14 (Coordenador + Líder Técnico):
+  // - `podeVer`/`podeEditar` agora ESTRITOS (só true em 'permitido')
+  // - `carregando` distingue load real de terminal-incompleto (Mand. 08)
+  // - `estado()` tri-state: 'permitido' | 'negado' | 'indeterminado'
+  // Sidebar abaixo combina `carregando || podeVer` pra evitar flash durante load real.
+  // Rotas usam `estado() !== 'negado'` pra liberar durante load e bloquear só no negado definitivo.
+  const { podeVer, carregando: permissoesCarregando, estado: estadoPermissao } = usePermissoesPedido()
 
   // Backend do Pedido exige Authorization: Bearer <jwt> via @gravity/resolver-organizacao.
   // Re-injeta sempre que getToken muda (inclui rotacao automatica do Clerk).
@@ -111,9 +142,29 @@ export function App() {
     injectTokenGetter(() => getToken())
   }, [getToken])
 
+  // Gating de sidebar:
+  // - Master/SAdmin/Admin → tudo liberado (bypass embutido em podeVer)
+  // - Padrão/Fornecedor → item sem `:ver` vira opaco com tag "sem permissão"
+  // - Durante load REAL (`permissoesCarregando=true`) → render normal sem tag,
+  //   evita flash "Sem permissão" em usuário legítimo.
+  // - Em terminal-incompleto (success + !workspace) → permissoesCarregando=false
+  //   E podeVer=false → mostra "sem permissão" corretamente (não destrava em silêncio).
   const navItems = useMemo(
-    () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item, t)),
-    [t]
+    () => PRODUCT_CONFIG.navigation.map(item => {
+      const secao = ID_NAV_PARA_SECAO[item.id]
+      // Sem mapping (Meu Espaço, dividers, children) → render normal
+      if (!secao) return mapNavItem(item, t)
+      // Durante load real OU permitido → render normal (sem tag)
+      if (permissoesCarregando || podeVer(secao)) return mapNavItem(item, t)
+      // Negado definitivo — sobrescreve disabled+badge antes do map
+      return mapNavItem({
+        ...item,
+        disabled: true,
+        badge: 'sem permissão',
+        badgeVariant: 'muted',
+      }, t)
+    }),
+    [t, podeVer, permissoesCarregando]
   )
 
   const location = useLocation()
@@ -231,16 +282,56 @@ export function App() {
         <Routes>
           <Route path="/"       element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
           <Route path="pedidos"                  element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
-          <Route path="pedidos/lista"            element={<Pedidos />} />
-          <Route path="pedidos/dashboard"        element={<PedidosDashboard />} />
-          <Route path="pedidos/kanban"           element={<PedidosKanban />} />
-          <Route path="pedidos/novo"             element={<PedidoFormulario />} />
-          <Route path="pedidos/:id_pedido/editar" element={<PedidoFormulario />} />
-          <Route path="configuracoes"        element={<Configuracoes />} />
+          {/* Defesa de URL direta — usuário cola link sem permissão. Backend
+              também rejeita 403 (defesa em profundidade). Decisão dono 2026-05-13.
+              Pivô 2026-05-14: usa `estadoPermissao() !== 'negado'` — durante load
+              ('indeterminado') a rota renderiza children (otimista), e só bloqueia
+              quando há negação definitiva. Evita flash de "Sem permissão" em
+              usuário legítimo enquanto /me + query carregam. */}
+          <Route path="pedidos/lista"            element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
+              <Pedidos />
+            </BloqueioPermissaoOpaco>
+          } />
+          <Route path="pedidos/dashboard"        element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
+              <PedidosDashboard />
+            </BloqueioPermissaoOpaco>
+          } />
+          <Route path="pedidos/kanban"           element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('kanban', 'ver') !== 'negado'} motivo="Sem permissão para ver o Kanban" modo="bloqueio-tela">
+              <PedidosKanban />
+            </BloqueioPermissaoOpaco>
+          } />
+          {/* Novo/Editar Pedido — entra com lista:ver (modo leitura quando faltar
+              lista:editar; botões Salvar ficam opacos via gating local nas páginas). */}
+          <Route path="pedidos/novo"             element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para abrir formulário de Pedido" modo="bloqueio-tela">
+              <PedidoFormulario />
+            </BloqueioPermissaoOpaco>
+          } />
+          <Route path="pedidos/:id_pedido/editar" element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para abrir formulário de Pedido" modo="bloqueio-tela">
+              <PedidoFormulario />
+            </BloqueioPermissaoOpaco>
+          } />
+          <Route path="configuracoes"        element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
+              <Configuracoes />
+            </BloqueioPermissaoOpaco>
+          } />
           <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos/lista" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>
+  )
+}
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppInner />
+    </QueryClientProvider>
   )
 }
 

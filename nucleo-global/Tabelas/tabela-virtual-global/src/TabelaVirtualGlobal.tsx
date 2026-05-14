@@ -1456,9 +1456,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onErroAoSalvar,
   )
 
-  // Expõe iniciarEdicao ao pai via imperativeRef.
-  // Dispara clique na célula real para acionar o fluxo completo
+  // Refs síncronas para o handle imperativo — evita stale closure sem
+  // precisar declarar `dadosPagina` antes do useImperativeHandle.
+  const dadosRef       = useRef<T[]>(dados)
+  dadosRef.current     = dados
+  const itemIdRef      = useRef(itemId)
+  itemIdRef.current    = itemId
+  const expandidosRef2 = useRef(expandidos)
+  expandidosRef2.current = expandidos
+  const toggleRef      = useRef(toggle)
+  toggleRef.current    = toggle
+
+  // Expõe iniciarEdicao + expandir ao pai via imperativeRef.
+  // iniciarEdicao dispara clique na célula real para acionar o fluxo completo
   // (setOverlayInfo + iniciarEdicaoPai), garantindo posicionamento correto do popover.
+  // expandir aciona o mesmo toggle usado pelo botão chevron — carrega filhos
+  // via onCarregarFilhos quando necessário. No-op se já expandido.
   useImperativeHandle(imperativeRef, () => ({
     iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => {
       const celula = document.querySelector<HTMLElement>(
@@ -1472,6 +1485,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         // Fallback quando célula não está no DOM (fora da janela virtual)
         iniciarEdicaoPai(id, campo, valorAtual)
       }
+    },
+    expandir: (id: string) => {
+      if (expandidosRef2.current.has(id)) return
+      const item = dadosRef.current.find(d => itemIdRef.current(d) === id)
+      if (!item) return
+      void toggleRef.current(id, item)
     },
   }), [iniciarEdicaoPai])
 

@@ -30,6 +30,11 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { resolverOrganizacao, verificarAcessoProduto, AppError } from '@gravity/resolver-organizacao'
+// Cadeia 2 granular — `exigirPermissao` e `exigirPorMetodo` instanciados
+// uma única vez em `./permissoes.ts`. Routers que só fazem mutação aplicam
+// `router.use(exigirPermissao('<secao>','editar'))` internamente (decisão
+// Líder Técnico 2026-05-13 — evita bug de middleware chain).
+import { exigirPermissao, exigirPorMetodo } from './permissoes.js'
 import { analyticsRouter } from './routes/analytics-pedido.js'
 import { dashboardWidgetsRouter } from './routes/dashboard-pedido-widgets.js'
 import { dashboardDataRouter } from './routes/dashboard-pedido-dados.js'
@@ -56,7 +61,7 @@ import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { pedidosRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos-config.js'
-import { importacaoRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/importacao.js'
+import { importacaoPedidoWrapper } from './routes/importacao-pedido-wrapper.js'
 import { apiObservability } from '../../../../../servicos-global/servicos-plataforma/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi-pedido.js'
 import { createProductAuditPlugin } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/product-audit-plugin.js'
@@ -135,6 +140,19 @@ app.use(verificarAcessoProduto({
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
 }))
 
+// ── 6.2. Cadeia 2 granular — permissões `<slug>:<secao>:<acao>` ──────────────
+// Skill: seguranca/permissoes (REGRA seção × ação). Master/SAdmin/Admin bypass.
+// PADRAO/FORNECEDOR exigem chave em UsuarioPermissao. Decisão dono 2026-05-13.
+//
+// Feature flag PEDIDO_PERMISSOES_GRANULARES_ATIVO controla bloqueio:
+//   - default (variável ausente ou !== 'false') → ATIVO, retorna 403 quando faltar
+//   - 'false' → shadow audit (log "rotaria 403" mas libera) — útil pra roll-out
+//
+// `exigirPermissao` e `exigirPorMetodo` agora vivem em `./permissoes.ts` (singleton).
+// Routers só-mutação (importacoes, duplicacoes, exclusoes) aplicam o gating
+// internamente via `router.use(exigirPermissao('lista','editar'))` — evita bug
+// de middleware chain do Express (decisão Líder Técnico 2026-05-13).
+
 // ── 7. Observabilidade — captura métricas de uso por tenant/produto ───────────
 app.use(apiObservability('pedido'))
 
@@ -162,35 +180,48 @@ app.use(createProductAuditPlugin({
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
 // Ordem: rotas estáticas específicas ANTES das genéricas (evita conflitos com /:id)
+//
+// Gating Cadeia 2 (decisão dono 2026-05-13):
+//   - openapi/inicializacao/gabi/behaviorTracking → SEM gating (out of scope ou telemetria)
+//   - dashboard/* → secao 'dashboard' (ver/editar por método)
+//   - kanban/*    → secao 'kanban'
+//   - configuracoes/config/template → secao 'configuracao'
+//   - colunas-usuario/edicoes/consolidacoes/importacoes/anexos/duplicacoes/exclusoes/
+//     transferencias/alteracoes-status-lote/snapshot/importacao/pedidosRouter → secao 'lista'
 app.use('/api/v1/pedidos/openapi.json',                openapiRouter)
-app.use('/api/v1/pedidos/inicializacao',               initRouter)           // GET /inicializacao — agrega pedidos+status+prefs+colunas em 1 request
-app.use('/api/v1/pedidos/dashboard/widgets',           dashboardWidgetsRouter)
-app.use('/api/v1/pedidos/dashboard',                   dashboardPaineisRouter)
-app.use('/api/v1/pedidos/dashboard',                   dashboardDataRouter)
-app.use('/api/v1/pedidos/consolidacoes',               consolidarRouter)
-app.use('/api/v1/pedidos/edicoes-em-massa',            edicaoEmMassaRouter)
+app.use('/api/v1/pedidos/inicializacao',               exigirPermissao('lista', 'ver'), initRouter)
+app.use('/api/v1/pedidos/dashboard/widgets',           exigirPorMetodo('dashboard'), dashboardWidgetsRouter)
+app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardPaineisRouter)
+app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardDataRouter)
+app.use('/api/v1/pedidos/consolidacoes',               exigirPermissao('lista', 'editar'), consolidarRouter)
+app.use('/api/v1/pedidos/edicoes-em-massa',            exigirPermissao('lista', 'editar'), edicaoEmMassaRouter)
+// smartImportRouter aplica `exigirPermissao('lista','editar')` internamente.
 app.use('/api/v1/pedidos/importacoes-inteligentes',    smartImportRouter)
-app.use('/api/v1/pedidos/colunas-usuario',             colunasUsuarioRouter)
+app.use('/api/v1/pedidos/colunas-usuario',             exigirPorMetodo('lista'), colunasUsuarioRouter)
 app.use(gabiProxyRouter)
 app.use(behaviorTrackingRouter)
-app.use('/api/v1/pedidos/anexos',                      anexosRouter)
-app.use('/api/v1/pedidos/template-pedido',             templatePedidoRota)
-app.use('/api/v1/pedidos/alteracoes-status-lote',      loteRouter)
-app.use('/api/v1/pedidos/kanban',                      kanbanPreferenciasRouter)
-app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)
-app.use('/api/v1/pedidos/config',                      preferenciaUsuarioColunaPedidoRouter)
-app.use('/api/v1/pedidos/config',                      snapshotAtualizacaoPedidoRouter)
-app.use('/api/v1/pedidos',                             snapshotStatusPedidoRouter)  // GET /:idPedido/snapshot-status (FASE 06E — banner retroativo)
-app.use('/api/v1/pedidos/configuracoes',               saldoFormulaRouter)
-app.use('/api/v1/pedidos/config',                      pedidosConfigRouter)
-app.use('/api/v1/pedidos',                             importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
-app.use('/api/v1/pedidos',                             duplicacoesPedidoRouter)  // SPLIT Gamma-3 leva 3
-app.use('/api/v1/pedidos',                             exclusoesPedidoRouter)    // SPLIT Gamma-3 leva 3
+app.use('/api/v1/pedidos/anexos',                      exigirPorMetodo('lista'), anexosRouter)
+app.use('/api/v1/pedidos/template-pedido',             exigirPermissao('configuracao', 'editar'), templatePedidoRota)
+app.use('/api/v1/pedidos/alteracoes-status-lote',      exigirPermissao('lista', 'editar'), loteRouter)
+app.use('/api/v1/pedidos/kanban',                      exigirPorMetodo('kanban'), kanbanPreferenciasRouter)
+app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), casasDecimaisRouter)
+app.use('/api/v1/pedidos/config',                      exigirPorMetodo('lista'), preferenciaUsuarioColunaPedidoRouter)
+app.use('/api/v1/pedidos/config',                      exigirPermissao('lista', 'editar'), snapshotAtualizacaoPedidoRouter)
+app.use('/api/v1/pedidos',                             exigirPermissao('lista', 'ver'), snapshotStatusPedidoRouter)
+app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), saldoFormulaRouter)
+app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
+// importacaoPedidoWrapper monta o importacaoRouter (processos-core, compartilhado)
+// com gating local `pedido:lista:editar` aplicado via router.use — evita bug de
+// middleware chain. Pattern recomendado quando se monta router de pacote externo.
+app.use('/api/v1/pedidos',                             importacaoPedidoWrapper)
+// duplicacoesPedidoRouter e exclusoesPedidoRouter aplicam gating internamente.
+app.use('/api/v1/pedidos',                             duplicacoesPedidoRouter)
+app.use('/api/v1/pedidos',                             exclusoesPedidoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
-app.use('/api/v1/pedidos',                             pedidosRouter)      // GET /, POST /, GET /:id, PUT /:id, DELETE /:id, etc.
+app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
-app.use('/api/v1/pedidos/:id_pedido/transferencias',   transferirRouter)
-app.use('/api/v1/pedidos/:id_pedido/transferencias',   transferirHistoricoRouter)
+app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'editar'), transferirRouter)
+app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'ver'), transferirHistoricoRouter)
 
 // ── 9. 404 catch-all ─────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

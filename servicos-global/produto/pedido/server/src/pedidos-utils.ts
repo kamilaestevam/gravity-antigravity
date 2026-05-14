@@ -4,5 +4,7 @@ export {
   mapPedido,
   encodeCursor,
   CURSOR_SORT_FIELDS,
+  injetarValoresColunasUsuario,
+  injetarColunasPedidoEItens,
 } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
 export type { CursorSortField } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'

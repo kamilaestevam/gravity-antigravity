@@ -12,7 +12,11 @@
  * Todas as queries rodam em Promise.all — 1 round-trip do cliente, ~80ms de DB.
  *
  * Query params aceitos (mesmos do GET /pedidos):
- *   sort    — campo de ordenação (default: data_emissao_pedido)
+ *   sort    — campo de ordenação (default: data_atualizacao_pedido)
+ *             P19/Q2 — antes era `data_emissao_pedido`, mas pedidos importados
+ *             vinham com data antiga do arquivo e nao apareciam no topo.
+ *             `data_atualizacao_pedido` (@updatedAt no Prisma) atualiza em
+ *             todo create e update — garante que recem-mexido sobe.
  *   dir     — asc | desc (default: desc)
  *   limit   — 1–200 (default: 100)
  *   status  — filtrar por status
@@ -26,6 +30,7 @@ import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import {
   mapPedido,
   encodeCursor,
+  injetarColunasPedidoEItens,
   CURSOR_SORT_FIELDS,
   type CursorSortField,
 } from '../pedidos-utils.js'
@@ -45,7 +50,11 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
       const { sort, dir, limit, status, busca } = req.query
 
-      const sortField  = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_emissao_pedido') as CursorSortField
+      // P19/Q2 — default mudou de `data_emissao_pedido` para `data_atualizacao_pedido`.
+      // Motivo: pedidos importados via Smart Import carregavam data antiga do arquivo
+      // e ficavam soterrados. `@updatedAt` do Prisma atualiza em todo write — assim
+      // criado/editado sobe pro topo automaticamente.
+      const sortField  = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_atualizacao_pedido') as CursorSortField
       const sortDir    = dir === 'asc' ? 'asc' : 'desc'
       const limitNum   = Math.min(Math.max(Number(limit ?? 100), 1), 200)
 
@@ -91,9 +100,18 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         })
       }
 
+      // Injeção 2 níveis via helper compartilhado (Mand. 09 — leitura espelha
+      // a escrita; mesmo padrão usado em GET /pedidos e GET /:id). Sem isso, a
+      // tela inicial nascia sem `_colunas_usuario` (bug 2026-05-13).
+      const registrosFinal = await injetarColunasPedidoEItens(
+        db,
+        registros as Array<{ id_pedido: string; itens_pedido?: Array<Record<string, unknown>> }>,
+        idOrganizacao,
+      )
+
       res.json({
         pedidos: {
-          data:       registros.map(mapPedido),
+          data:       registrosFinal.map(mapPedido),
           hasMore:    temMais,
           nextCursor,
           total:      registros.length,

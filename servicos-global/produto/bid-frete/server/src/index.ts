@@ -26,9 +26,9 @@ import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { startCronJobs } from './services/cronJobs.js'
-import { rateLimitPresets } from '../../../middleware/rateLimiter.js'
-import { apiObservability } from '../../../middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
+import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
+import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

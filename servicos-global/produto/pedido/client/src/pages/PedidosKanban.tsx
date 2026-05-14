@@ -32,6 +32,7 @@ import {
   Bell,
 } from '@phosphor-icons/react'
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
+import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import type { Pedido, PedidoStatus, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
 import { computarColunasKanban, IS_READ_ONLY_MAP, COLUNAS_FALLBACK_SHAPE } from '../shared/kanbanUtils'
@@ -409,6 +410,11 @@ function ModalKanbanPedido({
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function PedidosKanban() {
+  // Gating `pedido:kanban:editar` (decisao dono + Líder + Coordenador 2026-05-13).
+  // `podeEditar` é ESTRITO durante load — evita flash de drag-drop habilitado
+  // que dispararia 403 ao mover. Backend rejeita PATCH /alteracoes-status-lote.
+  const { podeEditar } = usePermissoesPedido()
+  const podeEditarKanban = podeEditar('kanban')
   const [pedidos, setPedidos]           = useState<Pedido[]>([])
   const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
   const [preferencias, setPreferencias] = useState<KanbanPreferencias | null>(null)
@@ -485,6 +491,9 @@ export default function PedidosKanban() {
   }, [itens, busca])
 
   async function handleMover(itemId: string, novaColunaKey: string) {
+    // Gating client-side: bloqueia drag/drop quando sem permissao `kanban:editar`.
+    // Backend tambem rejeita (PATCH /alteracoes-status-lote exige kanban:editar — Fase 2).
+    if (!podeEditarKanban) return
     setPedidos(prev =>
       prev.map(p => p.id === itemId ? { ...p, status: novaColunaKey as PedidoStatus } : p),
     )
@@ -513,6 +522,27 @@ export default function PedidosKanban() {
 
   return (
     <div className="kbp-page">
+      {/* Banner gating `kanban:editar` (2026-05-13) — drag-drop client-side
+          ja respeita `podeEditarKanban` em handleMover; banner deixa o motivo
+          visivel. Backend tambem retorna 403 nos PATCH /alteracoes-status-lote. */}
+      {!podeEditarKanban && (
+        <div
+          role="note"
+          aria-label="Sem permissao para editar Kanban"
+          style={{
+            margin: '0 0 0.75rem',
+            padding: '0.65rem 1rem',
+            borderRadius: '8px',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.25)',
+            color: '#fca5a5',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+          }}
+        >
+          🔒 Sem permissão para mover cards. Visualização em modo leitura.
+        </div>
+      )}
       <KanbanGlobal<PedidoKanbanItem>
         colunas={colunasComputadas}
         itens={itensFiltrados}

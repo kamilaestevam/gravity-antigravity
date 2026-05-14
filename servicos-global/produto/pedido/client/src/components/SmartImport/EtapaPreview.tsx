@@ -21,6 +21,14 @@ import {
 import type { SmartImportLinha, DecisaoDuplicata } from '../../shared/types'
 import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
 import { ROTULO_POR_CAMPO, CAMPOS_PEDIDO_DDD_TODOS } from '../../../../shared/campos-pedido-ddd'
+import {
+  kindUiDeCampo,
+  casasDecimaisDefault,
+  aplicarMaskCnpj,
+  aplicarMaskCpf,
+  aplicarMaskTelefone,
+} from '../../../../shared/kind-ui-pedido'
+import { CampoSmartImport } from './CampoSmartImport'
 
 // P16 — Set de campos obrigatorios para sinalizacao visual (mesmo
 // padrao do EtapaMapeamento.tsx). Reutilizado para detectar quando
@@ -30,14 +38,98 @@ const CAMPOS_OBRIGATORIOS = new Set(
 )
 
 /**
- * P13.2-UI — Formata valor de campo para exibicao no preview.
- * Hoje cobre NCM ("22021000" -> "2202.10.00"). Pode crescer no futuro para
- * outros campos com formato visual padrao (CNPJ, CPF, telefone, etc.).
+ * Campos ESTRUTURAIS — nao podem ser editados inline pelo usuario.
+ *   - tipo_linha: muda Pedido<->Item (reorganiza linha inteira).
+ *   - numero_pedido: ja' tem editor proprio no cabecalho do card
+ *     (linha do card, ao lado do badge); evita duplicacao.
+ *   - sequencia_item_pedido: backend auto-atribui.
+ *   - valor_total_item: backend recomputa (qtd × valor_unit).
+ *   - data_criacao_*, data_atualizacao_*: timestamps automaticos.
+ *   - _origem: flag interna de auditoria (linhas adicionadas inline).
  */
+const CAMPOS_NAO_EDITAVEIS_INLINE = new Set<string>([
+  'tipo_linha',
+  'numero_pedido',
+  'sequencia_item_pedido',
+  'valor_total_item',
+  '_origem',
+])
+
+function ehCampoEditavel(campo: string): boolean {
+  if (CAMPOS_NAO_EDITAVEIS_INLINE.has(campo)) return false
+  if (campo.startsWith('data_criacao_'))     return false
+  if (campo.startsWith('data_atualizacao_')) return false
+  return true
+}
+
+/**
+ * Formata valor de campo para exibicao no preview, baseado em kindUiDeCampo.
+ * Garante que o que o usuario VE bata com o que digitaria:
+ *   - NCM     "22021000"       -> "2202.10.00"
+ *   - CNPJ    "12345678000190" -> "12.345.678/0001-90"
+ *   - CPF     "12345678901"    -> "123.456.789-01"
+ *   - Tel     "11987654321"    -> "(11) 98765-4321"
+ *   - Data    "2026-05-13"     -> "13/05/2026"
+ *   - Decimal "10"             -> "10,00" (2 casas) ou "10,000" (3 casas peso)
+ *   - Tipo Op "importacao"     -> "Importação"
+ *
+ * Tudo dirigido pelo classificador `kindUiDeCampo` — sem hardcode por nome.
+ */
+function lerCasasConfigStorage(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem('pedido:casas_decimais')
+    return raw ? (JSON.parse(raw) as Record<string, number>) : {}
+  } catch { return {} }
+}
+
+function fmtDecimalBr(n: number, casas: number): string {
+  return n.toLocaleString('pt-BR', {
+    minimumFractionDigits: casas,
+    maximumFractionDigits: casas,
+  })
+}
+
+function fmtDataBr(s: string): string {
+  // dd/mm/yyyy ja
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s
+  // yyyy-mm-dd
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s)
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`
+  return s
+}
+
 function formatarValor(campo: string, valor: unknown): string {
-  const str = String(valor)
+  const str = String(valor ?? '')
+  if (!str.trim()) return str
+  // Fallback rapido (cobertura legada)
   if (ehCampoNcm(campo)) return formatarNcm(str)
-  return str
+
+  const kind = kindUiDeCampo(campo)
+  switch (kind) {
+    case 'ncm':       return formatarNcm(str)
+    case 'cnpj':      return aplicarMaskCnpj(str)
+    case 'cpf':       return aplicarMaskCpf(str)
+    case 'telefone':  return aplicarMaskTelefone(str)
+    case 'data':      return fmtDataBr(str)
+    case 'tipo_operacao': {
+      if (str === 'importacao') return 'Importação'
+      if (str === 'exportacao') return 'Exportação'
+      return str
+    }
+    case 'decimal_quantidade':
+    case 'decimal_valor':
+    case 'decimal_peso':
+    case 'decimal_cubagem':
+    case 'decimal_taxa':
+    case 'inteiro': {
+      const n = parseFloat(str.replace(/\./g, '').replace(',', '.'))
+      if (isNaN(n)) return str
+      const casas = casasDecimaisDefault(kind, lerCasasConfigStorage())
+      return fmtDecimalBr(n, casas)
+    }
+    default:
+      return str
+  }
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -57,24 +149,47 @@ interface EtapaPreviewProps {
 }
 
 // P15.1 — Formulario inline para adicionar item a pedido sem ITEM
-interface ItemInlineForm {
-  part_number_item:        string
-  ncm_item:                string
-  descricao_item:          string
-  quantidade_inicial_item: string
-  valor_por_unidade_item:  string
-  moeda_item:              string
-  incoterm_item:           string
+// P19/Q4 — Refatorado para usar CampoSmartImport (renderer universal). O
+// estado agora e' genérico Record<string,string> em vez de tipado por campo,
+// porque qualquer campo do SSOT pode ser editado/preenchido.
+//
+// Lista de campos exibidos no form "Adicionar Item": campos do Item (`nivel:
+// 'item'`) com prioridade 'critica' ou 'principal'. Cobre os 12 campos
+// essenciais sem hardcode — se SSOT mudar, o form se ajusta sozinho.
+type ItemInlineForm = Record<string, string>
+
+/**
+ * Campos AUTO-COMPUTADOS que NUNCA devem aparecer no form "Adicionar Item":
+ *   - valor_total_item: backend recomputa = quantidade × valor_por_unidade
+ *   - sequencia_item_pedido: backend auto-atribui sequência ao criar
+ *
+ * Se o usuário pudesse preencher, gera divergência com cascade do Pedido.
+ */
+const CAMPOS_EXCLUIR_FORM = new Set<string>([
+  'valor_total_item',
+  'sequencia_item_pedido',
+])
+
+/** Campos exibidos no form "Adicionar Item". Filtrados do SSOT em runtime. */
+const CAMPOS_FORM_ADICIONAR_ITEM: string[] = CAMPOS_PEDIDO_DDD_TODOS
+  .filter(c => c.nivel === 'item')
+  .filter(c => c.prioridade === 'critica' || c.prioridade === 'principal')
+  .filter(c => !CAMPOS_EXCLUIR_FORM.has(c.campo))
+  .map(c => c.campo)
+
+/** Defaults de campo — aplicados ao abrir o form. */
+const DEFAULTS_FORM_ITEM: Record<string, string> = {
+  moeda_item:    'USD',
+  incoterm_item: 'FOB',
+  // demais campos comecam vazios
 }
 
-const ITEM_INLINE_VAZIO: ItemInlineForm = {
-  part_number_item:        '',
-  ncm_item:                '',
-  descricao_item:          '',
-  quantidade_inicial_item: '',
-  valor_por_unidade_item:  '',
-  moeda_item:              'USD',
-  incoterm_item:           '',
+function formInicialVazio(): ItemInlineForm {
+  const f: ItemInlineForm = {}
+  for (const campo of CAMPOS_FORM_ADICIONAR_ITEM) {
+    f[campo] = DEFAULTS_FORM_ITEM[campo] ?? ''
+  }
+  return f
 }
 
 type FiltroPreview = 'todos' | 'ok' | 'aviso' | 'erro'
@@ -129,7 +244,7 @@ function CardPedido({
   const [numeroTemp, setNumeroTemp]              = useState('')
   // P15.1 — Estado do formulario inline de adicionar item
   const [mostrandoFormItem, setMostrandoFormItem] = useState(false)
-  const [formItem, setFormItem] = useState<ItemInlineForm>(ITEM_INLINE_VAZIO)
+  const [formItem, setFormItem] = useState<ItemInlineForm>(formInicialVazio)
   // P15.2 — Estado de edicao de campo individual (chave: nome do campo)
   const [campoEditando, setCampoEditando] = useState<string | null>(null)
   const [valorTemp, setValorTemp]         = useState('')
@@ -142,8 +257,12 @@ function CardPedido({
   const temDuplicata = linha.alertas.some(a => a.tipo === 'duplicado_sistema')
   const numeroAtual  = numeroEditado ?? linha.numero_pedido ?? '—'
 
+  // Lista de campos exibidos na expansao "Ver N campo(s) detectado(s)".
+  // Oculta: numero_pedido (ja' no header), tipo_linha (estrutural, mostrado
+  // como badge), _origem (flag interna de auditoria), timestamps automaticos.
   const camposVisiveis = Object.entries(linha.dados)
-    .filter(([k]) => k !== 'numero_pedido')
+    .filter(([k]) => k !== 'numero_pedido' && k !== 'tipo_linha' && k !== '_origem')
+    .filter(([k]) => !k.startsWith('data_criacao_') && !k.startsWith('data_atualizacao_'))
     .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '')
 
   function iniciarEdicao() {
@@ -175,32 +294,34 @@ function CardPedido({
   }
 
   // P15.1 — Confirmacao do form inline (cria nova SmartImportLinha tipo ITEM)
+  // P19/Q4 — Form agora e' generico: percorre formItem (Record<string,string>)
+  // e envia todos os campos preenchidos. Part Number permanece obrigatorio.
+  // Backend continua aceitando strings e fazendo parse via normalizarNumero/Data.
   function confirmarAdicionarItem() {
     if (!onAdicionarItemInline) return
-    if (!formItem.part_number_item.trim()) return  // P14: part_number_item e' obrigatorio
+    const partNumber = (formItem.part_number_item ?? '').trim()
+    if (!partNumber) return  // P14: part_number_item e' obrigatorio
+
     const dadosItem: Record<string, unknown> = {
-      tipo_linha:              'ITEM',
-      numero_pedido:           linha.numero_pedido ?? '',
-      part_number_item:        formItem.part_number_item.trim(),
-      ncm_item:                formItem.ncm_item.trim() || undefined,
-      descricao_item:          formItem.descricao_item.trim() || undefined,
-      quantidade_inicial_item: formItem.quantidade_inicial_item.trim() || undefined,
-      valor_por_unidade_item:  formItem.valor_por_unidade_item.trim() || undefined,
-      moeda_item:              formItem.moeda_item.trim() || 'USD',
-      incoterm_item:           formItem.incoterm_item.trim() || undefined,
-      _origem:                 'inline',  // marca para auditoria
+      tipo_linha:    'ITEM',
+      numero_pedido: linha.numero_pedido ?? '',
+      _origem:       'inline',  // marca para auditoria
     }
-    // Remove undefined (dados.unknown nao precisa de chave para vazio)
-    for (const k of Object.keys(dadosItem)) {
-      if (dadosItem[k] === undefined) delete dadosItem[k]
+    // Propaga todos os campos do form (filtra vazios)
+    for (const campo of CAMPOS_FORM_ADICIONAR_ITEM) {
+      const valor = (formItem[campo] ?? '').trim()
+      if (valor) dadosItem[campo] = valor
     }
+    // Garante que part_number_item esteja preenchido (validacao acima ja' filtrou)
+    dadosItem.part_number_item = partNumber
+
     onAdicionarItemInline(linha, dadosItem)
-    setFormItem(ITEM_INLINE_VAZIO)
+    setFormItem(formInicialVazio())
     setMostrandoFormItem(false)
   }
 
   function cancelarAdicionarItem() {
-    setFormItem(ITEM_INLINE_VAZIO)
+    setFormItem(formInicialVazio())
     setMostrandoFormItem(false)
   }
 
@@ -379,61 +500,72 @@ function CardPedido({
                     <span className="smart-import__campo-label">
                       {rotulo(campo)}
                       {ehObrigatorio && (
-                        <span style={{ color: '#f87171', fontWeight: 700, marginLeft: '0.25rem' }} aria-label="obrigatorio">*</span>
+                        <span className="smart-import__form-label-obrig" aria-label="obrigatorio">*</span>
                       )}
                     </span>
-                    {/* P15.2 — edicao inline (mesmo padrao do numero_pedido) */}
+                    {/* P15.2 — edicao inline (mesmo padrao do numero_pedido)
+                       P19/Q4 — Migrado para CampoSmartImport (renderer universal).
+                       Cada tipo de campo (NCM, CNPJ, decimal, data, select) vira
+                       o componente apropriado automaticamente — zero hardcode.
+
+                       Gap #6 — Enter confirma APENAS quando:
+                       (a) `e.defaultPrevented === false` — SelectGlobal chama
+                           preventDefault no Enter (abre dropdown), entao essa
+                           checagem evita confirmar ao abrir o select; E
+                       (b) target nao e' TEXTAREA — em textarea Enter cria nova
+                           linha, e' o comportamento esperado pelo usuario.
+                       Para selects/textareas o usuario confirma via botao Check. */}
                     {ehEditandoEste ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1 }}>
-                        <input
-                          className="smart-import__numero-input"
-                          value={valorTemp}
-                          onChange={e => setValorTemp(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') confirmarEdicaoCampo()
-                            if (e.key === 'Escape') cancelarEdicaoCampo()
-                          }}
-                          autoFocus
-                          aria-label={`Editar ${rotulo(campo)}`}
-                          aria-required={ehObrigatorio || undefined}
-                          aria-invalid={deveDestacarErro || undefined}
-                          style={{
-                            flex: 1,
-                            minWidth: 0,
-                            borderColor: deveDestacarErro ? '#f87171' : undefined,
-                          }}
-                        />
+                      <div
+                        className="smart-import__edit-inline"
+                        onKeyDown={e => {
+                          if (e.key === 'Escape') {
+                            e.preventDefault()
+                            cancelarEdicaoCampo()
+                            return
+                          }
+                          if (e.key === 'Enter' && !e.defaultPrevented) {
+                            const tag = (e.target as HTMLElement).tagName
+                            if (tag !== 'TEXTAREA') {
+                              e.preventDefault()
+                              confirmarEdicaoCampo()
+                            }
+                          }
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <CampoSmartImport
+                            campo={campo}
+                            valor={valorTemp}
+                            onChange={v => setValorTemp(v)}
+                            obrigatorio={ehObrigatorio}
+                            autoFocus
+                            semLabel
+                          />
+                        </div>
                         <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicaoCampo} aria-label="Confirmar edicao" title="Confirmar (Enter)">
-                          <Check size={12} weight="bold" />
+                          <Check size={13} weight="bold" />
                         </button>
                         <button type="button" className="smart-import__btn-icone" onClick={cancelarEdicaoCampo} aria-label="Cancelar edicao" title="Cancelar (Esc)">
-                          <X size={12} weight="bold" />
+                          <X size={13} weight="bold" />
                         </button>
                       </div>
                     ) : (
                       <span
-                        className="smart-import__campo-valor"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.375rem',
-                          // P16 — destaque visual sutil quando obrigatorio + vazio
-                          color: deveDestacarErro ? '#f87171' : undefined,
-                        }}
+                        className={`smart-import__campo-valor${deveDestacarErro ? ' smart-import__campo-valor--erro' : ''}`}
                       >
                         {deveDestacarErro
                           ? <em style={{ fontStyle: 'normal' }}>(vazio)</em>
                           : formatarValor(campo, valor)}
-                        {onEditarCampoLinha && (
+                        {onEditarCampoLinha && ehCampoEditavel(campo) && (
                           <button
                             type="button"
-                            className="smart-import__btn-icone"
+                            className="smart-import__btn-icone smart-import__btn-icone--ghost"
                             onClick={() => iniciarEdicaoCampo(campo, valor)}
                             aria-label={`Editar ${rotulo(campo)}`}
                             title="Editar valor"
-                            style={{ opacity: 0.6 }}
                           >
-                            <PencilSimple size={11} weight="bold" />
+                            <PencilSimple size={12} weight="bold" />
                           </button>
                         )}
                       </span>
@@ -477,25 +609,16 @@ function CardPedido({
         </div>
       )}
 
-      {/* P15.1 — Botao/form de adicionar item quando alerta "pedido sem ITEM" */}
+      {/* P15.1 — Botao/form de adicionar item quando alerta "pedido sem ITEM"
+         P19 — Refatorado para usar classes CSS dedicadas (sem style inline,
+         sem cores hex hardcoded). Designer+Coord+LT 13/05/2026. */}
       {temAlertaItemFaltando && onAdicionarItemInline && (
-        <div style={{ marginTop: '0.5rem', padding: '0.5rem 0.75rem', background: 'rgba(96,165,250,0.06)', borderRadius: '6px', border: '1px dashed rgba(96,165,250,0.3)' }}>
+        <div className="smart-import__form-item">
           {!mostrandoFormItem ? (
             <button
               type="button"
               onClick={() => setMostrandoFormItem(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                background: 'transparent',
-                border: 'none',
-                color: '#60a5fa',
-                cursor: 'pointer',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
-                padding: 0,
-              }}
+              className="smart-import__btn-adicionar-item"
               aria-label="Adicionar item inline"
             >
               <Plus size={14} weight="bold" aria-hidden="true" />
@@ -503,128 +626,52 @@ function CardPedido({
             </button>
           ) : (
             <div>
-              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <p className="smart-import__form-item-titulo">
                 Novo item para <strong>{numeroAtual}</strong>:
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                {/* Part Number — obrigatorio (P16: padrao da plataforma) */}
-                {/*
-                  P16 — Sinalizacao de obrigatorio segue o padrao
-                  CampoGeralGlobal da plataforma:
-                    - Asterisco vermelho discreto no label (#f87171 dark)
-                    - Borda vermelha no input quando vazio (regra do
-                      campo-geral.css: ".cg-wrapper--erro input { border-color: #f87171 }")
-                  Sem legenda no rodape (removida na plataforma — era redundante).
-                */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-                    Part Number{' '}
-                    <span style={{ color: '#f87171', fontWeight: 700 }} aria-label="obrigatorio">*</span>
-                  </span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.part_number_item}
-                    onChange={e => setFormItem(p => ({ ...p, part_number_item: e.target.value }))}
-                    autoFocus
-                    aria-label="Part Number"
-                    aria-required="true"
-                    aria-invalid={!formItem.part_number_item.trim()}
-                    style={{
-                      borderColor: !formItem.part_number_item.trim() ? '#f87171' : undefined,
-                    }}
-                  />
-                </label>
-                {/* NCM */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>NCM</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.ncm_item}
-                    onChange={e => setFormItem(p => ({ ...p, ncm_item: e.target.value }))}
-                    placeholder="2202.10.00"
-                    aria-label="NCM"
-                  />
-                </label>
-                {/* Descricao */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: '1 / -1' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Descricao</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.descricao_item}
-                    onChange={e => setFormItem(p => ({ ...p, descricao_item: e.target.value }))}
-                    aria-label="Descricao do Item"
-                  />
-                </label>
-                {/* Quantidade */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Qtd. Inicial</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.quantidade_inicial_item}
-                    onChange={e => setFormItem(p => ({ ...p, quantidade_inicial_item: e.target.value }))}
-                    inputMode="decimal"
-                    aria-label="Quantidade Inicial"
-                  />
-                </label>
-                {/* Valor unitario */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Valor por Unidade</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.valor_por_unidade_item}
-                    onChange={e => setFormItem(p => ({ ...p, valor_por_unidade_item: e.target.value }))}
-                    inputMode="decimal"
-                    aria-label="Valor por Unidade"
-                  />
-                </label>
-                {/* Moeda */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Moeda</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.moeda_item}
-                    onChange={e => setFormItem(p => ({ ...p, moeda_item: e.target.value.toUpperCase().slice(0, 3) }))}
-                    placeholder="USD"
-                    aria-label="Moeda"
-                    maxLength={3}
-                  />
-                </label>
-                {/* Incoterm */}
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Incoterm</span>
-                  <input
-                    className="smart-import__numero-input"
-                    value={formItem.incoterm_item}
-                    onChange={e => setFormItem(p => ({ ...p, incoterm_item: e.target.value.toUpperCase().slice(0, 6) }))}
-                    placeholder="FOB"
-                    aria-label="Incoterm"
-                    maxLength={6}
-                  />
-                </label>
+              {/*
+                P19/Q4 — Renderizacao 100% dinamica baseada no SSOT.
+                Cada campo passa por kindUiDeCampo() (kind-ui-pedido.ts) que
+                escolhe o componente correto (SelectNcmGlobal, SelectGlobal,
+                CampoDecimalGlobal, CampoGeralGlobal+input, etc.). Adicionar
+                campo novo no SSOT com prioridade critica/principal o faz
+                aparecer aqui automaticamente — zero hardcode por campo.
+              */}
+              <div className="smart-import__form-item-grid">
+                {CAMPOS_FORM_ADICIONAR_ITEM.map((campo, idx) => {
+                  // Descricao_item ocupa as 2 colunas (campo longo)
+                  const ehLongo = campo === 'descricao_item'
+                  const ehObrig = CAMPOS_OBRIGATORIOS.has(campo)
+                  return (
+                    <div
+                      key={campo}
+                      className={`smart-import__form-item-campo${ehLongo ? ' smart-import__form-item-campo--full' : ''}`}
+                    >
+                      <CampoSmartImport
+                        campo={campo}
+                        valor={formItem[campo] ?? ''}
+                        onChange={v => setFormItem(p => ({ ...p, [campo]: v }))}
+                        obrigatorio={ehObrig}
+                        autoFocus={idx === 0}
+                      />
+                    </div>
+                  )
+                })}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.75rem' }}>
+              <div className="smart-import__form-item-acoes">
                 <button
                   type="button"
                   onClick={cancelarAdicionarItem}
-                  style={{ background: 'transparent', border: '1px solid var(--bg-elevated, #334155)', color: 'var(--text-muted)', padding: '0.375rem 0.75rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}
+                  className="smart-import__btn-pill smart-import__btn-pill--secondary"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={confirmarAdicionarItem}
-                  disabled={!formItem.part_number_item.trim()}
-                  style={{
-                    background: formItem.part_number_item.trim() ? '#60a5fa' : 'var(--bg-elevated, #334155)',
-                    border: 'none',
-                    color: formItem.part_number_item.trim() ? '#0f172a' : 'var(--text-muted)',
-                    padding: '0.375rem 0.75rem',
-                    borderRadius: '4px',
-                    cursor: formItem.part_number_item.trim() ? 'pointer' : 'not-allowed',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                  }}
-                  title={formItem.part_number_item.trim() ? 'Adicionar item ao pedido' : 'Part Number e obrigatorio'}
+                  disabled={!(formItem.part_number_item ?? '').trim()}
+                  className="smart-import__btn-pill smart-import__btn-pill--primary"
+                  title={(formItem.part_number_item ?? '').trim() ? 'Adicionar item ao pedido' : 'Part Number e obrigatorio'}
                 >
                   Adicionar Item
                 </button>

@@ -1298,11 +1298,15 @@ function Passo2Itens({
 
   // Estado degenerado: erro de rede/Zod OU catálogo vazio após load completo.
   const moedasIndisponiveis = !carregandoMoedas && (erroMoedas !== null || opcoesMoeda.length === 0)
+  // P16: placeholder NUNCA pode ser texto idêntico a um código de moeda válido
+  // (ex: "USD") — visualmente o cinza-muted do .sg-placeholder fica indistinguível
+  // de um valor selecionado e o usuário lê como "USD pré-preenchido". Padrão do
+  // sistema (DrawerPedido): "Selecionar moeda".
   const placeholderMoeda = erroMoedas
     ? `Erro: ${erroMoedas}`
     : (!carregandoMoedas && opcoesMoeda.length === 0)
       ? 'Sem moedas cadastradas'
-      : 'USD'
+      : 'Selecionar moeda'
 
   return (
     <div>

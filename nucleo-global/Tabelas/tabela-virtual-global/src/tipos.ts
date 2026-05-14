@@ -208,6 +208,13 @@ export interface GTMapaColunasFilho<C = unknown> {
 export interface GTVirtualHandle {
   /** Abre a edição inline na célula pai indicada */
   iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => void
+  /**
+   * Expande programaticamente a linha pai indicada (carrega filhos via
+   * `onCarregarFilhos` se necessário). Útil para destacar uma linha recém
+   * criada (ex: novo pedido aparece no topo com itens abertos).
+   * No-op se a linha já está expandida ou se o `id` não está na página atual.
+   */
+  expandir: (id: string) => void
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────

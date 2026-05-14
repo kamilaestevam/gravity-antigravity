@@ -1,0 +1,153 @@
+/* FiltrosColuna.css
+ *
+ * Estilos do subsistema de chips + popover de filtro de coluna.
+ * Refactor D9 (2026-05-13): promovido de produtos/pedido/Pedidos.css
+ * (classes .lp-filtro-chip*) para o nucleo-global (classes .fc-*).
+ *
+ * Os valores visuais foram mantidos IDENTICOS aos do Pedido para que a
+ * migração não cause regressão visual. Cores, paddings, raios — tudo
+ * espelhado.
+ *
+ * IMPORTANTE: este arquivo usa classes `gtv-*` herdadas do TabelaVirtualGlobal
+ * em alguns lugares (gtv-export-menu, gtv-col-acoes, gtv-col-busca,
+ * gtv-col-acao-btn, gtv-btn). Aqueles seletores moram em tabelas.css do
+ * nucleo-global e NÃO são duplicados aqui — apenas referenciamos.
+ */
+
+/* ── Chips de filtro ativo (toolbar) ──────────────────────────────────────── */
+
+.fc-chips-container {
+  /* Posicionamento e layout já são inline no componente (flex). */
+  /* Espaço deliberadamente vazio — adicione overrides globais aqui se preciso. */
+}
+
+.fc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.625rem;
+  border-radius: 9999px;
+  background: rgba(129, 140, 248, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  font-size: 0.71875rem;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.fc-chip-body {
+  /* Reset visual do botão — JSX já injeta inline styles para layout */
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.fc-chip-label {
+  color: rgba(129, 140, 248, 0.75);
+  font-weight: 500;
+}
+
+.fc-chip-valor {
+  color: #818cf8;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  white-space: nowrap;
+}
+
+.fc-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: none;
+  border: none;
+  color: #818cf8;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.fc-chip-remove:hover {
+  opacity: 1;
+  background: rgba(129, 140, 248, 0.2);
+}
+
+.fc-limpar-todos {
+  background: none;
+  border: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  font-size: 0.71875rem;
+  text-decoration: underline;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.fc-limpar-todos:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+/* ── Popover de filtro ────────────────────────────────────────────────────── */
+
+/* Container do popover — o componente também aplica gtv-export-menu inline,
+ * então mantemos a duplicação de estilo herdada do nucleo. */
+.fc-popover {
+  /* Layout principal já é inline (position: fixed, top, left, zIndex). */
+}
+
+/* Cabeçalho — nome da coluna em uppercase */
+.fc-popover-titulo {
+  padding: 0.5rem 0.75rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gtv-text, #f1f5f9);
+  border-bottom: 1px solid var(--gtv-border, rgba(255, 255, 255, 0.07));
+}
+
+/* Barra horizontal com botões Cresc./Decresc. */
+.fc-popover-acoes {
+  /* Layout via inline style. Sem estilo extra aqui. */
+}
+
+/* Título de seção (FILTRAR POR, INTERVALO) */
+.fc-popover-section-title {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gtv-muted, #64748b);
+  padding: 0.125rem 0;
+}
+
+.fc-popover-busca {
+  /* Reutiliza gtv-col-busca do TabelaVirtualGlobal. Espaço para tweaks futuros. */
+}
+
+.fc-popover-selecionar-tudo {
+  /* Layout via inline style. */
+}
+
+.fc-popover-lista {
+  /* Layout via inline style. */
+}
+
+.fc-popover-item {
+  /* Layout via inline style. */
+}
+
+.fc-popover-vazio {
+  /* Reutiliza gtv-col-vazio. */
+}
+
+.fc-popover-footer {
+  /* Layout via inline style. */
+}

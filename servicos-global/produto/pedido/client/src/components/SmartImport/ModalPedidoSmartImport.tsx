@@ -860,10 +860,27 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
             />
           )}
 
-          {/* Erro geral (nao na etapa de upload que tem seu proprio) */}
+          {/* Erro geral (nao na etapa de upload que tem seu proprio).
+             Q6 — `erro` e' um ErroDetalhado (objeto), nao string. Renderizar
+             diretamente {erro} gerava "Objects are not valid as a React child"
+             e o ErrorBoundary do shell engolia a pagina toda com
+             "Erro ao carregar: Pedido". Agora extraimos os campos. */}
           {erro && etapa !== 'upload' && (
             <div className="smart-import__erro" role="alert">
-              {erro}
+              <p style={{ margin: 0, fontWeight: 600 }}>{erro.titulo}</p>
+              <p style={{ margin: '0.25rem 0 0' }}>{erro.mensagem}</p>
+              {erro.sugestoes && erro.sugestoes.length > 0 && (
+                <ul style={{ margin: '0.5rem 0 0 1rem', padding: 0, fontSize: '0.8125rem' }}>
+                  {erro.sugestoes.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              )}
+              {erro.code && (
+                <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', opacity: 0.6 }}>
+                  [{erro.code}]
+                </p>
+              )}
             </div>
           )}
         </div>

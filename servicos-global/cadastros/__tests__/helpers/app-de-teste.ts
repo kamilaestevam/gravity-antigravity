@@ -10,6 +10,7 @@ import express, { type Express } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { empresasRouter } from '../../server/src/routes/empresas.js'
+import { adminEmpresasRouter } from '../../server/src/routes/admin-empresas.js'
 import { moedasRouter } from '../../server/src/routes/moedas.js'
 import { unidadesRouter } from '../../server/src/routes/unidades.js'
 import { ncmRouter } from '../../server/src/routes/ncm.js'
@@ -22,6 +23,7 @@ export function montarAppDeTeste(): Express {
   app.use(cors())
   app.use(express.json())
   app.use('/api/v1/empresas', empresasRouter)
+  app.use('/api/v1/admin/empresas', adminEmpresasRouter)
   app.use('/api/v1/cadastros/moedas', moedasRouter)
   app.use('/api/v1/cadastros/unidades', unidadesRouter)
   app.use('/api/v1/cadastros/ncm', ncmRouter)

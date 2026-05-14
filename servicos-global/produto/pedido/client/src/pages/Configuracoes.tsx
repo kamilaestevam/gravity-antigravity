@@ -527,6 +527,7 @@ const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNo
 ]
 
 const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string; descricao: string }[] = [
+  { valor: 'todos',   label: 'Todos',           descricao: 'Visível para todos os usuários'             },
   { valor: 'roles',   label: 'Por perfil/role', descricao: 'Visível apenas para os perfis selecionados' },
   { valor: 'privado', label: 'Só eu',           descricao: 'Coluna visível apenas para você'            },
 ]

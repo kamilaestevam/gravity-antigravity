@@ -3399,6 +3399,8 @@
           "form_valor_sem_padrao": "Sem padrão",
           "form_valor_add_opcoes_first": "Adicione as opções da lista acima para definir um valor padrão.",
           "form_nome_placeholder": "Ex: Código ERP, Margem %, Prioridade",
+          "vis_todos_label": "Todos",
+          "vis_todos_desc": "Visível para todos os usuários",
           "vis_roles_label": "Por perfil/role",
           "vis_roles_desc": "Visível apenas para os perfis selecionados",
           "vis_privado_label": "Só eu",

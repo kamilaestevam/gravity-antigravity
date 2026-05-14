@@ -3738,6 +3738,8 @@
           "form_valor_sem_padrao": "Sin predeterminado",
           "form_valor_add_opcoes_first": "Añada las opciones de la lista arriba para definir un valor predeterminado.",
           "form_nome_placeholder": "Ej.: Código ERP, Margen %, Prioridad",
+          "vis_todos_label": "Todos",
+          "vis_todos_desc": "Visible para todos los usuarios",
           "vis_roles_label": "Por perfil/rol",
           "vis_roles_desc": "Visible solo para los perfiles seleccionados",
           "vis_privado_label": "Solo yo",

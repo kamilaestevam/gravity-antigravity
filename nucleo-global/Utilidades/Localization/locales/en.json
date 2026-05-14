@@ -3593,6 +3593,8 @@
           "form_valor_sem_padrao": "No default",
           "form_valor_add_opcoes_first": "Add the list options above to define a default value.",
           "form_nome_placeholder": "E.g.: ERP Code, Margin %, Priority",
+          "vis_todos_label": "Everyone",
+          "vis_todos_desc": "Visible to all users",
           "vis_roles_label": "By role/profile",
           "vis_roles_desc": "Visible only to selected roles",
           "vis_privado_label": "Only me",

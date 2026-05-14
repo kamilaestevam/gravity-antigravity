@@ -117,9 +117,8 @@ export class ColunasUsuarioService {
     // 3. Gerar chave
     const chave = slugifyNome(input.nome)
 
-    // Verificar unicidade da chave também
     const chaveExistente = await prisma.pedidoListaColunaUsuario.findFirst({
-      where: { id_organizacao: tenantId, chave_coluna_usuario_pedido: chave },
+      where: { id_organizacao: tenantId, chave_coluna_usuario_pedido: chave, ativo_coluna_usuario_pedido: true },
     })
     if (chaveExistente) {
       throw new AppError(
@@ -168,18 +167,18 @@ export class ColunasUsuarioService {
       orderBy: { ordem_coluna_usuario_pedido: 'asc' },
     })
 
-    // Filtra por visibilidade (campos DDD novos)
     const filtradas = colunas.filter((col: {
       visibilidade_coluna_usuario_pedido: string
       tipos_usuario_workspace_permitidos_coluna_usuario_pedido: string[]
       criado_por_coluna_usuario_pedido: string
     }) => {
-      if (col.visibilidade_coluna_usuario_pedido === 'todos') return true
-      if (col.visibilidade_coluna_usuario_pedido === 'privado') return col.criado_por_coluna_usuario_pedido === userId
-      if (col.visibilidade_coluna_usuario_pedido === 'roles') {
+      const vis = col.visibilidade_coluna_usuario_pedido
+      if (!vis || vis === 'todos') return true
+      if (vis === 'privado') return col.criado_por_coluna_usuario_pedido === userId
+      if (vis === 'roles') {
         return col.tipos_usuario_workspace_permitidos_coluna_usuario_pedido.some((r: string) => userRoles.includes(r))
       }
-      return false
+      return true
     })
     return filtradas.map(mapColuna)
   }

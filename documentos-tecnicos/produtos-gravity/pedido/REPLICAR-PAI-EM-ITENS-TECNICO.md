@@ -35,7 +35,9 @@ A checkbox aparece **apenas**:
 
 ---
 
-## 2. Whitelist de campos elegíveis (22 campos)
+## 2. Whitelist de campos elegíveis (57 campos)
+
+> **Atualização 2026-05-13 (2ª onda):** whitelist subiu de 22 → 57 campos. Migration `20260513120000_pedido_item_datas_replicaveis` adicionou 35 colunas novas no `PedidoItem` para permitir replicar **TODAS** as datas do Pedido (rascunho, proforma, invoice, etc.).
 
 SSOT: `pedido/shared/mapaPropagacaoPedidoItem.ts` exporta
 `MAPA_PROPAGACAO_PEDIDO_ITEM` e `CAMPOS_PEDIDO_PROPAGAVEIS`.
@@ -53,6 +55,13 @@ Critério: campo precisa existir **tanto** em `Pedido` quanto em `PedidoItem`
 | **Datas Pedido Pronto (3)** | `data_prevista/confirmada/meta_pedido_pronto` → `data_prevista/confirmada/meta_item_pronto` |
 | **Datas Inspeção (3)** | `data_prevista/confirmada/meta_inspecao_pedido` → `data_prevista/confirmada/meta_inspecao_item` |
 | **Datas Coleta (3)** | `data_prevista/confirmada/meta_coleta_pedido` → `data_prevista/confirmada/meta_coleta_item` |
+| **Datas Rascunho Pedido (6)** | `data_previsao/confirmacao/meta_recebimento+aprovacao_rascunho_pedido` → `..._item` |
+| **Documento Pedido (1)** | `data_documento_pedido` → `data_documento_item` |
+| **Datas Proforma (13)** | `data_..._proforma_pedido` → `data_..._proforma_item` (recebimento + aprovação + envio + documento) |
+| **Datas Invoice (13)** | `data_..._invoice_pedido` → `data_..._invoice_item` (mesma estrutura da proforma) |
+| **Consolidação Pedido (1)** | `data_consolidacao_pedido` → `data_consolidacao_pedido_replicada_item` (coluna separada: `data_consolidacao_item` já tem semântica própria) |
+| **Transferência Saldo (1)** | `data_transferencia_saldo_pedido` → `data_transferencia_saldo_item` |
+| **TOTAL** | **57 campos** |
 
 **Para escalar a whitelist:** adicionar nova entry em
 `MAPA_PROPAGACAO_PEDIDO_ITEM` (e a coluna correspondente já existir em
@@ -203,4 +212,10 @@ Frontend agora atualiza cada item no cache com o novo valor após `replicar=true
   - `db94e7fb` log diag backend
   - `7331a4f9` date-only → Date object
   - `827064e6` atualiza cache local após replicar
+- **2026-05-13 (2ª onda)** — Escalada para TODAS as datas:
+  - Migration `20260513120000_pedido_item_datas_replicaveis`: +35 colunas em `PedidoItem`
+  - Mapa estendido (+35 entries), aliases legados atualizados
+  - Helper `criarColunaDataReplicavel(t, campo, label)` em `ColunasPai.tsx`: 43 datas migradas para pattern unificado (`renderAgregado` + checkbox replicar)
+  - Whitelist: 22 → 57 campos
+  - Testes: 26 → 32 (cobertura das 35 novas entries)
 - Aprovação: Coordenador + Líder Técnico + QA + dono visual.

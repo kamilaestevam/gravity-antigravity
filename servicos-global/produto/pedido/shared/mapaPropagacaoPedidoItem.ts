@@ -68,6 +68,70 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   data_prevista_coleta_pedido:      'data_prevista_coleta_item',
   data_confirmada_coleta_pedido:    'data_confirmada_coleta_item',
   data_meta_coleta_pedido:          'data_meta_coleta_item',
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Datas adicionais — Replicação Pai → Item (Coordenador, 2026-05-13)
+  // Migration 20260513120000_pedido_item_datas_replicaveis adicionou +35
+  // colunas no PedidoItem. Decisao do dono: TODAS as datas do Pedido devem
+  // poder ser replicadas para registro por item (quando o item ficou pronto,
+  // foi aprovado, etc.). REPLICAR-PAI-EM-ITENS-TECNICO.md tem o contexto.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // Rascunho Pedido — Recebimento (3)
+  data_previsao_recebimento_rascunho_pedido:    'data_previsao_recebimento_rascunho_item',
+  data_confirmacao_recebimento_rascunho_pedido: 'data_confirmacao_recebimento_rascunho_item',
+  data_meta_recebimento_rascunho_pedido:        'data_meta_recebimento_rascunho_item',
+  // Rascunho Pedido — Aprovação (3)
+  data_previsao_aprovacao_rascunho_pedido:      'data_previsao_aprovacao_rascunho_item',
+  data_confirmacao_aprovacao_rascunho_pedido:   'data_confirmacao_aprovacao_rascunho_item',
+  data_meta_aprovacao_rascunho_pedido:          'data_meta_aprovacao_rascunho_item',
+  // Documento Pedido (1)
+  data_documento_pedido:                        'data_documento_item',
+
+  // Proforma — Recebimento Rascunho (3)
+  data_previsao_recebimento_rascunho_proforma_pedido:    'data_previsao_recebimento_rascunho_proforma_item',
+  data_confirmacao_recebimento_rascunho_proforma_pedido: 'data_confirmacao_recebimento_rascunho_proforma_item',
+  data_meta_recebimento_rascunho_proforma_pedido:        'data_meta_recebimento_rascunho_proforma_item',
+  // Proforma — Aprovação Rascunho (3)
+  data_previsao_aprovacao_rascunho_proforma_pedido:      'data_previsao_aprovacao_rascunho_proforma_item',
+  data_confirmacao_aprovacao_rascunho_proforma_pedido:   'data_confirmacao_aprovacao_rascunho_proforma_item',
+  data_meta_aprovacao_rascunho_proforma_pedido:          'data_meta_aprovacao_rascunho_proforma_item',
+  // Proforma — Envio Original (3)
+  data_previsao_envio_original_proforma_pedido:          'data_previsao_envio_original_proforma_item',
+  data_confirmacao_envio_original_proforma_pedido:       'data_confirmacao_envio_original_proforma_item',
+  data_meta_envio_original_proforma_pedido:              'data_meta_envio_original_proforma_item',
+  // Proforma — Recebimento Original (3)
+  data_previsao_recebimento_original_proforma_pedido:    'data_previsao_recebimento_original_proforma_item',
+  data_confirmacao_recebimento_original_proforma_pedido: 'data_confirmacao_recebimento_original_proforma_item',
+  data_meta_recebimento_original_proforma_pedido:        'data_meta_recebimento_original_proforma_item',
+  // Documento Proforma (1)
+  data_documento_proforma_pedido:                        'data_documento_proforma_item',
+
+  // Invoice — Recebimento Rascunho (3)
+  data_previsao_recebimento_rascunho_invoice_pedido:    'data_previsao_recebimento_rascunho_invoice_item',
+  data_confirmacao_recebimento_rascunho_invoice_pedido: 'data_confirmacao_recebimento_rascunho_invoice_item',
+  data_meta_recebimento_rascunho_invoice_pedido:        'data_meta_recebimento_rascunho_invoice_item',
+  // Invoice — Aprovação Rascunho (3)
+  data_previsao_aprovacao_rascunho_invoice_pedido:      'data_previsao_aprovacao_rascunho_invoice_item',
+  data_confirmacao_aprovacao_rascunho_invoice_pedido:   'data_confirmacao_aprovacao_rascunho_invoice_item',
+  data_meta_aprovacao_rascunho_invoice_pedido:          'data_meta_aprovacao_rascunho_invoice_item',
+  // Invoice — Envio Original (3)
+  data_previsao_envio_original_invoice_pedido:          'data_previsao_envio_original_invoice_item',
+  data_confirmacao_envio_original_invoice_pedido:       'data_confirmacao_envio_original_invoice_item',
+  data_meta_envio_original_invoice_pedido:              'data_meta_envio_original_invoice_item',
+  // Invoice — Recebimento Original (3)
+  data_previsao_recebimento_original_invoice_pedido:    'data_previsao_recebimento_original_invoice_item',
+  data_confirmacao_recebimento_original_invoice_pedido: 'data_confirmacao_recebimento_original_invoice_item',
+  data_meta_recebimento_original_invoice_pedido:        'data_meta_recebimento_original_invoice_item',
+  // Documento Invoice (1)
+  data_documento_invoice_pedido:                        'data_documento_invoice_item',
+
+  // Outras datas do Pedido replicáveis (2)
+  // data_consolidacao_pedido NAO mapeia para data_consolidacao_item (esse ja
+  // tem semantica propria — data de consolidacao do item especifico). Aqui
+  // a replicacao vai pra coluna separada criada na migration.
+  data_consolidacao_pedido:                              'data_consolidacao_pedido_replicada_item',
+  data_transferencia_saldo_pedido:                       'data_transferencia_saldo_item',
 })
 
 /**
@@ -178,6 +242,42 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   referencia_fabricante: 'referencia_fabricante_pedido',
   condicao_pagamento:    'condicao_pagamento_pedido',
   tipo_operacao:         'tipo_operacao_pedido',
+
+  // Datas Rascunho Pedido — frontend usa 'prevista/confirmada', banco usa 'previsao/confirmacao'
+  data_prevista_recebimento_rascunho_pedido:   'data_previsao_recebimento_rascunho_pedido',
+  data_confirmada_recebimento_rascunho_pedido: 'data_confirmacao_recebimento_rascunho_pedido',
+  data_prevista_aprovacao_rascunho_pedido:     'data_previsao_aprovacao_rascunho_pedido',
+  data_confirmada_aprovacao_rascunho_pedido:   'data_confirmacao_aprovacao_rascunho_pedido',
+
+  // Datas Proforma
+  data_prevista_recebimento_rascunho_proforma:    'data_previsao_recebimento_rascunho_proforma_pedido',
+  data_confirmada_recebimento_rascunho_proforma:  'data_confirmacao_recebimento_rascunho_proforma_pedido',
+  data_meta_recebimento_rascunho_proforma:        'data_meta_recebimento_rascunho_proforma_pedido',
+  data_prevista_aprovacao_rascunho_proforma:      'data_previsao_aprovacao_rascunho_proforma_pedido',
+  data_confirmada_aprovacao_rascunho_proforma:    'data_confirmacao_aprovacao_rascunho_proforma_pedido',
+  data_meta_aprovacao_rascunho_proforma:          'data_meta_aprovacao_rascunho_proforma_pedido',
+  data_prevista_envio_original_proforma:          'data_previsao_envio_original_proforma_pedido',
+  data_confirmada_envio_original_proforma:        'data_confirmacao_envio_original_proforma_pedido',
+  data_meta_envio_original_proforma:              'data_meta_envio_original_proforma_pedido',
+  data_prevista_recebimento_original_proforma:    'data_previsao_recebimento_original_proforma_pedido',
+  data_confirmada_recebimento_original_proforma:  'data_confirmacao_recebimento_original_proforma_pedido',
+  data_meta_recebimento_original_proforma:        'data_meta_recebimento_original_proforma_pedido',
+  data_proforma_invoice:                          'data_documento_proforma_pedido',
+
+  // Datas Invoice
+  data_prevista_recebimento_rascunho_invoice:    'data_previsao_recebimento_rascunho_invoice_pedido',
+  data_confirmada_recebimento_rascunho_invoice:  'data_confirmacao_recebimento_rascunho_invoice_pedido',
+  data_meta_recebimento_rascunho_invoice:        'data_meta_recebimento_rascunho_invoice_pedido',
+  data_prevista_aprovacao_rascunho_invoice:      'data_previsao_aprovacao_rascunho_invoice_pedido',
+  data_confirmada_aprovacao_rascunho_invoice:    'data_confirmacao_aprovacao_rascunho_invoice_pedido',
+  data_meta_aprovacao_rascunho_invoice:          'data_meta_aprovacao_rascunho_invoice_pedido',
+  data_prevista_envio_original_invoice:          'data_previsao_envio_original_invoice_pedido',
+  data_confirmada_envio_original_invoice:        'data_confirmacao_envio_original_invoice_pedido',
+  data_meta_envio_original_invoice:              'data_meta_envio_original_invoice_pedido',
+  data_prevista_recebimento_original_invoice:    'data_previsao_recebimento_original_invoice_pedido',
+  data_confirmada_recebimento_original_invoice:  'data_confirmacao_recebimento_original_invoice_pedido',
+  data_meta_recebimento_original_invoice:        'data_meta_recebimento_original_invoice_pedido',
+  data_invoice:                                  'data_documento_invoice_pedido',
 })
 
 /**

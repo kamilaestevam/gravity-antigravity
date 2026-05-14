@@ -209,6 +209,44 @@ model PedidoItem {
   data_confirmada_coleta_item      DateTime?
   data_meta_coleta_item            DateTime?
 
+  // Replicação Pai → Item — 35 datas adicionais (Coordenador, 2026-05-13)
+  // Whitelist em mapaPropagacaoPedidoItem.ts
+  data_previsao_recebimento_rascunho_item    DateTime?
+  data_confirmacao_recebimento_rascunho_item DateTime?
+  data_meta_recebimento_rascunho_item        DateTime?
+  data_previsao_aprovacao_rascunho_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_item   DateTime?
+  data_meta_aprovacao_rascunho_item          DateTime?
+  data_documento_item                        DateTime?
+  data_previsao_recebimento_rascunho_proforma_item    DateTime?
+  data_confirmacao_recebimento_rascunho_proforma_item DateTime?
+  data_meta_recebimento_rascunho_proforma_item        DateTime?
+  data_previsao_aprovacao_rascunho_proforma_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_proforma_item   DateTime?
+  data_meta_aprovacao_rascunho_proforma_item          DateTime?
+  data_previsao_envio_original_proforma_item          DateTime?
+  data_confirmacao_envio_original_proforma_item       DateTime?
+  data_meta_envio_original_proforma_item              DateTime?
+  data_previsao_recebimento_original_proforma_item    DateTime?
+  data_confirmacao_recebimento_original_proforma_item DateTime?
+  data_meta_recebimento_original_proforma_item        DateTime?
+  data_documento_proforma_item                        DateTime?
+  data_previsao_recebimento_rascunho_invoice_item    DateTime?
+  data_confirmacao_recebimento_rascunho_invoice_item DateTime?
+  data_meta_recebimento_rascunho_invoice_item        DateTime?
+  data_previsao_aprovacao_rascunho_invoice_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_invoice_item   DateTime?
+  data_meta_aprovacao_rascunho_invoice_item          DateTime?
+  data_previsao_envio_original_invoice_item          DateTime?
+  data_confirmacao_envio_original_invoice_item       DateTime?
+  data_meta_envio_original_invoice_item              DateTime?
+  data_previsao_recebimento_original_invoice_item    DateTime?
+  data_confirmacao_recebimento_original_invoice_item DateTime?
+  data_meta_recebimento_original_invoice_item        DateTime?
+  data_documento_invoice_item                        DateTime?
+  data_consolidacao_pedido_replicada_item            DateTime?
+  data_transferencia_saldo_item                      DateTime?
+
   // ============================================================
   // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
   // ============================================================

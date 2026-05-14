@@ -239,6 +239,69 @@ model PedidoItem {
   data_meta_coleta_item            DateTime?
 
   // ============================================================
+  // Replicação Pai → Item — datas adicionais (Coordenador, 2026-05-13)
+  // Migration 20260513120000_pedido_item_datas_replicaveis
+  // Permite replicar 35 datas do Pedido pai para cada item.
+  // Whitelist em mapaPropagacaoPedidoItem.ts.
+  // ============================================================
+
+  // Rascunho Pedido — Recebimento (3)
+  data_previsao_recebimento_rascunho_item    DateTime?
+  data_confirmacao_recebimento_rascunho_item DateTime?
+  data_meta_recebimento_rascunho_item        DateTime?
+  // Rascunho Pedido — Aprovação (3)
+  data_previsao_aprovacao_rascunho_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_item   DateTime?
+  data_meta_aprovacao_rascunho_item          DateTime?
+  // Documento Pedido (1)
+  data_documento_item                        DateTime?
+
+  // Proforma — Recebimento Rascunho (3)
+  data_previsao_recebimento_rascunho_proforma_item    DateTime?
+  data_confirmacao_recebimento_rascunho_proforma_item DateTime?
+  data_meta_recebimento_rascunho_proforma_item        DateTime?
+  // Proforma — Aprovação Rascunho (3)
+  data_previsao_aprovacao_rascunho_proforma_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_proforma_item   DateTime?
+  data_meta_aprovacao_rascunho_proforma_item          DateTime?
+  // Proforma — Envio Original (3)
+  data_previsao_envio_original_proforma_item          DateTime?
+  data_confirmacao_envio_original_proforma_item       DateTime?
+  data_meta_envio_original_proforma_item              DateTime?
+  // Proforma — Recebimento Original (3)
+  data_previsao_recebimento_original_proforma_item    DateTime?
+  data_confirmacao_recebimento_original_proforma_item DateTime?
+  data_meta_recebimento_original_proforma_item        DateTime?
+  // Documento Proforma (1)
+  data_documento_proforma_item                        DateTime?
+
+  // Invoice — Recebimento Rascunho (3)
+  data_previsao_recebimento_rascunho_invoice_item    DateTime?
+  data_confirmacao_recebimento_rascunho_invoice_item DateTime?
+  data_meta_recebimento_rascunho_invoice_item        DateTime?
+  // Invoice — Aprovação Rascunho (3)
+  data_previsao_aprovacao_rascunho_invoice_item      DateTime?
+  data_confirmacao_aprovacao_rascunho_invoice_item   DateTime?
+  data_meta_aprovacao_rascunho_invoice_item          DateTime?
+  // Invoice — Envio Original (3)
+  data_previsao_envio_original_invoice_item          DateTime?
+  data_confirmacao_envio_original_invoice_item       DateTime?
+  data_meta_envio_original_invoice_item              DateTime?
+  // Invoice — Recebimento Original (3)
+  data_previsao_recebimento_original_invoice_item    DateTime?
+  data_confirmacao_recebimento_original_invoice_item DateTime?
+  data_meta_recebimento_original_invoice_item        DateTime?
+  // Documento Invoice (1)
+  data_documento_invoice_item                        DateTime?
+
+  // Outras datas do Pedido replicáveis (2)
+  // Note: data_consolidacao_item ja existe com semantica propria (data de
+  // consolidacao do item); este campo separado guarda a data_consolidacao_pedido
+  // replicada para registro de quando o pedido foi consolidado.
+  data_consolidacao_pedido_replicada_item            DateTime?
+  data_transferencia_saldo_item                      DateTime?
+
+  // ============================================================
   // Edição em Massa — colunas novas (Líder Técnico, 2026-05-12)
   // ============================================================
   descricao_completa_item_pt       String?

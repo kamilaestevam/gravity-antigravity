@@ -107,8 +107,11 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     }
   })
 
-  it('nenhum destino do mapa contém _pedido (não pode replicar para pedido-only)', () => {
+  it('nenhum destino do mapa contém _pedido (excepcao: data_consolidacao_pedido_replicada_item)', () => {
     for (const dest of Object.values(MAPA_PROPAGACAO_PEDIDO_ITEM)) {
+      // Aceita _pedido_replicada_item (data_consolidacao_pedido_replicada_item)
+      // mas rejeita destinos puramente _pedido (que seriam pedido-only).
+      if (dest === 'data_consolidacao_pedido_replicada_item') continue
       expect(dest).not.toMatch(/_pedido$/)
     }
   })
@@ -130,6 +133,60 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     for (const campo of datas) {
       expect(CAMPOS_PEDIDO_PROPAGAVEIS.has(campo)).toBe(true)
     }
+  })
+
+  // ── Migration 20260513120000_pedido_item_datas_replicaveis (35 novas) ──
+  it('cobre as 7 datas de rascunho do pedido + documento (Decisão UX 2026-05-13)', () => {
+    const datas = [
+      'data_previsao_recebimento_rascunho_pedido', 'data_confirmacao_recebimento_rascunho_pedido', 'data_meta_recebimento_rascunho_pedido',
+      'data_previsao_aprovacao_rascunho_pedido', 'data_confirmacao_aprovacao_rascunho_pedido', 'data_meta_aprovacao_rascunho_pedido',
+      'data_documento_pedido',
+    ]
+    for (const campo of datas) {
+      expect(CAMPOS_PEDIDO_PROPAGAVEIS.has(campo)).toBe(true)
+    }
+  })
+
+  it('cobre as 13 datas de proforma', () => {
+    const datas = [
+      'data_previsao_recebimento_rascunho_proforma_pedido', 'data_confirmacao_recebimento_rascunho_proforma_pedido', 'data_meta_recebimento_rascunho_proforma_pedido',
+      'data_previsao_aprovacao_rascunho_proforma_pedido', 'data_confirmacao_aprovacao_rascunho_proforma_pedido', 'data_meta_aprovacao_rascunho_proforma_pedido',
+      'data_previsao_envio_original_proforma_pedido', 'data_confirmacao_envio_original_proforma_pedido', 'data_meta_envio_original_proforma_pedido',
+      'data_previsao_recebimento_original_proforma_pedido', 'data_confirmacao_recebimento_original_proforma_pedido', 'data_meta_recebimento_original_proforma_pedido',
+      'data_documento_proforma_pedido',
+    ]
+    for (const campo of datas) {
+      expect(CAMPOS_PEDIDO_PROPAGAVEIS.has(campo)).toBe(true)
+    }
+  })
+
+  it('cobre as 13 datas de invoice', () => {
+    const datas = [
+      'data_previsao_recebimento_rascunho_invoice_pedido', 'data_confirmacao_recebimento_rascunho_invoice_pedido', 'data_meta_recebimento_rascunho_invoice_pedido',
+      'data_previsao_aprovacao_rascunho_invoice_pedido', 'data_confirmacao_aprovacao_rascunho_invoice_pedido', 'data_meta_aprovacao_rascunho_invoice_pedido',
+      'data_previsao_envio_original_invoice_pedido', 'data_confirmacao_envio_original_invoice_pedido', 'data_meta_envio_original_invoice_pedido',
+      'data_previsao_recebimento_original_invoice_pedido', 'data_confirmacao_recebimento_original_invoice_pedido', 'data_meta_recebimento_original_invoice_pedido',
+      'data_documento_invoice_pedido',
+    ]
+    for (const campo of datas) {
+      expect(CAMPOS_PEDIDO_PROPAGAVEIS.has(campo)).toBe(true)
+    }
+  })
+
+  it('cobre consolidação e transferência de saldo', () => {
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('data_consolidacao_pedido')).toBe(true)
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('data_transferencia_saldo_pedido')).toBe(true)
+  })
+
+  it('whitelist subiu de 22 para 57 campos (Decisão 2026-05-13)', () => {
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.size).toBe(57)
+  })
+
+  it('data_consolidacao_pedido NAO mapeia para data_consolidacao_item (semantica diferente)', () => {
+    // data_consolidacao_item ja existe com semantica propria (data de
+    // consolidacao do item especifico). O destino correto e a coluna nova
+    // data_consolidacao_pedido_replicada_item.
+    expect(MAPA_PROPAGACAO_PEDIDO_ITEM['data_consolidacao_pedido']).toBe('data_consolidacao_pedido_replicada_item')
   })
 })
 

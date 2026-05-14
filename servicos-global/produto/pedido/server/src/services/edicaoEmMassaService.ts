@@ -301,12 +301,6 @@ export class EdicaoEmMassaService {
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
-    // DEBUG: verificar valores retornados pelo findMany
-    console.log('[EdicaoEmMassa:preview] pedidos encontrados:', pedidos.length, 'ids buscados:', payload.pedido_ids.length)
-    pedidos.forEach((p: Record<string, unknown>) => {
-      console.log('[EdicaoEmMassa:preview]', p.numero_pedido, 'tipo_operacao_pedido=', p.tipo_operacao_pedido)
-    })
-
     // Cascade Pedido → Item ativo apenas na aba "Combinado".
     const ehCombinado = payload.nivel === 'combinado'
     const camposPedidoComCascade = payload.campos.filter(

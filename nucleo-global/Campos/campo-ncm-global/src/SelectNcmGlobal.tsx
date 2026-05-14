@@ -17,8 +17,13 @@
 import React, { useState, useId } from 'react'
 import { MagnifyingGlass, CheckCircle, Warning, ArrowsClockwise } from '@phosphor-icons/react'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CampoBuscarNcm, type NcmOpcao } from './CampoBuscarNcm.js'
 import { useNcmValidation } from './useNcmValidation.js'
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '')
+}
 
 /**
  * Formata 8 dígitos brutos no padrão visual NCM "XXXX.XX.XX".
@@ -83,14 +88,14 @@ export function SelectNcmGlobal({
       </span>
     )
     if (status === 'valido') {
-      const descricaoCompleta = resultado?.descricao ?? 'NCM válido'
+      const rawDesc = resultado?.descricao ?? 'NCM válido'
+      const descricaoCompleta = stripHtml(rawDesc)
       const MAX_CHARS = 50
       const truncado = descricaoCompleta.length > MAX_CHARS
       const descricaoVisivel = truncado ? descricaoCompleta.slice(0, MAX_CHARS) + '…' : descricaoCompleta
 
-      return (
+      const badge = (
         <span
-          title={truncado ? descricaoCompleta : undefined}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
             fontSize: '0.75rem', color: '#34d399',
@@ -101,6 +106,15 @@ export function SelectNcmGlobal({
           {descricaoVisivel}
         </span>
       )
+
+      if (truncado) {
+        return (
+          <TooltipGlobal texto={descricaoCompleta} posicao="bottom">
+            {badge}
+          </TooltipGlobal>
+        )
+      }
+      return badge
     }
     if (status === 'invalido') return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: '#fbbf24' }}>

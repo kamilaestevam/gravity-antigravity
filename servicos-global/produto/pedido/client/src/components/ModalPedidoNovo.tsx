@@ -10,10 +10,11 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Package, Tag, Plus, Trash, Warning, Lock, Info } from '@phosphor-icons/react'
+import { Package, Tag, Plus, Trash, Warning, Lock, Info, X } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
@@ -139,10 +140,6 @@ function validarPasso2(_itens: ItemForm[]): ErrosValidacao {
 
 // ── Formatadores ───────────────────────────────────────────────────────────────
 
-// P13.2 — formatarNcmInput migrado para `shared/formatadores.ts` (DRY:
-// usado tambem pelo Smart Import). Wrapper aqui mantem assinatura local.
-import { formatarNcm } from '../../../shared/formatadores'
-const formatarNcmInput = formatarNcm
 
 // ── Tradução de erros da API ───────────────────────────────────────────────────
 
@@ -264,20 +261,20 @@ const s = {
   // P14 UX: card de item migrou de --bg-elevated (cinza claro, baixo contraste
   // com labels) → --bg-base (escuro do modal). Borda sutil pra delimitar.
   itemCard: {
-    padding:       '0.875rem',
+    padding:       '1rem',
     background:    'var(--bg-base)',
     borderRadius:  'var(--radius-md)',
-    marginBottom:  '0.625rem',
+    marginBottom:  '0.75rem',
     border:        '1px solid var(--border-default, rgba(255,255,255,0.06))',
+    position:      'relative' as const,
   } as React.CSSProperties,
-  // P15: grid de 8 colunas — PartNum / NCM / Descricao / Qtd / Moeda / Valor / Total / lixeira.
-  // Valores numéricos (qtd, valor, total) à direita pra alinhamento contábil.
-  // Modal `tamanho="xl"` (960px) acomoda os 7 labels + lixeira sem wrap.
   itemGrid: {
     display: 'grid',
-    gridTemplateColumns: '1.1fr 0.9fr 1.3fr 0.7fr 0.55fr 1.15fr 1.2fr auto',
-    gap: '0.5rem',
-    alignItems: 'flex-start',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+  } as React.CSSProperties,
+  itemGridFull: {
+    gridColumn: '1 / -1',
   } as React.CSSProperties,
   // P15 UX: padrão alinhado com `.drawer-pedido__item-remover` (DrawerPedido.css):
   // estado base levemente apagado (opacity 0.6 + text-muted), hover destrutivo
@@ -295,23 +292,11 @@ const s = {
     display:       'flex',
     alignItems:    'center',
     justifyContent: 'center',
-    marginTop:     '1.25rem',
+    position:      'absolute' as const,
+    top:           '0.5rem',
+    right:         '0.5rem',
     transition:    'color 0.15s, opacity 0.15s',
   } as React.CSSProperties,
-  inputCompacto: {
-    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
-    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
-    borderRadius:  'var(--radius-sm, 6px)',
-    color:         'var(--text-primary)',
-    fontSize:      '0.8125rem',
-    padding:       '0.375rem 0.625rem',
-    outline:       'none',
-    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
-    width:         '100%',
-    boxSizing:     'border-box' as const,
-  } as React.CSSProperties,
-  // P15: cor alinhada com `.cg-label` do CampoGeralGlobal (canônico do sistema)
-  // — `--text-muted` é o padrão de label em todo o nucleo-global.
   labelCompacto: {
     fontSize: '0.75rem',
     fontWeight: 600,
@@ -319,20 +304,6 @@ const s = {
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     lineHeight: 1.3,
-    marginBottom: '0.25rem',
-    display: 'block',
-  } as React.CSSProperties,
-  selectCompacto: {
-    background:    'var(--ws-bg-body, var(--bg-body, #0f172a))',
-    border:        '1.5px solid var(--ws-accent-border, var(--border-accent, rgba(129,140,248,0.20)))',
-    borderRadius:  'var(--radius-sm, 6px)',
-    color:         'var(--text-primary)',
-    fontSize:      '0.8125rem',
-    padding:       '0.375rem 0.625rem',
-    outline:       'none',
-    transition:    'border-color 0.18s ease, box-shadow 0.18s ease',
-    width:         '100%',
-    cursor:        'pointer',
   } as React.CSSProperties,
 }
 
@@ -1326,89 +1297,86 @@ function Passo2Itens({
 
       {itens.map((item, index) => (
         <div key={item.key} style={s.itemCard}>
+          {itens.length > 1 && (
+            <button
+              style={s.btnRemover}
+              onClick={() => onRemoverItem(index)}
+              title={t('pedido.modal_novo.remover_item_hint')}
+              aria-label={t('pedido.modal_novo.remover_item_aria', { n: index + 1 })}
+              type="button"
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger, #ef4444)'; e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted, #64748b)'; e.currentTarget.style.opacity = '0.6' }}
+            >
+              <X size={14} weight="bold" />
+            </button>
+          )}
           <div style={s.itemGrid}>
-            <div>
+            <div style={s.campo}>
               <label style={s.labelCompacto} htmlFor={`mnp-pn-${index}`}>{t('pedido.item.part_number')}</label>
               <input
                 id={`mnp-pn-${index}`}
-                style={s.inputCompacto}
+                style={s.input}
                 value={item.part_number_item}
                 onChange={e => onChangeItem(index, 'part_number_item', e.target.value)}
                 placeholder={t('pedido.modal_novo.ph_sku')}
               />
             </div>
-            <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>{t('pedido.item.ncm')}</label>
-              <input
-                id={`mnp-ncm-${index}`}
-                style={{ ...s.inputCompacto, fontFamily: 'var(--font-mono, monospace)' }}
+            <div style={s.campo}>
+              <SelectNcmGlobal
+                label={t('pedido.item.ncm')}
                 value={item.ncm_item}
-                onChange={e => onChangeItem(index, 'ncm_item', formatarNcmInput(e.target.value))}
-                placeholder="0000.00.00"
-                maxLength={10}
-                inputMode="numeric"
+                onChange={(codigo) => onChangeItem(index, 'ncm_item', codigo)}
               />
             </div>
-            <div>
+            <div style={{ ...s.campo, ...s.itemGridFull }}>
               <label style={s.labelCompacto} htmlFor={`mnp-desc-${index}`}>{t('pedido.drawer.label_descricao')}</label>
               <input
                 id={`mnp-desc-${index}`}
-                style={s.inputCompacto}
+                style={s.input}
                 value={item.descricao_item}
                 onChange={e => onChangeItem(index, 'descricao_item', e.target.value)}
                 placeholder={t('pedido.item.descricao_item')}
               />
             </div>
-            <div>
+            <div style={s.campo}>
               <label style={s.labelCompacto} htmlFor={`mnp-qty-${index}`}>{t('pedido.drawer.label_qtd')}</label>
-              {/* Live mask BR. casasDecimais lê config do usuário via getCasas() —
-                  default 0 para quantidade (alinha com lista e Configurações). */}
               <CampoDecimalGlobal
                 id={`mnp-qty-${index}`}
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'quantidade_inicial_item', n === null ? '' : String(n))}
                 casasDecimais={casasQtdItem()}
                 placeholder="Quantidade"
-                style={s.inputCompacto}
-                textAlign="right"
+                style={s.input}
+                textAlign="left"
               />
             </div>
-            <div>
+            <div style={s.campo}>
               <label style={s.labelCompacto} htmlFor={`mnp-moeda-${index}`}>{t('pedido.item.moeda', 'Moeda')}</label>
-              {/* P16: SelectGlobal alinhado com ModalItemNovo — mesmo placeholder
-                  "USD" (sigla canônica padrão), sem `monoValor` (display normal,
-                  não mono). `tamanho="compacto"` é mantido APENAS para casar a
-                  altura com os demais inputs da grade (inputCompacto). SSOT
-                  lista vem de useMoedas() (Cadastros). */}
               <SelectGlobal
                 id={`mnp-moeda-${index}`}
                 opcoes={opcoesMoeda}
                 valor={item.moeda_item || null}
                 aoMudarValor={(v) => onChangeItem(index, 'moeda_item', String(v ?? ''))}
                 placeholder={placeholderMoeda}
-                tamanho="compacto"
                 buscavel
                 carregando={carregandoMoedas}
                 desabilitado={moedasIndisponiveis}
               />
             </div>
-            <div>
+            <div style={s.campo}>
               <label style={s.labelCompacto} htmlFor={`mnp-valor-${index}`}>{t('pedido.item.valor_do_item')}</label>
-              {/* P15: Live mask BR. casasDecimais via getCasas — default 2. */}
               <CampoDecimalGlobal
                 id={`mnp-valor-${index}`}
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'valor_por_unidade_item', n === null ? '' : String(n))}
                 casasDecimais={casasValorUnitario()}
                 placeholder="Valor unitário"
-                style={s.inputCompacto}
-                textAlign="right"
+                style={s.input}
+                textAlign="left"
               />
             </div>
-            <div>
+            <div style={s.campo}>
               <label style={s.labelCompacto} htmlFor={`mnp-total-${index}`}>{t('pedido.item.valor_total_dos_itens')}</label>
-              {/* P15: computed read-only = qtd × valor_por_unidade. Não enviado ao
-                  backend — backend recalcula via recalcularAgregadosPedido. */}
               <CampoDecimalGlobal
                 id={`mnp-total-${index}`}
                 valor={
@@ -1416,26 +1384,14 @@ function Passo2Itens({
                     ? null
                     : Number(item.valor_por_unidade_item) * Number(item.quantidade_inicial_item)
                 }
-                aoMudarValor={() => { /* read-only: ignora mudanças */ }}
+                aoMudarValor={() => {}}
                 casasDecimais={casasValorTotal()}
                 placeholder="Calculado"
-                style={{ ...s.inputCompacto, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
-                textAlign="right"
+                style={{ ...s.input, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
+                textAlign="left"
                 desabilitado
               />
             </div>
-            <button
-              style={s.btnRemover}
-              onClick={() => onRemoverItem(index)}
-              disabled={itens.length <= 1}
-              title={itens.length <= 1 ? t('pedido.modal_novo.remover_unico_hint') : t('pedido.modal_novo.remover_item_hint')}
-              aria-label={t('pedido.modal_novo.remover_item_aria', { n: index + 1 })}
-              type="button"
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) { e.currentTarget.style.color = 'var(--danger, #ef4444)'; e.currentTarget.style.opacity = '1' } }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted, #64748b)'; e.currentTarget.style.opacity = '0.6' }}
-            >
-              <Trash size={14} weight="duotone" />
-            </button>
           </div>
         </div>
       ))}

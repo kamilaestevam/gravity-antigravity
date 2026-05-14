@@ -178,7 +178,7 @@ export interface GTPreferencias {
 
 export type GTLinhaVirtual<T, C> =
   | { tipo: 'pai'; item: T; profundidade: 0; id: string }
-  | { tipo: 'filho'; item: C; paiId: string; profundidade: 1; id: string }
+  | { tipo: 'filho'; item: C; paiId: string; profundidade: 1; id: string; ultimoFilho?: boolean }
 
 // ─── Mapa de colunas filho ─────────────────────────────────────────────────────
 
@@ -193,6 +193,8 @@ export interface GTMapaColunasFilho<C = unknown> {
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
   getValorEditar?: (item: C) => unknown
+  /** Opções de escolha para edição inline no filho (select/lista) */
+  opcoes?: { valor: string; label: string }[]
   /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
   casasDecimais?: number
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */

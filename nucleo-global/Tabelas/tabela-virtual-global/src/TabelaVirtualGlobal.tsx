@@ -128,9 +128,10 @@ function buildFlatRows<T, C>(
 
     if (expandidos.has(id)) {
       const filhos = filhosCache.get(id) ?? []
-      for (const filho of filhos) {
+      for (let fi = 0; fi < filhos.length; fi++) {
+        const filho = filhos[fi]
         const fid = filhoId(filho)
-        linhas.push({ tipo: 'filho', item: filho, paiId: id, profundidade: 1, id: fid })
+        linhas.push({ tipo: 'filho', item: filho, paiId: id, profundidade: 1, id: fid, ultimoFilho: fi === filhos.length - 1 })
       }
     }
   }
@@ -2043,7 +2044,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }
 
   function renderLinhaFilha(linha: GTLinhaVirtual<T, C> & { tipo: 'filho' }, linhaVirtualIndex: number) {
-    const { item, id } = linha
+    const { item, id, ultimoFilho } = linha
 
     // ── Modo mapeado: filho usa as mesmas colunas do pai ──────────────────────
     if (mapaColunasFilho) {
@@ -2052,7 +2053,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const dropAberto = dropdownFilhoAberto === id
 
       return (
-        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
+        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
           {temSelecao && (
             <div className="gtv-celula gtv-celula--check gtv-col-fixa">
               {selecionavelFilhos && (
@@ -2109,14 +2110,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}
               >
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
-                    {(col as GTColuna<unknown>).opcoes?.find(op => op.valor === String(valorEditandoFilho))?.label
+                    {(mapa?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditandoFilho))?.label
                       ?? formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
                   </span>
                 ) : estaEditando ? (
@@ -2217,7 +2218,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const dropAbertoOrig = dropdownFilhoAberto === id
 
     return (
-      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
+      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
         {/* Espaço para alinhar com checkbox pai */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">

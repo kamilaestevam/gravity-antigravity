@@ -776,6 +776,8 @@
 .gtv-linha--filho {
   background: var(--gtv-bg-filho);
   min-height: 44px;
+  border-left: 1px solid var(--gtv-accent, #818cf8);
+  border-right: 1px solid var(--gtv-accent, #818cf8);
 }
 
 .gtv-linha--filho .gtv-celula {
@@ -788,6 +790,11 @@
   background: rgba(10, 18, 36, 0.65);
 }
 
+.gtv-linha--filho-ultimo {
+  border-bottom: 1px solid var(--gtv-accent, #818cf8);
+  margin-bottom: 6px;
+}
+
 .gtv-linha--selecionada {
   background: rgba(129, 140, 248, 0.06) !important;
 }
@@ -797,12 +804,15 @@
 }
 
 .gtv-linha--expandida {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.12);
+  border-top: 1px solid var(--gtv-accent, #818cf8);
+  border-left: 1px solid var(--gtv-accent, #818cf8);
+  border-right: 1px solid var(--gtv-accent, #818cf8);
   border-bottom: none;
 }
 
 .gtv-linha--expandida:hover {
-  background: rgba(129, 140, 248, 0.06);
+  background: rgba(129, 140, 248, 0.16);
 }
 
 /* ─── Células ─────────────────────────────────────────────────────────────── */
@@ -859,10 +869,10 @@
   background: rgba(129, 140, 248, 0.09);
 }
 .gtv-linha--expandida .gtv-celula--acoes {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.08);
 }
 .gtv-linha--expandida:hover .gtv-celula--acoes {
-  background: rgba(129, 140, 248, 0.06);
+  background: rgba(129, 140, 248, 0.12);
 }
 
 .gtv-celula--center { justify-content: center; text-align: center; }

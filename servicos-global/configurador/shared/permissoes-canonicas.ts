@@ -98,8 +98,7 @@ export function buildPermissaoString(
 //
 // Decisão dono 2026-05-13:
 //   - PADRAO (operador interno):
-//       opera Lista + Kanban (ver+editar)
-//       vê Dashboard + Configurações + Histórico
+//       mínimo operacional: só Lista (ver). Master refina depois.
 //   - FORNECEDOR (externo, escopo restrito):
 //       só consulta Lista + Dashboard + Histórico (read-only)
 //
@@ -126,13 +125,7 @@ export const DEFAULTS_GRANULARES_POR_PRODUTO: Record<
 > = {
   pedido: {
     PADRAO: [
-      { secao: 'dashboard',    acao: 'ver' },
       { secao: 'lista',        acao: 'ver' },
-      { secao: 'lista',        acao: 'editar' },
-      { secao: 'kanban',       acao: 'ver' },
-      { secao: 'kanban',       acao: 'editar' },
-      { secao: 'configuracao', acao: 'ver' },
-      { secao: 'historico',    acao: 'ver' },
     ],
     FORNECEDOR: [
       { secao: 'dashboard', acao: 'ver' },

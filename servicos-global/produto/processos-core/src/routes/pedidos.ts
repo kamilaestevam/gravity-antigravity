@@ -190,9 +190,14 @@ export const criarPedidoSchema = criarPedidoObjectSchema.superRefine((data, ctx)
   }
 })
 
-const atualizarPedidoSchema = criarPedidoObjectSchema.partial().omit({ itens: true })
+// `.strict()` — Mandamento 09 (contrato bilateral): rejeita campos não declarados.
+// Em especial bloqueia `_colunas_usuario` em PUT genérico — valores de colunas
+// personalizadas são gravados via rota dedicada `POST /colunas-usuario/valores`,
+// nunca pelo PUT do Pedido. Sem o `.strict()`, payload com `_colunas_usuario`
+// passava silenciosamente e era descartado, dando ilusão de sucesso (bug 2026-05-13).
+export const atualizarPedidoSchema = criarPedidoObjectSchema.partial().omit({ itens: true }).strict()
 
-const atualizarItemSchema = z.object({
+export const atualizarItemSchema = z.object({
   part_number: z.string().min(1).optional(),
   ncm: z.string().min(1).optional(),
   descricao_item: z.string().min(1).optional(),
@@ -220,7 +225,7 @@ const atualizarItemSchema = z.object({
   peso_bruto_unidade_item:   z.string().min(1).max(8).optional().nullable(),
   cubagem_unitaria:          z.number().optional().nullable(),
   cubagem_unidade_item:      z.string().min(1).max(8).optional().nullable(),
-})
+}).strict() // Mand. 09 — bloqueia `_colunas_usuario` no PUT (rota dedicada cuida).
 
 const cancelarQuantidadeSchema = z.object({
   quantidade: z.number().positive(),
@@ -311,6 +316,11 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     campos_custom:               item.dados_extras_importacao_item,
     created_at:                  item.data_criacao_item,
     updated_at:                  item.data_atualizacao_item,
+
+    // Pass-through das colunas personalizadas. Quando o caller injetou via
+    // `injetarValoresColunasUsuario(..., { vinculo: 'item' })` antes de chamar
+    // `mapItem`, esse campo carrega os valores; senão, fica `{}`. Mand. 09.
+    _colunas_usuario: (item as Record<string, unknown>)._colunas_usuario ?? {},
   }
 }
 
@@ -444,29 +454,105 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
   }
 }
 
-// ── Helper: injeta _colunas_usuario nos pedidos retornados ───────────────────
+// ── Helper: injeta _colunas_usuario nos registros retornados ─────────────────
 // Faz um único batch query para buscar todos os valores de colunas personalizadas
-// dos pedidos na página, evitando N+1 queries.
-async function injetarValoresColunasUsuario<T extends { id_pedido: string }>(
+// associadas aos registros, evitando N+1 queries.
+//
+// Suporta DOIS vínculos (mesma tabela `PedidoListaColunaUsuarioValor`, distintos
+// apenas pelo `vinculo_valor_coluna_usuario_pedido`):
+//   - `'pedido'` (default): valores associados ao Pedido pai. Usar `idField='id_pedido'`.
+//   - `'item'`            : valores associados a um PedidoItem. Usar `idField='id_item'`
+//     (nome da PK no banco — confirmado em queries `where: { id_item: ... }`).
+//
+// Por que generalizar: tabela é única, `vinculo` é discriminador no banco. Sem
+// generalização, item ficava sem injeção e bug "edita coluna do item, valor
+// some" não fechava. Mand. 09 — contrato bilateral também na leitura.
+export async function injetarValoresColunasUsuario<T extends Record<string, unknown>>(
   prisma: PrismaClient,
   registros: T[],
-  tenant_id: string
+  tenant_id: string,
+  opcoes: {
+    vinculo?: 'pedido' | 'item'
+    idField?: string
+  } = {},
 ): Promise<(T & { _colunas_usuario: Record<string, string> })[]> {
+  const vinculo = opcoes.vinculo ?? 'pedido'
+  const idField = opcoes.idField ?? 'id_pedido'
+
   if (registros.length === 0) return []
-  const ids = registros.map(r => r.id_pedido).filter((x): x is string => typeof x === 'string' && x.length > 0)
+  const ids = registros
+    .map(r => r[idField])
+    .filter((x): x is string => typeof x === 'string' && x.length > 0)
   if (ids.length === 0) return registros.map(r => ({ ...r, _colunas_usuario: {} }))
+
   const valores: { id_vinculo_valor_coluna_usuario_pedido: string; id_coluna_usuario_pedido: string; valor_coluna_usuario_pedido: string }[] =
     await prisma.pedidoListaColunaUsuarioValor.findMany({
-      where: { id_organizacao: tenant_id, id_vinculo_valor_coluna_usuario_pedido: { in: ids } },
+      where: {
+        id_organizacao: tenant_id,
+        vinculo_valor_coluna_usuario_pedido: vinculo,
+        id_vinculo_valor_coluna_usuario_pedido: { in: ids },
+      },
       select: { id_vinculo_valor_coluna_usuario_pedido: true, id_coluna_usuario_pedido: true, valor_coluna_usuario_pedido: true },
     })
+
   const mapa: Record<string, Record<string, string>> = {}
   for (const v of valores) {
     const vinculoId = v.id_vinculo_valor_coluna_usuario_pedido
     if (!mapa[vinculoId]) mapa[vinculoId] = {}
     mapa[vinculoId][v.id_coluna_usuario_pedido] = v.valor_coluna_usuario_pedido
   }
-  return registros.map(r => ({ ...r, _colunas_usuario: mapa[r.id_pedido] ?? {} }))
+
+  return registros.map(r => {
+    const key = r[idField]
+    // Defensive: registros sem id válido (string vazia, null, undefined) recebem
+    // `{}` — não `''` (bug do `??` que só coalesce null/undefined, não falsy).
+    const valoresParaEste = typeof key === 'string' && key.length > 0 ? mapa[key] : undefined
+    return { ...r, _colunas_usuario: valoresParaEste ?? {} }
+  })
+}
+
+// ── Helper: injeta colunas em PEDIDOS + nos ITENS embarcados em uma única passada
+//
+// Pattern reusado em 3 listagens (GET /pedidos cursor, GET /pedidos offset,
+// GET /inicializacao): cada pedido tem `itens_pedido` embarcado, e ambos os
+// níveis precisam de `_colunas_usuario`. Sem isso, views como Kanban (que lê
+// a lista base via GET /pedidos) perde colunas de escopo 'item' (bug 2026-05-13).
+//
+// Faz 2 queries batch — 1 para pedidos (vinculo='pedido', idField='id_pedido')
+// + 1 para todos os itens da página coletados (vinculo='item', idField='id_item').
+export async function injetarColunasPedidoEItens<
+  P extends { id_pedido: string; itens_pedido?: Array<Record<string, unknown>> | undefined }
+>(
+  prisma: PrismaClient,
+  pedidos: P[],
+  tenant_id: string,
+): Promise<Array<P & { _colunas_usuario: Record<string, string>; itens_pedido?: Array<Record<string, unknown>> }>> {
+  if (pedidos.length === 0) return []
+  // 1) Nível pedido
+  const pedidosComCol = await injetarValoresColunasUsuario(prisma, pedidos, tenant_id)
+  // 2) Coleta todos os itens em 1 array, faz query batch, remapeia
+  const todosItens: Array<Record<string, unknown>> = []
+  for (const p of pedidosComCol) {
+    const itens = (p.itens_pedido as Array<Record<string, unknown>> | undefined) ?? []
+    for (const it of itens) todosItens.push(it)
+  }
+  if (todosItens.length === 0) {
+    return pedidosComCol as Array<P & { _colunas_usuario: Record<string, string> }>
+  }
+  const itensComCol = await injetarValoresColunasUsuario(
+    prisma, todosItens, tenant_id, { vinculo: 'item', idField: 'id_item' },
+  )
+  const mapaItens = new Map<string, Record<string, unknown>>()
+  for (const it of itensComCol) {
+    const key = it.id_item as string | undefined
+    if (key) mapaItens.set(key, it)
+  }
+  return pedidosComCol.map(p => ({
+    ...p,
+    itens_pedido: ((p.itens_pedido as Array<Record<string, unknown>> | undefined) ?? []).map(
+      it => mapaItens.get(it.id_item as string) ?? it,
+    ),
+  })) as Array<P & { _colunas_usuario: Record<string, string>; itens_pedido?: Array<Record<string, unknown>> }>
 }
 
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
@@ -684,7 +770,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
           })
         }
 
-        const registrosComColunas = await injetarValoresColunasUsuario(db, registros, idOrganizacao)
+        // Injeta nos 2 níveis (pedido + itens) — Kanban e demais views que
+        // consomem a lista base precisam dos `_colunas_usuario` nos itens
+        // embarcados também. Fix 2026-05-13.
+        const registrosComColunas = await injetarColunasPedidoEItens(db, registros, idOrganizacao)
         return res.json({ data: registrosComColunas.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
@@ -741,7 +830,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = dataRaw as any[]
-      const dataComColunas = await injetarValoresColunasUsuario(db, data, idOrganizacao)
+      // Mesma injeção 2-níveis do branch cursor — fecha o gap da Kanban (fix 2026-05-13).
+      const dataComColunas = await injetarColunasPedidoEItens(db, data, idOrganizacao)
       res.json({ data: dataComColunas.map(mapPedido), total, totalItens, page: pageNum, limit: limitNum })
     })
   } catch (err) {
@@ -918,7 +1008,14 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      res.json(mapPedido(pedido))
+      // Injeção em 2 níveis (Mand. 09 — leitura espelha a escrita):
+      //  1) o próprio Pedido recebe `_colunas_usuario` do escopo='pedido'
+      //  2) cada item embarcado em `itens_pedido` recebe `_colunas_usuario`
+      //     do escopo='item' (batch IN nos id_item)
+      // Sem isso, o frontend recarrega o detail/snapshot e perde tudo.
+      const [pedidoComCol] = await injetarColunasPedidoEItens(db, [pedido], tenant_id)
+
+      res.json(mapPedido(pedidoComCol))
     })
   } catch (err) {
     next(err)
@@ -956,7 +1053,17 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
         orderBy: { sequencia_item_pedido: 'asc' },
       })
 
-      res.json(itens.map(mapItem))
+      // Injeta `_colunas_usuario` ANTES do `mapItem` — vinculo='item' busca
+      // valores ligados ao `id_item` de cada PedidoItem. Sem isso, expandir
+      // pedido na lista vinha com itens sem colunas personalizadas (bug 2026-05-13).
+      const itensComCol = await injetarValoresColunasUsuario(
+        db,
+        itens as Array<Record<string, unknown>>,
+        tenant_id,
+        { vinculo: 'item', idField: 'id_item' },
+      )
+
+      res.json(itensComCol.map(mapItem))
     })
   } catch (err) {
     next(err)

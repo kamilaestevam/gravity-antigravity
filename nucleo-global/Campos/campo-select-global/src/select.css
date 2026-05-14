@@ -64,6 +64,30 @@
   opacity: 0.5;
 }
 
+/* Variante compacta — altura ~24px, alinha com inputs compactos em tabelas/grids
+   densos (ex: linha de item no modal de pedido). Padding e font-size reduzidos. */
+.sg-campo--compacto {
+  padding: 0.375rem 0.625rem;
+  min-height: 2rem;
+  border-radius: var(--radius-sm, 6px);
+  border-width: 1.5px;
+  font-size: 0.8125rem;
+}
+
+.sg-campo--compacto .sg-placeholder,
+.sg-campo--compacto .sg-valor-unico,
+.sg-campo--compacto .sg-valor-multiplo {
+  font-size: 0.8125rem;
+}
+
+/* Variante mono — valor selecionado em fonte monoespaçada. Usar quando o
+   valor representa um CÓDIGO (ISO de moeda, NCM, ticker, etc.) e alinhamento
+   tipográfico importa. Placeholder e opções do dropdown continuam sans. */
+.sg-campo--mono .sg-valor-unico,
+.sg-campo--mono .sg-valor-multiplo {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
 .sg-campo--carregando {
   cursor: wait;
   opacity: 0.7;

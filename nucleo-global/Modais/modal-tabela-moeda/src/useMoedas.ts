@@ -64,7 +64,11 @@ export const MOEDAS_PRIORITARIAS_UX = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY']
 function ordenarComPrioridade(moedas: Moeda[]): Moeda[] {
   const prioritarias: Moeda[] = []
   const demais: Moeda[] = []
-  const indicePrioridade = new Map(MOEDAS_PRIORITARIAS_UX.map((s, i) => [s, i] as const))
+  // Map<string, number> explícito — sem `as const` aqui pra evitar union literal
+  // que conflitaria com `m.codigo_moeda: string` no `has()`/`get()` (TS2345).
+  const indicePrioridade = new Map<string, number>(
+    MOEDAS_PRIORITARIAS_UX.map((s, i) => [s, i]),
+  )
 
   for (const m of moedas) {
     if (indicePrioridade.has(m.codigo_moeda)) prioritarias.push(m)

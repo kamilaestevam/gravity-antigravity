@@ -143,6 +143,8 @@ export function SelectGlobal({
   hint,
   iconeEsquerda,
   posicao = 'auto',
+  tamanho = 'normal',
+  monoValor = false,
   renderizarOpcao,
   renderizarValorSelecionado,
   id: idExterno,
@@ -465,7 +467,7 @@ export function SelectGlobal({
       <div
         id={id}
         ref={campoRef}
-        className={`sg-campo ${aberto ? 'sg-campo--aberto' : ''} ${desabilitado ? 'sg-campo--desabilitado' : ''} ${carregando ? 'sg-campo--carregando' : ''} ${iconeEsquerda ? 'sg-campo--com-icone' : ''}`}
+        className={`sg-campo ${aberto ? 'sg-campo--aberto' : ''} ${desabilitado ? 'sg-campo--desabilitado' : ''} ${carregando ? 'sg-campo--carregando' : ''} ${iconeEsquerda ? 'sg-campo--com-icone' : ''} ${tamanho === 'compacto' ? 'sg-campo--compacto' : ''} ${monoValor ? 'sg-campo--mono' : ''}`}
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={aberto}

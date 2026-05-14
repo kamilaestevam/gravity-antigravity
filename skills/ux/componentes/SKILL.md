@@ -159,6 +159,48 @@ import { CaixaSelectGlobal, type SelectConfig } from '@nucleo/caixa-campo-select
 
 ---
 
+### CampoGeralGlobal
+
+**Quando usar:** wrapper canônico para **qualquer campo de formulário** (input, select, textarea, calendário). Gerencia label, asterisco de obrigatoriedade, borda vermelha de erro/vazio e mensagem de erro inline em uma única abstração.
+
+```typescript
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+
+<CampoGeralGlobal
+  label="Número do Pedido"
+  obrigatorio                            // adiciona asterisco vermelho no label
+  vazio={!form.numero_pedido.trim()}     // dispara borda vermelha quando obrigatorio && vazio
+  erro={erros.numero_pedido}             // mensagem de erro pós-validação (opcional)
+>
+  <input value={form.numero_pedido} onChange={onChange} />
+</CampoGeralGlobal>
+```
+
+**Path:** `nucleo-global/Campos/campo-geral-global/`
+
+**Regra oficial — "obrigatorio + vazio = vermelho":**
+- `obrigatorio={true}` + `vazio={true}` ⇒ asterisco vermelho no label + borda vermelha no campo filho
+- `erro="..."` ⇒ borda vermelha + mensagem abaixo do campo (2ª camada — validação pós-submit)
+- Sem nenhum dos dois ⇒ aparência neutra
+
+**Como funciona internamente:**
+- Adiciona a classe `cg-wrapper--erro` quando há erro/vazio
+- CSS canônico (`campo-geral.css`) aplica `border-color: #f87171 !important` em qualquer `<input>`, `<select>`, `<textarea>` ou `.sg-campo` (SelectGlobal) filho
+- O `!important` é obrigatório — sobrescreve `border` inline aplicado por `style={...}` em muitos consumidores
+
+**Acessibilidade:**
+- Asterisco visual + `aria-invalid` setado quando vazio/erro (use `aria-invalid={...}` no input filho pra ativar)
+- Mensagem de erro com `role="alert"` pra screen readers
+
+**Padrão composto com BannerRequisitosGlobal:** para forms com múltiplos campos obrigatórios, combine `CampoGeralGlobal` em cada campo com `BannerRequisitosGlobal` consolidando as pendências em um só bloco antes do botão de submeter. Ver `nucleo-global/Feedback/banner-requisitos-global/`.
+
+**Quando NÃO usar:**
+- Para layout especial onde o label precisa conviver com botão inline (ex: "+ Cadastrar nova"). Nesse caso renderize seu wrapper custom e adicione manualmente `className="cg-wrapper cg-wrapper--erro"` para reaproveitar a CSS canônica + renderize o asterisco vermelho separadamente. Não invente outline próprio.
+
+**Referência completa do padrão de campo obrigatório:** ver `skills/ux/design-system/SKILL.md` seção "Padrão de Campo Obrigatório (3 sinais oficiais)".
+
+---
+
 ### DicaGlobal
 
 **Quando usar:** para explicar termos técnicos, siglas ou campos complexos que não cabem na label.

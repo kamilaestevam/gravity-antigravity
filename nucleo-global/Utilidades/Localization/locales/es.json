@@ -2924,6 +2924,8 @@
       "unidade_medida_tooltip": "Unidad utilizada para medir la cantidad del artículo",
       "preco_unitario": "Precio Unitario",
       "preco_unitario_tooltip": "Valor unitario del artículo en la moneda del pedido",
+      "valor_do_item": "Valor del Artículo",
+      "valor_total_dos_itens": "Valor Total de los Artículos",
       "moeda": "Moneda",
       "moeda_tooltip": "Moneda de negociación del artículo",
       "peso_liquido": "Peso Neto",

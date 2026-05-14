@@ -14,6 +14,7 @@ const LARGURA: Record<string, string> = {
   md: '560px',
   lg: '720px',
   xl: '960px',
+  '2xl': '1200px',
 }
 
 export interface PassoConfig {
@@ -33,8 +34,8 @@ export interface ModalPassoPassoProps {
   podeAvancar?: boolean
   labelBotaoFinal?: string
   labelProximo?: string
-  /** Padrão: 'md' (560px). Usa sistema de tamanhos do ModalOverlay. */
-  tamanho?: 'sm' | 'md' | 'lg' | 'xl'
+  /** Padrão: 'md' (560px). Tamanhos: sm=400, md=560, lg=720, xl=960, 2xl=1200. */
+  tamanho?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   /** Altura explícita — opcional */
   altura?: string
   children: React.ReactNode

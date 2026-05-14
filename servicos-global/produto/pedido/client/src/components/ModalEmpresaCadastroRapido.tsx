@@ -252,7 +252,7 @@ export function ModalEmpresaCadastroRapido({
 
           {/* Nome */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
               {t('pedido.cadastro_empresa.label_nome_papel', { papel: rotuloPapel(papel, t) })}
             </label>
             <input
@@ -293,7 +293,7 @@ export function ModalEmpresaCadastroRapido({
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
@@ -319,7 +319,7 @@ export function ModalEmpresaCadastroRapido({
                   fontSize: '0.875rem',
                 }}
               />
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 {t('pedido.cadastro_empresa.cnpj_obrigatorio_motivo')}
               </p>
             </div>
@@ -328,7 +328,7 @@ export function ModalEmpresaCadastroRapido({
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
@@ -353,7 +353,7 @@ export function ModalEmpresaCadastroRapido({
                   fontSize: '0.875rem',
                 }}
               />
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 {t('pedido.cadastro_empresa.tin_opcional_motivo')}
               </p>
             </div>

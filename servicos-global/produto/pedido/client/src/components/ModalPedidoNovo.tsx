@@ -24,6 +24,16 @@ import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
 import { cadastrosApi, type Empresa, type PapelEmpresaRapido } from '../shared/cadastrosApi'
 import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
+import { getCasas } from './lista/ColunasPai'
+
+// Casas decimais padrão alinhadas com Configurações › Casas Decimais
+// (`COLUNAS_NUMERICAS` em pages/Configuracoes.tsx). Defaults sistêmicos:
+//   - quantidade_item        → 0 casas  (herda de quantidade_total_pedido)
+//   - valor_por_unidade_item → 2 casas
+//   - valor_total_pedido     → 2 casas  (Valor Total dos Itens herda)
+function casasQtdItem()        { return getCasas('quantidade_item', 0) }
+function casasValorUnitario()  { return getCasas('valor_por_unidade_item', 2) }
+function casasValorTotal()     { return getCasas('valor_total_pedido', 2) }
 
 
 // ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
@@ -1270,7 +1280,11 @@ function Passo2Itens({
   // Lista canônica de moedas — SSOT vem do banco Cadastros via /api/v1/cadastros/moedas.
   // Hook tem cache singleton (não re-fetch), Zod-validado, ordem prioritária UX
   // (USD/EUR/BRL/CNY/GBP/JPY no topo, demais alfabético).
-  const { moedas, loading: carregandoMoedas } = useMoedas()
+  //
+  // Mandamento 08 — sem fallback silencioso: se a chamada falhar, o select é
+  // desabilitado e o placeholder mostra a mensagem de erro (ruidoso, visível
+  // pro usuário). Se a lista voltar vazia (catálogo zerado no banco), idem.
+  const { moedas, loading: carregandoMoedas, erro: erroMoedas } = useMoedas()
   const opcoesMoeda = useMemo(
     () => moedas
       .filter((m) => m.ativo_moeda)
@@ -1281,6 +1295,14 @@ function Passo2Itens({
       })),
     [moedas],
   )
+
+  // Estado degenerado: erro de rede/Zod OU catálogo vazio após load completo.
+  const moedasIndisponiveis = !carregandoMoedas && (erroMoedas !== null || opcoesMoeda.length === 0)
+  const placeholderMoeda = erroMoedas
+    ? `Erro: ${erroMoedas}`
+    : (!carregandoMoedas && opcoesMoeda.length === 0)
+      ? 'Sem moedas cadastradas'
+      : 'USD'
 
   return (
     <div>
@@ -1335,43 +1357,44 @@ function Passo2Itens({
             </div>
             <div>
               <label style={s.labelCompacto} htmlFor={`mnp-qty-${index}`}>{t('pedido.drawer.label_qtd')}</label>
-              {/* Live mask BR (0.000,00). casasDecimais=2 por enquanto — TODO
-                  ler do config do usuário (Configurações / Casas Decimais /
-                  col_quantidade_total_pedido) quando hook existir. */}
+              {/* Live mask BR. casasDecimais lê config do usuário via getCasas() —
+                  default 0 para quantidade (alinha com lista e Configurações). */}
               <CampoDecimalGlobal
                 id={`mnp-qty-${index}`}
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'quantidade_inicial_item', n === null ? '' : String(n))}
-                casasDecimais={2}
+                casasDecimais={casasQtdItem()}
                 style={s.inputCompacto}
                 textAlign="right"
               />
             </div>
             <div>
               <label style={s.labelCompacto} htmlFor={`mnp-moeda-${index}`}>{t('pedido.item.moeda', 'Moeda')}</label>
-              {/* P15 UX: SelectGlobal canônico do nucleo com `tamanho="compacto"` —
-                  altura ~24px alinha com inputs vizinhos. Mantém consistência
-                  sistêmica (Mandamento 03) e funcionalidade (foco, ESC, ARIA). */}
+              {/* P16: SelectGlobal alinhado com ModalItemNovo — mesmo placeholder
+                  "USD" (sigla canônica padrão), sem `monoValor` (display normal,
+                  não mono). `tamanho="compacto"` é mantido APENAS para casar a
+                  altura com os demais inputs da grade (inputCompacto). SSOT
+                  lista vem de useMoedas() (Cadastros). */}
               <SelectGlobal
                 id={`mnp-moeda-${index}`}
                 opcoes={opcoesMoeda}
                 valor={item.moeda_item || null}
                 aoMudarValor={(v) => onChangeItem(index, 'moeda_item', String(v ?? ''))}
-                placeholder="Moeda"
+                placeholder={placeholderMoeda}
                 tamanho="compacto"
-                monoValor
                 buscavel
                 carregando={carregandoMoedas}
+                desabilitado={moedasIndisponiveis}
               />
             </div>
             <div>
               <label style={s.labelCompacto} htmlFor={`mnp-valor-${index}`}>{t('pedido.item.valor_do_item')}</label>
-              {/* P15: Live mask BR (10.000,00). Sem `vazio`/`obrigatorio` — opcional */}
+              {/* P15: Live mask BR. casasDecimais via getCasas — default 2. */}
               <CampoDecimalGlobal
                 id={`mnp-valor-${index}`}
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'valor_por_unidade_item', n === null ? '' : String(n))}
-                casasDecimais={2}
+                casasDecimais={casasValorUnitario()}
                 style={s.inputCompacto}
                 textAlign="right"
               />
@@ -1388,7 +1411,7 @@ function Passo2Itens({
                     : Number(item.valor_por_unidade_item) * Number(item.quantidade_inicial_item)
                 }
                 aoMudarValor={() => { /* read-only: ignora mudanças */ }}
-                casasDecimais={2}
+                casasDecimais={casasValorTotal()}
                 style={{ ...s.inputCompacto, opacity: 0.7, cursor: 'not-allowed' }}
                 textAlign="right"
                 desabilitado

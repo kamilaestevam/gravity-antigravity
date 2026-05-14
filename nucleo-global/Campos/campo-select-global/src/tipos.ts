@@ -83,6 +83,22 @@ export interface SelectProps {
    *   prejudica a UX (ex: ModalSelectGlobal em formulários longos).
    */
   posicao?: 'auto' | 'baixo'
+  /**
+   * Variante de altura do campo trigger.
+   * - `'normal'` (padrão): padding `0.5625rem 0.875rem`, altura ~32px.
+   *   Usar em forms verticais e telas espaçadas.
+   * - `'compacto'`: padding `0.375rem 0.625rem`, altura ~24px.
+   *   Usar em tabelas/grids densos onde inputs vizinhos são compactos
+   *   (ex: linha de item no modal de pedido).
+   */
+  tamanho?: 'normal' | 'compacto'
+  /**
+   * Exibe o valor selecionado em fonte mono (`var(--font-mono)`).
+   * Usar quando o valor é um CÓDIGO (ISO de moeda, NCM, código país, ticker
+   * financeiro, etc.) onde alinhamento e legibilidade tipográfica importam.
+   * Não afeta a lista de opções no dropdown.
+   */
+  monoValor?: boolean
   /** Renderizador customizado de opção na lista */
   renderizarOpcao?: (opcao: SelectOpcao) => ReactNode
   /** Renderizador customizado do valor selecionado */

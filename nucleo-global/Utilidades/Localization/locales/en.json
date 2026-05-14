@@ -2818,6 +2818,8 @@
       "unidade_medida_tooltip": "Unit used to measure the item quantity",
       "preco_unitario": "Unit Price",
       "preco_unitario_tooltip": "Unit value of the item in the order currency",
+      "valor_do_item": "Item Value",
+      "valor_total_dos_itens": "Total Item Value",
       "moeda": "Currency",
       "moeda_tooltip": "Currency for item negotiation",
       "peso_liquido": "Net Weight",

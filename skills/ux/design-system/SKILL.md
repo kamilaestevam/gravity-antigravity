@@ -162,6 +162,60 @@ code, pre { font-family: 'DM Mono', monospace; }
 }
 ```
 
+### Padrão de Campo Obrigatório (3 sinais oficiais)
+
+Quando um campo é obrigatório e está vazio, o sistema mostra **3 sinais redundantes com propósitos distintos** (alinhado com Material Design / Apple HIG):
+
+| Sinal | Tipo | Onde | Propósito |
+|---|---|---|---|
+| Asterisco `*` vermelho | **estático** | ao lado do label | "este campo é obrigatório, sempre será" |
+| Borda vermelha no input | **dinâmico** | volta do `<input>` / `<select>` | "está vazio AGORA — precisa preencher" |
+| Banner `BannerRequisitosGlobal` | **consolidado** | acima do botão de avançar/salvar | lista TUDO que falta com mensagens amigáveis |
+
+**Anti-pattern proibido:** legenda `"* Campos obrigatórios"` no rodapé do form. Asterisco já tem semântica universal; legenda é ruído visual redundante.
+
+### Componente canônico
+
+```tsx
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+
+<CampoGeralGlobal
+  label="Número do Pedido"
+  obrigatorio
+  vazio={!form.numero_pedido.trim()}   // <- regra: vermelho dispara quando obrigatorio && vazio
+  erro={erros.numero_pedido}            // <- opcional: mensagem de validação pós-submit
+>
+  <input value={form.numero_pedido} onChange={...} />
+</CampoGeralGlobal>
+```
+
+**Path:** `nucleo-global/Campos/campo-geral-global/`
+
+### CSS interno (regra de cores e prioridade)
+
+A classe `.cg-wrapper--erro` é aplicada automaticamente quando `(obrigatorio && vazio) || erro`. O CSS abaixo (em `campo-geral.css`) pinta de vermelho:
+
+```css
+.cg-wrapper--erro .sg-campo,
+.cg-wrapper--erro input,
+.cg-wrapper--erro select,
+.cg-wrapper--erro textarea {
+  border-color: #f87171 !important;
+}
+```
+
+**Sobre o `!important`:** justificado e obrigatório. Muitos consumidores aplicam `border` inline via `style={{...}}` (especificidade 1000). Sem `!important`, a borda vermelha nunca aparece pra inputs com border inline. Estado de erro é exceção que ganha prioridade — espelha `aria-invalid` no plano visual.
+
+### Componentes custom (que não usam `CampoGeralGlobal` diretamente)
+
+Quando precisar de layout especial (ex: label com botão "+ Nova" inline), siga o mesmo padrão **manualmente**:
+
+1. Adicione `className="cg-wrapper cg-wrapper--erro"` no wrapper quando `vazio || erro` — reaproveita a CSS canônica
+2. Renderize o asterisco vermelho com `<span style={{ color: '#f87171', marginLeft: '0.125rem' }}>*</span>`
+3. Use `BannerRequisitosGlobal` no nível do formulário pra listar pendências consolidadas
+
+**Nunca** use `outline: 1px solid red` ou hack visual próprio — fica invisível ou inconsistente.
+
 ---
 
 ## 5 — Badges de Status

@@ -373,7 +373,7 @@ export function ModalNovoItemPedido({
               />
             </div>
             <div style={s.campo}>
-              <label style={s.label} htmlFor="mni-qty">{t('pedido.drawer.label_qtd')}</label>
+              <label style={s.label} htmlFor="mni-qty">QTD INICIAL DO ITEM</label>
               {/* P15: Live mask BR (10.000,00) — padrão sistêmico CampoDecimalGlobal */}
               <CampoDecimalGlobal
                 id="mni-qty"

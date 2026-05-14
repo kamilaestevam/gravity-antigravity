@@ -1126,7 +1126,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-pagamento">{t('pedido.drawer.label_cond_pgto')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-pagamento">{t('pedido.drawer.label_cond_pgto')}</label>
           <input
             id="mnp-pagamento"
             disabled={camposBloqueados}
@@ -1137,7 +1137,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-proforma">{t('pedido.drawer.label_num_proforma')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-proforma">{t('pedido.drawer.label_num_proforma')}</label>
           <input
             id="mnp-proforma"
             disabled={camposBloqueados}
@@ -1147,7 +1147,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-invoice">{t('pedido.drawer.label_num_invoice')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-invoice">{t('pedido.drawer.label_num_invoice')}</label>
           <input
             id="mnp-invoice"
             disabled={camposBloqueados}
@@ -1157,7 +1157,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-imp">{t('pedido.drawer.label_ref_importador')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-ref-imp">{t('pedido.drawer.label_ref_importador')}</label>
           <input
             id="mnp-ref-imp"
             disabled={camposBloqueados}
@@ -1167,7 +1167,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-exp">{t('pedido.drawer.label_ref_exportador')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-ref-exp">{t('pedido.drawer.label_ref_exportador')}</label>
           <input
             id="mnp-ref-exp"
             disabled={camposBloqueados}
@@ -1177,7 +1177,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-fab">{t('pedido.drawer.label_ref_fabricante')}</label>
+          <label style={s.labelCompacto} htmlFor="mnp-ref-fab">{t('pedido.drawer.label_ref_fabricante')}</label>
           <input
             id="mnp-ref-fab"
             disabled={camposBloqueados}

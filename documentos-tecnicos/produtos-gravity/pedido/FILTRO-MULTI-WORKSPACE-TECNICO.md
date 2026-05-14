@@ -404,14 +404,15 @@ Sugestão de plano:
 
 ## Dívidas conhecidas
 
-| ID | Item | Motivo |
+| ID | Item | Status |
 |---|---|---|
-| D7 | `GTColuna.label` / `opcoes[].label` (nucleo-global) → `rotulo` | Refactor multi-arquivo (todas as colunas de todos os produtos) — entrega dedicada |
-| D8 | Coluna Workspace `sortavel:false` | Backend ordena por `id_workspace`; ordenar por nome exige JOIN ou cache client |
-| D9 | Híbrido + chip clicável + tooltip numerado vivem só no Pedido | Promover para `nucleo-global/tabela-virtual-global` para outros produtos herdarem |
-| D10 | `workspacesDisponiveisApi` faz fetch dedicado | Quando 2º produto precisar, mover para ShellStore global (evita duplicação) |
-| D11 | SSOT da regra de visibilidade duplicada (`/hub/init` + S2S habilitados) | Extrair para `organizacaoService.workspacesAcessiveis` no Configurador |
-| D12 | `_COLUNAS_PADRAO_SEQUENCIA` reposiciona apenas no 1º load do usuário | Se usuário mover manualmente, fica na posição customizada — comportamento esperado |
+| D7 | `GTColuna.label` / `opcoes[].label` (nucleo-global) → `rotulo` | 🟡 Aberta — refactor multi-arquivo, entrega dedicada |
+| D8 | Coluna Workspace `sortavel:false` | 🟡 Aberta — exige JOIN ou cache client |
+| D9 | Híbrido + chip clicável + tooltip numerado vivem só no Pedido | 🟡 Aberta — promover para `nucleo-global/tabela-virtual-global` |
+| D10 | `workspacesDisponiveisApi` faz fetch dedicado | 🟡 Aberta — exige design decision (A/B/C/D, ver análise Líder Técnico) |
+| D11 | SSOT da regra de visibilidade duplicada (`/hub/init` + S2S habilitados) | ✅ **Resolvida** — `organizacaoService.workspacesAcessiveis()` (2026-05-13) |
+| D12 | Lógica de migração de coluna inline em Pedidos.tsx | ✅ **Resolvida** — `shared/migracaoColunas.ts` com 16 testes (2026-05-13) |
+| D13 | Admin Panel `/admin/organizacoes` retorna preview de 5 workspaces sem lazy-load completo | 🟡 Aberta — delegada para outro agente |
 
 ---
 

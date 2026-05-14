@@ -309,6 +309,31 @@ FORNECEDOR pode ser cross-organização (não exige org match). Mand. 04 NÃO se
 
 ---
 
+## Helpers compartilhados (`shared/`)
+
+### `shared/migracaoColunas.ts` (refactor D12 — 2026-05-13)
+
+Helpers puros para migração de preferências de coluna do usuário quando uma entrega adiciona/reposiciona colunas built-in:
+
+| Helper | Caso de uso | Idempotente? |
+|--------|-------------|--------------|
+| `inserirColunaAposAncora(visiveis, key, ancoras)` | Adicionar coluna NOVA nas prefs do usuário (entrega aumenta o set de colunas built-in) | ✅ Sim — se já existe, retorna no-op |
+| `moverColunaParaAposAncora(visiveis, keyMover, keyApos)` | Reposicionar coluna EXISTENTE quando entrega muda posição padrão | ✅ Sim — se já está depois da âncora, retorna no-op |
+
+**Composição padrão** (cobre ambos os casos numa migração):
+```ts
+const passoInserir = inserirColunaAposAncora(saved, 'nova_coluna', ['ancora1', 'ancora2'])
+const passoMover   = moverColunaParaAposAncora(passoInserir.resultado, 'nova_coluna', 'ancora1')
+const visiveis     = passoMover.resultado
+const persistir    = passoInserir.mudou || passoMover.mudou
+```
+
+**Quando usar**: toda vez que uma entrega adicionar/reposicionar coluna built-in no Pedido. Substitui ~40 linhas inline por 2 chamadas testadas.
+
+**Cobertura**: 16 testes unitários em `__tests__/migracaoColunas.test.ts` cobrindo edge cases (lista vazia, âncoras ausentes, idempotência, preservação de customização do usuário).
+
+---
+
 ## Status da skill
 
 | Parte | Status |

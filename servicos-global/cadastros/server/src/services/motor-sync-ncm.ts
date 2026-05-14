@@ -1,5 +1,5 @@
 /**
- * ncmSyncEngine.ts — Motor de sincronização do catálogo NCM
+ * motor-sync-ncm.ts — Motor de sincronização do catálogo NCM
  *
  * Reside no Cadastros porque NCM é catálogo global da Receita Federal —
  * fonte da verdade UNIQUE, sem id_organizacao (alíquotas são iguais para
@@ -15,6 +15,7 @@
 import type { PrismaClient } from '../../../generated/index.js'
 import { baixarTabelaNcm, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
 import { AppError } from '../lib/app-error.js'
+import { despacharNotificacoesNcmSync } from './notificador-sync-ncm.js'
 
 const BATCH_SIZE = 500  // upserts em lote para não sobrecarregar o banco
 
@@ -135,7 +136,7 @@ export async function executarSync(
       },
     })
 
-    return {
+    const resultado: SyncResult = {
       syncId:      syncLog.id_ncm_sync_log,
       total:       itensPortal.length,
       adicionados,
@@ -143,6 +144,11 @@ export async function executarSync(
       removidos,
       duracaoMs,
     }
+
+    // Notificar destinatários cadastrados (fire-and-forget — nunca bloqueia)
+    void despacharNotificacoesNcmSync(prisma, 'SUCESSO', resultado)
+
+    return resultado
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erro desconhecido'
 
@@ -154,6 +160,9 @@ export async function executarSync(
         mensagem_erro_ncm_sync_log:  msg,
       },
     })
+
+    // Notificar destinatários cadastrados sobre o erro (fire-and-forget)
+    void despacharNotificacoesNcmSync(prisma, 'ERRO', null, msg)
 
     throw err instanceof AppError
       ? err

@@ -4,7 +4,7 @@ import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-for
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { Clock, Info, EnvelopeSimple, Play, List, CheckCircle, XCircle, SpinnerGap } from '@phosphor-icons/react'
+import { Clock, Info, EnvelopeSimple, Play, List, CheckCircle, XCircle, SpinnerGap, PencilSimple, Trash } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
 import {
   adminNcmApi,
@@ -73,6 +73,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
   // ── Estado de notificadores ───────────────────────────────────────────────
   const [notificadores,      setNotificadores]      = useState<NcmNotificador[]>([])
   const [mostrarFormAlerta,  setMostrarFormAlerta]  = useState(false)
+  const [editandoId,         setEditandoId]         = useState<string | null>(null)
   const [novoNotificador,    setNovoNotificador]    = useState<Omit<NcmNotificador, 'id'>>({
     nome: '', contato: '', condicao: 'Apenas Erros', canal: 'E-mail',
   })
@@ -111,14 +112,36 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
 
   const handleAdicionarNotificador = () => {
     if (!novoNotificador.nome || !novoNotificador.contato) return
-    setNotificadores(prev => [...prev, { id: Date.now().toString(), ...novoNotificador }])
+
+    if (editandoId) {
+      // Modo edição — atualizar existente
+      setNotificadores(prev => prev.map(n =>
+        n.id === editandoId ? { ...n, ...novoNotificador } : n
+      ))
+      setEditandoId(null)
+    } else {
+      // Modo criação — adicionar novo
+      setNotificadores(prev => [...prev, { id: Date.now().toString(), ...novoNotificador }])
+    }
+
     setNovoNotificador({ nome: '', contato: '', condicao: 'Apenas Erros', canal: 'E-mail' })
     setMostrarFormAlerta(false)
     markDirty()
   }
 
+  const handleEditarNotificador = (notif: NcmNotificador) => {
+    setNovoNotificador({ nome: notif.nome, contato: notif.contato, condicao: notif.condicao, canal: notif.canal })
+    setEditandoId(notif.id)
+    setMostrarFormAlerta(true)
+  }
+
   const handleRemoverNotificador = (id: string) => {
     setNotificadores(prev => prev.filter(n => n.id !== id))
+    if (editandoId === id) {
+      setEditandoId(null)
+      setNovoNotificador({ nome: '', contato: '', condicao: 'Apenas Erros', canal: 'E-mail' })
+      setMostrarFormAlerta(false)
+    }
     markDirty()
   }
 
@@ -179,12 +202,34 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
     {
       key: 'id', label: '', tipo: 'texto',
       render: (_v, row) => (
-        <button
-          onClick={() => handleRemoverNotificador(row.id)}
-          style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
-        >
-          {t('admin.ncm_modal.btn_remover')}
-        </button>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+          <button
+            onClick={() => handleEditarNotificador(row)}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'transparent', border: '1px solid transparent',
+              color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.12)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; e.currentTarget.style.color = '#818cf8' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+          >
+            <PencilSimple size={15} weight="bold" />
+          </button>
+          <button
+            onClick={() => handleRemoverNotificador(row.id)}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'transparent', border: '1px solid transparent',
+              color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.12)'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; e.currentTarget.style.color = '#f87171' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.color = '#64748b' }}
+          >
+            <Trash size={15} weight="bold" />
+          </button>
+        </div>
       ),
     },
   ]
@@ -262,7 +307,15 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
               <EnvelopeSimple size={14} weight="fill" /> {t('admin.ncm_modal.dest_titulo')}
             </h4>
             <button
-              onClick={() => setMostrarFormAlerta(v => !v)}
+              onClick={() => {
+                if (mostrarFormAlerta) {
+                  setMostrarFormAlerta(false)
+                  setEditandoId(null)
+                  setNovoNotificador({ nome: '', contato: '', condicao: 'Apenas Erros', canal: 'E-mail' })
+                } else {
+                  setMostrarFormAlerta(true)
+                }
+              }}
               style={{
                 background: mostrarFormAlerta ? 'rgba(239,68,68,0.1)' : 'rgba(99,102,241,0.1)',
                 border: `1px solid ${mostrarFormAlerta ? 'rgba(239,68,68,0.2)' : 'rgba(99,102,241,0.2)'}`,
@@ -300,14 +353,14 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
                 <SelectGlobal
                   opcoes={opcoesCondicao}
                   valor={novoNotificador.condicao}
-                  aoMudarValor={v => setNovoNotificador(p => ({ ...p, condicao: String(v) as NcmNotificador['condicao'] }))}
+                  aoMudarValor={v => { if (v != null) setNovoNotificador(p => ({ ...p, condicao: String(v) as NcmNotificador['condicao'] })) }}
                 />
               </CampoGeralGlobal>
               <CampoGeralGlobal label={t('admin.ncm_modal.label_canal')}>
                 <SelectGlobal
                   opcoes={opcoesCanal}
                   valor={novoNotificador.canal}
-                  aoMudarValor={v => setNovoNotificador(p => ({ ...p, canal: String(v) as NcmNotificador['canal'] }))}
+                  aoMudarValor={v => { if (v != null) setNovoNotificador(p => ({ ...p, canal: String(v) as NcmNotificador['canal'] })) }}
                 />
               </CampoGeralGlobal>
               <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end' }}>
@@ -315,7 +368,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
                   onClick={handleAdicionarNotificador}
                   style={{ background: '#6366f1', color: '#fff', padding: '8px 24px', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer' }}
                 >
-                  {t('admin.ncm_modal.btn_adicionar')}
+                  {editandoId ? t('admin.ncm_modal.btn_salvar') : t('admin.ncm_modal.btn_adicionar')}
                 </button>
               </div>
             </div>

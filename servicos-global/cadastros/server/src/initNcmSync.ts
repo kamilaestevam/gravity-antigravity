@@ -9,7 +9,7 @@
 
 import cron, { type ScheduledTask } from 'node-cron'
 import { getPrisma } from './lib/prisma.js'
-import { executarSync } from './services/ncmSyncEngine.js'
+import { executarSync } from './services/motor-sync-ncm.js'
 
 // ── Estado do job ─────────────────────────────────────────────────────────────
 

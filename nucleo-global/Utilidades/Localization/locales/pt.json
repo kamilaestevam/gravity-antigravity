@@ -1532,6 +1532,7 @@
       "col_canal": "CANAL",
       "btn_remover": "Remover",
       "btn_adicionar": "Adicionar Destinatário",
+      "btn_salvar": "Salvar Alterações",
       "vazio_notif": "Nenhum destinatário configurado. Clique em '+ Novo Destinatário' para adicionar.",
       "exec_titulo": "Disparo Imediato",
       "exec_info": "Executa a sincronização NCM imediatamente para todas as organizações com dados cadastrados, com a mesma lógica do job automático.",

@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
-import { executarSync } from '../services/ncmSyncEngine.js'
+import { executarSync } from '../services/motor-sync-ncm.js'
 import { reagendarJob } from '../initNcmSync.js'
 
 export const adminNcmSyncRouter = Router()

@@ -5503,6 +5503,7 @@
       "col_canal": "CHANNEL",
       "btn_remover": "Remove",
       "btn_adicionar": "Add Recipient",
+      "btn_salvar": "Save Changes",
       "vazio_notif": "No recipients configured. Click '+ New Recipient' to add one.",
       "exec_titulo": "Immediate Trigger",
       "exec_info": "Runs the NCM synchronization immediately for all organizations with registered data, using the same logic as the automatic job.",

@@ -16,7 +16,7 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
 import { criarNCMSchema, atualizarNCMSchema } from '../../../shared/schemas/index.js'
 import { notificarMudancaEntidade } from '../services/notifyPedido.js'
-import { buscarNcm, obterStatusSync } from '../services/ncmSyncEngine.js'
+import { buscarNcm, obterStatusSync } from '../services/motor-sync-ncm.js'
 import { validarNcm } from '../connectors/portalUnicoNcm.js'
 
 const router = Router()

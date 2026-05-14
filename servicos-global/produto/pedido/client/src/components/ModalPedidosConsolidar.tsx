@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
+import { GitMerge, Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente } from '../shared/types'
@@ -192,9 +192,15 @@ export function ModalConsolidarPedidos({ pedidosSelecionados, onFechar, onConclu
       <div className="modal-consolidar__container">
         {/* Header */}
         <div className="modal-consolidar__header">
-          <h2 id="modal-consolidar-titulo" className="modal-consolidar__titulo">
-            {t('pedido.modal_cons.titulo', { count: pedidosSelecionados.length })}
-          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <GitMerge size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 id="modal-consolidar-titulo" className="modal-consolidar__titulo">
+                {t('pedido.modal_cons.titulo', { count: pedidosSelecionados.length })}
+              </h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Unifique pedidos selecionados em um único pedido</p>
+          </div>
           <button
             className="modal-consolidar__fechar"
             onClick={onFechar}

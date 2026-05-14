@@ -171,11 +171,14 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
 
         {/* Cabeçalho */}
         <div className="modal-gerar-pdf__cabecalho">
-          <div className="modal-gerar-pdf__titulo-grupo">
-            <FilePdf size={18} weight="fill" className="modal-gerar-pdf__icone-titulo" aria-hidden="true" />
-            <h2 className="modal-gerar-pdf__titulo" id="modal-gerar-pdf-titulo">
-              {titulo}
-            </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div className="modal-gerar-pdf__titulo-grupo">
+              <FilePdf size={20} weight="duotone" className="modal-gerar-pdf__icone-titulo" aria-hidden="true" />
+              <h2 className="modal-gerar-pdf__titulo" id="modal-gerar-pdf-titulo">
+                {titulo}
+              </h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Gere documentos PDF dos pedidos selecionados</p>
           </div>
           <button
             type="button"

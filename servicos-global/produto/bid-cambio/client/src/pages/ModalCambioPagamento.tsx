@@ -4,7 +4,7 @@
  * Step 2: Contrato, banco/corretora, taxa, valor em R$
  * Step 3: Upload comprovante
  *
- * Design System: Solid Slate, Plus Jakarta Sans, Lucide React icons
+ * Design System: Solid Slate, Plus Jakarta Sans, Phosphor Icons
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
@@ -12,16 +12,16 @@ import { useTranslation } from 'react-i18next'
 import {
   CreditCard,
   X,
-  ChevronRight,
-  ChevronLeft,
-  Upload,
+  CaretRight,
+  CaretLeft,
+  UploadSimple,
   FileText,
-  CheckCircle2,
-  Loader2,
-  AlertTriangle,
-  Building2,
-  DollarSign,
-} from 'lucide-react'
+  CheckCircle,
+  CircleNotch,
+  Warning,
+  Buildings,
+  CurrencyDollar,
+} from '@phosphor-icons/react'
 
 import type { CambioParcelas, CambioMoeda } from '../shared/types'
 import { STATUS_PARCELA_LABELS } from '../shared/types'
@@ -239,7 +239,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
       <div style={overlayStyle} onClick={onClose}>
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <CheckCircle2 size={48} style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
+            <CheckCircle size={48} weight="duotone" style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
             <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('bidcambio.modal_pagamento.sucesso')}</h3>
             <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
               {t('bidcambio.modal_pagamento.parcelas_pagas', { count: selectedParcelas.size })}
@@ -257,15 +257,20 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
     <div style={overlayStyle} onClick={onClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CreditCard size={18} style={{ color: 'var(--accent, #6366f1)' }} />
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>
-              {t('bidcambio.modal_pagamento.titulo')}
-            </h3>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingBottom: '1rem', marginBottom: '1rem', borderBottom: '1px solid var(--bg-elevated, #475569)', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <CreditCard size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 700, margin: 0, lineHeight: 1.2, color: 'var(--text-primary, #f1f5f9)' }}>
+                {t('bidcambio.modal_pagamento.titulo')}
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0, lineHeight: 1.4 }}>
+              Selecione parcelas, informe dados do câmbio e anexe o comprovante
+            </p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <X size={18} />
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #64748b)', cursor: 'pointer', padding: '2px', flexShrink: 0 }}>
+            <X size={18} weight="bold" />
           </button>
         </div>
 
@@ -278,7 +283,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
             padding: '0.65rem 0.75rem', borderRadius: 8, marginBottom: '1rem',
             background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
           }}>
-            <AlertTriangle size={14} style={{ color: 'var(--danger, #ef4444)' }} />
+            <Warning size={14} style={{ color: 'var(--danger, #ef4444)' }} />
             <span style={{ fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>{error}</span>
           </div>
         )}
@@ -489,7 +494,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
             >
               {comprovanteFile ? (
                 <>
-                  <FileText size={28} style={{ color: 'var(--accent, #6366f1)', marginBottom: '0.5rem' }} />
+                  <FileText size={28} weight="duotone" style={{ color: 'var(--accent, #6366f1)', marginBottom: '0.5rem' }} />
                   <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>{comprovanteFile.name}</p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
                     {(comprovanteFile.size / 1024).toFixed(0)} KB — {t('bidcambio.modal_pagamento.clique_trocar')}
@@ -497,7 +502,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                 </>
               ) : (
                 <>
-                  <Upload size={28} style={{ color: 'var(--text-muted, #64748b)', marginBottom: '0.5rem' }} />
+                  <UploadSimple size={28} weight="duotone" style={{ color: 'var(--text-muted, #64748b)', marginBottom: '0.5rem' }} />
                   <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>
                     {t('bidcambio.modal_pagamento.clique_enviar')}
                   </p>
@@ -533,7 +538,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                 style={btnSecondary}
                 disabled={disabled || saving}
               >
-                <ChevronLeft size={14} /> {t('acoes.voltar')}
+                <CaretLeft size={14} weight="bold" /> {t('acoes.voltar')}
               </button>
             )}
           </div>
@@ -551,7 +556,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                   cursor: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 'not-allowed' : 'pointer',
                 }}
               >
-                {t('acoes.proximo')} <ChevronRight size={14} />
+                {t('acoes.proximo')} <CaretRight size={14} weight="bold" />
               </button>
             ) : (
               <button
@@ -564,7 +569,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
                   cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
                 }}
               >
-                {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle2 size={14} />}
+                {saving ? <CircleNotch size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={14} />}
                 {saving ? t('comum.salvando') : t('bidcambio.modal_pagamento.salvar')}
               </button>
             )}

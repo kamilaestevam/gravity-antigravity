@@ -46,6 +46,7 @@ import {
   PlusCircle,
   Tag,
   Columns,
+  PlugsConnected,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -3649,6 +3650,32 @@ export default function Pedidos() {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       await colunasUsuarioApi.salvarValores('pedido', id, { [colunaCustom.id]: String(valor) })
+      const replicarCustom = opts?.replicar_em_itens ?? false
+      console.log('[handleEditar/custom] campo=', campo, 'replicar=', replicarCustom, 'escopo=', colunaCustom.escopo, 'opts=', opts)
+      if (replicarCustom && ((colunaCustom.escopo || 'ambos') === 'ambos')) {
+        let itens = itensCarregadosRef.current.get(id)
+        console.log('[replicar/custom] cache=', itens?.length, 'pedidoAtual.itens=', pedidoAtual.itens?.length)
+        if (!itens || itens.length === 0) {
+          itens = (pedidoAtual.itens?.length ?? 0) > 0
+            ? pedidoAtual.itens as PedidoItem[]
+            : await pedidoItemApi.listar(id)
+          console.log('[replicar/custom] fetched=', itens?.length, 'ids=', itens?.map(i => i.id))
+        }
+        if (itens.length > 0) {
+          console.log('[replicar/custom] salvando em', itens.length, 'itens, colunaId=', colunaCustom.id, 'valor=', String(valor))
+          const results = await Promise.allSettled(
+            itens.map(item =>
+              colunasUsuarioApi.salvarValores('item', item.id, { [colunaCustom.id]: String(valor) })
+            )
+          )
+          console.log('[replicar/custom] results=', results.map(r => r.status))
+          const itensAtualizados = itens.map(i => {
+            const colAntes = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+            return { ...i, _colunas_usuario: { ...colAntes, [colunaCustom.id]: String(valor) } }
+          })
+          itensCarregadosRef.current.set(id, itensAtualizados as PedidoItem[])
+        }
+      }
       const colunasAntes = (pedidoAtual as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
       const atualizado = {
         ...pedidoAtual,
@@ -4727,7 +4754,11 @@ export default function Pedidos() {
           // Permite replicar valor do pai para todos os itens — checkbox no
           // popover (Decisão UX 2026-05-13). Whitelist em mapaPropagacaoPedidoItem
           // (apenas campos que existem tanto no Pedido quanto no Item).
-          permiteReplicacaoPaiEmItens={(campo) => isPropagavel(campo)}
+          permiteReplicacaoPaiEmItens={(campo) => {
+            if (isPropagavel(campo)) return true
+            const col = colunasUsuario.find(c => c.chave === campo)
+            return !!col && ((col.escopo || 'ambos') === 'ambos')
+          }}
 
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={handleEditarFilho}
@@ -5006,10 +5037,16 @@ export default function Pedidos() {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                Criar Pedido via API
-              </h3>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid var(--bg-elevated, #334155)', marginBottom: '1.25rem', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <PlugsConnected size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+                  <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
+                    Criar Pedido via API
+                  </h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Use a API do Cockpit para criar pedidos programaticamente</p>
+              </div>
               <button
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0.25rem', borderRadius: '0.25rem', display: 'flex', alignItems: 'center' }}
                 onClick={() => setModalCockpitAberto(false)}
@@ -5046,16 +5083,17 @@ export default function Pedidos() {
               </p>
               <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.875rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)', whiteSpace: 'pre', lineHeight: 1.6, overflowX: 'auto' }}>
                 {`{
-  "tipo_operacao": "importacao",
+  "tipo_operacao_pedido": "importacao",
   "numero_pedido": "PO-2026-001",
-  "exportador_id": "exp_abc123",
-  "incoterm": "FOB",
+  "suid_importador": "empresa_da_org_abc",
+  "suid_exportador": "empresa_estrangeira_xyz",
+  "incoterm_pedido": "FOB",
   "data_emissao_pedido": "2026-04-04",
   "itens": [
     {
-      "part_number": "ABC-001",
+      "part_number_item": "ABC-001",
       "descricao_item": "Produto exemplo",
-      "quantidade_inicial_pedido": 100
+      "quantidade_inicial_item": 100
     }
   ]
 }`}

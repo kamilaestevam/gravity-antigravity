@@ -294,6 +294,8 @@ export function ModalNovoItemPedido({
   return (
     <ModalPassoPassoGlobal
       titulo={titulo}
+      icone={<Tag size={20} weight="duotone" />}
+      subtitulo="Preencha os dados do item para adicionar ao pedido"
       aberto={aberto}
       passos={passos}
       passoAtual={passo}

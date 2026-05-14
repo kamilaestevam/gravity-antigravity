@@ -20,7 +20,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Info, CheckCircle, Spinner, X, Warning, Files, Package } from '@phosphor-icons/react'
+import { Info, CheckCircle, Copy, Spinner, X, Warning, Files, Package } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
@@ -456,7 +456,13 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup.aria_duplicar_pedidos')}>
       <div className="modal-duplicar__container">
         <div className="modal-duplicar__header">
-          <h2 className="modal-duplicar__titulo">{tituloModal}</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Copy size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 className="modal-duplicar__titulo">{tituloModal}</h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Crie cópias dos pedidos ou itens selecionados</p>
+          </div>
           <button
             className="modal-duplicar__fechar"
             onClick={onFechar}

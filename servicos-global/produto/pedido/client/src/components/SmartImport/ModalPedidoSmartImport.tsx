@@ -704,10 +704,13 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       <div className="smart-import__container">
         {/* Header */}
         <div className="smart-import__header">
-          <h2 id="smart-import-titulo" className="smart-import__titulo">
-            <UploadSimple size={18} weight="duotone" aria-hidden="true" />
-            {t('pedido.smart_import.titulo')}
-          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <h2 id="smart-import-titulo" className="smart-import__titulo">
+              <UploadSimple size={20} weight="duotone" aria-hidden="true" />
+              {t('pedido.smart_import.titulo')}
+            </h2>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Importe itens a partir de planilha ou documento</p>
+          </div>
           <button
             className="smart-import__fechar"
             onClick={onFechar}

@@ -32,18 +32,21 @@
 /* Header */
 .modal-duplicar__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border, #334155);
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bg-elevated, #334155);
   flex-shrink: 0;
+  gap: 1rem;
 }
 
 .modal-duplicar__titulo {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-primary, #f1f5f9);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
   margin: 0;
+  line-height: 1.2;
 }
 
 .modal-duplicar__fechar {

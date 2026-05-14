@@ -27,16 +27,20 @@
 
 .mnc-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem 0;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bg-elevated, #334155);
+  gap: 1rem;
 }
 
 .mnc-titulo {
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
+  line-height: 1.2;
 }
 
 .mnc-fechar {

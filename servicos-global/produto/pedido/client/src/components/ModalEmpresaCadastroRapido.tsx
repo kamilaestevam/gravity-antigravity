@@ -224,16 +224,20 @@ export function ModalEmpresaCadastroRapido({
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'space-between',
-            padding: '1rem 1.25rem',
-            borderBottom: '1px solid var(--border-subtle, #333)',
+            padding: '1.25rem 1.5rem',
+            borderBottom: '1px solid var(--bg-elevated, #334155)',
+            gap: '1rem',
           }}
         >
-          <h3 id="mecr-titulo" style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Buildings size={18} weight="duotone" />
-            {t('pedido.cadastro_empresa.titulo_papel', { papel: rotuloPapel(papel, t) })}
-          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <h3 id="mecr-titulo" style={{ margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 700, lineHeight: 1.2, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Buildings size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              {t('pedido.cadastro_empresa.titulo_papel', { papel: rotuloPapel(papel, t) })}
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Cadastre rapidamente uma nova empresa</p>
+          </div>
           <button
             type="button"
             onClick={onFechar}

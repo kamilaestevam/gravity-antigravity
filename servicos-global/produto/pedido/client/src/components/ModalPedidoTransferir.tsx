@@ -711,9 +711,15 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
       <div className="modal-transferir__container">
         {/* Header */}
         <div className="modal-transferir__header">
-          <h2 id="modal-transferir-titulo" className="modal-transferir__titulo">
-            {t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
-          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ArrowSquareOut size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 id="modal-transferir-titulo" className="modal-transferir__titulo">
+                {t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
+              </h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Mova itens entre pedidos da mesma organização</p>
+          </div>
           <button
             className="modal-transferir__fechar"
             onClick={onFechar}

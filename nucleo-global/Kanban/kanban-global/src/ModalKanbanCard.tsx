@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   X,
+  Kanban,
   BuildingOffice,
   User,
   MagnifyingGlass,
@@ -534,7 +535,11 @@ export function ModalCardKanban<T extends CardKanbanItem>({
               {PRIORIDADE_LABEL[form.prioridade]}
             </span>
           </div>
-          <h2 className="ckm-header-titulo">{form.nome}</h2>
+          <div className="ckm-header-titulo-row">
+            <Kanban size={20} weight="duotone" className="ckm-header-icone" />
+            <h2 className="ckm-header-titulo">{form.nome}</h2>
+          </div>
+          <p className="ckm-header-subtitulo">Detalhes e edição do card</p>
           <button className="ckm-btn-fechar" onClick={onFechar} aria-label="Fechar">
             <X size={16} weight="bold" />
           </button>

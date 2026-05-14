@@ -42,21 +42,24 @@
 /* ── Header ──────────────────────────────────────────────────────────────────── */
 .smart-import__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border-subtle, #2d2d3d);
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bg-elevated, #334155);
   flex-shrink: 0;
+  gap: 1rem;
 }
 
 .smart-import__titulo {
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-primary, #e2e8f0);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  line-height: 1.2;
 }
 
 .smart-import__fechar {

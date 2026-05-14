@@ -26,28 +26,31 @@
 /* Cabeçalho */
 .modal-gerar-pdf__cabecalho {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bg-elevated, #334155);
   flex-shrink: 0;
+  gap: 1rem;
 }
 
 .modal-gerar-pdf__titulo-grupo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .modal-gerar-pdf__icone-titulo {
-  color: #dc2626;
+  color: var(--ws-accent, #818cf8);
 }
 
 .modal-gerar-pdf__titulo {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary, #1e293b);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
   margin: 0;
+  line-height: 1.2;
 }
 
 .modal-gerar-pdf__btn-fechar {

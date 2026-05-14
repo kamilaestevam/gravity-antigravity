@@ -8,7 +8,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Plus, Warning, Info } from '@phosphor-icons/react'
+import { X, Plus, Warning, Info, Columns } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type {
   ColunaUsuario,
@@ -239,7 +239,15 @@ export function ModalNovaColunaUsuario({
       <div className="mnc-modal">
         {/* Cabeçalho */}
         <div className="mnc-header">
-          <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Columns size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
+              {isEdicao ? 'Altere as propriedades da coluna personalizada' : 'Crie uma coluna personalizada para organizar seus pedidos'}
+            </p>
+          </div>
           <button
             type="button"
             className="mnc-fechar"

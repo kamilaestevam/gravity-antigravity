@@ -491,6 +491,8 @@ export function DashboardConstrutorConsulta({
   return (
     <ModalPassoPassoGlobal
       titulo={isEdit ? 'Editar Widget' : 'Novo Widget'}
+      icone={<Gauge size={20} weight="duotone" />}
+      subtitulo="Configure os dados e a visualização do widget"
       aberto={aberto}
       passos={PASSOS}
       passoAtual={step}

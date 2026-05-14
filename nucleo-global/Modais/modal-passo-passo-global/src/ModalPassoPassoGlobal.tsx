@@ -25,6 +25,8 @@ export interface PassoConfig {
 
 export interface ModalPassoPassoProps {
   titulo: string
+  icone?: React.ReactNode
+  subtitulo?: string
   aberto: boolean
   passos: PassoConfig[]
   passoAtual: number
@@ -43,6 +45,8 @@ export interface ModalPassoPassoProps {
 
 export function ModalPassoPassoGlobal({
   titulo,
+  icone,
+  subtitulo,
   aberto,
   passos,
   passoAtual,
@@ -131,7 +135,13 @@ export function ModalPassoPassoGlobal({
         >
           {/* Header */}
           <div style={s.header}>
-            <span style={s.titulo}>{titulo}</span>
+            <div style={s.headerTexto}>
+              <div style={s.headerTituloRow}>
+                {icone && <span style={s.headerIcone}>{icone}</span>}
+                <span style={s.titulo}>{titulo}</span>
+              </div>
+              {subtitulo && <p style={s.subtitulo}>{subtitulo}</p>}
+            </div>
             <button
               className="mpg-btn-fechar"
               style={s.fechar}
@@ -244,7 +254,7 @@ const s = {
   },
   header: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     padding: '1.25rem 1.5rem',
     background: 'var(--bg-surface)',
@@ -252,10 +262,35 @@ const s = {
     flexShrink: 0,
     gap: '1rem',
   },
+  headerTexto: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 0,
+  },
+  headerTituloRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  headerIcone: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    color: 'var(--ws-accent, var(--color-primary, #818cf8))',
+  },
   titulo: {
-    fontSize: '15px',
-    fontWeight: 600,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontSize: '1.25rem',
+    fontWeight: 700,
     color: 'var(--text-primary)',
+    lineHeight: 1.2,
+  },
+  subtitulo: {
+    fontSize: '0.8125rem',
+    color: 'var(--text-secondary, #94a3b8)',
+    margin: 0,
+    lineHeight: 1.4,
   },
   fechar: {
     background: 'transparent',

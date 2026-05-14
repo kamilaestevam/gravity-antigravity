@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { CheckCircle, Spinner, Warning, X } from '@phosphor-icons/react'
+import { CheckCircle, Spinner, Trash, Warning, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, ExcluirPreview, ExcluirResultado } from '../shared/types'
@@ -97,7 +97,13 @@ export function ModalPedidosExcluir({ pedidos, onFechar, onConcluido }: ModalPed
       <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label="Exclusão concluída">
         <div className="modal-excluir__container">
           <div className="modal-excluir__header">
-            <h2 className="modal-excluir__titulo">Exclusão concluída</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Trash size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+                <h2 className="modal-excluir__titulo">Exclusão concluída</h2>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Resultado da operação de exclusão</p>
+            </div>
             <button className="modal-excluir__fechar" onClick={onConcluido} aria-label="Fechar">
               <X size={18} aria-hidden="true" />
             </button>
@@ -133,9 +139,15 @@ export function ModalPedidosExcluir({ pedidos, onFechar, onConcluido }: ModalPed
     <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-label="Excluir pedidos">
       <div className="modal-excluir__container">
         <div className="modal-excluir__header">
-          <h2 className="modal-excluir__titulo">
-            Excluir Pedido{sufixoTitulo} ({pedidos.length} selecionado{sufixoTitulo})
-          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Trash size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 className="modal-excluir__titulo">
+                Excluir Pedido{sufixoTitulo} ({pedidos.length} selecionado{sufixoTitulo})
+              </h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Esta ação é permanente e não pode ser desfeita</p>
+          </div>
           <button
             className="modal-excluir__fechar"
             onClick={onFechar}

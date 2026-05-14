@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info } from '@phosphor-icons/react'
+import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
@@ -26,6 +26,7 @@ import type {
   CampoEdicaoMassa,
   EdicaoMassaPayload,
   EdicaoMassaPreview,
+  EdicaoMassaResultado,
   OperacaoCampo,
   TipoCampoEdicao,
 } from '../shared/types'
@@ -737,7 +738,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const opcoesDinamicas: OpcoesDinamicas = {
     incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
   }
-  const [passo, setPasso] = useState<1 | 2>(1)
+  const [passo, setPasso] = useState<1 | 2 | 3>(1)
+  const [resultado, setResultado] = useState<EdicaoMassaResultado | null>(null)
   const [nivel, setNivel] = useState<NivelEdicao>('combinado')
   const [campos, setCampos] = useState<CampoEmEdicao[]>([])
   const [preview, setPreview] = useState<EdicaoMassaPreview | null>(null)
@@ -875,10 +877,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
     }
 
     try {
-      await pedidoEdicaoMassaApi.confirmar(payload)
-      const camposNomes = camposValidos.map(c => c.campo).join(', ')
-      addNotification({ type: 'success', message: `${camposNomes} atualizado(s) em ${pedidos.length} PO(s).`, duration: 4000 })
-      onConcluido()
+      const result = await pedidoEdicaoMassaApi.confirmar(payload)
+      setResultado(result)
+      setPasso(3)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('pedido.modal_massa.erro_aplicar')
       setErroSalvar(msg)
@@ -1301,22 +1302,93 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
         </div>
       </div>
 
-      {/* Lista de campos */}
+      {/* Lista de campos — como está → como vai ficar */}
       <div className="modal-edicao-massa__confirmacao-lista">
-        {camposValidos.map(c => (
-          <div key={c.uid} className="modal-edicao-massa__confirmacao-item">
-            <span className="modal-edicao-massa__confirmacao-item-campo">
-              {disponiveis.find(d => d.campo === c.campo)?.rotulo ?? c.campo}
-            </span>
-            <span className="modal-edicao-massa__confirmacao-item-op">
-              {t(OP_LABEL_KEYS[c.operacao])}
-            </span>
-            <span className="modal-edicao-massa__confirmacao-item-valor">{c.valor}</span>
-            <span className="modal-edicao-massa__confirmacao-item-nivel">
-              {c.nivel}
-            </span>
-          </div>
-        ))}
+        {camposValidos.map(c => {
+          const def = disponiveis.find(d => d.campo === c.campo)
+          const rotulo = def?.rotulo ?? c.campo
+          const previewCampo = preview?.campos.find(p => p.campo === c.campo)
+          const valoresAtuais = previewCampo?.valores_distintos ?? []
+          const multiplos = valoresAtuais.length > 1
+          const valorAtualExib = multiplos
+            ? `${valoresAtuais.length} valores distintos`
+            : valoresAtuais[0] || '(vazio)'
+
+          return (
+            <div key={c.uid} style={{
+              display: 'flex', flexDirection: 'column', gap: '0.375rem',
+              padding: '0.75rem 0.875rem',
+              background: 'var(--surface-2, #1e293b)',
+              borderRadius: 'var(--radius-sm, 6px)',
+              border: '1px solid var(--border, #334155)',
+            }}>
+              {/* Header: campo + nível */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{rotulo}</span>
+                <span style={{
+                  fontSize: '0.6875rem', fontWeight: 500, textTransform: 'uppercase',
+                  padding: '0.125rem 0.5rem', borderRadius: '9999px',
+                  background: c.nivel === 'pedido'
+                    ? 'color-mix(in srgb, var(--primary, #6366f1) 15%, transparent)'
+                    : 'color-mix(in srgb, var(--success, #22c55e) 15%, transparent)',
+                  color: c.nivel === 'pedido' ? 'var(--primary, #818cf8)' : 'var(--success, #4ade80)',
+                }}>
+                  {c.nivel}
+                </span>
+              </div>
+
+              {/* De → Para */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                <span style={{
+                  flex: 1, padding: '0.375rem 0.5rem',
+                  background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                  borderRadius: 'var(--radius-xs, 4px)',
+                  color: 'var(--text-secondary, #94a3b8)',
+                  fontStyle: multiplos ? 'italic' : 'normal',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {valorAtualExib}
+                </span>
+                <span style={{ color: 'var(--text-tertiary, #64748b)', flexShrink: 0, fontSize: '0.75rem' }}>→</span>
+                <span style={{
+                  flex: 1, padding: '0.375rem 0.5rem',
+                  background: 'color-mix(in srgb, var(--success, #22c55e) 8%, transparent)',
+                  borderRadius: 'var(--radius-xs, 4px)',
+                  color: 'var(--text-primary, #e2e8f0)',
+                  fontWeight: 500,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {t(OP_LABEL_KEYS[c.operacao])}: {c.valor}
+                </span>
+              </div>
+
+              {/* Valores distintos expandidos quando >1 */}
+              {multiplos && (
+                <div style={{
+                  fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)',
+                  padding: '0.25rem 0.5rem',
+                  background: 'color-mix(in srgb, var(--warning, #f59e0b) 6%, transparent)',
+                  borderRadius: 'var(--radius-xs, 4px)',
+                }}>
+                  Valores atuais: {valoresAtuais.slice(0, 5).map(v => v || '(vazio)').join(', ')}
+                  {valoresAtuais.length > 5 && ` +${valoresAtuais.length - 5} mais`}
+                </div>
+              )}
+
+              {/* Alerta cascade */}
+              {previewCampo?.cascade_para && (
+                <div style={{
+                  fontSize: '0.75rem', color: 'var(--primary, #818cf8)',
+                  display: 'flex', alignItems: 'center', gap: '0.25rem',
+                }}>
+                  ↳ Cascade para {previewCampo.cascade_para}
+                  {(previewCampo.overrides_sobrescritos ?? 0) > 0 &&
+                    ` · ${previewCampo.overrides_sobrescritos} itens serão sobrescritos`}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Detalhe de/para na confirmação */}
@@ -1349,6 +1421,111 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
     </div>
   )
 
+  const renderPasso3 = () => {
+    if (!resultado) return null
+    const temErros = resultado.erros && resultado.erros.length > 0
+    const totalPedidos = pedidos.length
+    const sucessos = resultado.pedidos_atualizados
+    const falhas = resultado.erros?.length ?? 0
+    const camposEditados = campos.filter(c => c.valor.trim() !== '')
+
+    return (
+      <div className="modal-edicao-massa__confirmacao">
+        {/* Resumo geral */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '1rem',
+          background: temErros
+            ? 'color-mix(in srgb, var(--warning, #f59e0b) 10%, transparent)'
+            : 'color-mix(in srgb, var(--success, #22c55e) 10%, transparent)',
+          border: `1px solid ${temErros
+            ? 'color-mix(in srgb, var(--warning, #f59e0b) 35%, transparent)'
+            : 'color-mix(in srgb, var(--success, #22c55e) 35%, transparent)'}`,
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          {temErros
+            ? <Warning weight="fill" size={20} color="var(--warning, #f59e0b)" />
+            : <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />}
+          <div>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>
+              {temErros
+                ? `${sucessos} de ${totalPedidos} pedido(s) atualizados — ${falhas} com erro`
+                : `${sucessos} pedido(s) atualizados · ${resultado.itens_atualizados} itens`}
+            </p>
+          </div>
+        </div>
+
+        {/* Status por campo */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Campos editados
+          </p>
+          {camposEditados.map(c => {
+            const def = disponiveis.find(d => d.campo === c.campo)
+            const rotulo = def?.rotulo ?? c.campo
+            const estaNosAlterados = resultado.campos_alterados?.includes(c.campo) ?? false
+            const ok = estaNosAlterados && sucessos > 0
+            return (
+              <div
+                key={c.uid}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '0.625rem 0.875rem',
+                  background: 'var(--surface-2, #1e293b)',
+                  borderRadius: 'var(--radius-sm, 6px)',
+                  border: '1px solid var(--border, #334155)',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{rotulo}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)' }}>
+                    {c.operacao} → {c.valor}
+                  </span>
+                </div>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                  fontSize: '0.75rem', fontWeight: 600,
+                  color: ok ? 'var(--success, #22c55e)' : 'var(--destructive, #ef4444)',
+                }}>
+                  {ok
+                    ? <><CheckCircle size={14} weight="fill" /> OK</>
+                    : <><Warning size={14} weight="fill" /> Erro</>}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Erros detalhados */}
+        {temErros && (
+          <div style={{ marginTop: '1rem' }}>
+            <p style={{ margin: '0 0 0.5rem', fontWeight: 600, fontSize: '0.8125rem', color: 'var(--destructive, #ef4444)' }}>
+              Pedidos com erro
+            </p>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+              {resultado.erros.map((e, i) => (
+                <li
+                  key={i}
+                  style={{
+                    fontSize: '0.8125rem',
+                    padding: '0.5rem 0.75rem',
+                    background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: '1px solid color-mix(in srgb, var(--destructive, #ef4444) 25%, transparent)',
+                    color: 'var(--text-primary, #e2e8f0)',
+                  }}
+                >
+                  <strong>{e.pedido_id.slice(0, 12)}…</strong>: {e.motivo}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
@@ -1362,9 +1539,15 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
       <div className="modal-edicao-massa__container">
         {/* Header */}
         <div className="modal-edicao-massa__header">
-          <h2 id="modal-edicao-massa-titulo" className="modal-edicao-massa__titulo">
-            {t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
-          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <PencilSimpleLine size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+              <h2 id="modal-edicao-massa-titulo" className="modal-edicao-massa__titulo">
+                {t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
+              </h2>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Selecione os campos que deseja alterar em lote</p>
+          </div>
           <button
             className="modal-edicao-massa__fechar"
             onClick={onFechar}
@@ -1398,7 +1581,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
               </div>
             </div>
           )}
-          {passo === 1 ? renderPasso1() : renderPasso2()}
+          {passo === 1 ? renderPasso1() : passo === 2 ? renderPasso2() : renderPasso3()}
         </div>
 
         {/* Footer */}
@@ -1409,14 +1592,21 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
               className={`modal-edicao-massa__passo${passo === 1 ? ' modal-edicao-massa__passo--ativo' : ' modal-edicao-massa__passo--concluido'}`}
               aria-current={passo === 1 ? 'step' : undefined}
             >
-              {passo === 1 ? '1' : <CheckCircle size={12} weight="fill" aria-hidden="true" />}
+              {passo >= 2 ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : '1'}
             </span>
             <span className="modal-edicao-massa__passo-separador" />
             <span
-              className={`modal-edicao-massa__passo${passo === 2 ? ' modal-edicao-massa__passo--ativo' : ''}`}
+              className={`modal-edicao-massa__passo${passo === 2 ? ' modal-edicao-massa__passo--ativo' : passo === 3 ? ' modal-edicao-massa__passo--concluido' : ''}`}
               aria-current={passo === 2 ? 'step' : undefined}
             >
-              2
+              {passo === 3 ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : '2'}
+            </span>
+            <span className="modal-edicao-massa__passo-separador" />
+            <span
+              className={`modal-edicao-massa__passo${passo === 3 ? ' modal-edicao-massa__passo--ativo' : ''}`}
+              aria-current={passo === 3 ? 'step' : undefined}
+            >
+              3
             </span>
           </div>
 
@@ -1432,14 +1622,16 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
               </BotaoGlobal>
             )}
 
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="medio"
-              onClick={onFechar}
-              disabled={salvando}
-            >
-              {t('pedido.modal_massa.cancelar')}
-            </BotaoGlobal>
+            {passo !== 3 && (
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="medio"
+                onClick={onFechar}
+                disabled={salvando}
+              >
+                {t('pedido.modal_massa.cancelar')}
+              </BotaoGlobal>
+            )}
 
             {passo === 1 ? (
               <BotaoGlobal
@@ -1450,7 +1642,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
               >
                 {t('pedido.modal_massa.revisar')}
               </BotaoGlobal>
-            ) : (
+            ) : passo === 2 ? (
               <BotaoGlobal
                 variante="primario"
                 tamanho="medio"
@@ -1459,6 +1651,14 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 aria-busy={salvando}
               >
                 {salvando ? t('pedido.modal_massa.aplicando') : t('pedido.modal_massa.aplicar')}
+              </BotaoGlobal>
+            ) : (
+              <BotaoGlobal
+                variante="primario"
+                tamanho="medio"
+                onClick={() => { onConcluido() }}
+              >
+                Fechar
               </BotaoGlobal>
             )}
           </div>

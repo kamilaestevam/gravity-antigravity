@@ -300,7 +300,7 @@ const s = {
   labelCompacto: {
     fontSize: '0.75rem',
     fontWeight: 600,
-    color: 'var(--text-muted)',
+    color: 'var(--ws-muted, var(--text-muted, #94a3b8))',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     lineHeight: 1.3,

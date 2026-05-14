@@ -3818,7 +3818,7 @@
       "label_ref_fabricante": "Manufacturer Ref.",
       "label_data_emissao": "Issue Date",
       "label_descricao": "Description",
-      "label_qtd": "Qty.",
+      "label_qtd": "Initial Item Qty.",
       "adicionar_item": "Add Item",
       "carregando": "Loading order...",
       "carregando_transfer": "Loading transfers...",

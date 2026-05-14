@@ -3624,7 +3624,7 @@
       "label_ref_fabricante": "Ref. Fabricante",
       "label_data_emissao": "Data Emissão",
       "label_descricao": "Descrição",
-      "label_qtd": "Qtd.",
+      "label_qtd": "Qtd. Inicial do Item",
       "adicionar_item": "Adicionar Item",
       "carregando": "Carregando pedido...",
       "carregando_transfer": "Carregando transferências...",

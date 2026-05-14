@@ -3963,7 +3963,7 @@
       "label_ref_fabricante": "Ref. Fabricante",
       "label_data_emissao": "Fecha de Emisión",
       "label_descricao": "Descripción",
-      "label_qtd": "Cant.",
+      "label_qtd": "Cant. Inicial del Ítem",
       "adicionar_item": "Agregar Ítem",
       "carregando": "Cargando pedido...",
       "carregando_transfer": "Cargando transferencias...",

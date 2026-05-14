@@ -483,9 +483,13 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
         Record<string, string> | undefined
       const valor = valores?.[col.id] ?? '—'
 
+      const divergentes = (row as Record<string, unknown>)['_colunas_usuario_divergentes'] as Record<string, boolean> | undefined
+      const divergente = (col.escopo || 'ambos') === 'ambos' && (divergentes?.[col.id] ?? false)
+
       // ── Checkbox ────────────────────────────────────────────────────────────
       if (col.tipo === 'checkbox') {
-        return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+        const txt = valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'
+        return renderAgregado(txt, divergente, `Valores divergentes entre itens para "${col.nome}"`)
       }
 
       // ── Fórmula: calcula em tempo real a partir dos campos do pedido (T03) ──
@@ -493,7 +497,6 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
         if (formulaAST) {
           try {
             const contexto = buildFormulaContexto(row)
-            // Inclui valores de outras colunas C2 numéricas no contexto
             if (valores) {
               for (const [k, v] of Object.entries(valores)) {
                 const num = Number(v)
@@ -521,16 +524,19 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
         const num = Number(valor)
         if (!isNaN(num)) {
           const sufixo = col.tipo === 'percentual' ? '%' : ''
-          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casasCol)}{sufixo}</span>
+          return renderAgregado(`${fmtQuantidade(num, casasCol)}${sufixo}`, divergente, `Valores divergentes entre itens para "${col.nome}"`)
         }
       }
 
       // ── Data — aplica o formato global configurado pelo tenant ───────────────
       if (col.tipo === 'data' && valor !== '—') {
-        return <span>{fmtData(valor)}</span>
+        return renderAgregado(fmtData(valor), divergente, `Valores divergentes entre itens para "${col.nome}"`)
       }
 
       // ── Texto / Select / Tipo Documento — trunca em 150 chars (T04) ─────────
+      if (divergente) {
+        return renderAgregado(valor !== '—' ? valor : null, true, `Valores divergentes entre itens para "${col.nome}"`)
+      }
       return renderTextoC2(valor, col.nome)
     },
   }
@@ -3651,24 +3657,19 @@ export default function Pedidos() {
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       await colunasUsuarioApi.salvarValores('pedido', id, { [colunaCustom.id]: String(valor) })
       const replicarCustom = opts?.replicar_em_itens ?? false
-      console.log('[handleEditar/custom] campo=', campo, 'replicar=', replicarCustom, 'escopo=', colunaCustom.escopo, 'opts=', opts)
       if (replicarCustom && ((colunaCustom.escopo || 'ambos') === 'ambos')) {
         let itens = itensCarregadosRef.current.get(id)
-        console.log('[replicar/custom] cache=', itens?.length, 'pedidoAtual.itens=', pedidoAtual.itens?.length)
         if (!itens || itens.length === 0) {
           itens = (pedidoAtual.itens?.length ?? 0) > 0
             ? pedidoAtual.itens as PedidoItem[]
             : await pedidoItemApi.listar(id)
-          console.log('[replicar/custom] fetched=', itens?.length, 'ids=', itens?.map(i => i.id))
         }
         if (itens.length > 0) {
-          console.log('[replicar/custom] salvando em', itens.length, 'itens, colunaId=', colunaCustom.id, 'valor=', String(valor))
-          const results = await Promise.allSettled(
+          await Promise.all(
             itens.map(item =>
               colunasUsuarioApi.salvarValores('item', item.id, { [colunaCustom.id]: String(valor) })
             )
           )
-          console.log('[replicar/custom] results=', results.map(r => r.status))
           const itensAtualizados = itens.map(i => {
             const colAntes = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
             return { ...i, _colunas_usuario: { ...colAntes, [colunaCustom.id]: String(valor) } }
@@ -3677,9 +3678,12 @@ export default function Pedidos() {
         }
       }
       const colunasAntes = (pedidoAtual as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+      const itensFinais = itensCarregadosRef.current.get(id) ?? pedidoAtual.itens ?? []
       const atualizado = {
         ...pedidoAtual,
         _colunas_usuario: { ...colunasAntes, [colunaCustom.id]: String(valor) },
+        itens: itensFinais,
+        updated_at: new Date().toISOString(),
       } as Pedido
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
@@ -3821,6 +3825,27 @@ export default function Pedidos() {
     }
     result.data_emissao_pedido_divergente = dataEmissaoDivergente
     result.data_emissao_pedido_valor_unico = datasUnicas.size === 1 ? [...datasUnicas][0] : null
+
+    // Colunas customizadas: compara _colunas_usuario entre itens e com o pai
+    const colIdsSet = new Set<string>()
+    for (const item of itens) {
+      const cu = (item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+      if (cu) for (const k of Object.keys(cu)) colIdsSet.add(k)
+    }
+    const paiCu = pedidoPai ? (pedidoPai as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined : undefined
+    const divergenciasCustom: Record<string, boolean> = {}
+    for (const colId of colIdsSet) {
+      const valoresItens = itens
+        .map(i => ((i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined)?.[colId])
+        .filter((v): v is string => v != null && v !== '')
+      const distintos = new Set(valoresItens)
+      let div = distintos.size > 1
+      if (!div && paiCu?.[colId] && distintos.size === 1) {
+        div = [...distintos][0] !== paiCu[colId]
+      }
+      divergenciasCustom[colId] = div
+    }
+    result['_colunas_usuario_divergentes'] = divergenciasCustom
 
     return result as Partial<Pedido>
   }

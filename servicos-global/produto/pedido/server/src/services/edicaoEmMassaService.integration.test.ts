@@ -304,4 +304,48 @@ describe('EdicaoEmMassaService — integração real (DDD-puro)', () => {
       ).rejects.toThrow()
     })
   })
+
+  // ── D2: Integração do auto-fill ao trocar tipo_operacao (v3) ─────────────
+  //
+  // Esses testes exigem CONFIGURATOR_URL e CHAVE_INTERNA_SERVICO configurados.
+  // O workspace `ID_WS` deve existir no Configurador. Se não existir, são pulados.
+  describe.skipIf(!process.env.CONFIGURATOR_URL || !process.env.CHAVE_INTERNA_SERVICO)(
+    'Auto-fill ao trocar tipo_operacao_pedido — contra Configurador real',
+    () => {
+      it('IMP→EXP em pedido real persiste nome+cnpj do workspace no JSON', async () => {
+        // Estado inicial: pedido criado em beforeAll como importação
+        const resultado = await service.confirmar(ID_ORG, ID_USER, NOME_USER, prisma, {
+          pedido_ids: [PEDIDO_ID],
+          campos: [{ campo: 'tipo_operacao_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'exportacao' }],
+          nivel: 'pedido',
+        })
+
+        // Pode falhar se ID_WS não existe no Configurador → erro entra em erros[]
+        // (workspace órfão). Aceito ambos os casos: sucesso ou erro de WS.
+        if (resultado.erros.length > 0) {
+          expect(resultado.erros[0].motivo).toMatch(/Workspace|Configurador/i)
+          return // workspace de teste não existe — comportamento aceito
+        }
+
+        const pedido = await prisma.pedido.findUnique({ where: { id_pedido: PEDIDO_ID } })
+        const det = pedido?.detalhes_operacionais_pedido as Record<string, unknown> | null
+        expect(det).toBeDefined()
+        expect(det?.nome_exportador).toBeDefined()
+        expect(det?.nome_importador).toBeNull()
+      })
+
+      it('Preview retorna avisos quando troca tipo_operacao_pedido', async () => {
+        const preview = await service.preview(ID_ORG, prisma, {
+          pedido_ids: [PEDIDO_ID],
+          campos: [{ campo: 'tipo_operacao_pedido', tipo: 'select', nivel: 'pedido', operacao: 'substituir', valor: 'exportacao' }],
+          nivel: 'pedido',
+        })
+
+        // workspaces_auto_fill sempre é populado quando troca tipo (mesmo vazio se ws órfão)
+        expect(preview.workspaces_auto_fill).toBeDefined()
+        // aviso_status_critico pode estar populado dependendo do status do pedido teste
+        expect(preview).toHaveProperty('aviso_workspace_sem_cnpj')
+      })
+    },
+  )
 })

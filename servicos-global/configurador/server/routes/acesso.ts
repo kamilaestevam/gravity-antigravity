@@ -626,3 +626,52 @@ accessRouter.delete('/gabi/limites-globais/:id', async (req, res, next) => {
     next(err)
   }
 })
+
+/**
+ * GET /api/v1/internal/workspaces?ids=ws1,ws2,ws3
+ *
+ * S2S batch lookup de workspaces. Retorna nome+CNPJ+id_organizacao para os
+ * IDs solicitados. Usado pelo produto Pedido (Edição em Massa de
+ * tipo_operacao_pedido) para auto-preencher o lado nacional do pedido com
+ * dados do workspace correspondente.
+ *
+ * Padrão de S2S do sistema: prefixo /api/v1/internal/*, autenticado por
+ * `x-chave-interna-servico`/`x-internal-key` (requireInternalKey acima).
+ *
+ * Resposta:
+ *   { workspaces: [{ id_workspace, nome_workspace, cnpj_workspace, id_organizacao }] }
+ *
+ * IDs ausentes (workspace órfão) NÃO geram erro 404 — apenas não aparecem
+ * na resposta. O chamador decide como tratar (Mand. 08: chamador faz barulho).
+ */
+const WorkspacesBatchSchema = z.object({
+  ids: z
+    .string()
+    .min(1, 'ids é obrigatório (CSV de id_workspace)')
+    .transform((s) => s.split(',').map((x) => x.trim()).filter(Boolean))
+    .refine((arr) => arr.length > 0, 'ids vazio após parse'),
+})
+
+accessRouter.get('/workspaces', async (req, res, next) => {
+  try {
+    const parse = WorkspacesBatchSchema.safeParse(req.query)
+    if (!parse.success) {
+      return next(new AppError(parse.error.issues[0]?.message ?? 'ids inválido', 400, 'VALIDATION_ERROR'))
+    }
+    const ids = parse.data.ids
+
+    const workspaces = await prisma.workspace.findMany({
+      where: { id_workspace: { in: ids } },
+      select: {
+        id_workspace: true,
+        id_organizacao: true,
+        nome_workspace: true,
+        cnpj_workspace: true,
+      },
+    })
+
+    res.json({ workspaces })
+  } catch (err) {
+    next(err)
+  }
+})

@@ -672,6 +672,21 @@ export interface EdicaoMassaPreview {
     overrides_sobrescritos?: number
   }[]
   alertas_globais: string[]
+  /**
+   * Auto-fill ao trocar tipo_operacao_pedido: pedidos cujo workspace não tem
+   * CNPJ. Mostra banner amarelo na UI (Mand. 08, informativo — não bloqueia).
+   */
+  aviso_workspace_sem_cnpj?: Array<{ id_pedido: string; numero_pedido: string; id_workspace: string }>
+  /**
+   * Auto-fill ao trocar tipo_operacao_pedido: pedidos com status ≠ rascunho/aberto.
+   * Mostra banner laranja com aviso de inconsistência com documentos legais.
+   */
+  aviso_status_critico?: Array<{ id_pedido: string; numero_pedido: string; status_pedido: string }>
+  /**
+   * Auto-fill ao trocar tipo_operacao_pedido: dados de workspaces que serão
+   * aplicados (para banner azul informativo).
+   */
+  workspaces_auto_fill?: Array<{ id_workspace: string; nome_workspace: string; cnpj_workspace: string | null }>
   /** Detalhamento por pedido — valor atual e novo valor para cada campo */
   por_pedido?: Array<{
     pedido_id: string

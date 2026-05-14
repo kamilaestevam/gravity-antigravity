@@ -19,6 +19,7 @@
 // ── Campos calculados — nunca editáveis em massa ──────────────────────────────
 
 import { PrismaClient, Prisma } from '@prisma/client'
+import { obterWorkspaces, type WorkspaceLookupItem } from '@gravity/resolver-organizacao'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
@@ -67,6 +68,7 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
 const CAMPOS_DETALHES_OPERACIONAIS = new Set([
   // Exportador
   'nome_exportador',
+  'cnpj_exportador',   // auto-fill: workspace.cnpj_workspace em EXP
   'endereco_exportador',
   'pais_exportador',
   'estado_exportador',
@@ -81,6 +83,7 @@ const CAMPOS_DETALHES_OPERACIONAIS = new Set([
   'departamento_contato_exportador',
   // Importador
   'nome_importador',
+  'cnpj_importador',   // auto-fill: workspace.cnpj_workspace em IMP
   // Fabricante
   'nome_fabricante',
   'endereco_fabricante',
@@ -155,6 +158,47 @@ const PARES_CASCADE_PEDIDO_ITEM: Record<string, string> = {
   nome_fabricante:                  'nome_fabricante_item',
 }
 
+// ── Auto-fill ao trocar tipo_operacao_pedido em massa ────────────────────────
+//
+// Quando o usuário edita `tipo_operacao_pedido` em massa, o sistema deve
+// automaticamente preencher o lado nacional (importador em IMP, exportador
+// em EXP) com nome+CNPJ do **workspace** do pedido (não da empresa-da-org).
+//
+// Mapping: dado o novo tipo_operacao_pedido, quais chaves no JSON
+// `detalhes_operacionais_pedido` representam o lado nacional (a setar com
+// dados do workspace) e qual coluna do PedidoItem cascadeia.
+const AUTO_FILL_TIPO_OPERACAO: Record<'importacao' | 'exportacao', {
+  /** Chave JSON que recebe nome_workspace */
+  jsonChaveNome: 'nome_importador' | 'nome_exportador'
+  /** Chave JSON que recebe cnpj_workspace */
+  jsonChaveCnpj: 'cnpj_importador' | 'cnpj_exportador'
+  /** Coluna do PedidoItem que cascadeia (recebe nome_workspace) */
+  colunaItemNome: 'nome_importador_item' | 'nome_exportador_item'
+  /** Chave JSON do lado OPOSTO (a limpar) */
+  jsonChaveNomeOposta: 'nome_exportador' | 'nome_importador'
+  /** Chave JSON CNPJ do lado OPOSTO (a limpar) */
+  jsonChaveCnpjOposta: 'cnpj_exportador' | 'cnpj_importador'
+  /** Coluna do item do lado OPOSTO (a limpar via cascade) */
+  colunaItemNomeOposta: 'nome_exportador_item' | 'nome_importador_item'
+}> = {
+  importacao: {
+    jsonChaveNome:        'nome_importador',
+    jsonChaveCnpj:        'cnpj_importador',
+    colunaItemNome:       'nome_importador_item',
+    jsonChaveNomeOposta:  'nome_exportador',
+    jsonChaveCnpjOposta:  'cnpj_exportador',
+    colunaItemNomeOposta: 'nome_exportador_item',
+  },
+  exportacao: {
+    jsonChaveNome:        'nome_exportador',
+    jsonChaveCnpj:        'cnpj_exportador',
+    colunaItemNome:       'nome_exportador_item',
+    jsonChaveNomeOposta:  'nome_importador',
+    jsonChaveCnpjOposta:  'cnpj_importador',
+    colunaItemNomeOposta: 'nome_importador_item',
+  },
+}
+
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -192,6 +236,21 @@ interface EdicaoMassaPreview {
     overrides_sobrescritos?: number   // # de itens cujo valor atual diverge do que será aplicado
   }[]
   alertas_globais: string[]
+  /**
+   * Auto-fill ao trocar tipo_operacao_pedido: lista de pedidos com workspace
+   * sem CNPJ (aviso amarelo no UI — Mand. 08, não bloqueia).
+   */
+  aviso_workspace_sem_cnpj?: Array<{ id_pedido: string; numero_pedido: string; id_workspace: string }>
+  /**
+   * Auto-fill ao trocar tipo_operacao_pedido: lista de pedidos com status
+   * crítico (≠ rascunho/aberto) — aviso laranja no UI.
+   */
+  aviso_status_critico?: Array<{ id_pedido: string; numero_pedido: string; status_pedido: string }>
+  /**
+   * Auto-fill: dados de workspace que serão aplicados (para banner azul).
+   * Map indexado por id_workspace, com nome+cnpj.
+   */
+  workspaces_auto_fill?: Array<{ id_workspace: string; nome_workspace: string; cnpj_workspace: string | null }>
 }
 
 interface EdicaoMassaResultado {
@@ -260,8 +319,35 @@ export class EdicaoEmMassaService {
       0,
     )
 
-    // Itens são contados se há campos de nível 'item' OU cascade ativo
-    const temCamposItem = payload.campos.some(c => c.nivel === 'item') || camposPedidoComCascade.length > 0
+    // ── Co1: Preview também faz S2S quando tipo_operacao_pedido está no batch ─
+    // Necessário para banners da UI mostrarem nome+CNPJ REAIS do workspace
+    // (não texto genérico). Cache compartilhado se houvesse: como preview e
+    // confirmar são requests HTTP distintos, cada um faz a sua call.
+    const campoTipoOperacaoPreview = payload.campos.find(
+      c => c.campo === 'tipo_operacao_pedido' && c.operacao === 'substituir' && c.nivel === 'pedido',
+    )
+    const trocaTipoNoPreview = campoTipoOperacaoPreview !== undefined
+    let wsAutoFill: WorkspaceLookupItem[] = []
+    if (trocaTipoNoPreview) {
+      const idsWorkspaceUnicos = [
+        ...new Set(
+          (pedidos as Record<string, unknown>[])
+            .map(p => p.id_workspace as string)
+            .filter(Boolean),
+        ),
+      ]
+      wsAutoFill = await obterWorkspaces({
+        configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+        chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+        ids:                 idsWorkspaceUnicos,
+      })
+    }
+
+    // Itens são contados se há campos de nível 'item' OU cascade ativo OU
+    // auto-fill cascade (troca de tipo cascadeia nome_*_item para todos os itens).
+    const temCamposItem = payload.campos.some(c => c.nivel === 'item')
+      || camposPedidoComCascade.length > 0
+      || trocaTipoNoPreview
     const itensAfetados = temCamposItem ? totalItensSomados : 0
 
     const camposPreview = payload.campos.map(c => {
@@ -330,6 +416,43 @@ export class EdicaoEmMassaService {
       totalItensSomados * camposItemNivel                                // campos item explícitos
       + totalItensSomados * camposPedidoComCascade.length                // campos cascade
 
+    // ── Avisos do auto-fill (B6 + B7 + Co1) ──────────────────────────────────
+    // Só populados quando há tipo_operacao_pedido no batch.
+    let aviso_workspace_sem_cnpj: EdicaoMassaPreview['aviso_workspace_sem_cnpj']
+    let aviso_status_critico: EdicaoMassaPreview['aviso_status_critico']
+    let workspaces_auto_fill: EdicaoMassaPreview['workspaces_auto_fill']
+    if (trocaTipoNoPreview) {
+      const wsByid = new Map(wsAutoFill.map(w => [w.idWorkspace, w]))
+      // Workspaces sem CNPJ (avisa, não bloqueia — D1 do dono)
+      aviso_workspace_sem_cnpj = (pedidos as Record<string, unknown>[])
+        .filter(p => {
+          const ws = wsByid.get(p.id_workspace as string)
+          return ws ? ws.cnpjWorkspace === null : false
+        })
+        .map(p => ({
+          id_pedido:     p.id_pedido as string,
+          numero_pedido: p.numero_pedido as string,
+          id_workspace:  p.id_workspace as string,
+        }))
+
+      // Status crítico = tudo exceto rascunho/aberto (D2 do dono)
+      const STATUS_NAO_CRITICOS = new Set(['rascunho', 'aberto'])
+      aviso_status_critico = (pedidos as Record<string, unknown>[])
+        .filter(p => !STATUS_NAO_CRITICOS.has(p.status_pedido as string))
+        .map(p => ({
+          id_pedido:     p.id_pedido as string,
+          numero_pedido: p.numero_pedido as string,
+          status_pedido: p.status_pedido as string,
+        }))
+
+      // Lista de workspaces para banner azul (mostra "será preenchido com X")
+      workspaces_auto_fill = wsAutoFill.map(w => ({
+        id_workspace:   w.idWorkspace,
+        nome_workspace: w.nomeWorkspace,
+        cnpj_workspace: w.cnpjWorkspace,
+      }))
+    }
+
     return {
       pedidos_afetados: pedidos.length,
       itens_afetados: itensAfetados,
@@ -337,6 +460,9 @@ export class EdicaoEmMassaService {
       campos_item_alterados,
       campos: camposPreview,
       alertas_globais: [],
+      aviso_workspace_sem_cnpj,
+      aviso_status_critico,
+      workspaces_auto_fill,
     }
   }
 
@@ -377,6 +503,34 @@ export class EdicaoEmMassaService {
           .map(c => ({ campoPedido: c, campoItem: PARES_CASCADE_PEDIDO_ITEM[c.campo] }))
       : []
 
+    // ── Auto-fill ao trocar tipo_operacao_pedido ─────────────────────────────
+    // Quando o batch inclui `tipo_operacao_pedido` (substituir), buscamos
+    // 1x batch os dados dos workspaces únicos e construímos um Map.
+    // Cada pedido aplica o auto-fill com SEU PRÓPRIO workspace (T3).
+    // Falha S2S → propaga AppError 503 (Mand. 08, falha ruidosa).
+    const campoTipoOperacao = camposPedido.find(
+      c => c.campo === 'tipo_operacao_pedido' && c.operacao === 'substituir',
+    )
+    const novoTipo = campoTipoOperacao
+      ? (String(campoTipoOperacao.valor) as 'importacao' | 'exportacao')
+      : null
+    let wsMap: Map<string, WorkspaceLookupItem> | null = null
+    if (novoTipo) {
+      const idsWorkspaceUnicos = [
+        ...new Set(
+          (pedidos as Record<string, unknown>[])
+            .map(p => p.id_workspace as string)
+            .filter(Boolean),
+        ),
+      ]
+      const workspaces = await obterWorkspaces({
+        configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+        chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+        ids:                 idsWorkspaceUnicos,
+      })
+      wsMap = new Map(workspaces.map(w => [w.idWorkspace, w]))
+    }
+
     const precisaRecalcularAgregados = camposItem.some(c => CAMPOS_QUANTIDADE_ITEM.has(c.campo))
     const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id_pedido as string)
 
@@ -384,11 +538,15 @@ export class EdicaoEmMassaService {
     // Condição: todos os campos de pedido são "substituir" em campos diretos do
     // schema (não estão em detalhes_operacionais), não há campos de item E não
     // há cascade pendente (cascade exige update por item, então cai no slow).
+    // **Auto-fill ao trocar tipo_operacao_pedido também força slow path** (LT1):
+    // o auto-fill exige merge JSON em detalhes_operacionais_pedido + cascade item,
+    // incompatível com updateMany.
     // Uma única query SQL atualiza todos os pedidos independente do volume.
     const todosCamposPedidoSaoRapidos =
       camposPedido.length > 0 &&
       camposItem.length === 0 &&
       camposCascade.length === 0 &&
+      novoTipo === null &&  // LT1 — auto-fill incompatível com fast path
       camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
 
     if (todosCamposPedidoSaoRapidos) {
@@ -436,6 +594,10 @@ export class EdicaoEmMassaService {
     // Campos com operação matemática (somar/subtrair/percentual), campos em
     // detalhes_operacionais (merge JSON), ou campos de item.
     // Timeout de 60s para suportar grandes volumes no Railway.
+    // Audit fields rastreados — Co2. Inclui campos auto-preenchidos (não estão
+    // no payload), permitindo compliance refletir TODAS as alterações reais.
+    const camposAutoFillPorPedido = new Map<string, string[]>()
+
     await db.$transaction(async (tx0) => {
       const tx = tx0 as Tx
       for (const pedido of pedidos as Record<string, unknown>[]) {
@@ -462,6 +624,47 @@ export class EdicaoEmMassaService {
               }
             }
 
+            // ── Auto-fill ao trocar tipo_operacao_pedido (B5 + T1 + Co2) ────
+            // Aplica DEPOIS dos campos manuais (T1: edição manual vence).
+            // Se o usuário NÃO editou manualmente o campo do lado nacional, o
+            // auto-fill prevalece. Se editou, o manual vence.
+            const camposAutoFill: string[] = []
+            if (novoTipo && wsMap) {
+              const idWorkspacePedido = pedido.id_workspace as string
+              const ws = wsMap.get(idWorkspacePedido)
+              if (!ws) {
+                throw new AppError(
+                  `Workspace ${idWorkspacePedido} não encontrado no Configurador (pedido ${pedidoId} ficou órfão)`,
+                  503,
+                  'WORKSPACE_NOT_FOUND',
+                )
+              }
+              const cfg = AUTO_FILL_TIPO_OPERACAO[novoTipo]
+              if (detalhesUpdate === null) {
+                const detAtual = (typeof pedido.detalhes_operacionais_pedido === 'object' && pedido.detalhes_operacionais_pedido !== null)
+                  ? pedido.detalhes_operacionais_pedido as Record<string, unknown>
+                  : {}
+                detalhesUpdate = { ...detAtual }
+              }
+              // T1: edição manual vence sobre auto-fill. Só preenche se usuário
+              // NÃO mexeu manualmente nessa chave neste batch.
+              const usuarioEditouNomeLado = camposPedido.some(c => c.campo === cfg.jsonChaveNome)
+              const usuarioEditouCnpjLado = camposPedido.some(c => c.campo === cfg.jsonChaveCnpj)
+              if (!usuarioEditouNomeLado) {
+                detalhesUpdate[cfg.jsonChaveNome] = ws.nomeWorkspace
+                camposAutoFill.push(cfg.jsonChaveNome)
+              }
+              if (!usuarioEditouCnpjLado) {
+                detalhesUpdate[cfg.jsonChaveCnpj] = ws.cnpjWorkspace
+                camposAutoFill.push(cfg.jsonChaveCnpj)
+              }
+              // Limpa lado oposto sempre (ele não faz mais sentido após troca)
+              detalhesUpdate[cfg.jsonChaveNomeOposta] = null
+              detalhesUpdate[cfg.jsonChaveCnpjOposta] = null
+              camposAutoFill.push(cfg.jsonChaveNomeOposta, cfg.jsonChaveCnpjOposta)
+              camposAutoFillPorPedido.set(pedidoId, camposAutoFill)
+            }
+
             if (detalhesUpdate !== null) {
               dadosPedido.detalhes_operacionais_pedido = detalhesUpdate
             }
@@ -470,12 +673,14 @@ export class EdicaoEmMassaService {
               where: { id_pedido: pedidoId },
               data: dadosPedido,
             })
-            camposPedidoGravados += camposPedido.length
+            camposPedidoGravados += camposPedido.length + camposAutoFill.length
           }
 
           // Aplicar campos de nível item — frontend já envia nome DDD da coluna.
           // Inclui também cascade Pedido→Item (camposCascade) quando aba é Combinado.
-          const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0
+          // **Auto-fill** também cascadeia para nome_*_item de cada item.
+          const temAutoFillItem = novoTipo !== null
+          const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0 || temAutoFillItem
           if (temUpdateItem) {
             const itens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
             for (const item of itens) {
@@ -492,6 +697,24 @@ export class EdicaoEmMassaService {
                   dadosItem[campoItem] = campoPedido.valor
                 }
               }
+              // Auto-fill cascade ao trocar tipo: nome do workspace nas colunas
+              // *_item, limpa lado oposto. Item explícito ou cascade do payload
+              // têm prioridade (não sobrescreve).
+              if (novoTipo && wsMap) {
+                const idWorkspacePedido = pedido.id_workspace as string
+                const ws = wsMap.get(idWorkspacePedido)
+                if (ws) {
+                  const cfg = AUTO_FILL_TIPO_OPERACAO[novoTipo]
+                  if (!(cfg.colunaItemNome in dadosItem)) {
+                    dadosItem[cfg.colunaItemNome] = ws.nomeWorkspace
+                  }
+                  // Limpa coluna oposta no item (independente)
+                  if (!(cfg.colunaItemNomeOposta in dadosItem)) {
+                    dadosItem[cfg.colunaItemNomeOposta] = null
+                  }
+                }
+              }
+              if (Object.keys(dadosItem).length === 0) continue
               const resultado = await tx.pedidoItem.update({
                 where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
                 data: dadosItem,
@@ -517,9 +740,13 @@ export class EdicaoEmMassaService {
         }
       }
 
-      // Audit trail via historico-global (fire-and-forget)
-      const camposAlterados = payload.campos.map(c => c.campo)
+      // Audit trail via historico-global (fire-and-forget) — Co2: inclui
+      // campos auto-preenchidos no histórico para compliance/auditoria.
+      const camposPayload = payload.campos.map(c => c.campo)
       for (const p of pedidos as Array<Record<string, unknown>>) {
+        const pedidoId = p.id_pedido as string
+        const camposAutoFill = camposAutoFillPorPedido.get(pedidoId) ?? []
+        const todosCampos = [...camposPayload, ...camposAutoFill]
         auditLog({
           id_organizacao:               id_organizacao,
           tipo_ator_historico_log:      'USUARIO',
@@ -527,18 +754,29 @@ export class EdicaoEmMassaService {
           nome_ator_historico_log:      nome_usuario,
           modulo_historico_log:         'pedido',
           tipo_recurso_historico_log:   'Pedido',
-          id_recurso_historico_log:     p.id_pedido as string,
+          id_recurso_historico_log:     pedidoId,
           acao_historico_log:           'EDITAR_EM_MASSA',
-          detalhe_acao_historico_log:   `Edicao em massa: ${camposAlterados.join(', ')}`,
-          estado_posterior_historico_log: { campos: payload.campos, nivel: payload.nivel },
+          detalhe_acao_historico_log:   `Edicao em massa: ${todosCampos.join(', ')}`,
+          estado_posterior_historico_log: {
+            campos: payload.campos,
+            nivel: payload.nivel,
+            campos_auto_fill: camposAutoFill,
+          },
         })
       }
     }, { timeout: 60000, maxWait: 10000 })
 
-    // Campos únicos alterados — inclui os de cascade (pedido + alvo item)
+    // Campos únicos alterados — inclui os de cascade (pedido + alvo item) e
+    // campos auto-preenchidos pelo auto-fill ao trocar tipo_operacao_pedido.
     const camposUnicos = new Set<string>()
     payload.campos.forEach(c => camposUnicos.add(c.campo))
     camposCascade.forEach(({ campoItem }) => camposUnicos.add(campoItem))
+    camposAutoFillPorPedido.forEach(arr => arr.forEach(c => camposUnicos.add(c)))
+    if (novoTipo) {
+      const cfg = AUTO_FILL_TIPO_OPERACAO[novoTipo]
+      camposUnicos.add(cfg.colunaItemNome)
+      camposUnicos.add(cfg.colunaItemNomeOposta)
+    }
 
     return {
       pedidos_atualizados: pedidosAtualizados,

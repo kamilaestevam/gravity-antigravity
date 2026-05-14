@@ -19,6 +19,8 @@
 // Funções públicas
 export { resolverOrganizacao } from './middleware.js';
 export { verificarAcessoProduto } from './verificar-acesso-produto.js';
+export { criarRequirePermissao } from './require-permissao.js';
+export type { ConfigCriarRequirePermissao, ExigirPermissaoFn } from './require-permissao.js';
 export { withOrganizacao, withOrganizacaoContext } from './with-tenant.js';
 export { obterWorkspacesHabilitadosDoUsuario } from './obter-workspaces-habilitados.js';
 export type {

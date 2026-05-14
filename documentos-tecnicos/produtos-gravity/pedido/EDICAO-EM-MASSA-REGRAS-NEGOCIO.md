@@ -149,6 +149,45 @@ Para resolver a divergência, o usuário pode usar a **aba Combinado** para for�
 
 ---
 
+## Tipo de Operação — auto-fill do lado nacional
+
+Quando o usuário altera **Tipo de Operação** (`tipo_operacao_pedido`) em massa, o sistema preenche automaticamente o lado nacional com **nome + CNPJ do Workspace** de cada pedido.
+
+### Regra
+
+- **Workspace = empresa nacional** (importador em IMP, exportador em EXP). Cada workspace tem nome + CNPJ próprios cadastrados no Configurador.
+- Ao trocar tipo, o sistema:
+  1. Preenche o lado nacional com `workspace.nome_workspace` + `workspace.cnpj_workspace`
+  2. Limpa o lado oposto (nome+CNPJ do tipo anterior viram vazios)
+  3. Cascadeia para todos os itens do pedido (coluna `nome_*_item` na PedidoItem)
+
+### Cada pedido usa o seu próprio workspace
+
+Se o usuário seleciona pedidos de **workspaces diferentes** (ex: 5 do CDE EXPORTADOR + 3 do AMSTED LTDA) e troca tipo em massa, cada pedido pega o seu workspace:
+- Pedidos do CDE → `nome_exportador = "CDE EXPORTADOR"`
+- Pedidos do AMSTED → `nome_exportador = "AMSTED LTDA"`
+
+### Edição manual sobrescreve auto-fill
+
+Se o usuário, **no mesmo batch**, troca `Tipo de Operação` E também edita manualmente o `Exportador — Nome`, o valor digitado pelo usuário vence sobre o auto-fill. O sistema avisa no Passo 2 com banner amarelo "Edição manual sobrescreve auto-fill".
+
+### Avisos no Passo 2
+
+3 banners podem aparecer ao confirmar:
+
+| Cor | Quando | Comportamento |
+|-----|--------|--------------|
+| **Azul informativo** | Sempre que troca tipo_operacao | Mostra workspaces que serão aplicados (nome + CNPJ) |
+| **Amarelo "sem CNPJ"** | Algum workspace tem `cnpj_workspace = NULL` | Avisa; não bloqueia. CNPJ ficará vazio. Usuário pode preencher no Cadastros depois. |
+| **Laranja "status crítico"** | Algum pedido tem status diferente de `rascunho` ou `aberto` | Avisa que pode causar inconsistência com documentos legais. Não bloqueia. |
+| **Amarelo "override manual"** | Usuário editou manualmente `nome_exportador`/`nome_importador`/`cnpj_*` no mesmo batch | Avisa que manual vence sobre auto-fill |
+
+### Comportamento se Configurador estiver offline
+
+Falha ruidosa (Mand. 08). O sistema retorna erro 503 com mensagem "Configurador indisponível". Operação não pôde ser concluída — usuário tenta novamente.
+
+---
+
 ## Campos Únicos (não permitem multi-seleção)
 
 Alguns campos do Pedido são **únicos por organização** — não podem ter o mesmo valor em dois pedidos diferentes. Exemplo: `numero_pedido` (você não pode ter dois pedidos `PO-001` na mesma organização).

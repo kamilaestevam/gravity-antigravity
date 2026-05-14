@@ -53,6 +53,8 @@ async function fetchWithRetry(
   headers: Record<string, string>,
   timeoutMs: number,
   retries: number,
+  method: 'GET' | 'POST' = 'GET',
+  body?: string,
 ): Promise<Response> {
   for (let attempt = 0; attempt < retries; attempt++) {
     const delay = RETRY_DELAYS_MS[attempt] ?? 500;
@@ -62,7 +64,7 @@ async function fetchWithRetry(
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const res = await fetch(url, { headers, signal: controller.signal });
+      const res = await fetch(url, { method, headers, body, signal: controller.signal });
       clearTimeout(timer);
       return res;
     } catch (err) {
@@ -112,6 +114,21 @@ export interface ConfiguradorClient {
     idCorrelacao?: string;
   }): Promise<{ permitido: boolean; motivo?: string }>;
   /**
+   * Cadeia 2 granular — verifica `<slug>:<secao>:<acao>` em UsuarioPermissao.
+   * Master/SAdmin/Admin → sempre `true` (bypass via temBypassPermissao no Configurador).
+   * Standard/Fornecedor → exige linha em UsuarioPermissao.
+   * Falha de comunicação → throws AppError(503). Caller decide.
+   */
+  verificarPermissaoGranular(args: {
+    idOrganizacao: string;
+    idUsuario: string;
+    idWorkspace: string;
+    slugProduto: string;
+    secao: string;
+    acao: 'ver' | 'editar';
+    idCorrelacao?: string;
+  }): Promise<{ permitido: boolean }>;
+  /**
    * Resolve a lista de workspaces que o usuário pode acessar dentro de uma
    * organização. SSOT do projeto para validação de listas multi-workspace.
    *
@@ -146,6 +163,14 @@ export interface ConfiguradorClient {
 const AcessoProdutoResponseSchema = z.object({
   permitido: z.boolean(),
   motivo: z.string().optional(),
+});
+
+/** Resposta da verificação granular `<slug>:<secao>:<acao>`. */
+const PermissaoGranularResponseSchema = z.object({
+  permitido:    z.boolean(),
+  slug_produto: z.string(),
+  secao:        z.string(),
+  acao:         z.string(),
 });
 
 const WorkspacesHabilitadosResponseSchema = z.object({
@@ -293,6 +318,52 @@ export function createConfiguradorClient(opts: ConfiguradorClientOptions): Confi
         );
       }
       return parsed.data;
+    },
+
+    async verificarPermissaoGranular({ idOrganizacao, idUsuario, idWorkspace, slugProduto, secao, acao, idCorrelacao = randomUUID() }) {
+      const res = await fetchWithRetry(
+        `${opts.baseUrl}/api/v1/internal/permissoes/verificar`,
+        {
+          ...baseHeaders(idCorrelacao),
+        },
+        timeoutMs,
+        retries,
+        'POST',
+        JSON.stringify({
+          id_organizacao: idOrganizacao,
+          id_usuario:     idUsuario,
+          id_workspace:   idWorkspace,
+          slug_produto:   slugProduto,
+          secao,
+          acao,
+        }),
+      );
+
+      if (res.status === 403) {
+        throw new AppError(
+          'id_usuario não pertence a id_organizacao (cross-org bloqueado)',
+          403,
+          'CROSS_TENANT_FORBIDDEN',
+        );
+      }
+      if (!res.ok) {
+        throw new AppError(
+          `Configurador retornou HTTP ${res.status} ao verificar permissão granular`,
+          503,
+          'CONFIGURADOR_UNAVAILABLE',
+        );
+      }
+
+      const raw: unknown = await res.json();
+      const parsed = PermissaoGranularResponseSchema.safeParse(raw);
+      if (!parsed.success) {
+        throw new AppError(
+          'Resposta inválida do Configurador (permissão granular)',
+          503,
+          'CONFIGURADOR_INVALID_RESPONSE',
+        );
+      }
+      return { permitido: parsed.data.permitido };
     },
 
     async obterWorkspacesHabilitadosDoUsuario({ idOrganizacao, idUsuario, idCorrelacao = randomUUID() }) {

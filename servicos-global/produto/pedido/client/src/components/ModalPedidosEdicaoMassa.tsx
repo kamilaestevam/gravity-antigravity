@@ -1163,6 +1163,110 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
         </div>
       )}
 
+      {/* C2-a: Auto-fill ao trocar tipo_operacao — banner azul informativo */}
+      {preview?.workspaces_auto_fill && preview.workspaces_auto_fill.length > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          padding: '0.75rem 1rem',
+          background: 'color-mix(in srgb, var(--primary, #6366f1) 8%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--primary, #6366f1) 30%, transparent)',
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          <Info weight="fill" size={18} color="var(--primary, #6366f1)" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ color: 'var(--primary, #6366f1)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+              Auto-preenchimento ao trocar tipo de operação
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+              O nome e CNPJ do lado nacional serão preenchidos automaticamente com dados do workspace de cada pedido:
+            </p>
+            <ul style={{ margin: '0.5rem 0 0 1.25rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+              {preview.workspaces_auto_fill.map(w => (
+                <li key={w.id_workspace}>
+                  <strong>{w.nome_workspace}</strong>
+                  {w.cnpj_workspace ? <> · CNPJ {w.cnpj_workspace}</> : <> · <em>sem CNPJ</em></>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* C2-b: Workspaces sem CNPJ — banner amarelo informativo */}
+      {preview?.aviso_workspace_sem_cnpj && preview.aviso_workspace_sem_cnpj.length > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          padding: '0.75rem 1rem',
+          background: 'color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent)',
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          <Warning weight="fill" size={18} color="var(--warning, #f59e0b)" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ color: 'var(--warning, #f59e0b)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+              Workspace sem CNPJ
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+              {preview.aviso_workspace_sem_cnpj.length} pedido(s) têm workspace sem CNPJ cadastrado. O CNPJ ficará vazio nos pedidos afetados — você pode preencher no Cadastros antes ou seguir mesmo assim.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* C2-c: Status crítico — banner laranja informativo */}
+      {preview?.aviso_status_critico && preview.aviso_status_critico.length > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          padding: '0.75rem 1rem',
+          background: 'color-mix(in srgb, #fb923c 12%, transparent)',
+          border: '1px solid color-mix(in srgb, #fb923c 40%, transparent)',
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          <Warning weight="fill" size={18} color="#fb923c" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <p style={{ color: '#fb923c', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+              Pedidos com status crítico
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+              {preview.aviso_status_critico.length} pedido(s) com status diferente de <em>rascunho</em>/<em>aberto</em>: alterar tipo de operação pode causar inconsistência com documentos legais já emitidos. Status afetados:{' '}
+              <strong>{[...new Set(preview.aviso_status_critico.map(p => p.status_pedido))].join(', ')}</strong>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* C3: Aviso quando edição manual sobrescreve auto-fill */}
+      {(() => {
+        const trocandoTipo = camposValidos.some(c => c.campo === 'tipo_operacao_pedido' && c.operacao === 'substituir')
+        const camposManualLadoNacional = camposValidos.filter(c =>
+          ['nome_exportador', 'nome_importador', 'cnpj_exportador', 'cnpj_importador'].includes(c.campo),
+        )
+        if (!trocandoTipo || camposManualLadoNacional.length === 0) return null
+        return (
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+            padding: '0.75rem 1rem',
+            background: 'color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, transparent)',
+            borderRadius: 'var(--radius-md, 8px)',
+            marginBottom: '1rem',
+          }}>
+            <Warning weight="fill" size={18} color="var(--warning, #f59e0b)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <p style={{ color: 'var(--warning, #f59e0b)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+                Edição manual sobrescreve auto-fill
+              </p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                Você editou manualmente {camposManualLadoNacional.map(c => <strong key={c.campo}>{disponiveis.find(d => d.campo === c.campo)?.rotulo ?? c.campo}</strong>).reduce((prev, curr, i) => i === 0 ? [curr] : [...prev, ', ', curr], [] as React.ReactNode[])}. Esse(s) valor(es) sobrescreverão o auto-preenchimento do workspace.
+              </p>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Resumo */}
       <div className="modal-edicao-massa__confirmacao-resumo" aria-label={t('pedido.modal_massa.aria_resumo')}>
         <div className="modal-edicao-massa__confirmacao-stat">

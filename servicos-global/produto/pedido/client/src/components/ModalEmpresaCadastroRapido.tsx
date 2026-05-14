@@ -256,7 +256,7 @@ export function ModalEmpresaCadastroRapido({
 
           {/* Nome */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.375rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--ws-muted, var(--text-muted, #94a3b8))', marginBottom: '0.375rem' }}>
               {t('pedido.cadastro_empresa.label_nome_papel', { papel: rotuloPapel(papel, t) })}
             </label>
             <input

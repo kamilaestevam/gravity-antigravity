@@ -126,11 +126,11 @@
 
 /* Seção (permitidos / bloqueados) */
 .modal-excluir__secao-titulo {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-muted, #64748b);
+  color: var(--ws-muted, var(--text-muted, #94a3b8));
   margin: 0 0 8px;
 }
 

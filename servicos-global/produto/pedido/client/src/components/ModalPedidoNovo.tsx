@@ -15,6 +15,7 @@ import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-pas
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -1217,24 +1218,25 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <CampoGeralGlobal
+          <CampoCalendarioGlobal
             label={t('pedido.drawer.label_data_emissao')}
             obrigatorio
-            vazio={!camposBloqueados && requisitoOk.get('data_emissao_pedido') === false}
-          >
-            <input
-              id="mnp-data-emissao"
-              type="date"
-              disabled={camposBloqueados}
-              style={{
-                ...s.input,
-                ...(camposBloqueados ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
-              }}
-              value={form.data_emissao_pedido}
-              onChange={e => onChange('data_emissao_pedido', e.target.value)}
-              aria-invalid={!camposBloqueados && requisitoOk.get('data_emissao_pedido') === false}
-            />
-          </CampoGeralGlobal>
+            modoUnico
+            placeholder="Selecione a data"
+            disabled={camposBloqueados}
+            valor={form.data_emissao_pedido
+              ? { inicio: new Date(`${form.data_emissao_pedido}T00:00:00`), fim: null }
+              : { inicio: null, fim: null }
+            }
+            aoMudarValor={(val) => {
+              if (val.inicio) {
+                const iso = val.inicio.toISOString().split('T')[0]
+                onChange('data_emissao_pedido', iso)
+              } else {
+                onChange('data_emissao_pedido', '')
+              }
+            }}
+          />
         </div>
       </div>
 
@@ -1309,7 +1311,22 @@ function Passo2Itens({
       : 'Selecionar moeda'
 
   return (
-    <div>
+    <div className="mni-form">
+      <style>{`
+        .mni-form input::placeholder,
+        .mni-form input:disabled::placeholder {
+          color: var(--text-muted, #94a3b8) !important;
+          opacity: 1 !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          font-size: 0.875rem !important;
+          text-align: left !important;
+        }
+        .mni-form .sg-placeholder {
+          color: var(--text-muted, #94a3b8) !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          font-size: 0.875rem !important;
+        }
+      `}</style>
       <div style={s.itensHeader}>
         <p style={{ ...s.secaoTitulo, marginBottom: 0 }}>
           {t('pedido.drawer.secao_itens', { count: itens.length })}
@@ -1368,6 +1385,7 @@ function Passo2Itens({
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'quantidade_inicial_item', n === null ? '' : String(n))}
                 casasDecimais={casasQtdItem()}
+                placeholder="Quantidade"
                 style={s.inputCompacto}
                 textAlign="right"
               />
@@ -1399,6 +1417,7 @@ function Passo2Itens({
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => onChangeItem(index, 'valor_por_unidade_item', n === null ? '' : String(n))}
                 casasDecimais={casasValorUnitario()}
+                placeholder="Valor unitário"
                 style={s.inputCompacto}
                 textAlign="right"
               />
@@ -1416,7 +1435,8 @@ function Passo2Itens({
                 }
                 aoMudarValor={() => { /* read-only: ignora mudanças */ }}
                 casasDecimais={casasValorTotal()}
-                style={{ ...s.inputCompacto, opacity: 0.7, cursor: 'not-allowed' }}
+                placeholder="Calculado"
+                style={{ ...s.inputCompacto, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
                 textAlign="right"
                 desabilitado
               />

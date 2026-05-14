@@ -303,8 +303,23 @@ export function ModalNovoItemPedido({
       podeAvancar={podeAvancar && !salvando}
       labelBotaoFinal={labelBotaoFinal}
       tamanho="md"
-      altura="580px"
+      altura="720px"
     >
+      <style>{`
+        .mni-form input::placeholder,
+        .mni-form input:disabled::placeholder {
+          color: var(--text-muted, #94a3b8) !important;
+          opacity: 1 !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          font-size: 0.875rem !important;
+          text-align: left !important;
+        }
+        .mni-form .sg-placeholder {
+          color: var(--text-muted, #94a3b8) !important;
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
+          font-size: 0.875rem !important;
+        }
+      `}</style>
       {/* Passo seletor (apenas sem contexto) */}
       {!modoContexto && passo === 1 && (
         <div>
@@ -332,7 +347,7 @@ export function ModalNovoItemPedido({
 
       {/* Passo dados do item */}
       {(modoContexto ? passo === 1 : passo === 2) && (
-        <div>
+        <div className="mni-form">
           {/* Pedido selecionado vira campo "locked" (cinza + ícone Lock).
               Sinaliza que não é editável aqui — usuário já escolheu o pedido. */}
           {numeroPedido && (
@@ -378,6 +393,7 @@ export function ModalNovoItemPedido({
                 valor={item.quantidade_inicial_item === '' ? null : Number(item.quantidade_inicial_item)}
                 aoMudarValor={(n) => setItemField('quantidade_inicial_item', n === null ? '' : String(n))}
                 casasDecimais={casasQtdItem()}
+                placeholder="Quantidade"
                 style={s.input}
                 textAlign="right"
               />
@@ -402,6 +418,7 @@ export function ModalNovoItemPedido({
                 valor={item.valor_por_unidade_item === '' ? null : Number(item.valor_por_unidade_item)}
                 aoMudarValor={(n) => setItemField('valor_por_unidade_item', n === null ? '' : String(n))}
                 casasDecimais={casasValorUnitario()}
+                placeholder="Valor unitário"
                 style={s.input}
                 textAlign="right"
               />
@@ -419,7 +436,8 @@ export function ModalNovoItemPedido({
                 }
                 aoMudarValor={() => { /* read-only */ }}
                 casasDecimais={casasValorTotal()}
-                style={{ ...s.input, opacity: 0.7, cursor: 'not-allowed' }}
+                placeholder="Calculado"
+                style={{ ...s.input, cursor: 'not-allowed', background: 'var(--bg-elevated, #1e293b)' }}
                 textAlign="right"
                 desabilitado
               />

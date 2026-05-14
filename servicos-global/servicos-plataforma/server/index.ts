@@ -142,11 +142,18 @@ async function bootstrap() {
 
   // initNcmSync removido — agora roda no bootstrap do serviço Cadastros (porta 8031)
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`[servidor-plataforma] rodando na porta ${PORT}`)
     console.log(`[servidor-plataforma] serviços: atividades, cronometro, email, gabi, dashboard,`)
     console.log(`[servidor-plataforma]           relatorios, historico, notificacoes, agendamento,`)
     console.log(`[servidor-plataforma]           preferencias, whatsapp`)
+  })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[servidor-plataforma] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
   })
 }
 

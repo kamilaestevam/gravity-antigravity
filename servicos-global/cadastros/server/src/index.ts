@@ -80,6 +80,13 @@ async function bootstrap(): Promise<void> {
     console.log(`[cadastros] Serviço rodando na porta ${PORT}`)
     console.log(`[cadastros] Health check: http://localhost:${PORT}/health`)
   })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[cadastros] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
+  })
 
   // Inicializa cron NCM Sync (recovery de jobs órfãos + reagendamento)
   // Não-fatal: se a tabela ainda não existir, apenas loga warning.

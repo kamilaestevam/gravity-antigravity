@@ -61,7 +61,7 @@ import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { pedidosRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/pedidos-config.js'
-import { importacaoPedidoWrapper } from './routes/importacao-pedido-wrapper.js'
+import { importacaoRouter } from '../../../../../servicos-global/produto/processos-core/src/routes/importacao.js'
 import { apiObservability } from '../../../../../servicos-global/servicos-plataforma/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi-pedido.js'
 import { createProductAuditPlugin } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/product-audit-plugin.js'
@@ -210,13 +210,22 @@ app.use('/api/v1/pedidos/config',                      exigirPermissao('lista', 
 app.use('/api/v1/pedidos',                             exigirPermissao('lista', 'ver'), snapshotStatusPedidoRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), saldoFormulaRouter)
 app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
-// importacaoPedidoWrapper monta o importacaoRouter (processos-core, compartilhado)
-// com gating local `pedido:lista:editar` aplicado via router.use — evita bug de
-// middleware chain. Pattern recomendado quando se monta router de pacote externo.
-app.use('/api/v1/pedidos',                             importacaoPedidoWrapper)
-// duplicacoesPedidoRouter e exclusoesPedidoRouter aplicam gating internamente.
-app.use('/api/v1/pedidos',                             duplicacoesPedidoRouter)
-app.use('/api/v1/pedidos',                             exclusoesPedidoRouter)
+// ── Routers de mutação (duplicacoes/exclusoes/importacao) ─────────────────────
+// Montados em sub-paths ESPECÍFICOS para evitar bug de middleware chain do
+// Express: quando montado em `/api/v1/pedidos` (genérico), o
+// `router.use(exigirPermissao('lista','editar'))` interno rodava para QUALQUER
+// request matching `/api/v1/pedidos/*` — incluindo GET /api/v1/pedidos (listar),
+// que só exige `lista:ver`. Resultado: Standard com `lista:ver` recebia 403.
+app.use('/api/v1/pedidos/duplicacoes',                 duplicacoesPedidoRouter)
+app.use('/api/v1/pedidos/exclusoes',                   exclusoesPedidoRouter)
+// importacaoRouter (processos-core, compartilhado) — rotas: POST /importar,
+// POST /importar/confirmar, POST /exportar. Não pode ser montado em sub-path
+// porque as rotas internas já definem o path completo. Gating via app.post()
+// (method-specific) — GET /api/v1/pedidos NÃO é afetado (.post ≠ .use).
+app.post('/api/v1/pedidos/importar',                   exigirPermissao('lista', 'editar'))
+app.post('/api/v1/pedidos/importar/confirmar',         exigirPermissao('lista', 'editar'))
+app.post('/api/v1/pedidos/exportar',                   exigirPermissao('lista', 'editar'))
+app.use('/api/v1/pedidos',                             importacaoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
 app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
@@ -256,8 +265,15 @@ if (!process.env.CHAVE_INTERNA_SERVICO) {
   process.exit(1)
 }
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[Pedido] Servidor rodando na porta ${PORT}`)
   console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/pedidos/analytics`)
   console.log(`[Pedido] Health: http://localhost:${PORT}/health`)
+})
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[Pedido] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+    process.exit(1)
+  }
+  throw err
 })

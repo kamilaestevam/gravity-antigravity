@@ -141,9 +141,16 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // ─── 11. Inicialização ────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`[SimulaCusto] ✅ Servidor canônico rodando na porta ${PORT}`)
+  const server = app.listen(PORT, () => {
+    console.log(`[SimulaCusto] Servidor rodando na porta ${PORT}`)
     tokenPool.start()
+  })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[SimulaCusto] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
   })
 }
 

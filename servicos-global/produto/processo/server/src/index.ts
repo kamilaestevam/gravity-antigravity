@@ -144,8 +144,15 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // --- 11. Inicializacao --------------------------------------------------------
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`[Processo] Servidor canonico rodando na porta ${PORT}`)
+  const server = app.listen(PORT, () => {
+    console.log(`[Processo] Servidor rodando na porta ${PORT}`)
+  })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[Processo] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
   })
 }
 

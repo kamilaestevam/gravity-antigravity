@@ -62,9 +62,15 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 const PORT = 8016
 
 const server = app.listen(PORT, () => {
-  console.log(`🚀 API Cockpit Service running on port ${PORT}`)
-  // Worker de retencao 90d para log_requisicao_api — roda 1x ao dia (3h UTC)
+  console.log(`[api-cockpit] Servidor rodando na porta ${PORT}`)
   iniciarWorkerRetencao()
+})
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[api-cockpit] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+    process.exit(1)
+  }
+  throw err
 })
 
 // Graceful shutdown — Railway envia SIGTERM em deploy/restart.

@@ -251,7 +251,7 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, async () => {
+  const server = app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)
 
     // Sincronizar catálogo de produtos com a lista canônica a cada startup
@@ -292,6 +292,13 @@ if (process.env.NODE_ENV !== 'test') {
     } else {
       console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — audit logs desativados')
     }
+  })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[configurador] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
   })
 }
 

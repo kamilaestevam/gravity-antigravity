@@ -27,10 +27,18 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
-const API_COCKPIT_URL = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
-const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL || 'http://localhost:3001'
-const CHAVE_INTERNA_SERVICO = process.env.CHAVE_INTERNA_SERVICO || ''
-const IS_DEV = process.env.NODE_ENV !== 'production'
+function getApiCockpitUrl(): string {
+  const url = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
+  return url
+}
+function getChaveInterna(): string {
+  const chave = process.env.CHAVE_INTERNA_SERVICO
+  if (!chave) console.warn('[api-cockpit] CHAVE_INTERNA_SERVICO ausente — chamadas inter-serviço falharão')
+  return chave || ''
+}
+function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production'
+}
 
 export const apiCockpitRouter = Router()
 export const apiCockpitAdminRouter = Router()
@@ -40,14 +48,14 @@ export const apiCockpitAdminRouter = Router()
  * timeouts ou stack traces. Em dev, o err.message real e mantido.
  */
 function maskError(err: unknown): string {
-  if (IS_DEV && err instanceof Error) return err.message
+  if (isDev() && err instanceof Error) return err.message
   return 'Serviço de observabilidade temporariamente indisponível'
 }
 
 // ─── Helper: proxy para api-cockpit ─────────────────────────────────────
 
 async function proxyToCockpit(path: string, query?: Record<string, string>): Promise<unknown> {
-  const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/monitoramento-api${path}`)
+  const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/monitoramento-api${path}`)
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value) url.searchParams.set(key, value)
@@ -56,7 +64,7 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
 
   const response = await fetch(url.toString(), {
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type': 'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -149,7 +157,7 @@ async function proxyToTokens(
   const init: RequestInit = {
     method: metodo,
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':   'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -170,7 +178,7 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {
-        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+        'x-chave-interna-servico': getChaveInterna(),
         'Content-Type':   'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -236,7 +244,7 @@ async function proxyToWebhooks(
   const init: RequestInit = {
     method: metodo,
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':   'application/json',
     },
     signal: AbortSignal.timeout(10_000),
@@ -390,7 +398,7 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {
-        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+        'x-chave-interna-servico': getChaveInterna(),
         'Content-Type':   'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -568,12 +576,12 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
       ? '/api/v1/gabi/uso'
       : '/api/v1/gabi/admin/uso-global'
 
-    const url = new URL(`${GABI_SERVICE_URL}${path}`)
+    const url = new URL(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}${path}`)
     if (month) url.searchParams.set('month', month)
     if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
     const headers: Record<string, string> = {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':            'application/json',
     }
     // Per-org path exige header de tenant; cross-org nao
@@ -610,7 +618,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
   try {
     const id_organizacao = (req.query.id_organizacao as string) || ''
-    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso/historico`)
+    const url = new URL(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}/api/v1/gabi/uso/historico`)
     if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
     const response = await fetch(url.toString(), {
@@ -651,7 +659,7 @@ async function callConfiguradorLocal(
   const init: RequestInit = {
     method,
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':            'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -670,13 +678,13 @@ async function callGabi(
   const init: RequestInit = {
     method,
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':            'application/json',
     },
     signal: AbortSignal.timeout(8_000),
   }
   if (body !== undefined) init.body = JSON.stringify(body)
-  const r = await fetch(`${GABI_SERVICE_URL}${path}`, init)
+  const r = await fetch(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}${path}`, init)
   const text = await r.text()
   return { status: r.status, body: text ? JSON.parse(text) : null }
 }

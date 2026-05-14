@@ -54,9 +54,10 @@ export function setFormatoData(formato: FormatoData): void {
  * Formata uma data ISO (ou yyyy-mm-dd) usando o formato configurado pelo tenant.
  * Nunca usa UTC — parseia yyyy-mm-dd com construtor local para evitar off-by-one de fuso.
  */
-export function formatarData(iso: string | null | undefined): string {
+export function formatarData(iso: string | Date | null | undefined): string {
   if (!iso) return '—'
-  const dateOnly = iso.substring(0, 10)
+  const str = iso instanceof Date ? iso.toISOString() : String(iso)
+  const dateOnly = str.substring(0, 10)
   const parts = dateOnly.split('-')
   if (parts.length !== 3) return '—'
   const y = parseInt(parts[0], 10)

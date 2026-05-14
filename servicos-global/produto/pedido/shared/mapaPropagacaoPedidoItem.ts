@@ -155,6 +155,18 @@ export function obterCampoItemPropagado(campoPedido: string): string | null {
 }
 
 /**
+ * Igual a obterCampoItemPropagado mas aceita também nomes legados
+ * (ex: 'data_prevista_recebimento_rascunho_pedido' → resolve para DDD → campo item).
+ */
+export function obterCampoItemComLegado(campo: string): string | null {
+  const direto = MAPA_PROPAGACAO_PEDIDO_ITEM[campo]
+  if (direto) return direto
+  const ddd = LEGADO_PARA_DDD_COMPAT[campo]
+  if (ddd) return MAPA_PROPAGACAO_PEDIDO_ITEM[ddd] ?? null
+  return null
+}
+
+/**
  * Dado o objeto de dados do Pedido (em formato DDD), devolve um objeto
  * pronto pra spread no `pedidoItem.create.data` contendo apenas os campos
  * propagáveis presentes (não-undefined). Não inclui nomes derivados de

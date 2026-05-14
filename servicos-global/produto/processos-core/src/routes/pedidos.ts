@@ -38,6 +38,7 @@ import {
 import {
   isPropagavel,
   obterCampoItemPropagado,
+  obterCampoItemComLegado,
   construirCamposPropagadosParaItem,
   derivarNomesEmpresaParaItem,
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
@@ -258,6 +259,29 @@ function gerarId(prefixo: string): string {
 type PedidoItemRaw = Record<string, unknown>
 type PedidoRaw = Record<string, unknown> & { itens?: PedidoItemRaw[]; detalhes_operacionais?: unknown }
 
+// Mapa pré-construído: chave frontend pai → coluna DDD do item.
+// Usado por mapItem (output) e publicToDddItem (PATCH). obterCampoItemComLegado
+// resolve prevista→previsao, confirmada→confirmacao, proforma→proforma_pedido, etc.
+const DATAS_FRONT_PARA_ITEM: ReadonlyArray<[string, string]> = ([
+  'data_prevista_pedido_pronto', 'data_confirmada_pedido_pronto', 'data_meta_pedido_pronto',
+  'data_prevista_inspecao_pedido', 'data_confirmada_inspecao_pedido', 'data_meta_inspecao_pedido',
+  'data_prevista_coleta_pedido', 'data_confirmada_coleta_pedido', 'data_meta_coleta_pedido',
+  'data_consolidacao_pedido', 'data_transferencia_saldo_pedido',
+  'data_prevista_recebimento_rascunho_pedido', 'data_confirmada_recebimento_rascunho_pedido', 'data_meta_recebimento_rascunho_pedido',
+  'data_prevista_aprovacao_rascunho_pedido', 'data_confirmada_aprovacao_rascunho_pedido', 'data_meta_aprovacao_rascunho_pedido',
+  'data_documento_pedido',
+  'data_prevista_recebimento_rascunho_proforma', 'data_confirmada_recebimento_rascunho_proforma', 'data_meta_recebimento_rascunho_proforma',
+  'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
+  'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
+  'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
+  'data_proforma_invoice',
+  'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
+  'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
+  'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
+  'data_prevista_recebimento_original_invoice', 'data_confirmada_recebimento_original_invoice', 'data_meta_recebimento_original_invoice',
+  'data_invoice',
+] as string[]).map(fk => [fk, obterCampoItemComLegado(fk)] as [string, string | null]).filter((x): x is [string, string] => x[1] != null)
+
 export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
   const num = (v: unknown, fallback: number | null = 0) =>
     v != null ? Number(v) : fallback
@@ -321,6 +345,10 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     // `injetarValoresColunasUsuario(..., { vinculo: 'item' })` antes de chamar
     // `mapItem`, esse campo carrega os valores; senão, fica `{}`. Mand. 09.
     _colunas_usuario: (item as Record<string, unknown>)._colunas_usuario ?? {},
+
+    ...Object.fromEntries(
+      DATAS_FRONT_PARA_ITEM.map(([frontKey, itemField]) => [frontKey, normDate(item[itemField])])
+    ),
   }
 }
 
@@ -335,6 +363,13 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
  * Relations Prisma (`itens`, `transferencias`, `snapshots_empresa`, `snapshots_ope`) seguem
  * com seus nomes originais — apenas colunas físicas foram renomeadas (escopo da planilha).
  */
+function normDate(v: unknown): string | null {
+  if (v == null) return null
+  if (v instanceof Date) return v.toISOString()
+  const s = String(v)
+  return s === '' ? null : s
+}
+
 export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | null | undefined {
   if (!pedido) return pedido
   const rawItens = pedido.itens_pedido as PedidoItemRaw[] | undefined
@@ -379,41 +414,56 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     deleted_at:               pedido.data_exclusao_pedido         ?? pedido.deleted_at,
     created_at:               pedido.data_criacao_pedido          ?? pedido.created_at,
     updated_at:               pedido.data_atualizacao_pedido      ?? pedido.updated_at,
-    data_documento_proforma:  pedido.data_documento_proforma_pedido ?? pedido.data_documento_proforma,
-    data_documento_invoice:   pedido.data_documento_invoice_pedido  ?? pedido.data_documento_invoice,
-    data_prevista_pedido_pronto:   pedido.data_prevista_pedido_pronto,
-    data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto,
-    data_meta_pedido_pronto:       pedido.data_meta_pedido_pronto,
-    data_prev_recebimento_rascunho_pedido:      pedido.data_previsao_recebimento_rascunho_pedido,
-    data_conf_recebimento_rascunho_pedido:      pedido.data_confirmacao_recebimento_rascunho_pedido,
-    data_meta_recebimento_rascunho_pedido:      pedido.data_meta_recebimento_rascunho_pedido,
-    data_prev_aprovacao_rascunho_pedido:        pedido.data_previsao_aprovacao_rascunho_pedido,
-    data_conf_aprovacao_rascunho_pedido:        pedido.data_confirmacao_aprovacao_rascunho_pedido,
-    data_meta_aprovacao_rascunho_pedido:        pedido.data_meta_aprovacao_rascunho_pedido,
-    data_prev_recebimento_rascunho_proforma:    pedido.data_previsao_recebimento_rascunho_proforma_pedido    ?? pedido.data_prev_recebimento_rascunho_proforma,
-    data_conf_recebimento_rascunho_proforma:    pedido.data_confirmacao_recebimento_rascunho_proforma_pedido ?? pedido.data_conf_recebimento_rascunho_proforma,
-    data_meta_recebimento_rascunho_proforma:    pedido.data_meta_recebimento_rascunho_proforma_pedido        ?? pedido.data_meta_recebimento_rascunho_proforma,
-    data_prev_aprovacao_rascunho_proforma:      pedido.data_previsao_aprovacao_rascunho_proforma_pedido      ?? pedido.data_prev_aprovacao_rascunho_proforma,
-    data_conf_aprovacao_rascunho_proforma:      pedido.data_confirmacao_aprovacao_rascunho_proforma_pedido   ?? pedido.data_conf_aprovacao_rascunho_proforma,
-    data_meta_aprovacao_rascunho_proforma:      pedido.data_meta_aprovacao_rascunho_proforma_pedido          ?? pedido.data_meta_aprovacao_rascunho_proforma,
-    data_prev_envio_original_proforma:       pedido.data_previsao_envio_original_proforma_pedido       ?? pedido.data_prev_envio_original_proforma,
-    data_conf_envio_original_proforma:       pedido.data_confirmacao_envio_original_proforma_pedido    ?? pedido.data_conf_envio_original_proforma,
-    data_meta_envio_original_proforma:       pedido.data_meta_envio_original_proforma_pedido           ?? pedido.data_meta_envio_original_proforma,
-    data_prev_recebimento_original_proforma: pedido.data_previsao_recebimento_original_proforma_pedido    ?? pedido.data_prev_recebimento_original_proforma,
-    data_conf_recebimento_original_proforma: pedido.data_confirmacao_recebimento_original_proforma_pedido ?? pedido.data_conf_recebimento_original_proforma,
-    data_meta_recebimento_original_proforma: pedido.data_meta_recebimento_original_proforma_pedido        ?? pedido.data_meta_recebimento_original_proforma,
-    data_prev_recebimento_rascunho_invoice:     pedido.data_previsao_recebimento_rascunho_invoice_pedido     ?? pedido.data_prev_recebimento_rascunho_invoice,
-    data_conf_recebimento_rascunho_invoice:     pedido.data_confirmacao_recebimento_rascunho_invoice_pedido  ?? pedido.data_conf_recebimento_rascunho_invoice,
-    data_meta_recebimento_rascunho_invoice:     pedido.data_meta_recebimento_rascunho_invoice_pedido         ?? pedido.data_meta_recebimento_rascunho_invoice,
-    data_prev_aprovacao_rascunho_invoice:       pedido.data_previsao_aprovacao_rascunho_invoice_pedido       ?? pedido.data_prev_aprovacao_rascunho_invoice,
-    data_conf_aprovacao_rascunho_invoice:       pedido.data_confirmacao_aprovacao_rascunho_invoice_pedido    ?? pedido.data_conf_aprovacao_rascunho_invoice,
-    data_meta_aprovacao_rascunho_invoice:       pedido.data_meta_aprovacao_rascunho_invoice_pedido           ?? pedido.data_meta_aprovacao_rascunho_invoice,
-    data_prev_envio_original_invoice:        pedido.data_previsao_envio_original_invoice_pedido        ?? pedido.data_prev_envio_original_invoice,
-    data_conf_envio_original_invoice:        pedido.data_confirmacao_envio_original_invoice_pedido     ?? pedido.data_conf_envio_original_invoice,
-    data_meta_envio_original_invoice:        pedido.data_meta_envio_original_invoice_pedido            ?? pedido.data_meta_envio_original_invoice,
-    data_prev_recebimento_original_invoice:  pedido.data_previsao_recebimento_original_invoice_pedido     ?? pedido.data_prev_recebimento_original_invoice,
-    data_conf_recebimento_original_invoice:  pedido.data_confirmacao_recebimento_original_invoice_pedido  ?? pedido.data_conf_recebimento_original_invoice,
-    data_meta_recebimento_original_invoice:  pedido.data_meta_recebimento_original_invoice_pedido         ?? pedido.data_meta_recebimento_original_invoice,
+    data_documento_proforma:  normDate(pedido.data_documento_proforma_pedido ?? pedido.data_documento_proforma),
+    data_documento_invoice:   normDate(pedido.data_documento_invoice_pedido  ?? pedido.data_documento_invoice),
+    data_emissao_pedido:           normDate(pedido.data_emissao_pedido),
+    data_prevista_pedido_pronto:   normDate(pedido.data_prevista_pedido_pronto),
+    data_confirmada_pedido_pronto: normDate(pedido.data_confirmada_pedido_pronto),
+    data_meta_pedido_pronto:       normDate(pedido.data_meta_pedido_pronto),
+    data_prevista_inspecao_pedido:  normDate(pedido.data_prevista_inspecao_pedido),
+    data_confirmada_inspecao_pedido: normDate(pedido.data_confirmada_inspecao_pedido),
+    data_meta_inspecao_pedido:     normDate(pedido.data_meta_inspecao_pedido),
+    data_prevista_coleta_pedido:   normDate(pedido.data_prevista_coleta_pedido),
+    data_confirmada_coleta_pedido: normDate(pedido.data_confirmada_coleta_pedido),
+    data_meta_coleta_pedido:       normDate(pedido.data_meta_coleta_pedido),
+    data_consolidacao_pedido:      normDate(pedido.data_consolidacao_pedido),
+    data_transferencia_saldo_pedido: normDate(pedido.data_transferencia_saldo_pedido),
+    // Rascunho Pedido — frontend usa prevista/confirmada, Prisma usa previsao/confirmacao
+    data_prevista_recebimento_rascunho_pedido:   normDate(pedido.data_previsao_recebimento_rascunho_pedido),
+    data_confirmada_recebimento_rascunho_pedido: normDate(pedido.data_confirmacao_recebimento_rascunho_pedido),
+    data_meta_recebimento_rascunho_pedido:       normDate(pedido.data_meta_recebimento_rascunho_pedido),
+    data_prevista_aprovacao_rascunho_pedido:     normDate(pedido.data_previsao_aprovacao_rascunho_pedido),
+    data_confirmada_aprovacao_rascunho_pedido:   normDate(pedido.data_confirmacao_aprovacao_rascunho_pedido),
+    data_meta_aprovacao_rascunho_pedido:         normDate(pedido.data_meta_aprovacao_rascunho_pedido),
+    data_documento_pedido:                       normDate(pedido.data_documento_pedido),
+    // Proforma
+    data_prevista_recebimento_rascunho_proforma:   normDate(pedido.data_previsao_recebimento_rascunho_proforma_pedido),
+    data_confirmada_recebimento_rascunho_proforma: normDate(pedido.data_confirmacao_recebimento_rascunho_proforma_pedido),
+    data_meta_recebimento_rascunho_proforma:       normDate(pedido.data_meta_recebimento_rascunho_proforma_pedido),
+    data_prevista_aprovacao_rascunho_proforma:     normDate(pedido.data_previsao_aprovacao_rascunho_proforma_pedido),
+    data_confirmada_aprovacao_rascunho_proforma:   normDate(pedido.data_confirmacao_aprovacao_rascunho_proforma_pedido),
+    data_meta_aprovacao_rascunho_proforma:         normDate(pedido.data_meta_aprovacao_rascunho_proforma_pedido),
+    data_prevista_envio_original_proforma:          normDate(pedido.data_previsao_envio_original_proforma_pedido),
+    data_confirmada_envio_original_proforma:        normDate(pedido.data_confirmacao_envio_original_proforma_pedido),
+    data_meta_envio_original_proforma:              normDate(pedido.data_meta_envio_original_proforma_pedido),
+    data_prevista_recebimento_original_proforma:    normDate(pedido.data_previsao_recebimento_original_proforma_pedido),
+    data_confirmada_recebimento_original_proforma:  normDate(pedido.data_confirmacao_recebimento_original_proforma_pedido),
+    data_meta_recebimento_original_proforma:        normDate(pedido.data_meta_recebimento_original_proforma_pedido),
+    data_proforma_invoice:                          normDate(pedido.data_documento_proforma_pedido),
+    // Invoice
+    data_prevista_recebimento_rascunho_invoice:   normDate(pedido.data_previsao_recebimento_rascunho_invoice_pedido),
+    data_confirmada_recebimento_rascunho_invoice: normDate(pedido.data_confirmacao_recebimento_rascunho_invoice_pedido),
+    data_meta_recebimento_rascunho_invoice:       normDate(pedido.data_meta_recebimento_rascunho_invoice_pedido),
+    data_prevista_aprovacao_rascunho_invoice:     normDate(pedido.data_previsao_aprovacao_rascunho_invoice_pedido),
+    data_confirmada_aprovacao_rascunho_invoice:   normDate(pedido.data_confirmacao_aprovacao_rascunho_invoice_pedido),
+    data_meta_aprovacao_rascunho_invoice:         normDate(pedido.data_meta_aprovacao_rascunho_invoice_pedido),
+    data_prevista_envio_original_invoice:          normDate(pedido.data_previsao_envio_original_invoice_pedido),
+    data_confirmada_envio_original_invoice:        normDate(pedido.data_confirmacao_envio_original_invoice_pedido),
+    data_meta_envio_original_invoice:              normDate(pedido.data_meta_envio_original_invoice_pedido),
+    data_prevista_recebimento_original_invoice:    normDate(pedido.data_previsao_recebimento_original_invoice_pedido),
+    data_confirmada_recebimento_original_invoice:  normDate(pedido.data_confirmacao_recebimento_original_invoice_pedido),
+    data_meta_recebimento_original_invoice:        normDate(pedido.data_meta_recebimento_original_invoice_pedido),
+    data_invoice:                                   normDate(pedido.data_documento_invoice_pedido),
     itens,
     // Nomes das contrapartes: prioriza snapshots (Fase 4 DDD — fonte canônica
     // de empresas via SUID+snapshot), faz fallback pra detalhes_operacionais
@@ -2201,6 +2251,7 @@ const publicToDddItem: Record<string, string> = {
   peso_bruto_unidade_item:     'peso_bruto_unidade_item',
   cubagem_unitaria:            'cubagem_unitaria_item',
   cubagem_unidade_item:        'cubagem_unidade_item',
+  ...Object.fromEntries(DATAS_FRONT_PARA_ITEM),
 }
 
 // Validação cruzada de unidades com cadastros.unidade — extraída para
@@ -2419,9 +2470,19 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
       // Recalc condicional: campos texto/enum não afetam os 5 agregados
       // (campoItemAfetaAgregado retorna false para todos eles), economiza lock.
       if (ehTexto) {
+        let valorFinalItem: unknown = valor === undefined ? null : valor
+        if (campoDdd.startsWith('data_')) {
+          if (valorFinalItem === null || valorFinalItem === '') {
+            valorFinalItem = null
+          } else if (typeof valorFinalItem === 'string') {
+            const d = new Date(valorFinalItem)
+            if (isNaN(d.getTime())) throw new AppError(400, `Data invalida para "${campo}": "${valorFinalItem}". Esperado YYYY-MM-DD.`)
+            valorFinalItem = d
+          }
+        }
         const updated = await db.pedidoItem.update({
           where: { id_item: req.params.id_item },
-          data: { [campoDdd]: valor === undefined ? null : valor },
+          data: { [campoDdd]: valorFinalItem },
         })
         if (campoItemAfetaAgregado(campo)) {
           await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)

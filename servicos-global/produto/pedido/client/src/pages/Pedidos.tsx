@@ -469,6 +469,9 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
     oculta:          !col.ativo,
     // fórmula e checkbox são read-only; demais tipos permitem edição inline
     editavel:        col.tipo !== 'formula' && col.tipo !== 'checkbox',
+    opcoes:          (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
+                       ? col.opcoes.map(o => ({ valor: o, label: o }))
+                       : undefined,
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
     getValorEditar: (row: Pedido) => {
@@ -2220,6 +2223,32 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       )
     },
   },
+  // ── Datas replicáveis pedido→item (44 colunas) ─────────────────────────────
+  ...Object.fromEntries(([
+    'data_prevista_pedido_pronto', 'data_confirmada_pedido_pronto', 'data_meta_pedido_pronto',
+    'data_prevista_inspecao_pedido', 'data_confirmada_inspecao_pedido', 'data_meta_inspecao_pedido',
+    'data_prevista_coleta_pedido', 'data_confirmada_coleta_pedido', 'data_meta_coleta_pedido',
+    'data_consolidacao_pedido', 'data_transferencia_saldo_pedido',
+    'data_prevista_recebimento_rascunho_pedido', 'data_confirmada_recebimento_rascunho_pedido', 'data_meta_recebimento_rascunho_pedido',
+    'data_prevista_aprovacao_rascunho_pedido', 'data_confirmada_aprovacao_rascunho_pedido', 'data_meta_aprovacao_rascunho_pedido',
+    'data_documento_pedido',
+    'data_prevista_recebimento_rascunho_proforma', 'data_confirmada_recebimento_rascunho_proforma', 'data_meta_recebimento_rascunho_proforma',
+    'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
+    'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
+    'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
+    'data_proforma_invoice',
+    'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
+    'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
+    'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
+    'data_prevista_recebimento_original_invoice', 'data_confirmada_recebimento_original_invoice', 'data_meta_recebimento_original_invoice',
+    'data_invoice',
+  ] as const).map(key => [key, {
+    campo: key,
+    render: (row: PedidoItem) => {
+      const v = (row as unknown as Record<string, unknown>)[key] as string | null | undefined
+      return <span>{v ? fmtData(v) : '—'}</span>
+    },
+  }])),
   }
 }
 
@@ -2346,7 +2375,7 @@ interface BarraAcoesPedidoProps {
   setModalEdicaoMassaAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalGerarPdfAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalDuplicarAberto: React.Dispatch<React.SetStateAction<boolean>>
-  onExcluirLote: () => Promise<void>
+  onExcluirLote: () => void
   onNavigateToConfiguracoes: () => void
   handleLimparFiltro: (campo: string) => void
   handleLimparTodosFiltros: () => void
@@ -2641,14 +2670,22 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Excluir */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.excluir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.excluir')}
+          titulo={
+            pedidosSelecionados.length > 0 && itensSelecionados.length > 0
+              ? `${t('pedido.barra.excluir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''} e ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}`
+              : pedidosSelecionados.length > 0
+                ? `${t('pedido.barra.excluir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
+                : itensSelecionados.length > 0
+                  ? `${t('pedido.barra.excluir')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}`
+                  : t('pedido.barra.excluir')
+          }
           descricao={t('pedido.barra.excluir_desc')}
         >
           <BotaoGlobal
             variante="perigo"
             tamanho="pequeno"
             icone={<Trash size={14} weight="duotone" />}
-            disabled={!podeEditarLista || pedidosSelecionados.length === 0 || excluindoLote}
+            disabled={!podeEditarLista || (pedidosSelecionados.length === 0 && itensSelecionados.length === 0) || excluindoLote}
             onClick={onExcluirLote}
           />
         </TooltipGlobal>
@@ -2755,6 +2792,9 @@ export default function Pedidos() {
       }
       custom[col.chave] = {
         editavel: col.tipo !== 'formula' && col.tipo !== 'checkbox',
+        opcoes: (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
+          ? col.opcoes.map(o => ({ valor: o, label: o }))
+          : undefined,
         render: (row: PedidoItem) => {
           const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
           const valor = valores?.[col.id] ?? '—'
@@ -3392,9 +3432,9 @@ export default function Pedidos() {
   // O modal cuida do preview, da confirmação e do resultado — aqui só sinalizamos
   // abertura e mantemos o flag `excluindoLote` para travar a UI da BarraAcoes.
   const handleExcluirLote = useCallback(() => {
-    if (pedidosSelecionados.length === 0) return
+    if (pedidosSelecionados.length === 0 && itensSelecionados.length === 0) return
     setModalExcluirAberto(true)
-  }, [pedidosSelecionados.length])
+  }, [pedidosSelecionados.length, itensSelecionados.length])
 
   const handleNavConfiguracoes = useCallback(() => {
     // Rota do produto Pedido montada sob /produto/pedido/* (ver App.tsx).
@@ -5034,14 +5074,16 @@ export default function Pedidos() {
         />
       )}
 
-      {/* ── Modal Excluir Pedidos (substitui window.confirm) ── */}
-      {modalExcluirAberto && pedidosSelecionados.length > 0 && (
+      {/* ── Modal Excluir Pedidos e/ou Itens ── */}
+      {modalExcluirAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
         <ModalPedidosExcluir
           pedidos={pedidosSelecionados}
+          itens={itensSelecionados}
           onFechar={() => setModalExcluirAberto(false)}
           onConcluido={() => {
             setModalExcluirAberto(false)
             setPedidosSelecionados([])
+            setItensSelecionados([])
             carregarInicial()
           }}
         />

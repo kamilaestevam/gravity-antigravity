@@ -52,9 +52,13 @@ export default defineConfig({
       allow: [monorepoRoot],
     },
     proxy: {
+      // /api/v1/ncm/* → Cadastros (porta 8031).
+      // Rewrite /api/v1/ncm → /api/v1/cadastros/ncm (path real no backend).
+      // Rotas públicas (buscar, validar) NÃO precisam de x-internal-key.
       '/api/v1/ncm': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:8031',
         changeOrigin: true,
+        rewrite: (path: string) => path.replace('/api/v1/ncm', '/api/v1/cadastros/ncm'),
       },
       // Notificacoes + users — proxy para configurador que valida JWT e repassa ao super-servidor da plataforma
       '/api/v1/notificacoes': {

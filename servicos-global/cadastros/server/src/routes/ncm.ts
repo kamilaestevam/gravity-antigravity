@@ -16,8 +16,155 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
 import { criarNCMSchema, atualizarNCMSchema } from '../../../shared/schemas/index.js'
 import { notificarMudancaEntidade } from '../services/notifyPedido.js'
+import { buscarNcm, obterStatusSync } from '../services/ncmSyncEngine.js'
+import { validarNcm } from '../connectors/portalUnicoNcm.js'
 
 const router = Router()
+
+// ─── ROTAS PÚBLICAS (sem requireInternalKey) ─────────────────────────────────
+// Consumidas pelo frontend (SelectNcmGlobal / CampoBuscarNcm / useNcmValidation)
+// via proxy Vite. NCM é catálogo global da Receita — sem id_organizacao.
+
+/**
+ * GET /buscar?q=...&limite=20
+ * Busca por código (startsWith numérico) ou descrição (contains insensitive).
+ * Se busca exata retorna 0 → fallback fuzzy via pg_trgm (word_similarity).
+ * Retorna { itens: [{ codigo, descricao }], ultima_sync, fuzzy }
+ */
+router.get('/buscar', async (req, res, next) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q : ''
+    const limiteRaw = typeof req.query.limite === 'string' ? parseInt(req.query.limite, 10) : 20
+    const limite = Number.isFinite(limiteRaw) && limiteRaw > 0 ? Math.min(limiteRaw, 100) : 20
+
+    const statusSync = await obterStatusSync(prisma)
+
+    if (q.length < 2) {
+      return res.status(200).json({ itens: [], ultima_sync: statusSync.ultima_sync, fuzzy: false })
+    }
+
+    // 1. Busca exata (contains / startsWith)
+    const itens = await buscarNcm(prisma, q, limite)
+
+    if (itens.length > 0) {
+      return res.status(200).json({ itens, ultima_sync: statusSync.ultima_sync, fuzzy: false })
+    }
+
+    // 2. Fallback fuzzy via pg_trgm (word_similarity) — apenas para buscas por descrição
+    const isCodigoParcial = /^\d+$/.test(q.trim())
+    if (!isCodigoParcial) {
+      const itensFuzzy = await buscarNcmFuzzy(q, limite)
+      if (itensFuzzy.length > 0) {
+        return res.status(200).json({ itens: itensFuzzy, ultima_sync: statusSync.ultima_sync, fuzzy: true })
+      }
+    }
+
+    res.status(200).json({ itens: [], ultima_sync: statusSync.ultima_sync, fuzzy: false })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * Busca fuzzy via pg_trgm — word_similarity ≥ 0.25 (threshold permissivo).
+ * Habilita a extensão sob demanda (CREATE EXTENSION IF NOT EXISTS).
+ * Fallback gracioso: se pg_trgm não disponível, retorna [].
+ */
+async function buscarNcmFuzzy(
+  query: string,
+  limite: number,
+): Promise<Array<{ codigo: string; descricao: string }>> {
+  try {
+    // Garantir extensão (idempotente, ~1ms se já existir)
+    await prisma.$executeRawUnsafe('CREATE EXTENSION IF NOT EXISTS pg_trgm')
+
+    const resultados = await prisma.$queryRaw<
+      Array<{ codigo_ncm_sync: string; descricao_ncm_sync: string }>
+    >`
+      SELECT codigo_ncm_sync, descricao_ncm_sync
+      FROM ncm_sync
+      WHERE ativo_ncm_sync = true
+        AND word_similarity(${query}, descricao_ncm_sync) > 0.25
+      ORDER BY word_similarity(${query}, descricao_ncm_sync) DESC
+      LIMIT ${limite}
+    `
+
+    return resultados.map(r => ({
+      codigo: r.codigo_ncm_sync,
+      descricao: r.descricao_ncm_sync,
+    }))
+  } catch {
+    // pg_trgm indisponível ou erro de SQL — fallback silencioso
+    return []
+  }
+}
+
+/**
+ * GET /:codigo/validar
+ * Validação unitária de código NCM.
+ * 1. Busca no cache local (ncm_sync)
+ * 2. Se não encontrar, consulta Portal Único (TTCE API)
+ * Retorna { valido, descricao, fonte, ultima_sync, motivo }
+ */
+router.get('/:codigo/validar', async (req, res, next) => {
+  try {
+    const { codigo } = req.params
+
+    if (!/^\d{8}$/.test(codigo)) {
+      return res.status(200).json({
+        valido:      false,
+        descricao:   null,
+        fonte:       null,
+        ultima_sync: null,
+        motivo:      'Código NCM deve ter exatamente 8 dígitos numéricos',
+      })
+    }
+
+    // 1. Buscar no cache local
+    const local = await prisma.ncmSync.findUnique({
+      where: { codigo_ncm_sync: codigo },
+      select: { codigo_ncm_sync: true, descricao_ncm_sync: true, ativo_ncm_sync: true },
+    })
+
+    const statusSync = await obterStatusSync(prisma)
+
+    if (local && local.ativo_ncm_sync) {
+      return res.status(200).json({
+        valido:      true,
+        descricao:   local.descricao_ncm_sync,
+        fonte:       'cache',
+        ultima_sync: statusSync.ultima_sync,
+        motivo:      null,
+      })
+    }
+
+    // 2. Fallback: consulta Portal Único (TTCE)
+    const remoto = await validarNcm(codigo)
+
+    if (remoto) {
+      return res.status(200).json({
+        valido:      true,
+        descricao:   remoto.descricao,
+        fonte:       'portal_unico',
+        ultima_sync: statusSync.ultima_sync,
+        motivo:      null,
+      })
+    }
+
+    // 3. Não encontrado em nenhuma fonte
+    res.status(200).json({
+      valido:      false,
+      descricao:   null,
+      fonte:       null,
+      ultima_sync: statusSync.ultima_sync,
+      motivo:      'NCM não encontrado no cache local nem no Portal Único Siscomex',
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── ROTAS PROTEGIDAS (S2S — requireInternalKey) ─────────────────────────────
 router.use(requireInternalKey)
 
 // ─── ACL: translate Prisma row → DTO público (sem `_sync`) ────────────────────

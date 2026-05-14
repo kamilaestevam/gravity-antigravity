@@ -278,6 +278,20 @@
         "moedas":      "GET/POST/PUT/DELETE /moedas",
         "unidades":    "GET/POST/PUT/DELETE /unidades",
         "ncm":         "GET/POST/PUT/DELETE /ncm — CRUD do catálogo NcmSync (tabela física `ncm_sync`)",
+        "ncm-buscar": {
+          "path": "/ncm/buscar",
+          "method": "GET",
+          "public": true,
+          "middleware": [],
+          "note": "Busca pública de NCM por código ou descrição. Consumido pelo frontend (CampoBuscarNcm). Query: ?q=texto&limite=20. Retorna { itens: [{ codigo, descricao }] }."
+        },
+        "ncm-validar": {
+          "path": "/ncm/:codigo/validar",
+          "method": "GET",
+          "public": true,
+          "middleware": [],
+          "note": "Validação unitária pública de código NCM (8 dígitos). Consumido pelo frontend (useNcmValidation). Busca cache local → fallback Portal Único TTCE. Retorna { valido, descricao, fonte, ultima_sync, motivo }."
+        },
         "ope":         "GET/POST/PUT/DELETE /operacoes-comex",
         "admin-ncm-sync": {
           "pathPrefix": "/admin/ncm-sync",

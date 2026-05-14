@@ -13,12 +13,18 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { MagnifyingGlass, X, ArrowsClockwise, Warning, CheckCircle } from '@phosphor-icons/react'
+import { MagnifyingGlass, X, ArrowsClockwise, CheckCircle, Lightbulb } from '@phosphor-icons/react'
 import ReactDOM from 'react-dom'
 
 export interface NcmOpcao {
   codigo:    string
   descricao: string
+}
+
+interface ResultadoBusca {
+  itens:       NcmOpcao[]
+  ultima_sync: string | null
+  fuzzy:       boolean
 }
 
 export interface ModalBuscaNcmProps {
@@ -31,18 +37,34 @@ export interface ModalBuscaNcmProps {
   baseUrl?: string
 }
 
-async function buscarNcms(query: string, baseUrl: string): Promise<NcmOpcao[]> {
+async function buscarNcms(query: string, baseUrl: string): Promise<ResultadoBusca> {
   const params = new URLSearchParams({ q: query, limite: '20' })
   const res = await fetch(`${baseUrl}/buscar?${params}`, { credentials: 'include' })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const data = await res.json()
-  const itens = Array.isArray(data.itens) ? data.itens : (Array.isArray(data) ? data : [])
-  return itens.filter(
+  const itensRaw = Array.isArray(data.itens) ? data.itens : (Array.isArray(data) ? data : [])
+  const itens = itensRaw.filter(
     (item: unknown): item is NcmOpcao =>
       typeof item === 'object' && item !== null &&
       typeof (item as NcmOpcao).codigo === 'string' &&
       typeof (item as NcmOpcao).descricao === 'string'
   )
+  return {
+    itens,
+    ultima_sync: typeof data.ultima_sync === 'string' ? data.ultima_sync : null,
+    fuzzy:       data.fuzzy === true,
+  }
+}
+
+function formatarDataSync(iso: string): string {
+  try {
+    const d = new Date(iso)
+    const dia = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    return `${dia} ${hora}`
+  } catch {
+    return iso
+  }
 }
 
 export function CampoBuscarNcm({
@@ -56,7 +78,8 @@ export function CampoBuscarNcm({
   const [itens, setItens]       = useState<NcmOpcao[]>([])
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro]         = useState<string | null>(null)
-  const [semSync, setSemSync]   = useState(false)
+  const [ultimaSync, setUltimaSync] = useState<string | null>(null)
+  const [fuzzy, setFuzzy]       = useState(false)
   const inputRef                = useRef<HTMLInputElement>(null)
   const timerRef                = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -66,7 +89,7 @@ export function CampoBuscarNcm({
       setQuery('')
       setItens([])
       setErro(null)
-      setSemSync(false)
+      setFuzzy(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
   }, [aberto])
@@ -79,12 +102,13 @@ export function CampoBuscarNcm({
 
     setCarregando(true)
     setErro(null)
-    setSemSync(false)
+    setFuzzy(false)
 
     try {
-      const res = await buscarNcms(q, baseUrl)
-      setItens(res)
-      if (res.length === 0) setSemSync(true)
+      const resultado = await buscarNcms(q, baseUrl)
+      setItens(resultado.itens)
+      setFuzzy(resultado.fuzzy)
+      if (resultado.ultima_sync) setUltimaSync(resultado.ultima_sync)
     } catch {
       setErro('Não foi possível buscar. Verifique a conexão com o servidor.')
     } finally {
@@ -214,12 +238,12 @@ export function CampoBuscarNcm({
               fontSize: '0.875rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem',
             }}>
-              <Warning size={28} weight="duotone" style={{ color: '#fbbf24' }} />
+              <MagnifyingGlass size={28} weight="duotone" style={{ color: '#94a3b8' }} />
               <span>
-                {semSync
-                  ? 'Nenhum NCM encontrado. A tabela pode não ter sido sincronizada ainda — acesse o painel Admin para sincronizar.'
-                  : `Nenhum NCM encontrado para "${query}".`
-                }
+                Nenhum NCM encontrado para <strong>&quot;{query}&quot;</strong>.
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #64748b)', opacity: 0.7 }}>
+                Verifique a grafia ou tente buscar pelo código de 8 dígitos.
               </span>
             </div>
           )}
@@ -227,6 +251,22 @@ export function CampoBuscarNcm({
           {!erro && query.length < 2 && (
             <div style={{ padding: '2rem 1.5rem', textAlign: 'center', color: 'var(--ws-muted, #64748b)', fontSize: '0.875rem' }}>
               Digite pelo menos 2 caracteres para buscar.
+            </div>
+          )}
+
+          {/* Banner de sugestão fuzzy */}
+          {fuzzy && itens.length > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.5rem 1.25rem',
+              background: 'rgba(251,191,36,0.08)',
+              borderBottom: '1px solid var(--ws-border, rgba(148,163,184,0.12))',
+              fontSize: '0.75rem', color: '#fbbf24',
+            }}>
+              <Lightbulb size={14} weight="fill" style={{ flexShrink: 0 }} />
+              <span>
+                Busca exata sem resultados — mostrando sugestões semelhantes a <strong>&quot;{query}&quot;</strong>
+              </span>
             </div>
           )}
 
@@ -266,17 +306,32 @@ export function CampoBuscarNcm({
           })}
         </div>
 
-        {/* Footer */}
-        {itens.length > 0 && (
-          <div style={{
-            padding: '0.625rem 1.25rem',
-            borderTop: '1px solid var(--ws-border, rgba(148,163,184,0.12))',
-            fontSize: '0.75rem', color: 'var(--ws-muted, #64748b)',
-            textAlign: 'right',
+        {/* Footer — sync date + contagem */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0.625rem 1.25rem',
+          borderTop: '1px solid var(--ws-border, rgba(148,163,184,0.12))',
+          background: 'rgba(15,23,42,0.5)',
+          fontSize: '0.75rem',
+          gap: '1rem',
+        }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+            color: ultimaSync ? '#34d399' : '#fbbf24',
+            fontWeight: 500,
           }}>
-            {itens.length} resultado{itens.length !== 1 ? 's' : ''}
-          </div>
-        )}
+            <ArrowsClockwise size={12} weight="bold" />
+            {ultimaSync
+              ? <>Última sincronização em: {formatarDataSync(ultimaSync)}</>
+              : 'Tabela NCM não sincronizada'
+            }
+          </span>
+          {itens.length > 0 && (
+            <span style={{ color: 'var(--ws-muted, #94a3b8)' }}>
+              {itens.length} resultado{itens.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -163,12 +163,13 @@ export default defineConfig({
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
-      // /api/v1/ncm/* (busca, validação, invalidos) é do ncm-sync no super-server
-      // da plataforma (porta 3001). NÃO confundir com /api/v1/cadastros/ncm que
-      // é o catálogo NCM mestre no serviço Cadastros (porta 8031).
+      // /api/v1/ncm/* → Cadastros (porta 8031).
+      // Rewrite /api/v1/ncm → /api/v1/cadastros/ncm (path real no backend).
+      // Rotas públicas (buscar, validar) NÃO precisam de x-internal-key.
       '/api/v1/ncm': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:8031',
         changeOrigin: true,
+        rewrite: (path: string) => path.replace('/api/v1/ncm', '/api/v1/cadastros/ncm'),
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
         },

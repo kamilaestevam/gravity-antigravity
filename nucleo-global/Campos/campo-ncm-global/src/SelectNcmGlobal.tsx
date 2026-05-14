@@ -82,12 +82,26 @@ export function SelectNcmGlobal({
         <ArrowsClockwise size={12} style={{ animation: 'spin 1s linear infinite' }} /> Verificando…
       </span>
     )
-    if (status === 'valido') return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: '#34d399' }}>
-        <CheckCircle size={12} weight="fill" />
-        {resultado?.descricao ? resultado.descricao.slice(0, 60) : 'NCM válido'}
-      </span>
-    )
+    if (status === 'valido') {
+      const descricaoCompleta = resultado?.descricao ?? 'NCM válido'
+      const MAX_CHARS = 50
+      const truncado = descricaoCompleta.length > MAX_CHARS
+      const descricaoVisivel = truncado ? descricaoCompleta.slice(0, MAX_CHARS) + '…' : descricaoCompleta
+
+      return (
+        <span
+          title={truncado ? descricaoCompleta : undefined}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+            fontSize: '0.75rem', color: '#34d399',
+            cursor: truncado ? 'help' : undefined,
+          }}
+        >
+          <CheckCircle size={12} weight="fill" style={{ flexShrink: 0 }} />
+          {descricaoVisivel}
+        </span>
+      )
+    }
     if (status === 'invalido') return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: '#fbbf24' }}>
         <Warning size={12} weight="fill" /> NCM não encontrado na tabela Siscomex
@@ -167,7 +181,7 @@ export function SelectNcmGlobal({
 
         {/* Status de validação (não bloqueante) */}
         {badgeElement && (
-          <div id={`${id}-status`} style={{ marginTop: '0.375rem' }} aria-live="polite">
+          <div id={`${id}-status`} style={{ marginTop: '0.375rem', overflow: 'hidden' }} aria-live="polite">
             {badgeElement}
           </div>
         )}

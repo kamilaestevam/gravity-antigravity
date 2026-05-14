@@ -1,7 +1,7 @@
 // server/routes/chat.ts
 import { Router } from 'express'
 import { z } from 'zod'
-import { getConversationContext, buildSystemPrompt } from '../services/chat.js'
+import { getConversationContext, buildSystemPrompt, selectKnowledge } from '../services/chat.js'
 import { generateContentWithFallback, generateWithTools } from '../services/gemini.js'
 import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
 import { auditGabiAction } from '../services/audit.js'
@@ -48,12 +48,16 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
       ? await getConversationContext(conversationId)
       : []
 
+    const { knowledge, ragMeta } = await selectKnowledge(message, page)
+
     const sysPrompt = buildSystemPrompt({
       userName: userId,
       userRole: (req as any).auth?.role ?? 'user',
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
       currentPage: page,
+      knowledgeContent: knowledge,
+      isRag: ragMeta !== null,
     })
 
     const toolCtx = {
@@ -71,7 +75,7 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
       tokensInput: result.tokensInput,
       tokensOutput: result.tokensOutput,
       custoUsd: result.costUsd,
-    }).catch((e) =>
+    }, ragMeta ?? undefined).catch((e) =>
       console.warn('[chat] falha registrando uso LLM', (e as Error).message),
     )
 
@@ -158,12 +162,16 @@ chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
       ? await getConversationContext(conversationId)
       : []
 
+    const { knowledge: streamKnowledge, ragMeta: streamRagMeta } = await selectKnowledge(message, page)
+
     const sysPrompt = buildSystemPrompt({
       userName: userId,
       userRole: (req as any).auth?.role ?? 'user',
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
       currentPage: page,
+      knowledgeContent: streamKnowledge,
+      isRag: streamRagMeta !== null,
     })
 
     const streamToolCtx = {
@@ -179,7 +187,7 @@ chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
       tokensInput: result.tokensInput,
       tokensOutput: result.tokensOutput,
       custoUsd: result.costUsd,
-    }).catch((e) =>
+    }, streamRagMeta ?? undefined).catch((e) =>
       console.warn('[chat/stream] falha registrando uso LLM', (e as Error).message),
     )
 

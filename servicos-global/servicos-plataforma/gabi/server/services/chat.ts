@@ -3,17 +3,18 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import prisma from '../lib/prisma.js'
+import { searchKnowledgeBase, type KbSearchMeta } from './kb-search.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// ── Carregar base de conhecimento (completa + segmentos) ────────────────
+// ── Fallback: KB estatica (usada quando pgvector nao esta disponivel) ───
 const KB_PATH = path.resolve(__dirname, '../knowledge/gravity-knowledge-base.txt')
 const SEGMENTS_DIR = path.resolve(__dirname, '../knowledge/segments')
 
 let KNOWLEDGE_BASE = ''
 try {
   KNOWLEDGE_BASE = fs.readFileSync(KB_PATH, 'utf-8')
-  console.log(`[GABI] Base de conhecimento carregada: ${Math.round(KNOWLEDGE_BASE.length / 1024)} KB`)
+  console.log(`[GABI] Base de conhecimento (fallback) carregada: ${Math.round(KNOWLEDGE_BASE.length / 1024)} KB`)
 } catch {
   console.warn('[GABI] Base de conhecimento nao encontrada. Execute: npx tsx server/knowledge/compile.ts')
 }
@@ -27,37 +28,78 @@ function loadSegments() {
     const key = file.replace('.txt', '')
     SEGMENT_CACHE.set(key, fs.readFileSync(path.join(SEGMENTS_DIR, file), 'utf-8'))
   }
-  console.log(`[GABI] ${SEGMENT_CACHE.size} segmentos carregados: ${[...SEGMENT_CACHE.keys()].join(', ')}`)
+  console.log(`[GABI] ${SEGMENT_CACHE.size} segmentos (fallback) carregados`)
 }
 loadSegments()
 
-// ── Mapeamento de rota → segmento(s) ────────────────────────────────────
+// ── RAG: busca semantica via pgvector ────────────────────────────────────
 
-const ROUTE_SEGMENT_MAP: Record<string, string[]> = {
-  '/produto/lpco':            ['lpco'],
-  '/produto/pedido':          ['pedido'],
-  '/produto/nf-importacao':   ['nf-importacao'],
-  '/produto/bid-frete':       ['bid-frete'],
-  '/produto/bid-cambio':      ['bid-cambio'],
-  '/produto/financeiro-comex': ['financeiro-comex'],
-  '/produto/simula-custo':    ['simula-custo'],
-  '/produto/processo':        ['processo'],
-  '/workspace/organizacao':   ['configurador'],
-  '/workspace/workspaces':    ['configurador'],
-  '/workspace/usuarios':      ['configurador'],
-  '/workspace/assinaturas':   ['configurador'],
-  '/workspace/financeiro':    ['configurador'],
-  '/workspace/api-cockpit':   ['api-cockpit', 'configurador'],
-  '/workspace/conector-cargowise': ['api-cockpit'],
-  '/admin':                   ['configurador'],
-  '/store':                   ['marketplace'],
-  '/hub':                     ['dashboard', 'configurador'],
+let ragDisponivel: boolean | null = null
+
+async function verificarRagDisponivel(): Promise<boolean> {
+  if (ragDisponivel !== null) return ragDisponivel
+  try {
+    await prisma.$queryRawUnsafe(`SELECT 1 FROM gabi_kb_chunk LIMIT 1`)
+    ragDisponivel = true
+    console.log('[GABI] RAG pgvector disponivel — busca semantica ativa')
+  } catch {
+    ragDisponivel = false
+    console.log('[GABI] RAG pgvector indisponivel — usando fallback estatico')
+  }
+  return ragDisponivel
 }
 
-function selectKnowledgeForPage(page?: string): string {
+export function _resetRagCache() {
+  ragDisponivel = null
+}
+
+export interface KnowledgeResult {
+  knowledge: string
+  ragMeta: KbSearchMeta | null
+}
+
+export async function selectKnowledge(query: string, page?: string): Promise<KnowledgeResult> {
+  const ragOk = await verificarRagDisponivel()
+
+  if (ragOk) {
+    try {
+      const { chunks, meta } = await searchKnowledgeBase(query, page)
+      if (chunks.length > 0) {
+        return { knowledge: chunks, ragMeta: meta }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message.slice(0, 100) : String(err)
+      console.warn(`[GABI] RAG falhou, usando fallback: ${msg}`)
+    }
+  }
+
+  return { knowledge: selectKnowledgeFallback(page), ragMeta: null }
+}
+
+function selectKnowledgeFallback(page?: string): string {
   if (!page || SEGMENT_CACHE.size === 0) return KNOWLEDGE_BASE
 
   const normalizedPage = page.toLowerCase().replace(/\/$/, '')
+  const ROUTE_SEGMENT_MAP: Record<string, string[]> = {
+    '/produto/lpco':            ['lpco'],
+    '/produto/pedido':          ['pedido'],
+    '/produto/nf-importacao':   ['nf-importacao'],
+    '/produto/bid-frete':       ['bid-frete'],
+    '/produto/bid-cambio':      ['bid-cambio'],
+    '/produto/financeiro-comex': ['financeiro-comex'],
+    '/produto/simula-custo':    ['simula-custo'],
+    '/produto/processo':        ['processo'],
+    '/workspace/organizacao':   ['configurador'],
+    '/workspace/workspaces':    ['configurador'],
+    '/workspace/usuarios':      ['configurador'],
+    '/workspace/assinaturas':   ['configurador'],
+    '/workspace/financeiro':    ['configurador'],
+    '/workspace/api-cockpit':   ['api-cockpit', 'configurador'],
+    '/workspace/conector-cargowise': ['api-cockpit'],
+    '/admin':                   ['configurador'],
+    '/store':                   ['marketplace'],
+    '/hub':                     ['dashboard', 'configurador'],
+  }
 
   const segmentKeys = ROUTE_SEGMENT_MAP[normalizedPage]
     ?? Object.entries(ROUTE_SEGMENT_MAP)
@@ -82,6 +124,8 @@ export type SystemPromptParams = {
   tenantName: string
   activeServices: string[]
   currentPage?: string
+  knowledgeContent?: string
+  isRag?: boolean
 }
 
 export function buildSystemPrompt(params: SystemPromptParams): string {
@@ -89,11 +133,12 @@ export function buildSystemPrompt(params: SystemPromptParams): string {
     ? `- Pagina atual: ${params.currentPage}`
     : '- Pagina atual: desconhecida'
 
-  const selectedKB = selectKnowledgeForPage(params.currentPage)
-  const isSegmented = selectedKB !== KNOWLEDGE_BASE
-  const kbLabel = isSegmented
-    ? 'BASE DE CONHECIMENTO (SEGMENTO RELEVANTE PARA A PAGINA ATUAL)'
-    : 'BASE DE CONHECIMENTO DA PLATAFORMA GRAVITY'
+  const selectedKB = params.knowledgeContent ?? selectKnowledgeFallback(params.currentPage)
+  const kbLabel = params.isRag
+    ? 'BASE DE CONHECIMENTO (CHUNKS RELEVANTES VIA BUSCA SEMANTICA)'
+    : selectedKB !== KNOWLEDGE_BASE
+      ? 'BASE DE CONHECIMENTO (SEGMENTO RELEVANTE PARA A PAGINA ATUAL)'
+      : 'BASE DE CONHECIMENTO DA PLATAFORMA GRAVITY'
 
   return `
 Voce e a Gabi, a assistente oficial da plataforma Gravity — especialista em comercio exterior e em tudo que acontece dentro da plataforma.

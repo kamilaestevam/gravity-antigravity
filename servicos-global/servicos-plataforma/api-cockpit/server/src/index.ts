@@ -21,6 +21,7 @@ import { documentacaoApiRouter } from './routes/documentacao-api'
 import { monitoramentoApiRouter } from './routes/monitoramento-api'
 import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
+import { proxyProdutosRouter } from './routes/proxy-produtos'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 import { iniciarWorkerRetencao, pararWorkerRetencao } from './workers/retencao-log-requisicao-api'
@@ -40,12 +41,16 @@ app.get('/health', (req, res) => {
 // Rate Limiting
 app.use(rateLimitPresets.internal())
 
-// Routes
+// Routes — S2S internas (Configurador → api-cockpit)
 // app.use('/api/v1/cockpit/erp', erpRouter)
 app.use('/api/v1/cockpit/api-tokens',         tokensRouter)
 app.use('/api/v1/cockpit/webhooks',           webhooksRouter)
 app.use('/api/v1/cockpit/documentacao-api',   requireInternalKey, documentacaoApiRouter)
 app.use('/api/v1/cockpit/monitoramento-api',  monitoramentoApiRouter)
+
+// Routes — Proxy externo (cliente API → produto)
+// NÃO usa requireInternalKey — auth é via Bearer token do cliente.
+app.use('/api/v1/cockpit',                    proxyProdutosRouter)
 
 // Error Handler
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

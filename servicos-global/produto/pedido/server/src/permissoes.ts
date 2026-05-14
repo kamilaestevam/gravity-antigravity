@@ -32,7 +32,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import type { RequestHandler } from 'express'
-import { criarRequirePermissao, type ConfigCriarRequirePermissao } from '@gravity/resolver-organizacao'
+import { criarRequirePermissao, AppError, type ConfigCriarRequirePermissao } from '@gravity/resolver-organizacao'
 import { securityAudit } from '../../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 
 /** Tipo do callback onShadowDeny extraído da config — necessário p/ rootDir. */
@@ -110,7 +110,16 @@ function obterExigirPermissao(): ExigirPermissaoFn {
  * `process.env.CONFIGURATOR_URL` em tempo de import.
  */
 export function exigirPermissao(secao: string, acao: 'ver' | 'editar'): RequestHandler {
-  return (req, res, next) => obterExigirPermissao()(secao, acao)(req, res, next)
+  return (req, res, next) => {
+    if ((req as Record<string, unknown>).externalApi) {
+      const escopo = req.headers['x-api-token-escopo'] as string | undefined
+      if (acao === 'editar' && escopo === 'LEITURA') {
+        return next(new AppError('Token sem permissao de escrita', 403, 'FORBIDDEN'))
+      }
+      return next()
+    }
+    obterExigirPermissao()(secao, acao)(req, res, next)
+  }
 }
 
 /**

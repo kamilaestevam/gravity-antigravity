@@ -29,7 +29,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
-import { resolverOrganizacao, verificarAcessoProduto, AppError } from '@gravity/resolver-organizacao'
+import { resolverOrganizacao, verificarAcessoProduto, resolveOrganizacaoById, AppError } from '@gravity/resolver-organizacao'
 // Cadeia 2 granular — `exigirPermissao` e `exigirPorMetodo` instanciados
 // uma única vez em `./permissoes.ts`. Routers que só fazem mutação aplicam
 // `router.use(exigirPermissao('<secao>','editar'))` internamente (decisão
@@ -124,21 +124,42 @@ app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
 // (Gamma-3 leva 3). Consumers passaram a chamar o tenant service standalone.
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
-app.use(resolverOrganizacao({
+// Wrapper: chamadas S2S via api-cockpit enviam x-id-organizacao sem JWT Clerk.
+// Nesses casos, resolvemos o tenant pelo ID direto (mesma função que CRON/workers usam).
+const _resolverOrg = resolverOrganizacao({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
-}))
+})
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  const idOrg = req.headers['x-id-organizacao'] as string | undefined
+  const hasJwt = !!req.headers['authorization']
+  if (!hasJwt && idOrg) {
+    try {
+      req.organizacao = await resolveOrganizacaoById(idOrg)
+      ;(req as Record<string, unknown>).externalApi = true
+      return next()
+    } catch (err) {
+      return next(err)
+    }
+  }
+  _resolverOrg(req, res, next)
+})
 
 // ── 6.1. Portão 3 — autorização granular usuário × produto Gravity ───────────
 // Skill: seguranca/route-authorization. Master/SAdmin/Admin têm bypass (Mand. 04).
 // Standard/Fornecedor exigem chave `pedido:acesso_usuario_produtos_gravity:permitido`
 // em UsuarioPermissao do workspace (header x-id-workspace).
-app.use(verificarAcessoProduto({
+// External API calls (api-cockpit proxy) skip product access — token IS the auth.
+const _verificarAcesso = verificarAcessoProduto({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
-}))
+})
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if ((req as Record<string, unknown>).externalApi) return next()
+  _verificarAcesso(req, res, next)
+})
 
 // ── 6.2. Cadeia 2 granular — permissões `<slug>:<secao>:<acao>` ──────────────
 // Skill: seguranca/permissoes (REGRA seção × ação). Master/SAdmin/Admin bypass.

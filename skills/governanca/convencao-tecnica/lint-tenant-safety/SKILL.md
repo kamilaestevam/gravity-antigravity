@@ -338,10 +338,72 @@ Coordenador acompanha mensalmente:
 
 | Sprint | Adição |
 |:---|:---|
-| S2 | Regra 7 — `no-cross-product-import` (produto A não importa código do produto B) |
-| S2 | Regra 8 — `internal-key-required-on-fetch` (toda chamada inter-serviço com `x-chave-interna`) |
-| S3 | Regra 9 — `no-bypass-rls-roles` (BYPASSRLS no Postgres do Configurador exige justificativa) |
-| S3 | Regra 10 — `s3-presigned-ttl-max-300` (URLs S3 pré-assinadas com TTL ≤ 300s) |
+| **S1 (urgente)** | **Regra 7 — `no-process-env-top-level-non-null-assertion`** (proibir `process.env.X!` top-level fora de `index.ts`) — **JÁ EM USO** via script standalone, ver abaixo |
+| S2 | Regra 8 — `no-cross-product-import` (produto A não importa código do produto B) |
+| S2 | Regra 9 — `internal-key-required-on-fetch` (toda chamada inter-serviço com `x-chave-interna`) |
+| S3 | Regra 10 — `no-bypass-rls-roles` (BYPASSRLS no Postgres do Configurador exige justificativa) |
+| S3 | Regra 11 — `s3-presigned-ttl-max-300` (URLs S3 pré-assinadas com TTL ≤ 300s) |
+
+---
+
+## Regra 7 — `no-process-env-top-level-non-null-assertion` (parcialmente implementada)
+
+> ⚠️ **Causa raiz documentada:** quebrou produção do Pedido em 2026-05-14. Ver
+> [`sdk-resolvedor-organizacao/SKILL.md`](../../lei/sdk-resolvedor-organizacao/SKILL.md)
+> seção "Lazy init quando o middleware mora em arquivo separado".
+
+Bloqueia o anti-padrão:
+```ts
+// arquivo: foo/permissoes.ts (NÃO é index.ts)
+export const middleware = criarMiddleware({
+  baseUrl: process.env.X!,  // ❌ top-level, lido em tempo de import
+})
+```
+
+Em ESM, esse top-level executa antes do `dotenv.config()` do `index.ts` que o importa. A variável vira `undefined`, o `!` engole, e o erro só aparece em runtime na 1ª request (`undefined/api/...` = `TypeError: Failed to parse URL`).
+
+### Implementação atual (2026-05-14)
+
+Script standalone — **não exige o plugin ESLint completo**:
+
+```bash
+# Varre todos os .ts em servicos-global/ e packages/
+npm run check:env-toplevel
+
+# Modo lint-staged (pre-commit) — recebe arquivos staged como argv
+npx tsx scripts/ativamente/check-env-toplevel.ts arq1.ts arq2.ts
+```
+
+Já configurado em `lint-staged` do `package.json` raiz — bloqueia commit. CI pode adicionar etapa idêntica.
+
+### Exceções permitidas
+
+| Padrão | Permitido | Por quê |
+|:---|:---:|:---|
+| `process.env.X!` em `index.ts` | ✅ | Top-level deste arquivo roda **depois** dos imports e do `dotenv.config()` no mesmo arquivo |
+| `process.env.X!` dentro de função/closure | ✅ | Lido sob demanda, sempre depois do dotenv |
+| `process.env.X!` em `*.test.ts` / `*.spec.ts` | ✅ | Testes têm setup próprio de env |
+| `process.env.X` sem `!` | ✅ | Sem assertion silenciosa — código deve validar explicitamente |
+| `process.env.X ?? ''` | ⚠️ | Não bloqueado pela Regra 7, mas viola **Mandamento 08** (fallback silencioso — URL vazia também produz erro de URL invalid) |
+
+### Correção do anti-padrão — lazy init
+
+```ts
+// ✅ Padrão correto — lazy init com falha ruidosa
+let _inst: SeuMiddlewareTipo | undefined
+function obter(): SeuMiddlewareTipo {
+  if (_inst) return _inst
+  const url = process.env.CONFIGURATOR_URL
+  if (!url) throw new Error('CONFIGURATOR_URL ausente — checar .env')
+  _inst = criarMiddleware({ baseUrl: url })
+  return _inst
+}
+export function middleware(...args): RequestHandler {
+  return (req, res, next) => obter()(...args)(req, res, next)
+}
+```
+
+Exemplo de referência canônica: `produto/pedido/server/src/permissoes.ts` (após refator 2026-05-14).
 
 ---
 

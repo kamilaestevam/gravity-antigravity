@@ -10,7 +10,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "tsx watch server/src/index.ts",
+    "dev": "tsx watch --env-file=../../../.env.local --env-file=.env server/src/index.ts",
     "start": "node dist/server/src/index.js",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,1 +1,9 @@
-{"name":"@tenant/cadastros","type":"module"}
+{
+  "name": "@tenant/cadastros",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env.local --env-file=.env server/src/index.ts",
+    "start": "node dist/server/src/index.js",
+    "typecheck": "tsc --noEmit"
+  }
+}

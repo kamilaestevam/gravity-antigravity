@@ -314,6 +314,26 @@ model PermissaoAdminGravity {
 
 ## Middleware de Autorização
 
+### ⚠️ Armadilha conhecida — `criarRequirePermissao` em arquivo separado (2026-05-14)
+
+Quando o produto isola o middleware em um arquivo dedicado (ex: `produto/<x>/server/src/permissoes.ts`), **o factory NÃO pode ser instanciado em tempo de import**:
+
+```typescript
+// ❌ ANTI-PADRÃO — quebrou produção do Pedido em 2026-05-14
+export const exigirPermissao = criarRequirePermissao({
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,  // ← top-level
+  ...
+})
+```
+
+Em ESM, este top-level executa **antes** do `dotenv.config()` do `index.ts` que importa o arquivo. `process.env.CONFIGURATOR_URL` é `undefined`, o `!` engole o problema, e toda rota autenticada cai em `503 "Configurador indisponível"`.
+
+**Correção obrigatória — lazy init com falha ruidosa:** ver
+[`governanca/lei/sdk-resolvedor-organizacao/SKILL.md`](../../governanca/lei/sdk-resolvedor-organizacao/SKILL.md#-regra-absoluta--lazy-init-quando-o-middleware-mora-em-arquivo-separado-2026-05-14)
+seção "Lazy init quando o middleware mora em arquivo separado". Referência canônica: `produto/pedido/server/src/permissoes.ts`.
+
+**Defesa estrutural:** Regra 7 do linter (script `scripts/ativamente/check-env-toplevel.ts`, ativo em pre-commit via `lint-staged`).
+
 ### Ordem obrigatória de verificação
 
 ```typescript

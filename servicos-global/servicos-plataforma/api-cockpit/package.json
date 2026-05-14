@@ -5,7 +5,7 @@
   "type": "module",
   "main": "server/src/index.ts",
   "scripts": {
-    "dev": "tsx watch server/src/index.ts",
+    "dev": "tsx watch --env-file=../../../.env.local --env-file=.env server/src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run"

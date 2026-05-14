@@ -73,6 +73,46 @@ app.listen(process.env.PORT)
 
 > **Atenção aos nomes exatos:** `chaveProduto`, `chaveInterna`, `configuradorBaseUrl`. Qualquer outra grafia → erro de tipo no boot.
 
+### ⚠️ REGRA ABSOLUTA — Lazy init quando o middleware mora em arquivo separado (2026-05-14)
+
+O exemplo acima funciona porque o `criarRequirePermissao({...})` está **no mesmo `index.ts`** que faz `dotenv.config()`. Em ESM, o body do `index.ts` roda **depois** de todos os imports — então `process.env` já foi populado.
+
+**MAS:** quando o factory é instanciado em um arquivo separado (ex: `produto/<x>/server/src/permissoes.ts`) e exportado para ser importado por routers, o anti-padrão a seguir **quebra tudo**:
+
+```typescript
+// ❌ PROIBIDO — bug ativo em prod até 2026-05-14 (Pedido)
+// arquivo: produto/pedido/server/src/permissoes.ts
+export const exigirPermissao = criarRequirePermissao({
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,  // ← lido em TEMPO DE IMPORT
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
+  ...
+})
+```
+
+**Por quê quebra:** quando `index.ts` faz `import './rotas/x.js'` → `x.ts` faz `import { exigirPermissao } from '../permissoes.js'` → o body de `permissoes.ts` executa **antes** do `dotenv.config()` do `index.ts`. `process.env.CONFIGURATOR_URL` ainda é `undefined`. O `!` engole. Middleware nasce com `baseUrl=undefined`. Toda request autenticada vira 503 `"Configurador indisponível"`.
+
+```typescript
+// ✅ CORRETO — lazy init com falha ruidosa (Mand. 05 + 08)
+// arquivo: produto/pedido/server/src/permissoes.ts
+let _inst: ReturnType<typeof criarRequirePermissao> | undefined
+function obter() {
+  if (_inst) return _inst
+  const url = process.env.CONFIGURATOR_URL
+  const key = process.env.CHAVE_INTERNA_SERVICO
+  if (!url) throw new Error('CONFIGURATOR_URL ausente — checar --env-file no script "dev"')
+  if (!key) throw new Error('CHAVE_INTERNA_SERVICO ausente — checar .env.local')
+  _inst = criarRequirePermissao({ configuradorBaseUrl: url, chaveInterna: key, ... })
+  return _inst
+}
+export function exigirPermissao(secao: string, acao: 'ver'|'editar'): RequestHandler {
+  return (req, res, next) => obter()(secao, acao)(req, res, next)
+}
+```
+
+**Defesa estrutural:** a Regra 7 prevista em [`lint-tenant-safety/SKILL.md`](../../convencao-tecnica/lint-tenant-safety/SKILL.md) bloqueia `process.env.X!` top-level fora de `index.ts`. Script standalone já roda em pre-commit via `scripts/ativamente/check-env-toplevel.ts`. Casos atuais conformes: `0` (verificado 2026-05-14).
+
+**Causa raiz documentada:** Pedido voltou a quebrar em 2026-05-14 (503 em todas as rotas autenticadas após dezenas de horas de seed/restart cycles). Diagnóstico Líder Técnico + Coordenador: anti-padrão acima introduzido no refator do Portão 3. Correção em `produto/pedido/server/src/permissoes.ts` (commit do dia).
+
 ### Config completa (`ConfigResolverOrganizacao`)
 
 | Campo | Tipo | Obrigatório | Default |

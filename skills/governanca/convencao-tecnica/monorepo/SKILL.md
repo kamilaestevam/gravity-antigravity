@@ -66,6 +66,73 @@ cd produto/pedido/client && npm install  # ❌ PROIBIDO
 
 ---
 
+## 1.bis. Scripts `dev` — padrão `--env-file` obrigatório (2026-05-14)
+
+Todo serviço backend (tsx watch) **deve** carregar env via `--env-file` do tsx, não confiar só em `dotenv.config()` inline no `index.ts`.
+
+### Razão
+
+ESM hoista todos os imports antes do corpo do módulo executar. Se algum módulo importado lê `process.env.X` em tempo de import (ex: `criarMiddleware({ url: process.env.X! })` no top-level de `permissoes.ts`), a variável ainda é `undefined` — `dotenv.config()` do `index.ts` só roda depois. Bug **quebrou produção do Pedido em 2026-05-14**. Detalhes em [`lei/sdk-resolvedor-organizacao`](../../lei/sdk-resolvedor-organizacao/SKILL.md#-regra-absoluta--lazy-init-quando-o-middleware-mora-em-arquivo-separado-2026-05-14).
+
+### Padrão obrigatório
+
+```json
+// package.json de qualquer serviço backend
+{
+  "scripts": {
+    "dev": "tsx watch --env-file=<path>/.env.local --env-file=.env server/src/index.ts"
+  }
+}
+```
+
+O `--env-file` do tsx popula `process.env` **antes** do Node ler o primeiro `import` — fechando o gap do ESM hoisting.
+
+### Profundidade do `--env-file` por localização
+
+| Serviço fica em | `--env-file` do `.env.local` da raiz |
+|:---|:---|
+| `servicos-global/<x>/` (ex: configurador, marketplace, cadastros) | `../../.env.local` |
+| `servicos-global/servicos-plataforma/<x>/` (ex: api-cockpit, email) | `../../../.env.local` |
+| `servicos-global/produto/<x>/` (ex: pedido, processo) | `../../../.env.local` |
+| `servicos-global/produto/<x>/server/` | `../../../../.env.local` |
+
+Local `.env` do serviço sempre fica em `--env-file=.env` (relativo ao cwd do `npm run dev`).
+
+### Padrão proibido
+
+```json
+// ❌ Frágil — depende de dotenv.config() inline carregar ANTES de qualquer
+// import ler env (não funciona em ESM)
+"dev": "tsx watch server/src/index.ts"
+```
+
+### Orchestrator `npm run dev` da raiz
+
+Roda `concurrently` cobrindo apenas os **serviços do dev master** (não os 17 — manter enxuto). Estado em 2026-05-14:
+
+| Cor | Serviço | Porta |
+|:---|:---|:---:|
+| blue | CFG-BACK (Configurador) | 8005 |
+| green | CFG-FRONT (Configurador) | 8000 |
+| cyan | ORG (Plataforma) | 3001 |
+| yellow | SC-BACK (Simula-Custo) | 8020 |
+| magenta | PROC-BACK (Processo) | 8026 |
+| red | PEDIDO | 8030 |
+| gray | CADASTROS | 8031 |
+| white | COCKPIT (API-Cockpit) | 8016 |
+
+Adicionar/remover serviços do dev master exige aprovação do Líder.
+
+### Comando de reset
+
+`npm run dev:reset` (script em `scripts/ativamente/dev-reset.ts`):
+1. Mata processos node nas 8 portas conhecidas (zombies de tsx watch + EADDRINUSE)
+2. Apaga todos os `node_modules/.vite` (cache stale após mudança de estrutura)
+
+Não toca em banco, `.env`, ou código. Higiene de processos + caches.
+
+---
+
 ## 2. Aliases do Vite — Automáticos via `vite-aliases.ts`
 
 O arquivo `nucleo-global/vite-aliases.ts` escaneia automaticamente todas as categorias do `nucleo-global/` e gera aliases `@nucleo/*` em runtime.

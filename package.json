@@ -50,7 +50,8 @@
     "servicos-global/servicos-plataforma/taxas-cambio/server"
   ],
   "scripts": {
-    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,ORG,SC-BACK,PROC-BACK -c blue,green,cyan,yellow,magenta \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/servicos-plataforma && npm run dev\" \"cd servicos-global/produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd servicos-global/produto/processo/server && npx tsx watch src/index.ts\"",
+    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,ORG,SC-BACK,PROC-BACK,PEDIDO,CADASTROS,COCKPIT -c blue,green,cyan,yellow,magenta,red,gray,white \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/servicos-plataforma && npm run dev\" \"cd servicos-global/produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd servicos-global/produto/processo/server && npx tsx watch src/index.ts\" \"cd servicos-global/produto/pedido && npm run dev\" \"cd servicos-global/cadastros && npm run dev\" \"cd servicos-global/servicos-plataforma/api-cockpit && npm run dev\"",
+    "dev:reset": "npx tsx scripts/ativamente/dev-reset.ts",
     "db:compose": "npx ts-node scripts/ativamente/compose-plataforma-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
@@ -66,16 +67,21 @@
     "validate:testes": "npx tsx scripts/ativamente/validate-testes.ts",
     "check:deps": "npx tsx scripts/ativamente/check-deps.ts",
     "check:audit-coverage": "npx tsx scripts/ativamente/check-audit-coverage.ts",
+    "check:env-toplevel": "npx tsx scripts/ativamente/check-env-toplevel.ts",
     "prepare": "husky"
   },
   "lint-staged": {
     "package.json": "npx tsx scripts/ativamente/check-deps.ts",
-    "*.{ts,tsx}": "npx tsx scripts/ativamente/check-deps.ts"
+    "*.{ts,tsx}": [
+      "npx tsx scripts/ativamente/check-deps.ts",
+      "npx tsx scripts/ativamente/check-env-toplevel.ts"
+    ]
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",
     "@playwright/test": "^1.58.2",
     "@prisma/client": "^5.22.0",
+    "@tanstack/react-query": "^5.100.10",
     "@tanstack/react-virtual": "^3.13.23",
     "@types/xml2js": "^0.4.14",
     "express-rate-limit": "^8.5.1",

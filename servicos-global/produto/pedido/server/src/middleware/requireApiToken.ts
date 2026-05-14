@@ -1,7 +1,7 @@
 /**
  * requireApiToken.ts — Middleware de validação de token de API pública
  *
- * Aceita requisições com header Authorization: Bearer gv_live_sk_* ou gv_test_sk_*
+ * Aceita requisições com header Authorization: Bearer gravity_token_api_producao_* ou gravity_token_api_homologacao_*
  * e valida o token junto ao api-cockpit antes de prosseguir.
  *
  * Ao validar com sucesso, injeta tenantId e scopes no req para uso nas rotas.
@@ -12,15 +12,15 @@
 import { Request, Response, NextFunction } from 'express'
 import { AppError } from '../errors/AppError.js'
 
-/** Padrão de prefixo dos tokens Gravity */
-const TOKEN_PATTERN = /^gv_(live|test)_sk_/
+/** Padrão de prefixo dos tokens Gravity (DDD canônico — ver crypto.ts) */
+const TOKEN_PATTERN = /^gravity_token_api_(producao|homologacao)_/
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_URL || 'http://localhost:8016'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const INTERNAL_SERVICE_KEY = process.env.CHAVE_INTERNA_SERVICO || process.env.INTERNAL_SERVICE_KEY || ''
 
 interface ValidateTokenResponse {
   valid: boolean
-  tenant_id: string
+  id_organizacao: string
   scopes: string[]
 }
 
@@ -49,12 +49,12 @@ function extractBearerToken(authHeader: string | undefined): string | null {
  */
 async function validateTokenWithCockpit(token: string): Promise<ValidateTokenResponse> {
   const response = await fetch(
-    `${API_COCKPIT_URL}/api/v1/api-tokens/validate`,
+    `${API_COCKPIT_URL}/api/v1/cockpit/api-tokens/validate`,
     {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico': INTERNAL_SERVICE_KEY,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -95,7 +95,7 @@ export function requireApiToken() {
       }
 
       // Injetar dados validados no request para uso nas rotas
-      req.apiTenantId = result.tenant_id
+      req.apiTenantId = result.id_organizacao
       req.apiScopes = result.scopes
 
       next()

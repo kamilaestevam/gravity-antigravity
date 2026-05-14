@@ -18,7 +18,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '../../../../generated/index.js'
 import { z } from 'zod'
-import { gerarApiToken, obterPrefixoApiToken } from '../crypto'
+import { gerarApiToken, hashToken, obterPrefixoApiToken } from '../crypto'
 import { requireInternalKey } from '../middleware/requireInternalKey'
 
 export const tokensRouter = Router()
@@ -194,6 +194,59 @@ tokensRouter.delete('/:id_api_token', async (req: Request, res: Response, next: 
     })
 
     res.status(204).send()
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── GET /api/v1/cockpit/api-tokens/validate — validar token S2S ───────
+//
+// Chamado pelos produtos (ex: pedido) via middleware requireApiToken.
+// Recebe o Bearer token no header Authorization, faz SHA-256 e busca no banco.
+// Retorna { valid, id_organizacao, scopes } ou { valid: false }.
+
+tokensRouter.get('/validate', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers['authorization']
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ valid: false, motivo: 'Bearer token ausente' })
+    }
+
+    const tokenValor = authHeader.slice(7)
+    if (!tokenValor) {
+      return res.status(401).json({ valid: false, motivo: 'Token vazio' })
+    }
+
+    const hash = hashToken(tokenValor)
+
+    const token = await prisma.apiToken.findFirst({
+      where: { hash_api_token: hash },
+      select: {
+        id_api_token:            true,
+        id_organizacao:          true,
+        escopo_api_token:        true,
+        revogado_api_token:      true,
+        data_expiracao_api_token: true,
+      },
+    })
+
+    if (!token) {
+      return res.status(401).json({ valid: false, motivo: 'Token nao encontrado' })
+    }
+
+    if (token.revogado_api_token) {
+      return res.status(401).json({ valid: false, motivo: 'Token revogado' })
+    }
+
+    if (token.data_expiracao_api_token && token.data_expiracao_api_token < new Date()) {
+      return res.status(401).json({ valid: false, motivo: 'Token expirado' })
+    }
+
+    res.json({
+      valid: true,
+      id_organizacao: token.id_organizacao,
+      scopes: [token.escopo_api_token],
+    })
   } catch (err) {
     next(err)
   }

@@ -1,11 +1,11 @@
 import 'dotenv/config'
 
 // Fail-fast: validar env vars criticas
-const requiredEnvVars = ['INTERNAL_SERVICE_KEY', 'ENCRYPTION_KEY'] as const
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`[API-Cockpit] Variavel de ambiente obrigatoria ausente: ${envVar}`)
-  }
+if (!process.env.CHAVE_INTERNA_SERVICO && !process.env.INTERNAL_SERVICE_KEY) {
+  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: CHAVE_INTERNA_SERVICO (ou INTERNAL_SERVICE_KEY)')
+}
+if (!process.env.ENCRYPTION_KEY) {
+  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: ENCRYPTION_KEY')
 }
 
 import express from 'express'

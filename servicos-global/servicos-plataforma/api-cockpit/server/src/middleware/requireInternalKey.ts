@@ -1,6 +1,7 @@
 /**
  * requireInternalKey.ts — Middleware S2S para API Cockpit
- * Valida x-internal-key em chamadas entre servicos.
+ * Valida x-chave-interna-servico (canônico DDD) em chamadas entre servicos.
+ * Aceita x-internal-key como fallback por compatibilidade.
  * Skill: antigravity-autenticacao-s2s
  */
 import { Request, Response, NextFunction } from 'express'
@@ -10,8 +11,8 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   // Health check nao precisa de autenticacao
   if (req.path === '/health') return next()
 
-  const key = req.headers['x-internal-key']
-  const expected = process.env.INTERNAL_SERVICE_KEY
+  const key = req.headers['x-chave-interna-servico'] || req.headers['x-internal-key']
+  const expected = process.env.CHAVE_INTERNA_SERVICO || process.env.INTERNAL_SERVICE_KEY
 
   if (!expected) {
     console.warn('[API-Cockpit] INTERNAL_SERVICE_KEY nao configurada. Bloqueando.')
@@ -19,7 +20,7 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   }
 
   if (!key) {
-    return res.status(403).json({ error: 'Header x-internal-key ausente', code: 'FORBIDDEN' })
+    return res.status(403).json({ error: 'Header x-chave-interna-servico ausente', code: 'FORBIDDEN' })
   }
 
   const keyStr = Array.isArray(key) ? key[0] : key

@@ -153,7 +153,7 @@ async function proxyToTokens(
   path: string,
   body?: unknown,
 ): Promise<{ status: number; data: unknown }> {
-  const url = `${API_COCKPIT_URL}/api/v1/cockpit/api-tokens${path}`
+  const url = `${getApiCockpitUrl()}/api/v1/cockpit/api-tokens${path}`
   const init: RequestInit = {
     method: metodo,
     headers: {
@@ -174,7 +174,7 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
-    const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/api-tokens/`)
+    const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {
@@ -235,7 +235,7 @@ async function proxyToWebhooks(
   body?: unknown,
   query?: Record<string, string>,
 ): Promise<{ status: number; data: unknown }> {
-  const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/webhooks${path}`)
+  const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/webhooks${path}`)
   if (query) {
     for (const [k, v] of Object.entries(query)) {
       if (v) url.searchParams.set(k, v)
@@ -394,7 +394,7 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
     }
-    const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/api-tokens/`)
+    const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
       headers: {

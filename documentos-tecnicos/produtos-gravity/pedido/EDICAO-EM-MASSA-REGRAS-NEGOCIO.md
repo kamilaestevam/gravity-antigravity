@@ -89,7 +89,7 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 |---|---|---|---|
 | **Pedido** | Campos do `Pedido` nos pedidos selecionados | ❌ Não | Mudar incoterm/data/condições do pedido sem tocar nos itens |
 | **Item** | Campos do `PedidoItem` nos itens dos pedidos selecionados | ❌ Não | Ajustar quantidades ou valores dos itens |
-| **Combinado** | Pedido + Item na mesma operação, com cascade automático | ✅ Sim (25 pares) | Mudar valor "oficial" do pedido propagando para os itens |
+| **Combinado** | Pedido + Item na mesma operação, com cascade automático | ✅ Sim (~61 pares) | Mudar valor "oficial" do pedido propagando para os itens |
 
 ---
 
@@ -97,18 +97,16 @@ Quando os pedidos selecionados têm **valores diferentes** no mesmo campo:
 
 Na aba **Combinado**, alterações em campos do Pedido cujo conceito tem equivalente em PedidoItem **propagam automaticamente** para todos os itens dos pedidos selecionados.
 
-### Whitelist (25 pares)
+### Composição SSOT (~61 pares)
 
-**Identificação:** `tipo_operacao`
-**Comerciais/financeiros:** `incoterm`, `moeda`, `condicao_pagamento`, `data_emissao`, `referencia_importador`, `referencia_exportador`, `referencia_fabricante`, `unidade_comercializada`, `casas_decimais_valor`, `casas_decimais_quantidade`, `casas_decimais_peso`, `casas_decimais_cubagem`
-**Datas de fluxo (pronto/inspeção/coleta):** `prevista_pronto`, `confirmada_pronto`, `meta_pronto`, `prevista_inspecao`, `confirmada_inspecao`, `meta_inspecao`, `prevista_coleta`, `confirmada_coleta`, `meta_coleta`
-**Dados de partes (JSON pedido → coluna item):** `nome_exportador`, `nome_importador`, `nome_fabricante`
+**SSOT (57 pares)** em `shared/mapaPropagacaoPedidoItem.ts`: identidade comercial (5), casas decimais (4), câmbio (1), referências (3), datas pronto/inspeção/coleta (9), datas rascunho pedido (7), datas proforma (13), datas invoice (13), outras datas (2).
+
+**Exclusivos edição em massa (+4):** `tipo_operacao_pedido→tipo_operacao_item`, `nome_exportador→nome_exportador_item`, `nome_importador→nome_importador_item`, `nome_fabricante→nome_fabricante_item`.
 
 ### Fora do cascade (não propagam)
 
 - `numero_pedido` (identificador único do pedido)
 - `porto_origem`, `porto_destino` (atributos do pedido apenas)
-- Datas de rascunho/proforma/invoice (existem só no nível pedido)
 - Endereço/país/cidade do exportador/importador/fabricante (JSON pedido sem coluna item equivalente)
 - Dados de OPE (JSON pedido sem coluna item equivalente)
 

@@ -16,7 +16,7 @@ rascunho → aberto → consolidado/transferido → cancelado.
 - Multi-tenant por `id_organizacao` (Mand. 04)
 - DDD-puro em todas as camadas (banco/back/front) — sem ACL legado
 - Cascade automático Pedido→Item em campos específicos (aba Combinado)
-- 25 pares Pedido↔Item canonicalmente mapeados
+- 57 pares diretos Pedido→Item (SSOT em `shared/mapaPropagacaoPedidoItem.ts`) + 4 exclusivos da edição em massa
 
 ---
 
@@ -83,18 +83,17 @@ scripts/ativamente/compose-pedido-schema.ts   ← compõe schema.prisma do fragm
 
 | Aba | O que faz | Cascade automático? |
 |-----|-----------|---------------------|
-| **Combinado** (default) | Edita Pedido + Item com cascade automático em pares mapeados | ✅ 25 pares |
+| **Combinado** (default) | Edita Pedido + Item com cascade automático em pares mapeados | ✅ 61 pares |
 | **Pedido** | Edita só Pedido — itens permanecem | ❌ |
 | **Item** | Edita só PedidoItem dos pedidos selecionados | ❌ |
 
-### Cascade Pedido → Item — whitelist canônica (25 pares)
+### Cascade Pedido → Item — composição SSOT (~61 pares)
 
-Vive em `edicaoEmMassaService.ts` → `PARES_CASCADE_PEDIDO_ITEM`. Categorias:
+**SSOT:** `shared/mapaPropagacaoPedidoItem.ts` → `MAPA_PROPAGACAO_PEDIDO_ITEM` (57 pares diretos).
+**Composição:** `edicaoEmMassaService.ts` importa o SSOT + 4 pares exclusivos da edição em massa:
 
-- **Identificação (1):** `tipo_operacao`
-- **Comerciais/financeiros (12):** incoterm, moeda, condicao_pagamento, data_emissao, referencia_importador/exportador/fabricante, unidade_comercializada, casas_decimais_valor/quantidade/peso/cubagem
-- **Datas fluxo pronto/inspeção/coleta (9):** prevista/confirmada/meta × pronto/inspecao/coleta
-- **JSON pedido → coluna item (3):** nome_exportador, nome_importador, nome_fabricante
+- **SSOT (57):** identidade comercial, casas decimais, câmbio, referências, 35 datas (rascunho/proforma/invoice/consolidação/transferência), pronto/inspeção/coleta
+- **Exclusivos massa (4):** `tipo_operacao_pedido→tipo_operacao_item` + 3× JSON `nome_*→nome_*_item`
 
 **Regra:** campo item explícito vence sobre cascade do mesmo destino.
 

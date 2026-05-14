@@ -22,6 +22,7 @@ import { PrismaClient, Prisma } from '@prisma/client'
 import { obterWorkspaces, type WorkspaceLookupItem } from '@gravity/resolver-organizacao'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
+import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -120,42 +121,21 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
 //
 // Regra de negócio: quando o usuário usa a aba **Combinado**, a alteração de
 // um campo de pedido também é propagada para o campo equivalente de cada item.
-// Whitelist canônica abaixo (22 pares). Campos fora da whitelist não cascadeiam
-// — alteram apenas o nível em que foram declarados.
+//
+// SSOT: MAPA_PROPAGACAO_PEDIDO_ITEM (shared/) contém os 57 pares diretos
+// Pedido→Item. Aqui compomos com 4 pares exclusivos da edição em massa:
+//   - tipo_operacao_pedido → tipo_operacao_item (não propaga em create/patch)
+//   - 3× JSON nome_* → coluna nome_*_item (derivativos de snapshot)
 //
 // Atenção: o cascade SOBRESCREVE overrides individuais nos itens. O preview
 // avisa o usuário antes da confirmação.
 
 const PARES_CASCADE_PEDIDO_ITEM: Record<string, string> = {
-  // Identificação
-  tipo_operacao_pedido:             'tipo_operacao_item',
-  // Comerciais / financeiros (12)
-  incoterm_pedido:                  'incoterm_item',
-  moeda_pedido:                     'moeda_item',
-  condicao_pagamento_pedido:        'condicao_pagamento_item',
-  data_emissao_pedido:              'data_emissao_item',
-  referencia_importador_pedido:     'referencia_importador_item',
-  referencia_exportador_pedido:     'referencia_exportador_item',
-  referencia_fabricante_pedido:     'referencia_fabricante_item',
-  unidade_comercializada_pedido:    'unidade_comercializada_item',
-  casas_decimais_valor_pedido:      'casas_decimais_valor_item',
-  casas_decimais_quantidade_pedido: 'casas_decimais_quantidade_item',
-  casas_decimais_peso_pedido:       'casas_decimais_peso_item',
-  casas_decimais_cubagem_pedido:    'casas_decimais_cubagem_item',
-  // Datas de fluxo (pronto/inspeção/coleta) — 9 pares
-  data_prevista_pedido_pronto:      'data_prevista_item_pronto',
-  data_confirmada_pedido_pronto:    'data_confirmada_item_pronto',
-  data_meta_pedido_pronto:          'data_meta_item_pronto',
-  data_prevista_inspecao_pedido:    'data_prevista_inspecao_item',
-  data_confirmada_inspecao_pedido:  'data_confirmada_inspecao_item',
-  data_meta_inspecao_pedido:        'data_meta_inspecao_item',
-  data_prevista_coleta_pedido:      'data_prevista_coleta_item',
-  data_confirmada_coleta_pedido:    'data_confirmada_coleta_item',
-  data_meta_coleta_pedido:          'data_meta_coleta_item',
-  // JSON detalhes_operacionais_pedido → coluna item (3 pares — só nomes têm equivalente)
-  nome_exportador:                  'nome_exportador_item',
-  nome_importador:                  'nome_importador_item',
-  nome_fabricante:                  'nome_fabricante_item',
+  ...MAPA_PROPAGACAO_PEDIDO_ITEM,
+  tipo_operacao_pedido: 'tipo_operacao_item',
+  nome_exportador:      'nome_exportador_item',
+  nome_importador:      'nome_importador_item',
+  nome_fabricante:       'nome_fabricante_item',
 }
 
 // ── Auto-fill ao trocar tipo_operacao_pedido em massa ────────────────────────
@@ -598,8 +578,10 @@ export class EdicaoEmMassaService {
     // no payload), permitindo compliance refletir TODAS as alterações reais.
     const camposAutoFillPorPedido = new Map<string, string[]>()
 
-    await db.$transaction(async (tx0) => {
-      const tx = tx0 as Tx
+    // IMPORTANTE: `db` já é TransactionClient (entregue por withOrganizacao).
+    // TransactionClient NÃO expõe `$transaction` — aninhar causa
+    // "db.$transaction is not a function". Usar `db` diretamente.
+    {
       for (const pedido of pedidos as Record<string, unknown>[]) {
         const pedidoId = pedido.id_pedido as string
 
@@ -669,7 +651,7 @@ export class EdicaoEmMassaService {
               dadosPedido.detalhes_operacionais_pedido = detalhesUpdate
             }
 
-            await tx.pedido.update({
+            await db.pedido.update({
               where: { id_pedido: pedidoId },
               data: dadosPedido,
             })
@@ -715,7 +697,7 @@ export class EdicaoEmMassaService {
                 }
               }
               if (Object.keys(dadosItem).length === 0) continue
-              const resultado = await tx.pedidoItem.update({
+              const resultado = await db.pedidoItem.update({
                 where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
                 data: dadosItem,
               })
@@ -728,7 +710,7 @@ export class EdicaoEmMassaService {
 
           // Recalcular agregados se campos de quantidade foram alterados
           if (precisaRecalcularAgregados) {
-            await this.recalcularAgregados(id_organizacao, pedidoId, tx)
+            await this.recalcularAgregados(id_organizacao, pedidoId, db)
           }
 
           if (camposPedido.length > 0 || temUpdateItem) pedidosAtualizados++
@@ -764,7 +746,7 @@ export class EdicaoEmMassaService {
           },
         })
       }
-    }, { timeout: 60000, maxWait: 10000 })
+    }
 
     // Campos únicos alterados — inclui os de cascade (pedido + alvo item) e
     // campos auto-preenchidos pelo auto-fill ao trocar tipo_operacao_pedido.

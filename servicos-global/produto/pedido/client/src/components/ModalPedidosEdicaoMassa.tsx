@@ -20,6 +20,7 @@ import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, Car
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
+import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -105,20 +106,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'cnpj_raiz_empresa_responsavel',           rotulo: 'CNPJ Raiz Empresa Responsável',          tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
 
   // Dados comerciais
-  { campo: 'incoterm_pedido',                         rotulo: 'Incoterm',                               tipo: 'select', nivel: 'pedido', grupo: 'Comercial',
-    opcoes: [
-      { valor: 'EXW', rotulo: 'EXW' },
-      { valor: 'FCA', rotulo: 'FCA' },
-      { valor: 'FAS', rotulo: 'FAS' },
-      { valor: 'FOB', rotulo: 'FOB' },
-      { valor: 'CFR', rotulo: 'CFR' },
-      { valor: 'CIF', rotulo: 'CIF' },
-      { valor: 'CPT', rotulo: 'CPT' },
-      { valor: 'CIP', rotulo: 'CIP' },
-      { valor: 'DAP', rotulo: 'DAP' },
-      { valor: 'DPU', rotulo: 'DPU' },
-      { valor: 'DDP', rotulo: 'DDP' },
-    ] },
+  { campo: 'incoterm_pedido',                         rotulo: 'Incoterm',                               tipo: 'select', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_item',                  rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'item',   grupo: 'Comercial',
     opcoes: [
@@ -382,12 +370,26 @@ function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[], t: TFunc): st
   return ''
 }
 
-function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = []): DefinicaoCampo[] {
+interface OpcoesDinamicas {
+  incoterms?: { valor: string; rotulo: string }[]
+}
+
+function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamicas): DefinicaoCampo[] {
+  if (!opcoes.incoterms?.length) return campos
+  return campos.map(d =>
+    d.campo === 'incoterm_pedido'
+      ? { ...d, opcoes: opcoes.incoterms }
+      : d,
+  )
+}
+
+function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = [], opcoesDinamicas: OpcoesDinamicas = {}): DefinicaoCampo[] {
   const filtrar = (lista: DefinicaoCampo[]) =>
     lista.filter(d => !d.visivel || d.visivel(pedidos))
-  if (nivel === 'pedido')   return filtrar(CAMPOS_PEDIDO_EDITAVEIS)
+  const injetar = (lista: DefinicaoCampo[]) => injetarOpcoesDinamicas(filtrar(lista), opcoesDinamicas)
+  if (nivel === 'pedido')   return injetar(CAMPOS_PEDIDO_EDITAVEIS)
   if (nivel === 'item')     return filtrar(CAMPOS_ITEM_EDITAVEIS)
-  return filtrar([...CAMPOS_PEDIDO_EDITAVEIS, ...CAMPOS_ITEM_EDITAVEIS])
+  return injetar([...CAMPOS_PEDIDO_EDITAVEIS, ...CAMPOS_ITEM_EDITAVEIS])
 }
 
 function estasBloqueado(campo: string, nivel: 'pedido' | 'item'): boolean {
@@ -731,6 +733,10 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
+  const { incotermsOpcoes, loading: incotermLoading, erro: incotermErro } = useIncotermsPedido()
+  const opcoesDinamicas: OpcoesDinamicas = {
+    incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+  }
   const [passo, setPasso] = useState<1 | 2>(1)
   const [nivel, setNivel] = useState<NivelEdicao>('combinado')
   const [campos, setCampos] = useState<CampoEmEdicao[]>([])
@@ -744,7 +750,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
 
   // Inicializar com primeiro campo disponível
   useEffect(() => {
-    const disponiveis = camposParaNivel(nivel, pedidos)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas)
     if (disponiveis.length > 0) {
       setCampos([criarCampoVazio(disponiveis[0])])
     }
@@ -806,7 +812,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   // ── Handlers de campos ───────────────────────────────────────────────────────
 
   const handleAdicionarCampo = useCallback(() => {
-    const disponiveis = camposParaNivel(nivel, pedidos)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas)
     if (disponiveis.length > 0) {
       setCampos(prev => [...prev, criarCampoVazio(disponiveis[0])])
     }
@@ -817,7 +823,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   }, [])
 
   const handleMudarCampoDef = useCallback((uid: string, novoCampo: string) => {
-    const disponiveis = camposParaNivel(nivel, pedidos)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas)
     const def = disponiveis.find(d => d.campo === novoCampo)
     if (!def) return
     setCampos(prev => prev.map(c => {
@@ -885,7 +891,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   // ── Render helpers ────────────────────────────────────────────────────────────
 
   const camposValidos = campos.filter(c => c.valor.trim() !== '')
-  const disponiveis = camposParaNivel(nivel, pedidos)
+  const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas)
 
   // Algum campo está bloqueado por @@unique (substituir + >1 pedido)?
   // Se sim, bloqueia o botão de revisar/aplicar para falhar ruidoso.
@@ -924,6 +930,13 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
       </div>
 
       <div className="modal-edicao-massa__separador" role="separator" />
+
+      {incotermErro && (
+        <div className="modal-edicao-massa__aviso modal-edicao-massa__aviso--warn" role="alert">
+          <Warning size={16} weight="bold" />
+          <span>Incoterms indisponíveis — o campo ficará desabilitado até a lista carregar. ({incotermErro})</span>
+        </div>
+      )}
 
       {/* Lista de campos */}
       <div className="modal-edicao-massa__secao">
@@ -970,15 +983,21 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                   {campo.tipo === 'select' ? (() => {
                     const def = disponiveis.find(d => d.campo === campo.campo)
                     const opcoes = def?.opcoes ?? []
+                    const semOpcoesDinamicas = opcoes.length === 0 && campo.campo === 'incoterm_pedido'
                     return (
                       <select
                         className="modal-edicao-massa__select"
                         value={campo.valor}
-                        disabled={bloqueadoUnique}
+                        disabled={bloqueadoUnique || semOpcoesDinamicas}
                         onChange={e => handleMudarValor(campo.uid, e.target.value)}
                         aria-label={`Valor para ${campo.campo}`}
+                        title={semOpcoesDinamicas ? 'Carregando incoterms do cadastro...' : undefined}
                       >
-                        <option value="">{t('pedido.modal_massa.valor_placeholder')}</option>
+                        <option value="">
+                          {semOpcoesDinamicas
+                            ? (incotermLoading ? 'Carregando...' : 'Incoterms indisponíveis')
+                            : t('pedido.modal_massa.valor_placeholder')}
+                        </option>
                         {opcoes.map(o => (
                           <option key={o.valor} value={o.valor}>{o.rotulo}</option>
                         ))}

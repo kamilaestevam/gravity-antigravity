@@ -333,13 +333,19 @@ if (bloqueados.length > 0) {
 
 `obterWorkspacesHabilitadosDoUsuario` aceita usuário FORNECEDOR em organização diferente da `Usuario.id_organizacao` (cross-tenant). Para os demais tipos, divergência → 403 `ORGANIZACAO_MISMATCH`. Defesa em profundidade automática contra cross-org sem código extra.
 
-### SSOT — regra de visibilidade
+### SSOT — regra de visibilidade (D11 ✅ resolvida 2026-05-13)
 
-O endpoint replica a regra do `/api/v1/hub/init`:
+A regra vive em UM lugar só: método `organizacaoService.workspacesAcessiveis()` em `servicos-global/configurador/server/services/organizacao-service.ts`.
+
+Tanto `/api/v1/hub/init` quanto este endpoint S2S consomem o mesmo método. Mudança da regra → 1 arquivo só.
+
+Regra atual:
 - MASTER / SAdmin / Admin → todos workspaces `status_workspace='ATIVO'` da org
 - PADRAO / FORNECEDOR → ATIVO **AND** `UsuarioWorkspace.ativo_usuario_workspace=true`
 
-**Dívida D11** pede extração para `organizacaoService.workspacesAcessiveis(idUsuario, idOrganizacao, tipo)` para eliminar drift. Se mudar a regra, **mudar nos DOIS endpoints**.
+Defesa em profundidade interna: o service lê `tipo_usuario` do banco diretamente (Mand. 01). Caller não passa o tipo — não pode mentir.
+
+Documento técnico: `documentos-tecnicos/arquitetura/workspaces-acessiveis-ssot.md`.
 
 ### Testes que NÃO podem regredir
 

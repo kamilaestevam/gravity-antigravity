@@ -27,6 +27,9 @@ vi.mock('../lib/prisma.js', () => ({
 }))
 
 // Mock organizacaoService
+// Após D11 (2026-05-13): /hub/init consome workspacesAcessiveis() em vez de
+// prisma.workspace.findMany direto. Mock retorna o shape { tipoUsuario, workspaces }
+// que o service expõe. getWorkspaces continua mockado por outros consumidores.
 const organizacaoServiceMock = {
   getOrganizacaoById: vi.fn().mockResolvedValue({
     id_organizacao: 'tenant-001',
@@ -40,6 +43,13 @@ const organizacaoServiceMock = {
     { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'ATIVO' },
     { id_workspace: 'comp-002', nome_workspace: 'Filial RJ', status_workspace: 'ATIVO' },
   ]),
+  workspacesAcessiveis: vi.fn().mockResolvedValue({
+    tipoUsuario: 'SUPER_ADMIN',
+    workspaces: [
+      { id_workspace: 'comp-001', nome_workspace: 'Filial SP', status_workspace: 'ATIVO' },
+      { id_workspace: 'comp-002', nome_workspace: 'Filial RJ', status_workspace: 'ATIVO' },
+    ],
+  }),
 }
 
 vi.mock('../services/organizacao-service.js', () => ({
@@ -198,7 +208,11 @@ describe('GET /api/v1/hub/init', () => {
 
   it('retorna workspaces do organizacaoService', async () => {
     const res = await request.get('/api/v1/hub/init')
-    expect(organizacaoServiceMock.getWorkspaces).toHaveBeenCalledWith('tenant-001')
+    // Após D11: /hub/init chama workspacesAcessiveis() em vez de getWorkspaces()
+    expect(organizacaoServiceMock.workspacesAcessiveis).toHaveBeenCalledWith({
+      idUsuario: 'user-001',
+      idOrganizacaoSolicitada: 'tenant-001',
+    })
     expect(res.body.workspaces).toHaveLength(2)
   })
 
@@ -221,14 +235,18 @@ describe('GET /api/v1/hub/init', () => {
       assinaturas: [],
       _count: { usuarios: 0, workspaces: 0 },
     })
-    organizacaoServiceMock.getWorkspaces.mockResolvedValue([])
+    // Após D11: mock workspacesAcessiveis em vez de getWorkspaces
+    organizacaoServiceMock.workspacesAcessiveis.mockResolvedValueOnce({
+      tipoUsuario: 'ADMIN',
+      workspaces: [],
+    })
 
     const res = await request.get('/api/v1/hub/init')
     expect(organizacaoServiceMock.getOrganizacaoById).toHaveBeenCalledWith('tenant-999')
-    expect(organizacaoServiceMock.getWorkspaces).toHaveBeenCalledWith('tenant-999')
-    expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id_organizacao_config_produto_gravity: 'tenant-999' } }),
-    )
+    expect(organizacaoServiceMock.workspacesAcessiveis).toHaveBeenCalledWith({
+      idUsuario: 'user-999',
+      idOrganizacaoSolicitada: 'tenant-999',
+    })
     expect(res.body.organizacao.id_organizacao).toBe('tenant-999')
     expect(res.body.workspaces).toHaveLength(0)
   })

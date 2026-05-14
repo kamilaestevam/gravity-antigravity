@@ -765,9 +765,15 @@ if (bloqueados.length > 0) {
 }
 ```
 
-### Dívida D11 — extração para serviço comum
+### D11 — SSOT consolidado (✅ Resolvida 2026-05-13)
 
-Hoje a regra está duplicada em `/hub/init` (linhas 65-114) e no endpoint S2S `workspaces-habilitados-internal.ts`. Se mudar uma, **lembrar de mudar a outra**. TODO: extrair para `organizacaoService.workspacesAcessiveis(idUsuario, idOrganizacao, tipo)`.
+A regra foi extraída para `organizacaoService.workspacesAcessiveis()`. Ambos consumers (`/hub/init` e endpoint S2S `workspaces-habilitados-internal.ts`) agora chamam o mesmo método.
+
+**Mudança da regra → 1 arquivo só** (`servicos-global/configurador/server/services/organizacao-service.ts`).
+
+Defesa em profundidade interna: `tipo_usuario` é lido do banco pelo próprio service (NÃO é parâmetro de entrada — Mand. 01). Caller não pode mentir o tipo.
+
+Documento técnico completo: `documentos-tecnicos/arquitetura/workspaces-acessiveis-ssot.md`.
 
 ### Primeiro consumidor
 

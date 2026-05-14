@@ -302,6 +302,142 @@ export const organizacaoService = {
   },
 
   /**
+   * SSOT — workspaces que o usuário pode ACESSAR dentro de uma organização.
+   *
+   * Substitui a duplicação que existia em /hub/init e
+   * /api/v1/internal/usuarios/.../workspaces-habilitados (refactor D11).
+   *
+   * Regra (idêntica a /hub/init original):
+   *   SUPER_ADMIN/ADMIN/MASTER → todos workspaces ATIVO da organização
+   *   PADRAO/FORNECEDOR        → ATIVO AND UsuarioWorkspace.ativo_usuario_workspace=true
+   *
+   * Defesa em profundidade: `tipoUsuario` é lido do banco (Prisma), NÃO recebido
+   * via parâmetro. Caller não pode mentir o tipo para burlar a regra (Mand. 01).
+   *
+   * Cross-org FORNECEDOR:
+   *   Por padrão, `id_organizacaoSolicitada` deve bater com `usuario.id_organizacao`
+   *   (defesa contra leak entre tenants). FORNECEDOR é exceção configurável via
+   *   `permitirCrossTenantFornecedor: true` — único tipo que legitimamente pode
+   *   estar vinculado a workspaces de outra org via UsuarioWorkspace (cenário:
+   *   fornecedor de plataforma atendendo múltiplos clientes).
+   *
+   * Erros:
+   *   - 404 USUARIO_NAO_ENCONTRADO          — id_usuario inexistente
+   *   - 403 ORGANIZACAO_MISMATCH            — org diferente da do usuário
+   *                                          (exceto FORNECEDOR com flag)
+   *
+   * @param input.idUsuario              ID do usuário consultado
+   * @param input.idOrganizacaoSolicitada Org em que se busca workspaces acessíveis
+   * @param input.permitirCrossTenantFornecedor (default false) — habilita exceção
+   *
+   * @returns `{ tipoUsuario, workspaces }` com a lista RICA (mesmo select que o
+   *          `/hub/init` original retornava — id, nome, subdominio, cnpj, status,
+   *          data_criacao, quantidade_usuarios, _count.vinculos). Callers projetam
+   *          o que precisam via `.map()` (padrão "fat read, thin projection").
+   */
+  async workspacesAcessiveis(input: {
+    idUsuario: string
+    idOrganizacaoSolicitada: string
+    permitirCrossTenantFornecedor?: boolean
+  }): Promise<{
+    tipoUsuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+    workspaces: Array<{
+      id_workspace: string
+      nome_workspace: string
+      subdominio_workspace: string | null
+      cnpj_workspace: string | null
+      status_workspace: string
+      data_criacao_workspace: Date
+      quantidade_usuarios_workspace: number
+      _count: { vinculos_workspace: number }
+    }>
+  }> {
+    const { idUsuario, idOrganizacaoSolicitada } = input
+    const permitirCrossTenantFornecedor = input.permitirCrossTenantFornecedor ?? false
+
+    // 1) Carrega tipo_usuario do banco — fonte da verdade (Mand. 01).
+    //    Caller NÃO passa tipo — service descobre sozinho.
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_usuario: idUsuario },
+      select: { id_usuario: true, id_organizacao: true, tipo_usuario: true },
+    })
+
+    if (!usuario) {
+      throw new AppError('Usuário não encontrado', 404, 'USUARIO_NAO_ENCONTRADO')
+    }
+
+    // 2) Validação cross-org com exceção FORNECEDOR opcional.
+    const ehFornecedor = usuario.tipo_usuario === 'FORNECEDOR'
+    const orgMatch = usuario.id_organizacao === idOrganizacaoSolicitada
+    if (!orgMatch && !(ehFornecedor && permitirCrossTenantFornecedor)) {
+      throw new AppError(
+        'Usuário não pertence à organização informada',
+        403,
+        'ORGANIZACAO_MISMATCH',
+      )
+    }
+
+    // 3) Query Prisma — mesma para todos, só muda o WHERE.
+    const tipoUsuario = usuario.tipo_usuario as
+      | 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+    const ehAdminPlataforma =
+      tipoUsuario === 'SUPER_ADMIN' ||
+      tipoUsuario === 'ADMIN' ||
+      tipoUsuario === 'MASTER'
+
+    // Where clause — `status_workspace: 'ATIVO'` é o enum WorkspaceStatus do
+    // Prisma. Usar `as const` para que TypeScript aceite o literal como o enum.
+    // A mesma forma é a que o /hub/init original já usava em produção.
+    const whereBase = {
+      id_organizacao: idOrganizacaoSolicitada,
+      status_workspace: 'ATIVO' as const,
+    }
+    const where = ehAdminPlataforma
+      ? whereBase
+      : {
+          ...whereBase,
+          memberships: {
+            some: { id_usuario: idUsuario, ativo_usuario_workspace: true },
+          },
+        }
+
+    const rows = await prisma.workspace.findMany({
+      where,
+      select: {
+        id_workspace: true,
+        nome_workspace: true,
+        subdominio_workspace: true,
+        cnpj_workspace: true,
+        status_workspace: true,
+        data_criacao_workspace: true,
+        _count: { select: { memberships: true } },
+      },
+      orderBy: { data_criacao_workspace: 'desc' },
+    })
+
+    // Mesmo padrão de projeção do /hub/init original (renomeia _count para
+    // _count.vinculos_workspace + expõe quantidade_usuarios_workspace).
+    // PRESERVA subdominio_workspace === null (não converte para string vazia)
+    // para manter contrato bilateral com Zod do frontend (api-client.ts usa
+    // z.string().nullable()).
+    const workspaces = rows.map((row) => {
+      const { _count, ...rest } = row as typeof row & { _count: { memberships: number } }
+      return {
+        id_workspace: rest.id_workspace,
+        nome_workspace: rest.nome_workspace,
+        subdominio_workspace: rest.subdominio_workspace,
+        cnpj_workspace: rest.cnpj_workspace,
+        status_workspace: String(rest.status_workspace),
+        data_criacao_workspace: rest.data_criacao_workspace,
+        quantidade_usuarios_workspace: _count.memberships,
+        _count: { vinculos_workspace: _count.memberships },
+      }
+    })
+
+    return { tipoUsuario, workspaces }
+  },
+
+  /**
    * Lista workspaces da organização. Retorno em DDD puro.
    * Renomeia a relation Prisma `memberships` (schema-locked, Mand. 02) para
    * `vinculos_workspace` no DTO e expõe `quantidade_usuarios_workspace`

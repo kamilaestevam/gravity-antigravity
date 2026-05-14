@@ -55,62 +55,23 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const id_usuario = req.auth.id_usuario
     const role = req.auth.tipo_usuario
 
-    // Bug descoberto em smoke 2026-05-12 (dono): Standard/Fornecedor estavam
-    // vendo TODOS os workspaces da org no Hub, em vez de apenas os habilitados
-    // pelo Master via UsuarioWorkspace. Causa: getWorkspaces(org) sem filtro.
+    // Regra de visibilidade de workspaces — SSOT em organizacaoService.workspacesAcessiveis().
+    // Refactor D11 (2026-05-13) consolidou aqui a regra antes duplicada em /hub/init e
+    // /api/v1/internal/usuarios/.../workspaces-habilitados. Mudança da regra → 1 lugar só.
     //
-    // Fix: para Master/SAdmin/Admin mantém acesso global (Mand. 04 — não tem
-    // UsuarioWorkspace, mas vê tudo da própria org). Para Standard/Fornecedor,
-    // filtra workspaces onde existe membership ativo do usuário.
+    // Histórico:
+    //   - 2026-05-12: Standard/Fornecedor viam TODOS workspaces (falta de filtro UsuarioWorkspace)
+    //   - 2026-05-13: TODOS viam workspaces INATIVO (falta de filtro status_workspace='ATIVO')
+    //   - 2026-05-13: Consolidação para serviço único (D11) — fim do drift.
     //
-    // Bug adicional descoberto em 2026-05-13 (dono): TODOS os usuários (inclusive
-    // Master/SAdmin/Admin) viam workspaces INATIVO. A regra correta é:
-    //   - Admin/SAdmin/Master → workspaces ATIVO da org (ainda sem UsuarioWorkspace)
-    //   - PADRAO/FORNECEDOR  → workspaces ATIVO da org AND habilitado via UsuarioWorkspace
-    // Em ambos os casos: status_workspace = 'ATIVO'. Workspaces INATIVO só
-    // aparecem em telas administrativas (Configurações).
-    const ehAdminPlataforma = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'MASTER'
-    const workspacesPromise = ehAdminPlataforma
-      ? prisma.workspace.findMany({
-          where: { id_organizacao, status_workspace: 'ATIVO' },
-          select: {
-            id_workspace: true,
-            nome_workspace: true,
-            subdominio_workspace: true,
-            cnpj_workspace: true,
-            status_workspace: true,
-            data_criacao_workspace: true,
-            _count: { select: { memberships: true } },
-          },
-          orderBy: { data_criacao_workspace: 'desc' },
-        }).then((rows) => rows.map(({ _count, ...rest }) => ({
-          ...rest,
-          quantidade_usuarios_workspace: _count.memberships,
-          _count: { vinculos_workspace: _count.memberships },
-        })))
-      : prisma.workspace.findMany({
-          where: {
-            id_organizacao,
-            status_workspace: 'ATIVO',
-            memberships: {
-              some: { id_usuario, ativo_usuario_workspace: true },
-            },
-          },
-          select: {
-            id_workspace: true,
-            nome_workspace: true,
-            subdominio_workspace: true,
-            cnpj_workspace: true,
-            status_workspace: true,
-            data_criacao_workspace: true,
-            _count: { select: { memberships: true } },
-          },
-          orderBy: { data_criacao_workspace: 'desc' },
-        }).then((rows) => rows.map(({ _count, ...rest }) => ({
-          ...rest,
-          quantidade_usuarios_workspace: _count.memberships,
-          _count: { vinculos_workspace: _count.memberships },
-        })))
+    // /hub/init NÃO permite cross-org: o id_organizacao vem do JWT do usuário.
+    const workspacesPromise = organizacaoService
+      .workspacesAcessiveis({
+        idUsuario: id_usuario,
+        idOrganizacaoSolicitada: id_organizacao,
+        // permitirCrossTenantFornecedor: false (default) — Hub é sempre intra-org
+      })
+      .then((res) => res.workspaces)
 
     // Tudo em paralelo — 1 único requireAuth
     const [organizacao, workspaces, configs, slugsAcessiveis, mergedCatalog, userPref] = await Promise.all([

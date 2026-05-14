@@ -11,7 +11,7 @@ export const CriarColunaSchema = z.object({
   nome:             z.string().min(1, 'O nome da coluna é obrigatório.')
                               .max(50, 'O nome da coluna não pode ultrapassar 50 caracteres.'),
   tipo:             z.enum(['texto', 'numero', 'data', 'select', 'checkbox', 'percentual', 'tipo_documento', 'formula']),
-  escopo:           z.enum(['pedido', 'item', 'ambos']),
+  escopo:           z.enum(['pedido', 'item', 'ambos']).default('ambos'),
   visibilidade:     z.enum(['todos', 'roles', 'privado']).default('todos'),
   roles_permitidas: z.array(z.string()).optional(),
   obrigatorio:      z.boolean().default(false),

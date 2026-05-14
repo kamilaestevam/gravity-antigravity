@@ -75,7 +75,7 @@ export function ModalNovaColunaUsuario({
 
   const [nome, setNome]               = useState(colunaEdicao?.nome ?? '')
   const [tipo, setTipo]               = useState<TipoColunaUsuario>(colunaEdicao?.tipo ?? 'texto')
-  const [escopo, setEscopo]           = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'pedido')
+  const [escopo, setEscopo]           = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'ambos')
   const [visibilidade, setVisibilidade] = useState<VisibilidadeColunaUsuario>(colunaEdicao?.visibilidade ?? 'todos')
   const [obrigatorio, setObrigatorio] = useState(colunaEdicao?.obrigatorio ?? false)
   const [valorPadrao, setValorPadrao] = useState(colunaEdicao?.valor_padrao ?? '')

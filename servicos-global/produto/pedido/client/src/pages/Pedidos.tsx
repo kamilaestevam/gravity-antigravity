@@ -3685,7 +3685,10 @@ export default function Pedidos() {
         itens: itensFinais,
         updated_at: new Date().toISOString(),
       } as Pedido
-      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      const divergenciasCustom = (itensFinais as PedidoItem[]).length > 0
+        ? calcularDivergencias(itensFinais as PedidoItem[], atualizado)
+        : {}
+      setPedidos(prev => prev.map(p => p.id === id ? { ...atualizado, ...divergenciasCustom } : p))
       return atualizado
     }
     if (campo === 'status') {
@@ -4156,26 +4159,6 @@ export default function Pedidos() {
       const vinculoId = vinculo === 'item' ? id : pedido.id
       await colunasUsuarioApi.salvarValores(vinculo, vinculoId, { [colunaCustomFilho.id]: String(valor) })
 
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== pedido.id) return p
-        if (vinculo === 'pedido') {
-          const colunasAntesPai = (p as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
-          return {
-            ...p,
-            _colunas_usuario: { ...colunasAntesPai, [colunaCustomFilho.id]: String(valor) },
-          }
-        }
-        // vinculo === 'item' — atualiza só o item editado, preserva pai e demais itens
-        return {
-          ...p,
-          itens: p.itens?.map(i => {
-            if (i.id !== id) return i
-            const colunasAntesItem = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
-            return { ...i, _colunas_usuario: { ...colunasAntesItem, [colunaCustomFilho.id]: String(valor) } }
-          }),
-        }
-      }))
-
       // Atualiza cache ref usado por handleEditarFilho (não-reativo) para refletir
       // o novo valor imediatamente — sem isso, o próximo click na mesma linha
       // perderia a edição local.
@@ -4188,6 +4171,30 @@ export default function Pedidos() {
         })
         itensCarregadosRef.current.set(pedido.id, cacheAtualizado)
       }
+
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        if (vinculo === 'pedido') {
+          const colunasAntesPai = (p as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+          return {
+            ...p,
+            _colunas_usuario: { ...colunasAntesPai, [colunaCustomFilho.id]: String(valor) },
+          }
+        }
+        // vinculo === 'item' — atualiza o item editado + recalcula divergências no pai
+        const itensAtualizados = (p.itens ?? []).map(i => {
+          if (i.id !== id) return i
+          const colunasAntesItem = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+          return { ...i, _colunas_usuario: { ...colunasAntesItem, [colunaCustomFilho.id]: String(valor) } }
+        })
+        const itensDivCache = itensCarregadosRef.current.get(pedido.id) ?? itensAtualizados
+        const divergenciasFilho = itensDivCache.length > 0 ? calcularDivergencias(itensDivCache as PedidoItem[], p) : {}
+        return {
+          ...p,
+          ...divergenciasFilho,
+          itens: itensAtualizados,
+        }
+      }))
 
       const item = getItensCache().find(i => i.id === id)!
       const colunasAtuais = (item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from './errorHandler'
 import { handleWebhookInbound } from './services/webhook'
+import { sendTextMessage } from './services/whatsapp'
 import { sseStreamHandlers } from './services/sse'
 
 const router = Router()
@@ -60,10 +61,9 @@ router.post('/send', requireTenantAuth, async (req: Request, res: Response, next
     const data = sendSchema.parse(req.body)
     const tenant = (req as any).tenant
 
-    // TODO: chamar service sendTextMessage()
-    // const message = await sendTextMessage(tenant, data.phone_number, data.text, data.user_id, data.product_id)
+    const message = await sendTextMessage(tenant, data.phone_number, data.text)
 
-    res.json({ success: true /*, message */ })
+    res.json({ success: true, message })
   } catch (err) {
     next(err)
   }

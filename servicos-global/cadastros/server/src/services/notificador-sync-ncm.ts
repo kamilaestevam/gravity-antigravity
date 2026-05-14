@@ -8,7 +8,7 @@
  * Comunicação via HTTP S2S com x-chave-interna-servico (skill: autenticacao-s2s).
  * Timeout de 5s por chamada (skill: resiliencia).
  *
- * WhatsApp: código preparado, aguardando rota /send ser completada no serviço plataforma.
+ * WhatsApp: despacho via POST /api/v1/whatsapp/send no serviço plataforma.
  */
 
 import type { PrismaClient } from '../../../generated/index.js'
@@ -28,6 +28,10 @@ interface Notificador {
 
 function getEmailServiceUrl(): string {
   return process.env.EMAIL_SERVICE_URL ?? 'http://localhost:3001'
+}
+
+function getWhatsAppServiceUrl(): string {
+  return process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 }
 
 function getChaveInterna(): string {
@@ -75,10 +79,9 @@ export async function despacharNotificacoesNcmSync(
       if (dest.canal === 'E-mail' || dest.canal === 'Ambos') {
         void enviarEmail(dest.contato, assunto, corpoHtml)
       }
-      // TODO: ativar quando rota POST /api/v1/whatsapp/send estiver completa
-      // if (dest.canal === 'WhatsApp' || dest.canal === 'Ambos') {
-      //   void enviarWhatsApp(dest.contato, assunto)
-      // }
+      if (dest.canal === 'WhatsApp' || dest.canal === 'Ambos') {
+        void enviarWhatsApp(dest.contato, assunto)
+      }
     }
 
     console.log(`[notificador-sync-ncm] ${destinatarios.length} notificação(ões) despachada(s) (status=${status})`)
@@ -111,6 +114,32 @@ async function enviarEmail(para: string, assunto: string, corpoHtml: string): Pr
     }
   } catch (err) {
     console.warn(`[notificador-sync-ncm] Email falhou para ${para}:`, err instanceof Error ? err.message : err)
+  }
+}
+
+// ── WhatsApp via serviço Plataforma ─────────────────────────────────────────
+
+async function enviarWhatsApp(para: string, textoResumo: string): Promise<void> {
+  try {
+    const resposta = await fetch(`${getWhatsAppServiceUrl()}/api/v1/whatsapp/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':            'application/json',
+        'x-chave-interna-servico': getChaveInterna(),
+        'x-id-organizacao':        'system',
+      },
+      body: JSON.stringify({
+        phone_number: para,
+        text:         textoResumo,
+      }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+
+    if (!resposta.ok) {
+      console.warn(`[notificador-sync-ncm] WhatsApp falhou para ${para}: HTTP ${resposta.status}`)
+    }
+  } catch (err) {
+    console.warn(`[notificador-sync-ncm] WhatsApp falhou para ${para}:`, err instanceof Error ? err.message : err)
   }
 }
 

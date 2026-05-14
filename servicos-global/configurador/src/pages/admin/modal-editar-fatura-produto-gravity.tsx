@@ -297,7 +297,7 @@ export function ModalEditarFaturaProdutoGravity({ fatura, aoFechar, aoSalvarDado
                     value={emailOrg}
                     onChange={e => setEmailOrg(e.target.value)}
                     disabled={!podeEditarDados}
-                    placeholder="financeiro@cliente.com"
+                    placeholder="contato@exemplo.com"
                     className="ws-input"
                   />
                 </CampoGeralGlobal>

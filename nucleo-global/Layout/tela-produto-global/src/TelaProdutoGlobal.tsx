@@ -3,6 +3,7 @@ import { MenuTopoGlobal, type MenuTopoLocalizadorConfig, type MenuTopoUsuarioCon
 import { MenuLateralGlobal, type NavItem, type WorkspaceItem } from '@nucleo/menu-lateral-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import './tela-produto-global.css'
+import './placeholder-global.css'
 
 export type { NavItem, WorkspaceItem }
 export type { MenuTopoUsuarioConfig as TelaProdutoUsuarioConfig }

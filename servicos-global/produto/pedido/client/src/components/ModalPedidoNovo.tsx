@@ -1311,22 +1311,7 @@ function Passo2Itens({
       : 'Selecionar moeda'
 
   return (
-    <div className="mni-form">
-      <style>{`
-        .mni-form input::placeholder,
-        .mni-form input:disabled::placeholder {
-          color: var(--text-muted, #94a3b8) !important;
-          opacity: 1 !important;
-          font-family: 'Plus Jakarta Sans', sans-serif !important;
-          font-size: 0.875rem !important;
-          text-align: left !important;
-        }
-        .mni-form .sg-placeholder {
-          color: var(--text-muted, #94a3b8) !important;
-          font-family: 'Plus Jakarta Sans', sans-serif !important;
-          font-size: 0.875rem !important;
-        }
-      `}</style>
+    <div>
       <div style={s.itensHeader}>
         <p style={{ ...s.secaoTitulo, marginBottom: 0 }}>
           {t('pedido.drawer.secao_itens', { count: itens.length })}

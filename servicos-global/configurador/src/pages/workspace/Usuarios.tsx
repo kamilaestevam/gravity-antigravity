@@ -1041,7 +1041,7 @@ export function Usuarios() {
               <input
                 type="email"
                 value={fEmail}
-                placeholder="usuario@empresa.com"
+                placeholder="usuario@exemplo.com"
                 onChange={e => setFEmail(e.target.value)}
                 style={{ width: '100%' }}
               />

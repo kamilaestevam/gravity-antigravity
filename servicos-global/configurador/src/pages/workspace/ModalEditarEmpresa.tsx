@@ -623,7 +623,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
                 type="email"
                 value={form.email}
                 onChange={(e) => setCampo('email', e.target.value)}
-                placeholder="contato@empresa.com"
+                placeholder="contato@exemplo.com"
                 style={{ width: '100%', borderColor: erro('email') ? corErro : undefined }}
               />
             </div>
@@ -648,7 +648,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
             <input
               value={form.whatsapp}
               onChange={(e) => setCampo('whatsapp', e.target.value)}
-              placeholder="+5511999999999"
+              placeholder="(00) 00000-0000"
               style={{ width: '100%', borderColor: erro('whatsapp') ? corErro : undefined }}
             />
           </div>

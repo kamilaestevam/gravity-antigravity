@@ -1,0 +1,32 @@
+/**
+ * placeholder-global.css — Spec canônica de placeholder (Gravity Design System)
+ *
+ * Fonte de verdade: skills/ux/design-system/SKILL.md § "Placeholder — Spec Obrigatória"
+ * Documentação visual: documentos-tecnicos/ux/design-system/manual-marca/index.html § 07b
+ *
+ * Aplica-se automaticamente a todo input, textarea e SelectGlobal do sistema.
+ * Nenhum modal precisa de override local — este arquivo resolve globalmente.
+ */
+
+/* ─── Inputs e textareas nativos ─────────────────────────────────────────────── */
+input::placeholder,
+textarea::placeholder,
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  color: var(--text-muted, #64748b) !important;
+  opacity: 1 !important;
+  text-align: left !important;
+}
+
+/* ─── SelectGlobal (.sg-placeholder) ─────────────────────────────────────────── */
+.sg-placeholder {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  color: var(--text-muted, #64748b) !important;
+}

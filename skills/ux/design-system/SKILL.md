@@ -162,6 +162,59 @@ code, pre { font-family: 'DM Mono', monospace; }
 }
 ```
 
+### Placeholder — Spec Obrigatória
+
+Todo campo vazio exibe um **placeholder** (texto de referência). A spec abaixo é **inviolável** — vale para `<input>`, `<textarea>`, `<select>`, `SelectGlobal` (`.sg-placeholder`), `CampoDecimalGlobal` e qualquer componente de formulário.
+
+```css
+/* Placeholder canônico — Gravity Design System */
+input::placeholder,
+textarea::placeholder,
+.sg-placeholder {
+  font-family: 'Plus Jakarta Sans', sans-serif;  /* fonte UI — NUNCA monospace */
+  font-size:   0.875rem;                          /* 14px — .text-body */
+  font-weight: 400;                               /* normal */
+  font-style:  normal;                            /* NUNCA italic */
+  color:       var(--text-muted, #64748b);        /* dark: #64748b · light: #94a3b8 */
+  opacity:     1;                                 /* browsers aplicam 0.54 por default — forçar 1 */
+  text-align:  left;                              /* mesmo em campos numéricos right-aligned */
+}
+```
+
+| Propriedade | Valor | Justificativa |
+|---|---|---|
+| `font-family` | `'Plus Jakarta Sans', sans-serif` | Fonte UI padrão — `DM Mono` é só para código/valores numéricos preenchidos |
+| `font-size` | `0.875rem` (14px) | Classe `.text-body` — alinha com valor selecionado (`.sg-valor-selecionado`) |
+| `font-weight` | `400` | Normal — valores preenchidos usam `500`, placeholder fica mais leve |
+| `color` | `var(--text-muted)` | Dark `#64748b` / Light `#94a3b8` — token de texto terciário |
+| `opacity` | `1` | Explícito — Firefox/Chrome reduzem para `0.54` se não forçado |
+| `text-align` | `left` | Placeholder é texto descritivo, sempre à esquerda — valor numérico muda para `right` ao digitar |
+
+#### Regras de conteúdo do placeholder
+
+1. **Nunca usar valor válido do domínio como placeholder** — ex: proibido `placeholder="USD"` em campo de moeda (confunde com seleção real)
+2. **Texto descritivo curto** — ex: `"Selecionar moeda"`, `"Quantidade"`, `"Valor unitário"`
+3. **Campos computados/read-only** — usar `"Calculado"` (indica que o sistema preenche)
+4. **Formato de exemplo** — permitido quando inequívoco: `"0000.00.00"` para NCM, `"SKU"` para part number
+5. **i18n obrigatório** — todo placeholder deve usar `t()` (ver skill `traducao`)
+
+#### Override em CampoDecimalGlobal
+
+O `CampoDecimalGlobal` aplica `fontFamily: monospace` e `textAlign: right` via inline style. Como `::placeholder` herda do input, é **obrigatório** fazer override via CSS scoped:
+
+```css
+.meu-form input::placeholder {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  text-align: left !important;
+  color: var(--text-muted, #64748b) !important;
+  opacity: 1 !important;
+}
+```
+
+O `!important` é justificado: inline styles têm especificidade 1000, e `::placeholder` herda deles. Sem `!important`, a fonte e alinhamento do placeholder ficam errados.
+
+---
+
 ### Padrão de Campo Obrigatório (3 sinais oficiais)
 
 Quando um campo é obrigatório e está vazio, o sistema mostra **3 sinais redundantes com propósitos distintos** (alinhado com Material Design / Apple HIG):
@@ -523,3 +576,4 @@ import { CaixaSelectGlobal } from '@nucleo/caixa-campo-select-global'
 8. **Steppers:** `min-width` e `flex-shrink: 0` obrigatórios nos círculos
 9. **Toasts:** usar `addNotification` via Shell; nunca criar elementos manualmente
 10. **Tema:** dark é o padrão; light theme via `body.light-theme`
+11. **Placeholders:** `'Plus Jakarta Sans'`, `0.875rem`, `var(--text-muted)`, `opacity: 1`, `text-align: left` — mesmo em campos numéricos. Nunca monospace, nunca valor válido do domínio como texto de placeholder

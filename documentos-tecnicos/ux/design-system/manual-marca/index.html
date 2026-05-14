@@ -190,6 +190,7 @@
     <li><a href="#s05"><span class="sidebar__num">05</span>Tipografia</a></li>
     <li><a href="#s06"><span class="sidebar__num">06</span>Espaçamentos</a></li>
     <li><a href="#s07"><span class="sidebar__num">07</span>Iconografia</a></li>
+    <li><a href="#s07b"><span class="sidebar__num">07b</span>Placeholder</a></li>
     <li><a href="#s08"><span class="sidebar__num">08</span>Aplicações</a></li>
     <li><a href="#s09"><span class="sidebar__num">09</span>Uso Correto</a></li>
     <li><a href="#s10"><span class="sidebar__num">10</span>Tokens & Código</a></li>
@@ -678,6 +679,39 @@
   </div>
 
   <div class="note" style="margin-top:1.25rem"><strong>Regra de espaçamento:</strong> Ícones nunca têm margin própria. O espaçamento é sempre controlado pelo <code style="font-family:'DM Mono',monospace;font-size:0.8em">gap</code> do flex container pai.</div>
+</section>
+
+
+<!-- ── 07b Placeholder ── -->
+<section id="s07b" class="section">
+  <div class="section__num">07b</div>
+  <h2 class="section__title">Placeholder — Spec de Campos</h2>
+  <p class="section__desc">Todo campo vazio exibe um <strong>placeholder</strong> (texto de referência para o usuário). A spec abaixo é obrigatória para todos os componentes de formulário: <code style="font-family:'DM Mono',monospace;font-size:0.8em">&lt;input&gt;</code>, <code style="font-family:'DM Mono',monospace;font-size:0.8em">SelectGlobal</code>, <code style="font-family:'DM Mono',monospace;font-size:0.8em">CampoDecimalGlobal</code> e qualquer campo customizado.</p>
+
+  <div class="icon-table-wrap" style="margin-bottom:1.5rem">
+    <table class="icon-table">
+      <thead><tr><th>Propriedade</th><th>Valor</th><th>Justificativa</th></tr></thead>
+      <tbody>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">font-family</code></td><td><strong>'Plus Jakarta Sans', sans-serif</strong></td><td>Fonte UI padrão — DM Mono somente para valores numéricos preenchidos</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">font-size</code></td><td><strong>0.875rem</strong> (14px)</td><td>Classe .text-body — alinha com valor selecionado</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">font-weight</code></td><td><strong>400</strong> (normal)</td><td>Valor preenchido usa 500, placeholder fica mais leve</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">font-style</code></td><td><strong>normal</strong></td><td>Nunca italic — reservado para estado "carregando"</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">color</code></td><td><strong>var(--text-muted)</strong></td><td>Dark: #64748b · Light: #94a3b8</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">opacity</code></td><td><strong>1</strong></td><td>Browsers aplicam 0.54 por default — forçar 1</td></tr>
+        <tr><td><code style="font-family:'DM Mono',monospace;font-size:0.8em">text-align</code></td><td><strong>left</strong></td><td>Texto descritivo sempre à esquerda, mesmo em campos numéricos</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="subsection-title">Regras de conteúdo</div>
+  <div class="rules-grid">
+    <div class="rule-card"><div class="rule-card__header no">&#10060; Proibido</div><div class="rule-card__body"><strong>Valor válido do domínio como placeholder</strong> — ex: "USD" em campo de moeda, "BRL" em campo de câmbio. Visualmente indistinguível de valor selecionado.</div></div>
+    <div class="rule-card"><div class="rule-card__header ok">&#9989; Correto</div><div class="rule-card__body"><strong>Texto descritivo curto</strong> — ex: "Selecionar moeda", "Quantidade", "Valor unitário". Campos computados usam "Calculado".</div></div>
+    <div class="rule-card"><div class="rule-card__header ok">&#9989; Correto</div><div class="rule-card__body"><strong>Formato de exemplo inequívoco</strong> — ex: "0000.00.00" para NCM, "SKU" para part number. Permitido quando não confunde com valor real.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">&#10060; Proibido</div><div class="rule-card__body"><strong>Fonte monospace em placeholder</strong> — CampoDecimalGlobal aplica DM Mono inline; placeholder DEVE fazer override com Plus Jakarta Sans via CSS scoped.</div></div>
+  </div>
+
+  <div class="note" style="margin-top:1.25rem"><strong>Override obrigatório:</strong> Quando o componente aplica <code style="font-family:'DM Mono',monospace;font-size:0.8em">fontFamily: monospace</code> ou <code style="font-family:'DM Mono',monospace;font-size:0.8em">textAlign: right</code> via inline style, usar CSS scoped com <code style="font-family:'DM Mono',monospace;font-size:0.8em">!important</code> no <code style="font-family:'DM Mono',monospace;font-size:0.8em">::placeholder</code> para forçar a spec canônica. O <code style="font-family:'DM Mono',monospace;font-size:0.8em">!important</code> é justificado pois inline styles têm especificidade 1000.</div>
 </section>
 
 

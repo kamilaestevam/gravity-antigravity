@@ -58,7 +58,7 @@ export function ListaEspera() {
                 <input
                   type="email"
                   required
-                  placeholder="seu@email.com"
+                  placeholder="usuario@exemplo.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   style={{ flex: 1, padding: '0.625rem 0.75rem', borderRadius: '8px', border: '1px solid var(--bg-elevated)', background: 'var(--bg-base)', color: 'var(--text-primary)', fontSize: '0.875rem' }}

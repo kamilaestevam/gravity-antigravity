@@ -359,7 +359,7 @@ export function ApiWebhooks() {
               style={INPUT_STYLE}
               value={novaUrl}
               onChange={(e) => setNovaUrl(e.target.value)}
-              placeholder="https://seu-sistema.com/webhooks/gravity"
+              placeholder="https://exemplo.com/webhooks"
             />
           </CampoGeralGlobal>
 

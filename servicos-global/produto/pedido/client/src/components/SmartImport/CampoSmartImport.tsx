@@ -206,7 +206,7 @@ export function CampoSmartImport(props: CampoSmartImportProps) {
             value={valor}
             onChange={(e) => onChange(e.target.value)}
             autoFocus={autoFocus}
-            placeholder="exemplo@empresa.com"
+            placeholder="usuario@exemplo.com"
             aria-label={rotulo}
           />
         )

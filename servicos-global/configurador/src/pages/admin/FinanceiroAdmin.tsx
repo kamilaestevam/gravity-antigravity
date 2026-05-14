@@ -850,7 +850,7 @@ export function FinanceiroAdmin() {
                       className="ws-input"
                       value={formEmail}
                       onChange={e => { setFormEmail(e.target.value); setFormDirty(true) }}
-                      placeholder="financeiro@cliente.com"
+                      placeholder="contato@exemplo.com"
                     />
                   </CampoGeralGlobal>
 

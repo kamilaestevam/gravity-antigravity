@@ -305,21 +305,6 @@ export function ModalNovoItemPedido({
       tamanho="md"
       altura="720px"
     >
-      <style>{`
-        .mni-form input::placeholder,
-        .mni-form input:disabled::placeholder {
-          color: var(--text-muted, #94a3b8) !important;
-          opacity: 1 !important;
-          font-family: 'Plus Jakarta Sans', sans-serif !important;
-          font-size: 0.875rem !important;
-          text-align: left !important;
-        }
-        .mni-form .sg-placeholder {
-          color: var(--text-muted, #94a3b8) !important;
-          font-family: 'Plus Jakarta Sans', sans-serif !important;
-          font-size: 0.875rem !important;
-        }
-      `}</style>
       {/* Passo seletor (apenas sem contexto) */}
       {!modoContexto && passo === 1 && (
         <div>
@@ -347,7 +332,7 @@ export function ModalNovoItemPedido({
 
       {/* Passo dados do item */}
       {(modoContexto ? passo === 1 : passo === 2) && (
-        <div className="mni-form">
+        <div>
           {/* Pedido selecionado vira campo "locked" (cinza + ícone Lock).
               Sinaliza que não é editável aqui — usuário já escolheu o pedido. */}
           {numeroPedido && (

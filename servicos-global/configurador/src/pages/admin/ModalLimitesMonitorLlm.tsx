@@ -587,7 +587,7 @@ export function ModalLimitesMonitorLlm({ aberto, aoFechar }: Props) {
               <input
                 id="form-email"
                 type="email"
-                placeholder="admin@gravity.com"
+                placeholder="admin@exemplo.com"
                 value={novoEmail}
                 onChange={(e) => setNovoEmail(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); adicionarEmail() } }}

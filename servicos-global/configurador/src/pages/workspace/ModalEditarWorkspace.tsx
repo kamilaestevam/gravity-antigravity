@@ -234,7 +234,7 @@ function AbaInformacoes({
                 <Link size={16} />
                 <input
                   value={workspace.site_workspace || ''}
-                  placeholder="Ex: https://www.acme.com.br"
+                  placeholder="Ex: https://www.exemplo.com.br"
                   onChange={e => onCampoExtra('site_workspace', e.target.value)}
                   style={{ width: '100%' }}
                 />

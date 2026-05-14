@@ -832,7 +832,7 @@ export function AvisoInternoGlobal({
                         type="email"
                         value={emailDestinatarioExterno}
                         onChange={e => setEmailDestinatarioExterno(e.target.value)}
-                        placeholder="email@destino.com"
+                        placeholder="destinatario@exemplo.com"
                       />
                     </div>
                   )}
@@ -848,7 +848,7 @@ export function AvisoInternoGlobal({
                 <div className="aig-extra-fields">
                   <div className="aig-extra-field-row">
                     <label>Número</label>
-                    <input type="tel" value={whatsappNumero} onChange={e => setWhatsappNumero(e.target.value)} placeholder="+55 11 99999-9999" />
+                    <input type="tel" value={whatsappNumero} onChange={e => setWhatsappNumero(e.target.value)} placeholder="(00) 00000-0000" />
                   </div>
                   <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
                     <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />

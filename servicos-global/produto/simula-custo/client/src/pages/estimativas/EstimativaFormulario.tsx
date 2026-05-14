@@ -270,7 +270,7 @@ export default function EstimativaFormulario() {
               <input
                 type="text"
                 maxLength={8}
-                placeholder="84713019"
+                placeholder="00000000"
                 value={form.ncm}
                 onChange={e => update('ncm', e.target.value.replace(/\D/g, ''))}
                 required

@@ -712,7 +712,7 @@ export default function DadosTecnicos() {
                 <CurrencyDollar size={16} />
                 <input
                   value={dados.moeda_seguro}
-                  placeholder="USD"
+                  placeholder="Selecionar moeda"
                   maxLength={3}
                   onChange={e => set('moeda_seguro', e.target.value.toUpperCase())}
                 />

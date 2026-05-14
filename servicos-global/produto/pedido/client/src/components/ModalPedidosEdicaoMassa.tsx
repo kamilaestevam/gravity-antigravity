@@ -107,6 +107,8 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'cnpj_raiz_empresa_responsavel',           rotulo: 'CNPJ Raiz Empresa Responsável',          tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
 
   // Dados comerciais
+  { campo: 'moeda_pedido',                            rotulo: 'Moeda',                                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'unidade_comercializada_pedido',           rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'incoterm_pedido',                         rotulo: 'Incoterm',                               tipo: 'select', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_item',                  rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'item',   grupo: 'Comercial',
@@ -117,6 +119,12 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'nome_exportador_item',                    rotulo: 'Nome do Exportador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
   { campo: 'nome_importador_item',                    rotulo: 'Nome do Importador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
   { campo: 'condicao_pagamento_pedido',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+
+  // Câmbio
+  { campo: 'valor_total_cambio_pedido',               rotulo: 'Valor Total Câmbio',                     tipo: 'numero', nivel: 'pedido', grupo: 'Câmbio' },
+  { campo: 'moeda_cambio_pedido',                     rotulo: 'Moeda Câmbio',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Câmbio' },
+  { campo: 'taxa_cambio_estimada_pedido',             rotulo: 'Taxa Câmbio Estimada',                   tipo: 'numero', nivel: 'pedido', grupo: 'Câmbio' },
+  { campo: 'contrato_cambio_id_pedido',               rotulo: 'Contrato de Câmbio',                     tipo: 'texto',  nivel: 'pedido', grupo: 'Câmbio' },
 
   // Dados físicos — campos UNITÁRIOS por item (peso/cubagem total do pedido
   // são agregados derivados, calculados server-side por
@@ -152,6 +160,8 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'data_consolidacao_pedido',                rotulo: 'Data Consolidação',                      tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_transferencia_saldo_pedido',         rotulo: 'Data Transferência Saldo',               tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_documento_pedido',                   rotulo: 'Data Documento Pedido',                  tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
+  { campo: 'data_documento_proforma_pedido',          rotulo: 'Data Documento Proforma',                tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
+  { campo: 'data_documento_invoice_pedido',           rotulo: 'Data Documento Invoice',                 tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
 
   // Datas — Draft Pedido
   { campo: 'data_previsao_recebimento_rascunho_pedido',  rotulo: 'Draft Pedido — Prev. Receb.',            tipo: 'data',   nivel: 'pedido', grupo: 'Datas Draft Pedido' },
@@ -206,6 +216,12 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'subgrupo_item',                           rotulo: 'Subgrupo Produto',                       tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'campo_especial_item',                     rotulo: 'Campo Especial',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'atributos_catalogo',                      rotulo: 'Atributos Catálogo',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'tipo_operacao_item',                      rotulo: 'Tipo de Operação (Item)',                tipo: 'select', nivel: 'item', grupo: 'Produto',
+    opcoes: [
+      { valor: 'importacao', rotulo: 'Importação' },
+      { valor: 'exportacao', rotulo: 'Exportação' },
+    ] },
+  { campo: 'unidade_comercializada_item',             rotulo: 'Unidade Comercializada (Item)',          tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
   { campo: 'quantidade_inicial_item',                 rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
@@ -213,7 +229,11 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'quantidade_cancelada_item',               rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',          rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
-  // Financeiro
+  // Financeiro / Comercial do Item
+  { campo: 'moeda_item',                              rotulo: 'Moeda (Item)',                           tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
+  { campo: 'incoterm_item',                           rotulo: 'Incoterm (Item)',                        tipo: 'select', nivel: 'item', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento_item',                 rotulo: 'Cond. Pagamento (Item)',                 tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
+  { campo: 'data_emissao_item',                       rotulo: 'Data Emissão (Item)',                    tipo: 'data',   nivel: 'item', grupo: 'Datas' },
 
   // Pesos e cubagem
   { campo: 'peso_liquido_unitario_item',              rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
@@ -378,7 +398,7 @@ interface OpcoesDinamicas {
 function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamicas): DefinicaoCampo[] {
   if (!opcoes.incoterms?.length) return campos
   return campos.map(d =>
-    d.campo === 'incoterm_pedido'
+    (d.campo === 'incoterm_pedido' || d.campo === 'incoterm_item')
       ? { ...d, opcoes: opcoes.incoterms }
       : d,
   )
@@ -389,7 +409,7 @@ function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = [], opcoesDinam
     lista.filter(d => !d.visivel || d.visivel(pedidos))
   const injetar = (lista: DefinicaoCampo[]) => injetarOpcoesDinamicas(filtrar(lista), opcoesDinamicas)
   if (nivel === 'pedido')   return injetar(CAMPOS_PEDIDO_EDITAVEIS)
-  if (nivel === 'item')     return filtrar(CAMPOS_ITEM_EDITAVEIS)
+  if (nivel === 'item')     return injetar(CAMPOS_ITEM_EDITAVEIS)
   return injetar([...CAMPOS_PEDIDO_EDITAVEIS, ...CAMPOS_ITEM_EDITAVEIS])
 }
 
@@ -728,6 +748,24 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
   )
 }
 
+// ── Tradução de mensagens técnicas → amigáveis ──────────────────────────────
+
+const MENSAGENS_AMIGAVEIS: [RegExp, string][] = [
+  [/x-id-workspace ausente/i, 'Nenhum workspace selecionado. Selecione um workspace no topo da tela antes de editar.'],
+  [/Portão \d/i, ''],  // Remove referências a "Portão" — são internas
+  [/WORKSPACE_NAO_INFORMADO/i, 'Nenhum workspace selecionado. Selecione um workspace no topo da tela antes de editar.'],
+  [/VALIDATION_ERROR/i, ''],
+]
+
+function traduzirErro(mensagem: string): string {
+  for (const [regex, amigavel] of MENSAGENS_AMIGAVEIS) {
+    if (regex.test(mensagem)) {
+      return amigavel || mensagem
+    }
+  }
+  return mensagem
+}
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
@@ -796,7 +834,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
         setPreview(result)
         setErroGeral(null)
       } catch (err: unknown) {
-        setErroGeral(err instanceof Error ? err.message : t('pedido.modal_massa.erro_preview'))
+        setErroGeral(traduzirErro(err instanceof Error ? err.message : t('pedido.modal_massa.erro_preview')))
       } finally {
         setCarregandoPreview(false)
       }
@@ -881,7 +919,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
       setResultado(result)
       setPasso(3)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t('pedido.modal_massa.erro_aplicar')
+      const msg = traduzirErro(err instanceof Error ? err.message : t('pedido.modal_massa.erro_aplicar'))
       setErroSalvar(msg)
       addNotification({ type: 'error', message: `Falha na edição em massa: ${msg}`, duration: 4000 })
     } finally {
@@ -1381,7 +1419,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                   fontSize: '0.75rem', color: 'var(--primary, #818cf8)',
                   display: 'flex', alignItems: 'center', gap: '0.25rem',
                 }}>
-                  ↳ Cascade para {previewCampo.cascade_para}
+                  ↳ Também altera {disponiveis.find(d => d.campo === previewCampo.cascade_para)?.rotulo ?? previewCampo.cascade_para} nos itens
                   {(previewCampo.overrides_sobrescritos ?? 0) > 0 &&
                     ` · ${previewCampo.overrides_sobrescritos} itens serão sobrescritos`}
                 </div>

@@ -244,6 +244,15 @@ interface EdicaoMassaResultado {
 
 // ── Helpers de erro ───────────────────────────────────────────────────────────
 
+const ROTULOS_CAMPO: Record<string, string> = {
+  numero_pedido: 'Número do Pedido',
+  id_organizacao: '',
+}
+
+function rotuloCampo(coluna: string): string {
+  return ROTULOS_CAMPO[coluna] ?? coluna
+}
+
 /**
  * Converte erros do Prisma em mensagens legíveis para o usuário.
  * P2002 = violação de unique constraint.
@@ -252,8 +261,11 @@ function resolverMensagemErro(err: unknown): string {
   if (typeof err === 'object' && err !== null && 'code' in err) {
     const prismaErr = err as { code: string; meta?: { target?: string[] } }
     if (prismaErr.code === 'P2002') {
-      const campos = prismaErr.meta?.target?.join(', ') ?? 'campo'
-      return `Valor duplicado: o campo "${campos}" já existe para outro pedido`
+      const nomes = (prismaErr.meta?.target ?? [])
+        .map(rotuloCampo)
+        .filter(Boolean)
+        .join(', ') || 'campo'
+      return `Já existe outro pedido com esse mesmo valor de ${nomes}. Use um valor diferente ou edite apenas 1 pedido por vez.`
     }
   }
   return err instanceof Error ? err.message : 'Erro desconhecido'
@@ -287,6 +299,12 @@ export class EdicaoEmMassaService {
     const pedidos = await db.pedido.findMany({
       where: { id_organizacao: id_organizacao, id_pedido: { in: payload.pedido_ids } },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+    })
+
+    // DEBUG: verificar valores retornados pelo findMany
+    console.log('[EdicaoEmMassa:preview] pedidos encontrados:', pedidos.length, 'ids buscados:', payload.pedido_ids.length)
+    pedidos.forEach((p: Record<string, unknown>) => {
+      console.log('[EdicaoEmMassa:preview]', p.numero_pedido, 'tipo_operacao_pedido=', p.tipo_operacao_pedido)
     })
 
     // Cascade Pedido → Item ativo apenas na aba "Combinado".
@@ -548,9 +566,12 @@ export class EdicaoEmMassaService {
         if (typeof err === 'object' && err !== null && 'code' in err) {
           const prismaErr = err as { code: string; meta?: { target?: string[] } }
           if (prismaErr.code === 'P2002') {
-            const campos = prismaErr.meta?.target?.join(', ') ?? 'campo'
+            const nomes = (prismaErr.meta?.target ?? [])
+              .map(rotuloCampo)
+              .filter(Boolean)
+              .join(', ') || 'campo'
             throw new AppError(
-              `Valor duplicado: o campo "${campos}" violaria a unicidade. Edição em massa de campos únicos exige seleção de apenas 1 pedido.`,
+              `Já existe outro pedido com esse mesmo valor de ${nomes}. Use um valor diferente ou edite apenas 1 pedido por vez.`,
               422,
               'UNIQUE_VIOLATION',
             )
@@ -602,7 +623,7 @@ export class EdicaoEmMassaService {
                 }
                 detalhesUpdate[c.campo] = c.valor
               } else {
-                dadosPedido[c.campo] = this.aplicarOperacao(pedido[c.campo], c.operacao, c.valor)
+                dadosPedido[c.campo] = this.aplicarOperacao(pedido[c.campo], c.operacao, c.valor, c.tipo)
               }
             }
 
@@ -669,7 +690,7 @@ export class EdicaoEmMassaService {
               const dadosItem: Record<string, unknown> = {}
               // Campos item explícitos (aba Item ou Combinado com campos item)
               for (const c of camposItem) {
-                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
+                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor, c.tipo)
               }
               // Cascade Pedido→Item (Combinado). Sempre 'substituir' — não faz
               // sentido somar/percentual em cascade. Campo item explícito tem
@@ -698,7 +719,7 @@ export class EdicaoEmMassaService {
               }
               if (Object.keys(dadosItem).length === 0) continue
               const resultado = await db.pedidoItem.update({
-                where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
+                where: { id_item: item.id_item as string },
                 data: dadosItem,
               })
               if (resultado) {
@@ -715,6 +736,7 @@ export class EdicaoEmMassaService {
 
           if (camposPedido.length > 0 || temUpdateItem) pedidosAtualizados++
         } catch (err: unknown) {
+          console.warn('[EdicaoEmMassa] Falha no pedido', pedidoId, err)
           erros.push({
             pedido_id: pedidoId,
             motivo: resolverMensagemErro(err),
@@ -775,9 +797,13 @@ export class EdicaoEmMassaService {
     valorAtual: unknown,
     operacao: OperacaoCampo,
     valor: string | number,
+    tipo?: TipoCampoEdicao,
   ): unknown {
     switch (operacao) {
       case 'substituir':
+        if (tipo === 'data' && typeof valor === 'string' && !valor.includes('T')) {
+          return new Date(valor + 'T00:00:00.000Z').toISOString()
+        }
         return valor
 
       case 'somar':

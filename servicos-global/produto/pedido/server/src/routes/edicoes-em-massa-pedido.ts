@@ -41,6 +41,13 @@ const CAMPOS_UNIQUE_PEDIDO = new Set<string>([
   'numero_pedido',
 ])
 
+const ROTULOS_UNIQUE: Record<string, string> = {
+  numero_pedido: 'Número do Pedido',
+}
+function rotuloUnico(campo: string): string {
+  return ROTULOS_UNIQUE[campo] ?? campo
+}
+
 const EdicaoMassaSchema = z.object({
   pedido_ids: z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido para editar'),
   campos: z.array(CampoSchema).min(1, 'Selecione ao menos 1 campo para editar'),
@@ -53,7 +60,7 @@ const EdicaoMassaSchema = z.object({
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['campos'],
-          message: `Campo "${c.campo}" é único por organização — não é possível atribuir o mesmo valor a ${data.pedido_ids.length} pedidos. Selecione apenas 1 pedido para editar este campo.`,
+          message: `O campo "${rotuloUnico(c.campo)}" não pode receber o mesmo valor em ${data.pedido_ids.length} pedidos porque cada pedido precisa ter um valor diferente. Selecione apenas 1 pedido para editar este campo.`,
         })
       }
     }

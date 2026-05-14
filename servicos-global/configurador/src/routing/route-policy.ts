@@ -46,7 +46,7 @@ export type AreaApp =
  *   - Botão "Comprar" no /store: SEMPRE bloqueado para PADRAO/FORNECEDOR
  */
 export const MATRIZ_ACESSO_AREA: Record<AreaApp, readonly TipoUsuarioValido[]> = {
-  admin:        ['SUPER_ADMIN', 'ADMIN'],
+  admin:        ['SUPER_ADMIN', 'ADMIN', 'MASTER'],
   configurador: ['SUPER_ADMIN', 'ADMIN', 'MASTER'],
   hub:          ['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR'],
   store:        ['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR'],

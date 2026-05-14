@@ -497,7 +497,8 @@ export class SmartImportService {
     }
     const idStatusRascunho: string | null = statusRascunhoSmart?.id_pedido_status ?? null
 
-    await this.db.$transaction(async (tx: Record<string, unknown>) => {
+    // this.db já é TransactionClient de withOrganizacao — não abrir $transaction aninhada
+    {
       for (const linha of linhasFiltradas) {
         try {
           // Aplicar numero editado pelo usuario (SEC.1 / Problema 6)
@@ -530,11 +531,11 @@ export class SmartImportService {
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             // Atualizar pedido existente. Q5 — tenant_id → id_organizacao, id → id_pedido.
-            const existente = await (tx as Record<string, any>)['pedido'].findFirst({
+            const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
             })
             if (existente) {
-              await (tx as Record<string, any>)['pedido'].update({
+              await (this.db as Record<string, any>)['pedido'].update({
                 where: { id_pedido: existente.id_pedido },
                 data:  dadosPedido,
               })
@@ -550,7 +551,7 @@ export class SmartImportService {
           if (numeroPedidoFinal && !payload.decisoes_duplicatas[numeroPedidoFinal]) {
             // Q5 — Tentar encontrar pedido existente para append incremental de item.
             // tenant_id → id_organizacao, status → status_pedido, id → id_pedido.
-            const pedidoExistente = await (tx as Record<string, any>)['pedido'].findFirst({
+            const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
               select: { id_pedido: true },
             })
@@ -563,7 +564,7 @@ export class SmartImportService {
             if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
               // Q5 — Calcular próxima sequencia_item no pedido existente.
               // pedido_id → id_pedido, tenant_id → id_organizacao.
-              const itemCountExistente = await (tx as Record<string, any>)['pedidoItem'].count({
+              const itemCountExistente = await (this.db as Record<string, any>)['pedidoItem'].count({
                 where: { id_pedido: pedidoExistente.id_pedido, id_organizacao: tenantId },
               })
               // Adicionar item ao pedido existente. P1.3 — REMOVIDO `.catch(() => null)`
@@ -572,7 +573,7 @@ export class SmartImportService {
               // com o motivo real, ao inves de "graceful fallback" silencioso que
               // mascarava bug em producao.
               try {
-                await (tx as Record<string, any>)['pedidoItem'].create({
+                await (this.db as Record<string, any>)['pedidoItem'].create({
                   data: {
                     id_item:                gerarId('pite'),
                     id_organizacao:         tenantId,
@@ -638,7 +639,7 @@ export class SmartImportService {
             },
           } : {}
 
-          const novo = await (tx as Record<string, any>)['pedido'].create({
+          const novo = await (this.db as Record<string, any>)['pedido'].create({
             data: { ...dadosPedido, ...itemPayload },
           })
           criados.push(novo.id_pedido)
@@ -668,9 +669,9 @@ export class SmartImportService {
         // Loop serial (não Promise.all) — evita deadlock no PG quando vários
         // pedidos estão sendo lockados na mesma tx.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await recalcularAgregadosPedido(tx as any, pedidoId, tenantId)
+        await recalcularAgregadosPedido(this.db as any, pedidoId, tenantId)
       }
-    })
+    }
 
     return {
       criados:    criados.length,

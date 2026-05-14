@@ -506,22 +506,18 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
       setPreview(previewDados)
       setMapeamento(previewDados.mapeamento)
 
-      // Pre-selecionar linhas validas
+      // Pre-selecionar linhas ok + aviso (apenas 'erro' fica desmarcada)
       const validas = new Set(
         previewDados.linhas
-          .filter((l: { status: string }) => l.status === 'ok')
+          .filter((l: { status: string }) => l.status !== 'erro')
           .map((l: { linha_arquivo: number }) => l.linha_arquivo)
       )
       setLinhasSelecionadas(validas)
 
-      // Pre-preencher decisoes de duplicata com 'pular'
-      const decisoes: Record<string, DecisaoDuplicata> = {}
-      previewDados.linhas.forEach((l: { numero_pedido: string | null; alertas: { tipo: string }[] }) => {
-        if (l.numero_pedido && l.alertas.some((a: { tipo: string }) => a.tipo === 'duplicado_sistema')) {
-          decisoes[l.numero_pedido] = 'pular'
-        }
-      })
-      setDecisoesDuplicatas(decisoes)
+      // Duplicatas detectadas ficam SEM decisão por default — backend faz
+      // append incremental (adiciona itens ao pedido existente). Usuário pode
+      // mudar para 'sobrescrever' ou 'pular' na UI de preview.
+      setDecisoesDuplicatas({})
 
       setEtapa('mapeamento')
     } catch (err: unknown) {

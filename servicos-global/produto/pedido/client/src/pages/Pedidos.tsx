@@ -3020,12 +3020,12 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
 export default function Pedidos() {
   const { t, i18n } = useTranslation()
-  // Gating granular `pedido:lista:editar` (decisão dono 2026-05-13).
-  // bypass=Master/SAdmin/Admin, carregando=enquanto fetch /permissoes.
-  // Quando false → botões de mutação (Novo, Transferir, Duplicar, Excluir,
-  // Edição em Massa, Smart Import, Consolidar) ficam opacos com tag "🔒".
-  const { podeEditar: pPodeEditar, bypass: pBypass, carregando: pCarregando } = usePermissoesPedido()
-  const podeEditarLista = pBypass || pCarregando || pPodeEditar('lista')
+  // Gating granular `pedido:lista:editar` (decisão dono + Líder + Coordenador 2026-05-13).
+  // `podeEditar` é ESTRITO durante load (bypass para Master/SAdmin/Admin; false
+  // durante carregando; check no banco quando dados chegarem). Evita flash de
+  // botões habilitados que disparariam 403 ao salvar.
+  const { podeEditar } = usePermissoesPedido()
+  const podeEditarLista = podeEditar('lista')
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
   // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
@@ -3999,17 +3999,32 @@ export default function Pedidos() {
     const replicar = opts?.replicar_em_itens ?? false
     const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
     // Quando replicou, o servidor atualizou os itens filhos via updateMany.
-    // Invalida o cache local e usa updated_at novo para que itemVersion
-    // dispare o refetch automático das linhas expandidas.
+    // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
+    // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
+    // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
     if (replicar && isPropagavel(campo)) {
-      itensCarregadosRef.current.delete(id)
+      const itensCache = itensCarregadosRef.current.get(id) ?? []
+      if (itensCache.length > 0) {
+        // O campo no item pode ter nome diferente (e.g. data_emissao_pedido →
+        // data_emissao_item). Atualizamos AMBOS porque o front lê via
+        // `i.data_emissao_pedido` (legado/contrato público) e o item Prisma
+        // usa `data_emissao_item`. Set defensivo cobre os 2.
+        const itensAtualizados = itensCache.map(i => ({
+          ...i,
+          [campo]: valorEnviarPai,
+        }))
+        itensCarregadosRef.current.set(id, itensAtualizados)
+      } else {
+        // Sem cache (pedido nunca foi expandido) — só invalida para refetch quando expandir.
+        itensCarregadosRef.current.delete(id)
+      }
     }
     // Recalcula flags de divergência com o novo valor do pai. Necessário pra
     // campos como data_emissao_pedido onde a regra é "pai != filhos -> alerta"
     // (decisão UX 2026-05-13). Sem isso, a flag continua stale após edição do pai.
     const itensAtuais = itensCarregadosRef.current.get(id) ?? []
     const divergenciasPos = itensAtuais.length > 0 ? calcularDivergencias(itensAtuais, updatedPedido) : {}
-    setPedidos(prev => prev.map(p => p.id === id ? { ...updatedPedido, ...divergenciasPos } : p))
+    setPedidos(prev => prev.map(p => p.id === id ? { ...updatedPedido, itens: itensAtuais.length > 0 ? itensAtuais : p.itens, ...divergenciasPos } : p))
     return updatedPedido
   }, [pedidos, colunasUsuario])
 
@@ -4362,23 +4377,59 @@ export default function Pedidos() {
     }
 
     // ── Colunas customizadas do usuário ──────────────────────────────────────
+    // BUG fix 2026-05-13 (Coordenador+Líder aprovaram):
+    //   Versão anterior sobrescrevia `_colunas_usuario` do PEDIDO PAI com o valor
+    //   do filho (linha `_colunas_usuario: novasColunas` no spread do pedido) E
+    //   espalhava o valor em TODOS os itens em vez de só no `id` editado.
+    //   Resultado: pedido pai perdia suas colunas, e o item correto nem recebia
+    //   o valor de forma estável.
+    //
+    //   Versão correta abaixo:
+    //   - vinculo='pedido' → atualiza só `_colunas_usuario` do PAI, NÃO toca em itens
+    //   - vinculo='item'   → atualiza só `_colunas_usuario` do ITEM com `i.id === id`,
+    //                        NÃO toca no PAI nem nos outros itens
     const colunaCustomFilho = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustomFilho) {
-      const vinculo = colunaCustomFilho.escopo === 'item' ? 'item' : 'pedido'
+      const vinculo: 'pedido' | 'item' = colunaCustomFilho.escopo === 'item' ? 'item' : 'pedido'
       const vinculoId = vinculo === 'item' ? id : pedido.id
       await colunasUsuarioApi.salvarValores(vinculo, vinculoId, { [colunaCustomFilho.id]: String(valor) })
-      const colunasAntes = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
-      const novasColunas = { ...colunasAntes, [colunaCustomFilho.id]: String(valor) }
+
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
+        if (vinculo === 'pedido') {
+          const colunasAntesPai = (p as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+          return {
+            ...p,
+            _colunas_usuario: { ...colunasAntesPai, [colunaCustomFilho.id]: String(valor) },
+          }
+        }
+        // vinculo === 'item' — atualiza só o item editado, preserva pai e demais itens
         return {
           ...p,
-          _colunas_usuario: novasColunas,
-          itens: p.itens?.map(i => ({ ...i, _colunas_usuario: { ...((i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } })),
+          itens: p.itens?.map(i => {
+            if (i.id !== id) return i
+            const colunasAntesItem = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+            return { ...i, _colunas_usuario: { ...colunasAntesItem, [colunaCustomFilho.id]: String(valor) } }
+          }),
         }
       }))
+
+      // Atualiza cache ref usado por handleEditarFilho (não-reativo) para refletir
+      // o novo valor imediatamente — sem isso, o próximo click na mesma linha
+      // perderia a edição local.
+      if (vinculo === 'item') {
+        const cache = itensCarregadosRef.current.get(pedido.id) ?? []
+        const cacheAtualizado = cache.map(i => {
+          if (i.id !== id) return i
+          const colunasAntes = (i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+          return { ...i, _colunas_usuario: { ...colunasAntes, [colunaCustomFilho.id]: String(valor) } }
+        })
+        itensCarregadosRef.current.set(pedido.id, cacheAtualizado)
+      }
+
       const item = getItensCache().find(i => i.id === id)!
-      return { ...item, _colunas_usuario: { ...((item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } } as PedidoItem
+      const colunasAtuais = (item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+      return { ...item, _colunas_usuario: { ...colunasAtuais, [colunaCustomFilho.id]: String(valor) } } as PedidoItem
     }
 
     let payload: Partial<PedidoItem>
@@ -4506,14 +4557,17 @@ export default function Pedidos() {
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
-    const parentColunas = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+    // BUG fix 2026-05-13: removida atribuição `_colunas_usuario: parentColunas`.
+    // Sobrescrever `_colunas_usuario` do ITEM com o do PAI é incorreto —
+    // colunas de escopo='item' têm valores PRÓPRIOS por id_item. O backend agora
+    // injeta o `_colunas_usuario` correto em cada item (GET /:id/itens + init),
+    // então só preservamos o que veio da rede via spread `...item`.
     // Init e paginação já incluem itens no pedido. Só busca via API se não vieram carregados.
     const rawItens = (pedido.itens?.length ?? 0) > 0
       ? pedido.itens
       : await pedidoItemApi.listar(pedido.id)
     const itensEnriquecidos = rawItens.map(item => ({
       ...item,
-      _colunas_usuario: parentColunas,
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,

@@ -1658,59 +1658,10 @@ ${tpl ? `<p><strong>Conteúdo do template:</strong></p><pre>${tpl.conteudo.repla
 // ── Colunas do Usuário ────────────────────────────────────────────────────────
 
 /** Mock com 3 colunas de exemplo para desenvolvimento */
-const MOCK_COLUNAS_USUARIO: ColunaUsuario[] = [
-  {
-    id: 'col_mock_1',
-    tenant_id: 'tenant-mock',
-    nome: 'Margem %',
-    chave: 'margem_percentual',
-    tipo: 'percentual',
-    escopo: 'pedido',
-    visibilidade: 'todos',
-    obrigatorio: false,
-    ordem: 1,
-    ativo: true,
-    created_by: 'user-mock',
-    created_at: '2026-04-01T00:00:00.000Z',
-  },
-  {
-    id: 'col_mock_2',
-    tenant_id: 'tenant-mock',
-    nome: 'Prioridade',
-    chave: 'prioridade',
-    tipo: 'select',
-    escopo: 'ambos',
-    visibilidade: 'todos',
-    obrigatorio: false,
-    opcoes: ['Alta', 'Média', 'Baixa'],
-    ordem: 2,
-    ativo: true,
-    created_by: 'user-mock',
-    created_at: '2026-04-01T00:00:00.000Z',
-  },
-  {
-    id: 'col_mock_3',
-    tenant_id: 'tenant-mock',
-    nome: 'Ref. Interna',
-    chave: 'ref_interna',
-    tipo: 'texto',
-    escopo: 'item',
-    visibilidade: 'privado',
-    obrigatorio: false,
-    ordem: 3,
-    ativo: true,
-    created_by: 'user-mock',
-    created_at: '2026-04-01T00:00:00.000Z',
-  },
-]
-
-let mockColunasStore: ColunaUsuario[] = [...MOCK_COLUNAS_USUARIO]
-const mockValoresStore: ValorColunaUsuario[] = []
-
 export const colunasUsuarioApi = {
   listar: (): Promise<ColunaUsuario[]> =>
     request<ColunaUsuario[]>('/api/v1/pedidos/colunas-usuario').catch(err => {
-      if (import.meta.env.DEV) return mockColunasStore.filter(c => c.ativo)
+      console.error('[colunasUsuarioApi.listar] ERRO REAL:', err)
       throw err
     }),
 
@@ -1720,52 +1671,17 @@ export const colunasUsuarioApi = {
     request<ColunaUsuario>('/api/v1/pedidos/colunas-usuario', {
       method: 'POST',
       body: JSON.stringify(data),
-    }).catch(err => {
-      if (import.meta.env.DEV) {
-        const chave = data.nome
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/%/g, '_percentual')
-          .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_|_$/g, '')
-        const nova: ColunaUsuario = {
-          ...data,
-          id: `col_${Date.now()}`,
-          tenant_id: 'tenant-mock',
-          chave,
-          created_by: 'user-mock',
-          created_at: new Date().toISOString(),
-        }
-        mockColunasStore.push(nova)
-        return nova
-      }
-      throw err
     }),
 
   atualizar: (id: string, data: Partial<ColunaUsuario>): Promise<ColunaUsuario> =>
     request<ColunaUsuario>(`/api/v1/pedidos/colunas-usuario/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
-    }).catch(err => {
-      if (import.meta.env.DEV) {
-        const idx = mockColunasStore.findIndex(c => c.id === id)
-        if (idx === -1) throw new Error('Coluna não encontrada')
-        // Não permite mudar o tipo
-        const { tipo: _tipo, ...semTipo } = data
-        mockColunasStore[idx] = { ...mockColunasStore[idx], ...semTipo }
-        return mockColunasStore[idx]
-      }
-      throw err
     }),
 
   excluir: (id: string): Promise<void> =>
     request<void>(`/api/v1/pedidos/colunas-usuario/${id}`, { method: 'DELETE' }).catch(err => {
-      if (import.meta.env.DEV) {
-        const idx = mockColunasStore.findIndex(c => c.id === id)
-        if (idx >= 0) mockColunasStore[idx] = { ...mockColunasStore[idx], ativo: false }
-        return
-      }
+      console.error('[colunasUsuarioApi.excluir] ERRO REAL:', err)
       throw err
     }),
 
@@ -1773,15 +1689,6 @@ export const colunasUsuarioApi = {
     request<void>('/api/v1/pedidos/colunas-usuario/reordenar', {
       method: 'POST',
       body: JSON.stringify({ ids }),
-    }).catch(err => {
-      if (import.meta.env.DEV) {
-        ids.forEach((id, idx) => {
-          const col = mockColunasStore.find(c => c.id === id)
-          if (col) col.ordem = idx + 1
-        })
-        return
-      }
-      throw err
     }),
 
   salvarValores: (
@@ -1793,26 +1700,7 @@ export const colunasUsuarioApi = {
       method: 'POST',
       body: JSON.stringify({ vinculo, vinculo_id, valores }),
     }).catch(err => {
-      if (import.meta.env.DEV) {
-        for (const [coluna_id, valor] of Object.entries(valores)) {
-          const idx = mockValoresStore.findIndex(
-            v => v.coluna_id === coluna_id && v.vinculo_id === vinculo_id,
-          )
-          if (idx >= 0) {
-            mockValoresStore[idx] = { ...mockValoresStore[idx], valor }
-          } else {
-            mockValoresStore.push({
-              id: `val_${Date.now()}_${coluna_id}`,
-              tenant_id: 'tenant-mock',
-              coluna_id,
-              vinculo,
-              vinculo_id,
-              valor,
-            })
-          }
-        }
-        return
-      }
+      console.error('[colunasUsuarioApi.salvarValores] ERRO REAL:', err)
       throw err
     }),
 
@@ -1820,11 +1708,7 @@ export const colunasUsuarioApi = {
     request<ValorColunaUsuario[]>(
       `/api/v1/pedidos/colunas-usuario/valores?vinculo=${vinculo}&vinculo_id=${vinculo_id}`,
     ).catch(err => {
-      if (import.meta.env.DEV) {
-        return mockValoresStore.filter(
-          v => v.vinculo === vinculo && v.vinculo_id === vinculo_id,
-        )
-      }
+      console.error('[colunasUsuarioApi.listarValores] ERRO REAL:', err)
       throw err
     }),
 

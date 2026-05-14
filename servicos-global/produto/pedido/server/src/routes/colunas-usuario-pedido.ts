@@ -21,7 +21,6 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
-import { AppError } from '../errors/AppError.js'
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import { analisarFormulaComGemini } from '../services/geminiFormulaAdvisor.js'
 import {

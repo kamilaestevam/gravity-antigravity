@@ -72,9 +72,6 @@ import type {
   FiltrosAtivosMap,
   FiltroTipo,
 } from '@nucleo/tabela-virtual-global'
-// CSS dos chips e popover — vem do nucleo-global. Necessário pra que os
-// componentes promovidos tenham aparência correta no Pedido.
-import '@nucleo/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
 import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
@@ -2725,6 +2722,10 @@ export default function Pedidos() {
   )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
+  // ── Colunas do Usuário ────────────────────────────────────────────────────────
+  const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
+  const [temExpandido, setTemExpandido] = useState(false)
+
   // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo
   // após troca de idioma, então depender só de `[t]` NUNCA invalida o memo.
   // i18n.language muda de string a cada troca ("pt" → "en"), forçando o rebuild.
@@ -2732,10 +2733,38 @@ export default function Pedidos() {
     () => buildColunasPai(t, opcoesUnidadesColunas),
     [t, i18n.language, opcoesUnidadesColunas],
   )
-  const mapaColunasFilho = useMemo(
-    () => buildMapaColunasFilho(opcoesUnidadesColunas),
-    [opcoesUnidadesColunas],
-  )
+  const mapaColunasFilho = useMemo(() => {
+    const base = buildMapaColunasFilho(opcoesUnidadesColunas)
+    const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
+    for (const col of colunasUsuario) {
+      if (col.escopo !== 'item' && col.escopo !== 'ambos') continue
+      custom[col.chave] = {
+        editavel: col.tipo !== 'formula' && col.tipo !== 'checkbox',
+        render: (row: PedidoItem) => {
+          const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+          const valor = valores?.[col.id] ?? '—'
+          if (col.tipo === 'checkbox') return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+          if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
+            const num = Number(valor)
+            if (!isNaN(num)) {
+              const sufixo = col.tipo === 'percentual' ? '%' : ''
+              return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, getCasas(col.id, 2))}{sufixo}</span>
+            }
+          }
+          if (col.tipo === 'data' && valor !== '—') return <span>{fmtData(valor)}</span>
+          return <span>{typeof valor === 'string' && valor.length > 150 ? valor.slice(0, 150) + '…' : valor}</span>
+        },
+        getValorEditar: (row: PedidoItem) => {
+          const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+          const raw = valores?.[col.id]
+          if (raw == null) return col.tipo === 'numero' || col.tipo === 'percentual' ? 0 : ''
+          if (col.tipo === 'numero' || col.tipo === 'percentual') return Number(raw) || 0
+          return raw
+        },
+      }
+    }
+    return { ...base, ...custom }
+  }, [opcoesUnidadesColunas, colunasUsuario])
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
   const location = useLocation()
@@ -2909,9 +2938,7 @@ export default function Pedidos() {
     return () => window.removeEventListener('focus', sync)
   }, [])
 
-  // ── Colunas do Usuário ────────────────────────────────────────────────────────
-  const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
-  const [temExpandido, setTemExpandido] = useState(false)
+  // colunasUsuario e temExpandido movidos para antes do useMemo que os referencia
 
   // Colunas pai estáticas + colunas customizadas do usuário (escopo pedido ou ambos)
   // O render da coluna status é sobreposto aqui para ter acesso ao setPedidos

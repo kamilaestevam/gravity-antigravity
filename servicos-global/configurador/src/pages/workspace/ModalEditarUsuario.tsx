@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -50,6 +50,9 @@ interface ModalEditarUsuarioProps {
   workspaces: WorkspaceItem[]
   workspacesSalvos: string[]
   carregandoWorkspaces?: boolean
+  /** Workspace ativo do Shell — usado como default no seletor de Permissões
+   *  para que o Master edite naturalmente o workspace em que está trabalhando. */
+  idWorkspaceAtivo?: string | null
   /**
    * Lista de tipos (UI label NivelAcesso) que o ator atual pode atribuir ao
    * alvo. Vem do hook `usePodeEditarUsuario` na tela. Vazio ⇒ select de tipo
@@ -80,11 +83,11 @@ interface ModalEditarUsuarioProps {
 /** Mapa rótulo→id para render — derivado de SECOES_PRODUTO (shared). */
 const SECOES_PRODUTO_RENDER: Array<{ id: typeof SECOES_PRODUTO[number]; rotulo: string }> = [
   { id: 'dashboard',    rotulo: 'Dashboard' },
-  { id: 'kanban',       rotulo: 'Kanban' },
   { id: 'lista',        rotulo: 'Lista' },
-  { id: 'configuracao', rotulo: 'Configuração' },
+  { id: 'kanban',       rotulo: 'Kanban' },
   { id: 'relatorios',   rotulo: 'Relatórios' },
   { id: 'historico',    rotulo: 'Histórico' },
+  { id: 'configuracao', rotulo: 'Configuração' },
 ]
 
 const ACOES_PRODUTO_RENDER: Array<{ id: typeof ACOES_PRODUTO[number]; rotulo: string }> = [
@@ -393,6 +396,7 @@ interface AbaPermissoesProps {
   onSelecionarWorkspace: (id_workspace: string) => void
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
+  aplicarTodosRef: React.MutableRefObject<boolean>
 }
 
 function AvisoErroCarga({ mensagem, contexto }: { mensagem: string; contexto: string }) {
@@ -470,12 +474,11 @@ function CardEmBreve({ titulo, descricao, icone: Icone }: {
   )
 }
 
-function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto, desabilitarEdicao = false }: {
+const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto, desabilitarEdicao = false }: {
   produto: ProdutoWorkspaceItem
   permissoesDoWorkspace: Set<string>
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
-  /** Read-only mode (Master/SAdmin/Admin) — botoes Tudo/Limpar somem, toggles ficam disabled. */
   desabilitarEdicao?: boolean
 }) {
   const slug = produto.product_key
@@ -559,7 +562,7 @@ function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, o
       </div>
     </div>
   )
-}
+})
 
 // ─── Aba Produtos (Portão 3) ────────────────────────────────────────────────
 //
@@ -672,8 +675,16 @@ function AbaProdutosAcesso({
 function AbaPermissoes({
   master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
-  onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto,
+  onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto, aplicarTodosRef,
 }: AbaPermissoesProps & { tipo: NivelAcesso }) {
+  const [aplicarTodos, setAplicarTodos] = useState(false)
+  const handleToggleAplicarTodos = useCallback(() => {
+    setAplicarTodos(prev => {
+      const next = !prev
+      aplicarTodosRef.current = next
+      return next
+    })
+  }, [aplicarTodosRef])
   // master = bypass total (Mand. 04). Renderiza banner em cima e abaixo a
   // visualizacao read-only do que esse usuario enxerga (tudo marcado + disabled).
   // Implementacao: prossegue com o render normal mas com `desabilitarEdicao={master}`
@@ -711,16 +722,37 @@ function AbaPermissoes({
 
       {/* Seletor de workspace (só aparece se houver mais de 1 vinculado) — SelectGlobal */}
       {workspacesVinculados.length > 1 && (
-        <CampoGeralGlobal label="Workspace">
-          <SelectGlobal
-            opcoes={workspacesVinculados.map(w => ({ valor: w.id_workspace, rotulo: w.nome_workspace }))}
-            valor={workspaceSelecionado ?? ''}
-            aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
-            iconeEsquerda={<Buildings size={18} weight="duotone" />}
-            buscavel
-            placeholder="Selecione um workspace"
-          />
-        </CampoGeralGlobal>
+        <>
+          <CampoGeralGlobal label="Workspace">
+            <SelectGlobal
+              opcoes={workspacesVinculados.map(w => ({ valor: w.id_workspace, rotulo: w.nome_workspace }))}
+              valor={workspaceSelecionado ?? ''}
+              aoMudarValor={(v) => { if (v) onSelecionarWorkspace(String(v)) }}
+              iconeEsquerda={<Buildings size={18} weight="duotone" />}
+              buscavel
+              placeholder="Selecione um workspace"
+            />
+          </CampoGeralGlobal>
+          {!master && (
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              cursor: 'pointer', userSelect: 'none', marginTop: '-0.5rem',
+            }}>
+              <div style={{
+                width: 18, height: 18, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: aplicarTodos ? '#818cf8' : 'transparent',
+                border: `2px solid ${aplicarTodos ? '#818cf8' : '#64748b'}`,
+                transition: 'all 0.15s',
+              }}>
+                {aplicarTodos && <CheckSquare size={14} weight="bold" color="#fff" />}
+              </div>
+              <input type="checkbox" checked={aplicarTodos} onChange={handleToggleAplicarTodos} style={{ display: 'none' }} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: aplicarTodos ? '#818cf8' : '#94a3b8' }}>
+                Aplicar a todos os workspaces ({workspacesVinculados.length})
+              </span>
+            </label>
+          )}
+        </>
       )}
 
       {/* Bloco 1: Acesso geral (informativo, sem toggle) */}
@@ -797,7 +829,20 @@ function AbaPermissoes({
   )
 }
 
-export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, tiposPermitidos = [], somenteLeitura = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+function aplicarPermissaoNoWs(atuais: string[], chave: string, marcada: boolean): string[] {
+  let novas = marcada ? Array.from(new Set([...atuais, chave])) : atuais.filter(p => p !== chave)
+  const matchEditar = /^([a-z][a-z0-9-]*:[a-z_]+):editar$/.exec(chave)
+  if (marcada && matchEditar) {
+    novas = Array.from(new Set([...novas, `${matchEditar[1]}:ver`]))
+  }
+  const matchVer = /^([a-z][a-z0-9-]*:[a-z_]+):ver$/.exec(chave)
+  if (!marcada && matchVer) {
+    novas = novas.filter(p => p !== `${matchVer[1]}:editar`)
+  }
+  return novas
+}
+
+export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, idWorkspaceAtivo, tiposPermitidos = [], somenteLeitura = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -828,13 +873,19 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     setTipo(nivel)
     setWorkspacesAtivos(workspacesSalvos)
 
-    // Default workspace selecionado: primeiro vinculado.
+    // Default workspace selecionado: workspace ativo do Shell (se o alvo está
+    // vinculado a ele), senão primeiro vinculado. Garante que o Master edite
+    // naturalmente o workspace em que está trabalhando — evita salvar permissões
+    // no workspace errado por desatenção ao seletor.
     // Master/SAdmin/Admin não têm linhas em UsuarioWorkspace (bypass Mand. 04),
     // mas o modal-leitura precisa de um ws selecionado pra carregar o catálogo
     // de produtos/permissões. Fallback: primeiro workspace da org.
     const ehMasterLimbo = nivel === 'Master' || nivel === 'Super Admin' || nivel === 'Admin'
+    const wsAtivoValido = idWorkspaceAtivo && workspacesSalvos.includes(idWorkspaceAtivo)
+      ? idWorkspaceAtivo
+      : null
     setWorkspaceSelecionado(
-      workspacesSalvos[0] ?? (ehMasterLimbo ? workspaces[0]?.id_workspace ?? null : null),
+      wsAtivoValido ?? workspacesSalvos[0] ?? (ehMasterLimbo ? workspaces[0]?.id_workspace ?? null : null),
     )
 
     // Busca permissões reais do banco. Master/SAdmin/Admin têm bypass — não há
@@ -894,39 +945,54 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
     setTipo(valor as NivelAcesso)
   }
 
-  const handleTogglePermissao = (chave: string, marcada: boolean) => {
-    if (!workspaceSelecionado) return
-    setPermissoesPorWorkspace(prev => {
-      const atuais = prev[workspaceSelecionado] ?? []
-      const novas = marcada ? Array.from(new Set([...atuais, chave])) : atuais.filter(p => p !== chave)
-      return { ...prev, [workspaceSelecionado]: novas }
-    })
-  }
+  // Refs para evitar recriar handlers a cada render (performance).
+  // Os handlers usam refs em vez de state direto → referência estável via useCallback([]).
+  // aplicarTodosRef: estado visual vive em AbaPermissoes (local state); parent só lê via ref.
+  const aplicarTodosRef = useRef(false)
+  const workspaceSelecionadoRef = useRef(workspaceSelecionado)
+  workspaceSelecionadoRef.current = workspaceSelecionado
+  const workspacesAtivosRef = useRef(workspacesAtivos)
+  workspacesAtivosRef.current = workspacesAtivos
 
-  const handleSelecionarTudoProduto = (slug: string, marcadas: boolean) => {
-    if (!workspaceSelecionado) return
+  const handleTogglePermissao = useCallback((chave: string, marcada: boolean) => {
+    if (!workspaceSelecionadoRef.current) return
+    setPermissoesPorWorkspace(prev => {
+      const novo = { ...prev }
+      const alvos = aplicarTodosRef.current ? workspacesAtivosRef.current : [workspaceSelecionadoRef.current!]
+      for (const wsId of alvos) {
+        novo[wsId] = aplicarPermissaoNoWs(novo[wsId] ?? [], chave, marcada)
+      }
+      return novo
+    })
+  }, [])
+
+  const handleSelecionarTudoProduto = useCallback((slug: string, marcadas: boolean) => {
+    if (!workspaceSelecionadoRef.current) return
     const todasDoProduto = SECOES_PRODUTO_RENDER.flatMap(s => ACOES_PRODUTO_RENDER.map(a => `${slug}:${s.id}:${a.id}`))
     setPermissoesPorWorkspace(prev => {
-      const atuais = prev[workspaceSelecionado] ?? []
-      const semProduto = atuais.filter(p => !todasDoProduto.includes(p))
-      const novas = marcadas ? [...semProduto, ...todasDoProduto] : semProduto
-      return { ...prev, [workspaceSelecionado]: novas }
+      const novo = { ...prev }
+      const alvos = aplicarTodosRef.current ? workspacesAtivosRef.current : [workspaceSelecionadoRef.current!]
+      for (const wsId of alvos) {
+        const atuais = novo[wsId] ?? []
+        const semProduto = atuais.filter(p => !todasDoProduto.includes(p))
+        novo[wsId] = marcadas ? [...semProduto, ...todasDoProduto] : semProduto
+      }
+      return novo
     })
-  }
+  }, [])
 
-  // Portão 3 — toggle do acesso ao produto inteiro (chave sentinela).
-  // Independente das permissões granulares (Cadeia 2 fina).
-  const handleToggleAcessoProduto = (slug: string, marcado: boolean) => {
-    if (!workspaceSelecionado) return
+  const handleToggleAcessoProduto = useCallback((slug: string, marcado: boolean) => {
+    if (!workspaceSelecionadoRef.current) return
     const chave = buildAcessoUsuarioProdutosGravityString(slug)
     setPermissoesPorWorkspace(prev => {
-      const atuais = prev[workspaceSelecionado] ?? []
+      const atuais = prev[workspaceSelecionadoRef.current!] ?? []
       const novas = marcado
         ? Array.from(new Set([...atuais, chave]))
         : atuais.filter(p => p !== chave)
-      return { ...prev, [workspaceSelecionado]: novas }
+      return { ...prev, [workspaceSelecionadoRef.current!]: novas }
     })
-  }
+  }, [])
+
 
   const handleToggleWorkspace = (id_workspace: string, checked: boolean) => {
     setWorkspacesAtivos((prev) => checked ? [...prev, id_workspace] : prev.filter((id) => id !== id_workspace))
@@ -935,6 +1001,28 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   // Mandamento 04 (LIMBO): Master, Super Admin e Admin têm acesso total implícito
   // a todos os workspaces; checklist de vínculos e permissões granulares não se aplicam.
   const master = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
+
+  // Pre-load catalogs for all workspaces in background.
+  // Makes "Todos os workspaces" near-instant (no lazy fetch on click).
+  useEffect(() => {
+    if (master) return
+    const wsSemCache = workspacesAtivos.filter(id => !produtosPorWorkspace[id])
+    if (wsSemCache.length === 0) return
+    Promise.all(
+      wsSemCache.map(id =>
+        produtosWorkspaceApi.listar(id)
+          .then(resp => ({ id, products: resp.products }))
+          .catch(() => ({ id, products: [] as ProdutoWorkspaceItem[] })),
+      ),
+    ).then(resultados => {
+      setProdutosPorWorkspace(prev => {
+        const atualizado = { ...prev }
+        for (const r of resultados) atualizado[r.id] = r.products
+        return atualizado
+      })
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [master, workspacesAtivos.length])
 
   // Default α — pré-popula Portão 3 quando workspace carrega produtos
   // pela primeira vez E o usuário não tem nenhuma chave Portão 3 nele.
@@ -979,10 +1067,20 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   )
 
   // Total de toggles disponíveis = produtos ativos no ws selecionado × 12 (6 seções × 2 ações).
-  const produtosDoWsSelecionado = workspaceSelecionado ? (produtosPorWorkspace[workspaceSelecionado] ?? []) : []
-  const produtosAtivosNoWs = produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key))
+  // useMemo garante referência estável — sem isso, o memo de `abas` invalida a cada render.
+  const produtosDoWsSelecionado = useMemo(
+    () => workspaceSelecionado ? (produtosPorWorkspace[workspaceSelecionado] ?? []) : [],
+    [workspaceSelecionado, produtosPorWorkspace],
+  )
+  const produtosAtivosNoWs = useMemo(
+    () => produtosDoWsSelecionado.filter(p => p.is_active && PRODUTOS_COM_PERMISSOES_IMPLEMENTADAS.has(p.product_key)),
+    [produtosDoWsSelecionado],
+  )
   const totalToggles = master ? 0 : produtosAtivosNoWs.length * TOGGLES_POR_PRODUTO
-  const permissoesAtivasDoWs = workspaceSelecionado ? (permissoesPorWorkspace[workspaceSelecionado] ?? []) : []
+  const permissoesAtivasDoWs = useMemo(
+    () => workspaceSelecionado ? (permissoesPorWorkspace[workspaceSelecionado] ?? []) : [],
+    [workspaceSelecionado, permissoesPorWorkspace],
+  )
   // Master/SAdmin/Admin: modo-leitura mostra TUDO marcado (bypass total — Mand. 04).
   // Gera as 12 chaves granulares (6 secoes x 2 acoes) + chave Portao 3 para cada
   // produto ativo do ws selecionado. Permite ao gestor ver "o que esse usuario enxerga".
@@ -1074,6 +1172,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
             onSelecionarWorkspace={setWorkspaceSelecionado}
             onTogglePermissao={handleTogglePermissao}
             onSelecionarTudoProduto={handleSelecionarTudoProduto}
+            aplicarTodosRef={aplicarTodosRef}
           />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
@@ -1222,9 +1321,13 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
 
           const id_produto_gravity = slugParaId.get(slug)
           if (!id_produto_gravity) {
-            // Mandamento 08 — falha alto. Sem id_produto_gravity, o PUT não pode
-            // ser feito. Acumula para abortar o save inteiro com mensagem clara
-            // (em vez de salvar parcialmente em silêncio).
+            if (setNovo.size === 0) {
+              // Produto não está mais no catálogo do workspace E estamos removendo
+              // todas as permissões — seguro pular (permissões órfãs serão ignoradas).
+              continue
+            }
+            // Mandamento 08 — falha alto. Tentando ADICIONAR permissões a produto
+            // sem id_produto_gravity. Aborta para não salvar parcialmente.
             slugsSemId.push({ id_workspace, slug })
             continue
           }

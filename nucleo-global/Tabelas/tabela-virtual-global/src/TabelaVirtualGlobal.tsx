@@ -1276,6 +1276,56 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSelecaoFilhoRef.current = onSelecaoFilho
   }, [onSelecaoFilho])
 
+  // ── Limpeza de filhos selecionados ao colapsar pai ──────────────────────────
+  // Quando o pai é colapsado os checkboxes dos filhos desaparecem da tela, mas
+  // os IDs permaneciam em `filhosSelecionados`, acumulando "seleções fantasmas"
+  // que reapareciam em operações (Excluir, Duplicar, Transferir). Este efeito
+  // detecta pais recém-colapsados e remove seus filhos do Set de seleção.
+  const prevExpandidosRef = useRef<Set<string>>(expandidos)
+  useEffect(() => {
+    const prev = prevExpandidosRef.current
+    prevExpandidosRef.current = expandidos
+
+    if (!selecionavelFilhos) return
+
+    // Identifica pais que foram colapsados (estavam em prev, não estão em expandidos)
+    const colapsados: string[] = []
+    for (const id of prev) {
+      if (!expandidos.has(id)) colapsados.push(id)
+    }
+    if (colapsados.length === 0) return
+
+    // Coleta IDs dos filhos dos pais colapsados
+    const idsParaRemover = new Set<string>()
+    for (const paiId of colapsados) {
+      const filhos = filhosCache.get(paiId) ?? []
+      for (const filho of filhos) {
+        const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+        if (fId) idsParaRemover.add(fId)
+      }
+    }
+    if (idsParaRemover.size === 0) return
+
+    // Remove filhos do Set de seleção
+    setFilhosSelecionados(prevSel => {
+      const novo = new Set(prevSel)
+      let mudou = false
+      for (const fId of idsParaRemover) {
+        if (novo.has(fId)) {
+          novo.delete(fId)
+          filhosCacheMap.current.delete(fId)
+          mudou = true
+        }
+      }
+      return mudou ? novo : prevSel
+    })
+
+    // Se o pai estava auto-marcado (via sync todos-filhos), desmarca também
+    for (const paiId of colapsados) {
+      if (selecionados.has(paiId)) toggleItem(paiId)
+    }
+  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem])
+
   const toggleFilho = useCallback(
     (id: string, item: C) => {
       const estavaMarcado = filhosSelecionados.has(id)
@@ -1378,6 +1428,46 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     },
     [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId],
   )
+
+  // ── Limpeza de filhos órfãos quando dados mudam ─────────────────────────────
+  // Quando `dados` muda (paginação, filtro, refresh), pedidos-pai podem sair da
+  // lista. Seus filhos permanecem em `filhosSelecionados` como "seleções fantasma"
+  // — invisíveis ao usuário mas contados em operações (Duplicar, Excluir, etc.).
+  // Este efeito detecta filhos cujo pai NÃO está mais em `dados` e os remove.
+  // Padrão análogo ao que `itensSelecionados` (pais) já faz via `dados.filter()`.
+  useEffect(() => {
+    if (!selecionavelFilhos) return
+
+    const parentIds = new Set(dados.map(d => itemId(d)))
+
+    setFilhosSelecionados(prev => {
+      if (prev.size === 0) return prev
+
+      // Monta set de IDs de filhos válidos (filhos de pais presentes em dados)
+      const validIds = new Set<string>()
+      for (const [paiId, filhos] of filhosCache.entries()) {
+        if (!parentIds.has(paiId)) continue
+        for (const filho of filhos) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (fId) validIds.add(fId)
+        }
+      }
+
+      // Remove seleções cujo pai saiu de dados (ou cujo ID não existe mais no cache)
+      let mudou = false
+      const novo = new Set<string>()
+      for (const id of prev) {
+        if (validIds.has(id)) {
+          novo.add(id)
+        } else {
+          filhosCacheMap.current.delete(id)
+          mudou = true
+        }
+      }
+
+      return mudou ? novo : prev
+    })
+  }, [dados, itemId, filhosCache, filhoId, selecionavelFilhos])
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {

@@ -47,6 +47,9 @@ export interface PedidoItem {
   texto_posicao_ncm?: string | null
   atributos_catalogo?: string | null
 
+  // Tipo de operação do item
+  tipo_operacao_item?: string | null
+
   // Unidade
   unidade_comercializada_item?: string | null
 
@@ -100,6 +103,7 @@ export interface PedidoItem {
   campo_especial_item?: string | null
 
   // Datas do item
+  data_embarque_item?: string | null
   data_transferencia_item?: string | null
   data_consolidacao_item?: string | null
 
@@ -327,6 +331,16 @@ export interface Pedido {
   casas_decimais_quantidade_pedido: number
   unidade_comercializada_pedido?: string | null
   quantidade_volumes_pedido?: number | null
+
+  // Câmbio
+  taxa_cambio_estimada?: number | null
+  valor_total_cambio_pedido?: number | null
+  moeda_cambio_pedido?: string | null
+  contrato_cambio_id_pedido?: string | null
+
+  // Datas de documento
+  data_documento_proforma?: string | null
+  data_documento_invoice?: string | null
 
   // Agregados de itens (soma calculada pelo backend)
   quantidade_transferida_total?: number | null
@@ -1063,7 +1077,7 @@ export const KANBAN_PADRAO: KanbanPreferencias = {
         { campo: 'tipo_operacao',       label: 'Tipo de Operação',     visivel: true, ordem: 1 },
         { campo: 'nome_exportador',     label: 'Exportador',           visivel: true, ordem: 2 },
         { campo: 'valor_total_pedido',  label: 'Valor Total',          visivel: true, ordem: 3 },
-        { campo: 'moeda_pedido',        label: 'Moeda',                visivel: true, ordem: 4 },
+        { campo: 'moeda_pedido',        label: 'Moeda do Pedido/Item', visivel: true, ordem: 4 },
         { campo: 'incoterm',            label: 'Incoterm',             visivel: true, ordem: 5 },
         { campo: 'numero_invoice',      label: 'Nº Invoice',           visivel: true, ordem: 6 },
         { campo: 'numero_proforma',     label: 'Nº Proforma',          visivel: true, ordem: 7 },
@@ -1101,7 +1115,7 @@ export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
   { campo: 'nome_exportador',         label: 'Exportador',               categoria: 'pedido'      },
   { campo: 'nome_importador',         label: 'Importador',               categoria: 'pedido'      },
   { campo: 'valor_total_pedido',      label: 'Valor Total',              categoria: 'pedido'      },
-  { campo: 'moeda_pedido',            label: 'Moeda',                    categoria: 'pedido'      },
+  { campo: 'moeda_pedido',            label: 'Moeda do Pedido/Item',     categoria: 'pedido'      },
   { campo: 'incoterm',                label: 'Incoterm',                 categoria: 'pedido'      },
   { campo: 'numero_invoice',          label: 'Nº Invoice',               categoria: 'pedido'      },
   { campo: 'numero_proforma',         label: 'Nº Proforma',              categoria: 'pedido'      },

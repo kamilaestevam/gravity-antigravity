@@ -408,6 +408,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     },
   },
   {
+    key: 'descricao_item',
+    label: t('pedido.coluna_pai.descricao_item'),
+    tipo: 'texto',
+    filtravel: false,
+    tooltipTitulo: t('pedido.coluna_pai.descricao_item_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.descricao_item_desc'),
+    grupo: 'Identificação',
+    render: () => <span>{'—'}</span>,
+  },
+  {
     key: 'numero_proforma',
     label: t('pedido.coluna_pai.numero_proforma'),
     tipo: 'texto',
@@ -480,6 +490,22 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     },
   },
   {
+    key: 'moeda_pedido',
+    label: 'Moeda do Pedido/Item',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Financeiro',
+    render: (_val: unknown, row: Pedido) => {
+      const moeda = row.moeda_pedido
+      if (!moeda) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+        </span>
+      )
+    },
+  },
+  {
     key: 'valor_por_unidade_item',
     label: t('pedido.coluna_pai.valor_unitario_item'),
     tipo: 'moeda',
@@ -497,6 +523,19 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       row.moeda_item_divergente
         ? renderAgregado(null, true, 'Moedas divergentes entre itens')
         : <span style={{ color: 'var(--text-muted)' }}>—</span>,
+  },
+  {
+    key: 'unidade_comercializada_pedido',
+    label: 'Unidade Comercializada',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Quantidades',
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(
+        row.unidade_comercializada_pedido,
+        row.unidade_comercializada_item_divergente,
+        'Unidades divergentes entre itens',
+      ),
   },
   {
     key: 'quantidade_total_pedido',
@@ -711,6 +750,53 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(row.cobertura_cambial_valor_unico, row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
+  },
+  // ── Câmbio ────────────────────────────────────────────────────────────────────
+  {
+    key: 'moeda_cambio_pedido',
+    label: 'Moeda Câmbio',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Câmbio',
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+        {row.moeda_cambio_pedido ?? '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'taxa_cambio_estimada',
+    label: 'Taxa Câmbio Estimada',
+    tipo: 'numero',
+    align: 'right',
+    casasDecimais: 4,
+    grupo: 'Câmbio',
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.taxa_cambio_estimada != null ? fmtQuantidade(Number(row.taxa_cambio_estimada), 4) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'valor_total_cambio_pedido',
+    label: 'Valor Total Câmbio',
+    tipo: 'numero',
+    align: 'right',
+    casasDecimais: 2,
+    grupo: 'Câmbio',
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.valor_total_cambio_pedido != null ? fmtQuantidade(Number(row.valor_total_cambio_pedido), 2) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'contrato_cambio_id_pedido',
+    label: 'Contrato de Câmbio',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Câmbio',
+    render: (_val: unknown, row: Pedido) => <span>{row.contrato_cambio_id_pedido ?? '—'}</span>,
   },
   {
     key: 'condicao_pagamento',
@@ -1209,6 +1295,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   criarColunaDataReplicavel(t, 'data_meta_aprovacao_rascunho_pedido',         'Datas meta de aprovação do draft do pedido divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_documento_pedido',                      'Datas de documento do pedido divergentes entre itens'),
 
+  criarColunaDataReplicavel(t, 'data_documento_proforma',                      'Datas de documento proforma divergentes entre itens'),
+  criarColunaDataReplicavel(t, 'data_documento_invoice',                       'Datas de documento invoice divergentes entre itens'),
+
   // Proforma (13)
   criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_proforma',    'Datas previstas de recebimento do draft da proforma divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_proforma',  'Datas confirmadas de recebimento do draft da proforma divergentes entre itens'),
@@ -1222,9 +1311,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_proforma',    'Datas previstas de recebimento original da proforma divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_proforma',  'Datas confirmadas de recebimento original da proforma divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_meta_recebimento_original_proforma',        'Datas meta de recebimento original da proforma divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_proforma_invoice',                          'Datas do documento da proforma divergentes entre itens'),
 
-  // Invoice (13)
+  // Invoice (12)
   criarColunaDataReplicavel(t, 'data_prevista_recebimento_rascunho_invoice',    'Datas previstas de recebimento do draft da invoice divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_confirmada_recebimento_rascunho_invoice',  'Datas confirmadas de recebimento do draft da invoice divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_meta_recebimento_rascunho_invoice',        'Datas meta de recebimento do draft da invoice divergentes entre itens'),
@@ -1237,6 +1325,5 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   criarColunaDataReplicavel(t, 'data_prevista_recebimento_original_invoice',    'Datas previstas de recebimento original da invoice divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_confirmada_recebimento_original_invoice',  'Datas confirmadas de recebimento original da invoice divergentes entre itens'),
   criarColunaDataReplicavel(t, 'data_meta_recebimento_original_invoice',        'Datas meta de recebimento original da invoice divergentes entre itens'),
-  criarColunaDataReplicavel(t, 'data_invoice',                                  'Datas do documento da invoice divergentes entre itens'),
   ]
 }

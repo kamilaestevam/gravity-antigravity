@@ -945,6 +945,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onErroAoSalvar,
   preferencias,
   onSalvarPreferencias,
+  colunasPadrao,
   carregando,
   emptyIcon,
   emptyTitle,
@@ -1023,8 +1024,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const colunasVisiveis = useMemo<string[]>(() => {
     if (preferencias?.colunas_visiveis) return preferencias.colunas_visiveis
+    if (colunasPadrao && colunasPadrao.length > 0) return colunasPadrao
     return colunas.filter(c => !c.oculta).map(c => c.key)
-  }, [preferencias, colunas])
+  }, [preferencias, colunas, colunasPadrao])
 
   const colunasFiltradas = useMemo(
     () => colunasVisiveis
@@ -1071,9 +1073,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [colunas, preferencias, onSalvarPreferencias])
 
   const restaurarPadraoColunas = useCallback(() => {
-    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
+    const padrao = colunasPadrao && colunasPadrao.length > 0
+      ? colunasPadrao
+      : colunas.filter(c => !c.oculta).map(c => c.key)
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
-  }, [colunas, preferencias, onSalvarPreferencias])
+  }, [colunas, colunasPadrao, preferencias, onSalvarPreferencias])
 
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────

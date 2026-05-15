@@ -1055,6 +1055,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onSelecaoMudar,
   selecionavelFilhos,
   onSelecaoFilho,
+  resetSelecaoFilhos,
   acoesFilho,
   renderConectorFilho,
   onBuscar,
@@ -1078,6 +1079,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onErroAoSalvar,
   preferencias,
   onSalvarPreferencias,
+  colunasPadrao,
   imperativeRef,
   carregando,
   emptyIcon,
@@ -1160,8 +1162,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const colunasVisiveis = useMemo<string[]>(() => {
     if (preferencias?.colunas_visiveis) return preferencias.colunas_visiveis
+    if (colunasPadrao && colunasPadrao.length > 0) return colunasPadrao
     return colunas.filter(c => !c.oculta).map(c => c.key)
-  }, [preferencias, colunas])
+  }, [preferencias, colunas, colunasPadrao])
 
   const colunasFiltradas = useMemo(
     () => colunasVisiveis
@@ -1208,9 +1211,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [colunas, preferencias, onSalvarPreferencias])
 
   const restaurarPadraoColunas = useCallback(() => {
-    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
+    const padrao = colunasPadrao && colunasPadrao.length > 0
+      ? colunasPadrao
+      : colunas.filter(c => !c.oculta).map(c => c.key)
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
-  }, [colunas, preferencias, onSalvarPreferencias])
+  }, [colunas, colunasPadrao, preferencias, onSalvarPreferencias])
 
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────
@@ -1468,6 +1473,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       return mudou ? novo : prev
     })
   }, [dados, itemId, filhosCache, filhoId, selecionavelFilhos])
+
+  // ── Reset externo de filhos selecionados (counter prop) ─────────────────────
+  // Quando `resetSelecaoFilhos` é incrementado (ex: após exclusão de itens no
+  // Excluir modal), limpa TODA a seleção de filhos e o cache de objetos.
+  // Resolve ghost selection: filhosSelecionados retinha IDs de itens deletados
+  // porque filhosCache não era atualizado a tempo pelo auto-revalidation.
+  const resetSelecaoFilhosRef = useRef(resetSelecaoFilhos ?? 0)
+  useEffect(() => {
+    const valor = resetSelecaoFilhos ?? 0
+    if (valor === resetSelecaoFilhosRef.current) return
+    resetSelecaoFilhosRef.current = valor
+
+    setFilhosSelecionados(prev => {
+      if (prev.size === 0) return prev
+      filhosCacheMap.current.clear()
+      return new Set()
+    })
+  }, [resetSelecaoFilhos])
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {

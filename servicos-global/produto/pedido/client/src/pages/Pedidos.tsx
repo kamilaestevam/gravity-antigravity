@@ -381,32 +381,120 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
 // As primeiras N aparecem na ordem definida; as demais seguem a ordem original de COLUNAS_PAI.
 
 const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
+  // ── Sequência padrão definida pelo dono (UX 2026-05-14) ──
+  // Esta é a ordem exata que o usuário verá na primeira abertura.
+  // Após arrastar/ocultar, as preferências do usuário prevalecem.
   'numero_pedido',
   'tipo_operacao',
-  'id_workspace',  // coluna "Workspace" — sempre visível após Tipo de Operação (UX 2026-05-13)
+  'status',
+  'id_workspace',
   'nome_importador',
   'nome_exportador',
-  'status',
   'referencia_importador',
   'referencia_exportador',
+  'incoterm',
+  'descricao_item',
   'ncm',
-  'valor_total_pedido',
+  'moeda_pedido',
   'valor_por_unidade_item',
   'quantidade_total_pedido',
+  'valor_total_pedido',
   'quantidade_pronta_itens_pedido_total',
-  'saldo_itens_do_pedido',
+  'unidade_comercializada_pedido',
   'quantidade_transferida_total',
+  'saldo_itens_do_pedido',
   'quantidade_cancelada_total_pedido',
+  'quantidade_volumes_pedido',
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
-  'incoterm',
+  'endereco_exportador',
+  'estado_exportador',
+  'cidade_exportador',
+  'pais_exportador',
+  'zip_code_exportador',
+  'nome_contato_exportador',
+  'cargo_contato_exportador',
+  'departamento_contato_exportador',
+  'referencia_fabricante',
+  'relacao_exportador_fabricante',
+  'exportador_ou_fabricante',
   'nome_fabricante',
+  'endereco_fabricante',
+  'cidade_fabricante',
+  'pais_fabricante',
+  'zip_code_fabricante',
   'cobertura_cambial',
   'condicao_pagamento',
-  'data_emissao_pedido',
+  'moeda_cambio_pedido',
+  'valor_total_cambio_pedido',
+  'contrato_cambio_id_pedido',
+  'taxa_cambio_estimada',
   'numero_proforma',
   'numero_invoice',
+  'data_emissao_pedido',
+  'data_transferencia_saldo_pedido',
+  'estado_fabricante',
+  'whatsapp_contato_exportador',
+  'data_prevista_pedido_pronto',
+  'email_contato_exportador',
+  'data_confirmada_pedido_pronto',
+  'data_meta_pedido_pronto',
+  'data_prevista_inspecao_pedido',
+  'data_confirmada_inspecao_pedido',
+  'data_meta_inspecao_pedido',
+  'data_prevista_coleta_pedido',
+  'data_confirmada_coleta_pedido',
+  'data_meta_coleta_pedido',
+  'data_prevista_recebimento_rascunho_pedido',
+  'data_confirmada_recebimento_rascunho_pedido',
+  'data_meta_recebimento_rascunho_pedido',
+  'data_consolidacao_pedido',
+  'data_prevista_aprovacao_rascunho_pedido',
+  'data_confirmada_aprovacao_rascunho_pedido',
+  'data_meta_aprovacao_rascunho_pedido',
+  'data_documento_pedido',
+  'anexo_pedido',
+  'data_documento_proforma',
+  'data_prevista_recebimento_rascunho_proforma',
+  'data_confirmada_recebimento_rascunho_proforma',
+  'data_meta_recebimento_rascunho_proforma',
+  'data_prevista_aprovacao_rascunho_proforma',
+  'data_confirmada_aprovacao_rascunho_proforma',
+  'data_meta_aprovacao_rascunho_proforma',
+  'data_prevista_envio_original_proforma',
+  'data_confirmada_envio_original_proforma',
+  'data_meta_envio_original_proforma',
+  'data_prevista_recebimento_original_proforma',
+  'data_confirmada_recebimento_original_proforma',
+  'data_meta_recebimento_original_proforma',
+  'anexo_proforma',
+  'data_documento_invoice',
+  'data_prevista_recebimento_rascunho_invoice',
+  'data_confirmada_recebimento_rascunho_invoice',
+  'data_meta_recebimento_rascunho_invoice',
+  'data_prevista_aprovacao_rascunho_invoice',
+  'data_confirmada_aprovacao_rascunho_invoice',
+  'data_meta_aprovacao_rascunho_invoice',
+  'data_prevista_envio_original_invoice',
+  'data_confirmada_envio_original_invoice',
+  'data_meta_envio_original_invoice',
+  'data_prevista_recebimento_original_invoice',
+  'data_confirmada_recebimento_original_invoice',
+  'data_meta_recebimento_original_invoice',
+  'anexo_invoice',
+  'cnpj_raiz_empresa_responsavel',
+  'codigo_ope',
+  'situacao_ope',
+  'versao_ope',
+  'nome_ope',
+  'pais_ope',
+  'estado_ope',
+  'cidade_ope',
+  'endereco_ope',
+  'zip_code_ope',
+  'tin_ope',
+  'email_ope',
 ]
 
 const COLUNAS_PADRAO_VISIVEIS: string[] = [
@@ -2129,6 +2217,24 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       )
     },
   },
+  // ── Moeda ──────────────────────────────────────────────────────────────────
+  moeda_pedido: {
+    render: (row: PedidoItem) => {
+      const moeda = row.moeda_item
+      if (!moeda) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+        </span>
+      )
+    },
+  },
+  // ── Descrição Item ───────────────────────────────────────────────────────
+  descricao_item: {
+    render: (row: PedidoItem) => (
+      <span>{row.descricao_item ?? '—'}</span>
+    ),
+  },
   // ── Quantidades ───────────────────────────────────────────────────────────
   quantidade_atual_pedido: {
     // Saldo = qtd_inicial - cancelada - transferida → sempre calculado, nunca editável
@@ -2236,12 +2342,10 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
     'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
     'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
     'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
-    'data_proforma_invoice',
     'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
     'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
     'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
     'data_prevista_recebimento_original_invoice', 'data_confirmada_recebimento_original_invoice', 'data_meta_recebimento_original_invoice',
-    'data_invoice',
   ] as const).map(key => [key, {
     campo: key,
     render: (row: PedidoItem) => {
@@ -2943,6 +3047,7 @@ export default function Pedidos() {
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
+  const [resetFilhos, setResetFilhos] = useState(0)
 
   // ── Fórmula do Saldo do Pedido (fonte: API /configuracoes/saldo-formula) ────
   // Começa com o padrão (render imediato) e atualiza assincronamente ao montar
@@ -3588,9 +3693,18 @@ export default function Pedidos() {
         'id_workspace',
         'tipo_operacao',
       )
-      const visivelComMigracao = passoMover.resultado
-      const mudouPosicao = passoMover.mudou
-      const novasBuiltin = passoInserir.mudou ? ['id_workspace'] : []
+      // Caso 3: descricao_item NÃO está nas prefs → inserir após ncm (entrega 2026-05-14).
+      const passoDescItem = inserirColunaAposAncora(
+        passoMover.resultado,
+        'descricao_item',
+        ['ncm'],
+      )
+      const visivelComMigracao = passoDescItem.resultado
+      const mudouPosicao = passoMover.mudou || passoDescItem.mudou
+      const novasBuiltin = [
+        ...(passoInserir.mudou ? ['id_workspace'] : []),
+        ...(passoDescItem.mudou ? ['descricao_item'] : []),
+      ]
 
       const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
         ? [...visivelComMigracao, ...novas]
@@ -4790,6 +4904,7 @@ export default function Pedidos() {
 
           selecionavelFilhos
           onSelecaoFilho={onSelecaoFilhoEstavel}
+          resetSelecaoFilhos={resetFilhos}
           acoesFilho={acoesFilhoEstavel}
 
           acoesBarra={acoesBarra}
@@ -5084,6 +5199,7 @@ export default function Pedidos() {
             setModalExcluirAberto(false)
             setPedidosSelecionados([])
             setItensSelecionados([])
+            setResetFilhos(prev => prev + 1)
             carregarInicial()
           }}
         />

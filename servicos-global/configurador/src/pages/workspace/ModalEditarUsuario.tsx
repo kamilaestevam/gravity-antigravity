@@ -899,7 +899,21 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
             if (!map[p.id_workspace]) map[p.id_workspace] = []
             map[p.id_workspace].push(p.permissao_usuario)
           }
-          setPermissoesPorWorkspace(map)
+          setPermissoesPorWorkspace(prev => {
+            // Preserva chaves Portão 3 que Default α pode ter adicionado
+            // antes desta resposta chegar (race condition entre effects).
+            const merged: Record<string, string[]> = { ...map }
+            for (const [wsId, chaves] of Object.entries(prev)) {
+              const portao3 = chaves.filter(ehPermissaoAcessoUsuarioProdutoGravity)
+              if (portao3.length === 0) continue
+              const doServidor = new Set(merged[wsId] ?? [])
+              const novas = portao3.filter(k => !doServidor.has(k))
+              if (novas.length > 0) {
+                merged[wsId] = [...(merged[wsId] ?? []), ...novas]
+              }
+            }
+            return merged
+          })
           setPermissoesOriginaisPorWorkspace(map)
           setErroCargaPermissoes(null)
         })
@@ -1314,6 +1328,16 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         for (const slug of slugsAfetados) {
           const setOrig = origPorSlug.get(slug) ?? new Set<string>()
           const setNovo = atuaisPorSlug.get(slug) ?? new Set<string>()
+
+          // Portão 3 implícito: se há qualquer permissão granular, garantir
+          // que a chave de acesso ao produto esteja presente. Previne race
+          // condition entre Default α e listarPermissoes (overwrite) que pode
+          // perder a chave sentinela — sem ela o backend rejeita com 403.
+          const chavePortao3 = buildAcessoUsuarioProdutosGravityString(slug)
+          const temGranular = [...setNovo].some(p => p !== chavePortao3)
+          if (temGranular && !setNovo.has(chavePortao3)) {
+            setNovo.add(chavePortao3)
+          }
 
           // Sem mudança? pula (não gera PUT inútil)
           const igual = setOrig.size === setNovo.size && [...setOrig].every(p => setNovo.has(p))

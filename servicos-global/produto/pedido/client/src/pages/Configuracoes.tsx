@@ -55,6 +55,7 @@ const FMT_REGIAO_KEYS: Record<string, string> = {
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
+import { ModalNovaColunaUsuario } from '../components/ConfiguracaoColunas/ModalNovaColunaUsuario'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
 import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
@@ -922,52 +923,34 @@ export default function Configuracoes() {
   }
 
   // ── Estado: edição de coluna existente ──
-  const [editandoColunaId, setEditandoColunaId] = useState<string | null>(null)
-  const [editandoColunaData, setEditandoColunaData] = useState<Partial<ColunaUsuarioApi> & { itensDiferentes: boolean; pedidoEditavel: boolean }>({
-    nome: '', obrigatorio: false, valor_padrao: '', descricao: '', itensDiferentes: false, pedidoEditavel: true,
-  })
-  const [salvandoEdicaoColuna, setSalvandoEdicaoColuna] = useState(false)
-  const [erroEdicaoColuna, setErroEdicaoColuna] = useState<string | null>(null)
-
-  function abrirEdicaoColuna(col: ColunaUsuarioApi) {
-    const itensDiferentes = col.escopo === 'item' || col.escopo === 'ambos'
-    const pedidoEditavel  = col.escopo !== 'item'
-    setEditandoColunaId(col.id)
-    setEditandoColunaData({ nome: col.nome, tipo: col.tipo, obrigatorio: col.obrigatorio, valor_padrao: col.valor_padrao ?? '', descricao: col.descricao ?? '', itensDiferentes, pedidoEditavel })
-    setErroEdicaoColuna(null)
-  }
-
-  function fecharEdicaoColuna() {
-    setEditandoColunaId(null)
-    setErroEdicaoColuna(null)
-  }
-
   function escopoDeToggle(itensDiferentes: boolean, pedidoEditavel: boolean): EscopoColunaUsuario {
     if (!itensDiferentes) return 'pedido'
     return pedidoEditavel ? 'ambos' : 'item'
   }
 
-  async function handleAtualizarColuna() {
-    if (!editandoColunaId || !editandoColunaData.nome?.trim()) return
-    setSalvandoEdicaoColuna(true)
-    setErroEdicaoColuna(null)
-    try {
-      await colunasUsuarioApi.atualizar(editandoColunaId, {
-        nome: editandoColunaData.nome!.trim(),
-        obrigatorio: editandoColunaData.obrigatorio ?? false,
-        valor_padrao: editandoColunaData.valor_padrao?.trim() || undefined,
-        descricao: editandoColunaData.descricao?.trim() || undefined,
-        escopo: escopoDeToggle(editandoColunaData.itensDiferentes!, editandoColunaData.pedidoEditavel!),
-      })
-      const lista = await colunasUsuarioApi.listar()
-      setColunasUsuarioApi(lista)
-      setPendingColunas(lista)
-      fecharEdicaoColuna()
-    } catch (err) {
-      setErroEdicaoColuna(err instanceof Error ? err.message : 'Erro ao salvar.')
-    } finally {
-      setSalvandoEdicaoColuna(false)
-    }
+  const [editandoColuna, setEditandoColuna] = useState<ColunaUsuarioApi | null>(null)
+  const [criandoColuna, setCriandoColuna] = useState(false)
+
+  function abrirEdicaoColuna(col: ColunaUsuarioApi) {
+    setEditandoColuna(col)
+  }
+
+  function fecharEdicaoColuna() {
+    setEditandoColuna(null)
+  }
+
+  async function handleColunaEditadaSalva() {
+    const lista = await colunasUsuarioApi.listar()
+    setColunasUsuarioApi(lista)
+    setPendingColunas(lista)
+    setEditandoColuna(null)
+  }
+
+  async function handleColunaCriadaViaModal() {
+    const lista = await colunasUsuarioApi.listar()
+    setColunasUsuarioApi(lista)
+    setPendingColunas(lista)
+    setCriandoColuna(false)
   }
 
   // ── Estado: colunas personalizadas (via API) ──
@@ -2746,17 +2729,15 @@ export default function Configuracoes() {
                     {/* ── Data crítica ── */}
                     <ConfiguracaoSecaoGlobal label={t('pedido.config.kanban.data_critica')} style={{ marginTop: '1.5rem' }} />
                     <p className="cfg-hint">{t('pedido.config.kanban.data_critica_hint')}</p>
-                    <select
-                      className="cfg-select"
-                      value={dataCritica}
-                      onChange={e => kanbanCardSetDataCritica(e.target.value || null)}
-                      style={{ marginTop: '0.5rem' }}
-                    >
-                      <option value="">{t('pedido.config.kanban.data_critica_nao_exibir')}</option>
-                      {KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => (
-                        <option key={c.campo} value={c.campo}>{c.label}</option>
-                      ))}
-                    </select>
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <SelectGlobal
+                        buscavel={false}
+                        placeholder={t('pedido.config.kanban.data_critica_nao_exibir')}
+                        opcoes={KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => ({ valor: c.campo, rotulo: c.label }))}
+                        valor={dataCritica}
+                        aoMudarValor={v => kanbanCardSetDataCritica(v != null ? String(v) : null)}
+                      />
+                    </div>
                   </>
                 )
               })()}
@@ -3842,8 +3823,8 @@ export default function Configuracoes() {
                             col={col}
                             onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
                             onRemover={() => handleRemoverColuna(col.id)}
-                            onEditar={() => editandoColunaId === col.id ? fecharEdicaoColuna() : abrirEdicaoColuna(col)}
-                            editando={editandoColunaId === col.id}
+                            onEditar={() => abrirEdicaoColuna(col)}
+                            editando={false}
                           />
                         ))}
                       </SortableContext>
@@ -3856,137 +3837,33 @@ export default function Configuracoes() {
                 </>
               )}
 
-              {/* ── Editar Coluna ── */}
-              {editandoColunaId && (() => {
-                const d = editandoColunaData
-                const tipoLabel = t(`pedido.config.colunas.personalizadas.tipo_${d.tipo}`)
-                return (
-                  <>
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
-                    <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.personalizadas.label_editar_coluna')} />
-                    <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
-                      <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
+              {/* ── Modal Editar Coluna ── */}
+              {editandoColuna && (
+                <ModalNovaColunaUsuario
+                  colunaEdicao={editandoColuna}
+                  onFechar={fecharEdicaoColuna}
+                  onSalvo={handleColunaEditadaSalva}
+                  todasColunas={colunasUsuarioApi_}
+                />
+              )}
 
-                        {/* Nome */}
-                        <div className="cfg-form-group">
-                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_nome_coluna')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                          <input
-                            type="text"
-                            className="cfg-form-input"
-                            value={d.nome ?? ''}
-                            onChange={e => setEditandoColunaData(prev => ({ ...prev, nome: e.target.value }))}
-                            maxLength={50}
-                          />
-                        </div>
+              {/* ── Botão Nova Coluna ── */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
+                  <Plus size={16} weight="bold" />
+                  {t('pedido.config.colunas.personalizadas.btn_criar_coluna')}
+                </BotaoGlobal>
+              </div>
 
-                        {/* Tipo (read-only) */}
-                        <div className="cfg-form-group">
-                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_tipo_coluna')}</label>
-                          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>{tipoLabel}</p>
-                        </div>
-
-                        {/* Itens com dados diferentes */}
-                        <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div>
-                            <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes')}</label>
-                            <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes_hint')}</p>
-                          </div>
-                          <Toggle
-                            checked={d.itensDiferentes ?? false}
-                            onChange={v => setEditandoColunaData(prev => ({ ...prev, itensDiferentes: v }))}
-                          />
-                        </div>
-
-                        {/* Alerta quando itens podem ter dados diferentes */}
-                        {d.itensDiferentes && (
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.625rem 0.75rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                            <Warning size={16} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
-                            <span>{t('pedido.config.colunas.personalizadas.form_alerta_migr')}</span>
-                          </div>
-                        )}
-
-                        {/* O pedido é editável? — só aparece quando itens podem ter dados diferentes */}
-                        {d.itensDiferentes && (
-                          <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <div>
-                              <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel')}</label>
-                              <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel_hint')}</p>
-                            </div>
-                            <Toggle
-                              checked={d.pedidoEditavel ?? true}
-                              onChange={v => setEditandoColunaData(prev => ({ ...prev, pedidoEditavel: v }))}
-                            />
-                          </div>
-                        )}
-
-                        {/* Obrigatório */}
-                        {d.tipo !== 'anexo' && (
-                          <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_obrigatorio')}</label>
-                            <Toggle
-                              checked={d.obrigatorio ?? false}
-                              onChange={v => setEditandoColunaData(prev => ({ ...prev, obrigatorio: v }))}
-                            />
-                          </div>
-                        )}
-
-                        {/* Valor padrão */}
-                        {d.tipo !== 'anexo' && d.tipo !== 'formula' && (
-                          <div className="cfg-form-group">
-                            <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_valor_padrao')}</label>
-                            <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_valor_padrao_hint')}</p>
-                            <input
-                              type={d.tipo === 'numero' || d.tipo === 'percentual' ? 'number' : d.tipo === 'data' ? 'date' : 'text'}
-                              className="cfg-form-input"
-                              placeholder={t('pedido.config.colunas.personalizadas.form_valor_padrao_placeholder')}
-                              value={d.valor_padrao ?? ''}
-                              onChange={e => setEditandoColunaData(prev => ({ ...prev, valor_padrao: e.target.value }))}
-                              maxLength={1000}
-                            />
-                          </div>
-                        )}
-
-                        {/* Descrição */}
-                        <div className="cfg-form-group">
-                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_descricao')}</label>
-                          <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_descricao_hint')}</p>
-                          <input
-                            type="text"
-                            className="cfg-form-input"
-                            placeholder={t('pedido.config.colunas.personalizadas.form_descricao_placeholder')}
-                            value={d.descricao ?? ''}
-                            onChange={e => setEditandoColunaData(prev => ({ ...prev, descricao: e.target.value }))}
-                            maxLength={200}
-                          />
-                        </div>
-
-                        {erroEdicaoColuna && (
-                          <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroEdicaoColuna}</p>
-                        )}
-                      </div>
-                      <div className="cfg-campo-calc-item__footer">
-                        <BotaoCancelar dirty={true} rotulo={t('pedido.config.colunas.personalizadas.btn_fechar')} onClick={fecharEdicaoColuna} />
-                        <BotaoSalvar
-                          dirty={!!d.nome?.trim()}
-                          carregando={salvandoEdicaoColuna}
-                          rotulo={salvandoEdicaoColuna ? t('pedido.config.colunas.personalizadas.btn_salvando') : t('pedido.config.colunas.personalizadas.btn_salvar_alteracoes')}
-                          onClick={handleAtualizarColuna}
-                        />
-                      </div>
-                    </div>
-                  </>
-                )
-              })()}
-
-              {/* Separador */}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
-
-              {/* ── Nova Coluna ── */}
-              <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.personalizadas.label_nova_coluna')} />
-              <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
-
-                {/* ── Campos do formulário ── */}
-                <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
+              {criandoColuna && (
+                <ModalNovaColunaUsuario
+                  onFechar={() => setCriandoColuna(false)}
+                  onSalvo={handleColunaCriadaViaModal}
+                  todasColunas={colunasUsuarioApi_}
+                />
+              )}
+              {/* Formulário inline legado — mantido para referência, oculto */}
+              {false && <div><div>
 
                   {/* Nome */}
                   <div className="cfg-form-group">
@@ -4148,18 +4025,29 @@ export default function Configuracoes() {
                           <Plus size={13} weight="bold" />
                         </button>
                       </div>
-                      {novaColuna.opcoes.length > 0 && (
-                        <div className="cfg-opcoes-lista">
-                          {novaColuna.opcoes.map(op => (
-                            <span key={op} className="cfg-opcoa-chip">
-                              {op}
-                              <button type="button" className="cfg-opcao-chip__remove" onClick={() => handleRemoverOpcao(op)} aria-label={`Remover opção ${op}`}>
-                                <X size={10} weight="bold" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <div className="cfg-opcoes-caixa">
+                        <span className="cfg-opcoes-caixa__label">
+                          {novaColuna.opcoes.length > 0
+                            ? `${novaColuna.opcoes.length} ${novaColuna.opcoes.length === 1 ? 'opção adicionada' : 'opções adicionadas'}`
+                            : 'Nenhuma opção adicionada'}
+                        </span>
+                        {novaColuna.opcoes.length > 0 ? (
+                          <div className="cfg-opcoes-lista">
+                            {novaColuna.opcoes.map(op => (
+                              <span key={op} className="cfg-opcao-chip">
+                                {op}
+                                <button type="button" className="cfg-opcao-chip__remove" onClick={() => handleRemoverOpcao(op)} aria-label={`Remover opção ${op}`}>
+                                  <X size={10} weight="bold" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="cfg-opcoes-vazio">
+                            Adicione pelo menos uma opção para habilitar a criação da coluna.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 

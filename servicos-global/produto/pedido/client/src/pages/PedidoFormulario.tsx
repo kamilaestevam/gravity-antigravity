@@ -23,6 +23,7 @@ import {
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem } from '../shared/types'
 import { pedidoApi } from '../shared/api'
@@ -259,15 +260,17 @@ export default function PedidoFormulario() {
 
         <div style={gridStyle}>
           <div>
-            <label style={labelStyle}>Tipo Operacao *</label>
-            <select
-              style={inputStyle}
-              value={form.tipo_operacao}
-              onChange={(e) => handleChange('tipo_operacao', e.target.value)}
-            >
-              <option value="importacao">Importacao</option>
-              <option value="exportacao">Exportacao</option>
-            </select>
+            <SelectGlobal
+              label="Tipo Operacao"
+              obrigatorio
+              buscavel={false}
+              opcoes={[
+                { valor: 'importacao', rotulo: 'Importacao' },
+                { valor: 'exportacao', rotulo: 'Exportacao' },
+              ]}
+              valor={form.tipo_operacao}
+              aoMudarValor={v => v != null && handleChange('tipo_operacao', String(v))}
+            />
           </div>
           <div>
             <label style={labelStyle}>Numero Pedido *</label>
@@ -297,24 +300,25 @@ export default function PedidoFormulario() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Incoterm</label>
-            <select
-              style={inputStyle}
-              value={form.incoterm}
-              onChange={(e) => handleChange('incoterm', e.target.value)}
-            >
-              <option value="FOB">FOB</option>
-              <option value="CIF">CIF</option>
-              <option value="EXW">EXW</option>
-              <option value="CFR">CFR</option>
-              <option value="DDP">DDP</option>
-              <option value="DAP">DAP</option>
-              <option value="FCA">FCA</option>
-              <option value="CPT">CPT</option>
-              <option value="CIP">CIP</option>
-              <option value="DPU">DPU</option>
-              <option value="FAS">FAS</option>
-            </select>
+            <SelectGlobal
+              label="Incoterm"
+              buscavel={false}
+              opcoes={[
+                { valor: 'FOB', rotulo: 'FOB' },
+                { valor: 'CIF', rotulo: 'CIF' },
+                { valor: 'EXW', rotulo: 'EXW' },
+                { valor: 'CFR', rotulo: 'CFR' },
+                { valor: 'DDP', rotulo: 'DDP' },
+                { valor: 'DAP', rotulo: 'DAP' },
+                { valor: 'FCA', rotulo: 'FCA' },
+                { valor: 'CPT', rotulo: 'CPT' },
+                { valor: 'CIP', rotulo: 'CIP' },
+                { valor: 'DPU', rotulo: 'DPU' },
+                { valor: 'FAS', rotulo: 'FAS' },
+              ]}
+              valor={form.incoterm}
+              aoMudarValor={v => v != null && handleChange('incoterm', String(v))}
+            />
           </div>
           <div>
             <label style={labelStyle}>Moeda</label>
@@ -474,21 +478,23 @@ export default function PedidoFormulario() {
                 />
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>UoM</label>
-                <select
-                  style={inputStyle}
-                  value={item.unidade_comercializada_item}
-                  onChange={(e) => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
-                >
-                  <option value="UN">UN</option>
-                  <option value="MT">MT</option>
-                  <option value="M2">M2</option>
-                  <option value="KG">KG</option>
-                  <option value="LT">LT</option>
-                  <option value="TON">TON</option>
-                  <option value="CM3">CM3</option>
-                  <option value="PC">PC</option>
-                </select>
+                <SelectGlobal
+                  label="UoM"
+                  buscavel={false}
+                  tamanho="compacto"
+                  opcoes={[
+                    { valor: 'UN', rotulo: 'UN' },
+                    { valor: 'MT', rotulo: 'MT' },
+                    { valor: 'M2', rotulo: 'M2' },
+                    { valor: 'KG', rotulo: 'KG' },
+                    { valor: 'LT', rotulo: 'LT' },
+                    { valor: 'TON', rotulo: 'TON' },
+                    { valor: 'CM3', rotulo: 'CM3' },
+                    { valor: 'PC', rotulo: 'PC' },
+                  ]}
+                  valor={item.unidade_comercializada_item}
+                  aoMudarValor={v => v != null && handleItemChange(index, 'unidade_comercializada_item', String(v))}
+                />
               </div>
               <div>
                 <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Valor do Item</label>

@@ -18,9 +18,12 @@ import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from '
 import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
+import { useMoedasPedido } from '../shared/useMoedasPedido'
+import { useUnidadesPedido } from '../shared/useUnidadesPedido'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -32,6 +35,7 @@ import type {
 } from '../shared/types'
 import { CAMPOS_BLOQUEADOS_PEDIDO, CAMPOS_BLOQUEADOS_ITEM } from '../shared/types'
 import { pedidoEdicaoMassaApi } from '../shared/api'
+import { cadastrosApi } from '../shared/cadastrosApi'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -72,7 +76,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'nome_importador',                         rotulo: 'Importador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Importador',
     visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'exportacao') },
   { campo: 'endereco_exportador',                     rotulo: 'Exportador — Endereço',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
-  { campo: 'pais_exportador',                         rotulo: 'Exportador — País',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
+  { campo: 'pais_exportador',                         rotulo: 'Exportador — País',                      tipo: 'select', nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'estado_exportador',                       rotulo: 'Exportador — Estado',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'cidade_exportador',                       rotulo: 'Exportador — Cidade',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'zip_code_exportador',                     rotulo: 'Exportador — ZIP Code',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
@@ -87,7 +91,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Fabricante
   { campo: 'nome_fabricante',                         rotulo: 'Fabricante — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'endereco_fabricante',                     rotulo: 'Fabricante — Endereço',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
-  { campo: 'pais_fabricante',                         rotulo: 'Fabricante — País',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
+  { campo: 'pais_fabricante',                         rotulo: 'Fabricante — País',                      tipo: 'select', nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'estado_fabricante',                       rotulo: 'Fabricante — Estado',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'cidade_fabricante',                       rotulo: 'Fabricante — Cidade',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'zip_code_fabricante',                     rotulo: 'Fabricante — ZIP Code',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
@@ -96,7 +100,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'codigo_ope',                              rotulo: 'OPE — Código',                           tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
   { campo: 'nome_ope',                                rotulo: 'OPE — Nome',                             tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
   { campo: 'endereco_ope',                            rotulo: 'OPE — Endereço',                         tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
-  { campo: 'pais_ope',                                rotulo: 'OPE — País',                             tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
+  { campo: 'pais_ope',                                rotulo: 'OPE — País',                             tipo: 'select', nivel: 'pedido', grupo: 'OPE' },
   { campo: 'estado_ope',                              rotulo: 'OPE — Estado',                           tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
   { campo: 'cidade_ope',                              rotulo: 'OPE — Cidade',                           tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
   { campo: 'zip_code_ope',                            rotulo: 'OPE — ZIP Code',                         tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
@@ -107,8 +111,8 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'cnpj_raiz_empresa_responsavel',           rotulo: 'CNPJ Raiz Empresa Responsável',          tipo: 'texto',  nivel: 'pedido', grupo: 'OPE' },
 
   // Dados comerciais
-  { campo: 'moeda_pedido',                            rotulo: 'Moeda',                                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'unidade_comercializada_pedido',           rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'moeda_pedido',                            rotulo: 'Moeda',                                  tipo: 'select', nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'unidade_comercializada_pedido',           rotulo: 'Unidade Comercializada',                 tipo: 'select', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'incoterm_pedido',                         rotulo: 'Incoterm',                               tipo: 'select', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_item',                  rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'item',   grupo: 'Comercial',
@@ -122,7 +126,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
 
   // Câmbio
   { campo: 'valor_total_cambio_pedido',               rotulo: 'Valor Total Câmbio',                     tipo: 'numero', nivel: 'pedido', grupo: 'Câmbio' },
-  { campo: 'moeda_cambio_pedido',                     rotulo: 'Moeda Câmbio',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Câmbio' },
+  { campo: 'moeda_cambio_pedido',                     rotulo: 'Moeda Câmbio',                           tipo: 'select', nivel: 'pedido', grupo: 'Câmbio' },
   { campo: 'taxa_cambio_estimada_pedido',             rotulo: 'Taxa Câmbio Estimada',                   tipo: 'numero', nivel: 'pedido', grupo: 'Câmbio' },
   { campo: 'contrato_cambio_id_pedido',               rotulo: 'Contrato de Câmbio',                     tipo: 'texto',  nivel: 'pedido', grupo: 'Câmbio' },
 
@@ -221,7 +225,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
       { valor: 'importacao', rotulo: 'Importação' },
       { valor: 'exportacao', rotulo: 'Exportação' },
     ] },
-  { campo: 'unidade_comercializada_item',             rotulo: 'Unidade Comercializada (Item)',          tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'unidade_comercializada_item',             rotulo: 'Unidade Comercializada (Item)',          tipo: 'select', nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
   { campo: 'quantidade_inicial_item',                 rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
@@ -230,7 +234,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'casas_decimais_quantidade_item',          rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro / Comercial do Item
-  { campo: 'moeda_item',                              rotulo: 'Moeda (Item)',                           tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
+  { campo: 'moeda_item',                              rotulo: 'Moeda (Item)',                           tipo: 'select', nivel: 'item', grupo: 'Comercial' },
   { campo: 'incoterm_item',                           rotulo: 'Incoterm (Item)',                        tipo: 'select', nivel: 'item', grupo: 'Comercial' },
   { campo: 'condicao_pagamento_item',                 rotulo: 'Cond. Pagamento (Item)',                 tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
   { campo: 'data_emissao_item',                       rotulo: 'Data Emissão (Item)',                    tipo: 'data',   nivel: 'item', grupo: 'Datas' },
@@ -393,15 +397,31 @@ function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[], t: TFunc): st
 
 interface OpcoesDinamicas {
   incoterms?: { valor: string; rotulo: string }[]
+  paises?: { valor: string; rotulo: string }[]
+  moedas?: { valor: string; rotulo: string }[]
+  unidades?: { valor: string; rotulo: string }[]
 }
 
+const CAMPOS_PAIS = new Set(['pais_exportador', 'pais_fabricante', 'pais_ope'])
+const CAMPOS_MOEDA = new Set(['moeda_pedido', 'moeda_item', 'moeda_cambio_pedido'])
+const CAMPOS_UNIDADE = new Set(['unidade_comercializada_pedido', 'unidade_comercializada_item'])
+
 function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamicas): DefinicaoCampo[] {
-  if (!opcoes.incoterms?.length) return campos
-  return campos.map(d =>
-    (d.campo === 'incoterm_pedido' || d.campo === 'incoterm_item')
-      ? { ...d, opcoes: opcoes.incoterms }
-      : d,
-  )
+  return campos.map(d => {
+    if ((d.campo === 'incoterm_pedido' || d.campo === 'incoterm_item') && opcoes.incoterms?.length) {
+      return { ...d, opcoes: opcoes.incoterms }
+    }
+    if (CAMPOS_PAIS.has(d.campo) && opcoes.paises?.length) {
+      return { ...d, opcoes: opcoes.paises }
+    }
+    if (CAMPOS_MOEDA.has(d.campo) && opcoes.moedas?.length) {
+      return { ...d, opcoes: opcoes.moedas }
+    }
+    if (CAMPOS_UNIDADE.has(d.campo) && opcoes.unidades?.length) {
+      return { ...d, opcoes: opcoes.unidades }
+    }
+    return d
+  })
 }
 
 function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = [], opcoesDinamicas: OpcoesDinamicas = {}): DefinicaoCampo[] {
@@ -748,6 +768,112 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
   )
 }
 
+// ── Select buscável para campos com muitas opções (países, moedas, unidades) ─
+
+function SelectBuscavelValor({
+  opcoes,
+  valor,
+  disabled,
+  placeholder,
+  onChange,
+}: {
+  opcoes: { valor: string; rotulo: string }[]
+  valor: string
+  disabled?: boolean
+  placeholder?: string
+  onChange: (v: string) => void
+}) {
+  const [aberto, setAberto] = useState(false)
+  const [busca, setBusca] = useState('')
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const filtradas = busca.trim() === ''
+    ? opcoes
+    : opcoes.filter(o =>
+        o.rotulo.toLowerCase().includes(busca.toLowerCase()) ||
+        o.valor.toLowerCase().includes(busca.toLowerCase())
+      )
+
+  const rotuloSelecionado = opcoes.find(o => o.valor === valor)?.rotulo
+
+  useEffect(() => {
+    if (!aberto) return
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setAberto(false)
+        setBusca('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [aberto])
+
+  return (
+    <div ref={wrapperRef} className="modal-edicao-massa__select-buscavel" style={{ position: 'relative' }}>
+      <button
+        type="button"
+        className="modal-edicao-massa__select"
+        disabled={disabled}
+        onClick={() => { setAberto(!aberto); setBusca('') }}
+        style={{ textAlign: 'left', cursor: disabled ? 'not-allowed' : 'pointer', width: '100%' }}
+      >
+        {rotuloSelecionado || <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{placeholder}</span>}
+      </button>
+      {aberto && (
+        <div className="modal-edicao-massa__select-buscavel-dropdown" style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 9999,
+          background: 'var(--bg-base, #1e293b)', border: '1.5px solid rgba(129,140,248,.25)',
+          borderRadius: '8px', marginTop: '4px',
+          boxShadow: '0 16px 48px rgba(0,0,0,.65), 0 4px 16px rgba(0,0,0,.4)',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '0.5rem', borderBottom: '1px solid rgba(129,140,248,.15)',
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+          }}>
+            <MagnifyingGlass size={14} style={{ color: 'var(--text-muted, #94a3b8)', flexShrink: 0 }} />
+            <input
+              autoFocus
+              className="modal-edicao-massa__input"
+              style={{ border: 'none', padding: '0.25rem 0', background: 'transparent', flex: 1 }}
+              type="text"
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar..."
+            />
+          </div>
+          <ul style={{
+            listStyle: 'none', margin: 0, padding: '0.25rem',
+            maxHeight: '220px', overflowY: 'auto',
+            scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,.1) transparent',
+          }}>
+            {filtradas.length === 0 && (
+              <li style={{ padding: '0.5rem 0.75rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.875rem' }}>
+                Nenhum resultado
+              </li>
+            )}
+            {filtradas.map(o => (
+              <li
+                key={o.valor}
+                onClick={() => { onChange(o.valor); setAberto(false); setBusca('') }}
+                style={{
+                  padding: '0.5rem 0.75rem', borderRadius: '6px', cursor: 'pointer',
+                  fontSize: '0.875rem', color: 'var(--text-primary, #f1f5f9)',
+                  background: o.valor === valor ? 'rgba(129,140,248,.12)' : undefined,
+                }}
+                onMouseEnter={e => { (e.target as HTMLElement).style.background = 'rgba(255,255,255,.05)' }}
+                onMouseLeave={e => { (e.target as HTMLElement).style.background = o.valor === valor ? 'rgba(129,140,248,.12)' : '' }}
+              >
+                {o.rotulo}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Tradução de mensagens técnicas → amigáveis ──────────────────────────────
 
 const MENSAGENS_AMIGAVEIS: [RegExp, string][] = [
@@ -773,8 +899,22 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
   const { incotermsOpcoes, loading: incotermLoading, erro: incotermErro } = useIncotermsPedido()
+  const { moedasOpcoes } = useMoedasPedido()
+  const { unidadesComercializadas } = useUnidadesPedido()
+  const [paisesOpcoes, setPaisesOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
+  useEffect(() => {
+    cadastrosApi.listarPaises()
+      .then(r => setPaisesOpcoes(r.itens.map(p => ({
+        valor: p.nome_pais_portugues,
+        rotulo: `${p.nome_pais_portugues}${p.codigo_pais_iso_alpha2 ? ` (${p.codigo_pais_iso_alpha2})` : ''}`,
+      }))))
+      .catch(() => {})
+  }, [])
   const opcoesDinamicas: OpcoesDinamicas = {
     incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    paises: paisesOpcoes,
+    moedas: moedasOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    unidades: unidadesComercializadas.map(o => ({ valor: o.sigla, rotulo: o.rotulo })),
   }
   const [passo, setPasso] = useState<1 | 2 | 3>(1)
   const [resultado, setResultado] = useState<EdicaoMassaResultado | null>(null)
@@ -1006,41 +1146,47 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 />
 
                 {/* Seletor de operação */}
-                <select
-                  className="modal-edicao-massa__select"
-                  value={campo.operacao}
-                  onChange={e => handleMudarOperacao(campo.uid, e.target.value as OperacaoCampo)}
+                <SelectGlobal
+                  buscavel={false}
+                  tamanho="compacto"
+                  opcoes={ops.map(op => ({ valor: op, rotulo: t(OP_NOME_KEYS[op]) }))}
+                  valor={campo.operacao}
+                  aoMudarValor={v => v != null && handleMudarOperacao(campo.uid, v as OperacaoCampo)}
                   aria-label={`Operação para ${campo.campo}`}
-                >
-                  {ops.map(op => (
-                    <option key={op} value={op}>{t(OP_NOME_KEYS[op])}</option>
-                  ))}
-                </select>
+                />
 
                 {/* Input de valor — renderiza por tipo do campo */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} title={tooltipUnique}>
                   {campo.tipo === 'select' ? (() => {
                     const def = disponiveis.find(d => d.campo === campo.campo)
                     const opcoes = def?.opcoes ?? []
-                    const semOpcoesDinamicas = opcoes.length === 0 && campo.campo === 'incoterm_pedido'
+                    const semOpcoesDinamicas = opcoes.length === 0 && (
+                      campo.campo === 'incoterm_pedido' || campo.campo === 'incoterm_item' ||
+                      CAMPOS_PAIS.has(campo.campo) || CAMPOS_MOEDA.has(campo.campo) || CAMPOS_UNIDADE.has(campo.campo)
+                    )
+                    if (opcoes.length > 10) {
+                      return (
+                        <SelectBuscavelValor
+                          opcoes={opcoes}
+                          valor={campo.valor}
+                          disabled={bloqueadoUnique}
+                          placeholder={t('pedido.modal_massa.valor_placeholder')}
+                          onChange={v => handleMudarValor(campo.uid, v)}
+                        />
+                      )
+                    }
                     return (
-                      <select
-                        className="modal-edicao-massa__select"
-                        value={campo.valor}
-                        disabled={bloqueadoUnique || semOpcoesDinamicas}
-                        onChange={e => handleMudarValor(campo.uid, e.target.value)}
+                      <SelectGlobal
+                        buscavel={false}
+                        tamanho="compacto"
+                        desabilitado={bloqueadoUnique || semOpcoesDinamicas}
+                        carregando={semOpcoesDinamicas}
+                        placeholder={semOpcoesDinamicas ? 'Carregando...' : t('pedido.modal_massa.valor_placeholder')}
+                        opcoes={opcoes.map(o => ({ valor: o.valor, rotulo: o.rotulo }))}
+                        valor={campo.valor || null}
+                        aoMudarValor={v => handleMudarValor(campo.uid, v != null ? String(v) : '')}
                         aria-label={`Valor para ${campo.campo}`}
-                        title={semOpcoesDinamicas ? 'Carregando incoterms do cadastro...' : undefined}
-                      >
-                        <option value="">
-                          {semOpcoesDinamicas
-                            ? (incotermLoading ? 'Carregando...' : 'Incoterms indisponíveis')
-                            : t('pedido.modal_massa.valor_placeholder')}
-                        </option>
-                        {opcoes.map(o => (
-                          <option key={o.valor} value={o.valor}>{o.rotulo}</option>
-                        ))}
-                      </select>
+                      />
                     )
                   })() : campo.tipo === 'ncm' ? (
                     <input
@@ -1157,7 +1303,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                     <span className="modal-edicao-massa__preview-campo-op">
                       {t(OP_LABEL_KEYS[c.operacao])}
                     </span>
-                    <span className="modal-edicao-massa__preview-campo-valor">{String(c.valor)}</span>
+                    <span className="modal-edicao-massa__preview-campo-valor">{disponiveis.find(d => d.campo === c.campo)?.opcoes?.find(o => o.valor === String(c.valor))?.rotulo ?? String(c.valor)}</span>
                     {c.multiplos_valores && (
                       <span className="modal-edicao-massa__badge-multiplos">
                         <Warning size={11} weight="fill" aria-hidden="true" />
@@ -1396,7 +1542,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                   fontWeight: 500,
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {t(OP_LABEL_KEYS[c.operacao])}: {c.valor}
+                  {t(OP_LABEL_KEYS[c.operacao])}: {def?.opcoes?.find(o => o.valor === c.valor)?.rotulo ?? c.valor}
                 </span>
               </div>
 

@@ -1,15 +1,24 @@
 /**
  * ModalNovaColuna.tsx — Modal para criar ou editar uma coluna customizada do usuário
  *
- * Quando tipo = 'select' ou 'tipo_documento': exibe campo para gerenciar opções da lista.
- * Quando tipo = 'formula': exibe construtor de expressão com validação em tempo real.
- * Na edição, o tipo é exibido mas não pode ser alterado.
+ * Ordem dos campos:
+ *  1. Nome da Coluna
+ *  2. Tipo (select com todos os tipos; readonly na edição)
+ *  3. Opções da Lista (condicional: select / tipo_documento)
+ *  4. Fórmula (condicional: formula)
+ *  5. Escopo
+ *  6. Visibilidade
+ *  7. Obrigatório
+ *  8. Valor Padrão
+ *  9. Descrição
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Plus, Warning, Info, Columns } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import type {
   ColunaUsuario,
   TipoColunaUsuario,
@@ -55,9 +64,7 @@ interface ModalNovaColunaProps {
   colunaEdicao?: ColunaUsuario
   onFechar: () => void
   onSalvo: () => void
-  /** Lista de chaves de campos disponíveis para referenciar em fórmulas */
   camposDisponiveis?: string[]
-  /** Lista de todas as colunas de fórmula existentes (para detecção de ciclos) */
   todasColunas?: ColunaUsuario[]
 }
 
@@ -78,7 +85,6 @@ export function ModalNovaColunaUsuario({
   const [escopo, setEscopo]           = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'ambos')
   const [visibilidade, setVisibilidade] = useState<VisibilidadeColunaUsuario>(colunaEdicao?.visibilidade ?? 'todos')
   const [obrigatorio, setObrigatorio] = useState(colunaEdicao?.obrigatorio ?? false)
-  const [valorPadrao, setValorPadrao] = useState(colunaEdicao?.valor_padrao ?? '')
   const [descricao, setDescricao]     = useState(colunaEdicao?.descricao ?? '')
   const [opcoes, setOpcoes]           = useState<string[]>(colunaEdicao?.opcoes ?? [])
   const [novaOpcao, setNovaOpcao]     = useState('')
@@ -103,16 +109,13 @@ export function ModalNovaColunaUsuario({
     }
     try {
       parsearFormula(expressao)
-
-      // Verifica ciclo: usa chave existente ou derivada do nome (slug provisório)
-      const chaveProvisoria = colunaEdicao?.chave ?? nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
+      const chaveProvisoria = colunaEdicao?.chave ?? (nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__')
       const temCiclo = detectarCircular(chaveProvisoria, expressao, todasColunas)
       if (temCiclo) {
         setFormulaErro(t('pedido.modal_col.erro_circular'))
         setFormulaValida(false)
         return
       }
-
       setFormulaErro(null)
       setFormulaValida(true)
     } catch (err) {
@@ -129,11 +132,8 @@ export function ModalNovaColunaUsuario({
     debounceRef.current = setTimeout(() => { validarFormula(valor) }, 500)
   }, [validarFormula])
 
-  // Limpa timeout ao desmontar
   useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-    }
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [])
 
   const handleAdicionarOpcao = useCallback(() => {
@@ -148,52 +148,31 @@ export function ModalNovaColunaUsuario({
   }, [])
 
   const handleOpcaoKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAdicionarOpcao()
-    }
+    if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() }
   }, [handleAdicionarOpcao])
 
   const handleSalvar = useCallback(async () => {
     const nomeTrimmed = nome.trim()
-    if (!nomeTrimmed) {
-      setErro(t('pedido.modal_col.erro_nome_obrigatorio'))
-      return
-    }
-    if (tipoComOpcoes && opcoes.length === 0) {
-      setErro(t('pedido.modal_col.erro_sem_opcoes'))
-      return
-    }
+    if (!nomeTrimmed) { setErro(t('pedido.modal_col.erro_nome_obrigatorio')); return }
+    if (tipoComOpcoes && opcoes.length === 0) { setErro(t('pedido.modal_col.erro_sem_opcoes')); return }
     if (tipoFormula) {
-      if (!formulaExpressao.trim()) {
-        setErro(t('pedido.modal_col.erro_formula_obrigatoria'))
-        return
-      }
-      // Força validação síncrona antes de salvar
-      try {
-        parsearFormula(formulaExpressao)
-      } catch (err) {
+      if (!formulaExpressao.trim()) { setErro(t('pedido.modal_col.erro_formula_obrigatoria')); return }
+      try { parsearFormula(formulaExpressao) } catch (err) {
         setErro(err instanceof Error ? t('pedido.modal_col.erro_formula_invalida', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
         return
       }
-      if (formulaErro) {
-        setErro(formulaErro)
-        return
-      }
+      if (formulaErro) { setErro(formulaErro); return }
     }
 
     setSalvando(true)
     setErro(null)
-
     const formulaDeps = tipoFormula ? extrairDependencias(formulaExpressao) : undefined
-
     const payload = {
       nome: nomeTrimmed,
       tipo,
       escopo,
       visibilidade,
       obrigatorio,
-      valor_padrao: valorPadrao.trim() || undefined,
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
       formula_expressao: tipoFormula ? formulaExpressao.trim() : undefined,
@@ -210,25 +189,25 @@ export function ModalNovaColunaUsuario({
       }
       onSalvo()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao salvar coluna.'
-      setErro(msg)
+      setErro(err instanceof Error ? err.message : 'Erro ao salvar coluna.')
     } finally {
       setSalvando(false)
     }
   }, [
-    nome, tipo, escopo, visibilidade, obrigatorio, valorPadrao,
+    nome, tipo, escopo, visibilidade, obrigatorio,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaExpressao,
     formulaErro, isEdicao, colunaEdicao, onSalvo,
   ])
 
-  // Fecha com Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onFechar])
 
-  return (
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  return createPortal(
     <div
       className="mnc-overlay"
       role="dialog"
@@ -237,33 +216,29 @@ export function ModalNovaColunaUsuario({
       onClick={e => { if (e.target === e.currentTarget) onFechar() }}
     >
       <div className="mnc-modal">
-        {/* Cabeçalho */}
+        {/* ── Cabeçalho ── */}
         <div className="mnc-header">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Columns size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
               <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--ws-muted, var(--text-muted, #94a3b8))', lineHeight: 1.4 }}>
               {isEdicao ? 'Altere as propriedades da coluna personalizada' : 'Crie uma coluna personalizada para organizar seus pedidos'}
             </p>
           </div>
-          <button
-            type="button"
-            className="mnc-fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_col.aria_fechar')}
-          >
+          <button type="button" className="mnc-fechar" onClick={onFechar} aria-label={t('pedido.modal_col.aria_fechar')}>
             <X size={18} weight="bold" />
           </button>
         </div>
 
-        {/* Corpo */}
+        {/* ── Corpo ── */}
         <div className="mnc-corpo">
-          {/* Nome */}
+
+          {/* 1. Nome da Coluna */}
           <div className="mnc-campo">
             <label className="mnc-label" htmlFor="mnc-nome">
-              {t('pedido.modal_col.label_nome')} <span className="mnc-obrig">*</span>
+              Nome da Coluna <span className="mnc-obrig">*</span>
             </label>
             <input
               id="mnc-nome"
@@ -277,130 +252,29 @@ export function ModalNovaColunaUsuario({
             />
           </div>
 
-          {/* Tipo */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-tipo">
-              {t('pedido.modal_col.label_tipo')} <span className="mnc-obrig">*</span>
-            </label>
-            {isEdicao ? (
-              <input
-                id="mnc-tipo"
-                className="mnc-input mnc-input--readonly"
-                type="text"
-                value={t(TIPO_OPCOES.find(o => o.valor === tipo)?.labelKey ?? tipo)}
-                readOnly
-                aria-description="O tipo não pode ser alterado após a criação"
-              />
-            ) : (
-              <select
-                id="mnc-tipo"
-                className="mnc-select"
-                value={tipo}
-                onChange={e => setTipo(e.target.value as TipoColunaUsuario)}
-              >
-                {TIPO_OPCOES.map(o => (
-                  <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
-                ))}
-              </select>
-            )}
-          </div>
+          {/* 2. Tipo */}
+          <SelectGlobal
+            label="Tipo de Coluna"
+            obrigatorio
+            buscavel={false}
+            desabilitado={isEdicao}
+            opcoes={TIPO_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
+            valor={tipo}
+            aoMudarValor={v => v != null && setTipo(v as TipoColunaUsuario)}
+          />
+          {isEdicao && (
+            <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '-0.5rem 0 0', fontSize: '0.75rem', color: '#f59e0b' }}>
+              <Warning size={13} weight="fill" style={{ flexShrink: 0 }} />
+              O tipo da coluna não pode ser alterado após a criação.
+            </p>
+          )}
 
-          {/* Escopo */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-escopo">
-              {t('pedido.modal_col.label_escopo')} <span className="mnc-obrig">*</span>
-            </label>
-            <select
-              id="mnc-escopo"
-              className="mnc-select"
-              value={escopo}
-              onChange={e => setEscopo(e.target.value as EscopoColunaUsuario)}
-            >
-              {ESCOPO_OPCOES.map(o => (
-                <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Visibilidade */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-visibilidade">
-              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
-            </label>
-            <select
-              id="mnc-visibilidade"
-              className="mnc-select"
-              value={visibilidade}
-              onChange={e => setVisibilidade(e.target.value as VisibilidadeColunaUsuario)}
-            >
-              {VISIBILIDADE_OPCOES.map(o => (
-                <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Obrigatório */}
-          <div className="mnc-campo mnc-campo--inline">
-            <label className="mnc-label-inline" htmlFor="mnc-obrigatorio">
-              <input
-                id="mnc-obrigatorio"
-                type="checkbox"
-                checked={obrigatorio}
-                onChange={e => setObrigatorio(e.target.checked)}
-                className="mnc-checkbox"
-              />
-              {t('pedido.modal_col.label_obrigatorio')}
-            </label>
-          </div>
-
-          {/* Valor padrão */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
-            <input
-              id="mnc-valor-padrao"
-              className="mnc-input"
-              type="text"
-              value={valorPadrao}
-              onChange={e => setValorPadrao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
-            />
-          </div>
-
-          {/* Descrição */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
-            <input
-              id="mnc-descricao"
-              className="mnc-input"
-              type="text"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_descricao')}
-              maxLength={200}
-            />
-          </div>
-
-          {/* Opções (select / tipo_documento) */}
+          {/* 3. Opções da Lista (condicional: select / tipo_documento) */}
           {tipoComOpcoes && (
             <div className="mnc-campo">
               <label className="mnc-label">
-                {t('pedido.modal_col.label_opcoes')} <span className="mnc-obrig">*</span>
+                Opções da Lista <span className="mnc-obrig">*</span>
               </label>
-              <div className="mnc-opcoes-lista">
-                {opcoes.map(opcao => (
-                  <span key={opcao} className="mnc-opcao-chip">
-                    {opcao}
-                    <button
-                      type="button"
-                      className="mnc-opcao-remover"
-                      onClick={() => handleRemoverOpcao(opcao)}
-                      aria-label={`Remover opção ${opcao}`}
-                    >
-                      <X size={10} weight="bold" />
-                    </button>
-                  </span>
-                ))}
-              </div>
               <div className="mnc-nova-opcao">
                 <input
                   className="mnc-input mnc-input--opcao"
@@ -411,19 +285,37 @@ export function ModalNovaColunaUsuario({
                   placeholder={t('pedido.modal_col.placeholder_opcao')}
                   aria-label={t('pedido.modal_col.aria_nova_opcao')}
                 />
-                <button
-                  type="button"
-                  className="mnc-btn-add-opcao"
-                  onClick={handleAdicionarOpcao}
-                  aria-label={t('pedido.modal_col.aria_adicionar_opcao')}
-                >
+                <button type="button" className="mnc-btn-add-opcao" onClick={handleAdicionarOpcao} aria-label={t('pedido.modal_col.aria_adicionar_opcao')}>
                   <Plus size={14} weight="bold" />
                 </button>
+              </div>
+              <div className="mnc-opcoes-caixa">
+                <span className="mnc-opcoes-caixa__label">
+                  {opcoes.length > 0
+                    ? `${opcoes.length} ${opcoes.length === 1 ? 'opção adicionada' : 'opções adicionadas'}`
+                    : 'Nenhuma opção adicionada'}
+                </span>
+                {opcoes.length > 0 ? (
+                  <div className="mnc-opcoes-lista">
+                    {opcoes.map(opcao => (
+                      <span key={opcao} className="mnc-opcao-chip">
+                        {opcao}
+                        <button type="button" className="mnc-opcao-remover" onClick={() => handleRemoverOpcao(opcao)} aria-label={`Remover opção ${opcao}`}>
+                          <X size={10} weight="bold" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mnc-opcoes-vazio">
+                    Adicione pelo menos uma opção para habilitar a criação da coluna.
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Fórmula */}
+          {/* 4. Fórmula (condicional: formula) */}
           {tipoFormula && (
             <div className="mnc-campo">
               <label className="mnc-label" htmlFor="mnc-formula-expressao">
@@ -443,8 +335,6 @@ export function ModalNovaColunaUsuario({
                 spellCheck={false}
                 aria-describedby={formulaErro ? 'mnc-formula-erro' : undefined}
               />
-
-              {/* Feedback de validação */}
               {formulaErro && (
                 <p id="mnc-formula-erro" className="mnc-formula-erro" role="alert">
                   <Warning size={14} weight="fill" style={{ flexShrink: 0, marginTop: '0.0625rem' }} />
@@ -452,12 +342,8 @@ export function ModalNovaColunaUsuario({
                 </p>
               )}
               {formulaValida && formulaExpressao.trim() && (
-                <p className="mnc-formula-ok" aria-live="polite">
-                  {t('pedido.modal_col.formula_valida')}
-                </p>
+                <p className="mnc-formula-ok" aria-live="polite">{t('pedido.modal_col.formula_valida')}</p>
               )}
-
-              {/* Campos disponíveis */}
               {camposDisponiveis.length > 0 && (
                 <div className="mnc-formula-campos">
                   <p className="mnc-formula-campos-titulo">
@@ -478,7 +364,6 @@ export function ModalNovaColunaUsuario({
                             const fim    = textarea.selectionEnd
                             const nova   = formulaExpressao.slice(0, inicio) + campo + formulaExpressao.slice(fim)
                             handleFormulaChange(nova)
-                            // Reposiciona o cursor após a inserção
                             requestAnimationFrame(() => {
                               textarea.focus()
                               textarea.setSelectionRange(inicio + campo.length, inicio + campo.length)
@@ -494,13 +379,57 @@ export function ModalNovaColunaUsuario({
                   </div>
                 </div>
               )}
-
-              {/* Dica de sintaxe */}
-              <p className="mnc-formula-dica">
-                {t('pedido.modal_col.formula_dica')}
-              </p>
+              <p className="mnc-formula-dica">{t('pedido.modal_col.formula_dica')}</p>
             </div>
           )}
+
+          {/* 5. Escopo */}
+          <SelectGlobal
+            label="Escopo"
+            obrigatorio
+            buscavel={false}
+            opcoes={ESCOPO_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
+            valor={escopo}
+            aoMudarValor={v => v != null && setEscopo(v as EscopoColunaUsuario)}
+          />
+
+          {/* 6. Visibilidade */}
+          <SelectGlobal
+            label="Visibilidade"
+            obrigatorio
+            buscavel={false}
+            opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
+            valor={visibilidade}
+            aoMudarValor={v => v != null && setVisibilidade(v as VisibilidadeColunaUsuario)}
+          />
+
+          {/* 7. Obrigatório */}
+          <div className="mnc-campo mnc-campo--inline">
+            <label className="mnc-label-inline" htmlFor="mnc-obrigatorio">
+              <input
+                id="mnc-obrigatorio"
+                type="checkbox"
+                checked={obrigatorio}
+                onChange={e => setObrigatorio(e.target.checked)}
+                className="mnc-checkbox"
+              />
+              {t('pedido.modal_col.label_obrigatorio')}
+            </label>
+          </div>
+
+          {/* 8. Descrição */}
+          <div className="mnc-campo">
+            <label className="mnc-label" htmlFor="mnc-descricao">Descrição</label>
+            <input
+              id="mnc-descricao"
+              className="mnc-input"
+              type="text"
+              value={descricao}
+              onChange={e => setDescricao(e.target.value)}
+              placeholder={t('pedido.modal_col.placeholder_descricao')}
+              maxLength={200}
+            />
+          </div>
 
           {/* Erro */}
           {erro && (
@@ -508,7 +437,7 @@ export function ModalNovaColunaUsuario({
           )}
         </div>
 
-        {/* Rodapé */}
+        {/* ── Rodapé ── */}
         <div className="mnc-rodape">
           <BotaoGlobal variante="secundario" onClick={onFechar} disabled={salvando}>
             {t('pedido.modal_col.cancelar')}
@@ -516,12 +445,13 @@ export function ModalNovaColunaUsuario({
           <BotaoGlobal
             variante="primario"
             onClick={handleSalvar}
-            carregando={salvando}
+            disabled={salvando}
           >
-            {t('pedido.modal_col.salvar')}
+            {salvando ? t('pedido.modal_col.salvando', 'Salvando...') : t('pedido.modal_col.salvar')}
           </BotaoGlobal>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

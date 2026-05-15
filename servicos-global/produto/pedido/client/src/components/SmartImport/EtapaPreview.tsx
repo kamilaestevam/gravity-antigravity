@@ -29,6 +29,7 @@ import {
   aplicarMaskTelefone,
 } from '../../../../shared/kind-ui-pedido'
 import { CampoSmartImport } from './CampoSmartImport'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 
 // P16 — Set de campos obrigatorios para sinalizacao visual (mesmo
 // padrao do EtapaMapeamento.tsx). Reutilizado para detectar quando
@@ -421,17 +422,18 @@ function CardPedido({
         <div className="smart-import__duplicata-aviso">
           <Warning size={13} weight="fill" style={{ color: '#f59e0b' }} aria-hidden="true" />
           <span>Pedido já existe no sistema.</span>
-          <select
-            className="drawer-pedido__select"
-            style={{ fontSize: '0.75rem', padding: '0.125rem 0.375rem' }}
-            value={decisao ?? 'pular'}
-            onChange={e => onDecisao(e.target.value as DecisaoDuplicata)}
+          <SelectGlobal
+            buscavel={false}
+            tamanho="compacto"
+            opcoes={[
+              { valor: 'sobrescrever', rotulo: 'Sobrescrever' },
+              { valor: 'criar', rotulo: 'Criar mesmo assim' },
+              { valor: 'pular', rotulo: 'Pular' },
+            ]}
+            valor={decisao ?? 'pular'}
+            aoMudarValor={v => v != null && onDecisao(v as DecisaoDuplicata)}
             aria-label="Decisao para pedido duplicado"
-          >
-            <option value="sobrescrever">Sobrescrever</option>
-            <option value="criar">Criar mesmo assim</option>
-            <option value="pular">Pular</option>
-          </select>
+          />
         </div>
       )}
 

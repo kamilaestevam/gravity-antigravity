@@ -20,6 +20,7 @@ import {
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
 import { CAMPOS_PEDIDO_DDD_TODOS, prioridadeDeCampo, type PrioridadeCampoDDD } from '../../../../shared/campos-pedido-ddd'
 import { ehCampoNcm, formatarNcm } from '../../../../shared/formatadores'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 
 // ── Campos disponiveis no sistema ─────────────────────────────────────────────
 //
@@ -540,33 +541,21 @@ export function EtapaMapeamento({
                     )}
                   </td>
                   <td>
-                    <select
-                      style={{
-                        minWidth: '200px',
-                        padding: '0.375rem 0.625rem',
-                        borderRadius: '6px',
-                        border: '1px solid var(--bg-elevated, #334155)',
-                        background: 'var(--bg-surface, #1e293b)',
-                        color: 'var(--text-primary)',
-                        fontSize: '0.8125rem',
-                        fontFamily: 'inherit',
-                        outline: 'none',
-                        cursor: 'pointer',
-                      }}
-                      value={col.campo_sistema ?? ''}
-                      onChange={e => atualizarCampo(indexOriginal, e.target.value || null)}
+                    <SelectGlobal
+                      buscavel
+                      tamanho="compacto"
+                      placeholder="→ Campo extra (preservar)"
+                      opcoes={[
+                        { valor: '__drop__', rotulo: '✕ Descartar este campo' },
+                      ]}
+                      grupos={camposAgrupados.map(g => ({
+                        rotulo: g.label,
+                        opcoes: g.opcoes.map(c => ({ valor: c.valor, rotulo: c.rotulo })),
+                      }))}
+                      valor={col.campo_sistema ?? null}
+                      aoMudarValor={v => atualizarCampo(indexOriginal, v != null ? String(v) : null)}
                       aria-label={`Campo sistema para ${col.coluna_arquivo}`}
-                    >
-                      <option value="">→ Campo extra (preservar)</option>
-                      <option value="__drop__">✕ Descartar este campo</option>
-                      {camposAgrupados.map(g => (
-                        <optgroup key={g.label} label={g.label}>
-                          {g.opcoes.map(c => (
-                            <option key={c.valor} value={c.valor}>{c.rotulo}</option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
+                    />
                   </td>
                   <td>
                     <BadgeConfianca confianca={col.confianca} nivel={col.nivel} campoSistema={col.campo_sistema} />

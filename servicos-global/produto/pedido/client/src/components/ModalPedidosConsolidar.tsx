@@ -16,6 +16,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GitMerge, Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente } from '../shared/types'
 import { pedidoConsolidarApi } from '../shared/api'
@@ -47,21 +48,20 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
     <tr className="modal-consolidar__linha-campo">
       <td className="modal-consolidar__campo-nome">{campo.rotulo}</td>
       <td className="modal-consolidar__campo-valor">
-        <select
-          className="modal-consolidar__select"
-          value={String(valorEscolhido ?? '')}
-          onChange={e => {
-            const opt = campo.valores.find(v => String(v.valor) === e.target.value)
-            onMudar(opt?.valor ?? e.target.value)
+        <SelectGlobal
+          buscavel={false}
+          tamanho="compacto"
+          opcoes={campo.valores.map(v => ({
+            valor: String(v.valor ?? ''),
+            rotulo: `${String(v.valor ?? '—')} (${v.numero_pedido})`,
+          }))}
+          valor={String(valorEscolhido ?? '')}
+          aoMudarValor={v => {
+            const opt = campo.valores.find(vl => String(vl.valor) === String(v))
+            onMudar(opt?.valor ?? (v != null ? String(v) : null))
           }}
           aria-label={`Valor consolidado para ${campo.rotulo}`}
-        >
-          {campo.valores.map(v => (
-            <option key={`${v.pedido_id}-${String(v.valor)}`} value={String(v.valor ?? '')}>
-              {String(v.valor ?? '—')} ({v.numero_pedido})
-            </option>
-          ))}
-        </select>
+        />
       </td>
       <td className="modal-consolidar__campo-origens">
         <span

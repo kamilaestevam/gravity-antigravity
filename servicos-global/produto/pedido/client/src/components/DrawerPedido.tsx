@@ -28,6 +28,7 @@ import {
   ArrowsLeftRight,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
@@ -483,16 +484,16 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                   <p className="drawer-pedido__secao-titulo">{t('pedido.drawer.secao_dados')}</p>
                   <div className="drawer-pedido__grid">
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-tipo-operacao">{t('pedido.drawer.label_tipo_op')}</label>
-                      <select
-                        id="dp-tipo-operacao"
-                        className="drawer-pedido__select"
-                        value={form.tipo_operacao}
-                        onChange={e => handleChange('tipo_operacao', e.target.value)}
-                      >
-                        <option value="importacao">{t('pedido.drawer.opt_importacao')}</option>
-                        <option value="exportacao">{t('pedido.drawer.opt_exportacao')}</option>
-                      </select>
+                      <SelectGlobal
+                        label={t('pedido.drawer.label_tipo_op')}
+                        buscavel={false}
+                        opcoes={[
+                          { valor: 'importacao', rotulo: t('pedido.drawer.opt_importacao') },
+                          { valor: 'exportacao', rotulo: t('pedido.drawer.opt_exportacao') },
+                        ]}
+                        valor={form.tipo_operacao}
+                        aoMudarValor={v => v != null && handleChange('tipo_operacao', String(v))}
+                      />
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-numero-pedido">{t('pedido.drawer.label_numero')}</label>
@@ -525,20 +526,13 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-incoterm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                        {t('pedido.drawer.label_incoterm')}
-                        <GabiCampoIconeGlobal campo="incoterm" label="Incoterm" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
-                      </label>
-                      <select
-                        id="dp-incoterm"
-                        className="drawer-pedido__select"
-                        value={form.incoterm}
-                        onChange={e => handleChange('incoterm', e.target.value)}
-                      >
-                        {['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS'].map(i => (
-                          <option key={i} value={i}>{i}</option>
-                        ))}
-                      </select>
+                      <SelectGlobal
+                        label={t('pedido.drawer.label_incoterm')}
+                        buscavel={false}
+                        opcoes={['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS'].map(i => ({ valor: i, rotulo: i }))}
+                        valor={form.incoterm}
+                        aoMudarValor={v => v != null && handleChange('incoterm', String(v))}
+                      />
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label">{t('pedido.drawer.label_moeda')}</label>
@@ -707,18 +701,14 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                         />
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-uom-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_uom')}</label>
-                        <select
-                          id={`dp-uom-${index}`}
-                          className="drawer-pedido__select"
-                          value={item.unidade_comercializada_item}
-                          onChange={e => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
-                          aria-label={t('pedido.drawer.label_uom')}
-                        >
-                          {unidadesComercializadas.map(u => (
-                            <option key={u.sigla} value={u.sigla}>{u.rotulo}</option>
-                          ))}
-                        </select>
+                        <SelectGlobal
+                          label={t('pedido.drawer.label_uom')}
+                          buscavel={false}
+                          tamanho="compacto"
+                          opcoes={unidadesComercializadas.map(u => ({ valor: u.sigla, rotulo: u.rotulo }))}
+                          valor={item.unidade_comercializada_item}
+                          aoMudarValor={v => v != null && handleItemChange(index, 'unidade_comercializada_item', String(v))}
+                        />
                       </div>
                       <div className="drawer-pedido__campo">
                         <label className="drawer-pedido__label" htmlFor={`dp-vl-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_vl_unit')}</label>

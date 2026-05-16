@@ -3950,7 +3950,7 @@ export default function Pedidos() {
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
     // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
-    if (replicar) {
+    if (replicar && isPropagavel(campo)) {
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
         // O campo no item pode ter nome diferente (e.g. data_emissao_pedido →

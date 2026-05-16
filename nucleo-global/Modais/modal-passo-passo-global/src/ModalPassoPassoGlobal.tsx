@@ -203,13 +203,21 @@ export function ModalPassoPassoGlobal({
           to   { opacity: 1; transform: translateX(0); }
         }
         @keyframes mpg-check-bounce {
-          0%   { transform: scale(0); }
-          60%  { transform: scale(1.15); }
-          100% { transform: scale(1); }
+          0%   { transform: scale(0) rotate(-10deg); }
+          50%  { transform: scale(1.2) rotate(3deg); }
+          100% { transform: scale(1) rotate(0deg); }
         }
-        @keyframes mpg-pulse {
-          0%, 100% { box-shadow: 0 0 0 3px rgba(99,102,241,0.2), 0 4px 14px rgba(99,102,241,0.3); }
-          50%      { box-shadow: 0 0 0 6px rgba(99,102,241,0.15), 0 4px 14px rgba(99,102,241,0.15); }
+        @keyframes mpg-neon-pulse {
+          0%, 100% {
+            box-shadow: 0 0 8px rgba(99,102,241,0.5), 0 0 20px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.15), inset 0 0 12px rgba(99,102,241,0.1);
+          }
+          50% {
+            box-shadow: 0 0 12px rgba(99,102,241,0.7), 0 0 30px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.2), inset 0 0 16px rgba(99,102,241,0.15);
+          }
+        }
+        @keyframes mpg-ring-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
         .mpg-btn-fechar:hover {
           color: var(--text-primary) !important;
@@ -219,22 +227,32 @@ export function ModalPassoPassoGlobal({
           cursor: pointer;
         }
         .mpg-passo-feito:hover .mpg-circulo-feito {
-          transform: scale(1.12);
-          box-shadow: 0 0 0 3px rgba(34,197,94,0.25), 0 4px 12px rgba(34,197,94,0.2);
+          transform: scale(1.1);
+          box-shadow: 0 0 10px rgba(34,197,94,0.5), 0 0 25px rgba(34,197,94,0.25), 0 0 50px rgba(34,197,94,0.1);
         }
         .mpg-circulo-ativo {
-          animation: mpg-pulse 2.5s ease-in-out infinite;
+          animation: mpg-neon-pulse 2s ease-in-out infinite;
+        }
+        .mpg-circulo-ativo::before {
+          content: '';
+          position: absolute;
+          inset: -3px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-top-color: rgba(255,255,255,0.6);
+          animation: mpg-ring-spin 2.5s linear infinite;
+          pointer-events: none;
         }
         .mpg-circulo-pendente {
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
         }
         .mpg-circulo-pendente:hover {
-          background: var(--bg-elevated, rgba(255,255,255,0.1)) !important;
-          border-color: var(--text-muted) !important;
+          border-color: rgba(99,102,241,0.4) !important;
+          box-shadow: 0 0 8px rgba(99,102,241,0.15);
         }
         .mpg-check-icon {
-          animation: mpg-check-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: mpg-check-bounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
         .mpg-content-wrap {
           animation: mpg-content-slide-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -250,9 +268,10 @@ export function ModalPassoPassoGlobal({
           top: 0;
           left: 0;
           height: 100%;
-          background: var(--success, #22c55e);
+          background: linear-gradient(90deg, #22c55e, #4ade80);
           border-radius: 1px;
-          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 0 6px rgba(34,197,94,0.4);
+          transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @media (max-width: 640px) {
           .mpg-dialog {
@@ -352,7 +371,7 @@ export function ModalPassoPassoGlobal({
                         }
                       >
                         {status === 'feito'
-                          ? <span className="mpg-check-icon"><Check size={13} weight="bold" /></span>
+                          ? <span className="mpg-check-icon"><Check size={16} weight="bold" /></span>
                           : (passo.icone ?? passo.id)
                         }
                       </div>
@@ -541,35 +560,37 @@ const s = {
   },
   // Circulo — OBRIGATORIO: min-width e flex-shrink:0 (Design System § 12)
   circulo: {
-    width: '2.25rem',
-    height: '2.25rem',
-    minWidth: '2.25rem',
+    position: 'relative' as const,
+    width: '2.75rem',
+    height: '2.75rem',
+    minWidth: '2.75rem',
     flexShrink: 0,
     borderRadius: '50%',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1.5px solid var(--bg-elevated, rgba(255,255,255,0.12))',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1.5px solid rgba(255,255,255,0.1)',
     color: 'var(--text-muted)',
-    fontSize: '0.8125rem',
+    fontSize: '0.875rem',
     fontWeight: 700,
     letterSpacing: '-0.01em',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   } as React.CSSProperties,
   circuloAtivo: {
-    background: 'linear-gradient(135deg, var(--accent, #6366f1), #818cf8)',
-    border: '2px solid transparent',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #6366f1)',
+    border: '2px solid rgba(129,140,248,0.5)',
     color: '#fff',
-    boxShadow: '0 0 0 3px rgba(99,102,241,0.2), 0 4px 14px rgba(99,102,241,0.3)',
+    fontSize: '1rem',
     fontWeight: 800,
+    boxShadow: '0 0 8px rgba(99,102,241,0.5), 0 0 20px rgba(99,102,241,0.3), 0 0 40px rgba(99,102,241,0.15), inset 0 0 12px rgba(99,102,241,0.1)',
   } as React.CSSProperties,
   circuloFeito: {
-    background: 'linear-gradient(135deg, #22c55e, #4ade80)',
-    border: '2px solid transparent',
+    background: 'linear-gradient(135deg, #16a34a, #22c55e, #4ade80)',
+    border: '2px solid rgba(74,222,128,0.4)',
     color: '#fff',
-    boxShadow: '0 2px 8px rgba(34,197,94,0.25)',
-    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
+    boxShadow: '0 0 8px rgba(34,197,94,0.4), 0 0 20px rgba(34,197,94,0.2), 0 0 35px rgba(34,197,94,0.1)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease',
   } as React.CSSProperties,
   label: {
     fontSize: '0.6875rem',
@@ -577,17 +598,23 @@ const s = {
     textAlign: 'center' as const,
     color: 'var(--text-muted, #64748b)',
     whiteSpace: 'nowrap' as const,
-    transition: 'color 0.2s',
+    transition: 'color 0.3s, text-shadow 0.3s',
   },
-  labelAtivo: { color: 'var(--accent, #6366f1)' },
-  labelFeito: { color: 'var(--success, #22c55e)' },
+  labelAtivo: {
+    color: '#a5b4fc',
+    textShadow: '0 0 8px rgba(99,102,241,0.5)',
+  },
+  labelFeito: {
+    color: '#86efac',
+    textShadow: '0 0 6px rgba(34,197,94,0.3)',
+  },
   conector: {
     position: 'relative' as const,
     flex: 1,
     height: '2px',
-    background: 'var(--bg-elevated, rgba(255,255,255,0.08))',
+    background: 'rgba(255,255,255,0.06)',
     minWidth: '20px',
-    marginTop: '1.125rem',
+    marginTop: '1.375rem',
     borderRadius: '1px',
     overflow: 'hidden',
   } as React.CSSProperties,

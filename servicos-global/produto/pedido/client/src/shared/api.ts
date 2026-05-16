@@ -561,16 +561,94 @@ export const pedidoConsolidarApi = {
     }),
 }
 
-/** Mock de preview — detecta divergências nos pedidos selecionados do MOCK_PEDIDOS_RESPONSE */
+/** Mock de preview — detecta divergências nos pedidos selecionados do MOCK_PEDIDOS_RESPONSE.
+ *  Se os IDs não existem no mock (ex: dados reais do banco em DEV), gera preview sintético. */
 function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
-  const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => ids.includes(p.id))
-  if (pedidos.length < 2) {
+  if (ids.length < 2) {
     throw new Error('Selecione ao menos 2 pedidos para consolidar')
   }
 
+  const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => ids.includes(p.id))
+
+  // ── IDs reais (não encontrados no mock) → preview sintético ──
+  if (pedidos.length < 2) {
+    const ano = new Date().getFullYear()
+    const seq = String(ids.length + 1).padStart(3, '0')
+    return {
+      ids,
+      campos_divergentes: [
+        {
+          campo: 'incoterm',
+          rotulo: 'Incoterm',
+          grupo: 'Comercial',
+          valores: ids.map((id, i) => ({
+            pedido_id: id,
+            numero_pedido: `Pedido ${i + 1}`,
+            valor: i === 0 ? 'FOB' : 'CIF',
+          })),
+          valor_sugerido: 'FOB',
+        },
+        {
+          campo: 'condicao_pagamento',
+          rotulo: 'Condição de Pagamento',
+          grupo: 'Comercial',
+          valores: ids.map((id, i) => ({
+            pedido_id: id,
+            numero_pedido: `Pedido ${i + 1}`,
+            valor: i === 0 ? '30 dias' : '60 dias',
+          })),
+          valor_sugerido: '30 dias',
+        },
+        {
+          campo: 'nome_exportador',
+          rotulo: 'Exportador — Nome',
+          grupo: 'Exportador',
+          valores: ids.map((id, i) => ({
+            pedido_id: id,
+            numero_pedido: `Pedido ${i + 1}`,
+            valor: i === 0 ? 'Exportador Alpha' : 'Exportador Beta',
+          })),
+          valor_sugerido: 'Exportador Alpha',
+        },
+        {
+          campo: 'data_emissao_pedido',
+          rotulo: 'Data de Emissão',
+          grupo: 'Datas',
+          valores: ids.map((id, i) => ({
+            pedido_id: id,
+            numero_pedido: `Pedido ${i + 1}`,
+            valor: i === 0 ? '2026-01-15' : '2026-02-20',
+          })),
+          valor_sugerido: '2026-01-15',
+        },
+      ],
+      campos_iguais: [
+        { campo: 'moeda_pedido', rotulo: 'Moeda', grupo: 'Comercial', valor: 'USD' },
+      ],
+      itens: ids.flatMap((id, i) => ([
+        {
+          part_number: `PART-${String(i + 1).padStart(3, '0')}`,
+          descricao_item: `Item sintético ${i + 1}`,
+          ncm: '8471.30.19',
+          unidade_comercializada_item: 'UN',
+          moeda_item: 'USD',
+          valor_por_unidade_item: 100 + (i * 50),
+          quantidade_total: 10 + (i * 5),
+          pedidos_origem: [`Pedido ${i + 1}`],
+          pode_fundir: false,
+        },
+      ])),
+      valor_total_soma: ids.length * 25000,
+      moeda: 'USD',
+      numero_sugerido: `PO-CONS-${ano}/${seq}`,
+      pedidos_info: ids.map((id, i) => ({ id, numero: `Pedido ${i + 1}` })),
+    }
+  }
+
+  // ── IDs do mock encontrados → preview baseado nos dados reais do mock ──
   const camposDivergentes: CampoDivergente[] = []
 
-  const verificarCampo = (campo: keyof typeof pedidos[0], rotulo: string) => {
+  const verificarCampo = (campo: keyof typeof pedidos[0], rotulo: string, grupo = 'Comercial') => {
     const valores = pedidos.map(p => ({
       pedido_id: p.id,
       numero_pedido: p.numero_pedido,
@@ -581,6 +659,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
       camposDivergentes.push({
         campo,
         rotulo,
+        grupo,
         valores,
         valor_sugerido: valores[0].valor,
       })
@@ -588,12 +667,12 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
     return unicos.size === 1
   }
 
-  const camposIguais: string[] = []
-  if (verificarCampo('incoterm', 'Incoterm')) camposIguais.push('incoterm')
-  if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push('moeda_pedido')
-  if (verificarCampo('nome_exportador', 'Exportador')) camposIguais.push('nome_exportador')
-  if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido')) camposIguais.push('data_emissao_pedido')
-  if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento')
+  const camposIguais: Array<{ campo: string; rotulo: string; grupo: string; valor: string | number | null }> = []
+  if (verificarCampo('incoterm', 'Incoterm')) camposIguais.push({ campo: 'incoterm_pedido', rotulo: 'Incoterm', grupo: 'Comercial', valor: pedidos[0]?.incoterm ?? null })
+  if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push({ campo: 'moeda_pedido', rotulo: 'Moeda', grupo: 'Comercial', valor: pedidos[0]?.moeda_pedido ?? null })
+  if (verificarCampo('nome_exportador', 'Exportador', 'Exportador')) camposIguais.push({ campo: 'nome_exportador', rotulo: 'Exportador — Nome', grupo: 'Exportador', valor: pedidos[0]?.nome_exportador ?? null })
+  if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido', 'Datas')) camposIguais.push({ campo: 'data_emissao_pedido', rotulo: 'Data de Emissão', grupo: 'Datas', valor: pedidos[0]?.data_emissao_pedido ?? null })
+  if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push({ campo: 'condicao_pagamento_pedido', rotulo: 'Condição de Pagamento', grupo: 'Comercial', valor: pedidos[0]?.condicao_pagamento ?? null })
 
   // Mapa de itens por part_number
   const itensPorPart: Record<string, ItemConsolidado> = {}
@@ -633,12 +712,32 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
     valor_total_soma: valorTotal,
     moeda: primeiraPedido.moeda_pedido,
     numero_sugerido: numeroSugerido,
+    pedidos_info: pedidos.map(p => ({ id: p.id, numero: p.numero_pedido })),
   }
 }
 
-/** Mock de confirmar — cria pedido consolidado e "remove" originais do estado */
+/** Mock de confirmar — cria pedido consolidado e "remove" originais do estado.
+ *  Se os IDs não existem no mock (dados reais do banco em DEV), gera resultado sintético. */
 function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
   const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => payload.ids.includes(p.id))
+
+  // ── IDs reais (não encontrados no mock) → resultado sintético ──
+  if (pedidos.length === 0) {
+    return {
+      id: `pedi_cons_${Date.now()}`,
+      numero_pedido: payload.numero_pedido,
+      status: 'consolidado',
+      tipo_operacao: 'importacao',
+      incoterm: (payload.campos_escolhidos?.incoterm as string) ?? 'FOB',
+      moeda_pedido: 'USD',
+      valor_total_pedido: payload.ids.length * 25000,
+      pedidos_origem_id: payload.ids,
+      itens: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as unknown as Pedido
+  }
+
   const primeiro = pedidos[0]
 
   const itensMerge: PedidoItem[] = []

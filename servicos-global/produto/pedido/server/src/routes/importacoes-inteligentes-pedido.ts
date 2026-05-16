@@ -77,7 +77,19 @@ import {
 //              "2202.10.00". (3) UI do Smart Import: fonte normal (nao mais
 //              monospace) na coluna do arquivo + nowrap + tooltip; "* " do
 //              template e' escondido do display (badge ⚠️ ja sinaliza).
-const TEMPLATE_VERSAO = '3.6'
+// 3.7 (P14)  — (1) Dropdowns dinamicos de Moeda e Unidade lidos ao vivo do
+//              banco Cadastros via S2S (espelhando sempre Cadastro/Moedas e
+//              Cadastro/Unidades). Aba oculta "_Listas" com Named Ranges
+//              para suportar listas longas. (2) Data validation NCM: 8
+//              digitos com ou sem pontos. (3) formatarNcm() normaliza para
+//              XXXX.XX.XX antes de gravar.
+// 3.8 (P15)  — Bloqueio de celulas por tipo de linha. Campos de nivel
+//              'pedido' exclusivos (agregados) sao bloqueados em linhas ITEM;
+//              campos de nivel 'item' exclusivos (part number, quantidades,
+//              pesos unitarios) sao bloqueados em linhas PEDIDO. Usa data
+//              validation custom com formula referenciando coluna Tipo Linha.
+//              Campos propagaveis (existem em ambos) ficam editaveis em ambos.
+const TEMPLATE_VERSAO = '3.8'
 
 import { exigirPermissao } from '../permissoes.js'
 
@@ -181,6 +193,39 @@ const ConfirmarSchema = z.object({
  */
 export const templateHandler = (_req: Request, res: Response, next: NextFunction) => {
   import('exceljs').then(async ({ default: ExcelJS }) => {
+    // ─── Buscar listas dinamicas do Cadastros (S2S) para dropdowns ─────────────
+    //
+    // Moedas e Unidades sao catalogos globais (sem id_organizacao). Sempre
+    // lidos ao vivo do banco Cadastros (cadastros-snapshot-policy REGRA master-data).
+    // Se Cadastros estiver offline, template e' gerado sem dropdown (degradacao
+    // graciosa — Mandamento 08: log warning, nao falha silenciosa).
+    const cadastrosBaseUrl = process.env.CADASTROS_URL ?? 'http://localhost:8031'
+    const chaveInterna = process.env.INTERNAL_SERVICE_KEY ?? ''
+    const headersS2S = { 'x-internal-key': chaveInterna, 'Content-Type': 'application/json' }
+
+    let opcoesMoeda: string[] = []
+    let opcoesUnidade: string[] = []
+    try {
+      const [resMoedas, resUnidades] = await Promise.all([
+        fetch(`${cadastrosBaseUrl}/api/v1/cadastros/moedas?apenas_ativas=true`, { headers: headersS2S }),
+        fetch(`${cadastrosBaseUrl}/api/v1/cadastros/unidades?apenas_ativas=true`, { headers: headersS2S }),
+      ])
+      if (resMoedas.ok) {
+        const json = await resMoedas.json() as { itens: { codigo_moeda: string; nome_moeda: string }[] }
+        opcoesMoeda = json.itens.map(m => `${m.codigo_moeda} — ${m.nome_moeda}`)
+      } else {
+        console.warn(`[templateHandler] Cadastros /moedas respondeu ${resMoedas.status} — dropdown de moeda omitido`)
+      }
+      if (resUnidades.ok) {
+        const json = await resUnidades.json() as { itens: { codigo_unidade: string; nome_unidade: string }[] }
+        opcoesUnidade = json.itens.map(u => `${u.codigo_unidade} — ${u.nome_unidade}`)
+      } else {
+        console.warn(`[templateHandler] Cadastros /unidades respondeu ${resUnidades.status} — dropdown de unidade omitido`)
+      }
+    } catch (err) {
+      console.warn('[templateHandler] Cadastros offline — template gerado sem dropdowns de moeda/unidade', err instanceof Error ? err.message : err)
+    }
+
     // ─── P7.1 — Reordenacao GLOBAL por prioridade + secao OPE no final ─────────
     //
     // 3 secoes do template:
@@ -370,6 +415,176 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       }
     })
 
+    // ── Data validation dinamica (Moeda/Unidade do Cadastros) ──────────────────
+    // Usa aba oculta "_Listas" com Named Ranges para suportar listas longas
+    // (Excel limita formulae inline a ~255 chars; moedas ISO 4217 excedem).
+    const temMoedas   = opcoesMoeda.length > 0
+    const temUnidades = opcoesUnidade.length > 0
+    if (temMoedas || temUnidades) {
+      const wsListas = wb.addWorksheet('_Listas', { state: 'veryHidden' })
+      let colListaAtual = 1
+      let rangeMoeda   = ''
+      let rangeUnidade = ''
+      if (temMoedas) {
+        opcoesMoeda.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
+        const colLetra = wsListas.getColumn(colListaAtual).letter
+        rangeMoeda = `'_Listas'!$${colLetra}$1:$${colLetra}$${opcoesMoeda.length}`
+        colListaAtual++
+      }
+      if (temUnidades) {
+        opcoesUnidade.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
+        const colLetra = wsListas.getColumn(colListaAtual).letter
+        rangeUnidade = `'_Listas'!$${colLetra}$1:$${colLetra}$${opcoesUnidade.length}`
+      }
+      camposOrdenados.forEach((c, idx) => {
+        if (!c.dropdownDinamico) return
+        const ref = c.dropdownDinamico === 'moeda' ? rangeMoeda : rangeUnidade
+        if (!ref) return
+        const colLetter = ws.getColumn(idx + 1).letter
+        const label     = c.dropdownDinamico === 'moeda' ? 'moeda' : 'unidade'
+        for (let row = 3; row <= 1000; row++) {
+          ws.getCell(`${colLetter}${row}`).dataValidation = {
+            type:             'list',
+            allowBlank:       true,
+            formulae:         [ref],
+            showErrorMessage: true,
+            errorStyle:       'warning',
+            errorTitle:       `${label.charAt(0).toUpperCase() + label.slice(1)} nao encontrada`,
+            error:            `Valor nao corresponde a nenhuma ${label} ativa no Cadastros. Verifique a lista.`,
+          }
+        }
+      })
+    }
+
+    // ── Data validation NCM (formato 8 digitos) ─────────────────────────────────
+    // ncm_item e' tratado na secao de bloqueio P15 (formula combinada: bloqueio +
+    // validacao 8 digitos). Este bloco cobre apenas ncm_duimp (se existir no SSOT).
+    camposOrdenados.forEach((c, idx) => {
+      if (c.campo !== 'ncm_duimp') return
+      const colLetter = ws.getColumn(idx + 1).letter
+      for (let row = 3; row <= 1000; row++) {
+        ws.getCell(`${colLetter}${row}`).dataValidation = {
+          type:             'custom',
+          allowBlank:       true,
+          formulae:         [`OR(LEN(SUBSTITUTE(SUBSTITUTE(${colLetter}${row},".","")," ",""))=8,${colLetter}${row}="")`],
+          showErrorMessage: true,
+          errorStyle:       'stop',
+          errorTitle:       'Formato NCM invalido',
+          error:            'NCM deve ter exatamente 8 digitos numericos (ex: 84713019 ou 8471.30.19). Letras e formatos diferentes nao sao aceitos.',
+        }
+      }
+    })
+
+    // ── P15 — Bloqueio de celulas por tipo de linha ──────────────────────────
+    //
+    // Campos de nivel 'pedido' que sao agregados (calculados a partir dos itens)
+    // devem ser bloqueados quando tipo_linha = "ITEM". Campos de nivel 'item'
+    // exclusivos (part number, quantidades, pesos unitarios) devem ser bloqueados
+    // quando tipo_linha = "PEDIDO". Campos propagaveis (existem em ambos os
+    // niveis via mapaPropagacaoPedidoItem) ficam editaveis em ambos.
+    //
+    // Implementacao: data validation custom com formula que referencia $A{row}
+    // (coluna Tipo Linha). allowBlank=true garante que celulas vazias passam.
+    // Para ncm_item, combina bloqueio + validacao de 8 digitos em uma formula.
+    const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
+      'numero_pedido',
+      'valor_total_pedido',
+      'quantidade_total_pedido',
+      'quantidade_volumes_pedido',
+      'valor_total_cambio_pedido',
+    ])
+    const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
+      'sequencia_item_pedido',
+      'part_number_item',
+      'ncm_item',
+      'descricao_item',
+      'quantidade_inicial_item',
+      'quantidade_atual_item',
+      'quantidade_transferida_item',
+      'quantidade_pronta_total_item',
+      'quantidade_cancelada_item',
+      'valor_por_unidade_item',
+      'nome_exportador_item',
+      'nome_importador_item',
+      'nome_fabricante_item',
+      'peso_liquido_unitario_item',
+      'peso_bruto_unitario_item',
+      'cubagem_unitaria_item',
+      'data_embarque_item_pedido',
+    ])
+    const colTipoLinha = ws.getColumn(1).letter
+    camposOrdenados.forEach((c, idx) => {
+      const colNumber = idx + 1
+      const colLetter = ws.getColumn(colNumber).letter
+      const ehBloqItem   = CAMPOS_BLOQ_PARA_ITEM.has(c.campo)
+      const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
+      if (!ehBloqItem && !ehBloqPedido) return
+      const ehNcm = c.campo === 'ncm_item' || c.campo === 'ncm_duimp'
+      for (let row = 3; row <= 1000; row++) {
+        const cell = ws.getCell(`${colLetter}${row}`)
+        if (ehBloqItem) {
+          cell.dataValidation = {
+            type:             'custom',
+            allowBlank:       true,
+            formulae:         [`$${colTipoLinha}${row}<>"ITEM"`],
+            showErrorMessage: true,
+            errorStyle:       'stop',
+            errorTitle:       'Campo exclusivo de PEDIDO',
+            error:            'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+          }
+        } else if (ehBloqPedido && ehNcm) {
+          cell.dataValidation = {
+            type:             'custom',
+            allowBlank:       true,
+            formulae:         [`AND($${colTipoLinha}${row}<>"PEDIDO",OR(LEN(SUBSTITUTE(SUBSTITUTE(${colLetter}${row},".","")," ",""))=8,${colLetter}${row}=""))`],
+            showErrorMessage: true,
+            errorStyle:       'stop',
+            errorTitle:       'Campo bloqueado ou NCM invalido',
+            error:            'Em linhas PEDIDO este campo e bloqueado. Em linhas ITEM, NCM deve ter 8 digitos (ex: 84713019 ou 8471.30.19).',
+          }
+        } else if (ehBloqPedido) {
+          cell.dataValidation = {
+            type:             'custom',
+            allowBlank:       true,
+            formulae:         [`$${colTipoLinha}${row}<>"PEDIDO"`],
+            showErrorMessage: true,
+            errorStyle:       'stop',
+            errorTitle:       'Campo exclusivo de ITEM',
+            error:            'Este campo pertence ao Item (linha filha). Nao pode ser preenchido em linhas de PEDIDO.',
+          }
+        }
+      }
+    })
+
+    // ── P15.2 — Formatacao condicional: celulas bloqueadas ficam cinza ────────
+    //
+    // Visual "desabilitado": fundo cinza escuro + fonte cinza claro quando a
+    // celula pertence ao nivel errado. O usuario VE que a celula e proibida
+    // ANTES de tentar digitar (data validation bloqueia, mas so aparece ao digitar).
+    //
+    // Regras por coluna:
+    //   - BLOQ_PARA_ITEM:   quando $A="ITEM"   → fundo #1E293B (slate-800) + fonte #475569 (slate-600)
+    //   - BLOQ_PARA_PEDIDO: quando $A="PEDIDO" → fundo #1E293B (slate-800) + fonte #475569 (slate-600)
+    const estiloBloqueado: ExcelJS.ConditionalFormattingRule['style'] = {
+      fill: { type: 'pattern' as const, pattern: 'solid' as const, bgColor: { argb: 'FF1E293B' } },
+      font: { color: { argb: 'FF475569' } },
+    }
+    camposOrdenados.forEach((c, idx) => {
+      const colNumber = idx + 1
+      const colLetter = ws.getColumn(colNumber).letter
+      const ehBloqItem   = CAMPOS_BLOQ_PARA_ITEM.has(c.campo)
+      const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
+      if (!ehBloqItem && !ehBloqPedido) return
+      const ref = `${colLetter}3:${colLetter}1000`
+      const formula = ehBloqItem
+        ? `$${colTipoLinha}3="ITEM"`
+        : `$${colTipoLinha}3="PEDIDO"`
+      ws.addConditionalFormatting({
+        ref,
+        rules: [{ type: 'expression', formulae: [formula], style: estiloBloqueado, priority: 1 }],
+      })
+    })
+
     // ── Linha 3 — Exemplo de Pedido (vazia, em negrito) ───────────────────────
     const linhaPedidoExemplo = ws.getRow(3)
     linhaPedidoExemplo.height = 20
@@ -486,14 +701,10 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
       const service   = criarSmartImportService(db)
       const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
       res.json(resultado)
-    })
+    }, { timeoutMs: 60_000 })
   } catch (err) {
-    // Q5 — Log explicito do stack para diagnosticar 500s no smart import.
-    // Sem este log, o frontend so' ve 500 sem detalhe e o middleware de erro
-    // global do Express engole o stack trace original.
     console.error('[smart-import:confirmar] ERRO 500:', err instanceof Error ? err.stack : err)
     if (err instanceof Error && 'meta' in err) {
-      // Prisma errors tem `.meta` com info do field/constraint
       console.error('[smart-import:confirmar] Prisma meta:', (err as Error & { meta?: unknown }).meta)
     }
     next(err)
@@ -633,12 +844,25 @@ smartImportRouter.post('/reverter', async (req: Request, res: Response, next: Ne
 
 // ── Error handler local ───────────────────────────────────────────────────────
 
-smartImportRouter.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+smartImportRouter.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       error: { code: err.code, message: err.message },
     })
   }
-  console.error('[SmartImport]', err.message)
-  res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Erro interno do servidor' } })
+  // Duck-typed: AppError de processos-core tem statusCode mas classe diferente
+  if (typeof err.statusCode === 'number' && err.statusCode >= 400 && err.statusCode < 600) {
+    return res.status(err.statusCode).json({
+      error: { code: err.code ?? 'APP_ERROR', message: err.message },
+    })
+  }
+  console.error('[SmartImport]', err.stack ?? err.message)
+  const isDev = process.env.NODE_ENV !== 'production'
+  res.status(500).json({
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: isDev ? err.message : 'Erro interno do servidor',
+      ...(isDev && { _dev_stack: err.stack }),
+    },
+  })
 })

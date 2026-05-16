@@ -23,16 +23,49 @@ import {
 } from '../../../shared/campos-pedido-ddd.js'
 import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
+function traduzirErroPrisma(err: unknown): string {
+  if (!(err instanceof Error)) return 'Erro desconhecido ao processar linha'
+  const msg = err.message
+  // Prisma P2002 — unique constraint
+  if (msg.includes('Unique constraint failed')) {
+    const camposMatch = msg.match(/fields:\s*\(([^)]+)\)/)
+    const campos = camposMatch ? camposMatch[1].replace(/`/g, '').trim() : ''
+    if (campos.includes('numero_pedido')) {
+      return 'Já existe um pedido com este número. Use a opção "Sobrescrever" na tela anterior para atualizar.'
+    }
+    return `Registro duplicado nos campos: ${campos || 'desconhecidos'}. Verifique os dados na planilha e tente novamente.`
+  }
+  // Prisma P2003 — FK constraint
+  if (msg.includes('Foreign key constraint failed')) {
+    return 'Referência inválida — verifique se os dados relacionados (status, moeda, etc.) existem no sistema.'
+  }
+  // Prisma P2025 — record not found
+  if (msg.includes('Record to update not found') || msg.includes('not found')) {
+    return 'Registro não encontrado para atualização. Ele pode ter sido removido.'
+  }
+  // NOT NULL violation
+  if (msg.includes('must not be null') || msg.includes('NOT NULL')) {
+    const campoMatch = msg.match(/column\s+"?([^"]+)"?/)
+    return `Campo obrigatório ausente: ${campoMatch?.[1] ?? 'verifique a planilha'}.`
+  }
+  // Genérico: limpar stack trace do Prisma
+  const prismaCleaned = msg.replace(/\n.*invocation.*[\s\S]*?→\s*/m, '').trim()
+  const firstLine = prismaCleaned.split('\n')[0]
+  return firstLine.length > 200 ? firstLine.slice(0, 200) + '...' : firstLine
+}
+
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
   const ano = String(new Date().getFullYear()).slice(-2)
   return `${prefixo}_id_${seq}/${ano}`
 }
 
-// Converte strings de data (YYYY-MM-DD, DD/MM/YYYY, etc.) para ISO-8601 DateTime
-function normalizarData(valor: unknown): string {
-  if (!valor) return new Date().toISOString()
+// Converte strings de data (YYYY-MM-DD, DD/MM/YYYY, etc.) para ISO-8601 DateTime.
+// Retorna null quando o valor nao foi preenchido — campo nullable no schema.
+function normalizarData(valor: unknown): string | null {
+  if (!valor) return null
   const str = String(valor).trim()
+  if (!str) return null
   // Já é ISO completo
   if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return str
   // YYYY-MM-DD → adiciona T00:00:00.000Z
@@ -42,7 +75,27 @@ function normalizarData(valor: unknown): string {
   if (dmyMatch) return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}T00:00:00.000Z`
   // Tentar parse genérico
   const parsed = new Date(str)
-  return isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+  return isNaN(parsed.getTime()) ? null : parsed.toISOString()
+}
+
+// Normaliza valor NCM para formato padrao XXXX.XX.XX (Siscomex).
+// Aceita 8 digitos puros, com pontos, espacos ou tracos. Retorna string vazia
+// se o valor nao for um NCM valido de 8 digitos.
+export function formatarNcm(valor: unknown): string {
+  if (!valor) return ''
+  const soDigitos = String(valor).replace(/[^\d]/g, '')
+  if (soDigitos.length !== 8) return String(valor)
+  return `${soDigitos.slice(0, 4)}.${soDigitos.slice(4, 6)}.${soDigitos.slice(6, 8)}`
+}
+
+// Extrai codigo de valor no formato "CODIGO — Nome" (dropdown do template v3.7+).
+// Se o valor nao contem " — ", retorna a string original (compativel com planilhas
+// antigas que usam apenas o codigo).
+export function extrairCodigoDropdown(valor: unknown): string {
+  if (!valor) return ''
+  const s = String(valor).trim()
+  const idx = s.indexOf(' — ')
+  return idx > 0 ? s.slice(0, idx) : s
 }
 
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
@@ -155,7 +208,7 @@ export class SmartImportService {
 
   async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string, nomePlanilha?: string): Promise<SmartImportPreview> {
     // 1. Parse do arquivo
-    const { linhas: linhasBrutas, extrator_usado } = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
+    const { linhas: linhasBrutas, extrator_usado, linhas_cabecalho } = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
     if (linhasBrutas.length === 0) {
       throw new AppError(
         'A planilha nao tem nenhuma linha de dados.',
@@ -210,9 +263,26 @@ export class SmartImportService {
     }
 
     // 5. Aplicar mapeamento nas linhas
-    const linhasMapeadas = linhasBrutas.map((linha, i) =>
-      this.aplicarMapeamento(linha, mapeamento, i + 2) // linha 1 = cabecalho
+    // linhas_cabecalho = 1 (normal) ou 2 (super-header do template DDD)
+    // Primeira linha de dados = linhas_cabecalho + 1 (1-indexed no Excel)
+    const linhasMapeadasBruto = linhasBrutas.map((linha, i) =>
+      this.aplicarMapeamento(linha, mapeamento, i + linhas_cabecalho + 1)
     )
+
+    // 5.5. Heranca posicional: ITEM com numero_pedido vazio herda do PEDIDO acima
+    const linhasComHeranca = this.herdarNumeroPedidoParaItens(linhasMapeadasBruto)
+
+    // 5.6. Filtrar linhas ITEM vazias: apenas tipo_linha preenchido, sem dados reais
+    // (artefato de dropdowns de validacao no template — nao sao dados reais)
+    const CAMPOS_ESTRUTURAIS = new Set(['tipo_linha', 'numero_pedido'])
+    const linhasMapeadas = linhasComHeranca.filter(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+      if (tipo !== 'ITEM') return true // PEDIDO e formato legado — manter sempre
+      const temDadoReal = Object.entries(l.dados).some(([k, v]) =>
+        !CAMPOS_ESTRUTURAIS.has(k) && v !== undefined && v !== null && String(v).trim() !== ''
+      )
+      return temDadoReal
+    })
 
     // 6. Agrupar por numero_pedido para contagem (P4.4 — corrigido)
     //
@@ -283,7 +353,7 @@ export class SmartImportService {
     const conflitos_mapeamento = this.detectarConflitosMapeamento(mapeamento)
 
     const dados_brutos = linhasBrutas.map((row, i) => ({
-      linha: i + 2, // linha 1 = cabeçalho
+      linha: i + linhas_cabecalho + 1,
       valores: Object.fromEntries(
         Object.entries(row).map(([k, v]) => [k, String(v ?? '')])
       ),
@@ -334,6 +404,38 @@ export class SmartImportService {
       }
     }
     return conflitos
+  }
+
+  /**
+   * Heranca posicional: linhas ITEM com numero_pedido vazio herdam do PEDIDO
+   * mais recente acima delas. No template master-detail, o usuario preenche
+   * numero_pedido apenas na linha PEDIDO — os ITENs abaixo pertencem a ele
+   * implicitamente pela posicao na planilha.
+   */
+  private herdarNumeroPedidoParaItens(linhas: SmartImportLinha[]): SmartImportLinha[] {
+    const temTipoLinha = linhas.some(l => l.dados['tipo_linha'] !== undefined)
+    if (!temTipoLinha) return linhas
+
+    let ultimoPedidoNumero: string | null = null
+
+    return linhas.map(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+
+      if (tipo === 'PEDIDO' && l.numero_pedido) {
+        ultimoPedidoNumero = l.numero_pedido
+        return l
+      }
+
+      if (tipo === 'ITEM' && !l.numero_pedido && ultimoPedidoNumero) {
+        return {
+          ...l,
+          numero_pedido: ultimoPedidoNumero,
+          dados: { ...l.dados, numero_pedido: ultimoPedidoNumero },
+        }
+      }
+
+      return l
+    })
   }
 
   /**
@@ -500,6 +602,11 @@ export class SmartImportService {
     // this.db já é TransactionClient de withOrganizacao — não abrir $transaction aninhada
     {
       for (const linha of linhasFiltradas) {
+        // Savepoint PG por linha: se uma linha falhar (ex: unique constraint),
+        // o rollback é apenas dessa linha, sem abortar a transação inteira.
+        const spName = `sp_linha_${linha.linha_arquivo}`
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spName}`)
         try {
           // Aplicar numero editado pelo usuario (SEC.1 / Problema 6)
           const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
@@ -512,6 +619,8 @@ export class SmartImportService {
             const valorUnit = Number(valorUnitRaw)
             if (!isNaN(valorUnit) && valorUnit < 0) {
               erros.push({ linha: linha.linha_arquivo, motivo: 'Valor unitario do item nao pode ser negativo' })
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
               continue
             }
           }
@@ -521,16 +630,17 @@ export class SmartImportService {
           // Aplicar decisao de duplicata
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
             pulados.push(linha.linha_arquivo)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
             continue
           }
 
           const dadosPedido = {
             ...this.montarDadosPedido(dados, tenantId, companyId ?? tenantId, casasConfig),
-            id_status_pedido: idStatusRascunho, // Débito 2B — FK do catálogo de status
+            id_status_pedido: idStatusRascunho,
           }
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
-            // Atualizar pedido existente. Q5 — tenant_id → id_organizacao, id → id_pedido.
             const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
             })
@@ -541,6 +651,8 @@ export class SmartImportService {
               })
               atualizados.push(linha.linha_arquivo)
               idsPedidosParaRecalcular.add(existente.id_pedido)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
               continue
             }
           }
@@ -549,18 +661,11 @@ export class SmartImportService {
           const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
 
           if (numeroPedidoFinal && !payload.decisoes_duplicatas[numeroPedidoFinal]) {
-            // Q5 — Tentar encontrar pedido existente para append incremental de item.
-            // tenant_id → id_organizacao, status → status_pedido, id → id_pedido.
             const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
               select: { id_pedido: true },
             })
 
-            // P14 — Reads e keys do Prisma alinhados ao SSOT/schema atual.
-            // Antes usava nomes LEGADOS (part_number, ncm, quantidade_inicial_pedido,
-            // peso_liquido_unitario, referencia_exportador, sequencia_item) que
-            // o Prisma .create() IGNORA silenciosamente — registros eram criados
-            // com campos NULL/0. Schema correto: part_number_item, ncm_item, etc.
             if (pedidoExistente && (dados['part_number_item'] || dados['descricao_item'])) {
               // Q5 — Calcular próxima sequencia_item no pedido existente.
               // pedido_id → id_pedido, tenant_id → id_organizacao.
@@ -581,32 +686,43 @@ export class SmartImportService {
                     id_pedido:              pedidoExistente.id_pedido,
                     sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : itemCountExistente + 1,
                     part_number_item:       String(dados['part_number_item'] ?? ''),
-                    ncm_item:               String(dados['ncm_item'] ?? ''),
+                    ncm_item:               formatarNcm(dados['ncm_item']),
                     descricao_item:         String(dados['descricao_item'] ?? ''),
                     quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
                     quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
                     casas_decimais_quantidade_item: casasConfig.quantidade,
-                    unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
-                    moeda_item:             String(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
+                    unidade_comercializada_item:   dados['unidade_comercializada_item'] ? extrairCodigoDropdown(dados['unidade_comercializada_item']) : null,
+                    moeda_item:             extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
                     valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
                     valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
                     peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                     referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                     casas_decimais_valor_item:  casasConfig.valor,
+                    cobertura_cambial_item:    dados['cobertura_cambial_item'] ? String(dados['cobertura_cambial_item']) : null,
                     dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
                   },
                 })
                 atualizados.push(linha.linha_arquivo)
                 idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               } catch (errInsert: unknown) {
-                const motivo = errInsert instanceof Error
-                  ? `${errInsert.name}: ${errInsert.message}`
-                  : 'Erro desconhecido ao inserir item'
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spName}`)
                 erros.push({
                   linha: linha.linha_arquivo,
-                  motivo: `Falha ao adicionar item ao pedido existente "${numeroPedidoFinal}": ${motivo}`,
+                  motivo: `Falha ao adicionar item ao pedido "${numeroPedidoFinal}": ${traduzirErroPrisma(errInsert)}`,
                 })
               }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              continue
+            }
+
+            if (pedidoExistente) {
+              // Pedido existe mas linha não tem dados de item — pular silenciosamente
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
+              atualizados.push(linha.linha_arquivo)
+              idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               continue
             }
           }
@@ -622,18 +738,19 @@ export class SmartImportService {
                 id_workspace:           companyId ?? tenantId,
                 sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : 1,
                 part_number_item:       String(dados['part_number_item'] ?? ''),
-                ncm_item:               String(dados['ncm_item'] ?? ''),
+                ncm_item:               formatarNcm(dados['ncm_item']),
                 descricao_item:         String(dados['descricao_item'] ?? ''),
                 quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
                 quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
                 casas_decimais_quantidade_item: casasConfig.quantidade,
-                unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
-                moeda_item:             String(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
+                unidade_comercializada_item:   dados['unidade_comercializada_item'] ? extrairCodigoDropdown(dados['unidade_comercializada_item']) : null,
+                moeda_item:             extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
                 valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
                 valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
                 peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                 referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
                 casas_decimais_valor_item:  casasConfig.valor,
+                cobertura_cambial_item:    dados['cobertura_cambial_item'] ? String(dados['cobertura_cambial_item']) : null,
                 dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
               }],
             },
@@ -644,10 +761,14 @@ export class SmartImportService {
           })
           criados.push(novo.id_pedido)
           idsPedidosParaRecalcular.add(novo.id_pedido)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
         } catch (err: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spName}`)
           erros.push({
             linha: linha.linha_arquivo,
-            motivo: err instanceof Error ? err.message : 'Erro desconhecido',
+            motivo: traduzirErroPrisma(err),
           })
         }
       }
@@ -666,10 +787,21 @@ export class SmartImportService {
       // em vez de `atualizados.map(String)` que continha numero de linha do
       // arquivo (bug que abortava toda a transacao).
       for (const pedidoId of idsPedidosParaRecalcular) {
-        // Loop serial (não Promise.all) — evita deadlock no PG quando vários
-        // pedidos estão sendo lockados na mesma tx.
+        const spRecalc = `sp_recalc_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await recalcularAgregadosPedido(this.db as any, pedidoId, tenantId)
+        await (this.db as any).$executeRawUnsafe(`SAVEPOINT ${spRecalc}`)
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await recalcularAgregadosPedido(this.db as any, pedidoId, tenantId)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spRecalc}`)
+        } catch (errRecalc: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (this.db as any).$executeRawUnsafe(`ROLLBACK TO SAVEPOINT ${spRecalc}`)
+          const msgInterna = errRecalc instanceof Error ? errRecalc.message : 'Erro desconhecido'
+          console.warn(`[smartImport:confirmar] recalcularAgregadosPedido falhou pedido=${pedidoId}: ${msgInterna}`)
+          erros.push({ linha: 0, motivo: `Pedido importado, mas o cálculo dos totais falhou. Abra o pedido e salve novamente para recalcular.` })
+        }
       }
     }
 
@@ -1219,7 +1351,7 @@ export class SmartImportService {
                                           ? String(dados['id_fabricante_pedido'])
                                           : null,
       incoterm_pedido:                  (dados['incoterm_pedido'] ?? dados['incoterm']) as string ?? null,
-      moeda_pedido:                     (dados['moeda_pedido'] as string) ?? 'USD',
+      moeda_pedido:                     extrairCodigoDropdown(dados['moeda_pedido'] ?? 'USD'),
       data_emissao_pedido:              normalizarData(dados['data_emissao_pedido']),
       casas_decimais_valor_pedido:      casas.valor,
       casas_decimais_quantidade_pedido: casas.quantidade,

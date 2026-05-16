@@ -933,14 +933,24 @@ const GTEditPopover = memo(function GTEditPopover({
             </button>
             <button
               type="button"
-              className="gtv-edit-popover-btn gtv-edit-popover-btn--primary"
+              className={`gtv-edit-popover-btn gtv-edit-popover-btn--primary${salvando ? ' gtv-edit-popover-btn--salvando' : ''}`}
               onMouseDown={e => e.stopPropagation()}
               onClick={() => confirmarComOpts()}
               disabled={salvando}
               tabIndex={-1}
+              aria-busy={salvando || undefined}
             >
               {salvando
-                ? <span className="gtv-spinner" aria-label="Salvando..." />
+                ? <>
+                    <span className="gtv-edit-orbital" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.9" />
+                        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+                      </svg>
+                      <span className="gtv-edit-orbit" />
+                    </span>
+                    Salvando…
+                  </>
                 : <>
                     <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
                       <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/>
@@ -1635,6 +1645,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [dragRowSide,     setDragRowSide]     = useState<'before' | 'after'>('after')
   // Ordem manual de pais: quando não-null, sobrepõe a ordem de `dados`
   const [ordemManualPai,  setOrdemManualPai]  = useState<string[] | null>(null)
+  // Version counter: forçar re-render do memo linhasPagina após mutar filhosCache
+  const [filhosCacheVer,  setFilhosCacheVer]  = useState(0)
 
   // Reset da ordem manual quando sort/filtro/página muda
   const ordemManualPaiRef = useRef(ordemManualPai)
@@ -1702,8 +1714,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const [movido] = novaOrdem.splice(fromIdx, 1)
       const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
       novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
-      // Atualizar cache local imediatamente
+      // Atualizar cache local imediatamente + forçar re-render
       filhosCache.set(paiId, novaOrdem)
+      setFilhosCacheVer(v => v + 1)
       onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
     }
 
@@ -1719,8 +1732,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaPai,
     valorEditando: valorEditandoPai,
     salvando: salvandoPai,
-    resultado: resultadoPai,
-    celulaResultado: celulaResultadoPai,
     iniciarEdicao: iniciarEdicaoPai,
     atualizarValor: atualizarValorPai,
     confirmarEdicao: confirmarEdicaoPai,
@@ -1779,8 +1790,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaFilho,
     valorEditando: valorEditandoFilho,
     salvando: salvandoFilho,
-    resultado: resultadoFilho,
-    celulaResultado: celulaResultadoFilho,
     iniciarEdicao: iniciarEdicaoFilho,
     atualizarValor: atualizarValorFilho,
     confirmarEdicao: confirmarEdicaoFilho,
@@ -1828,7 +1837,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // Flat rows incluindo filhos expandidos — apenas para a página atual
   const linhasPagina = useMemo(
     () => buildFlatRows<T, C>(dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId),
-    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId],
+    // filhosCacheVer: filhosCache é um Map mutado in-place — version counter força recompute
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId, filhosCacheVer],
   )
 
   const totalEfetivo = modoExterno ? totalItens : dados.length
@@ -2096,8 +2107,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const editandoCelula  = isFilho ? editandoCelulaFilho  : editandoCelulaPai
     const valorEditando   = isFilho ? valorEditandoFilho   : valorEditandoPai
     const salvando        = isFilho ? salvandoFilho        : salvandoPai
-    const resultado       = isFilho ? resultadoFilho       : resultadoPai
-    const celulaResultado = isFilho ? celulaResultadoFilho : celulaResultadoPai
     const iniciarEdicao   = isFilho ? iniciarEdicaoFilho   : iniciarEdicaoPai
     const atualizarValor  = isFilho ? atualizarValorFilho  : atualizarValorPai
     const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
@@ -2119,10 +2128,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
-    // Feedback visual de edição inline (salvando / sucesso / erro)
-    const classeSalvando    = salvando && estaEditando ? ' gtv-celula--salvando' : ''
-    const classeSalvo       = resultado === 'sucesso' && celulaResultado?.id === id && celulaResultado?.campo === col.key ? ' gtv-celula--salvo' : ''
-    const classeErroSalvar  = resultado === 'erro' && celulaResultado?.id === id && celulaResultado?.campo === col.key ? ' gtv-celula--erro-salvar' : ''
 
     const styleCelula: React.CSSProperties = {}
 
@@ -2174,7 +2179,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeSalvando}${classeSalvo}${classeErroSalvar}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
@@ -2453,10 +2458,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
-            // Feedback visual de edição inline (salvando / sucesso / erro)
-            const classeSalvandoF   = salvandoFilho && estaEditando ? ' gtv-celula--salvando' : ''
-            const classeSalvoF      = resultadoFilho === 'sucesso' && celulaResultadoFilho?.id === id && celulaResultadoFilho?.campo === campo ? ' gtv-celula--salvo' : ''
-            const classeErroSalvarF = resultadoFilho === 'erro' && celulaResultadoFilho?.id === id && celulaResultadoFilho?.campo === campo ? ' gtv-celula--erro-salvar' : ''
 
             const styleCelula: React.CSSProperties = {}
 
@@ -2465,7 +2466,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             return (
               <div
                 key={col.key as string}
-                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeSalvandoF}${classeSalvoF}${classeErroSalvarF}`}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
                 style={styleCelula}
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()

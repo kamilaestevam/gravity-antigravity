@@ -289,7 +289,7 @@
    evitando "pulo" visual durante transições Suspense → loader de dados */
 .gl-texto {
   position: absolute;
-  bottom: 0;
+  top: calc(50% + 48px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -316,8 +316,8 @@
   animation: gl-texto-shimmer 3s ease-in-out infinite;
 }
 
-.gl-container--sm .gl-texto { font-size: 0.75rem; letter-spacing: 0.06em; }
-.gl-container--lg .gl-texto { font-size: 1rem; letter-spacing: 0.1em; }
+.gl-container--sm .gl-texto { top: calc(50% + 30px); font-size: 0.75rem; letter-spacing: 0.06em; }
+.gl-container--lg .gl-texto { top: calc(50% + 60px); font-size: 1rem; letter-spacing: 0.1em; }
 
 @keyframes gl-texto-shimmer {
   0%   { background-position: 200% center; }

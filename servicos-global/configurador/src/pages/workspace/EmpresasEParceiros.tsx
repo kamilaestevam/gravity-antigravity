@@ -11,6 +11,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useSearchParams } from 'react-router-dom'
 import {
   Buildings,
   Globe,
@@ -52,7 +53,7 @@ import {
   exportarPDF,
   type ColunasExport,
 } from '../../services/export-service'
-import { ModalEditarEmpresa } from './ModalEditarEmpresa'
+import { ModalEditarEmpresa, type PapelFlag } from './ModalEditarEmpresa'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 
@@ -165,15 +166,34 @@ function StatusCell({ ativo }: { ativo: boolean }) {
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
+// ── Mapeamento query param → PapelFlag ──────────────────────────────────────
+const PARAM_PARA_PAPEL: Record<string, PapelFlag> = {
+  'exportador-quando-importacao': 'pode_ser_exportador',
+  'importador-quando-exportacao': 'pode_ser_importador',
+}
+
 export function EmpresasEParceiros() {
   const addNotification = useShellStore((s) => s.addNotification)
   const currentUser = useShellStore((s) => s.currentUser)
   const idOrganizacao = currentUser.idOrganizacao
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [empresas, setEmpresas] = useState<Empresa[]>([])
   const [carregando, setCarregando] = useState(true)
   const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
   const [criandoNova, setCriandoNova] = useState(false)
+
+  // Deep-link: ?criar=exportador-quando-importacao ou importador-quando-exportacao
+  const paramCriar = searchParams.get('criar')
+  const paramRetorno = searchParams.get('retorno')
+  const papelInicial = paramCriar ? PARAM_PARA_PAPEL[paramCriar] : undefined
+
+  // Auto-abrir modal quando deep-link de criação é detectado
+  useEffect(() => {
+    if (paramCriar && papelInicial) {
+      setCriandoNova(true)
+    }
+  }, [paramCriar, papelInicial])
 
   async function recarregar() {
     if (!idOrganizacao) {
@@ -522,7 +542,21 @@ export function EmpresasEParceiros() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', gap: '0.5rem' }}>
+          {paramRetorno && (
+            <BotaoGlobal
+              variante="fantasma"
+              onClick={() => {
+                try {
+                  window.location.href = decodeURIComponent(paramRetorno)
+                } catch {
+                  /* URL inválida — não navega */
+                }
+              }}
+            >
+              ← Voltar para Pedidos
+            </BotaoGlobal>
+          )}
           <TooltipGlobal descricao="Cadastrar uma nova empresa no cartório de identidades">
             <BotaoGlobal
               variante="primario"
@@ -572,9 +606,18 @@ export function EmpresasEParceiros() {
         <ModalEditarEmpresa
           empresa={empresaEditando}
           idOrganizacao={idOrganizacao}
+          papelInicial={criandoNova && !empresaEditando ? papelInicial : undefined}
+          urlRetorno={paramRetorno}
           aoFechar={() => {
             setEmpresaEditando(null)
             setCriandoNova(false)
+            // Limpar params de deep-link ao fechar modal
+            if (paramCriar || paramRetorno) {
+              const novos = new URLSearchParams(searchParams)
+              novos.delete('criar')
+              novos.delete('retorno')
+              setSearchParams(novos, { replace: true })
+            }
           }}
           aoSalvar={(empresaSalva) => {
             setEmpresas((prev) => {
@@ -585,6 +628,27 @@ export function EmpresasEParceiros() {
             })
             setEmpresaEditando(null)
             setCriandoNova(false)
+            // Após salvar, navegar de volta ao Pedido com dados da empresa para vínculo
+            if (paramRetorno) {
+              try {
+                const urlRetorno = new URL(decodeURIComponent(paramRetorno))
+                // Injetar dados da empresa criada para o Pedido vincular automaticamente
+                if (paramCriar === 'exportador-quando-importacao') {
+                  urlRetorno.searchParams.set('vincular_exportador_id', empresaSalva.suid_empresa)
+                  urlRetorno.searchParams.set('vincular_exportador_nome', empresaSalva.nome_empresa)
+                } else if (paramCriar === 'importador-quando-exportacao') {
+                  urlRetorno.searchParams.set('vincular_importador_id', empresaSalva.suid_empresa)
+                  urlRetorno.searchParams.set('vincular_importador_nome', empresaSalva.nome_empresa)
+                }
+                window.location.href = urlRetorno.toString()
+              } catch {
+                // URL inválida — apenas limpar params
+                const novos = new URLSearchParams(searchParams)
+                novos.delete('criar')
+                novos.delete('retorno')
+                setSearchParams(novos, { replace: true })
+              }
+            }
           }}
         />,
         document.body,

@@ -20,6 +20,8 @@ export interface ModalFormularioProps {
   children: React.ReactNode
   textoSalvar?: string
   textoCancelar?: string
+  /** Conteúdo customizado no lado esquerdo do footer (ex: "Voltar para Pedidos") */
+  rodapeEsquerdo?: React.ReactNode
 }
 
 export function ModalFormulario({
@@ -36,7 +38,8 @@ export function ModalFormulario({
   altura = "680px",
   children,
   textoSalvar,
-  textoCancelar
+  textoCancelar,
+  rodapeEsquerdo
 }: ModalFormularioProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
@@ -82,7 +85,9 @@ export function ModalFormulario({
       altura={altura}
       renderizarFooter={() => (
         <div className="mg-footer-personalizado">
-          {aoExcluir ? (
+          {rodapeEsquerdo ? (
+            rodapeEsquerdo
+          ) : aoExcluir ? (
             <button
               className="mg-btn-danger mg-btn-danger-fix"
               onClick={aoExcluir}
@@ -92,9 +97,11 @@ export function ModalFormulario({
           ) : (
             <div />
           )}
-          
+
           <div className="botoes-footer-padrao">
-            <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+            {!rodapeEsquerdo && (
+              <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+            )}
             <BotaoCancelar
               dirty={dirty}
               rotulo={resolvedTextoCancelar}

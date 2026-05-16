@@ -32,6 +32,7 @@ import {
   ShieldCheck,
   CurrencyCircleDollar,
   Info,
+  ArrowLeft,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
@@ -90,7 +91,7 @@ async function getAuthHeaders(idOrganizacao: string): Promise<Record<string, str
 
 // ── Types internos ───────────────────────────────────────────────────────────
 
-type PapelFlag =
+export type PapelFlag =
   | 'pode_ser_importador'
   | 'pode_ser_exportador'
   | 'pode_ser_fabricante'
@@ -338,19 +339,33 @@ interface Props {
   idOrganizacao: string
   aoFechar: () => void
   aoSalvar: (empresa: Empresa) => void
+  /** Papel pré-selecionado ao criar nova empresa (deep-link do Pedido) */
+  papelInicial?: PapelFlag
+  /** URL de retorno (deep-link do Pedido). Exibe banner "Voltar para Pedidos" */
+  urlRetorno?: string | null
 }
 
-export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar }: Props) {
+export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar, papelInicial, urlRetorno }: Props) {
   const addNotification = useShellStore((s) => s.addNotification)
-  const [form, setForm] = useState<FormState>(() => empresaParaForm(empresa))
+  const [form, setForm] = useState<FormState>(() => {
+    const base = empresaParaForm(empresa)
+    if (!empresa && papelInicial) {
+      base.papeis[papelInicial] = true
+    }
+    return base
+  })
   const [enviando, setEnviando] = useState(false)
   const [erroCampos, setErroCampos] = useState<Record<string, string>>({})
   const modoEdicao = empresa !== null
 
   useEffect(() => {
-    setForm(empresaParaForm(empresa))
+    const base = empresaParaForm(empresa)
+    if (!empresa && papelInicial) {
+      base.papeis[papelInicial] = true
+    }
+    setForm(base)
     setErroCampos({})
-  }, [empresa])
+  }, [empresa, papelInicial])
 
   const ehBr = form.pais === 'BR'
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(form.estado)
@@ -500,9 +515,46 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       altura="auto"
       dirty={true}
       podesSalvar={podeSalvar}
+      rodapeEsquerdo={urlRetorno ? (
+        <>
+          <style>{`
+            @keyframes ws-retorno-pulse {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+              50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+            }
+          `}</style>
+          <button
+            type="button"
+            onClick={() => {
+              try { window.location.href = decodeURIComponent(urlRetorno) } catch { /* noop */ }
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.35rem 0.85rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(99, 102, 241, 0.4)',
+              background: 'rgba(99, 102, 241, 0.12)',
+              color: '#a5b4fc',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              animation: 'ws-retorno-pulse 2s ease-in-out infinite',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)'; e.currentTarget.style.color = '#c7d2fe' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.color = '#a5b4fc' }}
+          >
+            <ArrowLeft size={14} weight="bold" />
+            Voltar para Pedidos
+          </button>
+        </>
+      ) : undefined}
     >
       <BannerRequisitosContexto requisitos={requisitos}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
         {/* ── Identificação ────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
           <CampoGeralGlobal label="NOME DO PARCEIRO" obrigatorio>

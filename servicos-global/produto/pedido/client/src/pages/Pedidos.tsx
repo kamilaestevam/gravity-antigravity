@@ -35,11 +35,11 @@ import {
   ArrowsClockwise,
   X,
   UploadSimple,
-  CheckSquare,
+  ArrowsMerge,
   ArrowsLeftRight,
   PencilLine,
   Sparkle,
-  CopySimple,
+  StackPlus,
   FilePdf,
   ArrowUp,
   ArrowDown,
@@ -3453,7 +3453,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
-            icone={<CheckSquare size={14} weight="duotone" />}
+            icone={<ArrowsMerge size={14} weight="duotone" />}
             disabled={!podeEditarLista || pedidosSelecionados.length < 2}
             onClick={() => { setModalConsolidarAberto(true) }}
           />
@@ -3479,25 +3479,9 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           />
         </TooltipGlobal>
 
-        {/* Gerar Documento */}
-        <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
-          descricao={t('pedido.barra.gerar_documento_desc')}
-        >
-          <BotaoGlobal
-            variante="secundario"
-            tamanho="pequeno"
-            icone={<FilePdf size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
-            onClick={() => setModalGerarPdfAberto(true)}
-          />
-        </TooltipGlobal>
-
         {/* Duplicar — aceita pedido E/OU item (modal único trata mistura) */}
         <TooltipGlobal
           titulo={(() => {
-            // Plural de "item" em PT é "itens" (irregular). NUNCA usar `item + 'ns'` aqui:
-            // gera "itemns" (bug do typo plural reportado 2026-05-11).
             const labelItem = itensSelecionados.length === 1 ? 'item' : 'itens'
             const labelPedido = pedidosSelecionados.length === 1 ? 'pedido' : 'pedidos'
             if (pedidosSelecionados.length > 0 && itensSelecionados.length > 0) {
@@ -3516,10 +3500,24 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
-            icone={<CopySimple size={14} weight="duotone" />}
+            icone={<StackPlus size={14} weight="duotone" />}
             aria-label={t('pedido.barra.duplicar')}
             disabled={!podeEditarLista || (pedidosSelecionados.length === 0 && itensSelecionados.length === 0)}
             onClick={() => setModalDuplicarAberto(true)}
+          />
+        </TooltipGlobal>
+
+        {/* Gerar Documento */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
+          descricao={t('pedido.barra.gerar_documento_desc')}
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<FilePdf size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            onClick={() => setModalGerarPdfAberto(true)}
           />
         </TooltipGlobal>
 
@@ -4279,6 +4277,72 @@ export default function Pedidos() {
     })
   }, [carregando, pedidos])
 
+  // ── Deep-link: vincular exportador/importador ao retornar do Configurador ──
+  // URL params ?vincular_exportador_id=<suid>&vincular_exportador_nome=<nome>&expandir=<pedidoId>
+  // Captura na montagem (antes do efeito de expandir limpar o param)
+  const vincularParamsRef = useRef<{
+    pedidoId: string | null
+    exportadorId: string | null
+    exportadorNome: string | null
+    importadorId: string | null
+    importadorNome: string | null
+  } | null>(null)
+  if (vincularParamsRef.current === null) {
+    const p = new URLSearchParams(window.location.search)
+    vincularParamsRef.current = {
+      pedidoId: p.get('expandir'),
+      exportadorId: p.get('vincular_exportador_id'),
+      exportadorNome: p.get('vincular_exportador_nome'),
+      importadorId: p.get('vincular_importador_id'),
+      importadorNome: p.get('vincular_importador_nome'),
+    }
+  }
+  const vincularAutoFeito = useRef(false)
+  useEffect(() => {
+    if (vincularAutoFeito.current) return
+    if (carregando || pedidos.length === 0) return
+    const vp = vincularParamsRef.current
+    if (!vp) return
+    const { pedidoId, exportadorId, exportadorNome, importadorId, importadorNome } = vp
+    if (!pedidoId || (!exportadorId && !importadorId)) return
+    vincularAutoFeito.current = true
+    // Limpa params de vínculo da URL (expandir já foi limpo pelo efeito anterior)
+    const params = new URLSearchParams(window.location.search)
+    params.delete('vincular_exportador_id')
+    params.delete('vincular_exportador_nome')
+    params.delete('vincular_importador_id')
+    params.delete('vincular_importador_nome')
+    const novaUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`
+    window.history.replaceState({}, '', novaUrl)
+    // Atualiza o pedido no backend via editarCampo (suporta aliases legados)
+    const chamadas: Promise<Pedido>[] = []
+    if (exportadorId) {
+      chamadas.push(pedidoVirtualApi.editarCampo(pedidoId, 'importacao_exportador_id', exportadorId))
+      if (exportadorNome) {
+        chamadas.push(pedidoVirtualApi.editarCampo(pedidoId, 'nome_exportador', exportadorNome))
+      }
+    }
+    if (importadorId) {
+      chamadas.push(pedidoVirtualApi.editarCampo(pedidoId, 'exportacao_importador_id', importadorId))
+      if (importadorNome) {
+        chamadas.push(pedidoVirtualApi.editarCampo(pedidoId, 'nome_importador', importadorNome))
+      }
+    }
+    Promise.all(chamadas)
+      .then((resultados) => {
+        // Último resultado contém o estado mais atualizado do pedido
+        const pedidoAtualizado = resultados[resultados.length - 1]
+        if (pedidoAtualizado) {
+          setPedidos((prev: Pedido[]) =>
+            prev.map((p: Pedido) => p.id === pedidoId ? { ...p, ...pedidoAtualizado } : p)
+          )
+        }
+      })
+      .catch((err) => {
+        console.warn('[Pedidos] erro ao vincular exportador/importador:', err)
+      })
+  }, [carregando, pedidos])
+
   const acoesPai = useMemo(() => ([
     {
       id: 'editar',
@@ -4302,7 +4366,7 @@ export default function Pedidos() {
     },
     {
       label: 'Duplicar',
-      icone: <CopySimple size={13} weight="duotone" />,
+      icone: <StackPlus size={13} weight="duotone" />,
       onClick: () => {
         setItensSelecionados([item])
         setModalDuplicarAberto(true)

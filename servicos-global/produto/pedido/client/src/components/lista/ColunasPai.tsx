@@ -420,7 +420,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
           return (
-            <TooltipGlobal descricao="Exportador é o próprio Workspace. Clique para editar dados no Configurador">
+            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : 'Exportador é o próprio Workspace. Clique para editar dados no Configurador'}>
               <span
                 role="link"
                 tabIndex={0}
@@ -429,7 +429,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
               >
                 <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace.length > 50 ? nomeWorkspace.slice(0, 50) + '…' : nomeWorkspace}</span>
+                {nomeWorkspace.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
               </span>
             </TooltipGlobal>
           )
@@ -513,7 +514,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         if (nomeWorkspace) {
           const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
           return (
-            <TooltipGlobal descricao="Importador é o próprio Workspace. Clique para editar dados no Configurador">
+            <TooltipGlobal descricao={nomeWorkspace.length > 50 ? nomeWorkspace : 'Importador é o próprio Workspace. Clique para editar dados no Configurador'}>
               <span
                 role="link"
                 tabIndex={0}
@@ -522,7 +523,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
               >
                 <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace.length > 50 ? nomeWorkspace.slice(0, 50) + '…' : nomeWorkspace}</span>
+                {nomeWorkspace.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
               </span>
             </TooltipGlobal>
           )

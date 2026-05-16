@@ -1804,6 +1804,8 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   },
   // ── Moeda e Unidade ────────────────────────────────────────────────────────
   moeda_pedido: {
+    editavel: true,
+    getValorEditar: (row: PedidoItem) => row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
     render: (row: PedidoItem) => (
       <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
         {row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? '—'}

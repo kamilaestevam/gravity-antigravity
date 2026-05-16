@@ -248,6 +248,11 @@ export interface OpcoesUnidadesColunas {
    */
   incotermsOpcoes?: Array<{ valor: string; label: string }>
   /**
+   * Opções de moeda vindas de cadastros.moeda via useMoedasPedido.
+   * Formato `{ valor, label }` esperado pelo popover select inline.
+   */
+  moedasOpcoes?: Array<{ valor: string; label: string }>
+  /**
    * Mapa de id_workspace → nome_workspace para renderizar a coluna "Workspace".
    * Carregado da Lista (Pedidos.tsx) via `/api/v1/hub/init`. Quando vazio,
    * a coluna mostra o próprio id_workspace como fallback.
@@ -256,7 +261,7 @@ export interface OpcoesUnidadesColunas {
 }
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
-  const { unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap } = opcoes
+  const { unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap } = opcoes
 
   /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
   const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
@@ -603,7 +608,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'moeda_pedido',
     label: 'Moeda do Pedido/Item',
-    tipo: 'moeda',
+    tipo: 'select',
+    opcoes: moedasOpcoes ?? [],
     filtravel: true,
     avisoImpacto: 'A alteração da moeda irá alterar também Valor Total do Pedido/Item e Valor do Item',
     grupo: 'Financeiro',

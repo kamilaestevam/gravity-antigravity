@@ -94,7 +94,7 @@ export function AdminLayout() {
   )
 
   useEffect(() => {
-    locAddEntry({ productId: 'admin', productLabel: 'Admin', productColor: '#818cf8', pageLabel: 'Admin Panel', pagePath: '/admin' })
+    locAddEntry({ productId: 'admin', productLabel: 'Admin', productColor: '#10b981', pageLabel: 'Admin Panel', pagePath: '/admin' })
     async function loadAdminProducts() {
       try {
         const token = await getToken()
@@ -154,7 +154,7 @@ export function AdminLayout() {
         tenantPlan={t('admin.layout.tenant_plan')}
         navItems={navItems}
         moduleName={t('admin.layout.module_name')}
-        moduleColor="#818cf8"
+        moduleColor="#10b981"
         defaultCollapsed={false}
       />
 
@@ -180,7 +180,7 @@ export function AdminLayout() {
             descricao={
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Info size={14} weight="fill" style={{ color: '#818cf8', flexShrink: 0 }} />
+                  <Info size={14} weight="fill" style={{ color: '#10b981', flexShrink: 0 }} />
                   <span><strong style={{ color: '#f1f5f9' }}>{t('admin.layout.habilitadas')}</strong> — {t('admin.layout.habilitadas_desc')}</span>
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -198,7 +198,7 @@ export function AdminLayout() {
             <button
               className="ws-global-btn"
               onClick={toggleTooltips}
-              style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : '#818cf8' }}
+              style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : '#10b981' }}
               type="button"
             >
               <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
@@ -211,7 +211,7 @@ export function AdminLayout() {
             workspaceName="Gravity HQ"
             currentProductId="admin"
             currentProductLabel="Admin Panel"
-            currentProductColor="#818cf8"
+            currentProductColor="#10b981"
             currentPageLabel="Admin Panel"
             history={locHistory}
             nodes={adminEcosystemNodes}

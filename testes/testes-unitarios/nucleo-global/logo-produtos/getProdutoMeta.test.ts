@@ -7,8 +7,8 @@ import { getProdutoMeta, PRODUTO_META } from '../../../../nucleo-global/Logo/pro
 
 describe('getProdutoMeta', () => {
   describe('Tier 1 — Plataforma', () => {
-    it('admin retorna Indigo #818cf8', () => {
-      expect(getProdutoMeta('admin').color).toBe('#818cf8')
+    it('admin retorna Emerald #10b981', () => {
+      expect(getProdutoMeta('admin').color).toBe('#10b981')
     })
 
     it('configurador retorna Sky #7dd3fc', () => {

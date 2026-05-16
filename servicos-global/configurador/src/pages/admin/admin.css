@@ -1,57 +1,57 @@
-/* admin.css — Sobrescreve design tokens globais do workspace para o modo Admin HQ (indigo) */
+/* admin.css — Sobrescreve design tokens globais do workspace para o modo Admin HQ (verde) */
 
 body.admin-theme {
-  --ws-accent:     #818cf8;
-  --ws-accent-dim: rgba(129, 140, 248, 0.12);
+  --ws-accent:     #10b981;
+  --ws-accent-dim: rgba(16, 185, 129, 0.12);
 
   /* NÃO sobrescrevemos --ws-accent-border aqui.
      Isso evita que bordas internas de tabelas, inputs,
-     divisores e componentes herde a cor do admin. */
+     divisores e componentes herde a cor verde. */
 
-  --color-primary: #818cf8;
+  --color-primary: #10b981;
 }
 
-/* ── Borda indigo APENAS no modal externo (container principal) ─────────── */
+/* ── Borda verde APENAS no modal externo (container principal) ─────────── */
 body.admin-theme .mg-dialog,
 body.admin-theme [role="dialog"],
 body.admin-theme [role="alertdialog"] {
-  border: 1px solid rgba(129, 140, 248, 0.4) !important;
-  box-shadow: 0 16px 48px rgba(129, 140, 248, 0.15), 0 0 0 1px rgba(129, 140, 248, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.1) !important;
 }
 
-/* ── Foco de inputs — borda indigo apenas no input em si ────────────────── */
+/* ── Foco de inputs — borda verde apenas no input em si ────────────────── */
 body.admin-theme .ws-field input:focus,
 body.admin-theme .ws-field select:focus,
 body.admin-theme .cg-wrapper input:focus,
 body.admin-theme .cg-wrapper select:focus,
 body.admin-theme .ws-input-icon-wrap input:focus,
 body.admin-theme .ws-input-icon-wrap select:focus {
-  border-color: #818cf8 !important;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
 
-/* ── Efeito de ping do BotaoSalvar ──────────────────────────────────────── */
-@keyframes bs-btn-ping-indigo {
-  0%   { box-shadow: 0 0 0 0    rgba(129, 140, 248, 0.5); }
-  70%  { box-shadow: 0 0 0 10px rgba(129, 140, 248, 0);   }
-  100% { box-shadow: 0 0 0 0    rgba(129, 140, 248, 0);   }
+/* ── Efeito de ping do BotaoSalvar (verde) ─────────────────────────────── */
+@keyframes bs-btn-ping-green {
+  0%   { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);   }
+  100% { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0);   }
 }
 
 body.admin-theme .bs-btn-pulse {
-  animation-name: bs-btn-ping-indigo;
+  animation-name: bs-btn-ping-green;
 }
 
-/* ── Spinner do input[type=number] ─────────────────────────────────────── */
+/* ── Spinner do input[type=number] — cor verde da admin-theme ───────────── */
 body.admin-theme input[type="number"]::-webkit-inner-spin-button,
 body.admin-theme input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23818cf8' d='M10 6l-4 4h8z'/%3E%3Cpath fill='%23818cf8' d='M10 14l4-4H6z'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2310b981' d='M10 6l-4 4h8z'/%3E%3Cpath fill='%2310b981' d='M10 14l4-4H6z'/%3E%3C/svg%3E")
     no-repeat center / 14px 14px,
-    rgba(129,140,248,0.08);
-  border-left: 1px solid rgba(129,140,248,0.25);
+    rgba(16,185,129,0.08);
+  border-left: 1px solid rgba(16,185,129,0.25);
   border-radius: 0 6px 6px 0;
   cursor: pointer;
   transition: background-color 0.15s;
@@ -59,60 +59,60 @@ body.admin-theme input[type="number"]::-webkit-outer-spin-button {
 
 body.admin-theme input[type="number"]::-webkit-inner-spin-button:hover,
 body.admin-theme input[type="number"]::-webkit-outer-spin-button:hover {
-  background-color: rgba(129,140,248,0.18);
+  background-color: rgba(16,185,129,0.18);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   LIGHT THEME — Admin overrides (Indigo-700 #4f46e5 for WCAG AA)
+   LIGHT THEME — Admin overrides (Emerald-700 #047857 for WCAG AA)
    ══════════════════════════════════════════════════════════════════════════ */
 
 body.light-theme.admin-theme {
-  --ws-accent:     #4f46e5;
-  --ws-accent-dim: rgba(79, 70, 229, 0.12);
-  --color-primary: #4f46e5;
+  --ws-accent:     #047857;
+  --ws-accent-dim: rgba(4, 120, 87, 0.12);
+  --color-primary: #047857;
 }
 
-/* ── Modal border & shadow — darker indigo ───────────────────────────── */
+/* ── Modal border & shadow — darker green ─────────────────────────────── */
 body.light-theme.admin-theme .mg-dialog,
 body.light-theme.admin-theme [role="dialog"],
 body.light-theme.admin-theme [role="alertdialog"] {
-  border: 1px solid rgba(79, 70, 229, 0.4) !important;
-  box-shadow: 0 16px 48px rgba(79, 70, 229, 0.12), 0 0 0 1px rgba(79, 70, 229, 0.1) !important;
+  border: 1px solid rgba(4, 120, 87, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(4, 120, 87, 0.12), 0 0 0 1px rgba(4, 120, 87, 0.1) !important;
 }
 
-/* ── Input focus — darker indigo ring ────────────────────────────────── */
+/* ── Input focus — darker green ring ──────────────────────────────────── */
 body.light-theme.admin-theme .ws-field input:focus,
 body.light-theme.admin-theme .ws-field select:focus,
 body.light-theme.admin-theme .cg-wrapper input:focus,
 body.light-theme.admin-theme .cg-wrapper select:focus,
 body.light-theme.admin-theme .ws-input-icon-wrap input:focus,
 body.light-theme.admin-theme .ws-input-icon-wrap select:focus {
-  border-color: #4f46e5 !important;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  border-color: #047857 !important;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15) !important;
 }
 
-/* ── Ping animation — darker indigo for light backgrounds ────────────── */
-@keyframes bs-btn-ping-indigo-light {
-  0%   { box-shadow: 0 0 0 0    rgba(79, 70, 229, 0.5); }
-  70%  { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);   }
-  100% { box-shadow: 0 0 0 0    rgba(79, 70, 229, 0);   }
+/* ── Ping animation — darker green for light backgrounds ──────────────── */
+@keyframes bs-btn-ping-green-light {
+  0%   { box-shadow: 0 0 0 0    rgba(4, 120, 87, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(4, 120, 87, 0);   }
+  100% { box-shadow: 0 0 0 0    rgba(4, 120, 87, 0);   }
 }
 
 body.light-theme.admin-theme .bs-btn-pulse {
-  animation-name: bs-btn-ping-indigo-light;
+  animation-name: bs-btn-ping-green-light;
 }
 
-/* ── Number input spinner — darker indigo ────────────────────────────── */
+/* ── Number input spinner — darker green ──────────────────────────────── */
 body.light-theme.admin-theme input[type="number"]::-webkit-inner-spin-button,
 body.light-theme.admin-theme input[type="number"]::-webkit-outer-spin-button {
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%234f46e5' d='M10 6l-4 4h8z'/%3E%3Cpath fill='%234f46e5' d='M10 14l4-4H6z'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23047857' d='M10 6l-4 4h8z'/%3E%3Cpath fill='%23047857' d='M10 14l4-4H6z'/%3E%3C/svg%3E")
     no-repeat center / 14px 14px,
-    rgba(79,70,229,0.08);
-  border-left: 1px solid rgba(79,70,229,0.25);
+    rgba(4,120,87,0.08);
+  border-left: 1px solid rgba(4,120,87,0.25);
 }
 
 body.light-theme.admin-theme input[type="number"]::-webkit-inner-spin-button:hover,
 body.light-theme.admin-theme input[type="number"]::-webkit-outer-spin-button:hover {
-  background-color: rgba(79,70,229,0.18);
+  background-color: rgba(4,120,87,0.18);
 }

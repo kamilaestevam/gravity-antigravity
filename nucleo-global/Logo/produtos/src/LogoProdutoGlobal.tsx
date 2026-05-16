@@ -69,7 +69,7 @@ export const PRODUTO_META: Record<string, ProdutoMeta> = {
   },
   'admin': {
     icon:     <LogoAdmin size={16} />,
-    color:    '#818cf8',
+    color:    '#10b981',
     sublabel: 'painel interno',
   },
   'configurador': {

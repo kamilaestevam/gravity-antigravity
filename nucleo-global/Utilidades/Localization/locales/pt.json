@@ -3870,7 +3870,7 @@
       "col_part_number": "Part Number",
       "col_descricao": "Descrição do Item",
       "col_saldo": "Saldo",
-      "col_qty_transfer": "Qty a Transferir",
+      "col_qty_transfer": "Qtd",
       "col_saldo_apos": "Saldo Após",
       "max_label": "Máx:",
       "destino_titulo": "Destino",

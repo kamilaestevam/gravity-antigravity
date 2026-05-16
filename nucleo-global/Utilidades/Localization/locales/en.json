@@ -4066,7 +4066,7 @@
       "col_part_number": "Part Number",
       "col_descricao": "Item Description",
       "col_saldo": "Balance",
-      "col_qty_transfer": "Qty to Transfer",
+      "col_qty_transfer": "Qty",
       "col_saldo_apos": "Balance After",
       "max_label": "Max:",
       "destino_titulo": "Destination",

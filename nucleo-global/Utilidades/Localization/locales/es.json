@@ -4211,7 +4211,7 @@
       "col_part_number": "Part Number",
       "col_descricao": "Descripción del Ítem",
       "col_saldo": "Saldo",
-      "col_qty_transfer": "Cant. a Transferir",
+      "col_qty_transfer": "Cant.",
       "col_saldo_apos": "Saldo Después",
       "max_label": "Máx:",
       "destino_titulo": "Destino",

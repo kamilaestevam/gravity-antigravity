@@ -235,14 +235,13 @@ function SeletorItemQuantidade({
               aria-selected={selecionado}
             >
               <td>
-                <label className="modal-transferir__radio-label">
+                <span className="modal-transferir__radio-label">
                   <input
                     type="radio"
                     name="item-origem"
                     checked={selecionado}
-                    onChange={() => onItemChange(item.id)}
+                    readOnly
                     aria-label={`Selecionar item ${item.part_number}`}
-                    onClick={e => e.stopPropagation()}
                   />
                   <strong>
                     {item.part_number && item.part_number.length > 50 ? (
@@ -254,7 +253,7 @@ function SeletorItemQuantidade({
                       </TooltipGlobal>
                     ) : item.part_number}
                   </strong>
-                </label>
+                </span>
               </td>
               <td>
                 {item.descricao_item && item.descricao_item.length > 50 ? (

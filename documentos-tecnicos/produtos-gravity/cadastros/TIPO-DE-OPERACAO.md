@@ -182,9 +182,29 @@ export interface Pedido {
 }
 ```
 
-### 6.2 Colunas na tabela — ListaPedidos.tsx
+### 6.2 Colunas na tabela — ColunasPai.tsx (atualizado 2026-05-16)
 
-As colunas `exportador_nome` e `importador_nome` são definidas com labels fixos. A editabilidade é controlada por `MAPA_COLUNAS_FILHO` via `editavel` condicional.
+As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Empresas e Parceiros.
+
+**Regra de renderização por tipo_operacao:**
+
+| tipo_operacao | Importador | Exportador |
+|---|---|---|
+| `importacao` | Badge workspace (auto-preenchido via `workspacesMap`) + ícone `Buildings` | "Vincular Exportador" (vazio) ou badge contraparte + ícone `LinkSimple` |
+| `exportacao` | "Vincular Importador" (vazio) ou badge contraparte + ícone `LinkSimple` | Badge workspace (auto-preenchido via `workspacesMap`) + ícone `Buildings` |
+
+**Padrão visual permanente — Gravity Indigo (`#818cf8`):**
+- **Modelo 01 (preenchido):** badge com `background: rgba(129, 140, 248, 0.12)`, `border: rgba(129, 140, 248, 0.28)`, `color: #818cf8`
+- **Modelo 02 (vazio):** texto sublinhado pontilhado `color: #818cf8`
+- Cores idênticas ao chip de filtro da tabela (`FiltrosColuna.css`)
+
+**Deep-links:**
+- Workspace → `urlEditarCnpjWorkspace()` (Configurador, modal de edição do workspace com "Voltar para Pedidos")
+- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Empresas e Parceiros)
+
+**Fonte de dados:**
+- Workspace: `workspacesMap.get(row.id_workspace)?.nome` (carregado via `/api/v1/hub/init`)
+- Contraparte: `cadastrosApi.listarExportadoresQuandoImportacao()` / `cadastrosApi.listarImportadoresQuandoExportacao()` (Cadastros, porta 8031)
 
 ### 6.3 `CAMPOS_PAI_TEXTO` — controla edição inline de filhos
 ```typescript

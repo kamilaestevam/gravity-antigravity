@@ -73,6 +73,52 @@ export interface Pais {
   ativo_pais: boolean
 }
 
+// ── ExportadorQuandoImportacao (espelho do schema do Cadastros) ──────────────
+
+export interface ExportadorQuandoImportacaoDto {
+  id_exportador_quando_importacao: string
+  id_organizacao: string
+  id_workspace: string
+  nome_exportador: string
+  endereco_exportador: string | null
+  cidade_exportador: string | null
+  estado_provincia_exportador: string | null
+  pais_exportador: string
+  zipcode_exportador: string | null
+  criado_em_exportador: string
+  atualizado_em_exportador: string
+}
+
+export interface ListaExportadoresQuandoImportacao {
+  itens: ExportadorQuandoImportacaoDto[]
+  total: number
+  pagina: number
+  por_pagina: number
+}
+
+// ── ImportadorQuandoExportacao (espelho do schema do Cadastros) ──────────────
+
+export interface ImportadorQuandoExportacaoDto {
+  id_importador_quando_exportacao: string
+  id_organizacao: string
+  id_workspace: string
+  nome_importador: string
+  endereco_importador: string | null
+  cidade_importador: string | null
+  estado_provincia_importador: string | null
+  pais_importador: string
+  zipcode_importador: string | null
+  criado_em_importador: string
+  atualizado_em_importador: string
+}
+
+export interface ListaImportadoresQuandoExportacao {
+  itens: ImportadorQuandoExportacaoDto[]
+  total: number
+  pagina: number
+  por_pagina: number
+}
+
 // ── Payload de criação rápida — papel definido pelo contexto do modal ────────
 
 export type PapelEmpresaRapido =
@@ -164,4 +210,42 @@ export const cadastrosApi = {
    */
   listarPaises: (): Promise<{ itens: Pais[] }> =>
     request<{ itens: Pais[] }>('/api/v1/cadastros/paises'),
+
+  // ── ExportadorQuandoImportacao ─────────────────────────────────────────────
+
+  /**
+   * Lista exportadores (contrapartes estrangeiras/fornecedores) vinculados
+   * à organização. Filtra opcionalmente por workspace e busca textual.
+   */
+  listarExportadoresQuandoImportacao: (idWorkspace?: string, busca?: string): Promise<ListaExportadoresQuandoImportacao> => {
+    const params = new URLSearchParams({ por_pagina: '200' })
+    if (idWorkspace) params.set('id_workspace', idWorkspace)
+    if (busca && busca.trim()) params.set('busca', busca.trim())
+    return request<ListaExportadoresQuandoImportacao>(`/api/v1/cadastros/exportadores-quando-importacao?${params.toString()}`)
+  },
+
+  /**
+   * Busca exportador por ID.
+   */
+  obterExportadorQuandoImportacao: (id: string): Promise<ExportadorQuandoImportacaoDto> =>
+    request<ExportadorQuandoImportacaoDto>(`/api/v1/cadastros/exportadores-quando-importacao/${id}`),
+
+  // ── ImportadorQuandoExportacao ─────────────────────────────────────────────
+
+  /**
+   * Lista importadores (contrapartes estrangeiras/compradores) vinculados
+   * à organização. Filtra opcionalmente por workspace e busca textual.
+   */
+  listarImportadoresQuandoExportacao: (idWorkspace?: string, busca?: string): Promise<ListaImportadoresQuandoExportacao> => {
+    const params = new URLSearchParams({ por_pagina: '200' })
+    if (idWorkspace) params.set('id_workspace', idWorkspace)
+    if (busca && busca.trim()) params.set('busca', busca.trim())
+    return request<ListaImportadoresQuandoExportacao>(`/api/v1/cadastros/importadores-quando-exportacao?${params.toString()}`)
+  },
+
+  /**
+   * Busca importador por ID.
+   */
+  obterImportadorQuandoExportacao: (id: string): Promise<ImportadorQuandoExportacaoDto> =>
+    request<ImportadorQuandoExportacaoDto>(`/api/v1/cadastros/importadores-quando-exportacao/${id}`),
 }

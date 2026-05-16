@@ -200,6 +200,70 @@ model OpeHistoricoStatus {
 
 OPE é sincronizado via job que consome Portal Único. Portal Único é a fonte da verdade — edições manuais são tecnicamente possíveis, mas serão sobrescritas na próxima sincronização.
 
+### 4.4 Contrapartes estrangeiras (ExportadorQuandoImportacao / ImportadorQuandoExportacao)
+
+Entidades que representam contrapartes estrangeiras em operações COMEX. Diferem de Empresa porque não são parceiros genéricos — são especificamente o **fornecedor estrangeiro** (em importação) ou o **comprador estrangeiro** (em exportação).
+
+```prisma
+model ExportadorQuandoImportacao {
+  id_exportador_quando_importacao   String   @id @default(cuid())
+  id_organizacao_exportador         String
+  id_workspace_exportador           String
+  nome_exportador                   String
+  endereco_exportador               String?
+  cidade_exportador                 String?
+  estado_provincia_exportador       String?
+  pais_exportador                   String   // ISO-2
+  zipcode_exportador                String?
+  criado_em_exportador              DateTime @default(now())
+  atualizado_em_exportador          DateTime @updatedAt
+
+  @@index([id_organizacao_exportador])
+  @@index([id_organizacao_exportador, id_workspace_exportador])
+  @@map("exportador_quando_importacao")
+}
+
+model ImportadorQuandoExportacao {
+  id_importador_quando_exportacao   String   @id @default(cuid())
+  id_organizacao_importador         String
+  id_workspace_importador           String
+  nome_importador                   String
+  endereco_importador               String?
+  cidade_importador                 String?
+  estado_provincia_importador       String?
+  pais_importador                   String   // ISO-2
+  zipcode_importador                String?
+  criado_em_importador              DateTime @default(now())
+  atualizado_em_importador          DateTime @updatedAt
+
+  @@index([id_organizacao_importador])
+  @@index([id_organizacao_importador, id_workspace_importador])
+  @@map("importador_quando_exportacao")
+}
+```
+
+**Rotas REST (Cadastros, porta 8031):**
+- `GET /api/v1/cadastros/exportadores-quando-importacao` — lista com filtros (org, workspace, busca)
+- `GET /api/v1/cadastros/exportadores-quando-importacao/:id` — detalhe
+- `POST /api/v1/cadastros/exportadores-quando-importacao` — criação
+- `PUT /api/v1/cadastros/exportadores-quando-importacao/:id` — atualização
+- Mesmas 4 rotas para `/importadores-quando-exportacao`
+
+**Consumo pelo Pedido:** o Pedido armazena `importacao_exportador_id` e `exportacao_importador_id` como FK lógica (String?, sem FK física cross-database). O cliente do Pedido consome via `cadastrosApi` em `pedido/client/src/shared/cadastrosApi.ts`.
+
+**Regra de exibição na lista de Pedidos (ColunasPai.tsx):**
+- Tipo operação = importação → Importador = workspace (auto-preenchido), Exportador = contraparte (vincular)
+- Tipo operação = exportação → Exportador = workspace (auto-preenchido), Importador = contraparte (vincular)
+
+**Padrão visual de campos-link (regra permanente — Gravity Indigo `#818cf8`):**
+
+| Estado | Visual | Tokens |
+|--------|--------|--------|
+| **Preenchido (Modelo 01)** | Badge com borda + fundo sutil + ícone | `background: rgba(129, 140, 248, 0.12)`, `border: rgba(129, 140, 248, 0.28)`, `color: #818cf8` |
+| **Vazio (Modelo 02)** | Texto sublinhado pontilhado + ícone lápis | `color: #818cf8`, `textDecorationStyle: dotted` |
+
+Workspace usa ícone `Buildings`, contraparte usa `LinkSimple`, vazio usa `PencilSimpleLine`. Cores idênticas ao chip de filtro da tabela (`FiltrosColuna.css`).
+
 ---
 
 ## 5. Validações aplicacionais (Zod backend + Zod frontend)
@@ -227,6 +291,20 @@ NCM:
 - codigo_ncm: obrigatório, 8 dígitos numéricos
 - descricao_ncm: obrigatório
 - ipi_ncm / ii_ncm / pis_ncm / cofins_ncm: opcionais, quando preenchidos >= 0
+
+ExportadorQuandoImportacao:
+- id_organizacao: obrigatório, min 1 char
+- id_workspace: obrigatório, min 1 char
+- nome_exportador: obrigatório, mínimo 2 caracteres
+- pais_exportador: obrigatório, ISO-2 (regex /^[A-Z]{2}$/)
+- endereco/cidade/estado_provincia/zipcode: opcionais, nullable
+
+ImportadorQuandoExportacao:
+- id_organizacao: obrigatório, min 1 char
+- id_workspace: obrigatório, min 1 char
+- nome_importador: obrigatório, mínimo 2 caracteres
+- pais_importador: obrigatório, ISO-2 (regex /^[A-Z]{2}$/)
+- endereco/cidade/estado_provincia/zipcode: opcionais, nullable
 ```
 
 ---

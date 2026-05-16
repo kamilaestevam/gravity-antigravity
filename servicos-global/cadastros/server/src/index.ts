@@ -21,6 +21,8 @@ import { opeRouter } from './routes/ope.js'
 import { paisesRouter } from './routes/paises.js'
 import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
 import { adminEmpresasRouter } from './routes/admin-empresas.js'
+import { exportadoresQuandoImportacaoRouter } from './routes/exportadores-quando-importacao.js'
+import { importadoresQuandoExportacaoRouter } from './routes/importadores-quando-exportacao.js'
 import { errorHandler } from './lib/app-error.js'
 import { initNcmSync } from './initNcmSync.js'
 
@@ -48,6 +50,8 @@ app.use('/api/v1/cadastros/incoterms', incotermsRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 app.use('/api/v1/cadastros/paises', paisesRouter)
+app.use('/api/v1/cadastros/exportadores-quando-importacao', exportadoresQuandoImportacaoRouter)
+app.use('/api/v1/cadastros/importadores-quando-exportacao', importadoresQuandoExportacaoRouter)
 
 // Admin NCM Sync — chamado pelo configurador via S2S (x-internal-key).
 // Endpoints: /, /historico, /sincronizar, /agendamento, /agendamento/executar

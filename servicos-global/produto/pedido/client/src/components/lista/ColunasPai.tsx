@@ -426,11 +426,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
                 tabIndex={0}
                 onClick={(e) => { e.stopPropagation(); window.location.href = href }}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
               >
-                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace.length > 50 ? nomeWorkspace.slice(0, 50) + '…' : nomeWorkspace}</span>
-                {nomeWorkspace.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
               </span>
             </TooltipGlobal>
           )
@@ -444,7 +443,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+              style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
               Cadastrar Exportador
@@ -465,11 +464,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid var(--border, #334155)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
             >
-              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, opacity: 0.7 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome.length > 50 ? nome.slice(0, 50) + '…' : nome}</span>
-              {nome.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
             </span>
           </TooltipGlobal>
         )
@@ -482,7 +480,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             tabIndex={0}
             onClick={(e) => { e.stopPropagation(); window.location.href = href }}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-            style={{ color: 'rgba(59, 130, 246, 0.8)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
           >
             <PencilSimpleLine size={12} weight="bold" />
             Vincular Exportador
@@ -520,11 +518,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
                 tabIndex={0}
                 onClick={(e) => { e.stopPropagation(); window.location.href = href }}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
               >
-                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace.length > 50 ? nomeWorkspace.slice(0, 50) + '…' : nomeWorkspace}</span>
-                {nomeWorkspace.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
               </span>
             </TooltipGlobal>
           )
@@ -538,7 +535,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+              style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
             >
               <PencilSimpleLine size={12} weight="bold" />
               Cadastrar Importador
@@ -559,11 +556,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid var(--border, #334155)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
             >
-              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, opacity: 0.7 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome.length > 50 ? nome.slice(0, 50) + '…' : nome}</span>
-              {nome.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
             </span>
           </TooltipGlobal>
         )
@@ -576,7 +572,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             tabIndex={0}
             onClick={(e) => { e.stopPropagation(); window.location.href = href }}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-            style={{ color: 'rgba(59, 130, 246, 0.8)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
           >
             <PencilSimpleLine size={12} weight="bold" />
             Vincular Importador

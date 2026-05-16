@@ -697,13 +697,18 @@ body.light-theme .hb-topbar {
 .hb-gabi-btn:hover { background: #4f46e5; transform: scale(1.04); }
 
 /* ── Loading / Empty ──────────────────────────────────────────────────────── */
+/* Loading centralizado — posição fixa cobrindo viewport inteira,
+   alinhado com ProductLoading do App.tsx para transição sem "pulo" */
 .hb-loading {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 4rem 2rem;
+  background: var(--bg-base, #0f1729);
+  z-index: 50;
   color: var(--hb-muted);
   font-size: 0.875rem;
 }

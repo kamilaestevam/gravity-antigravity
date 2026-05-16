@@ -23,10 +23,10 @@ import {
   Trash,
   FloppyDisk,
   X,
-  Spinner,
   Warning,
   ArrowsLeftRight,
 } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
@@ -467,8 +467,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
           )}
           {carregando ? (
             <div className="drawer-pedido__loading" aria-live="polite">
-              <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />
-              <span>{t('pedido.drawer.carregando')}</span>
+              <GravityLoader texto={t('pedido.drawer.carregando')} tamanho="sm" />
             </div>
           ) : (
             <>
@@ -751,8 +750,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                 >
                   {carregandoTransfer ? (
                     <div className="drawer-pedido__loading" aria-live="polite">
-                      <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />
-                      <span>{t('pedido.drawer.carregando_transfer')}</span>
+                      <GravityLoader texto={t('pedido.drawer.carregando_transfer')} tamanho="sm" />
                     </div>
                   ) : erroTransfer ? (
                     <div className="drawer-pedido__erro" role="alert">

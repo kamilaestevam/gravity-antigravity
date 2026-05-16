@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
-  SpinnerGap,
   ArrowUpRight,
   Gear,
   Sparkle,
@@ -390,8 +390,7 @@ export function Hub() {
 
             {loading ? (
               <div className="hb-loading">
-                <SpinnerGap size={36} className="hs-spin" color="var(--hb-accent)" />
-                <span>{t('hub.carregando')}</span>
+                <GravityLoader texto="Carregando" tamanho="lg" />
               </div>
             ) : products.length === 0 ? (
               <div className="hb-loading" style={{ flexDirection: 'column', gap: '1rem' }}>

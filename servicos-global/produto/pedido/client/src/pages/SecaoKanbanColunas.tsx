@@ -9,6 +9,7 @@
  */
 
 import React from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { Eye, Plus, SquaresFour, X, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
@@ -54,7 +55,11 @@ export function SecaoKanbanColunas({
         </div>
       </div>
 
-      {loading && <p className="cfg-loading-msg">Carregando...</p>}
+      {loading && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+          <GravityLoader tamanho="sm" />
+        </div>
+      )}
 
       {!loading && statusConfig.length === 0 && (
         <p className="cfg-hint" style={{ textAlign: 'center', padding: '2rem 0' }}>

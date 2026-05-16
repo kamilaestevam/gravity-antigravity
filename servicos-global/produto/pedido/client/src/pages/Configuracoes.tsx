@@ -35,6 +35,7 @@ import {
   useSortable, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -2449,7 +2450,11 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {kanbanLoading && <p className="cfg-loading-msg">{t('pedido.config.kanban.carregando')}</p>}
+              {kanbanLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+                  <GravityLoader tamanho="sm" />
+                </div>
+              )}
 
               {!kanbanLoading && (() => {
                 const campos  = kanbanCamposDeAba(abaAtiva)

@@ -14,7 +14,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GitMerge, Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
+import { GitMerge, Warning, CheckCircle, MagnifyingGlass, WarningDiamond } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
@@ -236,8 +237,7 @@ export function ModalConsolidarPedidos({ pedidosSelecionados, onFechar, onConclu
           )}
           {carregandoPreview ? (
             <div className="modal-consolidar__loading" aria-live="polite">
-              <Spinner size={24} className="modal-consolidar__spinner" aria-hidden="true" />
-              <span>{t('pedido.modal_cons.carregando')}</span>
+              <GravityLoader texto={t('pedido.modal_cons.carregando')} tamanho="sm" />
             </div>
           ) : erroPreview ? (
             <div className="modal-consolidar__erro" role="alert">

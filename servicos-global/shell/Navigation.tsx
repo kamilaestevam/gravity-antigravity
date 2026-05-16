@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 
 /**
  * Carregamento lazy por módulo.
@@ -74,19 +75,9 @@ const SimulaCustoModule  = lazy(() => import('../produto/simula-custo/client/src
 const ConfiguradorModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Configurações" />}))
 
 function LoadingFallback() {
-  const { t } = useTranslation()
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        color: 'var(--text-muted)',
-        fontSize: '0.875rem',
-      }}
-    >
-      {t('shell.carregando_modulo')}
+    <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-base, #0f1729)', zIndex: 50 }}>
+      <GravityLoader texto="Carregando" tamanho="lg" />
     </div>
   )
 }

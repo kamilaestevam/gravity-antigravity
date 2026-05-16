@@ -342,7 +342,7 @@
 }
 
 .modal-transferir__tabela-itens th {
-  text-align: left;
+  text-align: center;
   padding: 8px 10px;
   color: var(--color-text-muted, #64748b);
   font-weight: 500;
@@ -355,6 +355,7 @@
   border-bottom: 1px solid rgba(51, 65, 85, 0.4);
   color: var(--color-text-primary, #f1f5f9);
   vertical-align: middle;
+  text-align: center;
 }
 
 .modal-transferir__tabela-itens tr:hover td {

@@ -31,6 +31,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import {
   Package, Truck, Factory, UserGear, ShieldStar, Boat,
   CheckSquare, Square, ArrowCounterClockwise,
@@ -272,8 +273,7 @@ export function PedidoSnapshotCadastros() {
 
       {loading && (
         <div className="msc-loading">
-          <span className="msc-spinner" aria-hidden="true" />
-          <span>Carregando status do Pedido…</span>
+          <GravityLoader texto="Carregando status do Pedido…" tamanho="sm" />
         </div>
       )}
 

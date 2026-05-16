@@ -84,6 +84,7 @@ const BidFreteApp = React.lazy(() => import('../../produto/bid-frete/client/src/
 const BidCambioApp = React.lazy(() => import('../../produto/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../produto/pedido/client/src/App'))
 
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ROTAS_PEDIDO, BASE_ROTA_PEDIDO } from '../../produto/pedido/client/src/shared/rotas'
 
 /**
@@ -125,8 +126,8 @@ function GuardaRotaPedido() {
 }
 
 const ProductLoading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', color: 'var(--color-text-muted)' }}>
-    Carregando produto...
+  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-base, #0f1729)', zIndex: 50 }}>
+    <GravityLoader texto="Carregando" tamanho="lg" />
   </div>
 )
 
@@ -171,8 +172,8 @@ function RootRedirect() {
   // Se Clerk não carregou após timeout (ex: cookies bloqueados em anônima), mostra login direto
   if (!isLoaded && !clerkTimeout) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-        Carregando…
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <GravityLoader texto="Carregando" tamanho="lg" />
       </div>
     )
   }
@@ -190,8 +191,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-        Carregando…
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <GravityLoader texto="Carregando" tamanho="lg" />
       </div>
     )
   }
@@ -207,8 +208,12 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
 
-  // Enquanto Clerk não carregou, não renderiza nada (evita flash)
-  if (!isLoaded) return null
+  // Enquanto Clerk não carregou, mostra loader (evita flash branco)
+  if (!isLoaded) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <GravityLoader tamanho="lg" />
+    </div>
+  )
 
   // Se não autenticado, redireciona para /login local (sem round-trip ao Clerk hosted)
   if (!isSignedIn) return <Navigate to="/login" replace />
@@ -222,9 +227,17 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
   const { pronto: isReady, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
 
-  if (!isLoaded) return null
+  if (!isLoaded) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <GravityLoader tamanho="lg" />
+    </div>
+  )
   if (!isSignedIn) return <Navigate to="/login" replace />
-  if (!isReady) return null  // aguarda resultado do banco
+  if (!isReady) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <GravityLoader texto="Carregando" tamanho="lg" />
+    </div>
+  )
 
   if (!isGravityAdmin) return <Navigate to="/hub" replace />
 

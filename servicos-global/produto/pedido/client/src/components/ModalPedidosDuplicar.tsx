@@ -20,7 +20,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Info, CheckCircle, Copy, Spinner, X, Warning, Files, Package } from '@phosphor-icons/react'
+import { Info, CheckCircle, Copy, X, Warning, Files, Package } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
@@ -483,8 +484,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         <div className="modal-duplicar__body">
           {carregando && (
             <div className="modal-duplicar__carregando" aria-live="polite">
-              <Spinner size={24} className="modal-duplicar__spinner" aria-hidden="true" />
-              <span>{t('pedido.modal_dup.carregando')}</span>
+              <GravityLoader texto={t('pedido.modal_dup.carregando')} tamanho="sm" />
             </div>
           )}
 

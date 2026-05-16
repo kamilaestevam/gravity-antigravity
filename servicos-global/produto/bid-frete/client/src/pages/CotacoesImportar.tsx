@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -22,7 +23,6 @@ import {
   XCircle,
   Warning,
   Trash,
-  Spinner,
   ArrowClockwise,
 } from '@phosphor-icons/react'
 
@@ -713,20 +713,7 @@ export default function ImportarBloco() {
           {/* ─── Phase: Creating ────────────────────────────────────────── */}
           {phase === 'creating' && (
             <div className="importar-bloco-result-card">
-              <Spinner
-                weight="bold"
-                size={40}
-                className="importar-bloco-spinner"
-                style={{ color: 'var(--accent, #6366f1)' }}
-              />
-              <p style={{
-                margin: 0,
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: 'var(--text-primary, #f1f5f9)',
-              }}>
-                {t('bidfrete.importar.criando')}
-              </p>
+              <GravityLoader texto={t('bidfrete.importar.criando')} />
               <p style={{
                 margin: 0,
                 fontSize: '0.8rem',

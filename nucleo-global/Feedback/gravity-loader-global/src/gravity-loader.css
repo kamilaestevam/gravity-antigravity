@@ -6,6 +6,7 @@
 
 /* ─── Container ──────────────────────────────────────────────────────────── */
 .gl-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -284,7 +285,14 @@
 }
 
 /* ─── Texto com shimmer gradiente ────────────────────────────────────────── */
+/* position: absolute impede que o texto desloque o centro vertical da órbita,
+   evitando "pulo" visual durante transições Suspense → loader de dados */
 .gl-texto {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   display: inline-flex;
   align-items: baseline;
   justify-content: center;

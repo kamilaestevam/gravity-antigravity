@@ -19,20 +19,13 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { podeAcessarArea, type AreaApp } from './route-policy'
 
 const Loading: React.FC = () => (
-  <div
-    style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '80vh',
-      color: 'var(--color-text-muted)',
-    }}
-  >
-    Carregando…
+  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-base, #0f1729)', zIndex: 50 }}>
+    <GravityLoader texto="Carregando" tamanho="lg" />
   </div>
 )
 

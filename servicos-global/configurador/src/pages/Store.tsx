@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -387,7 +388,7 @@ export function Store() {
       <div className="gs-store">
           {loading ? (
             <div className="gs-loading">
-              <SpinnerGap size={36} className="hs-spin" color="var(--color-primary)" />
+              <GravityLoader texto="Carregando" tamanho="lg" />
             </div>
           ) : (
             <>

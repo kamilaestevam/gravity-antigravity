@@ -11,6 +11,7 @@ import {
 } from '@phosphor-icons/react'
 import { useTablePersistence } from '../../tabela-global/src/hooks/useTablePersistence.js'
 import { VisibilidadeColunas } from '../../tabela-global/src/componentes/VisibilidadeColunas.js'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import './tabela-camadas.css'
 import type {
   TabelaCamadasGlobalProps,
@@ -416,30 +417,17 @@ function renderCelula<T>(coluna: TCGColuna<T>, item: T): React.ReactNode {
   return <span>{String(valor)}</span>
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+// ─── Loading ─────────────────────────────────────────────────────────────────
 
-function SkeletonLinhas({ colunas, temAcoes, temSelecao }: { colunas: number; temAcoes: boolean; temSelecao: boolean }) {
+function TCGLoading({ colSpan }: { colSpan: number }) {
   return (
-    <>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <tr key={i} className="tcg-tr-pai">
-          {temSelecao && <td className="tcg-td tcg-td--check"><div className="tcg-skeleton" style={{ width: 16, height: 16, borderRadius: 4 }} /></td>}
-          <td className="tcg-td tcg-td--expand">
-            <div className="tcg-skeleton" style={{ width: 24, height: 24, borderRadius: 6 }} />
-          </td>
-          {Array.from({ length: colunas }).map((_, j) => (
-            <td key={j} className="tcg-td">
-              <div className="tcg-skeleton" style={{ width: j === 0 ? '70%' : '50%' }} />
-            </td>
-          ))}
-          {temAcoes && (
-            <td className="tcg-td tcg-td--acoes">
-              <div className="tcg-skeleton" style={{ width: 60, height: 24, borderRadius: 12 }} />
-            </td>
-          )}
-        </tr>
-      ))}
-    </>
+    <tr>
+      <td colSpan={colSpan} style={{ padding: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '8%', minHeight: 200 }}>
+          <GravityLoader texto="Carregando" />
+        </div>
+      </td>
+    </tr>
   )
 }
 
@@ -903,7 +891,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
 
           <tbody>
             {carregando ? (
-              <SkeletonLinhas colunas={colunas.length} temAcoes={temAcoes} temSelecao={temSelecao} />
+              <TCGLoading colSpan={colSpan} />
             ) : dadosPagina.length === 0 ? (
               <tr>
                 <td colSpan={colSpan} className="tcg-vazio">

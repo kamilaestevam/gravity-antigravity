@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -777,8 +778,7 @@ export function SelecionarWorkspace() {
         <div className="sw-content">
           {carregando ? (
             <div className="sw-loading">
-              <div className="sw-loading-spinner" />
-              <span>{t('sw.carregando')}</span>
+              <GravityLoader texto="Carregando" tamanho="lg" />
             </div>
           ) : (
             <>

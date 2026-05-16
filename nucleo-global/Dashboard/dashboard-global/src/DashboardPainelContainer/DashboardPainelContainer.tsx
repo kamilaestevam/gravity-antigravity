@@ -12,6 +12,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise, DotsSixVertical } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
 
 export interface WidgetContainerProps {
@@ -39,10 +40,8 @@ export interface WidgetContainerProps {
 
 function WidgetSkeleton() {
   return (
-    <div style={styles.skeleton}>
-      <div style={{ ...styles.skeletonLine, width: '60%', height: '14px' }} />
-      <div style={{ ...styles.skeletonLine, width: '100%', height: '80px', marginTop: '12px' }} />
-      <div style={{ ...styles.skeletonLine, width: '80%', height: '12px', marginTop: '8px' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: 100 }}>
+      <GravityLoader tamanho="sm" />
     </div>
   )
 }

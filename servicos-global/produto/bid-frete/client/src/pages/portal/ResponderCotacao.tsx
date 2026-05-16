@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -189,7 +190,9 @@ export default function ResponderCotacao() {
       }
     >
       {carregando ? (
-        <div className="rc-loading">{t('comum.carregando')}</div>
+        <div className="rc-loading">
+          <GravityLoader texto={t('comum.carregando')} tamanho="sm" />
+        </div>
       ) : (
         <div className="rc-layout">
           {/* Detalhes Read-Only */}

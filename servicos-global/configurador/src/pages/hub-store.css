@@ -27,12 +27,16 @@
   margin: 0 auto;
 }
 
-/* Loading centralizado */
+/* Loading centralizado — posição fixa cobrindo viewport inteira,
+   alinhado com ProductLoading do App.tsx para transição sem "pulo" */
 .gs-loading {
+  position: fixed;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 50vh;
+  background: var(--bg-base, #0f1729);
+  z-index: 50;
 }
 
 /* Botão voltar ao Hub */

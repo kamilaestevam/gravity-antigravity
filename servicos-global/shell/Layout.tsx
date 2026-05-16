@@ -7,6 +7,7 @@ import { ProductSidebar } from './ProductSidebar'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { changeLanguageLazy, type SupportedLanguage } from '@nucleo/Utilidades/localization/i18n'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
@@ -138,17 +139,8 @@ export function Layout({
       <main className="shell-main" role="main" aria-label={t('shell.conteudo_principal')}>
         <Suspense
           fallback={
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                color: 'var(--text-muted)',
-                fontSize: '0.875rem',
-              }}
-            >
-              {t('shell.carregando_modulo')}
+            <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-base, #0f1729)', zIndex: 50 }}>
+              <GravityLoader texto="Carregando" tamanho="lg" />
             </div>
           }
         >

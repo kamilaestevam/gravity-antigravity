@@ -12,6 +12,7 @@ import {
   CaretRight,
   CaretDown,
 } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { KanbanCardWrapper } from './KanbanCardWrapper'
 import { useKanban } from './KanbanContext'
 import type { KanbanColunaDef, KanbanItem, KanbanSortKey } from './tipos'
@@ -217,10 +218,12 @@ export function KanbanColuna({
             aria-label={`Cards de ${coluna.label}`}
           >
 
-            {/* Skeleton de carregamento */}
-            {isLoading && Array.from({ length: skeletonCount }).map((_, i) => (
-              <div key={i} className="kg-skeleton-card" />
-            ))}
+            {/* Loading — GravityLoader orbital */}
+            {isLoading && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+                <GravityLoader texto="Carregando" tamanho="sm" />
+              </div>
+            )}
 
             {/* Cards — SortableContext habilita reorder dentro da coluna */}
             {!isLoading && (

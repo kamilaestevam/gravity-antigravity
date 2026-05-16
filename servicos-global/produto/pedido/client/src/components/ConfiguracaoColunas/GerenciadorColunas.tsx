@@ -28,8 +28,8 @@ import {
   PencilSimple,
   Trash,
   Plus,
-  Spinner,
 } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { ColunaUsuario } from '../../shared/types'
@@ -244,7 +244,7 @@ export function GerenciadorColunas() {
 
       {carregando ? (
         <div className="gc-carregando" aria-label="Carregando colunas">
-          <Spinner size={24} className="gc-spinner" />
+          <GravityLoader tamanho="sm" />
         </div>
       ) : colunas.length === 0 ? (
         <p className="gc-vazio">Nenhuma coluna criada. Clique em "Nova Coluna" para começar.</p>

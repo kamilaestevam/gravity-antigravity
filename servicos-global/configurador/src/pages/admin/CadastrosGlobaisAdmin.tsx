@@ -25,6 +25,7 @@ import {
   XCircle,
   ArrowsClockwise,
 } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { z } from 'zod'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -254,8 +255,7 @@ export default function CadastrosGlobaisAdmin() {
       {/* ── Estados ── */}
       {carregando && (
         <div className="cga-loading">
-          <span className="cga-spinner" aria-hidden="true" />
-          <span>Carregando catálogos globais…</span>
+          <GravityLoader texto="Carregando catálogos globais…" tamanho="sm" />
         </div>
       )}
 

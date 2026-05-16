@@ -16,7 +16,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
-import { UploadSimple, X, Spinner } from '@phosphor-icons/react'
+import { UploadSimple, X } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -790,7 +791,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
           {/* Analisando overlay */}
           {analisando && (
             <div className="smart-import__analisando" aria-live="polite" aria-busy="true">
-              <Spinner size={32} className="smart-import__spinner" aria-hidden="true" />
+              <GravityLoader tamanho="sm" />
               <span>{msgProgresso}</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                 {arquivoAtual?.name.toLowerCase().endsWith('.pdf')

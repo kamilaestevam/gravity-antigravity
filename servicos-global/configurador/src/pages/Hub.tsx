@@ -389,11 +389,11 @@ export function Hub() {
             </div>
 
             {loading ? (
-              <div className="hb-loading">
-                <GravityLoader texto="Carregando" tamanho="lg" />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0', minHeight: 200 }}>
+                <GravityLoader texto="Carregando" tamanho="md" />
               </div>
             ) : products.length === 0 ? (
-              <div className="hb-loading" style={{ flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '3rem 0', minHeight: 200, color: 'var(--hb-muted)', fontSize: '0.875rem' }}>
                 <Rocket weight="duotone" size={48} color="var(--hb-muted)" />
                 <p style={{ textAlign: 'center', maxWidth: 320 }}>{t('hub.empty_desc', { nome: companyName })}</p>
                 <button className="hb-gabi-btn" type="button" onClick={() => navigate('/store')}>

@@ -153,6 +153,42 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
   },
   {
+    key: 'tipo_operacao_item',
+    label: 'Tipo de Operação',
+    tipo: 'badge',
+    align: 'center',
+    grupo: t('pedido.item_grupo.identificacao'),
+    render: (_val: unknown, row: PedidoItem) => {
+      const tipo = (row as Record<string, unknown>).tipo_operacao_item as string | null
+      if (!tipo) return <span style={{ color: 'var(--text-muted)' }}>—</span>
+      return (
+        <span style={{
+          padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600,
+          textTransform: 'uppercase', letterSpacing: '0.04em',
+          background: tipo === 'importacao'
+            ? 'color-mix(in srgb, var(--color-info, #3b82f6) 15%, transparent)'
+            : 'color-mix(in srgb, var(--color-success, #22c55e) 15%, transparent)',
+          color: tipo === 'importacao'
+            ? 'var(--color-info, #60a5fa)'
+            : 'var(--color-success, #4ade80)',
+        }}>
+          {tipo === 'importacao' ? 'Importação' : 'Exportação'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'unidade_comercializada_item',
+    label: 'Unidade Comercializada',
+    tipo: 'texto',
+    grupo: t('pedido.item_grupo.quantidades'),
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+        {row.unidade_comercializada_item ?? '—'}
+      </span>
+    ),
+  },
+  {
     key: 'quantidade_inicial_pedido',
     label: t('pedido.item.qtd_inicial'),
     tipo: 'numero',
@@ -1395,6 +1431,82 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     tooltipDescricao: 'Número da LPCO vinculada ao tratamento administrativo na DUIMP',
     render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco_trat_adm_duimp ?? '—'}</span>,
   },
+  // ── Comercial (item) ────────────────────────────────────────────────────────
+  {
+    key: 'moeda_item',
+    label: 'Moeda do Item',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: 'Moeda do Item',
+    tooltipDescricao: 'Moeda utilizada para valoração do item',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+        {row.moeda_item ?? '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'incoterm',
+    label: 'Incoterm',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: 'Incoterm',
+    tooltipDescricao: 'Condição de venda internacional do item (ex: FOB, CIF, EXW)',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>
+        {row.incoterm ?? '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'condicao_pagamento',
+    label: 'Cond. Pagamento',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: 'Condição de Pagamento',
+    tooltipDescricao: 'Condição de pagamento acordada para o item',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.condicao_pagamento ?? '—'}</span>,
+  },
+  {
+    key: 'casas_decimais_quantidade_item',
+    label: 'Casas Decimais Qtd',
+    tipo: 'numero',
+    align: 'center',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: 'Casas Decimais — Quantidade',
+    tooltipDescricao: 'Número de casas decimais para campos de quantidade do item',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.casas_decimais_quantidade_item ?? '—'}
+      </span>
+    ),
+  },
+  // ── Datas do item (adicionais) ──────────────────────────────────────────────
+  {
+    key: 'data_emissao_pedido',
+    label: 'Data P.O.',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: 'Data da P.O. (Item)',
+    tooltipDescricao: 'Data de emissão da Purchase Order no nível do item',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_emissao_pedido ? fmtData(row.data_emissao_pedido) : '—'}</span>,
+  },
+  {
+    key: 'data_embarque_item',
+    label: 'Data Embarque',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: 'Data de Embarque (Item)',
+    tooltipDescricao: 'Data de embarque no nível do item',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_embarque_item ? fmtData(row.data_embarque_item) : '—'}</span>,
+  },
 ] }
 
 // ── Tipo auxiliar: item enriquecido com dados do pedido pai para renderização ──
@@ -1569,6 +1681,41 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     campo: 'data_emissao_pedido',
     render: (row: PedidoItem) => <span>{fmtData(row.data_emissao_pedido ?? null)}</span>,
   },
+  // ── Datas replicáveis pai→item (geradas a partir do mapa de propagação) ──
+  // mapItem (backend) envia dados do item sob o nome FRONTEND do pai
+  // (ex: 'data_prevista_pedido_pronto') — mesmo padrão de incoterm, condicao_pagamento, etc.
+  // campo = keyPai → PATCH item envia esse nome; publicToDddItem resolve para coluna Prisma.
+  ...(() => {
+    const datasColunaPai = [
+      'data_prevista_pedido_pronto', 'data_confirmada_pedido_pronto', 'data_meta_pedido_pronto',
+      'data_prevista_inspecao_pedido', 'data_confirmada_inspecao_pedido', 'data_meta_inspecao_pedido',
+      'data_prevista_coleta_pedido', 'data_confirmada_coleta_pedido', 'data_meta_coleta_pedido',
+      'data_consolidacao_pedido', 'data_transferencia_saldo_pedido',
+      'data_prevista_recebimento_rascunho_pedido', 'data_confirmada_recebimento_rascunho_pedido', 'data_meta_recebimento_rascunho_pedido',
+      'data_prevista_aprovacao_rascunho_pedido', 'data_confirmada_aprovacao_rascunho_pedido', 'data_meta_aprovacao_rascunho_pedido',
+      'data_documento_pedido',
+      'data_prevista_recebimento_rascunho_proforma', 'data_confirmada_recebimento_rascunho_proforma', 'data_meta_recebimento_rascunho_proforma',
+      'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
+      'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
+      'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
+      'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
+      'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
+      'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
+      'data_prevista_recebimento_original_invoice', 'data_confirmada_recebimento_original_invoice', 'data_meta_recebimento_original_invoice',
+    ]
+    const entries: Array<[string, GTMapaColunasFilho<PedidoItem>]> = []
+    for (const keyPai of datasColunaPai) {
+      entries.push([keyPai, {
+        editavel: true,
+        campo: keyPai,
+        render: (row: PedidoItem) => {
+          const v = (row as unknown as Record<string, unknown>)[keyPai]
+          return <span>{v ? fmtData(String(v)) : '—'}</span>
+        },
+      }])
+    }
+    return Object.fromEntries(entries)
+  })(),
   // ── Pesos e cubagem do item ───────────────────────────────────────────────
   peso_liquido_total_pedido: {
     editavel: true,
@@ -1639,7 +1786,41 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
       )
     },
   },
+  // ── Moeda e Unidade ────────────────────────────────────────────────────────
+  moeda_pedido: {
+    render: (row: PedidoItem) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
+        {row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? '—'}
+      </span>
+    ),
+  },
+  unidade_comercializada_pedido: {
+    render: (row: PedidoItem) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+        {(row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? '—'}
+      </span>
+    ),
+  },
   // ── Valores ───────────────────────────────────────────────────────────────
+  valor_por_unidade_item: {
+    editavel: true,
+    campo: 'valor_por_unidade_item',
+    casasDecimais: getCasas('valor_por_unidade_item', 2),
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: row.valor_por_unidade_item ?? 0,
+    }),
+    render: (row: PedidoItem) => {
+      const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
+      const num = Number(row.valor_por_unidade_item)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_por_unidade_item != null && !isNaN(num) ? fmtQuantidade(num, getCasas('valor_por_unidade_item', 2)) : '—'}
+        </span>
+      )
+    },
+  },
   valor_total_pedido: {
     editavel: true,
     campo: 'valor_total_item',

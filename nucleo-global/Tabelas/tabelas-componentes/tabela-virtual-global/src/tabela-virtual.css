@@ -760,6 +760,8 @@
 .gtv-linha--filho {
   background: var(--gtv-bg-filho);
   min-height: 44px;
+  border-left: 1px solid var(--gtv-accent, #818cf8);
+  border-right: 1px solid var(--gtv-accent, #818cf8);
 }
 
 .gtv-linha--filho .gtv-celula {
@@ -772,6 +774,11 @@
   background: rgba(10, 18, 36, 0.65);
 }
 
+.gtv-linha--filho-ultimo {
+  border-bottom: 1px solid var(--gtv-accent, #818cf8);
+  margin-bottom: 6px;
+}
+
 .gtv-linha--selecionada {
   background: rgba(129, 140, 248, 0.06) !important;
 }
@@ -781,12 +788,15 @@
 }
 
 .gtv-linha--expandida {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.12);
+  border-top: 1px solid var(--gtv-accent, #818cf8);
+  border-left: 1px solid var(--gtv-accent, #818cf8);
+  border-right: 1px solid var(--gtv-accent, #818cf8);
   border-bottom: none;
 }
 
 .gtv-linha--expandida:hover {
-  background: rgba(129, 140, 248, 0.06);
+  background: rgba(129, 140, 248, 0.16);
 }
 
 /* ─── Células ─────────────────────────────────────────────────────────────── */
@@ -843,10 +853,10 @@
   background: rgba(129, 140, 248, 0.09);
 }
 .gtv-linha--expandida .gtv-celula--acoes {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.12);
 }
 .gtv-linha--expandida:hover .gtv-celula--acoes {
-  background: rgba(129, 140, 248, 0.06);
+  background: rgba(129, 140, 248, 0.16);
 }
 
 .gtv-celula--center { justify-content: center; text-align: center; }
@@ -1056,6 +1066,32 @@
 
 .gtv-edit-popover-footer--hidden {
   display: none;
+}
+
+/* ── Aviso de impacto — badge com pulse glow (UX 2026-05-15) ──────────────── */
+.gtv-edit-aviso-impacto {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 8px 12px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 6px;
+  animation: gtv-aviso-pulse 3s ease-in-out infinite;
+}
+
+.gtv-edit-aviso-impacto-icone {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+}
+
+@keyframes gtv-aviso-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+  50%      { box-shadow: 0 0 8px 2px rgba(251, 191, 36, 0.15); }
 }
 
 .gtv-edit-popover-input {
@@ -1411,6 +1447,16 @@
 }
 .gtv-celula-moeda-badge {
   flex-shrink: 0;
+  min-width: 2.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.04em;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--gtv-accent, #818cf8);
+  text-align: center;
 }
 .gtv-celula-unidade-badge {
   flex-shrink: 0;

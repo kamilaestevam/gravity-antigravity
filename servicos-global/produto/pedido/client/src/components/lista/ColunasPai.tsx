@@ -348,6 +348,60 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(row.nome_importador, row.nome_importador_divergente, 'Importadores divergentes entre itens'),
   },
+  // ── CNPJ Importador ──────────────────────────────────────────────────────────
+  // Importação: editável, formato CNPJ. Exportação: travado com "—" e tooltip.
+  {
+    key: 'cnpj_importador',
+    label: 'CNPJ do Importador',
+    tipo: 'texto',
+    grupo: 'Partes',
+    tooltipTitulo: 'CNPJ do Importador',
+    tooltipDescricao: 'CNPJ da empresa importadora. Em importação, preenchido automaticamente pelo workspace. Em exportação, não se aplica.',
+    render: (_val: unknown, row: Pedido) => {
+      const isImportacao = row.tipo_operacao === 'importacao'
+      if (!isImportacao) {
+        return (
+          <TooltipGlobal descricao="Em operações de exportação, o CNPJ do Importador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
+      const raw = row.cnpj_importador ?? ''
+      // Formatar CNPJ: 00.000.000/0000-00
+      const digits = raw.replace(/\D/g, '')
+      const formatted = digits.length === 14
+        ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
+        : raw || '—'
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
+    },
+  },
+  // ── CNPJ Exportador ──────────────────────────────────────────────────────────
+  // Exportação: editável, formato CNPJ. Importação: travado com "—" e tooltip.
+  {
+    key: 'cnpj_exportador',
+    label: 'CNPJ do Exportador',
+    tipo: 'texto',
+    grupo: 'Partes',
+    tooltipTitulo: 'CNPJ do Exportador',
+    tooltipDescricao: 'CNPJ da empresa exportadora. Em exportação, preenchido automaticamente pelo workspace. Em importação, não se aplica.',
+    render: (_val: unknown, row: Pedido) => {
+      const isExportacao = row.tipo_operacao === 'exportacao'
+      if (!isExportacao) {
+        return (
+          <TooltipGlobal descricao="Em operações de importação, o CNPJ do Exportador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
+      const raw = row.cnpj_exportador ?? ''
+      // Formatar CNPJ: 00.000.000/0000-00
+      const digits = raw.replace(/\D/g, '')
+      const formatted = digits.length === 14
+        ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
+        : raw || '—'
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
+    },
+  },
   {
     key: 'nome_fabricante',
     label: t('pedido.coluna_pai.nome_fabricante'),
@@ -492,7 +546,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'moeda_pedido',
     label: 'Moeda do Pedido/Item',
-    tipo: 'texto',
+    tipo: 'moeda',
     filtravel: true,
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
@@ -527,9 +581,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'unidade_comercializada_pedido',
     label: 'Unidade Comercializada',
-    tipo: 'texto',
+    tipo: 'unidade',
     filtravel: true,
     grupo: 'Quantidades',
+    avisoImpacto: 'A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada',
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(
         row.unidade_comercializada_pedido,
@@ -542,6 +597,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.quantidade_total_inicial_pedido'),
     tipo: 'unidade',
     align: 'right',
+    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc'),
     grupo: 'Quantidades',
@@ -552,6 +608,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total'),
     tipo: 'unidade',
     align: 'right',
+    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Transferida, Saldo e Qtd. Cancelada',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc'),
     grupo: 'Quantidades',
@@ -565,6 +622,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // de renderQtdPedido. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
+    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Qtd. Cancelada',
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
     tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
     tooltipInterativo: true,
@@ -638,6 +696,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // têm unidade_comercializada_item diferente. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
+    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Saldo e Qtd. Cancelada',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
     tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_pedido de todos os itens. Alterado apenas por operações de transferência.',
@@ -650,6 +709,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido.
     tipo: 'unidade',
     align: 'right',
+    avisoImpacto: 'A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Saldo',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc'),
     grupo: 'Quantidades',
@@ -820,6 +880,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
     unidades: unidadesPeso,
+    avisoImpacto: 'A alteração da unidade irá alterar também Peso Bruto Total',
     tooltipTitulo: t('pedido.coluna_pai.peso_liquido_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_liquido_total_pedido_desc'),
     grupo: 'Dados Físicos',
@@ -866,6 +927,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
     unidades: unidadesPeso,
+    avisoImpacto: 'A alteração da unidade irá alterar também Peso Líquido Total',
     tooltipTitulo: t('pedido.coluna_pai.peso_bruto_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.peso_bruto_total_pedido_desc'),
     grupo: 'Dados Físicos',

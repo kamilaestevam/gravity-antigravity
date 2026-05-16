@@ -87,6 +87,12 @@ export interface GTColuna<T = unknown> {
   /** Endpoint GABI para este campo (default: /api/v1/pedidos/gabi/field-help) */
   gabiEndpoint?: string
   /**
+   * Texto informativo exibido no popover de edição, logo acima do footer.
+   * Avisa o usuário sobre colunas que serão impactadas pela alteração.
+   * Ex: "⚠ Também altera: Qtd Inicial, Pronta, Transferida, Saldo, Cancelada"
+   */
+  avisoImpacto?: string
+  /**
    * Converte o valor bruto para a string exibida na tela, usada pelo find-in-page.
    * Necessário quando `render` exibe um label diferente do valor bruto
    * (ex: badge que traduz 'importacao' → 'Importação').
@@ -291,6 +297,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   selecionavelFilhos?: boolean
   /** Callback chamado quando seleção de filhos muda */
   onSelecaoFilho?: (itensSelecionados: C[]) => void
+  /**
+   * Counter de reset: quando incrementado, limpa `filhosSelecionados` e
+   * `filhosCacheMap` internos. Usado após exclusão de itens para evitar
+   * ghost selection (checkbox fantasma em itens já deletados).
+   */
+  resetSelecaoFilhos?: number
   /** Ações inline na linha filho (menu de três pontos ao hover) */
   acoesFilho?: (item: C) => GTAcaoLinha[]
   /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */

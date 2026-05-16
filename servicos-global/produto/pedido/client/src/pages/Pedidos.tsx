@@ -408,6 +408,8 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'cnpj_importador',
+  'cnpj_exportador',
   'endereco_exportador',
   'estado_exportador',
   'cidade_exportador',
@@ -2217,8 +2219,21 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       )
     },
   },
+  // ── CNPJ Importador / Exportador (nível item = vazio, dado é do pedido) ───
+  cnpj_importador: {
+    render: () => <span style={{ color: 'var(--text-disabled, #666)' }}>—</span>,
+  },
+  cnpj_exportador: {
+    render: () => <span style={{ color: 'var(--text-disabled, #666)' }}>—</span>,
+  },
   // ── Moeda ──────────────────────────────────────────────────────────────────
   moeda_pedido: {
+    editavel: true,
+    campo: 'moeda_item',
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: 0,
+    }),
     render: (row: PedidoItem) => {
       const moeda = row.moeda_item
       if (!moeda) return <span>{'—'}</span>
@@ -2234,6 +2249,24 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
     render: (row: PedidoItem) => (
       <span>{row.descricao_item ?? '—'}</span>
     ),
+  },
+  // ── Unidade Comercializada ───────────────────────────────────────────────
+  unidade_comercializada_pedido: {
+    editavel: true,
+    campo: 'unidade_comercializada_item',
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
+      quantity: 0,
+    }),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item
+      if (!unidade) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{unidade}</span>
+        </span>
+      )
+    },
   },
   // ── Quantidades ───────────────────────────────────────────────────────────
   quantidade_atual_pedido: {
@@ -3699,11 +3732,25 @@ export default function Pedidos() {
         'descricao_item',
         ['ncm'],
       )
-      const visivelComMigracao = passoDescItem.resultado
-      const mudouPosicao = passoMover.mudou || passoDescItem.mudou
+      // Caso 4: moeda_pedido NÃO está nas prefs → inserir após ncm/descricao_item (entrega 2026-05-15).
+      const passoMoeda = inserirColunaAposAncora(
+        passoDescItem.resultado,
+        'moeda_pedido',
+        ['descricao_item', 'ncm'],
+      )
+      // Caso 5: unidade_comercializada_pedido NÃO está nas prefs → inserir após quantidade_pronta_itens_pedido_total (entrega 2026-05-15).
+      const passoUnidade = inserirColunaAposAncora(
+        passoMoeda.resultado,
+        'unidade_comercializada_pedido',
+        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
+      )
+      const visivelComMigracao = passoUnidade.resultado
+      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
       const novasBuiltin = [
         ...(passoInserir.mudou ? ['id_workspace'] : []),
         ...(passoDescItem.mudou ? ['descricao_item'] : []),
+        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
+        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
       ]
 
       const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
@@ -4145,6 +4192,88 @@ export default function Pedidos() {
         }
       }))
       return enriquecidoMv
+    }
+
+    // moeda_item: o editor tipo 'moeda' retorna GTValorMoeda { currency, amount }.
+    // Precisamos extrair apenas o currency e salvar no campo moeda_item.
+    if (campo === 'moeda_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
+      const mv = valor as { currency: string; amount: number }
+      const itemAtualMi = getItensCache().find(i => i.id === id)
+      const atualizadoMi = await pedidoItemApi.atualizar(pedido.id, id, {
+        moeda_item: mv.currency,
+      } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualMi) return { ...itemAtualMi, moeda_item: mv.currency } as PedidoItem
+          throw new Error('Erro ao editar moeda_item')
+        })
+      const enriquecidoMi: PedidoItemEnriquecido = {
+        ...atualizadoMi,
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+        },
+      }
+      setDadosPedidosLocais(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        const itensAposEdicaoMi = (p.itens ?? []).map(it =>
+          it.id === id ? enriquecidoMi : it
+        )
+        return {
+          ...p,
+          itens: itensAposEdicaoMi,
+        }
+      }))
+      return enriquecidoMi
+    }
+
+    // unidade_comercializada_item: o editor tipo 'unidade' retorna
+    // GTValorUnidade { unit, quantity }. Extraímos apenas o unit.
+    if (campo === 'unidade_comercializada_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
+      const uv = valor as { unit: string; quantity: number }
+      const itemAtualUi = getItensCache().find(i => i.id === id)
+      const atualizadoUi = await pedidoItemApi.atualizar(pedido.id, id, {
+        unidade_comercializada_item: uv.unit,
+      } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualUi) return { ...itemAtualUi, unidade_comercializada_item: uv.unit } as PedidoItem
+          throw new Error('Erro ao editar unidade_comercializada_item')
+        })
+      const enriquecidoUi: PedidoItemEnriquecido = {
+        ...atualizadoUi,
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+        },
+      }
+      setDadosPedidosLocais(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        const itensAposEdicaoUi = (p.itens ?? []).map(it =>
+          it.id === id ? enriquecidoUi : it
+        )
+        return {
+          ...p,
+          itens: itensAposEdicaoUi,
+        }
+      }))
+      return enriquecidoUi
     }
 
     // valor_por_unidade_item: também retorna GTValorMoeda { currency, amount }
@@ -4929,26 +5058,23 @@ export default function Pedidos() {
           sortCampo={sortCampo}
           sortDir={sortDir}
 
-          camposEditaveis={CAMPOS_EDITAVEIS_PAI}
-          onEditar={async (id: string, campo: string, valor: unknown, opts) => {
+          camposEditaveis={podeEditarLista ? CAMPOS_EDITAVEIS_PAI : []}
+          onEditar={podeEditarLista ? async (id: string, campo: string, valor: unknown, opts) => {
             let idReal = id;
             if (!pedidosFiltrados.some(p => p.id === idReal)) {
                const pedidoCerto = pedidosFiltrados.find(p => p.numero_pedido === idReal || (p as any)._idVirtual === idReal);
                if (pedidoCerto) idReal = pedidoCerto.id;
             }
             return handleEditar(idReal, campo, valor, opts);
-          }}
-          // Permite replicar valor do pai para todos os itens — checkbox no
-          // popover (Decisão UX 2026-05-13). Whitelist em mapaPropagacaoPedidoItem
-          // (apenas campos que existem tanto no Pedido quanto no Item).
-          permiteReplicacaoPaiEmItens={(campo) => {
+          } : undefined}
+          permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
             if (isPropagavel(campo)) return true
             const col = colunasUsuario.find(c => c.chave === campo)
             return !!col && ((col.escopo || 'ambos') === 'ambos')
-          }}
+          } : undefined}
 
-          camposEditaveisFilhos={camposEditaveisFilhosComCustom}
-          onEditarFilho={handleEditarFilho}
+          camposEditaveisFilhos={podeEditarLista ? camposEditaveisFilhosComCustom : []}
+          onEditarFilho={podeEditarLista ? handleEditarFilho : undefined}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
           onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg) })}

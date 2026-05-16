@@ -396,6 +396,7 @@ interface GTEditPopoverProps {
     casasDecimais?: number
     gabiCampo?: string
     gabiEndpoint?: string
+    avisoImpacto?: string
   }
   valorEditando: unknown
   salvando: boolean
@@ -855,6 +856,16 @@ const GTEditPopover = memo(function GTEditPopover({
             />
           )}
         </div>
+
+        {/* Aviso de impacto — badge com pulse glow. Informa o usuário quais
+            colunas serão afetadas ANTES de confirmar. Texto definido por coluna
+            via prop avisoImpacto na GTColuna. Decisão UX 2026-05-15. */}
+        {overlayInfo.avisoImpacto && (
+          <div className="gtv-edit-aviso-impacto">
+            <span className="gtv-edit-aviso-impacto-icone">⚠</span>
+            <span>{overlayInfo.avisoImpacto}</span>
+          </div>
+        )}
 
         {/* Checkbox "Aplicar a todos os itens" — só aparece quando a coluna pai
             é elegível para replicação (linha pai + campo na whitelist). Decisão
@@ -1983,7 +1994,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint })
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -2223,7 +2234,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}

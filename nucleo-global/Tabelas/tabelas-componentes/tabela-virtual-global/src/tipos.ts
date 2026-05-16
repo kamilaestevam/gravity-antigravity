@@ -83,6 +83,12 @@ export interface GTColuna<T = unknown> {
   /** Endpoint GABI para este campo (default: /api/v1/pedidos/gabi/field-help) */
   gabiEndpoint?: string
   /**
+   * Texto informativo exibido no popover de edição, logo acima do footer.
+   * Avisa o usuário sobre colunas que serão impactadas pela alteração.
+   * Ex: "⚠ Também altera: Qtd Inicial, Pronta, Transferida, Saldo, Cancelada"
+   */
+  avisoImpacto?: string
+  /**
    * Converte o valor bruto para a string exibida na tela, usada pelo find-in-page.
    * Necessário quando `render` exibe um label diferente do valor bruto
    * (ex: badge que traduz 'importacao' → 'Importação').

@@ -14,6 +14,8 @@ import { LogoNfImportacao }   from './logos/LogoNfImportacao'
 import { LogoProcesso }       from './logos/LogoProcesso'
 import { LogoFinanceiroComex } from './logos/LogoFinanceiroComex'
 import { LogoGravity }        from './logos/LogoGravity'
+import { LogoAdmin }          from './logos/LogoAdmin'
+import { LogoConfigurador }   from './logos/LogoConfigurador'
 
 export interface ProdutoMeta {
   /** Ícone React do produto — componente SVG próprio */
@@ -64,6 +66,16 @@ export const PRODUTO_META: Record<string, ProdutoMeta> = {
     icon:     <LogoFinanceiroComex size={16} />,
     color:    '#f472b6',
     sublabel: 'financeiro · COMEX',
+  },
+  'admin': {
+    icon:     <LogoAdmin size={16} />,
+    color:    '#818cf8',
+    sublabel: 'painel interno',
+  },
+  'configurador': {
+    icon:     <LogoConfigurador size={16} />,
+    color:    '#7dd3fc',
+    sublabel: 'gestão · organizações',
   },
 }
 

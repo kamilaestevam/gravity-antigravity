@@ -1,8 +1,9 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
+import { getProdutoMeta } from '@nucleo/logo-produtos'
 
 interface ProductSidebarProps {
   tenantName: string
@@ -24,10 +25,16 @@ export function ProductSidebar({
   tenantPlan,
   navItems = [],
   moduleName = 'Produto',
-  moduleColor = '#6366f1',
+  moduleColor,
 }: ProductSidebarProps) {
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const resolvedColor = moduleColor ?? (() => {
+    const match = location.pathname.match(/^\/produto\/([^/]+)/)
+    return match ? getProdutoMeta(match[1]).color : '#818cf8'
+  })()
 
   const items: NavItem[] = [
     {
@@ -44,7 +51,7 @@ export function ProductSidebar({
       tenantPlan={tenantPlan}
       navItems={items}
       moduleName={moduleName}
-      moduleColor={moduleColor}
+      moduleColor={resolvedColor}
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}
     />

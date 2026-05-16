@@ -4,11 +4,11 @@
    --color-success, --color-warning, --color-danger, --radius, --font
 */
 
-/* ── Design tokens — Amber accent (Configurador Global) ────────────────── */
+/* ── Design tokens — Sky accent (Configurador Global) ──────────────── */
 :root {
-  --ws-accent: #f59e0b;
-  --ws-accent-dim: rgba(245, 158, 11, 0.12);
-  --ws-accent-border: rgba(245, 158, 11, 0.20);
+  --ws-accent: #7dd3fc;
+  --ws-accent-dim: rgba(125, 211, 252, 0.12);
+  --ws-accent-border: rgba(125, 211, 252, 0.20);
   --ws-bg-body: #0f172a;
   --ws-surface: #1e293b;
   --ws-surface-2: #0f172a;
@@ -29,9 +29,9 @@ body.light-theme {
   --ws-surface-2: #ffffff;
   --ws-text: #1e293b;
   --ws-muted: #475569;
-  --ws-accent: #d97706;
-  --ws-accent-dim: rgba(217, 119, 6, 0.10);
-  --ws-accent-border: rgba(217, 119, 6, 0.25);
+  --ws-accent: #0369a1;
+  --ws-accent-dim: rgba(3, 105, 161, 0.10);
+  --ws-accent-border: rgba(3, 105, 161, 0.25);
 }
 
 body.light-theme .ws-shell {
@@ -99,18 +99,18 @@ body.light-theme .em-tag {
 
 /* Card Organização — amarelo mais quente no claro */
 body.light-theme .em-identity {
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, var(--ws-surface) 55%);
-  border-color: rgba(217, 119, 6, 0.25);
+  background: linear-gradient(135deg, var(--ws-accent-dim) 0%, var(--ws-surface) 55%);
+  border-color: var(--ws-accent-border);
 }
 
 body.light-theme .em-identity__avatar {
-  background: rgba(217, 119, 6, 0.12);
-  border-color: rgba(217, 119, 6, 0.30);
-  color: #92400e;
+  background: var(--ws-accent-dim);
+  border-color: var(--ws-accent-border);
+  color: var(--ws-accent);
 }
 
 body.light-theme .em-identity__badge {
-  color: #92400e;
+  color: var(--ws-accent);
 }
 
 body.light-theme .em-identity__name {
@@ -1744,7 +1744,7 @@ body.light-theme .ws-profile-dropdown {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+  background: linear-gradient(90deg, #bae6fd 0%, #7dd3fc 50%, #bae6fd 100%);
   background-size: 200% 100%;
   animation: ws-bar-slide 5s linear infinite;
 }
@@ -1956,8 +1956,8 @@ input[type="search"]::placeholder {
 
 /* Identity hero card */
 .em-identity {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.07) 0%, var(--ws-surface) 55%);
-  border: 1px solid rgba(251, 191, 36, 0.28);
+  background: linear-gradient(135deg, var(--ws-accent-dim) 0%, var(--ws-surface) 55%);
+  border: 1px solid var(--ws-accent-border);
   border-radius: 14px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -1981,9 +1981,9 @@ input[type="search"]::placeholder {
   height: 56px;
   min-width: 56px;
   border-radius: 14px;
-  background: rgba(251, 191, 36, 0.14);
-  border: 1.5px solid rgba(251, 191, 36, 0.35);
-  color: #fbbf24;
+  background: var(--ws-accent-dim);
+  border: 1.5px solid var(--ws-accent-border);
+  color: var(--ws-accent);
   font-weight: 800;
   font-size: 1.5rem;
   display: flex;
@@ -2005,7 +2005,7 @@ input[type="search"]::placeholder {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #fbbf24;
+  color: var(--ws-accent);
   margin: 0;
 }
 

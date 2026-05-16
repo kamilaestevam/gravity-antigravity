@@ -93,7 +93,7 @@ export function WorkspaceLayout() {
   )
 
   useEffect(() => {
-    locAddEntry({ productId: 'configurador', productLabel: 'Configurador', productColor: '#f59e0b', pageLabel: 'Configurador', pagePath: '/workspace' })
+    locAddEntry({ productId: 'configurador', productLabel: 'Configurador', productColor: '#7dd3fc', pageLabel: 'Configurador', pagePath: '/workspace' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -142,7 +142,7 @@ export function WorkspaceLayout() {
         tenantPlan={nomeOrganizacao}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
-        moduleColor="#f59e0b"
+        moduleColor="#7dd3fc"
         defaultCollapsed={false}
       />
 
@@ -201,7 +201,7 @@ export function WorkspaceLayout() {
             workspaceName={nomeOrganizacao}
             currentProductId="configurador"
             currentProductLabel="Configurador"
-            currentProductColor="#f59e0b"
+            currentProductColor="#7dd3fc"
             currentPageLabel="Configurador"
             history={locHistory}
             nodes={wsEcosystemNodes}

@@ -21,13 +21,18 @@ import {
   buildEcosystemNodes,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
+import { PRODUTO_META, getProdutoMeta } from '@nucleo/logo-produtos'
 
-// ── Mapa estático de produtos do ecossistema ─────────────────────────────────
-const PRODUCT_META: Record<string, { label: string; color: string; sublabel: string }> = {
-  'bid-cambio':    { label: 'Bid Câmbio',    color: '#06b6d4', sublabel: 'cotações · câmbio' },
-  'simulacusto':   { label: 'SimulaCusto',   color: '#34d399', sublabel: 'fiscal · NCM'      },
-  'lpco':          { label: 'LPCO',          color: '#fb923c', sublabel: 'licenças COMEX'     },
-  'nf-importacao': { label: 'NF Importação', color: '#c084fc', sublabel: 'nota fiscal'        },
+// ── Mapa de labels amigáveis por produto (complementa o registry central) ────
+const PRODUCT_LABELS: Record<string, string> = {
+  'simula-custo':    'SimulaCusto',
+  'pedido':          'Pedido',
+  'bid-cambio':      'Bid Câmbio',
+  'bid-frete':       'Bid Frete',
+  'lpco':            'LPCO',
+  'nf-importacao':   'NF Importação',
+  'processo':        'Processo',
+  'financeiro-comex': 'Financeiro COMEX',
 }
 
 // Detecta nó e contexto pelo pathname — URL é a fonte de verdade
@@ -44,9 +49,9 @@ function resolveContextFromPath(pathname: string): { productId: string; label: s
   const prodMatch = pathname.match(/^\/produto\/([^/]+)/)
   if (prodMatch) {
     const slug = prodMatch[1]
-    const found = PRODUCT_META[slug]
-      ?? Object.entries(PRODUCT_META).find(([k]) => k.replace(/-/g, '') === slug.replace(/-/g, ''))?.[1]
-    if (found) return { productId: slug, ...found }
+    const meta = getProdutoMeta(slug)
+    const label = PRODUCT_LABELS[slug] ?? slug
+    return { productId: slug, label, color: meta.color, sublabel: meta.sublabel }
   }
   // Fallback: HUB
   return { productId: 'hub', label: 'Hub', color: '#818cf8', sublabel: 'ecossistema' }
@@ -130,17 +135,19 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
   }, [location.pathname])
 
   // Produtos do usuário (habilitados ou bloqueados conforme contrato)
-  const produtoNodes: EcosystemNode[] = Object.entries(PRODUCT_META).map(([id, meta]) => {
-    const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
-    return {
-      id,
-      label:    meta.label,
-      sublabel: meta.sublabel,
-      color:    meta.color,
-      type:     'produto',
-      status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
-    }
-  })
+  const produtoNodes: EcosystemNode[] = Object.entries(PRODUTO_META)
+    .filter(([id]) => id !== 'admin' && id !== 'configurador')
+    .map(([id, meta]) => {
+      const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
+      return {
+        id,
+        label:    PRODUCT_LABELS[id] ?? id,
+        sublabel: meta.sublabel,
+        color:    meta.color,
+        type:     'produto',
+        status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
+      }
+    })
 
   // ADMIN só aparece para usuários Gravity admin
   const isGravityAdmin =

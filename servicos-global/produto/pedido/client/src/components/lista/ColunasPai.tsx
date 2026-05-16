@@ -7,7 +7,7 @@
 
 import React from 'react'
 import type { TFunction } from 'i18next'
-import { PencilSimpleLine, Eye } from '@phosphor-icons/react'
+import { PencilSimpleLine, Eye, LinkSimple, Buildings } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
@@ -300,6 +300,30 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
   }
 
+  /** Monta URL deep-link para vincular/editar Exportador no Configurador (tela Empresas e Parceiros) */
+  const urlVincularExportador = (idExportador: string | null, pedidoId?: string) => {
+    const urlAtual = new URL(window.location.href)
+    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
+    const retorno = encodeURIComponent(urlAtual.toString())
+    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
+    if (idExportador) {
+      return `${base}/workspace/empresas-e-parceiros?id=${idExportador}&tipo=exportador-quando-importacao&retorno=${retorno}`
+    }
+    return `${base}/workspace/empresas-e-parceiros?criar=exportador-quando-importacao&retorno=${retorno}`
+  }
+
+  /** Monta URL deep-link para vincular/editar Importador no Configurador (tela Empresas e Parceiros) */
+  const urlVincularImportador = (idImportador: string | null, pedidoId?: string) => {
+    const urlAtual = new URL(window.location.href)
+    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
+    const retorno = encodeURIComponent(urlAtual.toString())
+    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
+    if (idImportador) {
+      return `${base}/workspace/empresas-e-parceiros?id=${idImportador}&tipo=importador-quando-exportacao&retorno=${retorno}`
+    }
+    return `${base}/workspace/empresas-e-parceiros?criar=importador-quando-exportacao&retorno=${retorno}`
+  }
+
   return [
   {
     key: 'numero_pedido',
@@ -373,33 +397,191 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       )
     },
   },
+  // ── Nome Exportador ────────────────────────────────────────────────────────
+  // Exportação: workspace = exportador → badge com nome do workspace + link urlEditarCnpjWorkspace
+  // Importação: contraparte estrangeira → "Vincular Exportador" (vazio) ou badge (preenchido)
   {
     key: 'nome_exportador',
     label: t('pedido.coluna_pai.nome_exportador'),
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    editavel: getEditavel('nome_exportador'),
-    tooltipBloqueado: 'Exportador definido automaticamente pelo workspace — não editável em Exportação',
+    editavel: false,
+    tooltipBloqueado: 'Exportador vinculado via Cadastros — clique para editar',
     tooltipTitulo: t('pedido.coluna_pai.nome_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_exportador_desc'),
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.nome_exportador, t('pedido.coluna_pai.nome_exportador')), row.nome_exportador_divergente, 'Exportadores divergentes entre itens'),
+    render: (_val: unknown, row: Pedido) => {
+      const isExportacao = row.tipo_operacao === 'exportacao'
+
+      // ─── EXPORTAÇÃO: workspace = exportador → badge auto-preenchido ───
+      if (isExportacao) {
+        const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
+        if (nomeWorkspace) {
+          const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+          return (
+            <TooltipGlobal descricao="Exportador é o próprio Workspace. Clique para editar dados no Configurador">
+              <span
+                role="link"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+              >
+                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
+              </span>
+            </TooltipGlobal>
+          )
+        }
+        // Workspace sem nome cadastrado → link para cadastrar
+        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+        return (
+          <TooltipGlobal descricao="Nome do Workspace não cadastrado. Clique para cadastrar no Configurador">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar Exportador
+            </span>
+          </TooltipGlobal>
+        )
+      }
+
+      // ─── IMPORTAÇÃO: contraparte estrangeira → vincular ou badge ───
+      const nome = row.nome_exportador
+      const idExportador = row.importacao_exportador_id
+      if (nome && nome.trim()) {
+        const href = urlVincularExportador(idExportador, row.id)
+        return (
+          <TooltipGlobal descricao={nome.length > 50 ? nome : 'Clique para editar o exportador no Cadastros'}>
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid var(--border, #334155)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+            >
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, opacity: 0.7 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome.length > 50 ? nome.slice(0, 50) + '…' : nome}</span>
+              {nome.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const href = urlVincularExportador(null, row.id)
+      return (
+        <TooltipGlobal descricao="Nenhum exportador vinculado. Clique para cadastrar no Cadastros">
+          <span
+            role="link"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+            style={{ color: 'rgba(59, 130, 246, 0.8)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+          >
+            <PencilSimpleLine size={12} weight="bold" />
+            Vincular Exportador
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
+  // ── Nome Importador ────────────────────────────────────────────────────────
+  // Importação: workspace = importador → badge com nome do workspace + link urlEditarCnpjWorkspace
+  // Exportação: contraparte estrangeira → "Vincular Importador" (vazio) ou badge (preenchido)
   {
     key: 'nome_importador',
     label: t('pedido.coluna_pai.nome_importador'),
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    editavel: getEditavel('nome_importador'),
-    tooltipBloqueado: 'Importador definido automaticamente pelo workspace — não editável em Importação',
+    editavel: false,
+    tooltipBloqueado: 'Importador vinculado via Cadastros — clique para editar',
     tooltipTitulo: t('pedido.coluna_pai.nome_importador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_importador_desc'),
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.nome_importador, t('pedido.coluna_pai.nome_importador')), row.nome_importador_divergente, 'Importadores divergentes entre itens'),
+    render: (_val: unknown, row: Pedido) => {
+      const isImportacao = row.tipo_operacao === 'importacao'
+
+      // ─── IMPORTAÇÃO: workspace = importador → badge auto-preenchido ───
+      if (isImportacao) {
+        const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
+        if (nomeWorkspace) {
+          const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+          return (
+            <TooltipGlobal descricao="Importador é o próprio Workspace. Clique para editar dados no Configurador">
+              <span
+                role="link"
+                tabIndex={0}
+                onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+              >
+                <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: 'rgba(59, 130, 246, 0.8)' }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeWorkspace}</span>
+              </span>
+            </TooltipGlobal>
+          )
+        }
+        // Workspace sem nome cadastrado → link para cadastrar
+        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+        return (
+          <TooltipGlobal descricao="Nome do Workspace não cadastrado. Clique para cadastrar no Configurador">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar Importador
+            </span>
+          </TooltipGlobal>
+        )
+      }
+
+      // ─── EXPORTAÇÃO: contraparte estrangeira → vincular ou badge ───
+      const nome = row.nome_importador
+      const idImportador = row.exportacao_importador_id
+      if (nome && nome.trim()) {
+        const href = urlVincularImportador(idImportador, row.id)
+        return (
+          <TooltipGlobal descricao={nome.length > 50 ? nome : 'Clique para editar o importador no Cadastros'}>
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'var(--surface-2, #1e293b)', border: '1px solid var(--border, #334155)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: 'var(--text-primary, #e2e8f0)', maxWidth: '100%' }}
+            >
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, opacity: 0.7 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome.length > 50 ? nome.slice(0, 50) + '…' : nome}</span>
+              {nome.length > 50 && <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />}
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const href = urlVincularImportador(null, row.id)
+      return (
+        <TooltipGlobal descricao="Nenhum importador vinculado. Clique para cadastrar no Cadastros">
+          <span
+            role="link"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+            style={{ color: 'rgba(59, 130, 246, 0.8)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+          >
+            <PencilSimpleLine size={12} weight="bold" />
+            Vincular Importador
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   // ── CNPJ Importador ──────────────────────────────────────────────────────────
   // Fonte única de verdade: cnpj_workspace do Workspace (via workspacesMap).

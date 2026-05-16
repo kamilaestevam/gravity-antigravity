@@ -9,7 +9,7 @@
   --gtv-bg:           var(--bg-base, #1e293b);
   --gtv-bg-alt:       var(--bg-body-dark, #0f172a);
   --gtv-bg-hover:     rgba(129, 140, 248, 0.04);
-  --gtv-bg-filho:     rgba(10, 18, 36, 0.55);
+  --gtv-bg-filho:     #0d1525;
   --gtv-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --gtv-border-solid: var(--color-border, #334155);
   --gtv-accent:       var(--accent, #818cf8);
@@ -657,9 +657,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  min-width: 20px;
-  max-width: 20px;
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
 }
 
 
@@ -799,7 +799,7 @@
 }
 
 .gtv-linha--filho:hover {
-  background: rgba(10, 18, 36, 0.65);
+  background: #111b2e;
 }
 
 .gtv-linha--filho-ultimo {
@@ -872,7 +872,7 @@
   background: var(--gtv-bg-filho);
 }
 .gtv-linha--filho:hover .gtv-celula--acoes {
-  background: rgba(10, 18, 36, 0.65);
+  background: #111b2e;
 }
 .gtv-linha--selecionada .gtv-celula--acoes {
   background: rgba(129, 140, 248, 0.06);

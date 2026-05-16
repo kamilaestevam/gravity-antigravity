@@ -1127,6 +1127,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   selecionavelFilhos,
   onSelecaoFilho,
   resetSelecaoFilhos,
+  resetCacheFilhos,
   acoesFilho,
   renderConectorFilho,
   onBuscar,
@@ -1323,6 +1324,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     dados,
     itemId,
     itemVersion,
+    resetCacheFilhos,
   )
 
   useEffect(() => {

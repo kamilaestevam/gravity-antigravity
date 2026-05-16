@@ -102,7 +102,6 @@ import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
 import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
-import '../components/ModalPedidosConsolidar.css'
 import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
 import '../components/ModalPedidoGerarPdf.css'
 import { ModalDuplicarPedidos } from '../components/ModalPedidosDuplicar'
@@ -5915,6 +5914,7 @@ export default function Pedidos() {
           selecionavelFilhos
           onSelecaoFilho={onSelecaoFilhoEstavel}
           resetSelecaoFilhos={resetFilhos}
+          resetCacheFilhos={resetFilhos}
           acoesFilho={acoesFilhoEstavel}
 
           acoesBarra={acoesBarra}
@@ -6164,6 +6164,9 @@ export default function Pedidos() {
             setModalTransferirAberto(false)
             setPedidosSelecionados([])
             setItensSelecionados([])
+            itensCarregadosRef.current.clear()
+            setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
+            setResetFilhos(prev => prev + 1)
             carregarInicial()
           }}
         />
@@ -6183,6 +6186,17 @@ export default function Pedidos() {
             setModalEdicaoMassaAberto(false)
             setPedidosSelecionados([])
             setItensSelecionados([])
+            // Limpa cache de itens expandidos para forçar reload do backend.
+            // Sem isso, useGTExpandir compara itemVersion (updated_at) do pedido,
+            // que pode não mudar quando apenas itens foram editados (item_ids),
+            // e mantém filhos velhos no cache.
+            itensCarregadosRef.current.clear()
+            // Limpa itens embutidos nos pedidos para forçar fetch via API.
+            // handleCarregarFilhos tem otimização que reutiliza pedido.itens se
+            // presente — sem esta limpeza, o resetCacheFilhos recarrega itens stale
+            // do próprio objeto JS em vez de buscar dados frescos do servidor.
+            setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
+            setResetFilhos(prev => prev + 1)
             carregarInicial()
           }}
         />
@@ -6197,6 +6211,9 @@ export default function Pedidos() {
           onConcluido={async () => {
             setModalConsolidarAberto(false)
             setPedidosSelecionados([])
+            itensCarregadosRef.current.clear()
+            setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
+            setResetFilhos(prev => prev + 1)
             await carregarInicial()
           }}
         />
@@ -6213,6 +6230,9 @@ export default function Pedidos() {
             setModalDuplicarAberto(false)
             setPedidosSelecionados([])
             setItensSelecionados([])
+            itensCarregadosRef.current.clear()
+            setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
+            setResetFilhos(prev => prev + 1)
             carregarInicial()
           }}
         />

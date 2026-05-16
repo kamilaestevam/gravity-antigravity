@@ -25,6 +25,10 @@ export function useGTExpandir<T, C>(
    *  filhos só são recarregados se a VERSÃO mudar — não a referência do objeto.
    *  Isso evita reload ao atualizar estado local (divergências, totais) sem fetch novo. */
   itemVersion?: (item: T) => unknown,
+  /** Counter que, quando incrementado, limpa o filhosCache interno e força
+   *  re-fetch dos filhos na próxima expansão. Usado após edição em massa de itens
+   *  quando `itemVersion` (updated_at do pai) não muda. */
+  resetCacheFilhos?: number,
 ): UseGTExpandirRetorno<T, C> {
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [filhosCache, setFilhosCache] = useState<Map<string, C[]>>(new Map())
@@ -43,6 +47,38 @@ export function useGTExpandir<T, C>(
   // Quando `itemVersion` é fornecido, compara versões (timestamp servidor) em vez de
   // referências — evita reload ao atualizar apenas estado local (divergências, totais).
   const dadosAnteriorRef = useRef<Map<string, unknown>>(new Map())
+
+  // ── Reset forçado do cache de filhos ──────────────────────────────────────────
+  // Quando `resetCacheFilhos` é incrementado, limpa o cache interno e recarrega
+  // todos os pais expandidos. Usado após edição em massa de itens quando
+  // `itemVersion` (updated_at do pai) não muda e o auto-revalidar não detecta.
+  const resetCacheFilhosRef = useRef(resetCacheFilhos ?? 0)
+  useEffect(() => {
+    const valor = resetCacheFilhos ?? 0
+    if (valor === resetCacheFilhosRef.current) return
+    resetCacheFilhosRef.current = valor
+
+    // Limpa cache e snapshot
+    setFilhosCache(new Map())
+    dadosAnteriorRef.current = new Map()
+
+    // Recarrega todos os pais expandidos
+    if (!onCarregarFilhos || !dados || !itemId || expandidosRef.current.size === 0) return
+    for (const id of expandidosRef.current) {
+      const itemAtual = dados.find(d => itemId(d) === id)
+      if (!itemAtual) continue
+      onCarregarFilhos(itemAtual)
+        .then(filhos => {
+          setFilhosCache(prev => {
+            const next = new Map(prev)
+            next.set(id, filhos)
+            return next
+          })
+          dadosAnteriorRef.current.set(id, itemVersion ? itemVersion(itemAtual) : itemAtual)
+        })
+        .catch(() => { /* silent — pais sem filhos se reexpandirem */ })
+    }
+  }, [resetCacheFilhos, onCarregarFilhos, dados, itemId, itemVersion])
 
   const toggle = useCallback(
     async (id: string, item: T) => {

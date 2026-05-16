@@ -303,6 +303,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * ghost selection (checkbox fantasma em itens já deletados).
    */
   resetSelecaoFilhos?: number
+  /** Counter que, quando incrementado, limpa o cache interno de filhos e
+   *  recarrega todos os pais expandidos. Usado após edição em massa de itens
+   *  quando `itemVersion` (updated_at do pai) não muda. */
+  resetCacheFilhos?: number
   /** Ações inline na linha filho (menu de três pontos ao hover) */
   acoesFilho?: (item: C) => GTAcaoLinha[]
   /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */

@@ -352,6 +352,7 @@ export interface Pedido {
 
   // Divergência de itens — pré-computado pelo backend na list view
   // Elimina a necessidade de carregar itens no state apenas para exibir badges
+  tipo_operacao_divergente?: boolean | null
   ncm_divergente?: boolean | null
   ncm_valor_unico?: string | null
   referencia_importador_divergente?: boolean | null
@@ -464,8 +465,16 @@ export interface Pedido {
 export interface CampoDivergente {
   campo: string
   rotulo: string
+  grupo: string
   valores: { pedido_id: string; numero_pedido: string; valor: string | number | null }[]
   valor_sugerido: string | number | null
+}
+
+export interface CampoIgual {
+  campo: string
+  rotulo: string
+  grupo: string
+  valor: string | number | null
 }
 
 export interface ItemConsolidado {
@@ -483,13 +492,13 @@ export interface ItemConsolidado {
 export interface ConsolidacaoPreview {
   ids: string[]
   campos_divergentes: CampoDivergente[]
-  campos_iguais: string[]
+  campos_iguais: CampoIgual[]
   itens: ItemConsolidado[]
   valor_total_soma: number
   moeda: string
   numero_sugerido: string
-  /** Sinaliza que os pedidos possuem tipos de operação diferentes (Onda C). */
   conflito_tipo_operacao?: boolean
+  pedidos_info: Array<{ id: string; numero: string }>
 }
 
 export interface ConsolidacaoPayload {
@@ -664,6 +673,8 @@ export interface EdicaoMassaPayload {
   /** IDs específicos de itens a editar. Se presente, apenas estes itens são alterados.
    *  Se ausente/vazio, todos os itens dos pedidos selecionados são editados. */
   item_ids?: string[]
+  /** Pedidos que recebem tratamento completo (campos pedido + itens) mesmo com item_ids presente. */
+  pedido_ids_completo?: string[]
   campos: CampoEdicaoMassa[]
   nivel: 'pedido' | 'item' | 'combinado'
 }
@@ -845,14 +856,24 @@ export interface SmartImportResultado {
 
 // ── Duplicar Pedidos ──────────────────────────────────────────────────────────
 
+export interface OpcoesDuplicacao {
+  copiar_datas: boolean
+  copiar_valores_precos: boolean
+  copiar_referencias_externas: boolean
+  copiar_pesos_cubagem: boolean
+  copiar_descricoes_complementares: boolean
+}
+
 export interface DuplicarPayload {
   ids: string[]
   numeros?: Record<string, string>
+  opcoes?: OpcoesDuplicacao
 }
 
 export interface DuplicarItemPayload {
   pedido_id: string
   item_ids: string[]
+  opcoes?: OpcoesDuplicacao
 }
 
 export interface DuplicarResultado {

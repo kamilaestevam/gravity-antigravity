@@ -509,6 +509,10 @@ const COLUNAS_PADRAO_VISIVEIS: string[] = [
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
 
 // Contexto numérico do pedido para avaliação de fórmulas C2 (T03)
+// Usado tanto para linhas-pai (Pedido) quanto linhas-filho (PedidoItem).
+// Campos pedido-level (ex: quantidade_transferida_total) podem não existir
+// no item — nesse caso, fazemos fallback para o nome item-level equivalente
+// (ex: quantidade_transferida_pedido) para que a fórmula funcione em ambos.
 function buildFormulaContexto(row: Pedido): Record<string, number | null> {
   const n = (v: unknown): number | null => {
     if (v == null) return null
@@ -518,12 +522,12 @@ function buildFormulaContexto(row: Pedido): Record<string, number | null> {
   }
   const r = row as Record<string, unknown>
   return {
-    quantidade_total_pedido:      n(r.quantidade_total_pedido),
-    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido),
-    quantidade_transferida_total:         n(r.quantidade_transferida_total),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total),
-    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido),
-    valor_total:                          n(r.valor_total_pedido),
+    quantidade_total_pedido:              n(r.quantidade_total_pedido)              ?? n(r.quantidade_inicial_pedido),
+    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido)    ?? n(r.quantidade_cancelada_pedido),
+    quantidade_transferida_total:         n(r.quantidade_transferida_total)         ?? n(r.quantidade_transferida_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_pedido),
+    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido)                ?? n(r.quantidade_atual_pedido),
+    valor_total:                          n(r.valor_total_pedido)                   ?? n(r.valor_total_item),
     peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
     peso_bruto_total_pedido:              n(r.peso_bruto_total_pedido),
     cubagem_total_pedido:                 n(r.cubagem_total_pedido),
@@ -545,8 +549,10 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
-  const formulaAST = col.tipo === 'formula' && col.formula_expressao
-    ? (() => { try { return parsearFormula(col.formula_expressao!) } catch { return null } })()
+  const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
+  if (col.tipo === 'formula') console.log('[FORMULA DEBUG]', { nome: col.nome, tipo: col.tipo, valor_padrao: col.valor_padrao, formula_expressao: col.formula_expressao, formulaExpr })
+  const formulaAST = formulaExpr
+    ? (() => { try { return parsearFormula(formulaExpr) } catch (e) { console.error('[FORMULA PARSE ERROR]', formulaExpr, e); return null } })()
     : null
   const casasCol = getCasas(col.id, 2)
 
@@ -2515,13 +2521,16 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
     render: (row: PedidoItem) => {
+      // Bug 2 fix: usar tipo_operacao_item do próprio item; fallback para pai se null
+      const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
-      if (!p) return null
+      const tipo = tipoItem ?? p?.tipo_operacao ?? null
+      if (!tipo) return null
       return (
         <StatusBadgeGlobal
-          valor={p.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
+          valor={tipo === 'importacao' ? 'Importação' : 'Exportação'}
           genero="feminino"
-          style={p.tipo_operacao === 'importacao'
+          style={tipo === 'importacao'
             ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
             : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
           }
@@ -3014,7 +3023,7 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
-      const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_pronta_total_item_pedido ?? 0))
+      const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0) - (row.quantidade_cancelada_pedido ?? 0))
       return (
         <TooltipGlobal
           titulo="Saldo do Pedido"
@@ -3777,13 +3786,68 @@ export default function Pedidos() {
 
   // Pedidos para edição em massa: prioridade pedidos selecionados, fallback pedidos pais dos itens
   const pedidosParaEdicaoMassa = useMemo(() => {
-    if (pedidosSelecionados.length > 0) return pedidosSelecionados
-    if (itensSelecionados.length === 0) return []
-    // Resolve pedidos pais únicos dos itens selecionados
-    const idsPais = [...new Set(itensSelecionados.map(i => i.pedido_id))]
+    // Caso 1: apenas itens selecionados (sem pais) → resolve pais únicos
+    if (pedidosSelecionados.length === 0) {
+      if (itensSelecionados.length === 0) return []
+      const idsPais = [...new Set(itensSelecionados.map(i => i.pedido_id))]
+      const mapa = new Map(pedidos.map(p => [p.id, p]))
+      return idsPais.map(id => mapa.get(id)).filter((p): p is Pedido => p != null)
+    }
+    // Caso 2: apenas pais selecionados (sem itens avulsos)
+    if (itensSelecionados.length === 0) return pedidosSelecionados
+    // Caso 3: misto — pais selecionados + itens avulsos de outros pedidos.
+    // Merge ambas as fontes com dedup por ID para incluir todos os pedidos afetados.
+    const idsJaInclusos = new Set(pedidosSelecionados.map(p => p.id))
     const mapa = new Map(pedidos.map(p => [p.id, p]))
-    return idsPais.map(id => mapa.get(id)).filter((p): p is Pedido => p != null)
+    const extras: Pedido[] = []
+    for (const item of itensSelecionados) {
+      if (!idsJaInclusos.has(item.pedido_id)) {
+        const p = mapa.get(item.pedido_id)
+        if (p) {
+          extras.push(p)
+          idsJaInclusos.add(item.pedido_id)
+        }
+      }
+    }
+    return extras.length > 0 ? [...pedidosSelecionados, ...extras] : pedidosSelecionados
   }, [pedidosSelecionados, itensSelecionados, pedidos])
+
+  // IDs de itens para edição em massa — REGRA: editar APENAS o que está selecionado.
+  // Quando itens estão selecionados, sempre enviar seus IDs ao backend.
+  // Quando pedidos estão selecionados (sem itens avulsos), não enviar item_ids
+  // para que o backend edite todos os itens desses pedidos.
+  // Caso misto: itens selecionados + pedidos explícitos → incluir itens selecionados
+  // + todos os itens dos pedidos explicitamente selecionados (cujos itens estão carregados).
+  const itensSelecionadosIdsParaMassa = useMemo((): string[] | undefined => {
+    // Caso 2: apenas pedidos selecionados → backend edita todos os itens deles
+    if (itensSelecionados.length === 0) return undefined
+
+    // Caso 1: apenas itens selecionados (sem pedidos explícitos)
+    if (pedidosSelecionados.length === 0) {
+      return itensSelecionados.map(i => i.id)
+    }
+
+    // Caso 3: misto — pedidos explícitos + itens avulsos.
+    // Incluir TODOS os itens dos pedidos explicitamente selecionados (seleção de
+    // pedido = "todos os seus itens") + os itens selecionados individualmente.
+    const idsSet = new Set<string>()
+    // Itens dos pedidos explicitamente selecionados
+    for (const p of pedidosSelecionados) {
+      if (p.itens && p.itens.length > 0) {
+        for (const item of p.itens) idsSet.add(item.id)
+      }
+    }
+    // Itens selecionados individualmente (podem ser de outros pedidos)
+    for (const item of itensSelecionados) idsSet.add(item.id)
+    return Array.from(idsSet)
+  }, [pedidosSelecionados, itensSelecionados])
+
+  // Caso misto: pedidos explicitamente selecionados recebem tratamento completo
+  // (campos de nível pedido + itens), mesmo quando item_ids está presente.
+  const pedidoIdsCompletoParaMassa = useMemo((): string[] | undefined => {
+    if (pedidosSelecionados.length === 0 || itensSelecionados.length === 0) return undefined
+    return pedidosSelecionados.map(p => p.id)
+  }, [pedidosSelecionados, itensSelecionados])
 
   useLinkContextualSync()
 
@@ -6240,11 +6304,8 @@ export default function Pedidos() {
       {modalEdicaoMassaAberto && pedidosParaEdicaoMassa.length > 0 && (
         <ModalEdicaoMassaPedidos
           pedidos={pedidosParaEdicaoMassa}
-          itensSelecionadosIds={
-            pedidosSelecionados.length === 0 && itensSelecionados.length > 0
-              ? itensSelecionados.map(i => i.id)
-              : undefined
-          }
+          itensSelecionadosIds={itensSelecionadosIdsParaMassa}
+          pedidoIdsCompleto={pedidoIdsCompletoParaMassa}
           onFechar={() => setModalEdicaoMassaAberto(false)}
           onConcluido={() => {
             setModalEdicaoMassaAberto(false)

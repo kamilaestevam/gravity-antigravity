@@ -52,6 +52,8 @@ const EdicaoMassaSchema = z.object({
   pedido_ids: z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido para editar'),
   /** IDs específicos de itens a editar. Se presente, apenas estes itens são alterados. */
   item_ids: z.array(z.string().min(1)).optional(),
+  /** Pedidos que recebem tratamento completo mesmo com item_ids (caso misto). */
+  pedido_ids_completo: z.array(z.string().min(1)).optional(),
   campos: z.array(CampoSchema).min(1, 'Selecione ao menos 1 campo para editar'),
   nivel: z.enum(['pedido', 'item', 'combinado']),
 }).superRefine((data, ctx) => {

@@ -198,6 +198,9 @@ interface EdicaoMassaPayload {
   /** IDs específicos de itens a editar. Se presente, apenas estes itens são alterados.
    *  Se ausente/vazio, todos os itens dos pedidos selecionados são editados. */
   item_ids?: string[]
+  /** Pedidos que recebem tratamento completo (campos pedido + itens) mesmo com item_ids presente.
+   *  Usado no caso misto: pedido selecionado explicitamente + itens avulsos de outros pedidos. */
+  pedido_ids_completo?: string[]
   campos: CampoEdicaoMassa[]
   nivel: 'pedido' | 'item' | 'combinado'
 }
@@ -551,6 +554,12 @@ export class EdicaoEmMassaService {
       ? new Set(payload.item_ids)
       : null
 
+    // pedido_ids_completo: pedidos que recebem tratamento completo (campos pedido + itens)
+    // mesmo quando filtroItemIds está presente (caso misto: pedido selecionado + itens avulsos).
+    const pedidoIdsCompleto = payload.pedido_ids_completo && payload.pedido_ids_completo.length > 0
+      ? new Set(payload.pedido_ids_completo)
+      : null
+
     // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
     // Condição: todos os campos de pedido são "substituir" em campos diretos do
     // schema (não estão em detalhes_operacionais), não há campos de item E não
@@ -629,8 +638,9 @@ export class EdicaoEmMassaService {
         try {
           // Aplicar campos de nível pedido
           // Quando filtroItemIds está presente (seleção de itens específicos),
-          // NÃO alterar campos do pedido — apenas os itens selecionados.
-          if (camposPedido.length > 0 && !filtroItemIds) {
+          // NÃO alterar campos do pedido — EXCETO se o pedido está em pedidoIdsCompleto
+          // (caso misto: pedido explicitamente selecionado + itens avulsos de outros).
+          if (camposPedido.length > 0 && (!filtroItemIds || (pedidoIdsCompleto && pedidoIdsCompleto.has(pedidoId)))) {
             const dadosPedido: Record<string, unknown> = {}
             let detalhesUpdate: Record<string, unknown> | null = null
 

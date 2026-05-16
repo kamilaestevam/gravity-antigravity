@@ -47,6 +47,9 @@ interface ModalEdicaoMassaPedidosProps {
   /** IDs específicos de itens selecionados. Se presente, apenas estes itens serão editados
    *  (não o pedido inteiro). Quando ausente, todos os itens dos pedidos selecionados são editados. */
   itensSelecionadosIds?: string[]
+  /** Pedidos que recebem tratamento completo (campos pedido + itens) mesmo com item_ids.
+   *  Caso misto: pedido selecionado explicitamente + itens avulsos de outros pedidos. */
+  pedidoIdsCompleto?: string[]
   onFechar: () => void
   onConcluido: () => void
 }
@@ -905,7 +908,7 @@ function traduzirErro(mensagem: string): string {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
+export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoIdsCompleto, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
@@ -976,6 +979,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFecha
           // Quando itens específicos foram selecionados, enviar seus IDs para preview
           ...(itensSelecionadosIds && itensSelecionadosIds.length > 0
             ? { item_ids: itensSelecionadosIds }
+            : {}),
+          ...(pedidoIdsCompleto && pedidoIdsCompleto.length > 0
+            ? { pedido_ids_completo: pedidoIdsCompleto }
             : {}),
           campos: camposValidos.map(c => ({
             campo: c.campo,
@@ -1064,6 +1070,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFecha
       // o backend edite APENAS estes itens (e não todos os itens dos pedidos).
       ...(itensSelecionadosIds && itensSelecionadosIds.length > 0
         ? { item_ids: itensSelecionadosIds }
+        : {}),
+      ...(pedidoIdsCompleto && pedidoIdsCompleto.length > 0
+        ? { pedido_ids_completo: pedidoIdsCompleto }
         : {}),
       campos: camposValidos.map(c => ({
         campo: c.campo,

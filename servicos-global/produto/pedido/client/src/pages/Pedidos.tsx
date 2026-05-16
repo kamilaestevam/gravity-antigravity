@@ -3894,12 +3894,24 @@ export default function Pedidos() {
     }
     if (campo === 'status') {
       const pedidoAtual = pedidos.find(p => p.id === id)
-      const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
-      await pedidoLoteApi.mudarStatusConfirmar([id], String(valor)).catch(err => {
+      const novoStatus = String(valor)
+      const atualizado = { ...pedidoAtual!, status: novoStatus } as Pedido
+      await pedidoLoteApi.mudarStatusConfirmar([id], novoStatus).catch(err => {
         if (!import.meta.env.DEV) throw err
         // DEV: sem servidor → aplica localmente mesmo assim
       })
-      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      // Items herdam status do pai (PedidoItem não tem coluna status própria).
+      // Quando "Aplicar a todos" está marcado OU simplesmente quando itens
+      // estão em cache, atualizamos o status herdado para reflexo imediato.
+      const itensCache = itensCarregadosRef.current.get(id)
+      if (itensCache && itensCache.length > 0) {
+        const itensAtualizados = itensCache.map(i => ({ ...i, status: novoStatus }))
+        itensCarregadosRef.current.set(id, itensAtualizados)
+      }
+      setPedidos(prev => prev.map(p => p.id === id
+        ? { ...atualizado, itens: itensCarregadosRef.current.get(id) ?? p.itens }
+        : p
+      ))
       return atualizado
     }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
@@ -3938,7 +3950,7 @@ export default function Pedidos() {
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
     // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
-    if (replicar && isPropagavel(campo)) {
+    if (replicar) {
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
         // O campo no item pode ter nome diferente (e.g. data_emissao_pedido →

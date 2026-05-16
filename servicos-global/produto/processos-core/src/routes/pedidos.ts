@@ -1953,44 +1953,56 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         // 'incoterm_pedido') → campo DDD item (ex: 'incoterm_item').
         const campoPedido = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
         if (!isPropagavel(campoPedido)) {
-          throw new AppError(
-            400,
-            `Campo "${campo}" não é replicável para itens. Whitelist: ver CAMPOS_PEDIDO_PROPAGAVEIS em mapaPropagacaoPedidoItem.ts.`,
-          )
+          // Campo não tem correspondente no PedidoItem — skip gracioso.
+          // Antes lançava AppError 400, mas agora o UI mostra checkbox
+          // "Aplicar a todos" em TODAS as colunas (blacklist de 8). Para
+          // campos sem coluna no item (ex: numero_proforma, workspace),
+          // a edição do pai já foi aplicada acima; simplesmente não há
+          // updateMany a fazer. Log para auditoria.
+          console.log(JSON.stringify({
+            event: 'PEDIDO_FIELD_REPLICATION_SKIPPED',
+            id_organizacao: idOrganizacao,
+            id_pedido: req.params.id_pedido,
+            campo,
+            campo_pedido: campoPedido,
+            motivo: 'Campo não existe em MAPA_PROPAGACAO_PEDIDO_ITEM — sem coluna correspondente no PedidoItem',
+            ts: new Date().toISOString(),
+          }))
+        } else {
+          const campoItem = obterCampoItemPropagado(campoPedido)
+          if (!campoItem) {
+            throw new AppError(
+              500,
+              `Inconsistência: "${campoPedido}" está em isPropagavel mas obterCampoItemPropagado retornou null.`,
+            )
+          }
+          // Mesma conversão de data ISO-8601 aplicada ao pai (acima): se o
+          // campoItem é DateTime, string YYYY-MM-DD → Date object.
+          const ehDataItem = campoItem.startsWith('data_')
+          let valorItem: unknown = valor === undefined ? null : valor
+          if (ehDataItem && typeof valorItem === 'string' && valorItem !== '') {
+            const d = new Date(valorItem)
+            if (!isNaN(d.getTime())) valorItem = d
+          } else if (ehDataItem && valorItem === '') {
+            valorItem = null
+          }
+          const resultado = await db.pedidoItem.updateMany({
+            where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
+            data: { [campoItem]: valorItem },
+          })
+          // Audit log agregado (1 evento por replicação, não N por item) —
+          // economiza espaço e facilita auditoria pela equipe.
+          console.log(JSON.stringify({
+            event: 'PEDIDO_FIELD_REPLICATED_TO_ITEMS',
+            id_organizacao: idOrganizacao,
+            id_pedido: req.params.id_pedido,
+            campo_pedido: campoPedido,
+            campo_item: campoItem,
+            itens_afetados: resultado.count,
+            valor_novo: valor,
+            ts: new Date().toISOString(),
+          }))
         }
-        const campoItem = obterCampoItemPropagado(campoPedido)
-        if (!campoItem) {
-          throw new AppError(
-            500,
-            `Inconsistência: "${campoPedido}" está em isPropagavel mas obterCampoItemPropagado retornou null.`,
-          )
-        }
-        // Mesma conversão de data ISO-8601 aplicada ao pai (acima): se o
-        // campoItem é DateTime, string YYYY-MM-DD → Date object.
-        const ehDataItem = campoItem.startsWith('data_')
-        let valorItem: unknown = valor === undefined ? null : valor
-        if (ehDataItem && typeof valorItem === 'string' && valorItem !== '') {
-          const d = new Date(valorItem)
-          if (!isNaN(d.getTime())) valorItem = d
-        } else if (ehDataItem && valorItem === '') {
-          valorItem = null
-        }
-        const resultado = await db.pedidoItem.updateMany({
-          where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao },
-          data: { [campoItem]: valorItem },
-        })
-        // Audit log agregado (1 evento por replicação, não N por item) —
-        // economiza espaço e facilita auditoria pela equipe.
-        console.log(JSON.stringify({
-          event: 'PEDIDO_FIELD_REPLICATED_TO_ITEMS',
-          id_organizacao: idOrganizacao,
-          id_pedido: req.params.id_pedido,
-          campo_pedido: campoPedido,
-          campo_item: campoItem,
-          itens_afetados: resultado.count,
-          valor_novo: valor,
-          ts: new Date().toISOString(),
-        }))
       }
 
       res.json(mapPedido(updated))

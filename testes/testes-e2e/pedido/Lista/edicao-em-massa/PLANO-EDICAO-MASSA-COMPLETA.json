@@ -1,0 +1,93 @@
+{
+  "plano": "EDICAO-MASSA-COMPLETA",
+  "produto": "pedido",
+  "area": "Lista/edicao-em-massa",
+  "data": "2026-05-16",
+  "criticidade": "alta",
+  "pre_requisitos": [
+    "Workspace com 5+ pedidos com 3-5 itens cada",
+    "Pelo menos 2 pedidos com tipo_operacao diferente",
+    "Dev server rodando em http://localhost:8000 (frontend) e :8030 (backend)"
+  ],
+  "cenarios": [
+    {
+      "id": "C01",
+      "nome": "1 Pedido Selecionado — Todas as colunas pai",
+      "casos": 55,
+      "tags": ["smoke", "colunas-pai", "substituir"],
+      "descricao": "Seleciona 1 pedido e edita cada coluna editavel do pedido pai individualmente"
+    },
+    {
+      "id": "C02",
+      "nome": "2 Pedidos — Operacoes somar/avancar + unique bloqueado",
+      "casos": 8,
+      "tags": ["multi-select", "operacoes", "unique"],
+      "descricao": "Seleciona 2 pedidos, verifica que numero_pedido fica bloqueado, testa somar e avancar_dias"
+    },
+    {
+      "id": "C03",
+      "nome": "4+ Pedidos — Percentual/recuar + volume",
+      "casos": 7,
+      "tags": ["volume", "percentual", "recuar_dias"],
+      "descricao": "Seleciona 4+ pedidos, testa operacoes percentual e recuar_dias em volume"
+    },
+    {
+      "id": "C04",
+      "nome": "Somente Itens — item_ids filtering",
+      "casos": 10,
+      "tags": ["itens", "item_ids", "filtering"],
+      "descricao": "Expande pedido, seleciona 2 de 5 itens, edita campos de item e verifica que os 3 restantes nao foram alterados"
+    },
+    {
+      "id": "C05",
+      "nome": "Selecao Mista — pedido completo + itens avulsos",
+      "casos": 7,
+      "tags": ["misto", "pedido_ids_completo", "cascade"],
+      "descricao": "Seleciona 1 pedido inteiro + 2 itens de outro, verifica cascade no pedido completo e edicao nos itens avulsos"
+    },
+    {
+      "id": "C06",
+      "nome": "Colunas Item Completas",
+      "casos": 23,
+      "tags": ["colunas-item", "substituir"],
+      "descricao": "Edita todas as colunas de item: part_number, tipo_operacao_item, unidade, sequencia, descricoes, pesos, embalagem, LPCO, cert origem, grupo/subgrupo, moeda, incoterm, condicao pgto, casas decimais, datas"
+    },
+    {
+      "id": "C07",
+      "nome": "Campos DUIMP",
+      "casos": 10,
+      "tags": ["duimp", "tributos"],
+      "descricao": "Edita campos DUIMP: tipo_operacao, descricao, NCM, incoterm, moeda, valor unitario, aliquotas II/IPI/PIS/COFINS"
+    },
+    {
+      "id": "C08",
+      "nome": "Datas LPCO/Cert Origem",
+      "casos": 5,
+      "tags": ["datas", "lpco", "cert-origem"],
+      "descricao": "Edita datas de processos LPCO e Certificado de Origem nos itens"
+    },
+    {
+      "id": "C09",
+      "nome": "Erros e Validacoes",
+      "casos": 4,
+      "tags": ["erro", "timeout", "validacao"],
+      "descricao": "Testa campo bloqueado, timeout amigavel, unique com 2+ pedidos, cancelar modal"
+    },
+    {
+      "id": "C10",
+      "nome": "Datas do Pedido Pai — 47 campos",
+      "casos": 47,
+      "tags": ["datas", "pedido-pai", "alfanumerico"],
+      "descricao": "Edita todas as 47 colunas de data do pedido pai (pedido pronto, inspecao, coleta, consolidacao, rascunho, proforma, invoice)"
+    }
+  ],
+  "total_casos": 176,
+  "cobertura": {
+    "colunas_pai_editaveis": "100%",
+    "colunas_item_editaveis": "100%",
+    "colunas_datas_pai": "47/47",
+    "operacoes": ["substituir", "somar", "subtrair", "percentual", "avancar_dias", "recuar_dias"],
+    "selecoes": ["1 pedido", "2 pedidos", "4+ pedidos", "itens avulsos", "misto"],
+    "erros": ["timeout", "unique", "campo bloqueado", "cancelar"]
+  }
+}

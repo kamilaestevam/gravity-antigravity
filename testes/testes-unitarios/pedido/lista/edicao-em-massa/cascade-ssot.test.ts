@@ -8,7 +8,7 @@
  * não colidem com o SSOT.
  */
 import { describe, it, expect } from 'vitest'
-import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem'
+import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem'
 
 const EXCLUSIVOS_EDICAO_MASSA: Record<string, string> = {
   tipo_operacao_pedido: 'tipo_operacao_item',

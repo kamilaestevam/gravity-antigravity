@@ -410,9 +410,9 @@
 
 .modal-duplicar__itens-lista {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   width: 100%;
   min-width: 0;
 }

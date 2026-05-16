@@ -892,9 +892,13 @@ function SelectBuscavelValor({
 
 const MENSAGENS_AMIGAVEIS: [RegExp, string][] = [
   [/x-id-workspace ausente/i, 'Nenhum workspace selecionado. Selecione um workspace no topo da tela antes de editar.'],
-  [/Portão \d/i, ''],  // Remove referências a "Portão" — são internas
+  [/Portão \d/i, ''],
   [/WORKSPACE_NAO_INFORMADO/i, 'Nenhum workspace selecionado. Selecione um workspace no topo da tela antes de editar.'],
   [/VALIDATION_ERROR/i, ''],
+  [/Transaction.*not found|Transaction.*timed?\s*out|P2024|Transaction.*expired/i, 'A operação demorou mais que o esperado. Tente novamente com menos pedidos selecionados.'],
+  [/INTERNAL_ERROR|Erro interno/i, 'Ocorreu um erro inesperado. Tente novamente ou contate o suporte.'],
+  [/Can't reach database|ECONNREFUSED|Connection.*refused/i, 'Não foi possível conectar ao servidor. Tente novamente em alguns segundos.'],
+  [/timeout|ETIMEDOUT/i, 'A operação demorou mais que o esperado. Tente novamente com menos pedidos selecionados.'],
 ]
 
 function traduzirErro(mensagem: string): string {
@@ -1737,7 +1741,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                     color: 'var(--text-primary, #e2e8f0)',
                   }}
                 >
-                  <strong>{e.pedido_id.slice(0, 12)}…</strong>: {e.motivo}
+                  <strong>{e.pedido_id.slice(0, 12)}…</strong>: {traduzirErro(e.motivo)}
                 </li>
               ))}
             </ul>

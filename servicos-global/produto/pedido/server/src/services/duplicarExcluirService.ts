@@ -677,10 +677,24 @@ export class ExcluirService {
       where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: id_organizacao },
     })
 
-    // Verificar itens restantes no pedido
-    const itensRestantes = await tx.pedidoItem.count({
+    // ── Renumerar sequencia_item_pedido dos itens restantes (sem lacunas) ──
+    const itensRestantesOrdenados = await tx.pedidoItem.findMany({
       where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
+      orderBy: { sequencia_item_pedido: 'asc' },
+      select: { id_item: true, sequencia_item_pedido: true },
     })
+
+    for (let i = 0; i < itensRestantesOrdenados.length; i++) {
+      const novaSequencia = i + 1
+      if (itensRestantesOrdenados[i].sequencia_item_pedido !== novaSequencia) {
+        await tx.pedidoItem.update({
+          where: { id_item: itensRestantesOrdenados[i].id_item },
+          data: { sequencia_item_pedido: novaSequencia },
+        })
+      }
+    }
+
+    const itensRestantes = itensRestantesOrdenados.length
 
     if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
       // Audit trail do pedido pai antes de excluir (via historico-global)
@@ -702,6 +716,16 @@ export class ExcluirService {
       })
 
       pedidosExcluidosPorSemItem = 1
+    }
+
+    // ── Bump data_atualizacao_pedido do pedido pai para invalidar cache do useGTExpandir ──
+    // O hook useGTExpandir usa pedido.updated_at (mapeado de data_atualizacao_pedido) como
+    // chave de versão. Se não muda após excluir itens, o cache mantém itens deletados (bug double-reload).
+    if (pedidosExcluidosPorSemItem === 0) {
+      await tx.pedido.update({
+        where: { id_pedido: pedidoId },
+        data: { data_atualizacao_pedido: new Date() },
+      })
     }
 
     return {

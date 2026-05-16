@@ -245,6 +245,11 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'peso_bruto_unitario_item',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
   { campo: 'cubagem_unitaria_item',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
 
+  // Referências do item
+  { campo: 'referencia_importador_item',              rotulo: 'Referência Importador',                  tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'referencia_exportador_item',              rotulo: 'Referência Exportador',                  tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'referencia_fabricante_item',              rotulo: 'Referência Fabricante',                  tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+
   // Embalagem e documentos
   { campo: 'tipo_embalagem',                          rotulo: 'Tipo Embalagem',                         tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'numero_lpco',                             rotulo: 'Nº LPCO',                                tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },

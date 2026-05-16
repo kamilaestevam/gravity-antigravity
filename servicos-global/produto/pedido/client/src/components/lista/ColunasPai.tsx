@@ -165,7 +165,7 @@ const WarnIcon = () => (
 )
 
 export function renderAgregado(
-  valor: string | null | undefined,
+  valor: React.ReactNode | null | undefined,
   divergente: boolean | null | undefined,
   labelDivergente?: string,
   opts?: { fontMono?: boolean }
@@ -582,13 +582,19 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       // alerta padrão "⚠ Moedas divergentes entre itens".
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
-      const valorFormatado = row.valor_total_pedido != null && !isNaN(num)
-        ? `${moeda} ${fmtQuantidade(num, 2)}`
+      const temValor = row.valor_total_pedido != null && !isNaN(num)
+      const valorJsx = temValor
+        ? (
+          <span className="gtv-celula-moeda">
+            <span className="gtv-celula-moeda-badge">{moeda}</span>
+            {fmtQuantidade(num, 2)}
+          </span>
+        )
         : null
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.valor_total_pedido_titulo')} descricao={t('pedido.coluna_pai.valor_total_pedido_desc')}>
           <span style={{ display: 'contents' }}>
-            {renderAgregado(valorFormatado, row.moeda_item_divergente, 'Moedas divergentes entre itens')}
+            {renderAgregado(valorJsx, row.moeda_item_divergente, 'Moedas divergentes entre itens')}
           </span>
         </TooltipGlobal>
       )
@@ -869,11 +875,15 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'texto',
     filtravel: true,
     grupo: 'Câmbio',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
-        {row.moeda_cambio_pedido ?? '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const moeda = row.moeda_cambio_pedido
+      if (!moeda) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+        </span>
+      )
+    },
   },
   {
     key: 'taxa_cambio_estimada',
@@ -895,11 +905,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'right',
     casasDecimais: 2,
     grupo: 'Câmbio',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_total_cambio_pedido != null ? fmtQuantidade(Number(row.valor_total_cambio_pedido), 2) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const moeda = row.moeda_cambio_pedido ?? row.moeda_pedido ?? 'BRL'
+      const num = Number(row.valor_total_cambio_pedido)
+      if (row.valor_total_cambio_pedido == null || isNaN(num)) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {fmtQuantidade(num, 2)}
+        </span>
+      )
+    },
   },
   {
     key: 'contrato_cambio_id_pedido',

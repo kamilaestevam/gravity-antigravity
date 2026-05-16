@@ -6,11 +6,13 @@
  * Step 3: Revisao + registrar
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import {
   ArrowLeft,
   ArrowRight,
@@ -149,12 +151,12 @@ export default function LpcoNovo() {
     }
   }, [form, navigate])
 
-  const STEPS = [
-    t('lpco.steps.canal'),
-    t('lpco.steps.dados_gerais'),
-    t('lpco.steps.itens'),
-    t('lpco.steps.revisao'),
-  ]
+  const PASSOS_LPCO: PassoConfig[] = useMemo(() => [
+    { id: 0, label: t('lpco.steps.canal') },
+    { id: 1, label: t('lpco.steps.dados_gerais') },
+    { id: 2, label: t('lpco.steps.itens') },
+    { id: 3, label: t('lpco.steps.revisao') },
+  ], [t])
 
   // ── Canal de Entrada Icons ─────────────────────────────────────────────────
 
@@ -183,25 +185,9 @@ export default function LpcoNovo() {
         </h1>
       </div>
 
-      {/* Step Indicator */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        {STEPS.map((label, i) => (
-          <div key={label} style={{
-            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
-          }}>
-            <div style={{
-              width: '100%', height: 3, borderRadius: 9999,
-              background: i <= step ? '#6366f1' : 'rgba(99,102,241,0.15)',
-              transition: 'background 0.2s',
-            }} />
-            <span style={{
-              fontSize: '0.6875rem', fontWeight: i === step ? 600 : 400,
-              color: i <= step ? '#6366f1' : 'var(--ws-muted, #64748b)',
-            }}>
-              {label}
-            </span>
-          </div>
-        ))}
+      {/* Step Indicator — Design System § 12 */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <StepperPassoPassoGlobal passos={PASSOS_LPCO} passoAtual={step} />
       </div>
 
       {/* Step 0: Canal */}

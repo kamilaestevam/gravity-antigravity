@@ -11,7 +11,6 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CreditCard,
-  X,
   CaretRight,
   CaretLeft,
   UploadSimple,
@@ -19,9 +18,9 @@ import {
   CheckCircle,
   CircleNotch,
   Warning,
-  Buildings,
-  CurrencyDollar,
 } from '@phosphor-icons/react'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 
 import type { CambioParcelas, CambioMoeda } from '../shared/types'
 import { STATUS_PARCELA_LABELS } from '../shared/types'
@@ -157,24 +156,6 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
 
   // ── Styles ─────────────────────────────────────────────────────────────
 
-  if (!open) return null
-
-  const overlayStyle: React.CSSProperties = {
-    position: 'fixed', inset: 0, zIndex: 200,
-    background: 'rgba(0,0,0,0.65)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-  }
-
-  const modalStyle: React.CSSProperties = {
-    background: 'var(--bg-surface, #334155)',
-    borderRadius: 16, padding: '1.5rem',
-    width: 520, maxHeight: '85vh', overflowY: 'auto',
-    border: '1px solid var(--bg-elevated, #475569)',
-    color: 'var(--text-primary, #f1f5f9)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-  }
-
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '0.75rem', fontWeight: 600,
     textTransform: 'uppercase', letterSpacing: '0.05em',
@@ -204,92 +185,108 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
     color: 'var(--text-secondary, #94a3b8)', cursor: 'pointer', fontFamily: 'inherit',
   }
 
-  // ── Step Indicator ─────────────────────────────────────────────────────
+  // ── Passos do wizard ──────────────────────────────────────────────────
 
-  const stepIndicator = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-      {[1, 2, 3].map((s) => (
-        <React.Fragment key={s}>
-          <div style={{
-            width: 28, height: 28, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '0.75rem', fontWeight: 700,
-            background: step >= s ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)',
-            color: step >= s ? '#fff' : 'var(--text-muted, #64748b)',
-            transition: 'all 0.2s',
-          }}>
-            {s}
-          </div>
-          {s < 3 && (
-            <div style={{
-              width: 32, height: 2,
-              background: step > s ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)',
-              transition: 'background 0.2s',
-            }} />
-          )}
-        </React.Fragment>
-      ))}
+  const PASSOS_PAGAMENTO: PassoConfig[] = [
+    { id: 1, label: t('bidcambio.modal_pagamento.step_parcelas', 'Parcelas') },
+    { id: 2, label: t('bidcambio.modal_pagamento.step_dados', 'Dados') },
+    { id: 3, label: t('bidcambio.modal_pagamento.step_comprovante', 'Comprovante') },
+  ]
+
+  // ─── Footer custom ─────────────────────────────────────────────────────
+
+  const footerPagamento = success ? undefined : (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+      <div>
+        {step > 1 && (
+          <button
+            onClick={() => setStep(s => s - 1)}
+            style={btnSecondary}
+            disabled={disabled || saving}
+          >
+            <CaretLeft size={14} weight="bold" /> {t('acoes.voltar')}
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <button onClick={onClose} style={btnSecondary} disabled={saving}>
+          {t('acoes.cancelar')}
+        </button>
+        {step < 3 ? (
+          <button
+            onClick={() => setStep(s => s + 1)}
+            disabled={disabled || (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3)}
+            style={{
+              ...btnPrimary,
+              opacity: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 0.5 : 1,
+              cursor: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {t('acoes.proximo')} <CaretRight size={14} weight="bold" />
+          </button>
+        ) : (
+          <button
+            onClick={handleSave}
+            disabled={disabled || saving}
+            style={{
+              ...btnPrimary,
+              background: 'var(--success, #22c55e)',
+              opacity: (disabled || saving) ? 0.5 : 1,
+              cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {saving ? <CircleNotch size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={14} />}
+            {saving ? t('comum.salvando') : t('bidcambio.modal_pagamento.salvar')}
+          </button>
+        )}
+      </div>
     </div>
   )
 
-  // ─── Success ───────────────────────────────────────────────────────────
-
-  if (success) {
-    return (
-      <div style={overlayStyle} onClick={onClose}>
-        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <CheckCircle size={48} weight="duotone" style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('bidcambio.modal_pagamento.sucesso')}</h3>
-            <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
-              {t('bidcambio.modal_pagamento.parcelas_pagas', { count: selectedParcelas.size })}
-            </p>
-            <button onClick={() => { reset(); onClose() }} style={btnPrimary}>{t('acoes.fechar')}</button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // ─── Modal Content ─────────────────────────────────────────────────────
+  // ─── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingBottom: '1rem', marginBottom: '1rem', borderBottom: '1px solid var(--bg-elevated, #475569)', gap: '1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CreditCard size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-              <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 700, margin: 0, lineHeight: 1.2, color: 'var(--text-primary, #f1f5f9)' }}>
-                {t('bidcambio.modal_pagamento.titulo')}
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0, lineHeight: 1.4 }}>
-              Selecione parcelas, informe dados do câmbio e anexe o comprovante
-            </p>
-          </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #64748b)', cursor: 'pointer', padding: '2px', flexShrink: 0 }}>
-            <X size={18} weight="bold" />
-          </button>
+    <ModalPassoPassoGlobal
+      titulo={t('bidcambio.modal_pagamento.titulo')}
+      icone={<CreditCard size={20} weight="duotone" />}
+      subtitulo="Selecione parcelas, informe dados do câmbio e anexe o comprovante"
+      aberto={open}
+      passos={PASSOS_PAGAMENTO}
+      passoAtual={step}
+      onProximo={() => {}}
+      onVoltar={() => {}}
+      onFechar={onClose}
+      tamanho="md"
+      ocultarStepper={success}
+      ocultarFooter={success}
+      footerCustom={footerPagamento}
+    >
+      {/* Success */}
+      {success && (
+        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+          <CheckCircle size={48} weight="duotone" style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('bidcambio.modal_pagamento.sucesso')}</h3>
+          <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
+            {t('bidcambio.modal_pagamento.parcelas_pagas', { count: selectedParcelas.size })}
+          </p>
+          <button onClick={() => { reset(); onClose() }} style={btnPrimary}>{t('acoes.fechar')}</button>
         </div>
+      )}
 
-        {stepIndicator}
-
-        {/* Error */}
-        {error && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.65rem 0.75rem', borderRadius: 8, marginBottom: '1rem',
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-          }}>
-            <Warning size={14} style={{ color: 'var(--danger, #ef4444)' }} />
-            <span style={{ fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>{error}</span>
-          </div>
-        )}
+      {/* Error */}
+      {!success && error && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.65rem 0.75rem', borderRadius: 8, marginBottom: '1rem',
+          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+        }}>
+          <Warning size={14} style={{ color: 'var(--danger, #ef4444)' }} />
+          <span style={{ fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>{error}</span>
+        </div>
+      )}
 
         {/* Step 1: Selecionar Parcelas */}
-        {step === 1 && (
+        {!success && step === 1 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
               {t('bidcambio.modal_pagamento.selecionar_parcelas')}
@@ -378,7 +375,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
         )}
 
         {/* Step 2: Dados do Pagamento */}
-        {step === 2 && (
+        {!success && step === 2 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
               {t('bidcambio.modal_pagamento.dados_contrato')}
@@ -465,7 +462,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
         )}
 
         {/* Step 3: Upload */}
-        {step === 3 && (
+        {!success && step === 3 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
               {t('bidcambio.modal_pagamento.comprovante')}
@@ -529,55 +526,7 @@ export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, o
           </div>
         )}
 
-        {/* Footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--bg-elevated, #475569)' }}>
-          <div>
-            {step > 1 && (
-              <button
-                onClick={() => setStep(s => s - 1)}
-                style={btnSecondary}
-                disabled={disabled || saving}
-              >
-                <CaretLeft size={14} weight="bold" /> {t('acoes.voltar')}
-              </button>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={onClose} style={btnSecondary} disabled={saving}>
-              {t('acoes.cancelar')}
-            </button>
-            {step < 3 ? (
-              <button
-                onClick={() => setStep(s => s + 1)}
-                disabled={disabled || (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3)}
-                style={{
-                  ...btnPrimary,
-                  opacity: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 0.5 : 1,
-                  cursor: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {t('acoes.proximo')} <CaretRight size={14} weight="bold" />
-              </button>
-            ) : (
-              <button
-                onClick={handleSave}
-                disabled={disabled || saving}
-                style={{
-                  ...btnPrimary,
-                  background: 'var(--success, #22c55e)',
-                  opacity: (disabled || saving) ? 0.5 : 1,
-                  cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {saving ? <CircleNotch size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={14} />}
-                {saving ? t('comum.salvando') : t('bidcambio.modal_pagamento.salvar')}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-    </div>
+    </ModalPassoPassoGlobal>
   )
 }

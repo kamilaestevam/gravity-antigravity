@@ -41,6 +41,9 @@ export interface ModalFormularioAbasProps {
   textoCancelar?: string
   /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
   semAbas?: boolean
+  /** Conteúdo extra renderizado à esquerda do footer (antes dos botões Cancelar/Salvar).
+   *  Útil para botões de navegação contextuais (ex: deep-link "Voltar para Pedidos"). */
+  footerExtraEsquerda?: React.ReactNode
 }
 
 export function ModalFormularioAbas({
@@ -63,6 +66,7 @@ export function ModalFormularioAbas({
   textoSalvar,
   textoCancelar,
   semAbas = false,
+  footerExtraEsquerda,
 }: ModalFormularioAbasProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
@@ -91,6 +95,7 @@ export function ModalFormularioAbas({
     return (
       <div className="mg-footer-personalizado">
         <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+        {footerExtraEsquerda}
         <div className="botoes-footer-padrao">
           <BotaoCancelar
             dirty={dirty}

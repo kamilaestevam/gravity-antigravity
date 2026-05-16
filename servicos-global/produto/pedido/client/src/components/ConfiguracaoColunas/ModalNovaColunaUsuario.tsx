@@ -1,15 +1,25 @@
 /**
  * ModalNovaColuna.tsx — Modal para criar ou editar uma coluna customizada do usuário
  *
- * Quando tipo = 'select' ou 'tipo_documento': exibe campo para gerenciar opções da lista.
- * Quando tipo = 'formula': exibe construtor de expressão com validação em tempo real.
+ * Features:
+ *  - Grid de pills para seleção de tipo (com ícones)
+ *  - Editor tokenizado (pill-based) para fórmulas
+ *  - GABI AI: análise semântica local + Gemini async com sugestões
+ *  - Valor padrão contextual (checkbox toggle, select das opções, input tipado)
+ *  - Toggles: "Itens podem ter dados diferentes" + "Pedido também é editável"
+ *  - Campos disponíveis agrupados (Quantidades, Financeiro, Minhas Colunas)
+ *
  * Na edição, o tipo é exibido mas não pode ser alterado.
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { X, Plus, Warning, Info, Columns } from '@phosphor-icons/react'
+import {
+  X, Plus, Warning, Info, Columns,
+  TextT, Hash, CalendarBlank, Percent, ListBullets,
+  CheckSquare, Tag, MathOperations, Paperclip,
+} from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type {
@@ -24,20 +34,33 @@ import {
   extrairDependencias,
   detectarCircular,
 } from '../../shared/formulaEngine'
+import {
+  FORMULA_ALIAS_MAP,
+  formulaParaAlias,
+  formulaParaChave,
+  CAMPOS_FORMULA_BASE,
+  tokensParaAliasFormula,
+  aliasFormulaParaTokens,
+  type FormulaToken,
+  type CampoFormulaGrupo,
+} from '../../shared/formulaUtils'
+import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../../shared/gabiSemantica'
 import './ModalNovaColuna.css'
 
-// ── Opções de enum ────────────────────────────────────────────────────────────
+// ── Grid de tipos com ícones ────────────────────────────────────────────────
 
-const TIPO_OPCOES: { valor: TipoColunaUsuario; labelKey: string }[] = [
-  { valor: 'texto',          labelKey: 'pedido.coluna_tipo.texto'          },
-  { valor: 'numero',         labelKey: 'pedido.coluna_tipo.numero'         },
-  { valor: 'data',           labelKey: 'pedido.coluna_tipo.data'           },
-  { valor: 'select',         labelKey: 'pedido.coluna_tipo.select'         },
-  { valor: 'checkbox',       labelKey: 'pedido.coluna_tipo.checkbox'       },
-  { valor: 'percentual',     labelKey: 'pedido.coluna_tipo.percentual'     },
-  { valor: 'tipo_documento', labelKey: 'pedido.coluna_tipo.tipo_documento' },
-  { valor: 'formula',        labelKey: 'pedido.coluna_tipo.formula'        },
+const TIPOS_COLUNA: { id: TipoColunaUsuario; icone: React.ReactNode }[] = [
+  { id: 'texto',          icone: <TextT          size={16} weight="duotone" /> },
+  { id: 'numero',         icone: <Hash           size={16} weight="duotone" /> },
+  { id: 'data',           icone: <CalendarBlank  size={16} weight="duotone" /> },
+  { id: 'percentual',     icone: <Percent        size={16} weight="duotone" /> },
+  { id: 'select',         icone: <ListBullets    size={16} weight="duotone" /> },
+  { id: 'checkbox',       icone: <CheckSquare    size={16} weight="duotone" /> },
+  { id: 'tipo_documento', icone: <Tag            size={16} weight="duotone" /> },
+  { id: 'formula',        icone: <MathOperations size={16} weight="duotone" /> },
 ]
+
+// ── Opções de enum ────────────────────────────────────────────────────────────
 
 const ESCOPO_OPCOES: { valor: EscopoColunaUsuario; labelKey: string }[] = [
   { valor: 'pedido', labelKey: 'pedido.coluna_escopo.pedido' },
@@ -51,6 +74,9 @@ const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; labelKey: string 
   { valor: 'privado', labelKey: 'pedido.coluna_visibilidade.privado' },
 ]
 
+// Tipos numéricos válidos em fórmulas
+const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface ModalNovaColunaProps {
@@ -61,6 +87,23 @@ interface ModalNovaColunaProps {
   camposDisponiveis?: string[]
   /** Lista de todas as colunas de fórmula existentes (para detecção de ciclos) */
   todasColunas?: ColunaUsuario[]
+}
+
+// ── Toggle inline ─────────────────────────────────────────────────────────────
+
+function MncToggle({ checked, onChange, id }: { checked: boolean; onChange: (v: boolean) => void; id?: string }) {
+  return (
+    <label className="mnc-toggle" htmlFor={id}>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        className="mnc-toggle__input"
+      />
+      <span className="mnc-toggle__track" />
+    </label>
+  )
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -75,68 +118,216 @@ export function ModalNovaColunaUsuario({
   const isEdicao = Boolean(colunaEdicao)
   const { t } = useTranslation()
 
-  const [nome, setNome]               = useState(colunaEdicao?.nome ?? '')
-  const [tipo, setTipo]               = useState<TipoColunaUsuario>(colunaEdicao?.tipo ?? 'texto')
-  const [escopo, setEscopo]           = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'ambos')
+  // ── Estado principal ─────────────────────────────────────────────────────
+  const [nome, setNome]                 = useState(colunaEdicao?.nome ?? '')
+  const [tipo, setTipo]                 = useState<TipoColunaUsuario>(colunaEdicao?.tipo ?? 'texto')
+  const [escopo, setEscopo]             = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'ambos')
   const [visibilidade, setVisibilidade] = useState<VisibilidadeColunaUsuario>(colunaEdicao?.visibilidade ?? 'todos')
-  const [obrigatorio, setObrigatorio] = useState(colunaEdicao?.obrigatorio ?? false)
-  const [valorPadrao, setValorPadrao] = useState(colunaEdicao?.valor_padrao ?? '')
-  const [descricao, setDescricao]     = useState(colunaEdicao?.descricao ?? '')
-  const [opcoes, setOpcoes]           = useState<string[]>(colunaEdicao?.opcoes ?? [])
-  const [novaOpcao, setNovaOpcao]     = useState('')
-  const [salvando, setSalvando]       = useState(false)
-  const [erro, setErro]               = useState<string | null>(null)
+  const [obrigatorio, setObrigatorio]   = useState(colunaEdicao?.obrigatorio ?? false)
+  const [valorPadrao, setValorPadrao]   = useState(colunaEdicao?.valor_padrao ?? '')
+  const [descricao, setDescricao]       = useState(colunaEdicao?.descricao ?? '')
+  const [opcoes, setOpcoes]             = useState<string[]>(colunaEdicao?.opcoes ?? [])
+  const [novaOpcao, setNovaOpcao]       = useState('')
+  const [salvando, setSalvando]         = useState(false)
+  const [erro, setErro]                 = useState<string | null>(null)
 
-  // ── Estado para fórmula ────────────────────────────────────────────────────
-  const [formulaExpressao, setFormulaExpressao] = useState(colunaEdicao?.formula_expressao ?? '')
-  const [formulaErro, setFormulaErro]           = useState<string | null>(null)
-  const [formulaValida, setFormulaValida]        = useState(false)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // ── Estado: itens diferentes + pedido editável ──────────────────────────
+  const [itensDiferentes, setItensDiferentes] = useState(() => {
+    if (colunaEdicao) return colunaEdicao.escopo === 'item' || colunaEdicao.escopo === 'ambos'
+    return true
+  })
+  const [pedidoEditavel, setPedidoEditavel] = useState(() => {
+    if (colunaEdicao) return colunaEdicao.escopo === 'ambos'
+    return true
+  })
+
+  // Derivar escopo a partir dos toggles (mesma lógica do Configuracoes)
+  useEffect(() => {
+    if (itensDiferentes && pedidoEditavel) setEscopo('ambos')
+    else if (itensDiferentes) setEscopo('item')
+    else setEscopo('pedido')
+  }, [itensDiferentes, pedidoEditavel])
+
+  // ── Estado: fórmula tokenizada + GABI ──────────────────────────────────
+  const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>(() => {
+    if (colunaEdicao?.formula_expressao) {
+      return aliasFormulaParaTokens(formulaParaAlias(colunaEdicao.formula_expressao))
+    }
+    return []
+  })
+  const [formulaErro, setFormulaErro]       = useState<string | null>(null)
+  const [formulaValida, setFormulaValida]   = useState(false)
+  const [formulaGabi, setFormulaGabi]       = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
+  const formulaDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const nomeRef = useRef(nome)
+  useEffect(() => { nomeRef.current = nome }, [nome])
+
+  // Campos agrupados para fórmula
+  const camposFormulaRef = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
+  const camposFormula: CampoFormulaGrupo[] = useMemo(() => {
+    const colunasNumericas = todasColunas.filter(c => c.tipo !== 'formula' && c.ativo)
+    const grupos = [...CAMPOS_FORMULA_BASE]
+    if (colunasNumericas.length > 0) {
+      grupos.push({
+        grupo: 'Minhas Colunas',
+        campos: colunasNumericas.map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
+      })
+    }
+    return grupos
+  }, [todasColunas])
+
+  // Manter ref atualizada
+  useEffect(() => {
+    camposFormulaRef.current = camposFormula.flatMap(g =>
+      g.campos.map(c => ({
+        chave:   c.chave,
+        label:   c.label,
+        unidade: SEMANTICA_CAMPOS[c.chave]?.unidade as string | undefined,
+        papel:   SEMANTICA_CAMPOS[c.chave]?.papel   as string | undefined,
+      }))
+    )
+  }, [camposFormula])
 
   const tipoComOpcoes = tipo === 'select' || tipo === 'tipo_documento'
   const tipoFormula   = tipo === 'formula'
 
-  // ── Validação de fórmula com debounce ────────────────────────────────────────
-  const validarFormula = useCallback((expressao: string) => {
-    if (!expressao.trim()) {
+  // Reset tokens quando tipo muda para fora de 'formula'
+  useEffect(() => {
+    if (!tipoFormula) {
+      setFormulaTokens([])
       setFormulaErro(null)
       setFormulaValida(false)
+      setFormulaGabi(null)
+    }
+  }, [tipoFormula])
+
+  // ── Validação GABI (semântica local + Gemini async) ────────────────────
+  const validarFormulaGabi = useCallback(async (expressaoAlias: string) => {
+    if (!expressaoAlias.trim()) {
+      setFormulaErro(null); setFormulaValida(false); setFormulaGabi(null)
       return
     }
     try {
-      parsearFormula(expressao)
+      const expressaoChave = formulaParaChave(expressaoAlias)
+      parsearFormula(expressaoChave)
 
-      // Verifica ciclo: usa chave existente ou derivada do nome (slug provisório)
-      const chaveProvisoria = colunaEdicao?.chave ?? nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
-      const temCiclo = detectarCircular(chaveProvisoria, expressao, todasColunas)
-      if (temCiclo) {
-        setFormulaErro(t('pedido.modal_col.erro_circular'))
-        setFormulaValida(false)
+      // Verificar ciclo
+      const chave = nomeRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
+      if (detectarCircular(chave, expressaoChave, todasColunas)) {
+        setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências.')
+        setFormulaValida(false); setFormulaGabi(null)
         return
       }
 
-      setFormulaErro(null)
-      setFormulaValida(true)
+      // Detectar campos não-numéricos
+      const camposTexto: string[] = []
+      const identRegex = /\b([a-z][a-z0-9_]*)\b/g
+      let m: RegExpExecArray | null
+      while ((m = identRegex.exec(expressaoChave)) !== null) {
+        const id = m[1]
+        const colUsuario = todasColunas.find(c => c.chave === id || c.id === id)
+        if (colUsuario && !TIPOS_NUMERICOS_FORMULA.includes(colUsuario.tipo)) {
+          camposTexto.push(`"${colUsuario.nome}" (${colUsuario.tipo})`)
+        }
+      }
+      if (camposTexto.length > 0) {
+        setFormulaErro(null); setFormulaValida(true)
+        setFormulaGabi({
+          titulo: 'Campo não-numérico detectado',
+          texto: `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.`,
+        })
+        return
+      }
+
+      // Detectar campos desconhecidos
+      const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
+      const chavesValidas = new Set(camposFormulaRef.current.map(c => c.chave))
+      const identRegex2 = /\b([a-z][a-z0-9_]*)\b/g
+      const camposDesconhecidos: string[] = []
+      let m2: RegExpExecArray | null
+      while ((m2 = identRegex2.exec(expressaoAlias)) !== null) {
+        const id = m2[1]
+        if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id)) {
+          const ehColunaUsuario = todasColunas.some(c => c.chave === id || c.id === id)
+          if (!ehColunaUsuario && !camposDesconhecidos.includes(id)) camposDesconhecidos.push(id)
+        }
+      }
+      if (camposDesconhecidos.length > 0) {
+        setFormulaErro(null); setFormulaValida(false)
+        setFormulaGabi({
+          titulo: 'Campo não reconhecido',
+          texto: `${camposDesconhecidos.map(c => `"${c}"`).join(', ')} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips abaixo para inserir campos válidos.`,
+        })
+        return
+      }
+
+      // Análise semântica local
+      const gabiLocal = analisarSemanticaFormula(expressaoChave)
+      setFormulaErro(null); setFormulaValida(true); setFormulaGabi(gabiLocal)
+
+      // Gemini async (melhoria opcional)
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressaoChave, camposFormulaRef.current)
+      if (respostaGemini.gemini) {
+        setFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
+      }
     } catch (err) {
-      setFormulaErro(err instanceof Error ? t('pedido.modal_col.erro_sintaxe', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
-      setFormulaValida(false)
+      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+
+      // Detectar "dois campos sem operador"
+      if (msg.includes('Token inesperado após fim da fórmula:')) {
+        const match = msg.match(/Token inesperado após fim da fórmula: '([^']+)'/)
+        const tokenExtra = match?.[1]
+        if (tokenExtra) {
+          const idx = expressaoAlias.lastIndexOf(tokenExtra)
+          const antes = idx > 0 ? expressaoAlias.slice(0, idx).trim() : null
+          if (antes) {
+            setFormulaErro(null); setFormulaValida(false)
+            setFormulaGabi({
+              titulo: 'Falta um operador',
+              texto: `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido e insira entre os dois campos.`,
+              sugestao: `${antes} + ${tokenExtra}`,
+            })
+            return
+          }
+        }
+      }
+
+      setFormulaErro(msg); setFormulaValida(false); setFormulaGabi(null)
     }
-  }, [colunaEdicao, nome, todasColunas])
+  }, [todasColunas])
 
-  const handleFormulaChange = useCallback((valor: string) => {
-    setFormulaExpressao(valor)
-    setFormulaValida(false)
-    setFormulaErro(null)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => { validarFormula(valor) }, 500)
-  }, [validarFormula])
-
-  // Limpa timeout ao desmontar
+  // Sincronizar tokens → validação com debounce
   useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
+    const alias = tokensParaAliasFormula(formulaTokens)
+    setFormulaErro(null); setFormulaValida(false); setFormulaGabi(null)
+    if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current)
+    if (alias.trim()) {
+      formulaDebounceRef.current = setTimeout(() => {
+        void validarFormulaGabi(alias)
+      }, 600)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formulaTokens])
+
+  useEffect(() => {
+    return () => { if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current) }
   }, [])
+
+  // ── Handlers de token ─────────────────────────────────────────────────
+
+  function adicionarCampoToken(campo: { chave: string; label: string }) {
+    setFormulaTokens(prev => [...prev, { tipo: 'campo', chave: campo.chave, label: campo.label }])
+  }
+
+  function adicionarOpToken(op: string) {
+    setFormulaTokens(prev => [...prev, { tipo: 'op', valor: op }])
+  }
+
+  function removerToken(index: number) {
+    setFormulaTokens(prev => prev.filter((_, i) => i !== index))
+  }
+
+  // ── Handlers de opções ────────────────────────────────────────────────
 
   const handleAdicionarOpcao = useCallback(() => {
     const trimmed = novaOpcao.trim()
@@ -156,6 +347,8 @@ export function ModalNovaColunaUsuario({
     }
   }, [handleAdicionarOpcao])
 
+  // ── Salvar ─────────────────────────────────────────────────────────────
+
   const handleSalvar = useCallback(async () => {
     const nomeTrimmed = nome.trim()
     if (!nomeTrimmed) {
@@ -166,14 +359,17 @@ export function ModalNovaColunaUsuario({
       setErro(t('pedido.modal_col.erro_sem_opcoes'))
       return
     }
+
+    const formulaAlias = tokensParaAliasFormula(formulaTokens)
+    const formulaChave = formulaParaChave(formulaAlias)
+
     if (tipoFormula) {
-      if (!formulaExpressao.trim()) {
+      if (!formulaAlias.trim()) {
         setErro(t('pedido.modal_col.erro_formula_obrigatoria'))
         return
       }
-      // Força validação síncrona antes de salvar
       try {
-        parsearFormula(formulaExpressao)
+        parsearFormula(formulaChave)
       } catch (err) {
         setErro(err instanceof Error ? t('pedido.modal_col.erro_formula_invalida', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
         return
@@ -187,7 +383,7 @@ export function ModalNovaColunaUsuario({
     setSalvando(true)
     setErro(null)
 
-    const formulaDeps = tipoFormula ? extrairDependencias(formulaExpressao) : undefined
+    const formulaDeps = tipoFormula ? extrairDependencias(formulaChave) : undefined
 
     const payload = {
       nome: nomeTrimmed,
@@ -198,7 +394,7 @@ export function ModalNovaColunaUsuario({
       valor_padrao: valorPadrao.trim() || undefined,
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
-      formula_expressao: tipoFormula ? formulaExpressao.trim() : undefined,
+      formula_expressao: tipoFormula ? formulaChave : undefined,
       formula_dependencias: formulaDeps,
       ativo: true,
       ordem: colunaEdicao?.ordem ?? 0,
@@ -219,7 +415,7 @@ export function ModalNovaColunaUsuario({
     }
   }, [
     nome, tipo, escopo, visibilidade, obrigatorio, valorPadrao,
-    descricao, opcoes, tipoComOpcoes, tipoFormula, formulaExpressao,
+    descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
     formulaErro, isEdicao, colunaEdicao, onSalvo,
   ])
 
@@ -229,6 +425,8 @@ export function ModalNovaColunaUsuario({
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onFechar])
+
+  // ── Render ─────────────────────────────────────────────────────────────
 
   return createPortal(
     <div
@@ -279,18 +477,26 @@ export function ModalNovaColunaUsuario({
             />
           </div>
 
-          {/* Tipo */}
+          {/* Tipo — Grid de Pills */}
           <div className="mnc-campo">
             <label className="mnc-label">
               {t('pedido.modal_col.label_tipo')} <span className="mnc-obrig">*</span>
             </label>
-            <SelectGlobal
-              buscavel={false}
-              desabilitado={isEdicao}
-              opcoes={TIPO_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
-              valor={tipo}
-              aoMudarValor={v => v != null && setTipo(v as TipoColunaUsuario)}
-            />
+            <div className="mnc-tipo-grid">
+              {TIPOS_COLUNA.map(tc => (
+                <button
+                  key={tc.id}
+                  type="button"
+                  className={`mnc-tipo-btn${tipo === tc.id ? ' mnc-tipo-btn--ativo' : ''}`}
+                  onClick={() => !isEdicao && setTipo(tc.id)}
+                  aria-pressed={tipo === tc.id}
+                  disabled={isEdicao}
+                >
+                  <span className="mnc-tipo-btn__icone">{tc.icone}</span>
+                  <span className="mnc-tipo-btn__label">{t(`pedido.coluna_tipo.${tc.id}`)}</span>
+                </button>
+              ))}
+            </div>
             {isEdicao && (
               <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#f59e0b' }}>
                 <Warning size={13} weight="fill" style={{ flexShrink: 0 }} />
@@ -299,72 +505,128 @@ export function ModalNovaColunaUsuario({
             )}
           </div>
 
-          {/* Escopo */}
-          <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_escopo')} <span className="mnc-obrig">*</span>
-            </label>
-            <SelectGlobal
-              buscavel={false}
-              opcoes={ESCOPO_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
-              valor={escopo}
-              aoMudarValor={v => v != null && setEscopo(v as EscopoColunaUsuario)}
-            />
-          </div>
+          {/* ── Editor de Fórmula Tokenizado + GABI ── */}
+          {tipoFormula && (
+            <div className="mnc-campo">
+              <label className="mnc-label">
+                {t('pedido.modal_col.label_formula')} <span className="mnc-obrig">*</span>
+              </label>
 
-          {/* Visibilidade */}
-          <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
-            </label>
-            <SelectGlobal
-              buscavel={false}
-              opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
-              valor={visibilidade}
-              aoMudarValor={v => v != null && setVisibilidade(v as VisibilidadeColunaUsuario)}
-            />
-          </div>
+              {/* Área de tokens (pills) */}
+              <div className={[
+                'mnc-tokens',
+                formulaErro ? 'mnc-tokens--erro' : '',
+                formulaValida && formulaTokens.length > 0 ? 'mnc-tokens--ok' : '',
+              ].filter(Boolean).join(' ')}>
+                {formulaTokens.length === 0 ? (
+                  <span className="mnc-tokens__placeholder">
+                    {t('pedido.modal_col.placeholder_formula')}
+                  </span>
+                ) : (
+                  formulaTokens.map((token, i) =>
+                    token.tipo === 'campo' ? (
+                      <span key={i} className="mnc-token mnc-token--campo">
+                        <span className="mnc-token__label">{token.label}</span>
+                        <button type="button" className="mnc-token__remove" onClick={() => removerToken(i)} aria-label={`Remover ${token.label}`}>
+                          <X size={9} weight="bold" />
+                        </button>
+                      </span>
+                    ) : (
+                      <button key={i} type="button" className="mnc-token mnc-token--op" onClick={() => removerToken(i)} title="Clique para remover">
+                        {token.valor}
+                      </button>
+                    )
+                  )
+                )}
+              </div>
 
-          {/* Obrigatório */}
-          <div className="mnc-campo mnc-campo--inline">
-            <label className="mnc-label-inline" htmlFor="mnc-obrigatorio">
-              <input
-                id="mnc-obrigatorio"
-                type="checkbox"
-                checked={obrigatorio}
-                onChange={e => setObrigatorio(e.target.checked)}
-                className="mnc-checkbox"
-              />
-              {t('pedido.modal_col.label_obrigatorio')}
-            </label>
-          </div>
+              {/* Operadores */}
+              <div className="mnc-ops">
+                {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
+                  <button key={op} type="button" className="mnc-op-btn" onClick={() => adicionarOpToken(op)}>{op}</button>
+                ))}
+                {formulaTokens.length > 0 && (
+                  <button type="button" className="mnc-op-btn mnc-op-btn--clear" onClick={() => setFormulaTokens([])}>Limpar</button>
+                )}
+              </div>
 
-          {/* Valor padrão */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
-            <input
-              id="mnc-valor-padrao"
-              className="mnc-input"
-              type="text"
-              value={valorPadrao}
-              onChange={e => setValorPadrao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
-            />
-          </div>
+              {/* Campos disponíveis (agrupados) */}
+              <div className="mnc-formula-campos">
+                <p className="mnc-formula-campos-titulo">
+                  <Info size={13} weight="fill" />
+                  Adicionar campo
+                </p>
+                {camposFormula.map(grupo => (
+                  <div key={grupo.grupo} className="mnc-campos-grupo">
+                    <span className="mnc-campos-grupo__label">{grupo.grupo}</span>
+                    <div className="mnc-formula-chips">
+                      {grupo.campos.map(campo => (
+                        <button
+                          key={campo.chave}
+                          type="button"
+                          className="mnc-formula-chip"
+                          onClick={() => adicionarCampoToken(campo)}
+                          title={`Inserir: ${campo.label}`}
+                        >
+                          {campo.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-          {/* Descrição */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
-            <input
-              id="mnc-descricao"
-              className="mnc-input"
-              type="text"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_descricao')}
-              maxLength={200}
-            />
-          </div>
+              {/* GABI AI Card */}
+              {(() => {
+                if (formulaTokens.length === 0) return (
+                  <div className="mnc-gabi-card mnc-gabi-card--info" role="note">
+                    <div className="mnc-gabi-card__header">
+                      <span className="mnc-gabi-card__ico">✦</span>
+                      <span className="mnc-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                    </div>
+                    <p className="mnc-gabi-card__texto">
+                      Use os chips acima para inserir campos e os operadores (+, -, *, /) para construir sua fórmula. A Gabi vai analisar e sugerir melhorias automaticamente.
+                    </p>
+                  </div>
+                )
+                if (!formulaErro && !formulaGabi && !formulaValida) return null
+                const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
+                const titulo   = formulaErro ? 'Erro na fórmula' : formulaGabi ? formulaGabi.titulo : 'Fórmula válida'
+                const texto    = formulaErro ?? formulaGabi?.texto ?? 'A fórmula está correta. Preencha os demais campos para criar a coluna.'
+                const sugestao = formulaGabi?.sugestao
+                return (
+                  <div className={`mnc-gabi-card mnc-gabi-card--${variante}`} role="note" aria-live="polite">
+                    <div className="mnc-gabi-card__header">
+                      <span className="mnc-gabi-card__ico">✦</span>
+                      <span className="mnc-gabi-card__titulo">Gabi · {titulo}</span>
+                    </div>
+                    <p className="mnc-gabi-card__texto">{texto}</p>
+                    {sugestao && (
+                      <div className="mnc-gabi-card__sugestao-row">
+                        <code className="mnc-gabi-card__sugestao">{sugestao}</code>
+                        <button
+                          type="button"
+                          className="mnc-gabi-card__usar"
+                          onClick={() => {
+                            const allCampos = camposFormula.flatMap(g => g.campos)
+                            const tokens = sugestao.trim().split(/\s+/).map(part => {
+                              const campo = allCampos.find(c => c.chave === part)
+                              if (campo) return { tipo: 'campo' as const, chave: campo.chave, label: campo.label }
+                              return { tipo: 'op' as const, valor: part }
+                            })
+                            setFormulaTokens(tokens)
+                          }}
+                          title="Usar esta sugestão"
+                        >
+                          Usar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
+          )}
 
           {/* Opções (select / tipo_documento) */}
           {tipoComOpcoes && (
@@ -372,21 +634,6 @@ export function ModalNovaColunaUsuario({
               <label className="mnc-label">
                 {t('pedido.modal_col.label_opcoes')} <span className="mnc-obrig">*</span>
               </label>
-              <div className="mnc-opcoes-lista">
-                {opcoes.map(opcao => (
-                  <span key={opcao} className="mnc-opcao-chip">
-                    {opcao}
-                    <button
-                      type="button"
-                      className="mnc-opcao-remover"
-                      onClick={() => handleRemoverOpcao(opcao)}
-                      aria-label={`Remover opção ${opcao}`}
-                    >
-                      <X size={10} weight="bold" />
-                    </button>
-                  </span>
-                ))}
-              </div>
               <div className="mnc-nova-opcao">
                 <input
                   className="mnc-input mnc-input--opcao"
@@ -406,87 +653,139 @@ export function ModalNovaColunaUsuario({
                   <Plus size={14} weight="bold" />
                 </button>
               </div>
+              <div className="mnc-opcoes-lista">
+                {opcoes.length > 0 ? opcoes.map(opcao => (
+                  <span key={opcao} className="mnc-opcao-chip">
+                    {opcao}
+                    <button
+                      type="button"
+                      className="mnc-opcao-remover"
+                      onClick={() => handleRemoverOpcao(opcao)}
+                      aria-label={`Remover opção ${opcao}`}
+                    >
+                      <X size={10} weight="bold" />
+                    </button>
+                  </span>
+                )) : (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.25rem 0.5rem' }}>
+                    Nenhuma opção adicionada
+                  </span>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Fórmula */}
-          {tipoFormula && (
-            <div className="mnc-campo">
-              <label className="mnc-label" htmlFor="mnc-formula-expressao">
-                {t('pedido.modal_col.label_formula')} <span className="mnc-obrig">*</span>
-              </label>
-              <textarea
-                id="mnc-formula-expressao"
-                className={[
-                  'mnc-textarea',
-                  formulaErro ? 'mnc-textarea--erro' : '',
-                  formulaValida && formulaExpressao.trim() ? 'mnc-textarea--valida' : '',
-                ].filter(Boolean).join(' ')}
-                value={formulaExpressao}
-                onChange={e => handleFormulaChange(e.target.value)}
-                placeholder={t('pedido.modal_col.placeholder_formula')}
-                rows={3}
-                spellCheck={false}
-                aria-describedby={formulaErro ? 'mnc-formula-erro' : undefined}
-              />
+          {/* Visibilidade */}
+          <div className="mnc-campo">
+            <label className="mnc-label">
+              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
+            </label>
+            <SelectGlobal
+              buscavel={false}
+              opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
+              valor={visibilidade}
+              aoMudarValor={v => v != null && setVisibilidade(v as VisibilidadeColunaUsuario)}
+            />
+          </div>
 
-              {/* Feedback de validação */}
-              {formulaErro && (
-                <p id="mnc-formula-erro" className="mnc-formula-erro" role="alert">
-                  <Warning size={14} weight="fill" style={{ flexShrink: 0, marginTop: '0.0625rem' }} />
-                  {formulaErro}
-                </p>
-              )}
-              {formulaValida && formulaExpressao.trim() && (
-                <p className="mnc-formula-ok" aria-live="polite">
-                  {t('pedido.modal_col.formula_valida')}
-                </p>
-              )}
+          {/* Itens podem ter dados diferentes (toggle) */}
+          <div className="mnc-campo mnc-campo--toggle-row">
+            <div>
+              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                Itens podem ter dados diferentes
+              </span>
+              <p className="mnc-hint">Cada item do pedido poderá ter seu próprio valor nesta coluna</p>
+            </div>
+            <MncToggle checked={itensDiferentes} onChange={setItensDiferentes} id="mnc-itens-dif" />
+          </div>
 
-              {/* Campos disponíveis */}
-              {camposDisponiveis.length > 0 && (
-                <div className="mnc-formula-campos">
-                  <p className="mnc-formula-campos-titulo">
-                    <Info size={13} weight="fill" />
-                    {t('pedido.modal_col.campos_disponiveis')}
-                  </p>
-                  <div className="mnc-formula-chips">
-                    {camposDisponiveis.map(campo => (
-                      <button
-                        key={campo}
-                        type="button"
-                        className="mnc-formula-chip"
-                        title={`Inserir referência: ${campo}`}
-                        onClick={() => {
-                          const textarea = document.getElementById('mnc-formula-expressao') as HTMLTextAreaElement | null
-                          if (textarea) {
-                            const inicio = textarea.selectionStart
-                            const fim    = textarea.selectionEnd
-                            const nova   = formulaExpressao.slice(0, inicio) + campo + formulaExpressao.slice(fim)
-                            handleFormulaChange(nova)
-                            // Reposiciona o cursor após a inserção
-                            requestAnimationFrame(() => {
-                              textarea.focus()
-                              textarea.setSelectionRange(inicio + campo.length, inicio + campo.length)
-                            })
-                          } else {
-                            handleFormulaChange(formulaExpressao ? `${formulaExpressao} ${campo}` : campo)
-                          }
-                        }}
-                      >
-                        {campo}
-                      </button>
-                    ))}
-                  </div>
+          {itensDiferentes && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.5rem 0.625rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                <Warning size={14} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
+                <span>Dados existentes não serão migrados automaticamente. Valores do pedido serão mantidos e itens iniciam vazios.</span>
+              </div>
+
+              <div className="mnc-campo mnc-campo--toggle-row">
+                <div>
+                  <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                    O pedido também é editável
+                  </span>
+                  <p className="mnc-hint">Além dos itens, o valor a nível de pedido também poderá ser preenchido</p>
                 </div>
-              )}
+                <MncToggle checked={pedidoEditavel} onChange={setPedidoEditavel} id="mnc-pedido-edit" />
+              </div>
+            </>
+          )}
 
-              {/* Dica de sintaxe */}
-              <p className="mnc-formula-dica">
-                {t('pedido.modal_col.formula_dica')}
-              </p>
+          {/* Obrigatório */}
+          {tipo !== 'formula' && (
+            <div className="mnc-campo mnc-campo--toggle-row">
+              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                {t('pedido.modal_col.label_obrigatorio')}
+              </span>
+              <MncToggle checked={obrigatorio} onChange={setObrigatorio} id="mnc-obrigatorio" />
             </div>
           )}
+
+          {/* Valor Padrão — contextual por tipo */}
+          {tipo !== 'formula' && (
+            <div className="mnc-campo">
+              <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
+              <p className="mnc-hint">Valor preenchido automaticamente ao criar um novo pedido/item</p>
+              {tipo === 'checkbox' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    id="mnc-valor-padrao"
+                    type="checkbox"
+                    className="mnc-checkbox"
+                    checked={valorPadrao === 'true'}
+                    onChange={e => setValorPadrao(e.target.checked ? 'true' : 'false')}
+                  />
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                    {valorPadrao === 'true' ? 'Marcado por padrão' : 'Desmarcado por padrão'}
+                  </span>
+                </div>
+              ) : (tipo === 'select' || tipo === 'tipo_documento') ? (
+                opcoes.length > 0 ? (
+                  <SelectGlobal
+                    opcoes={[
+                      { valor: '', rotulo: 'Sem valor padrão' },
+                      ...opcoes.map(o => ({ valor: o, rotulo: o })),
+                    ]}
+                    valor={valorPadrao}
+                    aoMudarValor={v => setValorPadrao(String(v ?? ''))}
+                    buscavel={false}
+                  />
+                ) : (
+                  <p className="mnc-hint" style={{ fontStyle: 'italic' }}>Adicione opções acima para definir um valor padrão</p>
+                )
+              ) : (
+                <input
+                  id="mnc-valor-padrao"
+                  className="mnc-input"
+                  type={tipo === 'numero' || tipo === 'percentual' ? 'number' : tipo === 'data' ? 'date' : 'text'}
+                  value={valorPadrao}
+                  onChange={e => setValorPadrao(e.target.value)}
+                  placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Descrição */}
+          <div className="mnc-campo">
+            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
+            <input
+              id="mnc-descricao"
+              className="mnc-input"
+              type="text"
+              value={descricao}
+              onChange={e => setDescricao(e.target.value)}
+              placeholder={t('pedido.modal_col.placeholder_descricao')}
+              maxLength={200}
+            />
+          </div>
 
           {/* Erro */}
           {erro && (

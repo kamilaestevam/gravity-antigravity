@@ -27,6 +27,7 @@ import {
   Database,
   PlusCircle,
   ArrowDown,
+  X,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
@@ -156,7 +157,7 @@ function SeletorCenario({ cenarioSelecionado, onChange }: SeletorCenarioProps) {
           className="modal-transferir__dropdown-lista"
           role="listbox"
           aria-labelledby="cenario-select-label"
-          style={{ position: 'fixed', top: listaPos.top, left: listaPos.left, width: listaPos.width }}
+          style={{ top: listaPos.top, left: listaPos.left, width: listaPos.width }}
         >
           {CENARIOS.map(c => (
             <li
@@ -227,12 +228,12 @@ function SeletorItemQuantidade({
           return (
             <tr
               key={item.id}
-              style={{ cursor: 'pointer' }}
+              className="modal-transferir__tabela-itens-row"
               onClick={() => onItemChange(item.id)}
               aria-selected={selecionado}
             >
               <td>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <label className="modal-transferir__radio-label">
                   <input
                     type="radio"
                     name="item-origem"
@@ -265,7 +266,7 @@ function SeletorItemQuantidade({
                     </div>
                   </div>
                 ) : (
-                  <span style={{ color: 'var(--color-text-muted, #64748b)' }}>—</span>
+                  <span className="modal-transferir__texto-muted">—</span>
                 )}
               </td>
               <td>
@@ -276,7 +277,7 @@ function SeletorItemQuantidade({
                     {fmtQuantidade(saldoApos ?? 0, item.casas_decimais_quantidade_item)}
                   </span>
                 ) : (
-                  <span style={{ color: 'var(--color-text-muted, #64748b)' }}>—</span>
+                  <span className="modal-transferir__texto-muted">—</span>
                 )}
               </td>
             </tr>
@@ -405,7 +406,7 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
   const { t } = useTranslation()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="modal-transferir__preview-container">
       <div className="modal-transferir__preview-origem">
         <div className="modal-transferir__preview-titulo">
           <ArrowSquareOut size={18} weight="duotone" aria-hidden="true" className="modal-transferir__preview-icone modal-transferir__preview-icone--origem" />
@@ -711,14 +712,14 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
       <div className="modal-transferir__container">
         {/* Header */}
         <div className="modal-transferir__header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ArrowSquareOut size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+          <div className="modal-transferir__header-bloco">
+            <div className="modal-transferir__header-titulo-linha">
+              <ArrowSquareOut size={20} weight="duotone" className="modal-transferir__header-icone" />
               <h2 id="modal-transferir-titulo" className="modal-transferir__titulo">
                 {t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
               </h2>
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Mova itens entre pedidos da mesma organização</p>
+            <p className="modal-transferir__subtitulo">{t('pedido.modal_transf.subtitulo')}</p>
           </div>
           <button
             className="modal-transferir__fechar"
@@ -726,77 +727,78 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
             aria-label={t('pedido.modal_transf.aria_fechar')}
             type="button"
           >
-            ×
+            <X size={18} weight="bold" />
           </button>
         </div>
 
-        {/* Indicador de passos */}
-        {!concluido && (
-          <div className="modal-transferir__passos" aria-label={t('pedido.modal_transf.aria_progresso')}>
-            {([1, 2, 3, 4, 5] as Passo[]).map((p, idx) => (
-              <React.Fragment key={p}>
-                {idx > 0 && (
-                  <div className="modal-transferir__passo-separador" aria-hidden="true" />
-                )}
-                <div
-                  className={`modal-transferir__passo${
-                    p === passo ? ' modal-transferir__passo--ativo' : ''
-                  }${p < passo ? ' modal-transferir__passo--concluido' : ''}`}
-                  aria-current={p === passo ? 'step' : undefined}
-                >
-                  <span className="modal-transferir__passo-numero" aria-hidden="true">
-                    {p < passo ? '✓' : p}
-                  </span>
-                  {NOMES_PASSOS[p]}
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-        )}
 
         {/* Corpo */}
         <div className="modal-transferir__corpo">
           {concluido ? (
-            <div className="modal-transferir__sucesso" role="status" aria-live="polite">
-              <CheckCircle size={48} weight="fill" aria-hidden="true" />
-              <div className="modal-transferir__sucesso-titulo">{t('pedido.modal_transf.sucesso_titulo')}</div>
-              <div className="modal-transferir__sucesso-descricao">
-                {t('pedido.modal_transf.sucesso_desc', { cenario: cenarioInfo ? t(cenarioInfo.nomeKey) : '' })}
+            <div className="modal-transferir__resultado" role="status" aria-live="polite">
+              {/* Banner de sucesso */}
+              <div className="modal-transferir__resultado-sucesso">
+                <CheckCircle size={20} weight="fill" className="modal-transferir__icone-sucesso" />
+                <p className="modal-transferir__resultado-texto">
+                  {t('pedido.modal_transf.resultado_titulo')}
+                </p>
               </div>
-              <div className="modal-transferir__sucesso-detalhes">
-                <div className="modal-transferir__preview-linha">
-                  <span>{t('pedido.modal_transf.sucesso_label_cenario')}</span>
-                  <span className="modal-transferir__preview-valor">{cenarioInfo ? t(cenarioInfo.nomeKey) : ''}</span>
-                </div>
+
+              {/* Seção: Origem */}
+              <div className="modal-transferir__secao-titulo">
+                <ArrowSquareOut size={14} weight="duotone" className="modal-transferir__secao-icone" />
+                {t('pedido.modal_transf.secao_origem_resultado')}
+              </div>
+              <ul className="modal-transferir__lista-resultado">
+                <li className="modal-transferir__item-resultado">
+                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_cenario')}</span>
+                  <span className="modal-transferir__resultado-valor">{cenarioInfo ? t(cenarioInfo.nomeKey) : ''}</span>
+                </li>
+                <li className="modal-transferir__item-resultado">
+                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.preview_label_pedido')}</span>
+                  <span className="modal-transferir__resultado-valor">{pedido.numero_pedido}</span>
+                </li>
                 {itemSelecionado && (
-                  <div className="modal-transferir__preview-linha">
-                    <span>{t('pedido.modal_transf.sucesso_label_item')}</span>
-                    <span className="modal-transferir__preview-valor">{itemSelecionado.part_number}</span>
-                  </div>
+                  <li className="modal-transferir__item-resultado">
+                    <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_item')}</span>
+                    <span className="modal-transferir__resultado-valor">{itemSelecionado.part_number}</span>
+                  </li>
                 )}
-                <div className="modal-transferir__preview-linha">
-                  <span>{t('pedido.modal_transf.sucesso_label_qtd')}</span>
-                  <span className="modal-transferir__preview-valor">
+                <li className="modal-transferir__item-resultado">
+                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_qtd')}</span>
+                  <span className="modal-transferir__resultado-valor">
                     {fmtQuantidade(quantidadeOrigem, itemSelecionado?.casas_decimais_quantidade_item)}
                   </span>
-                </div>
-                {resultado && resultado.pedidos_criados.length > 0 && (
-                  <div className="modal-transferir__preview-linha">
-                    <span>{t('pedido.modal_transf.sucesso_label_novo_pedido')}</span>
-                    <span className="modal-transferir__preview-valor">
-                      {numeroPedidoNovo || resultado.pedidos_criados[0]}
-                    </span>
+                </li>
+              </ul>
+
+              {/* Seção: Destino (quando aplicável) */}
+              {resultado && (resultado.pedidos_criados.length > 0 || resultado.pedidos_destino_ids.length > 0) && (
+                <>
+                  <div className="modal-transferir__secao-titulo">
+                    <ArrowSquareIn size={14} weight="duotone" className="modal-transferir__secao-icone" />
+                    {t('pedido.modal_transf.secao_destino_resultado')}
                   </div>
-                )}
-                {resultado && resultado.pedidos_destino_ids.length > 0 && resultado.pedidos_criados.length === 0 && (
-                  <div className="modal-transferir__preview-linha">
-                    <span>{t('pedido.modal_transf.sucesso_label_destino')}</span>
-                    <span className="modal-transferir__preview-valor">
-                      {t('pedido.modal_transf.sucesso_atualizado', { count: resultado.pedidos_destino_ids.length })}
-                    </span>
-                  </div>
-                )}
-              </div>
+                  <ul className="modal-transferir__lista-resultado">
+                    {resultado.pedidos_criados.length > 0 && (
+                      <li className="modal-transferir__item-resultado">
+                        <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_novo_pedido')}</span>
+                        <span className="modal-transferir__resultado-valor">
+                          {numeroPedidoNovo || resultado.pedidos_criados[0]}
+                        </span>
+                      </li>
+                    )}
+                    {resultado.pedidos_destino_ids.length > 0 && resultado.pedidos_criados.length === 0 && (
+                      <li className="modal-transferir__item-resultado">
+                        <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_destino')}</span>
+                        <span className="modal-transferir__resultado-valor">
+                          {t('pedido.modal_transf.sucesso_atualizado', { count: resultado.pedidos_destino_ids.length })}
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                </>
+              )}
             </div>
           ) : (
             <>
@@ -851,22 +853,16 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                     {erroPreview}
                   </div>
                 ) : preview ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div className="modal-transferir__preview-wrapper">
                     {/* Banner: aviso de tipo de operação diferente (campo Onda C) */}
                     {preview.aviso_tipo_operacao && (
-                      <div style={{
-                        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                        padding: '0.75rem 1rem',
-                        background: 'color-mix(in srgb, var(--warning) 8%, transparent)',
-                        border: '1px solid color-mix(in srgb, var(--warning) 30%, transparent)',
-                        borderRadius: 'var(--radius-md)',
-                      }}>
-                        <Warning weight="duotone" size={18} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
+                      <div className="modal-transferir__aviso-tipos">
+                        <Warning weight="duotone" size={18} className="modal-transferir__aviso-tipos-icone" />
                         <div>
-                          <p style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+                          <p className="modal-transferir__aviso-tipos-titulo">
                             {t('pedido.modal_transf.aviso_tipos_titulo')}
                           </p>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                          <p className="modal-transferir__aviso-tipos-msg">
                             {t('pedido.modal_transf.aviso_tipos_msg')}
                           </p>
                         </div>
@@ -875,15 +871,12 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                     <PreviewImpacto preview={preview} />
                     {/* Checkbox de confirmação explícita quando há divergência de tipos */}
                     {preview.aviso_tipo_operacao && (
-                      <label style={{
-                        display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
-                        cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--text-primary)',
-                      }}>
+                      <label className="modal-transferir__confirmacao-tipos">
                         <input
                           type="checkbox"
                           checked={confirmarTiposDivergentes}
                           onChange={e => setConfirmarTiposDivergentes(e.target.checked)}
-                          style={{ marginTop: 2, flexShrink: 0 }}
+                          className="modal-transferir__confirmacao-tipos-check"
                         />
                         {t('pedido.modal_transf.confirm_tipos_divergentes')}
                       </label>
@@ -894,8 +887,8 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
 
               {/* Passo 5: Confirmação */}
               {passo === 5 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="modal-transferir__alerta" style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)', background: 'color-mix(in srgb, var(--accent) 7%, transparent)', color: 'var(--text-primary)' }}>
+                <div className="modal-transferir__confirmacao-bloco">
+                  <div className="modal-transferir__alerta modal-transferir__alerta--confirmacao">
                     <ArrowRight size={14} weight="bold" aria-hidden="true" />
                     {cenarioInfo?.reversivel
                       ? t('pedido.modal_transf.passo5_reversivel')
@@ -927,6 +920,23 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
             >
               {passo === 1 ? t('pedido.modal_transf.cancelar') : t('pedido.modal_transf.voltar')}
             </BotaoGlobal>
+          )}
+
+          {/* Indicador de passos no footer */}
+          {!concluido && (
+            <div className="modal-transferir__passos" aria-label={t('pedido.modal_transf.aria_progresso')}>
+              {([1, 2, 3, 4, 5] as Passo[]).map((p, idx) => (
+                <React.Fragment key={p}>
+                  {idx > 0 && <span className="modal-transferir__passo-separador" aria-hidden="true" />}
+                  <span
+                    className={`modal-transferir__passo${p === passo ? ' modal-transferir__passo--ativo' : ''}${p < passo ? ' modal-transferir__passo--concluido' : ''}`}
+                    aria-current={p === passo ? 'step' : undefined}
+                  >
+                    {p < passo ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : p}
+                  </span>
+                </React.Fragment>
+              ))}
+            </div>
           )}
 
           <div className="modal-transferir__footer-direita">

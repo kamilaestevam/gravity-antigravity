@@ -517,6 +517,15 @@ const GTEditPopover = memo(function GTEditPopover({
     if (isNumero)  setDisplayNumero(fmtBR(numericInitial, casas) || String(valorEditando ?? ''))
   }, []) // intentional empty deps — runs once on mount, same scope as lazy-init
 
+  // Estado de aviso para input inválido (ex: letras em campo numérico)
+  const [erroInput, setErroInput] = useState<string | null>(null)
+  const erroTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mostrarErroInput = (msg: string) => {
+    setErroInput(msg)
+    if (erroTimerRef.current) clearTimeout(erroTimerRef.current)
+    erroTimerRef.current = setTimeout(() => setErroInput(null), 3000)
+  }
+
   // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
   const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const texto = e.clipboardData.getData('text')
@@ -559,6 +568,10 @@ const GTEditPopover = memo(function GTEditPopover({
 
   // Atualiza valorEditando ao digitar data — aplica máscara DD/MM/AAAA
   function handlePeriodoTextChange(text: string) {
+    // Detecta letras digitadas antes da máscara limpar
+    if (/[a-zA-Z]/.test(text)) {
+      mostrarErroInput('Apenas números são permitidos em campos de data')
+    }
     const masked = aplicarMascaraData(text)
     setPeriodoText(masked)
     const iso = brToIso(masked)
@@ -711,6 +724,11 @@ const GTEditPopover = memo(function GTEditPopover({
                 disabled={salvando}
                 onChange={e => {
                   const raw = e.target.value
+                  if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+                    mostrarErroInput('Apenas números são permitidos neste campo')
+                    return
+                  }
+                  setErroInput(null)
                   setDisplayMoedaAmt(raw)
                   onAtualizar({ ...mv, amount: parseBRNum(raw) })
                 }}
@@ -740,6 +758,11 @@ const GTEditPopover = memo(function GTEditPopover({
                 disabled={salvando}
                 onChange={e => {
                   const raw = e.target.value
+                  if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+                    mostrarErroInput('Apenas números são permitidos neste campo')
+                    return
+                  }
+                  setErroInput(null)
                   setDisplayQty(raw)
                   onAtualizar({ ...uv, quantity: parseBRNum(raw) })
                 }}
@@ -860,9 +883,18 @@ const GTEditPopover = memo(function GTEditPopover({
               onChange={e => {
                 const raw = e.target.value
                 if (isNumero) {
+                  // Bloqueia caracteres não-numéricos (aceita dígitos, vírgula, ponto, sinal negativo)
+                  if (raw !== '' && !/^-?[\d.,]*$/.test(raw)) {
+                    mostrarErroInput('Apenas números são permitidos neste campo')
+                    return
+                  }
+                  setErroInput(null)
                   setDisplayNumero(raw)
                   onAtualizar(parseBRNum(raw))
                 } else if (isNCM) {
+                  if (/[a-zA-Z]/.test(raw)) {
+                    mostrarErroInput('Apenas números são permitidos em campos NCM')
+                  }
                   const digits = raw.replace(/\D/g, '').slice(0, 8)
                   let masked = digits
                   if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
@@ -887,6 +919,15 @@ const GTEditPopover = memo(function GTEditPopover({
             />
           )}
         </div>
+
+        {/* Aviso de validação — bloqueia caracteres inválidos e mostra mensagem
+            temporária (3s) ao usuário. Decisão UX 2026-05-16. */}
+        {erroInput && (
+          <div className="gtv-edit-erro-input">
+            <span className="gtv-edit-erro-input-icone">⚠</span>
+            <span>{erroInput}</span>
+          </div>
+        )}
 
         {/* Aviso de impacto — badge com pulse glow. Informa o usuário quais
             colunas serão afetadas ANTES de confirmar. Texto definido por coluna

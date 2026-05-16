@@ -1128,6 +1128,32 @@
   display: none;
 }
 
+/* ── Erro de validação de input (UX 2026-05-16) ──────────────────────────── */
+.gtv-edit-erro-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 12px 0;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 6px;
+  animation: gtv-erro-fade-in 0.15s ease-out;
+}
+
+.gtv-edit-erro-input-icone {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+}
+
+@keyframes gtv-erro-fade-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Aviso de impacto — badge com pulse glow (UX 2026-05-15) ──────────────── */
 .gtv-edit-aviso-impacto {
   display: flex;

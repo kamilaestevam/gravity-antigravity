@@ -22,6 +22,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Info, CheckCircle, Copy, Spinner, X, Warning, Files, Package } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import type { ResultadoAcao } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -74,6 +75,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   const [erro, setErro] = useState<string | null>(null)
   const [numeros, setNumeros] = useState<Record<string, string>>({})
   const [confirmando, setConfirmando] = useState(false)
+  const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
   const [resultado, setResultado] = useState<{
     pedidos_criados: DuplicarResultado['criados']
     itens_criados: DuplicarResultado['criados']
@@ -235,6 +237,8 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       const itens_criados = resItens.flatMap(r => r.criados)
       const erros = [...resPedidos, ...resItens].flatMap(r => r.erros)
 
+      setConfirmando(false)
+      setFeedbackBotao('sucesso')
       setResultado({ pedidos_criados, itens_criados, erros })
 
       // Toast consolidado
@@ -252,12 +256,16 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         })
         addNotification({ type: 'success', message: msg, duration: 4000 })
       }
+
+      await new Promise(r => setTimeout(r, 1200))
+      setFeedbackBotao(null)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro ao duplicar'
+      setConfirmando(false)
+      setFeedbackBotao('erro')
       setErro(msg)
       addNotification({ type: 'error', message: `Falha ao duplicar: ${msg}`, duration: 4000 })
-    } finally {
-      setConfirmando(false)
+      setTimeout(() => { setFeedbackBotao(null) }, 1500)
     }
   }, [config, ids, itensPorPedido, numeros, temPedidos, addNotification, t])
 
@@ -646,7 +654,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         </div>
 
         <div className="modal-duplicar__footer">
-          <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando}>
+          <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando || feedbackBotao !== null}>
             {t('pedido.modal_dup.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
@@ -654,8 +662,11 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
             onClick={handleConfirmar}
             disabled={!podeDuplicar || confirmando || carregando}
             carregando={confirmando}
+            textoCarregando={t('pedido.modal_dup.duplicando')}
+            resultadoAcao={feedbackBotao}
+            icone={<Copy size={14} weight="bold" />}
           >
-            {confirmando ? t('pedido.modal_dup.duplicando') : t('pedido.modal_dup.duplicar')}
+            {feedbackBotao === 'sucesso' ? 'Duplicado' : feedbackBotao === 'erro' ? 'Falhou' : t('pedido.modal_dup.duplicar')}
           </BotaoGlobal>
         </div>
       </div>

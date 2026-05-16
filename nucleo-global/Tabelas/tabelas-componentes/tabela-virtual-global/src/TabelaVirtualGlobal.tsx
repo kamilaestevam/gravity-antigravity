@@ -1585,10 +1585,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return () => document.removeEventListener('mousedown', fecharFora)
   }, [dropdownFilhoAberto])
 
-  // ── Feedback visual de drop ──────────────────────────────────────────────────
-  const [droppedRowId, setDroppedRowId] = useState<string | null>(null)
-  const [droppedColKey, setDroppedColKey] = useState<string | null>(null)
-
   // ── Drag de cabeçalho para reordenar colunas ──────────────────────────────────
   const [dragColKey,  setDragColKey]  = useState<string | null>(null)
   const [dragOverKey, setDragOverKey] = useState<string | null>(null)
@@ -1625,8 +1621,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       ...(preferencias ?? {}),
       colunas_visiveis: ordem,
     })
-    setDroppedColKey(dragColKey)
-    setTimeout(() => setDroppedColKey(null), 600)
     setDragColKey(null); setDragOverKey(null)
   }, [dragColKey, colunasVisiveis, dropSide, onSalvarPreferencias, preferencias])
 
@@ -1708,12 +1702,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const [movido] = novaOrdem.splice(fromIdx, 1)
       const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
       novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
+      // Atualizar cache local imediatamente
       filhosCache.set(paiId, novaOrdem)
       onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
     }
 
-    setDroppedRowId(sourceId)
-    setTimeout(() => setDroppedRowId(null), 600)
     setDragRowId(null); setDragOverRowId(null)
   }, [dragRowSide, onReordenarPai, onReordenarFilho, filhosCache, filhoId])
 
@@ -1726,6 +1719,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaPai,
     valorEditando: valorEditandoPai,
     salvando: salvandoPai,
+    resultado: resultadoPai,
+    celulaResultado: celulaResultadoPai,
     iniciarEdicao: iniciarEdicaoPai,
     atualizarValor: atualizarValorPai,
     confirmarEdicao: confirmarEdicaoPai,
@@ -1784,6 +1779,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaFilho,
     valorEditando: valorEditandoFilho,
     salvando: salvandoFilho,
+    resultado: resultadoFilho,
+    celulaResultado: celulaResultadoFilho,
     iniciarEdicao: iniciarEdicaoFilho,
     atualizarValor: atualizarValorFilho,
     confirmarEdicao: confirmarEdicaoFilho,
@@ -2099,6 +2096,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const editandoCelula  = isFilho ? editandoCelulaFilho  : editandoCelulaPai
     const valorEditando   = isFilho ? valorEditandoFilho   : valorEditandoPai
     const salvando        = isFilho ? salvandoFilho        : salvandoPai
+    const resultado       = isFilho ? resultadoFilho       : resultadoPai
+    const celulaResultado = isFilho ? celulaResultadoFilho : celulaResultadoPai
     const iniciarEdicao   = isFilho ? iniciarEdicaoFilho   : iniciarEdicaoPai
     const atualizarValor  = isFilho ? atualizarValorFilho  : atualizarValorPai
     const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
@@ -2120,6 +2119,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
+    // Feedback visual de edição inline (salvando / sucesso / erro)
+    const classeSalvando    = salvando && estaEditando ? ' gtv-celula--salvando' : ''
+    const classeSalvo       = resultado === 'sucesso' && celulaResultado?.id === id && celulaResultado?.campo === col.key ? ' gtv-celula--salvo' : ''
+    const classeErroSalvar  = resultado === 'erro' && celulaResultado?.id === id && celulaResultado?.campo === col.key ? ' gtv-celula--erro-salvar' : ''
 
     const styleCelula: React.CSSProperties = {}
 
@@ -2171,7 +2174,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeSalvando}${classeSalvo}${classeErroSalvar}`}
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
@@ -2274,7 +2277,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       selecionado ? 'gtv-linha--selecionada' : '',
       dragRowId === id ? 'gtv-linha--dragging' : '',
       dragOverRowId === id && dragRowPaiId === null ? `gtv-linha--drag-over-${dragRowSide}` : '',
-      droppedRowId === id ? 'gtv-linha--dropped' : '',
     ].filter(Boolean).join(' ')
 
     return (
@@ -2391,7 +2393,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             ultimoFilho ? 'gtv-linha--filho-ultimo' : '',
             dragRowId === id ? 'gtv-linha--dragging' : '',
             dragOverRowId === id && dragRowPaiId === paiIdFilho ? `gtv-linha--drag-over-${dragRowSide}` : '',
-            droppedRowId === id ? 'gtv-linha--dropped' : '',
           ].filter(Boolean).join(' ')}
           draggable={arrastavelFilho ? true : undefined}
           onDragStart={arrastavelFilho ? (e) => handleRowDragStart(e, id, paiIdFilho) : undefined}
@@ -2452,6 +2453,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
+            // Feedback visual de edição inline (salvando / sucesso / erro)
+            const classeSalvandoF   = salvandoFilho && estaEditando ? ' gtv-celula--salvando' : ''
+            const classeSalvoF      = resultadoFilho === 'sucesso' && celulaResultadoFilho?.id === id && celulaResultadoFilho?.campo === campo ? ' gtv-celula--salvo' : ''
+            const classeErroSalvarF = resultadoFilho === 'erro' && celulaResultadoFilho?.id === id && celulaResultadoFilho?.campo === campo ? ' gtv-celula--erro-salvar' : ''
 
             const styleCelula: React.CSSProperties = {}
 
@@ -2460,7 +2465,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             return (
               <div
                 key={col.key as string}
-                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeSalvandoF}${classeSalvoF}${classeErroSalvarF}`}
                 style={styleCelula}
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
@@ -2896,13 +2901,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
                   const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
                   const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
-                  const classeThDropped = droppedColKey === col.key ? ' gtv-th--dropped' : ''
                   return (
                     <div
                       key={col.key}
                       role="columnheader"
                       data-find-col-key={col.key}
-                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}${classeThDropped}`}
+                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
                       style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                       draggable={isDraggable}
                       onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}

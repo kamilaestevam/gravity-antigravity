@@ -18,6 +18,7 @@ import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from '
 import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import type { ResultadoAcao } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
@@ -925,6 +926,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
   const [erroGeral, setErroGeral] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
   const [erroSalvar, setErroSalvar] = useState<string | null>(null)
+  const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -1056,14 +1058,21 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
 
     try {
       const result = await pedidoEdicaoMassaApi.confirmar(payload)
+      setSalvando(false)
+      setFeedbackBotao('sucesso')
       setResultado(result)
+      await new Promise(r => setTimeout(r, 1200))
+      setFeedbackBotao(null)
       setPasso(3)
+      return
     } catch (err: unknown) {
       const msg = traduzirErro(err instanceof Error ? err.message : t('pedido.modal_massa.erro_aplicar'))
+      setSalvando(false)
+      setFeedbackBotao('erro')
       setErroSalvar(msg)
       addNotification({ type: 'error', message: `Falha na edição em massa: ${msg}`, duration: 4000 })
-    } finally {
-      setSalvando(false)
+      setTimeout(() => { setFeedbackBotao(null) }, 1500)
+      return
     }
   }, [campos, pedidos, nivel, onConcluido, addNotification])
 
@@ -1811,7 +1820,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 variante="secundario"
                 tamanho="medio"
                 onClick={onFechar}
-                disabled={salvando}
+                disabled={salvando || feedbackBotao !== null}
               >
                 {t('pedido.modal_massa.cancelar')}
               </BotaoGlobal>
@@ -1831,10 +1840,13 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
                 variante="primario"
                 tamanho="medio"
                 onClick={handleConfirmar}
-                disabled={salvando}
-                aria-busy={salvando}
+                disabled={salvando || feedbackBotao !== null}
+                carregando={salvando}
+                textoCarregando={t('pedido.modal_massa.aplicando')}
+                resultadoAcao={feedbackBotao}
+                icone={<PencilSimpleLine size={14} weight="bold" />}
               >
-                {salvando ? t('pedido.modal_massa.aplicando') : t('pedido.modal_massa.aplicar')}
+                {feedbackBotao === 'sucesso' ? 'Aplicado' : feedbackBotao === 'erro' ? 'Falhou' : t('pedido.modal_massa.aplicar')}
               </BotaoGlobal>
             ) : (
               <BotaoGlobal

@@ -3,18 +3,22 @@
  * Gerencia edição inline de células com update otimista e rollback em caso de conflito.
  */
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 export interface CelulaEditando {
   id: string
   campo: string
 }
 
+export type ResultadoEdicao = 'sucesso' | 'erro' | null
+
 export interface UseGTInlineEditRetorno<T> {
   editandoCelula: CelulaEditando | null
   valorEditando: unknown
   salvando: boolean
   erro: string | null
+  resultado: ResultadoEdicao
+  celulaResultado: CelulaEditando | null
   iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => void
   atualizarValor: (valor: unknown) => void
   confirmarEdicao: () => Promise<void>
@@ -31,11 +35,14 @@ export function useGTInlineEdit<T>(
   const [valorEditando, setValorEditando] = useState<unknown>(null)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [resultado, setResultado] = useState<ResultadoEdicao>(null)
+  const [celulaResultado, setCelulaResultado] = useState<CelulaEditando | null>(null)
   // Evita double-confirm quando Enter + blur disparam confirmarEdicao em sequência
   const confirmandoRef = useRef(false)
   // Ref síncrona para evitar closure stale em confirmarEdicao
   const valorEditandoRef = useRef<unknown>(null)
   const valorOriginalRef = useRef<unknown>(null)
+  const resultadoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const iniciarEdicao = useCallback((id: string, campo: string, valorAtual: unknown) => {
     setEditandoCelula({ id, campo })
@@ -71,6 +78,12 @@ export function useGTInlineEdit<T>(
     setSalvando(true)
     setErro(null)
 
+    // Limpa timer anterior se houver (edição rápida em sequência)
+    if (resultadoTimerRef.current) {
+      clearTimeout(resultadoTimerRef.current)
+      resultadoTimerRef.current = null
+    }
+
     try {
       const itemAtualizado = await onEditar(id, campo, valorEditandoRef.current)
       onAtualizarItem?.(itemAtualizado)
@@ -79,6 +92,15 @@ export function useGTInlineEdit<T>(
       setValorEditando(null)
       valorEditandoRef.current = null
       valorOriginalRef.current = null
+
+      // Flash de sucesso na célula que acabou de ser salva
+      setCelulaResultado({ id, campo })
+      setResultado('sucesso')
+      resultadoTimerRef.current = setTimeout(() => {
+        setResultado(null)
+        setCelulaResultado(null)
+        resultadoTimerRef.current = null
+      }, 600)
     } catch (err: unknown) {
       // Rollback para o valor original
       setValorEditando(valorOriginalRef.current)
@@ -92,6 +114,15 @@ export function useGTInlineEdit<T>(
       setErro(mensagem)
       onErro?.(mensagem)
       setEditandoCelula(null)
+
+      // Flash de erro na célula que falhou
+      setCelulaResultado({ id, campo })
+      setResultado('erro')
+      resultadoTimerRef.current = setTimeout(() => {
+        setResultado(null)
+        setCelulaResultado(null)
+        resultadoTimerRef.current = null
+      }, 1000)
     } finally {
       setSalvando(false)
       confirmandoRef.current = false
@@ -104,11 +135,20 @@ export function useGTInlineEdit<T>(
     setErro(null)
   }, [])
 
+  // Limpa timer de resultado ao desmontar
+  useEffect(() => {
+    return () => {
+      if (resultadoTimerRef.current) clearTimeout(resultadoTimerRef.current)
+    }
+  }, [])
+
   return {
     editandoCelula,
     valorEditando,
     salvando,
     erro,
+    resultado,
+    celulaResultado,
     iniciarEdicao,
     atualizarValor,
     confirmarEdicao,

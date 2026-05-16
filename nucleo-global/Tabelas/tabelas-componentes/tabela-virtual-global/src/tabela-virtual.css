@@ -2124,33 +2124,46 @@ body.light-theme .gtv-linha--filho-selecionada {
   box-shadow: inset 0 -2px 0 0 var(--gtv-accent, #818cf8);
 }
 
-/* Feedback de drop confirmado — flash verde sutil na linha */
-.gtv-linha--dropped {
-  animation: gtv-drop-flash 0.5s ease-out;
+/* ─── Inline edit feedback ───────────────────────────────────────────────── */
+
+/* Salvando — pulse indigo outline */
+.gtv-celula--salvando {
+  position: relative;
+  outline: 1.5px solid rgba(99, 102, 241, 0.4);
+  outline-offset: -1px;
+  animation: gtv-celula-pulse 1s ease-in-out infinite;
 }
 
-@keyframes gtv-drop-flash {
-  0% { background: rgba(34, 197, 94, 0.15); }
-  100% { background: transparent; }
+@keyframes gtv-celula-pulse {
+  0%, 100% { outline-color: rgba(99, 102, 241, 0.25); }
+  50% { outline-color: rgba(99, 102, 241, 0.5); }
 }
 
-/* Feedback de drop confirmado — flash verde sutil no header de coluna */
-.gtv-th--dropped {
-  animation: gtv-drop-flash-col 0.5s ease-out;
+/* Sucesso — green flash que desvanece */
+.gtv-celula--salvo {
+  animation: gtv-celula-sucesso 0.5s ease-out forwards;
 }
 
-@keyframes gtv-drop-flash-col {
+@keyframes gtv-celula-sucesso {
   0% { background: rgba(34, 197, 94, 0.12); }
   100% { background: transparent; }
 }
 
-body.light-theme .gtv-linha--dropped {
-  animation: gtv-drop-flash-light 0.5s ease-out;
+/* Erro — red flash + shake */
+.gtv-celula--erro-salvar {
+  animation: gtv-celula-erro 0.5s ease-out forwards, gtv-celula-shake 0.3s ease-out;
 }
 
-@keyframes gtv-drop-flash-light {
-  0% { background: rgba(22, 163, 74, 0.1); }
+@keyframes gtv-celula-erro {
+  0% { background: rgba(239, 68, 68, 0.12); }
   100% { background: transparent; }
+}
+
+@keyframes gtv-celula-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
 }
 
 /* Light theme overrides */

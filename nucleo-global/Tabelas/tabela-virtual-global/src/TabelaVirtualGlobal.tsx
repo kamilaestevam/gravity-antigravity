@@ -1119,6 +1119,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onReordenarPai,
   arrastavelFilho,
   onReordenarFilho,
+  filhoSequenciaKey,
   onOrdemManualResetada,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
@@ -1635,6 +1636,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [dragRowSide,     setDragRowSide]     = useState<'before' | 'after'>('after')
   // Ordem manual de pais: quando não-null, sobrepõe a ordem de `dados`
   const [ordemManualPai,  setOrdemManualPai]  = useState<string[] | null>(null)
+  // Version counter: forçar re-render do memo linhasPagina após mutar filhosCache
+  const [filhosCacheVer,  setFilhosCacheVer]  = useState(0)
 
   // Reset da ordem manual quando sort/filtro/página muda
   const ordemManualPaiRef = useRef(ordemManualPai)
@@ -1702,9 +1705,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const [movido] = novaOrdem.splice(fromIdx, 1)
       const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
       novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
-      // Atualizar cache local imediatamente
-      filhosCache.set(paiId, novaOrdem)
-      onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
+      // Atualizar cache local imediatamente + forçar re-render
+      // Se filhoSequenciaKey existe, renumerar 1..N nos objetos (atualização visual instantânea)
+      const novaOrdemFinal = filhoSequenciaKey
+        ? novaOrdem.map((f, i) => ({ ...f, [filhoSequenciaKey]: i + 1 })) as C[]
+        : novaOrdem
+      filhosCache.set(paiId, novaOrdemFinal)
+      setFilhosCacheVer(v => v + 1)
+      onReordenarFilho?.(paiId, novaOrdemFinal.map(f => filhoId(f)))
     }
 
     setDragRowId(null); setDragOverRowId(null)
@@ -1824,7 +1832,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // Flat rows incluindo filhos expandidos — apenas para a página atual
   const linhasPagina = useMemo(
     () => buildFlatRows<T, C>(dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId),
-    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId],
+    // filhosCacheVer: filhosCache é um Map mutado in-place — version counter força recompute
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId, filhosCacheVer],
   )
 
   const totalEfetivo = modoExterno ? totalItens : dados.length

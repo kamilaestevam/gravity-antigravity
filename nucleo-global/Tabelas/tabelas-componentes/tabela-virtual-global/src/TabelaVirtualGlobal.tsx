@@ -413,6 +413,7 @@ interface GTEditPopoverProps {
   }
   valorEditando: unknown
   salvando: boolean
+  resultado: 'sucesso' | 'erro' | null
   onAtualizar: (valor: unknown) => void
   /** onConfirmar pode receber opts (ex: replicar_em_itens) — popover propaga
    *  via aqui quando o usuario marca o checkbox da linha pai. */
@@ -432,6 +433,7 @@ const GTEditPopover = memo(function GTEditPopover({
   overlayInfo,
   valorEditando,
   salvando,
+  resultado,
   onAtualizar,
   onConfirmar,
   onCancelar,
@@ -1129,6 +1131,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onReordenarPai,
   arrastavelFilho,
   onReordenarFilho,
+  filhoSequenciaKey,
   onOrdemManualResetada,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
@@ -1715,9 +1718,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
       novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
       // Atualizar cache local imediatamente + forçar re-render
-      filhosCache.set(paiId, novaOrdem)
+      // Se filhoSequenciaKey existe, renumerar 1..N nos objetos (atualização visual instantânea)
+      const novaOrdemFinal = filhoSequenciaKey
+        ? novaOrdem.map((f, i) => ({ ...f, [filhoSequenciaKey]: i + 1 })) as C[]
+        : novaOrdem
+      filhosCache.set(paiId, novaOrdemFinal)
       setFilhosCacheVer(v => v + 1)
-      onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
+      onReordenarFilho?.(paiId, novaOrdemFinal.map(f => filhoId(f)))
     }
 
     setDragRowId(null); setDragOverRowId(null)

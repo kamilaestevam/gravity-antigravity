@@ -3134,6 +3134,17 @@ export default function Pedidos() {
   const pedidosSelecionados = usePedidosSelecionados()
   const itensSelecionados = useItensSelecionados()
   const hasMixedTipos = useHasMixedTipos()
+
+  // Pedidos para edição em massa: prioridade pedidos selecionados, fallback pedidos pais dos itens
+  const pedidosParaEdicaoMassa = useMemo(() => {
+    if (pedidosSelecionados.length > 0) return pedidosSelecionados
+    if (itensSelecionados.length === 0) return []
+    // Resolve pedidos pais únicos dos itens selecionados
+    const idsPais = [...new Set(itensSelecionados.map(i => i.pedido_id))]
+    const mapa = new Map(pedidos.map(p => [p.id, p]))
+    return idsPais.map(id => mapa.get(id)).filter((p): p is Pedido => p != null)
+  }, [pedidosSelecionados, itensSelecionados, pedidos])
+
   useLinkContextualSync()
 
   // ── Estado de exclusão de itens ───────────────────────────────────────────────
@@ -3947,8 +3958,7 @@ export default function Pedidos() {
   const handleReordenarItens = useCallback(async (paiId: string, ids: string[]) => {
     try {
       await pedidoItemApi.reordenar(paiId, ids)
-    } catch (err) {
-      console.error('[handleReordenarItens] paiId:', paiId, 'ids:', ids, 'erro:', err)
+    } catch {
       addNotification({ type: 'error', message: 'Erro ao reordenar itens. Tente novamente.' })
     }
   }, [addNotification])
@@ -5251,6 +5261,7 @@ export default function Pedidos() {
           onReordenarPai={handleReordenarPedidos}
           arrastavelFilho
           onReordenarFilho={handleReordenarItens}
+          filhoSequenciaKey="sequencia_item"
           onOrdemManualResetada={() => addNotification({ type: 'info', message: 'Ordem manual dos pedidos foi resetada pela ordenação por coluna.' })}
 
           preferencias={preferencias}
@@ -5447,13 +5458,14 @@ export default function Pedidos() {
       )}
 
       {/* ── Modal Edição em Massa ── */}
-      {modalEdicaoMassaAberto && pedidosSelecionados.length > 0 && (
+      {modalEdicaoMassaAberto && pedidosParaEdicaoMassa.length > 0 && (
         <ModalEdicaoMassaPedidos
-          pedidos={pedidosSelecionados}
+          pedidos={pedidosParaEdicaoMassa}
           onFechar={() => setModalEdicaoMassaAberto(false)}
           onConcluido={() => {
             setModalEdicaoMassaAberto(false)
             setPedidosSelecionados([])
+            setItensSelecionados([])
             carregarInicial()
           }}
         />

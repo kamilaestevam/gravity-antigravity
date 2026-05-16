@@ -4,13 +4,13 @@
  * Rota base: /api/v1/pedidos/:id_pedido/itens
  *
  * Endpoints:
- *   PATCH /reordenar — atualiza sequencia_item_pedido em batch ($transaction)
+ *   PATCH /reordenar — atualiza sequencia_item_pedido em batch
  *
  * Regras:
  *   - Zod valida entrada
  *   - tenant_id injetado pelo withOrganizacao
  *   - Valida que TODOS os IDs pertencem ao pedido + organização
- *   - Erros via AppError
+ *   - res.json FORA do withOrganizacao (padrão exclusoes-pedido)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -44,7 +44,9 @@ reordenacaoItensPedidoRouter.patch('/reordenar', async (req: Request, res: Respo
       return
     }
 
-    await withOrganizacao(req, async (rawDb) => {
+    // res.json FORA do withOrganizacao — garante que a resposta só é enviada
+    // APÓS o commit da transaction (padrão exclusoes-pedido.ts).
+    const resultado = await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const { idOrganizacao } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
@@ -56,8 +58,7 @@ reordenacaoItensPedidoRouter.patch('/reordenar', async (req: Request, res: Respo
         select: { id_pedido: true },
       })
       if (!pedido) {
-        res.status(404).json({ erro: 'Pedido não encontrado' })
-        return
+        return { erro: 'Pedido não encontrado', status: 404 } as const
       }
 
       // 2. Buscar TODOS os itens do pedido para validação cruzada
@@ -72,31 +73,35 @@ reordenacaoItensPedidoRouter.patch('/reordenar', async (req: Request, res: Respo
       // 3. Verificar que todos os IDs recebidos pertencem ao pedido
       const idsInvalidos = idsRecebidos.filter(id => !idsExistentes.has(id))
       if (idsInvalidos.length > 0) {
-        res.status(400).json({ erro: 'IDs de itens não pertencem a este pedido', ids_invalidos: idsInvalidos })
-        return
+        return { erro: 'IDs de itens não pertencem a este pedido', ids_invalidos: idsInvalidos, status: 400 } as const
       }
 
-      // 4. Renumerar em $transaction — 1..N na ordem recebida
-      await db.$transaction(async (tx: typeof db) => {
-        for (let i = 0; i < idsRecebidos.length; i++) {
-          await tx.pedidoItem.update({
-            where: { id_item: idsRecebidos[i] },
-            data: { sequencia_item_pedido: i + 1 },
-          })
-        }
-
-        // 5. Touch no pedido pai para disparar @updatedAt → frontend detecta
-        // via itemVersion e recarrega filhos expandidos automaticamente
-        await tx.pedido.update({
-          where: { id_pedido: idPedido },
-          data: { data_atualizacao_pedido: new Date() },
+      // 4. Renumerar 1..N na ordem recebida
+      // withOrganizacao já fornece contexto transacional — NÃO chamar db.$transaction()
+      for (let i = 0; i < idsRecebidos.length; i++) {
+        await db.pedidoItem.update({
+          where: { id_item: idsRecebidos[i] },
+          data: { sequencia_item_pedido: i + 1 },
         })
+      }
+
+      // 5. Touch no pedido pai para disparar @updatedAt
+      await db.pedido.update({
+        where: { id_pedido: idPedido },
+        data: { data_atualizacao_pedido: new Date() },
       })
 
-      res.json({ ok: true, total_reordenados: idsRecebidos.length })
+      return { ok: true, total_reordenados: idsRecebidos.length }
     })
+
+    // Responder APÓS o commit da transaction
+    if ('erro' in resultado) {
+      const status = 'status' in resultado ? (resultado as { status: number }).status : 400
+      res.status(status).json(resultado)
+    } else {
+      res.json(resultado)
+    }
   } catch (err) {
-    console.error('[reordenacao-itens] ERRO:', err)
     next(err)
   }
 })

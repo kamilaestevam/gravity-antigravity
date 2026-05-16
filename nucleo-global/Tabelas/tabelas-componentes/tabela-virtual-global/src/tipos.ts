@@ -456,6 +456,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    */
   onReordenarFilho?: (paiId: string, ids: string[]) => void
   /**
+   * Chave do campo de sequência nos objetos filho (ex: 'sequencia_item').
+   * Quando presente, após drag-and-drop o componente atualiza o campo em cada
+   * filho com o novo índice (1..N) — refletindo a renumeração instantaneamente.
+   */
+  filhoSequenciaKey?: string
+  /**
    * Chamado quando a ordem manual dos pais é descartada (ex: usuário clicou
    * em sort por coluna). O consumidor pode exibir um toast informativo.
    */

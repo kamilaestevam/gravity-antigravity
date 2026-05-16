@@ -18,6 +18,8 @@ import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from '
 import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
@@ -1738,38 +1740,90 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFecha
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
-  return (
-    <div
-      className="modal-edicao-massa__overlay"
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-edicao-massa-titulo"
-    >
-      <div className="modal-edicao-massa__container">
-        {/* Header */}
-        <div className="modal-edicao-massa__header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <PencilSimpleLine size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-              <h2 id="modal-edicao-massa-titulo" className="modal-edicao-massa__titulo">
-                {t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
-              </h2>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Selecione os campos que deseja alterar em lote</p>
-          </div>
-          <button
-            className="modal-edicao-massa__fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_massa.aria_fechar')}
-            type="button"
-          >
-            ×
-          </button>
-        </div>
+  const PASSOS_MASSA: PassoConfig[] = [
+    { id: 1, label: t('pedido.modal_massa.passo1_label', { defaultValue: 'Campos' }) },
+    { id: 2, label: t('pedido.modal_massa.passo2_label', { defaultValue: 'Revisão' }) },
+    { id: 3, label: t('pedido.modal_massa.passo3_label', { defaultValue: 'Resultado' }) },
+  ]
 
+  const footerEdicaoMassa = (
+    <>
+      {/* Esquerda: stepper indicator removido — agora é o stepper global no header */}
+      <div className="modal-edicao-massa__footer-direita" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
+        {passo === 2 && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={() => setPasso(1)}
+            disabled={salvando}
+          >
+            {t('pedido.modal_massa.voltar')}
+          </BotaoGlobal>
+        )}
+
+        {passo !== 3 && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={onFechar}
+            disabled={salvando || feedbackBotao !== null}
+          >
+            {t('pedido.modal_massa.cancelar')}
+          </BotaoGlobal>
+        )}
+
+        {passo === 1 ? (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={handleAvancar}
+            disabled={camposValidos.length === 0 || carregandoPreview || temCampoUniqueBloqueado}
+          >
+            {t('pedido.modal_massa.revisar')}
+          </BotaoGlobal>
+        ) : passo === 2 ? (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={handleConfirmar}
+            disabled={salvando || feedbackBotao !== null}
+            carregando={salvando}
+            textoCarregando={t('pedido.modal_massa.aplicando')}
+            resultadoAcao={feedbackBotao}
+            icone={<PencilSimpleLine size={14} weight="bold" />}
+          >
+            {feedbackBotao === 'sucesso' ? 'Aplicado' : feedbackBotao === 'erro' ? 'Falhou' : t('pedido.modal_massa.aplicar')}
+          </BotaoGlobal>
+        ) : (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={() => { onConcluido() }}
+          >
+            Fechar
+          </BotaoGlobal>
+        )}
+      </div>
+    </>
+  )
+
+  return (
+    <ModalPassoPassoGlobal
+      titulo={t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
+      icone={<PencilSimpleLine size={20} weight="duotone" />}
+      subtitulo="Selecione os campos que deseja alterar em lote"
+      aberto={true}
+      passos={PASSOS_MASSA}
+      passoAtual={passo}
+      onProximo={() => {}}
+      onVoltar={() => {}}
+      onFechar={onFechar}
+      tamanho="xl"
+      ocultarStepper={passo === 3}
+      footerCustom={footerEdicaoMassa}
+    >
         {/* Corpo */}
-        <div className="modal-edicao-massa__corpo">
+        <div className="modal-edicao-massa__corpo-inner">
           {/* Banner informativo: pedidos de tipos diferentes selecionados */}
           {hasMixedTipos && (
             <div style={{
@@ -1793,90 +1847,6 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFecha
           )}
           {passo === 1 ? renderPasso1() : passo === 2 ? renderPasso2() : renderPasso3()}
         </div>
-
-        {/* Footer */}
-        <div className="modal-edicao-massa__footer">
-          {/* Indicador de passos */}
-          <div className="modal-edicao-massa__passos" aria-label={t('pedido.modal_massa.aria_passo_atual')}>
-            <span
-              className={`modal-edicao-massa__passo${passo === 1 ? ' modal-edicao-massa__passo--ativo' : ' modal-edicao-massa__passo--concluido'}`}
-              aria-current={passo === 1 ? 'step' : undefined}
-            >
-              {passo >= 2 ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : '1'}
-            </span>
-            <span className="modal-edicao-massa__passo-separador" />
-            <span
-              className={`modal-edicao-massa__passo${passo === 2 ? ' modal-edicao-massa__passo--ativo' : passo === 3 ? ' modal-edicao-massa__passo--concluido' : ''}`}
-              aria-current={passo === 2 ? 'step' : undefined}
-            >
-              {passo === 3 ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : '2'}
-            </span>
-            <span className="modal-edicao-massa__passo-separador" />
-            <span
-              className={`modal-edicao-massa__passo${passo === 3 ? ' modal-edicao-massa__passo--ativo' : ''}`}
-              aria-current={passo === 3 ? 'step' : undefined}
-            >
-              3
-            </span>
-          </div>
-
-          <div className="modal-edicao-massa__footer-direita">
-            {passo === 2 && (
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="medio"
-                onClick={() => setPasso(1)}
-                disabled={salvando}
-              >
-                {t('pedido.modal_massa.voltar')}
-              </BotaoGlobal>
-            )}
-
-            {passo !== 3 && (
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="medio"
-                onClick={onFechar}
-                disabled={salvando || feedbackBotao !== null}
-              >
-                {t('pedido.modal_massa.cancelar')}
-              </BotaoGlobal>
-            )}
-
-            {passo === 1 ? (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={handleAvancar}
-                disabled={camposValidos.length === 0 || carregandoPreview || temCampoUniqueBloqueado}
-              >
-                {t('pedido.modal_massa.revisar')}
-              </BotaoGlobal>
-            ) : passo === 2 ? (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={handleConfirmar}
-                disabled={salvando || feedbackBotao !== null}
-                carregando={salvando}
-                textoCarregando={t('pedido.modal_massa.aplicando')}
-                resultadoAcao={feedbackBotao}
-                icone={<PencilSimpleLine size={14} weight="bold" />}
-              >
-                {feedbackBotao === 'sucesso' ? 'Aplicado' : feedbackBotao === 'erro' ? 'Falhou' : t('pedido.modal_massa.aplicar')}
-              </BotaoGlobal>
-            ) : (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={() => { onConcluido() }}
-              >
-                Fechar
-              </BotaoGlobal>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    </ModalPassoPassoGlobal>
   )
 }

@@ -53,12 +53,12 @@ function ModulePlaceholder({ name }: { name: string }) {
 }
 
 // Onda 3 — Serviços de tenant (stubs lazy)
-const DashboardModule    = lazy(() => import('@plataforma/dashboard/src/Dashboard'))
+const DashboardModule    = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Dashboard" /> }))
 const RelatoriosModule   = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Relatórios" />   }))
 const EmailModule        = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Email" />        }))
 const WhatsAppModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="WhatsApp" />     }))
 const NotificacoesModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Notificações" />  }))
-const AtividadesModule   = lazy(() => import('@plataforma/atividades/src/Atividades'))
+const AtividadesModule   = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Atividades" /> }))
 const CronometroModule   = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Cronômetro" />   }))
 const HistoricoModule    = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Histórico" />    }))
 

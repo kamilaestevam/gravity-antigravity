@@ -16,11 +16,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
-import { UploadSimple, X } from '@phosphor-icons/react'
+import { UploadSimple } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
-import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { EtapaUpload }       from './EtapaUpload'
 import { EtapaMapeamento }   from './EtapaMapeamento'
@@ -692,43 +692,81 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
   // Tipo auxiliar para preview com campos opcionais da Onda 2
   const previewExt = preview as (SmartImportPreview & { limite_excedido?: boolean }) | null
 
-  if (!aberto) return null
+  const footerSmartImport = etapa !== 'confirmacao' ? (
+    <>
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="medio"
+        onClick={onFechar}
+        disabled={analisando || confirmando}
+      >
+        {t('pedido.smart_import.cancelar')}
+      </BotaoGlobal>
+      <div className="smart-import__footer-acoes">
+        {etapa === 'preview' && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={() => {
+              setEtapa('mapeamento')
+              document.querySelector('.smart-import__corpo')?.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            disabled={confirmando}
+          >
+            {t('pedido.smart_import.voltar')}
+          </BotaoGlobal>
+        )}
+        {etapa === 'mapeamento' && (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={handleAvancarParaPreview}
+            disabled={analisando || conflitosAtuais.length > 0}
+            title={conflitosAtuais.length > 0 ? 'Resolva os conflitos de mapeamento antes de continuar' : undefined}
+          >
+            {t('pedido.smart_import.continuar')}
+          </BotaoGlobal>
+        )}
+        {etapa === 'preview' && preview && (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={handleConfirmar}
+            disabled={confirmando || linhasSelecionadas.size === 0}
+            aria-busy={confirmando}
+          >
+            {confirmando
+              ? t('pedido.smart_import.importando')
+              : linhasSelecionadas.size === preview.linhas.length
+                ? t('pedido.smart_import.importar_tudo')
+                : t('pedido.smart_import.importar_n', { count: linhasSelecionadas.size })}
+          </BotaoGlobal>
+        )}
+      </div>
+      {etapa === 'preview' && (
+        <p style={{ width: '100%', margin: '0.5rem 0 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)', textAlign: 'center', gridColumn: '1/-1' }}>
+          {t('pedido.smart_import.rascunho_hint')}
+        </p>
+      )}
+    </>
+  ) : undefined
 
   return (
-    <div
-      className="smart-import__overlay"
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="smart-import-titulo"
+    <ModalPassoPassoGlobal
+      titulo={t('pedido.smart_import.titulo')}
+      icone={<UploadSimple size={20} weight="duotone" />}
+      subtitulo="Importe itens a partir de planilha ou documento"
+      aberto={aberto}
+      passos={PASSOS_IMPORT}
+      passoAtual={etapaParaId(etapa)}
+      onProximo={() => {}}
+      onVoltar={() => {}}
+      onFechar={onFechar}
+      tamanho="xl"
+      ocultarStepper={etapa === 'confirmacao'}
+      ocultarFooter={etapa === 'confirmacao'}
+      footerCustom={footerSmartImport}
     >
-      <div className="smart-import__container">
-        {/* Header */}
-        <div className="smart-import__header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <h2 id="smart-import-titulo" className="smart-import__titulo">
-              <UploadSimple size={20} weight="duotone" aria-hidden="true" />
-              {t('pedido.smart_import.titulo')}
-            </h2>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Importe itens a partir de planilha ou documento</p>
-          </div>
-          <button
-            className="smart-import__fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.smart_import.aria_fechar')}
-            type="button"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Stepper */}
-        <div style={{ padding: '0.5rem 1.25rem', borderBottom: '1px solid var(--border-subtle, #2d2d3d)', flexShrink: 0 }}>
-          <StepperPassoPassoGlobal
-            passos={PASSOS_IMPORT}
-            passoAtual={etapaParaId(etapa)}
-          />
-        </div>
 
         {/* Contexto do arquivo — total_pedidos / total_itens / total_linhas */}
         {preview && (etapa === 'mapeamento' || etapa === 'preview') && (
@@ -885,66 +923,6 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
           )}
         </div>
 
-        {/* Footer */}
-        {etapa !== 'confirmacao' && (
-          <div className="smart-import__footer">
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="medio"
-              onClick={onFechar}
-              disabled={analisando || confirmando}
-            >
-              {t('pedido.smart_import.cancelar')}
-            </BotaoGlobal>
-            <div className="smart-import__footer-acoes">
-              {etapa === 'preview' && (
-                <BotaoGlobal
-                  variante="secundario"
-                  tamanho="medio"
-                  onClick={() => {
-                    setEtapa('mapeamento')
-                    document.querySelector('.smart-import__corpo')?.scrollTo({ top: 0, behavior: 'smooth' })
-                  }}
-                  disabled={confirmando}
-                >
-                  {t('pedido.smart_import.voltar')}
-                </BotaoGlobal>
-              )}
-              {etapa === 'mapeamento' && (
-                <BotaoGlobal
-                  variante="primario"
-                  tamanho="medio"
-                  onClick={handleAvancarParaPreview}
-                  disabled={analisando || conflitosAtuais.length > 0}
-                  title={conflitosAtuais.length > 0 ? 'Resolva os conflitos de mapeamento antes de continuar' : undefined}
-                >
-                  {t('pedido.smart_import.continuar')}
-                </BotaoGlobal>
-              )}
-              {etapa === 'preview' && preview && (
-                <BotaoGlobal
-                  variante="primario"
-                  tamanho="medio"
-                  onClick={handleConfirmar}
-                  disabled={confirmando || linhasSelecionadas.size === 0}
-                  aria-busy={confirmando}
-                >
-                  {confirmando
-                    ? t('pedido.smart_import.importando')
-                    : linhasSelecionadas.size === preview.linhas.length
-                      ? t('pedido.smart_import.importar_tudo')
-                      : t('pedido.smart_import.importar_n', { count: linhasSelecionadas.size })}
-                </BotaoGlobal>
-              )}
-            </div>
-            {etapa === 'preview' && (
-              <p style={{ width: '100%', margin: '0.5rem 0 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)', textAlign: 'center', gridColumn: '1/-1' }}>
-                {t('pedido.smart_import.rascunho_hint')}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+    </ModalPassoPassoGlobal>
   )
 }

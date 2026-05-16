@@ -27,6 +27,8 @@ export interface ModalPassoPassoProps {
   titulo: string
   icone?: React.ReactNode
   subtitulo?: string
+  /** Subtítulo como ReactNode — alternativa a `subtitulo` para conteúdo dinâmico */
+  subtituloNode?: React.ReactNode
   aberto: boolean
   passos: PassoConfig[]
   passoAtual: number
@@ -40,6 +42,12 @@ export interface ModalPassoPassoProps {
   tamanho?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   /** Altura explícita — opcional */
   altura?: string
+  /** Ocultar o stepper (ex: tela de resultado/conclusão) */
+  ocultarStepper?: boolean
+  /** Ocultar o footer padrão (Voltar/Próximo). Use com `footerCustom` ou para telas sem navegação */
+  ocultarFooter?: boolean
+  /** Footer custom — substitui completamente o footer padrão (Voltar/Próximo) */
+  footerCustom?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -47,6 +55,7 @@ export function ModalPassoPassoGlobal({
   titulo,
   icone,
   subtitulo,
+  subtituloNode,
   aberto,
   passos,
   passoAtual,
@@ -58,6 +67,9 @@ export function ModalPassoPassoGlobal({
   labelProximo = 'Próximo',
   tamanho = 'md',
   altura,
+  ocultarStepper = false,
+  ocultarFooter = false,
+  footerCustom,
   children,
 }: ModalPassoPassoProps) {
   useEffect(() => {
@@ -140,7 +152,9 @@ export function ModalPassoPassoGlobal({
                 {icone && <span style={s.headerIcone}>{icone}</span>}
                 <span style={s.titulo}>{titulo}</span>
               </div>
-              {subtitulo && <p style={s.subtitulo}>{subtitulo}</p>}
+              {(subtitulo || subtituloNode) && (
+                <div style={s.subtitulo}>{subtituloNode ?? subtitulo}</div>
+              )}
             </div>
             <button
               className="mpg-btn-fechar"
@@ -153,7 +167,7 @@ export function ModalPassoPassoGlobal({
           </div>
 
           {/* Stepper */}
-          <div style={s.stepperWrap}>
+          {!ocultarStepper && <div style={s.stepperWrap}>
             <div style={s.stepper} role="list" aria-label="Passos">
               {passos.map((passo, idx) => {
                 const status = stepStatus(passo)
@@ -190,12 +204,15 @@ export function ModalPassoPassoGlobal({
                 )
               })}
             </div>
-          </div>
+          </div>}
 
           {/* Conteúdo */}
           <div style={s.conteudo}>{children}</div>
 
           {/* Footer */}
+          {footerCustom ? (
+            <div style={s.footer}>{footerCustom}</div>
+          ) : !ocultarFooter ? (
           <div style={s.footer}>
             <BotaoGlobal
               variante="fantasma"
@@ -216,6 +233,7 @@ export function ModalPassoPassoGlobal({
               {isUltimoPasso ? labelBotaoFinal : labelProximo}
             </BotaoGlobal>
           </div>
+          ) : null}
         </div>
       </div>
     </>

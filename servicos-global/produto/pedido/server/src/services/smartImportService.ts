@@ -24,7 +24,8 @@ import {
 import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
 const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
-  'numero_pedido',
+  // NOTA: 'numero_pedido' NAO entra aqui — é o campo de vinculo que liga ITEM ao PEDIDO pai.
+  // Apenas campos AGREGADOS de pedido sao bloqueados em linhas ITEM.
   'valor_total_pedido',
   'quantidade_total_pedido',
   'quantidade_volumes_pedido',
@@ -48,6 +49,34 @@ const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
   'peso_bruto_unitario_item',
   'cubagem_unitaria_item',
   'data_embarque_item_pedido',
+])
+
+/**
+ * Colunas Prisma que existem no schema PedidoItem mas NAO estao no SSOT
+ * (campos-pedido-ddd.ts). Sao campos de "Edicao em Massa" e dados extras
+ * que o mapper precisa reconhecer para nao cair no fuzzy match (Tier 4)
+ * e mapear incorretamente para outro campo.
+ *
+ * Chave = nome normalizado da coluna (lowercase, sem acentos, sem "* ")
+ * Valor = nome exato da coluna Prisma
+ */
+const CAMPOS_PRISMA_EXTRAS_MAPEAMENTO = new Map<string, string>([
+  // Chave = forma NORMALIZADA (underscores viram espaços, lowercase, sem acentos)
+  // Valor = nome exato da coluna Prisma
+  ['descricao completa item pt', 'descricao_completa_item_pt'],
+  ['descricao completa item en', 'descricao_completa_item_en'],
+  ['descricao completa item es', 'descricao_completa_item_es'],
+  ['descricao completa item nf', 'descricao_completa_item_nf'],
+  ['texto posicao ncm', 'texto_posicao_ncm'],
+  ['grupo item', 'grupo_item'],
+  ['subgrupo item', 'subgrupo_item'],
+  ['campo especial item', 'campo_especial_item'],
+  ['atributos catalogo', 'atributos_catalogo'],
+  ['tipo embalagem', 'tipo_embalagem'],
+  ['numero lpco', 'numero_lpco'],
+  ['numero certificado origem', 'numero_certificado_origem'],
+  ['data certificado origem', 'data_certificado_origem'],
+  ['data embarque item', 'data_embarque_item'],
 ])
 
 function traduzirErroPrisma(err: unknown): string {
@@ -100,6 +129,15 @@ function normalizarData(valor: unknown): string | null {
   // DD/MM/YYYY
   const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
   if (dmyMatch) return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}T00:00:00.000Z`
+  // Excel serial number (dias desde 1899-12-30). Valido se numerico e no range
+  // plausivel de datas (1 = 1900-01-01, ~55000 = 2050). O .125/.5/.75 são frações de dia (hora).
+  const num = Number(str)
+  if (!isNaN(num) && num > 1 && num < 60000) {
+    // Offset do Excel para Unix: 25569 dias entre 1899-12-30 e 1970-01-01
+    const ms = Math.round((num - 25569) * 86400 * 1000)
+    const d = new Date(ms)
+    if (!isNaN(d.getTime())) return d.toISOString()
+  }
   // Tentar parse genérico
   const parsed = new Date(str)
   return isNaN(parsed.getTime()) ? null : parsed.toISOString()
@@ -662,8 +700,9 @@ export class SmartImportService {
 
           const numeroPedido = (dados['numero_pedido'] as string) || linha.numero_pedido
 
-          // Aplicar decisao de duplicata
-          if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
+          // Aplicar decisao de duplicata — SOMENTE para linhas PEDIDO (não ITEM).
+          // Linhas ITEM sempre devem seguir para o caminho de "adicionar item ao pedido existente".
+          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
             pulados.push(linha.linha_arquivo)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await (this.db as any).$executeRawUnsafe(`RELEASE SAVEPOINT ${spName}`)
@@ -675,7 +714,7 @@ export class SmartImportService {
             id_status_pedido: idStatusRascunho,
           }
 
-          if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
+          if (tipoLinha !== 'ITEM' && numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             const existente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
             })
@@ -695,7 +734,7 @@ export class SmartImportService {
           // Verificar se já existe pedido com este número (para importação incremental de itens)
           const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
 
-          if (numeroPedidoFinal && !payload.decisoes_duplicatas[numeroPedidoFinal]) {
+          if (numeroPedidoFinal && (tipoLinha === 'ITEM' || !payload.decisoes_duplicatas[numeroPedidoFinal])) {
             const pedidoExistente = await (this.db as Record<string, any>)['pedido'].findFirst({
               where: { numero_pedido: numeroPedidoFinal, id_organizacao: tenantId, status_pedido: { not: 'cancelado' } },
               select: { id_pedido: true },
@@ -713,30 +752,11 @@ export class SmartImportService {
               // com o motivo real, ao inves de "graceful fallback" silencioso que
               // mascarava bug em producao.
               try {
-                await (this.db as Record<string, any>)['pedidoItem'].create({
-                  data: {
-                    id_item:                gerarId('pite'),
-                    id_organizacao:         tenantId,
-                    id_workspace:           companyId ?? tenantId,
-                    id_pedido:              pedidoExistente.id_pedido,
-                    sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : itemCountExistente + 1,
-                    part_number_item:       String(dados['part_number_item'] ?? ''),
-                    ncm_item:               formatarNcm(dados['ncm_item']),
-                    descricao_item:         String(dados['descricao_item'] ?? ''),
-                    quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
-                    quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
-                    casas_decimais_quantidade_item: casasConfig.quantidade,
-                    unidade_comercializada_item:   dados['unidade_comercializada_item'] ? extrairCodigoDropdown(dados['unidade_comercializada_item']) : null,
-                    moeda_item:             extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
-                    valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
-                    valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                    peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
-                    referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
-                    casas_decimais_valor_item:  casasConfig.valor,
-                    cobertura_cambial_item:    dados['cobertura_cambial_item'] ? String(dados['cobertura_cambial_item']) : null,
-                    dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
-                  },
-                })
+                // Montar payload do item condicionalmente (omitir campos undefined
+                // para evitar conflito com Prisma client que trata nullable como required)
+                const itemData = this.montarDadosItem(dados, tenantId, companyId ?? tenantId, casasConfig, itemCountExistente + 1)
+                itemData.pedido_item = { connect: { id_pedido: pedidoExistente.id_pedido } }
+                await (this.db as Record<string, any>)['pedidoItem'].create({ data: itemData })
                 atualizados.push(linha.linha_arquivo)
                 idsPedidosParaRecalcular.add(pedidoExistente.id_pedido)
               } catch (errInsert: unknown) {
@@ -765,29 +785,10 @@ export class SmartImportService {
           // Criar pedido novo com o item da linha atual (P14 — nomes do SSOT)
           // Q5 — Relacao no schema chama `itens_pedido` (nao `itens`). Tambem
           // troca id/tenant_id/company_id por id_item/id_organizacao/id_workspace.
+          // Usa montarDadosItem para mapeamento completo (100% cobertura).
           const itemPayload = (dados['part_number_item'] || dados['descricao_item']) ? {
             itens_pedido: {
-              create: [{
-                id_item:                gerarId('pite'),
-                id_organizacao:         tenantId,
-                id_workspace:           companyId ?? tenantId,
-                sequencia_item_pedido:  dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : 1,
-                part_number_item:       String(dados['part_number_item'] ?? ''),
-                ncm_item:               formatarNcm(dados['ncm_item']),
-                descricao_item:         String(dados['descricao_item'] ?? ''),
-                quantidade_inicial_item: Number(dados['quantidade_inicial_item'] ?? 0),
-                quantidade_atual_item:  Number(dados['quantidade_inicial_item'] ?? 0),
-                casas_decimais_quantidade_item: casasConfig.quantidade,
-                unidade_comercializada_item:   dados['unidade_comercializada_item'] ? extrairCodigoDropdown(dados['unidade_comercializada_item']) : null,
-                moeda_item:             extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
-                valor_por_unidade_item:    dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
-                valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
-                referencia_exportador_item: dados['referencia_exportador_item'] ? String(dados['referencia_exportador_item']) : null,
-                casas_decimais_valor_item:  casasConfig.valor,
-                cobertura_cambial_item:    dados['cobertura_cambial_item'] ? String(dados['cobertura_cambial_item']) : null,
-                dados_extras_importacao_item: dados['_campos_extras'] ? dados['_campos_extras'] : null,
-              }],
+              create: [this.montarDadosItemInline(dados, tenantId, companyId ?? tenantId, casasConfig, 1)],
             },
           } : {}
 
@@ -903,6 +904,23 @@ export class SmartImportService {
         if (matchNome) {
           campoEscolhido = matchNome
           confianca = 95
+        }
+      }
+
+      // Tier 2.5: coluna Prisma extra (nao esta no SSOT mas existe no schema)
+      // Previne que descricao_completa_item_pt caia no Tier 4 como "descricao_item"
+      if (!campoEscolhido) {
+        const matchExtra = CAMPOS_PRISMA_EXTRAS_MAPEAMENTO.get(cabNorm)
+        if (matchExtra) {
+          // Retorna como campo_sistema = nome da coluna Prisma (vai para _campos_extras -> extração)
+          return {
+            coluna_arquivo: cabecalho,
+            campo_sistema: matchExtra,
+            confianca: 93,
+            nivel: 'auto' as const,
+            inferido_por: 'dados' as const,
+            valor_exemplo_coluna_pedido: exemploStr,
+          }
         }
       }
 
@@ -1372,25 +1390,349 @@ export class SmartImportService {
       ? tipoOperacaoRaw as string
       : 'importacao'
 
-    return {
+    // ── Campos obrigatórios (sempre incluídos) ──────────────────────────────
+    const result: Record<string, unknown> = {
       id_pedido:                        gerarId('pedi'),
       id_organizacao:                   tenantId,
       id_workspace:                     companyId,
       numero_pedido:                    String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
       tipo_operacao_pedido:             tipoOperacao,
       status_pedido:                    'rascunho',
-      id_importacao_exportador_pedido:  dados['id_importacao_exportador_pedido']
-                                          ? String(dados['id_importacao_exportador_pedido'])
-                                          : null,
-      id_fabricante_pedido:             dados['id_fabricante_pedido']
-                                          ? String(dados['id_fabricante_pedido'])
-                                          : null,
-      incoterm_pedido:                  (dados['incoterm_pedido'] ?? dados['incoterm']) as string ?? null,
       moeda_pedido:                     extrairCodigoDropdown(dados['moeda_pedido'] ?? 'USD'),
-      data_emissao_pedido:              normalizarData(dados['data_emissao_pedido']),
+      data_emissao_pedido:              normalizarData(dados['data_emissao_pedido']) ?? new Date().toISOString(),
       casas_decimais_valor_pedido:      casas.valor,
       casas_decimais_quantidade_pedido: casas.quantidade,
+      casas_decimais_peso_pedido:       casas.peso ?? 3,
+      casas_decimais_cubagem_pedido:    casas.cubagem ?? 3,
     }
+
+    // ── Campos String opcionais — só incluir se tiverem valor real ───────────
+    if (dados['id_importacao_exportador_pedido']) result.id_importacao_exportador_pedido = String(dados['id_importacao_exportador_pedido'])
+    if (dados['id_exportacao_importador_pedido']) result.id_exportacao_importador_pedido = String(dados['id_exportacao_importador_pedido'])
+    if (dados['id_fabricante_pedido']) result.id_fabricante_pedido = String(dados['id_fabricante_pedido'])
+    if (dados['incoterm_pedido'] ?? dados['incoterm']) result.incoterm_pedido = String(dados['incoterm_pedido'] ?? dados['incoterm'])
+    if (dados['unidade_comercializada_pedido']) result.unidade_comercializada_pedido = extrairCodigoDropdown(dados['unidade_comercializada_pedido'])
+    if (dados['condicao_pagamento_pedido']) result.condicao_pagamento_pedido = String(dados['condicao_pagamento_pedido'])
+    if (dados['numero_proforma_pedido']) result.numero_proforma_pedido = String(dados['numero_proforma_pedido'])
+    if (dados['numero_invoice_pedido']) result.numero_invoice_pedido = String(dados['numero_invoice_pedido'])
+    if (dados['referencia_importador_pedido']) result.referencia_importador_pedido = String(dados['referencia_importador_pedido'])
+    if (dados['referencia_exportador_pedido']) result.referencia_exportador_pedido = String(dados['referencia_exportador_pedido'])
+    if (dados['referencia_fabricante_pedido']) result.referencia_fabricante_pedido = String(dados['referencia_fabricante_pedido'])
+    if (dados['moeda_cambio_pedido']) result.moeda_cambio_pedido = extrairCodigoDropdown(dados['moeda_cambio_pedido'])
+    if (dados['contrato_cambio_id_pedido']) result.contrato_cambio_id_pedido = String(dados['contrato_cambio_id_pedido'])
+    if (dados['cnpj_importador_pedido']) result.cnpj_importador_pedido = String(dados['cnpj_importador_pedido'])
+    if (dados['cobertura_cambial_pedido']) result.cobertura_cambial_pedido = String(dados['cobertura_cambial_pedido'])
+    // Logística — SSOT usa 'porto_origem_pedido', Prisma usa 'porto_origem'
+    if (dados['porto_origem_pedido'] ?? dados['porto_origem']) result.porto_origem = String(dados['porto_origem_pedido'] ?? dados['porto_origem'])
+    if (dados['porto_destino_pedido'] ?? dados['porto_destino']) result.porto_destino = String(dados['porto_destino_pedido'] ?? dados['porto_destino'])
+
+    // ── Campos numéricos (Decimal) opcionais ────────────────────────────────
+    if (dados['taxa_cambio_estimada_pedido']) result.taxa_cambio_estimada_pedido = Number(dados['taxa_cambio_estimada_pedido'])
+    if (dados['peso_liquido_total_pedido']) result.peso_liquido_total_pedido = Number(dados['peso_liquido_total_pedido'])
+    if (dados['peso_bruto_total_pedido']) result.peso_bruto_total_pedido = Number(dados['peso_bruto_total_pedido'])
+    if (dados['cubagem_total_pedido']) result.cubagem_total_pedido = Number(dados['cubagem_total_pedido'])
+
+    // ── Campos Int opcionais ────────────────────────────────────────────────
+    if (dados['quantidade_volumes_pedido']) result.quantidade_volumes_pedido = Math.round(Number(dados['quantidade_volumes_pedido']))
+
+    // ── Campos DateTime opcionais — todas as datas do Pedido ────────────────
+    const DATAS_PEDIDO: string[] = [
+      'data_documento_pedido',
+      'data_documento_proforma_pedido',
+      'data_documento_invoice_pedido',
+      'data_consolidacao_pedido',
+      'data_prevista_pedido_pronto',
+      'data_confirmada_pedido_pronto',
+      'data_meta_pedido_pronto',
+      'data_prevista_inspecao_pedido',
+      'data_confirmada_inspecao_pedido',
+      'data_meta_inspecao_pedido',
+      'data_prevista_coleta_pedido',
+      'data_confirmada_coleta_pedido',
+      'data_meta_coleta_pedido',
+      // Draft Pedido — Recebimento + Aprovação
+      'data_previsao_recebimento_rascunho_pedido',
+      'data_confirmacao_recebimento_rascunho_pedido',
+      'data_meta_recebimento_rascunho_pedido',
+      'data_previsao_aprovacao_rascunho_pedido',
+      'data_confirmacao_aprovacao_rascunho_pedido',
+      'data_meta_aprovacao_rascunho_pedido',
+      // Draft Proforma — Recebimento + Aprovação + Envio Original + Recebimento Original
+      'data_previsao_recebimento_rascunho_proforma_pedido',
+      'data_confirmacao_recebimento_rascunho_proforma_pedido',
+      'data_meta_recebimento_rascunho_proforma_pedido',
+      'data_previsao_aprovacao_rascunho_proforma_pedido',
+      'data_confirmacao_aprovacao_rascunho_proforma_pedido',
+      'data_meta_aprovacao_rascunho_proforma_pedido',
+      'data_previsao_envio_original_proforma_pedido',
+      'data_confirmacao_envio_original_proforma_pedido',
+      'data_meta_envio_original_proforma_pedido',
+      'data_previsao_recebimento_original_proforma_pedido',
+      'data_confirmacao_recebimento_original_proforma_pedido',
+      'data_meta_recebimento_original_proforma_pedido',
+      // Draft Invoice — Recebimento + Aprovação + Envio Original + Recebimento Original
+      'data_previsao_recebimento_rascunho_invoice_pedido',
+      'data_confirmacao_recebimento_rascunho_invoice_pedido',
+      'data_meta_recebimento_rascunho_invoice_pedido',
+      'data_previsao_aprovacao_rascunho_invoice_pedido',
+      'data_confirmacao_aprovacao_rascunho_invoice_pedido',
+      'data_meta_aprovacao_rascunho_invoice_pedido',
+      'data_previsao_envio_original_invoice_pedido',
+      'data_confirmacao_envio_original_invoice_pedido',
+      'data_meta_envio_original_invoice_pedido',
+      'data_previsao_recebimento_original_invoice_pedido',
+      'data_confirmacao_recebimento_original_invoice_pedido',
+      'data_meta_recebimento_original_invoice_pedido',
+      // Edição em Massa — datas extras
+      'data_embarque_origem',
+      'data_proforma_invoice',
+      'data_invoice',
+      'data_transferencia_saldo_pedido',
+    ]
+    for (const campo of DATAS_PEDIDO) {
+      const val = normalizarData(dados[campo])
+      if (val) result[campo] = val
+    }
+
+    // ── JSON — OPE (detalhes operacionais) ──────────────────────────────────
+    // Campos OPE do SSOT não têm coluna própria no Prisma — são armazenados
+    // como JSON em `detalhes_operacionais_pedido`.
+    const CAMPOS_OPE = [
+      'codigo_ope', 'nome_ope', 'endereco_ope', 'pais_ope',
+      'estado_ope', 'cidade_ope', 'zip_code_ope', 'tin_ope',
+      'email_ope', 'situacao_ope', 'versao_ope', 'cnpj_raiz_empresa_responsavel',
+    ]
+    const ope: Record<string, string> = {}
+    for (const campo of CAMPOS_OPE) {
+      if (dados[campo]) ope[campo] = String(dados[campo])
+    }
+    if (Object.keys(ope).length > 0) result.detalhes_operacionais_pedido = ope
+
+    // ── JSON — dados extras (campos sem coluna própria no Prisma) ────────────
+    // Exportador, Importador (nome), Fabricante (detalhes), Contato — vão para
+    // `dados_extras_importacao_pedido` como JSON enriquecido.
+    const CAMPOS_EXTRAS_PEDIDO = [
+      'nome_exportador', 'endereco_exportador', 'pais_exportador',
+      'estado_exportador', 'cidade_exportador', 'zip_code_exportador',
+      'exportador_ou_fabricante', 'relacao_exportador_fabricante',
+      'nome_contato_exportador', 'email_contato_exportador',
+      'whatsapp_contato_exportador', 'cargo_contato_exportador',
+      'departamento_contato_exportador',
+      'nome_importador',
+      'nome_fabricante', 'endereco_fabricante', 'pais_fabricante',
+      'estado_fabricante', 'cidade_fabricante', 'zip_code_fabricante',
+    ]
+    const extras: Record<string, string> = {}
+    for (const campo of CAMPOS_EXTRAS_PEDIDO) {
+      if (dados[campo]) extras[campo] = String(dados[campo])
+    }
+    // Merge com _campos_extras existentes (campos que não mapearam para nenhum nome conhecido)
+    if (dados['_campos_extras'] && typeof dados['_campos_extras'] === 'object') {
+      Object.assign(extras, dados['_campos_extras'])
+    }
+    if (Object.keys(extras).length > 0) result.dados_extras_importacao_pedido = extras
+
+    return result
+  }
+
+  /**
+   * Monta payload COMPLETO de um PedidoItem para `pedidoItem.create()` standalone.
+   * Usa inclusão condicional (omitir undefined) para evitar drift do Prisma client.
+   * O chamador deve adicionar `pedido_item: { connect: ... }` ao resultado.
+   */
+  private montarDadosItem(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO, seqPadrao = 1): Record<string, unknown> {
+    const itemData: Record<string, unknown> = {
+      id_item:                       gerarId('pite'),
+      id_organizacao:                tenantId,
+      id_workspace:                  companyId,
+      sequencia_item_pedido:         dados['sequencia_item_pedido'] ? Number(dados['sequencia_item_pedido']) : seqPadrao,
+      part_number_item:              String(dados['part_number_item'] ?? ''),
+      ncm_item:                      formatarNcm(dados['ncm_item']),
+      descricao_item:                String(dados['descricao_item'] ?? ''),
+      quantidade_inicial_item:       Number(dados['quantidade_inicial_item'] ?? 0),
+      quantidade_atual_item:         Number(dados['quantidade_inicial_item'] ?? 0),
+      casas_decimais_quantidade_item: casas.quantidade,
+      moeda_item:                    extrairCodigoDropdown(dados['moeda_item'] ?? dados['moeda_pedido'] ?? 'USD'),
+      casas_decimais_valor_item:     casas.valor,
+      casas_decimais_peso_item:      casas.peso ?? 3,
+      casas_decimais_cubagem_item:   casas.cubagem ?? 3,
+    }
+
+    // ── Campos String opcionais ───────────────────────────────────────────
+    if (dados['tipo_operacao_item'] ?? dados['tipo_operacao']) itemData.tipo_operacao_item = String(dados['tipo_operacao_item'] ?? dados['tipo_operacao'])
+    if (dados['unidade_comercializada_item']) itemData.unidade_comercializada_item = extrairCodigoDropdown(dados['unidade_comercializada_item'])
+    if (dados['cobertura_cambial_item']) itemData.cobertura_cambial_item = String(dados['cobertura_cambial_item'])
+    if (dados['nome_exportador_item'] ?? dados['nome_exportador']) itemData.nome_exportador_item = String(dados['nome_exportador_item'] ?? dados['nome_exportador'])
+    if (dados['nome_importador_item'] ?? dados['nome_importador']) itemData.nome_importador_item = String(dados['nome_importador_item'] ?? dados['nome_importador'])
+    if (dados['nome_fabricante_item'] ?? dados['nome_fabricante']) itemData.nome_fabricante_item = String(dados['nome_fabricante_item'] ?? dados['nome_fabricante'])
+    if (dados['referencia_importador_item']) itemData.referencia_importador_item = String(dados['referencia_importador_item'])
+    if (dados['referencia_exportador_item']) itemData.referencia_exportador_item = String(dados['referencia_exportador_item'])
+    if (dados['referencia_fabricante_item']) itemData.referencia_fabricante_item = String(dados['referencia_fabricante_item'])
+    if (dados['incoterm_item'] ?? dados['incoterm_pedido']) itemData.incoterm_item = String(dados['incoterm_item'] ?? dados['incoterm_pedido'])
+    if (dados['condicao_pagamento_item'] ?? dados['condicao_pagamento_pedido']) itemData.condicao_pagamento_item = String(dados['condicao_pagamento_item'] ?? dados['condicao_pagamento_pedido'])
+    if (dados['peso_liquido_unidade_item']) itemData.peso_liquido_unidade_item = String(dados['peso_liquido_unidade_item'])
+    if (dados['peso_bruto_unidade_item']) itemData.peso_bruto_unidade_item = String(dados['peso_bruto_unidade_item'])
+    if (dados['cubagem_unidade_item']) itemData.cubagem_unidade_item = String(dados['cubagem_unidade_item'])
+    // Edição em Massa — campos texto
+    if (dados['descricao_completa_item_pt']) itemData.descricao_completa_item_pt = String(dados['descricao_completa_item_pt'])
+    if (dados['descricao_completa_item_en']) itemData.descricao_completa_item_en = String(dados['descricao_completa_item_en'])
+    if (dados['descricao_completa_item_es']) itemData.descricao_completa_item_es = String(dados['descricao_completa_item_es'])
+    if (dados['descricao_completa_item_nf']) itemData.descricao_completa_item_nf = String(dados['descricao_completa_item_nf'])
+    if (dados['texto_posicao_ncm']) itemData.texto_posicao_ncm = String(dados['texto_posicao_ncm'])
+    if (dados['grupo_item']) itemData.grupo_item = String(dados['grupo_item'])
+    if (dados['subgrupo_item']) itemData.subgrupo_item = String(dados['subgrupo_item'])
+    if (dados['campo_especial_item']) itemData.campo_especial_item = String(dados['campo_especial_item'])
+    if (dados['atributos_catalogo']) itemData.atributos_catalogo = String(dados['atributos_catalogo'])
+    if (dados['tipo_embalagem']) itemData.tipo_embalagem = String(dados['tipo_embalagem'])
+    if (dados['numero_lpco']) itemData.numero_lpco = String(dados['numero_lpco'])
+    if (dados['numero_certificado_origem']) itemData.numero_certificado_origem = String(dados['numero_certificado_origem'])
+
+    // ── Campos numéricos (Decimal) opcionais ──────────────────────────────
+    if (dados['valor_por_unidade_item']) itemData.valor_por_unidade_item = Number(dados['valor_por_unidade_item'])
+    if (dados['valor_total_item']) itemData.valor_total_item = Number(dados['valor_total_item'])
+    if (dados['peso_liquido_unitario_item']) itemData.peso_liquido_unitario_item = Number(dados['peso_liquido_unitario_item'])
+    if (dados['peso_bruto_unitario_item']) itemData.peso_bruto_unitario_item = Number(dados['peso_bruto_unitario_item'])
+    if (dados['cubagem_unitaria_item']) itemData.cubagem_unitaria_item = Number(dados['cubagem_unitaria_item'])
+    if (dados['quantidade_transferida_item']) itemData.quantidade_transferida_item = Number(dados['quantidade_transferida_item'])
+    // SSOT usa 'quantidade_pronta_total_item', Prisma usa 'quantidade_pronta_item'
+    if (dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item']) itemData.quantidade_pronta_item = Number(dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item'])
+    if (dados['quantidade_cancelada_item']) itemData.quantidade_cancelada_item = Number(dados['quantidade_cancelada_item'])
+
+    // ── Campos DateTime opcionais — todas as datas do Item ────────────────
+    const DATAS_ITEM: string[] = [
+      'data_emissao_item',
+      'data_consolidacao_item',
+      'data_prevista_item_pronto',
+      'data_confirmada_item_pronto',
+      'data_meta_item_pronto',
+      'data_prevista_inspecao_item',
+      'data_confirmada_inspecao_item',
+      'data_meta_inspecao_item',
+      'data_prevista_coleta_item',
+      'data_confirmada_coleta_item',
+      'data_meta_coleta_item',
+      // Rascunho Pedido — Recebimento + Aprovação
+      'data_previsao_recebimento_rascunho_item',
+      'data_confirmacao_recebimento_rascunho_item',
+      'data_meta_recebimento_rascunho_item',
+      'data_previsao_aprovacao_rascunho_item',
+      'data_confirmacao_aprovacao_rascunho_item',
+      'data_meta_aprovacao_rascunho_item',
+      // Documento Pedido
+      'data_documento_item',
+      // Proforma — Recebimento Rascunho + Aprovação + Envio Original + Recebimento Original + Documento
+      'data_previsao_recebimento_rascunho_proforma_item',
+      'data_confirmacao_recebimento_rascunho_proforma_item',
+      'data_meta_recebimento_rascunho_proforma_item',
+      'data_previsao_aprovacao_rascunho_proforma_item',
+      'data_confirmacao_aprovacao_rascunho_proforma_item',
+      'data_meta_aprovacao_rascunho_proforma_item',
+      'data_previsao_envio_original_proforma_item',
+      'data_confirmacao_envio_original_proforma_item',
+      'data_meta_envio_original_proforma_item',
+      'data_previsao_recebimento_original_proforma_item',
+      'data_confirmacao_recebimento_original_proforma_item',
+      'data_meta_recebimento_original_proforma_item',
+      'data_documento_proforma_item',
+      // Invoice — Recebimento Rascunho + Aprovação + Envio Original + Recebimento Original + Documento
+      'data_previsao_recebimento_rascunho_invoice_item',
+      'data_confirmacao_recebimento_rascunho_invoice_item',
+      'data_meta_recebimento_rascunho_invoice_item',
+      'data_previsao_aprovacao_rascunho_invoice_item',
+      'data_confirmacao_aprovacao_rascunho_invoice_item',
+      'data_meta_aprovacao_rascunho_invoice_item',
+      'data_previsao_envio_original_invoice_item',
+      'data_confirmacao_envio_original_invoice_item',
+      'data_meta_envio_original_invoice_item',
+      'data_previsao_recebimento_original_invoice_item',
+      'data_confirmacao_recebimento_original_invoice_item',
+      'data_meta_recebimento_original_invoice_item',
+      'data_documento_invoice_item',
+      // Outras datas replicáveis
+      'data_consolidacao_pedido_replicada_item',
+      'data_transferencia_saldo_item',
+      // Edição em Massa
+      'data_certificado_origem',
+      'data_embarque_item',
+    ]
+    for (const campo of DATAS_ITEM) {
+      // SSOT pode usar variantes de nome (ex: 'data_embarque_item_pedido' → Prisma 'data_embarque_item')
+      const val = normalizarData(dados[campo])
+      if (val) itemData[campo] = val
+    }
+    // Tratar alias SSOT 'data_embarque_item_pedido' → Prisma 'data_embarque_item'
+    if (!itemData['data_embarque_item'] && dados['data_embarque_item_pedido']) {
+      const val = normalizarData(dados['data_embarque_item_pedido'])
+      if (val) itemData.data_embarque_item = val
+    }
+
+    // ── Extrair campos Prisma extras (não estão no SSOT) ─────────────────
+    // Campos "Edição em Massa" existem no Prisma mas não no SSOT. Podem chegar
+    // por 2 caminhos: (a) mapeados via Tier 2.5 direto em dados[campo], ou
+    // (b) em _campos_extras (quando o mapper não reconhecia o header).
+    // Verificamos ambos.
+    const CAMPOS_EXTRAS_COM_COLUNA_PROPRIA: string[] = [
+      'descricao_completa_item_pt', 'descricao_completa_item_en',
+      'descricao_completa_item_es', 'descricao_completa_item_nf',
+      'texto_posicao_ncm', 'grupo_item', 'subgrupo_item',
+      'campo_especial_item', 'atributos_catalogo', 'tipo_embalagem',
+      'numero_lpco', 'numero_certificado_origem',
+    ]
+    const DATAS_EXTRAS_COM_COLUNA: string[] = ['data_certificado_origem', 'data_embarque_item']
+
+    // (a) Extrair de dados[] direto (Tier 2.5 do mapper)
+    for (const campo of CAMPOS_EXTRAS_COM_COLUNA_PROPRIA) {
+      if (dados[campo] && !itemData[campo]) {
+        itemData[campo] = String(dados[campo])
+      }
+    }
+    for (const campo of DATAS_EXTRAS_COM_COLUNA) {
+      if (dados[campo] && !itemData[campo]) {
+        const val = normalizarData(dados[campo])
+        if (val) itemData[campo] = val
+      }
+    }
+
+    // (b) Extrair de _campos_extras (fallback para mappers antigos)
+    const extras = (dados['_campos_extras'] && typeof dados['_campos_extras'] === 'object')
+      ? { ...(dados['_campos_extras'] as Record<string, unknown>) }
+      : null
+
+    if (extras) {
+      for (const campo of CAMPOS_EXTRAS_COM_COLUNA_PROPRIA) {
+        if (extras[campo] && !itemData[campo]) {
+          itemData[campo] = String(extras[campo])
+          delete extras[campo]
+        }
+      }
+      for (const campo of DATAS_EXTRAS_COM_COLUNA) {
+        if (extras[campo] && !itemData[campo]) {
+          const val = normalizarData(extras[campo])
+          if (val) {
+            itemData[campo] = val
+            delete extras[campo]
+          }
+        }
+      }
+      // Guardar os restantes que não têm coluna própria
+      if (Object.keys(extras).length > 0) {
+        itemData.dados_extras_importacao_item = extras
+      }
+    }
+
+    return itemData
+  }
+
+  /**
+   * Monta payload de item para uso INLINE dentro de `pedido.create({ data: { itens_pedido: { create: [...] } } })`.
+   * Diferença do `montarDadosItem`: não inclui `pedido_item: { connect }` (Prisma infere da relação aninhada),
+   * e campos null são aceitos (Prisma nested create tolera null em opcionais).
+   */
+  private montarDadosItemInline(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO, seqPadrao = 1): Record<string, unknown> {
+    // Reutiliza montarDadosItem e remove o campo de relação (não aplicável em nested create)
+    const itemData = this.montarDadosItem(dados, tenantId, companyId, casas, seqPadrao)
+    delete itemData.pedido_item
+    return itemData
   }
 
   private async buscarDuplicatasNoSistema(tenantId: string, numeros: string[]): Promise<Set<string>> {

@@ -2187,7 +2187,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
 
     // Conteúdo renderizado da célula (fora do estado de edição)
-    const valorStr = !col.render ? String(valor ?? '') : ''
+    const valorStr = !col.render ? (typeof valor === 'object' && valor != null ? formatarOverlayValor(valor, col.tipo, col.casasDecimais) : String(valor ?? '')) : ''
     const valorTruncado = valorStr.length > 150 ? valorStr.slice(0, 150) + '…' : valorStr
     const innerContent = col.render ? col.render(valor, item) : valorTruncado
 
@@ -2549,7 +2549,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     onClick={e => e.stopPropagation()}
                   />
                 ) : (() => {
-                  const conteudoFilho = mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
+                  const conteudoFilho = mapa ? mapa.render(item) : (() => {
+                    const v = (item as Record<string, unknown>)[campo]
+                    if (v == null) return '—'
+                    if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, (col as GTColuna<unknown>).casasDecimais)
+                    return String(v)
+                  })()
                   if (semPermissaoFilho && mensagemSemPermissaoEditar) {
                     return <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
                   }

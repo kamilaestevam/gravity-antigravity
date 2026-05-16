@@ -7,7 +7,7 @@
 
 import React from 'react'
 import type { TFunction } from 'i18next'
-import { PencilSimpleLine } from '@phosphor-icons/react'
+import { PencilSimpleLine, Eye } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
@@ -206,6 +206,34 @@ export function renderAgregado(
   return conteudoValor
 }
 
+// ── Helper: texto truncado a 50 chars + Eye + tooltip (colunas texto pai) ───
+function renderTextoTruncado(valor: string | null | undefined, label: string): React.ReactElement {
+  if (!valor) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+  if (valor.length <= 50) return <span>{valor}</span>
+  return (
+    <TooltipGlobal titulo={label} descricao={valor}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        {valor.slice(0, 50) + '…'}
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+      </span>
+    </TooltipGlobal>
+  )
+}
+
+// ── Helper: truncamento para uso dentro de renderAgregado ───────────────────
+function truncarParaAgregado(valor: string | null | undefined, label: string): React.ReactNode {
+  if (!valor) return null
+  if (valor.length <= 50) return valor
+  return (
+    <TooltipGlobal titulo={label} descricao={valor}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        {valor.slice(0, 50) + '…'}
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+      </span>
+    </TooltipGlobal>
+  )
+}
+
 // ── Helper: gera uma coluna pai de data com pattern completo ────────────────
 // Decisão UX 2026-05-13: TODAS as datas do Pedido seguem o mesmo pattern:
 // - tipo 'periodo' (popover com calendário em modoUnico)
@@ -333,7 +361,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const id = (row as unknown as { id_workspace?: string }).id_workspace ?? ''
       const nome = workspacesMap?.get(id)?.nome ?? id
-      return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+      if (!nome) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (nome.length <= 50) return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
+      return (
+        <TooltipGlobal titulo="Workspace" descricao={nome}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {nome.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
     },
   },
   {
@@ -348,7 +385,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.nome_exportador_desc'),
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.nome_exportador, row.nome_exportador_divergente, 'Exportadores divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.nome_exportador, t('pedido.coluna_pai.nome_exportador')), row.nome_exportador_divergente, 'Exportadores divergentes entre itens'),
   },
   {
     key: 'nome_importador',
@@ -362,7 +399,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.nome_importador_desc'),
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.nome_importador, row.nome_importador_divergente, 'Importadores divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.nome_importador, t('pedido.coluna_pai.nome_importador')), row.nome_importador_divergente, 'Importadores divergentes entre itens'),
   },
   // ── CNPJ Importador ──────────────────────────────────────────────────────────
   // Fonte única de verdade: cnpj_workspace do Workspace (via workspacesMap).
@@ -470,7 +507,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.nome_fabricante_desc'),
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.nome_fabricante, row.nome_fabricante_divergente, 'Fabricantes divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.nome_fabricante, t('pedido.coluna_pai.nome_fabricante')), row.nome_fabricante_divergente, 'Fabricantes divergentes entre itens'),
   },
   {
     key: 'referencia_importador',
@@ -482,7 +519,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_importador_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.referencia_importador, row.referencia_importador_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_importador, t('pedido.coluna_pai.referencia_importador')), row.referencia_importador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'referencia_exportador',
@@ -494,7 +531,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_exportador_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.referencia_exportador, row.referencia_exportador_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_exportador, t('pedido.coluna_pai.referencia_exportador')), row.referencia_exportador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'ncm',
@@ -537,7 +574,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_proforma_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_proforma_desc'),
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.numero_proforma ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.numero_proforma, t('pedido.coluna_pai.numero_proforma')),
   },
   {
     key: 'numero_invoice',
@@ -549,7 +586,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_invoice_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_invoice_desc'),
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.numero_invoice ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.numero_invoice, t('pedido.coluna_pai.numero_invoice')),
   },
   {
     key: 'incoterm',
@@ -616,9 +653,17 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido
       if (!moeda) return <span>{'—'}</span>
+      // O ⚠ é posicionado com position:absolute para NÃO ocupar espaço no
+      // fluxo — assim a célula centraliza apenas o badge e ele fica alinhado
+      // verticalmente com os badges das linhas filhas (que não têm ⚠).
       return (
-        <span className="gtv-celula-moeda">
-          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+        <span style={{ position: 'relative', display: 'inline-block' }} title={row.moeda_item_divergente ? 'Moedas divergentes entre itens' : undefined}>
+          <span className="gtv-celula-moeda">
+            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+          </span>
+          {row.moeda_item_divergente && (
+            <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: '5px', display: 'inline-flex', color: '#F59E0B' }}><WarnIcon /></span>
+          )}
         </span>
       )
     },
@@ -860,7 +905,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.referencia_fabricante_desc'),
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.referencia_fabricante, row.referencia_fabricante_divergente, 'Referências divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.referencia_fabricante, t('pedido.coluna_pai.referencia_fabricante')), row.referencia_fabricante_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'cobertura_cambial',
@@ -873,7 +918,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.cobertura_cambial_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.cobertura_cambial_valor_unico, row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.cobertura_cambial_valor_unico, t('pedido.coluna_pai.cobertura_cambial')), row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
   },
   // ── Câmbio ────────────────────────────────────────────────────────────────────
   {
@@ -930,7 +975,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'texto',
     filtravel: true,
     grupo: 'Câmbio',
-    render: (_val: unknown, row: Pedido) => <span>{row.contrato_cambio_id_pedido ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.contrato_cambio_id_pedido, t('pedido.coluna_pai.contrato_cambio')),
   },
   {
     key: 'condicao_pagamento',
@@ -942,7 +987,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.condicao_pagamento, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
+      renderAgregado(truncarParaAgregado(row.condicao_pagamento, t('pedido.coluna_pai.condicao_pagamento')), row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -1108,7 +1153,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.pais_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.pais_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.pais_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.pais_exportador, t('pedido.coluna_pai.pais_exportador')),
   },
   {
     key: 'estado_exportador',
@@ -1118,7 +1163,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.estado_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.estado_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.estado_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.estado_exportador, t('pedido.coluna_pai.estado_exportador')),
   },
   {
     key: 'cidade_exportador',
@@ -1128,7 +1173,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.cidade_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cidade_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.cidade_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.cidade_exportador, t('pedido.coluna_pai.cidade_exportador')),
   },
   {
     key: 'endereco_exportador',
@@ -1137,7 +1182,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.endereco_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.endereco_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.endereco_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.endereco_exportador, t('pedido.coluna_pai.endereco_exportador')),
   },
   {
     key: 'zip_code_exportador',
@@ -1146,7 +1191,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.zip_code_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.zip_code_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.zip_code_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.zip_code_exportador, t('pedido.coluna_pai.zip_code_exportador')),
   },
   {
     key: 'exportador_ou_fabricante',
@@ -1156,7 +1201,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.exportador_ou_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.exportador_ou_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.exportador_ou_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.exportador_ou_fabricante, t('pedido.coluna_pai.exportador_ou_fabricante')),
   },
   {
     key: 'relacao_exportador_fabricante',
@@ -1166,7 +1211,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.relacao_exportador_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.relacao_exportador_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.relacao_exportador_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.relacao_exportador_fabricante, t('pedido.coluna_pai.relacao_exportador_fabricante')),
   },
   // ── Contato do exportador ───────────────────────────────────────────────────
   {
@@ -1176,7 +1221,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.nome_contato_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_contato_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.nome_contato_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.nome_contato_exportador, t('pedido.coluna_pai.nome_contato_exportador')),
   },
   {
     key: 'email_contato_exportador',
@@ -1185,7 +1230,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.email_contato_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.email_contato_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.email_contato_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.email_contato_exportador, t('pedido.coluna_pai.email_contato_exportador')),
   },
   {
     key: 'whatsapp_contato_exportador',
@@ -1194,7 +1239,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.whatsapp_contato_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.whatsapp_contato_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.whatsapp_contato_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.whatsapp_contato_exportador, t('pedido.coluna_pai.whatsapp_contato_exportador')),
   },
   {
     key: 'cargo_contato_exportador',
@@ -1203,7 +1248,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.cargo_contato_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cargo_contato_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.cargo_contato_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.cargo_contato_exportador, t('pedido.coluna_pai.cargo_contato_exportador')),
   },
   {
     key: 'departamento_contato_exportador',
@@ -1212,7 +1257,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.departamento_contato_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.departamento_contato_exportador_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.departamento_contato_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.departamento_contato_exportador, t('pedido.coluna_pai.departamento_contato_exportador')),
   },
   // ── Fabricante (detalhes) ───────────────────────────────────────────────────
   {
@@ -1223,7 +1268,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.pais_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.pais_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.pais_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.pais_fabricante, t('pedido.coluna_pai.pais_fabricante')),
   },
   {
     key: 'estado_fabricante',
@@ -1233,7 +1278,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.estado_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.estado_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.estado_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.estado_fabricante, t('pedido.coluna_pai.estado_fabricante')),
   },
   {
     key: 'cidade_fabricante',
@@ -1243,7 +1288,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.cidade_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cidade_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.cidade_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.cidade_fabricante, t('pedido.coluna_pai.cidade_fabricante')),
   },
   {
     key: 'endereco_fabricante',
@@ -1252,7 +1297,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.endereco_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.endereco_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.endereco_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.endereco_fabricante, t('pedido.coluna_pai.endereco_fabricante')),
   },
   {
     key: 'zip_code_fabricante',
@@ -1261,7 +1306,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.zip_code_fabricante_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.zip_code_fabricante_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.zip_code_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.zip_code_fabricante, t('pedido.coluna_pai.zip_code_fabricante')),
   },
   // ── OPE ────────────────────────────────────────────────────────────────────
   {
@@ -1271,7 +1316,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.cnpj_raiz_empresa_responsavel_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cnpj_raiz_empresa_responsavel_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.cnpj_raiz_empresa_responsavel ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.cnpj_raiz_empresa_responsavel, t('pedido.coluna_pai.cnpj_raiz_empresa_responsavel')),
   },
   {
     key: 'codigo_ope',
@@ -1281,7 +1326,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.codigo_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.codigo_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.codigo_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.codigo_ope, t('pedido.coluna_pai.codigo_ope')),
   },
   {
     key: 'situacao_ope',
@@ -1291,7 +1336,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.situacao_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.situacao_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.situacao_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.situacao_ope, t('pedido.coluna_pai.situacao_ope')),
   },
   {
     key: 'versao_ope',
@@ -1300,7 +1345,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.versao_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.versao_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.versao_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.versao_ope, t('pedido.coluna_pai.versao_ope')),
   },
   {
     key: 'nome_ope',
@@ -1309,7 +1354,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.nome_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.nome_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.nome_ope, t('pedido.coluna_pai.nome_ope')),
   },
   {
     key: 'pais_ope',
@@ -1319,7 +1364,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.pais_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.pais_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.pais_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.pais_ope, t('pedido.coluna_pai.pais_ope')),
   },
   {
     key: 'estado_ope',
@@ -1328,7 +1373,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.estado_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.estado_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.estado_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.estado_ope, t('pedido.coluna_pai.estado_ope')),
   },
   {
     key: 'cidade_ope',
@@ -1337,7 +1382,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.cidade_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.cidade_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.cidade_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.cidade_ope, t('pedido.coluna_pai.cidade_ope')),
   },
   {
     key: 'endereco_ope',
@@ -1346,7 +1391,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.endereco_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.endereco_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.endereco_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.endereco_ope, t('pedido.coluna_pai.endereco_ope')),
   },
   {
     key: 'zip_code_ope',
@@ -1355,7 +1400,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.zip_code_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.zip_code_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.zip_code_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.zip_code_ope, t('pedido.coluna_pai.zip_code_ope')),
   },
   {
     key: 'tin_ope',
@@ -1364,7 +1409,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.tin_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.tin_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.tin_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.tin_ope, t('pedido.coluna_pai.tin_ope')),
   },
   {
     key: 'email_ope',
@@ -1373,7 +1418,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Partes',
     tooltipTitulo: t('pedido.coluna_pai.email_ope_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.email_ope_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.email_ope ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.email_ope, t('pedido.coluna_pai.email_ope')),
   },
   // ── Documentos (anexos e volumes) ───────────────────────────────────────────
   {

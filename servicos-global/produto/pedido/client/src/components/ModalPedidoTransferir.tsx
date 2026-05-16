@@ -27,11 +27,12 @@ import {
   Database,
   PlusCircle,
   ArrowDown,
-  X,
   Eye,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
 import type {
@@ -722,37 +723,75 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
     return null
   }
 
-  return (
-    <div
-      className="modal-transferir__overlay"
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-transferir-titulo"
-    >
-      <div className="modal-transferir__container">
-        {/* Header */}
-        <div className="modal-transferir__header">
-          <div className="modal-transferir__header-bloco">
-            <div className="modal-transferir__header-titulo-linha">
-              <ArrowSquareOut size={20} weight="duotone" className="modal-transferir__header-icone" />
-              <h2 id="modal-transferir-titulo" className="modal-transferir__titulo">
-                {t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
-              </h2>
-            </div>
-            <p className="modal-transferir__subtitulo">{t('pedido.modal_transf.subtitulo')}</p>
-          </div>
-          <button
-            className="modal-transferir__fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_transf.aria_fechar')}
-            type="button"
+  const PASSOS_TRANSFERIR: PassoConfig[] = useMemo(() => [
+    { id: 1, label: t('pedido.modal_transf.passo1_label', { defaultValue: 'Cenário' }) },
+    { id: 2, label: t('pedido.modal_transf.passo2_label', { defaultValue: 'Destino' }) },
+    { id: 3, label: t('pedido.modal_transf.passo3_label', { defaultValue: 'Quantidades' }) },
+    { id: 4, label: t('pedido.modal_transf.passo4_label', { defaultValue: 'Revisão' }) },
+    { id: 5, label: t('pedido.modal_transf.passo5_label', { defaultValue: 'Confirmação' }) },
+  ], [t])
+
+  const footerTransferir = concluido ? (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+      <BotaoGlobal
+        variante="primario"
+        tamanho="medio"
+        onClick={onConcluido}
+      >
+        {t('pedido.modal_transf.fechar')}
+      </BotaoGlobal>
+    </div>
+  ) : (
+    <>
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="medio"
+        onClick={passo === 1 ? onFechar : voltar}
+        disabled={confirmando}
+      >
+        {passo === 1 ? t('pedido.modal_transf.cancelar') : t('pedido.modal_transf.voltar')}
+      </BotaoGlobal>
+
+      <div className="modal-transferir__footer-direita">
+        {passo === 5 ? (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={handleConfirmar}
+            disabled={confirmando}
+            aria-busy={confirmando}
           >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
+            {confirmando ? t('pedido.modal_transf.transferindo') : t('pedido.modal_transf.confirmar')}
+          </BotaoGlobal>
+        ) : (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={avancar}
+            disabled={!podeProsseguir || carregandoPreview}
+          >
+            {passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
+          </BotaoGlobal>
+        )}
+      </div>
+    </>
+  )
 
-
+  return (
+    <ModalPassoPassoGlobal
+      titulo={t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
+      icone={<ArrowSquareOut size={20} weight="duotone" />}
+      subtitulo={t('pedido.modal_transf.subtitulo')}
+      aberto={true}
+      passos={PASSOS_TRANSFERIR}
+      passoAtual={passo}
+      onProximo={() => {}}
+      onVoltar={() => {}}
+      onFechar={onFechar}
+      tamanho="lg"
+      ocultarStepper={concluido}
+      footerCustom={footerTransferir}
+    >
         {/* Corpo */}
         <div className="modal-transferir__corpo">
           {concluido ? (
@@ -928,70 +967,6 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
           )}
         </div>
 
-        {/* Footer */}
-        <div className="modal-transferir__footer">
-          {concluido ? (
-            <span />
-          ) : (
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="medio"
-              onClick={passo === 1 ? onFechar : voltar}
-              disabled={confirmando}
-            >
-              {passo === 1 ? t('pedido.modal_transf.cancelar') : t('pedido.modal_transf.voltar')}
-            </BotaoGlobal>
-          )}
-
-          {/* Indicador de passos no footer */}
-          {!concluido && (
-            <div className="modal-transferir__passos" aria-label={t('pedido.modal_transf.aria_progresso')}>
-              {([1, 2, 3, 4, 5] as Passo[]).map((p, idx) => (
-                <React.Fragment key={p}>
-                  {idx > 0 && <span className="modal-transferir__passo-separador" aria-hidden="true" />}
-                  <span
-                    className={`modal-transferir__passo${p === passo ? ' modal-transferir__passo--ativo' : ''}${p < passo ? ' modal-transferir__passo--concluido' : ''}`}
-                    aria-current={p === passo ? 'step' : undefined}
-                  >
-                    {p < passo ? <CheckCircle size={12} weight="fill" aria-hidden="true" /> : p}
-                  </span>
-                </React.Fragment>
-              ))}
-            </div>
-          )}
-
-          <div className="modal-transferir__footer-direita">
-            {concluido ? (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={onConcluido}
-              >
-                {t('pedido.modal_transf.fechar')}
-              </BotaoGlobal>
-            ) : passo === 5 ? (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={handleConfirmar}
-                disabled={confirmando}
-                aria-busy={confirmando}
-              >
-                {confirmando ? t('pedido.modal_transf.transferindo') : t('pedido.modal_transf.confirmar')}
-              </BotaoGlobal>
-            ) : (
-              <BotaoGlobal
-                variante="primario"
-                tamanho="medio"
-                onClick={avancar}
-                disabled={!podeProsseguir || carregandoPreview}
-              >
-                {passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
-              </BotaoGlobal>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    </ModalPassoPassoGlobal>
   )
 }

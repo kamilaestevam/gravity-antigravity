@@ -152,14 +152,38 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     label: t('pedido.item.part_number'),
     tipo: 'texto',
     grupo: t('pedido.item_grupo.identificacao'),
-    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
+    render: (_val: unknown, row: PedidoItem) => {
+      const v = row.part_number
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (v.length <= 50) return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{v}</span>
+      return (
+        <TooltipGlobal titulo={t('pedido.item.part_number')} descricao={v}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'var(--font-mono, monospace)' }}>
+            {v.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'ncm',
     label: t('pedido.item.ncm'),
     tipo: 'texto',
     grupo: t('pedido.item_grupo.identificacao'),
-    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
+    render: (_val: unknown, row: PedidoItem) => {
+      const v = row.ncm
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (v.length <= 50) return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{v}</span>
+      return (
+        <TooltipGlobal titulo={t('pedido.item.ncm')} descricao={v}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'var(--font-mono, monospace)' }}>
+            {v.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'descricao_item',
@@ -388,7 +412,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.dados_fisicos'),
     tooltipTitulo: t('pedido.item.tipo_embalagem_tooltip'),
     tooltipDescricao: t('pedido.item.tipo_embalagem_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_embalagem ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.tipo_embalagem, 'tipo_embalagem'),
   },
   {
     key: 'numero_lpco',
@@ -398,7 +422,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.duimp_fiscal'),
     tooltipTitulo: t('pedido.item.numero_lpco_tooltip'),
     tooltipDescricao: t('pedido.item.numero_lpco_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.numero_lpco, 'numero_lpco'),
   },
   {
     key: 'numero_certificado_origem',
@@ -408,7 +432,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.duimp_fiscal'),
     tooltipTitulo: t('pedido.item.numero_cert_origem_tooltip'),
     tooltipDescricao: t('pedido.item.numero_cert_origem_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_certificado_origem ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.numero_certificado_origem, 'numero_certificado_origem'),
   },
   {
     key: 'data_certificado_origem',
@@ -428,7 +452,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.grupo_item_tooltip'),
     tooltipDescricao: t('pedido.item.grupo_item_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.grupo_item ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.grupo_item, 'grupo_item'),
   },
   {
     key: 'subgrupo_item',
@@ -438,7 +462,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.subgrupo_item_tooltip'),
     tooltipDescricao: t('pedido.item.subgrupo_item_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.subgrupo_item ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.subgrupo_item, 'subgrupo_item'),
   },
   {
     key: 'campo_especial_item',
@@ -447,7 +471,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.campo_especial_tooltip'),
     tooltipDescricao: t('pedido.item.campo_especial_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.campo_especial_item ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.campo_especial_item, 'campo_especial_item'),
   },
   // ── Descrições multilíngues ──────────────────────────────────────────────────
   {
@@ -475,7 +499,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.texto_ncm_tooltip'),
     tooltipDescricao: t('pedido.item.texto_ncm_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.texto_posicao_ncm ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.texto_posicao_ncm, 'texto_posicao_ncm'),
   },
   {
     key: 'atributos_catalogo',
@@ -484,7 +508,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.atributos_catalogo_tooltip'),
     tooltipDescricao: t('pedido.item.atributos_catalogo_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.atributos_catalogo ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.atributos_catalogo, 'atributos_catalogo'),
   },
   {
     key: 'anexo_lpco',
@@ -859,7 +883,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Tipo de Operação — DUIMP',
     tooltipDescricao: 'Tipo de operação de importação conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_operacao_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.tipo_operacao_duimp, 'tipo_operacao_duimp'),
   },
   {
     key: 'descricao_resumida_duimp',
@@ -868,7 +892,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Resumida do Produto — DUIMP',
     tooltipDescricao: 'Descrição resumida do produto conforme cadastro na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_resumida_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_resumida_duimp, 'descricao_resumida_duimp'),
   },
   {
     key: 'versao_produto_duimp',
@@ -877,7 +901,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Versão do Produto — Catálogo DUIMP',
     tooltipDescricao: 'Versão do cadastro do produto no catálogo DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.versao_produto_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.versao_produto_duimp, 'versao_produto_duimp'),
   },
   {
     key: 'ncm_duimp',
@@ -887,7 +911,19 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'NCM — DUIMP',
     tooltipDescricao: 'Código NCM utilizado na DUIMP (pode diferir do NCM do catálogo)',
-    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => {
+      const v = row.ncm_duimp
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (v.length <= 50) return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{v}</span>
+      return (
+        <TooltipGlobal titulo="NCM — DUIMP" descricao={v}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'var(--font-mono, monospace)' }}>
+            {v.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'atributos_duimp',
@@ -896,7 +932,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Atributos — DUIMP',
     tooltipDescricao: 'Atributos técnicos do produto conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.atributos_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.atributos_duimp, 'atributos_duimp'),
   },
   {
     key: 'aplicacao_mercadoria_duimp',
@@ -906,7 +942,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Aplicação da Mercadoria — DUIMP',
     tooltipDescricao: 'Finalidade ou aplicação da mercadoria conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.aplicacao_mercadoria_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.aplicacao_mercadoria_duimp, 'aplicacao_mercadoria_duimp'),
   },
   {
     key: 'condicao_mercadoria_duimp',
@@ -916,7 +952,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Condição da Mercadoria — DUIMP',
     tooltipDescricao: 'Estado da mercadoria (nova, usada, recondicionada) conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.condicao_mercadoria_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_mercadoria_duimp, 'condicao_mercadoria_duimp'),
   },
   {
     key: 'relacao_exportador_fabricante_duimp',
@@ -925,7 +961,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Relação entre Exportador e Fabricante — DUIMP',
     tooltipDescricao: 'Tipo de relação entre exportador e fabricante conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.relacao_exportador_fabricante_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.relacao_exportador_fabricante_duimp, 'relacao_exportador_fabricante_duimp'),
   },
   {
     key: 'vinculacao_preco_duimp',
@@ -935,7 +971,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Vinculação de Preço — DUIMP',
     tooltipDescricao: 'Indica se há vinculação de preço entre comprador e vendedor conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.vinculacao_preco_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.vinculacao_preco_duimp, 'vinculacao_preco_duimp'),
   },
   {
     key: 'descricao_completa_duimp',
@@ -944,7 +980,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Completa do Produto — DUIMP',
     tooltipDescricao: 'Descrição completa e técnica do produto conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_completa_duimp, 'descricao_completa_duimp'),
   },
   {
     key: 'descricao_complementar_duimp',
@@ -953,7 +989,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Complementar da Mercadoria — DUIMP',
     tooltipDescricao: 'Informações complementares sobre a mercadoria na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_complementar_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_complementar_duimp, 'descricao_complementar_duimp'),
   },
   // ── DUIMP — OPE ─────────────────────────────────────────────────────────────
   {
@@ -963,7 +999,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Código do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'Código do OPE (exportador) conforme cadastrado na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.codigo_ope_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.codigo_ope_duimp, 'codigo_ope_duimp'),
   },
   {
     key: 'nome_ope_duimp',
@@ -972,7 +1008,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Nome do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'Nome do OPE conforme cadastrado na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.nome_ope_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.nome_ope_duimp, 'nome_ope_duimp'),
   },
   {
     key: 'pais_ope_duimp',
@@ -982,7 +1018,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'País do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'País do OPE conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.pais_ope_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.pais_ope_duimp, 'pais_ope_duimp'),
   },
   {
     key: 'codigo_ope_fabricante_duimp',
@@ -991,7 +1027,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Código do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'Código do OPE do fabricante conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.codigo_ope_fabricante_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.codigo_ope_fabricante_duimp, 'codigo_ope_fabricante_duimp'),
   },
   {
     key: 'nome_ope_fabricante_duimp',
@@ -1000,7 +1036,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Nome do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'Nome do OPE do fabricante conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.nome_ope_fabricante_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.nome_ope_fabricante_duimp, 'nome_ope_fabricante_duimp'),
   },
   {
     key: 'pais_fabricante_ope_duimp',
@@ -1010,7 +1046,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'País do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'País do OPE fabricante conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.pais_fabricante_ope_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.pais_fabricante_ope_duimp, 'pais_fabricante_ope_duimp'),
   },
   // ── DUIMP — Valoração ────────────────────────────────────────────────────────
   {
@@ -1021,7 +1057,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Método de Valoração — DUIMP',
     tooltipDescricao: 'Método de valoração aduaneira utilizado na DUIMP (ex: Método 1 — Valor de Transação)',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.metodo_valoracao_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.metodo_valoracao_duimp, 'metodo_valoracao_duimp'),
   },
   {
     key: 'incoterm_duimp',
@@ -1031,7 +1067,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Incoterm / Condição de Venda — DUIMP',
     tooltipDescricao: 'Incoterm ou condição de venda declarada na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.incoterm_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.incoterm_duimp, 'incoterm_duimp'),
   },
   {
     key: 'moeda_produto_duimp',
@@ -1041,7 +1077,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Moeda do Produto — DUIMP',
     tooltipDescricao: 'Moeda utilizada no valor do produto conforme DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.moeda_produto_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.moeda_produto_duimp, 'moeda_produto_duimp'),
   },
   {
     key: 'valor_unitario_duimp',
@@ -1180,7 +1216,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Tipo de Cobertura Cambial — DUIMP',
     tooltipDescricao: 'Modalidade de cobertura cambial declarada na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_cobertura_cambial_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.tipo_cobertura_cambial_duimp, 'tipo_cobertura_cambial_duimp'),
   },
   {
     key: 'numero_rof_bacen_duimp',
@@ -1189,7 +1225,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Número do ROF/BACEN — DUIMP',
     tooltipDescricao: 'Número do Registro de Operações Financeiras junto ao BACEN',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_rof_bacen_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.numero_rof_bacen_duimp, 'numero_rof_bacen_duimp'),
   },
   {
     key: 'motivo_sem_cobertura_duimp',
@@ -1199,7 +1235,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Motivo Sem Cobertura Cambial — DUIMP',
     tooltipDescricao: 'Justificativa legal para ausência de cobertura cambial',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.motivo_sem_cobertura_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.motivo_sem_cobertura_duimp, 'motivo_sem_cobertura_duimp'),
   },
   // ── DUIMP — II ──────────────────────────────────────────────────────────────
   {
@@ -1416,7 +1452,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Existe Tratamento Administrativo? — DUIMP',
     tooltipDescricao: 'Indica se existe tratamento administrativo associado ao item na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.existe_tratamento_administrativo_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.existe_tratamento_administrativo_duimp, 'existe_tratamento_administrativo_duimp'),
   },
   {
     key: 'tipo_trat_adm_duimp',
@@ -1426,7 +1462,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Tipo de Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Tipo/modalidade do tratamento administrativo na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_trat_adm_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.tipo_trat_adm_duimp, 'tipo_trat_adm_duimp'),
   },
   {
     key: 'orgao_trat_adm_duimp',
@@ -1436,7 +1472,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Órgão do Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Órgão anuente responsável pelo tratamento administrativo',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.orgao_trat_adm_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.orgao_trat_adm_duimp, 'orgao_trat_adm_duimp'),
   },
   {
     key: 'numero_lpco_trat_adm_duimp',
@@ -1445,7 +1481,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Número da LPCO do Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Número da LPCO vinculada ao tratamento administrativo na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco_trat_adm_duimp ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.numero_lpco_trat_adm_duimp, 'numero_lpco_trat_adm_duimp'),
   },
   // ── Comercial (item) ────────────────────────────────────────────────────────
   {
@@ -1484,7 +1520,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.quantidades'),
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Condição de pagamento acordada para o item',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.condicao_pagamento ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
   },
   {
     key: 'casas_decimais_quantidade_item',
@@ -1596,14 +1632,8 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      if (tipoOp === 'importacao') {
-        return (
-          <TooltipGlobal titulo="Exportador" descricao="Fornecedor/exportador estrangeiro na operação de importação">
-            <span>{row.nome_exportador ?? '—'}</span>
-          </TooltipGlobal>
-        )
-      }
-      return <span>{(row as PedidoItemEnriquecido)._p?.nome_exportador ?? '—'}</span>
+      const v = tipoOp === 'importacao' ? (row.nome_exportador ?? null) : ((row as PedidoItemEnriquecido)._p?.nome_exportador ?? null)
+      return renderDescricaoTruncada(v, 'Exportador')
     },
   },
   nome_importador: {
@@ -1615,30 +1645,24 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      if (tipoOp === 'exportacao') {
-        return (
-          <TooltipGlobal titulo="Importador" descricao="Comprador/importador estrangeiro na operação de exportação">
-            <span>{row.nome_importador ?? '—'}</span>
-          </TooltipGlobal>
-        )
-      }
-      return <span>{(row as PedidoItemEnriquecido)._p?.nome_importador ?? '—'}</span>
+      const v = tipoOp === 'exportacao' ? (row.nome_importador ?? null) : ((row as PedidoItemEnriquecido)._p?.nome_importador ?? null)
+      return renderDescricaoTruncada(v, 'Importador')
     },
   },
   nome_fabricante: {
     editavel: true,
     campo: 'nome_fabricante',
-    render: (row: PedidoItem) => <span>{row.nome_fabricante ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.nome_fabricante, 'Fabricante'),
   },
   referencia_importador: {
     editavel: true,
     campo: 'referencia_importador',
-    render: (row: PedidoItem) => <span>{row.referencia_importador ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.referencia_importador, 'Ref. Importador'),
   },
   referencia_exportador: {
     editavel: true,
     campo: 'referencia_exportador',
-    render: (row: PedidoItem) => <span>{row.referencia_exportador ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.referencia_exportador, 'Ref. Exportador'),
   },
   numero_proforma: {
     editavel: true,
@@ -1659,7 +1683,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   incoterm: {
     editavel: true,
     campo: 'incoterm',
-    render: (row: PedidoItem) => <span>{row.incoterm ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.incoterm, 'incoterm'),
   },
   status: {
     editavel: true,
@@ -1680,17 +1704,17 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   referencia_fabricante: {
     editavel: true,
     campo: 'referencia_fabricante',
-    render: (row: PedidoItem) => <span>{row.referencia_fabricante ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.referencia_fabricante, 'referencia_fabricante'),
   },
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    render: (row: PedidoItem) => <span>{row.cobertura_cambial ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.cobertura_cambial, 'cobertura_cambial'),
   },
   condicao_pagamento: {
     editavel: true,
     campo: 'condicao_pagamento',
-    render: (row: PedidoItem) => <span>{row.condicao_pagamento ?? '—'}</span>,
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
   },
   data_emissao_pedido: {
     editavel: true,

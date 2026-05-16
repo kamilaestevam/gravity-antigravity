@@ -935,10 +935,15 @@ const GTEditPopover = memo(function GTEditPopover({
             </button>
             <button
               type="button"
-              className={`gtv-edit-popover-btn gtv-edit-popover-btn--primary${salvando ? ' gtv-edit-popover-btn--salvando' : ''}`}
+              className={[
+                'gtv-edit-popover-btn gtv-edit-popover-btn--primary',
+                salvando ? 'gtv-edit-popover-btn--salvando' : '',
+                resultado === 'sucesso' ? 'gtv-edit-popover-btn--sucesso' : '',
+                resultado === 'erro' ? 'gtv-edit-popover-btn--erro' : '',
+              ].filter(Boolean).join(' ')}
               onMouseDown={e => e.stopPropagation()}
               onClick={() => confirmarComOpts()}
-              disabled={salvando}
+              disabled={salvando || resultado !== null}
               tabIndex={-1}
               aria-busy={salvando || undefined}
             >
@@ -952,6 +957,20 @@ const GTEditPopover = memo(function GTEditPopover({
                       <span className="gtv-edit-orbit" />
                     </span>
                     Salvando…
+                  </>
+                : resultado === 'sucesso'
+                ? <>
+                    <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                      <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                    Salvo
+                  </>
+                : resultado === 'erro'
+                ? <>
+                    <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                      <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                    Falhou
                   </>
                 : <>
                     <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
@@ -3022,6 +3041,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           overlayInfo={overlayInfo}
           valorEditando={overlayInfo.isFilho ? valorEditandoFilho : valorEditandoPai}
           salvando={overlayInfo.isFilho ? salvandoFilho : salvandoPai}
+          resultado={overlayInfo.isFilho ? resultadoFilho : resultadoPai}
           onAtualizar={overlayInfo.isFilho ? atualizarValorFilho : atualizarValorPai}
           onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}

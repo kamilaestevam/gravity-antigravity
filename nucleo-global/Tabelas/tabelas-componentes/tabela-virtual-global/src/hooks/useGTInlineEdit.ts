@@ -88,21 +88,19 @@ export function useGTInlineEdit<T>(
       const itemAtualizado = await onEditar(id, campo, valorEditandoRef.current)
       onAtualizarItem?.(itemAtualizado)
       onSucesso?.()
-      setEditandoCelula(null)
-      setValorEditando(null)
       valorEditandoRef.current = null
       valorOriginalRef.current = null
 
-      // Flash de sucesso na célula que acabou de ser salva
-      setCelulaResultado({ id, campo })
       setResultado('sucesso')
+      setCelulaResultado({ id, campo })
       resultadoTimerRef.current = setTimeout(() => {
+        setEditandoCelula(null)
+        setValorEditando(null)
         setResultado(null)
         setCelulaResultado(null)
         resultadoTimerRef.current = null
       }, 600)
     } catch (err: unknown) {
-      // Rollback para o valor original
       setValorEditando(valorOriginalRef.current)
       valorEditandoRef.current = valorOriginalRef.current
 
@@ -113,12 +111,11 @@ export function useGTInlineEdit<T>(
 
       setErro(mensagem)
       onErro?.(mensagem)
-      setEditandoCelula(null)
 
-      // Flash de erro na célula que falhou
-      setCelulaResultado({ id, campo })
       setResultado('erro')
+      setCelulaResultado({ id, campo })
       resultadoTimerRef.current = setTimeout(() => {
+        setEditandoCelula(null)
         setResultado(null)
         setCelulaResultado(null)
         resultadoTimerRef.current = null

@@ -273,8 +273,21 @@ function resolverMensagemErro(err: unknown): string {
         .join(', ') || 'campo'
       return `Já existe outro pedido com esse mesmo valor de ${nomes}. Use um valor diferente ou edite apenas 1 pedido por vez.`
     }
+    if (prismaErr.code === 'P2024') {
+      return 'A operação demorou mais que o esperado. Tente novamente com menos pedidos selecionados.'
+    }
   }
-  return err instanceof Error ? err.message : 'Erro desconhecido'
+
+  const msg = err instanceof Error ? err.message : ''
+
+  if (/Transaction.*not found|Transaction.*timed?\s*out|Transaction.*expired/i.test(msg)) {
+    return 'A operação demorou mais que o esperado. Tente novamente com menos pedidos selecionados.'
+  }
+  if (/Can't reach database|Connection.*refused|ECONNREFUSED/i.test(msg)) {
+    return 'Não foi possível conectar ao banco de dados. Tente novamente em alguns segundos.'
+  }
+
+  return 'Erro interno ao processar a edição. Tente novamente ou contate o suporte.'
 }
 
 // ── Classe de erro — exportada para que o router use a mesma instância ────────

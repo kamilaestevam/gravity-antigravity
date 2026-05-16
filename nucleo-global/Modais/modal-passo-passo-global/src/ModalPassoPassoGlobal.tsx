@@ -215,9 +215,87 @@ export function ModalPassoPassoGlobal({
             box-shadow: 0 0 12px rgba(99,102,241,0.7), 0 0 30px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.2), inset 0 0 16px rgba(99,102,241,0.15);
           }
         }
-        @keyframes mpg-ring-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
+        @keyframes mpg-nucleo-glow {
+          0%, 100% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); }
+          50%      { opacity: 0.8; transform: translate(-50%,-50%) scale(1.3); }
+        }
+        /* --- Orbita 3D ao redor do circulo ativo (identidade Gravity) --- */
+        @keyframes mpg-orbita-drift {
+          from { transform: rotateX(70deg) rotateZ(0deg); }
+          to   { transform: rotateX(70deg) rotateZ(360deg); }
+        }
+        @keyframes mpg-eletron-spin {
+          from { transform: translate(-50%,-50%) rotate(0deg); }
+          to   { transform: translate(-50%,-50%) rotate(360deg); }
+        }
+        .mpg-orbita-3d {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 130%; height: 130%;
+          transform: translate(-50%,-50%);
+          pointer-events: none;
+          perspective: 200px;
+          transform-style: preserve-3d;
+          z-index: 2;
+        }
+        .mpg-orbita-ring {
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          transform-style: preserve-3d;
+        }
+        .mpg-orbita-ring--1 {
+          transform: rotateX(70deg) rotateZ(0deg);
+          animation: mpg-orbita-drift 3s linear infinite;
+        }
+        .mpg-orbita-ring--2 {
+          transform: rotateX(70deg) rotateZ(90deg);
+          animation: mpg-orbita-drift 4.5s linear infinite reverse;
+        }
+        .mpg-orbita-anel {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 100%; height: 100%;
+          transform: translate(-50%,-50%);
+          border-radius: 50%;
+          border: 1px solid rgba(129,140,248,0.2);
+        }
+        .mpg-orbita-ring--2 .mpg-orbita-anel {
+          border-color: rgba(167,139,250,0.15);
+        }
+        .mpg-orbita-eletron {
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 100%; height: 100%;
+          transform: translate(-50%,-50%);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+        .mpg-orbita-eletron--1 {
+          animation: mpg-eletron-spin 3s linear infinite;
+        }
+        .mpg-orbita-eletron--1::after {
+          content: '';
+          position: absolute;
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          top: -2.5px; left: 50%;
+          transform: translateX(-50%);
+          background: #818cf8;
+          box-shadow: 0 0 8px 2px rgba(129,140,248,0.7), 0 0 16px 4px rgba(129,140,248,0.3);
+        }
+        .mpg-orbita-eletron--2 {
+          animation: mpg-eletron-spin 4.5s linear infinite reverse;
+        }
+        .mpg-orbita-eletron--2::after {
+          content: '';
+          position: absolute;
+          width: 4px; height: 4px;
+          border-radius: 50%;
+          top: -2px; left: 50%;
+          transform: translateX(-50%);
+          background: #a78bfa;
+          box-shadow: 0 0 8px 2px rgba(167,139,250,0.7), 0 0 16px 4px rgba(167,139,250,0.3);
         }
         .mpg-btn-fechar:hover {
           color: var(--text-primary) !important;
@@ -232,16 +310,6 @@ export function ModalPassoPassoGlobal({
         }
         .mpg-circulo-ativo {
           animation: mpg-neon-pulse 2s ease-in-out infinite;
-        }
-        .mpg-circulo-ativo::before {
-          content: '';
-          position: absolute;
-          inset: -3px;
-          border-radius: 50%;
-          border: 2px solid transparent;
-          border-top-color: rgba(255,255,255,0.6);
-          animation: mpg-ring-spin 2.5s linear infinite;
-          pointer-events: none;
         }
         .mpg-circulo-pendente {
           backdrop-filter: blur(10px);
@@ -363,17 +431,36 @@ export function ModalPassoPassoGlobal({
                       onClick={isClickable ? () => handleClickPasso(passo) : undefined}
                       title={isClickable ? `Voltar para: ${passo.label}` : undefined}
                     >
-                      <div
-                        style={circuloStyle}
-                        className={
-                          status === 'ativo' ? 'mpg-circulo-ativo' :
-                          status === 'feito' ? 'mpg-circulo-feito' : 'mpg-circulo-pendente'
-                        }
-                      >
-                        {status === 'feito'
-                          ? <span className="mpg-check-icon"><Check size={16} weight="bold" /></span>
-                          : (passo.icone ?? passo.id)
-                        }
+                      <div style={s.circuloWrap}>
+                        <div
+                          style={circuloStyle}
+                          className={
+                            status === 'ativo' ? 'mpg-circulo-ativo' :
+                            status === 'feito' ? 'mpg-circulo-feito' : 'mpg-circulo-pendente'
+                          }
+                        >
+                          {status === 'feito'
+                            ? <span className="mpg-check-icon"><Check size={16} weight="bold" /></span>
+                            : (passo.icone ?? passo.id)
+                          }
+                        </div>
+                        {/* Orbita 3D Gravity — apenas no passo ativo */}
+                        {status === 'ativo' && (
+                          <>
+                            <div className="mpg-orbita-3d" aria-hidden="true">
+                              <div className="mpg-orbita-ring mpg-orbita-ring--1">
+                                <div className="mpg-orbita-anel" />
+                                <div className="mpg-orbita-eletron mpg-orbita-eletron--1" />
+                              </div>
+                              <div className="mpg-orbita-ring mpg-orbita-ring--2">
+                                <div className="mpg-orbita-anel" />
+                                <div className="mpg-orbita-eletron mpg-orbita-eletron--2" />
+                              </div>
+                            </div>
+                            {/* Glow atras do circulo */}
+                            <div style={s.nucleoGlow} aria-hidden="true" />
+                          </>
+                        )}
                       </div>
                       <span style={labelStyleMerge}>{passo.label}</span>
                     </div>
@@ -558,9 +645,31 @@ const s = {
     gap: '0.5rem',
     flexShrink: 0,
   },
+  circuloWrap: {
+    position: 'relative' as const,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '2.75rem',
+    height: '2.75rem',
+  },
+  nucleoGlow: {
+    position: 'absolute' as const,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%,-50%)',
+    width: '3.5rem',
+    height: '3.5rem',
+    borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%)',
+    animation: 'mpg-nucleo-glow 3s ease-in-out infinite',
+    pointerEvents: 'none' as const,
+    zIndex: 0,
+  } as React.CSSProperties,
   // Circulo — OBRIGATORIO: min-width e flex-shrink:0 (Design System § 12)
   circulo: {
     position: 'relative' as const,
+    zIndex: 3,
     width: '2.75rem',
     height: '2.75rem',
     minWidth: '2.75rem',

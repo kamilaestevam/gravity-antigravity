@@ -1143,6 +1143,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
   const filhosCacheMap = useRef<Map<string, C>>(new Map())
 
+  // Pais que foram marcados automaticamente porque TODOS os filhos ficaram
+  // selecionados (auto-promoção). Esses pais NÃO devem entrar no
+  // `itensSelecionados` passado via `onSelecaoMudar` — a ação (duplicar,
+  // excluir, etc.) deve atuar nos itens filhos, não no pedido inteiro.
+  // Quando o usuário clica direto no pai, ele SAI deste set (seleção direta).
+  const [paisAutoPromovidos, setPaisAutoPromovidos] = useState<Set<string>>(new Set())
+
   // Mantém sempre a referência mais recente do callback para evitar stale closure
   const onSelecaoFilhoRef = useRef(onSelecaoFilho)
   useLayoutEffect(() => {
@@ -1437,9 +1444,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [findAtivo, findMatches, modoLocalizar])
 
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
+  // Exclui pais auto-promovidos: esses foram marcados automaticamente porque
+  // TODOS os filhos foram selecionados individualmente. Para ações (duplicar,
+  // excluir), o que importa são os filhos — o pai auto-promovido é apenas visual.
   const itensSelecionados = useMemo(
-    () => dados.filter(item => selecionados.has(itemId(item))),
-    [dados, selecionados, itemId],
+    () => dados.filter(item => {
+      const id = itemId(item)
+      return selecionados.has(id) && !paisAutoPromovidos.has(id)
+    }),
+    [dados, selecionados, itemId, paisAutoPromovidos],
   )
 
   // Ref síncrona para evitar stale closure sem incluir onSelecaoMudar nas deps

@@ -1286,6 +1286,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
   const filhosCacheMap = useRef<Map<string, C>>(new Map())
 
+  // Pais que foram marcados automaticamente porque TODOS os filhos ficaram
+  // selecionados (auto-promoção). Esses pais NÃO devem entrar no
+  // `itensSelecionados` passado via `onSelecaoMudar` — a ação (duplicar,
+  // excluir, etc.) deve atuar nos itens filhos, não no pedido inteiro.
+  // Quando o usuário clica direto no pai, ele SAI deste set (seleção direta).
+  const [paisAutoPromovidos, setPaisAutoPromovidos] = useState<Set<string>>(new Set())
+
   // Mantém sempre a referência mais recente do callback para evitar stale closure
   const onSelecaoFilhoRef = useRef(onSelecaoFilho)
   useLayoutEffect(() => {
@@ -1370,12 +1377,20 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         if (estavaMarcado) {
           // Desmarcando filho → desmarca pai se estava marcado
-          if (selecionados.has(paiId)) toggleItem(paiId)
+          if (selecionados.has(paiId)) {
+            toggleItem(paiId)
+            setPaisAutoPromovidos(prev => { const n = new Set(prev); n.delete(paiId); return n })
+          }
         } else {
           // Marcando filho → marca pai se TODOS os filhos do pai ficarão marcados
           // após esta operação. Considera `id` (atual) como já marcado.
           const todosMarcados = idsDoPai.every(fId => fId === id || filhosSelecionados.has(fId))
-          if (todosMarcados && !selecionados.has(paiId)) toggleItem(paiId)
+          if (todosMarcados && !selecionados.has(paiId)) {
+            toggleItem(paiId)
+            // Auto-promoção: pai marcado porque filhos cobrem 100%.
+            // Ações (duplicar/excluir) devem tratar como seleção de itens.
+            setPaisAutoPromovidos(prev => new Set(prev).add(paiId))
+          }
         }
         break
       }
@@ -1390,6 +1405,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       // Snapshot do estado ANTES do toggle (para saber se vai marcar ou desmarcar)
       const todosJaMarcados = todosIds.length > 0 && todosIds.every(id => selecionados.has(id))
       toggleTodos(todosIds)
+
+      // Header checkbox = seleção direta → limpar auto-promoções
+      setPaisAutoPromovidos(new Set())
 
       if (!selecionavelFilhos) return
 
@@ -1421,6 +1439,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     (id: string) => {
       const estavaMarcado = selecionados.has(id)
       toggleItem(id)
+
+      // Clique direto no pai → remove da auto-promoção (seleção explícita)
+      setPaisAutoPromovidos(prev => {
+        if (!prev.has(id)) return prev
+        const n = new Set(prev); n.delete(id); return n
+      })
 
       if (!selecionavelFilhos) return
       const filhosDoPai = filhosCache.get(id) ?? []
@@ -1501,7 +1525,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       filhosCacheMap.current.clear()
       return new Set()
     })
+    setPaisAutoPromovidos(new Set())
   }, [resetSelecaoFilhos])
+
+  // Limpa auto-promovidos que não estão mais em selecionados (ex: limparSelecao)
+  useEffect(() => {
+    if (paisAutoPromovidos.size === 0) return
+    const limpar = [...paisAutoPromovidos].filter(id => !selecionados.has(id))
+    if (limpar.length > 0) {
+      setPaisAutoPromovidos(prev => {
+        const n = new Set(prev)
+        for (const id of limpar) n.delete(id)
+        return n
+      })
+    }
+  }, [selecionados, paisAutoPromovidos])
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {
@@ -1828,9 +1866,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [findAtivo, findMatches, modoLocalizar])
 
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
+  // Exclui pais auto-promovidos: esses foram marcados automaticamente porque
+  // TODOS os filhos foram selecionados individualmente. Para ações (duplicar,
+  // excluir), o que importa são os filhos — o pai auto-promovido é apenas visual.
   const itensSelecionados = useMemo(
-    () => dados.filter(item => selecionados.has(itemId(item))),
-    [dados, selecionados, itemId],
+    () => dados.filter(item => {
+      const id = itemId(item)
+      return selecionados.has(id) && !paisAutoPromovidos.has(id)
+    }),
+    [dados, selecionados, itemId, paisAutoPromovidos],
   )
 
   // Ref síncrona para evitar stale closure sem incluir onSelecaoMudar nas deps

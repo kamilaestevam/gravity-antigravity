@@ -337,6 +337,8 @@ export class TransferirService {
               if (novaQty <= 0) {
                 await tx.pedidoItem.delete({ where: { id_item: itemDestino.id_item as string } })
                 itensExcluidos.push(itemDestino.id_item as string)
+                // Resequenciar itens restantes para manter sequência contínua (1, 2, 3...)
+                await this.resequenciarItens(id_organizacao, pedidoDestino.id_pedido, tx)
               } else {
                 await tx.pedidoItem.update({
                   where: { id_item: itemDestino.id_item as string },
@@ -497,21 +499,17 @@ export class TransferirService {
 
     const itens = await tx.pedidoItem.findMany({
       where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
+      orderBy: { sequencia_item_pedido: 'asc' },
     })
 
-    // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
-    for (const item of itens) {
-      if (Number(item.quantidade_atual_item) <= 0) {
-        await tx.pedidoItem.delete({ where: { id_item: item.id_item as string } })
-        itensExcluidos.push(item.id_item as string)
-      }
-    }
-
-    const itensRestantes = itens.filter((i: Record<string, unknown>) => !itensExcluidos.includes(i.id_item as string))
-    const todosZero = itens.length > 0 && itensRestantes.length === 0
+    // Itens com quantidade zero NÃO são deletados — permanecem na lista
+    // com saldo zerado para rastreabilidade. O usuário vê "0,00" na coluna Saldo.
+    const todosZero = itens.length > 0 && itens.every(
+      (i: Record<string, unknown>) => Number(i.quantidade_atual_item) <= 0,
+    )
 
     if (todosZero) {
-      // Config: encerrar pedido quando qty = 0
+      // Encerrar pedido quando TODOS os itens ficam com quantidade zero
       await tx.pedido.update({
         where: { id_pedido: pedidoId },
         data: { status_pedido: 'consolidado' },
@@ -520,6 +518,26 @@ export class TransferirService {
     }
 
     return { itensExcluidos, pedidosEncerrados }
+  }
+
+  /**
+   * Resequencia itens de um pedido para manter sequência contínua (1, 2, 3...).
+   * Chamado após exclusão de item (ex: reversão de transferência).
+   */
+  private async resequenciarItens(id_organizacao: string, pedidoId: string, tx: Tx): Promise<void> {
+    const itens = await tx.pedidoItem.findMany({
+      where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
+      orderBy: { sequencia_item_pedido: 'asc' },
+    })
+    for (let i = 0; i < itens.length; i++) {
+      const seqCorreta = i + 1
+      if (Number(itens[i].sequencia_item_pedido) !== seqCorreta) {
+        await tx.pedidoItem.update({
+          where: { id_item: itens[i].id_item as string },
+          data: { sequencia_item_pedido: seqCorreta },
+        })
+      }
+    }
   }
 
   private async gravarHistorico(

@@ -52,7 +52,7 @@ body.tooltips-disabled .tg-card {
   position: fixed;
   z-index: 99999;
   width: max-content;
-  max-width: 260px;
+  max-width: 360px;
   background: #0f172a;
   border: 1px solid rgba(129, 140, 248, 0.22);
   border-radius: 8px;
@@ -61,8 +61,9 @@ body.tooltips-disabled .tg-card {
   font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   pointer-events: none;
   transform: translateX(-50%);
-  /* Origin depends on if it grows up or down */
   transform-origin: bottom center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Tooltip interativa: permite clicar links dentro do card */

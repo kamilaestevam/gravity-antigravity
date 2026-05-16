@@ -7,6 +7,7 @@
 
 import React from 'react'
 import type { TFunction } from 'i18next'
+import { Eye } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
@@ -53,6 +54,21 @@ export function renderTextoC2(valor: string, label: string): React.ReactElement 
     )
   }
   return <span>{valor}</span>
+}
+
+// ── Helper: descrição com truncamento a 50 chars + ícone Eye + tooltip ───────
+
+function renderDescricaoTruncada(valor: string | null | undefined, label: string): React.ReactElement {
+  if (!valor) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+  if (valor.length <= 50) return <span>{valor}</span>
+  return (
+    <TooltipGlobal titulo={label} descricao={valor}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        {valor.slice(0, 50) + '…'}
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+      </span>
+    </TooltipGlobal>
+  )
 }
 
 export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
@@ -150,7 +166,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     label: t('pedido.item.descricao_item'),
     tipo: 'texto',
     grupo: t('pedido.item_grupo.identificacao'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_item, t('pedido.item.descricao_item')),
   },
   {
     key: 'tipo_operacao_item',
@@ -287,7 +303,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.desc_completa_pt_tooltip'),
     tooltipDescricao: t('pedido.item.desc_completa_pt_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_pt ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_completa_item_pt, t('pedido.item.desc_completa_pt')),
   },
   {
     key: 'descricao_completa_item_nf',
@@ -296,7 +312,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.desc_completa_nf_tooltip'),
     tooltipDescricao: t('pedido.item.desc_completa_nf_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_nf ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_completa_item_nf, t('pedido.item.desc_completa_nf')),
   },
   {
     key: 'quantidade_unidade_estatistica',
@@ -441,7 +457,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.desc_completa_en_tooltip'),
     tooltipDescricao: t('pedido.item.desc_completa_en_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_en ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_completa_item_en, t('pedido.item.desc_completa_en')),
   },
   {
     key: 'descricao_completa_item_es',
@@ -450,7 +466,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     grupo: t('pedido.item_grupo.identificacao'),
     tooltipTitulo: t('pedido.item.desc_completa_es_tooltip'),
     tooltipDescricao: t('pedido.item.desc_completa_es_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_es ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.descricao_completa_item_es, t('pedido.item.desc_completa_es')),
   },
   {
     key: 'texto_posicao_ncm',

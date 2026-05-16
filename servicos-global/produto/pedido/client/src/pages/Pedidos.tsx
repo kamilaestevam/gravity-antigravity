@@ -97,6 +97,7 @@ import {
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
+import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import { inserirColunaAposAncora, moverColunaParaAposAncora } from '../shared/migracaoColunas'
@@ -133,6 +134,7 @@ import {
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import { useUnidadesPedido } from '../shared/useUnidadesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
+import { useMoedasPedido } from '../shared/useMoedasPedido'
 import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
 
@@ -666,7 +668,19 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Descrição do Item',
     tipo: 'texto',
     grupo: 'Identificação',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
+    render: (_val: unknown, row: PedidoItem) => {
+      const v = row.descricao_item
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (v.length <= 50) return <span>{v}</span>
+      return (
+        <TooltipGlobal titulo="Descrição do Item" descricao={v}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {v.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'quantidade_inicial_pedido',
@@ -2322,9 +2336,19 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
   },
   // ── Descrição Item ───────────────────────────────────────────────────────
   descricao_item: {
-    render: (row: PedidoItem) => (
-      <span>{row.descricao_item ?? '—'}</span>
-    ),
+    render: (row: PedidoItem) => {
+      const v = row.descricao_item
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (v.length <= 50) return <span>{v}</span>
+      return (
+        <TooltipGlobal titulo="Descrição do Item" descricao={v}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {v.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
   },
   // ── Unidade Comercializada ───────────────────────────────────────────────
   unidade_comercializada_pedido: {
@@ -2955,6 +2979,8 @@ export default function Pedidos() {
   const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
   // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
   const { incotermsOpcoes } = useIncotermsPedido()
+  // Moedas — SSOT cadastros.moeda via hook (select inline em moeda_pedido).
+  const { moedasOpcoes } = useMoedasPedido()
   // Workspaces disponíveis ao usuário — carregados de /api/v1/hub/init.
   // Usado em (i) FiltroMultiWorkspace e (ii) coluna "Workspace" da Lista.
   // Carregamento elevado aqui para evitar fetch duplicado.
@@ -2980,8 +3006,8 @@ export default function Pedidos() {
   }, [workspacesDisponiveis])
 
   const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({ unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap }),
-    [unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap],
+    () => ({ unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap }),
+    [unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap],
   )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
@@ -4112,13 +4138,13 @@ export default function Pedidos() {
     if (replicar && isPropagavel(campo)) {
       const itensCache = itensCarregadosRef.current.get(id) ?? []
       if (itensCache.length > 0) {
-        // O campo no item pode ter nome diferente (e.g. data_emissao_pedido →
-        // data_emissao_item). Atualizamos AMBOS porque o front lê via
-        // `i.data_emissao_pedido` (legado/contrato público) e o item Prisma
-        // usa `data_emissao_item`. Set defensivo cobre os 2.
+        // O campo no item pode ter nome diferente (e.g. moeda_pedido →
+        // moeda_item). Usamos MAPA_PROPAGACAO_PEDIDO_ITEM para resolver o nome
+        // correto do campo no item. Fallback para o próprio nome se não mapeado.
+        const campoItem = MAPA_PROPAGACAO_PEDIDO_ITEM[campo] ?? campo
         const itensAtualizados = itensCache.map(i => ({
           ...i,
-          [campo]: valorEnviarPai,
+          [campoItem]: valorEnviarPai,
         }))
         itensCarregadosRef.current.set(id, itensAtualizados)
       } else {
@@ -4367,6 +4393,53 @@ export default function Pedidos() {
       return enriquecidoMv
     }
 
+    // moeda_pedido editado a partir de uma linha FILHO (tipo='select' → valor é string pura, ex: 'USD').
+    // Salva no campo moeda_item do item (mapeamento: moeda_pedido → moeda_item).
+    if (campo === 'moeda_pedido') {
+      const moedaCodigo = String(valor)
+      const itemAtualMp = getItensCache().find(i => i.id === id)
+      const atualizadoMp = await pedidoItemApi.atualizar(pedido.id, id, {
+        moeda_item: moedaCodigo,
+      } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualMp) return { ...itemAtualMp, moeda_item: moedaCodigo } as PedidoItem
+          throw new Error('Erro ao editar moeda do item')
+        })
+      const enriquecidoMp: PedidoItemEnriquecido = {
+        ...atualizadoMp,
+        _p: {
+          id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        },
+      }
+      const itensAposEdicaoMp = getItensCache().map(i => i.id === id ? enriquecidoMp : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMp)
+      const divergenciasMp = calcularDivergencias(itensAposEdicaoMp, pedido)
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...divergenciasMp,
+          itens: itensAposEdicaoMp,
+        }
+      }))
+      return enriquecidoMp
+    }
+
     // moeda_item: o editor tipo 'moeda' retorna GTValorMoeda { currency, amount }.
     // Precisamos extrair apenas o currency e salvar no campo moeda_item.
     if (campo === 'moeda_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
@@ -4394,15 +4467,20 @@ export default function Pedidos() {
           numero_proforma: pedido.numero_proforma ?? null,
           numero_invoice: pedido.numero_invoice ?? null,
           incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      setDadosPedidosLocais(prev => prev.map(p => {
+      const itensAposEdicaoMi = getItensCache().map(i => i.id === id ? enriquecidoMi : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoMi)
+      const divergenciasMi = calcularDivergencias(itensAposEdicaoMi, pedido)
+      setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        const itensAposEdicaoMi = (p.itens ?? []).map(it =>
-          it.id === id ? enriquecidoMi : it
-        )
         return {
           ...p,
+          ...divergenciasMi,
           itens: itensAposEdicaoMi,
         }
       }))
@@ -4436,15 +4514,20 @@ export default function Pedidos() {
           numero_proforma: pedido.numero_proforma ?? null,
           numero_invoice: pedido.numero_invoice ?? null,
           incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
-      setDadosPedidosLocais(prev => prev.map(p => {
+      const itensAposEdicaoUi = getItensCache().map(i => i.id === id ? enriquecidoUi : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoUi)
+      const divergenciasUi = calcularDivergencias(itensAposEdicaoUi, pedido)
+      setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        const itensAposEdicaoUi = (p.itens ?? []).map(it =>
-          it.id === id ? enriquecidoUi : it
-        )
         return {
           ...p,
+          ...divergenciasUi,
           itens: itensAposEdicaoUi,
         }
       }))
@@ -5471,6 +5554,11 @@ export default function Pedidos() {
       {modalEdicaoMassaAberto && pedidosParaEdicaoMassa.length > 0 && (
         <ModalEdicaoMassaPedidos
           pedidos={pedidosParaEdicaoMassa}
+          itensSelecionadosIds={
+            pedidosSelecionados.length === 0 && itensSelecionados.length > 0
+              ? itensSelecionados.map(i => i.id)
+              : undefined
+          }
           onFechar={() => setModalEdicaoMassaAberto(false)}
           onConcluido={() => {
             setModalEdicaoMassaAberto(false)

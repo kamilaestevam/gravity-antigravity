@@ -1530,7 +1530,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const temIndicador = renderIndicadorLinha != null || renderIndicadorLinhaFilho != null
   const gridTemplateCols = useMemo(() => {
     const cols: string[] = []
-    if (temIndicador) cols.push('20px')
+    if (temIndicador) cols.push('36px')
     if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
     if (onCarregarFilhos) cols.push('40px')

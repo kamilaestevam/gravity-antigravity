@@ -720,6 +720,61 @@ async function validarMultiWorkspace(
   return { valido: true }
 }
 
+// ── Helper: tagear pedidos com indicadores de transferência ──────────────────
+// Consulta PedidoTransferencia uma única vez para todo o lote (evita N+1).
+// Popula campos virtuais `enviou_transferencia` e `recebeu_transferencia`.
+async function tagTransferencias(
+  db: unknown,
+  pedidosMapped: PedidoRaw[],
+  idOrganizacao: string,
+): Promise<PedidoRaw[]> {
+  if (pedidosMapped.length === 0) return pedidosMapped
+  const pedidoIds = pedidosMapped.map(p => p.id as string).filter(Boolean)
+  if (pedidoIds.length === 0) return pedidosMapped
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prisma = db as any
+
+  // Busca transferências não-revertidas que envolvem estes pedidos como ORIGEM
+  const transferencias = await prisma.pedidoTransferencia.findMany({
+    where: { id_organizacao: idOrganizacao, revertido_pedido_transferencia: false },
+    select: {
+      id_pedido_origem: true,
+      destinos_pedido_transferencia: true,
+    },
+  })
+
+  // Set de pedidos que ENVIARAM (são origem de uma transferência)
+  const origemIds = new Set<string>()
+  // Set de pedidos que RECEBERAM (aparecem como destino em alguma transferência)
+  const destinoIds = new Set<string>()
+  const pedidoIdsSet = new Set(pedidoIds)
+
+  for (const t of transferencias) {
+    if (pedidoIdsSet.has(t.id_pedido_origem)) {
+      origemIds.add(t.id_pedido_origem)
+    }
+    try {
+      const destinos = JSON.parse(t.destinos_pedido_transferencia) as Array<{ pedido_id?: string }>
+      for (const d of destinos) {
+        if (d.pedido_id && pedidoIdsSet.has(d.pedido_id)) {
+          destinoIds.add(d.pedido_id)
+        }
+      }
+    } catch (_e) { /* JSON inválido — ignora */ }
+  }
+
+  // Tagear cada pedido com os flags virtuais
+  return pedidosMapped.map(p => {
+    const pid = p.id as string
+    return {
+      ...p,
+      enviou_transferencia: origemIds.has(pid) || (Number(p.quantidade_transferida_total ?? 0) > 0),
+      recebeu_transferencia: destinoIds.has(pid),
+    }
+  })
+}
+
 // ── GET / — Listar pedidos ────────────────────────────────────────────────────
 // Suporta dois modos de paginação:
 //   - Cursor: ?cursor=<base64>&sort=data_emissao_pedido&dir=desc&limit=50
@@ -836,7 +891,9 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // consomem a lista base precisam dos `_colunas_usuario` nos itens
         // embarcados também. Fix 2026-05-13.
         const registrosComColunas = await injetarColunasPedidoEItens(db, registros, idOrganizacao)
-        return res.json({ data: registrosComColunas.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
+        const mapped = registrosComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
+        const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+        return res.json({ data: comTransferencias, nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
       // ── Offset pagination (backward compat) ──
@@ -894,7 +951,9 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const data = dataRaw as any[]
       // Mesma injeção 2-níveis do branch cursor — fecha o gap da Kanban (fix 2026-05-13).
       const dataComColunas = await injetarColunasPedidoEItens(db, data, idOrganizacao)
-      res.json({ data: dataComColunas.map(mapPedido), total, totalItens, page: pageNum, limit: limitNum })
+      const mapped = dataComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
+      const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+      res.json({ data: comTransferencias, total, totalItens, page: pageNum, limit: limitNum })
     })
   } catch (err) {
     next(err)

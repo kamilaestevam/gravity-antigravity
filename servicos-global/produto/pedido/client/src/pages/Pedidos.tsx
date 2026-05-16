@@ -9,7 +9,7 @@
  * Filtros de coluna: client-side, chips ativos, popover por coluna.
  */
 
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react'
 import i18next from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -4460,43 +4460,77 @@ export default function Pedidos() {
   )
 
   // ── Indicador de transferência (seta à esquerda da linha) ───────────────────
-  // Azul ↓ = recebeu quantidade (pedido criado por transferência)
+  // Azul ↓ = recebeu quantidade (pedido destino de uma transferência)
   // Vermelho ↑ = enviou quantidade (teve itens transferidos para outro pedido)
+  // Campos virtuais `enviou_transferencia` e `recebeu_transferencia` vêm
+  // do backend (tagTransferencias) — fonte de verdade é a tabela PedidoTransferencia.
   const renderIndicadorLinhaPedido = useCallback((pedido: Pedido) => {
-    const recebeu = pedido.pedidos_origem_id && pedido.pedidos_origem_id.length > 0
-    const enviou = (pedido as Record<string, unknown>).quantidade_transferida_total != null
-      && Number((pedido as Record<string, unknown>).quantidade_transferida_total) > 0
-    if (!recebeu && !enviou) return null
+    const recebeu = pedido.recebeu_transferencia === true
+    const enviou = pedido.enviou_transferencia === true
+    const consolidado = pedido.status === 'consolidado'
+
+    if (!recebeu && !enviou && !consolidado) return null
+
+    // Monta ícone de transferência
+    let iconeTransf: ReactNode = null
     if (recebeu && enviou) {
-      return (
-        <TooltipGlobal titulo="Recebeu e enviou transferências">
-          <span style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-            <ArrowDown size={10} weight="bold" style={{ color: '#60a5fa' }} />
-            <ArrowUp size={10} weight="bold" style={{ color: '#f87171' }} />
-          </span>
+      iconeTransf = (
+        <TooltipGlobal titulo="Recebeu e enviou transferências" descricao="">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+            <polygon points="12,1 5,9 19,9" fill="#f87171" />
+            <rect x="10.5" y="8.5" width="3" height="7" fill="url(#gradTransf)" />
+            <polygon points="12,23 5,15 19,15" fill="#60a5fa" />
+            <defs>
+              <linearGradient id="gradTransf" x1="12" y1="8.5" x2="12" y2="15.5" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#f87171" />
+                <stop offset="100%" stopColor="#60a5fa" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </TooltipGlobal>
+      )
+    } else if (recebeu) {
+      iconeTransf = (
+        <TooltipGlobal titulo="Recebeu itens de outro pedido" descricao="">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+            <polygon points="12,22 4,12 20,12" fill="#60a5fa" />
+            <rect x="10.5" y="2" width="3" height="11" fill="#60a5fa" />
+          </svg>
+        </TooltipGlobal>
+      )
+    } else if (enviou) {
+      iconeTransf = (
+        <TooltipGlobal titulo="Transferiu itens para outro pedido" descricao="">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+            <polygon points="12,2 4,12 20,12" fill="#f87171" />
+            <rect x="10.5" y="11" width="3" height="11" fill="#f87171" />
+          </svg>
         </TooltipGlobal>
       )
     }
-    if (recebeu) {
-      return (
-        <TooltipGlobal titulo="Recebeu itens de outro pedido">
-          <ArrowDown size={12} weight="bold" style={{ color: '#60a5fa' }} />
-        </TooltipGlobal>
-      )
-    }
-    return (
-      <TooltipGlobal titulo="Transferiu itens para outro pedido">
-        <ArrowUp size={12} weight="bold" style={{ color: '#f87171' }} />
+
+    // Ícone de consolidação
+    const iconeConsol = consolidado ? (
+      <TooltipGlobal titulo="Pedido consolidado" descricao="">
+        <ArrowsMerge size={18} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
       </TooltipGlobal>
-    )
+    ) : null
+
+    if (iconeTransf && iconeConsol) {
+      return <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>{iconeTransf}{iconeConsol}</span>
+    }
+    return iconeTransf ?? iconeConsol
   }, [])
 
   const renderIndicadorLinhaItem = useCallback((item: PedidoItem) => {
     const transferiu = (item.quantidade_transferida_pedido ?? 0) > 0
     if (!transferiu) return null
     return (
-      <TooltipGlobal titulo="Este item teve quantidade transferida">
-        <ArrowUp size={12} weight="bold" style={{ color: '#f87171' }} />
+      <TooltipGlobal titulo="Este item teve quantidade transferida" descricao="">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+          <polygon points="12,2 4,12 20,12" fill="#f87171" />
+          <rect x="10.5" y="11" width="3" height="11" fill="#f87171" />
+        </svg>
       </TooltipGlobal>
     )
   }, [])
@@ -6330,6 +6364,11 @@ export default function Pedidos() {
               : (pedidosSelecionados.length === 1 && (itensCarregadosRef.current.get(pedidosSelecionados[0].id)?.length === 1))
                 ? itensCarregadosRef.current.get(pedidosSelecionados[0].id)![0].id
                 : undefined
+          }
+          itensSelecionadosIds={
+            itensSelecionados.length > 0
+              ? itensSelecionados.map(i => i.id)
+              : undefined
           }
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {

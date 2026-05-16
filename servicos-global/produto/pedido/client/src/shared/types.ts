@@ -345,6 +345,10 @@ export interface Pedido {
 
   // Agregados de itens (soma calculada pelo backend)
   quantidade_transferida_total?: number | null
+  /** Virtual: true se o pedido foi origem de transferência (enviou itens) */
+  enviou_transferencia?: boolean
+  /** Virtual: true se o pedido aparece como destino de uma transferência (recebeu itens) */
+  recebeu_transferencia?: boolean
   quantidade_pronta_itens_pedido_total?: number | null
   saldo_itens_do_pedido?: number | null
   quantidade_cancelada_total_pedido?: number | null

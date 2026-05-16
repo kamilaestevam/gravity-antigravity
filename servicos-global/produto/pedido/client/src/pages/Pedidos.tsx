@@ -5068,9 +5068,17 @@ export default function Pedidos() {
             return handleEditar(idReal, campo, valor, opts);
           } : undefined}
           permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
-            if (isPropagavel(campo)) return true
-            const col = colunasUsuario.find(c => c.chave === campo)
-            return !!col && ((col.escopo || 'ambos') === 'ambos')
+            const COLUNAS_SEM_REPLICACAO = new Set([
+              'numero_pedido',
+              'valor_total_pedido',
+              'valor_por_unidade_item',
+              'valor_total_cambio_pedido',
+              'quantidade_total_pedido',
+              'saldo_itens_do_pedido',
+              'quantidade_transferida_total',
+              'quantidade_volumes_pedido',
+            ])
+            return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
 
           camposEditaveisFilhos={podeEditarLista ? camposEditaveisFilhosComCustom : []}

@@ -1572,25 +1572,32 @@
   color: var(--_moeda-fg, var(--gtv-accent, #818cf8));
   text-align: center;
 }
+/* Variações por moeda — matiz + luminosidade distintas para contraste
+   perceptível em dark mode. Mantém harmonia geral. */
 .gtv-celula-moeda-badge--usd {
-  --_moeda-bg: rgba(99, 102, 241, 0.15);
+  /* Indigo — a cor padrão do sistema */
+  --_moeda-bg: rgba(99, 102, 241, 0.20);
   --_moeda-fg: #818cf8;
 }
 .gtv-celula-moeda-badge--eur {
-  --_moeda-bg: rgba(139, 92, 246, 0.15);
-  --_moeda-fg: #a78bfa;
+  /* Violeta quente — claramente mais roxo/rosado */
+  --_moeda-bg: rgba(192, 80, 240, 0.20);
+  --_moeda-fg: #d494ff;
 }
 .gtv-celula-moeda-badge--brl {
-  --_moeda-bg: rgba(79, 119, 241, 0.15);
-  --_moeda-fg: #7da0f8;
+  /* Cyan-azul — claramente mais frio/azulado */
+  --_moeda-bg: rgba(56, 189, 248, 0.18);
+  --_moeda-fg: #38bdf8;
 }
 .gtv-celula-moeda-badge--gbp {
-  --_moeda-bg: rgba(100, 116, 139, 0.15);
+  /* Slate acinzentado — neutro, mais apagado */
+  --_moeda-bg: rgba(148, 163, 184, 0.16);
   --_moeda-fg: #94a3b8;
 }
 .gtv-celula-moeda-badge--cny {
-  --_moeda-bg: rgba(168, 85, 247, 0.15);
-  --_moeda-fg: #c084fc;
+  /* Rosa-magenta — tom quente distinto */
+  --_moeda-bg: rgba(244, 114, 182, 0.18);
+  --_moeda-fg: #f472b6;
 }
 .gtv-celula-unidade-badge {
   flex-shrink: 0;
@@ -1869,11 +1876,12 @@
   margin-top: 0.5rem;
 }
 
-/* ─── Loader wrapper — centraliza GravityLoader no espaço da tabela ──────── */
+/* ─── Loader wrapper — posiciona GravityLoader no terço superior da tabela ── */
 .gtv-loader-wrapper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 8%;
 }
 
 /* ─── Skeleton de carregamento ────────────────────────────────────────────── */

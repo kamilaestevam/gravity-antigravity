@@ -244,10 +244,10 @@ function SeletorItemQuantidade({
                     aria-label={`Selecionar item ${item.part_number}`}
                   />
                   <strong>
-                    {item.part_number && item.part_number.length > 50 ? (
+                    {item.part_number && item.part_number.length > 20 ? (
                       <TooltipGlobal titulo={t('pedido.modal_transf.col_part_number')} descricao={item.part_number}>
                         <span className="modal-transferir__desc-truncada">
-                          {item.part_number.slice(0, 50) + '…'}
+                          {item.part_number.slice(0, 20) + '…'}
                           <Eye size={14} className="modal-transferir__desc-eye" />
                         </span>
                       </TooltipGlobal>
@@ -256,10 +256,10 @@ function SeletorItemQuantidade({
                 </span>
               </td>
               <td>
-                {item.descricao_item && item.descricao_item.length > 50 ? (
+                {item.descricao_item && item.descricao_item.length > 30 ? (
                   <TooltipGlobal titulo={t('pedido.modal_transf.col_descricao')} descricao={item.descricao_item}>
                     <span className="modal-transferir__desc-truncada">
-                      {item.descricao_item.slice(0, 50) + '…'}
+                      {item.descricao_item.slice(0, 30) + '…'}
                       <Eye size={14} className="modal-transferir__desc-eye" />
                     </span>
                   </TooltipGlobal>

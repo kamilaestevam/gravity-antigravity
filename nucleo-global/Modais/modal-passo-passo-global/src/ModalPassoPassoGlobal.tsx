@@ -208,8 +208,8 @@ export function ModalPassoPassoGlobal({
           100% { transform: scale(1); }
         }
         @keyframes mpg-pulse {
-          0%, 100% { box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
-          50%      { box-shadow: 0 0 0 6px rgba(99,102,241,0.12); }
+          0%, 100% { box-shadow: 0 0 0 3px rgba(99,102,241,0.2), 0 4px 14px rgba(99,102,241,0.3); }
+          50%      { box-shadow: 0 0 0 6px rgba(99,102,241,0.15), 0 4px 14px rgba(99,102,241,0.15); }
         }
         .mpg-btn-fechar:hover {
           color: var(--text-primary) !important;
@@ -219,11 +219,19 @@ export function ModalPassoPassoGlobal({
           cursor: pointer;
         }
         .mpg-passo-feito:hover .mpg-circulo-feito {
-          transform: scale(1.1);
-          box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+          transform: scale(1.12);
+          box-shadow: 0 0 0 3px rgba(34,197,94,0.25), 0 4px 12px rgba(34,197,94,0.2);
         }
         .mpg-circulo-ativo {
           animation: mpg-pulse 2.5s ease-in-out infinite;
+        }
+        .mpg-circulo-pendente {
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+        .mpg-circulo-pendente:hover {
+          background: var(--bg-elevated, rgba(255,255,255,0.1)) !important;
+          border-color: var(--text-muted) !important;
         }
         .mpg-check-icon {
           animation: mpg-check-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -340,11 +348,11 @@ export function ModalPassoPassoGlobal({
                         style={circuloStyle}
                         className={
                           status === 'ativo' ? 'mpg-circulo-ativo' :
-                          status === 'feito' ? 'mpg-circulo-feito' : undefined
+                          status === 'feito' ? 'mpg-circulo-feito' : 'mpg-circulo-pendente'
                         }
                       >
                         {status === 'feito'
-                          ? <span className="mpg-check-icon"><Check size={14} weight="bold" /></span>
+                          ? <span className="mpg-check-icon"><Check size={13} weight="bold" /></span>
                           : (passo.icone ?? passo.id)
                         }
                       </div>
@@ -533,30 +541,35 @@ const s = {
   },
   // Circulo — OBRIGATORIO: min-width e flex-shrink:0 (Design System § 12)
   circulo: {
-    width: '2rem',
-    height: '2rem',
-    minWidth: '2rem',
+    width: '2.25rem',
+    height: '2.25rem',
+    minWidth: '2.25rem',
     flexShrink: 0,
     borderRadius: '50%',
-    background: 'var(--bg-elevated)',
-    border: 'none',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1.5px solid var(--bg-elevated, rgba(255,255,255,0.12))',
     color: 'var(--text-muted)',
-    fontSize: '0.875rem',
-    fontWeight: 600,
+    fontSize: '0.8125rem',
+    fontWeight: 700,
+    letterSpacing: '-0.01em',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
   } as React.CSSProperties,
   circuloAtivo: {
-    background: 'var(--accent)',
-    color: '#0f172a',
+    background: 'linear-gradient(135deg, var(--accent, #6366f1), #818cf8)',
+    border: '2px solid transparent',
+    color: '#fff',
+    boxShadow: '0 0 0 3px rgba(99,102,241,0.2), 0 4px 14px rgba(99,102,241,0.3)',
+    fontWeight: 800,
   } as React.CSSProperties,
   circuloFeito: {
-    background: 'var(--success, #22c55e)',
-    border: '2px solid var(--success, #22c55e)',
+    background: 'linear-gradient(135deg, #22c55e, #4ade80)',
+    border: '2px solid transparent',
     color: '#fff',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
+    boxShadow: '0 2px 8px rgba(34,197,94,0.25)',
+    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
   } as React.CSSProperties,
   label: {
     fontSize: '0.6875rem',
@@ -572,9 +585,9 @@ const s = {
     position: 'relative' as const,
     flex: 1,
     height: '2px',
-    background: 'var(--bg-elevated)',
+    background: 'var(--bg-elevated, rgba(255,255,255,0.08))',
     minWidth: '20px',
-    marginTop: '1rem',
+    marginTop: '1.125rem',
     borderRadius: '1px',
     overflow: 'hidden',
   } as React.CSSProperties,

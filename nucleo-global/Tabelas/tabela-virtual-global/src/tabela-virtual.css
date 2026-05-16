@@ -946,6 +946,9 @@
   z-index: 9999;
   width: 340px;
   max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 24px);
+  display: flex;
+  flex-direction: column;
   background: var(--gtv-bg-alt, #1e2230);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -1005,6 +1008,7 @@
   justify-content: space-between;
   padding: 0.625rem 0.875rem 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
 }
 
 .gtv-edit-popover-label {
@@ -1042,6 +1046,9 @@
 /* Body */
 .gtv-edit-popover-body {
   padding: 0.75rem 0.875rem 0.625rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ── Modo lista de opções ────────────────────────────────────────────────────── */
@@ -1050,6 +1057,24 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.gtv-edit-popover-opcoes::-webkit-scrollbar {
+  width: 5px;
+}
+.gtv-edit-popover-opcoes::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gtv-edit-popover-opcoes::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+.gtv-edit-popover-opcoes::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .gtv-edit-popover-opcao {
@@ -1084,6 +1109,21 @@
   background: rgba(99, 102, 241, 0.22);
 }
 
+/* Busca dentro da lista de opções (aparece quando > 8 opções) */
+.gtv-edit-popover-input--busca {
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.gtv-edit-popover-opcoes-vazio {
+  display: block;
+  text-align: center;
+  padding: 1rem 0.75rem;
+  color: var(--gtv-muted, #8892a4);
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
 .gtv-edit-popover-footer--hidden {
   display: none;
 }
@@ -1102,6 +1142,7 @@
   border: 1px solid rgba(251, 191, 36, 0.25);
   border-radius: 6px;
   animation: gtv-aviso-pulse 3s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 .gtv-edit-aviso-impacto-icone {
@@ -1146,6 +1187,7 @@
   justify-content: space-between;
   padding: 0.5rem 0.875rem 0.75rem;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .gtv-edit-popover-hints {

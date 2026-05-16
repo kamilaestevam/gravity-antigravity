@@ -740,6 +740,17 @@
   color: var(--color-text-muted, #64748b);
 }
 
+.modal-transferir__desc-truncada {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.modal-transferir__desc-eye {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
 .modal-transferir__preview-container {
   display: flex;
   flex-direction: column;

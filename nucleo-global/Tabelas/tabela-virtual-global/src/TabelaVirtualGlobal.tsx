@@ -460,6 +460,8 @@ const GTEditPopover = memo(function GTEditPopover({
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
   const [unidadeBusca, setUnidadeBusca] = useState('')
+  const [opcoesBusca, setOpcoesBusca]   = useState('')
+  const opcoesBuscaRef = useRef<HTMLInputElement>(null)
 
   function abrirMoeda() {
     const r = moedaTriggerRef.current?.getBoundingClientRect()
@@ -632,30 +634,55 @@ const GTEditPopover = memo(function GTEditPopover({
 
         {/* Input / Lista de opções */}
         <div className="gtv-edit-popover-body">
-          {isOpcoes ? (
-            <div className="gtv-edit-popover-opcoes">
-              {overlayInfo.opcoes!.map(op => (
-                <button
-                  key={op.valor}
-                  type="button"
-                  className={`gtv-edit-popover-opcao${String(valorEditando) === op.valor ? ' gtv-edit-popover-opcao--ativo' : ''}`}
-                  disabled={salvando}
-                  onMouseDown={e => e.preventDefault()}
-                  // Decisão UX 2026-05-13: quando há checkbox "Aplicar a todos
-                  // os itens", clique na opção apenas SELECIONA (não confirma) —
-                  // usuário precisa decidir se marca o checkbox antes de
-                  // confirmar via Enter/botão. Sem o checkbox, mantém o
-                  // comportamento original (clique auto-confirma).
-                  onClick={() => {
-                    onAtualizar(op.valor)
-                    if (!mostrarCheckboxReplicar) confirmarComOpts()
-                  }}
-                >
-                  {op.label}
-                </button>
-              ))}
-            </div>
-          ) : isMoeda ? (
+          {isOpcoes ? (() => {
+            const todasOpcoes = overlayInfo.opcoes!
+            const temBusca = todasOpcoes.length > 8
+            const termo = opcoesBusca.trim().toLowerCase()
+            const opcoesFiltradas = temBusca && termo
+              ? todasOpcoes.filter(op => op.label.toLowerCase().includes(termo) || op.valor.toLowerCase().includes(termo))
+              : todasOpcoes
+            return (
+              <>
+                {temBusca && (
+                  <input
+                    ref={opcoesBuscaRef}
+                    autoFocus
+                    type="text"
+                    className="gtv-edit-popover-input gtv-edit-popover-input--busca"
+                    placeholder="Buscar..."
+                    value={opcoesBusca}
+                    onChange={e => setOpcoesBusca(e.target.value)}
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
+                    onKeyDown={e => {
+                      if (e.key === 'Escape') { e.preventDefault(); onCancelar() }
+                    }}
+                  />
+                )}
+                <div className="gtv-edit-popover-opcoes">
+                  {opcoesFiltradas.map(op => (
+                    <button
+                      key={op.valor}
+                      type="button"
+                      className={`gtv-edit-popover-opcao${String(valorEditando) === op.valor ? ' gtv-edit-popover-opcao--ativo' : ''}`}
+                      disabled={salvando}
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => {
+                        onAtualizar(op.valor)
+                        if (!mostrarCheckboxReplicar) confirmarComOpts()
+                      }}
+                    >
+                      {op.label}
+                    </button>
+                  ))}
+                  {opcoesFiltradas.length === 0 && (
+                    <span className="gtv-edit-popover-opcoes-vazio">Nenhum resultado</span>
+                  )}
+                </div>
+              </>
+            )
+          })()
+          : isMoeda ? (
             <div className="gtv-edit-moeda">
               {/* Trigger — dropdown inline com busca e lista Siscomex completa */}
               <div className="gtv-edit-custom-select">

@@ -28,7 +28,9 @@ import {
   PlusCircle,
   ArrowDown,
   X,
+  Eye,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useShellStore } from '@gravity/shell'
@@ -242,10 +244,30 @@ function SeletorItemQuantidade({
                     aria-label={`Selecionar item ${item.part_number}`}
                     onClick={e => e.stopPropagation()}
                   />
-                  <strong>{item.part_number}</strong>
+                  <strong>
+                    {item.part_number && item.part_number.length > 50 ? (
+                      <TooltipGlobal titulo={t('pedido.modal_transf.col_part_number')} descricao={item.part_number}>
+                        <span className="modal-transferir__desc-truncada">
+                          {item.part_number.slice(0, 50) + '…'}
+                          <Eye size={14} className="modal-transferir__desc-eye" />
+                        </span>
+                      </TooltipGlobal>
+                    ) : item.part_number}
+                  </strong>
                 </label>
               </td>
-              <td>{item.descricao_item}</td>
+              <td>
+                {item.descricao_item && item.descricao_item.length > 50 ? (
+                  <TooltipGlobal titulo={t('pedido.modal_transf.col_descricao')} descricao={item.descricao_item}>
+                    <span className="modal-transferir__desc-truncada">
+                      {item.descricao_item.slice(0, 50) + '…'}
+                      <Eye size={14} className="modal-transferir__desc-eye" />
+                    </span>
+                  </TooltipGlobal>
+                ) : (
+                  <span>{item.descricao_item || '—'}</span>
+                )}
+              </td>
               <td>{fmtQuantidade(item.quantidade_atual_pedido, item.casas_decimais_quantidade_item)}</td>
               <td onClick={e => e.stopPropagation()}>
                 {selecionado ? (

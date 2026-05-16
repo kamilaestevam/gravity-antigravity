@@ -108,6 +108,7 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   const resolvedLabels: Required<KanbanLabels> = { ...DEFAULT_LABELS, ...labels }
   const [activeId, setActiveId]       = useState<string | null>(null)
   const [movingId, setMovingId]       = useState<string | null>(null)
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, 'sucesso' | 'erro'>>({})
   const [columnSorts, setColumnSorts] = useState<Record<string, KanbanSortKey>>({})
   // Optimistic: itemId → novaColunaKey enquanto move assíncrono está pendente
   const [pendingMoves, setPendingMoves] = useState<Record<string, string>>({})
@@ -194,8 +195,10 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
         sucesso = true
       } finally {
         setMovingId(null)
+        const resultado = sucesso ? 'sucesso' as const : 'erro' as const
+        setFeedbackMap(prev => ({ ...prev, [itemId]: resultado }))
+
         if (sucesso) {
-          // Aguarda o pai atualizar o estado antes de limpar (evita flicker)
           setTimeout(() => {
             setPendingMoves(prev => {
               const next = { ...prev }
@@ -204,13 +207,20 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
             })
           }, 50)
         } else {
-          // Rollback imediato
           setPendingMoves(prev => {
             const next = { ...prev }
             delete next[itemId]
             return next
           })
         }
+
+        setTimeout(() => {
+          setFeedbackMap(prev => {
+            const next = { ...prev }
+            delete next[itemId]
+            return next
+          })
+        }, sucesso ? 600 : 1000)
       }
     },
     [], // deps vazias — acessa tudo via refs
@@ -288,6 +298,7 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       emptyLabel,
       activeId,
       movingId,
+      feedbackMap,
       testIdPrefix,
       modoGlobal,
       colunaFooterSlot,
@@ -297,7 +308,7 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [colunasRender, renderCard, isReadOnly, onMoverItem, emptyLabel,
-     activeId, movingId, testIdPrefix, modoGlobal, colunaFooterSlot,
+     activeId, movingId, feedbackMap, testIdPrefix, modoGlobal, colunaFooterSlot,
      handleMoverItemInternal, onCardClick, resolvedLabels],
   )
 

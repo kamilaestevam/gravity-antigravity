@@ -43,8 +43,10 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
             disabled={!dirty || carregando}
             onClick={onClick}
             icone={<FloppyDisk size={14} weight="bold" />}
+            carregando={carregando}
+            textoCarregando={t('botoes.salvando')}
           >
-            {carregando ? t('botoes.salvando') : label}
+            {label}
           </BotaoGlobal>
         </TooltipGlobal>
       </div>

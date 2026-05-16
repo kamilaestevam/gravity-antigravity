@@ -320,6 +320,12 @@ export const pedidoItemApi = {
       method: 'PATCH',
       body: JSON.stringify({ quantidade_pronta_total_item_pedido: quantidade }),
     }),
+
+  reordenar: (pedidoId: string, ids: string[]) =>
+    request<{ ok: boolean; total_reordenados: number }>(`/api/v1/pedidos/${pid(pedidoId)}/itens/reordenar`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ids }),
+    }),
 }
 
 // ── Cursor pagination + inline edit ───────────────────────────────────────────

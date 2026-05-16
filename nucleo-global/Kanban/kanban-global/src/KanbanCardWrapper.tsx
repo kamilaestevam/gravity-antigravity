@@ -21,6 +21,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     renderCard,
     isReadOnly,
     movingId,
+    feedbackMap,
     testIdPrefix,
     modoGlobal,
     onMoverItemInternal,
@@ -52,6 +53,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
   }
 
   const isMoving = movingId === item.id
+  const feedback = feedbackMap[item.id] ?? null
 
   // ── Menu "Mover para" ────────────────────────────────────────────────────
   const [showMenu, setShowMenu] = useState(false)
@@ -79,9 +81,11 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
   // ── Classes ──────────────────────────────────────────────────────────────
   const classes = [
     'kg-card-wrapper',
-    isDragging       ? 'kg-dragging' : '',
-    isReadOnlyEfetivo ? 'kg-readonly' : '',
-    isMoving         ? 'kg-moving'   : '',
+    isDragging        ? 'kg-dragging'       : '',
+    isReadOnlyEfetivo ? 'kg-readonly'       : '',
+    isMoving          ? 'kg-moving'         : '',
+    feedback === 'sucesso' ? 'kg-feedback-sucesso' : '',
+    feedback === 'erro'    ? 'kg-feedback-erro'    : '',
   ].filter(Boolean).join(' ')
 
   return (

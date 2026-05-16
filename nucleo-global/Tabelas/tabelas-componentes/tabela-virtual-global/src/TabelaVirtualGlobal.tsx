@@ -13,6 +13,7 @@ import React, {
   useLayoutEffect,
   useCallback,
   memo,
+  useImperativeHandle,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -21,9 +22,10 @@ import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
-import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
+
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -109,6 +111,19 @@ function IconeVazio() {
   )
 }
 
+function IconeDragHandle() {
+  return (
+    <svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true">
+      <circle cx="3.5" cy="2.5" r="1.5" />
+      <circle cx="8.5" cy="2.5" r="1.5" />
+      <circle cx="3.5" cy="8" r="1.5" />
+      <circle cx="8.5" cy="8" r="1.5" />
+      <circle cx="3.5" cy="13.5" r="1.5" />
+      <circle cx="8.5" cy="13.5" r="1.5" />
+    </svg>
+  )
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildFlatRows<T, C>(
@@ -126,9 +141,10 @@ function buildFlatRows<T, C>(
 
     if (expandidos.has(id)) {
       const filhos = filhosCache.get(id) ?? []
-      for (const filho of filhos) {
+      for (let fi = 0; fi < filhos.length; fi++) {
+        const filho = filhos[fi]
         const fid = filhoId(filho)
-        linhas.push({ tipo: 'filho', item: filho, paiId: id, profundidade: 1, id: fid })
+        linhas.push({ tipo: 'filho', item: filho, paiId: id, profundidade: 1, id: fid, ultimoFilho: fi === filhos.length - 1 })
       }
     }
   }
@@ -267,6 +283,9 @@ function brToIso(text: string): string | null {
   return dateToIso(d)
 }
 
+// Converte valor ISO/Date para o formato {inicio, fim} do CampoCalendarioGlobal.
+// Usado no popover de edição inline da célula tipo='periodo' para sincronizar
+// o calendário com o input texto.
 function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
   if (!val || typeof val !== 'string') return { inicio: null, fim: null }
   const d = new Date(val)
@@ -334,9 +353,9 @@ function parseBRNum(s: string): number {
  * 7. null/undefined         → ''
  */
 function valorParaStringFind(v: unknown, col: GTColuna<unknown>, item: Record<string, unknown>): string {
-  if (col.findDisplay) return col.findDisplay(item as never)
+  if (col.findDisplay) return col.findDisplay(item as never) ?? ''
   if (v == null) return ''
-  if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, col.casasDecimais)
+  if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, col.casasDecimais) ?? ''
   if (col.tipo === 'periodo' && typeof v === 'string') {
     const d = new Date(v)
     return isNaN(d.getTime()) ? v : d.toLocaleDateString('pt-BR')
@@ -395,9 +414,16 @@ interface GTEditPopoverProps {
   valorEditando: unknown
   salvando: boolean
   onAtualizar: (valor: unknown) => void
-  onConfirmar: () => void
+  /** onConfirmar pode receber opts (ex: replicar_em_itens) — popover propaga
+   *  via aqui quando o usuario marca o checkbox da linha pai. */
+  onConfirmar: (opts?: { replicar_em_itens?: boolean }) => void
   onCancelar: () => void
   onSmartPaste?: (valores: string[]) => void
+  /** Placeholder para o input de data (tipo 'periodo'). Ex: 'DD/MM/AAAA', 'MM/DD/AAAA' */
+  placeholderData?: string
+  /** Quando true, o popover exibe o checkbox "Aplicar a todos os itens" — usuário
+   *  controla se a edição replica para os items filhos. Padrão: false. */
+  mostrarCheckboxReplicar?: boolean
 }
 
 const POPOVER_W = 340
@@ -410,13 +436,25 @@ const GTEditPopover = memo(function GTEditPopover({
   onConfirmar,
   onCancelar,
   onSmartPaste,
+  placeholderData = 'DD/MM/AAAA',
+  mostrarCheckboxReplicar = false,
 }: GTEditPopoverProps) {
+  // Estado do checkbox "Aplicar a todos os itens" (Decisão UX 2026-05-13).
+  // Só relevante quando mostrarCheckboxReplicar=true (linha pai + campo elegível).
+  const [replicarEmItens, setReplicarEmItens] = useState(false)
+  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
+  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
+  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
+  const confirmarComOpts = useCallback(() => {
+    onConfirmar({ replicar_em_itens: replicarEmItens })
+  }, [onConfirmar, replicarEmItens])
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isNumero  = overlayInfo.colTipo === 'numero'
+  const isNCM     = overlayInfo.campo === 'ncm'
   const popoverRef    = useRef<HTMLDivElement>(null)
   const inputRef      = useRef<HTMLInputElement>(null)
   const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
@@ -425,6 +463,8 @@ const GTEditPopover = memo(function GTEditPopover({
   const dropdownAbrindoRef = useRef(false)
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
+  // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
+  const [calendarioAberto, setCalendarioAberto] = useState(false)
   const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number; width: number } | null>(null)
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
@@ -451,6 +491,7 @@ const GTEditPopover = memo(function GTEditPopover({
     ? (valorEditando as GTValorUnidade)
     : { unit: 'UN', quantity: 0 }
   // SSOT: listas vêm do banco Cadastros via hooks (antes hardcoded).
+  // Se a coluna restringe moedas/unidades, filtra a lista canônica.
   const { moedas: moedasCadastros } = useMoedas()
   const { unidades: unidadesCadastros } = useUnidades()
   const listaMoedasSiscomex = overlayInfo.moedas
@@ -531,7 +572,9 @@ const GTEditPopover = memo(function GTEditPopover({
     if (iso) onAtualizar(iso)
   }
 
-  // Calendário selecionou uma data: preenche input sem confirmar
+  // Calendário selecionou uma data — preenche o input texto sem confirmar.
+  // Decisão UX 2026-05-13: usuário pode digitar OU clicar no calendário; ambos
+  // alimentam o mesmo estado periodoText. Confirma com Enter ou botão.
   function handleCalendarioMudar(val: { inicio: Date | null; fim: Date | null }) {
     if (val.inicio) {
       const iso = dateToIso(val.inicio)
@@ -577,6 +620,9 @@ const GTEditPopover = memo(function GTEditPopover({
                 campo={overlayInfo.gabiCampo}
                 label={colLabel}
                 gabiEndpoint={overlayInfo.gabiEndpoint}
+                onConsultar={async () => ''}
+                carregando={false}
+                esgotado={false}
               />
             )}
           </span>
@@ -604,7 +650,15 @@ const GTEditPopover = memo(function GTEditPopover({
                   className={`gtv-edit-popover-opcao${String(valorEditando) === op.valor ? ' gtv-edit-popover-opcao--ativo' : ''}`}
                   disabled={salvando}
                   onMouseDown={e => e.preventDefault()}
-                  onClick={() => { onAtualizar(op.valor); onConfirmar() }}
+                  // Decisão UX 2026-05-13: quando há checkbox "Aplicar a todos
+                  // os itens", clique na opção apenas SELECIONA (não confirma) —
+                  // usuário precisa decidir se marca o checkbox antes de
+                  // confirmar via Enter/botão. Sem o checkbox, mantém o
+                  // comportamento original (clique auto-confirma).
+                  onClick={() => {
+                    onAtualizar(op.valor)
+                    if (!mostrarCheckboxReplicar) confirmarComOpts()
+                  }}
                 >
                   {op.label}
                 </button>
@@ -643,14 +697,14 @@ const GTEditPopover = memo(function GTEditPopover({
                   onAtualizar({ ...mv, amount: parseBRNum(raw) })
                 }}
                 onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                   if (e.key === 'Escape') { e.preventDefault(); setMoedaAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayMoedaAmt)
                   setDisplayMoedaAmt(fmtBR(parsed, 2))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
                 }}
                 onPaste={handleSmartPasteDetect}
               />
@@ -672,14 +726,14 @@ const GTEditPopover = memo(function GTEditPopover({
                   onAtualizar({ ...uv, quantity: parseBRNum(raw) })
                 }}
                 onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                   if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayQty)
                   setDisplayQty(fmtBR(parsed, casas))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
                 }}
                 onPaste={handleSmartPasteDetect}
               />
@@ -702,28 +756,78 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isPeriodo ? (
             <>
-              {/* Input de digitação livre em formato BR */}
-              <input
-                ref={inputRef}
-                autoFocus
-                className="gtv-edit-popover-input"
-                placeholder="DD/MM/AAAA"
-                value={periodoText}
-                disabled={salvando}
-                onChange={e => handlePeriodoTextChange(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
-                }}
-              />
-              {/* Calendário como opção visual — selecionar preenche o input acima */}
-              <div style={{ marginTop: 8 }}>
-                <CampoCalendarioGlobal
-                  valor={parseDateValor(valorEditando)}
-                  aoMudarValor={handleCalendarioMudar}
+              {/* Input com ícone de calendário inline à direita.
+                  Decisão UX 2026-05-13: usuário pode digitar OU clicar no
+                  ícone para abrir o calendário (padrão de date picker). */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  ref={inputRef}
+                  autoFocus
+                  className="gtv-edit-popover-input"
+                  placeholder={placeholderData}
+                  value={periodoText}
                   disabled={salvando}
+                  style={{ paddingRight: 36 }}
+                  onChange={e => handlePeriodoTextChange(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
+                    if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                  }}
                 />
+                <button
+                  type="button"
+                  // onMouseDown ao invés de onClick + preventDefault para NÃO tirar
+                  // o foco do input (igual aos triggers de moeda/unidade no mesmo
+                  // popover). stopPropagation impede que o handler global fecharFora
+                  // (linha ~1332) interprete o click como "clicou fora" e cancele.
+                  onMouseDown={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (!salvando) setCalendarioAberto(v => !v)
+                  }}
+                  disabled={salvando}
+                  aria-label="Abrir calendário"
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 28,
+                    height: 28,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: salvando ? 'not-allowed' : 'pointer',
+                    color: calendarioAberto ? '#a78bfa' : '#94a3b8',
+                    borderRadius: 4,
+                    padding: 0,
+                  }}
+                >
+                  {/* Ícone calendário (mesmo desenho de Phosphor CalendarBlank) */}
+                  <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                    <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"/>
+                  </svg>
+                </button>
               </div>
+              {/* Calendário só aparece quando o ícone é clicado. modoUnico:
+                  célula tem 1 data, sem sidebar de presets/INICIO-FIM/footer.
+                  Click num dia dispara aoMudarValor imediatamente e fecha. */}
+              {calendarioAberto && (
+                <div style={{ marginTop: 8 }}>
+                  <CampoCalendarioGlobal
+                    valor={parseDateValor(valorEditando)}
+                    aoMudarValor={(val) => {
+                      handleCalendarioMudar(val)
+                      setCalendarioAberto(false)
+                    }}
+                    disabled={salvando}
+                    modoUnico
+                    semTrigger
+                  />
+                </div>
+              )}
             </>
           ) : (
             <input
@@ -734,17 +838,24 @@ const GTEditPopover = memo(function GTEditPopover({
               className="gtv-edit-popover-input"
               value={isNumero ? displayNumero : String(valorEditando ?? '')}
               disabled={salvando}
+              maxLength={isNCM ? 10 : undefined}
               onChange={e => {
                 const raw = e.target.value
                 if (isNumero) {
                   setDisplayNumero(raw)
                   onAtualizar(parseBRNum(raw))
+                } else if (isNCM) {
+                  const digits = raw.replace(/\D/g, '').slice(0, 8)
+                  let masked = digits
+                  if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
+                  else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
+                  onAtualizar(masked)
                 } else {
                   onAtualizar(raw)
                 }
               }}
               onKeyDown={e => {
-                if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
                 if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
               }}
               onBlur={e => {
@@ -752,7 +863,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   const parsed = parseBRNum(displayNumero)
                   setDisplayNumero(fmtBR(parsed, casas))
                 }
-                if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                if (!popoverRef.current?.contains(e.relatedTarget as Node)) confirmarComOpts()
               }}
               onPaste={handleSmartPasteDetect}
             />
@@ -769,8 +880,40 @@ const GTEditPopover = memo(function GTEditPopover({
           </div>
         )}
 
-        {/* Footer: hints + botões (oculto no modo opcoes — clique já confirma) */}
-        <div className={`gtv-edit-popover-footer${isOpcoes ? ' gtv-edit-popover-footer--hidden' : ''}`}>
+        {/* Checkbox "Aplicar a todos os itens" — só aparece quando a coluna pai
+            é elegível para replicação (linha pai + campo na whitelist). Decisão
+            UX 2026-05-13: usuário decide explicitamente; default desligado
+            preserva o comportamento divergente (alerta no pai). */}
+        {mostrarCheckboxReplicar && (
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 12px',
+              fontSize: '0.8125rem',
+              color: '#cbd5e1',
+              cursor: 'pointer',
+              userSelect: 'none',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
+            onMouseDown={e => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={replicarEmItens}
+              onChange={e => setReplicarEmItens(e.target.checked)}
+              disabled={salvando}
+              style={{ cursor: salvando ? 'not-allowed' : 'pointer' }}
+            />
+            Aplicar a todos os itens deste pedido
+          </label>
+        )}
+
+        {/* Footer: hints + botões. Oculto no modo opcoes (clique já confirma)
+            EXCETO quando há checkbox de replicação — usuário precisa do botão
+            Confirmar pra finalizar após decidir se replica nos itens. */}
+        <div className={`gtv-edit-popover-footer${(isOpcoes && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
             <span>Confirmar</span>
@@ -792,7 +935,7 @@ const GTEditPopover = memo(function GTEditPopover({
               type="button"
               className="gtv-edit-popover-btn gtv-edit-popover-btn--primary"
               onMouseDown={e => e.stopPropagation()}
-              onClick={() => onConfirmar()}
+              onClick={() => confirmarComOpts()}
               disabled={salvando}
               tabIndex={-1}
             >
@@ -895,7 +1038,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     key={sigla}
                     type="button"
                     className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false) }}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); confirmarComOpts() }}
                   >{rotulo}</button>
                 )
               })
@@ -917,12 +1060,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunasFilhas,
   mapaColunasFilho,
   onCarregarFilhos,
+  itemVersion,
   filhoId: filhoIdProp,
   acoesFilhas,
   itensPorPagina = 50,
   totalItens,
   paginaAtual,
   onMudarPagina,
+  labelPai,
+  totalFilhos,
   abas,
   abaAtiva,
   onMudarAba,
@@ -933,6 +1079,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onSelecaoMudar,
   selecionavelFilhos,
   onSelecaoFilho,
+  resetSelecaoFilhos,
   acoesFilho,
   renderConectorFilho,
   onBuscar,
@@ -941,7 +1088,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onFindPaginaAnterior,
   onFindTermoChange,
   findTotalExterno,
-  placeholderBusca = 'Localizar',
+  placeholderBusca = 'Buscar...',
   onFiltrar,
   onOrdenar,
   onFiltroColuna,
@@ -957,12 +1104,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   preferencias,
   onSalvarPreferencias,
   colunasPadrao,
+  imperativeRef,
   carregando,
   emptyIcon,
   emptyTitle,
   emptyDescription,
   emptyAction,
   ariaLabel = 'Tabela de dados',
+  placeholderData = 'DD/MM/AAAA',
+  onExpandidosMudar,
+  permiteReplicacaoPaiEmItens,
+  mensagemSemPermissaoEditar,
+  arrastavelPai,
+  onReordenarPai,
+  arrastavelFilho,
+  onReordenarFilho,
+  onOrdemManualResetada,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -1013,6 +1170,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const handleSort = useCallback(
     (campo: string) => {
+      // Descartar ordem manual ao clicar sort por coluna
+      if (ordemManualPaiRef.current) {
+        setOrdemManualPai(null)
+        onOrdemManualResetada?.()
+      }
       setSortLocal(prev => {
         if (prev?.campo === campo) {
           const novaDir: 'asc' | 'desc' = prev.dir === 'asc' ? 'desc' : 'asc'
@@ -1023,7 +1185,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         return { campo, dir: 'asc' }
       })
     },
-    [onOrdenar],
+    [onOrdenar, onOrdemManualResetada],
   )
 
   // ── Scroll container ref (usado por localizar) ───────────────────────────────
@@ -1112,7 +1274,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onCarregarFilhos,
     dados,
     itemId,
+    itemVersion,
   )
+
+  useEffect(() => {
+    onExpandidosMudar?.(expandidos.size)
+  }, [expandidos.size, onExpandidosMudar])
 
   /** Mostra checkbox de seleção quando há acoesLote OU onSelecaoMudar */
   const temSelecao = (acoesLote != null && acoesLote.length > 0) || onSelecaoMudar != null
@@ -1120,12 +1287,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   /** Template de colunas para o grid compartilhado */
   const gridTemplateCols = useMemo(() => {
     const cols: string[] = []
+    if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
     if (onCarregarFilhos) cols.push('40px')
     cols.push(...colunasFiltradas.map(() => 'max-content'))
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
-  }, [temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
+  }, [arrastavelPai, temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
 
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
@@ -1156,8 +1324,59 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSelecaoFilhoRef.current = onSelecaoFilho
   }, [onSelecaoFilho])
 
+  // ── Limpeza de filhos selecionados ao colapsar pai ──────────────────────────
+  // Quando o pai é colapsado os checkboxes dos filhos desaparecem da tela, mas
+  // os IDs permaneciam em `filhosSelecionados`, acumulando "seleções fantasmas"
+  // que reapareciam em operações (Excluir, Duplicar, Transferir). Este efeito
+  // detecta pais recém-colapsados e remove seus filhos do Set de seleção.
+  const prevExpandidosRef = useRef<Set<string>>(expandidos)
+  useEffect(() => {
+    const prev = prevExpandidosRef.current
+    prevExpandidosRef.current = expandidos
+
+    if (!selecionavelFilhos) return
+
+    // Identifica pais que foram colapsados (estavam em prev, não estão em expandidos)
+    const colapsados: string[] = []
+    for (const id of prev) {
+      if (!expandidos.has(id)) colapsados.push(id)
+    }
+    if (colapsados.length === 0) return
+
+    // Coleta IDs dos filhos dos pais colapsados
+    const idsParaRemover = new Set<string>()
+    for (const paiId of colapsados) {
+      const filhos = filhosCache.get(paiId) ?? []
+      for (const filho of filhos) {
+        const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+        if (fId) idsParaRemover.add(fId)
+      }
+    }
+    if (idsParaRemover.size === 0) return
+
+    // Remove filhos do Set de seleção
+    setFilhosSelecionados(prevSel => {
+      const novo = new Set(prevSel)
+      let mudou = false
+      for (const fId of idsParaRemover) {
+        if (novo.has(fId)) {
+          novo.delete(fId)
+          filhosCacheMap.current.delete(fId)
+          mudou = true
+        }
+      }
+      return mudou ? novo : prevSel
+    })
+
+    // Se o pai estava auto-marcado (via sync todos-filhos), desmarca também
+    for (const paiId of colapsados) {
+      if (selecionados.has(paiId)) toggleItem(paiId)
+    }
+  }, [expandidos, filhosCache, selecionavelFilhos, filhoId, selecionados, toggleItem])
+
   const toggleFilho = useCallback(
     (id: string, item: C) => {
+      const estavaMarcado = filhosSelecionados.has(id)
       setFilhosSelecionados(prev => {
         const novo = new Set(prev)
         if (novo.has(id)) {
@@ -1169,9 +1388,183 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         }
         return novo
       })
+
+      // REGRA UNIVERSAL DE SYNC PAI↔FILHOS (Coordenador + Líder Técnico, 2026-05-11):
+      //   • Desmarcar UM filho desmarca o pai (se estava marcado) — a afirmação
+      //     "todos os filhos estão marcados" deixa de ser verdade.
+      //   • Marcar o ÚLTIMO filho que faltava marca o pai automaticamente —
+      //     simetria total: pai marcado ⟺ todos os filhos marcados.
+      // Documentado em skills/arquitetura/nucleo-global.
+      for (const [paiId, filhosArr] of filhosCache.entries()) {
+        const idsDoPai = filhosArr.map(f => filhoId ? filhoId(f) : (f as { id?: string }).id).filter((x): x is string => !!x)
+        const achou = idsDoPai.includes(id)
+        if (!achou) continue
+
+        if (estavaMarcado) {
+          // Desmarcando filho → desmarca pai se estava marcado
+          if (selecionados.has(paiId)) {
+            toggleItem(paiId)
+            setPaisAutoPromovidos(prev => { const n = new Set(prev); n.delete(paiId); return n })
+          }
+        } else {
+          // Marcando filho → marca pai se TODOS os filhos do pai ficarão marcados
+          // após esta operação. Considera `id` (atual) como já marcado.
+          const todosMarcados = idsDoPai.every(fId => fId === id || filhosSelecionados.has(fId))
+          if (todosMarcados && !selecionados.has(paiId)) {
+            toggleItem(paiId)
+            // Auto-promoção: pai marcado porque filhos cobrem 100%.
+            // Ações (duplicar/excluir) devem tratar como seleção de itens.
+            setPaisAutoPromovidos(prev => new Set(prev).add(paiId))
+          }
+        }
+        break
+      }
     },
-    [],
+    [filhosSelecionados, filhosCache, selecionados, toggleItem, filhoId],
   )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: selecionar todos (header) também sincroniza
+  // todos os filhos cached dos pais visíveis. Coerência com checkbox hierárquico.
+  const toggleTodosComSync = useCallback(
+    (todosIds: string[]) => {
+      // Snapshot do estado ANTES do toggle (para saber se vai marcar ou desmarcar)
+      const todosJaMarcados = todosIds.length > 0 && todosIds.every(id => selecionados.has(id))
+      toggleTodos(todosIds)
+
+      // Header checkbox = seleção direta → limpar auto-promoções
+      setPaisAutoPromovidos(new Set())
+
+      if (!selecionavelFilhos) return
+
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const paiId of todosIds) {
+          const filhosDoPai = filhosCache.get(paiId) ?? []
+          for (const filho of filhosDoPai) {
+            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+            if (!fId) continue
+            if (todosJaMarcados) {
+              novo.delete(fId)
+              filhosCacheMap.current.delete(fId)
+            } else {
+              novo.add(fId)
+              filhosCacheMap.current.set(fId, filho)
+            }
+          }
+        }
+        return novo
+      })
+    },
+    [selecionados, toggleTodos, filhosCache, selecionavelFilhos, filhoId],
+  )
+
+  // REGRA UNIVERSAL DE SYNC PAI↔FILHOS: marcar pai marca todos os filhos cached;
+  // desmarcar pai desmarca todos os filhos. Sem prop opcional — comportamento fixo.
+  const toggleItemComSync = useCallback(
+    (id: string) => {
+      const estavaMarcado = selecionados.has(id)
+      toggleItem(id)
+
+      // Clique direto no pai → remove da auto-promoção (seleção explícita)
+      setPaisAutoPromovidos(prev => {
+        if (!prev.has(id)) return prev
+        const n = new Set(prev); n.delete(id); return n
+      })
+
+      if (!selecionavelFilhos) return
+      const filhosDoPai = filhosCache.get(id) ?? []
+      if (filhosDoPai.length === 0) return
+
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const filho of filhosDoPai) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (!fId) continue
+          if (estavaMarcado) {
+            novo.delete(fId)
+            filhosCacheMap.current.delete(fId)
+          } else {
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
+          }
+        }
+        return novo
+      })
+    },
+    [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId],
+  )
+
+  // ── Limpeza de filhos órfãos quando dados mudam ─────────────────────────────
+  // Quando `dados` muda (paginação, filtro, refresh), pedidos-pai podem sair da
+  // lista. Seus filhos permanecem em `filhosSelecionados` como "seleções fantasma"
+  // — invisíveis ao usuário mas contados em operações (Duplicar, Excluir, etc.).
+  // Este efeito detecta filhos cujo pai NÃO está mais em `dados` e os remove.
+  // Padrão análogo ao que `itensSelecionados` (pais) já faz via `dados.filter()`.
+  useEffect(() => {
+    if (!selecionavelFilhos) return
+
+    const parentIds = new Set(dados.map(d => itemId(d)))
+
+    setFilhosSelecionados(prev => {
+      if (prev.size === 0) return prev
+
+      // Monta set de IDs de filhos válidos (filhos de pais presentes em dados)
+      const validIds = new Set<string>()
+      for (const [paiId, filhos] of filhosCache.entries()) {
+        if (!parentIds.has(paiId)) continue
+        for (const filho of filhos) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (fId) validIds.add(fId)
+        }
+      }
+
+      // Remove seleções cujo pai saiu de dados (ou cujo ID não existe mais no cache)
+      let mudou = false
+      const novo = new Set<string>()
+      for (const id of prev) {
+        if (validIds.has(id)) {
+          novo.add(id)
+        } else {
+          filhosCacheMap.current.delete(id)
+          mudou = true
+        }
+      }
+
+      return mudou ? novo : prev
+    })
+  }, [dados, itemId, filhosCache, filhoId, selecionavelFilhos])
+
+  // ── Reset externo de filhos selecionados (counter prop) ─────────────────────
+  // Quando `resetSelecaoFilhos` é incrementado (ex: após exclusão de itens no
+  // Excluir modal), limpa TODA a seleção de filhos e o cache de objetos.
+  // Resolve ghost selection: filhosSelecionados retinha IDs de itens deletados
+  // porque filhosCache não era atualizado a tempo pelo auto-revalidation.
+  const resetSelecaoFilhosRef = useRef(resetSelecaoFilhos ?? 0)
+  useEffect(() => {
+    const valor = resetSelecaoFilhos ?? 0
+    if (valor === resetSelecaoFilhosRef.current) return
+    resetSelecaoFilhosRef.current = valor
+
+    setFilhosSelecionados(prev => {
+      if (prev.size === 0) return prev
+      filhosCacheMap.current.clear()
+      return new Set()
+    })
+    setPaisAutoPromovidos(new Set())
+  }, [resetSelecaoFilhos])
+
+  // Limpa auto-promovidos que não estão mais em selecionados (ex: limparSelecao)
+  useEffect(() => {
+    if (paisAutoPromovidos.size === 0) return
+    const limpar = [...paisAutoPromovidos].filter(id => !selecionados.has(id))
+    if (limpar.length > 0) {
+      setPaisAutoPromovidos(prev => {
+        const n = new Set(prev)
+        for (const id of limpar) n.delete(id)
+        return n
+      })
+    }
+  }, [selecionados, paisAutoPromovidos])
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {
@@ -1191,6 +1584,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     document.addEventListener('mousedown', fecharFora)
     return () => document.removeEventListener('mousedown', fecharFora)
   }, [dropdownFilhoAberto])
+
+  // ── Feedback visual de drop ──────────────────────────────────────────────────
+  const [droppedRowId, setDroppedRowId] = useState<string | null>(null)
+  const [droppedColKey, setDroppedColKey] = useState<string | null>(null)
 
   // ── Drag de cabeçalho para reordenar colunas ──────────────────────────────────
   const [dragColKey,  setDragColKey]  = useState<string | null>(null)
@@ -1228,11 +1625,100 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       ...(preferencias ?? {}),
       colunas_visiveis: ordem,
     })
+    setDroppedColKey(dragColKey)
+    setTimeout(() => setDroppedColKey(null), 600)
     setDragColKey(null); setDragOverKey(null)
   }, [dragColKey, colunasVisiveis, dropSide, onSalvarPreferencias, preferencias])
 
   const handleColDragEnd = useCallback(() => {
     setDragColKey(null); setDragOverKey(null)
+  }, [])
+
+  // ── Drag de linhas (reordenação vertical) ───────────────────────────────────
+  const [dragRowId,       setDragRowId]       = useState<string | null>(null)
+  const [dragRowPaiId,    setDragRowPaiId]    = useState<string | null>(null) // null = pai, string = filho deste pai
+  const [dragOverRowId,   setDragOverRowId]   = useState<string | null>(null)
+  const [dragRowSide,     setDragRowSide]     = useState<'before' | 'after'>('after')
+  // Ordem manual de pais: quando não-null, sobrepõe a ordem de `dados`
+  const [ordemManualPai,  setOrdemManualPai]  = useState<string[] | null>(null)
+
+  // Reset da ordem manual quando sort/filtro/página muda
+  const ordemManualPaiRef = useRef(ordemManualPai)
+  ordemManualPaiRef.current = ordemManualPai
+
+  const handleRowDragStart = useCallback((e: React.DragEvent<HTMLDivElement>, id: string, paiId: string | null) => {
+    e.dataTransfer.setData(paiId ? 'text/gtv-row-filho' : 'text/gtv-row-pai', id)
+    if (paiId) e.dataTransfer.setData('text/gtv-row-pai-id', paiId)
+    e.dataTransfer.effectAllowed = 'move'
+    setDragRowId(id)
+    setDragRowPaiId(paiId)
+  }, [])
+
+  const handleRowDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, id: string, paiId: string | null) => {
+    // Aceitar apenas se mesma categoria (pai↔pai ou filho↔filho do mesmo pai)
+    const isPai = e.dataTransfer.types.includes('text/gtv-row-pai')
+    const isFilho = e.dataTransfer.types.includes('text/gtv-row-filho')
+    if (paiId === null && !isPai) return
+    if (paiId !== null && !isFilho) return
+    // Filhos: só aceitar drop no mesmo pai
+    if (paiId !== null && isFilho) {
+      // dragRowPaiId contém o pai de origem — mas em dragOver não podemos ler
+      // o value do dataTransfer (security), então verificamos via state
+      if (dragRowPaiId !== paiId) return
+    }
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (id === dragRowId) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const mid = rect.top + rect.height / 2
+    setDragOverRowId(id)
+    setDragRowSide(e.clientY < mid ? 'before' : 'after')
+  }, [dragRowId, dragRowPaiId])
+
+  const handleRowDrop = useCallback((e: React.DragEvent<HTMLDivElement>, targetId: string, paiId: string | null) => {
+    e.preventDefault()
+    const sourceId = paiId
+      ? e.dataTransfer.getData('text/gtv-row-filho')
+      : e.dataTransfer.getData('text/gtv-row-pai')
+    if (!sourceId || sourceId === targetId) {
+      setDragRowId(null); setDragOverRowId(null)
+      return
+    }
+
+    if (paiId === null) {
+      // Reordenar pais
+      const idsAtuais = ordemManualPaiRef.current ?? dadosRef.current.map(itemIdRef.current)
+      const ordem = [...idsAtuais]
+      const fromIdx = ordem.indexOf(sourceId)
+      const toIdx = ordem.indexOf(targetId)
+      if (fromIdx < 0 || toIdx < 0) { setDragRowId(null); setDragOverRowId(null); return }
+      ordem.splice(fromIdx, 1)
+      const insertAt = ordem.indexOf(targetId)
+      ordem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, sourceId)
+      setOrdemManualPai(ordem)
+      onReordenarPai?.(ordem)
+    } else {
+      // Reordenar filhos dentro do mesmo pai
+      const filhosAtuais = filhosCache.get(paiId) ?? []
+      const filhoIds = filhosAtuais.map(f => filhoId(f))
+      const fromIdx = filhoIds.indexOf(sourceId)
+      const toIdx = filhoIds.indexOf(targetId)
+      if (fromIdx < 0 || toIdx < 0) { setDragRowId(null); setDragOverRowId(null); return }
+      const novaOrdem = [...filhosAtuais]
+      const [movido] = novaOrdem.splice(fromIdx, 1)
+      const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
+      novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
+      filhosCache.set(paiId, novaOrdem)
+      onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
+    }
+
+    setDroppedRowId(sourceId)
+    setTimeout(() => setDroppedRowId(null), 600)
+    setDragRowId(null); setDragOverRowId(null)
+  }, [dragRowSide, onReordenarPai, onReordenarFilho, filhosCache, filhoId])
+
+  const handleRowDragEnd = useCallback(() => {
+    setDragRowId(null); setDragOverRowId(null)
   }, [])
 
   // ── Edição inline ─────────────────────────────────────────────────────────────
@@ -1250,6 +1736,44 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSalvoComSucesso,
     onErroAoSalvar,
   )
+
+  // Refs síncronas para o handle imperativo — evita stale closure sem
+  // precisar declarar `dadosPagina` antes do useImperativeHandle.
+  const dadosRef       = useRef<T[]>(dados)
+  dadosRef.current     = dados
+  const itemIdRef      = useRef(itemId)
+  itemIdRef.current    = itemId
+  const expandidosRef2 = useRef(expandidos)
+  expandidosRef2.current = expandidos
+  const toggleRef      = useRef(toggle)
+  toggleRef.current    = toggle
+
+  // Expõe iniciarEdicao + expandir ao pai via imperativeRef.
+  // iniciarEdicao dispara clique na célula real para acionar o fluxo completo
+  // (setOverlayInfo + iniciarEdicaoPai), garantindo posicionamento correto do popover.
+  // expandir aciona o mesmo toggle usado pelo botão chevron — carrega filhos
+  // via onCarregarFilhos quando necessário. No-op se já expandido.
+  useImperativeHandle(imperativeRef, () => ({
+    iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => {
+      const celula = document.querySelector<HTMLElement>(
+        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
+      )
+      if (celula) {
+        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+        // Pequeno delay para o scroll terminar antes do clique
+        requestAnimationFrame(() => celula.click())
+      } else {
+        // Fallback quando célula não está no DOM (fora da janela virtual)
+        iniciarEdicaoPai(id, campo, valorAtual)
+      }
+    },
+    expandir: (id: string) => {
+      if (expandidosRef2.current.has(id)) return
+      const item = dadosRef.current.find(d => itemIdRef.current(d) === id)
+      if (!item) return
+      void toggleRef.current(id, item)
+    },
+  }), [iniciarEdicaoPai])
 
   const atualizarFilhoCacheCallback = useCallback(
     (filho: C) => atualizarFilhoNoCache(filho, filhoId),
@@ -1276,6 +1800,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [paginaInterna, setPaginaInterna] = useState(1)
   const paginaEfetiva = modoExterno ? (paginaAtual ?? 1) : paginaInterna
 
+  // Resetar ordem manual quando dados/página mudam (filter, page change, refresh)
+  useEffect(() => {
+    if (ordemManualPaiRef.current) {
+      setOrdemManualPai(null)
+      // Não dispara toast aqui — mudança de dados não é ação do usuário
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dados, paginaEfetiva])
+
   // Pagina os itens pai. No modo externo, dados já é a página atual.
   const dadosPagina = useMemo(
     () => modoExterno
@@ -1284,12 +1817,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [dados, modoExterno, paginaEfetiva, itensPorPagina],
   )
 
-  const todosIds = useMemo(() => dadosPagina.map(itemId), [dadosPagina, itemId])
+  // Aplica ordem manual de pais (drag-and-drop) quando ativa
+  const dadosPaginaOrdenados = useMemo(() => {
+    if (!ordemManualPai) return dadosPagina
+    const mapa = new Map(dadosPagina.map(d => [itemId(d), d]))
+    return ordemManualPai
+      .map(id => mapa.get(id))
+      .filter((d): d is T => d != null)
+  }, [dadosPagina, ordemManualPai, itemId])
+
+  const todosIds = useMemo(() => dadosPaginaOrdenados.map(itemId), [dadosPaginaOrdenados, itemId])
 
   // Flat rows incluindo filhos expandidos — apenas para a página atual
   const linhasPagina = useMemo(
-    () => buildFlatRows<T, C>(dadosPagina, expandidos, filhosCache, itemId, filhoId),
-    [dadosPagina, expandidos, filhosCache, itemId, filhoId],
+    () => buildFlatRows<T, C>(dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId),
+    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId],
   )
 
   const totalEfetivo = modoExterno ? totalItens : dados.length
@@ -1315,7 +1857,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const result: GTFindMatch[] = []
     // Headers primeiro (sempre visíveis no topo)
     for (const col of colunasFiltradas) {
-      if (col.label.toLowerCase().includes(termo)) {
+      if ((col.label ?? '').toLowerCase().includes(termo)) {
         result.push({ tipo: 'header', colKey: col.key as string })
       }
     }
@@ -1331,7 +1873,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           : k
         const v = item[campoReal]
         const vStr = valorParaStringFind(v, col as GTColuna<unknown>, item)
-        if (vStr.toLowerCase().includes(termo)) {
+        if ((vStr ?? '').toLowerCase().includes(termo)) {
           result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
         }
       }
@@ -1399,6 +1941,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     findOffsetPendenteRef.current = 0
     setFindOffset(0)
   }, [termoBusca])
+
+  // ── Find: auto-expandir todos os pais quando há termo ativo ──────────────────
+  // Sem isso, itens colapsados são invisíveis para findMatches e nunca encontrados.
+  // Roda quando o termo ou os dados da página mudam. Não inclui `expandidos` nas
+  // deps intencionalmente: não queremos re-executar a cada item que abre.
+  useEffect(() => {
+    if (!modoLocalizar || !termoBusca.trim() || !onCarregarFilhos) return
+    for (const item of dadosPagina) {
+      const id = itemId(item)
+      // toggle() usa expandidosRef internamente — só expande se ainda colapsado
+      if (!expandidos.has(id)) {
+        void toggle(id, item)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [termoBusca, dadosPagina, modoLocalizar])
 
   // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
   useEffect(() => {
@@ -1546,16 +2104,20 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
     const cancelarEdicao  = isFilho ? cancelarEdicaoFilho  : cancelarEdicaoPai
 
-    const podeEditar =
-      ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || col.editavel) &&
-      !!(isFilho ? onEditarFilho : onEditar)
+    // Se col.editavel é função, ela tem prioridade sobre camposEditaveis (pode bloquear mesmo se incluído)
+    const editavelColFn = typeof col.editavel === 'function' ? col.editavel(item) : undefined
+    const colunaEditavel = editavelColFn !== undefined
+      ? editavelColFn
+      : ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || !!col.editavel)
+    const podeEditar = colunaEditavel && !!(isFilho ? onEditarFilho : onEditar)
+    const semPermissaoEditar = colunaEditavel && !podeEditar && !!mensagemSemPermissaoEditar
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
     const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
 
     const classeIndent      = ''
-    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -1578,12 +2140,29 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           : podeEditar ? 'Clique para editar' : undefined)
       : undefined
 
+    // Tooltip de célula bloqueada (editavel retornou false para esta linha)
+    const colU0 = col as GTColuna<unknown>
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado
+      ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
+      : undefined
+
+    // Tooltip de permissão: célula SERIA editável mas o handler está ausente
+    const tooltipPermissaoMsg = semPermissaoEditar ? mensagemSemPermissaoEditar : undefined
+
     // Para células com tooltip: o TooltipGlobal envolve um <span> simples.
     // Para células sem tooltip: renderiza o conteúdo diretamente.
     // Não usamos gtv-celula-conteudo (evita dependência circular de width).
-    const celConteudo = tooltipDescr ? (
+    const celConteudo = tooltipPermissaoMsg ? (
+      <TooltipGlobal titulo={col.label} descricao={tooltipPermissaoMsg}>
+        <span style={{ display: 'contents' }}>{innerContent}</span>
+      </TooltipGlobal>
+    ) : tooltipDescr ? (
       <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
         <span className="gtv-celula-text">{innerContent as string}</span>
+      </TooltipGlobal>
+    ) : tooltipBloqueadoMsg ? (
+      <TooltipGlobal titulo={col.label} descricao={tooltipBloqueadoMsg}>
+        <span style={{ display: 'contents' }}>{innerContent}</span>
       </TooltipGlobal>
     ) : (
       <>{innerContent}</>
@@ -1594,6 +2173,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         key={col.key}
         className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
         style={styleCelula}
+        data-gtv-rowid={podeEditar ? id : undefined}
+        data-gtv-campo={podeEditar ? col.key : undefined}
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {
@@ -1691,10 +2272,31 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       'gtv-linha--pai',
       expandido ? 'gtv-linha--expandida' : '',
       selecionado ? 'gtv-linha--selecionada' : '',
+      dragRowId === id ? 'gtv-linha--dragging' : '',
+      dragOverRowId === id && dragRowPaiId === null ? `gtv-linha--drag-over-${dragRowSide}` : '',
+      droppedRowId === id ? 'gtv-linha--dropped' : '',
     ].filter(Boolean).join(' ')
 
     return (
-      <div className={classeLinha}>
+      <div
+        className={classeLinha}
+        onClick={onCarregarFilhos ? () => toggle(id, item) : undefined}
+        draggable={arrastavelPai ? true : undefined}
+        onDragStart={arrastavelPai ? (e) => handleRowDragStart(e, id, null) : undefined}
+        onDragOver={arrastavelPai ? (e) => handleRowDragOver(e, id, null) : undefined}
+        onDrop={arrastavelPai ? (e) => handleRowDrop(e, id, null) : undefined}
+        onDragEnd={arrastavelPai ? handleRowDragEnd : undefined}
+      >
+        {/* Drag handle */}
+        {arrastavelPai && (
+          <div
+            className="gtv-celula gtv-celula--drag-handle gtv-col-fixa"
+            onClick={e => e.stopPropagation()}
+          >
+            <span className="gtv-drag-handle-icon"><IconeDragHandle /></span>
+          </div>
+        )}
+
         {/* Checkbox */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">
@@ -1703,7 +2305,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               className="gtv-checkbox"
               checked={selecionados.has(id)}
               aria-label={`Selecionar linha`}
-              onChange={() => toggleItem(id)}
+              onChange={() => toggleItemComSync(id)}
               onClick={e => e.stopPropagation()}
             />
           </div>
@@ -1771,7 +2373,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }
 
   function renderLinhaFilha(linha: GTLinhaVirtual<T, C> & { tipo: 'filho' }, linhaVirtualIndex: number) {
-    const { item, id } = linha
+    const { item, id, ultimoFilho } = linha
 
     // ── Modo mapeado: filho usa as mesmas colunas do pai ──────────────────────
     if (mapaColunasFilho) {
@@ -1779,8 +2381,35 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const acoesDoFilho = acoesFilho ? acoesFilho(item) : []
       const dropAberto = dropdownFilhoAberto === id
 
+      const paiIdFilho = (linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }).paiId
+
       return (
-        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
+        <div
+          className={[
+            'gtv-linha gtv-linha--filho',
+            filhoSel ? 'gtv-linha--filho-selecionada' : '',
+            ultimoFilho ? 'gtv-linha--filho-ultimo' : '',
+            dragRowId === id ? 'gtv-linha--dragging' : '',
+            dragOverRowId === id && dragRowPaiId === paiIdFilho ? `gtv-linha--drag-over-${dragRowSide}` : '',
+            droppedRowId === id ? 'gtv-linha--dropped' : '',
+          ].filter(Boolean).join(' ')}
+          draggable={arrastavelFilho ? true : undefined}
+          onDragStart={arrastavelFilho ? (e) => handleRowDragStart(e, id, paiIdFilho) : undefined}
+          onDragOver={arrastavelFilho ? (e) => handleRowDragOver(e, id, paiIdFilho) : undefined}
+          onDrop={arrastavelFilho ? (e) => handleRowDrop(e, id, paiIdFilho) : undefined}
+          onDragEnd={arrastavelFilho ? handleRowDragEnd : undefined}
+        >
+          {/* Drag handle filho — mesma coluna do drag handle pai (far left) */}
+          {arrastavelPai && (
+            <div
+              className="gtv-celula gtv-celula--drag-handle gtv-col-fixa"
+              onClick={e => e.stopPropagation()}
+            >
+              {arrastavelFilho && (
+                <span className="gtv-drag-handle-icon"><IconeDragHandle /></span>
+              )}
+            </div>
+          )}
           {temSelecao && (
             <div className="gtv-celula gtv-celula--check gtv-col-fixa">
               {selecionavelFilhos && (
@@ -1808,13 +2437,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {colunasFiltradas.map((col, idx) => {
             const mapa = mapaColunasFilho[col.key as string]
             const campo = mapa?.campo ?? (col.key as string)
-            const editavelMapa = typeof mapa?.editavel === 'function' ? mapa.editavel(item) : !!mapa?.editavel
-            const podeEditar = (editavelMapa || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
+            // Se mapa define editavel (bool ou função), tem prioridade sobre camposEditaveisFilhos
+            const editavelMapaDef = mapa != null && 'editavel' in mapa
+            const editavelMapaVal = editavelMapaDef
+              ? (typeof mapa.editavel === 'function' ? mapa.editavel(item) : !!mapa.editavel)
+              : undefined
+            const colunaEditavelFilho = editavelMapaVal !== undefined ? editavelMapaVal : camposEditaveisFilhos.includes(col.key as string)
+            const podeEditar = colunaEditavelFilho && !!onEditarFilho
+            const semPermissaoFilho = colunaEditavelFilho && !podeEditar && !!mensagemSemPermissaoEditar
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
-            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -1831,14 +2466,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}
               >
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
-                    {(col as GTColuna<unknown>).opcoes?.find(op => op.valor === String(valorEditandoFilho))?.label
+                    {(mapa?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditandoFilho))?.label
                       ?? formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
                   </span>
                 ) : estaEditando ? (
@@ -1855,9 +2490,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     onBlur={() => confirmarEdicaoFilho()}
                     onClick={e => e.stopPropagation()}
                   />
-                ) : (
-                  mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
-                )}
+                ) : (() => {
+                  const conteudoFilho = mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
+                  if (semPermissaoFilho && mensagemSemPermissaoEditar) {
+                    return <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
+                  }
+                  if (!podeEditar && mapa?.tooltipBloqueado) {
+                    const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
+                    if (msg) return <TooltipGlobal titulo={col.label} descricao={msg}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
+                  }
+                  return <>{conteudoFilho}</>
+                })()}
               </div>
             )
           })}
@@ -1934,7 +2577,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const dropAbertoOrig = dropdownFilhoAberto === id
 
     return (
-      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
+      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
         {/* Espaço para alinhar com checkbox pai */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">
@@ -2135,13 +2778,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               {colunasAbertas && (
                 <SelectColunasGlobal
                   colunas={[
+                    // Visíveis na frente, na ORDEM EXATA da tabela — sem grupo para espelhar fielmente
                     ...colunasVisiveis
                       .map(key => colunas.find(c => c.key === key))
                       .filter((c): c is GTColuna<T> => c != null)
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
+                    // Ocultas no final
                     ...colunas
                       .filter(c => !colunasVisiveis.includes(c.key))
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
                   ]}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}
@@ -2219,6 +2864,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             >
               {/* Cabeçalho — display:contents faz os th serem filhos diretos do grid */}
               <div className="gtv-cabecalho" role="row">
+                {arrastavelPai && (
+                  <div className="gtv-th gtv-celula--drag-handle gtv-col-fixa" role="columnheader" aria-label="Reordenar" />
+                )}
                 {temSelecao && (
                   <div className="gtv-th gtv-th--check gtv-col-fixa" role="columnheader" aria-label="Selecionar todos">
                     <input
@@ -2227,7 +2875,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       checked={todosSel}
                       ref={el => { if (el) el.indeterminate = parcialSel }}
                       aria-label="Selecionar todos"
-                      onChange={() => toggleTodos(todosIds)}
+                      onChange={() => toggleTodosComSync(todosIds)}
                     />
                   </div>
                 )}
@@ -2248,12 +2896,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
                   const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
                   const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
+                  const classeThDropped = droppedColKey === col.key ? ' gtv-th--dropped' : ''
                   return (
                     <div
                       key={col.key}
                       role="columnheader"
                       data-find-col-key={col.key}
-                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
+                      className={`gtv-th gtv-th--center${classeSort}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}${classeThDropped}`}
                       style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                       draggable={isDraggable}
                       onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
@@ -2263,7 +2912,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       onClick={() => col.sortavel && handleSort(col.key)}
                       aria-sort={sortAtivo ? (sortLocal?.dir === 'asc' ? 'ascending' : 'descending') : undefined}
                     >
-                      <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                      {col.tooltipTitulo ? (
+                        <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao} interativo={col.tooltipInterativo}>
+                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                        </TooltipGlobal>
+                      ) : (
+                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                      )}
                       {col.sortavel && (
                         <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
                           {sortAtivo ? (sortLocal?.dir === 'asc' ? <IconeArrowUp /> : <IconeArrowDown />) : <em>↕</em>}
@@ -2313,7 +2968,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const label = total != null ? `${total} resultado${total !== 1 ? 's' : ''}` : `${findOffset + findMatches.length}+ resultados`
                   return `${label} · página ${paginaEfetiva} de ${totalPaginas}`
                 })()
-              : `${totalEfetivo} ${totalEfetivo === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
+              : labelPai && totalFilhos !== undefined
+                ? `${totalEfetivo} ${totalEfetivo === 1 ? labelPai[0] : labelPai[1]} · ${totalFilhos} ${totalFilhos === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
+                : `${totalEfetivo} ${totalEfetivo === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
             }
           </span>
           <div className="gtv-paginacao-controles">
@@ -2357,6 +3014,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
           onSmartPaste={handleSmartPaste}
+          placeholderData={placeholderData}
+          // Checkbox "Aplicar a todos os itens" — só na linha PAI E quando o
+          // campo está na whitelist (decisão UX 2026-05-13).
+          mostrarCheckboxReplicar={
+            !overlayInfo.isFilho &&
+            !!permiteReplicacaoPaiEmItens?.(overlayInfo.campo)
+          }
         />,
         document.body
       )}

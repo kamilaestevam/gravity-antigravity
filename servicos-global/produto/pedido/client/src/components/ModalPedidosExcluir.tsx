@@ -37,13 +37,15 @@ import './ModalPedidosExcluir.css'
 interface ModalPedidosExcluirProps {
   pedidos: Pedido[]
   itens?: PedidoItem[]
+  /** Mapa pedido_id → numero_pedido para exibir o número do pedido pai na tabela de itens */
+  pedidosMapa?: Map<string, string>
   onFechar: () => void
   onConcluido: () => void
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalPedidosExcluir({ pedidos, itens = [], onFechar, onConcluido }: ModalPedidosExcluirProps) {
+export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar, onConcluido }: ModalPedidosExcluirProps) {
   const { addNotification } = useShellStore()
   const [preview, setPreview] = useState<ExcluirPreview | null>(null)
   const [carregando, setCarregando] = useState(true)
@@ -383,14 +385,20 @@ export function ModalPedidosExcluir({ pedidos, itens = [], onFechar, onConcluido
                   <table className="modal-excluir__tabela" aria-label="Itens que serão excluídos">
                     <thead>
                       <tr>
-                        <th className="modal-excluir__th">Part Number</th>
+                        <th className="modal-excluir__th">Nº Pedido</th>
+                        <th className="modal-excluir__th">Nº Item</th>
                         <th className="modal-excluir__th">Descrição</th>
                       </tr>
                     </thead>
                     <tbody>
                       {itensAvulsos.map(it => (
                         <tr key={it.id} className="modal-excluir__linha">
-                          <td className="modal-excluir__td modal-excluir__td--numero">{it.part_number || it.id}</td>
+                          <td className="modal-excluir__td modal-excluir__td--numero">
+                            {pedidosMapa?.get(it.pedido_id) ?? '—'}
+                          </td>
+                          <td className="modal-excluir__td modal-excluir__td--numero">
+                            {it.sequencia_item ?? '—'}
+                          </td>
                           <td className="modal-excluir__td modal-excluir__td--itens">
                             {it.descricao_item || '—'}
                           </td>

@@ -17,6 +17,8 @@ export interface KanbanContextValue {
   activeId: string | null
   /** ID do item em processo de move assíncrono (otimista pendente) */
   movingId: string | null
+  /** Feedback pós-move: itemId → 'sucesso' | 'erro' (exibido brevemente) */
+  feedbackMap: Record<string, 'sucesso' | 'erro'>
   /** Prefixo para data-testid — default 'kg' */
   testIdPrefix: string
   /** Modo visão global cross-tenant — exibe tenantLabel nos cards */

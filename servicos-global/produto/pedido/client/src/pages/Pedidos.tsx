@@ -1979,8 +1979,10 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
   const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
 
   /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
-  const urlEditarCnpjWorkspace = (idWorkspace: string) => {
-    const retorno = encodeURIComponent(window.location.href)
+  const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
+    const urlAtual = new URL(window.location.href)
+    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
+    const retorno = encodeURIComponent(urlAtual.toString())
     const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
     return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
   }
@@ -2244,7 +2246,7 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       const cnpjRaw = workspacesMap?.get(pai?.id_workspace ?? '')?.cnpj ?? ''
       const digits = cnpjRaw.replace(/\D/g, '')
       if (digits.length !== 14) {
-        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '')
+        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '', pai?.id)
         return (
           <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
             <span
@@ -2278,7 +2280,7 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       const cnpjRaw = workspacesMap?.get(pai?.id_workspace ?? '')?.cnpj ?? ''
       const digits = cnpjRaw.replace(/\D/g, '')
       if (digits.length !== 14) {
-        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '')
+        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '', pai?.id)
         return (
           <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
             <span
@@ -2821,14 +2823,20 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Editar em Massa */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.editar_massa')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.editar_massa')}
+          titulo={
+            pedidosSelecionados.length > 0
+              ? `${t('pedido.barra.editar_massa')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
+              : itensSelecionados.length > 0
+                ? `${t('pedido.barra.editar_massa')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}`
+                : t('pedido.barra.editar_massa')
+          }
           descricao={t('pedido.barra.editar_massa_desc')}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<PencilLine size={14} weight="duotone" />}
-            disabled={!podeEditarLista || pedidosSelecionados.length === 0}
+            disabled={!podeEditarLista || (pedidosSelecionados.length === 0 && itensSelecionados.length === 0)}
             onClick={() => { setModalEdicaoMassaAberto(true) }}
           />
         </TooltipGlobal>
@@ -3581,22 +3589,42 @@ export default function Pedidos() {
 
   // ── Deep-link: auto-expandir pedido ao retornar do Configurador ────────────
   // URL param ?expandir=<pedidoId> — expande o pedido e limpa o param.
+  // Depende de [carregando, pedidos] para garantir que:
+  //  1) carregando=false (fetch concluído)
+  //  2) pedidos contém dados (a tabela tem o pedido no dadosRef)
   const expandirAutoFeito = useRef(false)
   useEffect(() => {
-    if (carregando || expandirAutoFeito.current) return
+    if (expandirAutoFeito.current) return
+    if (carregando || pedidos.length === 0) return
     const params = new URLSearchParams(window.location.search)
     const idExpandir = params.get('expandir')
     if (!idExpandir) return
+    // Verifica se o pedido existe nos dados carregados
+    const pedidoExiste = pedidos.some(p => p.id === idExpandir)
+    if (!pedidoExiste) {
+      // Pedido não está na página atual — limpa param para não tentar infinitamente
+      expandirAutoFeito.current = true
+      params.delete('expandir')
+      const novaUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`
+      window.history.replaceState({}, '', novaUrl)
+      return
+    }
     expandirAutoFeito.current = true
     // Limpa o param da URL sem recarregar
     params.delete('expandir')
     const novaUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`
     window.history.replaceState({}, '', novaUrl)
-    // Aguarda a tabela montar e expande
+    // Aguarda a tabela renderizar com os dados antes de expandir
+    // requestAnimationFrame garante que o render cycle completou;
+    // setTimeout adicional dá tempo para o imperativeHandle registrar
     requestAnimationFrame(() => {
-      tabelaRef.current?.expandir(idExpandir)
+      setTimeout(() => {
+        if (tabelaRef.current) {
+          tabelaRef.current.expandir(idExpandir)
+        }
+      }, 150)
     })
-  }, [carregando])
+  }, [carregando, pedidos])
 
   const acoesPai = useMemo(() => ([
     {
@@ -3904,6 +3932,26 @@ export default function Pedidos() {
     setSortDir(dir)
     carregarInicial(abaAtiva, campo, dir, busca)
   }, [carregarInicial, abaAtiva, busca])
+
+  // ── Drag-and-drop: reordenar pedidos (client-side) ─────────────────────────
+  const handleReordenarPedidos = useCallback((ids: string[]) => {
+    // Reordena array local de pedidos na ordem dos IDs recebidos
+    const mapa = new Map(pedidos.map(p => [p.id, p]))
+    const reordenados = ids.map(id => mapa.get(id)).filter((p): p is Pedido => p != null)
+    // Pedidos que não estavam no array de IDs (caso raro) ficam no final
+    const restantes = pedidos.filter(p => !ids.includes(p.id))
+    setPedidos([...reordenados, ...restantes])
+  }, [pedidos])
+
+  // ── Drag-and-drop: reordenar itens (persistido via backend) ────────────────
+  const handleReordenarItens = useCallback(async (paiId: string, ids: string[]) => {
+    try {
+      await pedidoItemApi.reordenar(paiId, ids)
+    } catch (err) {
+      console.error('[handleReordenarItens] paiId:', paiId, 'ids:', ids, 'erro:', err)
+      addNotification({ type: 'error', message: 'Erro ao reordenar itens. Tente novamente.' })
+    }
+  }, [addNotification])
 
   // ── Busca ────────────────────────────────────────────────────────────────────
   const handleBuscar = useCallback((termo: string) => {
@@ -5199,6 +5247,12 @@ export default function Pedidos() {
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
           onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg) })}
 
+          arrastavelPai
+          onReordenarPai={handleReordenarPedidos}
+          arrastavelFilho
+          onReordenarFilho={handleReordenarItens}
+          onOrdemManualResetada={() => addNotification({ type: 'info', message: 'Ordem manual dos pedidos foi resetada pela ordenação por coluna.' })}
+
           preferencias={preferencias}
           onSalvarPreferencias={handleSalvarPreferencias}
           colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
@@ -5440,6 +5494,7 @@ export default function Pedidos() {
         <ModalPedidosExcluir
           pedidos={pedidosSelecionados}
           itens={itensSelecionados}
+          pedidosMapa={new Map(pedidos.map(p => [p.id, p.numero_pedido]))}
           onFechar={() => setModalExcluirAberto(false)}
           onConcluido={() => {
             setModalExcluirAberto(false)

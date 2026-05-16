@@ -4,7 +4,7 @@
  * Suporta até 1 milhão de linhas com TanStack Virtual.
  */
 
-import type { ReactNode } from 'react'
+import type { ReactNode, MutableRefObject } from 'react'
 
 // ─── Alinhamento ───────────────────────────────────────────────────────────────
 
@@ -45,6 +45,8 @@ export interface GTColuna<T = unknown> {
   align?: GTAlign
   tooltipTitulo?: string
   tooltipDescricao?: string
+  /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
+  tooltipInterativo?: boolean
   /** Função de renderização customizada */
   render?: (valor: unknown, item: T) => ReactNode
   /** Coluna oculta por padrão */
@@ -55,8 +57,10 @@ export interface GTColuna<T = unknown> {
   filtravel?: boolean
   /** Permite ordenação ao clicar no cabeçalho */
   sortavel?: boolean
-  /** Permite edição inline (sobrepõe camposEditaveis da prop raiz) */
-  editavel?: boolean
+  /** Permite edição inline (sobrepõe camposEditaveis da prop raiz). Função recebe a linha e retorna se editável — quando false, bloqueia mesmo que a coluna esteja em camposEditaveis */
+  editavel?: boolean | ((item: T) => boolean)
+  /** Tooltip exibido quando a célula está bloqueada (editavel retorna false ou coluna não editável) */
+  tooltipBloqueado?: string | ((item: T) => string | undefined)
   /**
    * Opções de escolha para edição inline.
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
@@ -180,23 +184,45 @@ export interface GTPreferencias {
 
 export type GTLinhaVirtual<T, C> =
   | { tipo: 'pai'; item: T; profundidade: 0; id: string }
-  | { tipo: 'filho'; item: C; paiId: string; profundidade: 1; id: string }
+  | { tipo: 'filho'; item: C; paiId: string; profundidade: 1; id: string; ultimoFilho?: boolean }
 
 // ─── Mapa de colunas filho ─────────────────────────────────────────────────────
 
 export interface GTMapaColunasFilho<C = unknown> {
   /** Renderiza o conteúdo da célula na linha filho */
   render: (item: C) => ReactNode
-  /** Se true ou função que retorna true: a célula é editável inline no filho */
+  /** Se true ou função que retorna true: a célula é editável inline no filho. Função tem prioridade sobre camposEditaveisFilhos */
   editavel?: boolean | ((item: C) => boolean)
+  /** Tooltip exibido quando a célula filho está bloqueada */
+  tooltipBloqueado?: string | ((item: C) => string | undefined)
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
   getValorEditar?: (item: C) => unknown
+  /** Opções de escolha para edição inline no filho (select/lista) */
+  opcoes?: { valor: string; label: string }[]
   /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
   casasDecimais?: number
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
   unidades?: GTUnidadeOpcao[]
+}
+
+// ─── Handle imperativo ────────────────────────────────────────────────────────
+
+/**
+ * Ref imperativo exposto pelo TabelaVirtualGlobal.
+ * Permite que o pai dispare ações programáticas na tabela.
+ */
+export interface GTVirtualHandle {
+  /** Abre a edição inline na célula pai indicada */
+  iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => void
+  /**
+   * Expande programaticamente a linha pai indicada (carrega filhos via
+   * `onCarregarFilhos` se necessário). Útil para destacar uma linha recém
+   * criada (ex: novo pedido aparece no topo com itens abertos).
+   * No-op se a linha já está expandida ou se o `id` não está na página atual.
+   */
+  expandir: (id: string) => void
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────
@@ -219,6 +245,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   mapaColunasFilho?: Record<string, GTMapaColunasFilho<C>>
   /** Carrega os filhos de um item pai sob demanda */
   onCarregarFilhos?: (item: T) => Promise<C[]>
+  /** Chamado quando o número de linhas expandidas muda (0 = todas retraídas) */
+  onExpandidosMudar?: (count: number) => void
+  /** Extrai uma versão estável do pai (ex: timestamp do servidor).
+   *  Quando fornecido, filhos só são recarregados se a versão mudar,
+   *  evitando reload após atualizações puramente locais de estado. */
+  itemVersion?: (item: T) => unknown
   /** Extrai o id único de cada filho */
   filhoId?: (filho: C) => string
   /** Ações de linha para filhos */
@@ -237,6 +269,14 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   paginaAtual?: number
   /** Modo externo: chamado quando o usuário troca de página. */
   onMudarPagina?: (pagina: number) => void
+  /**
+   * Rótulo singular/plural para a linha pai no rodapé de paginação.
+   * Ex: `['pedido', 'pedidos']`. Quando fornecido junto com `totalFilhos`,
+   * o rodapé exibe "X pedidos Y itens · página N de N".
+   */
+  labelPai?: [string, string]
+  /** Contagem de registros filhos (ex: total de itens de pedido) exibida no rodapé. */
+  totalFilhos?: number
 
   // ── Abas de status ─────────────────────────────────────────────────────────
   abas?: GTAbaTipo[]
@@ -257,6 +297,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   selecionavelFilhos?: boolean
   /** Callback chamado quando seleção de filhos muda */
   onSelecaoFilho?: (itensSelecionados: C[]) => void
+  /**
+   * Counter de reset: quando incrementado, limpa `filhosSelecionados` e
+   * `filhosCacheMap` internos. Usado após exclusão de itens para evitar
+   * ghost selection (checkbox fantasma em itens já deletados).
+   */
+  resetSelecaoFilhos?: number
   /** Ações inline na linha filho (menu de três pontos ao hover) */
   acoesFilho?: (item: C) => GTAcaoLinha[]
   /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */
@@ -309,14 +355,20 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /**
    * Chamado ao confirmar edição de linha pai. Deve retornar o item atualizado.
    * Em caso de conflito (409), lançar erro — o componente faz rollback.
+   *
+   * `opts` carrega configurações do popover (decisão UX 2026-05-13):
+   *   - `replicar_em_itens`: quando true, backend replica o valor para TODOS
+   *     os itens do pedido (whitelist em CAMPOS_PEDIDO_PROPAGAVEIS).
    */
-  onEditar?: (id: string, campo: string, valor: unknown) => Promise<T>
+  onEditar?: (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => Promise<T>
 
   // ── Edição inline (filho) ──────────────────────────────────────────────────
   /** Keys das colunas filho que permitem edição inline */
   camposEditaveisFilhos?: string[]
   /**
    * Chamado ao confirmar edição de linha filha. Deve retornar o filho atualizado.
+   *
+   * Linhas filho não recebem `opts` — só o pai tem opção de replicar.
    */
   onEditarFilho?: (id: string, campo: string, valor: unknown) => Promise<C>
 
@@ -332,6 +384,14 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
 
+  // ── Handle imperativo ─────────────────────────────────────────────────────
+  /**
+   * Ref preenchida com o handle imperativo da tabela.
+   * Permite ao pai chamar `iniciarEdicao(id, campo, valor)` para abrir
+   * a edição inline programaticamente (ex: navegação via Kanban).
+   */
+  imperativeRef?: MutableRefObject<GTVirtualHandle | null>
+
   // ── Visual ─────────────────────────────────────────────────────────────────
   carregando?: boolean
   emptyIcon?: ReactNode
@@ -341,4 +401,63 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
 
   // ── Acessibilidade ─────────────────────────────────────────────────────────
   ariaLabel?: string
+
+  // ── Localização ────────────────────────────────────────────────────────────
+  /**
+   * Placeholder exibido no input de edição de colunas com tipo 'periodo'.
+   * Padrão: 'DD/MM/AAAA'. Injetar o formato configurado pelo tenant para que
+   * o input de data mostre o padrão correto (ex: 'MM/DD/AAAA' para tenants EUA).
+   */
+  placeholderData?: string
+
+  // ── Replicação Pai → Itens (Decisão UX 2026-05-13) ─────────────────────────
+  /**
+   * Predicate que indica se o campo permite replicação do valor para todos os
+   * itens do pedido. Quando retorna `true` E o usuário está editando uma linha
+   * pai (não-filho), o popover exibe o checkbox "Aplicar a todos os itens".
+   *
+   * Default: undefined → checkbox nunca aparece (comportamento atual).
+   *
+   * Implementação típica em produto Pedido:
+   *   permiteReplicacaoPaiEmItens={campo =>
+   *     isCampoPropagavel(campo) // checa whitelist em mapaPropagacaoPedidoItem
+   *   }
+   */
+  permiteReplicacaoPaiEmItens?: (campo: string) => boolean
+
+  /**
+   * Tooltip exibido ao passar o mouse em células que SERIAM editáveis mas
+   * o usuário não tem permissão (onEditar/onEditarFilho ausente).
+   * Ex: 'Sem permissão para editar'
+   */
+  mensagemSemPermissaoEditar?: string
+
+  // ── Drag-and-drop de linhas (reordenação) ─────────────────────────────────
+  /**
+   * Habilita drag-and-drop vertical nas linhas pai (ex: pedidos).
+   * Reordenação é puramente local — não persiste no servidor.
+   * Exibe drag handle (ícone ≡) à esquerda de cada linha pai.
+   */
+  arrastavelPai?: boolean
+  /**
+   * Chamado após o usuário soltar uma linha pai em nova posição.
+   * Recebe o array de IDs na nova ordem (apenas itens da página atual).
+   */
+  onReordenarPai?: (ids: string[]) => void
+  /**
+   * Habilita drag-and-drop vertical nas linhas filho (ex: itens de pedido).
+   * Filhos só podem ser arrastados dentro do mesmo pai — nunca cross-pai.
+   * Exibe drag handle no conector hierárquico de cada linha filho.
+   */
+  arrastavelFilho?: boolean
+  /**
+   * Chamado após o usuário soltar um filho em nova posição dentro do pai.
+   * Recebe o ID do pai e o array de IDs dos filhos na nova ordem.
+   */
+  onReordenarFilho?: (paiId: string, ids: string[]) => void
+  /**
+   * Chamado quando a ordem manual dos pais é descartada (ex: usuário clicou
+   * em sort por coluna). O consumidor pode exibir um toast informativo.
+   */
+  onOrdemManualResetada?: () => void
 }

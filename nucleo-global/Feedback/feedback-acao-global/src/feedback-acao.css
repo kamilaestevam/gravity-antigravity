@@ -1,0 +1,118 @@
+/* ── feedback-acao-global — classes visuais para feedback de ações assíncronas ── */
+
+/* Salvando — borda shimmer indigo pulsando */
+.gfa--salvando {
+  position: relative;
+  outline: 2px solid rgba(99, 102, 241, 0.5);
+  outline-offset: -1px;
+  border-radius: inherit;
+  animation: gfa-pulse-borda 1.2s ease-in-out infinite;
+}
+
+.gfa--salvando::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(99, 102, 241, 0.06) 45%,
+    rgba(99, 102, 241, 0.1) 50%,
+    rgba(99, 102, 241, 0.06) 55%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: gfa-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gfa-pulse-borda {
+  0%, 100% { outline-color: rgba(99, 102, 241, 0.3); }
+  50% { outline-color: rgba(99, 102, 241, 0.6); }
+}
+
+@keyframes gfa-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Sucesso — flash verde na borda */
+.gfa--sucesso {
+  outline: 2px solid rgba(34, 197, 94, 0.6);
+  outline-offset: -1px;
+  border-radius: inherit;
+  animation: gfa-flash-sucesso 0.5s ease-out forwards;
+}
+
+@keyframes gfa-flash-sucesso {
+  0% {
+    outline-color: rgba(34, 197, 94, 0.6);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3);
+  }
+  40% {
+    outline-color: rgba(34, 197, 94, 0.8);
+    box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.2);
+  }
+  100% {
+    outline-color: rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* Erro — flash vermelho + shake */
+.gfa--erro {
+  outline: 2px solid rgba(239, 68, 68, 0.6);
+  outline-offset: -1px;
+  border-radius: inherit;
+  animation: gfa-flash-erro 0.5s ease-out forwards, gfa-shake 0.4s ease-out;
+}
+
+@keyframes gfa-flash-erro {
+  0% {
+    outline-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3);
+  }
+  40% {
+    outline-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 8px 2px rgba(239, 68, 68, 0.2);
+  }
+  100% {
+    outline-color: rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes gfa-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* ── Light theme ── */
+body.light-theme .gfa--salvando {
+  outline-color: rgba(79, 70, 229, 0.4);
+}
+
+body.light-theme .gfa--salvando::after {
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(79, 70, 229, 0.05) 45%,
+    rgba(79, 70, 229, 0.08) 50%,
+    rgba(79, 70, 229, 0.05) 55%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: gfa-shimmer 1.8s ease-in-out infinite;
+}
+
+body.light-theme .gfa--sucesso {
+  outline-color: rgba(22, 163, 74, 0.5);
+}
+
+body.light-theme .gfa--erro {
+  outline-color: rgba(220, 38, 38, 0.5);
+}

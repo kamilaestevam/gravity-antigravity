@@ -23,6 +23,33 @@ import {
 } from '../../../shared/campos-pedido-ddd.js'
 import { recalcularAgregadosPedido } from '../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js'
 
+const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
+  'numero_pedido',
+  'valor_total_pedido',
+  'quantidade_total_pedido',
+  'quantidade_volumes_pedido',
+  'valor_total_cambio_pedido',
+])
+const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
+  'sequencia_item_pedido',
+  'part_number_item',
+  'ncm_item',
+  'descricao_item',
+  'quantidade_inicial_item',
+  'quantidade_atual_item',
+  'quantidade_transferida_item',
+  'quantidade_pronta_total_item',
+  'quantidade_cancelada_item',
+  'valor_por_unidade_item',
+  'nome_exportador_item',
+  'nome_importador_item',
+  'nome_fabricante_item',
+  'peso_liquido_unitario_item',
+  'peso_bruto_unitario_item',
+  'cubagem_unitaria_item',
+  'data_embarque_item_pedido',
+])
+
 function traduzirErroPrisma(err: unknown): string {
   if (!(err instanceof Error)) return 'Erro desconhecido ao processar linha'
   const msg = err.message
@@ -612,6 +639,14 @@ export class SmartImportService {
           const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
           const dados = { ...linha.dados }
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
+
+          // P15.3 — Filtrar campos do nivel errado (seguranca no parser)
+          const tipoLinha = String(dados['tipo_linha'] ?? '').trim().toUpperCase()
+          if (tipoLinha === 'ITEM') {
+            for (const campo of CAMPOS_BLOQ_PARA_ITEM) delete dados[campo]
+          } else if (tipoLinha === 'PEDIDO') {
+            for (const campo of CAMPOS_BLOQ_PARA_PEDIDO) delete dados[campo]
+          }
 
           // Validar valor_por_unidade_item não-negativo
           const valorUnitRaw = dados['valor_por_unidade_item']

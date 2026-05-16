@@ -431,4 +431,33 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * Ex: 'Sem permissão para editar'
    */
   mensagemSemPermissaoEditar?: string
+
+  // ── Drag-and-drop de linhas (reordenação) ─────────────────────────────────
+  /**
+   * Habilita drag-and-drop vertical nas linhas pai (ex: pedidos).
+   * Reordenação é puramente local — não persiste no servidor.
+   * Exibe drag handle (ícone ≡) à esquerda de cada linha pai.
+   */
+  arrastavelPai?: boolean
+  /**
+   * Chamado após o usuário soltar uma linha pai em nova posição.
+   * Recebe o array de IDs na nova ordem (apenas itens da página atual).
+   */
+  onReordenarPai?: (ids: string[]) => void
+  /**
+   * Habilita drag-and-drop vertical nas linhas filho (ex: itens de pedido).
+   * Filhos só podem ser arrastados dentro do mesmo pai — nunca cross-pai.
+   * Exibe drag handle no conector hierárquico de cada linha filho.
+   */
+  arrastavelFilho?: boolean
+  /**
+   * Chamado após o usuário soltar um filho em nova posição dentro do pai.
+   * Recebe o ID do pai e o array de IDs dos filhos na nova ordem.
+   */
+  onReordenarFilho?: (paiId: string, ids: string[]) => void
+  /**
+   * Chamado quando a ordem manual dos pais é descartada (ex: usuário clicou
+   * em sort por coluna). O consumidor pode exibir um toast informativo.
+   */
+  onOrdemManualResetada?: () => void
 }

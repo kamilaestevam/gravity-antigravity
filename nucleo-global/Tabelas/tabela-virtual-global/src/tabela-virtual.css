@@ -2072,3 +2072,59 @@ body.light-theme .gtv-linha--filho-selecionada {
   padding: 0 0.25rem;
   font-size: 0.8125rem;
 }
+
+/* ─── Drag-and-drop de linhas ─────────────────────────────────────────────── */
+
+.gtv-celula--drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  padding: 0;
+  cursor: grab;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.gtv-linha:hover .gtv-celula--drag-handle,
+.gtv-celula--drag-handle:focus-within {
+  opacity: 1;
+}
+
+.gtv-celula--drag-handle:active {
+  cursor: grabbing;
+}
+
+.gtv-drag-handle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--gtv-muted, #94a3b8);
+  transition: color 0.15s ease;
+}
+
+.gtv-linha:hover .gtv-drag-handle-icon {
+  color: var(--gtv-text, #e2e8f0);
+}
+
+.gtv-linha--dragging {
+  opacity: 0.4;
+}
+
+.gtv-linha--drag-over-before {
+  box-shadow: inset 0 2px 0 0 var(--gtv-accent, #818cf8);
+}
+
+.gtv-linha--drag-over-after {
+  box-shadow: inset 0 -2px 0 0 var(--gtv-accent, #818cf8);
+}
+
+/* Light theme overrides */
+body.light-theme .gtv-linha:hover .gtv-drag-handle-icon {
+  color: var(--gtv-text, #1e293b);
+}

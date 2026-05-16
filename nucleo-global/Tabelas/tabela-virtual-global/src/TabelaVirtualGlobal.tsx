@@ -111,6 +111,19 @@ function IconeVazio() {
   )
 }
 
+function IconeDragHandle() {
+  return (
+    <svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor" aria-hidden="true">
+      <circle cx="3.5" cy="2.5" r="1.5" />
+      <circle cx="8.5" cy="2.5" r="1.5" />
+      <circle cx="3.5" cy="8" r="1.5" />
+      <circle cx="8.5" cy="8" r="1.5" />
+      <circle cx="3.5" cy="13.5" r="1.5" />
+      <circle cx="8.5" cy="13.5" r="1.5" />
+    </svg>
+  )
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildFlatRows<T, C>(
@@ -1102,6 +1115,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onExpandidosMudar,
   permiteReplicacaoPaiEmItens,
   mensagemSemPermissaoEditar,
+  arrastavelPai,
+  onReordenarPai,
+  arrastavelFilho,
+  onReordenarFilho,
+  onOrdemManualResetada,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -1152,6 +1170,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const handleSort = useCallback(
     (campo: string) => {
+      // Descartar ordem manual ao clicar sort por coluna
+      if (ordemManualPaiRef.current) {
+        setOrdemManualPai(null)
+        onOrdemManualResetada?.()
+      }
       setSortLocal(prev => {
         if (prev?.campo === campo) {
           const novaDir: 'asc' | 'desc' = prev.dir === 'asc' ? 'desc' : 'asc'
@@ -1162,7 +1185,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         return { campo, dir: 'asc' }
       })
     },
-    [onOrdenar],
+    [onOrdenar, onOrdemManualResetada],
   )
 
   // ── Scroll container ref (usado por localizar) ───────────────────────────────
@@ -1264,12 +1287,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   /** Template de colunas para o grid compartilhado */
   const gridTemplateCols = useMemo(() => {
     const cols: string[] = []
+    if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
     if (onCarregarFilhos) cols.push('40px')
     cols.push(...colunasFiltradas.map(() => 'max-content'))
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
-  }, [temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
+  }, [arrastavelPai, temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
 
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
@@ -1604,6 +1628,92 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     setDragColKey(null); setDragOverKey(null)
   }, [])
 
+  // ── Drag de linhas (reordenação vertical) ───────────────────────────────────
+  const [dragRowId,       setDragRowId]       = useState<string | null>(null)
+  const [dragRowPaiId,    setDragRowPaiId]    = useState<string | null>(null) // null = pai, string = filho deste pai
+  const [dragOverRowId,   setDragOverRowId]   = useState<string | null>(null)
+  const [dragRowSide,     setDragRowSide]     = useState<'before' | 'after'>('after')
+  // Ordem manual de pais: quando não-null, sobrepõe a ordem de `dados`
+  const [ordemManualPai,  setOrdemManualPai]  = useState<string[] | null>(null)
+
+  // Reset da ordem manual quando sort/filtro/página muda
+  const ordemManualPaiRef = useRef(ordemManualPai)
+  ordemManualPaiRef.current = ordemManualPai
+
+  const handleRowDragStart = useCallback((e: React.DragEvent<HTMLDivElement>, id: string, paiId: string | null) => {
+    e.dataTransfer.setData(paiId ? 'text/gtv-row-filho' : 'text/gtv-row-pai', id)
+    if (paiId) e.dataTransfer.setData('text/gtv-row-pai-id', paiId)
+    e.dataTransfer.effectAllowed = 'move'
+    setDragRowId(id)
+    setDragRowPaiId(paiId)
+  }, [])
+
+  const handleRowDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, id: string, paiId: string | null) => {
+    // Aceitar apenas se mesma categoria (pai↔pai ou filho↔filho do mesmo pai)
+    const isPai = e.dataTransfer.types.includes('text/gtv-row-pai')
+    const isFilho = e.dataTransfer.types.includes('text/gtv-row-filho')
+    if (paiId === null && !isPai) return
+    if (paiId !== null && !isFilho) return
+    // Filhos: só aceitar drop no mesmo pai
+    if (paiId !== null && isFilho) {
+      // dragRowPaiId contém o pai de origem — mas em dragOver não podemos ler
+      // o value do dataTransfer (security), então verificamos via state
+      if (dragRowPaiId !== paiId) return
+    }
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (id === dragRowId) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const mid = rect.top + rect.height / 2
+    setDragOverRowId(id)
+    setDragRowSide(e.clientY < mid ? 'before' : 'after')
+  }, [dragRowId, dragRowPaiId])
+
+  const handleRowDrop = useCallback((e: React.DragEvent<HTMLDivElement>, targetId: string, paiId: string | null) => {
+    e.preventDefault()
+    const sourceId = paiId
+      ? e.dataTransfer.getData('text/gtv-row-filho')
+      : e.dataTransfer.getData('text/gtv-row-pai')
+    if (!sourceId || sourceId === targetId) {
+      setDragRowId(null); setDragOverRowId(null)
+      return
+    }
+
+    if (paiId === null) {
+      // Reordenar pais
+      const idsAtuais = ordemManualPaiRef.current ?? dadosRef.current.map(itemIdRef.current)
+      const ordem = [...idsAtuais]
+      const fromIdx = ordem.indexOf(sourceId)
+      const toIdx = ordem.indexOf(targetId)
+      if (fromIdx < 0 || toIdx < 0) { setDragRowId(null); setDragOverRowId(null); return }
+      ordem.splice(fromIdx, 1)
+      const insertAt = ordem.indexOf(targetId)
+      ordem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, sourceId)
+      setOrdemManualPai(ordem)
+      onReordenarPai?.(ordem)
+    } else {
+      // Reordenar filhos dentro do mesmo pai
+      const filhosAtuais = filhosCache.get(paiId) ?? []
+      const filhoIds = filhosAtuais.map(f => filhoId(f))
+      const fromIdx = filhoIds.indexOf(sourceId)
+      const toIdx = filhoIds.indexOf(targetId)
+      if (fromIdx < 0 || toIdx < 0) { setDragRowId(null); setDragOverRowId(null); return }
+      const novaOrdem = [...filhosAtuais]
+      const [movido] = novaOrdem.splice(fromIdx, 1)
+      const insertAt = novaOrdem.findIndex(f => filhoId(f) === targetId)
+      novaOrdem.splice(insertAt + (dragRowSide === 'after' ? 1 : 0), 0, movido)
+      // Atualizar cache local imediatamente
+      filhosCache.set(paiId, novaOrdem)
+      onReordenarFilho?.(paiId, novaOrdem.map(f => filhoId(f)))
+    }
+
+    setDragRowId(null); setDragOverRowId(null)
+  }, [dragRowSide, onReordenarPai, onReordenarFilho, filhosCache, filhoId])
+
+  const handleRowDragEnd = useCallback(() => {
+    setDragRowId(null); setDragOverRowId(null)
+  }, [])
+
   // ── Edição inline ─────────────────────────────────────────────────────────────
   const {
     editandoCelula: editandoCelulaPai,
@@ -1683,6 +1793,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [paginaInterna, setPaginaInterna] = useState(1)
   const paginaEfetiva = modoExterno ? (paginaAtual ?? 1) : paginaInterna
 
+  // Resetar ordem manual quando dados/página mudam (filter, page change, refresh)
+  useEffect(() => {
+    if (ordemManualPaiRef.current) {
+      setOrdemManualPai(null)
+      // Não dispara toast aqui — mudança de dados não é ação do usuário
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dados, paginaEfetiva])
+
   // Pagina os itens pai. No modo externo, dados já é a página atual.
   const dadosPagina = useMemo(
     () => modoExterno
@@ -1691,12 +1810,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [dados, modoExterno, paginaEfetiva, itensPorPagina],
   )
 
-  const todosIds = useMemo(() => dadosPagina.map(itemId), [dadosPagina, itemId])
+  // Aplica ordem manual de pais (drag-and-drop) quando ativa
+  const dadosPaginaOrdenados = useMemo(() => {
+    if (!ordemManualPai) return dadosPagina
+    const mapa = new Map(dadosPagina.map(d => [itemId(d), d]))
+    return ordemManualPai
+      .map(id => mapa.get(id))
+      .filter((d): d is T => d != null)
+  }, [dadosPagina, ordemManualPai, itemId])
+
+  const todosIds = useMemo(() => dadosPaginaOrdenados.map(itemId), [dadosPaginaOrdenados, itemId])
 
   // Flat rows incluindo filhos expandidos — apenas para a página atual
   const linhasPagina = useMemo(
-    () => buildFlatRows<T, C>(dadosPagina, expandidos, filhosCache, itemId, filhoId),
-    [dadosPagina, expandidos, filhosCache, itemId, filhoId],
+    () => buildFlatRows<T, C>(dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId),
+    [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId],
   )
 
   const totalEfetivo = modoExterno ? totalItens : dados.length
@@ -2137,13 +2265,30 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       'gtv-linha--pai',
       expandido ? 'gtv-linha--expandida' : '',
       selecionado ? 'gtv-linha--selecionada' : '',
+      dragRowId === id ? 'gtv-linha--dragging' : '',
+      dragOverRowId === id && dragRowPaiId === null ? `gtv-linha--drag-over-${dragRowSide}` : '',
     ].filter(Boolean).join(' ')
 
     return (
       <div
         className={classeLinha}
         onClick={onCarregarFilhos ? () => toggle(id, item) : undefined}
+        draggable={arrastavelPai ? true : undefined}
+        onDragStart={arrastavelPai ? (e) => handleRowDragStart(e, id, null) : undefined}
+        onDragOver={arrastavelPai ? (e) => handleRowDragOver(e, id, null) : undefined}
+        onDrop={arrastavelPai ? (e) => handleRowDrop(e, id, null) : undefined}
+        onDragEnd={arrastavelPai ? handleRowDragEnd : undefined}
       >
+        {/* Drag handle */}
+        {arrastavelPai && (
+          <div
+            className="gtv-celula gtv-celula--drag-handle gtv-col-fixa"
+            onClick={e => e.stopPropagation()}
+          >
+            <span className="gtv-drag-handle-icon"><IconeDragHandle /></span>
+          </div>
+        )}
+
         {/* Checkbox */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">
@@ -2228,8 +2373,34 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const acoesDoFilho = acoesFilho ? acoesFilho(item) : []
       const dropAberto = dropdownFilhoAberto === id
 
+      const paiIdFilho = (linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }).paiId
+
       return (
-        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
+        <div
+          className={[
+            'gtv-linha gtv-linha--filho',
+            filhoSel ? 'gtv-linha--filho-selecionada' : '',
+            ultimoFilho ? 'gtv-linha--filho-ultimo' : '',
+            dragRowId === id ? 'gtv-linha--dragging' : '',
+            dragOverRowId === id && dragRowPaiId === paiIdFilho ? `gtv-linha--drag-over-${dragRowSide}` : '',
+          ].filter(Boolean).join(' ')}
+          draggable={arrastavelFilho ? true : undefined}
+          onDragStart={arrastavelFilho ? (e) => handleRowDragStart(e, id, paiIdFilho) : undefined}
+          onDragOver={arrastavelFilho ? (e) => handleRowDragOver(e, id, paiIdFilho) : undefined}
+          onDrop={arrastavelFilho ? (e) => handleRowDrop(e, id, paiIdFilho) : undefined}
+          onDragEnd={arrastavelFilho ? handleRowDragEnd : undefined}
+        >
+          {/* Drag handle filho — mesma coluna do drag handle pai (far left) */}
+          {arrastavelPai && (
+            <div
+              className="gtv-celula gtv-celula--drag-handle gtv-col-fixa"
+              onClick={e => e.stopPropagation()}
+            >
+              {arrastavelFilho && (
+                <span className="gtv-drag-handle-icon"><IconeDragHandle /></span>
+              )}
+            </div>
+          )}
           {temSelecao && (
             <div className="gtv-celula gtv-celula--check gtv-col-fixa">
               {selecionavelFilhos && (
@@ -2684,6 +2855,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             >
               {/* Cabeçalho — display:contents faz os th serem filhos diretos do grid */}
               <div className="gtv-cabecalho" role="row">
+                {arrastavelPai && (
+                  <div className="gtv-th gtv-celula--drag-handle gtv-col-fixa" role="columnheader" aria-label="Reordenar" />
+                )}
                 {temSelecao && (
                   <div className="gtv-th gtv-th--check gtv-col-fixa" role="columnheader" aria-label="Selecionar todos">
                     <input

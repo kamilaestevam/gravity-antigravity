@@ -45,6 +45,7 @@ import { edicaoEmMassaRouter } from './routes/edicoes-em-massa-pedido.js'
 import { smartImportRouter, templateHandler } from './routes/importacoes-inteligentes-pedido.js'
 import { duplicacoesPedidoRouter } from './routes/duplicacoes-pedido.js'
 import { exclusoesPedidoRouter } from './routes/exclusoes-pedido.js'
+import { reordenacaoItensPedidoRouter } from './routes/reordenacao-itens-pedido.js'
 import { colunasUsuarioRouter } from './routes/colunas-usuario-pedido.js'
 import { gabiProxyRouter } from './routes/gabi-pedido.js'
 import { behaviorTrackingRouter } from './routes/eventos-comportamento-pedido.js'
@@ -252,6 +253,7 @@ app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'),
 // Parâmetros dinâmicos após todos os estáticos
 app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'editar'), transferirRouter)
 app.use('/api/v1/pedidos/:id_pedido/transferencias',   exigirPermissao('lista', 'ver'), transferirHistoricoRouter)
+app.use('/api/v1/pedidos/:id_pedido/itens',            reordenacaoItensPedidoRouter)
 
 // ── 9. 404 catch-all ─────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {

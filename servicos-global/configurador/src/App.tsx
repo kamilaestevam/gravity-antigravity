@@ -187,15 +187,8 @@ function RootRedirect() {
 /** Guarda para rotas públicas (Login/Cadastro). Se logado, expulsa para o sistema. */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
-  const [clerkTimeout, setClerkTimeout] = React.useState(false)
 
-  React.useEffect(() => {
-    if (isLoaded) return
-    const timer = setTimeout(() => setClerkTimeout(true), 1500)
-    return () => clearTimeout(timer)
-  }, [isLoaded])
-
-  if (!isLoaded && !clerkTimeout) {
+  if (!isLoaded) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
         Carregando…

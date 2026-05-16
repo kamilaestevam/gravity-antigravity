@@ -413,6 +413,7 @@ interface GTEditPopoverProps {
   }
   valorEditando: unknown
   salvando: boolean
+  resultado: 'sucesso' | 'erro' | null
   onAtualizar: (valor: unknown) => void
   /** onConfirmar pode receber opts (ex: replicar_em_itens) — popover propaga
    *  via aqui quando o usuario marca o checkbox da linha pai. */
@@ -432,6 +433,7 @@ const GTEditPopover = memo(function GTEditPopover({
   overlayInfo,
   valorEditando,
   salvando,
+  resultado,
   onAtualizar,
   onConfirmar,
   onCancelar,
@@ -933,14 +935,43 @@ const GTEditPopover = memo(function GTEditPopover({
             </button>
             <button
               type="button"
-              className="gtv-edit-popover-btn gtv-edit-popover-btn--primary"
+              className={[
+                'gtv-edit-popover-btn gtv-edit-popover-btn--primary',
+                salvando ? 'gtv-edit-popover-btn--salvando' : '',
+                resultado === 'sucesso' ? 'gtv-edit-popover-btn--sucesso' : '',
+                resultado === 'erro' ? 'gtv-edit-popover-btn--erro' : '',
+              ].filter(Boolean).join(' ')}
               onMouseDown={e => e.stopPropagation()}
               onClick={() => confirmarComOpts()}
-              disabled={salvando}
+              disabled={salvando || resultado !== null}
               tabIndex={-1}
+              aria-busy={salvando || undefined}
             >
               {salvando
-                ? <span className="gtv-spinner" aria-label="Salvando..." />
+                ? <>
+                    <span className="gtv-edit-orbital" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.9" />
+                        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+                      </svg>
+                      <span className="gtv-edit-orbit" />
+                    </span>
+                    Salvando…
+                  </>
+                : resultado === 'sucesso'
+                ? <>
+                    <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                      <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                    Salvo
+                  </>
+                : resultado === 'erro'
+                ? <>
+                    <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                      <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                    Falhou
+                  </>
                 : <>
                     <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
                       <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/>
@@ -1727,6 +1758,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaPai,
     valorEditando: valorEditandoPai,
     salvando: salvandoPai,
+    resultado: resultadoPai,
+    celulaResultado: celulaResultadoPai,
     iniciarEdicao: iniciarEdicaoPai,
     atualizarValor: atualizarValorPai,
     confirmarEdicao: confirmarEdicaoPai,
@@ -1785,6 +1818,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     editandoCelula: editandoCelulaFilho,
     valorEditando: valorEditandoFilho,
     salvando: salvandoFilho,
+    resultado: resultadoFilho,
+    celulaResultado: celulaResultadoFilho,
     iniciarEdicao: iniciarEdicaoFilho,
     atualizarValor: atualizarValorFilho,
     confirmarEdicao: confirmarEdicaoFilho,
@@ -2102,6 +2137,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const editandoCelula  = isFilho ? editandoCelulaFilho  : editandoCelulaPai
     const valorEditando   = isFilho ? valorEditandoFilho   : valorEditandoPai
     const salvando        = isFilho ? salvandoFilho        : salvandoPai
+    const celulaResultado = isFilho ? celulaResultadoFilho : celulaResultadoPai
+    const resultado       = isFilho ? resultadoFilho       : resultadoPai
     const iniciarEdicao   = isFilho ? iniciarEdicaoFilho   : iniciarEdicaoPai
     const atualizarValor  = isFilho ? atualizarValorFilho  : atualizarValorPai
     const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
@@ -2123,6 +2160,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
+    const isCelulaFeedback  = celulaResultado?.id === id && celulaResultado?.campo === col.key
+    const classeFeedback    = isCelulaFeedback
+      ? (resultado === 'sucesso' ? ' gtv-celula--salvo' : resultado === 'erro' ? ' gtv-celula--erro-salvar' : '')
+      : (estaEditando && salvando ? ' gtv-celula--salvando' : '')
 
     const styleCelula: React.CSSProperties = {}
 
@@ -2174,7 +2215,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}${classeFeedback}`}
         style={styleCelula}
         data-gtv-rowid={podeEditar ? id : undefined}
         data-gtv-campo={podeEditar ? col.key : undefined}
@@ -3010,6 +3051,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           overlayInfo={overlayInfo}
           valorEditando={overlayInfo.isFilho ? valorEditandoFilho : valorEditandoPai}
           salvando={overlayInfo.isFilho ? salvandoFilho : salvandoPai}
+          resultado={overlayInfo.isFilho ? resultadoFilho : resultadoPai}
           onAtualizar={overlayInfo.isFilho ? atualizarValorFilho : atualizarValorPai}
           onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}

@@ -16,9 +16,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import {
   Warning,
-  Spinner,
   CheckCircle,
   ArrowRight,
   ArrowSquareOut,
@@ -28,6 +28,9 @@ import {
   PlusCircle,
   ArrowDown,
   Eye,
+  MinusCircle,
+  GitBranch,
+  ArrowBendUpRight,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -53,7 +56,7 @@ interface CenarioInfo {
   id: CenarioTransfer
   nomeKey: string
   descricaoKey: string
-  icone: string
+  Icone: React.ComponentType<{ size?: number; weight?: string; className?: string }>
   reversivel: boolean
   criaDestinos: boolean
 }
@@ -63,7 +66,7 @@ const CENARIOS: CenarioInfo[] = [
     id: 'reducao_simples',
     nomeKey: 'pedido.modal_transf.cenario_reducao_nome',
     descricaoKey: 'pedido.modal_transf.cenario_reducao_desc',
-    icone: '↓',
+    Icone: MinusCircle,
     reversivel: false,
     criaDestinos: false,
   },
@@ -71,7 +74,7 @@ const CENARIOS: CenarioInfo[] = [
     id: 'split_novo_pedido',
     nomeKey: 'pedido.modal_transf.cenario_split_novo_nome',
     descricaoKey: 'pedido.modal_transf.cenario_split_novo_desc',
-    icone: '✂',
+    Icone: GitBranch,
     reversivel: true,
     criaDestinos: true,
   },
@@ -79,7 +82,7 @@ const CENARIOS: CenarioInfo[] = [
     id: 'split_pedido_existente',
     nomeKey: 'pedido.modal_transf.cenario_split_exist_nome',
     descricaoKey: 'pedido.modal_transf.cenario_split_exist_desc',
-    icone: '→',
+    Icone: ArrowBendUpRight,
     reversivel: true,
     criaDestinos: true,
   },
@@ -107,84 +110,37 @@ interface SeletorCenarioProps {
 
 function SeletorCenario({ cenarioSelecionado, onChange }: SeletorCenarioProps) {
   const { t } = useTranslation()
-  const [aberto, setAberto] = React.useState(false)
-  const [listaPos, setListaPos] = React.useState<{ top: number; left: number; width: number } | null>(null)
-  const selecionado = cenarioSelecionado ? CENARIOS.find(c => c.id === cenarioSelecionado) : null
-  const wrapperRef = React.useRef<HTMLDivElement>(null)
-  const triggerRef = React.useRef<HTMLButtonElement>(null)
-
-  // Calcular posição do trigger para fixar a lista fora do overflow
-  const abrirLista = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setListaPos({ top: rect.bottom + 2, left: rect.left, width: rect.width })
-    }
-    setAberto(v => !v)
-  }
-
-  // Fechar ao clicar fora
-  useEffect(() => {
-    const onClickFora = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setAberto(false)
-      }
-    }
-    if (aberto) document.addEventListener('mousedown', onClickFora)
-    return () => document.removeEventListener('mousedown', onClickFora)
-  }, [aberto])
 
   return (
-    <div className="modal-transferir__cenario-select-wrapper" ref={wrapperRef}>
-      <label className="modal-transferir__label" id="cenario-select-label">
+    <div className="modal-transferir__cenario-cards">
+      <span className="modal-transferir__cenario-cards-label">
         {t('pedido.modal_transf.cenario_tipo_label')}
-      </label>
-      <button
-        ref={triggerRef}
-        type="button"
-        className={`modal-transferir__dropdown-trigger${aberto ? ' modal-transferir__dropdown-trigger--aberto' : ''}`}
-        onClick={abrirLista}
-        aria-haspopup="listbox"
-        aria-expanded={aberto}
-        aria-labelledby="cenario-select-label"
-      >
-        <span className={selecionado ? '' : 'modal-transferir__dropdown-placeholder'}>
-          {selecionado ? t(selecionado.nomeKey) : t('pedido.modal_transf.cenario_placeholder')}
-        </span>
-        <svg className="modal-transferir__dropdown-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
-      {aberto && listaPos && (
-        <ul
-          className="modal-transferir__dropdown-lista"
-          role="listbox"
-          aria-labelledby="cenario-select-label"
-          style={{ top: listaPos.top, left: listaPos.left, width: listaPos.width }}
-        >
-          {CENARIOS.map(c => (
-            <li
+      </span>
+      <div className="modal-transferir__cenario-cards-grid">
+        {CENARIOS.map(c => {
+          const ativo = c.id === cenarioSelecionado
+          return (
+            <button
               key={c.id}
-              role="option"
-              aria-selected={c.id === cenarioSelecionado}
-              className={`modal-transferir__dropdown-item${c.id === cenarioSelecionado ? ' modal-transferir__dropdown-item--selecionado' : ''}`}
-              onClick={() => { onChange(c.id); setAberto(false) }}
+              type="button"
+              className={`modal-transferir__cenario-card${ativo ? ' modal-transferir__cenario-card--ativo' : ''}`}
+              onClick={() => onChange(c.id)}
+              aria-pressed={ativo}
             >
-              <span className="modal-transferir__dropdown-item-nome">{t(c.nomeKey)}</span>
-              <span className="modal-transferir__dropdown-item-desc">{t(c.descricaoKey)}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {selecionado && (
-        <p className="modal-transferir__cenario-descricao-inline">
-          {t(selecionado.descricaoKey)}
-          {!selecionado.reversivel && (
-            <span className="modal-transferir__badge-irreversivel"> {t('pedido.modal_transf.badge_irreversivel')}</span>
-          )}
-        </p>
-      )}
+              <span className={`modal-transferir__cenario-card-icone${ativo ? ' modal-transferir__cenario-card-icone--ativo' : ''}`}>
+                <c.Icone size={20} weight={ativo ? 'fill' : 'duotone'} />
+              </span>
+              <span className="modal-transferir__cenario-card-texto">
+                <span className="modal-transferir__cenario-card-nome">{t(c.nomeKey)}</span>
+                <span className="modal-transferir__cenario-card-desc">{t(c.descricaoKey)}</span>
+              </span>
+              {!c.reversivel && (
+                <span className="modal-transferir__badge-irreversivel">{t('pedido.modal_transf.badge_irreversivel')}</span>
+              )}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -358,7 +314,12 @@ function ConfigurarDestinos({
 
   return (
     <div className="modal-transferir__destinos">
-      {destinos.map((destino, idx) => (
+      {cenario === 'split_pedido_existente' && carregandoPedidosDestino && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+          <GravityLoader texto="Carregando pedidos…" tamanho="sm" />
+        </div>
+      )}
+      {!(cenario === 'split_pedido_existente' && carregandoPedidosDestino) && destinos.map((destino, idx) => (
         <div key={idx} className="modal-transferir__destino-bloco">
           <div className="modal-transferir__destino-titulo">{t('pedido.modal_transf.destino_titulo')}</div>
 
@@ -368,7 +329,6 @@ function ConfigurarDestinos({
                 label={t('pedido.modal_transf.destino_id_label')}
                 placeholder={t('pedido.modal_transf.destino_id_placeholder')}
                 buscavel
-                carregando={carregandoPedidosDestino}
                 opcoes={pedidosDestinoDisponiveis.map(p => ({
                   valor: p.id,
                   rotulo: p.numero_pedido,
@@ -903,9 +863,8 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
               {/* Passo 4: Preview */}
               {passo === 4 && (
                 carregandoPreview ? (
-                  <div className="modal-transferir__loading" aria-live="polite">
-                    <Spinner size={24} className="modal-transferir__spinner" aria-hidden="true" />
-                    <span>{t('pedido.modal_transf.calculando')}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }} aria-live="polite">
+                    <GravityLoader texto={t('pedido.modal_transf.calculando')} tamanho="sm" />
                   </div>
                 ) : erroPreview ? (
                   <div className="modal-transferir__erro" role="alert">

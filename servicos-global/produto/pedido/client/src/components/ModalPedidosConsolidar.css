@@ -127,10 +127,7 @@
   border-color: var(--color-primary, #3b82f6);
 }
 
-.modal-consolidar__hint {
-  font-size: 12px;
-  color: var(--color-text-muted, #64748b);
-}
+/* .modal-consolidar__hint removido — não usado (modal usa inline styles Tier 2) */
 
 /* Seção */
 .modal-consolidar__secao {

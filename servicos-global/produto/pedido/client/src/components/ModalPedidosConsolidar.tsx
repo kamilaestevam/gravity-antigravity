@@ -508,13 +508,13 @@ export function ModalConsolidarPedidos({
     if (!preview) return null
 
     // Estatísticas para o infográfico
-    const totalColunasAtivas = grupos.length
     const todosCamposValores = [
       ...preview.campos_divergentes.map(c => camposEscolhidos[c.campo] ?? c.valor_sugerido),
       ...preview.campos_iguais.map(c => c.valor),
     ]
-    const totalPreenchidos = todosCamposValores.filter(v => v != null && v !== '').length
-    const totalVazios = todosCamposValores.length - totalPreenchidos
+    const totalColunasAtivas = todosCamposValores.length
+    const totalComDados = todosCamposValores.filter(v => v != null && v !== '').length
+    const totalVazias = totalColunasAtivas - totalComDados
 
     return (
       <div style={estilos.passo2}>
@@ -530,15 +530,15 @@ export function ModalConsolidarPedidos({
           <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(74,222,128,0.4)' }}>
             <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
             <div>
-              <span style={estilos.infograficoValor}>{totalPreenchidos}</span>
-              <span style={estilos.infograficoLabel}>Campos preenchidos</span>
+              <span style={estilos.infograficoValor}>{totalComDados}</span>
+              <span style={estilos.infograficoLabel}>Colunas com dados</span>
             </div>
           </div>
           <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
             <MinusCircle size={20} weight="duotone" style={{ color: '#94a3b8' }} />
             <div>
-              <span style={estilos.infograficoValor}>{totalVazios}</span>
-              <span style={estilos.infograficoLabel}>Campos vazios</span>
+              <span style={estilos.infograficoValor}>{totalVazias}</span>
+              <span style={estilos.infograficoLabel}>Colunas vazias</span>
             </div>
           </div>
         </div>

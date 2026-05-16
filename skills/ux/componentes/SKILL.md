@@ -199,6 +199,8 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 
 **Referência completa do padrão de campo obrigatório:** ver `skills/ux/design-system/SKILL.md` seção "Padrão de Campo Obrigatório (3 sinais oficiais)".
 
+**Hints abaixo de campos — 3 tiers oficiais:** ver `skills/ux/design-system/SKILL.md` seção "Hints e Dicas Abaixo de Campos". Tier 1 = hint puro (prop `hint`), Tier 2 = dica contextual com ícone Info (render fora do componente), Tier 3 = badge de status (custom). Documento técnico completo: `documentos-tecnicos/ux/design-system/hints-e-dicas.md`.
+
 ---
 
 ### DicaGlobal

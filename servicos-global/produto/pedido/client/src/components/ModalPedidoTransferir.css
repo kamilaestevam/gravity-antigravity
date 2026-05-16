@@ -386,10 +386,7 @@
   border-color: var(--color-primary, #3b82f6);
 }
 
-.modal-transferir__hint {
-  font-size: 11px;
-  color: var(--color-text-muted, #64748b);
-}
+/* .modal-transferir__hint removido — não usado em nenhum TSX */
 
 .modal-transferir__linha-dupla {
   display: grid;

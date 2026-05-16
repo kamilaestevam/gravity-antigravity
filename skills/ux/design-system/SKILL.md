@@ -215,6 +215,97 @@ O `!important` é justificado: inline styles têm especificidade 1000, e `::plac
 
 ---
 
+### Hints e Dicas Abaixo de Campos (3 tiers oficiais)
+
+Texto auxiliar abaixo de campos segue **3 tiers** com propósitos distintos. Cada tier tem spec visual própria — nunca misturar.
+
+| Tier | Nome | Propósito | Ícone? | Tamanho | Cor |
+|------|------|-----------|--------|---------|-----|
+| **1 — Hint padrão** | `.cg-hint` | Orientação estática (ex: "Formato: 0000.00.00") | ❌ Sem ícone | `0.8rem` | `var(--text-muted, #94a3b8)` |
+| **2 — Dica contextual** | `.cg-hint-contextual` | Sugestão/informação dinâmica (ex: "Sugestão automática — você pode editar") | ✅ `Info` 14px `fill` | `0.8rem` | `var(--text-muted, #94a3b8)` |
+| **3 — Status badge** | Custom | Estado de validação (ex: "NCM válido", "Verificando...") | ✅ Semântico 12px | `0.75rem` | Semântica (verde/amarelo/vermelho) |
+
+#### Tier 1 — Hint Padrão (via `CampoGeralGlobal`)
+
+Texto puro, sem ícone. Usa a prop `hint` do `CampoGeralGlobal`:
+
+```tsx
+<CampoGeralGlobal label="NCM" hint="Formato: 0000.00.00">
+  <input ... />
+</CampoGeralGlobal>
+```
+
+CSS canônico (em `campo-geral.css`):
+```css
+.cg-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ws-muted, var(--text-muted, #94a3b8));
+}
+```
+
+> **Regra:** hint desaparece quando há `erro` — o erro tem prioridade visual.
+
+#### Tier 2 — Dica Contextual (com ícone Info)
+
+Para quando o campo tem comportamento que o usuário precisa entender — sugestão automática, valor calculado editável, preenchimento inteligente. O ícone `Info` sinaliza "isso é uma informação sobre o campo, não um erro".
+
+```tsx
+import { Info } from '@phosphor-icons/react'
+
+<CampoGeralGlobal label="Número do Pedido" obrigatorio>
+  <input ... />
+</CampoGeralGlobal>
+<span className="cg-hint-contextual">
+  <Info size={14} weight="fill" style={{ flexShrink: 0, opacity: 0.6 }} />
+  Sugestão automática — você pode editar livremente.
+</span>
+```
+
+**Spec visual:**
+```css
+.cg-hint-contextual {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+```
+
+| Propriedade | Valor | Justificativa |
+|---|---|---|
+| Ícone | `<Info size={14} weight="fill">` | Phosphor Info, fill para destaque sutil |
+| Opacidade do ícone | `0.6` | Suficiente para ser notado sem competir com o label |
+| `gap` | `0.375rem` (6px) | Espaçamento confortável entre ícone e texto |
+| `font-size` | `0.8rem` | Alinhado com `.cg-hint` (Tier 1) |
+| `color` | `var(--text-muted, #94a3b8)` | Mesmo tom do hint padrão |
+
+> **Quando usar Tier 2 vs Tier 1:** se o texto descreve **formato** ou **restrição** → Tier 1 (hint puro). Se descreve **comportamento do campo** (sugestão, cálculo, preenchimento automático) → Tier 2 (com ícone).
+
+#### Tier 3 — Status Badge
+
+Para indicar **estado de validação** dinâmico — campo sendo verificado, válido, inválido. Cada estado tem cor e ícone semânticos.
+
+```tsx
+// Exemplo: validação de NCM
+<span className="ncm-status ncm-status--valido">
+  <CheckCircle size={12} weight="fill" />
+  NCM válido
+</span>
+```
+
+| Estado | Cor | Ícone |
+|---|---|---|
+| Válido | `var(--success)` (#22c55e) | `CheckCircle` 12px fill |
+| Atenção | `var(--warning)` (#f59e0b) | `Warning` 12px fill |
+| Erro | `var(--danger)` (#ef4444) | `XCircle` 12px fill |
+| Carregando | `var(--text-muted)` (#94a3b8) | `ArrowsClockwise` 12px + animação spin |
+
+> **Anti-pattern proibido:** usar Tier 3 (badge colorido) para informação estática. Badge é só para estado que muda.
+
+---
+
 ### Padrão de Campo Obrigatório (3 sinais oficiais)
 
 Quando um campo é obrigatório e está vazio, o sistema mostra **3 sinais redundantes com propósitos distintos** (alinhado com Material Design / Apple HIG):

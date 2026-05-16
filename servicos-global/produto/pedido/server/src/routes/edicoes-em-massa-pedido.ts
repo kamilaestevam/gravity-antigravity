@@ -124,7 +124,7 @@ edicaoEmMassaRouter.post('/confirmar', async (req: Request, res: Response, next:
 
       const result = await service.confirmar(id_organizacao, id_usuario, nome_usuario, db, parse.data)
       res.json(result)
-    })
+    }, { timeoutMs: 30_000 })
   } catch (err) {
     next(err)
   }

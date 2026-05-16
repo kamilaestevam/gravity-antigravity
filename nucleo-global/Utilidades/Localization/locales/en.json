@@ -4015,7 +4015,21 @@
       "label_item_plural": "items",
       "req_titulo": "To proceed, still pending:",
       "req_numero_pendente": "Copy number for {{pedido}}",
-      "itens_extras_titulo": "+{{count}} items"
+      "itens_extras_titulo": "+{{count}} items",
+      "raio_x": {
+        "reset_titulo": "Always reset (system)",
+        "reset_pedido_campos": "Order ID, Creation date, Update date, Source orders (consolidation), Consolidation date, Balance transfer date",
+        "reset_item_campos": "Item ID, Creation date, Update date, Current balance, Ready qty, Transferred qty, Cancelled qty",
+        "reset_motivo": "System-generated fields — no reason to copy.",
+        "copiado_titulo": "Always copied (structural data)",
+        "copiado_desc": "HS code, exporter, importer, origin/destination country, currency, incoterm, transport mode, units of measure, initial quantity and other structural order data.",
+        "opcoes_titulo": "Options — choose what to copy",
+        "toggle_datas": "Copy dates (shipment, ETA, clearance, etc.)",
+        "toggle_valores": "Copy values and prices",
+        "toggle_referencias": "Copy external references (proforma, invoice, LPCO)",
+        "toggle_pesos": "Copy weights and dimensions",
+        "toggle_descricoes": "Copy supplementary descriptions (PT/EN/ES/NF)"
+      }
     },
     "modal_cons": {
       "titulo": "Consolidate Orders ({{count}} selected)",

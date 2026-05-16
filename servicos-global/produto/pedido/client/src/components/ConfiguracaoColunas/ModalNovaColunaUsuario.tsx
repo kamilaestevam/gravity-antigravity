@@ -31,7 +31,6 @@ import type {
 import { colunasUsuarioApi } from '../../shared/api'
 import {
   parsearFormula,
-  extrairDependencias,
   detectarCircular,
 } from '../../shared/formulaEngine'
 import {
@@ -150,8 +149,8 @@ export function ModalNovaColunaUsuario({
 
   // ── Estado: fórmula tokenizada + GABI ──────────────────────────────────
   const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>(() => {
-    if (colunaEdicao?.formula_expressao) {
-      return aliasFormulaParaTokens(formulaParaAlias(colunaEdicao.formula_expressao))
+    if (colunaEdicao?.tipo === 'formula' && colunaEdicao?.valor_padrao) {
+      return aliasFormulaParaTokens(formulaParaAlias(colunaEdicao.valor_padrao))
     }
     return []
   })
@@ -383,28 +382,22 @@ export function ModalNovaColunaUsuario({
     setSalvando(true)
     setErro(null)
 
-    const formulaDeps = tipoFormula ? extrairDependencias(formulaChave) : undefined
-
-    const payload = {
+    const basePayload = {
       nome: nomeTrimmed,
-      tipo,
       escopo,
       visibilidade,
       obrigatorio,
-      valor_padrao: valorPadrao.trim() || undefined,
+      valor_padrao: tipoFormula ? formulaChave : (valorPadrao.trim() || undefined),
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
-      formula_expressao: tipoFormula ? formulaChave : undefined,
-      formula_dependencias: formulaDeps,
-      ativo: true,
-      ordem: colunaEdicao?.ordem ?? 0,
     }
 
     try {
       if (isEdicao && colunaEdicao) {
-        await colunasUsuarioApi.atualizar(colunaEdicao.id, payload)
+        // Backend rejeita 'tipo' no PUT (TIPO_IMUTAVEL) — enviar sem ele
+        await colunasUsuarioApi.atualizar(colunaEdicao.id, basePayload)
       } else {
-        await colunasUsuarioApi.criar(payload)
+        await colunasUsuarioApi.criar({ ...basePayload, tipo })
       }
       // Dados salvos — fechar modal e notificar pai.
       setSalvando(false)

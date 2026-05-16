@@ -4160,7 +4160,21 @@
       "label_item_plural": "ítems",
       "req_titulo": "Para avanzar, aún falta:",
       "req_numero_pendente": "Número de la copia para {{pedido}}",
-      "itens_extras_titulo": "+{{count}} ítems"
+      "itens_extras_titulo": "+{{count}} ítems",
+      "raio_x": {
+        "reset_titulo": "Siempre reseteado (sistema)",
+        "reset_pedido_campos": "ID del pedido, Fecha de creación, Fecha de actualización, Pedidos de origen (consolidación), Fecha de consolidación, Fecha de transferencia de saldo",
+        "reset_item_campos": "ID del ítem, Fecha de creación, Fecha de actualización, Saldo actual, Ctd lista, Ctd transferida, Ctd cancelada",
+        "reset_motivo": "Campos generados por el sistema — no tiene sentido copiar.",
+        "copiado_titulo": "Siempre copiado (datos estructurales)",
+        "copiado_desc": "NCM, exportador, importador, país de origen/destino, moneda, incoterm, modo de transporte, unidades de medida, cantidad inicial y demás datos estructurales del pedido.",
+        "opcoes_titulo": "Opciones — elija qué copiar",
+        "toggle_datas": "Copiar fechas (embarque, ETA, despacho, etc.)",
+        "toggle_valores": "Copiar valores y precios",
+        "toggle_referencias": "Copiar referencias externas (proforma, invoice, LPCO)",
+        "toggle_pesos": "Copiar pesos y dimensiones",
+        "toggle_descricoes": "Copiar descripciones complementarias (PT/EN/ES/NF)"
+      }
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} seleccionados)",

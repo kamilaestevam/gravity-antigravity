@@ -23,6 +23,9 @@
  */
 
 const CAMPOS_ALERTAVEIS = new Set([
+  // Tipo de operação — alerta quando itens divergem do pedido (importação vs exportação)
+  'tipo_operacao',
+
   // Identificadores de documentos (3)
   'numero_proforma',
   'numero_invoice',

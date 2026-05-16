@@ -297,6 +297,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     ncm:                         item.ncm_item,
     descricao_item:              item.descricao_item,
     tipo_operacao_item:          item.tipo_operacao_item,
+    tipo_operacao:               item.tipo_operacao_item,
     unidade_comercializada_item: item.unidade_comercializada_item,
 
     // Decimal → number (quantidades)
@@ -483,6 +484,10 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
+    // Virtual: somatório de quantidade_transferida dos itens (não persistido no Pedido)
+    quantidade_transferida_total: Array.isArray(itens)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_transferida_pedido ?? 0), 0)
+      : (pedido.quantidade_transferida_total ?? null),
     // Virtual: somatório de quantidade_cancelada dos itens (não persistido no Pedido)
     quantidade_cancelada_total_pedido: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_pedido ?? 0), 0)

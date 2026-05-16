@@ -376,15 +376,16 @@ export function extrairDependencias(expressao: string): string[] {
 // ── Default de Saldo do Pedido (mesma string usada pelo default do Prisma) ───
 
 export const SALDO_FORMULA_PADRAO =
-  'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+  'quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
 
 // ── Mapeamento token pedido-level → campo item-level ─────────────────────────
 // A fórmula é escrita em termos de campos do PEDIDO agregado
-// (ex: quantidade_total_inicial_pedido). Quando avaliamos para um ITEM
+// (ex: quantidade_total_pedido). Quando avaliamos para um ITEM
 // individual, mapeamos cada token para o campo equivalente do PedidoItem.
 // Tokens que não mapeiam (ex: valor_total) são resolvidos como null → temNulo.
 export const TOKEN_PEDIDO_PARA_ITEM: Record<string, string> = {
-  quantidade_total_inicial_pedido:      'quantidade_inicial_item',
+  quantidade_total_pedido:              'quantidade_inicial_item',
+  quantidade_total_inicial_pedido:      'quantidade_inicial_item', // compat: fórmulas salvas com nome antigo
   quantidade_pronta_itens_pedido_total: 'quantidade_pronta_item',
   quantidade_cancelada_total_pedido:    'quantidade_cancelada_item',
   quantidade_transferida_total:         'quantidade_transferida_item',

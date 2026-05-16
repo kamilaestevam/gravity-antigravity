@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 import {
   GitMerge, Warning, CheckCircle, WarningDiamond,
   CaretDown, CaretRight, Package, ListChecks, Check, Info,
+  Stack, MinusCircle,
 } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -44,7 +45,7 @@ interface ModalConsolidarPedidosProps {
 
 const PASSOS: PassoConfig[] = [
   { id: 1, label: 'Configurar' },
-  { id: 2, label: 'Comparação' },
+  { id: 2, label: 'Comparar' },
   { id: 3, label: 'Confirmar' },
 ]
 
@@ -506,8 +507,42 @@ export function ModalConsolidarPedidos({
   function renderPasso2() {
     if (!preview) return null
 
+    // Estatísticas para o infográfico
+    const totalColunasAtivas = grupos.length
+    const todosCamposValores = [
+      ...preview.campos_divergentes.map(c => camposEscolhidos[c.campo] ?? c.valor_sugerido),
+      ...preview.campos_iguais.map(c => c.valor),
+    ]
+    const totalPreenchidos = todosCamposValores.filter(v => v != null && v !== '').length
+    const totalVazios = todosCamposValores.length - totalPreenchidos
+
     return (
       <div style={estilos.passo2}>
+        {/* Infográfico resumo */}
+        <div style={estilos.infograficoGrid}>
+          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(129,140,248,0.4)' }}>
+            <Stack size={20} weight="duotone" style={{ color: '#818cf8' }} />
+            <div>
+              <span style={estilos.infograficoValor}>{totalColunasAtivas}</span>
+              <span style={estilos.infograficoLabel}>Colunas ativas</span>
+            </div>
+          </div>
+          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(74,222,128,0.4)' }}>
+            <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
+            <div>
+              <span style={estilos.infograficoValor}>{totalPreenchidos}</span>
+              <span style={estilos.infograficoLabel}>Campos preenchidos</span>
+            </div>
+          </div>
+          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
+            <MinusCircle size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+            <div>
+              <span style={estilos.infograficoValor}>{totalVazios}</span>
+              <span style={estilos.infograficoLabel}>Campos vazios</span>
+            </div>
+          </div>
+        </div>
+
         {/* Header com legenda */}
         <div style={estilos.legendaComparacao}>
           <span style={estilos.legendaItem}>
@@ -934,6 +969,41 @@ const estilos = {
     gap: '0.375rem',
     fontSize: '0.75rem',
     color: 'var(--text-muted)',
+  } as React.CSSProperties,
+
+  // Infográfico passo 2
+  infograficoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '0.625rem',
+  } as React.CSSProperties,
+  infograficoCard: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '0.875rem 0.875rem',
+    background: 'rgba(15, 23, 42, 0.5)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    border: '1px solid rgba(99, 102, 241, 0.12)',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+  } as React.CSSProperties,
+  infograficoValor: {
+    display: 'block',
+    fontSize: '1.25rem',
+    fontWeight: 800,
+    color: '#fff',
+    lineHeight: 1.2,
+    marginBottom: '0.125rem',
+  } as React.CSSProperties,
+  infograficoLabel: {
+    display: 'block',
+    fontSize: '0.6875rem',
+    color: 'rgba(255,255,255,0.7)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.04em',
+    fontWeight: 600,
   } as React.CSSProperties,
 
   // Grupo colapsável

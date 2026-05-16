@@ -263,3 +263,64 @@ describe('detectarCircular', () => {
     expect(temCiclo).toBe(true)
   })
 })
+
+// ── Saldo do Pedido — fórmula padrão ─────────────────────────────────────────
+
+describe('Saldo do Pedido — fórmula padrão avalia corretamente', () => {
+  const SALDO_FORMULA = 'quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+
+  it('calcula saldo correto após transferência parcial', () => {
+    const ast = parsearFormula(SALDO_FORMULA)
+    const resultado = avaliarFormula(ast, {
+      quantidade_total_pedido: 154,
+      quantidade_transferida_total: 150,
+      quantidade_cancelada_total_pedido: 0,
+    })
+    expect(resultado.valor).toBe(4)
+    expect(resultado.temNulo).toBe(false)
+  })
+
+  it('calcula saldo correto sem transferência nem cancelamento', () => {
+    const ast = parsearFormula(SALDO_FORMULA)
+    const resultado = avaliarFormula(ast, {
+      quantidade_total_pedido: 100,
+      quantidade_transferida_total: 0,
+      quantidade_cancelada_total_pedido: 0,
+    })
+    expect(resultado.valor).toBe(100)
+    expect(resultado.temNulo).toBe(false)
+  })
+
+  it('calcula saldo correto com transferência e cancelamento', () => {
+    const ast = parsearFormula(SALDO_FORMULA)
+    const resultado = avaliarFormula(ast, {
+      quantidade_total_pedido: 200,
+      quantidade_transferida_total: 80,
+      quantidade_cancelada_total_pedido: 20,
+    })
+    expect(resultado.valor).toBe(100)
+    expect(resultado.temNulo).toBe(false)
+  })
+
+  it('marca temNulo quando quantidade_transferida_total é null', () => {
+    const ast = parsearFormula(SALDO_FORMULA)
+    const resultado = avaliarFormula(ast, {
+      quantidade_total_pedido: 154,
+      quantidade_transferida_total: null,
+      quantidade_cancelada_total_pedido: 0,
+    })
+    expect(resultado.temNulo).toBe(true)
+  })
+
+  it('fórmula antiga com quantidade_total_inicial_pedido marca temNulo (campo não existe no contexto)', () => {
+    const formulaAntiga = 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+    const ast = parsearFormula(formulaAntiga)
+    const resultado = avaliarFormula(ast, {
+      quantidade_total_pedido: 154,
+      quantidade_transferida_total: 150,
+      quantidade_cancelada_total_pedido: 0,
+    })
+    // quantidade_total_inicial_pedido não está no contexto → temNulo
+    expect(resultado.temNulo).toBe(true)
+  })
+})

@@ -550,7 +550,7 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
   const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
-  if (col.tipo === 'formula') console.log('[FORMULA DEBUG]', { nome: col.nome, tipo: col.tipo, valor_padrao: col.valor_padrao, formula_expressao: col.formula_expressao, formulaExpr })
+  if (col.tipo === 'formula') console.log('[FORMULA DEBUG] nome=' + col.nome + ' valor_padrao=' + String(col.valor_padrao) + ' formula_expressao=' + String(col.formula_expressao) + ' formulaExpr=' + String(formulaExpr))
   const formulaAST = formulaExpr
     ? (() => { try { return parsearFormula(formulaExpr) } catch (e) { console.error('[FORMULA PARSE ERROR]', formulaExpr, e); return null } })()
     : null

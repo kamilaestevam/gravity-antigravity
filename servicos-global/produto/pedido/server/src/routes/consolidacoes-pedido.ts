@@ -1,4 +1,4 @@
-/**
+﻿/**
  * consolidar.ts — Rotas de consolidação de pedidos
  *
  * Rota base: /api/v1/pedidos/consolidacoes
@@ -58,14 +58,84 @@ const ConfirmarSchema = z.object({
 })
 
 // ── Campos que participam da detecção de divergência ─────────────────────────
+// Separados em "direto" (coluna Prisma) e "json" (detalhes_operacionais_pedido).
+// A flag `grupo` alimenta a UI do DE/PARA em seções colapsáveis.
 
-const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
-  { campo: 'incoterm',           rotulo: 'Incoterm'               },
-  { campo: 'moeda_pedido',       rotulo: 'Moeda'                  },
-  { campo: 'nome_exportador',    rotulo: 'Exportador'             },
-  { campo: 'nome_importador',    rotulo: 'Importador'             },
-  { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
-  { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento'  },
+interface CampoComparar {
+  campo: string
+  rotulo: string
+  grupo: string
+  fonte: 'direto' | 'json'
+}
+
+const CAMPOS_COMPARAR: CampoComparar[] = [
+  // ── Identificação / Comercial ──
+  { campo: 'incoterm_pedido',               rotulo: 'Incoterm',                   grupo: 'Comercial',     fonte: 'direto' },
+  { campo: 'moeda_pedido',                  rotulo: 'Moeda',                      grupo: 'Comercial',     fonte: 'direto' },
+  { campo: 'condicao_pagamento_pedido',     rotulo: 'Condição de Pagamento',      grupo: 'Comercial',     fonte: 'direto' },
+  { campo: 'unidade_comercializada_pedido', rotulo: 'Unidade Comercializada',     grupo: 'Comercial',     fonte: 'direto' },
+
+  // ── Exportador ──
+  { campo: 'nome_exportador',               rotulo: 'Exportador — Nome',          grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'cnpj_exportador',               rotulo: 'Exportador — CNPJ',          grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'endereco_exportador',           rotulo: 'Exportador — Endereço',      grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'pais_exportador',               rotulo: 'Exportador — País',          grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'estado_exportador',             rotulo: 'Exportador — Estado',        grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'cidade_exportador',             rotulo: 'Exportador — Cidade',        grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'zip_code_exportador',           rotulo: 'Exportador — ZIP Code',      grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'exportador_ou_fabricante',      rotulo: 'Exportador ou Fabricante',   grupo: 'Exportador',    fonte: 'json' },
+  { campo: 'relacao_exportador_fabricante', rotulo: 'Relação Export./Fabric.',    grupo: 'Exportador',    fonte: 'json' },
+
+  // ── Contato Exportador ──
+  { campo: 'nome_contato_exportador',       rotulo: 'Contato — Nome',             grupo: 'Contato Exportador', fonte: 'json' },
+  { campo: 'email_contato_exportador',      rotulo: 'Contato — Email',            grupo: 'Contato Exportador', fonte: 'json' },
+  { campo: 'whatsapp_contato_exportador',   rotulo: 'Contato — WhatsApp',         grupo: 'Contato Exportador', fonte: 'json' },
+  { campo: 'cargo_contato_exportador',      rotulo: 'Contato — Cargo',            grupo: 'Contato Exportador', fonte: 'json' },
+  { campo: 'departamento_contato_exportador', rotulo: 'Contato — Departamento',   grupo: 'Contato Exportador', fonte: 'json' },
+
+  // ── Importador ──
+  { campo: 'nome_importador',               rotulo: 'Importador — Nome',          grupo: 'Importador',    fonte: 'json' },
+  { campo: 'cnpj_importador',               rotulo: 'Importador — CNPJ',          grupo: 'Importador',    fonte: 'json' },
+
+  // ── Fabricante ──
+  { campo: 'nome_fabricante',               rotulo: 'Fabricante — Nome',          grupo: 'Fabricante',    fonte: 'json' },
+  { campo: 'endereco_fabricante',           rotulo: 'Fabricante — Endereço',      grupo: 'Fabricante',    fonte: 'json' },
+  { campo: 'pais_fabricante',               rotulo: 'Fabricante — País',          grupo: 'Fabricante',    fonte: 'json' },
+  { campo: 'estado_fabricante',             rotulo: 'Fabricante — Estado',        grupo: 'Fabricante',    fonte: 'json' },
+  { campo: 'cidade_fabricante',             rotulo: 'Fabricante — Cidade',        grupo: 'Fabricante',    fonte: 'json' },
+  { campo: 'zip_code_fabricante',           rotulo: 'Fabricante — ZIP Code',      grupo: 'Fabricante',    fonte: 'json' },
+
+  // ── OPE ──
+  { campo: 'codigo_ope',                    rotulo: 'OPE — Código',               grupo: 'OPE',           fonte: 'json' },
+  { campo: 'nome_ope',                      rotulo: 'OPE — Nome',                 grupo: 'OPE',           fonte: 'json' },
+  { campo: 'endereco_ope',                  rotulo: 'OPE — Endereço',             grupo: 'OPE',           fonte: 'json' },
+  { campo: 'pais_ope',                      rotulo: 'OPE — País',                 grupo: 'OPE',           fonte: 'json' },
+  { campo: 'estado_ope',                    rotulo: 'OPE — Estado',               grupo: 'OPE',           fonte: 'json' },
+  { campo: 'cidade_ope',                    rotulo: 'OPE — Cidade',               grupo: 'OPE',           fonte: 'json' },
+  { campo: 'zip_code_ope',                  rotulo: 'OPE — ZIP Code',             grupo: 'OPE',           fonte: 'json' },
+  { campo: 'tin_ope',                       rotulo: 'OPE — TIN',                  grupo: 'OPE',           fonte: 'json' },
+  { campo: 'email_ope',                     rotulo: 'OPE — Email',                grupo: 'OPE',           fonte: 'json' },
+  { campo: 'situacao_ope',                  rotulo: 'OPE — Situação',             grupo: 'OPE',           fonte: 'json' },
+  { campo: 'versao_ope',                    rotulo: 'OPE — Versão',               grupo: 'OPE',           fonte: 'json' },
+  { campo: 'cnpj_raiz_empresa_responsavel', rotulo: 'CNPJ Raiz Responsável',      grupo: 'OPE',           fonte: 'json' },
+
+  // ── Câmbio ──
+  { campo: 'moeda_cambio_pedido',           rotulo: 'Moeda Câmbio',               grupo: 'Câmbio',        fonte: 'direto' },
+  { campo: 'taxa_cambio_estimada_pedido',   rotulo: 'Taxa Câmbio Estimada',       grupo: 'Câmbio',        fonte: 'direto' },
+  { campo: 'contrato_cambio_id_pedido',     rotulo: 'Contrato de Câmbio',         grupo: 'Câmbio',        fonte: 'direto' },
+
+  // ── Documentos / Referências ──
+  { campo: 'referencia_importador_pedido',  rotulo: 'Referência Importador',      grupo: 'Documentos',    fonte: 'direto' },
+  { campo: 'referencia_exportador_pedido',  rotulo: 'Referência Exportador',      grupo: 'Documentos',    fonte: 'direto' },
+  { campo: 'referencia_fabricante_pedido',  rotulo: 'Referência Fabricante',      grupo: 'Documentos',    fonte: 'direto' },
+
+  // ── Logística ──
+  { campo: 'porto_origem',                  rotulo: 'Porto Origem',               grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'porto_destino',                 rotulo: 'Porto Destino',              grupo: 'Logística',     fonte: 'direto' },
+
+  // ── Datas ───
+  { campo: 'data_emissao_pedido',           rotulo: 'Data de Emissão',            grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_embarque_origem',          rotulo: 'Data de Embarque',           grupo: 'Datas',         fonte: 'direto' },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -111,31 +181,29 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
 
       // Detectar divergências de campo
       const camposDivergentes = []
-      const camposIguais: string[] = []
+      const camposIguais: Array<{ campo: string; rotulo: string; grupo: string; valor: string | number | null }> = []
 
-      // Campos em detalhes_operacionais não estão no objeto Prisma cru — extrair do JSON
-      const CAMPOS_DETALHES = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
-
-      for (const { campo, rotulo } of CAMPOS_COMPARAR) {
-        const valores = pedidos.map((p: { id: string; numero_pedido: string; detalhes_operacionais: unknown; [key: string]: unknown }) => {
-          const det = (typeof p.detalhes_operacionais === 'object' && p.detalhes_operacionais !== null)
-            ? p.detalhes_operacionais as Record<string, unknown>
+      for (const { campo, rotulo, grupo, fonte } of CAMPOS_COMPARAR) {
+        const valores = pedidos.map((p: { id_pedido: string; numero_pedido: string; detalhes_operacionais_pedido: unknown; [key: string]: unknown }) => {
+          const det = (typeof p.detalhes_operacionais_pedido === 'object' && p.detalhes_operacionais_pedido !== null)
+            ? p.detalhes_operacionais_pedido as Record<string, unknown>
             : {}
-          const valor = CAMPOS_DETALHES.has(campo)
+          const valor = fonte === 'json'
             ? (det[campo] as string | null | undefined) ?? null
             : p[campo] as string | number | null
-          return { pedido_id: p.id, numero_pedido: p.numero_pedido, valor }
+          return { pedido_id: p.id_pedido, numero_pedido: p.numero_pedido, valor }
         })
         const unicos = new Set(valores.map((v) => String(v.valor)))
         if (unicos.size > 1) {
           camposDivergentes.push({
             campo,
             rotulo,
+            grupo,
             valores,
             valor_sugerido: valores[0].valor,
           })
         } else {
-          camposIguais.push(campo)
+          camposIguais.push({ campo, rotulo, grupo, valor: valores[0]?.valor ?? null })
         }
       }
 
@@ -170,7 +238,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       const total = await db.pedido.count({ where: { id_organizacao: tenantId } })
 
       // Detectar mistura de tipos de operação (importação vs exportação)
-      const tipos = pedidos.map((p: { tipo_operacao?: string | null }) => p.tipo_operacao as string)
+      const tipos = pedidos.map((p: { tipo_operacao_pedido?: string | null }) => p.tipo_operacao_pedido as string)
       const conflito_tipo_operacao = detectarTiposMistos(tipos)
 
       res.json({
@@ -182,6 +250,10 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
         moeda: pedidos[0].moeda_pedido,
         numero_sugerido: gerarNumeroPedido(total),
         conflito_tipo_operacao,
+        pedidos_info: pedidos.map((p: { id_pedido: string; numero_pedido: string }) => ({
+          id: p.id_pedido,
+          numero: p.numero_pedido,
+        })),
       })
     })
   } catch (err) {
@@ -271,9 +343,25 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
-      // Campos base do pedido consolidado (primeiro prevalece como default).
-      // Nomes alinhados com schema Prisma (DDD-puro): sufixo `_pedido` em campos
-      // genericos compartilhados com PedidoItem, prefixo `id_` em FKs.
+      // Separar campos_escolhidos em "direto" (coluna Prisma) e "json" (detalhes_operacionais)
+      const CAMPOS_JSON_SET = new Set(CAMPOS_COMPARAR.filter(c => c.fonte === 'json').map(c => c.campo))
+      const camposEscolhidosDireto: Record<string, unknown> = {}
+      const camposEscolhidosJson: Record<string, unknown> = {}
+      for (const [key, val] of Object.entries(campos_escolhidos)) {
+        if (CAMPOS_JSON_SET.has(key)) {
+          camposEscolhidosJson[key] = val
+        } else {
+          camposEscolhidosDireto[key] = val
+        }
+      }
+
+      // Montar detalhes_operacionais_pedido: base do primeiro + overrides do usuário
+      const detPrimeiro = (typeof primeiro.detalhes_operacionais_pedido === 'object' && primeiro.detalhes_operacionais_pedido !== null)
+        ? primeiro.detalhes_operacionais_pedido as Record<string, unknown>
+        : {}
+      const detalhesConsolidado = { ...detPrimeiro, ...camposEscolhidosJson }
+
+      // Campos base do pedido consolidado (primeiro prevalece como default)
       const camposBase = {
         tipo_operacao_pedido:               primeiro.tipo_operacao_pedido,
         status_pedido:                      'consolidado',
@@ -286,17 +374,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         unidade_comercializada_pedido:      primeiro.unidade_comercializada_pedido,
         condicao_pagamento_pedido:          primeiro.condicao_pagamento_pedido,
         data_emissao_pedido:                primeiro.data_emissao_pedido,
-        // Preservar nomes dos parceiros de detalhes_operacionais_pedido do primeiro pedido
-        detalhes_operacionais_pedido: (() => {
-          const det = (typeof primeiro.detalhes_operacionais_pedido === 'object' && primeiro.detalhes_operacionais_pedido !== null)
-            ? primeiro.detalhes_operacionais_pedido as Record<string, unknown>
-            : {}
-          return {
-            nome_exportador: (det.nome_exportador as string | null | undefined) ?? null,
-            nome_importador: (det.nome_importador as string | null | undefined) ?? null,
-            nome_fabricante: (det.nome_fabricante as string | null | undefined) ?? null,
-          }
-        })(),
+        detalhes_operacionais_pedido:       detalhesConsolidado,
       }
 
       // withOrganizacao já garante atomicidade via $transaction — usar db diretamente
@@ -316,7 +394,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
           id_workspace:                    primeiro.id_workspace,
           id_status_pedido:                idStatusConsolidado,
           ...camposBase,
-          ...campos_escolhidos,
+          ...camposEscolhidosDireto,
           numero_pedido,
           valor_total_pedido:              valorTotal,
           ids_origem_consolidacao_pedido:  ids,

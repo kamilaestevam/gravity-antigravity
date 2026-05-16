@@ -42,14 +42,24 @@ export interface ConfigExcluir {
   excluir_pedido_sem_item_permitido: boolean
 }
 
+export interface OpcoesDuplicacao {
+  copiar_datas: boolean
+  copiar_valores_precos: boolean
+  copiar_referencias_externas: boolean
+  copiar_pesos_cubagem: boolean
+  copiar_descricoes_complementares: boolean
+}
+
 export interface DuplicarPayload {
   ids: string[]
   numeros?: Record<string, string>
+  opcoes?: OpcoesDuplicacao
 }
 
 export interface DuplicarItemPayload {
   pedido_id: string
   item_ids: string[]
+  opcoes?: OpcoesDuplicacao
 }
 
 export interface DuplicarResultado {
@@ -79,6 +89,83 @@ const CONFIG_DUPLICAR_DEFAULT: ConfigDuplicar = {
 const CONFIG_EXCLUIR_DEFAULT: ConfigExcluir = {
   excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
   excluir_pedido_sem_item_permitido: true,
+}
+
+// ── Defaults de opções de duplicação (retrocompat: tudo true = copia tudo) ───
+
+const OPCOES_DUPLICACAO_DEFAULT: OpcoesDuplicacao = {
+  copiar_datas: true,
+  copiar_valores_precos: true,
+  copiar_referencias_externas: true,
+  copiar_pesos_cubagem: true,
+  copiar_descricoes_complementares: true,
+}
+
+// Campos de cada grupo togglable — quando a opção é false, esses campos são
+// zerados (null) no clone. Mapeados diretamente do fragment.prisma.
+
+const CAMPOS_VALORES_PEDIDO = [
+  'valor_total_pedido', 'valor_total_cambio_pedido', 'taxa_cambio_estimada_pedido',
+] as const
+
+const CAMPOS_VALORES_ITEM = [
+  'valor_total_item', 'valor_por_unidade_item',
+] as const
+
+const CAMPOS_REFERENCIAS_PEDIDO = [
+  'numero_proforma_pedido', 'numero_invoice_pedido',
+  'referencia_importador_pedido', 'referencia_exportador_pedido',
+  'referencia_fabricante_pedido', 'contrato_cambio_id_pedido',
+] as const
+
+const CAMPOS_REFERENCIAS_ITEM = [
+  'numero_lpco', 'numero_certificado_origem',
+  'referencia_importador_item', 'referencia_exportador_item',
+  'referencia_fabricante_item',
+] as const
+
+const CAMPOS_PESOS_PEDIDO = [
+  'peso_liquido_total_pedido', 'peso_bruto_total_pedido', 'cubagem_total_pedido',
+  'tipo_embalagem_pedido', 'quantidade_volumes_pedido',
+] as const
+
+const CAMPOS_PESOS_ITEM = [
+  'peso_liquido_unitario_item', 'peso_bruto_unitario_item',
+  'cubagem_unitaria_item', 'tipo_embalagem_item', 'quantidade_volumes_item',
+] as const
+
+const CAMPOS_DESCRICOES_ITEM = [
+  'descricao_completa_item_pt', 'descricao_completa_item_en',
+  'descricao_completa_item_es', 'descricao_completa_item_nf',
+  'texto_posicao_ncm', 'grupo_item', 'subgrupo_item',
+  'campo_especial_item', 'atributos_catalogo',
+] as const
+
+/** Aplica zeramento condicional nos campos de um objeto conforme opcoes do usuário */
+function aplicarZeramentoOpcoes(
+  obj: Record<string, unknown>,
+  opcoes: OpcoesDuplicacao,
+  camposValores: readonly string[],
+  camposReferencias: readonly string[],
+  camposPesos: readonly string[],
+  camposDescricoes: readonly string[],
+): Record<string, unknown> {
+  const resultado = { ...obj }
+
+  if (!opcoes.copiar_valores_precos) {
+    for (const campo of camposValores) resultado[campo] = null
+  }
+  if (!opcoes.copiar_referencias_externas) {
+    for (const campo of camposReferencias) resultado[campo] = null
+  }
+  if (!opcoes.copiar_pesos_cubagem) {
+    for (const campo of camposPesos) resultado[campo] = null
+  }
+  if (!opcoes.copiar_descricoes_complementares) {
+    for (const campo of camposDescricoes) resultado[campo] = null
+  }
+
+  return resultado
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -249,8 +336,15 @@ export class DuplicarService {
           )
         }
 
-        // Definir datas (data_emissao_pedido é DateTime, não string)
-        const datas = config.duplicar_copiar_datas
+        // Resolver opções de duplicação (retrocompat: sem opcoes = copia tudo)
+        const opcoes: OpcoesDuplicacao = {
+          ...OPCOES_DUPLICACAO_DEFAULT,
+          ...payload.opcoes,
+        }
+
+        // copiar_datas: a opção do usuário SOBRESCREVE a config do tenant.
+        // Se opcoes.copiar_datas=false, zera data_emissao independente do config.
+        const datas = (config.duplicar_copiar_datas && opcoes.copiar_datas)
           ? { data_emissao_pedido: pedido.data_emissao_pedido as Date }
           : { data_emissao_pedido: new Date() }
 
@@ -270,6 +364,24 @@ export class DuplicarService {
           ...camposBase
         } = pedido
 
+        // Aplicar zeramento condicional dos grupos togglable no pedido
+        const camposBaseComOpcoes = aplicarZeramentoOpcoes(
+          camposBase, opcoes,
+          CAMPOS_VALORES_PEDIDO,
+          CAMPOS_REFERENCIAS_PEDIDO,
+          CAMPOS_PESOS_PEDIDO,
+          [], // pedido não tem campos de descrição complementar
+        )
+
+        // Se copiar_datas=false, zerar TODOS os campos DateTime do pedido (exceto os
+        // que já foram removidos via destructuring: data_criacao, data_atualizacao, etc.)
+        if (!opcoes.copiar_datas) {
+          for (const key of Object.keys(camposBaseComOpcoes)) {
+            const val = camposBaseComOpcoes[key]
+            if (val instanceof Date) camposBaseComOpcoes[key] = null
+          }
+        }
+
         // Workspace do duplicado: usa o do header se veio; senão herda do original
         // (fallback para id_organizacao quando o original também não tem).
         const id_workspace_alvo =
@@ -288,8 +400,26 @@ export class DuplicarService {
             quantidade_cancelada_item: _qcp,
             ...itemBase
           } = item
+
+          // Aplicar zeramento condicional dos grupos togglable no item
+          const itemBaseComOpcoes = aplicarZeramentoOpcoes(
+            itemBase, opcoes,
+            CAMPOS_VALORES_ITEM,
+            CAMPOS_REFERENCIAS_ITEM,
+            CAMPOS_PESOS_ITEM,
+            CAMPOS_DESCRICOES_ITEM,
+          )
+
+          // Se copiar_datas=false, zerar todos os DateTimes do item
+          if (!opcoes.copiar_datas) {
+            for (const key of Object.keys(itemBaseComOpcoes)) {
+              const val = itemBaseComOpcoes[key]
+              if (val instanceof Date) itemBaseComOpcoes[key] = null
+            }
+          }
+
           return {
-            ...itemBase,
+            ...itemBaseComOpcoes,
             id_item: gerarId('pite'),
             id_organizacao: id_organizacao,
             id_workspace: id_workspace_alvo,
@@ -302,7 +432,7 @@ export class DuplicarService {
 
         const novoPedido = await tx.pedido.create({
           data: {
-            ...camposBase,
+            ...camposBaseComOpcoes,
             ...datas,
             id_pedido: gerarId('pedi'),
             id_organizacao: id_organizacao,
@@ -408,6 +538,12 @@ export class DuplicarService {
       orderBy: { sequencia_item_pedido: 'asc' },
     })
 
+    // Resolver opções de duplicação (retrocompat: sem opcoes = copia tudo)
+    const opcoes: OpcoesDuplicacao = {
+      ...OPCOES_DUPLICACAO_DEFAULT,
+      ...payload.opcoes,
+    }
+
     // 2. Criar os novos itens (sequência temporária = null; será reescrita no passo 4)
     const itensASerDuplicados = new Set(payload.item_ids)
     const criados: DuplicarResultado['criados'] = []
@@ -428,12 +564,29 @@ export class DuplicarService {
         ...itemBase
       } = item
 
+      // Aplicar zeramento condicional dos grupos togglable no item
+      const itemBaseComOpcoes = aplicarZeramentoOpcoes(
+        itemBase, opcoes,
+        CAMPOS_VALORES_ITEM,
+        CAMPOS_REFERENCIAS_ITEM,
+        CAMPOS_PESOS_ITEM,
+        CAMPOS_DESCRICOES_ITEM,
+      )
+
+      // Se copiar_datas=false, zerar todos os DateTimes do item
+      if (!opcoes.copiar_datas) {
+        for (const key of Object.keys(itemBaseComOpcoes)) {
+          const val = itemBaseComOpcoes[key]
+          if (val instanceof Date) itemBaseComOpcoes[key] = null
+        }
+      }
+
       // Zera as 3 quantidades de execução para evitar saldo fantasma —
       // copiar valores reais de pronta/transferida/cancelada criaria registros
       // sem correspondência em transferências/processos de embarque reais.
       const novoItem = await tx.pedidoItem.create({
         data: {
-          ...itemBase,
+          ...itemBaseComOpcoes,
           id_item: gerarId('pite'),
           id_organizacao: id_organizacao,
           id_workspace: id_workspace_alvo,

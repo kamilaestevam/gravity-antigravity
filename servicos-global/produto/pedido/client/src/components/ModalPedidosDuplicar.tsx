@@ -1,45 +1,35 @@
 /**
- * ModalDuplicar.tsx — Modal de duplicação de pedidos E itens (modal único, misto)
+ * ModalDuplicar.tsx — Modal de duplicação de pedidos E itens (wizard passo a passo)
+ *
+ * Passo 1 — Raio X: campos resetados + opções togglable
+ * Passo 2 — Confirmar: tabela de pedidos/itens + números das cópias
+ * Resultado — Tela de conclusão (stepper oculto)
  *
  * Aceita 3 cenários de seleção:
- *   • Só pedidos      → cria N pedidos novos com itens copiados (numero pedido vem do usuário)
- *   • Só itens        → duplica itens DENTRO do(s) pedido(s) pai(s), sem criar pedido novo
+ *   • Só pedidos      → cria N pedidos novos com itens copiados
+ *   • Só itens        → duplica itens DENTRO do(s) pedido(s) pai(s)
  *   • Misto           → ambos em paralelo (Promise.all dos 2 endpoints)
- *
- * Regras de ordenação (skill produtos-gravity/pedido):
- *   - Pedido novo  → primeira linha da Lista (garantido pelo orderBy data_criacao DESC do GET)
- *   - Item novo    → linha imediatamente abaixo do original (shift via renumeração 1..N)
- *
- * Aviso pré-confirmação: se algum item tem quantidade_pronta/transferida/cancelada > 0,
- * exibe alerta antes do botão Duplicar. Esses 3 campos são SEMPRE zerados no item duplicado
- * (regra de saldo: copiar execução real geraria saldo fantasma sem processo de embarque
- * correspondente).
- *
- * Aprovado por Coordenador + Líder Técnico em 2026-05-11.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Info, CheckCircle, Copy, X, Warning, Files, Package } from '@phosphor-icons/react'
+import { Info, CheckCircle, Copy, Warning, Files, Package, XCircle, Sliders } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { useShellStore } from '@gravity/shell'
-import type { Pedido, PedidoItem, DuplicarPayload, DuplicarResultado } from '../shared/types'
+import type { Pedido, PedidoItem, DuplicarPayload, DuplicarResultado, OpcoesDuplicacao } from '../shared/types'
 import { pedidoDuplicarApi } from '../shared/api'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface ModalDuplicarPedidosProps {
   pedidos: Pedido[]
-  /** Itens selecionados (em linhas expandidas de pedidos). Default vazio. */
   itens?: PedidoItem[]
-  /** Lista COMPLETA de pedidos da página (não apenas os selecionados). Usado para
-   *  resolver o número do pedido pai de cada item — necessário quando o usuário
-   *  seleciona só itens sem marcar o pedido pai. Default = `pedidos`. */
   todosPedidos?: Pedido[]
   onFechar: () => void
   onConcluido: () => void
@@ -65,11 +55,23 @@ interface ItensPorPedido {
   itens: PedidoItem[]
 }
 
+// ── Passos do wizard ──────────────────────────────────────────────────────────
+
+const PASSOS: PassoConfig[] = [
+  { id: 1, label: 'Configurar', icone: <Sliders size={16} weight="bold" /> },
+  { id: 2, label: 'Confirmar', icone: <Copy size={16} weight="bold" /> },
+]
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFechar, onConcluido }: ModalDuplicarPedidosProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
+
+  // Wizard
+  const [passoAtual, setPassoAtual] = useState(1)
+
+  // Dados
   const [config, setConfig] = useState<PreviewConfig | null>(null)
   const [previewPedidos, setPreviewPedidos] = useState<PreviewPedido[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -77,6 +79,13 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   const [numeros, setNumeros] = useState<Record<string, string>>({})
   const [confirmando, setConfirmando] = useState(false)
   const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
+  const [opcoes, setOpcoes] = useState<OpcoesDuplicacao>({
+    copiar_datas: true,
+    copiar_valores_precos: true,
+    copiar_referencias_externas: true,
+    copiar_pesos_cubagem: true,
+    copiar_descricoes_complementares: true,
+  })
   const [resultado, setResultado] = useState<{
     pedidos_criados: DuplicarResultado['criados']
     itens_criados: DuplicarResultado['criados']
@@ -86,14 +95,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   const temPedidos = pedidos.length > 0
   const ids = pedidos.map(p => p.id)
 
-  // FILTRA DUPLICAÇÃO DUPLA (regra universal de sync pai↔filhos, 2026-05-11):
-  // Quando o usuário marca o pai, o nucleo-global sincroniza marcando todos os
-  // filhos visíveis no `itensSelecionados`. Mas o pai em `pedidos` já dispara
-  // cascade no backend (cria pedido novo + todos os itens). Se mandássemos os
-  // filhos também como `duplicarItens`, o item seria duplicado 2 vezes:
-  //   • 1× no pedido original (via /duplicacoes/itens)
-  //   • 1× no pedido novo (via cascade do /duplicacoes/confirmar)
-  // Solução: excluir do array `itens` qualquer um cujo pai já está em `pedidos`.
   const idsPedidosSelecionados = useMemo(() => new Set(ids), [ids])
   const itensFiltrados = useMemo(
     () => itens.filter(it => !idsPedidosSelecionados.has(it.pedido_id)),
@@ -101,9 +102,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   )
   const temItens = itensFiltrados.length > 0
 
-  // Lookup id → { seq, label } (item) ou { label } (pedido) para mostrar nome
-  // humano-legível no resultado em vez do id técnico (`pedi_id_...`, CUID).
-  // Separamos `seq` do `label` para o render colocar um badge visual na sequência.
   const labelPorId = useMemo(() => {
     const map = new Map<string, { seq: number | null; label: string }>()
     for (const p of pedidos) map.set(p.id, { seq: null, label: p.numero_pedido })
@@ -119,8 +117,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   const labelOriginal = (originalId: string) =>
     labelPorId.get(originalId) ?? { seq: null, label: originalId }
 
-  // Agrupar itens (já filtrados sem duplicação dupla) por pedido pai. 1 chamada
-  // /duplicacoes/itens por pai. Lookup do número do pai: prioriza `todosPedidos`.
   const itensPorPedido = useMemo<ItensPorPedido[]>(() => {
     const fonteLookup = todosPedidos ?? pedidos
     const mapa = new Map<string, ItensPorPedido>()
@@ -135,8 +131,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     return Array.from(mapa.values())
   }, [itensFiltrados, pedidos, todosPedidos])
 
-  // Detectar itens com quantidade de execução > 0 (vão ter campos zerados na duplicação).
-  // Decimal vem como string no JSON do Prisma — Number(x) > 0 é safe contra string vazia.
   const itensComExecucao = useMemo(() => {
     return itensFiltrados.filter(it =>
       Number(it.quantidade_pronta_total_item_pedido) > 0
@@ -145,12 +139,10 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     )
   }, [itensFiltrados])
 
-  // Carregar preview de pedidos ao abrir (só se há pedidos selecionados)
+  // Carregar preview ao abrir
   useEffect(() => {
     if (!temPedidos) {
       setCarregando(false)
-      // Quando só há itens, ainda precisamos saber a config (numero_auto não importa aqui)
-      // mas como temPedidos=false, não exibe tabela de pedidos — só vai chamar duplicarItens
       setConfig({ numero_auto: true, copiar_datas: false, status_inicial: 'copiar' })
       return
     }
@@ -183,9 +175,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     setNumeros(prev => ({ ...prev, [pedidoId]: valor }))
   }, [])
 
-  // Pode duplicar:
-  //   - Se há pedidos: todos precisam de número (quando não-auto)
-  //   - Se há só itens: sempre OK
   const podeDuplicar = (() => {
     if (!temPedidos && temItens) return true
     if (!config) return false
@@ -193,9 +182,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     return previewPedidos.every(p => numeros[p.id]?.trim())
   })()
 
-  // Requisitos para o BannerRequisitosGlobal — só lista os pedidos cuja
-  // "número da cópia" ainda não foi preenchido. Quando config.numero_auto=true,
-  // não há requisitos pendentes (backend gera o número).
   const requisitos: RequisitoSalvar[] = useMemo(() => {
     if (!config || config.numero_auto) return []
     return previewPedidos.map(p => ({
@@ -210,7 +196,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     setErro(null)
 
     try {
-      // Dispatch paralelo: pedidos (1 chamada) + itens (1 chamada por pedido pai)
       const promessasPedido: Promise<DuplicarResultado>[] = []
       const promessasItens: Promise<DuplicarResultado>[] = []
 
@@ -218,6 +203,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         const payload: DuplicarPayload = {
           ids,
           numeros: config?.numero_auto ? undefined : numeros,
+          opcoes,
         }
         promessasPedido.push(pedidoDuplicarApi.confirmar(payload))
       }
@@ -226,6 +212,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         promessasItens.push(pedidoDuplicarApi.duplicarItens({
           pedido_id: grupo.pedido_id,
           item_ids: grupo.itens.map(i => i.id),
+          opcoes,
         }))
       }
 
@@ -242,7 +229,6 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       setFeedbackBotao('sucesso')
       setResultado({ pedidos_criados, itens_criados, erros })
 
-      // Toast consolidado
       const nP = pedidos_criados.length
       const nI = itens_criados.length
       if (nP > 0 || nI > 0) {
@@ -268,7 +254,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       addNotification({ type: 'error', message: `Falha ao duplicar: ${msg}`, duration: 4000 })
       setTimeout(() => { setFeedbackBotao(null) }, 1500)
     }
-  }, [config, ids, itensPorPedido, numeros, temPedidos, addNotification, t])
+  }, [config, ids, itensPorPedido, numeros, opcoes, temPedidos, addNotification, t])
 
   const labelStatus = (statusInicial: string) => {
     if (statusInicial === 'copiar') return t('pedido.modal_dup.status_copiado')
@@ -282,143 +268,83 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     return mapa[statusInicial] ?? statusInicial
   }
 
-  // ── Tela de resultado ────────────────────────────────────────────────────────
-  if (resultado) {
-    const totalSucesso = resultado.pedidos_criados.length + resultado.itens_criados.length
-    return (
-      <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup.aria_resultado')}>
-        <div className="modal-duplicar__container">
-          <div className="modal-duplicar__header">
-            <h2 className="modal-duplicar__titulo">{t('pedido.modal_dup.titulo_resultado')}</h2>
-            <button
-              className="modal-duplicar__fechar"
-              onClick={onFechar}
-              aria-label={t('pedido.modal_dup.aria_fechar')}
-            >
-              <X size={18} aria-hidden="true" />
-            </button>
-          </div>
+  const labelItemFor = (count: number): string =>
+    count === 1
+      ? t('pedido.modal_dup.label_item_singular')
+      : t('pedido.modal_dup.label_item_plural')
 
-          <div className="modal-duplicar__body">
-            {totalSucesso > 0 && (
-              <div className="modal-duplicar__resultado-sucesso">
-                <CheckCircle size={20} weight="fill" className="modal-duplicar__icone-sucesso" aria-hidden="true" />
-                <p className="modal-duplicar__resultado-texto">
-                  {t('pedido.modal_dup.toast_misto', {
-                    n_pedidos: resultado.pedidos_criados.length,
-                    n_itens: resultado.itens_criados.length,
-                    s_p: resultado.pedidos_criados.length !== 1 ? 's' : '',
-                    label_i: resultado.itens_criados.length === 1
-                      ? t('pedido.modal_dup.label_item_singular')
-                      : t('pedido.modal_dup.label_item_plural'),
-                  })}
-                </p>
-              </div>
-            )}
+  const tituloModal = (() => {
+    if (temPedidos && temItens) {
+      return t('pedido.modal_dup.titulo_misto', {
+        n_p: pedidos.length, s_p: pedidos.length !== 1 ? 's' : '',
+        n_i: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length),
+      })
+    }
+    if (temItens && !temPedidos) {
+      return t('pedido.modal_dup.titulo_itens', { count: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length) })
+    }
+    return t('pedido.modal_dup.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })
+  })()
 
-            {resultado.pedidos_criados.length > 0 && (
-              <>
-                <h3 className="modal-duplicar__secao-titulo">
-                  <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                  {t('pedido.modal_dup.secao_pedidos_resultado')}
-                </h3>
-                <ul className="modal-duplicar__lista-resultado">
-                  {resultado.pedidos_criados.map(c => {
-                    const orig = labelOriginal(c.original_id)
-                    return (
-                      <li key={c.novo_id} className="modal-duplicar__item-resultado">
-                        <span className="modal-duplicar__numero-original">{orig.label}</span>
-                        <span className="modal-duplicar__seta" aria-hidden="true">→</span>
-                        <span className="modal-duplicar__numero-novo">{c.numero_pedido}</span>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
+  // ── Wizard navigation ────────────────────────────────────────────────────────
 
-            {resultado.itens_criados.length > 0 && (
-              <>
-                <h3 className="modal-duplicar__secao-titulo">
-                  <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                  {t('pedido.modal_dup.secao_itens_resultado')}
-                </h3>
-                <ul className="modal-duplicar__lista-resultado">
-                  {resultado.itens_criados.map(c => {
-                    const orig = labelOriginal(c.original_id)
-                    return (
-                      <li key={c.novo_id} className="modal-duplicar__item-resultado">
-                        {orig.seq != null && (
-                          <span className="modal-duplicar__seq-badge" aria-label={`Sequência ${orig.seq}`}>#{orig.seq}</span>
-                        )}
-                        <span className="modal-duplicar__numero-original">{orig.label}</span>
-                        <span className="modal-duplicar__seta" aria-hidden="true">→</span>
-                        <span className="modal-duplicar__numero-novo">{t('pedido.modal_dup.copia_label')}</span>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </>
-            )}
+  const handleProximo = useCallback(() => {
+    if (passoAtual === 1) {
+      setPassoAtual(2)
+    } else if (passoAtual === 2) {
+      handleConfirmar()
+    }
+  }, [passoAtual, handleConfirmar])
 
-            {resultado.erros.length > 0 && (
-              <div className="modal-duplicar__resultado-erros">
-                <p className="modal-duplicar__erros-titulo">
-                  {t('pedido.modal_dup.erros_titulo', { count: resultado.erros.length, s: resultado.erros.length !== 1 ? 's' : '' })}
-                </p>
-                <ul className="modal-duplicar__lista-erros">
-                  {resultado.erros.map(e => (
-                    <li key={e.id} className="modal-duplicar__item-erro">
-                      <strong>{e.id}:</strong> {e.motivo}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+  const handleVoltar = useCallback(() => {
+    if (passoAtual === 2) setPassoAtual(1)
+  }, [passoAtual])
 
-          <div className="modal-duplicar__footer">
-            <BotaoGlobal variante="primario" onClick={onConcluido}>
-              {t('pedido.modal_dup.fechar')}
-            </BotaoGlobal>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const handleIrParaPasso = useCallback((id: number) => {
+    setPassoAtual(id)
+  }, [])
 
-  // Helper: renderiza a lista de itens como chips individuais — até 4 inline,
-  // resto vira "+N" com tooltip nativo (title) mostrando os restantes.
-  // Cada chip = badge da sequência (#N) + part_number — separação visual clara,
-  // sem "tudo junto" como o usuário reportou (2026-05-11).
+  const podeAvancar = (() => {
+    if (carregando) return false
+    if (passoAtual === 1) return !!config
+    if (passoAtual === 2) return podeDuplicar && !confirmando
+    return false
+  })()
+
+  // ── Helpers de render ────────────────────────────────────────────────────────
+
   const MAX_INLINE_ITENS = 4
   const formatItemLabel = (it: PedidoItem): string => {
     const seq = it.sequencia_item != null ? `#${it.sequencia_item}` : ''
     const pn = it.part_number || it.descricao_item || it.id
     return seq ? `${seq} ${pn}` : pn
   }
+
   const renderListaItens = (itensDoPedido: PedidoItem[]): React.ReactNode => {
     const n = itensDoPedido.length
     if (n === 0) return <span className="modal-duplicar__itens-vazio">—</span>
     const inline = itensDoPedido.slice(0, MAX_INLINE_ITENS)
     const resto = itensDoPedido.slice(MAX_INLINE_ITENS)
-    // TooltipGlobal usa portal + position fixed (zero flash, padrão do sistema).
-    // Lista os itens restantes separados por vírgula — `descricao` aceita uma linha.
     const tooltipResto = resto.map(formatItemLabel).join(', ')
     return (
       <div className="modal-duplicar__itens-lista">
         <strong className="modal-duplicar__itens-count" aria-label={`${n} itens`}>{n}</strong>
         <div className="modal-duplicar__itens-chips">
-          {inline.map(it => (
-            <span key={it.id} className="modal-duplicar__item-chip">
-              {it.sequencia_item != null && (
-                <span className="modal-duplicar__item-chip-seq">#{it.sequencia_item}</span>
-              )}
-              <span className="modal-duplicar__item-chip-pn">
-                {it.part_number || it.descricao_item || it.id}
-              </span>
-            </span>
-          ))}
+          {inline.map(it => {
+            const textoCompleto = it.part_number || it.descricao_item || it.id
+            return (
+              <TooltipGlobal key={it.id} descricao={textoCompleto}>
+                <span className="modal-duplicar__item-chip">
+                  {it.sequencia_item != null && (
+                    <span className="modal-duplicar__item-chip-seq">#{it.sequencia_item}</span>
+                  )}
+                  <span className="modal-duplicar__item-chip-pn">
+                    {textoCompleto}
+                  </span>
+                </span>
+              </TooltipGlobal>
+            )
+          })}
           {resto.length > 0 && (
             <TooltipGlobal
               titulo={t('pedido.modal_dup.itens_extras_titulo', { count: resto.length })}
@@ -437,239 +363,352 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     )
   }
 
-  // Helper: resolve label singular/plural de "item" no idioma atual.
-  // PT: "item" / "itens" (irregular — não usa só sufixo "s").
-  // EN: "item" / "items". ES: "ítem" / "ítems".
-  // Substituiu o pattern antigo `item{{s_i}}` com s_i='ns' que gerava "itemns" (bug).
-  const labelItemFor = (count: number): string =>
-    count === 1
-      ? t('pedido.modal_dup.label_item_singular')
-      : t('pedido.modal_dup.label_item_plural')
+  // ── Passo 1 — Raio X ────────────────────────────────────────────────────────
 
-  // Título dinâmico conforme a composição da seleção
-  const tituloModal = (() => {
-    if (temPedidos && temItens) {
-      return t('pedido.modal_dup.titulo_misto', {
-        n_p: pedidos.length, s_p: pedidos.length !== 1 ? 's' : '',
-        n_i: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length),
-      })
+  const renderPasso1 = () => {
+    if (carregando) {
+      return (
+        <div className="modal-duplicar__carregando" aria-live="polite">
+          <GravityLoader texto={t('pedido.modal_dup.carregando')} tamanho="sm" />
+        </div>
+      )
     }
-    if (temItens && !temPedidos) {
-      return t('pedido.modal_dup.titulo_itens', { count: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length) })
-    }
-    return t('pedido.modal_dup.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })
-  })()
 
-  // ── Tela principal ───────────────────────────────────────────────────────────
-  return (
-    <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup.aria_duplicar_pedidos')}>
-      <div className="modal-duplicar__container">
-        <div className="modal-duplicar__header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Copy size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-              <h2 className="modal-duplicar__titulo">{tituloModal}</h2>
+    if (erro && !config) {
+      return <div className="modal-duplicar__erro" role="alert">{erro}</div>
+    }
+
+    return (
+      <div className="modal-duplicar__raio-x">
+        {/* 🔴 Sempre resetado */}
+        <details className="modal-duplicar__raio-x-grupo modal-duplicar__raio-x-grupo--reset" open>
+          <summary className="modal-duplicar__raio-x-summary">
+            <XCircle size={14} weight="fill" className="modal-duplicar__raio-x-icone--reset" aria-hidden="true" />
+            <span className="modal-duplicar__raio-x-label">{t('pedido.modal_dup.raio_x.reset_titulo')}</span>
+          </summary>
+          <div className="modal-duplicar__raio-x-listas">
+            <div className="modal-duplicar__raio-x-coluna">
+              <span className="modal-duplicar__raio-x-coluna-titulo">Pedido</span>
+              <ul className="modal-duplicar__raio-x-campos">
+                {t('pedido.modal_dup.raio_x.reset_pedido_campos').split(', ').map(campo => (
+                  <li key={campo}>{campo}</li>
+                ))}
+              </ul>
             </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>Crie cópias dos pedidos ou itens selecionados</p>
+            <div className="modal-duplicar__raio-x-coluna">
+              <span className="modal-duplicar__raio-x-coluna-titulo">Item</span>
+              <ul className="modal-duplicar__raio-x-campos">
+                {t('pedido.modal_dup.raio_x.reset_item_campos').split(', ').map(campo => (
+                  <li key={campo}>{campo}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <button
-            className="modal-duplicar__fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_dup.aria_fechar')}
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
+          <p className="modal-duplicar__raio-x-motivo">{t('pedido.modal_dup.raio_x.reset_motivo')}</p>
+        </details>
+
+        {/* 🟡 Opções togglable */}
+        <div className="modal-duplicar__raio-x-grupo modal-duplicar__raio-x-grupo--opcoes">
+          <div className="modal-duplicar__raio-x-summary">
+            <Sliders size={14} weight="fill" className="modal-duplicar__raio-x-icone--opcoes" aria-hidden="true" />
+            <span className="modal-duplicar__raio-x-label">{t('pedido.modal_dup.raio_x.opcoes_titulo')}</span>
+          </div>
+          <div className="modal-duplicar__raio-x-toggles">
+            {([
+              { chave: 'copiar_datas', label: t('pedido.modal_dup.raio_x.toggle_datas') },
+              { chave: 'copiar_valores_precos', label: t('pedido.modal_dup.raio_x.toggle_valores') },
+              { chave: 'copiar_referencias_externas', label: t('pedido.modal_dup.raio_x.toggle_referencias') },
+              { chave: 'copiar_pesos_cubagem', label: t('pedido.modal_dup.raio_x.toggle_pesos') },
+              { chave: 'copiar_descricoes_complementares', label: t('pedido.modal_dup.raio_x.toggle_descricoes') },
+            ] as { chave: keyof OpcoesDuplicacao; label: string }[]).map(({ chave, label }) => (
+              <label key={chave} className="modal-duplicar__raio-x-toggle">
+                <input
+                  type="checkbox"
+                  className="modal-duplicar__raio-x-checkbox"
+                  checked={opcoes[chave]}
+                  onChange={() => setOpcoes(prev => ({ ...prev, [chave]: !prev[chave] }))}
+                />
+                <span className="modal-duplicar__raio-x-toggle-label">{label}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
-        <div className="modal-duplicar__body">
-          {carregando && (
-            <div className="modal-duplicar__carregando" aria-live="polite">
-              <GravityLoader texto={t('pedido.modal_dup.carregando')} tamanho="sm" />
+        {/* Info status */}
+        {temPedidos && config && (
+          <div className="modal-duplicar__info">
+            <Info size={16} weight="duotone" className="modal-duplicar__info-icone" aria-hidden="true" />
+            <div className="modal-duplicar__info-texto">
+              <span>
+                {t('pedido.modal_dup.info_status')} <strong>{labelStatus(config.status_inicial)}</strong>
+              </span>
             </div>
-          )}
-
-          {erro && !carregando && (
-            <div className="modal-duplicar__erro" role="alert">
-              {erro}
-            </div>
-          )}
-
-          {!carregando && config && (
-            <>
-              {/* Info datas/status — só faz sentido se há pedidos sendo criados */}
-              {temPedidos && (
-                <div className="modal-duplicar__info">
-                  <Info size={16} weight="duotone" className="modal-duplicar__info-icone" aria-hidden="true" />
-                  <div className="modal-duplicar__info-texto">
-                    <span>
-                      {t('pedido.modal_dup.info_datas')} <strong>{config.copiar_datas ? t('pedido.modal_dup.info_datas_copiadas') : t('pedido.modal_dup.info_datas_resetadas')}</strong>
-                    </span>
-                    <span>
-                      {t('pedido.modal_dup.info_status')} <strong>{labelStatus(config.status_inicial)}</strong>
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Seção: Pedidos a criar */}
-              {temPedidos && (
-                <>
-                  <h3 className="modal-duplicar__secao-titulo">
-                    <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                    {t('pedido.modal_dup.secao_pedidos')}
-                  </h3>
-                  <table className="modal-duplicar__tabela" aria-label={t('pedido.modal_dup.aria_tabela')}>
-                    <colgroup>
-                      <col className="modal-duplicar__col-numero" />
-                      <col className="modal-duplicar__col-itens" />
-                      <col className="modal-duplicar__col-acao" />
-                    </colgroup>
-                    <thead>
-                      <tr>
-                        <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
-                        <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
-                        <th className="modal-duplicar__th">
-                          {config.numero_auto
-                            ? t('pedido.modal_dup.col_num_gerado')
-                            : (
-                              <>
-                                {t('pedido.modal_dup.col_num_copia')}
-                                <span className="modal-duplicar__obrigatorio-asterisco" aria-hidden="true"> *</span>
-                              </>
-                            )}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {previewPedidos.map(p => {
-                        // Pegar itens completos do pedido (vem do array de pedidos selecionados)
-                        const pedidoCompleto = pedidos.find(pd => pd.id === p.id)
-                        const itensDoPedido = pedidoCompleto?.itens ?? []
-                        const valorNumero = numeros[p.id] ?? ''
-                        const numeroVazio = !valorNumero.trim()
-                        return (
-                          <tr key={p.id} className="modal-duplicar__linha">
-                            <td className="modal-duplicar__td modal-duplicar__td--numero">
-                              {p.numero_pedido}
-                            </td>
-                            <td className="modal-duplicar__td modal-duplicar__td--itens">
-                              {renderListaItens(itensDoPedido)}
-                            </td>
-                            <td className="modal-duplicar__td">
-                              {config.numero_auto ? (
-                                <span className="modal-duplicar__numero-auto">
-                                  {numeros[p.id] || '(gerado automaticamente)'}
-                                  {' '}
-                                  <span className="modal-duplicar__badge-auto">{t('pedido.modal_dup.num_auto_badge')}</span>
-                                </span>
-                              ) : (
-                                // Padrão oficial Gravity: obrigatorio + vazio = borda vermelha automática.
-                                // Sem label visível aqui (header da coluna já cumpre função do label).
-                                <CampoGeralGlobal obrigatorio vazio={numeroVazio}>
-                                  <input
-                                    type="text"
-                                    className="modal-duplicar__input"
-                                    value={valorNumero}
-                                    onChange={e => handleNumeroChange(p.id, e.target.value)}
-                                    placeholder={t('pedido.modal_dup.num_placeholder')}
-                                    aria-label={`Número da cópia do pedido ${p.numero_pedido}`}
-                                    aria-required="true"
-                                    aria-invalid={numeroVazio}
-                                    maxLength={100}
-                                  />
-                                </CampoGeralGlobal>
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </>
-              )}
-
-              {/* Seção: Itens a duplicar em pedidos existentes */}
-              {temItens && (
-                <>
-                  <h3 className="modal-duplicar__secao-titulo">
-                    <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                    {t('pedido.modal_dup.secao_itens')}
-                  </h3>
-                  <table className="modal-duplicar__tabela">
-                    <colgroup>
-                      <col className="modal-duplicar__col-numero" />
-                      <col className="modal-duplicar__col-itens" />
-                      <col className="modal-duplicar__col-acao" />
-                    </colgroup>
-                    <thead>
-                      <tr>
-                        <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
-                        <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
-                        <th className="modal-duplicar__th" aria-hidden="true"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {itensPorPedido.map(grupo => (
-                        <tr key={grupo.pedido_id} className="modal-duplicar__linha">
-                          <td className="modal-duplicar__td modal-duplicar__td--numero">
-                            {grupo.pedido_numero}
-                          </td>
-                          <td className="modal-duplicar__td modal-duplicar__td--itens">
-                            {renderListaItens(grupo.itens)}
-                          </td>
-                          <td className="modal-duplicar__td" aria-hidden="true"></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-
-              {/* Aviso pré-confirmação: campos zerados em itens com execução > 0 */}
-              {itensComExecucao.length > 0 && (
-                <div className="modal-duplicar__aviso-zerados" role="alert">
-                  <Warning size={18} weight="duotone" className="modal-duplicar__aviso-icone" aria-hidden="true" />
-                  <div className="modal-duplicar__aviso-texto">
-                    <strong>{t('pedido.modal_dup.aviso_zerados_titulo')}</strong>
-                    <p>{t('pedido.modal_dup.aviso_zerados_campos')}</p>
-                    <p className="modal-duplicar__aviso-motivo">{t('pedido.modal_dup.aviso_zerados_motivo')}</p>
-                  </div>
-                </div>
-              )}
-
-              {erro && (
-                <div className="modal-duplicar__erro" role="alert">
-                  {erro}
-                </div>
-              )}
-
-              {/* Banner consolidado "Para avançar, ainda falta:" — pattern oficial
-                  Gravity. Não renderiza nada quando todos os requisitos estão OK. */}
-              <BannerRequisitosGlobal
-                requisitos={requisitos}
-                titulo={t('pedido.modal_dup.req_titulo')}
-              />
-            </>
-          )}
-        </div>
-
-        <div className="modal-duplicar__footer">
-          <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando || feedbackBotao !== null}>
-            {t('pedido.modal_dup.cancelar')}
-          </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            onClick={handleConfirmar}
-            disabled={!podeDuplicar || confirmando || carregando}
-            carregando={confirmando}
-            textoCarregando={t('pedido.modal_dup.duplicando')}
-            resultadoAcao={feedbackBotao}
-            icone={<Copy size={14} weight="bold" />}
-          >
-            {feedbackBotao === 'sucesso' ? 'Duplicado' : feedbackBotao === 'erro' ? 'Falhou' : t('pedido.modal_dup.duplicar')}
-          </BotaoGlobal>
-        </div>
+          </div>
+        )}
       </div>
+    )
+  }
+
+  // ── Passo 2 — Confirmar ──────────────────────────────────────────────────────
+
+  const renderPasso2 = () => (
+    <>
+      {/* Seção: Pedidos a criar */}
+      {temPedidos && config && (
+        <>
+          <h3 className="modal-duplicar__secao-titulo">
+            <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+            {t('pedido.modal_dup.secao_pedidos')}
+          </h3>
+          <table className="modal-duplicar__tabela" aria-label={t('pedido.modal_dup.aria_tabela')}>
+            <colgroup>
+              <col className="modal-duplicar__col-numero" />
+              <col className="modal-duplicar__col-itens" />
+              <col className="modal-duplicar__col-acao" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
+                <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
+                <th className="modal-duplicar__th">
+                  {config.numero_auto
+                    ? t('pedido.modal_dup.col_num_gerado')
+                    : (
+                      <>
+                        {t('pedido.modal_dup.col_num_copia')}
+                        <span className="modal-duplicar__obrigatorio-asterisco" aria-hidden="true"> *</span>
+                      </>
+                    )}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {previewPedidos.map(p => {
+                const pedidoCompleto = pedidos.find(pd => pd.id === p.id)
+                const itensDoPedido = pedidoCompleto?.itens ?? []
+                const valorNumero = numeros[p.id] ?? ''
+                const numeroVazio = !valorNumero.trim()
+                return (
+                  <tr key={p.id} className="modal-duplicar__linha">
+                    <td className="modal-duplicar__td modal-duplicar__td--numero">
+                      {p.numero_pedido}
+                    </td>
+                    <td className="modal-duplicar__td modal-duplicar__td--itens">
+                      {renderListaItens(itensDoPedido)}
+                    </td>
+                    <td className="modal-duplicar__td">
+                      {config.numero_auto ? (
+                        <span className="modal-duplicar__numero-auto">
+                          {numeros[p.id] || '(gerado automaticamente)'}
+                          {' '}
+                          <span className="modal-duplicar__badge-auto">{t('pedido.modal_dup.num_auto_badge')}</span>
+                        </span>
+                      ) : (
+                        <CampoGeralGlobal obrigatorio vazio={numeroVazio}>
+                          <input
+                            type="text"
+                            className="modal-duplicar__input"
+                            value={valorNumero}
+                            onChange={e => handleNumeroChange(p.id, e.target.value)}
+                            placeholder={t('pedido.modal_dup.num_placeholder')}
+                            aria-label={`Número da cópia do pedido ${p.numero_pedido}`}
+                            aria-required="true"
+                            aria-invalid={numeroVazio}
+                            maxLength={100}
+                          />
+                        </CampoGeralGlobal>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </>
+      )}
+
+      {/* Seção: Itens a duplicar em pedidos existentes */}
+      {temItens && (
+        <>
+          <h3 className="modal-duplicar__secao-titulo">
+            <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+            {t('pedido.modal_dup.secao_itens')}
+          </h3>
+          <table className="modal-duplicar__tabela">
+            <colgroup>
+              <col className="modal-duplicar__col-numero" />
+              <col className="modal-duplicar__col-itens" />
+              <col className="modal-duplicar__col-acao" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
+                <th className="modal-duplicar__th modal-duplicar__th--itens">{t('pedido.modal_dup.col_itens')}</th>
+                <th className="modal-duplicar__th" aria-hidden="true"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {itensPorPedido.map(grupo => (
+                <tr key={grupo.pedido_id} className="modal-duplicar__linha">
+                  <td className="modal-duplicar__td modal-duplicar__td--numero">
+                    {grupo.pedido_numero}
+                  </td>
+                  <td className="modal-duplicar__td modal-duplicar__td--itens">
+                    {renderListaItens(grupo.itens)}
+                  </td>
+                  <td className="modal-duplicar__td" aria-hidden="true"></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+
+      {/* Aviso pré-confirmação */}
+      {itensComExecucao.length > 0 && (
+        <div className="modal-duplicar__aviso-zerados" role="alert">
+          <Warning size={18} weight="duotone" className="modal-duplicar__aviso-icone" aria-hidden="true" />
+          <div className="modal-duplicar__aviso-texto">
+            <strong>{t('pedido.modal_dup.aviso_zerados_titulo')}</strong>
+            <p>{t('pedido.modal_dup.aviso_zerados_campos')}</p>
+            <p className="modal-duplicar__aviso-motivo">{t('pedido.modal_dup.aviso_zerados_motivo')}</p>
+          </div>
+        </div>
+      )}
+
+      {erro && (
+        <div className="modal-duplicar__erro" role="alert">{erro}</div>
+      )}
+
+      <BannerRequisitosGlobal
+        requisitos={requisitos}
+        titulo={t('pedido.modal_dup.req_titulo')}
+      />
+    </>
+  )
+
+  // ── Tela de resultado ────────────────────────────────────────────────────────
+
+  const renderResultado = () => {
+    if (!resultado) return null
+    const totalSucesso = resultado.pedidos_criados.length + resultado.itens_criados.length
+    return (
+      <>
+        {totalSucesso > 0 && (
+          <div className="modal-duplicar__resultado-sucesso">
+            <CheckCircle size={20} weight="fill" className="modal-duplicar__icone-sucesso" aria-hidden="true" />
+            <p className="modal-duplicar__resultado-texto">
+              {t('pedido.modal_dup.toast_misto', {
+                n_pedidos: resultado.pedidos_criados.length,
+                n_itens: resultado.itens_criados.length,
+                s_p: resultado.pedidos_criados.length !== 1 ? 's' : '',
+                label_i: resultado.itens_criados.length === 1
+                  ? t('pedido.modal_dup.label_item_singular')
+                  : t('pedido.modal_dup.label_item_plural'),
+              })}
+            </p>
+          </div>
+        )}
+
+        {resultado.pedidos_criados.length > 0 && (
+          <>
+            <h3 className="modal-duplicar__secao-titulo">
+              <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+              {t('pedido.modal_dup.secao_pedidos_resultado')}
+            </h3>
+            <ul className="modal-duplicar__lista-resultado">
+              {resultado.pedidos_criados.map(c => {
+                const orig = labelOriginal(c.original_id)
+                return (
+                  <li key={c.novo_id} className="modal-duplicar__item-resultado">
+                    <span className="modal-duplicar__numero-original">{orig.label}</span>
+                    <span className="modal-duplicar__seta" aria-hidden="true">→</span>
+                    <span className="modal-duplicar__numero-novo">{c.numero_pedido}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </>
+        )}
+
+        {resultado.itens_criados.length > 0 && (
+          <>
+            <h3 className="modal-duplicar__secao-titulo">
+              <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+              {t('pedido.modal_dup.secao_itens_resultado')}
+            </h3>
+            <ul className="modal-duplicar__lista-resultado">
+              {resultado.itens_criados.map(c => {
+                const orig = labelOriginal(c.original_id)
+                return (
+                  <li key={c.novo_id} className="modal-duplicar__item-resultado">
+                    {orig.seq != null && (
+                      <span className="modal-duplicar__seq-badge" aria-label={`Sequência ${orig.seq}`}>#{orig.seq}</span>
+                    )}
+                    <span className="modal-duplicar__numero-original">{orig.label}</span>
+                    <span className="modal-duplicar__seta" aria-hidden="true">→</span>
+                    <span className="modal-duplicar__numero-novo">{t('pedido.modal_dup.copia_label')}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </>
+        )}
+
+        {resultado.erros.length > 0 && (
+          <div className="modal-duplicar__resultado-erros">
+            <p className="modal-duplicar__erros-titulo">
+              {t('pedido.modal_dup.erros_titulo', { count: resultado.erros.length, s: resultado.erros.length !== 1 ? 's' : '' })}
+            </p>
+            <ul className="modal-duplicar__lista-erros">
+              {resultado.erros.map(e => (
+                <li key={e.id} className="modal-duplicar__item-erro">
+                  <strong>{e.id}:</strong> {e.motivo}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  // ── Footer custom para tela de resultado ─────────────────────────────────────
+
+  const footerResultado = resultado ? (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+      <BotaoGlobal variante="primario" onClick={onConcluido}>
+        {t('pedido.modal_dup.fechar')}
+      </BotaoGlobal>
     </div>
+  ) : undefined
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  return (
+    <ModalPassoPassoGlobal
+      titulo={tituloModal}
+      icone={<Copy size={22} weight="duotone" />}
+      subtitulo="Crie cópias dos pedidos ou itens selecionados"
+      aberto={true}
+      passos={PASSOS}
+      passoAtual={passoAtual}
+      onProximo={handleProximo}
+      onVoltar={handleVoltar}
+      onFechar={onFechar}
+      podeAvancar={podeAvancar}
+      labelBotaoFinal={t('pedido.modal_dup.duplicar')}
+      labelProximo="Próximo"
+      tamanho="lg"
+      ocultarStepper={!!resultado}
+      ocultarFooter={!!resultado}
+      footerCustom={footerResultado}
+      navegacaoDireta={true}
+      onIrParaPasso={handleIrParaPasso}
+    >
+      {!resultado && passoAtual === 1 && renderPasso1()}
+      {!resultado && passoAtual === 2 && renderPasso2()}
+      {resultado && renderResultado()}
+    </ModalPassoPassoGlobal>
   )
 }

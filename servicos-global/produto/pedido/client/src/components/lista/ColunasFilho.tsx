@@ -30,12 +30,12 @@ export function buildFormulaContexto(row: Pedido): Record<string, number | null>
   }
   const r = row as Record<string, unknown>
   return {
-    quantidade_total_pedido:      n(r.quantidade_total_pedido),
-    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido),
-    quantidade_transferida_total:         n(r.quantidade_transferida_total),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total),
-    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido),
-    valor_total:                          n(r.valor_total_pedido),
+    quantidade_total_pedido:              n(r.quantidade_total_pedido)              ?? n(r.quantidade_inicial_pedido),
+    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido)    ?? n(r.quantidade_cancelada_pedido),
+    quantidade_transferida_total:         n(r.quantidade_transferida_total)         ?? n(r.quantidade_transferida_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_pedido),
+    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido)                ?? n(r.quantidade_atual_pedido),
+    valor_total:                          n(r.valor_total_pedido)                   ?? n(r.valor_total_item),
     peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
     peso_bruto_total_pedido:              n(r.peso_bruto_total_pedido),
     cubagem_total_pedido:                 n(r.cubagem_total_pedido),
@@ -73,8 +73,9 @@ function renderDescricaoTruncada(valor: string | null | undefined, label: string
 
 export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
-  const formulaAST = col.tipo === 'formula' && col.formula_expressao
-    ? (() => { try { return parsearFormula(col.formula_expressao!) } catch { return null } })()
+  const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
+  const formulaAST = formulaExpr
+    ? (() => { try { return parsearFormula(formulaExpr) } catch { return null } })()
     : null
   const casasCol = getCasas(col.id, 2)
 
@@ -1609,13 +1610,16 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
     render: (row: PedidoItem) => {
+      // Usar tipo_operacao_item do próprio item; fallback para pai se null
+      const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
-      if (!p) return null
+      const tipo = tipoItem ?? p?.tipo_operacao ?? null
+      if (!tipo) return null
       return (
         <StatusBadgeGlobal
-          valor={p.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
+          valor={tipo === 'importacao' ? 'Importação' : 'Exportação'}
           genero="feminino"
-          style={p.tipo_operacao === 'importacao'
+          style={tipo === 'importacao'
             ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
             : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
           }
@@ -1830,11 +1834,15 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   moeda_pedido: {
     editavel: true,
     getValorEditar: (row: PedidoItem) => row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-    render: (row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
-        {row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? '—'}
-      </span>
-    ),
+    render: (row: PedidoItem) => {
+      const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido
+      if (!moeda) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+        </span>
+      )
+    },
   },
   unidade_comercializada_pedido: {
     render: (row: PedidoItem) => (
@@ -1915,7 +1923,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   },
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
-      const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0))
+      const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0) - (row.quantidade_cancelada_pedido ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
           {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}

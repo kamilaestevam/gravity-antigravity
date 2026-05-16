@@ -126,108 +126,110 @@
 
 /* ── Passo 1: Seleção de Cenário ── */
 
-.modal-transferir__cenario-select-wrapper {
+/* ── Passo 1: Cards de Cenário ── */
+
+.modal-transferir__cenario-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-transferir__cenario-cards-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.modal-transferir__cenario-cards-grid {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  position: relative;
 }
 
-.modal-transferir__dropdown-trigger {
+.modal-transferir__cenario-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  padding: 7px 10px;
-  background-color: var(--color-surface, #1e293b);
-  border: 1px solid var(--color-border, #334155);
-  border-radius: 6px;
+  padding: 12px 14px;
+  background: var(--color-surface, #1e293b);
+  border: 1.5px solid var(--color-border, #334155);
+  border-radius: 8px;
   color: var(--color-text-primary, #f1f5f9);
-  font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
 }
 
-.modal-transferir__dropdown-trigger:hover,
-.modal-transferir__dropdown-trigger--aberto {
+.modal-transferir__cenario-card:hover {
+  border-color: var(--color-text-muted, #64748b);
+  background: var(--color-surface-hover, #253049);
+}
+
+.modal-transferir__cenario-card--ativo {
   border-color: var(--color-primary, #6366f1);
+  background: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 0 0 1px var(--color-primary, #6366f1);
 }
 
-.modal-transferir__dropdown-trigger:focus-visible {
-  outline: 2px solid var(--color-primary, #6366f1);
-  outline-offset: 2px;
+.modal-transferir__cenario-card--ativo:hover {
+  border-color: var(--color-primary, #6366f1);
+  background: rgba(99, 102, 241, 0.12);
 }
 
-.modal-transferir__dropdown-placeholder {
-  color: var(--color-text-muted, #64748b);
-}
-
-.modal-transferir__dropdown-chevron {
+.modal-transferir__cenario-card-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
-  color: var(--color-text-muted, #64748b);
-  transition: transform 0.15s;
+  border-radius: 8px;
+  background: var(--color-surface-hover, #334155);
+  color: var(--color-text-muted, #94a3b8);
+  transition: background-color 0.15s, color 0.15s;
 }
 
-.modal-transferir__dropdown-trigger--aberto .modal-transferir__dropdown-chevron {
-  transform: rotate(180deg);
+.modal-transferir__cenario-card-icone--ativo {
+  background: rgba(99, 102, 241, 0.18);
+  color: var(--color-primary, #6366f1);
 }
 
-.modal-transferir__dropdown-lista {
-  position: fixed;
-  z-index: 2000;
-  background-color: var(--color-surface, #1e293b);
-  border: 1px solid var(--color-border, #334155);
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  list-style: none;
-  margin: 0;
-  padding: 4px;
-  max-height: 240px;
-  overflow-y: auto;
-}
-
-.modal-transferir__dropdown-item {
+.modal-transferir__cenario-card-texto {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.1s;
+  flex: 1;
+  min-width: 0;
 }
 
-.modal-transferir__dropdown-item:hover {
-  background-color: var(--color-surface-hover, #334155);
-}
-
-.modal-transferir__dropdown-item--selecionado {
-  background-color: rgba(99, 102, 241, 0.12);
-}
-
-.modal-transferir__dropdown-item-nome {
+.modal-transferir__cenario-card-nome {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text-primary, #f1f5f9);
-}
-
-.modal-transferir__dropdown-item-desc {
-  font-size: 11px;
-  color: var(--color-text-muted, #64748b);
   line-height: 1.3;
 }
 
-.modal-transferir__cenario-descricao-inline {
-  font-size: 12px;
-  color: var(--color-text-muted, #64748b);
-  line-height: 1.4;
-  margin: 0;
+.modal-transferir__cenario-card-desc {
+  font-size: 11px;
+  color: var(--color-text-muted, #94a3b8);
+  line-height: 1.3;
 }
 
 .modal-transferir__badge-irreversivel {
-  color: var(--color-warning, #f59e0b);
+  font-size: 10px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-warning, #f59e0b);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ── Passo 2: Seleção de Item e Quantidade ── */

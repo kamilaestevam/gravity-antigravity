@@ -37,14 +37,24 @@ const DuplicarPreviewSchema = z.object({
   ids: z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido para duplicar'),
 })
 
+const OpcoesDuplicacaoSchema = z.object({
+  copiar_datas: z.boolean(),
+  copiar_valores_precos: z.boolean(),
+  copiar_referencias_externas: z.boolean(),
+  copiar_pesos_cubagem: z.boolean(),
+  copiar_descricoes_complementares: z.boolean(),
+})
+
 const DuplicarConfirmarSchema = z.object({
   ids: z.array(z.string().min(1)).min(1),
   numeros: z.record(z.string()).optional(),
+  opcoes: OpcoesDuplicacaoSchema.optional(),
 })
 
 const DuplicarItensSchema = z.object({
   pedido_id: z.string().min(1),
   item_ids: z.array(z.string().min(1)).min(1),
+  opcoes: OpcoesDuplicacaoSchema.optional(),
 })
 
 // ── POST /duplicacoes/preview ─────────────────────────────────────────────────

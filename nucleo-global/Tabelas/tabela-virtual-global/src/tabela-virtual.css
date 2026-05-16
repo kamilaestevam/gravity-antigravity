@@ -650,6 +650,18 @@
   justify-content: flex-start;
 }
 
+/* Indicador visual à esquerda da linha (ex: seta de transferência) */
+.gtv-th--indicador,
+.gtv-celula--indicador {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+}
+
 
 .gtv-th--center { justify-content: center; }
 .gtv-th--right  { justify-content: flex-end; }

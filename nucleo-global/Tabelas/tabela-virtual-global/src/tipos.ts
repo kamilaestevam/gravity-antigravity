@@ -470,4 +470,17 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * em sort por coluna). O consumidor pode exibir um toast informativo.
    */
   onOrdemManualResetada?: () => void
+
+  // ── Indicador visual à esquerda da linha ──────────────────────────────────
+  /**
+   * Renderiza um ícone/badge à ESQUERDA do checkbox em cada linha pai.
+   * Ideal para indicadores de estado (ex: seta de transferência, alerta).
+   * Retorne `null` para linhas que não precisam de indicador.
+   */
+  renderIndicadorLinha?: (item: T) => ReactNode
+  /**
+   * Renderiza um ícone/badge à ESQUERDA do checkbox em cada linha filho.
+   * Mesmo conceito do `renderIndicadorLinha`, mas para linhas filhas.
+   */
+  renderIndicadorLinhaFilho?: (item: C) => ReactNode
 }

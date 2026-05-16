@@ -1359,6 +1359,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onReordenarFilho,
   filhoSequenciaKey,
   onOrdemManualResetada,
+  renderIndicadorLinha,
+  renderIndicadorLinhaFilho,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -1525,15 +1527,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const temSelecao = (acoesLote != null && acoesLote.length > 0) || onSelecaoMudar != null
 
   /** Template de colunas para o grid compartilhado */
+  const temIndicador = renderIndicadorLinha != null || renderIndicadorLinhaFilho != null
   const gridTemplateCols = useMemo(() => {
     const cols: string[] = []
+    if (temIndicador) cols.push('20px')
     if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
     if (onCarregarFilhos) cols.push('40px')
     cols.push(...colunasFiltradas.map(() => 'max-content'))
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
-  }, [arrastavelPai, temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
+  }, [temIndicador, arrastavelPai, temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
 
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
@@ -2538,6 +2542,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         onDrop={arrastavelPai ? (e) => handleRowDrop(e, id, null) : undefined}
         onDragEnd={arrastavelPai ? handleRowDragEnd : undefined}
       >
+        {/* Indicador visual à esquerda (ex: seta de transferência) */}
+        {renderIndicadorLinha && (
+          <div className="gtv-celula gtv-celula--indicador gtv-col-fixa">
+            {renderIndicadorLinha(item)}
+          </div>
+        )}
+
         {/* Drag handle */}
         {arrastavelPai && (
           <div
@@ -2649,6 +2660,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onDrop={arrastavelFilho ? (e) => handleRowDrop(e, id, paiIdFilho) : undefined}
           onDragEnd={arrastavelFilho ? handleRowDragEnd : undefined}
         >
+          {/* Indicador visual filho à esquerda */}
+          {renderIndicadorLinhaFilho && (
+            <div className="gtv-celula gtv-celula--indicador gtv-col-fixa">
+              {renderIndicadorLinhaFilho(item)}
+            </div>
+          )}
+          {/* Espaçador quando pai tem indicador mas filho não */}
+          {renderIndicadorLinha && !renderIndicadorLinhaFilho && (
+            <div className="gtv-celula gtv-celula--indicador gtv-col-fixa" />
+          )}
           {/* Drag handle filho — mesma coluna do drag handle pai (far left) */}
           {arrastavelPai && (
             <div
@@ -2833,6 +2854,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     return (
       <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}${ultimoFilho ? ' gtv-linha--filho-ultimo' : ''}`}>
+        {/* Indicador visual filho à esquerda */}
+        {renderIndicadorLinhaFilho && (
+          <div className="gtv-celula gtv-celula--indicador gtv-col-fixa">
+            {renderIndicadorLinhaFilho(item)}
+          </div>
+        )}
+        {renderIndicadorLinha && !renderIndicadorLinhaFilho && (
+          <div className="gtv-celula gtv-celula--indicador gtv-col-fixa" />
+        )}
         {/* Espaço para alinhar com checkbox pai */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">
@@ -3119,6 +3149,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             >
               {/* Cabeçalho — display:contents faz os th serem filhos diretos do grid */}
               <div className="gtv-cabecalho" role="row">
+                {(renderIndicadorLinha || renderIndicadorLinhaFilho) && (
+                  <div className="gtv-th gtv-th--indicador gtv-col-fixa" role="columnheader" aria-label="" />
+                )}
                 {arrastavelPai && (
                   <div className="gtv-th gtv-celula--drag-handle gtv-col-fixa" role="columnheader" aria-label="Reordenar" />
                 )}

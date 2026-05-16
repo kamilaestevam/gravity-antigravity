@@ -550,7 +550,6 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
   const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
-  if (col.tipo === 'formula') console.log('[FORMULA DEBUG] nome=' + col.nome + ' valor_padrao=' + String(col.valor_padrao) + ' formula_expressao=' + String(col.formula_expressao) + ' formulaExpr=' + String(formulaExpr))
   const formulaAST = formulaExpr
     ? (() => { try { return parsearFormula(formulaExpr) } catch (e) { console.error('[FORMULA PARSE ERROR]', formulaExpr, e); return null } })()
     : null
@@ -4460,6 +4459,48 @@ export default function Pedidos() {
     [setItensSelecionados],
   )
 
+  // ── Indicador de transferência (seta à esquerda da linha) ───────────────────
+  // Azul ↓ = recebeu quantidade (pedido criado por transferência)
+  // Vermelho ↑ = enviou quantidade (teve itens transferidos para outro pedido)
+  const renderIndicadorLinhaPedido = useCallback((pedido: Pedido) => {
+    const recebeu = pedido.pedidos_origem_id && pedido.pedidos_origem_id.length > 0
+    const enviou = (pedido as Record<string, unknown>).quantidade_transferida_total != null
+      && Number((pedido as Record<string, unknown>).quantidade_transferida_total) > 0
+    if (!recebeu && !enviou) return null
+    if (recebeu && enviou) {
+      return (
+        <TooltipGlobal titulo="Recebeu e enviou transferências">
+          <span style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            <ArrowDown size={10} weight="bold" style={{ color: '#60a5fa' }} />
+            <ArrowUp size={10} weight="bold" style={{ color: '#f87171' }} />
+          </span>
+        </TooltipGlobal>
+      )
+    }
+    if (recebeu) {
+      return (
+        <TooltipGlobal titulo="Recebeu itens de outro pedido">
+          <ArrowDown size={12} weight="bold" style={{ color: '#60a5fa' }} />
+        </TooltipGlobal>
+      )
+    }
+    return (
+      <TooltipGlobal titulo="Transferiu itens para outro pedido">
+        <ArrowUp size={12} weight="bold" style={{ color: '#f87171' }} />
+      </TooltipGlobal>
+    )
+  }, [])
+
+  const renderIndicadorLinhaItem = useCallback((item: PedidoItem) => {
+    const transferiu = (item.quantidade_transferida_pedido ?? 0) > 0
+    if (!transferiu) return null
+    return (
+      <TooltipGlobal titulo="Este item teve quantidade transferida">
+        <ArrowUp size={12} weight="bold" style={{ color: '#f87171' }} />
+      </TooltipGlobal>
+    )
+  }, [])
+
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     setPopoverAberto(prev => prev === key ? null : key)
     const ref = getAnchorRef(key)
@@ -6038,6 +6079,9 @@ export default function Pedidos() {
           onSelecaoMudar={setPedidosSelecionados}
           onFiltroColuna={onFiltroColuna}
           filtrosAtivosKeys={filtrosAtivosKeys}
+
+          renderIndicadorLinha={renderIndicadorLinhaPedido}
+          renderIndicadorLinhaFilho={renderIndicadorLinhaItem}
 
           selecionavelFilhos
           onSelecaoFilho={onSelecaoFilhoEstavel}

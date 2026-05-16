@@ -558,11 +558,13 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
                    : undefined,
     filtravel:       true,
     oculta:          !col.ativo,
-    // fórmula e checkbox são read-only; demais tipos permitem edição inline
-    editavel:        col.tipo !== 'formula' && col.tipo !== 'checkbox',
-    opcoes:          (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
-                       ? col.opcoes.map(o => ({ valor: o, label: o }))
-                       : undefined,
+    // fórmula é read-only; demais tipos (incluindo checkbox) permitem edição inline
+    editavel:        col.tipo !== 'formula',
+    opcoes:          col.tipo === 'checkbox'
+                       ? [{ valor: 'true', label: '✓ Sim' }, { valor: 'false', label: '✗ Não' }]
+                       : (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
+                         ? col.opcoes.map(o => ({ valor: o, label: o }))
+                         : undefined,
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
     getValorEditar: (row: Pedido) => {
@@ -3008,10 +3010,12 @@ export default function Pedidos() {
         continue
       }
       custom[col.chave] = {
-        editavel: col.tipo !== 'formula' && col.tipo !== 'checkbox',
-        opcoes: (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
-          ? col.opcoes.map(o => ({ valor: o, label: o }))
-          : undefined,
+        editavel: col.tipo !== 'formula',
+        opcoes: col.tipo === 'checkbox'
+          ? [{ valor: 'true', label: '✓ Sim' }, { valor: 'false', label: '✗ Não' }]
+          : (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
+            ? col.opcoes.map(o => ({ valor: o, label: o }))
+            : undefined,
         render: (row: PedidoItem) => {
           const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
           const valor = valores?.[col.id] ?? '—'
@@ -3314,7 +3318,7 @@ export default function Pedidos() {
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
     const customKeys = colunasUsuario
-      .filter(c => c.tipo !== 'formula' && c.tipo !== 'checkbox' && c.tipo !== 'anexo'
+      .filter(c => c.tipo !== 'formula' && c.tipo !== 'anexo'
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
@@ -4081,16 +4085,22 @@ export default function Pedidos() {
       return pedidoAtualizado
     }
     const pedidoAtual = pedidos.find(p => p.id === id)
+    // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
+    // O overlay tipo='moeda' envia objeto composto; extraímos só `currency` para campos de código.
+    const CAMPOS_MOEDA_CODIGO = new Set(['moeda_pedido', 'moeda_cambio_pedido'])
+    const isMoedaObj = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
     // GTValorUnidade { unit, quantity } → extrai quantity, aplica conversão para KG em campos de peso
     const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
     const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
     const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
-    const valorEnviarPai: unknown = isUnidadePai
-      ? (() => {
-          const { unit, quantity } = valor as { unit: string; quantity: number }
-          return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
-        })()
-      : valor
+    const valorEnviarPai: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
+      ? (valor as { currency: string }).currency
+      : isUnidadePai
+        ? (() => {
+            const { unit, quantity } = valor as { unit: string; quantity: number }
+            return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+          })()
+        : valor
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
     const replicar = opts?.replicar_em_itens ?? false

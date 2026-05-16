@@ -406,11 +406,12 @@ export function ModalNovaColunaUsuario({
       } else {
         await colunasUsuarioApi.criar(payload)
       }
-      onSalvo()
+      // Dados salvos — fechar modal e notificar pai.
+      setSalvando(false)
+      try { await Promise.resolve(onSalvo()) } catch { /* pai trata */ }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro ao salvar coluna.'
       setErro(msg)
-    } finally {
       setSalvando(false)
     }
   }, [

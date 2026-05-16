@@ -941,17 +941,17 @@ export default function Configuracoes() {
   }
 
   async function handleColunaEditadaSalva() {
+    setEditandoColuna(null)
     const lista = await colunasUsuarioApi.listar()
     setColunasUsuarioApi(lista)
     setPendingColunas(lista)
-    setEditandoColuna(null)
   }
 
   async function handleColunaCriadaViaModal() {
+    setCriandoColuna(false)
     const lista = await colunasUsuarioApi.listar()
     setColunasUsuarioApi(lista)
     setPendingColunas(lista)
-    setCriandoColuna(false)
   }
 
   // ── Estado: colunas personalizadas (via API) ──

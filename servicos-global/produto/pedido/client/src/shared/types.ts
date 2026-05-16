@@ -992,6 +992,18 @@ export function fmtQuantidade(valor: number, casas: number = 2): string {
 // formatarData lê uma variável de módulo singleton — sem re-render, sem overhead.
 export { formatarData as fmtData } from './useFormatoData'
 
+const MOEDA_CLASSE: Record<string, string> = {
+  USD: 'gtv-celula-moeda-badge--usd',
+  EUR: 'gtv-celula-moeda-badge--eur',
+  BRL: 'gtv-celula-moeda-badge--brl',
+  GBP: 'gtv-celula-moeda-badge--gbp',
+  CNY: 'gtv-celula-moeda-badge--cny',
+}
+
+export function classeMoedaBadge(moeda: string): string {
+  return `gtv-celula-moeda-badge ${MOEDA_CLASSE[moeda.toUpperCase()] ?? ''}`
+}
+
 export function fmtMoeda(valor: number, moeda: string = 'BRL'): string {
   return valor.toLocaleString('pt-BR', {
     style: 'currency',

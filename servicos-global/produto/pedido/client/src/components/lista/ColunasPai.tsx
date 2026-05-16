@@ -12,7 +12,7 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem } from '../../shared/types'
-import { STATUS_PEDIDO_LABELS, fmtQuantidade, fmtData } from '../../shared/types'
+import { STATUS_PEDIDO_LABELS, fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/types'
 import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
@@ -569,7 +569,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'moeda',
     filtravel: true,
     sortavel: true,
-    align: 'right',
+    align: 'left',
     casasDecimais: 2,
     tooltipTitulo: t('pedido.coluna_pai.valor_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.valor_total_pedido_desc'),
@@ -586,7 +586,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       const valorJsx = temValor
         ? (
           <span className="gtv-celula-moeda">
-            <span className="gtv-celula-moeda-badge">{moeda}</span>
+            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
             {fmtQuantidade(num, 2)}
           </span>
         )
@@ -605,13 +605,14 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: 'Moeda do Pedido/Item',
     tipo: 'moeda',
     filtravel: true,
+    avisoImpacto: 'A alteração da moeda irá alterar também Valor Total do Pedido/Item e Valor do Item',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido
       if (!moeda) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
         </span>
       )
     },
@@ -621,7 +622,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.valor_unitario_item'),
     tipo: 'moeda',
     filtravel: true,
-    align: 'right',
+    align: 'left',
     casasDecimais: getCasas('valor_por_unidade_item', 2),
     tooltipTitulo: t('pedido.coluna_pai.valor_unitario_item_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.valor_unitario_item_desc'),
@@ -880,7 +881,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (!moeda) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
         </span>
       )
     },
@@ -902,7 +903,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'valor_total_cambio_pedido',
     label: 'Valor Total Câmbio',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     casasDecimais: 2,
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
@@ -911,7 +912,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       if (row.valor_total_cambio_pedido == null || isNaN(num)) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           {fmtQuantidade(num, 2)}
         </span>
       )

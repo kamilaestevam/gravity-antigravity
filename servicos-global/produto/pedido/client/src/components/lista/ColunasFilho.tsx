@@ -11,7 +11,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
-import { fmtQuantidade, fmtData } from '../../shared/types'
+import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
 
@@ -1031,7 +1031,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_unitario_duimp',
     label: 'Valor Unitário do Produto - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Unitário do Produto — DUIMP',
     tooltipDescricao: 'Valor unitário do produto na moeda declarada na DUIMP',
@@ -1040,7 +1040,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_unitario_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           {row.valor_unitario_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1050,7 +1050,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_total_condicao_venda_duimp',
     label: 'Valor Total na Condição de Venda - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Total na Condição de Venda — DUIMP',
     tooltipDescricao: 'Valor total do item na condição de venda declarada na DUIMP',
@@ -1059,7 +1059,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_total_condicao_venda_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           {row.valor_total_condicao_venda_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1069,7 +1069,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_condicao_venda_brl_duimp',
     label: 'Valor na Condição de Venda - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor na Condição de Venda (R$) — DUIMP',
     tooltipDescricao: 'Valor do item na condição de venda convertido em reais',
@@ -1077,7 +1077,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_condicao_venda_brl_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_condicao_venda_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1087,7 +1087,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_frete_internacional_brl_duimp',
     label: 'Frete Internacional (R$) - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor do Frete Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do frete internacional em reais para fins de valoração aduaneira',
@@ -1095,7 +1095,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_frete_internacional_brl_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_frete_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1105,7 +1105,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_seguro_internacional_brl_duimp',
     label: 'Seguro Internacional (R$) - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor do Seguro Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do seguro internacional em reais para fins de valoração aduaneira',
@@ -1113,7 +1113,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_seguro_internacional_brl_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_seguro_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1123,7 +1123,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_local_embarque_brl_duimp',
     label: 'Valor Local de Embarque (R$) - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor no Local de Embarque (R$) — DUIMP',
     tooltipDescricao: 'Valor da mercadoria no local de embarque em reais',
@@ -1131,7 +1131,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_local_embarque_brl_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_local_embarque_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1141,7 +1141,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_aduaneiro_brl_duimp',
     label: 'Valor Aduaneiro (R$) - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Aduaneiro (R$) — DUIMP',
     tooltipDescricao: 'Valor aduaneiro calculado em reais, base para tributos de importação',
@@ -1149,7 +1149,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_aduaneiro_brl_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_aduaneiro_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1218,7 +1218,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_devido_ii_duimp',
     label: 'Valor Devido do II - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Devido do II (R$) — DUIMP',
     tooltipDescricao: 'Valor total do Imposto de Importação devido',
@@ -1226,7 +1226,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_devido_ii_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_devido_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1236,7 +1236,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_recolher_ii_duimp',
     label: 'Valor Recolher do II - DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do II (R$) — DUIMP',
     tooltipDescricao: 'Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)',
@@ -1244,7 +1244,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_recolher_ii_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_recolher_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1283,7 +1283,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_recolher_ipi_duimp',
     label: 'Valor Recolher do IPI- DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do IPI (R$) — DUIMP',
     tooltipDescricao: 'Valor do IPI a recolher',
@@ -1291,7 +1291,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_recolher_ipi_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_recolher_ipi_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1330,7 +1330,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_recolher_pis_duimp',
     label: 'Valor Recolher do PIS- DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do PIS (R$) — DUIMP',
     tooltipDescricao: 'Valor do PIS/PASEP a recolher',
@@ -1338,7 +1338,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_recolher_pis_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_recolher_pis_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1377,7 +1377,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'valor_recolher_cofins_duimp',
     label: 'Valor Recolher do COFINS- DUIMP',
     tipo: 'numero',
-    align: 'right',
+    align: 'left',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Valor do COFINS a recolher',
@@ -1385,7 +1385,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
       const num = Number(row.valor_recolher_cofins_duimp)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">BRL</span>
+          <span className={classeMoedaBadge('BRL')}>BRL</span>
           {row.valor_recolher_cofins_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
@@ -1815,7 +1815,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
       const num = Number(row.valor_por_unidade_item)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           {row.valor_por_unidade_item != null && !isNaN(num) ? fmtQuantidade(num, getCasas('valor_por_unidade_item', 2)) : '—'}
         </span>
       )
@@ -1834,7 +1834,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
       const num = Number(row.valor_total_item)
       return (
         <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
           {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )

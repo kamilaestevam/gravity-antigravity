@@ -18,6 +18,10 @@ export interface NcmValidacaoResultado {
   fonte:       'cache' | 'portal' | null
   ultima_sync: string | null
   motivo:      string | null
+  ii:          number | null
+  ipi:         number | null
+  pis:         number | null
+  cofins:      number | null
 }
 
 export interface UseNcmValidationOptions {

@@ -27,6 +27,7 @@ import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
+import { useNcmValidation } from '@nucleo/campo-ncm-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -446,6 +447,45 @@ const GTEditPopover = memo(function GTEditPopover({
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isNumero  = overlayInfo.colTipo === 'numero'
   const isNCM     = overlayInfo.campo === 'ncm'
+
+  // Validação NCM com alíquotas TEC (debounce 600ms, não bloqueante)
+  const { status: ncmStatus, resultado: ncmResultado, validar: ncmValidar } = useNcmValidation()
+
+  // Busca NCM por texto (descrição) — quando o input contém letras
+  const [ncmBuscaResultados, setNcmBuscaResultados] = useState<Array<{ codigo: string; descricao: string }>>([])
+  const [ncmBuscando, setNcmBuscando] = useState(false)
+  const ncmBuscaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const ncmTexto = String(valorEditando ?? '')
+  const ncmEhBuscaTexto = isNCM && ncmTexto.length >= 2 && /[a-zA-Z]/.test(ncmTexto)
+  const ncmEhCodigo = isNCM && /^\d[\d.]*$/.test(ncmTexto)
+
+  useEffect(() => {
+    if (!isNCM) return
+    if (ncmEhCodigo) {
+      const digits = ncmTexto.replace(/\D/g, '')
+      ncmValidar(digits)
+      setNcmBuscaResultados([])
+    } else if (ncmEhBuscaTexto) {
+      setNcmBuscando(true)
+      if (ncmBuscaTimerRef.current) clearTimeout(ncmBuscaTimerRef.current)
+      ncmBuscaTimerRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/v1/ncm/buscar?q=${encodeURIComponent(ncmTexto)}&limite=8`)
+          if (res.ok) {
+            const data = await res.json()
+            setNcmBuscaResultados(data.itens ?? [])
+          }
+        } catch { /* silencioso */ }
+        setNcmBuscando(false)
+      }, 400)
+    } else {
+      setNcmBuscaResultados([])
+      setNcmBuscando(false)
+    }
+    return () => { if (ncmBuscaTimerRef.current) clearTimeout(ncmBuscaTimerRef.current) }
+  }, [isNCM, ncmTexto, ncmEhCodigo, ncmEhBuscaTexto, ncmValidar])
+
   const popoverRef    = useRef<HTMLDivElement>(null)
   const inputRef      = useRef<HTMLInputElement>(null)
   const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
@@ -609,7 +649,7 @@ const GTEditPopover = memo(function GTEditPopover({
       {/* Popover */}
       <div
         ref={popoverRef}
-        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}`}
+        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}${isNCM ? ' gtv-edit-popover--ncm' : ''}`}
         style={{ top: pos.top, left: pos.left }}
         onMouseDown={e => e.stopPropagation()}
       >
@@ -876,10 +916,14 @@ const GTEditPopover = memo(function GTEditPopover({
               autoFocus
               type="text"
               inputMode={isNumero ? 'decimal' : 'text'}
-              className="gtv-edit-popover-input"
+              className={[
+                'gtv-edit-popover-input',
+                isNCM && ncmEhCodigo && ncmStatus === 'valido' ? 'gtv-edit-popover-input--ncm-ok' : '',
+                isNCM && ncmEhCodigo && (ncmStatus === 'invalido' || ncmStatus === 'sem_sync') ? 'gtv-edit-popover-input--ncm-warn' : '',
+              ].filter(Boolean).join(' ')}
               value={isNumero ? displayNumero : String(valorEditando ?? '')}
               disabled={salvando}
-              maxLength={isNCM ? 10 : undefined}
+              placeholder={isNCM ? 'Código ou descrição…' : undefined}
               onChange={e => {
                 const raw = e.target.value
                 if (isNumero) {
@@ -892,20 +936,33 @@ const GTEditPopover = memo(function GTEditPopover({
                   setDisplayNumero(raw)
                   onAtualizar(parseBRNum(raw))
                 } else if (isNCM) {
-                  if (/[a-zA-Z]/.test(raw)) {
-                    mostrarErroInput('Apenas números são permitidos em campos NCM')
+                  const isDigitsOnly = /^\d*$/.test(raw.replace(/\./g, ''))
+                  if (isDigitsOnly) {
+                    const digits = raw.replace(/\D/g, '').slice(0, 8)
+                    let masked = digits
+                    if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
+                    else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
+                    onAtualizar(masked)
+                  } else {
+                    onAtualizar(raw)
                   }
-                  const digits = raw.replace(/\D/g, '').slice(0, 8)
-                  let masked = digits
-                  if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
-                  else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
-                  onAtualizar(masked)
                 } else {
                   onAtualizar(raw)
                 }
               }}
               onKeyDown={e => {
-                if (e.key === 'Enter')  { e.preventDefault(); confirmarComOpts() }
+                if (e.key === 'Enter')  {
+                  e.preventDefault()
+                  if (ncmEhBuscaTexto && ncmBuscaResultados.length > 0) {
+                    const first = ncmBuscaResultados[0]
+                    const c = first.codigo
+                    const masked = c.length === 8 ? `${c.slice(0, 4)}.${c.slice(4, 6)}.${c.slice(6)}` : c
+                    onAtualizar(masked)
+                    setNcmBuscaResultados([])
+                  } else {
+                    confirmarComOpts()
+                  }
+                }
                 if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
               }}
               onBlur={e => {
@@ -936,6 +993,98 @@ const GTEditPopover = memo(function GTEditPopover({
           <div className="gtv-edit-aviso-impacto">
             <span className="gtv-edit-aviso-impacto-icone">⚠</span>
             <span>{overlayInfo.avisoImpacto}</span>
+          </div>
+        )}
+
+        {/* Validação NCM por código (8 dígitos) — descrição + pills TEC */}
+        {isNCM && ncmEhCodigo && ncmStatus === 'validando' && (
+          <div className="gtv-ncm-validando">
+            <span className="gtv-ncm-spinner" />
+            <span>Validando NCM…</span>
+          </div>
+        )}
+        {isNCM && ncmEhCodigo && ncmStatus === 'valido' && ncmResultado && (
+          <div className="gtv-ncm-validation">
+            <div className="gtv-ncm-desc">
+              <svg className="gtv-ncm-desc-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M200,32H163.74a47.92,47.92,0,0,0-71.48,0H56A16,16,0,0,0,40,48V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V48A16,16,0,0,0,200,32Zm-72,0a32,32,0,0,1,32,32H96A32,32,0,0,1,128,32Zm72,184H56V48H82.75A47.93,47.93,0,0,0,80,64v8a8,8,0,0,0,8,8h80a8,8,0,0,0,8-8V64a47.93,47.93,0,0,0-2.75-16H200Z"/></svg>
+              <span>{ncmResultado.descricao}</span>
+            </div>
+            {(ncmResultado.ii != null || ncmResultado.ipi != null || ncmResultado.pis != null || ncmResultado.cofins != null) && (
+              <div className="gtv-ncm-tec-pills">
+                {ncmResultado.ii != null && (
+                  <span className="gtv-ncm-tec-pill">
+                    <span className="gtv-ncm-tec-pill-label">II</span>
+                    <span className="gtv-ncm-tec-pill-value">{ncmResultado.ii}%</span>
+                  </span>
+                )}
+                {ncmResultado.ipi != null && (
+                  <span className="gtv-ncm-tec-pill">
+                    <span className="gtv-ncm-tec-pill-label">IPI</span>
+                    <span className="gtv-ncm-tec-pill-value">{ncmResultado.ipi}%</span>
+                  </span>
+                )}
+                {ncmResultado.pis != null && (
+                  <span className="gtv-ncm-tec-pill">
+                    <span className="gtv-ncm-tec-pill-label">PIS</span>
+                    <span className="gtv-ncm-tec-pill-value">{ncmResultado.pis}%</span>
+                  </span>
+                )}
+                {ncmResultado.cofins != null && (
+                  <span className="gtv-ncm-tec-pill">
+                    <span className="gtv-ncm-tec-pill-label">COFINS</span>
+                    <span className="gtv-ncm-tec-pill-value">{ncmResultado.cofins}%</span>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+        {isNCM && ncmEhCodigo && (ncmStatus === 'invalido' || ncmStatus === 'sem_sync') && ncmResultado && (
+          <div className="gtv-ncm-invalido">
+            <span className="gtv-ncm-dot gtv-ncm-dot--warn" />
+            <span>{ncmResultado.motivo}</span>
+          </div>
+        )}
+
+        {/* Busca NCM por texto — lista de resultados clicáveis */}
+        {isNCM && ncmEhBuscaTexto && ncmBuscando && (
+          <div className="gtv-ncm-validando">
+            <span className="gtv-ncm-spinner" />
+            <span>Buscando classificações…</span>
+          </div>
+        )}
+        {isNCM && ncmEhBuscaTexto && !ncmBuscando && ncmBuscaResultados.length > 0 && (
+          <div className="gtv-ncm-busca-lista">
+            {ncmBuscaResultados.map(item => (
+              <button
+                key={item.codigo}
+                type="button"
+                className="gtv-ncm-busca-item"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => {
+                  const c = item.codigo
+                  const masked = c.length === 8
+                    ? `${c.slice(0, 4)}.${c.slice(4, 6)}.${c.slice(6)}`
+                    : c
+                  onAtualizar(masked)
+                  setNcmBuscaResultados([])
+                  inputRef.current?.focus()
+                }}
+              >
+                <span className="gtv-ncm-busca-codigo">{
+                  item.codigo.length === 8
+                    ? `${item.codigo.slice(0, 4)}.${item.codigo.slice(4, 6)}.${item.codigo.slice(6)}`
+                    : item.codigo
+                }</span>
+                <span className="gtv-ncm-busca-desc">{item.descricao}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {isNCM && ncmEhBuscaTexto && !ncmBuscando && ncmBuscaResultados.length === 0 && ncmTexto.length >= 2 && (
+          <div className="gtv-ncm-invalido">
+            <span className="gtv-ncm-dot gtv-ncm-dot--warn" />
+            <span>Nenhuma classificação encontrada</span>
           </div>
         )}
 

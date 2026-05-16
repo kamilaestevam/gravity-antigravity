@@ -117,24 +117,48 @@ router.get('/:codigo/validar', async (req, res, next) => {
         fonte:       null,
         ultima_sync: null,
         motivo:      'Código NCM deve ter exatamente 8 dígitos numéricos',
+        ii: null, ipi: null, pis: null, cofins: null,
       })
     }
 
-    // 1. Buscar no cache local
+    // 1. Buscar no cache local (inclui alíquotas TEC)
     const local = await prisma.ncmSync.findUnique({
       where: { codigo_ncm_sync: codigo },
-      select: { codigo_ncm_sync: true, descricao_ncm_sync: true, ativo_ncm_sync: true },
+      select: {
+        codigo_ncm_sync:    true,
+        descricao_ncm_sync: true,
+        ativo_ncm_sync:     true,
+        ii_ncm_sync:        true,
+        ipi_ncm_sync:       true,
+        pis_ncm_sync:       true,
+        cofins_ncm_sync:    true,
+      },
     })
 
     const statusSync = await obterStatusSync(prisma)
 
     if (local && local.ativo_ncm_sync) {
+      let { ii_ncm_sync: ii, ipi_ncm_sync: ipi, pis_ncm_sync: pis, cofins_ncm_sync: cofins } = local
+
+      // Lazy enrichment: se alíquotas TEC ausentes, busca da TTCE e grava no cache
+      if (ii == null && ipi == null && pis == null && cofins == null) {
+        const ttce = await validarNcm(codigo)
+        if (ttce && (ttce.ii != null || ttce.ipi != null || ttce.pis != null || ttce.cofins != null)) {
+          ii = ttce.ii; ipi = ttce.ipi; pis = ttce.pis; cofins = ttce.cofins
+          void prisma.ncmSync.update({
+            where: { codigo_ncm_sync: codigo },
+            data: { ii_ncm_sync: ii, ipi_ncm_sync: ipi, pis_ncm_sync: pis, cofins_ncm_sync: cofins },
+          }).catch(() => {})
+        }
+      }
+
       return res.status(200).json({
         valido:      true,
         descricao:   local.descricao_ncm_sync,
         fonte:       'cache',
         ultima_sync: statusSync.ultima_sync,
         motivo:      null,
+        ii, ipi, pis, cofins,
       })
     }
 
@@ -148,6 +172,10 @@ router.get('/:codigo/validar', async (req, res, next) => {
         fonte:       'portal_unico',
         ultima_sync: statusSync.ultima_sync,
         motivo:      null,
+        ii:          remoto.ii,
+        ipi:         remoto.ipi,
+        pis:         remoto.pis,
+        cofins:      remoto.cofins,
       })
     }
 
@@ -158,6 +186,7 @@ router.get('/:codigo/validar', async (req, res, next) => {
       fonte:       null,
       ultima_sync: statusSync.ultima_sync,
       motivo:      'NCM não encontrado no cache local nem no Portal Único Siscomex',
+      ii: null, ipi: null, pis: null, cofins: null,
     })
   } catch (err) {
     next(err)

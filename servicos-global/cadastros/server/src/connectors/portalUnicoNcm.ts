@@ -39,6 +39,10 @@ export interface NcmItemRaw {
 export interface NcmDetalhe {
   codigo:    string
   descricao: string
+  ii:        number | null
+  ipi:       number | null
+  pis:       number | null
+  cofins:    number | null
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -51,6 +55,12 @@ function normalizarItem(raw: Record<string, unknown>): NcmItemRaw {
   const fim       = (raw['DataFim']    ?? raw['dataFim']    ?? null) as string | null
 
   return { codigo, descricao, dataInicio: inicio, dataFim: fim }
+}
+
+function parseAliquota(val: unknown): number | null {
+  if (val == null) return null
+  const n = typeof val === 'number' ? val : parseFloat(String(val))
+  return Number.isFinite(n) ? n : null
 }
 
 // ── Funções públicas ──────────────────────────────────────────────────────────
@@ -121,7 +131,7 @@ export async function validarNcm(codigo: string): Promise<NcmDetalhe | null> {
 
   if (process.env.NCM_MOCK === 'true') {
     return codigo === '84713019'
-      ? { codigo, descricao: 'Unidades digitais de processamento de pequena capacidade' }
+      ? { codigo, descricao: 'Unidades digitais de processamento de pequena capacidade', ii: 14, ipi: 0, pis: 2.1, cofins: 9.65 }
       : null
   }
 
@@ -134,6 +144,10 @@ export async function validarNcm(codigo: string): Promise<NcmDetalhe | null> {
     return {
       codigo:    String(data.codigo    ?? data.Codigo    ?? codigo),
       descricao: String(data.descricao ?? data.Descricao ?? ''),
+      ii:        parseAliquota(data.IiAliquotaAd  ?? data.iiAliquotaAd  ?? data.ii),
+      ipi:       parseAliquota(data.IpiAliquotaAd ?? data.ipiAliquotaAd ?? data.ipi),
+      pis:       parseAliquota(data.PisAliquota   ?? data.pisAliquota   ?? data.pis),
+      cofins:    parseAliquota(data.CofinsAliquota ?? data.cofinsAliquota ?? data.cofins),
     }
   } catch (err: unknown) {
     if (axios.isAxiosError(err) && err.response?.status === 404) return null

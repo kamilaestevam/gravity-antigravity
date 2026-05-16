@@ -1,10 +1,17 @@
 /**
- * ModalPassoPassoGlobal — Modal com navegação em passos (wizard)
+ * ModalPassoPassoGlobal — Modal com navegacao em passos (wizard)
  * Design System § 12 — Wizard Timeline (Stepper)
  * Design System § 14 — Modal (alinhado com ModalOverlay)
+ *
+ * UX Features:
+ * - Transicao de conteudo animada (slide entre passos)
+ * - Barra de progresso no topo do modal
+ * - Focus trap (Tab nao escapa do modal)
+ * - Navegacao direta: clicar em passo concluido volta a ele
+ * - Conector animado (fill progressivo ao completar)
  */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowLeft, ArrowRight, Check, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -27,7 +34,7 @@ export interface ModalPassoPassoProps {
   titulo: string
   icone?: React.ReactNode
   subtitulo?: string
-  /** Subtítulo como ReactNode — alternativa a `subtitulo` para conteúdo dinâmico */
+  /** Subtitulo como ReactNode — alternativa a `subtitulo` para conteudo dinamico */
   subtituloNode?: React.ReactNode
   aberto: boolean
   passos: PassoConfig[]
@@ -38,17 +45,66 @@ export interface ModalPassoPassoProps {
   podeAvancar?: boolean
   labelBotaoFinal?: string
   labelProximo?: string
-  /** Padrão: 'md' (560px). Tamanhos: sm=400, md=560, lg=720, xl=960, 2xl=1200. */
+  /** Padrao: 'md' (560px). Tamanhos: sm=400, md=560, lg=720, xl=960, 2xl=1200. */
   tamanho?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  /** Altura explícita — opcional */
+  /** Altura explicita — opcional */
   altura?: string
-  /** Ocultar o stepper (ex: tela de resultado/conclusão) */
+  /** Ocultar o stepper (ex: tela de resultado/conclusao) */
   ocultarStepper?: boolean
-  /** Ocultar o footer padrão (Voltar/Próximo). Use com `footerCustom` ou para telas sem navegação */
+  /** Ocultar o footer padrao (Voltar/Proximo). Use com `footerCustom` ou para telas sem navegacao */
   ocultarFooter?: boolean
-  /** Footer custom — substitui completamente o footer padrão (Voltar/Próximo) */
+  /** Footer custom — substitui completamente o footer padrao (Voltar/Proximo) */
   footerCustom?: React.ReactNode
+  /** Permitir clicar em passos concluidos para navegar diretamente. Padrao: true */
+  navegacaoDireta?: boolean
+  /** Callback quando usuario clica em um passo concluido (navegacao direta) */
+  onIrParaPasso?: (passoId: number) => void
   children: React.ReactNode
+}
+
+// ── Focus Trap helper ─────────────────────────────────────────────────────────
+
+function useFocusTrap(aberto: boolean) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!aberto || !ref.current) return
+
+    const dialog = ref.current
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
+    function handleTab(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return
+      const focusable = dialog.querySelectorAll<HTMLElement>(focusableSelector)
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    // Focus first focusable element on open
+    requestAnimationFrame(() => {
+      const first = dialog.querySelector<HTMLElement>(focusableSelector)
+      first?.focus()
+    })
+
+    dialog.addEventListener('keydown', handleTab)
+    return () => dialog.removeEventListener('keydown', handleTab)
+  }, [aberto])
+
+  return ref
 }
 
 export function ModalPassoPassoGlobal({
@@ -64,14 +120,30 @@ export function ModalPassoPassoGlobal({
   onFechar,
   podeAvancar = true,
   labelBotaoFinal = 'Salvar',
-  labelProximo = 'Próximo',
+  labelProximo = 'Proximo',
   tamanho = 'md',
   altura,
   ocultarStepper = false,
   ocultarFooter = false,
   footerCustom,
+  navegacaoDireta = true,
+  onIrParaPasso,
   children,
 }: ModalPassoPassoProps) {
+  const dialogRef = useFocusTrap(aberto)
+  const [direcao, setDirecao] = useState<'avanco' | 'retorno'>('avanco')
+  const passoAnteriorRef = useRef(passoAtual)
+
+  // Detectar direcao da navegacao
+  useEffect(() => {
+    if (passoAtual > passoAnteriorRef.current) {
+      setDirecao('avanco')
+    } else if (passoAtual < passoAnteriorRef.current) {
+      setDirecao('retorno')
+    }
+    passoAnteriorRef.current = passoAtual
+  }, [passoAtual])
+
   useEffect(() => {
     if (!aberto) return
     document.body.style.overflow = 'hidden'
@@ -95,12 +167,24 @@ export function ModalPassoPassoGlobal({
     return 'pendente'
   }
 
+  // Barra de progresso — percentual
+  const passoIndex = passos.findIndex(p => p.id === passoAtual)
+  const progresso = passos.length > 1 ? (passoIndex / (passos.length - 1)) * 100 : 100
+
   const largura = LARGURA[tamanho] ?? LARGURA.md
+
+  // Handler para navegacao direta
+  function handleClickPasso(passo: PassoConfig) {
+    if (!navegacaoDireta) return
+    const status = stepStatus(passo)
+    if (status !== 'feito') return
+    if (onIrParaPasso) {
+      onIrParaPasso(passo.id)
+    }
+  }
 
   const content = (
     <>
-      {/* Keyframes injetados inline — necessário pois este componente é consumido
-          via alias Vite e não pode importar CSS externo */}
       <style>{`
         @keyframes mpg-fade-in {
           from { opacity: 0; }
@@ -110,9 +194,57 @@ export function ModalPassoPassoGlobal({
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes mpg-content-slide-left {
+          from { opacity: 0; transform: translateX(24px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes mpg-content-slide-right {
+          from { opacity: 0; transform: translateX(-24px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes mpg-check-bounce {
+          0%   { transform: scale(0); }
+          60%  { transform: scale(1.15); }
+          100% { transform: scale(1); }
+        }
+        @keyframes mpg-pulse {
+          0%, 100% { box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
+          50%      { box-shadow: 0 0 0 6px rgba(99,102,241,0.12); }
+        }
         .mpg-btn-fechar:hover {
           color: var(--text-primary) !important;
           background: var(--bg-elevated, rgba(255,255,255,0.07)) !important;
+        }
+        .mpg-passo-feito {
+          cursor: pointer;
+        }
+        .mpg-passo-feito:hover .mpg-circulo-feito {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+        }
+        .mpg-circulo-ativo {
+          animation: mpg-pulse 2.5s ease-in-out infinite;
+        }
+        .mpg-check-icon {
+          animation: mpg-check-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .mpg-content-wrap {
+          animation: mpg-content-slide-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        .mpg-content-wrap--retorno {
+          animation: mpg-content-slide-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        .mpg-progress-bar {
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mpg-conector-fill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: var(--success, #22c55e);
+          border-radius: 1px;
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @media (max-width: 640px) {
           .mpg-dialog {
@@ -139,12 +271,23 @@ export function ModalPassoPassoGlobal({
         onClick={e => { if (e.target === e.currentTarget) onFechar() }}
       >
         <div
+          ref={dialogRef}
           className="mpg-dialog"
           style={{ ...s.dialog, maxWidth: largura, ...(altura ? { height: altura } : {}) }}
           role="dialog"
           aria-modal="true"
           aria-label={titulo}
         >
+          {/* Barra de progresso — topo do modal */}
+          {!ocultarStepper && (
+            <div style={s.progressWrap} aria-hidden="true">
+              <div
+                className="mpg-progress-bar"
+                style={{ ...s.progressBar, width: `${progresso}%` }}
+              />
+            </div>
+          )}
+
           {/* Header */}
           <div style={s.header}>
             <div style={s.headerTexto}>
@@ -171,34 +314,49 @@ export function ModalPassoPassoGlobal({
             <div style={s.stepper} role="list" aria-label="Passos">
               {passos.map((passo, idx) => {
                 const status = stepStatus(passo)
+                const isClickable = navegacaoDireta && status === 'feito' && !!onIrParaPasso
                 const circuloStyle = {
                   ...s.circulo,
                   ...(status === 'ativo' ? s.circuloAtivo : {}),
                   ...(status === 'feito' ? s.circuloFeito : {}),
                 }
-                const labelStyle = {
+                const labelStyleMerge = {
                   ...s.label,
                   ...(status === 'ativo' ? s.labelAtivo : {}),
                   ...(status === 'feito' ? s.labelFeito : {}),
                 }
-                const conectorStyle = {
-                  ...s.conector,
-                  ...(status === 'feito' ? s.conectorFeito : {}),
-                }
 
                 return (
                   <React.Fragment key={passo.id}>
-                    <div style={s.passo} role="listitem" aria-current={status === 'ativo' ? 'step' : undefined}>
-                      <div style={circuloStyle}>
+                    <div
+                      style={s.passo}
+                      role="listitem"
+                      aria-current={status === 'ativo' ? 'step' : undefined}
+                      className={isClickable ? 'mpg-passo-feito' : undefined}
+                      onClick={isClickable ? () => handleClickPasso(passo) : undefined}
+                      title={isClickable ? `Voltar para: ${passo.label}` : undefined}
+                    >
+                      <div
+                        style={circuloStyle}
+                        className={
+                          status === 'ativo' ? 'mpg-circulo-ativo' :
+                          status === 'feito' ? 'mpg-circulo-feito' : undefined
+                        }
+                      >
                         {status === 'feito'
-                          ? <Check size={14} weight="bold" />
+                          ? <span className="mpg-check-icon"><Check size={14} weight="bold" /></span>
                           : (passo.icone ?? passo.id)
                         }
                       </div>
-                      <span style={labelStyle}>{passo.label}</span>
+                      <span style={labelStyleMerge}>{passo.label}</span>
                     </div>
                     {idx < passos.length - 1 && (
-                      <div style={conectorStyle} aria-hidden="true" />
+                      <div style={s.conector} aria-hidden="true">
+                        <div
+                          className="mpg-conector-fill"
+                          style={{ width: status === 'feito' ? '100%' : '0%' }}
+                        />
+                      </div>
                     )}
                   </React.Fragment>
                 )
@@ -206,8 +364,15 @@ export function ModalPassoPassoGlobal({
             </div>
           </div>}
 
-          {/* Conteúdo */}
-          <div style={s.conteudo}>{children}</div>
+          {/* Conteudo — com transicao animada */}
+          <div
+            key={passoAtual}
+            className={`mpg-content-wrap${direcao === 'retorno' ? ' mpg-content-wrap--retorno' : ''}`}
+            style={s.conteudo}
+            aria-live="polite"
+          >
+            {children}
+          </div>
 
           {/* Footer */}
           {footerCustom ? (
@@ -223,15 +388,20 @@ export function ModalPassoPassoGlobal({
               {isPrimeiroPasso ? 'Cancelar' : 'Voltar'}
             </BotaoGlobal>
 
-            <BotaoGlobal
-              variante="primario"
-              tamanho="padrao"
-              disabled={!podeAvancar}
-              iconeDireita={isUltimoPasso ? <Check size={14} /> : <ArrowRight size={14} />}
-              onClick={onProximo}
-            >
-              {isUltimoPasso ? labelBotaoFinal : labelProximo}
-            </BotaoGlobal>
+            <div style={s.footerDireita}>
+              <span style={s.footerIndicador}>
+                {passoIndex + 1} / {passos.length}
+              </span>
+              <BotaoGlobal
+                variante="primario"
+                tamanho="padrao"
+                disabled={!podeAvancar}
+                iconeDireita={isUltimoPasso ? <Check size={14} /> : <ArrowRight size={14} />}
+                onClick={onProximo}
+              >
+                {isUltimoPasso ? labelBotaoFinal : labelProximo}
+              </BotaoGlobal>
+            </div>
           </div>
           ) : null}
         </div>
@@ -269,6 +439,22 @@ const s = {
     overflow: 'hidden',
     boxShadow: 'var(--shadow-md)',
     animation: 'mpg-slide-up 0.2s ease',
+  },
+  progressWrap: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '3px',
+    background: 'var(--bg-elevated, rgba(255,255,255,0.06))',
+    zIndex: 1,
+    borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    background: 'var(--accent, #6366f1)',
+    borderRadius: '0 2px 2px 0',
   },
   header: {
     display: 'flex',
@@ -345,7 +531,7 @@ const s = {
     gap: '0.5rem',
     flexShrink: 0,
   },
-  // Círculo — OBRIGATÓRIO: min-width e flex-shrink:0 (Design System § 12)
+  // Circulo — OBRIGATORIO: min-width e flex-shrink:0 (Design System § 12)
   circulo: {
     width: '2rem',
     height: '2rem',
@@ -360,17 +546,17 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   } as React.CSSProperties,
   circuloAtivo: {
     background: 'var(--accent)',
     color: '#0f172a',
-    boxShadow: '0 0 0 4px rgba(99,102,241,0.2)',
   } as React.CSSProperties,
   circuloFeito: {
     background: 'var(--success, #22c55e)',
     border: '2px solid var(--success, #22c55e)',
     color: '#fff',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
   } as React.CSSProperties,
   label: {
     fontSize: '0.6875rem',
@@ -378,19 +564,19 @@ const s = {
     textAlign: 'center' as const,
     color: 'var(--text-muted, #64748b)',
     whiteSpace: 'nowrap' as const,
+    transition: 'color 0.2s',
   },
   labelAtivo: { color: 'var(--accent, #6366f1)' },
   labelFeito: { color: 'var(--success, #22c55e)' },
   conector: {
+    position: 'relative' as const,
     flex: 1,
     height: '2px',
     background: 'var(--bg-elevated)',
     minWidth: '20px',
     marginTop: '1rem',
-    transition: 'background 0.25s',
-  } as React.CSSProperties,
-  conectorFeito: {
-    background: 'var(--success, #22c55e)',
+    borderRadius: '1px',
+    overflow: 'hidden',
   } as React.CSSProperties,
   conteudo: {
     flex: 1,
@@ -406,5 +592,16 @@ const s = {
     background: 'var(--bg-surface)',
     borderTop: '1px solid var(--bg-elevated)',
     flexShrink: 0,
+  },
+  footerDireita: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
+  footerIndicador: {
+    fontSize: '0.6875rem',
+    fontWeight: 500,
+    color: 'var(--text-muted, #64748b)',
+    letterSpacing: '0.02em',
   },
 } as const

@@ -296,6 +296,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     part_number:                 item.part_number_item,
     ncm:                         item.ncm_item,
     descricao_item:              item.descricao_item,
+    tipo_operacao_item:          item.tipo_operacao_item,
     unidade_comercializada_item: item.unidade_comercializada_item,
 
     // Decimal → number (quantidades)
@@ -323,6 +324,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     incoterm:                  item.incoterm_item,
     condicao_pagamento_pedido: item.condicao_pagamento_item,
     data_emissao_pedido:       item.data_emissao_item,
+    data_embarque_item:        normDate(item.data_embarque_item),
 
     // Decimal → number (dados físicos unitários) + unidade
     // Unidades vêm de cadastros.unidade (SSOT). Front lê via
@@ -407,6 +409,9 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     referencia_exportador:    pedido.referencia_exportador_pedido ?? pedido.referencia_exportador,
     referencia_fabricante:    pedido.referencia_fabricante_pedido ?? pedido.referencia_fabricante,
     taxa_cambio_estimada:     pedido.taxa_cambio_estimada_pedido  ?? pedido.taxa_cambio_estimada,
+    valor_total_cambio_pedido:  pedido.valor_total_cambio_pedido  ?? null,
+    moeda_cambio_pedido:        pedido.moeda_cambio_pedido        ?? null,
+    contrato_cambio_id_pedido:  pedido.contrato_cambio_id_pedido  ?? null,
     detalhes_operacionais:    pedido.detalhes_operacionais_pedido ?? pedido.detalhes_operacionais,
     campos_custom:            pedido.dados_extras_importacao_pedido ?? pedido.campos_custom_pedido         ?? pedido.campos_custom,
     pedidos_origem_id:        pedido.ids_origem_consolidacao_pedido ?? pedido.id_pedidos_origem            ?? pedido.pedidos_origem_id,
@@ -472,6 +477,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     nome_exportador: findNome('exportador') ?? (det.nome_exportador as string | null | undefined) ?? null,
     nome_importador: findNome('importador') ?? (det.nome_importador as string | null | undefined) ?? null,
     nome_fabricante: findNome('fabricante') ?? (det.nome_fabricante as string | null | undefined) ?? null,
+    // CNPJ exportador vive no JSON detalhes_operacionais (auto-fill em EXP)
+    cnpj_exportador: (det.cnpj_exportador as string | null | undefined) ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)

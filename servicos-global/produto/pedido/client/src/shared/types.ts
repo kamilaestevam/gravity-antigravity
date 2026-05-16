@@ -321,6 +321,7 @@ export interface Pedido {
   exportacao_importador_id: string | null
   nome_importador?: string | null
   cnpj_importador?: string | null
+  cnpj_exportador?: string | null
 
   // Dados comerciais
   incoterm: string | null

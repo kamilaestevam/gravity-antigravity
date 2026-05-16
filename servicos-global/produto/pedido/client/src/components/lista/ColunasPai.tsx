@@ -349,14 +349,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       renderAgregado(row.nome_importador, row.nome_importador_divergente, 'Importadores divergentes entre itens'),
   },
   // ── CNPJ Importador ──────────────────────────────────────────────────────────
-  // Importação: editável, formato CNPJ. Exportação: travado com "—" e tooltip.
+  // Fonte única de verdade: cnpj_workspace do Workspace (via workspacesMap).
+  // Importação: workspace = importador → exibe CNPJ do workspace.
+  // Exportação: contraparte estrangeira → "—" com tooltip.
   {
     key: 'cnpj_importador',
     label: 'CNPJ do Importador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'CNPJ do Importador',
-    tooltipDescricao: 'CNPJ da empresa importadora. Em importação, preenchido automaticamente pelo workspace. Em exportação, não se aplica.',
+    tooltipDescricao: 'CNPJ da empresa importadora. Fonte única: CNPJ do Workspace. Em exportação, não se aplica (contraparte estrangeira).',
     render: (_val: unknown, row: Pedido) => {
       const isImportacao = row.tipo_operacao === 'importacao'
       if (!isImportacao) {
@@ -366,24 +368,34 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           </TooltipGlobal>
         )
       }
-      const raw = row.cnpj_importador ?? ''
-      // Formatar CNPJ: 00.000.000/0000-00
+      // Fonte única de verdade: CNPJ do Workspace
+      const cnpjWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.cnpj
+      const raw = cnpjWorkspace ?? ''
       const digits = raw.replace(/\D/g, '')
       const formatted = digits.length === 14
         ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
-        : raw || '—'
+        : ''
+      if (!formatted) {
+        return (
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Acesse Configurações > Workspaces para cadastrar.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'help' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
       return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
     },
   },
   // ── CNPJ Exportador ──────────────────────────────────────────────────────────
-  // Exportação: editável, formato CNPJ. Importação: travado com "—" e tooltip.
+  // Fonte única de verdade: cnpj_workspace do Workspace (via workspacesMap).
+  // Exportação: workspace = exportador → exibe CNPJ do workspace.
+  // Importação: contraparte estrangeira → "—" com tooltip.
   {
     key: 'cnpj_exportador',
     label: 'CNPJ do Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'CNPJ do Exportador',
-    tooltipDescricao: 'CNPJ da empresa exportadora. Em exportação, preenchido automaticamente pelo workspace. Em importação, não se aplica.',
+    tooltipDescricao: 'CNPJ da empresa exportadora. Fonte única: CNPJ do Workspace. Em importação, não se aplica (contraparte estrangeira).',
     render: (_val: unknown, row: Pedido) => {
       const isExportacao = row.tipo_operacao === 'exportacao'
       if (!isExportacao) {
@@ -393,12 +405,20 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           </TooltipGlobal>
         )
       }
-      const raw = row.cnpj_exportador ?? ''
-      // Formatar CNPJ: 00.000.000/0000-00
+      // Fonte única de verdade: CNPJ do Workspace
+      const cnpjWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.cnpj
+      const raw = cnpjWorkspace ?? ''
       const digits = raw.replace(/\D/g, '')
       const formatted = digits.length === 14
         ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
-        : raw || '—'
+        : ''
+      if (!formatted) {
+        return (
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Acesse Configurações > Workspaces para cadastrar.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'help' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
       return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
     },
   },

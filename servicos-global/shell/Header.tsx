@@ -10,6 +10,7 @@ import {
   Graph,
   Hexagon,
 } from '@phosphor-icons/react'
+import { useClerk } from '@clerk/clerk-react'
 import { useShellStore } from './store'
 import { Notificacoes } from '../servicos-plataforma/notificacoes/src/Notificacoes'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -100,9 +101,9 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
     tooltipsDisabled,
     toggleTooltips,
     currentUser,
-    clearCurrentUser,
     allowedProducts,
   } = useShellStore()
+  const { signOut } = useClerk()
 
   // ── Localizador ──────────────────────────────────────────────────────────
   const ctx = resolveContextFromPath(location.pathname)
@@ -283,8 +284,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           onNavigateWorkspace={() => console.log('Navegar para Organização')}
           onNavigateMarketPlace={() => window.location.href = '/store'}
           onSignOut={() => {
-            clearCurrentUser()
-            window.location.href = '/'
+            signOut(() => { window.location.href = '/' })
           }}
           isAdmin={isGravityAdmin}
           onNavigateAdmin={() => window.location.href = '/admin'}

@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth, useClerk } from '@clerk/clerk-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
@@ -128,6 +128,7 @@ function AppInner() {
   useMeSync()
   const { t } = useTranslation()
   const { getToken } = useAuth()
+  const { signOut } = useClerk()
   // Pivô 2026-05-14 (Coordenador + Líder Técnico):
   // - `podeVer`/`podeEditar` agora ESTRITOS (só true em 'permitido')
   // - `carregando` distingue load real de terminal-incompleto (Mand. 08)
@@ -174,7 +175,6 @@ function AppInner() {
   const toggleTooltips   = useShellStore(s => s.toggleTooltips)
   const toggleTheme      = useShellStore(s => s.toggleTheme)
   const currentTheme     = useShellStore(s => s.currentTheme)
-  const clearCurrentUser = useShellStore(s => s.clearCurrentUser)
   const workspacesStore  = useShellStore(s => s.workspaces)
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const setWorkspaceAtivo = useShellStore(s => s.setWorkspaceAtivo)
@@ -274,7 +274,7 @@ function AppInner() {
         onToggleTheme:         toggleTheme,
         onNavigateWorkspace:   () => { window.location.href = '/configurador' },
         onNavigateMarketPlace: () => { window.location.href = '/store' },
-        onSignOut:             () => { clearCurrentUser(); window.location.href = '/' },
+        onSignOut:             () => { signOut(() => { window.location.href = '/' }) },
       }}
     >
       <ToastContainer />

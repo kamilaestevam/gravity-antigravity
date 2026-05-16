@@ -42,6 +42,9 @@ import { cadastrosApi } from '../shared/cadastrosApi'
 
 interface ModalEdicaoMassaPedidosProps {
   pedidos: Pedido[]
+  /** IDs específicos de itens selecionados. Se presente, apenas estes itens serão editados
+   *  (não o pedido inteiro). Quando ausente, todos os itens dos pedidos selecionados são editados. */
+  itensSelecionadosIds?: string[]
   onFechar: () => void
   onConcluido: () => void
 }
@@ -900,7 +903,7 @@ function traduzirErro(mensagem: string): string {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
+export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
@@ -968,6 +971,10 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
       try {
         const payload: EdicaoMassaPayload = {
           pedido_ids: pedidos.map(p => p.id),
+          // Quando itens específicos foram selecionados, enviar seus IDs para preview
+          ...(itensSelecionadosIds && itensSelecionadosIds.length > 0
+            ? { item_ids: itensSelecionadosIds }
+            : {}),
           campos: camposValidos.map(c => ({
             campo: c.campo,
             tipo: c.tipo,
@@ -1051,6 +1058,11 @@ export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: Moda
 
     const payload: EdicaoMassaPayload = {
       pedido_ids: pedidos.map(p => p.id),
+      // Quando itens específicos foram selecionados, enviar seus IDs para que
+      // o backend edite APENAS estes itens (e não todos os itens dos pedidos).
+      ...(itensSelecionadosIds && itensSelecionadosIds.length > 0
+        ? { item_ids: itensSelecionadosIds }
+        : {}),
       campos: camposValidos.map(c => ({
         campo: c.campo,
         tipo: c.tipo,

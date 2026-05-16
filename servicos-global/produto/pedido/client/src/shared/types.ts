@@ -661,6 +661,9 @@ export interface CampoEdicaoMassa {
 /** Payload enviado ao backend */
 export interface EdicaoMassaPayload {
   pedido_ids: string[]
+  /** IDs específicos de itens a editar. Se presente, apenas estes itens são alterados.
+   *  Se ausente/vazio, todos os itens dos pedidos selecionados são editados. */
+  item_ids?: string[]
   campos: CampoEdicaoMassa[]
   nivel: 'pedido' | 'item' | 'combinado'
 }

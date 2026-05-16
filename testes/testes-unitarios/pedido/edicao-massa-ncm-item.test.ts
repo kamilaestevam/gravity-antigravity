@@ -23,6 +23,9 @@ const CAMPOS_ITEM_EDITAVEIS_NOMES = [
   'quantidade_cancelada_item', 'casas_decimais_quantidade_item',
   'moeda_item', 'incoterm_item', 'condicao_pagamento_item',
   'data_emissao_item',
+  // Referências do item (fix edição em massa — 2026-05-16)
+  'referencia_importador_item', 'referencia_exportador_item',
+  'referencia_fabricante_item',
   'peso_liquido_unitario_item', 'peso_bruto_unitario_item',
   'cubagem_unitaria_item', 'tipo_embalagem', 'numero_lpco',
   'numero_certificado_origem', 'data_certificado_origem',

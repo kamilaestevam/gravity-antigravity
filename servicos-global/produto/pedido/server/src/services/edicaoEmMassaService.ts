@@ -195,6 +195,9 @@ interface CampoEdicaoMassa {
 
 interface EdicaoMassaPayload {
   pedido_ids: string[]
+  /** IDs específicos de itens a editar. Se presente, apenas estes itens são alterados.
+   *  Se ausente/vazio, todos os itens dos pedidos selecionados são editados. */
+  item_ids?: string[]
   campos: CampoEdicaoMassa[]
   nivel: 'pedido' | 'item' | 'combinado'
 }
@@ -306,8 +309,18 @@ export class EdicaoEmMassaService {
     const camposPedidoComCascade = payload.campos.filter(
       c => c.nivel === 'pedido' && ehCombinado && PARES_CASCADE_PEDIDO_ITEM[c.campo],
     )
+    // Quando item_ids está presente, apenas estes itens serão afetados.
+    // Set para lookup O(1) — se ausente, filtroItemIds é null (= todos).
+    const filtroItemIds = payload.item_ids && payload.item_ids.length > 0
+      ? new Set(payload.item_ids)
+      : null
+
     const totalItensSomados = pedidos.reduce<number>(
-      (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
+      (acc, p) => {
+        const itens = (p as { itens_pedido?: Record<string, unknown>[] }).itens_pedido ?? []
+        if (!filtroItemIds) return acc + itens.length
+        return acc + itens.filter(i => filtroItemIds.has(i.id_item as string)).length
+      },
       0,
     )
 
@@ -358,7 +371,10 @@ export class EdicaoEmMassaService {
 
           // Cascade: contar itens cujo valor atual diverge do que será aplicado
           if (cascadePara) {
-            const itens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+            const todosItens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+            const itens = filtroItemIds
+              ? todosItens.filter(i => filtroItemIds.has(i.id_item as string))
+              : todosItens
             itens.forEach(item => {
               const valorItem = String(item[cascadePara] ?? '')
               if (valorItem !== String(c.valor) && valorItem !== '') {
@@ -369,7 +385,10 @@ export class EdicaoEmMassaService {
         })
       } else {
         pedidos.forEach((p: Record<string, unknown>) => {
-          const itens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+          const todosItens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+          const itens = filtroItemIds
+            ? todosItens.filter(i => filtroItemIds.has(i.id_item as string))
+            : todosItens
           itens.forEach(item => {
             valores.push(String(item[c.campo] ?? ''))
           })
@@ -526,6 +545,12 @@ export class EdicaoEmMassaService {
     const precisaRecalcularAgregados = camposItem.some(c => CAMPOS_QUANTIDADE_ITEM.has(c.campo))
     const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id_pedido as string)
 
+    // Quando item_ids está presente, apenas estes itens serão editados.
+    // Set para lookup O(1) — se ausente, filtroItemIds é null (= todos os itens).
+    const filtroItemIds = payload.item_ids && payload.item_ids.length > 0
+      ? new Set(payload.item_ids)
+      : null
+
     // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
     // Condição: todos os campos de pedido são "substituir" em campos diretos do
     // schema (não estão em detalhes_operacionais), não há campos de item E não
@@ -539,6 +564,7 @@ export class EdicaoEmMassaService {
       camposItem.length === 0 &&
       camposCascade.length === 0 &&
       novoTipo === null &&  // LT1 — auto-fill incompatível com fast path
+      !filtroItemIds &&     // Seleção de itens específicos → slow path (não toca pedido)
       camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
 
     if (todosCamposPedidoSaoRapidos) {
@@ -602,7 +628,9 @@ export class EdicaoEmMassaService {
 
         try {
           // Aplicar campos de nível pedido
-          if (camposPedido.length > 0) {
+          // Quando filtroItemIds está presente (seleção de itens específicos),
+          // NÃO alterar campos do pedido — apenas os itens selecionados.
+          if (camposPedido.length > 0 && !filtroItemIds) {
             const dadosPedido: Record<string, unknown> = {}
             let detalhesUpdate: Record<string, unknown> | null = null
 
@@ -679,7 +707,11 @@ export class EdicaoEmMassaService {
           const temAutoFillItem = novoTipo !== null
           const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0 || temAutoFillItem
           if (temUpdateItem) {
-            const itens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
+            const todosItens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
+            // Filtrar por item_ids quando seleção é de itens específicos
+            const itens = filtroItemIds
+              ? todosItens.filter(i => filtroItemIds.has(i.id_item as string))
+              : todosItens
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               // Campos item explícitos (aba Item ou Combinado com campos item)

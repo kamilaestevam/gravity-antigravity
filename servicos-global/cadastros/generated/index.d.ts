@@ -68,6 +68,16 @@ export type Ope = $Result.DefaultSelection<Prisma.$OpePayload>
  * 
  */
 export type OPEHistoricoStatus = $Result.DefaultSelection<Prisma.$OPEHistoricoStatusPayload>
+/**
+ * Model ExportadorQuandoImportacao
+ * 
+ */
+export type ExportadorQuandoImportacao = $Result.DefaultSelection<Prisma.$ExportadorQuandoImportacaoPayload>
+/**
+ * Model ImportadorQuandoExportacao
+ * 
+ */
+export type ImportadorQuandoExportacao = $Result.DefaultSelection<Prisma.$ImportadorQuandoExportacaoPayload>
 
 /**
  * Enums
@@ -321,6 +331,26 @@ export class PrismaClient<
     * ```
     */
   get oPEHistoricoStatus(): Prisma.OPEHistoricoStatusDelegate<ExtArgs>;
+
+  /**
+   * `prisma.exportadorQuandoImportacao`: Exposes CRUD operations for the **ExportadorQuandoImportacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExportadorQuandoImportacaos
+    * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany()
+    * ```
+    */
+  get exportadorQuandoImportacao(): Prisma.ExportadorQuandoImportacaoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.importadorQuandoExportacao`: Exposes CRUD operations for the **ImportadorQuandoExportacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ImportadorQuandoExportacaos
+    * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany()
+    * ```
+    */
+  get importadorQuandoExportacao(): Prisma.ImportadorQuandoExportacaoDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -771,7 +801,9 @@ export namespace Prisma {
     NcmSyncLog: 'NcmSyncLog',
     NcmSyncAgendamento: 'NcmSyncAgendamento',
     Ope: 'Ope',
-    OPEHistoricoStatus: 'OPEHistoricoStatus'
+    OPEHistoricoStatus: 'OPEHistoricoStatus',
+    ExportadorQuandoImportacao: 'ExportadorQuandoImportacao',
+    ImportadorQuandoExportacao: 'ImportadorQuandoExportacao'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -787,7 +819,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "pais" | "moeda" | "unidade" | "incoterm" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus" | "exportadorQuandoImportacao" | "importadorQuandoExportacao"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1488,6 +1520,146 @@ export namespace Prisma {
           count: {
             args: Prisma.OPEHistoricoStatusCountArgs<ExtArgs>
             result: $Utils.Optional<OPEHistoricoStatusCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExportadorQuandoImportacao: {
+        payload: Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>
+        fields: Prisma.ExportadorQuandoImportacaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.ExportadorQuandoImportacaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          findMany: {
+            args: Prisma.ExportadorQuandoImportacaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>[]
+          }
+          create: {
+            args: Prisma.ExportadorQuandoImportacaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          createMany: {
+            args: Prisma.ExportadorQuandoImportacaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>[]
+          }
+          delete: {
+            args: Prisma.ExportadorQuandoImportacaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          update: {
+            args: Prisma.ExportadorQuandoImportacaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExportadorQuandoImportacaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportadorQuandoImportacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.ExportadorQuandoImportacaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExportadorQuandoImportacao>
+          }
+          groupBy: {
+            args: Prisma.ExportadorQuandoImportacaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExportadorQuandoImportacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExportadorQuandoImportacaoCountArgs<ExtArgs>
+            result: $Utils.Optional<ExportadorQuandoImportacaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ImportadorQuandoExportacao: {
+        payload: Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>
+        fields: Prisma.ImportadorQuandoExportacaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.ImportadorQuandoExportacaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          findMany: {
+            args: Prisma.ImportadorQuandoExportacaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>[]
+          }
+          create: {
+            args: Prisma.ImportadorQuandoExportacaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          createMany: {
+            args: Prisma.ImportadorQuandoExportacaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>[]
+          }
+          delete: {
+            args: Prisma.ImportadorQuandoExportacaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          update: {
+            args: Prisma.ImportadorQuandoExportacaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ImportadorQuandoExportacaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ImportadorQuandoExportacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.ImportadorQuandoExportacaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateImportadorQuandoExportacao>
+          }
+          groupBy: {
+            args: Prisma.ImportadorQuandoExportacaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ImportadorQuandoExportacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ImportadorQuandoExportacaoCountArgs<ExtArgs>
+            result: $Utils.Optional<ImportadorQuandoExportacaoCountAggregateOutputType> | number
           }
         }
       }
@@ -11321,6 +11493,1906 @@ export namespace Prisma {
 
 
   /**
+   * Model ExportadorQuandoImportacao
+   */
+
+  export type AggregateExportadorQuandoImportacao = {
+    _count: ExportadorQuandoImportacaoCountAggregateOutputType | null
+    _min: ExportadorQuandoImportacaoMinAggregateOutputType | null
+    _max: ExportadorQuandoImportacaoMaxAggregateOutputType | null
+  }
+
+  export type ExportadorQuandoImportacaoMinAggregateOutputType = {
+    id_exportador: string | null
+    id_organizacao_exportador: string | null
+    id_workspace_exportador: string | null
+    nome_exportador: string | null
+    endereco_exportador: string | null
+    cidade_exportador: string | null
+    estado_provincia_exportador: string | null
+    pais_exportador: string | null
+    zipcode_exportador: string | null
+    criado_em_exportador: Date | null
+    atualizado_em_exportador: Date | null
+  }
+
+  export type ExportadorQuandoImportacaoMaxAggregateOutputType = {
+    id_exportador: string | null
+    id_organizacao_exportador: string | null
+    id_workspace_exportador: string | null
+    nome_exportador: string | null
+    endereco_exportador: string | null
+    cidade_exportador: string | null
+    estado_provincia_exportador: string | null
+    pais_exportador: string | null
+    zipcode_exportador: string | null
+    criado_em_exportador: Date | null
+    atualizado_em_exportador: Date | null
+  }
+
+  export type ExportadorQuandoImportacaoCountAggregateOutputType = {
+    id_exportador: number
+    id_organizacao_exportador: number
+    id_workspace_exportador: number
+    nome_exportador: number
+    endereco_exportador: number
+    cidade_exportador: number
+    estado_provincia_exportador: number
+    pais_exportador: number
+    zipcode_exportador: number
+    criado_em_exportador: number
+    atualizado_em_exportador: number
+    _all: number
+  }
+
+
+  export type ExportadorQuandoImportacaoMinAggregateInputType = {
+    id_exportador?: true
+    id_organizacao_exportador?: true
+    id_workspace_exportador?: true
+    nome_exportador?: true
+    endereco_exportador?: true
+    cidade_exportador?: true
+    estado_provincia_exportador?: true
+    pais_exportador?: true
+    zipcode_exportador?: true
+    criado_em_exportador?: true
+    atualizado_em_exportador?: true
+  }
+
+  export type ExportadorQuandoImportacaoMaxAggregateInputType = {
+    id_exportador?: true
+    id_organizacao_exportador?: true
+    id_workspace_exportador?: true
+    nome_exportador?: true
+    endereco_exportador?: true
+    cidade_exportador?: true
+    estado_provincia_exportador?: true
+    pais_exportador?: true
+    zipcode_exportador?: true
+    criado_em_exportador?: true
+    atualizado_em_exportador?: true
+  }
+
+  export type ExportadorQuandoImportacaoCountAggregateInputType = {
+    id_exportador?: true
+    id_organizacao_exportador?: true
+    id_workspace_exportador?: true
+    nome_exportador?: true
+    endereco_exportador?: true
+    cidade_exportador?: true
+    estado_provincia_exportador?: true
+    pais_exportador?: true
+    zipcode_exportador?: true
+    criado_em_exportador?: true
+    atualizado_em_exportador?: true
+    _all?: true
+  }
+
+  export type ExportadorQuandoImportacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExportadorQuandoImportacao to aggregate.
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportadorQuandoImportacaos to fetch.
+     */
+    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportadorQuandoImportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExportadorQuandoImportacaos
+    **/
+    _count?: true | ExportadorQuandoImportacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExportadorQuandoImportacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExportadorQuandoImportacaoMaxAggregateInputType
+  }
+
+  export type GetExportadorQuandoImportacaoAggregateType<T extends ExportadorQuandoImportacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateExportadorQuandoImportacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExportadorQuandoImportacao[P]>
+      : GetScalarType<T[P], AggregateExportadorQuandoImportacao[P]>
+  }
+
+
+
+
+  export type ExportadorQuandoImportacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExportadorQuandoImportacaoWhereInput
+    orderBy?: ExportadorQuandoImportacaoOrderByWithAggregationInput | ExportadorQuandoImportacaoOrderByWithAggregationInput[]
+    by: ExportadorQuandoImportacaoScalarFieldEnum[] | ExportadorQuandoImportacaoScalarFieldEnum
+    having?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExportadorQuandoImportacaoCountAggregateInputType | true
+    _min?: ExportadorQuandoImportacaoMinAggregateInputType
+    _max?: ExportadorQuandoImportacaoMaxAggregateInputType
+  }
+
+  export type ExportadorQuandoImportacaoGroupByOutputType = {
+    id_exportador: string
+    id_organizacao_exportador: string
+    id_workspace_exportador: string
+    nome_exportador: string
+    endereco_exportador: string | null
+    cidade_exportador: string | null
+    estado_provincia_exportador: string | null
+    pais_exportador: string
+    zipcode_exportador: string | null
+    criado_em_exportador: Date
+    atualizado_em_exportador: Date
+    _count: ExportadorQuandoImportacaoCountAggregateOutputType | null
+    _min: ExportadorQuandoImportacaoMinAggregateOutputType | null
+    _max: ExportadorQuandoImportacaoMaxAggregateOutputType | null
+  }
+
+  type GetExportadorQuandoImportacaoGroupByPayload<T extends ExportadorQuandoImportacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExportadorQuandoImportacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExportadorQuandoImportacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExportadorQuandoImportacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], ExportadorQuandoImportacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExportadorQuandoImportacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_exportador?: boolean
+    id_organizacao_exportador?: boolean
+    id_workspace_exportador?: boolean
+    nome_exportador?: boolean
+    endereco_exportador?: boolean
+    cidade_exportador?: boolean
+    estado_provincia_exportador?: boolean
+    pais_exportador?: boolean
+    zipcode_exportador?: boolean
+    criado_em_exportador?: boolean
+    atualizado_em_exportador?: boolean
+  }, ExtArgs["result"]["exportadorQuandoImportacao"]>
+
+  export type ExportadorQuandoImportacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_exportador?: boolean
+    id_organizacao_exportador?: boolean
+    id_workspace_exportador?: boolean
+    nome_exportador?: boolean
+    endereco_exportador?: boolean
+    cidade_exportador?: boolean
+    estado_provincia_exportador?: boolean
+    pais_exportador?: boolean
+    zipcode_exportador?: boolean
+    criado_em_exportador?: boolean
+    atualizado_em_exportador?: boolean
+  }, ExtArgs["result"]["exportadorQuandoImportacao"]>
+
+  export type ExportadorQuandoImportacaoSelectScalar = {
+    id_exportador?: boolean
+    id_organizacao_exportador?: boolean
+    id_workspace_exportador?: boolean
+    nome_exportador?: boolean
+    endereco_exportador?: boolean
+    cidade_exportador?: boolean
+    estado_provincia_exportador?: boolean
+    pais_exportador?: boolean
+    zipcode_exportador?: boolean
+    criado_em_exportador?: boolean
+    atualizado_em_exportador?: boolean
+  }
+
+
+  export type $ExportadorQuandoImportacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExportadorQuandoImportacao"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_exportador: string
+      id_organizacao_exportador: string
+      id_workspace_exportador: string
+      nome_exportador: string
+      endereco_exportador: string | null
+      cidade_exportador: string | null
+      estado_provincia_exportador: string | null
+      pais_exportador: string
+      zipcode_exportador: string | null
+      criado_em_exportador: Date
+      atualizado_em_exportador: Date
+    }, ExtArgs["result"]["exportadorQuandoImportacao"]>
+    composites: {}
+  }
+
+  type ExportadorQuandoImportacaoGetPayload<S extends boolean | null | undefined | ExportadorQuandoImportacaoDefaultArgs> = $Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload, S>
+
+  type ExportadorQuandoImportacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExportadorQuandoImportacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExportadorQuandoImportacaoCountAggregateInputType | true
+    }
+
+  export interface ExportadorQuandoImportacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExportadorQuandoImportacao'], meta: { name: 'ExportadorQuandoImportacao' } }
+    /**
+     * Find zero or one ExportadorQuandoImportacao that matches the filter.
+     * @param {ExportadorQuandoImportacaoFindUniqueArgs} args - Arguments to find a ExportadorQuandoImportacao
+     * @example
+     * // Get one ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExportadorQuandoImportacaoFindUniqueArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExportadorQuandoImportacao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExportadorQuandoImportacaoFindUniqueOrThrowArgs} args - Arguments to find a ExportadorQuandoImportacao
+     * @example
+     * // Get one ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExportadorQuandoImportacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExportadorQuandoImportacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoFindFirstArgs} args - Arguments to find a ExportadorQuandoImportacao
+     * @example
+     * // Get one ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExportadorQuandoImportacaoFindFirstArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindFirstArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExportadorQuandoImportacao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoFindFirstOrThrowArgs} args - Arguments to find a ExportadorQuandoImportacao
+     * @example
+     * // Get one ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExportadorQuandoImportacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExportadorQuandoImportacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExportadorQuandoImportacaos
+     * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany()
+     * 
+     * // Get first 10 ExportadorQuandoImportacaos
+     * const exportadorQuandoImportacaos = await prisma.exportadorQuandoImportacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_exportador`
+     * const exportadorQuandoImportacaoWithId_exportadorOnly = await prisma.exportadorQuandoImportacao.findMany({ select: { id_exportador: true } })
+     * 
+     */
+    findMany<T extends ExportadorQuandoImportacaoFindManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExportadorQuandoImportacao.
+     * @param {ExportadorQuandoImportacaoCreateArgs} args - Arguments to create a ExportadorQuandoImportacao.
+     * @example
+     * // Create one ExportadorQuandoImportacao
+     * const ExportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.create({
+     *   data: {
+     *     // ... data to create a ExportadorQuandoImportacao
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExportadorQuandoImportacaoCreateArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoCreateArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExportadorQuandoImportacaos.
+     * @param {ExportadorQuandoImportacaoCreateManyArgs} args - Arguments to create many ExportadorQuandoImportacaos.
+     * @example
+     * // Create many ExportadorQuandoImportacaos
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExportadorQuandoImportacaoCreateManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ExportadorQuandoImportacaos and returns the data saved in the database.
+     * @param {ExportadorQuandoImportacaoCreateManyAndReturnArgs} args - Arguments to create many ExportadorQuandoImportacaos.
+     * @example
+     * // Create many ExportadorQuandoImportacaos
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ExportadorQuandoImportacaos and only return the `id_exportador`
+     * const exportadorQuandoImportacaoWithId_exportadorOnly = await prisma.exportadorQuandoImportacao.createManyAndReturn({ 
+     *   select: { id_exportador: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ExportadorQuandoImportacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ExportadorQuandoImportacao.
+     * @param {ExportadorQuandoImportacaoDeleteArgs} args - Arguments to delete one ExportadorQuandoImportacao.
+     * @example
+     * // Delete one ExportadorQuandoImportacao
+     * const ExportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.delete({
+     *   where: {
+     *     // ... filter to delete one ExportadorQuandoImportacao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExportadorQuandoImportacaoDeleteArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoDeleteArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExportadorQuandoImportacao.
+     * @param {ExportadorQuandoImportacaoUpdateArgs} args - Arguments to update one ExportadorQuandoImportacao.
+     * @example
+     * // Update one ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExportadorQuandoImportacaoUpdateArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpdateArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExportadorQuandoImportacaos.
+     * @param {ExportadorQuandoImportacaoDeleteManyArgs} args - Arguments to filter ExportadorQuandoImportacaos to delete.
+     * @example
+     * // Delete a few ExportadorQuandoImportacaos
+     * const { count } = await prisma.exportadorQuandoImportacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExportadorQuandoImportacaoDeleteManyArgs>(args?: SelectSubset<T, ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExportadorQuandoImportacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExportadorQuandoImportacaos
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExportadorQuandoImportacaoUpdateManyArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExportadorQuandoImportacao.
+     * @param {ExportadorQuandoImportacaoUpsertArgs} args - Arguments to update or create a ExportadorQuandoImportacao.
+     * @example
+     * // Update or create a ExportadorQuandoImportacao
+     * const exportadorQuandoImportacao = await prisma.exportadorQuandoImportacao.upsert({
+     *   create: {
+     *     // ... data to create a ExportadorQuandoImportacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExportadorQuandoImportacao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExportadorQuandoImportacaoUpsertArgs>(args: SelectSubset<T, ExportadorQuandoImportacaoUpsertArgs<ExtArgs>>): Prisma__ExportadorQuandoImportacaoClient<$Result.GetResult<Prisma.$ExportadorQuandoImportacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExportadorQuandoImportacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoCountArgs} args - Arguments to filter ExportadorQuandoImportacaos to count.
+     * @example
+     * // Count the number of ExportadorQuandoImportacaos
+     * const count = await prisma.exportadorQuandoImportacao.count({
+     *   where: {
+     *     // ... the filter for the ExportadorQuandoImportacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExportadorQuandoImportacaoCountArgs>(
+      args?: Subset<T, ExportadorQuandoImportacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExportadorQuandoImportacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExportadorQuandoImportacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExportadorQuandoImportacaoAggregateArgs>(args: Subset<T, ExportadorQuandoImportacaoAggregateArgs>): Prisma.PrismaPromise<GetExportadorQuandoImportacaoAggregateType<T>>
+
+    /**
+     * Group by ExportadorQuandoImportacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportadorQuandoImportacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExportadorQuandoImportacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExportadorQuandoImportacaoGroupByArgs['orderBy'] }
+        : { orderBy?: ExportadorQuandoImportacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExportadorQuandoImportacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExportadorQuandoImportacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExportadorQuandoImportacao model
+   */
+  readonly fields: ExportadorQuandoImportacaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExportadorQuandoImportacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExportadorQuandoImportacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExportadorQuandoImportacao model
+   */ 
+  interface ExportadorQuandoImportacaoFieldRefs {
+    readonly id_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly id_organizacao_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly id_workspace_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly nome_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly endereco_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly cidade_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly estado_provincia_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly pais_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly zipcode_exportador: FieldRef<"ExportadorQuandoImportacao", 'String'>
+    readonly criado_em_exportador: FieldRef<"ExportadorQuandoImportacao", 'DateTime'>
+    readonly atualizado_em_exportador: FieldRef<"ExportadorQuandoImportacao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExportadorQuandoImportacao findUnique
+   */
+  export type ExportadorQuandoImportacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportadorQuandoImportacao to fetch.
+     */
+    where: ExportadorQuandoImportacaoWhereUniqueInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao findUniqueOrThrow
+   */
+  export type ExportadorQuandoImportacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportadorQuandoImportacao to fetch.
+     */
+    where: ExportadorQuandoImportacaoWhereUniqueInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao findFirst
+   */
+  export type ExportadorQuandoImportacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportadorQuandoImportacao to fetch.
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportadorQuandoImportacaos to fetch.
+     */
+    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExportadorQuandoImportacaos.
+     */
+    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportadorQuandoImportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExportadorQuandoImportacaos.
+     */
+    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ExportadorQuandoImportacao findFirstOrThrow
+   */
+  export type ExportadorQuandoImportacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportadorQuandoImportacao to fetch.
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportadorQuandoImportacaos to fetch.
+     */
+    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExportadorQuandoImportacaos.
+     */
+    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportadorQuandoImportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExportadorQuandoImportacaos.
+     */
+    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ExportadorQuandoImportacao findMany
+   */
+  export type ExportadorQuandoImportacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportadorQuandoImportacaos to fetch.
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportadorQuandoImportacaos to fetch.
+     */
+    orderBy?: ExportadorQuandoImportacaoOrderByWithRelationInput | ExportadorQuandoImportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExportadorQuandoImportacaos.
+     */
+    cursor?: ExportadorQuandoImportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportadorQuandoImportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportadorQuandoImportacaos.
+     */
+    skip?: number
+    distinct?: ExportadorQuandoImportacaoScalarFieldEnum | ExportadorQuandoImportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ExportadorQuandoImportacao create
+   */
+  export type ExportadorQuandoImportacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ExportadorQuandoImportacao.
+     */
+    data: XOR<ExportadorQuandoImportacaoCreateInput, ExportadorQuandoImportacaoUncheckedCreateInput>
+  }
+
+  /**
+   * ExportadorQuandoImportacao createMany
+   */
+  export type ExportadorQuandoImportacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExportadorQuandoImportacaos.
+     */
+    data: ExportadorQuandoImportacaoCreateManyInput | ExportadorQuandoImportacaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExportadorQuandoImportacao createManyAndReturn
+   */
+  export type ExportadorQuandoImportacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ExportadorQuandoImportacaos.
+     */
+    data: ExportadorQuandoImportacaoCreateManyInput | ExportadorQuandoImportacaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExportadorQuandoImportacao update
+   */
+  export type ExportadorQuandoImportacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ExportadorQuandoImportacao.
+     */
+    data: XOR<ExportadorQuandoImportacaoUpdateInput, ExportadorQuandoImportacaoUncheckedUpdateInput>
+    /**
+     * Choose, which ExportadorQuandoImportacao to update.
+     */
+    where: ExportadorQuandoImportacaoWhereUniqueInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao updateMany
+   */
+  export type ExportadorQuandoImportacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExportadorQuandoImportacaos.
+     */
+    data: XOR<ExportadorQuandoImportacaoUpdateManyMutationInput, ExportadorQuandoImportacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which ExportadorQuandoImportacaos to update
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao upsert
+   */
+  export type ExportadorQuandoImportacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ExportadorQuandoImportacao to update in case it exists.
+     */
+    where: ExportadorQuandoImportacaoWhereUniqueInput
+    /**
+     * In case the ExportadorQuandoImportacao found by the `where` argument doesn't exist, create a new ExportadorQuandoImportacao with this data.
+     */
+    create: XOR<ExportadorQuandoImportacaoCreateInput, ExportadorQuandoImportacaoUncheckedCreateInput>
+    /**
+     * In case the ExportadorQuandoImportacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExportadorQuandoImportacaoUpdateInput, ExportadorQuandoImportacaoUncheckedUpdateInput>
+  }
+
+  /**
+   * ExportadorQuandoImportacao delete
+   */
+  export type ExportadorQuandoImportacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+    /**
+     * Filter which ExportadorQuandoImportacao to delete.
+     */
+    where: ExportadorQuandoImportacaoWhereUniqueInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao deleteMany
+   */
+  export type ExportadorQuandoImportacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExportadorQuandoImportacaos to delete
+     */
+    where?: ExportadorQuandoImportacaoWhereInput
+  }
+
+  /**
+   * ExportadorQuandoImportacao without action
+   */
+  export type ExportadorQuandoImportacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportadorQuandoImportacao
+     */
+    select?: ExportadorQuandoImportacaoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ImportadorQuandoExportacao
+   */
+
+  export type AggregateImportadorQuandoExportacao = {
+    _count: ImportadorQuandoExportacaoCountAggregateOutputType | null
+    _min: ImportadorQuandoExportacaoMinAggregateOutputType | null
+    _max: ImportadorQuandoExportacaoMaxAggregateOutputType | null
+  }
+
+  export type ImportadorQuandoExportacaoMinAggregateOutputType = {
+    id_importador: string | null
+    id_organizacao_importador: string | null
+    id_workspace_importador: string | null
+    nome_importador: string | null
+    endereco_importador: string | null
+    cidade_importador: string | null
+    estado_provincia_importador: string | null
+    pais_importador: string | null
+    zipcode_importador: string | null
+    criado_em_importador: Date | null
+    atualizado_em_importador: Date | null
+  }
+
+  export type ImportadorQuandoExportacaoMaxAggregateOutputType = {
+    id_importador: string | null
+    id_organizacao_importador: string | null
+    id_workspace_importador: string | null
+    nome_importador: string | null
+    endereco_importador: string | null
+    cidade_importador: string | null
+    estado_provincia_importador: string | null
+    pais_importador: string | null
+    zipcode_importador: string | null
+    criado_em_importador: Date | null
+    atualizado_em_importador: Date | null
+  }
+
+  export type ImportadorQuandoExportacaoCountAggregateOutputType = {
+    id_importador: number
+    id_organizacao_importador: number
+    id_workspace_importador: number
+    nome_importador: number
+    endereco_importador: number
+    cidade_importador: number
+    estado_provincia_importador: number
+    pais_importador: number
+    zipcode_importador: number
+    criado_em_importador: number
+    atualizado_em_importador: number
+    _all: number
+  }
+
+
+  export type ImportadorQuandoExportacaoMinAggregateInputType = {
+    id_importador?: true
+    id_organizacao_importador?: true
+    id_workspace_importador?: true
+    nome_importador?: true
+    endereco_importador?: true
+    cidade_importador?: true
+    estado_provincia_importador?: true
+    pais_importador?: true
+    zipcode_importador?: true
+    criado_em_importador?: true
+    atualizado_em_importador?: true
+  }
+
+  export type ImportadorQuandoExportacaoMaxAggregateInputType = {
+    id_importador?: true
+    id_organizacao_importador?: true
+    id_workspace_importador?: true
+    nome_importador?: true
+    endereco_importador?: true
+    cidade_importador?: true
+    estado_provincia_importador?: true
+    pais_importador?: true
+    zipcode_importador?: true
+    criado_em_importador?: true
+    atualizado_em_importador?: true
+  }
+
+  export type ImportadorQuandoExportacaoCountAggregateInputType = {
+    id_importador?: true
+    id_organizacao_importador?: true
+    id_workspace_importador?: true
+    nome_importador?: true
+    endereco_importador?: true
+    cidade_importador?: true
+    estado_provincia_importador?: true
+    pais_importador?: true
+    zipcode_importador?: true
+    criado_em_importador?: true
+    atualizado_em_importador?: true
+    _all?: true
+  }
+
+  export type ImportadorQuandoExportacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportadorQuandoExportacao to aggregate.
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportadorQuandoExportacaos to fetch.
+     */
+    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportadorQuandoExportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ImportadorQuandoExportacaos
+    **/
+    _count?: true | ImportadorQuandoExportacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ImportadorQuandoExportacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ImportadorQuandoExportacaoMaxAggregateInputType
+  }
+
+  export type GetImportadorQuandoExportacaoAggregateType<T extends ImportadorQuandoExportacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateImportadorQuandoExportacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateImportadorQuandoExportacao[P]>
+      : GetScalarType<T[P], AggregateImportadorQuandoExportacao[P]>
+  }
+
+
+
+
+  export type ImportadorQuandoExportacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ImportadorQuandoExportacaoWhereInput
+    orderBy?: ImportadorQuandoExportacaoOrderByWithAggregationInput | ImportadorQuandoExportacaoOrderByWithAggregationInput[]
+    by: ImportadorQuandoExportacaoScalarFieldEnum[] | ImportadorQuandoExportacaoScalarFieldEnum
+    having?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ImportadorQuandoExportacaoCountAggregateInputType | true
+    _min?: ImportadorQuandoExportacaoMinAggregateInputType
+    _max?: ImportadorQuandoExportacaoMaxAggregateInputType
+  }
+
+  export type ImportadorQuandoExportacaoGroupByOutputType = {
+    id_importador: string
+    id_organizacao_importador: string
+    id_workspace_importador: string
+    nome_importador: string
+    endereco_importador: string | null
+    cidade_importador: string | null
+    estado_provincia_importador: string | null
+    pais_importador: string
+    zipcode_importador: string | null
+    criado_em_importador: Date
+    atualizado_em_importador: Date
+    _count: ImportadorQuandoExportacaoCountAggregateOutputType | null
+    _min: ImportadorQuandoExportacaoMinAggregateOutputType | null
+    _max: ImportadorQuandoExportacaoMaxAggregateOutputType | null
+  }
+
+  type GetImportadorQuandoExportacaoGroupByPayload<T extends ImportadorQuandoExportacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ImportadorQuandoExportacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ImportadorQuandoExportacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ImportadorQuandoExportacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], ImportadorQuandoExportacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ImportadorQuandoExportacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_importador?: boolean
+    id_organizacao_importador?: boolean
+    id_workspace_importador?: boolean
+    nome_importador?: boolean
+    endereco_importador?: boolean
+    cidade_importador?: boolean
+    estado_provincia_importador?: boolean
+    pais_importador?: boolean
+    zipcode_importador?: boolean
+    criado_em_importador?: boolean
+    atualizado_em_importador?: boolean
+  }, ExtArgs["result"]["importadorQuandoExportacao"]>
+
+  export type ImportadorQuandoExportacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_importador?: boolean
+    id_organizacao_importador?: boolean
+    id_workspace_importador?: boolean
+    nome_importador?: boolean
+    endereco_importador?: boolean
+    cidade_importador?: boolean
+    estado_provincia_importador?: boolean
+    pais_importador?: boolean
+    zipcode_importador?: boolean
+    criado_em_importador?: boolean
+    atualizado_em_importador?: boolean
+  }, ExtArgs["result"]["importadorQuandoExportacao"]>
+
+  export type ImportadorQuandoExportacaoSelectScalar = {
+    id_importador?: boolean
+    id_organizacao_importador?: boolean
+    id_workspace_importador?: boolean
+    nome_importador?: boolean
+    endereco_importador?: boolean
+    cidade_importador?: boolean
+    estado_provincia_importador?: boolean
+    pais_importador?: boolean
+    zipcode_importador?: boolean
+    criado_em_importador?: boolean
+    atualizado_em_importador?: boolean
+  }
+
+
+  export type $ImportadorQuandoExportacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ImportadorQuandoExportacao"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_importador: string
+      id_organizacao_importador: string
+      id_workspace_importador: string
+      nome_importador: string
+      endereco_importador: string | null
+      cidade_importador: string | null
+      estado_provincia_importador: string | null
+      pais_importador: string
+      zipcode_importador: string | null
+      criado_em_importador: Date
+      atualizado_em_importador: Date
+    }, ExtArgs["result"]["importadorQuandoExportacao"]>
+    composites: {}
+  }
+
+  type ImportadorQuandoExportacaoGetPayload<S extends boolean | null | undefined | ImportadorQuandoExportacaoDefaultArgs> = $Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload, S>
+
+  type ImportadorQuandoExportacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ImportadorQuandoExportacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ImportadorQuandoExportacaoCountAggregateInputType | true
+    }
+
+  export interface ImportadorQuandoExportacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ImportadorQuandoExportacao'], meta: { name: 'ImportadorQuandoExportacao' } }
+    /**
+     * Find zero or one ImportadorQuandoExportacao that matches the filter.
+     * @param {ImportadorQuandoExportacaoFindUniqueArgs} args - Arguments to find a ImportadorQuandoExportacao
+     * @example
+     * // Get one ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ImportadorQuandoExportacaoFindUniqueArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ImportadorQuandoExportacao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ImportadorQuandoExportacaoFindUniqueOrThrowArgs} args - Arguments to find a ImportadorQuandoExportacao
+     * @example
+     * // Get one ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ImportadorQuandoExportacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ImportadorQuandoExportacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoFindFirstArgs} args - Arguments to find a ImportadorQuandoExportacao
+     * @example
+     * // Get one ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ImportadorQuandoExportacaoFindFirstArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindFirstArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ImportadorQuandoExportacao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoFindFirstOrThrowArgs} args - Arguments to find a ImportadorQuandoExportacao
+     * @example
+     * // Get one ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ImportadorQuandoExportacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ImportadorQuandoExportacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ImportadorQuandoExportacaos
+     * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany()
+     * 
+     * // Get first 10 ImportadorQuandoExportacaos
+     * const importadorQuandoExportacaos = await prisma.importadorQuandoExportacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_importador`
+     * const importadorQuandoExportacaoWithId_importadorOnly = await prisma.importadorQuandoExportacao.findMany({ select: { id_importador: true } })
+     * 
+     */
+    findMany<T extends ImportadorQuandoExportacaoFindManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ImportadorQuandoExportacao.
+     * @param {ImportadorQuandoExportacaoCreateArgs} args - Arguments to create a ImportadorQuandoExportacao.
+     * @example
+     * // Create one ImportadorQuandoExportacao
+     * const ImportadorQuandoExportacao = await prisma.importadorQuandoExportacao.create({
+     *   data: {
+     *     // ... data to create a ImportadorQuandoExportacao
+     *   }
+     * })
+     * 
+     */
+    create<T extends ImportadorQuandoExportacaoCreateArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoCreateArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ImportadorQuandoExportacaos.
+     * @param {ImportadorQuandoExportacaoCreateManyArgs} args - Arguments to create many ImportadorQuandoExportacaos.
+     * @example
+     * // Create many ImportadorQuandoExportacaos
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ImportadorQuandoExportacaoCreateManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ImportadorQuandoExportacaos and returns the data saved in the database.
+     * @param {ImportadorQuandoExportacaoCreateManyAndReturnArgs} args - Arguments to create many ImportadorQuandoExportacaos.
+     * @example
+     * // Create many ImportadorQuandoExportacaos
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ImportadorQuandoExportacaos and only return the `id_importador`
+     * const importadorQuandoExportacaoWithId_importadorOnly = await prisma.importadorQuandoExportacao.createManyAndReturn({ 
+     *   select: { id_importador: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ImportadorQuandoExportacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ImportadorQuandoExportacao.
+     * @param {ImportadorQuandoExportacaoDeleteArgs} args - Arguments to delete one ImportadorQuandoExportacao.
+     * @example
+     * // Delete one ImportadorQuandoExportacao
+     * const ImportadorQuandoExportacao = await prisma.importadorQuandoExportacao.delete({
+     *   where: {
+     *     // ... filter to delete one ImportadorQuandoExportacao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ImportadorQuandoExportacaoDeleteArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoDeleteArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ImportadorQuandoExportacao.
+     * @param {ImportadorQuandoExportacaoUpdateArgs} args - Arguments to update one ImportadorQuandoExportacao.
+     * @example
+     * // Update one ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ImportadorQuandoExportacaoUpdateArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpdateArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ImportadorQuandoExportacaos.
+     * @param {ImportadorQuandoExportacaoDeleteManyArgs} args - Arguments to filter ImportadorQuandoExportacaos to delete.
+     * @example
+     * // Delete a few ImportadorQuandoExportacaos
+     * const { count } = await prisma.importadorQuandoExportacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ImportadorQuandoExportacaoDeleteManyArgs>(args?: SelectSubset<T, ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ImportadorQuandoExportacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ImportadorQuandoExportacaos
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ImportadorQuandoExportacaoUpdateManyArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ImportadorQuandoExportacao.
+     * @param {ImportadorQuandoExportacaoUpsertArgs} args - Arguments to update or create a ImportadorQuandoExportacao.
+     * @example
+     * // Update or create a ImportadorQuandoExportacao
+     * const importadorQuandoExportacao = await prisma.importadorQuandoExportacao.upsert({
+     *   create: {
+     *     // ... data to create a ImportadorQuandoExportacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ImportadorQuandoExportacao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ImportadorQuandoExportacaoUpsertArgs>(args: SelectSubset<T, ImportadorQuandoExportacaoUpsertArgs<ExtArgs>>): Prisma__ImportadorQuandoExportacaoClient<$Result.GetResult<Prisma.$ImportadorQuandoExportacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ImportadorQuandoExportacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoCountArgs} args - Arguments to filter ImportadorQuandoExportacaos to count.
+     * @example
+     * // Count the number of ImportadorQuandoExportacaos
+     * const count = await prisma.importadorQuandoExportacao.count({
+     *   where: {
+     *     // ... the filter for the ImportadorQuandoExportacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ImportadorQuandoExportacaoCountArgs>(
+      args?: Subset<T, ImportadorQuandoExportacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ImportadorQuandoExportacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ImportadorQuandoExportacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ImportadorQuandoExportacaoAggregateArgs>(args: Subset<T, ImportadorQuandoExportacaoAggregateArgs>): Prisma.PrismaPromise<GetImportadorQuandoExportacaoAggregateType<T>>
+
+    /**
+     * Group by ImportadorQuandoExportacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportadorQuandoExportacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ImportadorQuandoExportacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ImportadorQuandoExportacaoGroupByArgs['orderBy'] }
+        : { orderBy?: ImportadorQuandoExportacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ImportadorQuandoExportacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetImportadorQuandoExportacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ImportadorQuandoExportacao model
+   */
+  readonly fields: ImportadorQuandoExportacaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ImportadorQuandoExportacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ImportadorQuandoExportacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ImportadorQuandoExportacao model
+   */ 
+  interface ImportadorQuandoExportacaoFieldRefs {
+    readonly id_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly id_organizacao_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly id_workspace_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly nome_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly endereco_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly cidade_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly estado_provincia_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly pais_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly zipcode_importador: FieldRef<"ImportadorQuandoExportacao", 'String'>
+    readonly criado_em_importador: FieldRef<"ImportadorQuandoExportacao", 'DateTime'>
+    readonly atualizado_em_importador: FieldRef<"ImportadorQuandoExportacao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ImportadorQuandoExportacao findUnique
+   */
+  export type ImportadorQuandoExportacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ImportadorQuandoExportacao to fetch.
+     */
+    where: ImportadorQuandoExportacaoWhereUniqueInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao findUniqueOrThrow
+   */
+  export type ImportadorQuandoExportacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ImportadorQuandoExportacao to fetch.
+     */
+    where: ImportadorQuandoExportacaoWhereUniqueInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao findFirst
+   */
+  export type ImportadorQuandoExportacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ImportadorQuandoExportacao to fetch.
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportadorQuandoExportacaos to fetch.
+     */
+    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportadorQuandoExportacaos.
+     */
+    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportadorQuandoExportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportadorQuandoExportacaos.
+     */
+    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ImportadorQuandoExportacao findFirstOrThrow
+   */
+  export type ImportadorQuandoExportacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ImportadorQuandoExportacao to fetch.
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportadorQuandoExportacaos to fetch.
+     */
+    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportadorQuandoExportacaos.
+     */
+    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportadorQuandoExportacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportadorQuandoExportacaos.
+     */
+    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ImportadorQuandoExportacao findMany
+   */
+  export type ImportadorQuandoExportacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter, which ImportadorQuandoExportacaos to fetch.
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportadorQuandoExportacaos to fetch.
+     */
+    orderBy?: ImportadorQuandoExportacaoOrderByWithRelationInput | ImportadorQuandoExportacaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ImportadorQuandoExportacaos.
+     */
+    cursor?: ImportadorQuandoExportacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportadorQuandoExportacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportadorQuandoExportacaos.
+     */
+    skip?: number
+    distinct?: ImportadorQuandoExportacaoScalarFieldEnum | ImportadorQuandoExportacaoScalarFieldEnum[]
+  }
+
+  /**
+   * ImportadorQuandoExportacao create
+   */
+  export type ImportadorQuandoExportacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ImportadorQuandoExportacao.
+     */
+    data: XOR<ImportadorQuandoExportacaoCreateInput, ImportadorQuandoExportacaoUncheckedCreateInput>
+  }
+
+  /**
+   * ImportadorQuandoExportacao createMany
+   */
+  export type ImportadorQuandoExportacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ImportadorQuandoExportacaos.
+     */
+    data: ImportadorQuandoExportacaoCreateManyInput | ImportadorQuandoExportacaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ImportadorQuandoExportacao createManyAndReturn
+   */
+  export type ImportadorQuandoExportacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ImportadorQuandoExportacaos.
+     */
+    data: ImportadorQuandoExportacaoCreateManyInput | ImportadorQuandoExportacaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ImportadorQuandoExportacao update
+   */
+  export type ImportadorQuandoExportacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ImportadorQuandoExportacao.
+     */
+    data: XOR<ImportadorQuandoExportacaoUpdateInput, ImportadorQuandoExportacaoUncheckedUpdateInput>
+    /**
+     * Choose, which ImportadorQuandoExportacao to update.
+     */
+    where: ImportadorQuandoExportacaoWhereUniqueInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao updateMany
+   */
+  export type ImportadorQuandoExportacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ImportadorQuandoExportacaos.
+     */
+    data: XOR<ImportadorQuandoExportacaoUpdateManyMutationInput, ImportadorQuandoExportacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which ImportadorQuandoExportacaos to update
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao upsert
+   */
+  export type ImportadorQuandoExportacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ImportadorQuandoExportacao to update in case it exists.
+     */
+    where: ImportadorQuandoExportacaoWhereUniqueInput
+    /**
+     * In case the ImportadorQuandoExportacao found by the `where` argument doesn't exist, create a new ImportadorQuandoExportacao with this data.
+     */
+    create: XOR<ImportadorQuandoExportacaoCreateInput, ImportadorQuandoExportacaoUncheckedCreateInput>
+    /**
+     * In case the ImportadorQuandoExportacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ImportadorQuandoExportacaoUpdateInput, ImportadorQuandoExportacaoUncheckedUpdateInput>
+  }
+
+  /**
+   * ImportadorQuandoExportacao delete
+   */
+  export type ImportadorQuandoExportacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+    /**
+     * Filter which ImportadorQuandoExportacao to delete.
+     */
+    where: ImportadorQuandoExportacaoWhereUniqueInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao deleteMany
+   */
+  export type ImportadorQuandoExportacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportadorQuandoExportacaos to delete
+     */
+    where?: ImportadorQuandoExportacaoWhereInput
+  }
+
+  /**
+   * ImportadorQuandoExportacao without action
+   */
+  export type ImportadorQuandoExportacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportadorQuandoExportacao
+     */
+    select?: ImportadorQuandoExportacaoSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -11509,6 +13581,40 @@ export namespace Prisma {
   };
 
   export type OPEHistoricoStatusScalarFieldEnum = (typeof OPEHistoricoStatusScalarFieldEnum)[keyof typeof OPEHistoricoStatusScalarFieldEnum]
+
+
+  export const ExportadorQuandoImportacaoScalarFieldEnum: {
+    id_exportador: 'id_exportador',
+    id_organizacao_exportador: 'id_organizacao_exportador',
+    id_workspace_exportador: 'id_workspace_exportador',
+    nome_exportador: 'nome_exportador',
+    endereco_exportador: 'endereco_exportador',
+    cidade_exportador: 'cidade_exportador',
+    estado_provincia_exportador: 'estado_provincia_exportador',
+    pais_exportador: 'pais_exportador',
+    zipcode_exportador: 'zipcode_exportador',
+    criado_em_exportador: 'criado_em_exportador',
+    atualizado_em_exportador: 'atualizado_em_exportador'
+  };
+
+  export type ExportadorQuandoImportacaoScalarFieldEnum = (typeof ExportadorQuandoImportacaoScalarFieldEnum)[keyof typeof ExportadorQuandoImportacaoScalarFieldEnum]
+
+
+  export const ImportadorQuandoExportacaoScalarFieldEnum: {
+    id_importador: 'id_importador',
+    id_organizacao_importador: 'id_organizacao_importador',
+    id_workspace_importador: 'id_workspace_importador',
+    nome_importador: 'nome_importador',
+    endereco_importador: 'endereco_importador',
+    cidade_importador: 'cidade_importador',
+    estado_provincia_importador: 'estado_provincia_importador',
+    pais_importador: 'pais_importador',
+    zipcode_importador: 'zipcode_importador',
+    criado_em_importador: 'criado_em_importador',
+    atualizado_em_importador: 'atualizado_em_importador'
+  };
+
+  export type ImportadorQuandoExportacaoScalarFieldEnum = (typeof ImportadorQuandoExportacaoScalarFieldEnum)[keyof typeof ImportadorQuandoExportacaoScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12516,6 +14622,170 @@ export namespace Prisma {
     origem_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
     payload_ope_historico_status?: JsonWithAggregatesFilter<"OPEHistoricoStatus">
     registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OPEHistoricoStatus"> | Date | string
+  }
+
+  export type ExportadorQuandoImportacaoWhereInput = {
+    AND?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
+    OR?: ExportadorQuandoImportacaoWhereInput[]
+    NOT?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
+    id_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    id_organizacao_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    id_workspace_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    nome_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    endereco_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    cidade_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    estado_provincia_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    pais_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    zipcode_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    criado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
+    atualizado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
+  }
+
+  export type ExportadorQuandoImportacaoOrderByWithRelationInput = {
+    id_exportador?: SortOrder
+    id_organizacao_exportador?: SortOrder
+    id_workspace_exportador?: SortOrder
+    nome_exportador?: SortOrder
+    endereco_exportador?: SortOrderInput | SortOrder
+    cidade_exportador?: SortOrderInput | SortOrder
+    estado_provincia_exportador?: SortOrderInput | SortOrder
+    pais_exportador?: SortOrder
+    zipcode_exportador?: SortOrderInput | SortOrder
+    criado_em_exportador?: SortOrder
+    atualizado_em_exportador?: SortOrder
+  }
+
+  export type ExportadorQuandoImportacaoWhereUniqueInput = Prisma.AtLeast<{
+    id_exportador?: string
+    AND?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
+    OR?: ExportadorQuandoImportacaoWhereInput[]
+    NOT?: ExportadorQuandoImportacaoWhereInput | ExportadorQuandoImportacaoWhereInput[]
+    id_organizacao_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    id_workspace_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    nome_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    endereco_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    cidade_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    estado_provincia_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    pais_exportador?: StringFilter<"ExportadorQuandoImportacao"> | string
+    zipcode_exportador?: StringNullableFilter<"ExportadorQuandoImportacao"> | string | null
+    criado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
+    atualizado_em_exportador?: DateTimeFilter<"ExportadorQuandoImportacao"> | Date | string
+  }, "id_exportador">
+
+  export type ExportadorQuandoImportacaoOrderByWithAggregationInput = {
+    id_exportador?: SortOrder
+    id_organizacao_exportador?: SortOrder
+    id_workspace_exportador?: SortOrder
+    nome_exportador?: SortOrder
+    endereco_exportador?: SortOrderInput | SortOrder
+    cidade_exportador?: SortOrderInput | SortOrder
+    estado_provincia_exportador?: SortOrderInput | SortOrder
+    pais_exportador?: SortOrder
+    zipcode_exportador?: SortOrderInput | SortOrder
+    criado_em_exportador?: SortOrder
+    atualizado_em_exportador?: SortOrder
+    _count?: ExportadorQuandoImportacaoCountOrderByAggregateInput
+    _max?: ExportadorQuandoImportacaoMaxOrderByAggregateInput
+    _min?: ExportadorQuandoImportacaoMinOrderByAggregateInput
+  }
+
+  export type ExportadorQuandoImportacaoScalarWhereWithAggregatesInput = {
+    AND?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput | ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
+    OR?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
+    NOT?: ExportadorQuandoImportacaoScalarWhereWithAggregatesInput | ExportadorQuandoImportacaoScalarWhereWithAggregatesInput[]
+    id_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
+    id_organizacao_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
+    id_workspace_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
+    nome_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
+    endereco_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
+    cidade_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
+    estado_provincia_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
+    pais_exportador?: StringWithAggregatesFilter<"ExportadorQuandoImportacao"> | string
+    zipcode_exportador?: StringNullableWithAggregatesFilter<"ExportadorQuandoImportacao"> | string | null
+    criado_em_exportador?: DateTimeWithAggregatesFilter<"ExportadorQuandoImportacao"> | Date | string
+    atualizado_em_exportador?: DateTimeWithAggregatesFilter<"ExportadorQuandoImportacao"> | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoWhereInput = {
+    AND?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
+    OR?: ImportadorQuandoExportacaoWhereInput[]
+    NOT?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
+    id_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    id_organizacao_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    id_workspace_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    nome_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    endereco_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    cidade_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    estado_provincia_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    pais_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    zipcode_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    criado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
+    atualizado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoOrderByWithRelationInput = {
+    id_importador?: SortOrder
+    id_organizacao_importador?: SortOrder
+    id_workspace_importador?: SortOrder
+    nome_importador?: SortOrder
+    endereco_importador?: SortOrderInput | SortOrder
+    cidade_importador?: SortOrderInput | SortOrder
+    estado_provincia_importador?: SortOrderInput | SortOrder
+    pais_importador?: SortOrder
+    zipcode_importador?: SortOrderInput | SortOrder
+    criado_em_importador?: SortOrder
+    atualizado_em_importador?: SortOrder
+  }
+
+  export type ImportadorQuandoExportacaoWhereUniqueInput = Prisma.AtLeast<{
+    id_importador?: string
+    AND?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
+    OR?: ImportadorQuandoExportacaoWhereInput[]
+    NOT?: ImportadorQuandoExportacaoWhereInput | ImportadorQuandoExportacaoWhereInput[]
+    id_organizacao_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    id_workspace_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    nome_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    endereco_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    cidade_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    estado_provincia_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    pais_importador?: StringFilter<"ImportadorQuandoExportacao"> | string
+    zipcode_importador?: StringNullableFilter<"ImportadorQuandoExportacao"> | string | null
+    criado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
+    atualizado_em_importador?: DateTimeFilter<"ImportadorQuandoExportacao"> | Date | string
+  }, "id_importador">
+
+  export type ImportadorQuandoExportacaoOrderByWithAggregationInput = {
+    id_importador?: SortOrder
+    id_organizacao_importador?: SortOrder
+    id_workspace_importador?: SortOrder
+    nome_importador?: SortOrder
+    endereco_importador?: SortOrderInput | SortOrder
+    cidade_importador?: SortOrderInput | SortOrder
+    estado_provincia_importador?: SortOrderInput | SortOrder
+    pais_importador?: SortOrder
+    zipcode_importador?: SortOrderInput | SortOrder
+    criado_em_importador?: SortOrder
+    atualizado_em_importador?: SortOrder
+    _count?: ImportadorQuandoExportacaoCountOrderByAggregateInput
+    _max?: ImportadorQuandoExportacaoMaxOrderByAggregateInput
+    _min?: ImportadorQuandoExportacaoMinOrderByAggregateInput
+  }
+
+  export type ImportadorQuandoExportacaoScalarWhereWithAggregatesInput = {
+    AND?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput | ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
+    OR?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
+    NOT?: ImportadorQuandoExportacaoScalarWhereWithAggregatesInput | ImportadorQuandoExportacaoScalarWhereWithAggregatesInput[]
+    id_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
+    id_organizacao_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
+    id_workspace_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
+    nome_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
+    endereco_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
+    cidade_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
+    estado_provincia_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
+    pais_importador?: StringWithAggregatesFilter<"ImportadorQuandoExportacao"> | string
+    zipcode_importador?: StringNullableWithAggregatesFilter<"ImportadorQuandoExportacao"> | string | null
+    criado_em_importador?: DateTimeWithAggregatesFilter<"ImportadorQuandoExportacao"> | Date | string
+    atualizado_em_importador?: DateTimeWithAggregatesFilter<"ImportadorQuandoExportacao"> | Date | string
   }
 
   export type EmpresaCreateInput = {
@@ -13547,6 +15817,202 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExportadorQuandoImportacaoCreateInput = {
+    id_exportador?: string
+    id_organizacao_exportador: string
+    id_workspace_exportador: string
+    nome_exportador: string
+    endereco_exportador?: string | null
+    cidade_exportador?: string | null
+    estado_provincia_exportador?: string | null
+    pais_exportador: string
+    zipcode_exportador?: string | null
+    criado_em_exportador?: Date | string
+    atualizado_em_exportador?: Date | string
+  }
+
+  export type ExportadorQuandoImportacaoUncheckedCreateInput = {
+    id_exportador?: string
+    id_organizacao_exportador: string
+    id_workspace_exportador: string
+    nome_exportador: string
+    endereco_exportador?: string | null
+    cidade_exportador?: string | null
+    estado_provincia_exportador?: string | null
+    pais_exportador: string
+    zipcode_exportador?: string | null
+    criado_em_exportador?: Date | string
+    atualizado_em_exportador?: Date | string
+  }
+
+  export type ExportadorQuandoImportacaoUpdateInput = {
+    id_exportador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
+    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
+    nome_exportador?: StringFieldUpdateOperationsInput | string
+    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_exportador?: StringFieldUpdateOperationsInput | string
+    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportadorQuandoImportacaoUncheckedUpdateInput = {
+    id_exportador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
+    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
+    nome_exportador?: StringFieldUpdateOperationsInput | string
+    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_exportador?: StringFieldUpdateOperationsInput | string
+    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportadorQuandoImportacaoCreateManyInput = {
+    id_exportador?: string
+    id_organizacao_exportador: string
+    id_workspace_exportador: string
+    nome_exportador: string
+    endereco_exportador?: string | null
+    cidade_exportador?: string | null
+    estado_provincia_exportador?: string | null
+    pais_exportador: string
+    zipcode_exportador?: string | null
+    criado_em_exportador?: Date | string
+    atualizado_em_exportador?: Date | string
+  }
+
+  export type ExportadorQuandoImportacaoUpdateManyMutationInput = {
+    id_exportador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
+    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
+    nome_exportador?: StringFieldUpdateOperationsInput | string
+    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_exportador?: StringFieldUpdateOperationsInput | string
+    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportadorQuandoImportacaoUncheckedUpdateManyInput = {
+    id_exportador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportador?: StringFieldUpdateOperationsInput | string
+    id_workspace_exportador?: StringFieldUpdateOperationsInput | string
+    nome_exportador?: StringFieldUpdateOperationsInput | string
+    endereco_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_exportador?: StringFieldUpdateOperationsInput | string
+    zipcode_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_exportador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoCreateInput = {
+    id_importador?: string
+    id_organizacao_importador: string
+    id_workspace_importador: string
+    nome_importador: string
+    endereco_importador?: string | null
+    cidade_importador?: string | null
+    estado_provincia_importador?: string | null
+    pais_importador: string
+    zipcode_importador?: string | null
+    criado_em_importador?: Date | string
+    atualizado_em_importador?: Date | string
+  }
+
+  export type ImportadorQuandoExportacaoUncheckedCreateInput = {
+    id_importador?: string
+    id_organizacao_importador: string
+    id_workspace_importador: string
+    nome_importador: string
+    endereco_importador?: string | null
+    cidade_importador?: string | null
+    estado_provincia_importador?: string | null
+    pais_importador: string
+    zipcode_importador?: string | null
+    criado_em_importador?: Date | string
+    atualizado_em_importador?: Date | string
+  }
+
+  export type ImportadorQuandoExportacaoUpdateInput = {
+    id_importador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
+    id_workspace_importador?: StringFieldUpdateOperationsInput | string
+    nome_importador?: StringFieldUpdateOperationsInput | string
+    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_importador?: StringFieldUpdateOperationsInput | string
+    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoUncheckedUpdateInput = {
+    id_importador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
+    id_workspace_importador?: StringFieldUpdateOperationsInput | string
+    nome_importador?: StringFieldUpdateOperationsInput | string
+    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_importador?: StringFieldUpdateOperationsInput | string
+    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoCreateManyInput = {
+    id_importador?: string
+    id_organizacao_importador: string
+    id_workspace_importador: string
+    nome_importador: string
+    endereco_importador?: string | null
+    cidade_importador?: string | null
+    estado_provincia_importador?: string | null
+    pais_importador: string
+    zipcode_importador?: string | null
+    criado_em_importador?: Date | string
+    atualizado_em_importador?: Date | string
+  }
+
+  export type ImportadorQuandoExportacaoUpdateManyMutationInput = {
+    id_importador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
+    id_workspace_importador?: StringFieldUpdateOperationsInput | string
+    nome_importador?: StringFieldUpdateOperationsInput | string
+    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_importador?: StringFieldUpdateOperationsInput | string
+    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportadorQuandoExportacaoUncheckedUpdateManyInput = {
+    id_importador?: StringFieldUpdateOperationsInput | string
+    id_organizacao_importador?: StringFieldUpdateOperationsInput | string
+    id_workspace_importador?: StringFieldUpdateOperationsInput | string
+    nome_importador?: StringFieldUpdateOperationsInput | string
+    endereco_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_provincia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_importador?: StringFieldUpdateOperationsInput | string
+    zipcode_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    criado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_importador?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -14292,6 +16758,90 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
+  export type ExportadorQuandoImportacaoCountOrderByAggregateInput = {
+    id_exportador?: SortOrder
+    id_organizacao_exportador?: SortOrder
+    id_workspace_exportador?: SortOrder
+    nome_exportador?: SortOrder
+    endereco_exportador?: SortOrder
+    cidade_exportador?: SortOrder
+    estado_provincia_exportador?: SortOrder
+    pais_exportador?: SortOrder
+    zipcode_exportador?: SortOrder
+    criado_em_exportador?: SortOrder
+    atualizado_em_exportador?: SortOrder
+  }
+
+  export type ExportadorQuandoImportacaoMaxOrderByAggregateInput = {
+    id_exportador?: SortOrder
+    id_organizacao_exportador?: SortOrder
+    id_workspace_exportador?: SortOrder
+    nome_exportador?: SortOrder
+    endereco_exportador?: SortOrder
+    cidade_exportador?: SortOrder
+    estado_provincia_exportador?: SortOrder
+    pais_exportador?: SortOrder
+    zipcode_exportador?: SortOrder
+    criado_em_exportador?: SortOrder
+    atualizado_em_exportador?: SortOrder
+  }
+
+  export type ExportadorQuandoImportacaoMinOrderByAggregateInput = {
+    id_exportador?: SortOrder
+    id_organizacao_exportador?: SortOrder
+    id_workspace_exportador?: SortOrder
+    nome_exportador?: SortOrder
+    endereco_exportador?: SortOrder
+    cidade_exportador?: SortOrder
+    estado_provincia_exportador?: SortOrder
+    pais_exportador?: SortOrder
+    zipcode_exportador?: SortOrder
+    criado_em_exportador?: SortOrder
+    atualizado_em_exportador?: SortOrder
+  }
+
+  export type ImportadorQuandoExportacaoCountOrderByAggregateInput = {
+    id_importador?: SortOrder
+    id_organizacao_importador?: SortOrder
+    id_workspace_importador?: SortOrder
+    nome_importador?: SortOrder
+    endereco_importador?: SortOrder
+    cidade_importador?: SortOrder
+    estado_provincia_importador?: SortOrder
+    pais_importador?: SortOrder
+    zipcode_importador?: SortOrder
+    criado_em_importador?: SortOrder
+    atualizado_em_importador?: SortOrder
+  }
+
+  export type ImportadorQuandoExportacaoMaxOrderByAggregateInput = {
+    id_importador?: SortOrder
+    id_organizacao_importador?: SortOrder
+    id_workspace_importador?: SortOrder
+    nome_importador?: SortOrder
+    endereco_importador?: SortOrder
+    cidade_importador?: SortOrder
+    estado_provincia_importador?: SortOrder
+    pais_importador?: SortOrder
+    zipcode_importador?: SortOrder
+    criado_em_importador?: SortOrder
+    atualizado_em_importador?: SortOrder
+  }
+
+  export type ImportadorQuandoExportacaoMinOrderByAggregateInput = {
+    id_importador?: SortOrder
+    id_organizacao_importador?: SortOrder
+    id_workspace_importador?: SortOrder
+    nome_importador?: SortOrder
+    endereco_importador?: SortOrder
+    cidade_importador?: SortOrder
+    estado_provincia_importador?: SortOrder
+    pais_importador?: SortOrder
+    zipcode_importador?: SortOrder
+    criado_em_importador?: SortOrder
+    atualizado_em_importador?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -14638,6 +17188,14 @@ export namespace Prisma {
      * @deprecated Use OPEHistoricoStatusDefaultArgs instead
      */
     export type OPEHistoricoStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OPEHistoricoStatusDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExportadorQuandoImportacaoDefaultArgs instead
+     */
+    export type ExportadorQuandoImportacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExportadorQuandoImportacaoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ImportadorQuandoExportacaoDefaultArgs instead
+     */
+    export type ImportadorQuandoExportacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ImportadorQuandoExportacaoDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

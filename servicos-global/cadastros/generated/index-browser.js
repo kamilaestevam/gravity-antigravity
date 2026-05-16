@@ -269,6 +269,34 @@ exports.Prisma.OPEHistoricoStatusScalarFieldEnum = {
   registrado_em_ope_historico_status: 'registrado_em_ope_historico_status'
 };
 
+exports.Prisma.ExportadorQuandoImportacaoScalarFieldEnum = {
+  id_exportador: 'id_exportador',
+  id_organizacao_exportador: 'id_organizacao_exportador',
+  id_workspace_exportador: 'id_workspace_exportador',
+  nome_exportador: 'nome_exportador',
+  endereco_exportador: 'endereco_exportador',
+  cidade_exportador: 'cidade_exportador',
+  estado_provincia_exportador: 'estado_provincia_exportador',
+  pais_exportador: 'pais_exportador',
+  zipcode_exportador: 'zipcode_exportador',
+  criado_em_exportador: 'criado_em_exportador',
+  atualizado_em_exportador: 'atualizado_em_exportador'
+};
+
+exports.Prisma.ImportadorQuandoExportacaoScalarFieldEnum = {
+  id_importador: 'id_importador',
+  id_organizacao_importador: 'id_organizacao_importador',
+  id_workspace_importador: 'id_workspace_importador',
+  nome_importador: 'nome_importador',
+  endereco_importador: 'endereco_importador',
+  cidade_importador: 'cidade_importador',
+  estado_provincia_importador: 'estado_provincia_importador',
+  pais_importador: 'pais_importador',
+  zipcode_importador: 'zipcode_importador',
+  criado_em_importador: 'criado_em_importador',
+  atualizado_em_importador: 'atualizado_em_importador'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -314,7 +342,9 @@ exports.Prisma.ModelName = {
   NcmSyncLog: 'NcmSyncLog',
   NcmSyncAgendamento: 'NcmSyncAgendamento',
   Ope: 'Ope',
-  OPEHistoricoStatus: 'OPEHistoricoStatus'
+  OPEHistoricoStatus: 'OPEHistoricoStatus',
+  ExportadorQuandoImportacao: 'ExportadorQuandoImportacao',
+  ImportadorQuandoExportacao: 'ImportadorQuandoExportacao'
 };
 
 /**

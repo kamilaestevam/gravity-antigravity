@@ -314,3 +314,67 @@ model OPEHistoricoStatus {
   @@index([id_organizacao_ope_historico_status, id_usuario_ope_historico_status], map: "ohs_org_usr_idx")
   @@map("ope_historico_status")
 }
+
+// ---------------------------------------------------------------------
+// ExportadorQuandoImportacao — contraparte estrangeira (fornecedor)
+// quando a operação é de importação.
+// Entidade independente de Empresa — cada registro é um exportador
+// específico vinculado à organização e workspace do importador.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+model ExportadorQuandoImportacao {
+  id_exportador_quando_importacao  String   @id @default(cuid())
+
+  // Identificação tenant + workspace
+  id_organizacao_exportador        String
+  id_workspace_exportador          String
+
+  // Dados cadastrais
+  nome_exportador                  String
+  endereco_exportador              String?
+  cidade_exportador                String?
+  estado_provincia_exportador      String?
+  pais_exportador                  String   // ISO-2
+  zipcode_exportador               String?
+
+  // Timestamps
+  criado_em_exportador             DateTime @default(now())
+  atualizado_em_exportador         DateTime @updatedAt
+
+  @@index([id_organizacao_exportador],                              map: "exportador_quando_importacao_org_idx")
+  @@index([id_organizacao_exportador, id_workspace_exportador],     map: "exportador_quando_importacao_org_ws_idx")
+  @@index([id_organizacao_exportador, nome_exportador],             map: "exportador_quando_importacao_org_nome_idx")
+  @@map("exportador_quando_importacao")
+}
+
+// ---------------------------------------------------------------------
+// ImportadorQuandoExportacao — contraparte estrangeira (comprador)
+// quando a operação é de exportação.
+// Entidade independente de Empresa — cada registro é um importador
+// específico vinculado à organização e workspace do exportador.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+model ImportadorQuandoExportacao {
+  id_importador_quando_exportacao  String   @id @default(cuid())
+
+  // Identificação tenant + workspace
+  id_organizacao_importador        String
+  id_workspace_importador          String
+
+  // Dados cadastrais
+  nome_importador                  String
+  endereco_importador              String?
+  cidade_importador                String?
+  estado_provincia_importador      String?
+  pais_importador                  String   // ISO-2
+  zipcode_importador               String?
+
+  // Timestamps
+  criado_em_importador             DateTime @default(now())
+  atualizado_em_importador         DateTime @updatedAt
+
+  @@index([id_organizacao_importador],                              map: "importador_quando_exportacao_org_idx")
+  @@index([id_organizacao_importador, id_workspace_importador],     map: "importador_quando_exportacao_org_ws_idx")
+  @@index([id_organizacao_importador, nome_importador],             map: "importador_quando_exportacao_org_nome_idx")
+  @@map("importador_quando_exportacao")
+}

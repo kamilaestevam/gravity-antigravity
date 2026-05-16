@@ -320,11 +320,29 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                           ? '1 pedido será excluído'
                           : `${totalPermitidos} pedidos serão excluídos`}
                       </p>
+
+                      {/* Aviso de transferências vinculadas */}
+                      {preview.permitidos.some(p => (p.total_transferencias ?? 0) > 0) && (
+                        <div className="modal-excluir__aviso" style={{ marginBottom: '0.75rem' }}>
+                          <Warning size={18} weight="fill" className="modal-excluir__aviso-icone" aria-hidden="true" />
+                          <p className="modal-excluir__aviso-texto">
+                            {(() => {
+                              const comTransf = preview.permitidos.filter(p => (p.total_transferencias ?? 0) > 0)
+                              const totalTransf = comTransf.reduce((acc, p) => acc + (p.total_transferencias ?? 0), 0)
+                              return comTransf.length === 1
+                                ? `O pedido "${comTransf[0].numero_pedido}" possui ${totalTransf} registro${totalTransf === 1 ? '' : 's'} de transferência que também ${totalTransf === 1 ? 'será excluído' : 'serão excluídos'}.`
+                                : `${comTransf.length} pedidos possuem ${totalTransf} registro${totalTransf === 1 ? '' : 's'} de transferência que também ${totalTransf === 1 ? 'será excluído' : 'serão excluídos'}.`
+                            })()}
+                          </p>
+                        </div>
+                      )}
+
                       <table className="modal-excluir__tabela" aria-label="Pedidos que serão excluídos">
                         <thead>
                           <tr>
                             <th className="modal-excluir__th">Número</th>
                             <th className="modal-excluir__th">Itens</th>
+                            <th className="modal-excluir__th">Transferências</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -333,6 +351,9 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
                               <td className="modal-excluir__td modal-excluir__td--numero">{p.numero_pedido || p.id}</td>
                               <td className="modal-excluir__td modal-excluir__td--itens">
                                 {p.total_itens} {p.total_itens === 1 ? 'item' : 'itens'}
+                              </td>
+                              <td className="modal-excluir__td modal-excluir__td--itens">
+                                {(p.total_transferencias ?? 0) > 0 ? `${p.total_transferencias} registro${(p.total_transferencias ?? 0) === 1 ? '' : 's'}` : '—'}
                               </td>
                             </tr>
                           ))}

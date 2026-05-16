@@ -863,7 +863,7 @@ export interface DuplicarResultado {
 // ── Excluir Pedidos ───────────────────────────────────────────────────────────
 
 export interface ExcluirPreview {
-  permitidos: { id: string; numero_pedido: string; total_itens: number }[]
+  permitidos: { id: string; numero_pedido: string; total_itens: number; total_transferencias?: number }[]
   bloqueados: { id: string; numero_pedido: string; status: string; motivo: string }[]
 }
 

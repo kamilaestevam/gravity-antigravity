@@ -508,6 +508,18 @@ export class ExcluirService {
     const permitidos: ExcluirPreview['permitidos'] = []
     const bloqueados: ExcluirPreview['bloqueados'] = []
 
+    // Contar transferências por pedido para avisar o usuário
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transferencias = await (db as any).pedidoTransferencia.groupBy({
+      by: ['id_pedido_origem'],
+      where: { id_pedido_origem: { in: ids }, id_organizacao: id_organizacao },
+      _count: { id_pedido_transferencia: true },
+    })
+    const transferenciasPorPedido = new Map<string, number>(
+      (transferencias as Array<{ id_pedido_origem: string; _count: { id_pedido_transferencia: number } }>)
+        .map((t) => [t.id_pedido_origem, t._count.id_pedido_transferencia]),
+    )
+
     for (const pedidoRaw of pedidos) {
       const pedido = pedidoRaw as Record<string, unknown>
       const statusPed = pedido.status_pedido as string
@@ -516,6 +528,7 @@ export class ExcluirService {
           id: pedido.id_pedido as string,
           numero_pedido: pedido.numero_pedido as string,
           total_itens: (pedido.itens_pedido as unknown[]).length,
+          total_transferencias: transferenciasPorPedido.get(pedido.id_pedido as string) ?? 0,
         })
       } else {
         const statusPermitidosLabel = config.excluir_status_permitidos.join(', ')
@@ -594,9 +607,13 @@ export class ExcluirService {
       })
     }
 
-    // Hard delete: itens primeiro (FK), depois pedidos
+    // Hard delete: itens → transferências → pedidos (respeitar FKs)
     await tx.pedidoItem.deleteMany({
       where: { id_pedido: { in: ids }, id_organizacao: id_organizacao },
+    })
+
+    await tx.pedidoTransferencia.deleteMany({
+      where: { id_pedido_origem: { in: ids }, id_organizacao: id_organizacao },
     })
 
     await tx.pedido.deleteMany({

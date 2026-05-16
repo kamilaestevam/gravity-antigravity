@@ -253,6 +253,7 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   referencia_exportador: 'referencia_exportador_pedido',
   referencia_fabricante: 'referencia_fabricante_pedido',
   condicao_pagamento:    'condicao_pagamento_pedido',
+  cobertura_cambial:     'cobertura_cambial_pedido',
   tipo_operacao:         'tipo_operacao_pedido',
 
   // Datas Rascunho Pedido — frontend usa 'prevista/confirmada', banco usa 'previsao/confirmacao'
@@ -275,6 +276,7 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   data_confirmada_recebimento_original_proforma:  'data_confirmacao_recebimento_original_proforma_pedido',
   data_meta_recebimento_original_proforma:        'data_meta_recebimento_original_proforma_pedido',
   data_proforma_invoice:                          'data_documento_proforma_pedido',
+  data_documento_proforma:                        'data_documento_proforma_pedido',
 
   // Datas Invoice
   data_prevista_recebimento_rascunho_invoice:    'data_previsao_recebimento_rascunho_invoice_pedido',
@@ -290,6 +292,7 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   data_confirmada_recebimento_original_invoice:  'data_confirmacao_recebimento_original_invoice_pedido',
   data_meta_recebimento_original_invoice:        'data_meta_recebimento_original_invoice_pedido',
   data_invoice:                                  'data_documento_invoice_pedido',
+  data_documento_invoice:                        'data_documento_invoice_pedido',
 })
 
 /**

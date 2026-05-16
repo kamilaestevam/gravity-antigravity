@@ -98,6 +98,15 @@ exclusoesPedidoRouter.post('/confirmar', async (req: Request, res: Response, nex
     })
     res.json(resultado)
   } catch (err) {
+    // Traduzir erros de FK para linguagem do usuário
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('foreign key constraint') || msg.includes('violates RESTRICT')) {
+      return next(new AppError(
+        'Não foi possível excluir. Este pedido possui registros vinculados (transferências, histórico, etc.) que impedem a exclusão. Contacte o administrador.',
+        409,
+        'FK_CONSTRAINT',
+      ))
+    }
     next(err)
   }
 })
@@ -133,6 +142,15 @@ exclusoesPedidoRouter.post('/itens', async (req: Request, res: Response, next: N
     })
     res.json(resultado)
   } catch (err) {
+    // Traduzir erros de FK para linguagem do usuário
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('foreign key constraint') || msg.includes('violates RESTRICT')) {
+      return next(new AppError(
+        'Não foi possível excluir. Este item possui registros vinculados que impedem a exclusão. Contacte o administrador.',
+        409,
+        'FK_CONSTRAINT',
+      ))
+    }
     next(err)
   }
 })

@@ -200,7 +200,7 @@ const GTAbas = memo(function GTAbas({
 
 const GTLoading = memo(function GTLoading() {
   return (
-    <div className="gtv-tabela-scroll" aria-busy="true">
+    <div className="gtv-tabela-scroll gtv-loader-wrapper" aria-busy="true">
       <GravityLoader texto="Carregando" />
     </div>
   )

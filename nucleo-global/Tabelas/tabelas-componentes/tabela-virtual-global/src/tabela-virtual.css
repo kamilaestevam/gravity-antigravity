@@ -1568,9 +1568,29 @@
   font-weight: 700;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.04em;
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--gtv-accent, #818cf8);
+  background: var(--_moeda-bg, rgba(99, 102, 241, 0.15));
+  color: var(--_moeda-fg, var(--gtv-accent, #818cf8));
   text-align: center;
+}
+.gtv-celula-moeda-badge--usd {
+  --_moeda-bg: rgba(99, 102, 241, 0.15);
+  --_moeda-fg: #818cf8;
+}
+.gtv-celula-moeda-badge--eur {
+  --_moeda-bg: rgba(139, 92, 246, 0.15);
+  --_moeda-fg: #a78bfa;
+}
+.gtv-celula-moeda-badge--brl {
+  --_moeda-bg: rgba(79, 119, 241, 0.15);
+  --_moeda-fg: #7da0f8;
+}
+.gtv-celula-moeda-badge--gbp {
+  --_moeda-bg: rgba(100, 116, 139, 0.15);
+  --_moeda-fg: #94a3b8;
+}
+.gtv-celula-moeda-badge--cny {
+  --_moeda-bg: rgba(168, 85, 247, 0.15);
+  --_moeda-fg: #c084fc;
 }
 .gtv-celula-unidade-badge {
   flex-shrink: 0;
@@ -1847,6 +1867,13 @@
   display: flex;
   justify-content: center;
   margin-top: 0.5rem;
+}
+
+/* ─── Loader wrapper — centraliza GravityLoader no espaço da tabela ──────── */
+.gtv-loader-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ─── Skeleton de carregamento ────────────────────────────────────────────── */

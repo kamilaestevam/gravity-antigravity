@@ -1849,6 +1849,13 @@
   margin-top: 0.5rem;
 }
 
+/* ─── Loader wrapper — centraliza GravityLoader no espaço da tabela ──────── */
+.gtv-loader-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ─── Skeleton de carregamento ────────────────────────────────────────────── */
 .gtv-skeleton-linha {
   display: flex;

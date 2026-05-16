@@ -1,0 +1,358 @@
+/**
+ * @nucleo/gravity-loader-global — CSS
+ * Loader 3D orbital com identidade visual Gravity.
+ * Prefixo: .gl-
+ */
+
+/* ─── Container ──────────────────────────────────────────────────────────── */
+.gl-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
+  user-select: none;
+}
+
+.gl-container--sm { min-height: 120px; }
+.gl-container--lg { min-height: 320px; }
+
+/* ─── Cena 3D ────────────────────────────────────────────────────────────── */
+.gl-cena {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  perspective: 600px;
+  transform-style: preserve-3d;
+}
+
+.gl-container--sm .gl-cena { width: 90px; height: 90px; }
+.gl-container--lg .gl-cena { width: 180px; height: 180px; }
+
+/* ─── Núcleo central ─────────────────────────────────────────────────────── */
+.gl-nucleo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gl-nucleo-svg {
+  width: 32px;
+  height: 32px;
+  color: var(--accent, #818cf8);
+  animation: gl-nucleo-pulse 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
+}
+
+.gl-container--sm .gl-nucleo-svg { width: 22px; height: 22px; }
+.gl-container--lg .gl-nucleo-svg { width: 42px; height: 42px; }
+
+@keyframes gl-nucleo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.4));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 16px rgba(129, 140, 248, 0.6));
+  }
+}
+
+/* Glow atrás do núcleo */
+.gl-nucleo-glow {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, transparent 70%);
+  animation: gl-glow-breathe 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.gl-container--sm .gl-nucleo-glow { width: 34px; height: 34px; }
+.gl-container--lg .gl-nucleo-glow { width: 66px; height: 66px; }
+
+@keyframes gl-glow-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* ─── Órbitas ────────────────────────────────────────────────────────────── */
+.gl-orbita {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Anel visual (elipse tracejada) */
+.gl-anel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 90%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(129, 140, 248, 0.15);
+}
+
+/* Órbita 1 — quase horizontal, levemente inclinado para dar profundidade */
+.gl-orbita--1 {
+  transform: rotateX(70deg) rotateZ(0deg);
+  animation: gl-orbita-drift-1 20s linear infinite;
+}
+
+.gl-orbita--1 .gl-anel {
+  border-color: rgba(129, 140, 248, 0.18);
+}
+
+/* Órbita 2 — plano inclinado 60° */
+.gl-orbita--2 {
+  transform: rotateX(70deg) rotateZ(60deg);
+  animation: gl-orbita-drift-2 24s linear infinite;
+}
+
+.gl-orbita--2 .gl-anel {
+  border-color: rgba(167, 139, 250, 0.15);
+}
+
+/* Órbita 3 — plano inclinado -60° */
+.gl-orbita--3 {
+  transform: rotateX(70deg) rotateZ(-60deg);
+  animation: gl-orbita-drift-3 28s linear infinite;
+}
+
+.gl-orbita--3 .gl-anel {
+  border-color: rgba(99, 102, 241, 0.12);
+}
+
+/* Drift sutil nos planos das órbitas */
+@keyframes gl-orbita-drift-1 {
+  0%   { transform: rotateX(70deg) rotateZ(0deg); }
+  100% { transform: rotateX(70deg) rotateZ(360deg); }
+}
+
+@keyframes gl-orbita-drift-2 {
+  0%   { transform: rotateX(70deg) rotateZ(60deg); }
+  100% { transform: rotateX(70deg) rotateZ(420deg); }
+}
+
+@keyframes gl-orbita-drift-3 {
+  0%   { transform: rotateX(70deg) rotateZ(-60deg); }
+  100% { transform: rotateX(70deg) rotateZ(300deg); }
+}
+
+/* ─── Elétrons ───────────────────────────────────────────────────────────── */
+.gl-eletron {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 90%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Pseudo-element = bolinha orbitando */
+.gl-eletron::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gl-container--sm .gl-eletron::after { width: 4px; height: 4px; top: -2px; }
+.gl-container--lg .gl-eletron::after { width: 8px; height: 8px; top: -4px; }
+
+.gl-eletron--1 {
+  animation: gl-eletron-spin 3s linear infinite;
+}
+.gl-eletron--1::after {
+  background: #818cf8;
+  box-shadow: 0 0 10px 2px rgba(129, 140, 248, 0.6), 0 0 20px 4px rgba(129, 140, 248, 0.2);
+}
+
+.gl-eletron--2 {
+  animation: gl-eletron-spin 4s linear infinite reverse;
+}
+.gl-eletron--2::after {
+  background: #a78bfa;
+  box-shadow: 0 0 10px 2px rgba(167, 139, 250, 0.6), 0 0 20px 4px rgba(167, 139, 250, 0.2);
+}
+
+.gl-eletron--3 {
+  animation: gl-eletron-spin 5s linear infinite;
+}
+.gl-eletron--3::after {
+  background: #6366f1;
+  box-shadow: 0 0 10px 2px rgba(99, 102, 241, 0.6), 0 0 20px 4px rgba(99, 102, 241, 0.2);
+}
+
+@keyframes gl-eletron-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ─── Partículas ambientais ──────────────────────────────────────────────── */
+.gl-particula {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(129, 140, 248, 0.5);
+  pointer-events: none;
+}
+
+.gl-particula--1 {
+  top: 15%;
+  left: 20%;
+  animation: gl-float 4s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.gl-particula--2 {
+  top: 75%;
+  left: 80%;
+  animation: gl-float 5s ease-in-out infinite;
+  animation-delay: -1.2s;
+}
+.gl-particula--3 {
+  top: 25%;
+  left: 78%;
+  animation: gl-float 3.5s ease-in-out infinite;
+  animation-delay: -0.8s;
+  width: 3px;
+  height: 3px;
+  background: rgba(167, 139, 250, 0.4);
+}
+.gl-particula--4 {
+  top: 80%;
+  left: 15%;
+  animation: gl-float 4.5s ease-in-out infinite;
+  animation-delay: -2s;
+}
+.gl-particula--5 {
+  top: 10%;
+  left: 55%;
+  animation: gl-float 6s ease-in-out infinite;
+  animation-delay: -3s;
+  width: 1.5px;
+  height: 1.5px;
+  background: rgba(99, 102, 241, 0.6);
+}
+.gl-particula--6 {
+  top: 60%;
+  left: 30%;
+  animation: gl-float 5.5s ease-in-out infinite;
+  animation-delay: -1.5s;
+  width: 1.5px;
+  height: 1.5px;
+}
+
+@keyframes gl-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translate(6px, -8px) scale(1.4);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-4px, -12px) scale(1);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translate(8px, -4px) scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+/* ─── Texto ──────────────────────────────────────────────────────────────── */
+.gl-texto {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.04em;
+  animation: gl-texto-fade 2s ease-in-out infinite;
+}
+
+.gl-container--sm .gl-texto { font-size: 0.75rem; }
+.gl-container--lg .gl-texto { font-size: 0.875rem; }
+
+@keyframes gl-texto-fade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ─── Light theme ────────────────────────────────────────────────────────── */
+body.light-theme .gl-nucleo-svg {
+  color: var(--accent, #4f46e5);
+  filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.3));
+}
+
+body.light-theme .gl-nucleo-glow {
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+}
+
+body.light-theme .gl-orbita--1 .gl-anel { border-color: rgba(79, 70, 229, 0.15); }
+body.light-theme .gl-orbita--2 .gl-anel { border-color: rgba(124, 58, 237, 0.12); }
+body.light-theme .gl-orbita--3 .gl-anel { border-color: rgba(67, 56, 202, 0.1); }
+
+body.light-theme .gl-eletron--1::after {
+  background: #4f46e5;
+  box-shadow: 0 0 8px 2px rgba(79, 70, 229, 0.5);
+}
+body.light-theme .gl-eletron--2::after {
+  background: #7c3aed;
+  box-shadow: 0 0 8px 2px rgba(124, 58, 237, 0.5);
+}
+body.light-theme .gl-eletron--3::after {
+  background: #4338ca;
+  box-shadow: 0 0 8px 2px rgba(67, 56, 202, 0.5);
+}
+
+body.light-theme .gl-particula {
+  background: rgba(79, 70, 229, 0.4);
+}
+
+body.light-theme .gl-texto {
+  color: var(--text-muted, #475569);
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .gl-nucleo-svg,
+  .gl-nucleo-glow,
+  .gl-orbita,
+  .gl-eletron,
+  .gl-eletron--1,
+  .gl-eletron--2,
+  .gl-eletron--3,
+  .gl-particula,
+  .gl-texto {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .gl-eletron--1::after,
+  .gl-eletron--2::after,
+  .gl-eletron--3::after {
+    box-shadow: none;
+  }
+}

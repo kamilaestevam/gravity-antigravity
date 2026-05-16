@@ -26,6 +26,7 @@ import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -195,24 +196,12 @@ const GTAbas = memo(function GTAbas({
   )
 })
 
-// ─── Subcomponente: Skeleton de carregamento ──────────────────────────────────
+// ─── Subcomponente: Loader Gravity ──────────────────────────────────────────
 
-const GTSkeleton = memo(function GTSkeleton() {
+const GTLoading = memo(function GTLoading() {
   return (
-    <div className="gtv-tabela-scroll" aria-busy="true" aria-label="Carregando...">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <div
-          key={i}
-          className="gtv-skeleton-linha"
-          style={{ height: 44 }}
-        >
-          <div className="gtv-skeleton gtv-skeleton--sm" />
-          <div className="gtv-skeleton gtv-skeleton--xl" />
-          <div className="gtv-skeleton gtv-skeleton--md" />
-          <div className="gtv-skeleton gtv-skeleton--lg" />
-          <div className="gtv-skeleton gtv-skeleton--sm" />
-        </div>
-      ))}
+    <div className="gtv-tabela-scroll" aria-busy="true">
+      <GravityLoader texto="Carregando..." />
     </div>
   )
 })
@@ -2881,9 +2870,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         </div>
       )}
 
-      {/* Skeleton de carregamento */}
+      {/* Loader Gravity 3D */}
       {carregando ? (
-        <GTSkeleton />
+        <GTLoading />
       ) : (
         <div
           ref={scrollContainerRef}

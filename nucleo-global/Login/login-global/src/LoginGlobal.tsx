@@ -368,7 +368,9 @@ function SignInFlow() {
         erroClerk?.errors?.[0]?.longMessage ?? erroClerk?.errors?.[0]?.message
 
       let mensagemFinal: string
-      if (
+      if (codigoClerk === 'session_exists') {
+        mensagemFinal = t('login.erro_sessao_existente')
+      } else if (
         codigoClerk === 'form_password_incorrect' ||
         codigoClerk === 'form_identifier_not_found' ||
         codigoClerk === 'strategy_for_user_invalid'

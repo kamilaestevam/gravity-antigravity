@@ -80,17 +80,68 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   cidade_exportador:               { tipo: 'somente_leitura' },
   endereco_exportador:             { tipo: 'somente_leitura' },
   zip_code_exportador:             { tipo: 'somente_leitura' },
-  data_prevista_pedido_pronto:     { tipo: 'somente_leitura' },
-  data_confirmada_pedido_pronto:   { tipo: 'somente_leitura' },
-  data_meta_pedido_pronto:         { tipo: 'somente_leitura' },
-  data_prevista_inspecao_pedido:   { tipo: 'somente_leitura' },
-  data_confirmada_inspecao_pedido: { tipo: 'somente_leitura' },
-  data_meta_inspecao_pedido:       { tipo: 'somente_leitura' },
-  data_prevista_coleta_pedido:     { tipo: 'somente_leitura' },
-  data_confirmada_coleta_pedido:   { tipo: 'somente_leitura' },
-  data_meta_coleta_pedido:         { tipo: 'somente_leitura' },
-  data_consolidacao_pedido:        { tipo: 'somente_leitura' },
-  data_transferencia_saldo_pedido: { tipo: 'somente_leitura' },
+  // ── Datas — editável, com alerta de divergência ─────────────────────────────
+  // Pedido Pronto
+  data_prevista_pedido_pronto:     { tipo: 'alfanumerico' },
+  data_confirmada_pedido_pronto:   { tipo: 'alfanumerico' },
+  data_meta_pedido_pronto:         { tipo: 'alfanumerico' },
+  // Inspeção
+  data_prevista_inspecao_pedido:   { tipo: 'alfanumerico' },
+  data_confirmada_inspecao_pedido: { tipo: 'alfanumerico' },
+  data_meta_inspecao_pedido:       { tipo: 'alfanumerico' },
+  // Coleta
+  data_prevista_coleta_pedido:     { tipo: 'alfanumerico' },
+  data_confirmada_coleta_pedido:   { tipo: 'alfanumerico' },
+  data_meta_coleta_pedido:         { tipo: 'alfanumerico' },
+  // Consolidação + Transferência
+  data_consolidacao_pedido:        { tipo: 'alfanumerico' },
+  data_transferencia_saldo_pedido: { tipo: 'alfanumerico' },
+  // Rascunho Pedido — Recebimento
+  data_prevista_recebimento_rascunho_pedido:   { tipo: 'alfanumerico' },
+  data_confirmada_recebimento_rascunho_pedido: { tipo: 'alfanumerico' },
+  data_meta_recebimento_rascunho_pedido:       { tipo: 'alfanumerico' },
+  // Rascunho Pedido — Aprovação
+  data_prevista_aprovacao_rascunho_pedido:     { tipo: 'alfanumerico' },
+  data_confirmada_aprovacao_rascunho_pedido:   { tipo: 'alfanumerico' },
+  data_meta_aprovacao_rascunho_pedido:         { tipo: 'alfanumerico' },
+  // Documento Pedido
+  data_documento_pedido:                       { tipo: 'alfanumerico' },
+  // Proforma — Recebimento Rascunho
+  data_prevista_recebimento_rascunho_proforma:    { tipo: 'alfanumerico' },
+  data_confirmada_recebimento_rascunho_proforma:  { tipo: 'alfanumerico' },
+  data_meta_recebimento_rascunho_proforma:        { tipo: 'alfanumerico' },
+  // Proforma — Aprovação Rascunho
+  data_prevista_aprovacao_rascunho_proforma:      { tipo: 'alfanumerico' },
+  data_confirmada_aprovacao_rascunho_proforma:    { tipo: 'alfanumerico' },
+  data_meta_aprovacao_rascunho_proforma:          { tipo: 'alfanumerico' },
+  // Proforma — Envio Original
+  data_prevista_envio_original_proforma:          { tipo: 'alfanumerico' },
+  data_confirmada_envio_original_proforma:        { tipo: 'alfanumerico' },
+  data_meta_envio_original_proforma:              { tipo: 'alfanumerico' },
+  // Proforma — Recebimento Original
+  data_prevista_recebimento_original_proforma:    { tipo: 'alfanumerico' },
+  data_confirmada_recebimento_original_proforma:  { tipo: 'alfanumerico' },
+  data_meta_recebimento_original_proforma:        { tipo: 'alfanumerico' },
+  // Documento Proforma
+  data_proforma_invoice:                          { tipo: 'alfanumerico' },
+  // Invoice — Recebimento Rascunho
+  data_prevista_recebimento_rascunho_invoice:    { tipo: 'alfanumerico' },
+  data_confirmada_recebimento_rascunho_invoice:  { tipo: 'alfanumerico' },
+  data_meta_recebimento_rascunho_invoice:        { tipo: 'alfanumerico' },
+  // Invoice — Aprovação Rascunho
+  data_prevista_aprovacao_rascunho_invoice:      { tipo: 'alfanumerico' },
+  data_confirmada_aprovacao_rascunho_invoice:    { tipo: 'alfanumerico' },
+  data_meta_aprovacao_rascunho_invoice:          { tipo: 'alfanumerico' },
+  // Invoice — Envio Original
+  data_prevista_envio_original_invoice:          { tipo: 'alfanumerico' },
+  data_confirmada_envio_original_invoice:        { tipo: 'alfanumerico' },
+  data_meta_envio_original_invoice:              { tipo: 'alfanumerico' },
+  // Invoice — Recebimento Original
+  data_prevista_recebimento_original_invoice:    { tipo: 'alfanumerico' },
+  data_confirmada_recebimento_original_invoice:  { tipo: 'alfanumerico' },
+  data_meta_recebimento_original_invoice:        { tipo: 'alfanumerico' },
+  // Documento Invoice
+  data_invoice:                                  { tipo: 'alfanumerico' },
 }
 
 // ── Comportamento no nível ITEM (filho) ──────────────────────────────────────

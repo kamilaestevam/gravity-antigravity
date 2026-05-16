@@ -1101,6 +1101,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   placeholderData = 'DD/MM/AAAA',
   onExpandidosMudar,
   permiteReplicacaoPaiEmItens,
+  mensagemSemPermissaoEditar,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -1970,18 +1971,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Se col.editavel é função, ela tem prioridade sobre camposEditaveis (pode bloquear mesmo se incluído)
     const editavelColFn = typeof col.editavel === 'function' ? col.editavel(item) : undefined
-    const podeEditar = (
-      editavelColFn !== undefined
-        ? editavelColFn
-        : ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || !!col.editavel)
-    ) && !!(isFilho ? onEditarFilho : onEditar)
+    const colunaEditavel = editavelColFn !== undefined
+      ? editavelColFn
+      : ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || !!col.editavel)
+    const podeEditar = colunaEditavel && !!(isFilho ? onEditarFilho : onEditar)
+    const semPermissaoEditar = colunaEditavel && !podeEditar && !!mensagemSemPermissaoEditar
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
     const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
 
     const classeIndent      = ''
-    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -2010,10 +2011,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
+    // Tooltip de permissão: célula SERIA editável mas o handler está ausente
+    const tooltipPermissaoMsg = semPermissaoEditar ? mensagemSemPermissaoEditar : undefined
+
     // Para células com tooltip: o TooltipGlobal envolve um <span> simples.
     // Para células sem tooltip: renderiza o conteúdo diretamente.
     // Não usamos gtv-celula-conteudo (evita dependência circular de width).
-    const celConteudo = tooltipDescr ? (
+    const celConteudo = tooltipPermissaoMsg ? (
+      <TooltipGlobal titulo={col.label} descricao={tooltipPermissaoMsg}>
+        <span style={{ display: 'contents' }}>{innerContent}</span>
+      </TooltipGlobal>
+    ) : tooltipDescr ? (
       <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
         <span className="gtv-celula-text">{innerContent as string}</span>
       </TooltipGlobal>
@@ -2254,14 +2262,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const editavelMapaVal = editavelMapaDef
               ? (typeof mapa.editavel === 'function' ? mapa.editavel(item) : !!mapa.editavel)
               : undefined
-            const podeEditar = (
-              editavelMapaVal !== undefined ? editavelMapaVal : camposEditaveisFilhos.includes(col.key as string)
-            ) && !!onEditarFilho
+            const colunaEditavelFilho = editavelMapaVal !== undefined ? editavelMapaVal : camposEditaveisFilhos.includes(col.key as string)
+            const podeEditar = colunaEditavelFilho && !!onEditarFilho
+            const semPermissaoFilho = colunaEditavelFilho && !podeEditar && !!mensagemSemPermissaoEditar
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
-            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -2304,6 +2312,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   />
                 ) : (() => {
                   const conteudoFilho = mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
+                  if (semPermissaoFilho && mensagemSemPermissaoEditar) {
+                    return <TooltipGlobal titulo={col.label} descricao={mensagemSemPermissaoEditar}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
+                  }
                   if (!podeEditar && mapa?.tooltipBloqueado) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) return <TooltipGlobal titulo={col.label} descricao={msg}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>

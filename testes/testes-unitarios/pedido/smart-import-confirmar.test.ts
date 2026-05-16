@@ -74,6 +74,8 @@ function criarDbMock() {
       create: vi.fn().mockResolvedValue({}),
     },
     // $transaction NÃO deve existir — simula TransactionClient real
+    // $executeRawUnsafe necessário para savepoints PG (SAVEPOINT / RELEASE / ROLLBACK TO)
+    $executeRawUnsafe: vi.fn().mockResolvedValue(undefined),
   }
   return { dbMock, pedidosCriados }
 }

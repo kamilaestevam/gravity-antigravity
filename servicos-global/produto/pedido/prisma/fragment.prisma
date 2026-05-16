@@ -40,7 +40,7 @@ model Pedido {
   moeda_cambio_pedido                                         String?
   taxa_cambio_estimada_pedido                                 Decimal?                    @db.Decimal(18, 6)
   contrato_cambio_id_pedido                                   String?
-  data_emissao_pedido                                         DateTime                    @default(now())
+  data_emissao_pedido                                         DateTime?
   detalhes_operacionais_pedido                                Json?
   dados_extras_importacao_pedido                              Json?
   ids_origem_consolidacao_pedido                              Json?
@@ -174,7 +174,7 @@ model PedidoItem {
   valor_total_item                 Decimal?       @db.Decimal(18, 6)
   valor_por_unidade_item           Decimal?       @db.Decimal(18, 6)
   casas_decimais_valor_item        Int            @default(2)
-  cobertura_cambial_item           String         @default("com_cobertura")
+  cobertura_cambial_item           String?
   nome_exportador_item             String?
   nome_importador_item             String?
   nome_fabricante_item             String?

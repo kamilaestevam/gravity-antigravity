@@ -61,6 +61,12 @@ export interface CampoPedidoDDD {
   /** P6.1 — Marca campo obrigatorio para criar pedido (UI mostra badge vermelho) */
   obrigatorio?: boolean
   /**
+   * Sinaliza que o dropdown deste campo deve ser preenchido dinamicamente
+   * no momento da geracao do template, via chamada S2S ao Cadastros.
+   * Valores possiveis: 'moeda' | 'unidade'. O templateHandler resolve.
+   */
+  dropdownDinamico?: 'moeda' | 'unidade'
+  /**
    * Aliases legados em EN/PT-BR variantes (P4.1) — usados pelo mapearComIA
    * APENAS quando nenhum match exato pelo `rotulo` ou pelo `campo` for
    * encontrado. Todos os aliases sao case-insensitive e normalizados
@@ -138,17 +144,17 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   // por decisao do dono em 11/05/2026: a zona ESSENCIAL do template deve
   // terminar em Incoterm (coluna U). Estes campos continuam aparecendo no
   // template e no modal de mapeamento, mas na zona DETALHES (expansivel).
-  { campo: 'moeda_pedido',                                 rotulo: 'Moeda do Pedido',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy', 'moeda'] },
+  { campo: 'moeda_pedido',                                 rotulo: 'Moeda do Pedido',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'moeda', aliasesLegados: ['currency', 'currency code', 'curr', 'ccy', 'moeda'] },
   { campo: 'valor_total_pedido',                           rotulo: 'Valor Total do Pedido',                  tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total amount', 'po total', 'order total'] },
   { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total quantity', 'total qty'] },
-  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
+  { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'unidade', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
   { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['payment terms', 'pay terms'] },
   { campo: 'quantidade_volumes_pedido',                    rotulo: 'Qtd. de Volumes',                        tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Cambio
   { campo: 'valor_total_cambio_pedido',                    rotulo: 'Valor Total Cambio',                     tipo: 'numero', nivel: 'pedido', grupo: 'Cambio' },
-  { campo: 'moeda_cambio_pedido',                          rotulo: 'Moeda Cambio',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Cambio' },
+  { campo: 'moeda_cambio_pedido',                          rotulo: 'Moeda Cambio',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Cambio', dropdownDinamico: 'moeda' },
   { campo: 'taxa_cambio_estimada_pedido',                  rotulo: 'Taxa Cambio Estimada',                   tipo: 'numero', nivel: 'pedido', grupo: 'Cambio' },
   { campo: 'contrato_cambio_id_pedido',                    rotulo: 'Contrato de Cambio (ID)',                tipo: 'texto',  nivel: 'pedido', grupo: 'Cambio' },
 
@@ -248,7 +254,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'part_number_item',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['part no', 'partnumber', 'sku', 'item code', 'product code', 'codigo produto', 'codigo do produto', 'material', 'zmatnr'] },
   { campo: 'ncm_item',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['hs code', 'hs', 'harmonized code', 'tariff code', 'h s code', 'tariff'] },
   { campo: 'descricao_item',                               rotulo: 'Descricao do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['description', 'item description', 'product description', 'product name', 'descricao', 'goods description', 'zmaktx'] },
-  { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada do Item',         tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade', 'zmeins'] },
+  { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada do Item',         tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', dropdownDinamico: 'unidade', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade', 'zmeins'] },
 
   // Quantidades
   { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['qty', 'quantity', 'qtd', 'qtde', 'quantidade', 'ordered qty', 'order qty', 'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'zmenge', 'menge'] },
@@ -260,7 +266,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'casas_decimais_quantidade_item',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
-  { campo: 'moeda_item',                                   rotulo: 'Moeda do Item',                          tipo: 'texto',  nivel: 'item', grupo: 'Financeiro', prioridade: 'principal' },
+  { campo: 'moeda_item',                                   rotulo: 'Moeda do Item',                          tipo: 'texto',  nivel: 'item', grupo: 'Financeiro', prioridade: 'principal', dropdownDinamico: 'moeda' },
   { campo: 'valor_por_unidade_item',                       rotulo: 'Valor por Unidade',                      tipo: 'numero', nivel: 'item', grupo: 'Financeiro', prioridade: 'principal', aliasesLegados: ['unit price', 'unit value', 'valor unitario', 'preco unitario', 'unit cost', 'price per unit', 'net price', 'znetpr'] },
   { campo: 'valor_total_item',                             rotulo: 'Valor Total do Item',                    tipo: 'numero', nivel: 'item', grupo: 'Financeiro', prioridade: 'principal', aliasesLegados: ['total value', 'line total', 'line amount', 'ext price', 'extended price', 'amount', 'valor total', 'fob total', 'fob value', 'zwrbtr'] },
   { campo: 'casas_decimais_valor_item',                    rotulo: 'Casas Decimais — Valor',                 tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },

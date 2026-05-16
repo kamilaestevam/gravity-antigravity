@@ -7,6 +7,7 @@
 
 import React from 'react'
 import type { TFunction } from 'i18next'
+import { PencilSimpleLine } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
@@ -256,6 +257,16 @@ export interface OpcoesUnidadesColunas {
 
 export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<Pedido>[] {
   const { unidadesPeso, unidadesCubagem, incotermsOpcoes, workspacesMap } = opcoes
+
+  /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
+  const urlEditarCnpjWorkspace = (idWorkspace: string, pedidoId?: string) => {
+    const urlAtual = new URL(window.location.href)
+    if (pedidoId) urlAtual.searchParams.set('expandir', pedidoId)
+    const retorno = encodeURIComponent(urlAtual.toString())
+    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
+    return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
+  }
+
   return [
   {
     key: 'numero_pedido',
@@ -356,6 +367,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'cnpj_importador',
     label: 'CNPJ do Importador',
     tipo: 'texto',
+    editavel: false,
     grupo: 'Partes',
     tooltipTitulo: 'CNPJ do Importador',
     tooltipDescricao: 'CNPJ da empresa importadora. Fonte única: CNPJ do Workspace. Em exportação, não se aplica (contraparte estrangeira).',
@@ -368,7 +380,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           </TooltipGlobal>
         )
       }
-      // Fonte única de verdade: CNPJ do Workspace
       const cnpjWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.cnpj
       const raw = cnpjWorkspace ?? ''
       const digits = raw.replace(/\D/g, '')
@@ -376,13 +387,23 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
         : ''
       if (!formatted) {
+        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Acesse Configurações > Workspaces para cadastrar.">
-            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'help' }}>—</span>
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar CNPJ
+            </span>
           </TooltipGlobal>
         )
       }
-      return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
+      return <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.82rem', letterSpacing: '0.01em' }}>{formatted}</span>
     },
   },
   // ── CNPJ Exportador ──────────────────────────────────────────────────────────
@@ -393,6 +414,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'cnpj_exportador',
     label: 'CNPJ do Exportador',
     tipo: 'texto',
+    editavel: false,
     grupo: 'Partes',
     tooltipTitulo: 'CNPJ do Exportador',
     tooltipDescricao: 'CNPJ da empresa exportadora. Fonte única: CNPJ do Workspace. Em importação, não se aplica (contraparte estrangeira).',
@@ -405,7 +427,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           </TooltipGlobal>
         )
       }
-      // Fonte única de verdade: CNPJ do Workspace
       const cnpjWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.cnpj
       const raw = cnpjWorkspace ?? ''
       const digits = raw.replace(/\D/g, '')
@@ -413,13 +434,23 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         ? `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
         : ''
       if (!formatted) {
+        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
         return (
-          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Acesse Configurações > Workspaces para cadastrar.">
-            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'help' }}>—</span>
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar CNPJ
+            </span>
           </TooltipGlobal>
         )
       }
-      return <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.82rem' }}>{formatted}</span>
+      return <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.82rem', letterSpacing: '0.01em' }}>{formatted}</span>
     },
   },
   {

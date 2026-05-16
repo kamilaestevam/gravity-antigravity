@@ -303,7 +303,8 @@
     "entrando": "Iniciando sesión...",
     "tooltip_entrar": "Iniciar sesión con correo y contraseña",
     "continuar_com_google": "Continuar con Google",
-    "enviar_instrucoes": "Enviar instrucciones"
+    "enviar_instrucoes": "Enviar instrucciones",
+    "erro_sessao_existente": "Ya estás conectado."
   },
   "admin": {
     "layout": {
@@ -4146,6 +4147,8 @@
       "aria_tabela": "Pedidos a duplicar",
       "secao_pedidos": "Se crearán nuevos pedidos",
       "secao_itens": "Los ítems se duplicarán en estos pedidos",
+      "secao_pedidos_resultado": "Pedidos duplicados",
+      "secao_itens_resultado": "Ítems duplicados",
       "aviso_zerados_titulo": "Atención — campos que se restablecerán en los ítems duplicados",
       "aviso_zerados_campos": "Las cantidades Lista, Transferida y Cancelada se restablecerán a cero en el ítem duplicado.",
       "aviso_zerados_motivo": "Esos valores representan ejecución real (transferencias para embarque, marcaciones de listo, cancelaciones) y no pueden copiarse — evita saldo fantasma.",

@@ -209,6 +209,11 @@ export type GabiPersonalizacaoOrganizacao = $Result.DefaultSelection<Prisma.$Gab
  */
 export type GabiLimiteMonetario = $Result.DefaultSelection<Prisma.$GabiLimiteMonetarioPayload>
 /**
+ * Model GabiKbChunk
+ * 
+ */
+export type GabiKbChunk = $Result.DefaultSelection<Prisma.$GabiKbChunkPayload>
+/**
  * Model GabiAlertaEmitido
  * 
  */
@@ -975,6 +980,16 @@ export class PrismaClient<
   get gabiLimiteMonetario(): Prisma.GabiLimiteMonetarioDelegate<ExtArgs>;
 
   /**
+   * `prisma.gabiKbChunk`: Exposes CRUD operations for the **GabiKbChunk** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiKbChunks
+    * const gabiKbChunks = await prisma.gabiKbChunk.findMany()
+    * ```
+    */
+  get gabiKbChunk(): Prisma.GabiKbChunkDelegate<ExtArgs>;
+
+  /**
    * `prisma.gabiAlertaEmitido`: Exposes CRUD operations for the **GabiAlertaEmitido** model.
     * Example usage:
     * ```ts
@@ -1553,6 +1568,7 @@ export namespace Prisma {
     GabiTokenOrganizacao: 'GabiTokenOrganizacao',
     GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
     GabiLimiteMonetario: 'GabiLimiteMonetario',
+    GabiKbChunk: 'GabiKbChunk',
     GabiAlertaEmitido: 'GabiAlertaEmitido',
     WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
@@ -1578,7 +1594,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiAlertaEmitido" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiKbChunk" | "gabiAlertaEmitido" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4309,6 +4325,60 @@ export namespace Prisma {
           count: {
             args: Prisma.GabiLimiteMonetarioCountArgs<ExtArgs>
             result: $Utils.Optional<GabiLimiteMonetarioCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiKbChunk: {
+        payload: Prisma.$GabiKbChunkPayload<ExtArgs>
+        fields: Prisma.GabiKbChunkFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiKbChunkFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiKbChunkFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiKbChunkFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiKbChunkFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload>
+          }
+          findMany: {
+            args: Prisma.GabiKbChunkFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiKbChunkDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload>
+          }
+          update: {
+            args: Prisma.GabiKbChunkUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiKbChunkPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiKbChunkDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiKbChunkUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          aggregate: {
+            args: Prisma.GabiKbChunkAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiKbChunk>
+          }
+          groupBy: {
+            args: Prisma.GabiKbChunkGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiKbChunkGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiKbChunkCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiKbChunkCountAggregateOutputType> | number
           }
         }
       }
@@ -45123,6 +45193,852 @@ export namespace Prisma {
 
 
   /**
+   * Model GabiKbChunk
+   */
+
+  export type AggregateGabiKbChunk = {
+    _count: GabiKbChunkCountAggregateOutputType | null
+    _avg: GabiKbChunkAvgAggregateOutputType | null
+    _sum: GabiKbChunkSumAggregateOutputType | null
+    _min: GabiKbChunkMinAggregateOutputType | null
+    _max: GabiKbChunkMaxAggregateOutputType | null
+  }
+
+  export type GabiKbChunkAvgAggregateOutputType = {
+    nivel_gabi_kb_chunk: number | null
+    tokens_gabi_kb_chunk: number | null
+    ordem_gabi_kb_chunk: number | null
+  }
+
+  export type GabiKbChunkSumAggregateOutputType = {
+    nivel_gabi_kb_chunk: number | null
+    tokens_gabi_kb_chunk: number | null
+    ordem_gabi_kb_chunk: number | null
+  }
+
+  export type GabiKbChunkMinAggregateOutputType = {
+    id_gabi_kb_chunk: string | null
+    hash_conteudo_gabi_kb_chunk: string | null
+    conteudo_gabi_kb_chunk: string | null
+    segmento_gabi_kb_chunk: string | null
+    titulo_secao_gabi_kb_chunk: string | null
+    nivel_gabi_kb_chunk: number | null
+    tokens_gabi_kb_chunk: number | null
+    versao_kb_gabi_kb_chunk: string | null
+    ordem_gabi_kb_chunk: number | null
+    data_criacao_gabi_kb_chunk: Date | null
+    data_atualizacao_gabi_kb_chunk: Date | null
+  }
+
+  export type GabiKbChunkMaxAggregateOutputType = {
+    id_gabi_kb_chunk: string | null
+    hash_conteudo_gabi_kb_chunk: string | null
+    conteudo_gabi_kb_chunk: string | null
+    segmento_gabi_kb_chunk: string | null
+    titulo_secao_gabi_kb_chunk: string | null
+    nivel_gabi_kb_chunk: number | null
+    tokens_gabi_kb_chunk: number | null
+    versao_kb_gabi_kb_chunk: string | null
+    ordem_gabi_kb_chunk: number | null
+    data_criacao_gabi_kb_chunk: Date | null
+    data_atualizacao_gabi_kb_chunk: Date | null
+  }
+
+  export type GabiKbChunkCountAggregateOutputType = {
+    id_gabi_kb_chunk: number
+    hash_conteudo_gabi_kb_chunk: number
+    conteudo_gabi_kb_chunk: number
+    segmento_gabi_kb_chunk: number
+    titulo_secao_gabi_kb_chunk: number
+    nivel_gabi_kb_chunk: number
+    tokens_gabi_kb_chunk: number
+    versao_kb_gabi_kb_chunk: number
+    ordem_gabi_kb_chunk: number
+    data_criacao_gabi_kb_chunk: number
+    data_atualizacao_gabi_kb_chunk: number
+    _all: number
+  }
+
+
+  export type GabiKbChunkAvgAggregateInputType = {
+    nivel_gabi_kb_chunk?: true
+    tokens_gabi_kb_chunk?: true
+    ordem_gabi_kb_chunk?: true
+  }
+
+  export type GabiKbChunkSumAggregateInputType = {
+    nivel_gabi_kb_chunk?: true
+    tokens_gabi_kb_chunk?: true
+    ordem_gabi_kb_chunk?: true
+  }
+
+  export type GabiKbChunkMinAggregateInputType = {
+    id_gabi_kb_chunk?: true
+    hash_conteudo_gabi_kb_chunk?: true
+    conteudo_gabi_kb_chunk?: true
+    segmento_gabi_kb_chunk?: true
+    titulo_secao_gabi_kb_chunk?: true
+    nivel_gabi_kb_chunk?: true
+    tokens_gabi_kb_chunk?: true
+    versao_kb_gabi_kb_chunk?: true
+    ordem_gabi_kb_chunk?: true
+    data_criacao_gabi_kb_chunk?: true
+    data_atualizacao_gabi_kb_chunk?: true
+  }
+
+  export type GabiKbChunkMaxAggregateInputType = {
+    id_gabi_kb_chunk?: true
+    hash_conteudo_gabi_kb_chunk?: true
+    conteudo_gabi_kb_chunk?: true
+    segmento_gabi_kb_chunk?: true
+    titulo_secao_gabi_kb_chunk?: true
+    nivel_gabi_kb_chunk?: true
+    tokens_gabi_kb_chunk?: true
+    versao_kb_gabi_kb_chunk?: true
+    ordem_gabi_kb_chunk?: true
+    data_criacao_gabi_kb_chunk?: true
+    data_atualizacao_gabi_kb_chunk?: true
+  }
+
+  export type GabiKbChunkCountAggregateInputType = {
+    id_gabi_kb_chunk?: true
+    hash_conteudo_gabi_kb_chunk?: true
+    conteudo_gabi_kb_chunk?: true
+    segmento_gabi_kb_chunk?: true
+    titulo_secao_gabi_kb_chunk?: true
+    nivel_gabi_kb_chunk?: true
+    tokens_gabi_kb_chunk?: true
+    versao_kb_gabi_kb_chunk?: true
+    ordem_gabi_kb_chunk?: true
+    data_criacao_gabi_kb_chunk?: true
+    data_atualizacao_gabi_kb_chunk?: true
+    _all?: true
+  }
+
+  export type GabiKbChunkAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiKbChunk to aggregate.
+     */
+    where?: GabiKbChunkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiKbChunks to fetch.
+     */
+    orderBy?: GabiKbChunkOrderByWithRelationInput | GabiKbChunkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiKbChunkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiKbChunks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiKbChunks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiKbChunks
+    **/
+    _count?: true | GabiKbChunkCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiKbChunkAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiKbChunkSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiKbChunkMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiKbChunkMaxAggregateInputType
+  }
+
+  export type GetGabiKbChunkAggregateType<T extends GabiKbChunkAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiKbChunk]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiKbChunk[P]>
+      : GetScalarType<T[P], AggregateGabiKbChunk[P]>
+  }
+
+
+
+
+  export type GabiKbChunkGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiKbChunkWhereInput
+    orderBy?: GabiKbChunkOrderByWithAggregationInput | GabiKbChunkOrderByWithAggregationInput[]
+    by: GabiKbChunkScalarFieldEnum[] | GabiKbChunkScalarFieldEnum
+    having?: GabiKbChunkScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiKbChunkCountAggregateInputType | true
+    _avg?: GabiKbChunkAvgAggregateInputType
+    _sum?: GabiKbChunkSumAggregateInputType
+    _min?: GabiKbChunkMinAggregateInputType
+    _max?: GabiKbChunkMaxAggregateInputType
+  }
+
+  export type GabiKbChunkGroupByOutputType = {
+    id_gabi_kb_chunk: string
+    hash_conteudo_gabi_kb_chunk: string
+    conteudo_gabi_kb_chunk: string
+    segmento_gabi_kb_chunk: string
+    titulo_secao_gabi_kb_chunk: string
+    nivel_gabi_kb_chunk: number
+    tokens_gabi_kb_chunk: number
+    versao_kb_gabi_kb_chunk: string
+    ordem_gabi_kb_chunk: number
+    data_criacao_gabi_kb_chunk: Date
+    data_atualizacao_gabi_kb_chunk: Date
+    _count: GabiKbChunkCountAggregateOutputType | null
+    _avg: GabiKbChunkAvgAggregateOutputType | null
+    _sum: GabiKbChunkSumAggregateOutputType | null
+    _min: GabiKbChunkMinAggregateOutputType | null
+    _max: GabiKbChunkMaxAggregateOutputType | null
+  }
+
+  type GetGabiKbChunkGroupByPayload<T extends GabiKbChunkGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiKbChunkGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiKbChunkGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiKbChunkGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiKbChunkGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiKbChunkSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_kb_chunk?: boolean
+    hash_conteudo_gabi_kb_chunk?: boolean
+    conteudo_gabi_kb_chunk?: boolean
+    segmento_gabi_kb_chunk?: boolean
+    titulo_secao_gabi_kb_chunk?: boolean
+    nivel_gabi_kb_chunk?: boolean
+    tokens_gabi_kb_chunk?: boolean
+    versao_kb_gabi_kb_chunk?: boolean
+    ordem_gabi_kb_chunk?: boolean
+    data_criacao_gabi_kb_chunk?: boolean
+    data_atualizacao_gabi_kb_chunk?: boolean
+  }, ExtArgs["result"]["gabiKbChunk"]>
+
+
+  export type GabiKbChunkSelectScalar = {
+    id_gabi_kb_chunk?: boolean
+    hash_conteudo_gabi_kb_chunk?: boolean
+    conteudo_gabi_kb_chunk?: boolean
+    segmento_gabi_kb_chunk?: boolean
+    titulo_secao_gabi_kb_chunk?: boolean
+    nivel_gabi_kb_chunk?: boolean
+    tokens_gabi_kb_chunk?: boolean
+    versao_kb_gabi_kb_chunk?: boolean
+    ordem_gabi_kb_chunk?: boolean
+    data_criacao_gabi_kb_chunk?: boolean
+    data_atualizacao_gabi_kb_chunk?: boolean
+  }
+
+
+  export type $GabiKbChunkPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiKbChunk"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_kb_chunk: string
+      hash_conteudo_gabi_kb_chunk: string
+      conteudo_gabi_kb_chunk: string
+      segmento_gabi_kb_chunk: string
+      titulo_secao_gabi_kb_chunk: string
+      nivel_gabi_kb_chunk: number
+      tokens_gabi_kb_chunk: number
+      versao_kb_gabi_kb_chunk: string
+      ordem_gabi_kb_chunk: number
+      data_criacao_gabi_kb_chunk: Date
+      data_atualizacao_gabi_kb_chunk: Date
+    }, ExtArgs["result"]["gabiKbChunk"]>
+    composites: {}
+  }
+
+  type GabiKbChunkGetPayload<S extends boolean | null | undefined | GabiKbChunkDefaultArgs> = $Result.GetResult<Prisma.$GabiKbChunkPayload, S>
+
+  type GabiKbChunkCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiKbChunkFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiKbChunkCountAggregateInputType | true
+    }
+
+  export interface GabiKbChunkDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiKbChunk'], meta: { name: 'GabiKbChunk' } }
+    /**
+     * Find zero or one GabiKbChunk that matches the filter.
+     * @param {GabiKbChunkFindUniqueArgs} args - Arguments to find a GabiKbChunk
+     * @example
+     * // Get one GabiKbChunk
+     * const gabiKbChunk = await prisma.gabiKbChunk.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiKbChunkFindUniqueArgs>(args: SelectSubset<T, GabiKbChunkFindUniqueArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiKbChunk that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiKbChunkFindUniqueOrThrowArgs} args - Arguments to find a GabiKbChunk
+     * @example
+     * // Get one GabiKbChunk
+     * const gabiKbChunk = await prisma.gabiKbChunk.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiKbChunkFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiKbChunkFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiKbChunk that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkFindFirstArgs} args - Arguments to find a GabiKbChunk
+     * @example
+     * // Get one GabiKbChunk
+     * const gabiKbChunk = await prisma.gabiKbChunk.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiKbChunkFindFirstArgs>(args?: SelectSubset<T, GabiKbChunkFindFirstArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiKbChunk that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkFindFirstOrThrowArgs} args - Arguments to find a GabiKbChunk
+     * @example
+     * // Get one GabiKbChunk
+     * const gabiKbChunk = await prisma.gabiKbChunk.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiKbChunkFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiKbChunkFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiKbChunks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiKbChunks
+     * const gabiKbChunks = await prisma.gabiKbChunk.findMany()
+     * 
+     * // Get first 10 GabiKbChunks
+     * const gabiKbChunks = await prisma.gabiKbChunk.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_kb_chunk`
+     * const gabiKbChunkWithId_gabi_kb_chunkOnly = await prisma.gabiKbChunk.findMany({ select: { id_gabi_kb_chunk: true } })
+     * 
+     */
+    findMany<T extends GabiKbChunkFindManyArgs>(args?: SelectSubset<T, GabiKbChunkFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Delete a GabiKbChunk.
+     * @param {GabiKbChunkDeleteArgs} args - Arguments to delete one GabiKbChunk.
+     * @example
+     * // Delete one GabiKbChunk
+     * const GabiKbChunk = await prisma.gabiKbChunk.delete({
+     *   where: {
+     *     // ... filter to delete one GabiKbChunk
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiKbChunkDeleteArgs>(args: SelectSubset<T, GabiKbChunkDeleteArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiKbChunk.
+     * @param {GabiKbChunkUpdateArgs} args - Arguments to update one GabiKbChunk.
+     * @example
+     * // Update one GabiKbChunk
+     * const gabiKbChunk = await prisma.gabiKbChunk.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiKbChunkUpdateArgs>(args: SelectSubset<T, GabiKbChunkUpdateArgs<ExtArgs>>): Prisma__GabiKbChunkClient<$Result.GetResult<Prisma.$GabiKbChunkPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiKbChunks.
+     * @param {GabiKbChunkDeleteManyArgs} args - Arguments to filter GabiKbChunks to delete.
+     * @example
+     * // Delete a few GabiKbChunks
+     * const { count } = await prisma.gabiKbChunk.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiKbChunkDeleteManyArgs>(args?: SelectSubset<T, GabiKbChunkDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiKbChunks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiKbChunks
+     * const gabiKbChunk = await prisma.gabiKbChunk.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiKbChunkUpdateManyArgs>(args: SelectSubset<T, GabiKbChunkUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+
+    /**
+     * Count the number of GabiKbChunks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkCountArgs} args - Arguments to filter GabiKbChunks to count.
+     * @example
+     * // Count the number of GabiKbChunks
+     * const count = await prisma.gabiKbChunk.count({
+     *   where: {
+     *     // ... the filter for the GabiKbChunks we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiKbChunkCountArgs>(
+      args?: Subset<T, GabiKbChunkCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiKbChunkCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiKbChunk.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiKbChunkAggregateArgs>(args: Subset<T, GabiKbChunkAggregateArgs>): Prisma.PrismaPromise<GetGabiKbChunkAggregateType<T>>
+
+    /**
+     * Group by GabiKbChunk.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiKbChunkGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiKbChunkGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiKbChunkGroupByArgs['orderBy'] }
+        : { orderBy?: GabiKbChunkGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiKbChunkGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiKbChunkGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiKbChunk model
+   */
+  readonly fields: GabiKbChunkFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiKbChunk.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiKbChunkClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiKbChunk model
+   */ 
+  interface GabiKbChunkFieldRefs {
+    readonly id_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly hash_conteudo_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly conteudo_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly segmento_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly titulo_secao_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly nivel_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'Int'>
+    readonly tokens_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'Int'>
+    readonly versao_kb_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'String'>
+    readonly ordem_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'Int'>
+    readonly data_criacao_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'DateTime'>
+    readonly data_atualizacao_gabi_kb_chunk: FieldRef<"GabiKbChunk", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiKbChunk findUnique
+   */
+  export type GabiKbChunkFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiKbChunk to fetch.
+     */
+    where: GabiKbChunkWhereUniqueInput
+  }
+
+  /**
+   * GabiKbChunk findUniqueOrThrow
+   */
+  export type GabiKbChunkFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiKbChunk to fetch.
+     */
+    where: GabiKbChunkWhereUniqueInput
+  }
+
+  /**
+   * GabiKbChunk findFirst
+   */
+  export type GabiKbChunkFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiKbChunk to fetch.
+     */
+    where?: GabiKbChunkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiKbChunks to fetch.
+     */
+    orderBy?: GabiKbChunkOrderByWithRelationInput | GabiKbChunkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiKbChunks.
+     */
+    cursor?: GabiKbChunkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiKbChunks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiKbChunks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiKbChunks.
+     */
+    distinct?: GabiKbChunkScalarFieldEnum | GabiKbChunkScalarFieldEnum[]
+  }
+
+  /**
+   * GabiKbChunk findFirstOrThrow
+   */
+  export type GabiKbChunkFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiKbChunk to fetch.
+     */
+    where?: GabiKbChunkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiKbChunks to fetch.
+     */
+    orderBy?: GabiKbChunkOrderByWithRelationInput | GabiKbChunkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiKbChunks.
+     */
+    cursor?: GabiKbChunkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiKbChunks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiKbChunks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiKbChunks.
+     */
+    distinct?: GabiKbChunkScalarFieldEnum | GabiKbChunkScalarFieldEnum[]
+  }
+
+  /**
+   * GabiKbChunk findMany
+   */
+  export type GabiKbChunkFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiKbChunks to fetch.
+     */
+    where?: GabiKbChunkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiKbChunks to fetch.
+     */
+    orderBy?: GabiKbChunkOrderByWithRelationInput | GabiKbChunkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiKbChunks.
+     */
+    cursor?: GabiKbChunkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiKbChunks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiKbChunks.
+     */
+    skip?: number
+    distinct?: GabiKbChunkScalarFieldEnum | GabiKbChunkScalarFieldEnum[]
+  }
+
+  /**
+   * GabiKbChunk update
+   */
+  export type GabiKbChunkUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiKbChunk.
+     */
+    data: XOR<GabiKbChunkUpdateInput, GabiKbChunkUncheckedUpdateInput>
+    /**
+     * Choose, which GabiKbChunk to update.
+     */
+    where: GabiKbChunkWhereUniqueInput
+  }
+
+  /**
+   * GabiKbChunk updateMany
+   */
+  export type GabiKbChunkUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiKbChunks.
+     */
+    data: XOR<GabiKbChunkUpdateManyMutationInput, GabiKbChunkUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiKbChunks to update
+     */
+    where?: GabiKbChunkWhereInput
+  }
+
+  /**
+   * GabiKbChunk delete
+   */
+  export type GabiKbChunkDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+    /**
+     * Filter which GabiKbChunk to delete.
+     */
+    where: GabiKbChunkWhereUniqueInput
+  }
+
+  /**
+   * GabiKbChunk deleteMany
+   */
+  export type GabiKbChunkDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiKbChunks to delete
+     */
+    where?: GabiKbChunkWhereInput
+  }
+
+  /**
+   * GabiKbChunk without action
+   */
+  export type GabiKbChunkDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiKbChunk
+     */
+    select?: GabiKbChunkSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model GabiAlertaEmitido
    */
 
@@ -55453,6 +56369,23 @@ export namespace Prisma {
   export type GabiLimiteMonetarioScalarFieldEnum = (typeof GabiLimiteMonetarioScalarFieldEnum)[keyof typeof GabiLimiteMonetarioScalarFieldEnum]
 
 
+  export const GabiKbChunkScalarFieldEnum: {
+    id_gabi_kb_chunk: 'id_gabi_kb_chunk',
+    hash_conteudo_gabi_kb_chunk: 'hash_conteudo_gabi_kb_chunk',
+    conteudo_gabi_kb_chunk: 'conteudo_gabi_kb_chunk',
+    segmento_gabi_kb_chunk: 'segmento_gabi_kb_chunk',
+    titulo_secao_gabi_kb_chunk: 'titulo_secao_gabi_kb_chunk',
+    nivel_gabi_kb_chunk: 'nivel_gabi_kb_chunk',
+    tokens_gabi_kb_chunk: 'tokens_gabi_kb_chunk',
+    versao_kb_gabi_kb_chunk: 'versao_kb_gabi_kb_chunk',
+    ordem_gabi_kb_chunk: 'ordem_gabi_kb_chunk',
+    data_criacao_gabi_kb_chunk: 'data_criacao_gabi_kb_chunk',
+    data_atualizacao_gabi_kb_chunk: 'data_atualizacao_gabi_kb_chunk'
+  };
+
+  export type GabiKbChunkScalarFieldEnum = (typeof GabiKbChunkScalarFieldEnum)[keyof typeof GabiKbChunkScalarFieldEnum]
+
+
   export const GabiAlertaEmitidoScalarFieldEnum: {
     id_gabi_alerta_emitido: 'id_gabi_alerta_emitido',
     id_organizacao_gabi_alerta_emitido: 'id_organizacao_gabi_alerta_emitido',
@@ -59536,7 +60469,6 @@ export namespace Prisma {
 
   export type GabiLimiteMonetarioWhereUniqueInput = Prisma.AtLeast<{
     id_gabi_limite_monetario?: string
-    id_organizacao_gabi_limite_monetario_modelo_gabi_limite_monetario?: GabiLimiteMonetarioId_organizacao_gabi_limite_monetarioModelo_gabi_limite_monetarioCompoundUniqueInput
     AND?: GabiLimiteMonetarioWhereInput | GabiLimiteMonetarioWhereInput[]
     OR?: GabiLimiteMonetarioWhereInput[]
     NOT?: GabiLimiteMonetarioWhereInput | GabiLimiteMonetarioWhereInput[]
@@ -59548,7 +60480,7 @@ export namespace Prisma {
     ativo_gabi_limite_monetario?: BoolFilter<"GabiLimiteMonetario"> | boolean
     data_criacao_gabi_limite_monetario?: DateTimeFilter<"GabiLimiteMonetario"> | Date | string
     data_atualizacao_gabi_limite_monetario?: DateTimeFilter<"GabiLimiteMonetario"> | Date | string
-  }, "id_gabi_limite_monetario" | "id_organizacao_gabi_limite_monetario_modelo_gabi_limite_monetario">
+  }, "id_gabi_limite_monetario">
 
   export type GabiLimiteMonetarioOrderByWithAggregationInput = {
     id_gabi_limite_monetario?: SortOrder
@@ -59580,6 +60512,90 @@ export namespace Prisma {
     ativo_gabi_limite_monetario?: BoolWithAggregatesFilter<"GabiLimiteMonetario"> | boolean
     data_criacao_gabi_limite_monetario?: DateTimeWithAggregatesFilter<"GabiLimiteMonetario"> | Date | string
     data_atualizacao_gabi_limite_monetario?: DateTimeWithAggregatesFilter<"GabiLimiteMonetario"> | Date | string
+  }
+
+  export type GabiKbChunkWhereInput = {
+    AND?: GabiKbChunkWhereInput | GabiKbChunkWhereInput[]
+    OR?: GabiKbChunkWhereInput[]
+    NOT?: GabiKbChunkWhereInput | GabiKbChunkWhereInput[]
+    id_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    hash_conteudo_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    conteudo_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    segmento_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    titulo_secao_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    nivel_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    tokens_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    versao_kb_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    ordem_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    data_criacao_gabi_kb_chunk?: DateTimeFilter<"GabiKbChunk"> | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFilter<"GabiKbChunk"> | Date | string
+  }
+
+  export type GabiKbChunkOrderByWithRelationInput = {
+    id_gabi_kb_chunk?: SortOrder
+    hash_conteudo_gabi_kb_chunk?: SortOrder
+    conteudo_gabi_kb_chunk?: SortOrder
+    segmento_gabi_kb_chunk?: SortOrder
+    titulo_secao_gabi_kb_chunk?: SortOrder
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    versao_kb_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+    data_criacao_gabi_kb_chunk?: SortOrder
+    data_atualizacao_gabi_kb_chunk?: SortOrder
+  }
+
+  export type GabiKbChunkWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_kb_chunk?: string
+    hash_conteudo_gabi_kb_chunk?: string
+    AND?: GabiKbChunkWhereInput | GabiKbChunkWhereInput[]
+    OR?: GabiKbChunkWhereInput[]
+    NOT?: GabiKbChunkWhereInput | GabiKbChunkWhereInput[]
+    conteudo_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    segmento_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    titulo_secao_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    nivel_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    tokens_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    versao_kb_gabi_kb_chunk?: StringFilter<"GabiKbChunk"> | string
+    ordem_gabi_kb_chunk?: IntFilter<"GabiKbChunk"> | number
+    data_criacao_gabi_kb_chunk?: DateTimeFilter<"GabiKbChunk"> | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFilter<"GabiKbChunk"> | Date | string
+  }, "id_gabi_kb_chunk" | "hash_conteudo_gabi_kb_chunk">
+
+  export type GabiKbChunkOrderByWithAggregationInput = {
+    id_gabi_kb_chunk?: SortOrder
+    hash_conteudo_gabi_kb_chunk?: SortOrder
+    conteudo_gabi_kb_chunk?: SortOrder
+    segmento_gabi_kb_chunk?: SortOrder
+    titulo_secao_gabi_kb_chunk?: SortOrder
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    versao_kb_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+    data_criacao_gabi_kb_chunk?: SortOrder
+    data_atualizacao_gabi_kb_chunk?: SortOrder
+    _count?: GabiKbChunkCountOrderByAggregateInput
+    _avg?: GabiKbChunkAvgOrderByAggregateInput
+    _max?: GabiKbChunkMaxOrderByAggregateInput
+    _min?: GabiKbChunkMinOrderByAggregateInput
+    _sum?: GabiKbChunkSumOrderByAggregateInput
+  }
+
+  export type GabiKbChunkScalarWhereWithAggregatesInput = {
+    AND?: GabiKbChunkScalarWhereWithAggregatesInput | GabiKbChunkScalarWhereWithAggregatesInput[]
+    OR?: GabiKbChunkScalarWhereWithAggregatesInput[]
+    NOT?: GabiKbChunkScalarWhereWithAggregatesInput | GabiKbChunkScalarWhereWithAggregatesInput[]
+    id_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    hash_conteudo_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    conteudo_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    segmento_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    titulo_secao_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    nivel_gabi_kb_chunk?: IntWithAggregatesFilter<"GabiKbChunk"> | number
+    tokens_gabi_kb_chunk?: IntWithAggregatesFilter<"GabiKbChunk"> | number
+    versao_kb_gabi_kb_chunk?: StringWithAggregatesFilter<"GabiKbChunk"> | string
+    ordem_gabi_kb_chunk?: IntWithAggregatesFilter<"GabiKbChunk"> | number
+    data_criacao_gabi_kb_chunk?: DateTimeWithAggregatesFilter<"GabiKbChunk"> | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeWithAggregatesFilter<"GabiKbChunk"> | Date | string
   }
 
   export type GabiAlertaEmitidoWhereInput = {
@@ -64683,6 +65699,62 @@ export namespace Prisma {
     data_atualizacao_gabi_limite_monetario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GabiKbChunkUpdateInput = {
+    id_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    hash_conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    segmento_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    titulo_secao_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    tokens_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    versao_kb_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    ordem_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    data_criacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiKbChunkUncheckedUpdateInput = {
+    id_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    hash_conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    segmento_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    titulo_secao_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    tokens_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    versao_kb_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    ordem_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    data_criacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiKbChunkUpdateManyMutationInput = {
+    id_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    hash_conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    segmento_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    titulo_secao_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    tokens_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    versao_kb_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    ordem_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    data_criacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiKbChunkUncheckedUpdateManyInput = {
+    id_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    hash_conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    segmento_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    titulo_secao_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    nivel_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    tokens_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    versao_kb_gabi_kb_chunk?: StringFieldUpdateOperationsInput | string
+    ordem_gabi_kb_chunk?: IntFieldUpdateOperationsInput | number
+    data_criacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_kb_chunk?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type GabiAlertaEmitidoCreateInput = {
     id_gabi_alerta_emitido?: string
     id_organizacao_gabi_alerta_emitido: string
@@ -68334,11 +69406,6 @@ export namespace Prisma {
     data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
-  export type GabiLimiteMonetarioId_organizacao_gabi_limite_monetarioModelo_gabi_limite_monetarioCompoundUniqueInput = {
-    id_organizacao_gabi_limite_monetario: string
-    modelo_gabi_limite_monetario: string
-  }
-
   export type GabiLimiteMonetarioCountOrderByAggregateInput = {
     id_gabi_limite_monetario?: SortOrder
     id_organizacao_gabi_limite_monetario?: SortOrder
@@ -68381,6 +69448,60 @@ export namespace Prisma {
   export type GabiLimiteMonetarioSumOrderByAggregateInput = {
     limite_aviso_usd_gabi_limite_monetario?: SortOrder
     limite_bloqueio_usd_gabi_limite_monetario?: SortOrder
+  }
+
+  export type GabiKbChunkCountOrderByAggregateInput = {
+    id_gabi_kb_chunk?: SortOrder
+    hash_conteudo_gabi_kb_chunk?: SortOrder
+    conteudo_gabi_kb_chunk?: SortOrder
+    segmento_gabi_kb_chunk?: SortOrder
+    titulo_secao_gabi_kb_chunk?: SortOrder
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    versao_kb_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+    data_criacao_gabi_kb_chunk?: SortOrder
+    data_atualizacao_gabi_kb_chunk?: SortOrder
+  }
+
+  export type GabiKbChunkAvgOrderByAggregateInput = {
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+  }
+
+  export type GabiKbChunkMaxOrderByAggregateInput = {
+    id_gabi_kb_chunk?: SortOrder
+    hash_conteudo_gabi_kb_chunk?: SortOrder
+    conteudo_gabi_kb_chunk?: SortOrder
+    segmento_gabi_kb_chunk?: SortOrder
+    titulo_secao_gabi_kb_chunk?: SortOrder
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    versao_kb_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+    data_criacao_gabi_kb_chunk?: SortOrder
+    data_atualizacao_gabi_kb_chunk?: SortOrder
+  }
+
+  export type GabiKbChunkMinOrderByAggregateInput = {
+    id_gabi_kb_chunk?: SortOrder
+    hash_conteudo_gabi_kb_chunk?: SortOrder
+    conteudo_gabi_kb_chunk?: SortOrder
+    segmento_gabi_kb_chunk?: SortOrder
+    titulo_secao_gabi_kb_chunk?: SortOrder
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    versao_kb_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
+    data_criacao_gabi_kb_chunk?: SortOrder
+    data_atualizacao_gabi_kb_chunk?: SortOrder
+  }
+
+  export type GabiKbChunkSumOrderByAggregateInput = {
+    nivel_gabi_kb_chunk?: SortOrder
+    tokens_gabi_kb_chunk?: SortOrder
+    ordem_gabi_kb_chunk?: SortOrder
   }
 
   export type GabiAlertaEmitidoId_limite_gabi_alerta_emitidoMes_ref_gabi_alerta_emitidoNivel_gabi_alerta_emitidoCompoundUniqueInput = {
@@ -73008,6 +74129,10 @@ export namespace Prisma {
      * @deprecated Use GabiLimiteMonetarioDefaultArgs instead
      */
     export type GabiLimiteMonetarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiLimiteMonetarioDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiKbChunkDefaultArgs instead
+     */
+    export type GabiKbChunkArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiKbChunkDefaultArgs<ExtArgs>
     /**
      * @deprecated Use GabiAlertaEmitidoDefaultArgs instead
      */

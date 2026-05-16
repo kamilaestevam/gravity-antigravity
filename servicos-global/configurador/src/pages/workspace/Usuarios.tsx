@@ -254,6 +254,7 @@ export function Usuarios() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded, user: clerkUser } = useUser()
   const addNotification = useShellStore((s) => s.addNotification)
+  const idWorkspaceAtivo = useShellStore((s: { idWorkspaceAtivo: string | null }) => s.idWorkspaceAtivo)
   const [usuarios, setUsuarios] = useState<UsuarioOrg[]>([])
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
   // Vínculos ativos: id_usuario → id_workspace[] (derivado da relation usuario_workspaces)
@@ -1164,6 +1165,7 @@ export function Usuarios() {
         abaInicial={abaEditando}
         workspaces={workspaces}
         workspacesSalvos={usuarioEditando ? (vinculosMap[usuarioEditando.id_usuario] ?? []) : []}
+        idWorkspaceAtivo={idWorkspaceAtivo}
         carregandoWorkspaces={carregando}
         tiposPermitidos={tiposPermitidosUI}
         somenteLeitura={gatingEdicao.somenteLeitura}

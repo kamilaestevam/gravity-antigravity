@@ -898,6 +898,10 @@
   background: rgba(129, 140, 248, 0.08);
 }
 
+.gtv-celula--sem-permissao {
+  cursor: not-allowed;
+}
+
 /* ─── Input de edição inline ──────────────────────────────────────────────── */
 .gtv-celula-input {
   width: 100%;

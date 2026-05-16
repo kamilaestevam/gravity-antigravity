@@ -37,6 +37,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
@@ -3792,11 +3793,25 @@ export default function Configuracoes() {
               </div>
 
               {/* ── Ativas ── */}
-              <ConfiguracaoSecaoGlobal
-                label={t('pedido.config.colunas.personalizadas.label_ativas')}
-                count={pendingColunas.length}
-                hint={t('pedido.config.colunas.personalizadas.hint_ativas')}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <ConfiguracaoSecaoGlobal
+                  label={t('pedido.config.colunas.personalizadas.label_ativas')}
+                  count={pendingColunas.length}
+                  hint={t('pedido.config.colunas.personalizadas.hint_ativas')}
+                />
+                <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
+                  <Plus size={16} weight="bold" />
+                  {t('pedido.config.colunas.personalizadas.btn_criar_coluna')}
+                </BotaoGlobal>
+              </div>
+
+              {criandoColuna && (
+                <ModalNovaColunaUsuario
+                  onFechar={() => setCriandoColuna(false)}
+                  onSalvo={handleColunaCriadaViaModal}
+                  todasColunas={colunasUsuarioApi_}
+                />
+              )}
               {pendingColunas.length === 0 ? (
                 <div style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -3847,21 +3862,6 @@ export default function Configuracoes() {
                 />
               )}
 
-              {/* ── Botão Nova Coluna ── */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
-                  <Plus size={16} weight="bold" />
-                  {t('pedido.config.colunas.personalizadas.btn_criar_coluna')}
-                </BotaoGlobal>
-              </div>
-
-              {criandoColuna && (
-                <ModalNovaColunaUsuario
-                  onFechar={() => setCriandoColuna(false)}
-                  onSalvo={handleColunaCriadaViaModal}
-                  todasColunas={colunasUsuarioApi_}
-                />
-              )}
               {/* Formulário inline legado — mantido para referência, oculto */}
               {false && <div><div>
 
@@ -4196,7 +4196,7 @@ export default function Configuracoes() {
                     </div>
                   )
                 })()}
-              </div>
+              </div>}
 
             </section>}
 

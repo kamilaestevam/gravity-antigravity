@@ -392,7 +392,8 @@
     "entrando": "Signing in...",
     "tooltip_entrar": "Sign in with email and password",
     "continuar_com_google": "Continue with Google",
-    "enviar_instrucoes": "Send instructions"
+    "enviar_instrucoes": "Send instructions",
+    "erro_sessao_existente": "You're already signed in."
   },
   "admin": {
     "layout": {
@@ -4001,6 +4002,8 @@
       "aria_tabela": "Orders to duplicate",
       "secao_pedidos": "New orders will be created",
       "secao_itens": "Items will be duplicated in these orders",
+      "secao_pedidos_resultado": "Duplicated orders",
+      "secao_itens_resultado": "Duplicated items",
       "aviso_zerados_titulo": "Heads-up — fields that will be reset on duplicated items",
       "aviso_zerados_campos": "Ready, Transferred and Cancelled quantities will be reset to zero on the duplicated item.",
       "aviso_zerados_motivo": "These values represent real execution (transfers to shipping, ready markings, cancellations) and cannot be copied — prevents phantom balance.",

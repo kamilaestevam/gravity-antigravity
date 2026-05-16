@@ -13,6 +13,9 @@ export type BotaoVariante =
 /** Tamanho do botão */
 export type BotaoTamanho = 'padrao' | 'pequeno' | 'grande'
 
+/** Resultado visual pós-ação */
+export type ResultadoAcao = 'sucesso' | 'erro' | null
+
 /** Props do BotaoGlobal */
 export interface BotaoProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -28,4 +31,10 @@ export interface BotaoProps
   blocoCompleto?: boolean
   /** Centraliza o conteúdo (útil com blocoCompleto) */
   centralizado?: boolean
+  /** Exibe ícone orbital Gravity no badge + shimmer na superfície. Auto-desabilita o botão */
+  carregando?: boolean
+  /** Texto exibido durante carregamento (ex: "Excluindo...", "Salvando..."). Se omitido, mantém o children */
+  textoCarregando?: string
+  /** Flash visual pós-ação: check verde (sucesso) ou X vermelho (erro) */
+  resultadoAcao?: ResultadoAcao
 }

@@ -119,6 +119,8 @@ export type LinhaArquivo = Record<string, string>
 export interface ParseResultado {
   linhas: LinhaArquivo[]
   extrator_usado: string
+  /** Quantas linhas de cabeçalho foram puladas (1 = normal, 2 = super-header) */
+  linhas_cabecalho: number
 }
 
 // ── Helpers de encoding ───────────────────────────────────────────────────────
@@ -216,6 +218,7 @@ export async function parseArquivo(
           )
         ),
         extrator_usado: ext,
+        linhas_cabecalho: ehSuperHeader ? 2 : 1,
       }
     }
 
@@ -224,12 +227,12 @@ export async function parseArquivo(
       // viram replacement chars () em UTF-8. Tenta latin1 como fallback se
       // detecta muitos replacement chars.
       const texto = decodificarComFallback(buffer)
-      return { linhas: parseCsv(texto), extrator_usado: ext }
+      return { linhas: parseCsv(texto), extrator_usado: ext, linhas_cabecalho: 1 }
     }
 
     case 'txt': {
       const texto = decodificarComFallback(buffer)
-      return { linhas: parseTxt(texto), extrator_usado: 'txt' }
+      return { linhas: parseTxt(texto), extrator_usado: 'txt', linhas_cabecalho: 1 }
     }
 
     case 'json': {
@@ -272,11 +275,12 @@ export async function parseArquivo(
           )
         }),
         extrator_usado: 'json',
+        linhas_cabecalho: 1,
       }
     }
 
     case 'xml': {
-      return { linhas: parseXml(buffer.toString('utf-8')), extrator_usado: 'xml' }
+      return { linhas: parseXml(buffer.toString('utf-8')), extrator_usado: 'xml', linhas_cabecalho: 1 }
     }
 
     case 'pdf': {
@@ -284,7 +288,7 @@ export async function parseArquivo(
       try {
         const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
         const gemini = await extrairPdfComGemini(buffer)
-        if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini' }
+        if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini', linhas_cabecalho: 1 }
       } catch (geminiImportErr: unknown) {
         const msg = geminiImportErr instanceof Error ? geminiImportErr.message : String(geminiImportErr)
         console.warn(`[PDF] Falha ao carregar extrator Gemini (${msg}) — tentando parser local`)
@@ -306,7 +310,7 @@ export async function parseArquivo(
             'PDF_ESCANEADO',
           )
         }
-        return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse' }
+        return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse', linhas_cabecalho: 1 }
       } catch (pdfErr: unknown) {
         // Erros do nosso AppError (PDF_ESCANEADO) sobem direto
         if (pdfErr instanceof AppError) throw pdfErr
@@ -330,6 +334,7 @@ export async function parseArquivo(
             _conteudo: `Erro: ${msg}`,
           }],
           extrator_usado: 'pdf-erro',
+          linhas_cabecalho: 1,
         }
       }
     }

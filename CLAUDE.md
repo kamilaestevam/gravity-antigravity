@@ -72,6 +72,34 @@ Antes de qualquer tarefa — **mesmo quando nenhum time ou papel específico foi
 
 ---
 
+## Regra de Execução Obrigatória — `/comando-inicial-padrao`
+
+**Quando o usuário invocar `/comando-inicial-padrao`, o agente DEVE seguir TODAS as etapas definidas em `.claude/commands/comando-inicial-padrao.md` na ordem exata, sem pular nenhuma.**
+
+Esta é uma **regra absoluta e inviolável**. O agente NÃO pode:
+
+❌ Ir direto para o código ao receber `/comando-inicial-padrao`
+❌ Pular a leitura de skills (ETAPA 0)
+❌ Pular a tabela de diagnóstico (ETAPA 1)
+❌ Pular a revisão do Coordenador e Líder (ETAPA 2)
+❌ Começar a implementar antes da aprovação do dono (ETAPA 3)
+❌ Pular testes (ETAPA 5) ou QA (ETAPA 6)
+❌ Fazer commit sem aprovação final do dono (ETAPA 7)
+
+✅ O que o agente DEVE fazer ao receber `/comando-inicial-padrao`:
+
+1. **PARAR** — não analisar, não diagnosticar, não resolver nada ainda
+2. **LER** o arquivo `.claude/commands/comando-inicial-padrao.md` por inteiro
+3. **EXECUTAR** cada etapa na ordem (0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8)
+4. **RESPEITAR** cada checkpoint — sem o checkpoint verde do Líder, não avança
+5. **AGUARDAR** o dono nas etapas 3 e 7 — sem aprovação, não prossegue
+
+**O problema que o usuário descreveu junto com o comando NÃO é licença para pular o processo.** O processo existe para garantir qualidade. A urgência do problema não anula as etapas.
+
+**Por quê:** em 14/05/2026 o agente ignorou completamente o `/comando-inicial-padrao` e foi direto editar código sem ler skills, sem tabela, sem revisão, sem QA, sem testes. Isso é exatamente o que o comando foi criado para prevenir.
+
+---
+
 ## Os 9 Mandamentos do Gravity (não-negociáveis)
 
 > **Estas regras são absolutas e valem para TODO agente, em TODA conversa, em TODA alteração de código — sem exceção.**

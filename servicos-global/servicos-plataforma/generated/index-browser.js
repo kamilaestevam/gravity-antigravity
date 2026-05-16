@@ -730,6 +730,20 @@ exports.Prisma.GabiLimiteMonetarioScalarFieldEnum = {
   data_atualizacao_gabi_limite_monetario: 'data_atualizacao_gabi_limite_monetario'
 };
 
+exports.Prisma.GabiKbChunkScalarFieldEnum = {
+  id_gabi_kb_chunk: 'id_gabi_kb_chunk',
+  hash_conteudo_gabi_kb_chunk: 'hash_conteudo_gabi_kb_chunk',
+  conteudo_gabi_kb_chunk: 'conteudo_gabi_kb_chunk',
+  segmento_gabi_kb_chunk: 'segmento_gabi_kb_chunk',
+  titulo_secao_gabi_kb_chunk: 'titulo_secao_gabi_kb_chunk',
+  nivel_gabi_kb_chunk: 'nivel_gabi_kb_chunk',
+  tokens_gabi_kb_chunk: 'tokens_gabi_kb_chunk',
+  versao_kb_gabi_kb_chunk: 'versao_kb_gabi_kb_chunk',
+  ordem_gabi_kb_chunk: 'ordem_gabi_kb_chunk',
+  data_criacao_gabi_kb_chunk: 'data_criacao_gabi_kb_chunk',
+  data_atualizacao_gabi_kb_chunk: 'data_atualizacao_gabi_kb_chunk'
+};
+
 exports.Prisma.GabiAlertaEmitidoScalarFieldEnum = {
   id_gabi_alerta_emitido: 'id_gabi_alerta_emitido',
   id_organizacao_gabi_alerta_emitido: 'id_organizacao_gabi_alerta_emitido',
@@ -1034,6 +1048,7 @@ exports.Prisma.ModelName = {
   GabiTokenOrganizacao: 'GabiTokenOrganizacao',
   GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
   GabiLimiteMonetario: 'GabiLimiteMonetario',
+  GabiKbChunk: 'GabiKbChunk',
   GabiAlertaEmitido: 'GabiAlertaEmitido',
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',

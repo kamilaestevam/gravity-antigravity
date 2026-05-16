@@ -1296,9 +1296,6 @@ export const pedidoExcluirApi = {
     request<ExcluirPreview>('/api/v1/pedidos/exclusoes/preview', {
       method: 'POST',
       body: JSON.stringify({ ids }),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockExcluirPreview(ids)
-      throw err
     }),
 
   /** Confirmar exclusão definitiva dos pedidos permitidos */
@@ -1306,9 +1303,6 @@ export const pedidoExcluirApi = {
     request<ExcluirResultado>('/api/v1/pedidos/exclusoes/confirmar', {
       method: 'POST',
       body: JSON.stringify({ ids }),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockExcluirConfirmar(ids)
-      throw err
     }),
 
   /** Excluir itens de um pedido */
@@ -1316,9 +1310,6 @@ export const pedidoExcluirApi = {
     request<ExcluirResultado>('/api/v1/pedidos/exclusoes/itens', {
       method: 'POST',
       body: JSON.stringify({ pedido_id, item_ids }),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockExcluirItens(pedido_id, item_ids)
-      throw err
     }),
 }
 
@@ -1336,24 +1327,14 @@ function getMockStatusPermitidos(): string[] {
 }
 
 function mockExcluirPreview(ids: string[]): ExcluirPreview {
-  const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => ids.includes(p.id))
-  const permitidos: ExcluirPreview['permitidos'] = []
-  const bloqueados: ExcluirPreview['bloqueados'] = []
-  const statusPermitidos = getMockStatusPermitidos()
-
-  for (const p of pedidos) {
-    if (statusPermitidos.includes(p.status)) {
-      permitidos.push({ id: p.id, numero_pedido: p.numero_pedido, total_itens: p.itens?.length ?? 0 })
-    } else {
-      bloqueados.push({
-        id: p.id,
-        numero_pedido: p.numero_pedido,
-        status: p.status,
-        motivo: `Status "${p.status}" não permite exclusão. Permitidos: ${statusPermitidos.join(', ')}`,
-      })
-    }
-  }
-  return { permitidos, bloqueados }
+  // Gera preview a partir dos IDs recebidos (não filtra contra mock estático).
+  // IDs reais (CUIDs) nunca batem com IDs do mock — defesa contra array vazio.
+  const permitidos: ExcluirPreview['permitidos'] = ids.map((id, i) => ({
+    id,
+    numero_pedido: `MOCK-${i + 1}`,
+    total_itens: 0,
+  }))
+  return { permitidos, bloqueados: [] }
 }
 
 function mockExcluirConfirmar(ids: string[]): ExcluirResultado {

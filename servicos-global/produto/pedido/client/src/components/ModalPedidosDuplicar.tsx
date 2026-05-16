@@ -311,7 +311,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               <>
                 <h3 className="modal-duplicar__secao-titulo">
                   <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                  {t('pedido.modal_dup.secao_pedidos')}
+                  {t('pedido.modal_dup.secao_pedidos_resultado')}
                 </h3>
                 <ul className="modal-duplicar__lista-resultado">
                   {resultado.pedidos_criados.map(c => {
@@ -332,7 +332,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               <>
                 <h3 className="modal-duplicar__secao-titulo">
                   <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-                  {t('pedido.modal_dup.secao_itens')}
+                  {t('pedido.modal_dup.secao_itens_resultado')}
                 </h3>
                 <ul className="modal-duplicar__lista-resultado">
                   {resultado.itens_criados.map(c => {

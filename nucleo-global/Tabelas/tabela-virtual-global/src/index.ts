@@ -29,6 +29,7 @@ export type {
 // ─── FiltrosColuna (refactor D9 — 2026-05-13) ─────────────────────────────────
 // Subsistema de filtros de coluna (chips + popover). Promovido de
 // produtos/pedido/Pedidos.tsx para reuso por outros produtos.
+import './FiltrosColuna/FiltrosColuna.css'
 export { FiltroChips, calcularValoresUnicos } from './FiltrosColuna/FiltroChips.js'
 export { FiltroPopoverColuna } from './FiltrosColuna/FiltroPopoverColuna.js'
 export { rotulofiltro } from './FiltrosColuna/rotulofiltro.js'

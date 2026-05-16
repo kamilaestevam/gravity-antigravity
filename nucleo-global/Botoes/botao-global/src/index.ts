@@ -4,4 +4,4 @@
  */
 
 export { BotaoGlobal } from './botao.js'
-export type { BotaoProps, BotaoVariante, BotaoTamanho } from './tipos.js'
+export type { BotaoProps, BotaoVariante, BotaoTamanho, ResultadoAcao } from './tipos.js'

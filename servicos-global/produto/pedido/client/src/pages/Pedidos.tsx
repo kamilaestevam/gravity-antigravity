@@ -47,6 +47,7 @@ import {
   Tag,
   Columns,
   PlugsConnected,
+  PencilSimpleLine,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -1956,6 +1957,7 @@ const CAMPOS_PAI_TEXTO = new Set([
 type PedidoItemEnriquecido = PedidoItem & {
   _p: {
     id: string
+    id_workspace?: string | null
     tipo_operacao: string
     nome_exportador: string | null
     nome_importador: string | null
@@ -1974,7 +1976,15 @@ type PedidoItemEnriquecido = PedidoItem & {
 }
 
 function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+  const { unidadesPeso, unidadesCubagem, workspacesMap } = opcoes
+
+  /** Monta URL deep-link para editar CNPJ do workspace no Configurador, com retorno automático */
+  const urlEditarCnpjWorkspace = (idWorkspace: string) => {
+    const retorno = encodeURIComponent(window.location.href)
+    const base = import.meta.env.DEV ? 'http://localhost:8000' : '/configurador'
+    return `${base}/workspace/workspaces?id=${idWorkspace}&foco=cnpj&retorno=${retorno}`
+  }
+
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
@@ -2219,12 +2229,74 @@ function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GT
       )
     },
   },
-  // ── CNPJ Importador / Exportador (nível item = vazio, dado é do pedido) ───
+  // ── CNPJ Importador / Exportador (nível item = espelha lógica do pai) ───
   cnpj_importador: {
-    render: () => <span style={{ color: 'var(--text-disabled, #666)' }}>—</span>,
+    render: (row: PedidoItem) => {
+      const pai = (row as PedidoItemEnriquecido)._p
+      const tipoOp = pai?.tipo_operacao
+      if (tipoOp !== 'importacao') {
+        return (
+          <TooltipGlobal descricao="Em operações de exportação, o CNPJ do Importador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
+      const cnpjRaw = workspacesMap?.get(pai?.id_workspace ?? '')?.cnpj ?? ''
+      const digits = cnpjRaw.replace(/\D/g, '')
+      if (digits.length !== 14) {
+        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '')
+        return (
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar CNPJ
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const formatted = `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
+      return <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.82rem', letterSpacing: '0.01em' }}>{formatted}</span>
+    },
   },
   cnpj_exportador: {
-    render: () => <span style={{ color: 'var(--text-disabled, #666)' }}>—</span>,
+    render: (row: PedidoItem) => {
+      const pai = (row as PedidoItemEnriquecido)._p
+      const tipoOp = pai?.tipo_operacao
+      if (tipoOp !== 'exportacao') {
+        return (
+          <TooltipGlobal descricao="Em operações de importação, o CNPJ do Exportador não se aplica — a contraparte estrangeira não possui CNPJ brasileiro.">
+            <span style={{ color: 'var(--text-disabled, #666)', cursor: 'not-allowed' }}>—</span>
+          </TooltipGlobal>
+        )
+      }
+      const cnpjRaw = workspacesMap?.get(pai?.id_workspace ?? '')?.cnpj ?? ''
+      const digits = cnpjRaw.replace(/\D/g, '')
+      if (digits.length !== 14) {
+        const href = urlEditarCnpjWorkspace(pai?.id_workspace ?? '')
+        return (
+          <TooltipGlobal descricao="CNPJ não cadastrado no Workspace. Clique para cadastrar">
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.stopPropagation(); window.location.href = href }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
+              style={{ color: 'var(--accent, #f0c040)', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            >
+              <PencilSimpleLine size={12} weight="bold" />
+              Cadastrar CNPJ
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const formatted = `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12,14)}`
+      return <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.82rem', letterSpacing: '0.01em' }}>{formatted}</span>
+    },
   },
   // ── Moeda ──────────────────────────────────────────────────────────────────
   moeda_pedido: {
@@ -3507,6 +3579,25 @@ export default function Pedidos() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspacesSelecionados])
 
+  // ── Deep-link: auto-expandir pedido ao retornar do Configurador ────────────
+  // URL param ?expandir=<pedidoId> — expande o pedido e limpa o param.
+  const expandirAutoFeito = useRef(false)
+  useEffect(() => {
+    if (carregando || expandirAutoFeito.current) return
+    const params = new URLSearchParams(window.location.search)
+    const idExpandir = params.get('expandir')
+    if (!idExpandir) return
+    expandirAutoFeito.current = true
+    // Limpa o param da URL sem recarregar
+    params.delete('expandir')
+    const novaUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`
+    window.history.replaceState({}, '', novaUrl)
+    // Aguarda a tabela montar e expande
+    requestAnimationFrame(() => {
+      tabelaRef.current?.expandir(idExpandir)
+    })
+  }, [carregando])
+
   const acoesPai = useMemo(() => ([
     {
       id: 'editar',
@@ -4105,6 +4196,7 @@ export default function Pedidos() {
       // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
       const novoPaiP = {
         id: pedidoAtualizado.id,
+        id_workspace: pedidoAtualizado.id_workspace ?? null,
         tipo_operacao: pedidoAtualizado.tipo_operacao,
         nome_exportador: pedidoAtualizado.nome_exportador ?? null,
         nome_importador: pedidoAtualizado.nome_importador ?? null,
@@ -4149,6 +4241,7 @@ export default function Pedidos() {
         ...atualizadoMv,
         _p: {
           id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
           tipo_operacao: pedido.tipo_operacao,
           nome_exportador: pedido.nome_exportador ?? null,
           nome_importador: pedido.nome_importador ?? null,
@@ -4222,6 +4315,7 @@ export default function Pedidos() {
         ...atualizadoMi,
         _p: {
           id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
           tipo_operacao: pedido.tipo_operacao,
           nome_exportador: pedido.nome_exportador ?? null,
           nome_importador: pedido.nome_importador ?? null,
@@ -4263,6 +4357,7 @@ export default function Pedidos() {
         ...atualizadoUi,
         _p: {
           id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
           tipo_operacao: pedido.tipo_operacao,
           nome_exportador: pedido.nome_exportador ?? null,
           nome_importador: pedido.nome_importador ?? null,
@@ -4309,6 +4404,7 @@ export default function Pedidos() {
         ...atualizadoVu,
         _p: {
           id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
           tipo_operacao: pedido.tipo_operacao,
           nome_exportador: pedido.nome_exportador ?? null,
           nome_importador: pedido.nome_importador ?? null,
@@ -4393,6 +4489,7 @@ export default function Pedidos() {
         ...itemComUnidade,
         _p: {
           id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
           tipo_operacao: pedido.tipo_operacao,
           nome_exportador: pedido.nome_exportador ?? null,
           nome_importador: pedido.nome_importador ?? null,
@@ -4582,6 +4679,7 @@ export default function Pedidos() {
       ...atualizado,
       _p: {
         id: pedido.id,
+        id_workspace: pedido.id_workspace ?? null,
         tipo_operacao: pedido.tipo_operacao,
         nome_exportador: pedido.nome_exportador ?? null,
         nome_importador: pedido.nome_importador ?? null,
@@ -4634,6 +4732,7 @@ export default function Pedidos() {
       ...item,
       _p: {
         id: pedido.id,
+        id_workspace: pedido.id_workspace ?? null,
         tipo_operacao: pedido.tipo_operacao,
         nome_exportador: item.nome_exportador ?? pedido.nome_exportador ?? null,
         nome_importador: item.nome_importador ?? pedido.nome_importador ?? null,
@@ -5070,7 +5169,8 @@ export default function Pedidos() {
           sortCampo={sortCampo}
           sortDir={sortDir}
 
-          camposEditaveis={podeEditarLista ? CAMPOS_EDITAVEIS_PAI : []}
+          camposEditaveis={CAMPOS_EDITAVEIS_PAI}
+          mensagemSemPermissaoEditar={!podeEditarLista ? 'Sem permissão para editar' : undefined}
           onEditar={podeEditarLista ? async (id: string, campo: string, valor: unknown, opts) => {
             let idReal = id;
             if (!pedidosFiltrados.some(p => p.id === idReal)) {
@@ -5093,7 +5193,7 @@ export default function Pedidos() {
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
 
-          camposEditaveisFilhos={podeEditarLista ? camposEditaveisFilhosComCustom : []}
+          camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={podeEditarLista ? handleEditarFilho : undefined}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}

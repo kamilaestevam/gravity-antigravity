@@ -49,7 +49,7 @@ const DuplicarItensSchema = z.object({
 
 // ── POST /duplicacoes/preview ─────────────────────────────────────────────────
 
-duplicacoesPedidoRouter.post('/duplicacoes/preview', async (req: Request, res: Response, next: NextFunction) => {
+duplicacoesPedidoRouter.post('/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarPreviewSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -73,7 +73,7 @@ duplicacoesPedidoRouter.post('/duplicacoes/preview', async (req: Request, res: R
 
 // ── POST /duplicacoes/confirmar ───────────────────────────────────────────────
 
-duplicacoesPedidoRouter.post('/duplicacoes/confirmar', async (req: Request, res: Response, next: NextFunction) => {
+duplicacoesPedidoRouter.post('/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarConfirmarSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -105,7 +105,7 @@ duplicacoesPedidoRouter.post('/duplicacoes/confirmar', async (req: Request, res:
 
 // ── POST /duplicacoes/itens ───────────────────────────────────────────────────
 
-duplicacoesPedidoRouter.post('/duplicacoes/itens', async (req: Request, res: Response, next: NextFunction) => {
+duplicacoesPedidoRouter.post('/itens', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarItensSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({

@@ -91,6 +91,10 @@ export function Workspaces() {
     return () => { cancelado = true }
   }, [userLoaded])
 
+  // ── Deep-link: ?id=<workspaceId>&foco=cnpj&retorno=<url> ────────────────
+  const [focoInicial, setFocoInicial] = useState<string | null>(null)
+  const [urlRetorno, setUrlRetorno] = useState<string | null>(null)
+
   useEffect(() => {
     const idParam = searchParams.get('id')
     if (idParam && workspaces.length > 0) {
@@ -99,8 +103,12 @@ export function Workspaces() {
       if (encontrado) {
         setWorkspaceEditando(encontrado)
         setShowForm(true)
+        setFocoInicial(searchParams.get('foco') ?? null)
+        setUrlRetorno(searchParams.get('retorno') ?? null)
         const newParams = new URLSearchParams(searchParams)
         newParams.delete('id')
+        newParams.delete('foco')
+        newParams.delete('retorno')
         setSearchParams(newParams, { replace: true })
       }
     }
@@ -148,11 +156,22 @@ export function Workspaces() {
         prev.map(w => w.id_workspace === workspaceEditando.id_workspace ? { ...w, ...dados } : w)
       )
       addNotification({ type: 'success', message: `Workspace "${dados.nome_workspace ?? workspaceEditando.nome_workspace}" atualizado com sucesso!` })
+      // Se veio de outro produto (deep-link com retorno), redireciona de volta
+      if (urlRetorno) {
+        const destino = urlRetorno
+        setUrlRetorno(null)
+        setFocoInicial(null)
+        setShowForm(false)
+        setWorkspaceEditando(null)
+        window.location.href = destino
+        return
+      }
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao atualizar workspace. Verifique sua conexão.') })
     }
     setShowForm(false)
     setWorkspaceEditando(null)
+    setFocoInicial(null)
   }
 
   async function handleSuspend(linha: Workspace) {
@@ -461,7 +480,12 @@ export function Workspaces() {
     <ModalEditarWorkspace
       aberto={showForm}
       workspace={workspaceEditando}
-      aoFechar={() => { setShowForm(false); setWorkspaceEditando(null); }}
+      focoInicial={focoInicial}
+      urlRetorno={urlRetorno}
+      aoFechar={() => {
+        setShowForm(false); setWorkspaceEditando(null); setFocoInicial(null)
+        if (urlRetorno) { const dest = urlRetorno; setUrlRetorno(null); window.location.href = dest; return }
+      }}
       aoSalvar={(dados) => {
         if (workspaceEditando) {
           handleUpdate(dados)

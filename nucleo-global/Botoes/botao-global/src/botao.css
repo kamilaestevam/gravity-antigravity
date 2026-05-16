@@ -293,3 +293,154 @@ body.light-theme .gb-btn--perigo .gb-btn__icon-badge {
   background: rgba(220, 38, 38, 0.12);
   color: #dc2626;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ESTADOS DE FEEDBACK — carregando / sucesso / erro
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Ícone Orbital Gravity ────────────────────────────────────────────────── */
+.gb-btn__orbital {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gb-btn__orbit {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  animation: gb-orbit 2s linear infinite;
+  pointer-events: none;
+}
+
+.gb-btn__orbit::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px currentColor;
+}
+
+@keyframes gb-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Carregando — shimmer + cursor wait ──────────────────────────────────── */
+.gb-btn--carregando {
+  cursor: wait;
+  position: relative;
+  overflow: hidden;
+}
+
+.gb-btn--carregando::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: gb-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gb-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Badge durante carregamento — sem animação extra, o orbital já comunica */
+.gb-btn--carregando .gb-btn__icon-badge {
+  color: currentColor;
+}
+
+/* ── Sucesso — flash verde ───────────────────────────────────────────────── */
+.gb-btn--sucesso {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  animation: gb-flash-sucesso 0.4s ease-out;
+}
+
+.gb-btn--sucesso .gb-btn__icon-badge {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #22c55e !important;
+  animation: gb-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gb-btn--sucesso .gb-btn__icon-only {
+  color: #22c55e !important;
+  animation: gb-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes gb-flash-sucesso {
+  0%  { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes gb-scale-in {
+  0%  { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Erro — flash vermelho + shake sutil ─────────────────────────────────── */
+.gb-btn--erro {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  animation: gb-shake 0.4s ease-out;
+}
+
+.gb-btn--erro .gb-btn__icon-badge {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #ef4444 !important;
+  animation: gb-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gb-btn--erro .gb-btn__icon-only {
+  color: #ef4444 !important;
+  animation: gb-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes gb-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-3px); }
+  40%      { transform: translateX(3px); }
+  60%      { transform: translateX(-2px); }
+  80%      { transform: translateX(2px); }
+}
+
+/* ── Light theme overrides para feedback ─────────────────────────────────── */
+body.light-theme .gb-btn--carregando::after {
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(0, 0, 0, 0.04) 45%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.04) 55%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: gb-shimmer 1.8s ease-in-out infinite;
+}
+
+body.light-theme .gb-btn--sucesso .gb-btn__icon-badge {
+  background: rgba(22, 163, 74, 0.15) !important;
+  color: #16a34a !important;
+}
+
+body.light-theme .gb-btn--erro .gb-btn__icon-badge {
+  background: rgba(220, 38, 38, 0.15) !important;
+  color: #dc2626 !important;
+}

@@ -392,7 +392,8 @@
     "entrando": "Entrando...",
     "tooltip_entrar": "Entrar com e-mail e senha",
     "continuar_com_google": "Continuar com Google",
-    "enviar_instrucoes": "Enviar instruções"
+    "enviar_instrucoes": "Enviar instruções",
+    "erro_sessao_existente": "Você já está conectado."
   },
   "admin": {
     "layout": {
@@ -3805,6 +3806,8 @@
       "aria_tabela": "Pedidos a duplicar",
       "secao_pedidos": "Novos pedidos serão criados",
       "secao_itens": "Itens serão duplicados nestes pedidos",
+      "secao_pedidos_resultado": "Pedidos duplicados",
+      "secao_itens_resultado": "Itens duplicados",
       "aviso_zerados_titulo": "Atenção — campos que serão zerados nos itens duplicados",
       "aviso_zerados_campos": "Quantidade Pronta, Quantidade Transferida e Quantidade Cancelada serão zeradas no item duplicado.",
       "aviso_zerados_motivo": "Esses valores representam execução real (transferências para embarque, marcações de pronto, cancelamentos) e não podem ser copiados — evita saldo fantasma.",

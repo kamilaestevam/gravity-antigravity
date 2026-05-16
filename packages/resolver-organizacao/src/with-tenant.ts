@@ -45,6 +45,7 @@ const WORKER_TX_TIMEOUT_MS = 30_000;
 export async function withOrganizacao<T>(
   req: Request,
   fn: (db: BancoOrganizacao) => Promise<T>,
+  opts?: { timeoutMs?: number },
 ): Promise<T> {
   const ctx = req.organizacao;
   if (!ctx) {
@@ -54,7 +55,7 @@ export async function withOrganizacao<T>(
       'ORGANIZACAO_MISSING',
     );
   }
-  return runInOrganizacaoTransaction(ctx, fn, HTTP_TX_TIMEOUT_MS);
+  return runInOrganizacaoTransaction(ctx, fn, opts?.timeoutMs ?? HTTP_TX_TIMEOUT_MS);
 }
 
 /**

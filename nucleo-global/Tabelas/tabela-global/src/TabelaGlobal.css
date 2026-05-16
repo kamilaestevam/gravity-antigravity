@@ -630,14 +630,23 @@
 
 /* Linha Pai quando expandida por camadas */
 .tg-tr--pai-expandida {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.12);
+  border-top: 1px solid var(--tg-accent, #818cf8);
+  border-left: 1px solid var(--tg-accent, #818cf8);
+  border-right: 1px solid var(--tg-accent, #818cf8);
   border-bottom: none;
+}
+
+.tg-tr--pai-expandida:hover {
+  background: rgba(129, 140, 248, 0.16);
 }
 
 /* Linha Filha */
 .tg-tr-filho {
   background: rgba(15, 23, 42, 0.35);
   transition: background 0.2s;
+  border-left: 1px solid var(--tg-accent, #818cf8);
+  border-right: 1px solid var(--tg-accent, #818cf8);
 }
 
 .tg-tr-filho:hover {
@@ -655,8 +664,13 @@
   font-size: 0.85rem;
 }
 
+.tg-tr-filho--ultimo {
+  border-bottom: 1px solid var(--tg-accent, #818cf8);
+  margin-bottom: 6px;
+}
+
 .tg-tr-filho--ultimo .tg-td {
-  border-bottom: 2px solid rgba(129, 140, 248, 0.1);
+  border-bottom: none;
 }
 
 @keyframes tg-fade-slide {

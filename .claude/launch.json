@@ -17,13 +17,13 @@
     {
       "name": "pedido-frontend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd produto\\pedido\\client && npx vite --port 5179"],
+      "runtimeArgs": ["/c", "cd servicos-global\\produto\\pedido\\client && npx vite --port 5179"],
       "port": 5179
     },
     {
       "name": "pedido-backend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd produto\\pedido\\server && npm run dev"],
+      "runtimeArgs": ["/c", "cd servicos-global\\produto\\pedido\\server && npm run dev"],
       "port": 8030
     },
     {

@@ -8,7 +8,8 @@ import {
   CalendarBlank,
   MapPin,
   Link,
-  Package
+  Package,
+  ArrowLeft
 } from '@phosphor-icons/react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormulario } from '@nucleo/modal-formulario-global'
@@ -81,7 +82,9 @@ function AbaInformacoes({
   onNome,
   onCampoExtra,
   cidades,
-  carregandoCidades
+  carregandoCidades,
+  focoInicial,
+  urlRetorno
 }: {
   workspace: Partial<Workspace>
   nome_workspace: string
@@ -94,6 +97,8 @@ function AbaInformacoes({
   onCampoExtra: (key: keyof Workspace, v: string) => void
   cidades: SelectOpcao[]
   carregandoCidades: boolean
+  focoInicial?: string | null
+  urlRetorno?: string | null
 }) {
   const { t } = useTranslation()
   const ehNovo = !workspace.id_workspace
@@ -104,6 +109,43 @@ function AbaInformacoes({
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+
+      {/* Badge pulsante: retorno ao produto de origem (deep-link) */}
+      {urlRetorno && (
+        <>
+          <style>{`
+            @keyframes ws-retorno-pulse {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+              50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+            }
+          `}</style>
+          <button
+            type="button"
+            onClick={() => { window.location.href = urlRetorno }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              alignSelf: 'flex-start',
+              gap: '0.4rem',
+              padding: '0.35rem 0.85rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(99, 102, 241, 0.4)',
+              background: 'rgba(99, 102, 241, 0.12)',
+              color: '#a5b4fc',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              animation: 'ws-retorno-pulse 2s ease-in-out infinite',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)'; e.currentTarget.style.color = '#c7d2fe' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.color = '#a5b4fc' }}
+          >
+            <ArrowLeft size={14} weight="bold" />
+            Voltar para Pedidos
+          </button>
+        </>
+      )}
 
       {/* Seção: Identidade */}
       <div>
@@ -169,6 +211,7 @@ function AbaInformacoes({
                   placeholder="00.000.000/0000-00"
                   onChange={e => onCampoExtra('cnpj_workspace', formatarCNPJ(e.target.value))}
                   style={{ width: '100%', ...cnpjInput.style }}
+                  autoFocus={focoInicial === 'cnpj'}
                 />
               </div>
               <RequisitoMensagem chave="cnpj_workspace" />
@@ -315,6 +358,10 @@ function AbaInformacoes({
 export interface ModalEditarWorkspaceProps {
   workspace: Workspace | null // Se id_workspace ausente, vira criação
   aberto: boolean
+  /** Campo a focar automaticamente ao abrir (ex: 'cnpj' para deep-link do Pedido) */
+  focoInicial?: string | null
+  /** URL de retorno para o produto de origem (deep-link) */
+  urlRetorno?: string | null
   aoFechar: () => void
   aoSalvar: (dados: Partial<Workspace>) => void
 }
@@ -322,6 +369,8 @@ export interface ModalEditarWorkspaceProps {
 export function ModalEditarWorkspace({
   workspace,
   aberto,
+  focoInicial,
+  urlRetorno,
   aoFechar,
   aoSalvar,
 }: ModalEditarWorkspaceProps) {
@@ -409,6 +458,8 @@ export function ModalEditarWorkspace({
             onCampoExtra={(k, v) => setExtraData(p => ({ ...p, [k]: v }))}
             cidades={cidades}
             carregandoCidades={carregandoCidades}
+            focoInicial={focoInicial}
+            urlRetorno={urlRetorno}
           />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
@@ -416,7 +467,7 @@ export function ModalEditarWorkspace({
         </BannerRequisitosContexto>
       )
     }
-  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos])
+  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos, focoInicial, urlRetorno])
 
   return (
     <>

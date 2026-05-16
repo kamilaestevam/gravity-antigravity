@@ -48,7 +48,7 @@ const ExcluirItensSchema = z.object({
 
 // ── POST /exclusoes/preview ───────────────────────────────────────────────────
 
-exclusoesPedidoRouter.post('/exclusoes/preview', async (req: Request, res: Response, next: NextFunction) => {
+exclusoesPedidoRouter.post('/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirPreviewSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -57,14 +57,16 @@ exclusoesPedidoRouter.post('/exclusoes/preview', async (req: Request, res: Respo
   }
 
   try {
-    await withOrganizacao(req, async (rawDb) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+    const id_organizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const resultado = await excluirService.preview(db, id_organizacao, parse.data.ids)
-      res.json(resultado)
+    // res.json FORA do withOrganizacao — garante que a resposta só é enviada
+    // APÓS o commit da $transaction (evita race condition no client).
+    const resultado = await withOrganizacao(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      return excluirService.preview(db, id_organizacao, parse.data.ids)
     })
+    res.json(resultado)
   } catch (err) {
     next(err)
   }
@@ -72,7 +74,7 @@ exclusoesPedidoRouter.post('/exclusoes/preview', async (req: Request, res: Respo
 
 // ── POST /exclusoes/confirmar ─────────────────────────────────────────────────
 
-exclusoesPedidoRouter.post('/exclusoes/confirmar', async (req: Request, res: Response, next: NextFunction) => {
+exclusoesPedidoRouter.post('/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirConfirmarSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -81,17 +83,20 @@ exclusoesPedidoRouter.post('/exclusoes/confirmar', async (req: Request, res: Res
   }
 
   try {
-    await withOrganizacao(req, async (rawDb) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const id_organizacao = ctx.idOrganizacao
-      const id_usuario     = ctx.idUsuario ?? ''
-      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
+    const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+    const id_organizacao = ctx.idOrganizacao
+    const id_usuario     = ctx.idUsuario ?? ''
+    const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await excluirService.confirmar(db, id_organizacao, id_usuario, nome_usuario, parse.data.ids)
-      res.json(resultado)
+    // res.json FORA do withOrganizacao — garante que a resposta só é enviada
+    // APÓS o commit da $transaction. Sem isso, o frontend recebe "OK" antes do
+    // COMMIT e o reload imediato vê dados antigos (bug double-reload).
+    const resultado = await withOrganizacao(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      return excluirService.confirmar(db, id_organizacao, id_usuario, nome_usuario, parse.data.ids)
     })
+    res.json(resultado)
   } catch (err) {
     next(err)
   }
@@ -99,7 +104,7 @@ exclusoesPedidoRouter.post('/exclusoes/confirmar', async (req: Request, res: Res
 
 // ── POST /exclusoes/itens ─────────────────────────────────────────────────────
 
-exclusoesPedidoRouter.post('/exclusoes/itens', async (req: Request, res: Response, next: NextFunction) => {
+exclusoesPedidoRouter.post('/itens', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirItensSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -108,15 +113,16 @@ exclusoesPedidoRouter.post('/exclusoes/itens', async (req: Request, res: Respons
   }
 
   try {
-    await withOrganizacao(req, async (rawDb) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const id_organizacao = ctx.idOrganizacao
-      const id_usuario     = ctx.idUsuario ?? ''
-      const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
+    const ctx            = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+    const id_organizacao = ctx.idOrganizacao
+    const id_usuario     = ctx.idUsuario ?? ''
+    const nome_usuario   = (req as { auth?: { nome_usuario?: string } }).auth?.nome_usuario ?? id_usuario
 
-      const resultado = await excluirService.excluirItens(
+    // res.json FORA do withOrganizacao — mesmo fix do /confirmar (double-reload).
+    const resultado = await withOrganizacao(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      return excluirService.excluirItens(
         db,
         id_organizacao,
         id_usuario,
@@ -124,8 +130,8 @@ exclusoesPedidoRouter.post('/exclusoes/itens', async (req: Request, res: Respons
         parse.data.pedido_id,
         parse.data.item_ids,
       )
-      res.json(resultado)
     })
+    res.json(resultado)
   } catch (err) {
     next(err)
   }

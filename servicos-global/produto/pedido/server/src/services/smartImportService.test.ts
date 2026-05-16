@@ -183,3 +183,134 @@ describe('inferirPorDados', () => {
     expect(resultado?.campo).not.toBe('ncm')
   })
 })
+
+// ── herdarNumeroPedidoParaItens ──────────────────────────────────────────────
+
+function herdarNumeroPedidoParaItens(service: SmartImportService, linhas: SmartImportLinha[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (service as any).herdarNumeroPedidoParaItens(linhas)
+}
+
+function validarCoerenciaMasterDetail(service: SmartImportService, linhas: SmartImportLinha[]) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (service as any).validarCoerenciaMasterDetail(linhas)
+}
+
+interface SmartImportLinha {
+  linha_arquivo: number
+  numero_pedido: string | null
+  status: 'ok' | 'aviso' | 'erro'
+  alertas: Array<{ campo: string; tipo: string; mensagem: string; nivel: string }>
+  dados: Record<string, unknown>
+}
+
+function linhaFake(overrides: Partial<SmartImportLinha> & { dados: Record<string, unknown> }): SmartImportLinha {
+  return {
+    linha_arquivo: overrides.linha_arquivo ?? 2,
+    numero_pedido: overrides.numero_pedido ?? null,
+    status: overrides.status ?? 'ok',
+    alertas: overrides.alertas ?? [],
+    dados: overrides.dados,
+  }
+}
+
+describe('herdarNumeroPedidoParaItens', () => {
+  const service = criarService()
+
+  it('ITEM sem numero_pedido herda do PEDIDO acima', () => {
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: null, dados: { tipo_linha: 'ITEM', part_number_item: 'PN01' } }),
+      linhaFake({ linha_arquivo: 4, numero_pedido: null, dados: { tipo_linha: 'ITEM', part_number_item: 'PN02' } }),
+    ]
+    const resultado = herdarNumeroPedidoParaItens(service, linhas)
+    expect(resultado[1].numero_pedido).toBe('PED001')
+    expect(resultado[1].dados['numero_pedido']).toBe('PED001')
+    expect(resultado[2].numero_pedido).toBe('PED001')
+    expect(resultado[2].dados['numero_pedido']).toBe('PED001')
+  })
+
+  it('ITEM com numero_pedido ja preenchido nao e sobrescrito', () => {
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: 'PED002', dados: { tipo_linha: 'ITEM', numero_pedido: 'PED002' } }),
+    ]
+    const resultado = herdarNumeroPedidoParaItens(service, linhas)
+    expect(resultado[1].numero_pedido).toBe('PED002')
+  })
+
+  it('multiplos PEDIDOs — cada ITEM herda do PEDIDO mais recente', () => {
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: null, dados: { tipo_linha: 'ITEM' } }),
+      linhaFake({ linha_arquivo: 4, numero_pedido: 'PED002', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED002' } }),
+      linhaFake({ linha_arquivo: 5, numero_pedido: null, dados: { tipo_linha: 'ITEM' } }),
+    ]
+    const resultado = herdarNumeroPedidoParaItens(service, linhas)
+    expect(resultado[1].numero_pedido).toBe('PED001')
+    expect(resultado[3].numero_pedido).toBe('PED002')
+  })
+
+  it('formato legado (sem tipo_linha) nao aplica heranca', () => {
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: null, dados: {} }),
+    ]
+    const resultado = herdarNumeroPedidoParaItens(service, linhas)
+    expect(resultado[1].numero_pedido).toBeNull()
+  })
+})
+
+describe('validarCoerenciaMasterDetail com heranca', () => {
+  const service = criarService()
+
+  it('PEDIDO com ITENs herdados NAO gera alerta "sem ITEM associado"', () => {
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: 'PED001', dados: { tipo_linha: 'ITEM', numero_pedido: 'PED001', part_number_item: 'PN01' } }),
+      linhaFake({ linha_arquivo: 4, numero_pedido: 'PED001', dados: { tipo_linha: 'ITEM', numero_pedido: 'PED001', part_number_item: 'PN02' } }),
+    ]
+    const herdadas = herdarNumeroPedidoParaItens(service, linhas)
+    const resultado = validarCoerenciaMasterDetail(service, herdadas)
+    const alertasPedido = resultado[0].alertas.filter((a: { tipo: string }) => a.tipo === 'obrigatorio_ausente')
+    expect(alertasPedido).toHaveLength(0)
+  })
+})
+
+// ── filtro de linhas ITEM vazias ─────────────────────────────────────────────
+
+describe('filtro de linhas ITEM vazias', () => {
+  it('ITEM com apenas tipo_linha (dropdown do template) e descartado', () => {
+    const CAMPOS_ESTRUTURAIS = new Set(['tipo_linha', 'numero_pedido'])
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+      linhaFake({ linha_arquivo: 3, numero_pedido: 'PED001', dados: { tipo_linha: 'ITEM', numero_pedido: 'PED001', part_number_item: 'PN01' } }),
+      linhaFake({ linha_arquivo: 4, numero_pedido: 'PED001', dados: { tipo_linha: 'ITEM', numero_pedido: 'PED001' } }), // vazio
+    ]
+    const filtradas = linhas.filter(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+      if (tipo !== 'ITEM') return true
+      return Object.entries(l.dados).some(([k, v]) =>
+        !CAMPOS_ESTRUTURAIS.has(k) && v !== undefined && v !== null && String(v).trim() !== ''
+      )
+    })
+    expect(filtradas).toHaveLength(2)
+    expect(filtradas[0].dados['tipo_linha']).toBe('PEDIDO')
+    expect(filtradas[1].dados['part_number_item']).toBe('PN01')
+  })
+
+  it('PEDIDO sem dados extras NAO e filtrado', () => {
+    const CAMPOS_ESTRUTURAIS = new Set(['tipo_linha', 'numero_pedido'])
+    const linhas: SmartImportLinha[] = [
+      linhaFake({ linha_arquivo: 2, numero_pedido: 'PED001', dados: { tipo_linha: 'PEDIDO', numero_pedido: 'PED001' } }),
+    ]
+    const filtradas = linhas.filter(l => {
+      const tipo = String(l.dados['tipo_linha'] ?? '').trim().toUpperCase()
+      if (tipo !== 'ITEM') return true
+      return Object.entries(l.dados).some(([k, v]) =>
+        !CAMPOS_ESTRUTURAIS.has(k) && v !== undefined && v !== null && String(v).trim() !== ''
+      )
+    })
+    expect(filtradas).toHaveLength(1)
+  })
+})

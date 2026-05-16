@@ -424,4 +424,11 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    *   }
    */
   permiteReplicacaoPaiEmItens?: (campo: string) => boolean
+
+  /**
+   * Tooltip exibido ao passar o mouse em células que SERIAM editáveis mas
+   * o usuário não tem permissão (onEditar/onEditarFilho ausente).
+   * Ex: 'Sem permissão para editar'
+   */
+  mensagemSemPermissaoEditar?: string
 }

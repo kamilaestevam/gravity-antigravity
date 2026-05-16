@@ -61,7 +61,16 @@ export const GravityLoader = memo(function GravityLoader({
         <div className="gl-particula gl-particula--6" />
       </div>
 
-      {texto && <span className="gl-texto">{texto}</span>}
+      {texto && (
+        <span className="gl-texto" aria-hidden="true">
+          <span className="gl-texto-inner">{texto}</span>
+          <span className="gl-dots">
+            <span className="gl-dot gl-dot--1">.</span>
+            <span className="gl-dot gl-dot--2">.</span>
+            <span className="gl-dot gl-dot--3">.</span>
+          </span>
+        </span>
+      )}
     </div>
   )
 })

@@ -283,21 +283,67 @@
   }
 }
 
-/* ─── Texto ──────────────────────────────────────────────────────────────── */
+/* ─── Texto com shimmer gradiente ────────────────────────────────────────── */
 .gl-texto {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-muted, #94a3b8);
-  letter-spacing: 0.04em;
-  animation: gl-texto-fade 2s ease-in-out infinite;
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    105deg,
+    rgba(148, 163, 184, 0.6) 0%,
+    rgba(129, 140, 248, 0.9) 25%,
+    rgba(167, 139, 250, 1) 50%,
+    rgba(129, 140, 248, 0.9) 75%,
+    rgba(148, 163, 184, 0.6) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gl-texto-shimmer 3s ease-in-out infinite;
 }
 
-.gl-container--sm .gl-texto { font-size: 0.75rem; }
-.gl-container--lg .gl-texto { font-size: 0.875rem; }
+.gl-container--sm .gl-texto { font-size: 0.75rem; letter-spacing: 0.06em; }
+.gl-container--lg .gl-texto { font-size: 1rem; letter-spacing: 0.1em; }
 
-@keyframes gl-texto-fade {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+@keyframes gl-texto-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Palavra "Carregando" */
+.gl-texto-inner {
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dots animados individualmente */
+.gl-dots {
+  display: inline-flex;
+  width: 1.2em;
+  -webkit-text-fill-color: transparent;
+}
+
+.gl-dot {
+  -webkit-text-fill-color: transparent;
+  animation: gl-dot-bounce 1.4s ease-in-out infinite;
+}
+
+.gl-dot--1 { animation-delay: 0s; }
+.gl-dot--2 { animation-delay: 0.2s; }
+.gl-dot--3 { animation-delay: 0.4s; }
+
+@keyframes gl-dot-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
 }
 
 /* ─── Light theme ────────────────────────────────────────────────────────── */
@@ -332,7 +378,17 @@ body.light-theme .gl-particula {
 }
 
 body.light-theme .gl-texto {
-  color: var(--text-muted, #475569);
+  background: linear-gradient(
+    105deg,
+    rgba(71, 85, 105, 0.5) 0%,
+    rgba(79, 70, 229, 0.9) 25%,
+    rgba(124, 58, 237, 1) 50%,
+    rgba(79, 70, 229, 0.9) 75%,
+    rgba(71, 85, 105, 0.5) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
@@ -345,7 +401,8 @@ body.light-theme .gl-texto {
   .gl-eletron--2,
   .gl-eletron--3,
   .gl-particula,
-  .gl-texto {
+  .gl-texto,
+  .gl-dot {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }

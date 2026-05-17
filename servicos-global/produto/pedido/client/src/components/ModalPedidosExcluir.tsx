@@ -247,11 +247,18 @@ export function ModalPedidosExcluir({ pedidos, itens = [], pedidosMapa, onFechar
   }
 
   // ── Título dinâmico ────────────────────────────────────────────────────────
+  // Totaliza itens dos pedidos (via preview) + itens avulsos para mostrar o
+  // número real de itens que serão excluídos — não apenas os avulsos.
+  const totalItensPedidos = preview?.permitidos.reduce((acc, p) => acc + p.total_itens, 0) ?? 0
+  const totalItensGeral = totalItensPedidos + itensAvulsos.length
+
   const tituloPartes: string[] = []
   if (pedidos.length > 0) {
     tituloPartes.push(`${pedidos.length} pedido${pedidos.length === 1 ? '' : 's'}`)
   }
-  if (itensAvulsos.length > 0) {
+  if (totalItensGeral > 0) {
+    tituloPartes.push(`${totalItensGeral} item${totalItensGeral === 1 ? '' : 's'}`)
+  } else if (itensAvulsos.length > 0) {
     tituloPartes.push(`${itensAvulsos.length} item${itensAvulsos.length === 1 ? '' : 's'}`)
   }
   const tituloContagem = tituloPartes.join(' e ')

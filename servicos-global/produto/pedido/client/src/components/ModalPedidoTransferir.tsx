@@ -182,7 +182,7 @@ function SeletorItemQuantidade({
       <thead>
         <tr>
           {multiPedido && <th scope="col">Pedido</th>}
-          <th scope="col">Nº</th>
+          <th scope="col">Sequência do Item</th>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
           <th scope="col">{t('pedido.modal_transf.col_descricao')}</th>
           <th scope="col">{t('pedido.modal_transf.col_saldo')}</th>

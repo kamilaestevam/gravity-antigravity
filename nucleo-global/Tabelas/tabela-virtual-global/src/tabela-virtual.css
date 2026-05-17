@@ -1648,31 +1648,30 @@
   font-weight: 700;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.04em;
-  background: var(--_moeda-bg, #1c2048);
+  background: var(--_moeda-bg, rgba(99, 102, 241, 0.15));
   color: var(--_moeda-fg, var(--gtv-accent, #818cf8));
   text-align: center;
 }
-/* Variações por moeda — cores OPACAS para manter aparência idêntica
-   independente do fundo da linha (pai vs filho têm backgrounds diferentes).
-   Valores calculados a partir das cores rgba originais sobre #0f172a. */
+/* Variações por moeda — matiz + luminosidade distintas para contraste
+   perceptível em dark mode. Mantém harmonia geral. */
 .gtv-celula-moeda-badge--usd {
-  --_moeda-bg: #1f2250;
+  --_moeda-bg: rgba(99, 102, 241, 0.20);
   --_moeda-fg: #818cf8;
 }
 .gtv-celula-moeda-badge--eur {
-  --_moeda-bg: #301848;
+  --_moeda-bg: rgba(192, 80, 240, 0.20);
   --_moeda-fg: #d494ff;
 }
 .gtv-celula-moeda-badge--brl {
-  --_moeda-bg: #122e42;
+  --_moeda-bg: rgba(56, 189, 248, 0.18);
   --_moeda-fg: #38bdf8;
 }
 .gtv-celula-moeda-badge--gbp {
-  --_moeda-bg: #1e2636;
+  --_moeda-bg: rgba(148, 163, 184, 0.16);
   --_moeda-fg: #94a3b8;
 }
 .gtv-celula-moeda-badge--cny {
-  --_moeda-bg: #351a30;
+  --_moeda-bg: rgba(244, 114, 182, 0.18);
   --_moeda-fg: #f472b6;
 }
 .gtv-celula-unidade-badge {

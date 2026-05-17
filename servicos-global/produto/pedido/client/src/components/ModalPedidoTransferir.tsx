@@ -95,6 +95,8 @@ interface ModalTransferirPedidoProps {
   itemIdInicial?: string
   /** IDs dos itens pré-selecionados na lista (multi-select) */
   itensSelecionadosIds?: string[]
+  /** IDs dos pedidos selecionados inteiros (todos os seus itens serão pré-selecionados) */
+  pedidosSelecionadosIds?: string[]
   onFechar: () => void
   onConcluido: () => void
 }
@@ -504,7 +506,7 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferirPedido({ pedidos, itemIdInicial, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
+export function ModalTransferirPedido({ pedidos, itemIdInicial, itensSelecionadosIds, pedidosSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
 
@@ -545,14 +547,28 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, itensSelecionado
   // ── Multi-item: mapa itemId → quantidade ────────────────────────────────────
   const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() => {
     const mapa = new Map<string, number>()
-    // Pré-selecionar itens que vieram da lista
-    if (itensSelecionadosIds && itensSelecionadosIds.length > 0) {
-      for (const id of itensSelecionadosIds) mapa.set(id, 0)
+    const temItensAvulsos = itensSelecionadosIds && itensSelecionadosIds.length > 0
+    const temPedidosInteiros = pedidosSelecionadosIds && pedidosSelecionadosIds.length > 0
+    const setPedidosInteiros = new Set(pedidosSelecionadosIds ?? [])
+
+    if (temItensAvulsos || temPedidosInteiros) {
+      // Regra universal: pré-seleciona itens avulsos + todos os itens de pedidos inteiros
+      if (temItensAvulsos) {
+        for (const id of itensSelecionadosIds) mapa.set(id, 0)
+      }
+      if (temPedidosInteiros) {
+        for (const p of pedidos) {
+          if (setPedidosInteiros.has(p.id)) {
+            for (const item of p.itens) {
+              if (!mapa.has(item.id)) mapa.set(item.id, 0)
+            }
+          }
+        }
+      }
     } else if (itemIdInicial) {
       mapa.set(itemIdInicial, 0)
     } else {
-      // Quando pedidos inteiros foram selecionados (sem itens individuais),
-      // pré-seleciona todos os itens de todos os pedidos
+      // Fallback: todos os itens de todos os pedidos
       for (const p of pedidos) {
         for (const item of p.itens) {
           mapa.set(item.id, 0)

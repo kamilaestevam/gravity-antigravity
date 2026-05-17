@@ -6353,21 +6353,31 @@ export default function Pedidos() {
       {/* ── Modal Transferir Pedidos ── */}
       {modalTransferirAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
         <ModalTransferirPedido
-          pedidos={
-            pedidosSelecionados.length > 0
-              ? pedidosSelecionados
-              : pedidos.filter(p => itensSelecionados.some(i => i.pedido_id === p.id))
-          }
+          pedidos={(() => {
+            // Regra universal: todos os pedidos envolvidos (selecionados + pais de itens selecionados)
+            const idsPedidosSelecionados = new Set(pedidosSelecionados.map(p => p.id))
+            const idsPedidosDeItens = new Set(itensSelecionados.map(i => i.pedido_id))
+            const todosIds = new Set([...idsPedidosSelecionados, ...idsPedidosDeItens])
+            // Prioriza pedidosSelecionados (já em mãos), complementa com pedidos da lista
+            const resultado = [...pedidosSelecionados]
+            for (const p of pedidos) {
+              if (todosIds.has(p.id) && !idsPedidosSelecionados.has(p.id)) resultado.push(p)
+            }
+            return resultado
+          })()}
           itemIdInicial={
-            itensSelecionados.length === 1
+            itensSelecionados.length === 1 && pedidosSelecionados.length === 0
               ? itensSelecionados[0].id
-              : (pedidosSelecionados.length === 1 && (itensCarregadosRef.current.get(pedidosSelecionados[0].id)?.length === 1))
-                ? itensCarregadosRef.current.get(pedidosSelecionados[0].id)![0].id
-                : undefined
+              : undefined
           }
           itensSelecionadosIds={
             itensSelecionados.length > 0
               ? itensSelecionados.map(i => i.id)
+              : undefined
+          }
+          pedidosSelecionadosIds={
+            pedidosSelecionados.length > 0
+              ? pedidosSelecionados.map(p => p.id)
               : undefined
           }
           onFechar={() => setModalTransferirAberto(false)}

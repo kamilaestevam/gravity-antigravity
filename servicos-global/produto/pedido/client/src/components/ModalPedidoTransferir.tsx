@@ -831,7 +831,7 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
       </BotaoGlobal>
     </div>
   ) : (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
       <BotaoGlobal
         variante="fantasma"
         tamanho="padrao"
@@ -840,35 +840,29 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
       >
         {passo === 1 ? t('pedido.modal_transf.cancelar') : t('pedido.modal_transf.voltar')}
       </BotaoGlobal>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <span style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--text-muted, #64748b)', letterSpacing: '0.02em' }}>
-          {passo} / 5
-        </span>
-        {passo === 5 ? (
-          <BotaoGlobal
-            variante="primario"
-            tamanho="padrao"
-            onClick={handleConfirmar}
-            disabled={confirmando}
-            carregando={confirmando}
-            iconeDireita={<ArrowRight size={14} weight="bold" />}
-          >
-            {confirmando ? t('pedido.modal_transf.transferindo') : t('pedido.modal_transf.confirmar')}
-          </BotaoGlobal>
-        ) : (
-          <BotaoGlobal
-            variante="primario"
-            tamanho="padrao"
-            onClick={avancar}
-            disabled={!podeProsseguir || carregandoPreview}
-            carregando={carregandoPreview}
-            iconeDireita={<ArrowRight size={14} weight="bold" />}
-          >
-            {carregandoPreview ? t('pedido.modal_transf.calculando', { defaultValue: 'Calculando…' }) : passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
-          </BotaoGlobal>
-        )}
-      </div>
+      {passo === 5 ? (
+        <BotaoGlobal
+          variante="primario"
+          tamanho="padrao"
+          onClick={handleConfirmar}
+          disabled={confirmando}
+          carregando={confirmando}
+          iconeDireita={<ArrowRight size={14} weight="bold" />}
+        >
+          {confirmando ? t('pedido.modal_transf.transferindo') : t('pedido.modal_transf.confirmar')}
+        </BotaoGlobal>
+      ) : (
+        <BotaoGlobal
+          variante="primario"
+          tamanho="padrao"
+          onClick={avancar}
+          disabled={!podeProsseguir || carregandoPreview}
+          carregando={carregandoPreview}
+          iconeDireita={<ArrowRight size={14} weight="bold" />}
+        >
+          {carregandoPreview ? t('pedido.modal_transf.calculando', { defaultValue: 'Calculando…' }) : passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
+        </BotaoGlobal>
+      )}
     </div>
   )
 

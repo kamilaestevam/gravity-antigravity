@@ -63,14 +63,6 @@ interface CenarioInfo {
 
 const CENARIOS: CenarioInfo[] = [
   {
-    id: 'reducao_simples',
-    nomeKey: 'pedido.modal_transf.cenario_reducao_nome',
-    descricaoKey: 'pedido.modal_transf.cenario_reducao_desc',
-    Icone: MinusCircle,
-    reversivel: false,
-    criaDestinos: false,
-  },
-  {
     id: 'split_novo_pedido',
     nomeKey: 'pedido.modal_transf.cenario_split_novo_nome',
     descricaoKey: 'pedido.modal_transf.cenario_split_novo_desc',
@@ -85,6 +77,14 @@ const CENARIOS: CenarioInfo[] = [
     Icone: ArrowBendUpRight,
     reversivel: true,
     criaDestinos: true,
+  },
+  {
+    id: 'reducao_simples',
+    nomeKey: 'pedido.modal_transf.cenario_reducao_nome',
+    descricaoKey: 'pedido.modal_transf.cenario_reducao_desc',
+    Icone: MinusCircle,
+    reversivel: false,
+    criaDestinos: false,
   },
 ]
 

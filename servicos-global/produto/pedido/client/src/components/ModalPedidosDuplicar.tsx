@@ -591,77 +591,134 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   const renderResultado = () => {
     if (!resultado) return null
     const totalSucesso = resultado.pedidos_criados.length + resultado.itens_criados.length
+    const temErros = resultado.erros.length > 0
     return (
       <>
-        {totalSucesso > 0 && (
-          <div className="modal-duplicar__resultado-sucesso">
-            <CheckCircle size={20} weight="fill" className="modal-duplicar__icone-sucesso" aria-hidden="true" />
-            <p className="modal-duplicar__resultado-texto">
-              {t('pedido.modal_dup.toast_misto', {
-                n_pedidos: resultado.pedidos_criados.length,
-                n_itens: resultado.itens_criados.length,
-                s_p: resultado.pedidos_criados.length !== 1 ? 's' : '',
-                label_i: resultado.itens_criados.length === 1
-                  ? t('pedido.modal_dup.label_item_singular')
-                  : t('pedido.modal_dup.label_item_plural'),
-              })}
+        {/* Banner de sucesso/warning */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '1rem',
+          background: temErros
+            ? 'color-mix(in srgb, var(--warning, #f59e0b) 10%, transparent)'
+            : 'color-mix(in srgb, var(--success, #22c55e) 10%, transparent)',
+          border: `1px solid ${temErros
+            ? 'color-mix(in srgb, var(--warning, #f59e0b) 35%, transparent)'
+            : 'color-mix(in srgb, var(--success, #22c55e) 35%, transparent)'}`,
+          borderRadius: 'var(--radius-md, 8px)',
+          marginBottom: '1rem',
+        }}>
+          {temErros
+            ? <Warning weight="fill" size={20} color="var(--warning, #f59e0b)" />
+            : <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />}
+          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>
+            {t('pedido.modal_dup.toast_misto', {
+              n_pedidos: resultado.pedidos_criados.length,
+              n_itens: resultado.itens_criados.length,
+              s_p: resultado.pedidos_criados.length !== 1 ? 's' : '',
+              label_i: resultado.itens_criados.length === 1
+                ? t('pedido.modal_dup.label_item_singular')
+                : t('pedido.modal_dup.label_item_plural'),
+            })}
+          </p>
+        </div>
+
+        {/* Pedidos duplicados */}
+        {resultado.pedidos_criados.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {t('pedido.modal_dup.secao_pedidos_resultado')}
             </p>
+            {resultado.pedidos_criados.map(c => {
+              const orig = labelOriginal(c.original_id)
+              return (
+                <div
+                  key={c.novo_id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.625rem 0.875rem',
+                    background: 'var(--surface-2, #1e293b)',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: '1px solid var(--border, #334155)',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{orig.label}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)' }}>
+                      → {c.numero_pedido}
+                    </span>
+                  </div>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                    fontSize: '0.75rem', fontWeight: 600,
+                    color: 'var(--success, #22c55e)',
+                  }}>
+                    <CheckCircle size={14} weight="fill" /> OK
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
-        {resultado.pedidos_criados.length > 0 && (
-          <>
-            <h3 className="modal-duplicar__secao-titulo">
-              <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
-              {t('pedido.modal_dup.secao_pedidos_resultado')}
-            </h3>
-            <ul className="modal-duplicar__lista-resultado">
-              {resultado.pedidos_criados.map(c => {
-                const orig = labelOriginal(c.original_id)
-                return (
-                  <li key={c.novo_id} className="modal-duplicar__item-resultado">
-                    <span className="modal-duplicar__numero-original">{orig.label}</span>
-                    <span className="modal-duplicar__seta" aria-hidden="true">→</span>
-                    <span className="modal-duplicar__numero-novo">{c.numero_pedido}</span>
-                  </li>
-                )
-              })}
-            </ul>
-          </>
-        )}
-
+        {/* Itens duplicados */}
         {resultado.itens_criados.length > 0 && (
-          <>
-            <h3 className="modal-duplicar__secao-titulo">
-              <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {t('pedido.modal_dup.secao_itens_resultado')}
-            </h3>
-            <ul className="modal-duplicar__lista-resultado">
-              {resultado.itens_criados.map(c => {
-                const orig = labelOriginal(c.original_id)
-                return (
-                  <li key={c.novo_id} className="modal-duplicar__item-resultado">
-                    {orig.seq != null && (
-                      <span className="modal-duplicar__seq-badge" aria-label={`Sequência ${orig.seq}`}>#{orig.seq}</span>
-                    )}
-                    <span className="modal-duplicar__numero-original">{orig.label}</span>
-                    <span className="modal-duplicar__seta" aria-hidden="true">→</span>
-                    <span className="modal-duplicar__numero-novo">{t('pedido.modal_dup.copia_label')}</span>
-                  </li>
-                )
-              })}
-            </ul>
-          </>
+            </p>
+            {resultado.itens_criados.map(c => {
+              const orig = labelOriginal(c.original_id)
+              return (
+                <div
+                  key={c.novo_id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.625rem 0.875rem',
+                    background: 'var(--surface-2, #1e293b)',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: '1px solid var(--border, #334155)',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                      {orig.seq != null ? `#${orig.seq} · ` : ''}{orig.label}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)' }}>
+                      → {t('pedido.modal_dup.copia_label')}
+                    </span>
+                  </div>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                    fontSize: '0.75rem', fontWeight: 600,
+                    color: 'var(--success, #22c55e)',
+                  }}>
+                    <CheckCircle size={14} weight="fill" /> OK
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         )}
 
-        {resultado.erros.length > 0 && (
-          <div className="modal-duplicar__resultado-erros">
-            <p className="modal-duplicar__erros-titulo">
+        {/* Erros */}
+        {temErros && (
+          <div style={{ marginTop: '1rem' }}>
+            <p style={{ margin: '0 0 0.5rem', fontWeight: 600, fontSize: '0.8125rem', color: 'var(--destructive, #ef4444)' }}>
               {t('pedido.modal_dup.erros_titulo', { count: resultado.erros.length, s: resultado.erros.length !== 1 ? 's' : '' })}
             </p>
-            <ul className="modal-duplicar__lista-erros">
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
               {resultado.erros.map(e => (
-                <li key={e.id} className="modal-duplicar__item-erro">
+                <li
+                  key={e.id}
+                  style={{
+                    fontSize: '0.8125rem',
+                    padding: '0.5rem 0.75rem',
+                    background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: '1px solid color-mix(in srgb, var(--destructive, #ef4444) 25%, transparent)',
+                    color: 'var(--text-primary, #e2e8f0)',
+                  }}
+                >
                   <strong>{e.id}:</strong> {e.motivo}
                 </li>
               ))}

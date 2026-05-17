@@ -3462,7 +3462,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
-            icone={<ArrowsMerge size={14} weight="duotone" />}
+            icone={<GitMerge size={14} weight="duotone" />}
             disabled={!podeEditarLista || (() => {
               // Total de pedidos = inteiros + parciais (pedidos-pai de itens avulsos)
               const inteirosIds = new Set(pedidosSelecionados.map(p => p.id))
@@ -4475,16 +4475,17 @@ export default function Pedidos() {
     const enviou = pedido.enviou_transferencia === true
     const consolidado = (pedido.status ?? '').toLowerCase() === 'consolidado'
 
-    console.log('[INDICADOR]', pedido.numero_pedido, '| status:', JSON.stringify(pedido.status), '| consolidado:', consolidado, '| enviou:', enviou, '| recebeu:', recebeu)
-
     if (!recebeu && !enviou && !consolidado) return null
 
-    // Monta ícone de transferência
+    const temAmbosIndicadores = (recebeu || enviou) && consolidado
+    const tamTransf = temAmbosIndicadores ? 15 : (recebeu && enviou ? 26 : 18)
+    const tamConsol = temAmbosIndicadores ? 15 : 18
+
     let iconeTransf: ReactNode = null
     if (recebeu && enviou) {
       iconeTransf = (
         <TooltipGlobal titulo="Recebeu e enviou transferências" descricao="">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+          <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,1 5,9 19,9" fill="#f87171" />
             <rect x="10.5" y="8.5" width="3" height="7" fill="url(#gradTransf)" />
             <polygon points="12,23 5,15 19,15" fill="#60a5fa" />
@@ -4500,7 +4501,7 @@ export default function Pedidos() {
     } else if (recebeu) {
       iconeTransf = (
         <TooltipGlobal titulo="Recebeu itens de outro pedido" descricao="">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+          <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,22 4,12 20,12" fill="#60a5fa" />
             <rect x="10.5" y="2" width="3" height="11" fill="#60a5fa" />
           </svg>
@@ -4509,7 +4510,7 @@ export default function Pedidos() {
     } else if (enviou) {
       iconeTransf = (
         <TooltipGlobal titulo="Transferiu itens para outro pedido" descricao="">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
+          <svg width={tamTransf} height={tamTransf} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.3 }}>
             <polygon points="12,2 4,12 20,12" fill="#f87171" />
             <rect x="10.5" y="11" width="3" height="11" fill="#f87171" />
           </svg>
@@ -4517,10 +4518,9 @@ export default function Pedidos() {
       )
     }
 
-    // Ícone de consolidação
     const iconeConsol = consolidado ? (
       <TooltipGlobal titulo="Pedido consolidado" descricao="">
-        <GitMerge size={18} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
+        <GitMerge size={tamConsol} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
       </TooltipGlobal>
     ) : null
 

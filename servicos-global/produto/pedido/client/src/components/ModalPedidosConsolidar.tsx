@@ -268,6 +268,7 @@ export function ModalConsolidarPedidos({
   const [concluido, setConcluido] = useState(false)
   const [infograficoPopover, setInfograficoPopover] = useState<'ativas' | 'dados' | 'vazias' | null>(null)
   const [filtroCampos, setFiltroCampos] = useState<'todos' | 'divergentes' | 'iguais' | 'vazios'>('todos')
+  const [filtroPedidoOrigem, setFiltroPedidoOrigem] = useState<string | null>(null)
 
   // IDs dos pedidos inteiros + pedidos-pai dos itens avulsos (parciais)
   const pedidoIdsInteiros = pedidosSelecionados.map(p => p.id)
@@ -739,17 +740,55 @@ export function ModalConsolidarPedidos({
           </button>
         </div>
 
+        {/* Filtro por pedido de origem — select buscável */}
+        {preview.pedidos_info.length >= 2 && (
+          <div style={estilos.filtroOrigemRow}>
+            <span style={estilos.filtroOrigemLabel}>Origem:</span>
+            <div style={estilos.filtroOrigemSelect}>
+              <SelectGlobal
+                buscavel
+                tamanho="compacto"
+                placeholder="Filtrar por pedido de origem"
+                opcoes={[
+                  { valor: '__todos__', rotulo: `Todos os pedidos (${preview.pedidos_info.length})` },
+                  ...preview.pedidos_info.map(pi => {
+                    const divCount = preview.campos_divergentes.filter(c => c.valores.some(v => v.pedido_id === pi.id)).length
+                    return {
+                      valor: pi.id,
+                      rotulo: divCount > 0 ? `${pi.numero}  ·  ${divCount} divergência${divCount !== 1 ? 's' : ''}` : pi.numero,
+                    }
+                  }),
+                ]}
+                valor={filtroPedidoOrigem ?? '__todos__'}
+                aoMudarValor={v => setFiltroPedidoOrigem(v === '__todos__' ? null : String(v))}
+                aria-label="Filtrar campos por pedido de origem"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Grupos colapsáveis — filtrados */}
         {grupos.map((grupo) => {
-          // Aplicar filtro
-          const divergentesFiltrados = filtroCampos === 'iguais' || filtroCampos === 'vazios' ? [] : grupo.divergentes
+          // 1. Filtro por pedido de origem (divergentes que envolvem esse pedido)
+          let divergentesBase = grupo.divergentes
+          if (filtroPedidoOrigem) {
+            divergentesBase = divergentesBase.filter(c => c.valores.some(v => v.pedido_id === filtroPedidoOrigem))
+          }
+
+          // 2. Filtro por tipo (divergentes/iguais/vazios)
+          const divergentesFiltrados = filtroCampos === 'iguais' || filtroCampos === 'vazios' ? [] : divergentesBase
           const iguaisComDado = grupo.iguais.filter(c => c.valor != null && c.valor !== '')
           const iguaisVazio = grupo.iguais.filter(c => c.valor == null || c.valor === '')
           let iguaisFiltrados: CampoIgual[] = []
-          if (filtroCampos === 'todos') iguaisFiltrados = grupo.iguais
-          else if (filtroCampos === 'iguais') iguaisFiltrados = iguaisComDado
-          else if (filtroCampos === 'vazios') iguaisFiltrados = iguaisVazio
-          // divergentes: iguaisFiltrados stays empty
+          if (filtroPedidoOrigem) {
+            // Quando filtrado por pedido, iguais ficam ocultos (são comuns, não específicos)
+            if (filtroCampos === 'todos' || filtroCampos === 'iguais') iguaisFiltrados = []
+            else iguaisFiltrados = []
+          } else {
+            if (filtroCampos === 'todos') iguaisFiltrados = grupo.iguais
+            else if (filtroCampos === 'iguais') iguaisFiltrados = iguaisComDado
+            else if (filtroCampos === 'vazios') iguaisFiltrados = iguaisVazio
+          }
 
           const grupoFiltrado: GrupoCampos = {
             grupo: grupo.grupo,
@@ -1254,6 +1293,27 @@ const estilos = {
     color: '#94a3b8',
     paddingLeft: '0.5rem',
     lineHeight: 1.6,
+  } as React.CSSProperties,
+
+  // ── Filtro por pedido de origem (SelectGlobal) ──
+  filtroOrigemRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '0.5rem 0.75rem',
+    background: 'var(--bg-surface)',
+    borderRadius: 'var(--radius-md)',
+    marginBottom: '0.25rem',
+  } as React.CSSProperties,
+  filtroOrigemLabel: {
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    color: 'var(--text-muted)',
+    whiteSpace: 'nowrap' as const,
+  } as React.CSSProperties,
+  filtroOrigemSelect: {
+    flex: 1,
+    minWidth: 0,
   } as React.CSSProperties,
 
   // Grupo colapsável

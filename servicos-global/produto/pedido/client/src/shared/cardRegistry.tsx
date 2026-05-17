@@ -49,7 +49,7 @@ export interface CardComputedStats {
   pedidosAtrasados: number
   /** Pedidos com status === 'aberto' */
   pedidosAbertos: number
-  /** Pedidos com status === 'transferencia' */
+  /** Pedidos com status === 'em_andamento' */
   pedidosEmAndamento: number
   /** Soma de quantidade_transferida_item (todos os itens) */
   qtdTransferida: number
@@ -154,7 +154,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     icone:    ic(ArrowRight, '#a78bfa'),
     getValue: s => s.pedidosEmAndamento,
     format:   v => v,
-    subtexto: () => 'Em processo de transferência',
+    subtexto: () => 'Pedidos em andamento',
     tooltip:  (_, s) => row('Em andamento', s.pedidosEmAndamento),
   },
 
@@ -228,6 +228,86 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
   },
 }
 
+// ─── Cards customizados (gerados dinamicamente) ──────────────────────────────
+
+import type { CardUsuario } from './types'
+import { parsearFormula, type FormulaAST } from './formulaEngine'
+import { formulaParaChave } from './formulaUtils'
+
+const STATS_KEY_MAP: Record<string, keyof CardComputedStats> = {
+  quantidade_total_pedido: 'qtdTotal',
+  quantidade_atual_pedido: 'qtdAtualTotal',
+  quantidade_pronta_total_item_pedido: 'itensProntos',
+  quantidade_transferida_pedido: 'qtdTransferida',
+  quantidade_inicial_pedido: 'qtdInicial',
+  valor_total_pedido: 'valorTotal',
+  valor_total_item: 'valorItens',
+  total_pedidos: 'total',
+  saldo_itens_do_pedido: 'qtdAtualTotal',
+}
+
+function avaliarFormulaCustom(expressao: string, stats: CardComputedStats): number {
+  const chaveFormula = formulaParaChave(expressao)
+  try {
+    const ast = parsearFormula(chaveFormula)
+    if (!ast) return 0
+    return evalNode(ast, stats)
+  } catch {
+    return 0
+  }
+}
+
+function evalNode(node: FormulaAST, stats: CardComputedStats): number {
+  switch (node.tipo) {
+    case 'numero': return node.valor
+    case 'campo': {
+      const statsKey = STATS_KEY_MAP[node.chave]
+      if (statsKey) return Number(stats[statsKey]) || 0
+      return 0
+    }
+    case 'binop': {
+      const esq = evalNode(node.esq, stats)
+      const dir = evalNode(node.dir, stats)
+      switch (node.op) {
+        case '+': return esq + dir
+        case '-': return esq - dir
+        case '*': return esq * dir
+        case '/': return dir !== 0 ? esq / dir : 0
+        default: return 0
+      }
+    }
+    case 'soma_itens': return 0
+    case 'se': {
+      const cond = evalNode(node.condicao, stats)
+      return cond !== 0 ? evalNode(node.verdadeiro, stats) : evalNode(node.falso, stats)
+    }
+    case 'condicao': {
+      const esq = evalNode(node.esq, stats)
+      const dir = evalNode(node.dir, stats)
+      switch (node.op) {
+        case '>':  return esq > dir ? 1 : 0
+        case '<':  return esq < dir ? 1 : 0
+        case '>=': return esq >= dir ? 1 : 0
+        case '<=': return esq <= dir ? 1 : 0
+        case '==': return esq === dir ? 1 : 0
+        case '!=': return esq !== dir ? 1 : 0
+        default: return 0
+      }
+    }
+    default: return 0
+  }
+}
+
+export function buildCustomCardEntry(card: CardUsuario): CardRegistryEntry {
+  return {
+    icone: <span style={{ fontSize: 16 }}>{card.icone}</span>,
+    getValue: (stats) => avaliarFormulaCustom(card.formula_expressao, stats),
+    format: (v) => fmtQuantidade(v),
+    subtexto: () => card.nome,
+    tooltip: (_, stats) => row('Valor', fmtQuantidade(avaliarFormulaCustom(card.formula_expressao, stats))),
+  }
+}
+
 // ─── Função de cálculo central ────────────────────────────────────────────────
 
 /**
@@ -251,14 +331,26 @@ export function computeCardStats(
   const coberturaPend    = pedidos
     .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
-  const pedidosAtrasados = pedidos.filter(p =>
-    p.status !== 'consolidado' &&
-    p.status !== 'cancelado' &&
-    p.data_prevista_pedido_pronto != null &&
-    p.data_prevista_pedido_pronto < hoje,
-  ).length
+  const pedidosAtrasados = pedidos.filter(p => {
+    const pares: Array<[string | null | undefined, string | null | undefined]> = [
+      [p.data_prevista_pedido_pronto,                  p.data_confirmada_pedido_pronto],
+      [p.data_prevista_inspecao_pedido,                 p.data_confirmada_inspecao_pedido],
+      [p.data_prevista_coleta_pedido,                   p.data_confirmada_coleta_pedido],
+      [p.data_prevista_recebimento_rascunho_pedido,     p.data_confirmada_recebimento_rascunho_pedido],
+      [p.data_prevista_aprovacao_rascunho_pedido,       p.data_confirmada_aprovacao_rascunho_pedido],
+      [p.data_prevista_recebimento_rascunho_proforma,   p.data_confirmada_recebimento_rascunho_proforma],
+      [p.data_prevista_aprovacao_rascunho_proforma,     p.data_confirmada_aprovacao_rascunho_proforma],
+      [p.data_prevista_envio_original_proforma,         p.data_confirmada_envio_original_proforma],
+      [p.data_prevista_recebimento_original_proforma,   p.data_confirmada_recebimento_original_proforma],
+      [p.data_prevista_recebimento_rascunho_invoice,    p.data_confirmada_recebimento_rascunho_invoice],
+      [p.data_prevista_aprovacao_rascunho_invoice,      p.data_confirmada_aprovacao_rascunho_invoice],
+      [p.data_prevista_envio_original_invoice,          p.data_confirmada_envio_original_invoice],
+      [p.data_prevista_recebimento_original_invoice,    p.data_confirmada_recebimento_original_invoice],
+    ]
+    return pares.some(([prev, conf]) => prev != null && prev < hoje && !conf)
+  }).length
   const pedidosAbertos      = pedidos.filter(p => p.status === 'aberto').length
-  const pedidosEmAndamento  = pedidos.filter(p => p.status === 'transferencia').length
+  const pedidosEmAndamento  = pedidos.filter(p => p.status === 'em_andamento').length
 
   return {
     total,

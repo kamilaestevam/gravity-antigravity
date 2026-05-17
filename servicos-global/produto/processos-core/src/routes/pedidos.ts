@@ -1624,36 +1624,25 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
+      const db  = rawDb as any
+      const ctx = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
 
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
+        where: { id_pedido: req.params.id, id_organizacao: ctx.idOrganizacao },
       })
 
       if (!pedido) {
         throw new AppError(404, 'Pedido nao encontrado')
       }
 
-      // Validar transicoes permitidas
-      const transicoesValidas: Record<string, string[]> = {
-        rascunho: ['aberto', 'cancelado'],
-        aberto: ['cancelado'],
-      }
-
-      const permitidas = transicoesValidas[pedido.status] ?? []
-      if (!permitidas.includes(result.data.status)) {
-        throw new AppError(400,
-          `Transicao de "${pedido.status}" para "${result.data.status}" nao permitida`
-        )
+      if (pedido.status_pedido === result.data.status) {
+        return res.json(mapPedido(pedido))
       }
 
       const updated = await db.pedido.update({
         where: { id_pedido: req.params.id },
-        data: { status: result.data.status },
-        include: { itens_pedido: { orderBy: { sequencia_item: 'asc' } } },
+        data: { status_pedido: result.data.status },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       res.json(mapPedido(updated))

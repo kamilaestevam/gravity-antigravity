@@ -491,13 +491,11 @@ export default function PedidosKanban() {
   }, [itens, busca])
 
   async function handleMover(itemId: string, novaColunaKey: string) {
-    // Gating client-side: bloqueia drag/drop quando sem permissao `kanban:editar`.
-    // Backend tambem rejeita (PATCH /alteracoes-status-lote exige kanban:editar — Fase 2).
     if (!podeEditarKanban) return
+    await pedidoApi.alterarStatus(itemId, novaColunaKey)
     setPedidos(prev =>
       prev.map(p => p.id === itemId ? { ...p, status: novaColunaKey as PedidoStatus } : p),
     )
-    await pedidoApi.alterarStatus(itemId, novaColunaKey)
     window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'kanban' } }))
   }
 

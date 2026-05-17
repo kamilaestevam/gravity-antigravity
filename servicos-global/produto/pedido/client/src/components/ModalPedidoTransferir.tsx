@@ -865,7 +865,7 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
         const numeros = multiPedido
           ? pedidos.map(p => p.numero_pedido).join(', ')
           : pedido.numero_pedido
-        const MAX_CHARS = 50
+        const MAX_CHARS = 40
         const truncado = numeros.length > MAX_CHARS
           ? numeros.slice(0, MAX_CHARS) + '…'
           : numeros
@@ -877,13 +877,14 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
           ? pedidos.map(p => p.numero_pedido).join(', ')
           : pedido.numero_pedido
         const subtexto = t('pedido.modal_transf.subtitulo')
-        if (numeros.length > 50) {
+        if (numeros.length > 40) {
           return (
-            <TooltipGlobal titulo={t('pedido.modal_transf.titulo_tooltip_pedidos')} descricao={numeros}>
-              <span style={{ cursor: 'help' }}>
-                {subtexto} <Eye size={14} style={{ verticalAlign: 'middle', opacity: 0.7 }} />
-              </span>
-            </TooltipGlobal>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {subtexto}
+              <TooltipGlobal titulo={t('pedido.modal_transf.titulo_tooltip_pedidos')} descricao={numeros}>
+                <Eye size={16} style={{ cursor: 'help', opacity: 0.7, flexShrink: 0 }} />
+              </TooltipGlobal>
+            </span>
           )
         }
         return subtexto
@@ -1066,9 +1067,11 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
                       ? t('pedido.modal_transf.passo5_reversivel')
                       : t('pedido.modal_transf.passo5_irreversivel')}
                   </div>
-                  {previews.map((prev, idx) => (
-                    <PreviewImpacto key={idx} preview={prev} />
-                  ))}
+                  <div className="modal-transferir__preview-wrapper">
+                    {previews.map((prev, idx) => (
+                      <PreviewImpacto key={idx} preview={prev} />
+                    ))}
+                  </div>
                   {erroConfirmar && (
                     <div className="modal-transferir__erro" role="alert">
                       <Warning size={16} weight="fill" aria-hidden="true" />

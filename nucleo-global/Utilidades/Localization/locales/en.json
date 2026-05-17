@@ -4107,6 +4107,7 @@
       "passo5_reversivel": "Review the summary above before confirming. This action can be reversed later.",
       "passo5_irreversivel": "Review the summary above before confirming. This action cannot be reversed.",
       "subtitulo": "Move items between orders in the same organization",
+      "titulo_tooltip_pedidos": "Selected orders",
       "resultado_titulo": "Transfer completed successfully",
       "secao_origem_resultado": "Origin",
       "secao_destino_resultado": "Destination",

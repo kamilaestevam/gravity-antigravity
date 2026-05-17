@@ -3949,6 +3949,7 @@
       "passo5_reversivel": "Revise o resumo acima antes de confirmar. Esta ação pode ser revertida posteriormente.",
       "passo5_irreversivel": "Revise o resumo acima antes de confirmar. Esta ação não pode ser revertida.",
       "subtitulo": "Mova itens entre pedidos da mesma organização",
+      "titulo_tooltip_pedidos": "Pedidos selecionados",
       "resultado_titulo": "Transferência concluída com sucesso",
       "secao_origem_resultado": "Origem",
       "secao_destino_resultado": "Destino",

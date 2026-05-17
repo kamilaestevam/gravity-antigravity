@@ -861,9 +861,33 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
 
   return (
     <ModalPassoPassoGlobal
-      titulo={t('pedido.modal_transf.titulo', { numero: multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido })}
+      titulo={(() => {
+        const numeros = multiPedido
+          ? pedidos.map(p => p.numero_pedido).join(', ')
+          : pedido.numero_pedido
+        const MAX_CHARS = 50
+        const truncado = numeros.length > MAX_CHARS
+          ? numeros.slice(0, MAX_CHARS) + '…'
+          : numeros
+        return t('pedido.modal_transf.titulo', { numero: truncado })
+      })()}
       icone={<ArrowSquareOut size={20} weight="duotone" />}
-      subtitulo={t('pedido.modal_transf.subtitulo')}
+      subtituloNode={(() => {
+        const numeros = multiPedido
+          ? pedidos.map(p => p.numero_pedido).join(', ')
+          : pedido.numero_pedido
+        const subtexto = t('pedido.modal_transf.subtitulo')
+        if (numeros.length > 50) {
+          return (
+            <TooltipGlobal titulo={t('pedido.modal_transf.titulo_tooltip_pedidos')} descricao={numeros}>
+              <span style={{ cursor: 'help' }}>
+                {subtexto} <Eye size={14} style={{ verticalAlign: 'middle', opacity: 0.7 }} />
+              </span>
+            </TooltipGlobal>
+          )
+        }
+        return subtexto
+      })()}
       aberto={true}
       passos={PASSOS_TRANSFERIR}
       passoAtual={passo}

@@ -177,7 +177,11 @@ export function SecaoKanbanColunas({
           </div>
 
           {/* ── Footer ── */}
-          <div className="cfg-campo-calc-item__footer">
+          <div className="cfg-campo-calc-item__footer" style={{ display: 'flex', alignItems: 'center' }}>
+            <p className="cfg-hint" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem', flex: 1 }}>
+              <Info size={13} weight="duotone" />
+              Estas são as colunas padrão. Para criar novos status, acesse a seção <strong>Status</strong> no menu lateral.
+            </p>
             <BotaoCancelar onClick={onDescartar} dirty={dirty} />
             <BotaoSalvar   onClick={onSalvar}    dirty={dirty} />
           </div>

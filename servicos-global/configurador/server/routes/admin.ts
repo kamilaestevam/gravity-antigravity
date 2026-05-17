@@ -24,7 +24,7 @@ import { AppError } from '../lib/appError.js'
 import { proximoSubdominioDisponivel, slugifySubdominio } from '../services/organizacao-service.js'
 import { convidarUsuarioService } from '../services/convidar-usuario-service.js'
 import { spawn } from 'child_process'
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream } from 'fs'
 import { join, resolve } from 'path'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
@@ -994,6 +994,9 @@ adminRouter.get('/planos-teste', (req, res, next) => {
  */
 adminRouter.get('/testes', async (_req, res, next) => {
   try {
+    // Recovery: se há um run órfão (servidor reiniciou durante execução), processa
+    processOrphanedRun()
+
     const byId = new Map<string, Record<string, unknown>>()
 
     // 1. Lê arquivos JSON em data/test-logs/ (fonte primária — run-tests escreve aqui)
@@ -1058,10 +1061,97 @@ adminRouter.get('/testes', async (_req, res, next) => {
 
 // ── Constantes para run-tests ─────────────────────────────────────────────────
 const monorepoRoot = resolve(process.cwd(), '..', '..')
-let pwRunning = false
+const testLogsDir = join(process.cwd(), 'data', 'test-logs')
+const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
 
 /** Timeout máximo de um run completo (15 min). Previne loops infinitos/DoS. */
 const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
+
+// ── Status de run persistido em arquivo (sobrevive a restart do servidor) ─────
+interface RunMarker {
+  status: 'running' | 'completed'
+  pid: number
+  started_at: string
+  runId: string
+}
+
+function readRunMarker(): RunMarker | null {
+  try {
+    if (!existsSync(RUN_MARKER_PATH)) return null
+    return JSON.parse(readFileSync(RUN_MARKER_PATH, 'utf-8')) as RunMarker
+  } catch { return null }
+}
+
+function writeRunMarker(marker: RunMarker): void {
+  mkdirSync(testLogsDir, { recursive: true })
+  const tmpPath = RUN_MARKER_PATH + '.tmp'
+  writeFileSync(tmpPath, JSON.stringify(marker, null, 2))
+  renameSync(tmpPath, RUN_MARKER_PATH)
+}
+
+function clearRunMarker(): void {
+  try { unlinkSync(RUN_MARKER_PATH) } catch { /* já não existe */ }
+}
+
+function isProcessAlive(pid: number): boolean {
+  try { process.kill(pid, 0); return true } catch { return false }
+}
+
+function isRunActive(): boolean {
+  const marker = readRunMarker()
+  if (!marker) return false
+  if (marker.status !== 'running') return false
+  return isProcessAlive(marker.pid)
+}
+
+function processOrphanedRun(): void {
+  const marker = readRunMarker()
+  if (!marker) return
+  if (marker.status === 'running' && isProcessAlive(marker.pid)) return
+
+  const stdoutPath = join(testLogsDir, `playwright-run-${marker.runId}.json`)
+  if (!existsSync(stdoutPath)) {
+    clearRunMarker()
+    return
+  }
+
+  const entries: TestLogEntry[] = []
+  const created_at = marker.started_at
+  try {
+    const raw = readFileSync(stdoutPath, 'utf-8').trim()
+    if (raw) {
+      const parsed = JSON.parse(raw) as { suites?: unknown[] }
+      for (const suite of (parsed.suites ?? [])) {
+        walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
+      }
+    }
+  } catch {
+    entries.push({
+      type: 'E2E', module: 'playwright/recovery',
+      test_name: 'Recovery de run órfão',
+      result: 'ERRO',
+      duration: '0ms',
+      error_log: 'Run não produziu JSON válido (servidor reiniciou durante execução)',
+      ai_analysis: null,
+    })
+  }
+
+  if (entries.length > 0) {
+    const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
+    let existing: unknown[] = []
+    try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
+    const novosLogs = entries.map((e, i) => ({
+      id: `${Date.now()}-${i}`,
+      created_at,
+      ...e,
+    }))
+    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+  }
+
+  try { unlinkSync(stdoutPath) } catch { /* ok */ }
+  try { unlinkSync(stdoutPath.replace('.json', '.stderr.log')) } catch { /* ok */ }
+  clearRunMarker()
+}
 
 /**
  * Whitelist de env vars seguras para o processo Playwright.
@@ -1120,7 +1210,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }
 
-    if (pwRunning) {
+    if (isRunActive()) {
       throw new AppError('Já existe um run em andamento', 409, 'CONFLICT')
     }
 
@@ -1216,28 +1306,28 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    pwRunning = true
-    res.json({ started: true })
+    const runId = String(Date.now())
+    mkdirSync(testLogsDir, { recursive: true })
 
-    // ── Roda Playwright em background (não bloqueia o response) ──────────────
-    const dir = join(process.cwd(), 'data', 'test-logs')
-    mkdirSync(dir, { recursive: true })
-
-    // DEBUG: arquivo de diagnóstico — captura TUDO do spawn em tempo real.
-    // Usado para diagnosticar por que entries não estão sendo gravadas.
-    const debugPath = join(dir, '_debug-spawn.log')
+    const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
+    const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
+    const debugPath = join(testLogsDir, '_debug-spawn.log')
     const debugLog = (msg: string) => {
       try {
-        const line = `[${new Date().toISOString()}] ${msg}\n`
-        writeFileSync(debugPath, line, { flag: 'a' })
+        writeFileSync(debugPath, `[${new Date().toISOString()}] ${msg}\n`, { flag: 'a' })
       } catch { /* ignora */ }
     }
+
     debugLog('=== NEW RUN ===')
+    debugLog(`runId=${runId}`)
     debugLog(`cwd=${monorepoRoot}`)
     debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
     debugLog(`specArgs=${JSON.stringify(specArgs)}`)
     debugLog(`projectArgs=${JSON.stringify(projectArgs)}`)
     debugLog(`planosSemSpec=${JSON.stringify(planosSemSpec)}`)
+
+    const stdoutStream = createWriteStream(stdoutPath, { flags: 'w' })
+    const stderrStream = createWriteStream(stderrPath, { flags: 'w' })
 
     const proc = spawn(
       'npx',
@@ -1251,20 +1341,15 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       }
     )
 
-    debugLog(`spawn pid=${proc.pid}`)
+    const pid = proc.pid ?? 0
+    debugLog(`spawn pid=${pid}`)
 
-    let pwStdout = ''
-    let pwStderr = ''
-    proc.stdout?.on('data', (chunk: Buffer) => {
-      const s = chunk.toString()
-      pwStdout += s
-      debugLog(`STDOUT (${s.length} bytes): ${s.slice(0, 200).replace(/\n/g, '\\n')}`)
-    })
-    proc.stderr?.on('data', (chunk: Buffer) => {
-      const s = chunk.toString()
-      pwStderr += s
-      debugLog(`STDERR (${s.length} bytes): ${s.slice(0, 200).replace(/\n/g, '\\n')}`)
-    })
+    writeRunMarker({ status: 'running', pid, started_at: new Date().toISOString(), runId })
+    res.json({ started: true })
+
+    // Stdout/stderr → arquivo em disco (sobrevive a restart do servidor)
+    proc.stdout?.pipe(stdoutStream)
+    proc.stderr?.pipe(stderrStream)
 
     proc.on('error', (err) => {
       debugLog(`PROC ERROR: ${err.message}`)
@@ -1274,46 +1359,46 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     })
 
     proc.on('close', () => {
-      debugLog(`PROC CLOSE — pwStdout.length=${pwStdout.length}, pwStderr.length=${pwStderr.length}`)
-      pwRunning = false
+      stdoutStream.end()
+      stderrStream.end()
+
       const entries: TestLogEntry[] = []
       const created_at = new Date().toISOString()
 
-      // Tenta parsear o JSON do stdout
-      const raw = pwStdout.trim()
-      if (raw) {
-        try {
+      try {
+        const raw = readFileSync(stdoutPath, 'utf-8').trim()
+        debugLog(`PROC CLOSE — stdout file size=${raw.length}`)
+        if (raw) {
           const parsed = JSON.parse(raw) as { suites?: unknown[] }
           for (const suite of (parsed.suites ?? [])) {
             walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
           }
-        } catch {
+        } else {
+          const stderrContent = existsSync(stderrPath) ? readFileSync(stderrPath, 'utf-8').slice(0, 500) : null
           entries.push({
-            type: 'E2E', module: 'playwright/parse-error',
-            test_name: 'JSON parse falhou',
+            type: 'E2E', module: 'playwright/sem-output',
+            test_name: 'Playwright não gerou saída',
             result: 'ERRO',
             duration: '0ms',
-            error_log: (pwStderr || pwStdout).slice(0, 500),
+            error_log: stderrContent || null,
             ai_analysis: null,
           })
         }
-      } else {
+      } catch {
+        const stderrContent = existsSync(stderrPath) ? readFileSync(stderrPath, 'utf-8').slice(0, 500) : ''
         entries.push({
-          type: 'E2E', module: 'playwright/sem-output',
-          test_name: 'Playwright não gerou saída',
+          type: 'E2E', module: 'playwright/parse-error',
+          test_name: 'JSON parse falhou',
           result: 'ERRO',
           duration: '0ms',
-          error_log: pwStderr.slice(0, 500) || null,
+          error_log: stderrContent.slice(0, 500),
           ai_analysis: null,
         })
       }
 
-      // Salva no arquivo JSON do dia
-      const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
+      const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
       let existing: unknown[] = []
       try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-      // entries já vem com ai_analysis populado pelo walkSuite (quando há falha).
-      // Preservamos esse valor em vez de sobrescrever com null.
       const novosLogs = entries.map((e, i) => ({
         id: `${Date.now()}-${i}`,
         created_at,
@@ -1326,7 +1411,12 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
       }
 
-      // Audit trail: fim do run — quantos passaram/falharam
+      // Limpa arquivos intermediários e marker
+      try { unlinkSync(stdoutPath) } catch { /* ok */ }
+      try { unlinkSync(stderrPath) } catch { /* ok */ }
+      clearRunMarker()
+
+      // Audit trail: fim do run
       const aprovados = entries.filter(e => e.result === 'APROVADO').length
       const reprovados = entries.filter(e => e.result === 'REPROVADO').length
       const erros = entries.filter(e => e.result === 'ERRO').length
@@ -1348,7 +1438,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     })
 
   } catch (err) {
-    pwRunning = false
+    clearRunMarker()
     next(err)
   }
 })
@@ -1356,9 +1446,18 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
 /**
  * GET /api/v1/admin/testes/status
  * Verifica se há um run em andamento.
+ * Usa arquivo _current-run.json + verificação de PID (sobrevive a restart).
  */
 adminRouter.get('/testes/status', (_req, res) => {
-  res.json({ running: pwRunning })
+  const marker = readRunMarker()
+  if (!marker || marker.status !== 'running') {
+    return res.json({ running: false })
+  }
+  if (!isProcessAlive(marker.pid)) {
+    processOrphanedRun()
+    return res.json({ running: false })
+  }
+  res.json({ running: true })
 })
 
 /**

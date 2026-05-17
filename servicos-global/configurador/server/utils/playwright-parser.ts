@@ -43,10 +43,13 @@ export interface PwSpec {
   file?:  string
   tests?: Array<{
     projectName?: string
+    annotations?: Array<{ type: string }>
+    expectedStatus?: string
     results?: Array<{
       status:   string
       duration: number
       error?:   { message?: string; stack?: string }
+      errors?:  Array<{ message?: string; stack?: string }>
     }>
   }>
 }
@@ -224,13 +227,59 @@ export function walkSuite(suite: PwSuite, entries: TestLogEntry[]): void {
   for (const spec of suite.specs ?? []) {
     const test     = spec.tests?.[0]
     const result0  = test?.results?.[0]
-    const status   = result0?.status ?? 'failed'
-    const duration = result0?.duration ?? 0
-    const errMsg   = result0?.error?.message ?? result0?.error?.stack ?? null
+    const hasResults = (test?.results?.length ?? 0) > 0
 
     const module = (test?.projectName ?? suite.title ?? 'unknown')
       .replace(/\\/g, '/')
       .split('/').pop() ?? 'unknown'
+
+    const isSkipped = result0?.status === 'skipped' || test?.expectedStatus === 'skipped'
+      || test?.annotations?.some(a => a.type === 'skip' || a.type === 'fixme')
+
+    if (isSkipped) {
+      const skipReason = test?.annotations?.find(a => a.type === 'skip' || a.type === 'fixme')?.type ?? 'skip'
+      const skipMsg = `Teste marcado como ${skipReason} no código fonte. O Playwright listou mas não executou este teste.`
+      entries.push({
+        type:      'E2E',
+        module,
+        test_name: spec.title,
+        result:    'REPROVADO',
+        duration:  '0ms',
+        error_log: skipMsg,
+        ai_analysis: {
+          erroResumo: `Teste com annotation "${skipReason}" — não executado`,
+          motivo: `Este teste está marcado com test.describe.${skipReason}() ou test.${skipReason}() no spec file. O Playwright reconhece o teste mas pula a execução. Isso é intencional quando o teste depende de funcionalidade ainda não implementada, ou quando está temporariamente desabilitado.`,
+          sugestaoCorrecao: `Remover o .${skipReason}() do describe/test quando a funcionalidade estiver pronta. Localizar a annotation na linha do spec file e avaliar se a condição de skip ainda é válida.`,
+          arquivo: spec.file ?? suite.file ?? 'arquivo desconhecido',
+        },
+      })
+      continue
+    }
+
+    if (!hasResults) {
+      const noRunMsg = 'Teste não foi executado pelo Playwright (results vazio). O browser pode não ter sido iniciado, ou o --project não casou com este spec.'
+      entries.push({
+        type:      'E2E',
+        module,
+        test_name: spec.title,
+        result:    'REPROVADO',
+        duration:  '0ms',
+        error_log: noRunMsg,
+        ai_analysis: {
+          erroResumo: 'Teste não executado',
+          motivo: 'O Playwright listou este teste mas não o executou. Isso acontece quando: (1) o browser não está disponível/instalado, (2) o --project do Playwright não casa com o spec, (3) o teste foi filtrado por tag/grep, ou (4) o processo encerrou antes de iniciar a execução.',
+          sugestaoCorrecao: 'Execute localmente: npx playwright test <spec> --project <projeto> --headed. Verifique se o browser está instalado (npx playwright install). Confirme que o projeto no playwright.config.ts inclui o diretório do spec.',
+          arquivo: spec.file ?? suite.file ?? 'arquivo desconhecido',
+        },
+      })
+      continue
+    }
+
+    const status   = result0?.status ?? 'failed'
+    const duration = result0?.duration ?? 0
+    // Playwright usa tanto `error` (singular) quanto `errors` (array) dependendo da versão
+    const errMsg   = result0?.error?.message ?? result0?.error?.stack
+      ?? result0?.errors?.[0]?.message ?? result0?.errors?.[0]?.stack ?? null
 
     const errorLogTrimmed = errMsg ? String(errMsg).slice(0, 500) : null
     const mappedResult = PW_STATUS_MAP[status] ?? 'REPROVADO'

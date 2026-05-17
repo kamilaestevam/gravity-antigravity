@@ -24,7 +24,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -42,6 +42,9 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
+import { useCardsUsuario } from '../shared/useCardsUsuario'
+import { ModalNovoCardUsuario } from '../components/ConfiguracaoCards/ModalNovoCardUsuario'
+import type { CardUsuario } from '../shared/types'
 import { TaxasMoedaResponseSchema, HistoricoTaxasResponseSchema, SyncTaxasResponseSchema, type BoletimCambio } from '../shared/useTaxasCambio'
 import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
 import type { SnapshotAtualizacaoPolicy } from '../shared/types'
@@ -102,15 +105,17 @@ const PERIODOS = [
 // ─── Item sortável (DnD) ──────────────────────────────────────────────────────
 
 function CardSortavel({
-  pref, onToggle, onRemover,
+  pref, onToggle, onRemover, periodoAtivo,
 }: {
   pref: CardPreferencia
   onToggle: () => void
   onRemover: () => void
+  periodoAtivo: string
 }) {
   const { t } = useTranslation()
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
+  const [detalheAberto, setDetalheAberto] = useState(false)
 
   const {
     attributes, listeners, setNodeRef,
@@ -124,58 +129,95 @@ function CardSortavel({
     zIndex:  isDragging ? 999 : undefined,
   }
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}`}
-    >
-      <button
-        type="button"
-        className="cfg-drag-handle"
-        {...attributes}
-        {...listeners}
-        aria-label="Arrastar para reordenar"
-      >
-        <DotsSixVertical size={16} weight="bold" />
-      </button>
+  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+  const subtitulo = `${def.tipoAgg} · ${def.origem} · ${periodoLabel}`
 
-      <div className="cfg-card-row__info">
-        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-          {visual.icone}
-        </span>
-        <div>
-          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}${detalheAberto ? ' cfg-card-row--detalhe' : ''}`}>
+        <button
+          type="button"
+          className="cfg-drag-handle"
+          {...attributes}
+          {...listeners}
+          aria-label="Arrastar para reordenar"
+        >
+          <DotsSixVertical size={16} weight="bold" />
+        </button>
+
+        <div className="cfg-card-row__info">
+          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+            {visual.icone}
+          </span>
+          <div>
+            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+            <p className="cfg-card-row__desc">{subtitulo}</p>
+          </div>
         </div>
+
+        <span className="cfg-origem-badge cfg-origem-badge--meus">{t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}</span>
+
+        <TooltipGlobal descricao={t('pedido.config.cards.tooltip_detalhes')}>
+          <button
+            type="button"
+            className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
+            onClick={() => setDetalheAberto(v => !v)}
+            aria-label="Ver detalhes do card"
+          >
+            <Info size={15} weight="bold" />
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}>
+          <button
+            type="button"
+            className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
+            onClick={onToggle}
+            aria-label={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}
+          >
+            {pref.visible
+              ? <Eye      size={15} weight="bold" />
+              : <EyeSlash size={15} weight="bold" />
+            }
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao={t('pedido.config.cards.tooltip_remover')}>
+          <button
+            type="button"
+            className="cfg-remove-btn"
+            onClick={onRemover}
+            aria-label="Remover card"
+          >
+            <X size={13} weight="bold" />
+          </button>
+        </TooltipGlobal>
       </div>
 
-      <span className="cfg-origem-badge cfg-origem-badge--meus">{t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}</span>
-
-      <TooltipGlobal descricao={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}>
-        <button
-          type="button"
-          className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
-          onClick={onToggle}
-          aria-label={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}
-        >
-          {pref.visible
-            ? <Eye      size={15} weight="bold" />
-            : <EyeSlash size={15} weight="bold" />
-          }
-        </button>
-      </TooltipGlobal>
-
-      <TooltipGlobal descricao={t('pedido.config.cards.tooltip_remover')}>
-        <button
-          type="button"
-          className="cfg-remove-btn"
-          onClick={onRemover}
-          aria-label="Remover card"
-        >
-          <X size={13} weight="bold" />
-        </button>
-      </TooltipGlobal>
+      {detalheAberto && (
+        <div className="cfg-card-detail-panel">
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__value">{t(def.labelKey)}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__value">{def.origem}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__value">{t(def.descKey)}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -668,6 +710,12 @@ function carregarSaldoFormulaDefault(): string {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function sincronizarStatusLocal(lista: PedidoStatusConfig[]) {
+  const map: Record<string, { label: string; cor: string }> = {}
+  for (const s of lista) map[s.nome] = { label: s.rotulo, cor: s.cor }
+  try { localStorage.setItem('pedido:status_config', JSON.stringify(map)) } catch { /* ignore */ }
+}
 
 function gerarNomeSlug(rotulo: string, ordem: number): string {
   const base = rotulo
@@ -1461,6 +1509,8 @@ export default function Configuracoes() {
   }
 
   const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
+  const { cards: cardsCustom, criar: criarCardCustom, excluir: excluirCardCustom, toggleAtivo: toggleCardCustom, carregando: carregandoCardsCustom } = useCardsUsuario()
+  const [modalCardAberto, setModalCardAberto] = useState(false)
 
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -1929,6 +1979,7 @@ export default function Configuracoes() {
   // ── Status state (API-driven) ──
   const [statusList, setStatusList]           = useState<PedidoStatusConfig[]>([])
   const [statusLoading, setStatusLoading]     = useState(false)
+  const [statusErro, setStatusErro]           = useState<string | null>(null)
   const [statusEditandoId, setStatusEditandoId] = useState<string | null>(null)
   const [statusEditLabel, setStatusEditLabel] = useState('')
   const [statusEditCor, setStatusEditCor]     = useState('')
@@ -1940,9 +1991,17 @@ export default function Configuracoes() {
   useEffect(() => {
     if (categoria !== 'status') return
     setStatusLoading(true)
+    setStatusErro(null)
     pedidoConfigApi.listarStatus()
-      .then(res => setStatusList(res.data ?? []))
-      .catch(() => {})
+      .then(res => {
+        const lista = res.data ?? []
+        setStatusList(lista)
+        sincronizarStatusLocal(lista)
+      })
+      .catch((err: Error) => {
+        console.warn('[Configuracoes/Status] Erro ao carregar status:', err.message)
+        setStatusErro(t('pedido.config.status.erro_carregar'))
+      })
       .finally(() => setStatusLoading(false))
   }, [categoria])
 
@@ -2042,7 +2101,7 @@ export default function Configuracoes() {
     const newIndex = statusList.findIndex(s => s.id === over.id)
     const novaLista = arrayMove(statusList, oldIndex, newIndex)
     setStatusList(novaLista)
-    // Persiste nova ordem via API (usa o id do banco)
+    sincronizarStatusLocal(novaLista)
     pedidoConfigApi.reordenarStatus(novaLista.map(s => s.id)).catch(() => {})
   }
 
@@ -2055,17 +2114,20 @@ export default function Configuracoes() {
 
   function salvarEdicaoStatus() {
     if (!statusEditLabel.trim() || !statusEditandoId) return
-    // Optimistic update
-    setStatusList(prev => prev.map(s => s.id === statusEditandoId
+    const novaLista = statusList.map(s => s.id === statusEditandoId
       ? { ...s, rotulo: statusEditLabel.trim(), cor: statusEditCor }
       : s,
-    ))
+    )
+    setStatusList(novaLista)
+    sincronizarStatusLocal(novaLista)
     pedidoConfigApi.atualizarStatus(statusEditandoId, {
       rotulo: statusEditLabel.trim(),
       cor:    statusEditCor,
     }).catch(() => {
-      // Rollback: recarregar da API em caso de erro
-      pedidoConfigApi.listarStatus().then(res => setStatusList(res.data ?? [])).catch(() => {})
+      pedidoConfigApi.listarStatus().then(res => {
+        setStatusList(res.data ?? [])
+        sincronizarStatusLocal(res.data ?? [])
+      }).catch(() => {})
     })
     setStatusEditandoId(null)
     setStatusEditLabel('')
@@ -2079,8 +2141,9 @@ export default function Configuracoes() {
   }
 
   function excluirStatus(id: string) {
-    // Optimistic update
-    setStatusList(prev => prev.filter(s => s.id !== id))
+    const novaLista = statusList.filter(s => s.id !== id)
+    setStatusList(novaLista)
+    sincronizarStatusLocal(novaLista)
     setRegrasConfig(prev => ({
       ...prev,
       excluir: {
@@ -2089,8 +2152,10 @@ export default function Configuracoes() {
       },
     }))
     pedidoConfigApi.deletarStatus(id).catch(() => {
-      // Rollback
-      pedidoConfigApi.listarStatus().then(res => setStatusList(res.data ?? [])).catch(() => {})
+      pedidoConfigApi.listarStatus().then(res => {
+        setStatusList(res.data ?? [])
+        sincronizarStatusLocal(res.data ?? [])
+      }).catch(() => {})
     })
   }
 
@@ -2115,12 +2180,18 @@ export default function Configuracoes() {
 
     pedidoConfigApi.criarStatus({ nome, rotulo: provisorio.rotulo, cor: provisorio.cor, ordem })
       .then(criado => {
-        // Substitui provisório pelo registro real do banco
-        setStatusList(prev => prev.map(s => s.id === provisorio.id ? criado : s))
+        setStatusList(prev => {
+          const lista = prev.map(s => s.id === provisorio.id ? criado : s)
+          sincronizarStatusLocal(lista)
+          return lista
+        })
       })
       .catch(() => {
-        // Remove provisório em caso de erro
-        setStatusList(prev => prev.filter(s => s.id !== provisorio.id))
+        setStatusList(prev => {
+          const lista = prev.filter(s => s.id !== provisorio.id)
+          sincronizarStatusLocal(lista)
+          return lista
+        })
         addNotification({ type: 'error', message: 'Erro ao criar status. Tente novamente.' })
       })
   }
@@ -2312,6 +2383,20 @@ export default function Configuracoes() {
                         </div>
                       )
                     })}
+                    {cardsCustom.filter(c => c.ativo).map((card, i) => (
+                      <div
+                        key={card.id}
+                        className="cfg-kpi-preview-card"
+                        style={{ borderTopColor: card.cor }}
+                      >
+                        <span className="cfg-kpi-preview-card__pos">{prefs.length + i + 1}</span>
+                        <span className="cfg-kpi-preview-card__icon" style={{ color: card.cor, fontSize: '16px' }}>
+                          {card.icone}
+                        </span>
+                        <div className="cfg-kpi-preview-card__line" style={{ background: card.cor }} />
+                        <p className="cfg-kpi-preview-card__label">{card.nome}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -2329,6 +2414,7 @@ export default function Configuracoes() {
                         <CardSortavel
                           key={pref.id}
                           pref={pref}
+                          periodoAtivo={periodoAtivo}
                           onToggle={() => toggle(pref.id)}
                           onRemover={() => remover(pref.id)}
                         />
@@ -2388,6 +2474,89 @@ export default function Configuracoes() {
                   </p>
                 )}
               </div>
+
+              {/* ── Cards Personalizados ── */}
+              <ConfiguracaoSecaoGlobal
+                label="Cards Personalizados"
+                count={cardsCustom.length > 0 ? `${cardsCustom.length} card${cardsCustom.length !== 1 ? 's' : ''}` : undefined}
+                style={{ marginTop: '1.5rem' }}
+              />
+
+              {carregandoCardsCustom ? (
+                <div style={{ padding: '1rem 0', textAlign: 'center' }}>
+                  <GravityLoader tamanho="sm" />
+                </div>
+              ) : (
+                <>
+                  {cardsCustom.length > 0 && (
+                    <div className="cfg-cards-lista">
+                      {cardsCustom.map(card => (
+                        <div key={card.id} className={`cfg-card-row${!card.ativo ? ' cfg-card-row--oculto' : ''}`}>
+                          <span className="cfg-drag-handle cfg-drag-handle--ghost">
+                            <DotsSixVertical size={16} weight="bold" />
+                          </span>
+                          <div className="cfg-card-row__info">
+                            <span className="cfg-card-row__icone" style={{ color: card.cor }}>
+                              <span style={{ fontSize: '16px' }}>{card.icone}</span>
+                            </span>
+                            <div>
+                              <p className="cfg-card-row__nome">{card.nome}</p>
+                              <p className="cfg-card-row__desc">Fórmula · Personalizado</p>
+                            </div>
+                          </div>
+                          <span className="cfg-origem-badge cfg-origem-badge--meus">Custom</span>
+                          <TooltipGlobal descricao={card.ativo ? 'Ocultar card' : 'Exibir card'}>
+                            <button
+                              type="button"
+                              className={`cfg-eye-btn${card.ativo ? ' cfg-eye-btn--on' : ''}`}
+                              onClick={() => toggleCardCustom(card.id)}
+                              aria-label={card.ativo ? 'Ocultar' : 'Exibir'}
+                            >
+                              {card.ativo ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
+                            </button>
+                          </TooltipGlobal>
+                          <TooltipGlobal descricao="Excluir card personalizado">
+                            <button
+                              type="button"
+                              className="cfg-remove-btn"
+                              onClick={() => excluirCardCustom(card.id)}
+                              aria-label="Excluir card"
+                            >
+                              <X size={13} weight="bold" />
+                            </button>
+                          </TooltipGlobal>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {podeEditarConfig && (
+                    <button
+                      type="button"
+                      className="cfg-add-row-btn"
+                      onClick={() => setModalCardAberto(true)}
+                      style={{ marginTop: '0.75rem' }}
+                    >
+                      <Plus size={13} weight="bold" />
+                      Criar Card Personalizado
+                    </button>
+                  )}
+                </>
+              )}
+
+              {modalCardAberto && (
+                <ModalNovoCardUsuario
+                  onFechar={() => setModalCardAberto(false)}
+                  onSalvo={async (data) => {
+                    try {
+                      await criarCardCustom(data)
+                      setModalCardAberto(false)
+                    } catch {
+                      // backend indisponível — botão sai do loading via catch do modal
+                    }
+                  }}
+                />
+              )}
 
             </section>
           </div>
@@ -2790,7 +2959,36 @@ export default function Configuracoes() {
               </div>
 
               {statusLoading ? (
-                <p className="cfg-loading-text">{t('pedido.config.status.carregando')}</p>
+                <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+                  <GravityLoader texto={t('pedido.config.status.carregando')} tamanho="sm" />
+                </div>
+              ) : statusErro ? (
+                <div className="cfg-status-erro">
+                  <p className="cfg-status-erro__msg">{statusErro}</p>
+                  <button
+                    type="button"
+                    className="cfg-btn-secundario cfg-btn-secundario--xs"
+                    onClick={() => {
+                      setStatusLoading(true)
+                      setStatusErro(null)
+                      pedidoConfigApi.listarStatus()
+                        .then(res => {
+                          const lista = res.data ?? []
+                          setStatusList(lista)
+                          sincronizarStatusLocal(lista)
+                        })
+                        .catch((err: Error) => {
+                          console.warn('[Configuracoes/Status] Retry falhou:', err.message)
+                          setStatusErro(t('pedido.config.status.erro_carregar'))
+                        })
+                        .finally(() => setStatusLoading(false))
+                    }}
+                  >
+                    {t('pedido.config.status.tentar_novamente')}
+                  </button>
+                </div>
+              ) : statusList.length === 0 ? (
+                <p className="cfg-empty-text">{t('pedido.config.status.nenhum_status')}</p>
               ) : (
               <DndContext
                 sensors={statusSensors}
@@ -3113,7 +3311,9 @@ export default function Configuracoes() {
               </div>
 
               {templateLoading && (
-                <p className="cfg-empty">{t('pedido.config.templates_pdf.carregando')}</p>
+                <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+                  <GravityLoader texto={t('pedido.config.templates_pdf.carregando')} tamanho="sm" />
+                </div>
               )}
 
               {!templateLoading && (
@@ -4396,7 +4596,9 @@ export default function Configuracoes() {
 
               {/* Tabela cotações de hoje — todos os boletins */}
               {carregandoTaxa ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.carregando')}</p>
+                <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+                  <GravityLoader texto={t('pedido.config.taxa_cambio.carregando')} tamanho="sm" />
+                </div>
               ) : taxasHoje.length === 0 ? (
                 <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.empty_cotacao')}</p>
               ) : (() => {

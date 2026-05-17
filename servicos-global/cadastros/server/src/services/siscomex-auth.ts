@@ -21,7 +21,7 @@ import { extrairPemDoP12 } from './certificado-parser.js'
 import { AppError } from '../lib/app-error.js'
 
 const AUTH_URL = process.env.SISCOMEX_AUTH_URL ?? 'https://portalunico.siscomex.gov.br/portal/api/autenticar'
-const AUTH_ROLE = process.env.SISCOMEX_AUTH_ROLE ?? 'RESPONSAVEL_LEGAL'
+const AUTH_ROLE = process.env.SISCOMEX_AUTH_ROLE ?? 'IMPEXP'
 const TOKEN_TTL_MS = 50 * 60 * 1000 // 50 minutos (conservador)
 const AUTH_TIMEOUT_MS = 15_000
 

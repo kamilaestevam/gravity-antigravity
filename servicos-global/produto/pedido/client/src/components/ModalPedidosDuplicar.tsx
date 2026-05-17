@@ -455,11 +455,10 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
     <>
       {/* Seção: Pedidos a criar */}
       {temPedidos && config && (
-        <>
-          <h3 className="modal-duplicar__secao-titulo">
-            <Files size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+        <div className="modal-duplicar__secao">
+          <span className="modal-duplicar__secao-titulo">
             {t('pedido.modal_dup.secao_pedidos')}
-          </h3>
+          </span>
           <table className="modal-duplicar__tabela" aria-label={t('pedido.modal_dup.aria_tabela')}>
             <colgroup>
               <col className="modal-duplicar__col-numero" />
@@ -525,16 +524,15 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               })}
             </tbody>
           </table>
-        </>
+        </div>
       )}
 
       {/* Seção: Itens a duplicar em pedidos existentes */}
       {temItens && (
-        <>
-          <h3 className="modal-duplicar__secao-titulo">
-            <Package size={14} weight="duotone" aria-hidden="true" className="modal-duplicar__secao-icone" />
+        <div className="modal-duplicar__secao">
+          <span className="modal-duplicar__secao-titulo">
             {t('pedido.modal_dup.secao_itens')}
-          </h3>
+          </span>
           <table className="modal-duplicar__tabela">
             <colgroup>
               <col className="modal-duplicar__col-numero" />
@@ -562,7 +560,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               ))}
             </tbody>
           </table>
-        </>
+        </div>
       )}
 
       {/* Aviso pré-confirmação */}

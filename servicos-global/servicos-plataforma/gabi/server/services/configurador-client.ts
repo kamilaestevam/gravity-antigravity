@@ -16,7 +16,7 @@
  */
 
 const CONFIGURADOR_URL       = process.env.CONFIGURADOR_URL       ?? 'http://localhost:8000'
-const CHAVE_INTERNA_SERVICO  = process.env.CHAVE_INTERNA_SERVICO  ?? process.env.CHAVE_SERVICO_INTERNO ?? ''
+const CHAVE_INTERNA_SERVICO  = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 export interface OrganizacaoMinimal {
   id_organizacao:     string

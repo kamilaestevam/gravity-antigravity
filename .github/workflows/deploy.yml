@@ -19,7 +19,7 @@ jobs:
       CONFIGURADOR_DATABASE_URL: postgresql://test:test@localhost:5432/configurador_test
       ORGANIZACAO_DATABASE_URL: postgresql://test:test@localhost:5432/organizacao_test
       CLERK_SECRET_KEY: sk_test_placeholder
-      CHAVE_SERVICO_INTERNO: ci-internal-key
+      CHAVE_INTERNA_SERVICO: ci-internal-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

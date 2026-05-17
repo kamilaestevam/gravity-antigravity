@@ -117,7 +117,7 @@ async function callOrganizacaoService(
     headers: {
       'Authorization': `Bearer ${token}`,
       'x-id-correlacao': correlationId,  // ← obrigatório
-      'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!
+      'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO!
     }
   })
 }

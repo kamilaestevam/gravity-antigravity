@@ -12,10 +12,10 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   if (req.path === '/health') return next()
 
   const key = req.headers['x-chave-interna-servico'] || req.headers['x-internal-key']
-  const expected = process.env.CHAVE_INTERNA_SERVICO || process.env.INTERNAL_SERVICE_KEY
+  const expected = process.env.CHAVE_INTERNA_SERVICO
 
   if (!expected) {
-    console.warn('[API-Cockpit] INTERNAL_SERVICE_KEY nao configurada. Bloqueando.')
+    console.warn('[API-Cockpit] CHAVE_INTERNA_SERVICO nao configurada. Bloqueando.')
     return res.status(500).json({ error: 'Servico mal configurado' })
   }
 

@@ -3,18 +3,13 @@
 // obrigatório de toda requisição protegida.
 // Nenhum email pode ser enviado sem tenant_id validado.
 //
-// Aceita as 3 variantes de nome de env var usadas no monorepo (legado nao
-// uniformizado): INTERNAL_API_KEY / CHAVE_INTERNA_SERVICO / CHAVE_SERVICO_INTERNO.
 // Lazy-read porque ES modules hoist imports antes de dotenv.config().
 
 import { Request, Response, NextFunction } from 'express'
 import { AppError } from '../lib/errors.js'
 
 function getInternalKey(): string {
-  return process.env.INTERNAL_API_KEY
-      ?? process.env.CHAVE_INTERNA_SERVICO
-      ?? process.env.CHAVE_SERVICO_INTERNO
-      ?? ''
+  return process.env.CHAVE_INTERNA_SERVICO ?? ''
 }
 
 export function authMiddleware(

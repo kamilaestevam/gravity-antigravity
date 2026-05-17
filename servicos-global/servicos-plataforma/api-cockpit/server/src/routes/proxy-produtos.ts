@@ -22,7 +22,7 @@ import { hashToken } from '../crypto'
 export const proxyProdutosRouter = Router()
 const prisma = new PrismaClient()
 
-const CHAVE_INTERNA = process.env.CHAVE_INTERNA_SERVICO || process.env.INTERNAL_SERVICE_KEY || ''
+const CHAVE_INTERNA = process.env.CHAVE_INTERNA_SERVICO || ''
 
 interface ProdutoConfig {
   baseUrl: string

@@ -35,7 +35,7 @@ function getWhatsAppServiceUrl(): string {
 }
 
 function getChaveInterna(): string {
-  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) console.warn('[notificador-sync-ncm] CHAVE_INTERNA_SERVICO ausente — notificações não serão enviadas')
   return chave ?? ''
 }

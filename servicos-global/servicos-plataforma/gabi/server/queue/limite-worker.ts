@@ -24,12 +24,8 @@ import { listarOrganizacoes, listarLimitesGlobais } from '../services/configurad
 
 const SCHEMA_NAME_REGEX = /^tenant_c[a-z0-9]{24}$/
 
-// Aceita as 3 variantes de nome usadas no monorepo (legado nao uniformizado)
 function getInternalKey(): string {
-  return process.env.CHAVE_INTERNA_SERVICO
-      ?? process.env.CHAVE_SERVICO_INTERNO
-      ?? process.env.INTERNAL_API_KEY
-      ?? ''
+  return process.env.CHAVE_INTERNA_SERVICO ?? ''
 }
 function getEmailServiceUrl(): string {
   return process.env.TENANT_EMAIL_SERVICE_URL

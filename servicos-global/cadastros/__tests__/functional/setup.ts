@@ -3,7 +3,7 @@
  *
  * - Carrega .env.local da raiz (CADASTROS_DATABASE_URL aponta pra
  *   `gravity-cadastros-teste` no Railway).
- * - Define INTERNAL_SERVICE_KEY de teste no processo (não bagunça produção).
+ * - Define CHAVE_INTERNA_SERVICO de teste no processo (não bagunça produção).
  * - Expõe `prisma` real e helpers de cleanup por prefixo SUID/codigo.
  */
 import { config as carregarEnv } from 'dotenv'
@@ -17,7 +17,7 @@ carregarEnv({ path: resolve(__dir, '../../.env') })
 import { CHAVE_INTERNA_TESTE, PREFIXO_SUID_TESTE } from '../helpers/app-de-teste.js'
 import { PrismaClient } from '../../generated/index.js'
 
-process.env.INTERNAL_SERVICE_KEY = CHAVE_INTERNA_TESTE
+process.env.CHAVE_INTERNA_SERVICO = CHAVE_INTERNA_TESTE
 
 export const prismaTeste = new PrismaClient({ log: ['error'] })
 

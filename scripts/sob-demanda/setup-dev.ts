@@ -81,7 +81,7 @@ STRIPE_SECRET_KEY=sk_test_placeholder
 STRIPE_WEBHOOK_SECRET=whsec_dev_placeholder
 
 # S2S
-INTERNAL_SERVICE_KEY=${DEV_INTERNAL_KEY}
+CHAVE_INTERNA_SERVICO=${DEV_INTERNAL_KEY}
 
 # Trial
 TRIAL_DAYS=14
@@ -97,7 +97,7 @@ DEMO_MODE=true
   if (!existsSync(confClientEnvPath)) {
     writeFileSync(confClientEnvPath, `# Gerado por setup-dev.ts
 VITE_CLERK_PUBLISHABLE_KEY=${DEV_CLERK_PK}
-VITE_INTERNAL_SERVICE_KEY=${DEV_INTERNAL_KEY}
+VITE_CHAVE_INTERNA_SERVICO=${DEV_INTERNAL_KEY}
 VITE_CONFIGURADOR_URL=http://localhost:${CONFIGURADOR_PORT}
 `)
     ok('Criado: servicos-global/configurador/.env (Vite client)')
@@ -114,7 +114,7 @@ PORT=${SIMULACUSTO_PORT}
 DATABASE_URL=${DEV_SIMULACUSTO_DB}
 
 # S2S
-INTERNAL_SERVICE_KEY=${DEV_INTERNAL_KEY}
+CHAVE_INTERNA_SERVICO=${DEV_INTERNAL_KEY}
 
 # Clerk
 CLERK_SECRET_KEY=${DEV_CLERK_SK}
@@ -134,7 +134,7 @@ BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
   const scClientEnvPath = resolve(SIMULACUSTO_SERVER, 'client/.env')
   if (!existsSync(scClientEnvPath)) {
     writeFileSync(scClientEnvPath, `# Gerado por setup-dev.ts
-VITE_INTERNAL_SERVICE_KEY=${DEV_INTERNAL_KEY}
+VITE_CHAVE_INTERNA_SERVICO=${DEV_INTERNAL_KEY}
 `)
     ok('Criado: servicos-global/produto/simula-custo/client/.env')
   }

@@ -23,7 +23,7 @@ const API_BASE = '/api/v1'
 
 const headers = () => ({
   'Content-Type': 'application/json',
-  'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
+  'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
 })
 
 async function handleResponse<T>(res: Response): Promise<T> {

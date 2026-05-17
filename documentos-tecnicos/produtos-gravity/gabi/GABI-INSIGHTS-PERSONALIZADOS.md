@@ -373,7 +373,7 @@ Responda APENAS com o texto do insight, sem formatação, aspas ou explicações
 ```
 POST http://localhost:3001/api/v1/gabi/chat
 Headers:
-  x-internal-key: ${INTERNAL_SERVICE_KEY}
+  x-internal-key: ${CHAVE_INTERNA_SERVICO}
   x-tenant-id:    ${tenantId}
   x-user-id:      ${userId}
   x-product-id:   pedido
@@ -645,7 +645,7 @@ Os scores de comportamento são consultados no banco a cada requisição de insi
 | `GABI_INSIGHTS_LLM` | `false` | Não | Liga a Fase 3. Manter `false` até validar Fase 2 em produção. |
 | `GABI_SERVICE_URL` | `http://localhost:3001` | Não | URL do serviço Gabi (Fase 3). |
 | `GABI_QUOTA_PEDIDO` | `50000` | Não | Tokens por tenant/mês para chamadas do produto Pedido à Gabi. |
-| `INTERNAL_SERVICE_KEY` | — | **Sim** | Chave de autenticação S2S (já existia, reutilizada). |
+| `CHAVE_INTERNA_SERVICO` | — | **Sim** | Chave de autenticação S2S (já existia, reutilizada). |
 
 ---
 

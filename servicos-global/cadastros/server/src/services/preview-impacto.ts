@@ -41,10 +41,9 @@ async function consultarUsoNoProduto(
     }
   }
 
-  const internalKey = process.env.INTERNAL_SERVICE_KEY
+  const internalKey = process.env.CHAVE_INTERNA_SERVICO
   if (!internalKey) {
-    // Falha alto: rota de preview não pode rodar sem a chave (M08).
-    throw new Error('[preview-impacto] INTERNAL_SERVICE_KEY ausente — não é possível consultar produtos')
+    throw new Error('[preview-impacto] CHAVE_INTERNA_SERVICO ausente — não é possível consultar produtos')
   }
 
   const url = `${baseUrl.replace(/\/$/, '')}/api/v1/empresas/${encodeURIComponent(suid)}/uso`

@@ -32,7 +32,7 @@ Request → [1. Rede] → [2. Autenticação] → [3. Autorização] → [4. Iso
 // Middleware obrigatório em todo servidor que recebe chamadas internas
 function requireInternalKey(req: Request, res: Response, next: NextFunction) {
   const key = req.headers['x-chave-interna']
-  if (key !== process.env.INTERNAL_SERVICE_KEY) {
+  if (key !== process.env.CHAVE_INTERNA_SERVICO) {
     return res.status(403).json({
       error: { code: 'UNAUTHORIZED_SERVICE', message: 'Unauthorized service' }
     })
@@ -44,7 +44,7 @@ function requireInternalKey(req: Request, res: Response, next: NextFunction) {
 ```typescript
 // Todo produto DEVE enviar o header ao chamar serviços de organização
 orgAPI.get('/activities', {
-  headers: { 'x-chave-interna': process.env.INTERNAL_SERVICE_KEY }
+  headers: { 'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO }
 })
 ```
 
@@ -93,7 +93,7 @@ const { allowed, tipo_usuario } = await fetch(
   {
     headers: {
       'Authorization': `Bearer ${req.auth.token}`,
-      'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
+      'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO!,
     }
   }
 ).then(r => r.json())

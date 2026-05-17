@@ -21,7 +21,7 @@ const NOTIFICACOES_URL = process.env.NOTIFICACOES_SERVICE_URL ?? requireEnv('NOT
 const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL ?? requireEnv('HISTORICO_SERVICE_URL')
 const GABI_URL = process.env.GABI_SERVICE_URL ?? requireEnv('GABI_SERVICE_URL')
 const EMAIL_URL = process.env.EMAIL_SERVICE_URL ?? requireEnv('EMAIL_SERVICE_URL')
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 function s2sHeaders(tenantId: string, userId?: string) {
   return {

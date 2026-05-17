@@ -117,7 +117,7 @@ async function fetchProductWidgets(
   filters: QueryFilters
 ): Promise<{ data: ProductWidgetResponse; ok: boolean }> {
   const url = getProductWidgetUrl(productId)
-  const internalKey = process.env.INTERNAL_SERVICE_KEY
+  const internalKey = process.env.CHAVE_INTERNA_SERVICO
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 5000)

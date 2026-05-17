@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '.env') })
@@ -41,7 +41,7 @@ app.get('/health', async (_req, res) => {
   let dlqFailed = 0
 
   try {
-    const { PrismaClient } = await import('../generated/index.js')
+    const { PrismaClient } = await import('../../generated/index.js')
     const p = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
     await p.$queryRaw`SELECT 1`
     await p.$disconnect()
@@ -59,7 +59,7 @@ app.get('/health', async (_req, res) => {
     queueStatus = 'ok'
 
     // Conta jobs em estado 'failed' na tabela do pg-boss (DLQ)
-    const { PrismaClient } = await import('../generated/index.js')
+    const { PrismaClient } = await import('../../generated/index.js')
     const p = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
     const result = await p.$queryRaw<[{ count: bigint }]>`
       SELECT count(*) FROM pgboss.job

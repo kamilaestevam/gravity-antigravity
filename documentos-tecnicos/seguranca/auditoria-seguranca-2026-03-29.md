@@ -221,7 +221,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 | Servico | Variaveis nao validadas |
 |---------|------------------------|
-| Configurador | INTERNAL_SERVICE_KEY |
+| Configurador | CHAVE_INTERNA_SERVICO |
 | Notificacoes | ORGANIZACAO_DATABASE_URL |
 | API-Cockpit | ENCRYPTION_KEY |
 
@@ -262,7 +262,7 @@ O `HistoryLog` existe mas a implementacao e minima. Falta logar:
 Pipeline `security.yml` referenciado no documento mas nao encontrado.
 **Acao**: Criar pipeline com PostgreSQL 16 Docker + testes de ataque nivel 1/2/3.
 
-### 4.13. BAIXO — Rotacao trimestral INTERNAL_SERVICE_KEY
+### 4.13. BAIXO — Rotacao trimestral CHAVE_INTERNA_SERVICO
 
 Documentado mas sem automacao.
 **Acao**: Criar cron/alerta para lembrete de rotacao.
@@ -347,9 +347,9 @@ Criados scripts RLS seguindo o padrao do tenant DB:
 ### 5.6. Fail-fast env vars (CONCLUIDO)
 
 Validacao de startup adicionada em 3 servicos:
-- Configurador: `CONFIGURADOR_DATABASE_URL`, `CLERK_SECRET_KEY`, `INTERNAL_SERVICE_KEY`
+- Configurador: `CONFIGURADOR_DATABASE_URL`, `CLERK_SECRET_KEY`, `CHAVE_INTERNA_SERVICO`
 - Notificacoes: `ORGANIZACAO_DATABASE_URL`
-- API Cockpit: `INTERNAL_SERVICE_KEY`, `ENCRYPTION_KEY`
+- API Cockpit: `CHAVE_INTERNA_SERVICO`, `ENCRYPTION_KEY`
 
 ### 5.7. Fix array header no cronometro (CONCLUIDO)
 
@@ -391,7 +391,7 @@ Validacao de startup adicionada em 3 servicos:
 | 14 | MEDIO | RLS por user_id | PENDENTE |
 | 15 | MEDIO | Audit logging completo | PENDENTE |
 | 16 | MEDIO | Pipeline testes RLS | PENDENTE |
-| 17 | BAIXO | Rotacao INTERNAL_SERVICE_KEY | PENDENTE |
+| 17 | BAIXO | Rotacao CHAVE_INTERNA_SERVICO | PENDENTE |
 | 18 | BAIXO | LGPD compliance | PENDENTE |
 | 19 | BAIXO | CSP via Helmet | PENDENTE |
 | 20 | BAIXO | Centralizacao de logs | PENDENTE |
@@ -439,7 +439,7 @@ Content Security Policy configurada nos 4 servicos que servem frontend:
 - **BidFrete, Processo, SimulaCusto**: CSP padrao para SPAs Vite
 - Servicos S2S mantidos com helmet() default (nao servem HTML)
 
-### 8.2. Script de rotacao INTERNAL_SERVICE_KEY (CONCLUIDO)
+### 8.2. Script de rotacao CHAVE_INTERNA_SERVICO (CONCLUIDO)
 
 - **Arquivo**: `scripts/ativamente/rotate-internal-key.ts`
 - Gera chave segura: `gv_isk_` + 32 bytes random hex
@@ -506,7 +506,7 @@ Content Security Policy configurada nos 4 servicos que servem frontend:
   1. **Camadas de Defesa** — semaforo visual das 7 camadas (Rede, Auth, RBAC, Isolamento, Auditoria, Rate Limiting, Headers)
   2. **Eventos de Seguranca** — tabela real-time com filtros por severidade e tipo (auth failures, cross-tenant, role changes, webhooks, LGPD)
   3. **Rate Limiting** — status de IPs/tenants com requests/limite e bloqueios
-  4. **Secrets & Rotacao** — status de cada chave (INTERNAL_SERVICE_KEY, CLERK, STRIPE, ENCRYPTION, WHATSAPP) com data de rotacao
+  4. **Secrets & Rotacao** — status de cada chave (CHAVE_INTERNA_SERVICO, CLERK, STRIPE, ENCRYPTION, WHATSAPP) com data de rotacao
 
 ---
 

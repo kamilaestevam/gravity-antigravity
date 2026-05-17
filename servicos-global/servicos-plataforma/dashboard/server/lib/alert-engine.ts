@@ -106,7 +106,7 @@ async function sendNotification(
   message: string,
   metadata: Record<string, unknown>
 ): Promise<void> {
-  const internalKey = process.env.INTERNAL_SERVICE_KEY
+  const internalKey = process.env.CHAVE_INTERNA_SERVICO
 
   try {
     const response = await fetch(NOTIFICACOES_URL, {

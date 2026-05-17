@@ -7,7 +7,7 @@
  * diretamente de `servicos-global/tenant/cadastros/shared/schemas` — schema
  * bilateral, nunca duplicar.
  *
- * Autenticação: header `x-internal-key` (INTERNAL_SERVICE_KEY).
+ * Autenticação: header `x-internal-key` (CHAVE_INTERNA_SERVICO).
  * Tenant: header `x-organizacao-id` (id da Organizacao dona da Empresa).
  * Observabilidade: header `x-correlation-id` propagado para rastrear a saga
  * de ponta a ponta entre os dois serviços.
@@ -39,7 +39,7 @@ function getCadastrosUrl(): string {
   return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
 }
 function getChaveInterna(): string {
-  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) console.warn('[cadastros-client] CHAVE_INTERNA_SERVICO ausente — chamadas ao Cadastros falharão')
   return chave ?? ''
 }

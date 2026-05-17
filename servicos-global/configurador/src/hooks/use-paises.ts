@@ -47,7 +47,7 @@ async function fetchPaises(): Promise<Pais[]> {
 
   promisePendente = (async () => {
     const res = await fetch('/api/v1/cadastros/paises?apenas_ativos=true', {
-      headers: { 'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key' },
+      headers: { 'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key' },
     })
     if (!res.ok) {
       promisePendente = null

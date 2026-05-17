@@ -33,7 +33,7 @@ async function callTenantService(
     method: body ? 'POST' : 'GET',
     headers: {
       'Authorization':    `Bearer ${req.auth.token}`,  // ← JWT do usuário
-      'x-chave-interna':   process.env.INTERNAL_SERVICE_KEY!,
+      'x-chave-interna':   process.env.CHAVE_INTERNA_SERVICO!,
       'x-id-correlacao': req.correlationId,
       'Content-Type':     'application/json'
     },
@@ -65,7 +65,7 @@ async function getServiceToken(
     {
       method: 'POST',
       headers: {
-        'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
+        'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO!,
         'Content-Type':   'application/json'
       },
       body: JSON.stringify({ id_organizacao: idOrganizacao, id_usuario: idUsuario, scope: 'service' })
@@ -89,7 +89,7 @@ async function callTenantServiceAsync(
     method: 'POST',
     headers: {
       'Authorization':     `Bearer ${serviceToken}`,
-      'x-chave-interna':    process.env.INTERNAL_SERVICE_KEY!,
+      'x-chave-interna':    process.env.CHAVE_INTERNA_SERVICO!,
       'x-chave-idempotencia': idempotencyKey,
       'Content-Type':      'application/json'
     },
@@ -251,7 +251,7 @@ export function createTenantProxy(config: {
           method: req.method,
           headers: {
             'Authorization': req.headers.authorization!,
-            'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
+            'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO!,
             'x-id-correlacao': req.correlationId,
             'Content-Type': 'application/json',
           },

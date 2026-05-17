@@ -22,7 +22,7 @@ Refatoração da Linguagem Ubíqua DDD em **8 dimensões simultâneas** afetando
 | 4 | Tipos SDK | `TenantContext`, `TenantDatabase` → `OrganizacaoContext`, `BancoOrganizacao` | Código |
 | 5 | Eventos | `TenantProvisioned` → `OrganizacaoProvisionada` | Código |
 | 6 | Headers HTTP | `x-internal-key` → `x-chave-interna`; `x-tenant-id` → `x-id-organizacao`; `x-correlation-id` → `x-id-correlacao`; `X-Idempotency-Key` → `x-chave-idempotencia` | Contrato |
-| 7 | Env vars | `INTERNAL_SERVICE_KEY` → `CHAVE_SERVICO_INTERNO` | Infra |
+| 7 | Env vars | `CHAVE_INTERNA_SERVICO` → `CHAVE_INTERNA_SERVICO` | Infra |
 | 8 | Prisma fields | `tenant_id` → `id_organizacao` (em 20 schemas) | Banco |
 
 ### O que **NÃO** muda (regras invioláveis do Tech Lead)
@@ -83,7 +83,7 @@ servicos-global/tenant/prisma/rls-policies.sql
 | `x-tenant-id` (header) | 94 | (estimativa ~250) |
 | `x-correlation-id` (header) | 40 | 72 |
 | `X-Idempotency-Key` (header) | 3 | 11 |
-| `INTERNAL_SERVICE_KEY` (env) | 98 | (estimativa ~200) |
+| `CHAVE_INTERNA_SERVICO` (env) | 98 | (estimativa ~200) |
 | `@gravity/tenant-resolver` (import) | 31 (8 SDK + 23 consumidores) | 31 |
 | `withTenant(` (função) | 22 | (estimativa ~50) |
 | `withTenantContext(` (função) | 2 | 2 |
@@ -153,7 +153,7 @@ servicos-global/tenant/prisma/rls-policies.sql
 ### 2.2 CI/CD (`.github/workflows/`)
 
 Arquivos a verificar/ajustar:
-- `ci.yml` — nada usa `tenant-resolver` por nome no que vi; verificar `INTERNAL_SERVICE_KEY` (referenciado em comentário como `INTERNAL_API_KEY` — auditar)
+- `ci.yml` — env var padronizada para `CHAVE_INTERNA_SERVICO` (concluído 2026-05-17)
 - `deploy.yml` — verificar refs a env vars
 - `security.yml` — verificar refs
 
@@ -162,15 +162,15 @@ Arquivos a verificar/ajustar:
 ### 2.3 Dockerfiles
 
 `testes/cron-runner/Dockerfile` — verificar:
-- `ENV INTERNAL_SERVICE_KEY=...` → renomear para `CHAVE_SERVICO_INTERNO`
+- `ENV CHAVE_INTERNA_SERVICO=...` → renomear para `CHAVE_INTERNA_SERVICO`
 - Nenhum `npm install @gravity/tenant-resolver` direto (deps via workspace)
 
 ### 2.4 Env files (20+ arquivos)
 
 Todos os `.env`, `.env.local`, `.env.example`:
 ```diff
-- INTERNAL_SERVICE_KEY=xxxxx
-+ CHAVE_SERVICO_INTERNO=xxxxx
+- CHAVE_INTERNA_SERVICO=xxxxx
++ CHAVE_INTERNA_SERVICO=xxxxx
 ```
 
 > ⚠️ **Tech Lead deve ler/atualizar `.env` reais** (não versionados). Eu atualizo apenas `.env.example` e código.

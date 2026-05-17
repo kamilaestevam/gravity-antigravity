@@ -10,7 +10,7 @@
  */
 
 const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL || 'http://localhost:8011'
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO || ''
 const PRODUCT_ID = 'pedido'
 
 interface AuditEvent {

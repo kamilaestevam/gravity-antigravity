@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { useShellStore } from '../store'
 
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? ''
+const INTERNAL_KEY = import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? ''
 
 /**
  * Hook que busca os produtos ativos da organização e popula o store do Shell.

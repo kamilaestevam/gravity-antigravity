@@ -17,7 +17,7 @@ const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localho
 const ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? 'http://localhost:3001'
 const NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? 'http://localhost:3001'
 const HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? 'http://localhost:3001'
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:5175'
 
 interface DispararBidOptions {

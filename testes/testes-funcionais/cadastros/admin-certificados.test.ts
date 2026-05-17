@@ -99,7 +99,7 @@ let app: express.Application
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeAll(() => {
-  process.env.INTERNAL_SERVICE_KEY = VALID_KEY
+  process.env.CHAVE_INTERNA_SERVICO = VALID_KEY
 })
 
 beforeEach(() => {

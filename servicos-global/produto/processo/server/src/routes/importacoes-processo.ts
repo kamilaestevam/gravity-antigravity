@@ -22,7 +22,7 @@ async function proxyToCore(
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
+      'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
       'x-id-organizacao': (req.headers['x-id-organizacao'] as string) ?? '',
       'x-id-usuario': (req.headers['x-id-usuario'] as string) ?? '',
     }

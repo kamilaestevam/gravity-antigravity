@@ -392,7 +392,7 @@ Cotacoes aprovadas 11+:    USD 5.00 por cotacao (status PENDENTE)
 | Variavel | Obrigatoria | Descricao |
 |:---|:---|:---|
 | DATABASE_URL | Sim | URL do PostgreSQL |
-| INTERNAL_SERVICE_KEY | Sim | Chave de autenticacao inter-servico |
+| CHAVE_INTERNA_SERVICO | Sim | Chave de autenticacao inter-servico |
 | PORT | Nao | Porta do servidor (default: 8023) |
 | NODE_ENV | Nao | Ambiente (development, production) |
 | APP_URL | Sim | URL base da aplicacao |

@@ -307,7 +307,7 @@ META_WHATSAPP_TOKEN=...              # provider: Meta, tipo: token
 OPENAI_API_KEY=sk-...                # provider: OpenAI, tipo: API key
 
 # Internos
-INTERNAL_SERVICE_KEY=...             # chave inter-serviço (rotacionar trimestralmente)
+CHAVE_INTERNA_SERVICO=...             # chave inter-serviço (rotacionar trimestralmente)
 ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 SENTRY_DSN=https://...
@@ -315,7 +315,7 @@ SENTRY_DSN=https://...
 
 **Regras:**
 - Nome segue o padrão `SERVICO_PROVIDER_TIPO` ou `FUNCAO_URL`
-- `INTERNAL_SERVICE_KEY` rotacionada trimestralmente
+- `CHAVE_INTERNA_SERVICO` rotacionada trimestralmente
 - Variáveis de staging e produção são **sempre** diferentes
 - Nunca commitar `.env` — apenas `.env.example`
 
@@ -355,7 +355,7 @@ app.use(requireInternalKey)
 app.use(resolverOrganizacao({
   chaveProduto: 'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
-  chaveInterna: process.env.INTERNAL_SERVICE_KEY!,
+  chaveInterna: process.env.CHAVE_INTERNA_SERVICO!,
 }))
 
 // 5. Health check — sem auth, NÃO usa banco de organizacao (sem search_path)

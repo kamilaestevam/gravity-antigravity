@@ -86,7 +86,7 @@ async function callGabi(
       method: 'POST',
       headers: {
         'Content-Type':   'application/json',
-        'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
+        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
         'x-id-organizacao':    tenantId,
         'x-id-usuario':      userId,
         'x-id-produto':   'pedido',

@@ -8,7 +8,7 @@
  * Contratos bilaterais (Mandamento 09): `empresaSchema` importado de
  * `tenant/cadastros/shared/schemas`. Nunca duplicar o schema Zod aqui.
  *
- * Autenticação: `x-internal-key` (INTERNAL_SERVICE_KEY).
+ * Autenticação: `x-internal-key` (CHAVE_INTERNA_SERVICO).
  * Tenant context: `x-organizacao-id` (id da Organizacao dona do Pedido).
  * Observabilidade: `x-correlation-id` propagado entre serviços.
  *
@@ -37,17 +37,17 @@ const FETCH_TIMEOUT_MS = 5_000
 // os `import` são içados e executam antes de `dotenv.config()`. Capturar
 // `process.env.X` em const top-level resulta em valor undefined/'' mesmo
 // que o .env defina X corretamente. Mandamento 08: falha alto se faltar
-// INTERNAL_SERVICE_KEY ao invés de mandar header vazio que volta 401.
+// CHAVE_INTERNA_SERVICO ao invés de mandar header vazio que volta 401.
 function getCadastrosUrl(): string {
   return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
 }
 
 function getInternalServiceKey(): string {
-  const key = process.env.INTERNAL_SERVICE_KEY
+  const key = process.env.CHAVE_INTERNA_SERVICO
   if (!key || !key.trim()) {
     throw new AppError(
       500,
-      'INTERNAL_SERVICE_KEY ausente — pedido server não pode chamar Cadastros (S2S quebrado).',
+      'CHAVE_INTERNA_SERVICO ausente — pedido server não pode chamar Cadastros (S2S quebrado).',
     )
   }
   return key

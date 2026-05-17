@@ -45,7 +45,7 @@ function getSimulaCustoUrl(): string { return process.env.SIMULA_CUSTO_SERVICE_U
 function getLpcoUrl(): string { return process.env.LPCO_SERVICE_URL ?? 'http://localhost:8027' }
 function getNfImportUrl(): string { return process.env.NF_IMPORTACAO_SERVICE_URL ?? 'http://localhost:8028' }
 function getChaveInterna(): string {
-  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) console.warn('[hub-insights] CHAVE_INTERNA_SERVICO ausente — chamadas inter-serviço falharão')
   return chave ?? ''
 }

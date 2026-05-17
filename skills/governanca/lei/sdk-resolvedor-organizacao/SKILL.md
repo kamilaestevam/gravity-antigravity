@@ -63,7 +63,7 @@ app.use(express.json())
 app.use(resolverOrganizacao({
   chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
-  chaveInterna:        process.env.INTERNAL_SERVICE_KEY!,
+  chaveInterna:        process.env.CHAVE_INTERNA_SERVICO!,
   clerkSecretKey:      process.env.CLERK_SECRET_KEY,
   cacheTtlMs:          60_000,
 }))
@@ -250,7 +250,7 @@ interface ContextoOrganizacao {
 |:---|:---|:---|
 | `DATABASE_URL` | Lida pelo SDK internamente | Sem `?schema=` — SDK usa `SET LOCAL` |
 | `CONFIGURATOR_URL` | Passa via `configuradorBaseUrl` | SDK não lê env direto |
-| `INTERNAL_SERVICE_KEY` | Passa via `chaveInterna` | ≥ 16 chars |
+| `CHAVE_INTERNA_SERVICO` | Passa via `chaveInterna` | ≥ 16 chars |
 | `CLERK_SECRET_KEY` | Default de `clerkSecretKey` | Pode passar explícito |
 
 ---

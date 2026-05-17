@@ -28,7 +28,7 @@ export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string })
 const headers = (): Record<string, string> => {
   const h: Record<string, string> = {
     'Content-Type': 'application/json',
-    'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
+    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
   }
   if (_idOrganizacao) h['x-id-organizacao'] = _idOrganizacao
   if (_idUsuario) h['x-id-usuario'] = _idUsuario

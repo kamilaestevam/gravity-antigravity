@@ -38,7 +38,7 @@ export async function notifyTestFailures(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY ?? '',
+          'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
         },
         body: JSON.stringify({
           to: process.env.TEST_NOTIFY_EMAIL ?? 'admin@gravity.app',
@@ -62,7 +62,7 @@ export async function notifyTestFailures(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY ?? '',
+          'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
         },
         body: JSON.stringify({
           to: process.env.TEST_NOTIFY_PHONE,

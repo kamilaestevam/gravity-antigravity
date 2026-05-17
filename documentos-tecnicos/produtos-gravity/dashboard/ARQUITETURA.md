@@ -1083,7 +1083,7 @@ Toda chamada `fetchProductWidgets` propaga o `x-tenant-id` header:
 
 ```typescript
 headers: {
-  'x-internal-key': process.env.INTERNAL_SERVICE_KEY,
+  'x-internal-key': process.env.CHAVE_INTERNA_SERVICO,
   'x-tenant-id': tenantId,
 }
 ```
@@ -1146,7 +1146,7 @@ Todo produto que queira aparecer no Dashboard BI DEVE implementar o seguinte con
 ```
 POST /api/v1/{produto}/dashboard/widgets
 Headers:
-  x-internal-key: {INTERNAL_SERVICE_KEY}  (obrigatorio)
+  x-internal-key: {CHAVE_INTERNA_SERVICO}  (obrigatorio)
   x-tenant-id:    {tenantId}              (obrigatorio)
   Content-Type:   application/json
 
@@ -1220,7 +1220,7 @@ router.post('/dashboard/widgets', requireInternalKey, async (req, res) => {
 
 ### Validacoes Obrigatorias no Produto
 
-1. **`x-internal-key`**: validar contra `process.env.INTERNAL_SERVICE_KEY` — rejeitar com 401 se invalido
+1. **`x-internal-key`**: validar contra `process.env.CHAVE_INTERNA_SERVICO` — rejeitar com 401 se invalido
 2. **`x-tenant-id`**: obrigatorio — usar como filtro em todas as queries
 3. **Timeout responsivo**: responder em < 4 segundos (o Dashboard tem timeout de 5s total)
 4. **Nao expor dados de outros tenants**: aplicar filtro `tenant_id` em todas as queries
@@ -1260,7 +1260,7 @@ router.post('/dashboard/widgets', requireInternalKey, async (req, res) => {
 
 #### Dados Sensiveis
 - [ ] Sem `console.log` expondo dados de metricas de tenants
-- [ ] `INTERNAL_SERVICE_KEY` lido de `process.env`, nunca hardcoded
+- [ ] `CHAVE_INTERNA_SERVICO` lido de `process.env`, nunca hardcoded
 - [ ] `snapshot_data` no share: apenas dados que o usuario escolheu compartilhar
 
 #### Erros
@@ -1334,7 +1334,7 @@ DATABASE_URL="postgresql://user:pass@localhost:5432/tenant_dashboard_db"
 PORT=3001
 
 # Chave de comunicacao interna entre servicos
-INTERNAL_SERVICE_KEY="gravity_internal_secret_key"
+CHAVE_INTERNA_SERVICO="gravity_internal_secret_key"
 
 # URL base da aplicacao (para gerar links de share)
 APP_URL="https://app.gravity.com.br"

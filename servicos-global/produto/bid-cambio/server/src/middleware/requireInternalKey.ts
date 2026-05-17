@@ -23,10 +23,10 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
   if (req.path.startsWith('/api/v1/bid-cambio/portal/public')) return next()
 
   const key = req.headers['x-internal-key'] as string | undefined
-  const expected = process.env.INTERNAL_SERVICE_KEY
+  const expected = process.env.CHAVE_INTERNA_SERVICO
 
   if (!expected) {
-    console.warn('[BidCambio] INTERNAL_SERVICE_KEY nao configurada. Bloqueando.')
+    console.warn('[BidCambio] CHAVE_INTERNA_SERVICO nao configurada. Bloqueando.')
     return res.status(500).json({ error: 'Servico mal configurado' })
   }
 

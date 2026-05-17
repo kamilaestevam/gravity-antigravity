@@ -126,7 +126,7 @@ import { prisma as configuradorPrisma } from '../../../servicos-global/configura
 
 // ✅ CORRETO — comunicação apenas via REST API com x-chave-interna
 const response = await fetch(`${CONFIGURATOR_URL}/api/internal/users/${idUsuario}`, {
-  headers: { 'x-chave-interna': process.env.INTERNAL_SERVICE_KEY! }
+  headers: { 'x-chave-interna': process.env.CHAVE_INTERNA_SERVICO! }
 })
 ```
 

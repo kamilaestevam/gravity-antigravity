@@ -65,20 +65,20 @@ DATABASE_URL=postgresql://...simulador-comex-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
-INTERNAL_SERVICE_KEY=...
+CHAVE_INTERNA_SERVICO=...
 
 # === nf-importacao (próximo produto) ===
 DATABASE_URL=postgresql://...nf-importacao-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
-INTERNAL_SERVICE_KEY=...
+CHAVE_INTERNA_SERVICO=...
 ```
 
 **Regras:**
 - Toda variável de ambiente está documentada no `.env.example` do serviço
 - Nenhuma variável hardcoded no código
-- `INTERNAL_SERVICE_KEY` rotacionada trimestralmente
+- `CHAVE_INTERNA_SERVICO` rotacionada trimestralmente
 - Variáveis de staging e produção são sempre diferentes
 
 ---

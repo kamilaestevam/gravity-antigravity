@@ -20,7 +20,7 @@ import { Request, Response, NextFunction } from 'express'
 import { logger } from './logger.js'
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_URL || 'http://localhost:8016'
-const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const CHAVE_INTERNA = process.env.CHAVE_INTERNA_SERVICO || ''
 const OBSERVABILITY_ENABLED = process.env.OBSERVABILITY_ENABLED !== 'false'
 
 /** Buffer de logs para envio em batch (reduz overhead de rede) */
@@ -53,7 +53,7 @@ async function flushBuffer(): Promise<void> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-internal-key': CHAVE_INTERNA,
       },
       body: JSON.stringify({ entries: batch }),
       signal: AbortSignal.timeout(3_000),

@@ -25,7 +25,7 @@ import { AuditService } from '../services/audit.service.js'
 import { AcaoExecutadaPor, EventoStatus } from '../../../generated/index.js'
 
 const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL || process.env.CONFIGURADOR_SERVICE_URL || ''
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO || ''
 
 type SeveridadeEventoSeguranca = 'INFO' | 'WARNING' | 'CRITICAL'
 

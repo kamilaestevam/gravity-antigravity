@@ -313,7 +313,7 @@ export type CreateCotacaoInput = z.infer<typeof createCotacaoSchema>
 |:---|:---|:---|
 | `Authorization` | Toda rota autenticada | `Bearer <jwt>` (RFC — exceção universal) |
 | `Content-Type` | POST/PUT/PATCH | `application/json` (RFC — exceção universal) |
-| `x-chave-interna` | Chamadas S2S | `process.env.INTERNAL_SERVICE_KEY` |
+| `x-chave-interna` | Chamadas S2S | `process.env.CHAVE_INTERNA_SERVICO` |
 | `x-id-correlacao` | Toda chamada S2S | SUID propagado |
 | `x-id-organizacao` | Chamadas S2S | ID da organização chamadora |
 | `x-chave-idempotencia` | Ações cross-boundary | Chave determinística |
@@ -503,7 +503,7 @@ DELETE /api/v1/<recursos>?ids=a,b,c                     → variante com query (
 | Tipo de rota | Header obrigatório | Quem chama | Exemplo |
 |---|---|---|---|
 | **Autenticada** (usuário final) | `Authorization: Bearer <jwt-clerk>` | Frontend (SPA) | `GET /api/v1/agendas` |
-| **S2S** (interna entre serviços) | `x-chave-interna: <env.INTERNAL_SERVICE_KEY>` + `x-id-organizacao: <id>` | Serviço Gravity → Serviço Gravity | `POST /api/v1/internal/sincronizar-organizacao` |
+| **S2S** (interna entre serviços) | `x-chave-interna: <env.CHAVE_INTERNA_SERVICO>` + `x-id-organizacao: <id>` | Serviço Gravity → Serviço Gravity | `POST /api/v1/internal/sincronizar-organizacao` |
 | **Webhook** | `x-assinatura-webhook: <hmac>` | Sistemas externos (Stripe, Clerk) | `POST /api/v1/webhooks/stripe` |
 | **Pública** | nenhum | Marketplace, healthcheck | `GET /healthz` |
 

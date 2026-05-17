@@ -41,7 +41,7 @@ gabiProxyRouter.post('/api/v1/pedidos/gabi/ajuda-campo', async (req: Request, re
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
+        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
         'x-id-organizacao':    tenantId,
         'x-id-usuario':      userId,
         'x-id-produto':   'pedido',
@@ -71,7 +71,7 @@ gabiProxyRouter.get('/api/v1/pedidos/gabi/quota', async (req: Request, res: Resp
 
     const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/quota`, {
       headers: {
-        'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
+        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
         'x-id-organizacao':    tenantId,
         'x-id-usuario':      'system',
         'x-id-produto':   'pedido',

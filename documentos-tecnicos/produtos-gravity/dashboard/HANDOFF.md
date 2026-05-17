@@ -236,7 +236,7 @@ app.use('/api/v1/meu-produto', dashboardRouter)
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
-| `INTERNAL_SERVICE_KEY` | Sim | Chave compartilhada entre serviços; validada pelo middleware `requireInternalKey` em todas as chamadas REST entre serviços |
+| `CHAVE_INTERNA_SERVICO` | Sim | Chave compartilhada entre serviços; validada pelo middleware `requireInternalKey` em todas as chamadas REST entre serviços |
 | `DATABASE_URL` | Sim | Conexão com o banco de dados PostgreSQL do serviço de dashboard (modelos: `DashboardConfig`, `DashboardWidget`, `DashboardAlert`, `DashboardShare`, `MetricaSnapshot`) |
 | `PORT` | Não | Porta de escuta do servidor (padrão do template: 3001; porta real definida em `contracts.json`) |
 | `NODE_ENV` | Não | `development` ou `production`; controla nível de log e comportamentos de debug |

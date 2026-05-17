@@ -100,13 +100,13 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.stubGlobal('fetch', vi.fn())
   process.env.CADASTROS_URL = 'http://localhost:8031'
-  process.env.INTERNAL_SERVICE_KEY = 'test-key'
+  process.env.CHAVE_INTERNA_SERVICO = 'test-key'
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
   delete process.env.CADASTROS_URL
-  delete process.env.INTERNAL_SERVICE_KEY
+  delete process.env.CHAVE_INTERNA_SERVICO
 })
 
 // ─── Testes ──────────────────────────────────────────────────────────────────

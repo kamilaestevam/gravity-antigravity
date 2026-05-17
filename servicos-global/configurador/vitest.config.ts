@@ -11,7 +11,7 @@ export default defineConfig({
       NODE_ENV: 'test',
       PORT: '8005',
       CLERK_SECRET_KEY: 'sk_test_dummy_vitest',
-      INTERNAL_SERVICE_KEY: 'test-internal-key',
+      CHAVE_INTERNA_SERVICO: 'test-internal-key',
       CLERK_WEBHOOK_SECRET: 'whsec_dummy_vitest',
       CONFIGURADOR_DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
     },

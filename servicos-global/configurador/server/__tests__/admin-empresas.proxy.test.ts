@@ -64,7 +64,7 @@ let app: express.Express
 let request: ReturnType<typeof supertest>
 
 beforeAll(async () => {
-  process.env.INTERNAL_SERVICE_KEY = 'test-internal-key'
+  process.env.CHAVE_INTERNA_SERVICO = 'test-internal-key'
   process.env.CADASTROS_SERVICE_URL = 'http://cadastros-mock.test'
 
   const { adminEmpresasRouter } = await import('../routes/admin-empresas.js')

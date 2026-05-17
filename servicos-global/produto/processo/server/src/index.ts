@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
-// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+// Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../.env') })
@@ -93,7 +93,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 
 // --- 6. requireInternalKey — protege todas as rotas abaixo --------------------
 //    Skill: antigravity-autenticacao-s2s
-//    Em dev: INTERNAL_SERVICE_KEY=dev-key no .env
+//    Em dev: CHAVE_INTERNA_SERVICO=dev-key no .env
 app.use(requireInternalKey)
 
 // --- 7. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ---

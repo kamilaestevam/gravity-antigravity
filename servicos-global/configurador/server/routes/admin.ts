@@ -1067,7 +1067,7 @@ const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
  * Whitelist de env vars seguras para o processo Playwright.
  *
  * Antes, o spawn herdava todo o `process.env` — incluindo secrets sensíveis
- * (CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY, INTERNAL_SERVICE_KEY).
+ * (CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY, CHAVE_INTERNA_SERVICO).
  * Se um teste falhasse e logasse `process.env` no
  * stack trace, esses valores iam parar nos arquivos data/test-logs/*.json
  * que são expostos via GET /admin/testes.

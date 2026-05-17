@@ -469,7 +469,7 @@ const msgs = isPdf
 | Variável | Obrigatório | Descrição |
 |---|---|---|
 | `DATABASE_URL` | Sim | PostgreSQL (schema `pedido`) |
-| `INTERNAL_SERVICE_KEY` | Sim | Chave S2S para autenticação entre serviços |
+| `CHAVE_INTERNA_SERVICO` | Sim | Chave S2S para autenticação entre serviços |
 | `GEMINI_API_KEY` | Não | API Key do Google para extração de PDF |
 | `GEMINI_PDF_ENABLED` | Não | `'true'` para ativar Gemini (padrão: desativado) |
 

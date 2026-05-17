@@ -484,7 +484,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           'x-id-organizacao':       idOrganizacao,
           ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
-          'x-chave-interna-servico': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
+          'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
         },
       })
       if (!res.ok) {

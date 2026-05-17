@@ -5,7 +5,7 @@ const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZA
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL || ''
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || ''
 const NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL || ''
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO || ''
 
 const RETRY_DELAYS_MS = [5_000, 15_000, 45_000]
 

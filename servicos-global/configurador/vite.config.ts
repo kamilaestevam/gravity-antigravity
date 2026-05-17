@@ -83,9 +83,9 @@ export default defineConfig({
         },
       },
       // Produtos — cada um aponta para seu backend próprio
-      // DEV: cada produto tem seu próprio INTERNAL_SERVICE_KEY no backend.
+      // DEV: cada produto tem sua própria CHAVE_INTERNA_SERVICO no backend.
       // O proxy reescreve x-internal-key em tempo de request para o valor que
-      // o backend daquele produto espera, evitando mismatch com a VITE_INTERNAL_SERVICE_KEY
+      // o backend daquele produto espera, evitando mismatch com a VITE_CHAVE_INTERNA_SERVICO
       // do configurador (que é outra chave, usada pelo backend do próprio configurador).
       '/api/v1/pedidos': {
         target: 'http://localhost:8030',

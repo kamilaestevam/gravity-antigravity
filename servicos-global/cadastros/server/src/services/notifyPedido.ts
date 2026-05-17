@@ -42,10 +42,10 @@ export async function notificarMudancaEntidade(
   idOrganizacao: string,
 ): Promise<void> {
   const url = process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030'
-  const chaveInterna = process.env.INTERNAL_SERVICE_KEY ?? ''
+  const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
   if (!chaveInterna) {
-    console.warn('[notifyPedido] INTERNAL_SERVICE_KEY ausente — webhook nao enviado')
+    console.warn('[notifyPedido] CHAVE_INTERNA_SERVICO ausente — webhook nao enviado')
     return
   }
   if (identificador.length === 0) {

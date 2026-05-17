@@ -40,7 +40,7 @@ function sendEmailAsync(
   shareUrl: string,
   tenantId: string
 ): void {
-  const internalKey = process.env.INTERNAL_SERVICE_KEY
+  const internalKey = process.env.CHAVE_INTERNA_SERVICO
 
   fetch(EMAIL_URL, {
     method: 'POST',
@@ -66,7 +66,7 @@ function sendWhatsAppAsync(
   shareUrl: string,
   tenantId: string
 ): void {
-  const internalKey = process.env.INTERNAL_SERVICE_KEY
+  const internalKey = process.env.CHAVE_INTERNA_SERVICO
 
   fetch(WHATSAPP_URL, {
     method: 'POST',

@@ -16,7 +16,7 @@ import { AppError } from '../errors/AppError.js'
 const TOKEN_PATTERN = /^gravity_token_api_(producao|homologacao)_/
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_URL || 'http://localhost:8016'
-const INTERNAL_SERVICE_KEY = process.env.CHAVE_INTERNA_SERVICO || process.env.INTERNAL_SERVICE_KEY || ''
+const CHAVE_INTERNA = process.env.CHAVE_INTERNA_SERVICO || ''
 
 interface ValidateTokenResponse {
   valid: boolean
@@ -54,7 +54,7 @@ async function validateTokenWithCockpit(token: string): Promise<ValidateTokenRes
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        'x-chave-interna-servico': INTERNAL_SERVICE_KEY,
+        'x-chave-interna-servico': CHAVE_INTERNA,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),

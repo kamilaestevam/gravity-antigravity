@@ -9,12 +9,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { consultarImpacto } from '../../server/src/services/preview-impacto.js'
 
-const ENVS = ['PEDIDO_BASE_URL', 'LPCO_BASE_URL', 'NF_IMPORTACAO_BASE_URL', 'INTERNAL_SERVICE_KEY'] as const
+const ENVS = ['PEDIDO_BASE_URL', 'LPCO_BASE_URL', 'NF_IMPORTACAO_BASE_URL', 'CHAVE_INTERNA_SERVICO'] as const
 const backup: Record<string, string | undefined> = {}
 
 beforeEach(() => {
   for (const k of ENVS) backup[k] = process.env[k]
-  process.env.INTERNAL_SERVICE_KEY = 'fake-key'
+  process.env.CHAVE_INTERNA_SERVICO = 'fake-key'
 })
 afterEach(() => {
   for (const k of ENVS) {
@@ -78,9 +78,9 @@ describe('consultarImpacto', () => {
     expect(pedido.mensagem).toMatch(/ECONNREFUSED/)
   })
 
-  it('falha alto se INTERNAL_SERVICE_KEY ausente e há URL configurada', async () => {
+  it('falha alto se CHAVE_INTERNA_SERVICO ausente e há URL configurada', async () => {
     process.env.PEDIDO_BASE_URL = 'http://pedido.local'
-    delete process.env.INTERNAL_SERVICE_KEY
-    await expect(consultarImpacto('SUID-1', 'org-1')).rejects.toThrow(/INTERNAL_SERVICE_KEY/)
+    delete process.env.CHAVE_INTERNA_SERVICO
+    await expect(consultarImpacto('SUID-1', 'org-1')).rejects.toThrow(/CHAVE_INTERNA_SERVICO/)
   })
 })

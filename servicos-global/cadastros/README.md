@@ -87,7 +87,7 @@ cadastros/
 
 ```
 CADASTROS_DATABASE_URL=postgres://...     # criada na Fase 1 pelo Coordenador
-INTERNAL_SERVICE_KEY=...                  # global, no .env.local da raiz
+CHAVE_INTERNA_SERVICO=...                 # global, no .env.local da raiz
 PORT=8030                                  # placeholder — confirmar com governança/portas
 ```
 

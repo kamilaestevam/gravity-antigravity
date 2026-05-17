@@ -1,8 +1,8 @@
 import 'dotenv/config'
 
 // Fail-fast: validar env vars criticas
-if (!process.env.CHAVE_INTERNA_SERVICO && !process.env.INTERNAL_SERVICE_KEY) {
-  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: CHAVE_INTERNA_SERVICO (ou INTERNAL_SERVICE_KEY)')
+if (!process.env.CHAVE_INTERNA_SERVICO) {
+  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: CHAVE_INTERNA_SERVICO')
 }
 if (!process.env.ENCRYPTION_KEY) {
   throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: ENCRYPTION_KEY')

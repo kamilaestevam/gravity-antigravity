@@ -25,7 +25,7 @@
  *
  * PRÉ-REQUISITOS:
  *   - Serviço Cadastros rodando (CADASTROS_SERVICE_URL alcançável)
- *   - INTERNAL_SERVICE_KEY configurada
+ *   - CHAVE_INTERNA_SERVICO configurada
  *   - Configurador apontando para o banco correto (CONFIGURADOR_DATABASE_URL)
  *
  * Observação: CNPJ vem do próprio Organizacao (coluna `cnpj` legada) quando
@@ -158,8 +158,8 @@ async function main(): Promise<void> {
   if (!process.env.CADASTROS_SERVICE_URL) {
     console.warn('⚠️  CADASTROS_SERVICE_URL não definida — usando default http://localhost:8030')
   }
-  if (!process.env.INTERNAL_SERVICE_KEY) {
-    console.error('❌ INTERNAL_SERVICE_KEY não definida — Cadastros rejeitará todas as chamadas.')
+  if (!process.env.CHAVE_INTERNA_SERVICO) {
+    console.error('❌ CHAVE_INTERNA_SERVICO não definida — Cadastros rejeitará todas as chamadas.')
     process.exit(1)
   }
 

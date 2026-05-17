@@ -32,7 +32,7 @@ function getCadastrosUrl(): string {
 }
 
 function getChaveInterna(): string {
-  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) console.warn('[admin-certificados] CHAVE_INTERNA_SERVICO ausente')
   return chave ?? ''
 }

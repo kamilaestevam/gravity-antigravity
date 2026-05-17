@@ -95,7 +95,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
           'Content-Type':   'application/json',
           'x-id-organizacao':    idOrganizacao,
           ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
-          'x-internal-key': (import.meta as Record<string, Record<string, string>>).env?.VITE_INTERNAL_SERVICE_KEY || '',
+          'x-internal-key': (import.meta as Record<string, Record<string, string>>).env?.VITE_CHAVE_INTERNA_SERVICO || '',
         },
         body: JSON.stringify({ ids_criados: resultado.ids_criados }),
       })

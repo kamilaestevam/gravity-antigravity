@@ -33,7 +33,7 @@ export function montarAppDeTeste(): Express {
 }
 
 /**
- * Chave fake usada pelos testes — precisa bater com `INTERNAL_SERVICE_KEY`
+ * Chave fake usada pelos testes — precisa bater com `CHAVE_INTERNA_SERVICO`
  * configurada via `process.env` no `beforeAll` do teste.
  */
 export const CHAVE_INTERNA_TESTE = 'chave-interna-teste-cadastros'

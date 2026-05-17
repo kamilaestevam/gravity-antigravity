@@ -200,7 +200,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     // Se Cadastros estiver offline, template e' gerado sem dropdown (degradacao
     // graciosa — Mandamento 08: log warning, nao falha silenciosa).
     const cadastrosBaseUrl = process.env.CADASTROS_URL ?? 'http://localhost:8031'
-    const chaveInterna = process.env.INTERNAL_SERVICE_KEY ?? ''
+    const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? ''
     const headersS2S = { 'x-internal-key': chaveInterna, 'Content-Type': 'application/json' }
 
     let opcoesMoeda: string[] = []

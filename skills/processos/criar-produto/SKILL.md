@@ -519,7 +519,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/meu-produto-db
 
 # Autenticação
 CLERK_SECRET_KEY=sk_test_...
-INTERNAL_SERVICE_KEY=dev-internal-key-change-in-prod
+CHAVE_INTERNA_SERVICO=dev-internal-key-change-in-prod
 
 # Serviços
 ORGANIZACAO_SERVICES_URL=http://localhost:3001

@@ -915,7 +915,7 @@ model PreferenciaGridCambio {
 PORT=8025
 NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/bid_cambio_db
-INTERNAL_SERVICE_KEY=dev-key
+CHAVE_INTERNA_SERVICO=dev-key
 
 # Tenant Services (todos no super-servidor único)
 TENANT_SERVER_URL=http://localhost:3001

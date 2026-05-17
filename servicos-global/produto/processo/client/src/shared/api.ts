@@ -25,7 +25,7 @@ const API_BASE = '/api/v1'
 const headers = (idOrganizacao: string) => ({
   'Content-Type': 'application/json',
   'x-id-organizacao': idOrganizacao,
-  'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
+  'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
 })
 
 // ─── Processos ──────────────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ export async function uploadDocumento(
     method: 'POST',
     headers: {
       'x-id-organizacao': idOrganizacao,
-      'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
+      'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
     },
     body: formData,
   })

@@ -44,7 +44,7 @@ const HISTORICO_URL =
   process.env.HISTORICO_URL ??
   'http://localhost:3001'
 
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 const MAX_RETRY_ATTEMPTS = 3
 const RETRY_BASE_DELAY_MS = 300

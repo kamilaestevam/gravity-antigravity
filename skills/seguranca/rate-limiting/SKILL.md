@@ -69,7 +69,7 @@ export const authRateLimit = rateLimit({
 
 // Bypass para serviços internos
 export const internalBypass = (req, res, next) => {
-  if (req.headers['x-chave-interna'] === process.env.INTERNAL_SERVICE_KEY) {
+  if (req.headers['x-chave-interna'] === process.env.CHAVE_INTERNA_SERVICO) {
     return next() // Sem rate limit para chamadas internas
   }
   orgRateLimit(req, res, next)

@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // ── Env antes do import do módulo (lê vars em load-time) ───────────────────
 vi.hoisted(() => {
-  process.env.INTERNAL_SERVICE_KEY = 'test-internal-key'
+  process.env.CHAVE_INTERNA_SERVICO = 'test-internal-key'
   process.env.CADASTROS_SERVICE_URL = 'http://cadastros-mock.test'
 })
 

@@ -18,7 +18,7 @@ export async function startGabiQuotaResetWorker(): Promise<void> {
         const response = await fetch(`${GABI_SERVICE_URL}/api/v1/internal/gabi/quota/resetar`, {
           method: 'POST',
           headers: {
-            'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY ?? '',
+            'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
             'Content-Type': 'application/json',
           },
         })

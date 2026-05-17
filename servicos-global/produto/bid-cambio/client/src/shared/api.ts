@@ -26,7 +26,7 @@ const API_BASE = '/api/v1'
 function getHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
+    'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
     'x-id-organizacao': import.meta.env.VITE_TENANT_ID ?? '',
     'x-id-usuario': import.meta.env.VITE_USER_ID ?? '',
   }

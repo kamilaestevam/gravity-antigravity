@@ -36,7 +36,7 @@ function getPedidoUrl(): string {
   return process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030'
 }
 function getChaveInterna(): string {
-  const chave = process.env.CHAVE_INTERNA_SERVICO ?? process.env.INTERNAL_SERVICE_KEY
+  const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) console.warn('[core] CHAVE_INTERNA_SERVICO ausente — chamadas inter-serviço falharão')
   return chave ?? ''
 }

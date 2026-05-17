@@ -2217,7 +2217,7 @@ model PreferenciaGridCambio {
 PORT=8025
 NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/bid_cambio_db
-INTERNAL_SERVICE_KEY=dev-key
+CHAVE_INTERNA_SERVICO=dev-key
 
 # Tenant Services (todos no super-servidor único)
 TENANT_SERVER_URL=http://localhost:3001
@@ -3572,7 +3572,7 @@ Toda tabela possui:
 ```env
 PORT=8023
 DATABASE_URL=postgresql://...
-INTERNAL_SERVICE_KEY=...
+CHAVE_INTERNA_SERVICO=...
 CLIENT_URL=http://localhost:5175
 NODE_ENV=development
 ```
@@ -4922,7 +4922,7 @@ Cotacoes aprovadas 11+:    USD 5.00 por cotacao (status PENDENTE)
 | Variavel | Obrigatoria | Descricao |
 |:---|:---|:---|
 | DATABASE_URL | Sim | URL do PostgreSQL |
-| INTERNAL_SERVICE_KEY | Sim | Chave de autenticacao inter-servico |
+| CHAVE_INTERNA_SERVICO | Sim | Chave de autenticacao inter-servico |
 | PORT | Nao | Porta do servidor (default: 8023) |
 | NODE_ENV | Nao | Ambiente (development, production) |
 | APP_URL | Sim | URL base da aplicacao |
@@ -5399,7 +5399,7 @@ Cotacoes aprovadas 11+:    USD 5.00 por cotacao (status PENDENTE)
 | Variavel | Obrigatoria | Descricao |
 |:---|:---|:---|
 | DATABASE_URL | Sim | URL do PostgreSQL |
-| INTERNAL_SERVICE_KEY | Sim | Chave de autenticacao inter-servico |
+| CHAVE_INTERNA_SERVICO | Sim | Chave de autenticacao inter-servico |
 | PORT | Nao | Porta do servidor (default: 8023) |
 | NODE_ENV | Nao | Ambiente (development, production) |
 | APP_URL | Sim | URL base da aplicacao |
@@ -7630,7 +7630,7 @@ Toda chamada `fetchProductWidgets` propaga o `x-tenant-id` header:
 
 ```typescript
 headers: {
-  'x-internal-key': process.env.INTERNAL_SERVICE_KEY,
+  'x-internal-key': process.env.CHAVE_INTERNA_SERVICO,
   'x-tenant-id': tenantId,
 }
 ```
@@ -7693,7 +7693,7 @@ Todo produto que queira aparecer no Dashboard BI DEVE implementar o seguinte con
 ```
 POST /api/v1/{produto}/dashboard/widgets
 Headers:
-  x-internal-key: {INTERNAL_SERVICE_KEY}  (obrigatorio)
+  x-internal-key: {CHAVE_INTERNA_SERVICO}  (obrigatorio)
   x-tenant-id:    {tenantId}              (obrigatorio)
   Content-Type:   application/json
 
@@ -7767,7 +7767,7 @@ router.post('/dashboard/widgets', requireInternalKey, async (req, res) => {
 
 ### Validacoes Obrigatorias no Produto
 
-1. **`x-internal-key`**: validar contra `process.env.INTERNAL_SERVICE_KEY` — rejeitar com 401 se invalido
+1. **`x-internal-key`**: validar contra `process.env.CHAVE_INTERNA_SERVICO` — rejeitar com 401 se invalido
 2. **`x-tenant-id`**: obrigatorio — usar como filtro em todas as queries
 3. **Timeout responsivo**: responder em < 4 segundos (o Dashboard tem timeout de 5s total)
 4. **Nao expor dados de outros tenants**: aplicar filtro `tenant_id` em todas as queries
@@ -7807,7 +7807,7 @@ router.post('/dashboard/widgets', requireInternalKey, async (req, res) => {
 
 #### Dados Sensiveis
 - [ ] Sem `console.log` expondo dados de metricas de tenants
-- [ ] `INTERNAL_SERVICE_KEY` lido de `process.env`, nunca hardcoded
+- [ ] `CHAVE_INTERNA_SERVICO` lido de `process.env`, nunca hardcoded
 - [ ] `snapshot_data` no share: apenas dados que o usuario escolheu compartilhar
 
 #### Erros
@@ -7881,7 +7881,7 @@ DATABASE_URL="postgresql://user:pass@localhost:5432/tenant_dashboard_db"
 PORT=3001
 
 # Chave de comunicacao interna entre servicos
-INTERNAL_SERVICE_KEY="gravity_internal_secret_key"
+CHAVE_INTERNA_SERVICO="gravity_internal_secret_key"
 
 # URL base da aplicacao (para gerar links de share)
 APP_URL="https://app.gravity.com.br"
@@ -8584,7 +8584,7 @@ app.use('/api/v1/meu-produto', dashboardRouter)
 
 | Variável | Obrigatória | Descrição |
 |----------|-------------|-----------|
-| `INTERNAL_SERVICE_KEY` | Sim | Chave compartilhada entre serviços; validada pelo middleware `requireInternalKey` em todas as chamadas REST entre serviços |
+| `CHAVE_INTERNA_SERVICO` | Sim | Chave compartilhada entre serviços; validada pelo middleware `requireInternalKey` em todas as chamadas REST entre serviços |
 | `DATABASE_URL` | Sim | Conexão com o banco de dados PostgreSQL do serviço de dashboard (modelos: `DashboardConfig`, `DashboardWidget`, `DashboardAlert`, `DashboardShare`, `MetricaSnapshot`) |
 | `PORT` | Não | Porta de escuta do servidor (padrão do template: 3001; porta real definida em `contracts.json`) |
 | `NODE_ENV` | Não | `development` ou `production`; controla nível de log e comportamentos de debug |
@@ -23764,7 +23764,7 @@ const msgs = isPdf
 | Variável | Obrigatório | Descrição |
 |---|---|---|
 | `DATABASE_URL` | Sim | PostgreSQL (schema `pedido`) |
-| `INTERNAL_SERVICE_KEY` | Sim | Chave S2S para autenticação entre serviços |
+| `CHAVE_INTERNA_SERVICO` | Sim | Chave S2S para autenticação entre serviços |
 | `GEMINI_API_KEY` | Não | API Key do Google para extração de PDF |
 | `GEMINI_PDF_ENABLED` | Não | `'true'` para ativar Gemini (padrão: desativado) |
 
@@ -24865,7 +24865,7 @@ Toda tabela possui:
 ```env
 PORT=8026
 DATABASE_URL=postgresql://...
-INTERNAL_SERVICE_KEY=...
+CHAVE_INTERNA_SERVICO=...
 CLIENT_URL=http://localhost:8002
 NODE_ENV=development
 ```
@@ -25761,7 +25761,7 @@ Taxas de origem e destino podem ser cobradas por diferentes unidades:
 ### 7.2 Autenticacao S2S (requireInternalKey)
 
 - Valida header `x-internal-key` com `timingSafeEqual` (previne timing attacks)
-- Se `INTERNAL_SERVICE_KEY` nao configurada, bloqueia todas as requisicoes (fail-closed)
+- Se `CHAVE_INTERNA_SERVICO` nao configurada, bloqueia todas as requisicoes (fail-closed)
 - Rotas publicas (`/health`, `/api/v1/master-data/*`) sao isentas
 
 ### 7.3 Tenant Isolation (3 camadas)
@@ -25940,7 +25940,7 @@ O TokenPool pre-resolve hCaptcha tokens em background para eliminar a latencia d
 PORT=8020
 NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/simula_custo_db
-INTERNAL_SERVICE_KEY=dev-key
+CHAVE_INTERNA_SERVICO=dev-key
 
 # Integracao Siscomex
 SISCOMEX_BASE_URL=https://api-externa.portalunico.siscomex.gov.br/ttce/api/ext

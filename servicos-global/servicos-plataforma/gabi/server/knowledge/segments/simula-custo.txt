@@ -744,7 +744,7 @@ Taxas de origem e destino podem ser cobradas por diferentes unidades:
 ### 7.2 Autenticacao S2S (requireInternalKey)
 
 - Valida header `x-internal-key` com `timingSafeEqual` (previne timing attacks)
-- Se `INTERNAL_SERVICE_KEY` nao configurada, bloqueia todas as requisicoes (fail-closed)
+- Se `CHAVE_INTERNA_SERVICO` nao configurada, bloqueia todas as requisicoes (fail-closed)
 - Rotas publicas (`/health`, `/api/v1/master-data/*`) sao isentas
 
 ### 7.3 Tenant Isolation (3 camadas)
@@ -919,7 +919,7 @@ O TokenPool pre-resolve hCaptcha tokens em background para eliminar a latencia d
 PORT=8020
 NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/simula_custo_db
-INTERNAL_SERVICE_KEY=dev-key
+CHAVE_INTERNA_SERVICO=dev-key
 
 # Integracao Siscomex
 SISCOMEX_BASE_URL=https://api-externa.portalunico.siscomex.gov.br/ttce/api/ext

@@ -227,10 +227,10 @@ router.get('/da-organizacao', async (req, res, next) => {
     const baseUrlConfigurador = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:8005'
     // Mand. 08 — sem fallback silencioso. Sem chave configurada, falha alto
     // com 500 explícito em vez de mandar string vazia e receber 401 indistinguível.
-    const internalKey = process.env.INTERNAL_SERVICE_KEY ?? process.env.CHAVE_INTERNA_SERVICO
+    const internalKey = process.env.CHAVE_INTERNA_SERVICO
     if (!internalKey) {
       throw new AppError(
-        'Chave interna não configurada (INTERNAL_SERVICE_KEY ou CHAVE_INTERNA_SERVICO ausente no .env do Cadastros)',
+        'CHAVE_INTERNA_SERVICO ausente no .env do Cadastros',
         500,
         'CONFIG_ERROR',
       )

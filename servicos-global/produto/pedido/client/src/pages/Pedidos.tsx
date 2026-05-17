@@ -3749,7 +3749,7 @@ export default function Pedidos() {
         ...(gabiAuthToken ? { Authorization: `Bearer ${gabiAuthToken}` } : {}),
         'x-id-organizacao': ctx.idOrganizacao,
         'x-id-usuario': ctx.userId,
-        'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
+        'x-internal-key': (import.meta as any).env?.VITE_CHAVE_INTERNA_SERVICO || '',
       },
     }
   }, [gabiAuthToken])
@@ -4039,7 +4039,7 @@ export default function Pedidos() {
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
   const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
-  const popoverAnchorRefs                   = useRef<Record<string, React.MutableRefObject<HTMLElement | null>>>({})
+  const [popoverPos, setPopoverPos]         = useState({ top: 0, left: 0 })
 
   // ── Inicialização (UMA VEZ): popover abre com workspace ativo marcado ─────
   // No mount, populamos `filtrosAtivos['id_workspace']` com o workspace ativo
@@ -4088,12 +4088,6 @@ export default function Pedidos() {
     )
   }, [filtrosAtivos, workspacesMap])
 
-  function getAnchorRef(campo: string): React.MutableRefObject<HTMLElement | null> {
-    if (!popoverAnchorRefs.current[campo]) {
-      popoverAnchorRefs.current[campo] = React.createRef<HTMLElement>() as React.MutableRefObject<HTMLElement | null>
-    }
-    return popoverAnchorRefs.current[campo]
-  }
 
   // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
   const pedidosFiltrados = useMemo<Pedido[]>(() => {
@@ -4561,8 +4555,13 @@ export default function Pedidos() {
 
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     setPopoverAberto(prev => prev === key ? null : key)
-    const ref = getAnchorRef(key)
-    if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLElement | null>).current = anchor
+    const th = anchor.closest('.gtv-th') as HTMLElement | null
+    const rect = th ? th.getBoundingClientRect() : anchor.getBoundingClientRect()
+    const popoverWidth = 260
+    let left = rect.left + (rect.width / 2) - (popoverWidth / 2)
+    if (left < 8) left = 8
+    if (left + popoverWidth > window.innerWidth - 8) left = window.innerWidth - popoverWidth - 8
+    setPopoverPos({ top: rect.bottom + 4, left })
   }, [])
 
   // Abre o modal customizado de exclusão (substitui o window.confirm() nativo).
@@ -6089,7 +6088,6 @@ export default function Pedidos() {
       {popoverAberto && (() => {
         const col = colunasPai.find(c => c.key === popoverAberto)
         if (!col) return null
-        const anchorRef = getAnchorRef(popoverAberto)
         return (
           <FiltroPopoverColuna
             campo={col.key}
@@ -6101,7 +6099,7 @@ export default function Pedidos() {
             onLimpar={handleLimparFiltro}
             onOrdenar={handleOrdenar}
             onFechar={() => setPopoverAberto(null)}
-            anchorRef={anchorRef}
+            anchorPos={popoverPos}
             labelInverso={LABELS_FILTRO_INVERSO[col.key]}
           />
         )

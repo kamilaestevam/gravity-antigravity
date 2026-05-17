@@ -14,7 +14,7 @@ const PORT = process.argv.includes('--port')
   : '8005'
 
 const BASE = `http://localhost:${PORT}`
-const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? 'gravity-dev-internal-key-2026'
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
 
 const HEADERS = {
   'Content-Type': 'application/json',

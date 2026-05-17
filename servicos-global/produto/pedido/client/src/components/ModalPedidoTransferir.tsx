@@ -182,6 +182,7 @@ function SeletorItemQuantidade({
       <thead>
         <tr>
           {multiPedido && <th scope="col">Pedido</th>}
+          <th scope="col">Nº</th>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
           <th scope="col">{t('pedido.modal_transf.col_descricao')}</th>
           <th scope="col">{t('pedido.modal_transf.col_saldo')}</th>
@@ -210,6 +211,9 @@ function SeletorItemQuantidade({
                   <span className="modal-transferir__pedido-numero">{pedido.numero_pedido}</span>
                 </td>
               )}
+              <td className="modal-transferir__col-seq">
+                {item.sequencia_item ?? '—'}
+              </td>
               <td>
                 <span className="modal-transferir__radio-label">
                   <input

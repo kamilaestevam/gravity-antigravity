@@ -176,6 +176,7 @@ function SeletorItemQuantidade({
     <table className="modal-transferir__tabela-itens" aria-label={t('pedido.modal_transf.aria_tabela_itens')}>
       <thead>
         <tr>
+          <th scope="col" className="modal-transferir__col-check"></th>
           {multiPedido && <th scope="col">Pedido</th>}
           <th scope="col">Sequência do Item</th>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
@@ -201,6 +202,14 @@ function SeletorItemQuantidade({
               onClick={() => onToggleItem(item.id)}
               aria-selected={selecionado}
             >
+              <td className="modal-transferir__col-check">
+                <input
+                  type="checkbox"
+                  checked={selecionado}
+                  readOnly
+                  aria-label={`Selecionar item ${item.part_number}`}
+                />
+              </td>
               {multiPedido && (
                 <td className="modal-transferir__col-pedido">
                   <span className="modal-transferir__pedido-numero">{pedido.numero_pedido}</span>
@@ -210,24 +219,16 @@ function SeletorItemQuantidade({
                 {item.sequencia_item ?? '—'}
               </td>
               <td>
-                <span className="modal-transferir__radio-label">
-                  <input
-                    type="checkbox"
-                    checked={selecionado}
-                    readOnly
-                    aria-label={`Selecionar item ${item.part_number}`}
-                  />
-                  <strong>
-                    {item.part_number && item.part_number.length > 20 ? (
-                      <TooltipGlobal titulo={t('pedido.modal_transf.col_part_number')} descricao={item.part_number}>
-                        <span className="modal-transferir__desc-truncada">
-                          {item.part_number.slice(0, 20) + '…'}
-                          <Eye size={14} className="modal-transferir__desc-eye" />
-                        </span>
-                      </TooltipGlobal>
-                    ) : item.part_number}
-                  </strong>
-                </span>
+                <strong>
+                  {item.part_number && item.part_number.length > 20 ? (
+                    <TooltipGlobal titulo={t('pedido.modal_transf.col_part_number')} descricao={item.part_number}>
+                      <span className="modal-transferir__desc-truncada">
+                        {item.part_number.slice(0, 20) + '…'}
+                        <Eye size={14} className="modal-transferir__desc-eye" />
+                      </span>
+                    </TooltipGlobal>
+                  ) : item.part_number}
+                </strong>
               </td>
               <td>
                 {item.descricao_item && item.descricao_item.length > 30 ? (

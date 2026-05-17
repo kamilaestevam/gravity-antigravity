@@ -609,6 +609,12 @@
   letter-spacing: 0.02em;
 }
 
+.modal-transferir__col-check {
+  width: 32px;
+  text-align: center;
+  padding: 0 4px !important;
+}
+
 .modal-transferir__col-seq {
   color: var(--color-text-muted, #94a3b8);
   font-size: 12px;

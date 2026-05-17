@@ -54,6 +54,7 @@ const OrganizacaoDetalheAdmin = lazy(() => import('./pages/OrganizacaoDetalheAdm
 const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
 const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
+const CertificadosAdmin = lazy(() => import('./pages/admin/CertificadosAdmin'), 'CertificadosAdmin')
 const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
 const EmpresasEParceirosAdmin = lazy(() => import('./pages/admin/EmpresasEParceirosAdmin'), 'EmpresasEParceirosAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
@@ -359,6 +360,7 @@ export default function App() {
           <Route path="api-cockpit/monitor-llm" element={<React.Suspense fallback={<ProductLoading />}><MonitorLlmAdmin /></React.Suspense>} />
           <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
+          <Route path="certificados-digitais" element={<React.Suspense fallback={<ProductLoading />}><CertificadosAdmin /></React.Suspense>} />
           <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
           <Route path="empresas-e-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasEParceirosAdmin /></React.Suspense>} />
           <Route path="taxas-moeda" element={<React.Suspense fallback={<ProductLoading />}><TaxasMoedaPage /></React.Suspense>} />

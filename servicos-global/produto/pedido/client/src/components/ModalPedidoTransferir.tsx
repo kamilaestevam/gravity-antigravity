@@ -859,8 +859,10 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
             tamanho="medio"
             onClick={avancar}
             disabled={!podeProsseguir || carregandoPreview}
+            carregando={carregandoPreview}
+            icone={<ArrowRight size={14} weight="bold" />}
           >
-            {passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
+            {carregandoPreview ? t('pedido.modal_transf.calculando', { defaultValue: 'Calculando…' }) : passo === 4 ? t('pedido.modal_transf.revisar_confirmar') : t('pedido.modal_transf.proximo')}
           </BotaoGlobal>
         )}
       </div>

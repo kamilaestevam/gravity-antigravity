@@ -81,7 +81,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }))
 
-app.use(express.json())
+app.use(express.json({ limit: '60mb' }))
 app.use(cors({
   origin: process.env.FRONTEND_URL || ['http://localhost:8000', 'http://localhost:8001', 'http://localhost:8002', 'http://localhost:8003', 'http://localhost:5000'],
   credentials: true
@@ -226,10 +226,12 @@ app.use(authErrorLogger)
 
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/api-cockpit.js'
 import { adminNcmIntegracaoRouter } from './routes/admin-ncm-integracao.js'
+import { adminCertificadosRouter } from './routes/admin-certificados.js'
 import { adminEmpresasRouter } from './routes/admin-empresas.js'
 app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por organização
 app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
+app.use('/api/v1/admin/certificados', adminCertificadosRouter)    // admin: certificados digitais Siscomex (e-CNPJ)
 app.use('/api/v1/admin/empresas', adminEmpresasRouter)            // admin: empresas/parceiros cross-organização (audit logged)
 
 // ─── Taxas de moeda (PTAX) — sem auth (dados públicos do BCB) ──────────────

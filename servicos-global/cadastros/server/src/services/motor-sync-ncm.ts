@@ -13,7 +13,7 @@
  */
 
 import type { PrismaClient } from '../../../generated/index.js'
-import { baixarTabelaNcm, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
+import { baixarTabelaNcm, buscarAliquotasEmLote, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
 import { AppError } from '../lib/app-error.js'
 import { despacharNotificacoesNcmSync } from './notificador-sync-ncm.js'
 
@@ -148,6 +148,9 @@ export async function executarSync(
     // Notificar destinatários cadastrados (fire-and-forget — nunca bloqueia)
     void despacharNotificacoesNcmSync(prisma, 'SUCESSO', resultado)
 
+    // 7. Fase 2 — popular alíquotas via TTCE (fire-and-forget, não bloqueia sync)
+    void popularAliquotasAsync(prisma).catch(() => {})
+
     return resultado
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Erro desconhecido'
@@ -200,6 +203,47 @@ export async function buscarNcm(
     codigo: i.codigo_ncm_sync,
     descricao: i.descricao_ncm_sync,
   }))
+}
+
+/**
+ * Fase 2 — Popular alíquotas via TTCE para NCMs que não possuem.
+ * Executa em background (fire-and-forget) após sync de descritivos.
+ * Só roda se houver certificado digital ativo configurado.
+ */
+async function popularAliquotasAsync(prisma: PrismaClient): Promise<void> {
+  const certAtivo = await prisma.certificadoDigitalSiscomex.findFirst({
+    where: { ativo_certificado_digital_siscomex: true },
+    select: { id_certificado_digital_siscomex: true },
+  })
+
+  if (!certAtivo) return
+
+  const semAliquota = await prisma.ncmSync.findMany({
+    where: {
+      ativo_ncm_sync: true,
+      ii_ncm_sync: null,
+      ipi_ncm_sync: null,
+    },
+    select: { codigo_ncm_sync: true },
+    take: 200,
+  })
+
+  if (semAliquota.length === 0) return
+
+  const codigos = semAliquota.map(n => n.codigo_ncm_sync)
+  const aliquotas = await buscarAliquotasEmLote(codigos)
+
+  for (const [codigo, vals] of aliquotas) {
+    await prisma.ncmSync.update({
+      where: { codigo_ncm_sync: codigo },
+      data: {
+        ii_ncm_sync:     vals.ii,
+        ipi_ncm_sync:    vals.ipi,
+        pis_ncm_sync:    vals.pis,
+        cofins_ncm_sync: vals.cofins,
+      },
+    }).catch(() => {})
+  }
 }
 
 /**

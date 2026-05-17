@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-05T13:03:33.383Z
+// Gerado em: 2026-05-16T14:28:09.489Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -167,6 +167,22 @@ model Unidade {
 }
 
 // ---------------------------------------------------------------------
+// Incoterm — catálogo global dos termos da ICC (Incoterms 2020).
+// Padrão internacional fixo. Quando a ICC publicar Incoterms 2030,
+// criar nova versao_incoterm e manter compatibilidade.
+// ---------------------------------------------------------------------
+model Incoterm {
+  codigo_incoterm    String  @id // FOB, CIF, EXW, CFR, DDP, DAP, FCA, CPT, CIP, DPU, FAS
+  nome_incoterm      String // "Free On Board", "Cost Insurance and Freight"
+  descricao_incoterm String?
+  modal_transporte   String // "maritimo" | "qualquer"
+  versao_incoterm    String  @default("2020")
+  ativo_incoterm     Boolean @default(true)
+
+  @@map("incoterm")
+}
+
+// ---------------------------------------------------------------------
 // NcmSync — catálogo NCM sincronizado do Portal Único Siscomex
 // (renomeado de "Ncm" para evitar confusão com a coluna "ncm_item" das
 // tabelas de produto. O job diário de sync mora aqui no Cadastros).
@@ -271,6 +287,39 @@ enum NcmSyncOrigemSincronizacao {
 }
 
 // ---------------------------------------------------------------------
+// CertificadoDigitalSiscomex — e-CNPJ para autenticação mTLS com Portal Único.
+// Catálogo global (sem id_organizacao) — certificado é do CNPJ raiz.
+// PFX armazenado criptografado (AES-256-GCM).
+// Apenas 1 certificado ativo por vez (flag ativo_).
+// ---------------------------------------------------------------------
+
+model CertificadoDigitalSiscomex {
+  id_certificado_digital_siscomex String @id @default(cuid())
+
+  nome_certificado_digital_siscomex            String
+  cnpj_certificado_digital_siscomex            String
+  cn_certificado_digital_siscomex              String
+  serial_number_certificado_digital_siscomex   String
+  emissor_certificado_digital_siscomex         String
+  validade_inicio_certificado_digital_siscomex DateTime
+  validade_fim_certificado_digital_siscomex    DateTime
+
+  // PFX criptografado (AES-256-GCM, formato iv:tag:ciphertext hex)
+  pfx_criptografado_certificado_digital_siscomex String
+  // Senha do PFX criptografada (AES-256-GCM)
+  senha_hash_certificado_digital_siscomex        String
+
+  ativo_certificado_digital_siscomex Boolean @default(false)
+
+  data_criacao_certificado_digital_siscomex     DateTime @default(now())
+  data_atualizacao_certificado_digital_siscomex DateTime @updatedAt
+
+  @@index([ativo_certificado_digital_siscomex], map: "cds_ativo_idx")
+  @@index([cnpj_certificado_digital_siscomex], map: "cds_cnpj_idx")
+  @@map("certificado_digital_siscomex")
+}
+
+// ---------------------------------------------------------------------
 // Ope — sincronizado de Portal Único (fonte da verdade SISCOMEX)
 // ---------------------------------------------------------------------
 model Ope {
@@ -329,4 +378,68 @@ model OPEHistoricoStatus {
   @@index([id_organizacao_ope_historico_status, id_produto_ope_historico_status], map: "ohs_org_prd_idx")
   @@index([id_organizacao_ope_historico_status, id_usuario_ope_historico_status], map: "ohs_org_usr_idx")
   @@map("ope_historico_status")
+}
+
+// ---------------------------------------------------------------------
+// ExportadorQuandoImportacao — contraparte estrangeira (fornecedor)
+// quando a operação é de importação.
+// Entidade independente de Empresa — cada registro é um exportador
+// específico vinculado à organização e workspace do importador.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+model ExportadorQuandoImportacao {
+  id_exportador_quando_importacao String @id @default(cuid())
+
+  // Identificação tenant + workspace
+  id_organizacao_exportador String
+  id_workspace_exportador   String
+
+  // Dados cadastrais
+  nome_exportador             String
+  endereco_exportador         String?
+  cidade_exportador           String?
+  estado_provincia_exportador String?
+  pais_exportador             String // ISO-2
+  zipcode_exportador          String?
+
+  // Timestamps
+  criado_em_exportador     DateTime @default(now())
+  atualizado_em_exportador DateTime @updatedAt
+
+  @@index([id_organizacao_exportador], map: "exportador_quando_importacao_org_idx")
+  @@index([id_organizacao_exportador, id_workspace_exportador], map: "exportador_quando_importacao_org_ws_idx")
+  @@index([id_organizacao_exportador, nome_exportador], map: "exportador_quando_importacao_org_nome_idx")
+  @@map("exportador_quando_importacao")
+}
+
+// ---------------------------------------------------------------------
+// ImportadorQuandoExportacao — contraparte estrangeira (comprador)
+// quando a operação é de exportação.
+// Entidade independente de Empresa — cada registro é um importador
+// específico vinculado à organização e workspace do exportador.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+model ImportadorQuandoExportacao {
+  id_importador_quando_exportacao String @id @default(cuid())
+
+  // Identificação tenant + workspace
+  id_organizacao_importador String
+  id_workspace_importador   String
+
+  // Dados cadastrais
+  nome_importador             String
+  endereco_importador         String?
+  cidade_importador           String?
+  estado_provincia_importador String?
+  pais_importador             String // ISO-2
+  zipcode_importador          String?
+
+  // Timestamps
+  criado_em_importador     DateTime @default(now())
+  atualizado_em_importador DateTime @updatedAt
+
+  @@index([id_organizacao_importador], map: "importador_quando_exportacao_org_idx")
+  @@index([id_organizacao_importador, id_workspace_importador], map: "importador_quando_exportacao_org_ws_idx")
+  @@index([id_organizacao_importador, nome_importador], map: "importador_quando_exportacao_org_nome_idx")
+  @@map("importador_quando_exportacao")
 }

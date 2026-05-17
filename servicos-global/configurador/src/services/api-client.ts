@@ -1151,6 +1151,71 @@ export interface NcmSyncResultado {
   duracaoMs:   number
 }
 
+// ─── Admin: Certificados Digitais Siscomex ───────────────────────────────────
+
+export interface CertificadoMetadataApi {
+  id: string
+  nome: string
+  cnpj: string
+  cn: string
+  serial_number: string
+  emissor: string
+  validade_inicio: string
+  validade_fim: string
+  ativo: boolean
+  data_criacao: string
+  data_atualizacao: string
+}
+
+export interface CertificadoValidacaoApi {
+  valido: boolean
+  mensagem: string
+  token_preview: string | null
+}
+
+export const adminCertificadosApi = {
+  async listar() {
+    return request<{ certificados: CertificadoMetadataApi[]; total: number }>('/v1/admin/certificados')
+  },
+
+  async obterAtivo() {
+    return request<{ certificado: CertificadoMetadataApi | null }>('/v1/admin/certificados/ativo')
+  },
+
+  async obter(id: string) {
+    return request<CertificadoMetadataApi>(`/v1/admin/certificados/${id}`)
+  },
+
+  async upload(dados: { nome: string; pfx_base64: string; senha_pfx: string; ativar: boolean }) {
+    return request<CertificadoMetadataApi>('/v1/admin/certificados', {
+      method: 'POST',
+      body: JSON.stringify(dados),
+    })
+  },
+
+  async remover(id: string) {
+    return request<{ sucesso: boolean; id: string }>(`/v1/admin/certificados/${id}`, {
+      method: 'DELETE',
+    })
+  },
+
+  async ativar(id: string) {
+    return request<CertificadoMetadataApi>(`/v1/admin/certificados/${id}/ativar`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  },
+
+  async validar(id: string) {
+    return request<CertificadoValidacaoApi>(`/v1/admin/certificados/${id}/validar`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  },
+}
+
+// ─── Admin: NCM Sincronização ────────────────────────────────────────────────
+
 export const adminNcmApi = {
   async getStatus() {
     return request<NcmSyncStatusApi>('/v1/admin/integracao-ncm')

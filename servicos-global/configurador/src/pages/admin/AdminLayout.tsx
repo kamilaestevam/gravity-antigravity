@@ -32,6 +32,7 @@ import {
   ArrowsClockwise,
   Database,
   CurrencyCircleDollar,
+  Certificate,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -62,6 +63,7 @@ export function AdminLayout() {
     { to: '/admin/api-cockpit',  label: t('admin.layout.api-cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
     { to: '/admin/seguranca',       label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
+    { to: '/admin/certificados-digitais', label: t('admin.layout.certificados_digitais', 'Certificados Digitais'), icon: <Certificate weight="duotone" size={18} /> },
     { to: '/admin/cadastros-globais', label: t('admin.layout.cadastros_globais', 'Cadastros Globais'), icon: <Database weight="duotone" size={18} /> },
     { to: '/admin/empresas-e-parceiros', label: t('admin.layout.empresas_e_parceiros', 'Empresas e Parceiros'), icon: <Buildings weight="duotone" size={18} /> },
     { to: '/admin/taxas-moeda',  label: t('admin.layout.taxas_moeda', 'Taxas de Moeda'), icon: <CurrencyCircleDollar weight="duotone" size={18} /> },

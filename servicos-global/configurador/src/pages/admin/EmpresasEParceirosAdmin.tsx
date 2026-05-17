@@ -134,12 +134,17 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
   }
 
   // ── Colunas (nome_organizacao sticky-left, clicável → /admin/organizacoes/:id)
+  // TabelaGlobalColuna<T>['render'] signature: (valorCelula, linhaInteira)
+  // — primeiro argumento é o valor da célula (item[col.key]), segundo é a
+  // row completa. Anteriormente todas as renders pegavam só o primeiro
+  // como se fosse a row — quebrava em qualquer coluna onde a key não
+  // existia diretamente em EmpresaAdmin (ex: 'documento', 'tipos_parceiro').
   const colunas: TabelaGlobalColuna<EmpresaAdmin>[] = useMemo(() => [
     {
       key:    'nome_organizacao',
       label:  'Organização',
       sticky: 'left',
-      render: (linha) => (
+      render: (_, linha) => (
         <button
           type="button"
           onClick={() => navigate(`/admin/organizacoes/${linha.id_organizacao}`)}
@@ -158,7 +163,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
     {
       key:   'documento',
       label: 'CNPJ / TIN',
-      render: (l) =>
+      render: (_, l) =>
         l.pais_empresa === 'BR'
           ? (l.cnpj_empresa ?? '—')
           : (l.tin_empresa ?? '—'),
@@ -166,7 +171,7 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
     {
       key:   'pais_empresa',
       label: 'País',
-      render: (l) => (
+      render: (_, l) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           <Globe size={12} weight="bold" />
           {l.pais_empresa}
@@ -176,12 +181,12 @@ export function EmpresasEParceirosAdmin(): JSX.Element {
     {
       key:   'tipos_parceiro',
       label: 'Tipo de Parceiro',
-      render: (l) => derivarTiposEmpresa(l),
+      render: (_, l) => derivarTiposEmpresa(l),
     },
     {
       key:   'ativo_empresa',
       label: 'Status',
-      render: (l) => (
+      render: (_, l) => (
         <span style={{ color: l.ativo_empresa ? '#34d399' : '#94a3b8' }}>
           {l.ativo_empresa ? 'Ativa' : 'Inativa'}
         </span>

@@ -16,12 +16,13 @@
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine } from '@phosphor-icons/react'
+import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine, Package, ListChecks, Funnel } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
@@ -944,6 +945,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const [salvando, setSalvando] = useState(false)
   const [erroSalvar, setErroSalvar] = useState<string | null>(null)
   const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
+  // Passo 2: filtros e seletor de pedido
+  const [filtroRevisao, setFiltroRevisao] = useState<'todos' | 'alterados' | 'sem-efeito'>('todos')
+  const [filtroPedido, setFiltroPedido] = useState<string | null>(null)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -1133,7 +1137,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const renderPasso1 = () => (
     <>
       {/* Toggle de nível */}
-      <div className="modal-edicao-massa__secao">
+      <div className="em-secao">
+        <span className="em-secao-titulo">Nível de edição</span>
         <div className="modal-edicao-massa__nivel-toggle" role="group" aria-label={t('pedido.modal_massa.aria_nivel_edicao')}>
           {(['combinado', 'pedido', 'item'] as NivelEdicao[]).map(n => (
             <button
@@ -1159,8 +1164,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
       )}
 
       {/* Lista de campos */}
-      <div className="modal-edicao-massa__secao">
-        <p className="modal-edicao-massa__secao-titulo">{t('pedido.modal_massa.secao_campos')}</p>
+      <div className="em-secao">
+        <span className="em-secao-titulo">{t('pedido.modal_massa.secao_campos')}</span>
         <div className="modal-edicao-massa__campos-lista">
           {campos.map(campo => {
             const ops = OPERACOES_POR_TIPO[campo.tipo]
@@ -1299,8 +1304,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
       <div className="modal-edicao-massa__separador" role="separator" />
 
       {/* Preview em tempo real */}
-      <div className="modal-edicao-massa__preview" aria-live="polite">
-        <p className="modal-edicao-massa__preview-titulo">{t('pedido.modal_massa.preview_titulo')}</p>
+      <div className="em-secao" aria-live="polite">
+        <span className="em-secao-titulo">{t('pedido.modal_massa.preview_titulo')}</span>
 
         {carregandoPreview ? (
           <div className="modal-edicao-massa__preview-loading">
@@ -1309,28 +1314,121 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
           </div>
         ) : preview ? (
           <>
-            <div className="modal-edicao-massa__preview-resumo">
-              <div className="modal-edicao-massa__preview-stat">
-                <strong>{preview.pedidos_afetados}</strong>
-                <span>{t('pedido.modal_massa.preview_pedidos')}</span>
-              </div>
+            {/* Stat cards glassmorphism */}
+            <div data-em-stats style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.625rem' }}>
+              <TooltipGlobal
+                titulo="Pedidos afetados"
+                descricao={
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', minWidth: '140px' }}>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Edição em Massa</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                      <span>Selecionados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{pedidos.length}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                      <span>Afetados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{preview.pedidos_afetados}</span>
+                    </div>
+                  </div>
+                }
+              >
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '0.75rem',
+                  padding: '1rem 0.875rem',
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(99, 102, 241, 0.12)',
+                  borderRadius: 'var(--radius-md)',
+                  borderTop: '2px solid rgba(148,163,184,0.3)',
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+                }}>
+                  <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+                  <div>
+                    <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.pedidos_afetados}</span>
+                    <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Pedidos</span>
+                  </div>
+                </div>
+              </TooltipGlobal>
+
               {preview.itens_afetados > 0 && (
-                <div className="modal-edicao-massa__preview-stat">
-                  <strong>{preview.itens_afetados}</strong>
-                  <span>{t('pedido.modal_massa.preview_itens')}</span>
-                </div>
+                <TooltipGlobal
+                  titulo="Itens afetados"
+                  descricao={
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', minWidth: '140px' }}>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Itens</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                        <span>Afetados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{preview.itens_afetados}</span>
+                      </div>
+                    </div>
+                  }
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '1rem 0.875rem',
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(99, 102, 241, 0.12)',
+                    borderRadius: 'var(--radius-md)',
+                    borderTop: '2px solid rgba(148,163,184,0.3)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+                  }}>
+                    <ListChecks size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+                    <div>
+                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.itens_afetados}</span>
+                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Itens</span>
+                    </div>
+                  </div>
+                </TooltipGlobal>
               )}
+
               {(preview.campos_pedido_alterados ?? 0) > 0 && (
-                <div className="modal-edicao-massa__preview-stat">
-                  <strong>{preview.campos_pedido_alterados}</strong>
-                  <span>campos pedido</span>
-                </div>
+                <TooltipGlobal
+                  titulo="Campos nível pedido"
+                  descricao={`${preview.campos_pedido_alterados} campo(s) de cabeçalho serão alterados`}
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '1rem 0.875rem',
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(99, 102, 241, 0.12)',
+                    borderRadius: 'var(--radius-md)',
+                    borderTop: '2px solid rgba(99, 102, 241, 0.4)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+                  }}>
+                    <PencilSimpleLine size={20} weight="duotone" style={{ color: '#818cf8' }} />
+                    <div>
+                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.campos_pedido_alterados}</span>
+                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Campos pedido</span>
+                    </div>
+                  </div>
+                </TooltipGlobal>
               )}
+
               {(preview.campos_item_alterados ?? 0) > 0 && (
-                <div className="modal-edicao-massa__preview-stat">
-                  <strong>{preview.campos_item_alterados}</strong>
-                  <span>campos item</span>
-                </div>
+                <TooltipGlobal
+                  titulo="Campos nível item"
+                  descricao={`${preview.campos_item_alterados} campo(s) de item serão alterados`}
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    padding: '1rem 0.875rem',
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(99, 102, 241, 0.12)',
+                    borderRadius: 'var(--radius-md)',
+                    borderTop: '2px solid rgba(74, 222, 128, 0.4)',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+                  }}>
+                    <ListChecks size={20} weight="duotone" style={{ color: '#4ade80' }} />
+                    <div>
+                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.campos_item_alterados}</span>
+                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Campos item</span>
+                    </div>
+                  </div>
+                </TooltipGlobal>
               )}
             </div>
 
@@ -1512,109 +1610,238 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
         )
       })()}
 
-      {/* Resumo */}
-      <div className="modal-edicao-massa__confirmacao-resumo" aria-label={t('pedido.modal_massa.aria_resumo')}>
-        <div className="modal-edicao-massa__confirmacao-stat">
-          <strong>{preview?.pedidos_afetados ?? pedidos.length}</strong> {t('pedido.modal_massa.confirm_pedidos')}
-        </div>
+      {/* Infographic pills — resumo rápido */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+          padding: '0.25rem 0.625rem',
+          background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(99, 102, 241, 0.10)', borderRadius: '999px',
+          fontSize: '0.75rem', color: 'var(--text-secondary)',
+        }}>
+          <Package size={12} weight="fill" style={{ color: '#94a3b8' }} />
+          <strong style={{ color: '#fff' }}>{preview?.pedidos_afetados ?? pedidos.length}</strong> pedidos
+        </span>
         {(preview?.itens_afetados ?? 0) > 0 && (
-          <div className="modal-edicao-massa__confirmacao-stat">
-            <strong>{preview?.itens_afetados}</strong> {t('pedido.modal_massa.confirm_itens')}
-          </div>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+            padding: '0.25rem 0.625rem',
+            background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(99, 102, 241, 0.10)', borderRadius: '999px',
+            fontSize: '0.75rem', color: 'var(--text-secondary)',
+          }}>
+            <ListChecks size={12} weight="fill" style={{ color: '#94a3b8' }} />
+            <strong style={{ color: '#fff' }}>{preview?.itens_afetados}</strong> itens
+          </span>
         )}
-        <div className="modal-edicao-massa__confirmacao-stat">
-          <strong>{camposValidos.length}</strong> {t('pedido.modal_massa.confirm_campos')}
-        </div>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+          padding: '0.25rem 0.625rem',
+          background: 'rgba(15, 23, 42, 0.5)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(99, 102, 241, 0.10)', borderRadius: '999px',
+          fontSize: '0.75rem', color: 'var(--text-secondary)',
+        }}>
+          <PencilSimpleLine size={12} weight="fill" style={{ color: '#818cf8' }} />
+          <strong style={{ color: '#fff' }}>{camposValidos.length}</strong> campos
+        </span>
+        {camposValidos.some(c => c.nivel === 'pedido') && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+            padding: '0.25rem 0.625rem',
+            background: 'color-mix(in srgb, var(--primary, #6366f1) 10%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--primary, #6366f1) 20%, transparent)', borderRadius: '999px',
+            fontSize: '0.75rem', color: 'var(--primary, #818cf8)',
+          }}>
+            {camposValidos.filter(c => c.nivel === 'pedido').length} nível pedido
+          </span>
+        )}
+        {camposValidos.some(c => c.nivel === 'item') && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+            padding: '0.25rem 0.625rem',
+            background: 'color-mix(in srgb, var(--success, #22c55e) 10%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--success, #22c55e) 20%, transparent)', borderRadius: '999px',
+            fontSize: '0.75rem', color: 'var(--success, #4ade80)',
+          }}>
+            {camposValidos.filter(c => c.nivel === 'item').length} nível item
+          </span>
+        )}
       </div>
 
-      {/* Lista de campos — como está → como vai ficar */}
-      <div className="modal-edicao-massa__confirmacao-lista">
-        {camposValidos.map(c => {
-          const def = disponiveis.find(d => d.campo === c.campo)
-          const rotulo = def?.rotulo ?? c.campo
-          const previewCampo = preview?.campos.find(p => p.campo === c.campo)
-          const valoresAtuais = previewCampo?.valores_distintos ?? []
-          const multiplos = valoresAtuais.length > 1
-          const valorAtualExib = multiplos
-            ? `${valoresAtuais.length} valores distintos`
-            : valoresAtuais[0] || '(vazio)'
+      {/* Seletor de pedido — como em Consolidar */}
+      {pedidos.length >= 2 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '0.5rem 0.75rem',
+          background: 'var(--bg-surface)',
+          borderRadius: 'var(--radius-md)',
+        }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+            Pedido:
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <SelectGlobal
+              buscavel
+              tamanho="compacto"
+              placeholder="Filtrar por pedido"
+              opcoes={[
+                { valor: '__todos__', rotulo: `Todos os pedidos (${pedidos.length})` },
+                ...pedidos.map(p => ({
+                  valor: p.id,
+                  rotulo: `${p.numero_pedido}  ·  ${p.itens?.length ?? 0} ${(p.itens?.length ?? 0) === 1 ? 'item' : 'itens'}`,
+                })),
+              ]}
+              valor={filtroPedido ?? '__todos__'}
+              aoMudarValor={v => setFiltroPedido(v === '__todos__' ? null : String(v))}
+              aria-label="Filtrar por pedido"
+            />
+          </div>
+        </div>
+      )}
 
+      {/* Filtro bar */}
+      <div className="em-filtro-bar">
+        <Funnel size={14} weight="duotone" style={{ color: 'var(--text-muted)', alignSelf: 'center' }} />
+        {(['todos', 'alterados', 'sem-efeito'] as const).map(f => {
+          const contagem = f === 'todos' ? camposValidos.length
+            : f === 'alterados' ? camposValidos.filter(c => {
+                const pc = preview?.campos.find(p => p.campo === c.campo)
+                return pc && (pc.valores_distintos?.length ?? 0) > 0 && pc.valores_distintos?.[0] !== c.valor
+              }).length
+            : camposValidos.filter(c => {
+                const pc = preview?.campos.find(p => p.campo === c.campo)
+                return !pc || (pc.valores_distintos?.length === 1 && pc.valores_distintos[0] === c.valor)
+              }).length
           return (
-            <div key={c.uid} style={{
-              display: 'flex', flexDirection: 'column', gap: '0.375rem',
-              padding: '0.75rem 0.875rem',
-              background: 'var(--surface-2, #1e293b)',
-              borderRadius: 'var(--radius-sm, 6px)',
-              border: '1px solid var(--border, #334155)',
-            }}>
-              {/* Header: campo + nível */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{rotulo}</span>
-                <span style={{
-                  fontSize: '0.6875rem', fontWeight: 500, textTransform: 'uppercase',
-                  padding: '0.125rem 0.5rem', borderRadius: '9999px',
-                  background: c.nivel === 'pedido'
-                    ? 'color-mix(in srgb, var(--primary, #6366f1) 15%, transparent)'
-                    : 'color-mix(in srgb, var(--success, #22c55e) 15%, transparent)',
-                  color: c.nivel === 'pedido' ? 'var(--primary, #818cf8)' : 'var(--success, #4ade80)',
-                }}>
-                  {c.nivel}
-                </span>
-              </div>
-
-              {/* De → Para */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
-                <span style={{
-                  flex: 1, padding: '0.375rem 0.5rem',
-                  background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
-                  borderRadius: 'var(--radius-xs, 4px)',
-                  color: 'var(--text-secondary, #94a3b8)',
-                  fontStyle: multiplos ? 'italic' : 'normal',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {valorAtualExib}
-                </span>
-                <span style={{ color: 'var(--text-tertiary, #64748b)', flexShrink: 0, fontSize: '0.75rem' }}>→</span>
-                <span style={{
-                  flex: 1, padding: '0.375rem 0.5rem',
-                  background: 'color-mix(in srgb, var(--success, #22c55e) 8%, transparent)',
-                  borderRadius: 'var(--radius-xs, 4px)',
-                  color: 'var(--text-primary, #e2e8f0)',
-                  fontWeight: 500,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {t(OP_LABEL_KEYS[c.operacao])}: {def?.opcoes?.find(o => o.valor === c.valor)?.rotulo ?? c.valor}
-                </span>
-              </div>
-
-              {/* Valores distintos expandidos quando >1 */}
-              {multiplos && (
-                <div style={{
-                  fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)',
-                  padding: '0.25rem 0.5rem',
-                  background: 'color-mix(in srgb, var(--warning, #f59e0b) 6%, transparent)',
-                  borderRadius: 'var(--radius-xs, 4px)',
-                }}>
-                  Valores atuais: {valoresAtuais.slice(0, 5).map(v => v || '(vazio)').join(', ')}
-                  {valoresAtuais.length > 5 && ` +${valoresAtuais.length - 5} mais`}
-                </div>
-              )}
-
-              {/* Alerta cascade */}
-              {previewCampo?.cascade_para && (
-                <div style={{
-                  fontSize: '0.75rem', color: 'var(--primary, #818cf8)',
-                  display: 'flex', alignItems: 'center', gap: '0.25rem',
-                }}>
-                  ↳ Também altera {disponiveis.find(d => d.campo === previewCampo.cascade_para)?.rotulo ?? previewCampo.cascade_para} nos itens
-                  {(previewCampo.overrides_sobrescritos ?? 0) > 0 &&
-                    ` · ${previewCampo.overrides_sobrescritos} itens serão sobrescritos`}
-                </div>
-              )}
-            </div>
+            <button
+              key={f}
+              type="button"
+              className={`em-filtro-pill${filtroRevisao === f ? ' em-filtro-pill--ativo' : ''}`}
+              onClick={() => setFiltroRevisao(f)}
+            >
+              {f === 'todos' ? 'Todos' : f === 'alterados' ? 'Com alteração' : 'Sem efeito'} ({contagem})
+            </button>
           )
         })}
       </div>
+
+      {/* Lista de campos — como está → como vai ficar */}
+      {(() => {
+        const camposFiltrados = camposValidos.filter(c => {
+          if (filtroRevisao === 'todos') return true
+          const pc = preview?.campos.find(p => p.campo === c.campo)
+          if (filtroRevisao === 'alterados') {
+            return pc && (pc.valores_distintos?.length ?? 0) > 0 && pc.valores_distintos?.[0] !== c.valor
+          }
+          return !pc || (pc.valores_distintos?.length === 1 && pc.valores_distintos[0] === c.valor)
+        })
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {camposFiltrados.map(c => {
+              const def = disponiveis.find(d => d.campo === c.campo)
+              const rotulo = def?.rotulo ?? c.campo
+              const previewCampo = preview?.campos.find(p => p.campo === c.campo)
+              const valoresAtuais = previewCampo?.valores_distintos ?? []
+
+              // Se um pedido específico está selecionado, mostrar o valor desse pedido
+              let valorAtualExib: string
+              let multiplos: boolean
+              if (filtroPedido && preview?.por_pedido) {
+                const pedidoDetalhe = preview.por_pedido.find(pp => pp.pedido_id === filtroPedido)
+                const alteracao = pedidoDetalhe?.alteracoes.find(a => a.campo === c.campo)
+                valorAtualExib = alteracao ? String(alteracao.valor_atual ?? '(vazio)') : '(vazio)'
+                multiplos = false
+              } else {
+                multiplos = valoresAtuais.length > 1
+                valorAtualExib = multiplos
+                  ? `${valoresAtuais.length} valores distintos`
+                  : valoresAtuais[0] || '(vazio)'
+              }
+
+              return (
+                <div key={c.uid} style={{
+                  display: 'flex', flexDirection: 'column', gap: '0.375rem',
+                  padding: '0.75rem 0.875rem',
+                  background: 'var(--surface-2, #1e293b)',
+                  borderRadius: 'var(--radius-sm, 6px)',
+                  border: '1px solid var(--border, #334155)',
+                }}>
+                  {/* Header: campo + nível */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{rotulo}</span>
+                    <span style={{
+                      fontSize: '0.6875rem', fontWeight: 500, textTransform: 'uppercase',
+                      padding: '0.125rem 0.5rem', borderRadius: '9999px',
+                      background: c.nivel === 'pedido'
+                        ? 'color-mix(in srgb, var(--primary, #6366f1) 15%, transparent)'
+                        : 'color-mix(in srgb, var(--success, #22c55e) 15%, transparent)',
+                      color: c.nivel === 'pedido' ? 'var(--primary, #818cf8)' : 'var(--success, #4ade80)',
+                    }}>
+                      {c.nivel}
+                    </span>
+                  </div>
+
+                  {/* De → Para */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
+                    <span style={{
+                      flex: 1, padding: '0.375rem 0.5rem',
+                      background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                      borderRadius: 'var(--radius-xs, 4px)',
+                      color: 'var(--text-secondary, #94a3b8)',
+                      fontStyle: multiplos ? 'italic' : 'normal',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {valorAtualExib}
+                    </span>
+                    <span style={{ color: 'var(--text-tertiary, #64748b)', flexShrink: 0, fontSize: '0.75rem' }}>→</span>
+                    <span style={{
+                      flex: 1, padding: '0.375rem 0.5rem',
+                      background: 'color-mix(in srgb, var(--success, #22c55e) 8%, transparent)',
+                      borderRadius: 'var(--radius-xs, 4px)',
+                      color: 'var(--text-primary, #e2e8f0)',
+                      fontWeight: 500,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {t(OP_LABEL_KEYS[c.operacao])}: {def?.opcoes?.find(o => o.valor === c.valor)?.rotulo ?? c.valor}
+                    </span>
+                  </div>
+
+                  {/* Valores distintos expandidos quando >1 */}
+                  {multiplos && (
+                    <div style={{
+                      fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)',
+                      padding: '0.25rem 0.5rem',
+                      background: 'color-mix(in srgb, var(--warning, #f59e0b) 6%, transparent)',
+                      borderRadius: 'var(--radius-xs, 4px)',
+                    }}>
+                      Valores atuais: {valoresAtuais.slice(0, 5).map(v => v || '(vazio)').join(', ')}
+                      {valoresAtuais.length > 5 && ` +${valoresAtuais.length - 5} mais`}
+                    </div>
+                  )}
+
+                  {/* Alerta cascade */}
+                  {previewCampo?.cascade_para && (
+                    <div style={{
+                      fontSize: '0.75rem', color: 'var(--primary, #818cf8)',
+                      display: 'flex', alignItems: 'center', gap: '0.25rem',
+                    }}>
+                      ↳ Também altera {disponiveis.find(d => d.campo === previewCampo.cascade_para)?.rotulo ?? previewCampo.cascade_para} nos itens
+                      {(previewCampo.overrides_sobrescritos ?? 0) > 0 &&
+                        ` · ${previewCampo.overrides_sobrescritos} itens serão sobrescritos`}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            {camposFiltrados.length === 0 && (
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
+                Nenhum campo corresponde ao filtro selecionado.
+              </span>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Detalhe de/para na confirmação */}
       {preview && <PreviewDepara preview={preview} disponiveis={disponiveis} />}
@@ -1821,6 +2048,86 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   )
 
   return (
+    <>
+    <style>{`
+      .mpg-dialog {
+        border: 1px solid color-mix(in srgb, var(--accent, #6366f1) 18%, var(--bg-elevated)) !important;
+        box-shadow:
+          0 24px 64px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(99, 102, 241, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+      }
+      .mpg-dialog > div:last-child {
+        justify-content: flex-end !important;
+        gap: 0.75rem !important;
+      }
+      .mpg-dialog > div:last-child > div > span {
+        display: none !important;
+      }
+      .em-secao {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: transparent;
+        border: 1px solid color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+        border-radius: var(--radius-lg);
+      }
+      .em-secao-titulo {
+        position: relative;
+        z-index: 1;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--accent, #6366f1);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .em-secao-titulo::before {
+        content: '';
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        background: linear-gradient(135deg, var(--accent, #6366f1), #a78bfa);
+        border-radius: 50%;
+        box-shadow: 0 0 6px color-mix(in srgb, var(--accent, #6366f1) 40%, transparent);
+      }
+      [data-em-stats] > .tg-trigger { display: flex; width: 100%; }
+      [data-em-stats] > .tg-trigger > div { width: 100%; }
+      [data-em-stats] > .tg-trigger:hover > div {
+        border-color: rgba(99, 102, 241, 0.25) !important;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15) !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+      }
+      .em-filtro-bar {
+        display: flex;
+        gap: 0.375rem;
+      }
+      .em-filtro-pill {
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid var(--border, #334155);
+        background: transparent;
+        color: var(--text-secondary, #94a3b8);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .em-filtro-pill:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        color: var(--text-primary);
+      }
+      .em-filtro-pill--ativo {
+        background: color-mix(in srgb, var(--accent, #6366f1) 15%, transparent);
+        border-color: color-mix(in srgb, var(--accent, #6366f1) 40%, transparent);
+        color: var(--accent, #6366f1);
+      }
+    `}</style>
     <ModalPassoPassoGlobal
       titulo={t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
       icone={<PencilSimpleLine size={20} weight="duotone" />}
@@ -1861,5 +2168,6 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
           {passo === 1 ? renderPasso1() : passo === 2 ? renderPasso2() : renderPasso3()}
         </div>
     </ModalPassoPassoGlobal>
+    </>
   )
 }

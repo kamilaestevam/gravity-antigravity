@@ -737,7 +737,7 @@ export default function Configuracoes() {
   // Gating `pedido:configuracao:editar` (decisão dono + Líder + Coordenador 2026-05-13).
   // `podeEditar` é ESTRITO durante load — evita flash de campos editáveis em
   // estado intermediário. Backend rejeita 403 nos PUT/POST de config.
-  const { podeEditar } = usePermissoesPedido()
+  const { podeEditar, carregando: carregandoPermissoes } = usePermissoesPedido()
   const podeEditarConfig = podeEditar('configuracao')
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
@@ -2226,7 +2226,7 @@ export default function Configuracoes() {
       {/* ── Conteúdo ── */}
       {/* Gating `configuracao:editar` (2026-05-13): usuário sem permissão
           vê área opaca + banner. Defesa em profundidade: backend rejeita 403. */}
-      {!podeEditarConfig && (
+      {!carregandoPermissoes && !podeEditarConfig && (
         <div
           role="note"
           aria-label="Sem permissão para editar configurações"
@@ -2247,7 +2247,7 @@ export default function Configuracoes() {
       )}
       <main
         className="cfg-conteudo"
-        style={podeEditarConfig ? undefined : { opacity: 0.65, pointerEvents: 'none' }}
+        style={podeEditarConfig || carregandoPermissoes ? undefined : { opacity: 0.65, pointerEvents: 'none' }}
       >
 
         {/* ════════════════════════ CARDS ════════════════════════ */}

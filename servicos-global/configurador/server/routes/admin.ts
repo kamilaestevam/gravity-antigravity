@@ -1,7 +1,6 @@
 // server/routes/admin.ts
 // Rotas exclusivas para gravity_admin — gestão de todas as organizações da plataforma
 // Montado em /api/v1/admin pelo index.ts
-// Parser atualizado: tratamento de testes skipped + errors[] array (2026-05-17)
 // GET   /api/v1/admin/organizacoes                                 — listar todas as organizações
 // GET   /api/v1/admin/organizacoes/:id_organizacao                 — detalhes de uma organização
 // GET   /api/v1/admin/organizacoes/:id_organizacao/workspaces      — listar workspaces de uma org (lazy-load do editor de vínculos)

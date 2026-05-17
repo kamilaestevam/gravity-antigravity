@@ -239,6 +239,8 @@ const LABELS_FILTRO: Record<string, Record<string, string>> = {
   status: {
     rascunho: 'Rascunho',
     aberto: 'Aberto',
+    em_andamento: 'Em Andamento',
+    aprovado: 'Aprovado',
     transferencia: 'Em Transferência',
     consolidado: 'Consolidado',
     cancelado: 'Cancelado',

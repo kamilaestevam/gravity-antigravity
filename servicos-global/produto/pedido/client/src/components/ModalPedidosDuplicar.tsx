@@ -452,7 +452,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
   // ── Passo 2 — Confirmar ──────────────────────────────────────────────────────
 
   const renderPasso2 = () => (
-    <>
+    <div className="modal-duplicar__passo2">
       {/* Seção: Pedidos a criar */}
       {temPedidos && config && (
         <div className="modal-duplicar__secao">
@@ -583,7 +583,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
         requisitos={requisitos}
         titulo={t('pedido.modal_dup.req_titulo')}
       />
-    </>
+    </div>
   )
 
   // ── Tela de resultado ────────────────────────────────────────────────────────

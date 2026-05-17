@@ -413,7 +413,7 @@ export default function PedidosKanban() {
   // Gating `pedido:kanban:editar` (decisao dono + Líder + Coordenador 2026-05-13).
   // `podeEditar` é ESTRITO durante load — evita flash de drag-drop habilitado
   // que dispararia 403 ao mover. Backend rejeita PATCH /alteracoes-status-lote.
-  const { podeEditar } = usePermissoesPedido()
+  const { podeEditar, carregando: carregandoPermissoes } = usePermissoesPedido()
   const podeEditarKanban = podeEditar('kanban')
   const [pedidos, setPedidos]           = useState<Pedido[]>([])
   const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
@@ -525,7 +525,7 @@ export default function PedidosKanban() {
       {/* Banner gating `kanban:editar` (2026-05-13) — drag-drop client-side
           ja respeita `podeEditarKanban` em handleMover; banner deixa o motivo
           visivel. Backend tambem retorna 403 nos PATCH /alteracoes-status-lote. */}
-      {!podeEditarKanban && (
+      {!carregandoPermissoes && !podeEditarKanban && (
         <div
           role="note"
           aria-label="Sem permissao para editar Kanban"

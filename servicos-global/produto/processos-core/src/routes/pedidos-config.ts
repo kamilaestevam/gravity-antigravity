@@ -187,8 +187,8 @@ const STATUS_PADRAO = [
   { nome: 'aberto',        rotulo: 'Aberto',        cor: '#3b82f6', ordem: 1, is_padrao: true,  is_sistema: false },
   { nome: 'em_andamento',  rotulo: 'Em Andamento',  cor: '#f97316', ordem: 2, is_padrao: false, is_sistema: false },
   { nome: 'aprovado',      rotulo: 'Aprovado',      cor: '#facc15', ordem: 3, is_padrao: false, is_sistema: false },
-  { nome: 'transferencia', rotulo: 'Transferido',   cor: '#2dd4bf', ordem: 4, is_padrao: false, is_sistema: true  },
-  { nome: 'consolidado',   rotulo: 'Consolidado',   cor: '#a78bfa', ordem: 5, is_padrao: false, is_sistema: true  },
+  { nome: 'transferencia', rotulo: 'Transferido',   cor: '#2dd4bf', ordem: 4, is_padrao: false, is_sistema: false },
+  { nome: 'consolidado',   rotulo: 'Consolidado',   cor: '#a78bfa', ordem: 5, is_padrao: false, is_sistema: false },
   { nome: 'cancelado',     rotulo: 'Cancelado',     cor: '#ef4444', ordem: 6, is_padrao: false, is_sistema: false },
 ]
 

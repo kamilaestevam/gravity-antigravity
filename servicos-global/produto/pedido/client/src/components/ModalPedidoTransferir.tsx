@@ -916,31 +916,43 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
               </div>
               <ul className="modal-transferir__lista-resultado">
                 <li className="modal-transferir__item-resultado">
-                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_cenario')}</span>
-                  <span className="modal-transferir__resultado-valor">{cenarioInfo ? t(cenarioInfo.nomeKey) : ''}</span>
+                  <div className="modal-transferir__resultado-col">
+                    <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_cenario')}</span>
+                    <span className="modal-transferir__resultado-detalhe">{cenarioInfo ? t(cenarioInfo.nomeKey) : ''}</span>
+                  </div>
+                  <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                 </li>
                 <li className="modal-transferir__item-resultado">
-                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.preview_label_pedido')}</span>
-                  <span className="modal-transferir__resultado-valor">
-                    {multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido}
-                  </span>
+                  <div className="modal-transferir__resultado-col">
+                    <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.preview_label_pedido')}</span>
+                    <span className="modal-transferir__resultado-detalhe">
+                      {multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido}
+                    </span>
+                  </div>
+                  <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                 </li>
                 {itensQuantidades.size > 0 && (
                   <li className="modal-transferir__item-resultado">
-                    <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_item')}</span>
-                    <span className="modal-transferir__resultado-valor">
-                      {itensQuantidades.size === 1
-                        ? (itensComPedido.find(ic => ic.item.id === primeiroItemId)?.item.part_number ?? '—')
-                        : `${itensQuantidades.size} itens`
-                      }
-                    </span>
+                    <div className="modal-transferir__resultado-col">
+                      <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_item')}</span>
+                      <span className="modal-transferir__resultado-detalhe">
+                        {itensQuantidades.size === 1
+                          ? (itensComPedido.find(ic => ic.item.id === primeiroItemId)?.item.part_number ?? '—')
+                          : `${itensQuantidades.size} itens`
+                        }
+                      </span>
+                    </div>
+                    <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                   </li>
                 )}
                 <li className="modal-transferir__item-resultado">
-                  <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_qtd')}</span>
-                  <span className="modal-transferir__resultado-valor">
-                    {fmtQuantidade(quantidadeTotalSelecionada, itemSelecionado?.casas_decimais_quantidade_item)}
-                  </span>
+                  <div className="modal-transferir__resultado-col">
+                    <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_qtd')}</span>
+                    <span className="modal-transferir__resultado-detalhe">
+                      {fmtQuantidade(quantidadeTotalSelecionada, itemSelecionado?.casas_decimais_quantidade_item)}
+                    </span>
+                  </div>
+                  <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                 </li>
               </ul>
 
@@ -954,18 +966,24 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
                   <ul className="modal-transferir__lista-resultado">
                     {resultado.pedidos_criados.length > 0 && (
                       <li className="modal-transferir__item-resultado">
-                        <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_novo_pedido')}</span>
-                        <span className="modal-transferir__resultado-valor">
-                          {numeroPedidoNovo || resultado.pedidos_criados[0]}
-                        </span>
+                        <div className="modal-transferir__resultado-col">
+                          <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_novo_pedido')}</span>
+                          <span className="modal-transferir__resultado-detalhe">
+                            {numeroPedidoNovo || resultado.pedidos_criados[0]}
+                          </span>
+                        </div>
+                        <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                       </li>
                     )}
                     {resultado.pedidos_destino_ids.length > 0 && resultado.pedidos_criados.length === 0 && (
                       <li className="modal-transferir__item-resultado">
-                        <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_destino')}</span>
-                        <span className="modal-transferir__resultado-valor">
-                          {t('pedido.modal_transf.sucesso_atualizado', { count: resultado.pedidos_destino_ids.length })}
-                        </span>
+                        <div className="modal-transferir__resultado-col">
+                          <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_destino')}</span>
+                          <span className="modal-transferir__resultado-detalhe">
+                            {t('pedido.modal_transf.sucesso_atualizado', { count: resultado.pedidos_destino_ids.length })}
+                          </span>
+                        </div>
+                        <span className="modal-transferir__resultado-ok"><CheckCircle size={14} weight="fill" /> OK</span>
                       </li>
                     )}
                   </ul>

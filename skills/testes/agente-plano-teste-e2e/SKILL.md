@@ -5,7 +5,11 @@ description: "Use sempre que precisar criar ou expandir um plano de teste E2E (P
 
 # Agente Plano de Teste E2E
 
-> **Missão:** dada uma tela do Gravity, produzir um plano de teste estruturado em JSON que cobre **as 20 categorias do plano 10/10**, mapeia cada passo a um `data-testid`, e fica pronto pra um humano validar e um gerador de specs converter em código.
+> **SUBORDINACAO (2026-05-17):** Esta skill e subordinada ao pipeline multi-agente (`skills/testes/multi-agente-plano-teste/SKILL.md`). O Agente 6 (Elaborador) do pipeline produz planos E2E seguindo o formato definido aqui. Uso standalone permitido apenas para escopos minimos e criticidade baixa.
+>
+> **REGRA FONTE PRIMARIA:** Planos gerados pelo pipeline multi-agente substituem e deletam planos/testes legados do mesmo escopo. Ver regra completa na skill multi-agente.
+
+> **Missao:** dada uma tela do Gravity, produzir um plano de teste estruturado em JSON que cobre **as 20 categorias do plano 10/10**, mapeia cada passo a um `data-testid`, e fica pronto pra um humano validar e um gerador de specs converter em codigo.
 
 ---
 

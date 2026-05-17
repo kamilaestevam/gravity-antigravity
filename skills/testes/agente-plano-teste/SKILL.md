@@ -5,7 +5,11 @@ description: "Use sempre que precisar criar ou expandir um plano de teste para u
 
 # Agente Plano de Teste
 
-> **Missão:** dada uma tela do Gravity, produzir um plano de teste estruturado em JSON que cobre **as 20 categorias do plano 10/10**, mapeia cada passo a um `data-testid`, e fica pronto pra um humano validar e um gerador de specs converter em código.
+> **SUBORDINACAO (2026-05-17):** Esta skill e subordinada ao pipeline multi-agente (`skills/testes/multi-agente-plano-teste/SKILL.md`). Para escopos complexos (5+ campos, 3+ acoes, tabelas, criticidade alta/critica), o pipeline multi-agente e obrigatorio e esta skill serve apenas como referencia de formato para o Agente 6 (Elaborador). Uso standalone permitido apenas para escopos minimos (1-2 campos, 1 acao, criticidade baixa).
+>
+> **REGRA FONTE PRIMARIA:** Planos gerados pelo pipeline multi-agente substituem e deletam planos/testes legados do mesmo escopo. Ver regra completa na skill multi-agente.
+
+> **Missao:** dada uma tela do Gravity, produzir um plano de teste estruturado em JSON que cobre **as 20 categorias do plano 10/10**, mapeia cada passo a um `data-testid`, e fica pronto pra um humano validar e um gerador de specs converter em codigo.
 
 ---
 

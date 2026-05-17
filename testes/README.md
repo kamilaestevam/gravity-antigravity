@@ -1,18 +1,27 @@
 # Gravity — Testes Automatizados
 
-> Pasta central de **todos** os testes do Gravity. Organizada por **6 tipos × 16 escopos × N sublocais**.
-> Gerenciada pelos agentes `analista-erros-testes-gemini` e `agente-plano-teste` em `skills/testes/`.
+> Pasta central de **todos** os testes do Gravity. Organizada por **6 tipos x 16 escopos x N sublocais**.
+> Gerenciada pelo **pipeline multi-agente** (`skills/testes/multi-agente-plano-teste/SKILL.md`) como processo primario.
 
 ---
 
-## ⚠️ Antes de criar QUALQUER teste
+## REGRA ABSOLUTA -- FONTE PRIMARIA (2026-05-17)
 
-1. Ler `documentos-tecnicos/testes/regras/01-convencao-ids.md`
-2. Ler `documentos-tecnicos/testes/regras/02-cobertura-obrigatoria.md`
-3. Ler `skills/testes/agente-plano-teste/SKILL.md`
-4. Ler `skills/testes/analista-erros-testes-gemini/SKILL.md`
+> **Quando o pipeline multi-agente gera planos para um escopo, esses planos sao a UNICA fonte de verdade.**
+> Testes legados (`.test.ts`, `.spec.ts`, planos `.json`/`.md`) do MESMO escopo sao **deletados e substituidos**.
+> Testes de outros escopos permanecem intactos. Testes de seguranca (`testes/security/`) nunca sao deletados.
 
-**Pular leitura → CI rejeita o PR.**
+---
+
+## Antes de criar QUALQUER teste
+
+1. Ler `skills/testes/multi-agente-plano-teste/SKILL.md` **(processo primario)**
+2. Ler `skills/testes/SKILL.md` (coordenacao dos 3 niveis)
+3. Ler `documentos-tecnicos/testes/regras/01-convencao-ids.md`
+4. Ler `documentos-tecnicos/testes/regras/02-cobertura-obrigatoria.md`
+5. Verificar se existem testes legados do mesmo escopo (regra FONTE PRIMARIA)
+
+**Pular leitura -> CI rejeita o PR.**
 
 ---
 
@@ -132,11 +141,28 @@ npm run extract-testids -- --tela configurador/organizacao
 
 ---
 
-## Estado atual (2026-04-15)
+## Pipeline Multi-Agente (processo primario desde 2026-05-17)
 
-- **Estrutura**: ✅ criada (96 pastas)
-- **Registry**: ✅ vazio com 1 entrada (Organização)
-- **Plano de exemplo**: ✅ `_planos/configurador/organizacao.json` (126 passos)
-- **Mapeamento de exemplo**: ⚠️ embedded no plano, falta extrair pra `_mapeamentos/`
-- **Specs gerados**: ❌ aguarda Onda 1 (gerador de specs)
-- **Validadores CI**: ⚠️ a criar nas próximas etapas da Onda 0
+O processo de criacao de planos de teste e executado por 8 agentes especializados em 6 fases:
+
+```
+FASE 1 (paralela): Analisador de Codigo + Analisador de Tela
+FASE 2: Analisador de Variaveis (enumera TODAS as combinacoes)
+FASE 3: QA Pleno (valida completude) -> QA Master (certeza 100%)
+FASE 4: Elaborador (3 planos JSON: UNI + FUN + E2E)
+FASE 5: Revisor (conformidade planos vs matriz)
+FASE 6: Coordenador (aprovacao + apresentacao ao dono)
+```
+
+Skill completa: `skills/testes/multi-agente-plano-teste/SKILL.md`
+
+---
+
+## Estado atual (2026-05-17)
+
+- **Estrutura**: criada (96 pastas)
+- **Registry**: 28 planos ativos
+- **Pipeline multi-agente**: definido (8 agentes, 6 fases)
+- **Regra FONTE PRIMARIA**: ativa — planos multi-agente substituem legados
+- **Testes executaveis**: 106 (67 UNI + 27 FUN + 11 E2E + 1 CRO)
+- **Validadores CI**: a completar

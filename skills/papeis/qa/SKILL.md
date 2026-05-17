@@ -5,12 +5,16 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 # Gravity — QA
 
+> **PIPELINE MULTI-AGENTE (2026-05-17):** O processo primario de criacao de planos de teste e o pipeline multi-agente de 8 agentes (`skills/testes/multi-agente-plano-teste/SKILL.md`). O QA participa como Agente 4 (QA Pleno) e Agente 5 (QA Master) nesse pipeline. A regra FONTE PRIMARIA se aplica: planos multi-agente substituem e deletam testes legados do mesmo escopo.
+
 ## Papel e Responsabilidade
 
-- Atuar como o guardião final da qualidade.
+- Atuar como o guardiao final da qualidade.
 - Revisar cada arquivo alterado na onda.
-- Garantir que as regras de Isolamento de Organização nunca sejam violadas.
-- Validar se o plano de testes E2E cobre todas as categorias obrigatórias.
+- Garantir que as regras de Isolamento de Organizacao nunca sejam violadas.
+- Validar se o plano de testes E2E cobre todas as categorias obrigatorias.
+- **Participar do pipeline multi-agente como QA Pleno (validacao de completude) e QA Master (certeza 100%).**
+- **Aplicar regra FONTE PRIMARIA: quando pipeline multi-agente gera planos para um escopo, testes legados do mesmo escopo sao deletados.**
 
 ---
 
@@ -343,15 +347,16 @@ Após correção, QA deve ser acionado novamente.
 
 ---
 
-## Skills de Referência Obrigatórias
+## Skills de Referencia Obrigatorias
 
 | Para validar | Consultar |
 |:---|:---|
 | 9 Mandamentos | `antigravity-9-mandamentos` |
-| Isolamento de Organização | `antigravity-isolamento-organizacao` + `antigravity-tier1-security` |
-| Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
+| Isolamento de Organizacao | `antigravity-isolamento-organizacao` + `antigravity-tier1-security` |
+| Padroes de codigo | `antigravity-code-standards` + `antigravity-api-design` |
 | Como escrever testes | `antigravity-testes` |
-| Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |
+| **Pipeline multi-agente** | **`antigravity-multi-agente-plano-teste` — processo primario de planos** |
+| Documentacao + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |
 
 ---
 

@@ -5,7 +5,32 @@ description: "Skill de coordenação do ecossistema de testes do Gravity. Visão
 
 # Gravity — Coordenação de Testes
 
-## Os Três Níveis
+> **REGRA ABSOLUTA — FONTE PRIMARIA (2026-05-17)**
+>
+> Quando o pipeline multi-agente (`skills/testes/multi-agente-plano-teste/SKILL.md`) gera planos para um escopo, esses planos sao a **unica fonte de verdade**. Testes legados (`.test.ts`, `.spec.ts`, planos `.json`/`.md`) do MESMO escopo sao **deletados e substituidos** — sem merge, sem coexistencia. Testes de outros escopos permanecem intactos. Ver regra completa na skill multi-agente.
+
+---
+
+## Pipeline Multi-Agente (processo primario)
+
+Para escopos complexos (5+ campos, 3+ acoes, tabelas com multiplas colunas, criticidade alta/critica), o processo obrigatorio e o **pipeline multi-agente de 8 agentes**:
+
+1. Analisador de Codigo — anatomia completa da feature
+2. Analisador de Tela — inventario visual de elementos
+3. Analisador de Variaveis — TODAS as combinacoes possiveis
+4. QA Pleno — validacao de completude
+5. QA Master — certeza 100% que nada ficou para tras
+6. Elaborador — 3 planos JSON canonicos (UNI + FUN + E2E)
+7. Revisor — conformidade planos vs matriz
+8. Coordenador — aprovacao + apresentacao ao dono
+
+**Skill completa:** `skills/testes/multi-agente-plano-teste/SKILL.md`
+
+As skills `agente-plano-teste*` abaixo sao **subordinadas** ao pipeline multi-agente — definem o formato de output que o Agente 6 (Elaborador) deve seguir.
+
+---
+
+## Os Tres Niveis
 
 | Nível | Ferramenta | Onde mora | O que prova |
 |:---|:---|:---|:---|
@@ -55,17 +80,18 @@ CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configu
 
 ---
 
-## Mapa das 7 Skills Filhas
+## Mapa das 8 Skills Filhas
 
 | Skill | Quando consultar |
 |:---|:---|
+| **`multi-agente-plano-teste`** | **SEMPRE — processo primario de criacao de planos (8 agentes, 6 fases)** |
 | `padroes-vitest-playwright` | Configurar Vitest/Playwright, estrutura de spec, mocks, fixtures |
 | `contract-testing` | Schema Zod usado por front e back — CI bloqueia breaking changes (Mandamento 09) |
-| `teste-em-tela` | Validação visual — Playwright com screenshots numerados em `testes/testes-em-tela/` |
-| `agente-plano-teste` | Agente que cria planos de teste a partir de uma tela/feature |
-| `agente-plano-teste-unitario` | Agente que detalha plano unitário (Vitest, categorias, cobertura) |
-| `agente-plano-teste-funcional` | Agente que detalha plano funcional (rotas, fluxos, integração) |
-| `agente-plano-teste-e2e` | Agente que detalha plano E2E (Playwright + Percy em staging) |
+| `teste-em-tela` | Validacao visual — Playwright com screenshots numerados em `testes/testes-em-tela/` |
+| `agente-plano-teste` | Formato de plano geral (20 categorias) — subordinado ao multi-agente |
+| `agente-plano-teste-unitario` | Formato de plano unitario (12 tipos de modulo) — subordinado ao multi-agente |
+| `agente-plano-teste-funcional` | Formato de plano funcional (8 tipos de modulo) — subordinado ao multi-agente |
+| `agente-plano-teste-e2e` | Formato de plano E2E (20 categorias, doutrina granularidade) — subordinado ao multi-agente |
 
 ---
 
@@ -119,16 +145,17 @@ testes/
 
 ## Fluxo Completo de uma Feature Nova
 
-1. Agente recebe tarefa do Líder
-2. Cria plano de teste (`agente-plano-teste*`) — para os 3 tipos
-3. Plano aprovado pelo dono (E2E exige aprovação explícita — Mandamento 03 do QA)
-4. Implementa código + specs Unitário/Funcional juntos
-5. Roda Vitest local — todos verdes
-6. Implementa specs E2E conforme plano
-7. Roda Playwright local — todos verdes
-8. PR aberto → CI roda os 3 níveis + cobertura + linter
-9. QA acionado (skill `papeis/qa`) com checklist de 6 categorias
-10. Aprovado → merge
+1. Agente recebe tarefa do Lider
+2. **Executa pipeline multi-agente** (`multi-agente-plano-teste`) — 8 agentes, 6 fases
+3. Planos (UNI + FUN + E2E) aprovados pelo dono
+4. **Testes legados do mesmo escopo deletados** (regra FONTE PRIMARIA)
+5. Implementa codigo + specs Unitario/Funcional juntos
+6. Roda Vitest local — todos verdes
+7. Implementa specs E2E conforme plano
+8. Roda Playwright local — todos verdes
+9. PR aberto -> CI roda os 3 niveis + cobertura + linter
+10. QA acionado (skill `papeis/qa`) com checklist de 6 categorias
+11. Aprovado -> merge
 
 ---
 

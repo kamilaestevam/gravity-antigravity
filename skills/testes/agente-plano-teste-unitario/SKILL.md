@@ -3,9 +3,13 @@ name: agente-plano-teste-unitario
 description: "Use sempre que precisar criar ou expandir um plano de teste unitário para qualquer módulo do Gravity. O agente recebe um arquivo fonte (hook, função, serviço, schema, etc.) e devolve um plano JSON canônico cobrindo todas as exportações, mocks obrigatórios e casos happy/sad/edge. Plano é validado por humano antes de virar .test.ts. NUNCA gera o .test.ts diretamente — esse é trabalho de outro agente que consome este JSON. Mantém compatibilidade total com planos pré-existentes (apenas agrega, nunca remove)."
 ---
 
-# Agente Plano de Teste Unitário
+# Agente Plano de Teste Unitario
 
-> **Missão:** dado um arquivo fonte do Gravity, produzir um plano de teste unitário estruturado em JSON que cobre **todas as exportações**, aplica o protocolo de cobertura específico para o tipo de módulo, mapeia mocks obrigatórios e fica pronto pra um humano validar e um gerador de specs converter em código.
+> **SUBORDINACAO (2026-05-17):** Esta skill e subordinada ao pipeline multi-agente (`skills/testes/multi-agente-plano-teste/SKILL.md`). O Agente 6 (Elaborador) do pipeline produz planos unitarios seguindo o formato definido aqui. Uso standalone permitido apenas para escopos minimos e criticidade baixa.
+>
+> **REGRA FONTE PRIMARIA:** Planos gerados pelo pipeline multi-agente substituem e deletam planos/testes legados do mesmo escopo. Ver regra completa na skill multi-agente.
+
+> **Missao:** dado um arquivo fonte do Gravity, produzir um plano de teste unitario estruturado em JSON que cobre **todas as exportacoes**, aplica o protocolo de cobertura especifico para o tipo de modulo, mapeia mocks obrigatorios e fica pronto pra um humano validar e um gerador de specs converter em codigo.
 
 ---
 

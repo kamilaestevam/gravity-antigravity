@@ -5,7 +5,11 @@ description: "Use sempre que precisar criar ou expandir um plano de teste funcio
 
 # Agente Plano de Teste Funcional
 
-> **Missão:** dado um arquivo de rota, middleware ou fluxo de negócio do Gravity, produzir um plano de teste funcional estruturado em JSON que testa a **camada HTTP completa** — validação Zod real, error handler real, Prisma e Clerk mockados. Plano pronto para humano validar e gerador de specs converter em código.
+> **SUBORDINACAO (2026-05-17):** Esta skill e subordinada ao pipeline multi-agente (`skills/testes/multi-agente-plano-teste/SKILL.md`). O Agente 6 (Elaborador) do pipeline produz planos funcionais seguindo o formato definido aqui. Uso standalone permitido apenas para escopos minimos e criticidade baixa.
+>
+> **REGRA FONTE PRIMARIA:** Planos gerados pelo pipeline multi-agente substituem e deletam planos/testes legados do mesmo escopo. Ver regra completa na skill multi-agente.
+
+> **Missao:** dado um arquivo de rota, middleware ou fluxo de negocio do Gravity, produzir um plano de teste funcional estruturado em JSON que testa a **camada HTTP completa** — validacao Zod real, error handler real, Prisma e Clerk mockados. Plano pronto para humano validar e gerador de specs converter em codigo.
 
 ---
 

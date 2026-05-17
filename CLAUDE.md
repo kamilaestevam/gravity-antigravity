@@ -247,7 +247,7 @@ const meResponseSchema = z.object({
 >
 > Se você for escrever uma regra absoluta em uma vertical/operação — pare. Mova para `governanca/lei/` ou `governanca/convencao-tecnica/` e referencie da vertical.
 
-**Estrutura:** 65 SKILL.md em 11 grupos. Governança subdividida em 3 categorias (lei + convenção técnica + operação).
+**Estrutura:** 66 SKILL.md em 11 grupos. Governança subdividida em 3 categorias (lei + convenção técnica + operação).
 
 ---
 
@@ -352,10 +352,11 @@ const meResponseSchema = z.object({
 
 ---
 
-### 8. Testes (8 skills) — Padrões e agentes de teste
+### 8. Testes (9 skills) — Padrões e agentes de teste
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
+| **Multi-Agente Plano de Teste** | `skills/testes/multi-agente-plano-teste/SKILL.md` | **SEMPRE — processo primario de criacao de planos (8 agentes, 6 fases, regra FONTE PRIMARIA)** |
 | Coordenação de Testes | `skills/testes/SKILL.md` | Visão geral — Vitest unitário/funcional + Playwright E2E |
 | Padrões Vitest/Playwright | `skills/testes/padroes-vitest-playwright/SKILL.md` | Estrutura centralizada, cobertura 70%+, mocks |
 | Teste em Tela | `skills/testes/teste-em-tela/SKILL.md` | Validação visual, snapshots Percy |
@@ -474,7 +475,7 @@ gravity/
 ├── produtos/                ← Cada produto isolado (client/ + server/)
 ├── scripts/                 ← compose-tenant-schema.ts, etc.
 ├── testes/                  ← Unitários, funcionais, E2E centralizados
-├── skills/                  ← 65 SKILL.md em 11 grupos (governança como SSOT)
+├── skills/                  ← 66 SKILL.md em 11 grupos (governança como SSOT)
 └── documentos-tecnicos/     ← Documentação técnica
 ```
 

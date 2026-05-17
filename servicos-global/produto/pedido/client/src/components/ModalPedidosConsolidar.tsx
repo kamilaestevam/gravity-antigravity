@@ -27,6 +27,7 @@ import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente, CampoIgual } from '../shared/types'
 import { pedidoConsolidarApi } from '../shared/api'
@@ -339,7 +340,6 @@ export function ModalConsolidarPedidos({
         await pedidoConsolidarApi.confirmar(payload)
         addNotification({ type: 'success', message: `${ids.length} POs consolidadas em ${numeroPedido.trim()}.`, duration: 4000 })
         setConcluido(true)
-        setTimeout(() => onConcluido(), 1500)
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Erro ao consolidar pedidos'
         addNotification({ type: 'error', message: `Falha: ${msg}`, duration: 4000 })
@@ -814,17 +814,71 @@ export function ModalConsolidarPedidos({
   }
 
   function renderPasso3() {
+    if (!preview) return null
+
+    // ── Tela de resultado (após consolidação concluída) ──
     if (concluido) {
+      const totalItens = preview.itens.length
       return (
-        <div style={estilos.centrado}>
-          <Check size={48} weight="duotone" style={{ color: 'var(--success, #22c55e)' }} />
-          <p style={estilos.sucessoTexto}>Consolidação realizada com sucesso!</p>
+        <div style={estilos.passo3}>
+          {/* Banner de sucesso — mesmo padrão da edição em massa */}
+          <div style={estilos.resultadoBanner}>
+            <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
+            <div>
+              <p style={estilos.resultadoBannerTexto}>
+                {ids.length} pedidos consolidados em <strong>{numeroPedido}</strong> · {totalItens} {totalItens === 1 ? 'item' : 'itens'}
+              </p>
+            </div>
+          </div>
+
+          {/* Pedidos de origem — arquivados */}
+          <div style={estilos.resultadoSecao}>
+            <p style={estilos.resultadoSecaoTitulo}>Pedidos de origem (arquivados)</p>
+            {pedidosSelecionados.map(p => (
+              <div key={p.id} style={estilos.resultadoCard}>
+                <div style={estilos.resultadoCardTexto}>
+                  <span style={estilos.resultadoCardNome}>{p.numero_pedido}</span>
+                  <span style={estilos.resultadoCardDetalhe}>inteiro · {preview.pedidos_info.find(pi => pi.id === p.id)?.total_itens ?? 0} itens</span>
+                </div>
+                <span style={estilos.resultadoOk}><CheckCircle size={14} weight="fill" /> OK</span>
+              </div>
+            ))}
+            {pedidoIdsParciais.map(id => {
+              const info = preview.pedidos_info.find(pi => pi.id === id)
+              const numero = info?.numero ?? id.slice(0, 8)
+              const itensSel = itensSelecionados.filter(i => i.pedido_id === id).length
+              return (
+                <div key={id} style={estilos.resultadoCard}>
+                  <div style={estilos.resultadoCardTexto}>
+                    <span style={estilos.resultadoCardNome}>{numero}</span>
+                    <span style={estilos.resultadoCardDetalhe}>parcial · {itensSel} {itensSel === 1 ? 'item' : 'itens'}</span>
+                  </div>
+                  <span style={estilos.resultadoOk}><CheckCircle size={14} weight="fill" /> OK</span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Divergências resolvidas */}
+          {totalDivergencias > 0 && (
+            <div style={estilos.resultadoSecao}>
+              <p style={estilos.resultadoSecaoTitulo}>Campos divergentes resolvidos</p>
+              {preview.campos_divergentes.map(campo => (
+                <div key={campo.campo} style={estilos.resultadoCard}>
+                  <div style={estilos.resultadoCardTexto}>
+                    <span style={estilos.resultadoCardNome}>{campo.rotulo}</span>
+                    <span style={estilos.resultadoCardDetalhe}>{fmtValor(camposEscolhidos[campo.campo] ?? campo.valor_sugerido)}</span>
+                  </div>
+                  <span style={estilos.resultadoOk}><CheckCircle size={14} weight="fill" /> OK</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )
     }
 
-    if (!preview) return null
-
+    // ── Tela de confirmação (antes de consolidar) ──
     return (
       <div style={estilos.passo3}>
         <div style={estilos.confirmacaoCard}>
@@ -970,7 +1024,13 @@ export function ModalConsolidarPedidos({
       carregando={salvando}
       textoCarregando="Consolidando…"
       ocultarStepper={concluido}
-      ocultarFooter={concluido}
+      footerCustom={concluido ? (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+          <BotaoGlobal variante="primario" tamanho="medio" onClick={onConcluido}>
+            Fechar
+          </BotaoGlobal>
+        </div>
+      ) : undefined}
     >
       {passoAtual === 1 && renderPasso1()}
       {passoAtual === 2 && renderPasso2()}
@@ -1579,10 +1639,65 @@ const estilos = {
     fontSize: '0.75rem',
     color: 'var(--text-secondary)',
   } as React.CSSProperties,
-  sucessoTexto: {
-    fontSize: '1rem',
+  // ── Resultado (passo 3 concluído) — padrão edição em massa ──
+  resultadoBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '1rem',
+    background: 'color-mix(in srgb, var(--success, #22c55e) 10%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--success, #22c55e) 35%, transparent)',
+    borderRadius: 'var(--radius-md, 8px)',
+    marginBottom: '0.5rem',
+  } as React.CSSProperties,
+  resultadoBannerTexto: {
+    margin: 0,
+    fontWeight: 600,
+    fontSize: '0.875rem',
+    color: 'var(--text-primary)',
+  } as React.CSSProperties,
+  resultadoSecao: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.5rem',
+  },
+  resultadoSecaoTitulo: {
+    margin: 0,
+    fontWeight: 600,
+    fontSize: '0.8125rem',
+    color: 'var(--text-secondary, #94a3b8)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+  } as React.CSSProperties,
+  resultadoCard: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0.625rem 0.875rem',
+    background: 'var(--surface-2, #1e293b)',
+    borderRadius: 'var(--radius-sm, 6px)',
+    border: '1px solid var(--border, #334155)',
+  } as React.CSSProperties,
+  resultadoCardTexto: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.125rem',
+  },
+  resultadoCardNome: {
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    color: 'var(--text-primary)',
+  } as React.CSSProperties,
+  resultadoCardDetalhe: {
+    fontSize: '0.75rem',
+    color: 'var(--text-tertiary, #64748b)',
+  } as React.CSSProperties,
+  resultadoOk: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    fontSize: '0.75rem',
     fontWeight: 600,
     color: 'var(--success, #22c55e)',
-    margin: 0,
   } as React.CSSProperties,
 } as const

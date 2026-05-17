@@ -1,4 +1,4 @@
-/* ── LocalizadorGlobal ─────────────────────────────────────────────────────── */
+/* ── LocalizadorGlobal — 3D Ecosystem Map ─────────────────────────────────── */
 
 /* ── Wrapper ── */
 .lcg-wrap {
@@ -283,14 +283,263 @@
   color: var(--ws-muted, #64748b);
 }
 
-/* ── Graph area ── */
+/* ── Graph area — 3D Scene ── */
 .lcg-graph {
   position: relative;
   padding: 12px 16px 8px;
   flex-shrink: 0;
 }
 
-/* ── SVG nodes ── */
+.lcg-graph--3d {
+  perspective: 900px;
+  overflow: hidden;
+}
+
+/* ── 3D Scene container ── */
+.lcg-scene {
+  position: relative;
+  width: 720px;
+  height: 340px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  transform: rotateX(12deg) rotateY(-2deg);
+  transition: transform .4s cubic-bezier(.16, 1, .3, 1);
+}
+
+.lcg-scene:hover {
+  transform: rotateX(8deg) rotateY(0deg);
+}
+
+/* ── Orbital rings (decorative 3D background) ── */
+.lcg-orbital-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(129, 140, 248, 0.08);
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.lcg-orbital-ring--1 {
+  width: 500px;
+  height: 500px;
+  top: 50%;
+  left: 38%;
+  transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg);
+  animation: lcg-ring-drift-1 25s linear infinite;
+}
+
+.lcg-orbital-ring--2 {
+  width: 400px;
+  height: 400px;
+  top: 50%;
+  left: 38%;
+  transform: translate(-50%, -50%) rotateX(72deg) rotateZ(60deg);
+  border-color: rgba(167, 139, 250, 0.06);
+  animation: lcg-ring-drift-2 30s linear infinite;
+}
+
+.lcg-orbital-ring--3 {
+  width: 600px;
+  height: 600px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-40deg);
+  border-color: rgba(99, 102, 241, 0.04);
+  animation: lcg-ring-drift-3 35s linear infinite;
+}
+
+@keyframes lcg-ring-drift-1 {
+  from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg); }
+  to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(360deg); }
+}
+
+@keyframes lcg-ring-drift-2 {
+  from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(60deg); }
+  to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(420deg); }
+}
+
+@keyframes lcg-ring-drift-3 {
+  from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-40deg); }
+  to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(320deg); }
+}
+
+/* ── Ambient particles ── */
+.lcg-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(129, 140, 248, 0.5);
+  pointer-events: none;
+}
+
+.lcg-particle--1 { top: 12%; left: 15%; animation: lcg-float 4s ease-in-out infinite; }
+.lcg-particle--2 { top: 78%; left: 85%; animation: lcg-float 5s ease-in-out infinite; animation-delay: -1.2s; }
+.lcg-particle--3 { top: 22%; left: 82%; animation: lcg-float 3.5s ease-in-out infinite; animation-delay: -0.8s; width: 3px; height: 3px; background: rgba(167, 139, 250, 0.4); }
+.lcg-particle--4 { top: 82%; left: 12%; animation: lcg-float 4.5s ease-in-out infinite; animation-delay: -2s; }
+.lcg-particle--5 { top: 8%; left: 55%; animation: lcg-float 6s ease-in-out infinite; animation-delay: -3s; width: 1.5px; height: 1.5px; background: rgba(99, 102, 241, 0.6); }
+.lcg-particle--6 { top: 65%; left: 35%; animation: lcg-float 5.5s ease-in-out infinite; animation-delay: -1.5s; }
+.lcg-particle--7 { top: 45%; left: 92%; animation: lcg-float 4.2s ease-in-out infinite; animation-delay: -2.5s; width: 2.5px; height: 2.5px; background: rgba(167, 139, 250, 0.35); }
+.lcg-particle--8 { top: 90%; left: 60%; animation: lcg-float 5.8s ease-in-out infinite; animation-delay: -0.5s; width: 1.5px; height: 1.5px; }
+
+@keyframes lcg-float {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  25% { transform: translate(5px, -7px) scale(1.4); opacity: 0.7; }
+  50% { transform: translate(-3px, -10px) scale(1); opacity: 0.2; }
+  75% { transform: translate(6px, -3px) scale(1.2); opacity: 0.5; }
+}
+
+/* ── Connections layer ── */
+.lcg-connections-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lcg-connection3d {
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.lcg-connection3d--animated {
+  animation: lcg-conn-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lcg-conn-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* ── 3D Node ── */
+.lcg-node3d {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.16, 1, .3, 1);
+  user-select: none;
+}
+
+.lcg-node3d:hover {
+  transform: translate(-50%, -50%) scale(1.12) !important;
+  z-index: 10;
+  opacity: 1 !important;
+}
+
+.lcg-node3d--locked {
+  cursor: default;
+}
+
+.lcg-node3d--locked:hover {
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+/* ── Node sphere (the "planet") ── */
+.lcg-node3d__sphere {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transition: box-shadow .25s, border-color .25s;
+  overflow: hidden;
+}
+
+/* Glass reflection on sphere */
+.lcg-node3d__sphere::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 18%;
+  width: 35%;
+  height: 30%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.lcg-node3d__label {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  line-height: 1.1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.lcg-node3d__sublabel {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* ── Pulse ring (current node) ── */
+.lcg-node3d__pulse {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  animation: lcg-node-pulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lcg-node-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.25); opacity: 0; }
+}
+
+/* ── Badge ✦ ── */
+.lcg-node3d__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+}
+
+/* ── Current node extra glow ── */
+.lcg-node3d--current .lcg-node3d__sphere {
+  animation: lcg-sphere-glow 3s ease-in-out infinite;
+}
+
+@keyframes lcg-sphere-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+/* ── Visited node subtle shimmer ── */
+.lcg-node3d--visited .lcg-node3d__sphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  animation: lcg-visited-shimmer 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes lcg-visited-shimmer {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── SVG nodes (legacy class, still used for hover) ── */
 .lcg-node {
   transition: opacity .15s;
 }
@@ -307,7 +556,7 @@
   border: 1px solid var(--ws-border, #2d3a55);
   border-radius: 9px;
   padding: 8px 12px;
-  z-index: 10;
+  z-index: 50;
   white-space: nowrap;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   animation: lcg-tip-in .1s ease;
@@ -504,4 +753,19 @@
   font-size: 10px;
   color: var(--ws-border, #1e2d45);
   font-style: italic;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .lcg-orbital-ring,
+  .lcg-particle,
+  .lcg-node3d__pulse,
+  .lcg-node3d--current .lcg-node3d__sphere,
+  .lcg-node3d--visited .lcg-node3d__sphere::after,
+  .lcg-connection3d--animated,
+  .lcg-trigger::before,
+  .lcg-trigger__orbit {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

@@ -3,35 +3,6 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './localizador-global.css'
 import type { EcosystemNode, LocalizadorEntry, LocalizadorGlobalProps } from './types'
 
-// ── Coordenadas do novo layout ────────────────────────────────────────────────
-//
-//  [Configurador]
-//      ↑ (dashed)
-//  [HUB] ──────── [CORE] ──→ [Produto A]
-//    ↓                    ↘  [Produto B]
-//  [HUB Store]                [Produto C...]
-//
-const HUB_CX    = 248
-const HUB_CY    = 155
-const CORE_CX   = 430
-const CORE_CY   = 155
-const CONFIG_CX = 88
-const CONFIG_CY = 60
-const ADMIN_CX  = 88
-const ADMIN_CY  = 140
-const STORE_CX  = 158
-const STORE_CY  = 255
-
-// Slots de produtos — fan-out à direita do CORE (máx 6)
-const PRODUCT_SLOTS = [
-  { cx: 598, cy: 58  },
-  { cx: 668, cy: 103 },
-  { cx: 688, cy: 155 },
-  { cx: 668, cy: 207 },
-  { cx: 598, cy: 255 },
-  { cx: 522, cy: 272 },
-] as const
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(ts: number): string {
@@ -39,94 +10,93 @@ function formatTime(ts: number): string {
   return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-// ── Sub-componente: nó de produto ─────────────────────────────────────────────
+// ── Sub-componente: nó 3D do ecossistema ─────────────────────────────────────
 
-interface ProductNodeProps {
+interface Node3DProps {
   node: EcosystemNode
-  cx: number
-  cy: number
   isCurrent: boolean
   isVisited: boolean
   isHovered: boolean
+  positionStyle: React.CSSProperties
   onHover: (id: string | null) => void
   onClick: (node: EcosystemNode) => void
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-function ProductNode({ node, cx, cy, isCurrent, isVisited, isHovered, onHover, onClick }: ProductNodeProps) {
+function Node3D({ node, isCurrent, isVisited, isHovered, positionStyle, onHover, onClick, size = 'md' }: Node3DProps) {
   const isLocked = node.status === 'locked'
-  const r        = isCurrent ? 27 : isLocked ? 16 : 22
-  const fill     = isLocked ? 'url(#lcg-g-locked)' : `url(#lcg-g-${node.id})`
-  const opacity  = isLocked ? 0.4 : isCurrent ? 1 : isVisited ? 0.9 : isHovered ? 0.85 : 0.65
+  const sizeMap = { sm: 32, md: 44, lg: 56, xl: 72 }
+  const dim = sizeMap[size]
 
-  const shortLabel = node.label.length > 8 ? node.label.slice(0, 7) + '…' : node.label
+  const shortLabel = node.label.length > 9 ? node.label.slice(0, 8) + '…' : node.label
+
+  const baseOpacity = isLocked ? 0.3 : isCurrent ? 1 : isVisited ? 0.85 : isHovered ? 0.7 : 0.5
+  const borderColor = isLocked
+    ? 'rgba(71,85,105,0.3)'
+    : isCurrent
+      ? node.color
+      : isVisited
+        ? `${node.color}88`
+        : `${node.color}33`
+
+  const glowIntensity = isCurrent ? 16 : isVisited ? 8 : 0
 
   return (
-    <g
-      className={`lcg-node ${isLocked ? 'lcg-node--locked' : ''}`}
+    <div
+      className={`lcg-node3d${isCurrent ? ' lcg-node3d--current' : ''}${isLocked ? ' lcg-node3d--locked' : ''}${isVisited ? ' lcg-node3d--visited' : ''}`}
+      style={{
+        ...positionStyle,
+        width: dim,
+        height: dim,
+        '--node-color': node.color,
+        '--node-glow': glowIntensity,
+        opacity: baseOpacity,
+      } as React.CSSProperties}
       onMouseEnter={() => onHover(node.id)}
       onMouseLeave={() => onHover(null)}
       onClick={() => !isLocked && onClick(node)}
-      style={{ cursor: isLocked ? 'default' : 'pointer' }}
     >
-      {/* Pulse ring para nó atual */}
+      {/* Pulse ring for current */}
+      {isCurrent && <div className="lcg-node3d__pulse" style={{ borderColor: node.color }} />}
+
+      {/* Main sphere */}
+      <div
+        className="lcg-node3d__sphere"
+        style={{
+          background: isLocked
+            ? 'radial-gradient(circle at 35% 30%, #374151 0%, #111827 100%)'
+            : `radial-gradient(circle at 35% 30%, ${node.color}ee 0%, ${node.color}55 60%, ${node.color}22 100%)`,
+          border: `1.5px solid ${borderColor}`,
+          boxShadow: glowIntensity > 0
+            ? `0 0 ${glowIntensity}px ${node.color}88, inset 0 -4px 8px rgba(0,0,0,0.3)`
+            : 'inset 0 -4px 8px rgba(0,0,0,0.3)',
+          borderStyle: isLocked ? 'dashed' : 'solid',
+        }}
+      >
+        {/* Inner label */}
+        <span className="lcg-node3d__label" style={{
+          color: isLocked ? '#6b7280' : '#fff',
+          fontSize: size === 'xl' ? 11 : size === 'lg' ? 9.5 : size === 'md' ? 8 : 7,
+          fontWeight: 800,
+          letterSpacing: '0.04em',
+        }}>
+          {isLocked && node.id.startsWith('locked-') ? '+' : shortLabel.toUpperCase()}
+        </span>
+        <span className="lcg-node3d__sublabel" style={{
+          color: isLocked ? '#4b5563' : `${node.color}cc`,
+          fontSize: size === 'xl' ? 8.5 : size === 'lg' ? 7.5 : 6.5,
+        }}>
+          {isLocked && node.id.startsWith('locked-') ? 'breve' : node.sublabel}
+        </span>
+      </div>
+
+      {/* Badge ✦ when current */}
       {isCurrent && (
-        <>
-          <circle cx={cx} cy={cy} r={r + 6} fill="none" stroke={node.color} strokeWidth="1">
-            <animate attributeName="r"       values={`${r+4};${r+14};${r+4}`} dur="2.8s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values=".6;0;.6"                  dur="2.8s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx={cx} cy={cy} r={r + 2} fill="none" stroke={node.color} strokeWidth="1.5" opacity=".4"/>
-        </>
+        <div className="lcg-node3d__badge" style={{ background: '#0c0e16', borderColor: node.color }}>
+          <span style={{ color: node.color, fontSize: 8, fontWeight: 900 }}>✦</span>
+        </div>
       )}
-
-      <circle
-        cx={cx} cy={cy} r={r}
-        fill={fill}
-        filter={isCurrent ? 'url(#lcg-glow-strong)' : isVisited ? 'url(#lcg-glow-soft)' : 'none'}
-        opacity={opacity}
-      />
-      <circle
-        cx={cx} cy={cy} r={r}
-        fill="none"
-        stroke={
-          isLocked   ? '#94a3b855'         :
-          isCurrent  ? node.color          :
-          isVisited  ? `${node.color}70`   :
-          `${node.color}28`
-        }
-        strokeWidth={isCurrent ? 2 : 1}
-        strokeDasharray={isLocked ? '3 3' : undefined}
-      />
-
-      {/* Badge ✦ quando está aqui */}
-      {isCurrent && (
-        <>
-          <circle cx={cx + r - 2} cy={cy - r + 2} r={6} fill="#0c0e16" stroke={node.color} strokeWidth="1.5"/>
-          <text x={cx + r - 2} y={cy - r + 5.5} textAnchor="middle" fontSize="7" fontWeight="900" fill={node.color} fontFamily="Inter,system-ui">✦</text>
-        </>
-      )}
-
-      {/* Label — placeholder vazio mostra "+prod", produto real sempre mostra o nome */}
-      {node.id.startsWith('locked-') ? (
-        <>
-          <text x={cx} y={cy - 3} textAnchor="middle" dominantBaseline="auto" fontSize="8" fontWeight="700" fill="#94a3b8" fontFamily="Inter,system-ui">+prod</text>
-          <text x={cx} y={cy + 6} textAnchor="middle" dominantBaseline="auto" fontSize="6.5" fill="#94a3b899" fontFamily="Inter,system-ui">breve</text>
-        </>
-      ) : (
-        <>
-          <text x={cx} y={cy - 3} textAnchor="middle" dominantBaseline="auto" fontSize={isCurrent ? 8.5 : 8} fontWeight="800"
-            fill={isLocked ? '#6b7280' : isVisited ? '#fff' : '#94a3b8'}
-            fontFamily="Inter,system-ui" letterSpacing=".02em">
-            {shortLabel.toUpperCase()}
-          </text>
-          <text x={cx} y={cy + 6} textAnchor="middle" dominantBaseline="auto" fontSize="7"
-            fill={isLocked ? '#37415199' : isVisited ? `${node.color}cc` : '#47556980'}
-            fontFamily="Inter,system-ui">
-            {node.sublabel}
-          </text>
-        </>
-      )}
-    </g>
+    </div>
   )
 }
 
@@ -192,6 +162,43 @@ function HistoryItem({ entry, index, total, isCurrent }: HistoryItemProps) {
   )
 }
 
+// ── Sub-componente: conexão 3D entre nós ─────────────────────────────────────
+
+interface Connection3DProps {
+  from: { x: number; y: number }
+  to: { x: number; y: number }
+  color: string
+  dashed?: boolean
+  intensity?: number
+  animated?: boolean
+}
+
+function Connection3D({ from, to, color, dashed = false, intensity = 0.4, animated = false }: Connection3DProps) {
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const length = Math.sqrt(dx * dx + dy * dy)
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI)
+
+  return (
+    <div
+      className={`lcg-connection3d${animated ? ' lcg-connection3d--animated' : ''}`}
+      style={{
+        position: 'absolute',
+        left: from.x,
+        top: from.y,
+        width: length,
+        height: 2,
+        transform: `rotate(${angle}deg)`,
+        transformOrigin: '0 50%',
+        background: dashed
+          ? `repeating-linear-gradient(90deg, ${color} 0, ${color} 5px, transparent 5px, transparent 10px)`
+          : `linear-gradient(90deg, ${color}00 0%, ${color} 20%, ${color} 80%, ${color}00 100%)`,
+        opacity: intensity,
+      }}
+    />
+  )
+}
+
 // ── Componente principal ─────────────────────────────────────────────────────
 
 export function LocalizadorGlobal({
@@ -212,7 +219,7 @@ export function LocalizadorGlobal({
   const [activeTab,  setActiveTab] = useState<'mapa' | 'historico'>('mapa')
 
   const panelRef = useRef<HTMLDivElement>(null)
-  const svgRef   = useRef<SVGSVGElement>(null)
+  const sceneRef = useRef<HTMLDivElement>(null)
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -232,9 +239,9 @@ export function LocalizadorGlobal({
     return () => document.removeEventListener('keydown', handle)
   }, [isOpen])
 
-  const handleNodeHover = useCallback((id: string | null, e?: React.MouseEvent<SVGGElement>) => {
-    setHoveredId(id)
-    if (id && e && panelRef.current) {
+  // Track mouse position for tooltip
+  const handleSceneMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (panelRef.current) {
       const rect = panelRef.current.getBoundingClientRect()
       setTooltipPos({ x: e.clientX - rect.left, y: e.clientY - rect.top - 72 })
     }
@@ -255,28 +262,129 @@ export function LocalizadorGlobal({
   const hoveredNode      = nodes.find(n => n.id === hoveredId) ?? null
 
   // Rastro de navegação — deriva visitados do histórico + visitedNodeIds explícitos
-  const visited        = new Set([
+  const visited = new Set([
     ...visitedNodeIds,
     ...history.map(e => e.productId),
     currentProductId,
   ])
-  const isCoreVisited  = visited.has('core')  && currentProductId !== 'core'
-  const isStoreVisited = visited.has('hub-store') && currentProductId !== 'hub-store'
 
-  // Atalho: produto atual sem ter passado pelo CORE
-  const currentProdSlotIdx = produtoNodes.findIndex(n => n.id === currentProductId)
-  const usedShortcut = currentProdSlotIdx >= 0 && !isCoreVisited
+  // ── Layout 3D: posições (em %, relativo ao container) ──
+  // HUB: centro-esquerda
+  // CORE: centro
+  // Produtos: arco orbital à direita do CORE
+  // Config/Admin: canto superior esquerdo (isolado)
+  // Store: abaixo do HUB
 
-  // Slots preenchidos
-  const productSlots: (EcosystemNode | null)[] = PRODUCT_SLOTS.map((_, i) => produtoNodes[i] ?? null)
+  // Posições absolutas dentro da cena
+  const positions: Record<string, { x: number; y: number }> = {
+    hub:           { x: 180, y: 160 },
+    core:          { x: 360, y: 160 },
+    configurador:  { x: 68,  y: 60  },
+    admin:         { x: 68,  y: 145 },
+    'hub-store':   { x: 120, y: 265 },
+  }
 
-  // Gradientes dinâmicos por produto
-  const gradientDefs = produtoNodes.map(n => (
-    <radialGradient key={n.id} id={`lcg-g-${n.id}`} cx="50%" cy="30%" r="60%">
-      <stop offset="0%"   stopColor={n.color} stopOpacity=".9"/>
-      <stop offset="100%" stopColor={n.color} stopOpacity=".5"/>
-    </radialGradient>
-  ))
+  // Calcular posições dos produtos em arco orbital
+  const productPositions: { x: number; y: number }[] = []
+  const prodCount = Math.min(produtoNodes.length, 6)
+  const arcCenter = { x: 560, y: 160 }
+  const arcRadiusX = 130
+  const arcRadiusY = 120
+  const arcStart = -70 // degrees
+  const arcEnd = 70
+  for (let i = 0; i < 6; i++) {
+    if (prodCount <= 1) {
+      productPositions.push({ x: arcCenter.x, y: arcCenter.y })
+    } else {
+      const angle = (arcStart + (arcEnd - arcStart) * (i / (6 - 1))) * (Math.PI / 180)
+      productPositions.push({
+        x: arcCenter.x + Math.sin(angle) * arcRadiusX,
+        y: arcCenter.y + Math.cos(angle) * arcRadiusY * 0.7,
+      })
+    }
+  }
+
+  // Helper: centra um nó (posição é centro, não top-left)
+  function nodeStyle(x: number, y: number): React.CSSProperties {
+    return {
+      position: 'absolute',
+      left: x,
+      top: y,
+      transform: 'translate(-50%, -50%)',
+    }
+  }
+
+  // ── Conexões entre nós ──
+  const connections: Connection3DProps[] = []
+  const isCoreVisited = visited.has('core') && currentProductId !== 'core'
+
+  // HUB → CORE
+  connections.push({
+    from: { x: positions.hub.x + 36, y: positions.hub.y },
+    to: { x: positions.core.x - 24, y: positions.core.y },
+    color: isCoreVisited ? '#818cf8' : '#4b5563',
+    intensity: isCoreVisited ? 0.6 : 0.25,
+    animated: currentProductId === 'core',
+  })
+
+  // CORE → Products
+  produtoNodes.slice(0, 6).forEach((n, i) => {
+    const pos = productPositions[i]
+    const isProdVisited = visited.has(n.id)
+    const isProdCurrent = n.id === currentProductId
+    connections.push({
+      from: { x: positions.core.x + 24, y: positions.core.y },
+      to: { x: pos.x - 18, y: pos.y },
+      color: isProdCurrent ? n.color : isProdVisited ? n.color : '#4b5563',
+      intensity: isProdCurrent ? 0.7 : isProdVisited ? 0.45 : 0.15,
+      dashed: n.status === 'locked',
+    })
+  })
+
+  // HUB → Config (dashed isolado)
+  if (configuradorNode) {
+    connections.push({
+      from: { x: positions.hub.x - 30, y: positions.hub.y - 30 },
+      to: { x: positions.configurador.x + 16, y: positions.configurador.y + 16 },
+      color: '#f472b6',
+      dashed: true,
+      intensity: visited.has('configurador') ? 0.5 : 0.2,
+    })
+  }
+
+  // HUB → Admin (dashed isolado)
+  if (adminNode) {
+    connections.push({
+      from: { x: positions.hub.x - 36, y: positions.hub.y - 8 },
+      to: { x: positions.admin.x + 16, y: positions.admin.y + 4 },
+      color: '#10b981',
+      dashed: true,
+      intensity: visited.has('admin') ? 0.5 : 0.2,
+    })
+  }
+
+  // HUB → Store
+  if (hubStoreNode) {
+    connections.push({
+      from: { x: positions.hub.x - 16, y: positions.hub.y + 36 },
+      to: { x: positions['hub-store'].x + 8, y: positions['hub-store'].y - 16 },
+      color: '#fbbf24',
+      intensity: visited.has('hub-store') ? 0.5 : 0.2,
+    })
+  }
+
+  // Placeholders para slots de produto não preenchidos
+  const placeholders: EcosystemNode[] = []
+  for (let i = produtoNodes.length; i < 6; i++) {
+    placeholders.push({
+      id: `locked-${i}`,
+      label: '+',
+      sublabel: 'em breve',
+      color: '#374151',
+      type: 'produto',
+      status: 'locked',
+    })
+  }
 
   return (
     <div className="lcg-wrap" ref={panelRef}>
@@ -362,455 +470,137 @@ export function LocalizadorGlobal({
             </button>
           </div>
 
-          {/* ── TAB: MAPA ── */}
+          {/* ── TAB: MAPA 3D ── */}
           {activeTab === 'mapa' && (
-            <div className="lcg-graph">
-              <svg
-                ref={svgRef}
-                width="100%"
-                height="330"
-                viewBox="0 0 760 310"
-                style={{ display: 'block' }}
-              >
-                <defs>
-                  {/* Gradientes estáticos */}
-                  <radialGradient id="lcg-g-hub" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#818cf8" stopOpacity=".95"/>
-                    <stop offset="100%" stopColor="#312e81" stopOpacity=".9"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-core" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#a78bfa" stopOpacity=".95"/>
-                    <stop offset="100%" stopColor="#4c1d95" stopOpacity=".9"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-core-dim" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#2d3748" stopOpacity=".9"/>
-                    <stop offset="100%" stopColor="#1a202c" stopOpacity=".9"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-configurador" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#f9a8d4" stopOpacity=".95"/>
-                    <stop offset="100%" stopColor="#9d174d" stopOpacity=".9"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-admin" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#6ee7b7" stopOpacity=".95"/>
-                    <stop offset="100%" stopColor="#065f46" stopOpacity=".9"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-hub-store" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#fbbf24" stopOpacity=".9"/>
-                    <stop offset="100%" stopColor="#92400e" stopOpacity=".85"/>
-                  </radialGradient>
-                  <radialGradient id="lcg-g-locked" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%"   stopColor="#374151" stopOpacity=".8"/>
-                    <stop offset="100%" stopColor="#111827" stopOpacity=".8"/>
-                  </radialGradient>
+            <div className="lcg-graph lcg-graph--3d">
+              {/* 3D Scene */}
+              <div className="lcg-scene" ref={sceneRef} onMouseMove={handleSceneMouseMove}>
+                {/* Orbital ring background (decorative) */}
+                <div className="lcg-orbital-ring lcg-orbital-ring--1" />
+                <div className="lcg-orbital-ring lcg-orbital-ring--2" />
+                <div className="lcg-orbital-ring lcg-orbital-ring--3" />
 
-                  {/* Gradientes dinâmicos por produto */}
-                  {gradientDefs}
+                {/* Ambient particles */}
+                <div className="lcg-particle lcg-particle--1" />
+                <div className="lcg-particle lcg-particle--2" />
+                <div className="lcg-particle lcg-particle--3" />
+                <div className="lcg-particle lcg-particle--4" />
+                <div className="lcg-particle lcg-particle--5" />
+                <div className="lcg-particle lcg-particle--6" />
+                <div className="lcg-particle lcg-particle--7" />
+                <div className="lcg-particle lcg-particle--8" />
 
-                  {/* Filtros */}
-                  <filter id="lcg-glow-strong" x="-60%" y="-60%" width="220%" height="220%">
-                    <feGaussianBlur stdDeviation="6" result="b"/>
-                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                  <filter id="lcg-glow-soft" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="3" result="b"/>
-                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                  </filter>
-                </defs>
+                {/* Connections layer */}
+                <div className="lcg-connections-layer">
+                  {connections.map((conn, i) => (
+                    <Connection3D key={`conn-${i}`} {...conn} />
+                  ))}
+                </div>
 
-                {/* ── Espinha principal: HUB → CORE ── */}
-                {(() => {
-                  const isCoreCurrent_ = currentProductId === 'core'
-                  const lineColor =
-                    isCoreCurrent_  ? '#818cf888' :
-                    isCoreVisited   ? '#818cf855' :
-                    '#1e253870'
-                  const lineWidth = isCoreCurrent_ ? 2.4 : isCoreVisited ? 2 : 1.5
-                  return (
-                    <>
-                      <line
-                        x1={HUB_CX} y1={HUB_CY}
-                        x2={CORE_CX} y2={CORE_CY}
-                        stroke={lineColor}
-                        strokeWidth={lineWidth}
-                      />
-                      <polygon
-                        points={`${CORE_CX - 52},${CORE_CY - 5} ${CORE_CX - 42},${CORE_CY} ${CORE_CX - 52},${CORE_CY + 5}`}
-                        fill={lineColor}
-                      />
-                    </>
-                  )
-                })()}
-
-                {/* ── Atalho direto: HUB → produto atual (se pulou o CORE) ── */}
-                {usedShortcut && currentProdSlotIdx < PRODUCT_SLOTS.length && (() => {
-                  const slot     = PRODUCT_SLOTS[currentProdSlotIdx]
-                  const prodNode = produtoNodes[currentProdSlotIdx]
-                  if (!prodNode) return null
-                  const mx = (HUB_CX + slot.cx) / 2
-                  const my = Math.min(HUB_CY, slot.cy) - 45
-                  return (
-                    <path
-                      d={`M ${HUB_CX + 28} ${HUB_CY - 18} Q ${mx} ${my} ${slot.cx - 18} ${slot.cy - 10}`}
-                      fill="none"
-                      stroke={`${prodNode.color}50`}
-                      strokeWidth="1.5"
-                      strokeDasharray="5 4"
-                    >
-                      <animate attributeName="stroke-dashoffset" from="0" to="-18" dur="1.5s" repeatCount="indefinite"/>
-                    </path>
-                  )
-                })()}
-
-                {/* ── HUB → Configurador (dashed, isolado) ── */}
-                {(() => {
-                  const isConfigCurrent_ = currentProductId === 'configurador'
-                  const isConfigVisited_ = !isConfigCurrent_ && visited.has('configurador')
-                  return (
-                    <line
-                      x1={HUB_CX - 32} y1={HUB_CY - 28}
-                      x2={CONFIG_CX + 22} y2={CONFIG_CY + 12}
-                      stroke={
-                        isConfigCurrent_ ? '#f472b660' :
-                        isConfigVisited_  ? '#f472b642' :
-                        '#f472b820'
-                      }
-                      strokeWidth={isConfigCurrent_ ? 2 : isConfigVisited_ ? 1.6 : 1.2}
-                      strokeDasharray="6 5"
-                    />
-                  )
-                })()}
-
-                {/* ── HUB → Admin (dashed, isolado — somente se admin node existe) ── */}
-                {adminNode && (() => {
-                  const isAdminCurrent_ = currentProductId === 'admin'
-                  const isAdminVisited_ = !isAdminCurrent_ && visited.has('admin')
-                  return (
-                    <line
-                      x1={HUB_CX - 38} y1={HUB_CY - 6}
-                      x2={ADMIN_CX + 22} y2={ADMIN_CY + 4}
-                      stroke={
-                        isAdminCurrent_ ? '#10b98170' :
-                        isAdminVisited_  ? '#10b98148' :
-                        '#10b98122'
-                      }
-                      strokeWidth={isAdminCurrent_ ? 2 : isAdminVisited_ ? 1.6 : 1.2}
-                      strokeDasharray="6 5"
-                    />
-                  )
-                })()}
-
-                {/* ── HUB → HUB Store ── */}
-                {(() => {
-                  const isStoreCurrent_ = currentProductId === 'hub-store'
-                  return (
-                    <line
-                      x1={HUB_CX - 18} y1={HUB_CY + 40}
-                      x2={STORE_CX + 8} y2={STORE_CY - 22}
-                      stroke={
-                        isStoreCurrent_ ? '#fbbf2465' :
-                        isStoreVisited   ? '#fbbf2445' :
-                        '#1e253860'
-                      }
-                      strokeWidth={isStoreCurrent_ ? 2.2 : isStoreVisited ? 1.8 : 1.4}
-                      strokeDasharray={isStoreCurrent_ || isStoreVisited ? undefined : '5 4'}
-                    />
-                  )
-                })()}
-
-                {/* ── CORE → Produtos (todos os 6 slots, mesmo os vazios) ── */}
-                {PRODUCT_SLOTS.map((pos, i) => {
-                  const node      = productSlots[i]
-                  const isPlaceholder = !node || node.id.startsWith('locked-')
-                  const isCurrent = !isPlaceholder && node!.id === currentProductId
-                  const isVis     = !isPlaceholder && visited.has(node!.id)
-                  const isLocked  = isPlaceholder || node!.status === 'locked'
-                  const color     = !isPlaceholder ? node!.color : '#475569'
-                  return (
-                    <line key={`conn-slot-${i}`}
-                      x1={CORE_CX} y1={CORE_CY}
-                      x2={pos.cx}  y2={pos.cy}
-                      stroke={
-                        isCurrent ? `${color}72` :
-                        isVis     ? `${color}52` :
-                        isLocked  ? '#47556942' :
-                        `${color}28`
-                      }
-                      strokeWidth={isCurrent ? 2.2 : isVis ? 1.8 : 1.2}
-                      strokeDasharray={isLocked ? '4 4' : undefined}
-                    />
-                  )
-                })}
-
-                {/* ── CONFIGURADOR (isolado, topo esquerdo) ── */}
-                {(() => {
-                  const isConfigCurrent = currentProductId === 'configurador'
-                  const isConfigVisited = !isConfigCurrent && visited.has('configurador')
-                  return (
-                    <g
-                      className="lcg-node"
-                      onMouseEnter={e => handleNodeHover('configurador', e)}
-                      onMouseLeave={() => handleNodeHover(null)}
-                      onClick={() => configuradorNode && handleNavigate(configuradorNode)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {isConfigCurrent && (
-                        <>
-                          <circle cx={CONFIG_CX} cy={CONFIG_CY} r={32} fill="none" stroke="#f472b6" strokeWidth="1">
-                            <animate attributeName="r"       values="30;40;30" dur="2.8s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
-                          </circle>
-                          <circle cx={CONFIG_CX} cy={CONFIG_CY} r={28} fill="none" stroke="#f472b6" strokeWidth="1.5" opacity=".3"/>
-                        </>
-                      )}
-                      <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
-                        fill="url(#lcg-g-configurador)"
-                        filter={isConfigCurrent || isConfigVisited ? 'url(#lcg-glow-soft)' : 'none'}
-                        opacity={isConfigCurrent ? 1 : isConfigVisited ? 0.8 : 0.38}
-                      />
-                      <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
-                        fill="none"
-                        stroke={isConfigCurrent ? '#f472b6' : isConfigVisited ? '#f472b640' : '#f472b820'}
-                        strokeWidth={isConfigCurrent ? 2 : 1.5}
-                        strokeDasharray="3 2"
-                      />
-                      {isConfigCurrent && (
-                        <>
-                          <circle cx={CONFIG_CX + 23} cy={CONFIG_CY - 23} r={6} fill="#0c0e16" stroke="#f472b6" strokeWidth="1.5"/>
-                          <text x={CONFIG_CX + 23} y={CONFIG_CY - 19.5} textAnchor="middle" fontSize="7" fontWeight="900" fill="#f472b6" fontFamily="Inter,system-ui">✦</text>
-                        </>
-                      )}
-                      <text x={CONFIG_CX} y={CONFIG_CY - 4} textAnchor="middle" fontSize="8" fontWeight="800"
-                        fill={isConfigCurrent || isConfigVisited ? '#fff' : '#64748b'}
-                        fontFamily="Inter,system-ui">CONFIG</text>
-                      <text x={CONFIG_CX} y={CONFIG_CY + 7} textAnchor="middle" fontSize="6.5"
-                        fill={isConfigCurrent ? '#fce7f390' : isConfigVisited ? '#f472b460' : '#fce7f330'}
-                        fontFamily="Inter,system-ui">auth · billing</text>
-                      <rect x={CONFIG_CX - 22} y={CONFIG_CY - 43} width="44" height="12" rx="4" fill="#0c0e16" stroke="#f472b630" strokeWidth="1"/>
-                      <text x={CONFIG_CX} y={CONFIG_CY - 34} textAnchor="middle" fontSize="6.5" fontWeight="700"
-                        fill={isConfigCurrent ? '#f472b490' : '#f472b440'}
-                        fontFamily="Inter,system-ui" letterSpacing=".05em">ISOLADO</text>
-                    </g>
-                  )
-                })()}
-
-                {/* ── ADMIN (isolado, abaixo do Configurador — só quando usuário é admin) ── */}
-                {adminNode && (() => {
-                  const isAdminCurrent = currentProductId === 'admin'
-                  const isAdminVisited = !isAdminCurrent && visited.has('admin')
-                  return (
-                    <g
-                      className="lcg-node"
-                      onMouseEnter={e => handleNodeHover('admin', e)}
-                      onMouseLeave={() => handleNodeHover(null)}
-                      onClick={() => handleNavigate(adminNode)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {isAdminCurrent && (
-                        <>
-                          <circle cx={ADMIN_CX} cy={ADMIN_CY} r={32} fill="none" stroke="#10b981" strokeWidth="1">
-                            <animate attributeName="r"       values="30;40;30" dur="2.8s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
-                          </circle>
-                          <circle cx={ADMIN_CX} cy={ADMIN_CY} r={28} fill="none" stroke="#10b981" strokeWidth="1.5" opacity=".3"/>
-                        </>
-                      )}
-                      <circle cx={ADMIN_CX} cy={ADMIN_CY} r={26}
-                        fill="url(#lcg-g-admin)"
-                        filter={isAdminCurrent || isAdminVisited ? 'url(#lcg-glow-soft)' : 'none'}
-                        opacity={isAdminCurrent ? 1 : isAdminVisited ? 0.8 : 0.38}
-                      />
-                      <circle cx={ADMIN_CX} cy={ADMIN_CY} r={26}
-                        fill="none"
-                        stroke={isAdminCurrent ? '#10b981' : isAdminVisited ? '#10b98140' : '#10b98120'}
-                        strokeWidth={isAdminCurrent ? 2 : 1.5}
-                        strokeDasharray="3 2"
-                      />
-                      {isAdminCurrent && (
-                        <>
-                          <circle cx={ADMIN_CX + 23} cy={ADMIN_CY - 23} r={6} fill="#0c0e16" stroke="#10b981" strokeWidth="1.5"/>
-                          <text x={ADMIN_CX + 23} y={ADMIN_CY - 19.5} textAnchor="middle" fontSize="7" fontWeight="900" fill="#10b981" fontFamily="Inter,system-ui">✦</text>
-                        </>
-                      )}
-                      <text x={ADMIN_CX} y={ADMIN_CY - 4} textAnchor="middle" fontSize="8" fontWeight="800"
-                        fill={isAdminCurrent || isAdminVisited ? '#fff' : '#64748b'}
-                        fontFamily="Inter,system-ui">ADMIN</text>
-                      <text x={ADMIN_CX} y={ADMIN_CY + 7} textAnchor="middle" fontSize="6.5"
-                        fill={isAdminCurrent ? '#d1fae590' : isAdminVisited ? '#10b98160' : '#d1fae530'}
-                        fontFamily="Inter,system-ui">gravity hq</text>
-                    </g>
-                  )
-                })()}
-
-                {/* ── HUB STORE (abaixo do HUB) ── */}
-                {hubStoreNode && (
-                  <g
-                    className="lcg-node"
-                    onMouseEnter={e => handleNodeHover('hub-store', e)}
-                    onMouseLeave={() => handleNodeHover(null)}
-                    onClick={() => handleNavigate(hubStoreNode)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {isStoreVisited && (
-                      <circle cx={STORE_CX} cy={STORE_CY} r={22} fill="none" stroke="#fbbf2430" strokeWidth="1">
-                        <animate attributeName="r"       values="20;30;20" dur="3s" repeatCount="indefinite"/>
-                        <animate attributeName="opacity" values=".5;0;.5"  dur="3s" repeatCount="indefinite"/>
-                      </circle>
-                    )}
-                    <circle cx={STORE_CX} cy={STORE_CY} r={22}
-                      fill="url(#lcg-g-hub-store)"
-                      filter={isStoreVisited ? 'url(#lcg-glow-soft)' : 'none'}
-                      opacity={isStoreVisited ? 0.9 : 0.5}
-                    />
-                    <circle cx={STORE_CX} cy={STORE_CY} r={22}
-                      fill="none"
-                      stroke={
-                        currentProductId === 'hub-store' ? '#fbbf24'    :
-                        isStoreVisited                   ? '#fbbf2450'  :
-                        '#374151'
-                      }
-                      strokeWidth="1.5"
-                    />
-                    {currentProductId === 'hub-store' && (
-                      <>
-                        <circle cx={STORE_CX + 20} cy={STORE_CY - 20} r={5} fill="#0c0e16" stroke="#fbbf24" strokeWidth="1.5"/>
-                        <text x={STORE_CX + 20} y={STORE_CY - 17} textAnchor="middle" fontSize="6" fontWeight="900" fill="#fbbf24" fontFamily="Inter,system-ui">✦</text>
-                      </>
-                    )}
-                    <text x={STORE_CX} y={STORE_CY - 3} textAnchor="middle" fontSize="8.5" fontWeight="800"
-                      fill={isStoreVisited ? '#fff' : '#6b7280'} fontFamily="Inter,system-ui">STORE</text>
-                    <text x={STORE_CX} y={STORE_CY + 8} textAnchor="middle" fontSize="7"
-                      fill={isStoreVisited ? '#fbbf2490' : '#47556960'} fontFamily="Inter,system-ui">marketplace</text>
-                  </g>
+                {/* ── HUB node (largest, center-left) ── */}
+                {hubNode && (
+                  <Node3D
+                    node={hubNode}
+                    isCurrent={currentProductId === 'hub'}
+                    isVisited={visited.has('hub')}
+                    isHovered={hoveredId === 'hub'}
+                    positionStyle={nodeStyle(positions.hub.x, positions.hub.y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="xl"
+                  />
                 )}
 
-                {/* ── PRODUTOS (fan-out à direita) ── */}
-                {productSlots.map((node, i) => {
-                  const pos = PRODUCT_SLOTS[i]
-                  const placeholder: EcosystemNode = {
-                    id: `locked-${i}`, label: '+', sublabel: 'em breve',
-                    color: '#374151', type: 'produto', status: 'locked',
-                  }
-                  const effectiveNode = node ?? placeholder
+                {/* ── CORE node (medium, center) ── */}
+                {coreNode && (
+                  <Node3D
+                    node={coreNode}
+                    isCurrent={currentProductId === 'core'}
+                    isVisited={visited.has('core')}
+                    isHovered={hoveredId === 'core'}
+                    positionStyle={nodeStyle(positions.core.x, positions.core.y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="lg"
+                  />
+                )}
+
+                {/* ── CONFIGURADOR node (isolated, top-left) ── */}
+                {configuradorNode && (
+                  <Node3D
+                    node={configuradorNode}
+                    isCurrent={currentProductId === 'configurador'}
+                    isVisited={visited.has('configurador')}
+                    isHovered={hoveredId === 'configurador'}
+                    positionStyle={nodeStyle(positions.configurador.x, positions.configurador.y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="md"
+                  />
+                )}
+
+                {/* ── ADMIN node (isolated, below config) ── */}
+                {adminNode && (
+                  <Node3D
+                    node={adminNode}
+                    isCurrent={currentProductId === 'admin'}
+                    isVisited={visited.has('admin')}
+                    isHovered={hoveredId === 'admin'}
+                    positionStyle={nodeStyle(positions.admin.x, positions.admin.y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="md"
+                  />
+                )}
+
+                {/* ── HUB STORE node (below HUB) ── */}
+                {hubStoreNode && (
+                  <Node3D
+                    node={hubStoreNode}
+                    isCurrent={currentProductId === 'hub-store'}
+                    isVisited={visited.has('hub-store')}
+                    isHovered={hoveredId === 'hub-store'}
+                    positionStyle={nodeStyle(positions['hub-store'].x, positions['hub-store'].y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="md"
+                  />
+                )}
+
+                {/* ── PRODUCT nodes (orbital arc, right side) ── */}
+                {produtoNodes.slice(0, 6).map((pNode, i) => (
+                  <Node3D
+                    key={pNode.id}
+                    node={pNode}
+                    isCurrent={pNode.id === currentProductId}
+                    isVisited={visited.has(pNode.id)}
+                    isHovered={hoveredId === pNode.id}
+                    positionStyle={nodeStyle(productPositions[i].x, productPositions[i].y)}
+                    onHover={setHoveredId}
+                    onClick={handleNavigate}
+                    size="md"
+                  />
+                ))}
+
+                {/* ── Placeholder nodes (locked slots) ── */}
+                {placeholders.map((pNode, i) => {
+                  const posIdx = produtoNodes.length + i
+                  if (posIdx >= 6) return null
                   return (
-                    <ProductNode
-                      key={effectiveNode.id}
-                      node={effectiveNode}
-                      cx={pos.cx}
-                      cy={pos.cy}
-                      isCurrent={effectiveNode.id === currentProductId}
-                      isVisited={visited.has(effectiveNode.id)}
-                      isHovered={hoveredId === effectiveNode.id}
+                    <Node3D
+                      key={pNode.id}
+                      node={pNode}
+                      isCurrent={false}
+                      isVisited={false}
+                      isHovered={false}
+                      positionStyle={nodeStyle(productPositions[posIdx].x, productPositions[posIdx].y)}
                       onHover={setHoveredId}
                       onClick={handleNavigate}
+                      size="sm"
                     />
                   )
                 })}
-
-                {/* ── CORE (nó intermediário) ── */}
-                {(() => {
-                  const isCoreCurrent = currentProductId === 'core'
-                  const coreColor     = '#a78bfa'
-                  return (
-                    <g
-                      className="lcg-node"
-                      onMouseEnter={e => handleNodeHover('core', e)}
-                      onMouseLeave={() => handleNodeHover(null)}
-                      onClick={() => coreNode && handleNavigate(coreNode)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {isCoreCurrent && (
-                        <>
-                          <circle cx={CORE_CX} cy={CORE_CY} r={36} fill="none" stroke={coreColor} strokeWidth="1">
-                            <animate attributeName="r"       values="34;44;34" dur="2.8s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
-                          </circle>
-                          <circle cx={CORE_CX} cy={CORE_CY} r={33} fill="none" stroke={coreColor} strokeWidth="1.5" opacity=".3"/>
-                        </>
-                      )}
-                      <circle cx={CORE_CX} cy={CORE_CY} r={30}
-                        fill={isCoreVisited ? 'url(#lcg-g-core)' : 'url(#lcg-g-core-dim)'}
-                        filter={isCoreVisited ? 'url(#lcg-glow-soft)' : 'none'}
-                        opacity={isCoreVisited ? 0.92 : 0.5}
-                      />
-                      <circle cx={CORE_CX} cy={CORE_CY} r={30}
-                        fill="none"
-                        stroke={
-                          isCoreCurrent ? coreColor           :
-                          isCoreVisited ? `${coreColor}55`    :
-                          '#94a3b850'
-                        }
-                        strokeWidth={isCoreCurrent ? 2 : 1.5}
-                        strokeDasharray={!isCoreVisited && !isCoreCurrent ? '4 3' : undefined}
-                      />
-                      {isCoreCurrent && (
-                        <>
-                          <circle cx={CORE_CX + 28} cy={CORE_CY - 28} r={6} fill="#0c0e16" stroke={coreColor} strokeWidth="1.5"/>
-                          <text x={CORE_CX + 28} y={CORE_CY - 24.5} textAnchor="middle" fontSize="7" fontWeight="900" fill={coreColor} fontFamily="Inter,system-ui">✦</text>
-                        </>
-                      )}
-                      <text x={CORE_CX} y={CORE_CY - 4} textAnchor="middle" fontSize="11" fontWeight="900"
-                        fill={isCoreVisited ? '#fff' : '#94a3b8'} fontFamily="Inter,system-ui" letterSpacing=".04em">CORE</text>
-                      <text x={CORE_CX} y={CORE_CY + 9} textAnchor="middle" fontSize="7.5"
-                        fill={isCoreVisited ? `${coreColor}90` : '#94a3b870'} fontFamily="Inter,system-ui">
-                        {isCoreCurrent ? currentPageLabel : 'dashboard'}
-                      </text>
-                    </g>
-                  )
-                })()}
-
-                {/* ── HUB (centro — origem de toda navegação) ── */}
-                {(() => {
-                  const isHubCurrent = currentProductId === 'hub'
-                  const hubColor     = '#818cf8'
-                  return (
-                    <g
-                      className="lcg-node"
-                      onMouseEnter={e => handleNodeHover('hub', e)}
-                      onMouseLeave={() => handleNodeHover(null)}
-                      onClick={() => hubNode && handleNavigate(hubNode)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {isHubCurrent && (
-                        <>
-                          <circle cx={HUB_CX} cy={HUB_CY} r={48} fill="none" stroke={hubColor} strokeWidth="1">
-                            <animate attributeName="r"       values="46;58;46" dur="2.8s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
-                          </circle>
-                          <circle cx={HUB_CX} cy={HUB_CY} r={45} fill="none" stroke={hubColor} strokeWidth="1.5" opacity=".3"/>
-                        </>
-                      )}
-                      <circle cx={HUB_CX} cy={HUB_CY} r={42}
-                        fill="url(#lcg-g-hub)"
-                        filter="url(#lcg-glow-strong)" opacity=".93"/>
-                      <circle cx={HUB_CX} cy={HUB_CY} r={42}
-                        fill="none"
-                        stroke={isHubCurrent ? hubColor : `${hubColor}55`}
-                        strokeWidth={isHubCurrent ? 2 : 1.5}
-                      />
-                      {isHubCurrent && (
-                        <>
-                          <circle cx={HUB_CX + 40} cy={HUB_CY - 40} r={7} fill="#0c0e16" stroke={hubColor} strokeWidth="1.5"/>
-                          <text x={HUB_CX + 40} y={HUB_CY - 36.5} textAnchor="middle" fontSize="8" fontWeight="900" fill={hubColor} fontFamily="Inter,system-ui">✦</text>
-                        </>
-                      )}
-                      <text x={HUB_CX} y={HUB_CY - 9} textAnchor="middle"
-                        fontSize="14" fontWeight="900" fill="#fff" fontFamily="Inter,system-ui" letterSpacing=".05em">
-                        HUB
-                      </text>
-                      <text x={HUB_CX} y={HUB_CY + 5} textAnchor="middle"
-                        fontSize={isHubCurrent ? 9 : 8.5} fontWeight={isHubCurrent ? '700' : '400'}
-                        fill={isHubCurrent ? '#c4b5fd' : '#c4b5fd70'} fontFamily="Inter,system-ui">
-                        {isHubCurrent ? currentPageLabel : workspaceName}
-                      </text>
-                      <text x={HUB_CX} y={HUB_CY + 17} textAnchor="middle"
-                        fontSize="7.5" fill="#818cf850" fontFamily="Inter,system-ui">
-                        {workspaceName}
-                      </text>
-                    </g>
-                  )
-                })()}
-
-              </svg>
+              </div>
 
               {/* Tooltip flutuante */}
               <MapTooltip

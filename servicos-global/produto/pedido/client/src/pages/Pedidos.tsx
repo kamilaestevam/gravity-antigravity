@@ -3462,7 +3462,12 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="secundario"
             tamanho="pequeno"
             icone={<ArrowsMerge size={14} weight="duotone" />}
-            disabled={!podeEditarLista || pedidosSelecionados.length < 2}
+            disabled={!podeEditarLista || (() => {
+              // Total de pedidos = inteiros + parciais (pedidos-pai de itens avulsos)
+              const inteirosIds = new Set(pedidosSelecionados.map(p => p.id))
+              const parciaisIds = new Set(itensSelecionados.map(i => i.pedido_id).filter(id => !inteirosIds.has(id)))
+              return (inteirosIds.size + parciaisIds.size) < 2
+            })()}
             onClick={() => { setModalConsolidarAberto(true) }}
           />
         </TooltipGlobal>
@@ -6408,11 +6413,13 @@ export default function Pedidos() {
       {modalConsolidarAberto && (
         <ModalConsolidarPedidos
           pedidosSelecionados={pedidosSelecionados}
+          itensSelecionados={itensSelecionados}
           conflito_tipo_operacao={hasMixedTipos}
           onFechar={() => setModalConsolidarAberto(false)}
           onConcluido={async () => {
             setModalConsolidarAberto(false)
             setPedidosSelecionados([])
+            setItensSelecionados([])
             itensCarregadosRef.current.clear()
             setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
             setResetFilhos(prev => prev + 1)

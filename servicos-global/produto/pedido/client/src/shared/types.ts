@@ -502,7 +502,7 @@ export interface ConsolidacaoPreview {
   moeda: string
   numero_sugerido: string
   conflito_tipo_operacao?: boolean
-  pedidos_info: Array<{ id: string; numero: string }>
+  pedidos_info: Array<{ id: string; numero: string; total_itens: number }>
 }
 
 export interface ConsolidacaoPayload {

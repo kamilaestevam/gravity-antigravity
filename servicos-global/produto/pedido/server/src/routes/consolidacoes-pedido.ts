@@ -317,9 +317,10 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
         moeda: pedidos[0].moeda_pedido,
         numero_sugerido: gerarNumeroPedido(total),
         conflito_tipo_operacao,
-        pedidos_info: pedidos.map((p: { id_pedido: string; numero_pedido: string }) => ({
+        pedidos_info: pedidos.map((p: { id_pedido: string; numero_pedido: string; itens_pedido: unknown[] }) => ({
           id: p.id_pedido,
           numero: p.numero_pedido,
+          total_itens: p.itens_pedido.length,
         })),
       })
     })

@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next'
 import {
   GitMerge, Warning, CheckCircle, WarningDiamond,
   CaretDown, CaretRight, Package, ListChecks, Check, Info,
-  Stack, MinusCircle,
+  Stack, MinusCircle, CubeTransparent,
 } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -28,7 +28,7 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
-import type { Pedido, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente, CampoIgual } from '../shared/types'
+import type { Pedido, PedidoItem, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente, CampoIgual } from '../shared/types'
 import { pedidoConsolidarApi } from '../shared/api'
 import { fmtMoeda } from '../shared/types'
 
@@ -36,6 +36,8 @@ import { fmtMoeda } from '../shared/types'
 
 interface ModalConsolidarPedidosProps {
   pedidosSelecionados: Pedido[]
+  /** Itens selecionados individualmente (filhos) — seus pedidos-pai contam como "parcial" */
+  itensSelecionados?: PedidoItem[]
   onFechar: () => void
   onConcluido: () => void
   conflito_tipo_operacao?: boolean
@@ -247,6 +249,7 @@ function LinhaCampoIgual({ campo }: { campo: CampoIgual }) {
 
 export function ModalConsolidarPedidos({
   pedidosSelecionados,
+  itensSelecionados = [],
   onFechar,
   onConcluido,
   conflito_tipo_operacao: conflitoProp = false,
@@ -266,7 +269,10 @@ export function ModalConsolidarPedidos({
   const [infograficoPopover, setInfograficoPopover] = useState<'ativas' | 'dados' | 'vazias' | null>(null)
   const [filtroCampos, setFiltroCampos] = useState<'todos' | 'divergentes' | 'iguais' | 'vazios'>('todos')
 
-  const ids = pedidosSelecionados.map(p => p.id)
+  // IDs dos pedidos inteiros + pedidos-pai dos itens avulsos (parciais)
+  const pedidoIdsInteiros = pedidosSelecionados.map(p => p.id)
+  const pedidoIdsParciais = [...new Set(itensSelecionados.map(i => i.pedido_id))].filter(id => !pedidoIdsInteiros.includes(id))
+  const ids = [...pedidoIdsInteiros, ...pedidoIdsParciais]
   const conflito_tipo_operacao = conflitoProp || (preview?.conflito_tipo_operacao ?? false)
 
   // Carregar preview ao abrir
@@ -330,7 +336,7 @@ export function ModalConsolidarPedidos({
 
       try {
         await pedidoConsolidarApi.confirmar(payload)
-        addNotification({ type: 'success', message: `${pedidosSelecionados.length} POs consolidadas em ${numeroPedido.trim()}.`, duration: 4000 })
+        addNotification({ type: 'success', message: `${ids.length} POs consolidadas em ${numeroPedido.trim()}.`, duration: 4000 })
         setConcluido(true)
         setTimeout(() => onConcluido(), 1500)
       } catch (err: unknown) {
@@ -439,7 +445,7 @@ export function ModalConsolidarPedidos({
               descricao={
                 <div style={estilos.tooltipRico}>
                   <span style={estilos.tooltipCategoria}>Consolidação</span>
-                  <div style={estilos.tooltipLinha2}><span>Selecionados</span><span style={estilos.tooltipValor2}>{pedidosSelecionados.length}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>Selecionados</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
                   <div style={estilos.tooltipLinha2}><span>Resultado</span><span style={estilos.tooltipValor2}>1 pedido</span></div>
                 </div>
               }
@@ -447,7 +453,7 @@ export function ModalConsolidarPedidos({
               <div style={{ ...estilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
                 <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
                 <div>
-                  <span style={estilos.statValor}>{pedidosSelecionados.length}</span>
+                  <span style={estilos.statValor}>{ids.length}</span>
                   <span style={estilos.statLabel}>Pedidos</span>
                 </div>
               </div>
@@ -458,7 +464,7 @@ export function ModalConsolidarPedidos({
                 <div style={estilos.tooltipRico}>
                   <span style={estilos.tooltipCategoria}>Itens</span>
                   <div style={estilos.tooltipLinha2}><span>Total agrupado</span><span style={estilos.tooltipValor2}>{preview.itens.length}</span></div>
-                  <div style={estilos.tooltipLinha2}><span>De pedidos</span><span style={estilos.tooltipValor2}>{pedidosSelecionados.length}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>De pedidos</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
                   {preview.itens.some(i => i.pode_fundir) && (
                     <div style={estilos.tooltipLinha2}><span>Fundíveis</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{preview.itens.filter(i => i.pode_fundir).length}</span></div>
                   )}
@@ -473,6 +479,93 @@ export function ModalConsolidarPedidos({
                 </div>
               </div>
             </TooltipGlobal>
+            {/* Cards: Pedidos Inteiros + Pedidos Parciais */}
+            {(() => {
+              // Pedidos-pai dos itens selecionados individualmente → parciais
+              const pedidoIdsParciais = new Set(itensSelecionados.map(i => i.pedido_id))
+              // Contar itens selecionados por pedido parcial
+              const itensCountPorPedido = new Map<string, number>()
+              for (const item of itensSelecionados) {
+                itensCountPorPedido.set(item.pedido_id, (itensCountPorPedido.get(item.pedido_id) ?? 0) + 1)
+              }
+
+              const inteiros: Array<{ numero: string; itens: number }> = []
+              const parciais: Array<{ numero: string; itensSel: number; itensTotal: number }> = []
+
+              // Pedidos selecionados inteiros (checkbox no pai)
+              for (const p of pedidosSelecionados) {
+                const info = preview.pedidos_info.find(pi => pi.id === p.id)
+                const totalOriginal = info?.total_itens ?? p.itens.length
+                inteiros.push({ numero: p.numero_pedido, itens: totalOriginal })
+              }
+
+              // Pedidos parciais: têm itens selecionados mas NÃO estão nos pedidosSelecionados
+              const pedidosInteirosIds = new Set(pedidosSelecionados.map(p => p.id))
+              for (const pedidoId of pedidoIdsParciais) {
+                if (pedidosInteirosIds.has(pedidoId)) continue // já é inteiro
+                const info = preview.pedidos_info.find(pi => pi.id === pedidoId)
+                const itensSel = itensCountPorPedido.get(pedidoId) ?? 0
+                const totalOriginal = info?.total_itens ?? itensSel
+                const numero = info?.numero ?? `Pedido ${pedidoId.slice(0, 8)}`
+                parciais.push({ numero, itensSel, itensTotal: totalOriginal })
+              }
+              return (
+                <>
+                  {/* Card Pedidos Inteiros */}
+                  <TooltipGlobal
+                    titulo="Pedidos inteiros"
+                    descricao={
+                      <div style={estilos.tooltipRico}>
+                        <span style={estilos.tooltipCategoria}>Todos os itens selecionados</span>
+                        {inteiros.map(p => (
+                          <div key={p.numero} style={estilos.tooltipLinha2}>
+                            <span>{p.numero}</span>
+                            <span style={estilos.tooltipValor2}>{p.itens} {p.itens === 1 ? 'item' : 'itens'}</span>
+                          </div>
+                        ))}
+                        {inteiros.length === 0 && (
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido inteiro</div>
+                        )}
+                      </div>
+                    }
+                  >
+                    <div style={{ ...estilos.statCard, borderTop: '2px solid rgba(74,222,128,0.4)' }}>
+                      <Package size={20} weight="duotone" style={{ color: '#4ade80' }} />
+                      <div>
+                        <span style={estilos.statValor}>{inteiros.length}</span>
+                        <span style={estilos.statLabel}>Pedidos inteiros</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
+                  {/* Card Pedidos Parciais */}
+                  <TooltipGlobal
+                    titulo="Pedidos parciais"
+                    descricao={
+                      <div style={estilos.tooltipRico}>
+                        <span style={estilos.tooltipCategoria}>Alguns itens selecionados</span>
+                        {parciais.map(p => (
+                          <div key={p.numero} style={estilos.tooltipLinha2}>
+                            <span>{p.numero}</span>
+                            <span style={{ ...estilos.tooltipValor2, color: '#fbbf24' }}>{p.itensSel}/{p.itensTotal} itens</span>
+                          </div>
+                        ))}
+                        {parciais.length === 0 && (
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido parcial</div>
+                        )}
+                      </div>
+                    }
+                  >
+                    <div style={{ ...estilos.statCard, borderTop: `2px solid ${parciais.length > 0 ? 'rgba(251,191,36,0.4)' : 'rgba(148,163,184,0.3)'}` }}>
+                      <CubeTransparent size={20} weight="duotone" style={{ color: parciais.length > 0 ? '#fbbf24' : '#94a3b8' }} />
+                      <div>
+                        <span style={estilos.statValor}>{parciais.length}</span>
+                        <span style={estilos.statLabel}>Pedidos parciais</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
+                </>
+              )
+            })()}
             <TooltipGlobal
               titulo="Campos divergentes"
               descricao={
@@ -700,7 +793,7 @@ export function ModalConsolidarPedidos({
           <div style={estilos.confirmacaoTexto}>
             <p style={estilos.confirmacaoTitulo}>Confirmar consolidação</p>
             <p style={estilos.confirmacaoDesc}>
-              {pedidosSelecionados.length} pedidos serão unificados em <strong>{numeroPedido}</strong>.
+              {ids.length} pedidos serão unificados em <strong>{numeroPedido}</strong>.
               Os pedidos originais serão arquivados (soft delete).
             </p>
           </div>
@@ -728,8 +821,18 @@ export function ModalConsolidarPedidos({
           <span style={estilos.pedidosOrigemTitulo}>Pedidos de origem (serão arquivados):</span>
           <div style={estilos.pedidosOrigemLista}>
             {pedidosSelecionados.map(p => (
-              <span key={p.id} style={estilos.pedidoOrigemChip}>{p.numero_pedido}</span>
+              <span key={p.id} style={estilos.pedidoOrigemChip}>{p.numero_pedido} (inteiro)</span>
             ))}
+            {pedidoIdsParciais.map(id => {
+              const info = preview?.pedidos_info.find(pi => pi.id === id)
+              const numero = info?.numero ?? id.slice(0, 8)
+              const itensSel = itensSelecionados.filter(i => i.pedido_id === id).length
+              return (
+                <span key={id} style={{ ...estilos.pedidoOrigemChip, borderColor: 'color-mix(in srgb, var(--warning) 30%, transparent)', background: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}>
+                  {numero} (parcial · {itensSel} {itensSel === 1 ? 'item' : 'itens'})
+                </span>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -812,7 +915,7 @@ export function ModalConsolidarPedidos({
       }
     `}</style>
     <ModalPassoPassoGlobal
-      titulo={`Consolidar ${pedidosSelecionados.length} Pedidos`}
+      titulo={`Consolidar ${pedidosSelecionados.length + pedidoIdsParciais.length} Pedidos`}
       icone={<GitMerge size={22} weight="duotone" />}
       subtitulo="Unifique pedidos selecionados em um único pedido consolidado"
       aberto={true}
@@ -920,7 +1023,7 @@ const estilos = {
   } as React.CSSProperties,
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '0.625rem',
   } as React.CSSProperties,
   statCard: {

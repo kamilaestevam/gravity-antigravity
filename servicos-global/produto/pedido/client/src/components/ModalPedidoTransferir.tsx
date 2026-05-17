@@ -93,6 +93,8 @@ const CENARIOS: CenarioInfo[] = [
 interface ModalTransferirPedidoProps {
   pedidos: Pedido[]
   itemIdInicial?: string
+  /** IDs dos itens pré-selecionados na lista (multi-select) */
+  itensSelecionadosIds?: string[]
   onFechar: () => void
   onConcluido: () => void
 }
@@ -147,55 +149,69 @@ function SeletorCenario({ cenarioSelecionado, onChange }: SeletorCenarioProps) {
 
 // ── Sub-componente: Seletor de Item e Quantidade ──────────────────────────────
 
-interface SeletorItemQuantidadeProps {
+/** Item enriquecido com referência ao pedido pai */
+interface ItemComPedido {
+  item: PedidoItem
   pedido: Pedido
-  itemId: string | null
-  quantidadeOrigem: number
-  onItemChange: (itemId: string) => void
-  onQuantidadeChange: (qty: number) => void
+}
+
+interface SeletorItemQuantidadeProps {
+  /** Itens de todos os pedidos selecionados, agrupados por pedido */
+  itensComPedido: ItemComPedido[]
+  /** Mapa itemId → quantidade a transferir (multi-select) */
+  itensQuantidades: Map<string, number>
+  onToggleItem: (itemId: string) => void
+  onQuantidadeChange: (itemId: string, qty: number) => void
+  /** Quando há múltiplos pedidos, mostra coluna "Pedido" */
+  multiPedido: boolean
 }
 
 function SeletorItemQuantidade({
-  pedido,
-  itemId,
-  quantidadeOrigem,
-  onItemChange,
+  itensComPedido,
+  itensQuantidades,
+  onToggleItem,
   onQuantidadeChange,
+  multiPedido,
 }: SeletorItemQuantidadeProps) {
   const { t } = useTranslation()
-  const itemSelecionado = pedido.itens.find(i => i.id === itemId)
-  const qtyMax = itemSelecionado?.quantidade_atual_pedido ?? 0
-  const qtyInvalida = quantidadeOrigem > qtyMax || quantidadeOrigem <= 0
 
   return (
     <table className="modal-transferir__tabela-itens" aria-label={t('pedido.modal_transf.aria_tabela_itens')}>
       <thead>
         <tr>
+          {multiPedido && <th scope="col">Pedido</th>}
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
           <th scope="col">{t('pedido.modal_transf.col_descricao')}</th>
           <th scope="col">{t('pedido.modal_transf.col_saldo')}</th>
-          <th scope="col">{t('pedido.modal_transf.col_qty_transfer')}</th>
-          <th scope="col">{t('pedido.modal_transf.col_saldo_apos')}</th>
+          <th scope="col" style={{ minWidth: 130 }}>{t('pedido.modal_transf.col_qty_transfer')}</th>
+          <th scope="col" style={{ minWidth: 90 }}>{t('pedido.modal_transf.col_saldo_apos')}</th>
         </tr>
       </thead>
       <tbody>
-        {pedido.itens.map(item => {
-          const selecionado = item.id === itemId
+        {itensComPedido.map(({ item, pedido }) => {
+          const selecionado = itensQuantidades.has(item.id)
+          const qty = itensQuantidades.get(item.id) ?? 0
+          const qtyMax = item.quantidade_atual_pedido
+          const qtyInvalida = selecionado && (qty > qtyMax || qty <= 0)
           const saldoApos = selecionado
-            ? Math.max(0, item.quantidade_atual_pedido - (quantidadeOrigem || 0))
+            ? Math.max(0, item.quantidade_atual_pedido - (qty || 0))
             : null
           return (
             <tr
               key={item.id}
               className="modal-transferir__tabela-itens-row"
-              onClick={() => onItemChange(item.id)}
+              onClick={() => onToggleItem(item.id)}
               aria-selected={selecionado}
             >
+              {multiPedido && (
+                <td className="modal-transferir__col-pedido">
+                  <span className="modal-transferir__pedido-numero">{pedido.numero_pedido}</span>
+                </td>
+              )}
               <td>
                 <span className="modal-transferir__radio-label">
                   <input
-                    type="radio"
-                    name="item-origem"
+                    type="checkbox"
                     checked={selecionado}
                     readOnly
                     aria-label={`Selecionar item ${item.part_number}`}
@@ -231,11 +247,11 @@ function SeletorItemQuantidade({
                     <input
                       type="number"
                       className={`modal-transferir__input-qty${qtyInvalida ? ' modal-transferir__input-qty--erro' : ''}`}
-                      value={quantidadeOrigem || ''}
+                      value={qty || ''}
                       min={0.001}
                       max={qtyMax}
                       step={0.001}
-                      onChange={e => onQuantidadeChange(parseFloat(e.target.value) || 0)}
+                      onChange={e => onQuantidadeChange(item.id, parseFloat(e.target.value) || 0)}
                       aria-label={t('pedido.modal_transf.aria_qtd_transferir')}
                       aria-invalid={qtyInvalida}
                     />
@@ -248,7 +264,7 @@ function SeletorItemQuantidade({
                 )}
               </td>
               <td>
-                {selecionado && quantidadeOrigem > 0 ? (
+                {selecionado && qty > 0 ? (
                   <span
                     className={saldoApos === 0 ? 'modal-transferir__saldo-zero' : 'modal-transferir__saldo-apos'}
                   >
@@ -273,7 +289,10 @@ interface ConfigurarDestinosProps {
   pedido: Pedido
   destinos: TransferDestino[]
   numeroPedidoNovo: string
-  itemSelecionado: PedidoItem | undefined
+  /** Quantidade total selecionada (soma de todos os itens) */
+  quantidadeTotal: number
+  /** Casas decimais (do primeiro item selecionado ou fallback 2) */
+  casasDecimais: number
   pedidosDestinoDisponiveis: Pedido[]
   carregandoPedidosDestino: boolean
   erroPedidosDestino: string | null
@@ -286,7 +305,8 @@ function ConfigurarDestinos({
   pedido,
   destinos,
   numeroPedidoNovo,
-  itemSelecionado,
+  quantidadeTotal,
+  casasDecimais,
   pedidosDestinoDisponiveis,
   carregandoPedidosDestino,
   erroPedidosDestino,
@@ -294,8 +314,7 @@ function ConfigurarDestinos({
   onNumeroPedidoChange,
 }: ConfigurarDestinosProps) {
   const { t } = useTranslation()
-  const saldoAtual = itemSelecionado?.quantidade_atual_pedido ?? 0
-  const casas = itemSelecionado?.casas_decimais_quantidade_item ?? 2
+  const casas = casasDecimais
   const atualizarDestino = (idx: number, campo: Partial<TransferDestino>) => {
     const novos = destinos.map((d, i) => (i === idx ? { ...d, ...campo } : d))
     onDestinosChange(novos)
@@ -364,7 +383,7 @@ function ConfigurarDestinos({
             </div>
           )}
 
-          {itemSelecionado && (
+          {quantidadeTotal > 0 && (
             <div className="modal-transferir__destino-linha">
               <span className="modal-transferir__label">{t('pedido.modal_transf.qty_a_transferir')}</span>
               <span className="modal-transferir__destino-qty-readonly">
@@ -485,7 +504,7 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConcluido }: ModalTransferirPedidoProps) {
+export function ModalTransferirPedido({ pedidos, itemIdInicial, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
 
@@ -498,13 +517,60 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
   }), [t])
   const pedido = pedidos[0]
 
+  // ── Multi-pedido: todos os itens de todos os pedidos selecionados ────────────
+  const itensComPedido = useMemo<ItemComPedido[]>(() => {
+    const resultado: ItemComPedido[] = []
+    for (const p of pedidos) {
+      for (const item of p.itens) {
+        resultado.push({ item, pedido: p })
+      }
+    }
+    return resultado
+  }, [pedidos])
+
+  const multiPedido = pedidos.length > 1
+
+  /** Mapa itemId → pedido pai (para lookup no confirm/preview) */
+  const itemToPedidoMap = useMemo(() => {
+    const mapa = new Map<string, Pedido>()
+    for (const { item, pedido: p } of itensComPedido) {
+      mapa.set(item.id, p)
+    }
+    return mapa
+  }, [itensComPedido])
+
   const [passo, setPasso] = useState<Passo>(1)
   const [cenario, setCenario] = useState<CenarioTransfer | null>(null)
-  const [itemId, setItemId] = useState<string | null>(itemIdInicial ?? null)
-  const [quantidadeOrigem, setQuantidadeOrigem] = useState<number>(0)
+
+  // ── Multi-item: mapa itemId → quantidade ────────────────────────────────────
+  const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() => {
+    const mapa = new Map<string, number>()
+    // Pré-selecionar itens que vieram da lista
+    if (itensSelecionadosIds && itensSelecionadosIds.length > 0) {
+      for (const id of itensSelecionadosIds) mapa.set(id, 0)
+    } else if (itemIdInicial) {
+      mapa.set(itemIdInicial, 0)
+    } else {
+      // Quando pedidos inteiros foram selecionados (sem itens individuais),
+      // pré-seleciona todos os itens de todos os pedidos
+      for (const p of pedidos) {
+        for (const item of p.itens) {
+          mapa.set(item.id, 0)
+        }
+      }
+    }
+    return mapa
+  })
+
+  // Compat: primeiro item selecionado (para preview/destinos que usam single-item)
+  const primeiroItemId = useMemo(() => {
+    const keys = Array.from(itensQuantidades.keys())
+    return keys.length > 0 ? keys[0] : null
+  }, [itensQuantidades])
+
   const [destinos, setDestinos] = useState<TransferDestino[]>([{ tipo: 'existente', quantidade: 0 }])
   const [numeroPedidoNovo, setNumeroPedidoNovo] = useState('')
-  const [preview, setPreview] = useState<TransferPreview | null>(null)
+  const [previews, setPreviews] = useState<TransferPreview[]>([])
   const [carregandoPreview, setCarregandoPreview] = useState(false)
   const [erroPreview, setErroPreview] = useState<string | null>(null)
   const [confirmando, setConfirmando] = useState(false)
@@ -540,30 +606,58 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
     }
     setCarregandoPedidosDestino(true)
     setErroPedidosDestino(null)
+    const idsOrigem = new Set(pedidos.map(p => p.id))
     pedidoApi.listar({ tipo_operacao: tipo, limit: '500' })
       .then((res: { data: Pedido[]; total: number }) => {
         const lista = res.data ?? []
-        setPedidosDestinoDisponiveis(lista.filter(p => p.id !== pedido.id))
+        setPedidosDestinoDisponiveis(lista.filter(p => !idsOrigem.has(p.id)))
       })
       .catch((err: unknown) => {
         setPedidosDestinoDisponiveis([])
         setErroPedidosDestino(err instanceof Error ? err.message : t('pedido.modal_transf.erro_carregar_pedidos'))
       })
       .finally(() => setCarregandoPedidosDestino(false))
-  }, [passo, cenario, pedido, t])
+  }, [passo, cenario, pedido, pedidos, t])
 
-  // Resetar destinos ao mudar cenário — pré-preenche quantidade com o valor do passo 2
-  // Nota: quantidadeOrigemRef captura o valor atual sem re-executar o efeito quando ela muda,
-  // evitando que edições manuais no passo 3 sejam sobrescritas.
-  const quantidadeOrigemRef = React.useRef(quantidadeOrigem)
-  useEffect(() => { quantidadeOrigemRef.current = quantidadeOrigem })
+  // ── Handlers multi-item ─────────────────────────────────────────────────────
+
+  const handleToggleItem = useCallback((itemId: string) => {
+    setItensQuantidades(prev => {
+      const novo = new Map(prev)
+      if (novo.has(itemId)) {
+        novo.delete(itemId)
+      } else {
+        novo.set(itemId, 0)
+      }
+      return novo
+    })
+  }, [])
+
+  const handleQuantidadeItemChange = useCallback((itemId: string, qty: number) => {
+    setItensQuantidades(prev => {
+      const novo = new Map(prev)
+      novo.set(itemId, qty)
+      return novo
+    })
+  }, [])
+
+  // Soma total das quantidades selecionadas (para destino)
+  const quantidadeTotalSelecionada = useMemo(() => {
+    let soma = 0
+    for (const qty of itensQuantidades.values()) soma += qty
+    return soma
+  }, [itensQuantidades])
+
+  // Resetar destinos ao mudar cenário — pré-preenche quantidade com o total do passo 2
+  const quantidadeTotalRef = React.useRef(quantidadeTotalSelecionada)
+  useEffect(() => { quantidadeTotalRef.current = quantidadeTotalSelecionada })
 
   useEffect(() => {
     if (!cenario) return
     if (cenario === 'reducao_simples') {
       setDestinos([])
     } else {
-      setDestinos([{ tipo: cenario === 'split_novo_pedido' ? 'novo' : 'existente', quantidade: quantidadeOrigemRef.current }])
+      setDestinos([{ tipo: cenario === 'split_novo_pedido' ? 'novo' : 'existente', quantidade: quantidadeTotalRef.current }])
     }
   }, [cenario])
 
@@ -573,8 +667,14 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
 
   const podeProsseguirPasso1 = cenario !== null
 
-  const itemSelecionado = pedido?.itens.find(i => i.id === itemId)
-  const podeProsseguirPasso2 = !!itemId && quantidadeOrigem > 0 && quantidadeOrigem <= (itemSelecionado?.quantidade_atual_pedido ?? 0)
+  const itemSelecionado = itensComPedido.find(ic => ic.item.id === primeiroItemId)?.item ?? null
+  const podeProsseguirPasso2 = itensQuantidades.size > 0 && (() => {
+    for (const [id, qty] of itensQuantidades.entries()) {
+      const ic = itensComPedido.find(x => x.item.id === id)
+      if (!ic || qty <= 0 || qty > ic.item.quantidade_atual_pedido) return false
+    }
+    return true
+  })()
 
   const podeProsseguirPasso3 = (() => {
     if (!cenario) return false
@@ -591,36 +691,42 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
   // ── Buscar preview ────────────────────────────────────────────────────────────
 
   const buscarPreview = useCallback(async () => {
-    if (!cenario || !itemId || !pedido) return
+    if (!cenario || itensQuantidades.size === 0) return
 
     setCarregandoPreview(true)
     setErroPreview(null)
-    setPreview(null)
-
-    const payload: Omit<TransferPayload, 'numero_pedido_novo'> = {
-      cenario,
-      pedido_id: pedido.id,
-      item_id: itemId,
-      quantidade_origem: quantidadeOrigem,
-      destinos: cenario === 'reducao_simples' ? [] : destinos,
-    }
+    setPreviews([])
 
     try {
-      const data = await pedidoTransferirApi.preview(payload)
-      setPreview(data)
+      const resultados: TransferPreview[] = []
+      for (const [itemIdAtual, qty] of itensQuantidades.entries()) {
+        const pedidoDoItem = itemToPedidoMap.get(itemIdAtual)
+        if (!pedidoDoItem) continue
+        const payload: Omit<TransferPayload, 'numero_pedido_novo'> = {
+          cenario,
+          pedido_id: pedidoDoItem.id,
+          item_id: itemIdAtual,
+          quantidade_origem: qty,
+          destinos: cenario === 'reducao_simples' ? [] : destinos.map(d => ({ ...d, quantidade: qty })),
+        }
+        const data = await pedidoTransferirApi.preview(payload)
+        resultados.push(data)
+      }
+      setPreviews(resultados)
     } catch (err: unknown) {
       setErroPreview(err instanceof Error ? err.message : 'Erro ao calcular preview')
     } finally {
       setCarregandoPreview(false)
     }
-  }, [cenario, itemId, pedido, quantidadeOrigem, destinos])
+  }, [cenario, itensQuantidades, itemToPedidoMap, destinos])
 
   // ── Avanço e retorno de passos ────────────────────────────────────────────────
 
   const avancar = useCallback(async () => {
     if (passo === 2) {
-      // Sincroniza destino.quantidade com o valor confirmado no passo 2
-      setDestinos(prev => prev.map(d => ({ ...d, quantidade: quantidadeOrigem })))
+      // Sincroniza destino.quantidade com a soma total dos itens selecionados
+      const total = Array.from(itensQuantidades.values()).reduce((s, q) => s + q, 0)
+      setDestinos(prev => prev.map(d => ({ ...d, quantidade: total })))
       setPasso(3)
     } else if (passo === 3) {
       await buscarPreview()
@@ -628,7 +734,7 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
     } else if (passo < 5) {
       setPasso(prev => (prev + 1) as Passo)
     }
-  }, [passo, buscarPreview, quantidadeOrigem])
+  }, [passo, buscarPreview, itensQuantidades])
 
   const voltar = useCallback(() => {
     if (passo > 1) setPasso(prev => (prev - 1) as Passo)
@@ -637,25 +743,46 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
   // ── Confirmar transferência ───────────────────────────────────────────────────
 
   const handleConfirmar = useCallback(async () => {
-    if (!cenario || !itemId || !pedido) return
+    if (!cenario || itensQuantidades.size === 0) return
 
     setConfirmando(true)
     setErroConfirmar(null)
 
-    const payload: TransferPayload = {
-      cenario,
-      pedido_id: pedido.id,
-      item_id: itemId,
-      quantidade_origem: quantidadeOrigem,
-      destinos: cenario === 'reducao_simples' ? [] : destinos,
-      numero_pedido_novo: numeroPedidoNovo.trim() || undefined,
-    }
+    const itensArray = Array.from(itensQuantidades.entries())
+    let ultimoResultado: TransferResultado | null = null
+    let numeroPedidoCriado = numeroPedidoNovo.trim() || undefined
 
     try {
-      const res = await pedidoTransferirApi.confirmar(payload)
-      setResultado(res)
+      for (let idx = 0; idx < itensArray.length; idx++) {
+        const [itemIdAtual, qty] = itensArray[idx]
+        const pedidoDoItem = itemToPedidoMap.get(itemIdAtual)
+        if (!pedidoDoItem) continue
+
+        const payload: TransferPayload = {
+          cenario,
+          pedido_id: pedidoDoItem.id,
+          item_id: itemIdAtual,
+          quantidade_origem: qty,
+          destinos: cenario === 'reducao_simples' ? [] : destinos.map(d => ({
+            ...d,
+            quantidade: qty,
+            // Após o primeiro item criar o pedido novo, os demais vão para o mesmo pedido
+            ...(idx > 0 && cenario === 'split_novo_pedido' && ultimoResultado?.pedidos_criados[0]
+              ? { tipo: 'existente' as const, pedido_id: ultimoResultado.pedidos_criados[0] }
+              : {}),
+          })),
+          numero_pedido_novo: idx === 0 ? numeroPedidoCriado : undefined,
+        }
+
+        const res = await pedidoTransferirApi.confirmar(payload)
+        ultimoResultado = res
+      }
+
+      setResultado(ultimoResultado)
       setConcluido(true)
-      addNotification({ type: 'success', message: `Transferência concluída: ${quantidadeOrigem} un. de ${pedido.numero_pedido} processadas.`, duration: 4000 })
+      const totalQty = itensArray.reduce((s, [, q]) => s + q, 0)
+      const pedidosEnvolvidos = [...new Set(itensArray.map(([id]) => itemToPedidoMap.get(id)?.numero_pedido).filter(Boolean))]
+      addNotification({ type: 'success', message: `Transferência concluída: ${itensArray.length} item(ns), ${totalQty} un. de ${pedidosEnvolvidos.join(', ')} processadas.`, duration: 4000 })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao confirmar transferência'
       setErroConfirmar(msg)
@@ -663,13 +790,14 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
     } finally {
       setConfirmando(false)
     }
-  }, [cenario, itemId, pedido, quantidadeOrigem, destinos, numeroPedidoNovo, addNotification])
+  }, [cenario, itensQuantidades, itemToPedidoMap, destinos, numeroPedidoNovo, addNotification])
 
   // ── Renderização ──────────────────────────────────────────────────────────────
 
   // No passo 4: quando há aviso de tipos divergentes, requer confirmação explícita do usuário
-  const podeProsseguirPasso4 = !!preview && !erroPreview &&
-    (!preview.aviso_tipo_operacao || confirmarTiposDivergentes)
+  const temAvisoTipo = previews.some(p => p.aviso_tipo_operacao)
+  const podeProsseguirPasso4 = previews.length > 0 && !erroPreview &&
+    (!temAvisoTipo || confirmarTiposDivergentes)
 
   const podeProsseguir = (() => {
     if (passo === 1) return podeProsseguirPasso1
@@ -739,7 +867,7 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
 
   return (
     <ModalPassoPassoGlobal
-      titulo={t('pedido.modal_transf.titulo', { numero: pedido.numero_pedido })}
+      titulo={t('pedido.modal_transf.titulo', { numero: multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido })}
       icone={<ArrowSquareOut size={20} weight="duotone" />}
       subtitulo={t('pedido.modal_transf.subtitulo')}
       aberto={true}
@@ -748,7 +876,7 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
       onProximo={() => {}}
       onVoltar={() => {}}
       onFechar={onFechar}
-      tamanho="lg"
+      tamanho={multiPedido ? '2xl' : 'xl'}
       ocultarStepper={concluido}
       footerCustom={footerTransferir}
     >
@@ -776,18 +904,25 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                 </li>
                 <li className="modal-transferir__item-resultado">
                   <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.preview_label_pedido')}</span>
-                  <span className="modal-transferir__resultado-valor">{pedido.numero_pedido}</span>
+                  <span className="modal-transferir__resultado-valor">
+                    {multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido}
+                  </span>
                 </li>
-                {itemSelecionado && (
+                {itensQuantidades.size > 0 && (
                   <li className="modal-transferir__item-resultado">
                     <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_item')}</span>
-                    <span className="modal-transferir__resultado-valor">{itemSelecionado.part_number}</span>
+                    <span className="modal-transferir__resultado-valor">
+                      {itensQuantidades.size === 1
+                        ? (itensComPedido.find(ic => ic.item.id === primeiroItemId)?.item.part_number ?? '—')
+                        : `${itensQuantidades.size} itens`
+                      }
+                    </span>
                   </li>
                 )}
                 <li className="modal-transferir__item-resultado">
                   <span className="modal-transferir__resultado-label">{t('pedido.modal_transf.sucesso_label_qtd')}</span>
                   <span className="modal-transferir__resultado-valor">
-                    {fmtQuantidade(quantidadeOrigem, itemSelecionado?.casas_decimais_quantidade_item)}
+                    {fmtQuantidade(quantidadeTotalSelecionada, itemSelecionado?.casas_decimais_quantidade_item)}
                   </span>
                 </li>
               </ul>
@@ -830,17 +965,14 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                 />
               )}
 
-              {/* Passo 2: Item e Quantidade */}
+              {/* Passo 2: Item e Quantidade (multi-select) */}
               {passo === 2 && (
                 <SeletorItemQuantidade
-                  pedido={pedido}
-                  itemId={itemId}
-                  quantidadeOrigem={quantidadeOrigem}
-                  onItemChange={id => {
-                    setItemId(id)
-                    setQuantidadeOrigem(0)
-                  }}
-                  onQuantidadeChange={setQuantidadeOrigem}
+                  itensComPedido={itensComPedido}
+                  itensQuantidades={itensQuantidades}
+                  onToggleItem={handleToggleItem}
+                  onQuantidadeChange={handleQuantidadeItemChange}
+                  multiPedido={multiPedido}
                 />
               )}
 
@@ -851,7 +983,8 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                   pedido={pedido}
                   destinos={destinos}
                   numeroPedidoNovo={numeroPedidoNovo}
-                  itemSelecionado={itemSelecionado}
+                  quantidadeTotal={quantidadeTotalSelecionada}
+                  casasDecimais={itemSelecionado?.casas_decimais_quantidade_item ?? 2}
                   pedidosDestinoDisponiveis={pedidosDestinoDisponiveis}
                   carregandoPedidosDestino={carregandoPedidosDestino}
                   erroPedidosDestino={erroPedidosDestino}
@@ -860,7 +993,7 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                 />
               )}
 
-              {/* Passo 4: Preview */}
+              {/* Passo 4: Preview (multi-item) */}
               {passo === 4 && (
                 carregandoPreview ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }} aria-live="polite">
@@ -871,10 +1004,10 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                     <Warning size={16} weight="fill" aria-hidden="true" />
                     {erroPreview}
                   </div>
-                ) : preview ? (
+                ) : previews.length > 0 ? (
                   <div className="modal-transferir__preview-wrapper">
-                    {/* Banner: aviso de tipo de operação diferente (campo Onda C) */}
-                    {preview.aviso_tipo_operacao && (
+                    {/* Banner: aviso de tipo de operação diferente */}
+                    {temAvisoTipo && (
                       <div className="modal-transferir__aviso-tipos">
                         <Warning weight="duotone" size={18} className="modal-transferir__aviso-tipos-icone" />
                         <div>
@@ -887,9 +1020,11 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                         </div>
                       </div>
                     )}
-                    <PreviewImpacto preview={preview} />
+                    {previews.map((prev, idx) => (
+                      <PreviewImpacto key={idx} preview={prev} />
+                    ))}
                     {/* Checkbox de confirmação explícita quando há divergência de tipos */}
-                    {preview.aviso_tipo_operacao && (
+                    {temAvisoTipo && (
                       <label className="modal-transferir__confirmacao-tipos">
                         <input
                           type="checkbox"
@@ -913,7 +1048,9 @@ export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConc
                       ? t('pedido.modal_transf.passo5_reversivel')
                       : t('pedido.modal_transf.passo5_irreversivel')}
                   </div>
-                  {preview && <PreviewImpacto preview={preview} />}
+                  {previews.map((prev, idx) => (
+                    <PreviewImpacto key={idx} preview={prev} />
+                  ))}
                   {erroConfirmar && (
                     <div className="modal-transferir__erro" role="alert">
                       <Warning size={16} weight="fill" aria-hidden="true" />

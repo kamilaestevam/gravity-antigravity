@@ -848,7 +848,8 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
             tamanho="medio"
             onClick={handleConfirmar}
             disabled={confirmando}
-            aria-busy={confirmando}
+            carregando={confirmando}
+            icone={<ArrowRight size={14} weight="bold" />}
           >
             {confirmando ? t('pedido.modal_transf.transferindo') : t('pedido.modal_transf.confirmar')}
           </BotaoGlobal>

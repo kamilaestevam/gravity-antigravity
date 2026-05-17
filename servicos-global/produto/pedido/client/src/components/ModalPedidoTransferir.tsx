@@ -403,13 +403,20 @@ function ConfigurarDestinos({
 
 interface PreviewImpactoProps {
   preview: TransferPreview
+  indice?: number
+  total?: number
 }
 
-function PreviewImpacto({ preview }: PreviewImpactoProps) {
+function PreviewImpacto({ preview, indice, total }: PreviewImpactoProps) {
   const { t } = useTranslation()
 
   return (
     <div className="modal-transferir__preview-container">
+      {total != null && total > 1 && indice != null && (
+        <div className="modal-transferir__preview-numeracao">
+          {t('pedido.modal_transf.preview_numeracao', { atual: indice + 1, total })}
+        </div>
+      )}
       <div className="modal-transferir__preview-origem">
         <div className="modal-transferir__preview-titulo">
           <ArrowSquareOut size={18} weight="duotone" aria-hidden="true" className="modal-transferir__preview-icone modal-transferir__preview-icone--origem" />
@@ -1031,7 +1038,7 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
                       </div>
                     )}
                     {previews.map((prev, idx) => (
-                      <PreviewImpacto key={idx} preview={prev} />
+                      <PreviewImpacto key={idx} preview={prev} indice={idx} total={previews.length} />
                     ))}
                     {/* Checkbox de confirmação explícita quando há divergência de tipos */}
                     {temAvisoTipo && (
@@ -1060,7 +1067,7 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
                   </div>
                   <div className="modal-transferir__preview-wrapper">
                     {previews.map((prev, idx) => (
-                      <PreviewImpacto key={idx} preview={prev} />
+                      <PreviewImpacto key={idx} preview={prev} indice={idx} total={previews.length} />
                     ))}
                   </div>
                   {erroConfirmar && (

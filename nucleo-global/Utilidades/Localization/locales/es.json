@@ -4245,6 +4245,7 @@
       "preview_label_qtd_apos": "Cantidad después",
       "preview_ficara_zero": "(quedará en cero)",
       "preview_destino_titulo": "Destino {{n}}",
+      "preview_numeracao": "Ítem {{atual}} de {{total}}",
       "preview_label_quantidade": "Cantidad",
       "aviso_tipos_titulo": "Tipos de operación diferentes",
       "aviso_tipos_msg": "El pedido de destino es de un tipo diferente (importación ↔ exportación). Confirme que desea continuar de todas formas.",

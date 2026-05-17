@@ -4100,6 +4100,7 @@
       "preview_label_qtd_apos": "Quantity after",
       "preview_ficara_zero": "(will become zero)",
       "preview_destino_titulo": "Destination {{n}}",
+      "preview_numeracao": "Item {{atual}} of {{total}}",
       "preview_label_quantidade": "Quantity",
       "aviso_tipos_titulo": "Different operation types",
       "aviso_tipos_msg": "The destination order is of a different type (import ↔ export). Confirm you want to proceed anyway.",

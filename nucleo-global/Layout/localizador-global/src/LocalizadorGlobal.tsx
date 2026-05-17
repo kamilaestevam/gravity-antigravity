@@ -95,11 +95,6 @@ function Node3D({
           }}>
             {isLocked && node.id.startsWith('locked-') ? '+prod' : node.label.toUpperCase()}
           </span>
-          <span className="lcg-node3d__sublabel" style={{
-            color: isLocked ? '#4b5563' : isCurrent ? `${node.color}dd` : isVisited ? `${node.color}99` : '#64748b',
-          }}>
-            {isLocked && node.id.startsWith('locked-') ? 'breve' : node.sublabel}
-          </span>
         </div>
       )}
     </div>

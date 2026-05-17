@@ -456,24 +456,21 @@
   align-items: center;
   gap: 1px;
   padding-top: 5px;
-  white-space: nowrap;
+  width: max-content;
+  max-width: 90px;
   pointer-events: none;
 }
 
 .lcg-node3d__label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-family: Inter, system-ui, sans-serif;
   text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-  line-height: 1.2;
-}
-
-.lcg-node3d__sublabel {
-  font-size: 8.5px;
-  font-weight: 500;
-  font-family: Inter, system-ui, sans-serif;
-  line-height: 1;
+  line-height: 1.25;
+  text-align: center;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 
 /* ── Pulse ring (current node) ── */

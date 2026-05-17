@@ -92,6 +92,10 @@ const CENARIOS: CenarioInfo[] = [
 
 interface ModalTransferirPedidoProps {
   pedidos: Pedido[]
+  /** IDs dos itens que o usuário selecionou explicitamente na lista.
+   *  Se fornecido, apenas esses itens vêm pré-selecionados.
+   *  Se ausente/vazio, todos os itens de todos os pedidos são pré-selecionados. */
+  itensSelecionadosIds?: string[]
   onFechar: () => void
   onConcluido: () => void
 }
@@ -513,7 +517,7 @@ function PreviewImpacto({ preview, indice, total }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalTransferirPedidoProps) {
+export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
 
@@ -554,10 +558,22 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
   // ── Multi-item: mapa itemId → quantidade ────────────────────────────────────
   const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() => {
     const mapa = new Map<string, number>()
-    // Regra universal: se o pedido está no modal, TODOS os seus itens são pré-selecionados
-    for (const p of pedidos) {
-      for (const item of p.itens) {
-        mapa.set(item.id, 0)
+    // Se o usuário selecionou itens específicos, apenas esses vêm pré-selecionados.
+    // Se selecionou pedidos inteiros (sem itens específicos), todos os itens são pré-selecionados.
+    if (itensSelecionadosIds && itensSelecionadosIds.length > 0) {
+      const idsSet = new Set(itensSelecionadosIds)
+      for (const p of pedidos) {
+        for (const item of p.itens) {
+          if (idsSet.has(item.id)) {
+            mapa.set(item.id, 0)
+          }
+        }
+      }
+    } else {
+      for (const p of pedidos) {
+        for (const item of p.itens) {
+          mapa.set(item.id, 0)
+        }
       }
     }
     return mapa

@@ -36,6 +36,7 @@ import {
   X,
   UploadSimple,
   ArrowsMerge,
+  GitMerge,
   ArrowsLeftRight,
   PencilLine,
   Sparkle,
@@ -4472,7 +4473,9 @@ export default function Pedidos() {
   const renderIndicadorLinhaPedido = useCallback((pedido: Pedido) => {
     const recebeu = pedido.recebeu_transferencia === true
     const enviou = pedido.enviou_transferencia === true
-    const consolidado = pedido.status === 'consolidado'
+    const consolidado = (pedido.status ?? '').toLowerCase() === 'consolidado'
+
+    console.log('[INDICADOR]', pedido.numero_pedido, '| status:', JSON.stringify(pedido.status), '| consolidado:', consolidado, '| enviou:', enviou, '| recebeu:', recebeu)
 
     if (!recebeu && !enviou && !consolidado) return null
 
@@ -4517,7 +4520,7 @@ export default function Pedidos() {
     // Ícone de consolidação
     const iconeConsol = consolidado ? (
       <TooltipGlobal titulo="Pedido consolidado" descricao="">
-        <ArrowsMerge size={18} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
+        <GitMerge size={18} weight="duotone" style={{ color: '#a78bfa', opacity: 0.3 }} />
       </TooltipGlobal>
     ) : null
 
@@ -6369,6 +6372,7 @@ export default function Pedidos() {
             }
             return resultado
           })()}
+          itensSelecionadosIds={itensSelecionados.length > 0 ? itensSelecionados.map(i => i.id) : undefined}
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

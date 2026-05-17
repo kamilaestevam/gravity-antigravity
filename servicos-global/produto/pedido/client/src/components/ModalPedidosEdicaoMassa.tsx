@@ -907,6 +907,74 @@ const MENSAGENS_AMIGAVEIS: [RegExp, string][] = [
   [/timeout|ETIMEDOUT/i, 'A operação demorou mais que o esperado. Tente novamente com menos pedidos selecionados.'],
 ]
 
+// ── Estilos compartilhados (padrão Consolidar) ──────────────────────────────
+
+const emEstilos = {
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '0.625rem',
+  } as React.CSSProperties,
+  statCard: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '1rem 0.875rem',
+    background: 'rgba(15, 23, 42, 0.5)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    border: '1px solid rgba(99, 102, 241, 0.12)',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'default',
+    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
+    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+  } as React.CSSProperties,
+  statValor: {
+    display: 'block',
+    fontSize: '1.375rem',
+    fontWeight: 800,
+    color: '#fff',
+    lineHeight: 1.2,
+    marginBottom: '0.25rem',
+  } as React.CSSProperties,
+  statLabel: {
+    display: 'block',
+    fontSize: '0.6875rem',
+    color: 'rgba(255,255,255,0.7)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.04em',
+    fontWeight: 600,
+  } as React.CSSProperties,
+  tooltipRico: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.375rem',
+    minWidth: '160px',
+  } as React.CSSProperties,
+  tooltipCategoria: {
+    display: 'block',
+    fontSize: '0.625rem',
+    fontWeight: 700,
+    color: 'var(--text-muted)',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.06em',
+    marginBottom: '0.125rem',
+  } as React.CSSProperties,
+  tooltipLinha: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '1rem',
+    fontSize: '0.8125rem',
+    color: 'var(--text-secondary)',
+  } as React.CSSProperties,
+  tooltipValor: {
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+    fontVariantNumeric: 'tabular-nums',
+  } as React.CSSProperties,
+}
+
 function traduzirErro(mensagem: string): string {
   for (const [regex, amigavel] of MENSAGENS_AMIGAVEIS) {
     if (regex.test(mensagem)) {
@@ -1324,37 +1392,23 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
           </div>
         ) : preview ? (
           <>
-            {/* Stat cards glassmorphism */}
-            <div data-em-stats style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.625rem' }}>
+            {/* Stat cards glassmorphism — padrão Consolidar */}
+            <div data-em-stats style={emEstilos.statsGrid}>
               <TooltipGlobal
                 titulo="Pedidos afetados"
                 descricao={
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', minWidth: '140px' }}>
-                    <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Edição em Massa</span>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                      <span>Selecionados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{pedidos.length}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                      <span>Afetados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{preview.pedidos_afetados}</span>
-                    </div>
+                  <div style={emEstilos.tooltipRico}>
+                    <span style={emEstilos.tooltipCategoria}>Edição em Massa</span>
+                    <div style={emEstilos.tooltipLinha}><span>Selecionados</span><span style={emEstilos.tooltipValor}>{pedidos.length}</span></div>
+                    <div style={emEstilos.tooltipLinha}><span>Afetados</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
                   </div>
                 }
               >
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  padding: '1rem 0.875rem',
-                  background: 'rgba(15, 23, 42, 0.5)',
-                  backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(99, 102, 241, 0.12)',
-                  borderRadius: 'var(--radius-md)',
-                  borderTop: '2px solid rgba(148,163,184,0.3)',
-                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-                  transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
-                }}>
+                <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
                   <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
                   <div>
-                    <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.pedidos_afetados}</span>
-                    <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Pedidos</span>
+                    <span style={emEstilos.statValor}>{preview.pedidos_afetados}</span>
+                    <span style={emEstilos.statLabel}>Pedidos</span>
                   </div>
                 </div>
               </TooltipGlobal>
@@ -1363,29 +1417,18 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                 <TooltipGlobal
                   titulo="Itens afetados"
                   descricao={
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', minWidth: '140px' }}>
-                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Itens</span>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                        <span>Afetados</span><span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{preview.itens_afetados}</span>
-                      </div>
+                    <div style={emEstilos.tooltipRico}>
+                      <span style={emEstilos.tooltipCategoria}>Itens</span>
+                      <div style={emEstilos.tooltipLinha}><span>Afetados</span><span style={emEstilos.tooltipValor}>{preview.itens_afetados}</span></div>
+                      <div style={emEstilos.tooltipLinha}><span>De pedidos</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
                     </div>
                   }
                 >
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '1rem 0.875rem',
-                    background: 'rgba(15, 23, 42, 0.5)',
-                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(99, 102, 241, 0.12)',
-                    borderRadius: 'var(--radius-md)',
-                    borderTop: '2px solid rgba(148,163,184,0.3)',
-                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
-                  }}>
+                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
                     <ListChecks size={20} weight="duotone" style={{ color: '#94a3b8' }} />
                     <div>
-                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.itens_afetados}</span>
-                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Itens</span>
+                      <span style={emEstilos.statValor}>{preview.itens_afetados}</span>
+                      <span style={emEstilos.statLabel}>Itens</span>
                     </div>
                   </div>
                 </TooltipGlobal>
@@ -1394,23 +1437,19 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
               {(preview.campos_pedido_alterados ?? 0) > 0 && (
                 <TooltipGlobal
                   titulo="Campos nível pedido"
-                  descricao={`${preview.campos_pedido_alterados} campo(s) de cabeçalho serão alterados`}
+                  descricao={
+                    <div style={emEstilos.tooltipRico}>
+                      <span style={emEstilos.tooltipCategoria}>Campos</span>
+                      <div style={emEstilos.tooltipLinha}><span>Campos pedido</span><span style={emEstilos.tooltipValor}>{preview.campos_pedido_alterados}</span></div>
+                      <div style={emEstilos.tooltipLinha}><span>Pedidos</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
+                    </div>
+                  }
                 >
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '1rem 0.875rem',
-                    background: 'rgba(15, 23, 42, 0.5)',
-                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(99, 102, 241, 0.12)',
-                    borderRadius: 'var(--radius-md)',
-                    borderTop: '2px solid rgba(99, 102, 241, 0.4)',
-                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
-                  }}>
+                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(99, 102, 241, 0.4)' }}>
                     <PencilSimpleLine size={20} weight="duotone" style={{ color: '#818cf8' }} />
                     <div>
-                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.campos_pedido_alterados}</span>
-                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Campos pedido</span>
+                      <span style={emEstilos.statValor}>{preview.campos_pedido_alterados}</span>
+                      <span style={emEstilos.statLabel}>Campos pedido</span>
                     </div>
                   </div>
                 </TooltipGlobal>
@@ -1419,23 +1458,19 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
               {(preview.campos_item_alterados ?? 0) > 0 && (
                 <TooltipGlobal
                   titulo="Campos nível item"
-                  descricao={`${preview.campos_item_alterados} campo(s) de item serão alterados`}
+                  descricao={
+                    <div style={emEstilos.tooltipRico}>
+                      <span style={emEstilos.tooltipCategoria}>Campos</span>
+                      <div style={emEstilos.tooltipLinha}><span>Campos item</span><span style={emEstilos.tooltipValor}>{preview.campos_item_alterados}</span></div>
+                      <div style={emEstilos.tooltipLinha}><span>Itens</span><span style={emEstilos.tooltipValor}>{preview.itens_afetados}</span></div>
+                    </div>
+                  }
                 >
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: '1rem 0.875rem',
-                    background: 'rgba(15, 23, 42, 0.5)',
-                    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(99, 102, 241, 0.12)',
-                    borderRadius: 'var(--radius-md)',
-                    borderTop: '2px solid rgba(74, 222, 128, 0.4)',
-                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-                    transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
-                  }}>
+                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(74, 222, 128, 0.4)' }}>
                     <ListChecks size={20} weight="duotone" style={{ color: '#4ade80' }} />
                     <div>
-                      <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{preview.campos_item_alterados}</span>
-                      <span style={{ display: 'block', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Campos item</span>
+                      <span style={emEstilos.statValor}>{preview.campos_item_alterados}</span>
+                      <span style={emEstilos.statLabel}>Campos item</span>
                     </div>
                   </div>
                 </TooltipGlobal>

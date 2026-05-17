@@ -192,24 +192,10 @@
   font-size: 11px;
 }
 
-.lcg-breadcrumb__item {
-  color: var(--ws-muted, #475569);
-}
-
-.lcg-breadcrumb__item--current {
-  font-weight: 600;
-}
-
-.lcg-breadcrumb__sep {
-  color: var(--ws-border, #1e2d45);
-  font-size: 10px;
-}
-
-.lcg-breadcrumb__page {
-  color: var(--ws-muted, #475569);
-  font-size: 10px;
-  opacity: .7;
-}
+.lcg-breadcrumb__item { color: var(--ws-muted, #475569); }
+.lcg-breadcrumb__item--current { font-weight: 600; }
+.lcg-breadcrumb__sep { color: var(--ws-border, #1e2d45); font-size: 10px; }
+.lcg-breadcrumb__page { color: var(--ws-muted, #475569); font-size: 10px; opacity: .7; }
 
 /* ── Close button ── */
 .lcg-close {
@@ -226,7 +212,6 @@
   cursor: pointer;
   transition: all .15s;
 }
-
 .lcg-close:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--ws-text, #e2e8f0);
@@ -259,9 +244,7 @@
   background: transparent;
 }
 
-.lcg-tab:hover:not(.lcg-tab--active) {
-  color: var(--ws-text-muted, #94a3b8);
-}
+.lcg-tab:hover:not(.lcg-tab--active) { color: var(--ws-text-muted, #94a3b8); }
 
 .lcg-tab--active {
   background: var(--ws-bg-2, rgba(255, 255, 255, 0.02));
@@ -283,7 +266,11 @@
   color: var(--ws-muted, #64748b);
 }
 
-/* ── Graph area — 3D Scene ── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   3D SCENE
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Graph area ── */
 .lcg-graph {
   position: relative;
   padding: 12px 16px 8px;
@@ -291,7 +278,7 @@
 }
 
 .lcg-graph--3d {
-  perspective: 900px;
+  perspective: 1200px;
   overflow: hidden;
 }
 
@@ -299,48 +286,48 @@
 .lcg-scene {
   position: relative;
   width: 720px;
-  height: 340px;
+  height: 380px;
   margin: 0 auto;
   transform-style: preserve-3d;
-  transform: rotateX(12deg) rotateY(-2deg);
+  transform: rotateX(8deg);
   transition: transform .4s cubic-bezier(.16, 1, .3, 1);
 }
 
 .lcg-scene:hover {
-  transform: rotateX(8deg) rotateY(0deg);
+  transform: rotateX(4deg);
 }
 
 /* ── Orbital rings (decorative 3D background) ── */
 .lcg-orbital-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.07);
   pointer-events: none;
   transform-style: preserve-3d;
 }
 
 .lcg-orbital-ring--1 {
-  width: 500px;
-  height: 500px;
+  width: 480px;
+  height: 480px;
   top: 50%;
-  left: 38%;
+  left: 40%;
   transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg);
   animation: lcg-ring-drift-1 25s linear infinite;
 }
 
 .lcg-orbital-ring--2 {
-  width: 400px;
-  height: 400px;
+  width: 380px;
+  height: 380px;
   top: 50%;
-  left: 38%;
+  left: 40%;
   transform: translate(-50%, -50%) rotateX(72deg) rotateZ(60deg);
-  border-color: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.05);
   animation: lcg-ring-drift-2 30s linear infinite;
 }
 
 .lcg-orbital-ring--3 {
-  width: 600px;
-  height: 600px;
+  width: 560px;
+  height: 560px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-40deg);
@@ -352,12 +339,10 @@
   from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg); }
   to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(360deg); }
 }
-
 @keyframes lcg-ring-drift-2 {
   from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(60deg); }
   to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(420deg); }
 }
-
 @keyframes lcg-ring-drift-3 {
   from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-40deg); }
   to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(320deg); }
@@ -411,20 +396,21 @@
   50% { opacity: 0.8; }
 }
 
-/* ── 3D Node ── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   3D NODE — sphere + label below
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 .lcg-node3d {
   position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 5;
   cursor: pointer;
   transition: all .25s cubic-bezier(.16, 1, .3, 1);
   user-select: none;
+  /* width/height set via inline style (radius * 2) */
 }
 
 .lcg-node3d:hover {
-  transform: translate(-50%, -50%) scale(1.12) !important;
+  transform: translate(-50%, -50%) scale(1.15) !important;
   z-index: 10;
   opacity: 1 !important;
 }
@@ -437,50 +423,57 @@
   transform: translate(-50%, -50%) scale(1) !important;
 }
 
-/* ── Node sphere (the "planet") ── */
+/* ── Sphere (the "planet") ── */
 .lcg-node3d__sphere {
   position: relative;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
   transition: box-shadow .25s, border-color .25s;
-  overflow: hidden;
 }
 
-/* Glass reflection on sphere */
+/* Glass reflection highlight */
 .lcg-node3d__sphere::before {
   content: '';
   position: absolute;
-  top: 8%;
-  left: 18%;
-  width: 35%;
-  height: 30%;
+  top: 10%;
+  left: 20%;
+  width: 32%;
+  height: 26%;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Label area below the sphere ── */
+.lcg-node3d__info {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding-top: 5px;
+  white-space: nowrap;
   pointer-events: none;
 }
 
 .lcg-node3d__label {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  line-height: 1.1;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   font-family: Inter, system-ui, sans-serif;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  line-height: 1.2;
 }
 
 .lcg-node3d__sublabel {
-  position: relative;
-  z-index: 2;
-  text-align: center;
+  font-size: 8.5px;
   font-weight: 500;
-  line-height: 1;
   font-family: Inter, system-ui, sans-serif;
+  line-height: 1;
 }
 
 /* ── Pulse ring (current node) ── */
@@ -495,16 +488,16 @@
 
 @keyframes lcg-node-pulse {
   0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.25); opacity: 0; }
+  50% { transform: scale(1.3); opacity: 0; }
 }
 
-/* ── Badge ✦ ── */
+/* ── Badge ✦ (current node) ── */
 .lcg-node3d__badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 14px;
-  height: 14px;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 1.5px solid;
   display: flex;
@@ -513,23 +506,41 @@
   z-index: 12;
 }
 
-/* ── Current node extra glow ── */
+/* ── "ISOLADO" tag ── */
+.lcg-node3d__tag {
+  position: absolute;
+  bottom: calc(100% + 22px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+  background: #0c0e16;
+  font-size: 6.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-family: Inter, system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Current node glow animation ── */
 .lcg-node3d--current .lcg-node3d__sphere {
   animation: lcg-sphere-glow 3s ease-in-out infinite;
 }
 
 @keyframes lcg-sphere-glow {
   0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.15); }
+  50% { filter: brightness(1.2); }
 }
 
-/* ── Visited node subtle shimmer ── */
+/* ── Visited node shimmer ── */
 .lcg-node3d--visited .lcg-node3d__sphere::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%);
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
   animation: lcg-visited-shimmer 4s linear infinite;
   pointer-events: none;
 }
@@ -539,14 +550,9 @@
   to   { transform: rotate(360deg); }
 }
 
-/* ── SVG nodes (legacy class, still used for hover) ── */
-.lcg-node {
-  transition: opacity .15s;
-}
-
-.lcg-node--locked {
-  pointer-events: none;
-}
+/* ══════════════════════════════════════════════════════════════════════════════
+   TOOLTIP, BADGES, HISTORY, FOOTER
+   ══════════════════════════════════════════════════════════════════════════════ */
 
 /* ── Map tooltip ── */
 .lcg-map-tooltip {
@@ -567,16 +573,8 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.lcg-map-tooltip__title {
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.lcg-map-tooltip__sub {
-  font-size: 10px;
-  color: var(--ws-muted, #64748b);
-}
+.lcg-map-tooltip__title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.lcg-map-tooltip__sub { font-size: 10px; color: var(--ws-muted, #64748b); }
 
 /* ── Badges ── */
 .lcg-badge {
@@ -588,30 +586,10 @@
   font-weight: 700;
   letter-spacing: .05em;
 }
-
-.lcg-badge--here {
-  background: rgba(6, 182, 212, 0.12);
-  color: #06b6d4;
-  border: 1px solid rgba(6, 182, 212, 0.3);
-}
-
-.lcg-badge--nav {
-  background: rgba(129, 140, 248, 0.12);
-  color: #818cf8;
-  border: 1px solid rgba(129, 140, 248, 0.3);
-}
-
-.lcg-badge--lock {
-  background: rgba(30, 37, 56, 0.8);
-  color: #334155;
-  border: 1px solid #263045;
-}
-
-.lcg-badge--conf {
-  background: rgba(244, 114, 182, 0.12);
-  color: #f472b6;
-  border: 1px solid rgba(244, 114, 182, 0.3);
-}
+.lcg-badge--here { background: rgba(6, 182, 212, 0.12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+.lcg-badge--nav  { background: rgba(129, 140, 248, 0.12); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.3); }
+.lcg-badge--lock { background: rgba(30, 37, 56, 0.8); color: #334155; border: 1px solid #263045; }
+.lcg-badge--conf { background: rgba(244, 114, 182, 0.12); color: #f472b6; border: 1px solid rgba(244, 114, 182, 0.3); }
 
 /* ── History tab ── */
 .lcg-history {
@@ -631,11 +609,7 @@
   font-style: italic;
 }
 
-.lcg-history__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+.lcg-history__list { display: flex; flex-direction: column; gap: 0; }
 
 .lcg-history-item {
   display: flex;
@@ -647,9 +621,7 @@
   position: relative;
 }
 
-.lcg-history-item--current {
-  background: rgba(255, 255, 255, 0.02);
-}
+.lcg-history-item--current { background: rgba(255, 255, 255, 0.02); }
 
 .lcg-history-item__line {
   width: 1px;
@@ -670,12 +642,7 @@
   transform: translateX(-50%);
 }
 
-.lcg-history-item__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+.lcg-history-item__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 .lcg-history-item__content {
   flex: 1;
@@ -686,29 +653,10 @@
   min-width: 0;
 }
 
-.lcg-history-item__product {
-  font-weight: 600;
-  color: var(--ws-text, #e2e8f0);
-  white-space: nowrap;
-}
-
-.lcg-history-item__sep {
-  color: var(--ws-muted, #334155);
-  font-size: 10px;
-}
-
-.lcg-history-item__page {
-  color: var(--ws-muted, #64748b);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lcg-history-item__time {
-  font-size: 10px;
-  color: var(--ws-muted, #334155);
-  flex-shrink: 0;
-}
+.lcg-history-item__product { font-weight: 600; color: var(--ws-text, #e2e8f0); white-space: nowrap; }
+.lcg-history-item__sep { color: var(--ws-muted, #334155); font-size: 10px; }
+.lcg-history-item__page { color: var(--ws-muted, #64748b); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcg-history-item__time { font-size: 10px; color: var(--ws-muted, #334155); flex-shrink: 0; }
 
 /* ── Panel Footer ── */
 .lcg-panel__footer {
@@ -721,11 +669,7 @@
   flex-shrink: 0;
 }
 
-.lcg-legend {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
+.lcg-legend { display: flex; gap: 14px; flex-wrap: wrap; }
 
 .lcg-legend__item {
   display: flex;
@@ -735,19 +679,8 @@
   color: var(--ws-muted, #475569);
 }
 
-.lcg-legend__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.lcg-legend__dash {
-  width: 12px;
-  height: 0;
-  border-bottom: 2px dashed #334155;
-  flex-shrink: 0;
-}
+.lcg-legend__dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.lcg-legend__dash { width: 12px; height: 0; border-bottom: 2px dashed #334155; flex-shrink: 0; }
 
 .lcg-panel__hint {
   font-size: 10px;

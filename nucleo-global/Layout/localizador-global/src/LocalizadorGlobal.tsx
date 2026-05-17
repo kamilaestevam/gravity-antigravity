@@ -20,26 +20,29 @@ interface Node3DProps {
   positionStyle: React.CSSProperties
   onHover: (id: string | null) => void
   onClick: (node: EcosystemNode) => void
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  radius?: number
+  labelBelow?: boolean
+  isolatedTag?: string
 }
 
-function Node3D({ node, isCurrent, isVisited, isHovered, positionStyle, onHover, onClick, size = 'md' }: Node3DProps) {
+function Node3D({
+  node, isCurrent, isVisited, isHovered,
+  positionStyle, onHover, onClick,
+  radius = 28, labelBelow = true, isolatedTag,
+}: Node3DProps) {
   const isLocked = node.status === 'locked'
-  const sizeMap = { sm: 32, md: 44, lg: 56, xl: 72 }
-  const dim = sizeMap[size]
+  const dim = radius * 2
 
-  const shortLabel = node.label.length > 9 ? node.label.slice(0, 8) + '…' : node.label
-
-  const baseOpacity = isLocked ? 0.3 : isCurrent ? 1 : isVisited ? 0.85 : isHovered ? 0.7 : 0.5
+  const baseOpacity = isLocked ? 0.4 : isCurrent ? 1 : isVisited ? 0.92 : isHovered ? 0.8 : 0.65
   const borderColor = isLocked
-    ? 'rgba(71,85,105,0.3)'
+    ? 'rgba(71,85,105,0.35)'
     : isCurrent
       ? node.color
       : isVisited
-        ? `${node.color}88`
-        : `${node.color}33`
+        ? `${node.color}99`
+        : `${node.color}55`
 
-  const glowIntensity = isCurrent ? 16 : isVisited ? 8 : 0
+  const glowSize = isCurrent ? 20 : isVisited ? 10 : 3
 
   return (
     <div
@@ -49,7 +52,6 @@ function Node3D({ node, isCurrent, isVisited, isHovered, positionStyle, onHover,
         width: dim,
         height: dim,
         '--node-color': node.color,
-        '--node-glow': glowIntensity,
         opacity: baseOpacity,
       } as React.CSSProperties}
       onMouseEnter={() => onHover(node.id)}
@@ -64,36 +66,40 @@ function Node3D({ node, isCurrent, isVisited, isHovered, positionStyle, onHover,
         className="lcg-node3d__sphere"
         style={{
           background: isLocked
-            ? 'radial-gradient(circle at 35% 30%, #374151 0%, #111827 100%)'
-            : `radial-gradient(circle at 35% 30%, ${node.color}ee 0%, ${node.color}55 60%, ${node.color}22 100%)`,
-          border: `1.5px solid ${borderColor}`,
-          boxShadow: glowIntensity > 0
-            ? `0 0 ${glowIntensity}px ${node.color}88, inset 0 -4px 8px rgba(0,0,0,0.3)`
-            : 'inset 0 -4px 8px rgba(0,0,0,0.3)',
-          borderStyle: isLocked ? 'dashed' : 'solid',
+            ? 'radial-gradient(circle at 38% 28%, #374151 0%, #1a1f2e 70%, #111827 100%)'
+            : `radial-gradient(circle at 38% 28%, ${node.color} 0%, ${node.color}88 50%, ${node.color}33 100%)`,
+          border: `${isCurrent ? 2 : 1.5}px ${isLocked ? 'dashed' : 'solid'} ${borderColor}`,
+          boxShadow: `0 0 ${glowSize}px ${node.color}66, inset 0 -${radius * 0.15}px ${radius * 0.3}px rgba(0,0,0,0.4)`,
         }}
-      >
-        {/* Inner label */}
-        <span className="lcg-node3d__label" style={{
-          color: isLocked ? '#6b7280' : '#fff',
-          fontSize: size === 'xl' ? 11 : size === 'lg' ? 9.5 : size === 'md' ? 8 : 7,
-          fontWeight: 800,
-          letterSpacing: '0.04em',
-        }}>
-          {isLocked && node.id.startsWith('locked-') ? '+' : shortLabel.toUpperCase()}
-        </span>
-        <span className="lcg-node3d__sublabel" style={{
-          color: isLocked ? '#4b5563' : `${node.color}cc`,
-          fontSize: size === 'xl' ? 8.5 : size === 'lg' ? 7.5 : 6.5,
-        }}>
-          {isLocked && node.id.startsWith('locked-') ? 'breve' : node.sublabel}
-        </span>
-      </div>
+      />
 
       {/* Badge ✦ when current */}
       {isCurrent && (
         <div className="lcg-node3d__badge" style={{ background: '#0c0e16', borderColor: node.color }}>
-          <span style={{ color: node.color, fontSize: 8, fontWeight: 900 }}>✦</span>
+          <span style={{ color: node.color, fontSize: 9, fontWeight: 900 }}>✦</span>
+        </div>
+      )}
+
+      {/* Isolated tag (CONFIG, ADMIN) */}
+      {isolatedTag && (
+        <div className="lcg-node3d__tag" style={{ borderColor: `${node.color}40`, color: `${node.color}99` }}>
+          {isolatedTag}
+        </div>
+      )}
+
+      {/* Label below the sphere */}
+      {labelBelow && (
+        <div className="lcg-node3d__info">
+          <span className="lcg-node3d__label" style={{
+            color: isLocked ? '#6b7280' : isCurrent ? '#fff' : isVisited ? '#e2e8f0' : '#94a3b8',
+          }}>
+            {isLocked && node.id.startsWith('locked-') ? '+prod' : node.label.toUpperCase()}
+          </span>
+          <span className="lcg-node3d__sublabel" style={{
+            color: isLocked ? '#4b5563' : isCurrent ? `${node.color}dd` : isVisited ? `${node.color}99` : '#64748b',
+          }}>
+            {isLocked && node.id.startsWith('locked-') ? 'breve' : node.sublabel}
+          </span>
         </div>
       )}
     </div>
@@ -192,7 +198,7 @@ function Connection3D({ from, to, color, dashed = false, intensity = 0.4, animat
         transformOrigin: '0 50%',
         background: dashed
           ? `repeating-linear-gradient(90deg, ${color} 0, ${color} 5px, transparent 5px, transparent 10px)`
-          : `linear-gradient(90deg, ${color}00 0%, ${color} 20%, ${color} 80%, ${color}00 100%)`,
+          : `linear-gradient(90deg, ${color}00 0%, ${color} 15%, ${color} 85%, ${color}00 100%)`,
         opacity: intensity,
       }}
     />
@@ -268,38 +274,33 @@ export function LocalizadorGlobal({
     currentProductId,
   ])
 
-  // ── Layout 3D: posições (em %, relativo ao container) ──
-  // HUB: centro-esquerda
-  // CORE: centro
-  // Produtos: arco orbital à direita do CORE
-  // Config/Admin: canto superior esquerdo (isolado)
-  // Store: abaixo do HUB
-
-  // Posições absolutas dentro da cena
+  // ── Layout 3D: posições absolutas dentro da cena (720×380) ──
   const positions: Record<string, { x: number; y: number }> = {
-    hub:           { x: 180, y: 160 },
-    core:          { x: 360, y: 160 },
-    configurador:  { x: 68,  y: 60  },
-    admin:         { x: 68,  y: 145 },
-    'hub-store':   { x: 120, y: 265 },
+    hub:           { x: 195, y: 175 },
+    core:          { x: 380, y: 175 },
+    configurador:  { x: 70,  y: 65  },
+    admin:         { x: 70,  y: 165 },
+    'hub-store':   { x: 130, y: 300 },
   }
 
-  // Calcular posições dos produtos em arco orbital
+  // Produtos em arco orbital à direita do CORE
   const productPositions: { x: number; y: number }[] = []
-  const prodCount = Math.min(produtoNodes.length, 6)
-  const arcCenter = { x: 560, y: 160 }
-  const arcRadiusX = 130
-  const arcRadiusY = 120
-  const arcStart = -70 // degrees
-  const arcEnd = 70
+  const prodCount = Math.max(produtoNodes.length, 1)
+  const arcCenter = { x: 580, y: 175 }
+  const arcRadiusX = 120
+  const arcRadiusY = 130
+  const startAngle = -65
+  const endAngle = 65
   for (let i = 0; i < 6; i++) {
-    if (prodCount <= 1) {
+    if (prodCount === 1 && i === 0) {
       productPositions.push({ x: arcCenter.x, y: arcCenter.y })
     } else {
-      const angle = (arcStart + (arcEnd - arcStart) * (i / (6 - 1))) * (Math.PI / 180)
+      const t = 6 > 1 ? i / (6 - 1) : 0.5
+      const angleDeg = startAngle + (endAngle - startAngle) * t
+      const angleRad = angleDeg * (Math.PI / 180)
       productPositions.push({
-        x: arcCenter.x + Math.sin(angle) * arcRadiusX,
-        y: arcCenter.y + Math.cos(angle) * arcRadiusY * 0.7,
+        x: arcCenter.x + Math.sin(angleRad) * arcRadiusX,
+        y: arcCenter.y - Math.cos(angleRad) * arcRadiusY * 0.65,
       })
     }
   }
@@ -317,14 +318,15 @@ export function LocalizadorGlobal({
   // ── Conexões entre nós ──
   const connections: Connection3DProps[] = []
   const isCoreVisited = visited.has('core') && currentProductId !== 'core'
+  const isCoreCurrent = currentProductId === 'core'
 
-  // HUB → CORE
+  // HUB → CORE (espinha principal)
   connections.push({
-    from: { x: positions.hub.x + 36, y: positions.hub.y },
-    to: { x: positions.core.x - 24, y: positions.core.y },
-    color: isCoreVisited ? '#818cf8' : '#4b5563',
-    intensity: isCoreVisited ? 0.6 : 0.25,
-    animated: currentProductId === 'core',
+    from: { x: positions.hub.x + 42, y: positions.hub.y },
+    to: { x: positions.core.x - 30, y: positions.core.y },
+    color: isCoreCurrent ? '#a78bfa' : isCoreVisited ? '#818cf8' : '#4b5563',
+    intensity: isCoreCurrent ? 0.7 : isCoreVisited ? 0.55 : 0.3,
+    animated: isCoreCurrent,
   })
 
   // CORE → Products
@@ -333,43 +335,58 @@ export function LocalizadorGlobal({
     const isProdVisited = visited.has(n.id)
     const isProdCurrent = n.id === currentProductId
     connections.push({
-      from: { x: positions.core.x + 24, y: positions.core.y },
-      to: { x: pos.x - 18, y: pos.y },
+      from: { x: positions.core.x + 28, y: positions.core.y },
+      to: { x: pos.x - 16, y: pos.y },
       color: isProdCurrent ? n.color : isProdVisited ? n.color : '#4b5563',
-      intensity: isProdCurrent ? 0.7 : isProdVisited ? 0.45 : 0.15,
+      intensity: isProdCurrent ? 0.7 : isProdVisited ? 0.5 : 0.2,
       dashed: n.status === 'locked',
     })
   })
 
+  // Also connect to placeholders
+  for (let i = produtoNodes.length; i < 6; i++) {
+    const pos = productPositions[i]
+    connections.push({
+      from: { x: positions.core.x + 28, y: positions.core.y },
+      to: { x: pos.x - 10, y: pos.y },
+      color: '#475569',
+      intensity: 0.12,
+      dashed: true,
+    })
+  }
+
   // HUB → Config (dashed isolado)
   if (configuradorNode) {
+    const isConfigVisited = visited.has('configurador')
     connections.push({
-      from: { x: positions.hub.x - 30, y: positions.hub.y - 30 },
-      to: { x: positions.configurador.x + 16, y: positions.configurador.y + 16 },
+      from: { x: positions.hub.x - 34, y: positions.hub.y - 30 },
+      to: { x: positions.configurador.x + 18, y: positions.configurador.y + 18 },
       color: '#f472b6',
       dashed: true,
-      intensity: visited.has('configurador') ? 0.5 : 0.2,
+      intensity: isConfigVisited ? 0.55 : 0.25,
     })
   }
 
   // HUB → Admin (dashed isolado)
   if (adminNode) {
+    const isAdminVisited = visited.has('admin')
     connections.push({
-      from: { x: positions.hub.x - 36, y: positions.hub.y - 8 },
-      to: { x: positions.admin.x + 16, y: positions.admin.y + 4 },
+      from: { x: positions.hub.x - 42, y: positions.hub.y - 4 },
+      to: { x: positions.admin.x + 18, y: positions.admin.y + 4 },
       color: '#10b981',
       dashed: true,
-      intensity: visited.has('admin') ? 0.5 : 0.2,
+      intensity: isAdminVisited ? 0.55 : 0.25,
     })
   }
 
   // HUB → Store
   if (hubStoreNode) {
+    const isStoreVisited = visited.has('hub-store')
     connections.push({
-      from: { x: positions.hub.x - 16, y: positions.hub.y + 36 },
-      to: { x: positions['hub-store'].x + 8, y: positions['hub-store'].y - 16 },
+      from: { x: positions.hub.x - 14, y: positions.hub.y + 42 },
+      to: { x: positions['hub-store'].x + 10, y: positions['hub-store'].y - 18 },
       color: '#fbbf24',
-      intensity: visited.has('hub-store') ? 0.5 : 0.2,
+      intensity: isStoreVisited ? 0.5 : 0.22,
     })
   }
 
@@ -507,7 +524,7 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(positions.hub.x, positions.hub.y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="xl"
+                    radius={42}
                   />
                 )}
 
@@ -521,7 +538,7 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(positions.core.x, positions.core.y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="lg"
+                    radius={32}
                   />
                 )}
 
@@ -535,7 +552,8 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(positions.configurador.x, positions.configurador.y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="md"
+                    radius={24}
+                    isolatedTag="ISOLADO"
                   />
                 )}
 
@@ -549,7 +567,7 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(positions.admin.x, positions.admin.y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="md"
+                    radius={24}
                   />
                 )}
 
@@ -563,7 +581,7 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(positions['hub-store'].x, positions['hub-store'].y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="md"
+                    radius={22}
                   />
                 )}
 
@@ -578,7 +596,7 @@ export function LocalizadorGlobal({
                     positionStyle={nodeStyle(productPositions[i].x, productPositions[i].y)}
                     onHover={setHoveredId}
                     onClick={handleNavigate}
-                    size="md"
+                    radius={pNode.id === currentProductId ? 30 : 24}
                   />
                 ))}
 
@@ -596,7 +614,7 @@ export function LocalizadorGlobal({
                       positionStyle={nodeStyle(productPositions[posIdx].x, productPositions[posIdx].y)}
                       onHover={setHoveredId}
                       onClick={handleNavigate}
-                      size="sm"
+                      radius={16}
                     />
                   )
                 })}

@@ -32,6 +32,8 @@ export interface PassoConfig {
 
 export interface ModalPassoPassoProps {
   titulo: string
+  /** Titulo como ReactNode — alternativa a `titulo` para conteudo dinamico (ex: truncamento com icone) */
+  tituloNode?: React.ReactNode
   icone?: React.ReactNode
   subtitulo?: string
   /** Subtitulo como ReactNode — alternativa a `subtitulo` para conteudo dinamico */
@@ -109,6 +111,7 @@ function useFocusTrap(aberto: boolean) {
 
 export function ModalPassoPassoGlobal({
   titulo,
+  tituloNode,
   icone,
   subtitulo,
   subtituloNode,
@@ -388,7 +391,7 @@ export function ModalPassoPassoGlobal({
             <div style={s.headerTexto}>
               <div style={s.headerTituloRow}>
                 {icone && <span style={s.headerIcone}>{icone}</span>}
-                <span style={s.titulo}>{titulo}</span>
+                <span style={s.titulo}>{tituloNode ?? titulo}</span>
               </div>
               {(subtitulo || subtituloNode) && (
                 <div style={s.subtitulo}>{subtituloNode ?? subtitulo}</div>

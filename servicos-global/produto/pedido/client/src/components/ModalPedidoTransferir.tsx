@@ -861,34 +861,25 @@ export function ModalTransferirPedido({ pedidos, onFechar, onConcluido }: ModalT
 
   return (
     <ModalPassoPassoGlobal
-      titulo={(() => {
+      titulo={t('pedido.modal_transf.titulo', { numero: multiPedido ? pedidos.map(p => p.numero_pedido).join(', ') : pedido.numero_pedido })}
+      tituloNode={(() => {
         const numeros = multiPedido
           ? pedidos.map(p => p.numero_pedido).join(', ')
           : pedido.numero_pedido
         const MAX_CHARS = 40
-        const truncado = numeros.length > MAX_CHARS
-          ? numeros.slice(0, MAX_CHARS) + '…'
-          : numeros
-        return t('pedido.modal_transf.titulo', { numero: truncado })
+        if (numeros.length <= MAX_CHARS) return undefined
+        const truncado = numeros.slice(0, MAX_CHARS) + '…'
+        return (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            {t('pedido.modal_transf.titulo', { numero: truncado })}
+            <TooltipGlobal titulo={t('pedido.modal_transf.titulo_tooltip_pedidos')} descricao={numeros}>
+              <Eye size={16} style={{ cursor: 'help', opacity: 0.7, flexShrink: 0 }} />
+            </TooltipGlobal>
+          </span>
+        )
       })()}
       icone={<ArrowSquareOut size={20} weight="duotone" />}
-      subtituloNode={(() => {
-        const numeros = multiPedido
-          ? pedidos.map(p => p.numero_pedido).join(', ')
-          : pedido.numero_pedido
-        const subtexto = t('pedido.modal_transf.subtitulo')
-        if (numeros.length > 40) {
-          return (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              {subtexto}
-              <TooltipGlobal titulo={t('pedido.modal_transf.titulo_tooltip_pedidos')} descricao={numeros}>
-                <Eye size={16} style={{ cursor: 'help', opacity: 0.7, flexShrink: 0 }} />
-              </TooltipGlobal>
-            </span>
-          )
-        }
-        return subtexto
-      })()}
+      subtitulo={t('pedido.modal_transf.subtitulo')}
       aberto={true}
       passos={PASSOS_TRANSFERIR}
       passoAtual={passo}

@@ -6358,28 +6358,12 @@ export default function Pedidos() {
             const idsPedidosSelecionados = new Set(pedidosSelecionados.map(p => p.id))
             const idsPedidosDeItens = new Set(itensSelecionados.map(i => i.pedido_id))
             const todosIds = new Set([...idsPedidosSelecionados, ...idsPedidosDeItens])
-            // Prioriza pedidosSelecionados (já em mãos), complementa com pedidos da lista
             const resultado = [...pedidosSelecionados]
             for (const p of pedidos) {
               if (todosIds.has(p.id) && !idsPedidosSelecionados.has(p.id)) resultado.push(p)
             }
             return resultado
           })()}
-          itemIdInicial={
-            itensSelecionados.length === 1 && pedidosSelecionados.length === 0
-              ? itensSelecionados[0].id
-              : undefined
-          }
-          itensSelecionadosIds={
-            itensSelecionados.length > 0
-              ? itensSelecionados.map(i => i.id)
-              : undefined
-          }
-          pedidosSelecionadosIds={
-            pedidosSelecionados.length > 0
-              ? pedidosSelecionados.map(p => p.id)
-              : undefined
-          }
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

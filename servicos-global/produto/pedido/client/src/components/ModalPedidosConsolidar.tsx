@@ -558,17 +558,16 @@ export function ModalConsolidarPedidos({
       return porGrupo
     }
 
-    const renderPopoverColunas = (campos: Array<{ rotulo: string; grupo: string }>, titulo: string) => {
+    const renderColunasInline = (campos: Array<{ rotulo: string; grupo: string }>) => {
       const porGrupo = agruparPorGrupo(campos)
       return (
-        <div style={estilos.infograficoPopover}>
-          <span style={estilos.infograficoPopoverTitulo}>{titulo}</span>
-          <div style={estilos.infograficoPopoverScroll}>
+        <div style={estilos.infograficoDetalhe}>
+          <div style={estilos.infograficoDetalheScroll}>
             {Object.entries(porGrupo).map(([grupo, rotulos]) => (
-              <div key={grupo} style={{ marginTop: '0.375rem' }}>
-                <span style={estilos.infograficoPopoverGrupo}>{grupo} ({rotulos.length})</span>
+              <div key={grupo} style={{ marginBottom: '0.5rem' }}>
+                <span style={estilos.infograficoDetalheGrupo}>{grupo} ({rotulos.length})</span>
                 {rotulos.map(r => (
-                  <span key={r} style={estilos.infograficoPopoverItem}>{r}</span>
+                  <span key={r} style={estilos.infograficoDetalheItem}>{r}</span>
                 ))}
               </div>
             ))}
@@ -579,48 +578,38 @@ export function ModalConsolidarPedidos({
 
     return (
       <div style={estilos.passo2}>
-        {/* Infográfico resumo — popover via click, posicionado abaixo do card */}
-        <div style={estilos.infograficoGrid}>
-          <div style={estilos.infograficoCardWrapper}>
-            <div
-              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(129,140,248,0.4)', cursor: 'pointer', ...(infograficoPopover === 'ativas' ? estilos.infograficoCardHover : {}) }}
-              onClick={() => setInfograficoPopover(prev => prev === 'ativas' ? null : 'ativas')}
-            >
-              <Stack size={20} weight="duotone" style={{ color: '#818cf8' }} />
-              <div>
-                <span style={estilos.infograficoValor}>{totalColunasAtivas}</span>
-                <span style={estilos.infograficoLabel}>Colunas ativas</span>
-              </div>
-            </div>
-            {infograficoPopover === 'ativas' && renderPopoverColunas(todosCampos, 'Todas as colunas mapeadas')}
-          </div>
-          <div style={estilos.infograficoCardWrapper}>
-            <div
-              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(74,222,128,0.4)', cursor: 'pointer', ...(infograficoPopover === 'dados' ? estilos.infograficoCardHover : {}) }}
-              onClick={() => setInfograficoPopover(prev => prev === 'dados' ? null : 'dados')}
-            >
-              <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
-              <div>
-                <span style={estilos.infograficoValor}>{totalComDados}</span>
-                <span style={estilos.infograficoLabel}>Colunas com dados</span>
-              </div>
-            </div>
-            {infograficoPopover === 'dados' && renderPopoverColunas(camposComDadosList, 'Colunas com valor preenchido')}
-          </div>
-          <div style={estilos.infograficoCardWrapper}>
-            <div
-              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(148,163,184,0.3)', cursor: 'pointer', ...(infograficoPopover === 'vazias' ? estilos.infograficoCardHover : {}) }}
-              onClick={() => setInfograficoPopover(prev => prev === 'vazias' ? null : 'vazias')}
-            >
-              <MinusCircle size={20} weight="duotone" style={{ color: '#94a3b8' }} />
-              <div>
-                <span style={estilos.infograficoValor}>{totalVazias}</span>
-                <span style={estilos.infograficoLabel}>Colunas vazias</span>
-              </div>
-            </div>
-            {infograficoPopover === 'vazias' && renderPopoverColunas(camposVaziosList, 'Colunas sem valor')}
-          </div>
+        {/* Infográfico resumo — pills clicáveis, mesma linguagem dos filtros */}
+        <div style={estilos.infograficoPills}>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(infograficoPopover === 'ativas' ? estilos.legendaFiltroAtivo : {}) }}
+            onClick={() => setInfograficoPopover(prev => prev === 'ativas' ? null : 'ativas')}
+          >
+            <Stack size={14} weight="fill" style={{ color: infograficoPopover === 'ativas' ? '#a5b4fc' : '#818cf8' }} />
+            {totalColunasAtivas} Colunas ativas
+          </button>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(infograficoPopover === 'dados' ? estilos.legendaFiltroIgual : {}) }}
+            onClick={() => setInfograficoPopover(prev => prev === 'dados' ? null : 'dados')}
+          >
+            <CheckCircle size={14} weight="fill" style={{ color: infograficoPopover === 'dados' ? '#4ade80' : 'var(--success, #22c55e)' }} />
+            {totalComDados} Com dados
+          </button>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(infograficoPopover === 'vazias' ? estilos.legendaFiltroVazio : {}) }}
+            onClick={() => setInfograficoPopover(prev => prev === 'vazias' ? null : 'vazias')}
+          >
+            <MinusCircle size={14} weight="fill" style={{ color: '#475569' }} />
+            {totalVazias} Vazias
+          </button>
         </div>
+
+        {/* Detalhe inline — expande abaixo dos pills ao clicar */}
+        {infograficoPopover === 'ativas' && renderColunasInline(todosCampos)}
+        {infograficoPopover === 'dados' && renderColunasInline(camposComDadosList)}
+        {infograficoPopover === 'vazias' && renderColunasInline(camposVaziosList)}
 
         {/* Filtros clicáveis */}
         <div style={estilos.legendaComparacao}>
@@ -1102,108 +1091,61 @@ const estilos = {
     fontWeight: 600,
     color: 'var(--text-muted)',
     background: 'transparent',
-    border: '1px solid rgba(99, 102, 241, 0.12)',
+    border: 'none',
+    outline: 'none',
     borderRadius: '999px',
     cursor: 'pointer',
     transition: 'all 0.15s ease',
   } as React.CSSProperties,
   legendaFiltroAtivo: {
     background: 'rgba(99, 102, 241, 0.15)',
-    borderColor: 'rgba(99, 102, 241, 0.3)',
+    border: '1px solid rgba(99, 102, 241, 0.3)',
     color: '#a5b4fc',
   } as React.CSSProperties,
   legendaFiltroDivergente: {
     background: 'rgba(251, 191, 36, 0.12)',
-    borderColor: 'rgba(251, 191, 36, 0.3)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
     color: '#fbbf24',
   } as React.CSSProperties,
   legendaFiltroIgual: {
     background: 'rgba(74, 222, 128, 0.12)',
-    borderColor: 'rgba(74, 222, 128, 0.3)',
+    border: '1px solid rgba(74, 222, 128, 0.3)',
     color: '#4ade80',
   } as React.CSSProperties,
   legendaFiltroVazio: {
     background: 'rgba(71, 85, 105, 0.15)',
-    borderColor: 'rgba(71, 85, 105, 0.3)',
+    border: '1px solid rgba(71, 85, 105, 0.3)',
     color: '#64748b',
   } as React.CSSProperties,
 
   // Infográfico passo 2
-  infograficoGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '0.625rem',
-  } as React.CSSProperties,
-  infograficoCard: {
+  // (infografico cards removidos — agora usa pills no padrão legendaFiltro)
+  infograficoPills: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
-    padding: '0.875rem 0.875rem',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const,
+  } as React.CSSProperties,
+  infograficoDetalhe: {
     background: 'rgba(15, 23, 42, 0.5)',
-    backdropFilter: 'blur(8px)',
-    WebkitBackdropFilter: 'blur(8px)',
     border: '1px solid rgba(99, 102, 241, 0.12)',
     borderRadius: 'var(--radius-md)',
-    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-  } as React.CSSProperties,
-  infograficoValor: {
-    display: 'block',
-    fontSize: '1.25rem',
-    fontWeight: 800,
-    color: '#fff',
-    lineHeight: 1.2,
-    marginBottom: '0.125rem',
-  } as React.CSSProperties,
-  infograficoLabel: {
-    display: 'block',
-    fontSize: '0.6875rem',
-    color: 'rgba(255,255,255,0.7)',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.04em',
-    fontWeight: 600,
-  } as React.CSSProperties,
-  infograficoCardWrapper: {
-    position: 'relative' as const,
-  } as React.CSSProperties,
-  infograficoCardHover: {
-    borderColor: 'rgba(99, 102, 241, 0.25)',
-    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.15)',
-    background: 'rgba(15, 23, 42, 0.65)',
-  } as React.CSSProperties,
-  infograficoPopover: {
-    position: 'absolute' as const,
-    top: '100%',
-    left: 0,
-    right: 0,
-    marginTop: '0.375rem',
-    background: '#0f172a',
-    border: '1px solid rgba(129, 140, 248, 0.22)',
-    borderRadius: '8px',
     padding: '0.75rem 1rem',
-    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.6)',
-    zIndex: 10,
-    animation: 'fadeIn 0.15s ease',
+    marginTop: '0.5rem',
   } as React.CSSProperties,
-  infograficoPopoverTitulo: {
-    display: 'block',
-    fontSize: '0.8125rem',
-    fontWeight: 700,
-    color: '#f1f5f9',
-    lineHeight: 1.2,
-    marginBottom: '0.375rem',
-  } as React.CSSProperties,
-  infograficoPopoverScroll: {
-    maxHeight: '240px',
+  infograficoDetalheScroll: {
+    maxHeight: '200px',
     overflowY: 'auto' as const,
     overscrollBehavior: 'contain' as const,
   } as React.CSSProperties,
-  infograficoPopoverGrupo: {
+  infograficoDetalheGrupo: {
     display: 'block',
     fontSize: '0.6875rem',
     fontWeight: 700,
     color: '#818cf8',
+    marginBottom: '0.125rem',
   } as React.CSSProperties,
-  infograficoPopoverItem: {
+  infograficoDetalheItem: {
     display: 'block',
     fontSize: '0.75rem',
     color: '#94a3b8',

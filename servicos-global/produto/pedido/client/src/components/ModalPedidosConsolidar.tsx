@@ -967,6 +967,8 @@ export function ModalConsolidarPedidos({
       labelBotaoFinal="Consolidar"
       labelProximo="Próximo"
       tamanho="xl"
+      carregando={salvando}
+      textoCarregando="Consolidando…"
       ocultarStepper={concluido}
       ocultarFooter={concluido}
     >

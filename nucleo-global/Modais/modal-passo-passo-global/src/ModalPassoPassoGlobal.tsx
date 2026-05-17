@@ -57,6 +57,10 @@ export interface ModalPassoPassoProps {
   ocultarFooter?: boolean
   /** Footer custom — substitui completamente o footer padrao (Voltar/Proximo) */
   footerCustom?: React.ReactNode
+  /** Exibe spinner no botao Proximo/Final (ex: aguardando API). Padrao: false */
+  carregando?: boolean
+  /** Texto alternativo enquanto carregando (ex: "Consolidando…"). Se omitido usa label padrao */
+  textoCarregando?: string
   /** Permitir clicar em passos concluidos para navegar diretamente. Padrao: true */
   navegacaoDireta?: boolean
   /** Callback quando usuario clica em um passo concluido (navegacao direta) */
@@ -129,6 +133,8 @@ export function ModalPassoPassoGlobal({
   ocultarStepper = false,
   ocultarFooter = false,
   footerCustom,
+  carregando = false,
+  textoCarregando,
   navegacaoDireta = true,
   onIrParaPasso,
   children,
@@ -512,11 +518,12 @@ export function ModalPassoPassoGlobal({
               <BotaoGlobal
                 variante="primario"
                 tamanho="padrao"
-                disabled={!podeAvancar}
+                disabled={!podeAvancar || carregando}
+                carregando={carregando}
                 iconeDireita={isUltimoPasso ? <Check size={14} /> : <ArrowRight size={14} />}
                 onClick={onProximo}
               >
-                {isUltimoPasso ? labelBotaoFinal : labelProximo}
+                {carregando && textoCarregando ? textoCarregando : isUltimoPasso ? labelBotaoFinal : labelProximo}
               </BotaoGlobal>
             </div>
           </div>

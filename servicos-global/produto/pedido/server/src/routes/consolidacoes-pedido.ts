@@ -123,19 +123,86 @@ const CAMPOS_COMPARAR: CampoComparar[] = [
   { campo: 'moeda_cambio_pedido',           rotulo: 'Moeda Câmbio',               grupo: 'Câmbio',        fonte: 'direto' },
   { campo: 'taxa_cambio_estimada_pedido',   rotulo: 'Taxa Câmbio Estimada',       grupo: 'Câmbio',        fonte: 'direto' },
   { campo: 'contrato_cambio_id_pedido',     rotulo: 'Contrato de Câmbio',         grupo: 'Câmbio',        fonte: 'direto' },
+  { campo: 'valor_total_cambio_pedido',     rotulo: 'Valor Total Câmbio',         grupo: 'Câmbio',        fonte: 'direto' },
+  { campo: 'cobertura_cambial_pedido',      rotulo: 'Cobertura Cambial',          grupo: 'Câmbio',        fonte: 'direto' },
 
   // ── Documentos / Referências ──
   { campo: 'referencia_importador_pedido',  rotulo: 'Referência Importador',      grupo: 'Documentos',    fonte: 'direto' },
   { campo: 'referencia_exportador_pedido',  rotulo: 'Referência Exportador',      grupo: 'Documentos',    fonte: 'direto' },
   { campo: 'referencia_fabricante_pedido',  rotulo: 'Referência Fabricante',      grupo: 'Documentos',    fonte: 'direto' },
+  { campo: 'numero_proforma_pedido',        rotulo: 'Nº Proforma',               grupo: 'Documentos',    fonte: 'direto' },
+  { campo: 'numero_invoice_pedido',         rotulo: 'Nº Invoice',                grupo: 'Documentos',    fonte: 'direto' },
 
   // ── Logística ──
   { campo: 'porto_origem',                  rotulo: 'Porto Origem',               grupo: 'Logística',     fonte: 'direto' },
   { campo: 'porto_destino',                 rotulo: 'Porto Destino',              grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'quantidade_volumes_pedido',     rotulo: 'Qtd. Volumes',              grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'peso_liquido_total_pedido',     rotulo: 'Peso Líquido Total',        grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'peso_bruto_total_pedido',       rotulo: 'Peso Bruto Total',          grupo: 'Logística',     fonte: 'direto' },
+  { campo: 'cubagem_total_pedido',          rotulo: 'Cubagem Total',             grupo: 'Logística',     fonte: 'direto' },
 
-  // ── Datas ───
+  // ── Configuração ──
+  { campo: 'casas_decimais_valor_pedido',       rotulo: 'Casas Decimais Valor',       grupo: 'Configuração', fonte: 'direto' },
+  { campo: 'casas_decimais_quantidade_pedido',  rotulo: 'Casas Decimais Quantidade',  grupo: 'Configuração', fonte: 'direto' },
+  { campo: 'casas_decimais_peso_pedido',        rotulo: 'Casas Decimais Peso',        grupo: 'Configuração', fonte: 'direto' },
+  { campo: 'casas_decimais_cubagem_pedido',     rotulo: 'Casas Decimais Cubagem',     grupo: 'Configuração', fonte: 'direto' },
+
+  // ── Datas — Documento ──
   { campo: 'data_emissao_pedido',           rotulo: 'Data de Emissão',            grupo: 'Datas',         fonte: 'direto' },
   { campo: 'data_embarque_origem',          rotulo: 'Data de Embarque',           grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_documento_pedido',         rotulo: 'Data Documento Pedido',      grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_documento_proforma_pedido', rotulo: 'Data Documento Proforma',   grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_documento_invoice_pedido', rotulo: 'Data Documento Invoice',     grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_proforma_invoice',         rotulo: 'Data Proforma Invoice',      grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_invoice',                  rotulo: 'Data Invoice',               grupo: 'Datas',         fonte: 'direto' },
+  { campo: 'data_transferencia_saldo_pedido', rotulo: 'Data Transferência Saldo', grupo: 'Datas',         fonte: 'direto' },
+
+  // ── Datas — Etapa do Pedido (prev / conf / meta) ──
+  { campo: 'data_prevista_pedido_pronto',       rotulo: 'Previsão Pedido Pronto',      grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_confirmada_pedido_pronto',     rotulo: 'Confirmação Pedido Pronto',   grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_meta_pedido_pronto',           rotulo: 'Meta Pedido Pronto',          grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_prevista_inspecao_pedido',     rotulo: 'Previsão Inspeção',           grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_confirmada_inspecao_pedido',   rotulo: 'Confirmação Inspeção',        grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_meta_inspecao_pedido',         rotulo: 'Meta Inspeção',               grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_prevista_coleta_pedido',       rotulo: 'Previsão Coleta',             grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_confirmada_coleta_pedido',     rotulo: 'Confirmação Coleta',          grupo: 'Datas Etapa',   fonte: 'direto' },
+  { campo: 'data_meta_coleta_pedido',           rotulo: 'Meta Coleta',                 grupo: 'Datas Etapa',   fonte: 'direto' },
+
+  // ── Datas — Rascunho Pedido ──
+  { campo: 'data_previsao_recebimento_rascunho_pedido',    rotulo: 'Prev. Receb. Rascunho Pedido',    grupo: 'Datas Rascunho',  fonte: 'direto' },
+  { campo: 'data_confirmacao_recebimento_rascunho_pedido', rotulo: 'Conf. Receb. Rascunho Pedido',    grupo: 'Datas Rascunho',  fonte: 'direto' },
+  { campo: 'data_meta_recebimento_rascunho_pedido',        rotulo: 'Meta Receb. Rascunho Pedido',     grupo: 'Datas Rascunho',  fonte: 'direto' },
+  { campo: 'data_previsao_aprovacao_rascunho_pedido',      rotulo: 'Prev. Aprov. Rascunho Pedido',    grupo: 'Datas Rascunho',  fonte: 'direto' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_pedido',   rotulo: 'Conf. Aprov. Rascunho Pedido',    grupo: 'Datas Rascunho',  fonte: 'direto' },
+  { campo: 'data_meta_aprovacao_rascunho_pedido',          rotulo: 'Meta Aprov. Rascunho Pedido',     grupo: 'Datas Rascunho',  fonte: 'direto' },
+
+  // ── Datas — Proforma (Rascunho + Original) ──
+  { campo: 'data_previsao_recebimento_rascunho_proforma_pedido',    rotulo: 'Prev. Receb. Rascunho Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_confirmacao_recebimento_rascunho_proforma_pedido', rotulo: 'Conf. Receb. Rascunho Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_meta_recebimento_rascunho_proforma_pedido',        rotulo: 'Meta Receb. Rascunho Proforma',     grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_previsao_aprovacao_rascunho_proforma_pedido',      rotulo: 'Prev. Aprov. Rascunho Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_proforma_pedido',   rotulo: 'Conf. Aprov. Rascunho Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_meta_aprovacao_rascunho_proforma_pedido',          rotulo: 'Meta Aprov. Rascunho Proforma',     grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_previsao_envio_original_proforma_pedido',          rotulo: 'Prev. Envio Original Proforma',     grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_confirmacao_envio_original_proforma_pedido',       rotulo: 'Conf. Envio Original Proforma',     grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_meta_envio_original_proforma_pedido',              rotulo: 'Meta Envio Original Proforma',      grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_previsao_recebimento_original_proforma_pedido',    rotulo: 'Prev. Receb. Original Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_confirmacao_recebimento_original_proforma_pedido', rotulo: 'Conf. Receb. Original Proforma',    grupo: 'Datas Proforma',  fonte: 'direto' },
+  { campo: 'data_meta_recebimento_original_proforma_pedido',        rotulo: 'Meta Receb. Original Proforma',     grupo: 'Datas Proforma',  fonte: 'direto' },
+
+  // ── Datas — Invoice (Rascunho + Original) ──
+  { campo: 'data_previsao_recebimento_rascunho_invoice_pedido',    rotulo: 'Prev. Receb. Rascunho Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_confirmacao_recebimento_rascunho_invoice_pedido', rotulo: 'Conf. Receb. Rascunho Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_meta_recebimento_rascunho_invoice_pedido',        rotulo: 'Meta Receb. Rascunho Invoice',     grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_previsao_aprovacao_rascunho_invoice_pedido',      rotulo: 'Prev. Aprov. Rascunho Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_confirmacao_aprovacao_rascunho_invoice_pedido',   rotulo: 'Conf. Aprov. Rascunho Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_meta_aprovacao_rascunho_invoice_pedido',          rotulo: 'Meta Aprov. Rascunho Invoice',     grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_previsao_envio_original_invoice_pedido',          rotulo: 'Prev. Envio Original Invoice',     grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_confirmacao_envio_original_invoice_pedido',       rotulo: 'Conf. Envio Original Invoice',     grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_meta_envio_original_invoice_pedido',              rotulo: 'Meta Envio Original Invoice',      grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_previsao_recebimento_original_invoice_pedido',    rotulo: 'Prev. Receb. Original Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_confirmacao_recebimento_original_invoice_pedido', rotulo: 'Conf. Receb. Original Invoice',    grupo: 'Datas Invoice',   fonte: 'direto' },
+  { campo: 'data_meta_recebimento_original_invoice_pedido',        rotulo: 'Meta Receb. Original Invoice',     grupo: 'Datas Invoice',   fonte: 'direto' },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -361,20 +428,25 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         : {}
       const detalhesConsolidado = { ...detPrimeiro, ...camposEscolhidosJson }
 
-      // Campos base do pedido consolidado (primeiro prevalece como default)
+      // Campos base do pedido consolidado: copiar TODOS os campos diretos do
+      // primeiro pedido (evita data loss silenciosa quando campo existe no banco
+      // mas não foi explicitamente listado). campos_escolhidos do usuário fará
+      // override dos divergentes via spread posterior.
+      const CAMPOS_DIRETO_SET = new Set(CAMPOS_COMPARAR.filter(c => c.fonte === 'direto').map(c => c.campo))
+      const camposBaseDinamico: Record<string, unknown> = {}
+      for (const campo of CAMPOS_DIRETO_SET) {
+        if (primeiro[campo] !== undefined) {
+          camposBaseDinamico[campo] = primeiro[campo]
+        }
+      }
+
       const camposBase = {
         tipo_operacao_pedido:               primeiro.tipo_operacao_pedido,
         status_pedido:                      'consolidado',
         id_importacao_exportador_pedido:    primeiro.id_importacao_exportador_pedido,
         id_exportacao_importador_pedido:    primeiro.id_exportacao_importador_pedido,
-        incoterm_pedido:                    primeiro.incoterm_pedido,
-        moeda_pedido:                       primeiro.moeda_pedido,
-        casas_decimais_valor_pedido:        primeiro.casas_decimais_valor_pedido,
-        casas_decimais_quantidade_pedido:   primeiro.casas_decimais_quantidade_pedido,
-        unidade_comercializada_pedido:      primeiro.unidade_comercializada_pedido,
-        condicao_pagamento_pedido:          primeiro.condicao_pagamento_pedido,
-        data_emissao_pedido:                primeiro.data_emissao_pedido,
         detalhes_operacionais_pedido:       detalhesConsolidado,
+        ...camposBaseDinamico,
       }
 
       // withOrganizacao já garante atomicidade via $transaction — usar db diretamente

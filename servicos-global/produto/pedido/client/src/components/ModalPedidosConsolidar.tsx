@@ -95,8 +95,10 @@ interface GrupoColapsavelProps {
 function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAberto = false }: GrupoColapsavelProps) {
   const [aberto, setAberto] = useState(inicialmenteAberto)
   const totalDivergentes = grupo.divergentes.length
-  const totalIguais = grupo.iguais.length
-  const total = totalDivergentes + totalIguais
+  const iguaisComDado = grupo.iguais.filter(c => c.valor != null && c.valor !== '')
+  const iguaisVazios = grupo.iguais.filter(c => c.valor == null || c.valor === '')
+  const totalComDado = totalDivergentes + iguaisComDado.length
+  const total = totalDivergentes + grupo.iguais.length
 
   return (
     <div style={estilos.grupo}>
@@ -118,10 +120,16 @@ function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAb
               {totalDivergentes}
             </span>
           )}
-          {totalIguais > 0 && (
+          {iguaisComDado.length > 0 && (
             <span style={estilos.badgeIgualPequeno}>
               <CheckCircle size={12} weight="fill" />
-              {totalIguais}
+              {iguaisComDado.length}
+            </span>
+          )}
+          {iguaisVazios.length > 0 && (
+            <span style={estilos.badgeVazioPequeno}>
+              <MinusCircle size={12} weight="fill" />
+              {iguaisVazios.length}
             </span>
           )}
         </span>
@@ -129,7 +137,7 @@ function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAb
 
       {aberto && (
         <div style={estilos.grupoCorpo}>
-          {/* Divergentes primeiro */}
+          {/* 1. Divergentes — precisam de ação */}
           {grupo.divergentes.map(campo => (
             <LinhaCampoComparacao
               key={campo.campo}
@@ -139,8 +147,12 @@ function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAb
               onMudar={v => onMudarCampo(campo.campo, v)}
             />
           ))}
-          {/* Iguais depois */}
-          {grupo.iguais.map(campo => (
+          {/* 2. Iguais com dado — informativo, tem conteúdo */}
+          {iguaisComDado.map(campo => (
+            <LinhaCampoIgual key={campo.campo} campo={campo} />
+          ))}
+          {/* 3. Vazios por último — menos relevantes */}
+          {iguaisVazios.map(campo => (
             <LinhaCampoIgual key={campo.campo} campo={campo} />
           ))}
         </div>
@@ -209,15 +221,23 @@ function LinhaCampoComparacao({ campo, valorEscolhido, onMudar }: LinhaCampoComp
 // ── Sub-componente: Linha campo igual ─────────────────────────────────────────
 
 function LinhaCampoIgual({ campo }: { campo: CampoIgual }) {
+  const temDado = campo.valor != null && campo.valor !== ''
   return (
-    <div style={estilos.linhaComparacao}>
+    <div style={{ ...estilos.linhaComparacao, ...(temDado ? {} : { opacity: 0.5 }) }}>
       <div style={estilos.linhaNome}>{campo.rotulo}</div>
       <div style={estilos.linhaValorIgual}>{fmtValor(campo.valor)}</div>
       <div style={estilos.linhaOrigens}>
-        <span style={estilos.badgeIgual}>
-          <CheckCircle size={13} weight="fill" />
-          igual
-        </span>
+        {temDado ? (
+          <span style={estilos.badgeIgual}>
+            <CheckCircle size={13} weight="fill" />
+            igual
+          </span>
+        ) : (
+          <span style={estilos.badgeVazio}>
+            <MinusCircle size={13} weight="fill" />
+            vazio
+          </span>
+        )}
       </div>
     </div>
   )
@@ -243,6 +263,8 @@ export function ModalConsolidarPedidos({
   const [fundirItens, setFundirItens] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [concluido, setConcluido] = useState(false)
+  const [infograficoPopover, setInfograficoPopover] = useState<'ativas' | 'dados' | 'vazias' | null>(null)
+  const [filtroCampos, setFiltroCampos] = useState<'todos' | 'divergentes' | 'iguais' | 'vazios'>('todos')
 
   const ids = pedidosSelecionados.map(p => p.id)
   const conflito_tipo_operacao = conflitoProp || (preview?.conflito_tipo_operacao ?? false)
@@ -507,64 +529,165 @@ export function ModalConsolidarPedidos({
   function renderPasso2() {
     if (!preview) return null
 
-    // Estatísticas para o infográfico
-    const todosCamposValores = [
-      ...preview.campos_divergentes.map(c => camposEscolhidos[c.campo] ?? c.valor_sugerido),
-      ...preview.campos_iguais.map(c => c.valor),
+    // Estatísticas para o infográfico — com rótulos para tooltips
+    const todosCampos = [
+      ...preview.campos_divergentes.map(c => ({
+        rotulo: c.rotulo,
+        grupo: c.grupo,
+        valor: camposEscolhidos[c.campo] ?? c.valor_sugerido,
+      })),
+      ...preview.campos_iguais.map(c => ({
+        rotulo: c.rotulo,
+        grupo: c.grupo,
+        valor: c.valor,
+      })),
     ]
-    const totalColunasAtivas = todosCamposValores.length
-    const totalComDados = todosCamposValores.filter(v => v != null && v !== '').length
-    const totalVazias = totalColunasAtivas - totalComDados
+    const totalColunasAtivas = todosCampos.length
+    const camposComDadosList = todosCampos.filter(c => c.valor != null && c.valor !== '')
+    const camposVaziosList = todosCampos.filter(c => c.valor == null || c.valor === '')
+    const totalComDados = camposComDadosList.length
+    const totalVazias = camposVaziosList.length
+
+    // Agrupar campos por grupo para popover
+    const agruparPorGrupo = (campos: Array<{ rotulo: string; grupo: string }>) => {
+      const porGrupo: Record<string, string[]> = {}
+      for (const c of campos) {
+        if (!porGrupo[c.grupo]) porGrupo[c.grupo] = []
+        porGrupo[c.grupo].push(c.rotulo)
+      }
+      return porGrupo
+    }
+
+    const renderPopoverColunas = (campos: Array<{ rotulo: string; grupo: string }>, titulo: string) => {
+      const porGrupo = agruparPorGrupo(campos)
+      return (
+        <div style={estilos.infograficoPopover}>
+          <span style={estilos.infograficoPopoverTitulo}>{titulo}</span>
+          <div style={estilos.infograficoPopoverScroll}>
+            {Object.entries(porGrupo).map(([grupo, rotulos]) => (
+              <div key={grupo} style={{ marginTop: '0.375rem' }}>
+                <span style={estilos.infograficoPopoverGrupo}>{grupo} ({rotulos.length})</span>
+                {rotulos.map(r => (
+                  <span key={r} style={estilos.infograficoPopoverItem}>{r}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
 
     return (
       <div style={estilos.passo2}>
-        {/* Infográfico resumo */}
+        {/* Infográfico resumo — popover via click, posicionado abaixo do card */}
         <div style={estilos.infograficoGrid}>
-          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(129,140,248,0.4)' }}>
-            <Stack size={20} weight="duotone" style={{ color: '#818cf8' }} />
-            <div>
-              <span style={estilos.infograficoValor}>{totalColunasAtivas}</span>
-              <span style={estilos.infograficoLabel}>Colunas ativas</span>
+          <div style={estilos.infograficoCardWrapper}>
+            <div
+              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(129,140,248,0.4)', cursor: 'pointer', ...(infograficoPopover === 'ativas' ? estilos.infograficoCardHover : {}) }}
+              onClick={() => setInfograficoPopover(prev => prev === 'ativas' ? null : 'ativas')}
+            >
+              <Stack size={20} weight="duotone" style={{ color: '#818cf8' }} />
+              <div>
+                <span style={estilos.infograficoValor}>{totalColunasAtivas}</span>
+                <span style={estilos.infograficoLabel}>Colunas ativas</span>
+              </div>
             </div>
+            {infograficoPopover === 'ativas' && renderPopoverColunas(todosCampos, 'Todas as colunas mapeadas')}
           </div>
-          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(74,222,128,0.4)' }}>
-            <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
-            <div>
-              <span style={estilos.infograficoValor}>{totalComDados}</span>
-              <span style={estilos.infograficoLabel}>Colunas com dados</span>
+          <div style={estilos.infograficoCardWrapper}>
+            <div
+              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(74,222,128,0.4)', cursor: 'pointer', ...(infograficoPopover === 'dados' ? estilos.infograficoCardHover : {}) }}
+              onClick={() => setInfograficoPopover(prev => prev === 'dados' ? null : 'dados')}
+            >
+              <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
+              <div>
+                <span style={estilos.infograficoValor}>{totalComDados}</span>
+                <span style={estilos.infograficoLabel}>Colunas com dados</span>
+              </div>
             </div>
+            {infograficoPopover === 'dados' && renderPopoverColunas(camposComDadosList, 'Colunas com valor preenchido')}
           </div>
-          <div style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
-            <MinusCircle size={20} weight="duotone" style={{ color: '#94a3b8' }} />
-            <div>
-              <span style={estilos.infograficoValor}>{totalVazias}</span>
-              <span style={estilos.infograficoLabel}>Colunas vazias</span>
+          <div style={estilos.infograficoCardWrapper}>
+            <div
+              style={{ ...estilos.infograficoCard, borderTop: '2px solid rgba(148,163,184,0.3)', cursor: 'pointer', ...(infograficoPopover === 'vazias' ? estilos.infograficoCardHover : {}) }}
+              onClick={() => setInfograficoPopover(prev => prev === 'vazias' ? null : 'vazias')}
+            >
+              <MinusCircle size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+              <div>
+                <span style={estilos.infograficoValor}>{totalVazias}</span>
+                <span style={estilos.infograficoLabel}>Colunas vazias</span>
+              </div>
             </div>
+            {infograficoPopover === 'vazias' && renderPopoverColunas(camposVaziosList, 'Colunas sem valor')}
           </div>
         </div>
 
-        {/* Header com legenda */}
+        {/* Filtros clicáveis */}
         <div style={estilos.legendaComparacao}>
-          <span style={estilos.legendaItem}>
-            <Warning size={14} weight="fill" style={{ color: 'var(--warning, #f59e0b)' }} />
-            Divergente — escolha o valor
-          </span>
-          <span style={estilos.legendaItem}>
-            <CheckCircle size={14} weight="fill" style={{ color: 'var(--success, #22c55e)' }} />
-            Igual — será mantido
-          </span>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(filtroCampos === 'todos' ? estilos.legendaFiltroAtivo : {}) }}
+            onClick={() => setFiltroCampos('todos')}
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(filtroCampos === 'divergentes' ? estilos.legendaFiltroDivergente : {}) }}
+            onClick={() => setFiltroCampos(f => f === 'divergentes' ? 'todos' : 'divergentes')}
+          >
+            <Warning size={14} weight="fill" style={{ color: filtroCampos === 'divergentes' ? '#fbbf24' : 'var(--warning, #f59e0b)' }} />
+            Divergentes
+          </button>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(filtroCampos === 'iguais' ? estilos.legendaFiltroIgual : {}) }}
+            onClick={() => setFiltroCampos(f => f === 'iguais' ? 'todos' : 'iguais')}
+          >
+            <CheckCircle size={14} weight="fill" style={{ color: filtroCampos === 'iguais' ? '#4ade80' : 'var(--success, #22c55e)' }} />
+            Iguais
+          </button>
+          <button
+            type="button"
+            style={{ ...estilos.legendaFiltro, ...(filtroCampos === 'vazios' ? estilos.legendaFiltroVazio : {}) }}
+            onClick={() => setFiltroCampos(f => f === 'vazios' ? 'todos' : 'vazios')}
+          >
+            <MinusCircle size={14} weight="fill" style={{ color: '#475569' }} />
+            Vazios
+          </button>
         </div>
 
-        {/* Grupos colapsáveis */}
-        {grupos.map((grupo, idx) => (
-          <GrupoColapsavel
-            key={grupo.grupo}
-            grupo={grupo}
-            camposEscolhidos={camposEscolhidos}
-            onMudarCampo={handleMudarCampo}
-            inicialmenteAberto={idx === 0 || grupo.divergentes.length > 0}
-          />
-        ))}
+        {/* Grupos colapsáveis — filtrados */}
+        {grupos.map((grupo) => {
+          // Aplicar filtro
+          const divergentesFiltrados = filtroCampos === 'iguais' || filtroCampos === 'vazios' ? [] : grupo.divergentes
+          const iguaisComDado = grupo.iguais.filter(c => c.valor != null && c.valor !== '')
+          const iguaisVazio = grupo.iguais.filter(c => c.valor == null || c.valor === '')
+          let iguaisFiltrados: CampoIgual[] = []
+          if (filtroCampos === 'todos') iguaisFiltrados = grupo.iguais
+          else if (filtroCampos === 'iguais') iguaisFiltrados = iguaisComDado
+          else if (filtroCampos === 'vazios') iguaisFiltrados = iguaisVazio
+          // divergentes: iguaisFiltrados stays empty
+
+          const grupoFiltrado: GrupoCampos = {
+            grupo: grupo.grupo,
+            divergentes: divergentesFiltrados,
+            iguais: iguaisFiltrados,
+          }
+
+          // Ocultar grupo se vazio após filtro
+          if (grupoFiltrado.divergentes.length === 0 && grupoFiltrado.iguais.length === 0) return null
+
+          return (
+            <GrupoColapsavel
+              key={grupo.grupo}
+              grupo={grupoFiltrado}
+              camposEscolhidos={camposEscolhidos}
+              onMudarCampo={handleMudarCampo}
+              inicialmenteAberto={grupoFiltrado.divergentes.length > 0 || grupoFiltrado.iguais.some(c => c.valor != null && c.valor !== '')}
+            />
+          )
+        })}
       </div>
     )
   }
@@ -957,7 +1080,7 @@ const estilos = {
   legendaComparacao: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.25rem',
+    gap: '0.375rem',
     padding: '0.5rem 0.75rem',
     background: 'var(--bg-surface)',
     borderRadius: 'var(--radius-md)',
@@ -969,6 +1092,40 @@ const estilos = {
     gap: '0.375rem',
     fontSize: '0.75rem',
     color: 'var(--text-muted)',
+  } as React.CSSProperties,
+  legendaFiltro: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.375rem',
+    padding: '0.3125rem 0.75rem',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    color: 'var(--text-muted)',
+    background: 'transparent',
+    border: '1px solid rgba(99, 102, 241, 0.12)',
+    borderRadius: '999px',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+  } as React.CSSProperties,
+  legendaFiltroAtivo: {
+    background: 'rgba(99, 102, 241, 0.15)',
+    borderColor: 'rgba(99, 102, 241, 0.3)',
+    color: '#a5b4fc',
+  } as React.CSSProperties,
+  legendaFiltroDivergente: {
+    background: 'rgba(251, 191, 36, 0.12)',
+    borderColor: 'rgba(251, 191, 36, 0.3)',
+    color: '#fbbf24',
+  } as React.CSSProperties,
+  legendaFiltroIgual: {
+    background: 'rgba(74, 222, 128, 0.12)',
+    borderColor: 'rgba(74, 222, 128, 0.3)',
+    color: '#4ade80',
+  } as React.CSSProperties,
+  legendaFiltroVazio: {
+    background: 'rgba(71, 85, 105, 0.15)',
+    borderColor: 'rgba(71, 85, 105, 0.3)',
+    color: '#64748b',
   } as React.CSSProperties,
 
   // Infográfico passo 2
@@ -1004,6 +1161,54 @@ const estilos = {
     textTransform: 'uppercase' as const,
     letterSpacing: '0.04em',
     fontWeight: 600,
+  } as React.CSSProperties,
+  infograficoCardWrapper: {
+    position: 'relative' as const,
+  } as React.CSSProperties,
+  infograficoCardHover: {
+    borderColor: 'rgba(99, 102, 241, 0.25)',
+    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.15)',
+    background: 'rgba(15, 23, 42, 0.65)',
+  } as React.CSSProperties,
+  infograficoPopover: {
+    position: 'absolute' as const,
+    top: '100%',
+    left: 0,
+    right: 0,
+    marginTop: '0.375rem',
+    background: '#0f172a',
+    border: '1px solid rgba(129, 140, 248, 0.22)',
+    borderRadius: '8px',
+    padding: '0.75rem 1rem',
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.6)',
+    zIndex: 10,
+    animation: 'fadeIn 0.15s ease',
+  } as React.CSSProperties,
+  infograficoPopoverTitulo: {
+    display: 'block',
+    fontSize: '0.8125rem',
+    fontWeight: 700,
+    color: '#f1f5f9',
+    lineHeight: 1.2,
+    marginBottom: '0.375rem',
+  } as React.CSSProperties,
+  infograficoPopoverScroll: {
+    maxHeight: '240px',
+    overflowY: 'auto' as const,
+    overscrollBehavior: 'contain' as const,
+  } as React.CSSProperties,
+  infograficoPopoverGrupo: {
+    display: 'block',
+    fontSize: '0.6875rem',
+    fontWeight: 700,
+    color: '#818cf8',
+  } as React.CSSProperties,
+  infograficoPopoverItem: {
+    display: 'block',
+    fontSize: '0.75rem',
+    color: '#94a3b8',
+    paddingLeft: '0.5rem',
+    lineHeight: 1.6,
   } as React.CSSProperties,
 
   // Grupo colapsável
@@ -1064,6 +1269,17 @@ const estilos = {
     fontSize: '0.6875rem',
     fontWeight: 600,
   } as React.CSSProperties,
+  badgeVazioPequeno: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    padding: '0.125rem 0.5rem',
+    background: 'rgba(71, 85, 105, 0.15)',
+    color: '#475569',
+    borderRadius: '999px',
+    fontSize: '0.6875rem',
+    fontWeight: 600,
+  } as React.CSSProperties,
   grupoCorpo: {
     display: 'flex',
     flexDirection: 'column' as const,
@@ -1120,6 +1336,18 @@ const estilos = {
     padding: '0.1875rem 0.5rem',
     background: 'color-mix(in srgb, var(--success, #22c55e) 15%, transparent)',
     color: 'var(--success, #22c55e)',
+    borderRadius: '999px',
+    fontSize: '0.6875rem',
+    fontWeight: 600,
+    whiteSpace: 'nowrap' as const,
+  } as React.CSSProperties,
+  badgeVazio: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    padding: '0.1875rem 0.5rem',
+    background: 'rgba(71, 85, 105, 0.15)',
+    color: '#475569',
     borderRadius: '999px',
     fontSize: '0.6875rem',
     fontWeight: 600,

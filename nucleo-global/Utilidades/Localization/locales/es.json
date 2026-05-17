@@ -3514,7 +3514,10 @@
         "aria_excluir": "Eliminar estado",
         "placeholder_nome": "Nombre del estado",
         "placeholder_novo": "Nuevo nombre de estado (ej.: En espera de aprobación)",
-        "cor": "Color"
+        "cor": "Color",
+        "erro_carregar": "No se pudieron cargar los estados. Verifique su conexión e intente de nuevo.",
+        "tentar_novamente": "Intentar de nuevo",
+        "nenhum_status": "No hay estados configurados. Haga clic en \"Nuevo Estado\" para crear uno."
       },
       "notificacoes": {
         "titulo": "Notificaciones",

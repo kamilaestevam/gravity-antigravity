@@ -259,7 +259,9 @@ const LABELS_FILTRO_INVERSO: Record<string, Record<string, string>> = Object.fro
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
 
-/** Lê abas do localStorage (salvo pelo Configuracoes) */
+/** Lê abas do localStorage (salvo pelo Configuracoes e pela API success da Lista).
+ *  Usa label do banco (cfg.label) como fonte da verdade — respeita customizações
+ *  feitas pelo usuário em Configurações (ex: "Transferido" → "Transferência"). */
 function lerAbasDoLocalStorage(t: (key: string) => string = i18next.t.bind(i18next)): GTAbaTipo[] | null {
   try {
     const raw = localStorage.getItem('pedido:status_config')
@@ -271,8 +273,7 @@ function lerAbasDoLocalStorage(t: (key: string) => string = i18next.t.bind(i18ne
       { valor: 'todos', label: t('pedido.status.todos') },
       ...entries.map(([id, cfg]) => ({
         valor: id,
-        // Use i18n for known statuses, keep custom label for user-defined ones
-        label: t(`pedido.status.${id}`) !== `pedido.status.${id}` ? t(`pedido.status.${id}`) : cfg.label,
+        label: cfg.label,
         cor: cfg.cor,
       })),
     ]
@@ -3926,8 +3927,11 @@ export default function Pedidos() {
 
   useEffect(() => {
     const sync = () => {
-      const abas = lerAbasDoLocalStorage(t)
-      if (abas) setStatusOpts(abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label })))
+      const abasLocal = lerAbasDoLocalStorage(t)
+      if (abasLocal && abasLocal.length > 1) {
+        setAbas(abasLocal)
+        setStatusOpts(abasLocal.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label })))
+      }
     }
     window.addEventListener('focus', sync)
     return () => window.removeEventListener('focus', sync)
@@ -4309,6 +4313,16 @@ export default function Pedidos() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspacesSelecionados])
 
+  // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { origem } = (e as CustomEvent<{ origem: string }>).detail ?? {}
+      if (origem !== 'lista') carregarInicial()
+    }
+    window.addEventListener('pedido:atualizado', handler)
+    return () => window.removeEventListener('pedido:atualizado', handler)
+  }, [carregarInicial])
+
   // ── Deep-link: auto-expandir pedido ao retornar do Configurador ────────────
   // URL param ?expandir=<pedidoId> — expande o pedido e limpa o param.
   // Depende de [carregando, pedidos] para garantir que:
@@ -4652,20 +4666,20 @@ export default function Pedidos() {
     pedidoConfigApi.listarStatus()
       .then(res => {
         if (res.data.length > 0) {
+          const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
           const abasApi: GTAbaTipo[] = [
             { valor: 'todos', label: 'Todos' },
-            ...res.data
-              .sort((a, b) => a.ordem - b.ordem)
-              .map((s: PedidoStatusConfig) => ({
-                valor: s.nome,
-                label: s.rotulo,
-                cor: s.cor,
-              })),
+            ...sorted.map((s: PedidoStatusConfig) => ({
+              valor: s.nome,
+              label: s.rotulo,
+              cor: s.cor,
+            })),
           ]
-          // Mescla com extras do localStorage (status criados pelo usuário)
-          const idsApi = new Set(abasApi.map(a => a.valor))
-          const extras = (abasLocal ?? []).filter(a => a.valor !== 'todos' && !idsApi.has(a.valor))
-          setAbas([...abasApi, ...extras])
+          setAbas(abasApi)
+          // Sincronizar localStorage para focus handler e outros consumers
+          const map: Record<string, { label: string; cor: string }> = {}
+          for (const s of sorted) map[s.nome] = { label: s.rotulo, cor: s.cor }
+          try { localStorage.setItem(PEDIDO_STATUS_STORAGE_KEY, JSON.stringify(map)) } catch { /* quota */ }
         }
       })
       .catch(() => {

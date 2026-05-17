@@ -201,34 +201,35 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       const tenant_id  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const company_id = getCompanyId(req)
 
-      const where: Record<string, unknown> = { id_organizacao: tenant_id }
-      if (company_id) where.id_workspace = company_id
+      // Status é org-wide — unique constraint é (id_organizacao, nome_pedido_status),
+      // sem id_workspace. Query sempre por org para evitar re-seed desnecessário.
+      const whereOrg = { id_organizacao: tenant_id }
 
       const status = await db.statusPedido.findMany({
-        where,
+        where: whereOrg,
         orderBy: { ordem_pedido_status: 'asc' },
       })
 
       // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
+      // Usa createMany + skipDuplicates porque a unique constraint é
+      // (id_organizacao, nome_pedido_status) — sem id_workspace. Se outro
+      // workspace já semeou, skipDuplicates evita P2002.
       if (status.length === 0) {
-        await Promise.all(
-          STATUS_PADRAO.map(s =>
-            db.statusPedido.create({
-              data: {
-                id_organizacao:                   tenant_id,
-                id_workspace:                     company_id ?? null,
-                nome_pedido_status:               s.nome,
-                rotulo_pedido_status:             s.rotulo,
-                cor_pedido_status:                s.cor,
-                ordem_pedido_status:              s.ordem,
-                padrao_pedido_status:             s.is_padrao,
-                gerenciado_sistema_pedido_status: s.is_sistema,
-              },
-            })
-          )
-        )
+        await db.statusPedido.createMany({
+          data: STATUS_PADRAO.map(s => ({
+            id_organizacao:                   tenant_id,
+            id_workspace:                     company_id ?? null,
+            nome_pedido_status:               s.nome,
+            rotulo_pedido_status:             s.rotulo,
+            cor_pedido_status:                s.cor,
+            ordem_pedido_status:              s.ordem,
+            padrao_pedido_status:             s.is_padrao,
+            gerenciado_sistema_pedido_status: s.is_sistema,
+          })),
+          skipDuplicates: true,
+        })
         const seeded = await db.statusPedido.findMany({
-          where,
+          where: { id_organizacao: tenant_id },
           orderBy: { ordem_pedido_status: 'asc' },
         })
         return res.json({ data: (seeded as PedidoStatusDB[]).map(mapStatus) })

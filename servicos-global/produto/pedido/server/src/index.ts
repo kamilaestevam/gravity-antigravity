@@ -47,6 +47,7 @@ import { duplicacoesPedidoRouter } from './routes/duplicacoes-pedido.js'
 import { exclusoesPedidoRouter } from './routes/exclusoes-pedido.js'
 import { reordenacaoItensPedidoRouter } from './routes/reordenacao-itens-pedido.js'
 import { colunasUsuarioRouter } from './routes/colunas-usuario-pedido.js'
+import { cardsUsuarioRouter } from './routes/cards-usuario-pedido.js'
 import { gabiProxyRouter } from './routes/gabi-pedido.js'
 import { behaviorTrackingRouter } from './routes/eventos-comportamento-pedido.js'
 import { anexosRouter } from './routes/anexos-pedido.js'
@@ -220,6 +221,7 @@ app.use('/api/v1/pedidos/edicoes-em-massa',            exigirPermissao('lista', 
 // smartImportRouter aplica `exigirPermissao('lista','editar')` internamente.
 app.use('/api/v1/pedidos/importacoes-inteligentes',    smartImportRouter)
 app.use('/api/v1/pedidos/colunas-usuario',             exigirPorMetodo('lista'), colunasUsuarioRouter)
+app.use('/api/v1/pedidos/cards-usuario',              exigirPermissao('configuracao', 'editar'), cardsUsuarioRouter)
 app.use(gabiProxyRouter)
 app.use(behaviorTrackingRouter)
 app.use('/api/v1/pedidos/anexos',                      exigirPorMetodo('lista'), anexosRouter)
@@ -227,11 +229,11 @@ app.use('/api/v1/pedidos/template-pedido',             exigirPermissao('configur
 app.use('/api/v1/pedidos/alteracoes-status-lote',      exigirPermissao('lista', 'editar'), loteRouter)
 app.use('/api/v1/pedidos/kanban',                      exigirPorMetodo('kanban'), kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), casasDecimaisRouter)
+app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
 app.use('/api/v1/pedidos/config',                      exigirPorMetodo('lista'), preferenciaUsuarioColunaPedidoRouter)
 app.use('/api/v1/pedidos/config',                      exigirPermissao('lista', 'editar'), snapshotAtualizacaoPedidoRouter)
 app.use('/api/v1/pedidos',                             exigirPermissao('lista', 'ver'), snapshotStatusPedidoRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), saldoFormulaRouter)
-app.use('/api/v1/pedidos/config',                      exigirPorMetodo('configuracao'), pedidosConfigRouter)
 // ── Routers de mutação (duplicacoes/exclusoes/importacao) ─────────────────────
 // Montados em sub-paths ESPECÍFICOS para evitar bug de middleware chain do
 // Express: quando montado em `/api/v1/pedidos` (genérico), o
@@ -268,6 +270,9 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
     const target = ((err as unknown as { meta?: { target?: string[] } }).meta?.target ?? []) as string[]
     if (target.some(f => f.includes('coluna_usuario'))) {
       return res.status(409).json({ error: { message: 'Já existe uma coluna com este nome. Se você excluiu anteriormente, tente um nome diferente.', code: 'DUPLICATE_COLUNA' } })
+    }
+    if (target.some(f => f.includes('nome_pedido_status'))) {
+      return res.status(409).json({ error: { message: 'Já existe um status com este nome neste workspace.', code: 'DUPLICATE_STATUS' } })
     }
     return res.status(409).json({ error: { message: 'Já existe um pedido com este número neste workspace. Use um número diferente.', code: 'DUPLICATE_NUMERO_PEDIDO' } })
   }

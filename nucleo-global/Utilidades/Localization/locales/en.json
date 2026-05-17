@@ -3369,7 +3369,10 @@
         "aria_excluir": "Delete status",
         "placeholder_nome": "Status name",
         "placeholder_novo": "New status name (e.g.: Awaiting Approval)",
-        "cor": "Color"
+        "cor": "Color",
+        "erro_carregar": "Could not load statuses. Check your connection and try again.",
+        "tentar_novamente": "Try again",
+        "nenhum_status": "No statuses configured. Click \"New Status\" to create one."
       },
       "notificacoes": {
         "titulo": "Notifications",

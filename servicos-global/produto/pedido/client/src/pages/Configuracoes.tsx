@@ -198,7 +198,7 @@ function CardSortavel({
         <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
             <span className="cfg-card-detail-panel__label">Campo base</span>
-            <span className="cfg-card-detail-panel__value">{t(def.labelKey)}</span>
+            <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
           </div>
           <div className="cfg-card-detail-panel__row">
             <span className="cfg-card-detail-panel__label">Agregação</span>
@@ -214,7 +214,7 @@ function CardSortavel({
           </div>
           <div className="cfg-card-detail-panel__row">
             <span className="cfg-card-detail-panel__label">Descrição</span>
-            <span className="cfg-card-detail-panel__value">{t(def.descKey)}</span>
+            <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
         </div>
       )}
@@ -337,7 +337,7 @@ function StatusSortavel({
           style={{ background: status.cor }}
         />
 
-        <span className="cfg-status-label">{t(`pedido.status.${status.nome}`, { defaultValue: status.rotulo })}</span>
+        <span className="cfg-status-label">{status.rotulo}</span>
 
         {status.is_sistema && (
           <span className="cfg-badge-sistema">{t('pedido.config.status.badge_sistema')}</span>

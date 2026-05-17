@@ -2851,6 +2851,8 @@
     "subtitulo": "Gerencie seus pedidos de importação e exportação",
     "total_pedidos": "Total de Pedidos",
     "valor_total": "Valor Total",
+    "valor_total_brl": "Total Pedidos — BRL",
+    "valor_total_brl_desc": "Todos os pedidos convertidos para R$",
     "pedidos_abertos": "Pedidos Abertos",
     "pedidos_atrasados": "Pedidos Atrasados",
     "novo_pedido": "Novo Pedido",
@@ -3211,7 +3213,10 @@
         "aria_excluir": "Excluir status",
         "placeholder_nome": "Nome do status",
         "placeholder_novo": "Nome do novo status (ex.: Aguardando Aprovação)",
-        "cor": "Cor"
+        "cor": "Cor",
+        "erro_carregar": "Não foi possível carregar os status. Verifique sua conexão e tente novamente.",
+        "tentar_novamente": "Tentar novamente",
+        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar."
       },
       "notificacoes": {
         "titulo": "Notificações",

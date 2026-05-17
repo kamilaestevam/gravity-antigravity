@@ -95,7 +95,7 @@ export const FILTRO_TRADUCOES_PT_BR: FiltroTraducoes = {
   selecionarTudo: 'Selecionar tudo',
   limparSelecao: 'Limpar seleção',
   limparFiltro: '× Limpar filtro',
-  limparTodos: 'Limpar tudo',
+  limparTodos: 'Limpar filtros',
   aplicar: 'Aplicar',
   ordenarAsc: 'Cresc.',
   ordenarDesc: 'Decresc.',

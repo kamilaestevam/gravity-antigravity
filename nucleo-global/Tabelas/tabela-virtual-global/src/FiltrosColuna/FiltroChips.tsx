@@ -126,7 +126,7 @@ export function FiltroChips<T,>({
         )
       })}
 
-      {colunasComFiltro.length > 0 && (
+      {colunasComFiltro.length > 1 && (
         <button className="fc-limpar-todos" onClick={onLimparTodos}>
           {t.limparTodos}
         </button>

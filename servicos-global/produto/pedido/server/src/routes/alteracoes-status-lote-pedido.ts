@@ -14,17 +14,16 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 
 export const loteRouter = Router()
 
-const STATUS_VALIDOS = ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'] as const
-type PedidoStatus = typeof STATUS_VALIDOS[number]
+const statusNomeSchema = z.string().min(1).max(100).regex(/^[a-z0-9_]+$/, 'Nome de status inválido')
 
 const StatusPreviewSchema = z.object({
   ids:        z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido'),
-  status_novo: z.enum(STATUS_VALIDOS),
+  status_novo: statusNomeSchema,
 })
 
 const StatusConfirmarSchema = z.object({
   ids:        z.array(z.string().min(1)).min(1),
-  status_novo: z.enum(STATUS_VALIDOS),
+  status_novo: statusNomeSchema,
 })
 
 // ── POST /preview ─────────────────────────────────────────────────────────────

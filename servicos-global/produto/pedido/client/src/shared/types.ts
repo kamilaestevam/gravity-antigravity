@@ -6,9 +6,9 @@
 
 // ── Status do Pedido ──────────────────────────────────────────────────────────
 
-export type PedidoStatus = 'rascunho' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
+export type PedidoStatus = string
 
-export const STATUS_PEDIDO_LABELS: Record<PedidoStatus, string> = {
+export const STATUS_PEDIDO_LABELS: Record<string, string> = {
   rascunho:      'Rascunho',
   aberto:        'Aberto',
   em_andamento:  'Em Andamento',
@@ -1005,6 +1005,22 @@ export interface ValorColunaUsuario {
   vinculo: 'pedido' | 'item'
   vinculo_id: string
   valor: string
+}
+
+// ── Cards customizados do usuário ────────────────────────────────────────────
+
+export interface CardUsuario {
+  id: string
+  tenant_id: string
+  nome: string
+  icone: string
+  cor: string
+  formula_expressao: string
+  formula_dependencias?: string[]
+  ordem: number
+  ativo: boolean
+  created_by: string
+  created_at: string
 }
 
 // ── Helpers de formatacao ─────────────────────────────────────────────────────

@@ -237,7 +237,7 @@ const atualizarProntaSchema = z.object({
 })
 
 const statusTransicaoSchema = z.object({
-  status: z.enum(['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']),
+  status: z.string().min(1).max(100).regex(/^[a-z0-9_]+$/, 'Nome de status inválido'),
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

@@ -233,27 +233,28 @@ function detectarTipoColunaPedido(col: GTColuna<Pedido>): FiltroTipo {
   return detectarTipoColunaCore(col, FILTRO_TIPO_OVERRIDES_PEDIDO)
 }
 
-/** Mapeia valor raw → label legível para exibição no filtro */
-const LABELS_FILTRO: Record<string, Record<string, string>> = {
+/** Mapeia valor raw → label legível para exibição no filtro (tipo_operacao é fixo, status é dinâmico) */
+const LABELS_FILTRO_FIXO: Record<string, Record<string, string>> = {
   tipo_operacao: { importacao: 'Importação', exportacao: 'Exportação' },
-  status: {
-    rascunho: 'Rascunho',
-    aberto: 'Aberto',
-    em_andamento: 'Em Andamento',
-    aprovado: 'Aprovado',
-    transferencia: 'Em Transferência',
-    consolidado: 'Consolidado',
-    cancelado: 'Cancelado',
-  },
 }
 
-/** Inverte LABELS_FILTRO: label → raw (para aplicar filtro com valor real do banco) */
-const LABELS_FILTRO_INVERSO: Record<string, Record<string, string>> = Object.fromEntries(
-  Object.entries(LABELS_FILTRO).map(([campo, map]) => [
-    campo,
-    Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw])),
-  ]),
-)
+function getLabelsFiltro(campo: string): Record<string, string> {
+  if (campo === 'status') {
+    const config = _lerStatusConfig()
+    const map: Record<string, string> = {}
+    for (const [nome, cfg] of Object.entries(config)) map[nome] = cfg.label
+    if (!Object.keys(map).length) {
+      return { rascunho: 'Rascunho', aberto: 'Aberto', em_andamento: 'Em Andamento', aprovado: 'Aprovado', transferencia: 'Transferido', consolidado: 'Consolidado', cancelado: 'Cancelado' }
+    }
+    return map
+  }
+  return LABELS_FILTRO_FIXO[campo] ?? {}
+}
+
+function getLabelsFiltroInverso(campo: string): Record<string, string> {
+  const map = getLabelsFiltro(campo)
+  return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
+}
 
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
@@ -4118,7 +4119,7 @@ export default function Pedidos() {
           if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
         } else if (filtro.tipo === 'enum') {
           const strVal = String(val ?? '')
-          const inverso = LABELS_FILTRO_INVERSO[campo]
+          const inverso = getLabelsFiltroInverso(campo)
           const rawSet = inverso
             ? new Set(Array.from(filtro.valor).map(l => inverso[l] ?? l))
             : filtro.valor
@@ -4555,13 +4556,12 @@ export default function Pedidos() {
 
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     setPopoverAberto(prev => prev === key ? null : key)
-    const th = anchor.closest('.gtv-th') as HTMLElement | null
-    const rect = th ? th.getBoundingClientRect() : anchor.getBoundingClientRect()
+    const rect = anchor.getBoundingClientRect()
     const popoverWidth = 260
-    let left = rect.left + (rect.width / 2) - (popoverWidth / 2)
+    let left = rect.left + rect.width - popoverWidth
     if (left < 8) left = 8
     if (left + popoverWidth > window.innerWidth - 8) left = window.innerWidth - popoverWidth - 8
-    setPopoverPos({ top: rect.bottom + 4, left })
+    setPopoverPos({ top: rect.bottom + 6, left })
   }, [])
 
   // Abre o modal customizado de exclusão (substitui o window.confirm() nativo).
@@ -4639,7 +4639,7 @@ export default function Pedidos() {
         if (nomes.length > 0) result[col.key] = Array.from(new Set(nomes)).sort()
         continue
       }
-      const labelMap = LABELS_FILTRO[col.key]
+      const labelMap = getLabelsFiltro(col.key)
       const vals = new Set<string>()
       for (const p of pedidos) {
         const raw = String((p as Record<string, unknown>)[col.key] ?? '').trim()
@@ -6100,7 +6100,7 @@ export default function Pedidos() {
             onOrdenar={handleOrdenar}
             onFechar={() => setPopoverAberto(null)}
             anchorPos={popoverPos}
-            labelInverso={LABELS_FILTRO_INVERSO[col.key]}
+            labelInverso={getLabelsFiltroInverso(col.key)}
           />
         )
       })()}

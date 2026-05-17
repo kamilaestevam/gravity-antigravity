@@ -38,7 +38,7 @@ import type {
   TipoCampoEdicao,
 } from '../shared/types'
 import { CAMPOS_BLOQUEADOS_PEDIDO, CAMPOS_BLOQUEADOS_ITEM } from '../shared/types'
-import { pedidoEdicaoMassaApi } from '../shared/api'
+import { pedidoEdicaoMassaApi, pedidoConfigApi } from '../shared/api'
 import { cadastrosApi } from '../shared/cadastrosApi'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -71,6 +71,7 @@ interface DefinicaoCampo {
 
 const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação
+  { campo: 'status_pedido',                             rotulo: 'Status',                                 tipo: 'select', nivel: 'pedido', grupo: 'Identificação' },
   { campo: 'numero_pedido',                           rotulo: 'Número do Pedido',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Identificação' },
   { campo: 'tipo_operacao_pedido',                    rotulo: 'Tipo de Operação',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificação',
     opcoes: [
@@ -415,6 +416,7 @@ interface OpcoesDinamicas {
   paises?: { valor: string; rotulo: string }[]
   moedas?: { valor: string; rotulo: string }[]
   unidades?: { valor: string; rotulo: string }[]
+  status?: { valor: string; rotulo: string }[]
 }
 
 const CAMPOS_PAIS = new Set(['pais_exportador', 'pais_fabricante', 'pais_ope'])
@@ -434,6 +436,9 @@ function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamica
     }
     if (CAMPOS_UNIDADE.has(d.campo) && opcoes.unidades?.length) {
       return { ...d, opcoes: opcoes.unidades }
+    }
+    if (d.campo === 'status_pedido' && opcoes.status?.length) {
+      return { ...d, opcoes: opcoes.status }
     }
     return d
   })
@@ -921,6 +926,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const { moedasOpcoes } = useMoedasPedido()
   const { unidadesComercializadas } = useUnidadesPedido()
   const [paisesOpcoes, setPaisesOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
+  const [statusOpcoes, setStatusOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
   useEffect(() => {
     cadastrosApi.listarPaises()
       .then(r => setPaisesOpcoes(r.itens.map(p => ({
@@ -928,12 +934,16 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
         rotulo: `${p.nome_pais_portugues}${p.codigo_pais_iso_alpha2 ? ` (${p.codigo_pais_iso_alpha2})` : ''}`,
       }))))
       .catch(() => {})
+    pedidoConfigApi.listarStatus()
+      .then(r => setStatusOpcoes(r.data.map(s => ({ valor: s.nome, rotulo: s.rotulo }))))
+      .catch(() => {})
   }, [])
   const opcoesDinamicas: OpcoesDinamicas = {
     incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     paises: paisesOpcoes,
     moedas: moedasOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     unidades: unidadesComercializadas.map(o => ({ valor: o.sigla, rotulo: o.rotulo })),
+    status: statusOpcoes,
   }
   const [passo, setPasso] = useState<1 | 2 | 3>(1)
   const [resultado, setResultado] = useState<EdicaoMassaResultado | null>(null)

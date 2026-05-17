@@ -754,7 +754,6 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'cubagem_total_pedido',
   // Outros agregados/sistema
   'quantidade_transferida_total',
-  'status',
   'id',
   'tenant_id',
   'product_id',

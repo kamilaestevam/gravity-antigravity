@@ -256,6 +256,9 @@ function getLabelsFiltroInverso(campo: string): Record<string, string> {
   return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
 }
 
+// ── Status sem espelhamento (independentes entre pai e item) ─────────────────
+const STATUS_SEM_ESPELHAMENTO = new Set(['transferencia', 'consolidado'])
+
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
@@ -4917,13 +4920,12 @@ export default function Pedidos() {
         if (!import.meta.env.DEV) throw err
         // DEV: sem servidor → aplica localmente mesmo assim
       })
-      // Items herdam status do pai (PedidoItem não tem coluna status própria).
-      // Quando "Aplicar a todos" está marcado OU simplesmente quando itens
-      // estão em cache, atualizamos o status herdado para reflexo imediato.
-      const itensCache = itensCarregadosRef.current.get(id)
-      if (itensCache && itensCache.length > 0) {
-        const itensAtualizados = itensCache.map(i => ({ ...i, status: novoStatus }))
-        itensCarregadosRef.current.set(id, itensAtualizados)
+      if (!STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+        const itensCache = itensCarregadosRef.current.get(id)
+        if (itensCache && itensCache.length > 0) {
+          const itensAtualizados = itensCache.map(i => ({ ...i, status: novoStatus }))
+          itensCarregadosRef.current.set(id, itensAtualizados)
+        }
       }
       setPedidos(prev => prev.map(p => p.id === id
         ? { ...atualizado, itens: itensCarregadosRef.current.get(id) ?? p.itens }
@@ -5107,21 +5109,29 @@ export default function Pedidos() {
     // Helper: itens carregados via handleCarregarFilhos (lista view retorna itens:[])
     const getItensCache = () => itensCarregadosRef.current.get(pedido.id) ?? []
 
-    // Status → espelha para o pedido inteiro (todos os itens mudam junto)
     if (campo === 'status') {
-      await pedidoLoteApi.mudarStatusConfirmar([pedido.id], String(valor)).catch(err => {
+      const novoStatus = String(valor)
+      if (STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+        const item = getItensCache().find(i => i.id === id)!
+        const itemAtualizado = { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: novoStatus } } as PedidoItem
+        const itensCache = getItensCache().map(i => i.id === id ? itemAtualizado : i)
+        itensCarregadosRef.current.set(pedido.id, itensCache)
+        setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, itens: itensCache }))
+        return itemAtualizado
+      }
+      await pedidoLoteApi.mudarStatusConfirmar([pedido.id], novoStatus).catch(err => {
         if (!import.meta.env.DEV) throw err
       })
-      const pedidoAtualizado = { ...pedido, status: String(valor) as Pedido['status'] }
+      const pedidoAtualizado = { ...pedido, status: novoStatus as Pedido['status'] }
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
           ...pedidoAtualizado,
-          itens: p.itens?.map(i => ({ ...i, _p: { ...(i as PedidoItemEnriquecido)._p, status: String(valor) } })),
+          itens: p.itens?.map(i => ({ ...i, _p: { ...(i as PedidoItemEnriquecido)._p, status: novoStatus } })),
         }
       }))
       const item = getItensCache().find(i => i.id === id)!
-      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: String(valor) } } as PedidoItem
+      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: novoStatus } } as PedidoItem
     }
 
     // Campos do pedido pai → atualiza o pedido, não o item

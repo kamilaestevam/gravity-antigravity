@@ -274,14 +274,14 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
       : t('pedido.modal_dup.label_item_plural')
 
   const tituloModal = (() => {
-    if (temPedidos && temItens) {
+    if (pedidos.length > 0 && itens.length > 0) {
       return t('pedido.modal_dup.titulo_misto', {
         n_p: pedidos.length, s_p: pedidos.length !== 1 ? 's' : '',
-        n_i: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length),
+        n_i: itens.length, label_i: labelItemFor(itens.length),
       })
     }
-    if (temItens && !temPedidos) {
-      return t('pedido.modal_dup.titulo_itens', { count: itensFiltrados.length, label_i: labelItemFor(itensFiltrados.length) })
+    if (itens.length > 0 && pedidos.length === 0) {
+      return t('pedido.modal_dup.titulo_itens', { count: itens.length, label_i: labelItemFor(itens.length) })
     }
     return t('pedido.modal_dup.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })
   })()
@@ -486,12 +486,13 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
               {previewPedidos.map(p => {
                 const pedidoCompleto = pedidos.find(pd => pd.id === p.id)
                 const itensDoPedido = pedidoCompleto?.itens ?? []
+                const numeroOriginal = pedidoCompleto?.numero_pedido ?? p.numero_pedido
                 const valorNumero = numeros[p.id] ?? ''
                 const numeroVazio = !valorNumero.trim()
                 return (
                   <tr key={p.id} className="modal-duplicar__linha">
                     <td className="modal-duplicar__td modal-duplicar__td--numero">
-                      {p.numero_pedido}
+                      {numeroOriginal}
                     </td>
                     <td className="modal-duplicar__td modal-duplicar__td--itens">
                       {renderListaItens(itensDoPedido)}

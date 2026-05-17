@@ -20,6 +20,7 @@ import type {
   ConsolidacaoPreview,
   ConsolidacaoPayload,
   CampoDivergente,
+  CampoIgual,
   ItemConsolidado,
   TransferPayload,
   TransferPreview,
@@ -561,8 +562,91 @@ export const pedidoConsolidarApi = {
     }),
 }
 
+/**
+ * Mapeamento completo: campo do Pedido → rótulo + grupo para consolidação.
+ *
+ * REGRA CRÍTICA: TODO campo de negócio do Pedido DEVE estar mapeado aqui.
+ * Campo não mapeado = dado perdido silenciosamente na consolidação.
+ * Contagem: 4+2+9+5+2+6+12+3+3+2 = 48 campos em 10 grupos.
+ */
+const CAMPOS_CONSOLIDACAO: Array<{ campo: string; rotulo: string; grupo: string }> = [
+  // ── Comercial (4) ──
+  { campo: 'incoterm', rotulo: 'Incoterm', grupo: 'Comercial' },
+  { campo: 'moeda_pedido', rotulo: 'Moeda', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento', grupo: 'Comercial' },
+  { campo: 'unidade_comercializada_pedido', rotulo: 'Unidade Comercializada', grupo: 'Comercial' },
+
+  // ── Datas (2) ──
+  { campo: 'data_emissao_pedido', rotulo: 'Data de Emissão', grupo: 'Datas' },
+  { campo: 'data_prevista_pedido_pronto', rotulo: 'Data de Embarque', grupo: 'Datas' },
+
+  // ── Exportador (9) ──
+  { campo: 'nome_exportador', rotulo: 'Nome', grupo: 'Exportador' },
+  { campo: 'cnpj_exportador', rotulo: 'CNPJ', grupo: 'Exportador' },
+  { campo: 'endereco_exportador', rotulo: 'Endereço', grupo: 'Exportador' },
+  { campo: 'pais_exportador', rotulo: 'País', grupo: 'Exportador' },
+  { campo: 'estado_exportador', rotulo: 'Estado', grupo: 'Exportador' },
+  { campo: 'cidade_exportador', rotulo: 'Cidade', grupo: 'Exportador' },
+  { campo: 'zip_code_exportador', rotulo: 'CEP / Zip Code', grupo: 'Exportador' },
+  { campo: 'exportador_ou_fabricante', rotulo: 'Exportador ou Fabricante', grupo: 'Exportador' },
+  { campo: 'relacao_exportador_fabricante', rotulo: 'Relação Exportador-Fabricante', grupo: 'Exportador' },
+
+  // ── Contato Exportador (5) ──
+  { campo: 'nome_contato_exportador', rotulo: 'Nome do Contato', grupo: 'Contato Exportador' },
+  { campo: 'email_contato_exportador', rotulo: 'E-mail', grupo: 'Contato Exportador' },
+  { campo: 'whatsapp_contato_exportador', rotulo: 'WhatsApp', grupo: 'Contato Exportador' },
+  { campo: 'cargo_contato_exportador', rotulo: 'Cargo', grupo: 'Contato Exportador' },
+  { campo: 'departamento_contato_exportador', rotulo: 'Departamento', grupo: 'Contato Exportador' },
+
+  // ── Importador (2) ──
+  { campo: 'nome_importador', rotulo: 'Nome', grupo: 'Importador' },
+  { campo: 'cnpj_importador', rotulo: 'CNPJ', grupo: 'Importador' },
+
+  // ── Fabricante (6) ──
+  { campo: 'nome_fabricante', rotulo: 'Nome', grupo: 'Fabricante' },
+  { campo: 'endereco_fabricante', rotulo: 'Endereço', grupo: 'Fabricante' },
+  { campo: 'pais_fabricante', rotulo: 'País', grupo: 'Fabricante' },
+  { campo: 'estado_fabricante', rotulo: 'Estado', grupo: 'Fabricante' },
+  { campo: 'cidade_fabricante', rotulo: 'Cidade', grupo: 'Fabricante' },
+  { campo: 'zip_code_fabricante', rotulo: 'CEP / Zip Code', grupo: 'Fabricante' },
+
+  // ── OPE (12) ──
+  { campo: 'nome_ope', rotulo: 'Nome', grupo: 'OPE' },
+  { campo: 'codigo_ope', rotulo: 'Código', grupo: 'OPE' },
+  { campo: 'cnpj_raiz_empresa_responsavel', rotulo: 'CNPJ Raiz', grupo: 'OPE' },
+  { campo: 'situacao_ope', rotulo: 'Situação', grupo: 'OPE' },
+  { campo: 'versao_ope', rotulo: 'Versão', grupo: 'OPE' },
+  { campo: 'endereco_ope', rotulo: 'Endereço', grupo: 'OPE' },
+  { campo: 'pais_ope', rotulo: 'País', grupo: 'OPE' },
+  { campo: 'estado_ope', rotulo: 'Estado', grupo: 'OPE' },
+  { campo: 'cidade_ope', rotulo: 'Cidade', grupo: 'OPE' },
+  { campo: 'zip_code_ope', rotulo: 'CEP / Zip Code', grupo: 'OPE' },
+  { campo: 'tin_ope', rotulo: 'TIN', grupo: 'OPE' },
+  { campo: 'email_ope', rotulo: 'E-mail', grupo: 'OPE' },
+
+  // ── Câmbio (3) ──
+  { campo: 'taxa_cambio_estimada', rotulo: 'Taxa de Câmbio Estimada', grupo: 'Câmbio' },
+  { campo: 'moeda_cambio_pedido', rotulo: 'Moeda do Câmbio', grupo: 'Câmbio' },
+  { campo: 'contrato_cambio_id_pedido', rotulo: 'Contrato de Câmbio', grupo: 'Câmbio' },
+
+  // ── Documentos (5) ──
+  { campo: 'numero_proforma', rotulo: 'Nº Proforma', grupo: 'Documentos' },
+  { campo: 'numero_invoice', rotulo: 'Nº Invoice', grupo: 'Documentos' },
+  { campo: 'referencia_importador', rotulo: 'Referência do Importador', grupo: 'Documentos' },
+  { campo: 'referencia_exportador', rotulo: 'Referência do Exportador', grupo: 'Documentos' },
+  { campo: 'referencia_fabricante', rotulo: 'Referência do Fabricante', grupo: 'Documentos' },
+
+  // ── Logística (3) ──
+  { campo: 'peso_liquido_total_pedido', rotulo: 'Peso Líquido Total', grupo: 'Logística' },
+  { campo: 'peso_bruto_total_pedido', rotulo: 'Peso Bruto Total', grupo: 'Logística' },
+  { campo: 'cubagem_total_pedido', rotulo: 'Cubagem Total', grupo: 'Logística' },
+]
+
 /** Mock de preview — detecta divergências nos pedidos selecionados do MOCK_PEDIDOS_RESPONSE.
- *  Se os IDs não existem no mock (ex: dados reais do banco em DEV), gera preview sintético. */
+ *  Se os IDs não existem no mock (ex: dados reais do banco em DEV), gera preview sintético.
+ *
+ *  REGRA: TODOS os 48 campos de CAMPOS_CONSOLIDACAO são analisados.
+ *  Campo ausente no pedido → tratado como null (igual se ambos null). */
 function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   if (ids.length < 2) {
     throw new Error('Selecione ao menos 2 pedidos para consolidar')
@@ -570,74 +654,126 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
 
   const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => ids.includes(p.id))
 
-  // ── IDs reais (não encontrados no mock) → preview sintético ──
-  if (pedidos.length < 2) {
-    const ano = new Date().getFullYear()
-    const seq = String(ids.length + 1).padStart(3, '0')
+  // ── Análise completa dos 48 campos ──
+  // Funciona tanto para pedidos mock quanto para o preview sintético
+  const fontes = pedidos.length >= 2
+    ? pedidos
+    : null // fallback sintético
+
+  const camposDivergentes: CampoDivergente[] = []
+  const camposIguais: CampoIgual[] = []
+
+  if (fontes) {
+    // ── Pedidos mock encontrados → análise real de TODOS os 48 campos ──
+    for (const def of CAMPOS_CONSOLIDACAO) {
+      const valores = fontes.map(p => ({
+        pedido_id: p.id,
+        numero_pedido: p.numero_pedido,
+        valor: ((p as unknown as Record<string, unknown>)[def.campo] as string | number | null) ?? null,
+      }))
+      const unicos = new Set(valores.map(v => String(v.valor)))
+
+      if (unicos.size > 1) {
+        camposDivergentes.push({
+          campo: def.campo,
+          rotulo: def.rotulo,
+          grupo: def.grupo,
+          valores,
+          valor_sugerido: valores[0].valor,
+        })
+      } else {
+        camposIguais.push({
+          campo: def.campo,
+          rotulo: def.rotulo,
+          grupo: def.grupo,
+          valor: valores[0].valor,
+        })
+      }
+    }
+  } else {
+    // ── IDs reais (não encontrados no mock) → preview sintético com TODOS os 48 campos ──
+    // Gera divergência em campos-chave, restante como igual (com dados ou null)
+    // REGRA: todos os campos que tipicamente têm dados devem ter valores sintéticos
+    const sinteticoDivergentes: Record<string, [string, string]> = {
+      incoterm: ['FAS', 'FOB'],
+      condicao_pagamento: ['30 dias', '60 dias'],
+      nome_exportador: ['Exportador Alpha', 'Exportador Beta'],
+      data_emissao_pedido: ['2026-01-15', '2026-02-20'],
+      nome_fabricante: ['Fabricante Alpha', 'Fabricante Beta'],
+    }
+    const sinteticoIguais: Record<string, string | number | null> = {
+      moeda_pedido: 'EUR',
+      unidade_comercializada_pedido: 'KG',
+      nome_importador: 'Importadora Brasil Ltda.',
+      cnpj_importador: '12.345.678/0001-99',
+      cnpj_exportador: '98-7654321',
+      pais_exportador: 'China',
+      cidade_exportador: 'Shenzhen',
+      estado_exportador: 'Guangdong',
+      endereco_exportador: 'No. 88 Keyuan Road, Nanshan District',
+      zip_code_exportador: '518057',
+      nome_contato_exportador: 'Li Wei',
+      email_contato_exportador: 'li.wei@exportador.cn',
+      pais_fabricante: 'China',
+      cidade_fabricante: 'Shenzhen',
+      numero_proforma: 'PRO-2026/001',
+      referencia_importador: 'REF-IMP-001',
+      referencia_exportador: 'EXP-REF-001',
+      peso_liquido_total_pedido: 0,
+      peso_bruto_total_pedido: 0,
+      cubagem_total_pedido: 0,
+      taxa_cambio_estimada: 5.45,
+      moeda_cambio_pedido: 'BRL',
+    }
+
+    for (const def of CAMPOS_CONSOLIDACAO) {
+      const div = sinteticoDivergentes[def.campo]
+      const igualValor = sinteticoIguais[def.campo]
+
+      if (div) {
+        camposDivergentes.push({
+          campo: def.campo,
+          rotulo: def.rotulo,
+          grupo: def.grupo,
+          valores: ids.map((id, i) => ({
+            pedido_id: id,
+            numero_pedido: `Pedido ${i + 1}`,
+            valor: i === 0 ? div[0] : div[1],
+          })),
+          valor_sugerido: div[0],
+        })
+      } else {
+        camposIguais.push({
+          campo: def.campo,
+          rotulo: def.rotulo,
+          grupo: def.grupo,
+          valor: igualValor !== undefined ? igualValor : null,
+        })
+      }
+    }
+  }
+
+  // Mapa de itens por part_number
+  const ano = new Date().getFullYear()
+  const seq = String(MOCK_PEDIDOS_RESPONSE.data.length + 1).padStart(3, '0')
+
+  if (!fontes) {
+    // ── Sintético: itens genéricos ──
     return {
       ids,
-      campos_divergentes: [
-        {
-          campo: 'incoterm',
-          rotulo: 'Incoterm',
-          grupo: 'Comercial',
-          valores: ids.map((id, i) => ({
-            pedido_id: id,
-            numero_pedido: `Pedido ${i + 1}`,
-            valor: i === 0 ? 'FOB' : 'CIF',
-          })),
-          valor_sugerido: 'FOB',
-        },
-        {
-          campo: 'condicao_pagamento',
-          rotulo: 'Condição de Pagamento',
-          grupo: 'Comercial',
-          valores: ids.map((id, i) => ({
-            pedido_id: id,
-            numero_pedido: `Pedido ${i + 1}`,
-            valor: i === 0 ? '30 dias' : '60 dias',
-          })),
-          valor_sugerido: '30 dias',
-        },
-        {
-          campo: 'nome_exportador',
-          rotulo: 'Exportador — Nome',
-          grupo: 'Exportador',
-          valores: ids.map((id, i) => ({
-            pedido_id: id,
-            numero_pedido: `Pedido ${i + 1}`,
-            valor: i === 0 ? 'Exportador Alpha' : 'Exportador Beta',
-          })),
-          valor_sugerido: 'Exportador Alpha',
-        },
-        {
-          campo: 'data_emissao_pedido',
-          rotulo: 'Data de Emissão',
-          grupo: 'Datas',
-          valores: ids.map((id, i) => ({
-            pedido_id: id,
-            numero_pedido: `Pedido ${i + 1}`,
-            valor: i === 0 ? '2026-01-15' : '2026-02-20',
-          })),
-          valor_sugerido: '2026-01-15',
-        },
-      ],
-      campos_iguais: [
-        { campo: 'moeda_pedido', rotulo: 'Moeda', grupo: 'Comercial', valor: 'USD' },
-      ],
-      itens: ids.flatMap((id, i) => ([
-        {
-          part_number: `PART-${String(i + 1).padStart(3, '0')}`,
-          descricao_item: `Item sintético ${i + 1}`,
-          ncm: '8471.30.19',
-          unidade_comercializada_item: 'UN',
-          moeda_item: 'USD',
-          valor_por_unidade_item: 100 + (i * 50),
-          quantidade_total: 10 + (i * 5),
-          pedidos_origem: [`Pedido ${i + 1}`],
-          pode_fundir: false,
-        },
-      ])),
+      campos_divergentes: camposDivergentes,
+      campos_iguais: camposIguais,
+      itens: ids.map((id, i) => ({
+        part_number: `PART-${String(i + 1).padStart(3, '0')}`,
+        descricao_item: `Item sintético ${i + 1}`,
+        ncm: '8471.30.19',
+        unidade_comercializada_item: 'UN',
+        moeda_item: 'USD',
+        valor_por_unidade_item: 100 + (i * 50),
+        quantidade_total: 10 + (i * 5),
+        pedidos_origem: [`Pedido ${i + 1}`],
+        pode_fundir: false,
+      })),
       valor_total_soma: ids.length * 25000,
       moeda: 'USD',
       numero_sugerido: `PO-CONS-${ano}/${seq}`,
@@ -645,38 +781,9 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
     }
   }
 
-  // ── IDs do mock encontrados → preview baseado nos dados reais do mock ──
-  const camposDivergentes: CampoDivergente[] = []
-
-  const verificarCampo = (campo: keyof typeof pedidos[0], rotulo: string, grupo = 'Comercial') => {
-    const valores = pedidos.map(p => ({
-      pedido_id: p.id,
-      numero_pedido: p.numero_pedido,
-      valor: (p[campo] as string | number | null) ?? null,
-    }))
-    const unicos = new Set(valores.map(v => String(v.valor)))
-    if (unicos.size > 1) {
-      camposDivergentes.push({
-        campo,
-        rotulo,
-        grupo,
-        valores,
-        valor_sugerido: valores[0].valor,
-      })
-    }
-    return unicos.size === 1
-  }
-
-  const camposIguais: Array<{ campo: string; rotulo: string; grupo: string; valor: string | number | null }> = []
-  if (verificarCampo('incoterm', 'Incoterm')) camposIguais.push({ campo: 'incoterm_pedido', rotulo: 'Incoterm', grupo: 'Comercial', valor: pedidos[0]?.incoterm ?? null })
-  if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push({ campo: 'moeda_pedido', rotulo: 'Moeda', grupo: 'Comercial', valor: pedidos[0]?.moeda_pedido ?? null })
-  if (verificarCampo('nome_exportador', 'Exportador', 'Exportador')) camposIguais.push({ campo: 'nome_exportador', rotulo: 'Exportador — Nome', grupo: 'Exportador', valor: pedidos[0]?.nome_exportador ?? null })
-  if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido', 'Datas')) camposIguais.push({ campo: 'data_emissao_pedido', rotulo: 'Data de Emissão', grupo: 'Datas', valor: pedidos[0]?.data_emissao_pedido ?? null })
-  if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push({ campo: 'condicao_pagamento_pedido', rotulo: 'Condição de Pagamento', grupo: 'Comercial', valor: pedidos[0]?.condicao_pagamento ?? null })
-
-  // Mapa de itens por part_number
+  // ── Pedidos mock encontrados → itens reais ──
   const itensPorPart: Record<string, ItemConsolidado> = {}
-  for (const pedido of pedidos) {
+  for (const pedido of fontes) {
     for (const item of pedido.itens) {
       if (itensPorPart[item.part_number]) {
         itensPorPart[item.part_number].quantidade_total += item.quantidade_atual_pedido
@@ -698,11 +805,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
     }
   }
 
-  const valorTotal = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  const primeiraPedido = pedidos[0]
-  const ano = new Date().getFullYear()
-  const seq = String(MOCK_PEDIDOS_RESPONSE.data.length + 1).padStart(3, '0')
-  const numeroSugerido = `PO-CONS-${ano}/${seq}`
+  const valorTotal = fontes.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
 
   return {
     ids,
@@ -710,9 +813,9 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
     campos_iguais: camposIguais,
     itens: Object.values(itensPorPart),
     valor_total_soma: valorTotal,
-    moeda: primeiraPedido.moeda_pedido,
-    numero_sugerido: numeroSugerido,
-    pedidos_info: pedidos.map(p => ({ id: p.id, numero: p.numero_pedido })),
+    moeda: fontes[0].moeda_pedido,
+    numero_sugerido: `PO-CONS-${ano}/${seq}`,
+    pedidos_info: fontes.map(p => ({ id: p.id, numero: p.numero_pedido })),
   }
 }
 
@@ -1351,9 +1454,18 @@ function mockDuplicarPreview(ids: string[]): {
   config: { numero_auto: boolean; copiar_datas: boolean; status_inicial: string }
   pedidos: { id: string; numero_pedido: string; total_itens: number }[]
 } {
-  const pedidos = MOCK_PEDIDOS_RESPONSE.data
+  let pedidos = MOCK_PEDIDOS_RESPONSE.data
     .filter(p => ids.includes(p.id))
     .map(p => ({ id: p.id, numero_pedido: p.numero_pedido, total_itens: p.itens?.length ?? 0 }))
+
+  if (pedidos.length === 0) {
+    pedidos = ids.map((id, idx) => ({
+      id,
+      numero_pedido: `PO-${String(idx + 1).padStart(4, '0')}`,
+      total_itens: 3,
+    }))
+  }
+
   return {
     config: { numero_auto: false, copiar_datas: false, status_inicial: 'copiar' },
     pedidos,

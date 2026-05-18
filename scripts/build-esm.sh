@@ -32,13 +32,41 @@ if [ "$USE_TSX" = true ]; then
   # Always use forward slashes (URLs require it, even on Windows)
   REL_ENTRY=$(node -e "const p=require('path'); console.log(p.relative('$OUTDIR', '$ENTRY').replace(/\\\\/g, '/'))")
 
+  # Find the service's tsconfig (tsconfig.server.json preferred, fallback tsconfig.json)
+  # Walk up from entry file to find it
+  ENTRY_DIR=$(dirname "$ENTRY")
+  TSCONFIG=""
+  SEARCH_DIR="$ENTRY_DIR"
+  while [ "$SEARCH_DIR" != "." ] && [ -n "$SEARCH_DIR" ]; do
+    if [ -f "$SEARCH_DIR/tsconfig.server.json" ]; then
+      TSCONFIG="$SEARCH_DIR/tsconfig.server.json"
+      break
+    elif [ -f "$SEARCH_DIR/tsconfig.json" ] && [ "$SEARCH_DIR" != "." ]; then
+      TSCONFIG="$SEARCH_DIR/tsconfig.json"
+      break
+    fi
+    SEARCH_DIR=$(dirname "$SEARCH_DIR")
+  done
+
+  REL_TSCONFIG=""
+  TSCONFIG_LINE=""
+  if [ -n "$TSCONFIG" ]; then
+    REL_TSCONFIG=$(node -e "const p=require('path'); console.log(p.relative('$OUTDIR', '$TSCONFIG').replace(/\\\\/g, '/'))")
+    TSCONFIG_LINE="register({ tsconfig: resolve(__dir, '${REL_TSCONFIG}') });"
+  else
+    TSCONFIG_LINE="register();"
+  fi
+
   cat > "$OUTFILE" << LOADER
 // Auto-generated tsx loader — do not edit
 // Services with cross-service imports or custom Prisma paths cannot be
 // bundled by esbuild. This loader uses Node.js module hooks to handle
 // TypeScript imports at runtime via tsx.
 import { register } from 'tsx/esm/api';
-register();
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+const __dir = dirname(fileURLToPath(import.meta.url));
+${TSCONFIG_LINE}
 await import(new URL('${REL_ENTRY}', import.meta.url).href);
 LOADER
 

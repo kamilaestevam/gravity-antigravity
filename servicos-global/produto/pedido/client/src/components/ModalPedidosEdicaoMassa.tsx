@@ -2028,7 +2028,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
             <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>
               {temErros
                 ? `${sucessos} de ${totalPedidos} pedido(s) atualizados — ${falhas} com erro`
-                : `${sucessos} pedido(s) atualizados · ${resultado.itens_atualizados} itens`}
+                : `${sucessos} pedido(s) atualizados${resultado.itens_atualizados > 0 ? ` · ${resultado.itens_atualizados} itens` : ''}`}
             </p>
           </div>
         </div>

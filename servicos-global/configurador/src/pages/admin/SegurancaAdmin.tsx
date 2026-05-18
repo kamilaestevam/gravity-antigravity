@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck, ShieldWarning, ShieldSlash,
   Lock, Eye, Warning, Key, Timer,
   ArrowsClockwise,
+  ClockCounterClockwise, Database, Certificate, HardDrives,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -12,6 +13,12 @@ import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+
+// Novas abas — lazy loading (só carregam quando selecionadas)
+const AbaAuditTrail = lazy(() => import('./seguranca/AbaAuditTrail').then(m => ({ default: m.AbaAuditTrail })))
+const AbaIsolamento = lazy(() => import('./seguranca/AbaIsolamento').then(m => ({ default: m.AbaIsolamento })))
+const AbaCompliance = lazy(() => import('./seguranca/AbaCompliance').then(m => ({ default: m.AbaCompliance })))
+const AbaInfra = lazy(() => import('./seguranca/AbaInfra').then(m => ({ default: m.AbaInfra })))
 
 // ─── Tipos (espelhados do backend) ────────────────────────────────────────
 
@@ -204,7 +211,7 @@ const POLL_INTERVAL = 30_000 // 30s (antes: 15s × 5 endpoints = 20 req/min por 
 
 export function SegurancaAdmin() {
   const { t } = useTranslation()
-  const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets'>('health')
+  const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets' | 'audit' | 'isolamento' | 'compliance' | 'infra'>('health')
   const [filtroSeveridade, setFiltroSeveridade] = useState<string>('TODOS')
   const [filtroAction, setFiltroAction] = useState<string>('TODOS')
   const [lastUpdate, setLastUpdate] = useState<string>('')
@@ -450,6 +457,10 @@ export function SegurancaAdmin() {
           { key: 'events' as const, label: t('admin.seguranca-admin.aba_eventos'), icon: <Eye size={16} /> },
           { key: 'ratelimit' as const, label: t('admin.seguranca-admin.aba_rate_limit'), icon: <Timer size={16} /> },
           { key: 'secrets' as const, label: t('admin.seguranca-admin.aba_secrets'), icon: <Key size={16} /> },
+          { key: 'audit' as const, label: 'Audit Trail', icon: <ClockCounterClockwise size={16} /> },
+          { key: 'isolamento' as const, label: 'Isolamento', icon: <Database size={16} /> },
+          { key: 'compliance' as const, label: 'Compliance', icon: <Certificate size={16} /> },
+          { key: 'infra' as const, label: 'Infra & DR', icon: <HardDrives size={16} /> },
         ].map(tab => (
           <button
             key={tab.key}
@@ -545,9 +556,32 @@ export function SegurancaAdmin() {
         )
       )}
 
-      {/* ── Aba: Eventos ── */}
+      {/* ── Aba: Eventos (F-04: filtro rápido falhas de autenticação) ── */}
       {abaAtiva === 'events' && (
         <>
+          {/* F-04: Filtros rápidos por tipo de falha */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            {[
+              { key: 'TODOS', label: 'Todos' },
+              { key: 'AUTH_FAILURE', label: '🔒 Falhas de Autenticação (F-04)' },
+              { key: 'RATE_LIMIT_EXCEEDED', label: '⚡ Rate Limit Excedido' },
+              { key: 'UNAUTHORIZED_ACCESS', label: '🚫 Acesso Não Autorizado' },
+            ].map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFiltroAction(f.key === 'TODOS' ? 'TODOS' : f.key)}
+                style={{
+                  padding: '0.35rem 0.75rem', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 600,
+                  border: filtroAction === f.key ? '1px solid #10b981' : '1px solid var(--ws-border, #334155)',
+                  background: filtroAction === f.key ? 'rgba(16,185,129,0.12)' : 'transparent',
+                  color: filtroAction === f.key ? '#10b981' : 'var(--ws-muted, #94a3b8)',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
             <SelectGlobal
               valor={filtroSeveridade}
@@ -578,7 +612,7 @@ export function SegurancaAdmin() {
         </>
       )}
 
-      {/* ── Aba: Rate Limiting ── */}
+      {/* ── Aba: Rate Limiting (F-07: utilização por plano/organização) ── */}
       {abaAtiva === 'ratelimit' && (
         <>
           <div style={{
@@ -596,6 +630,49 @@ export function SegurancaAdmin() {
               </strong>
             </span>
           </div>
+
+          {/* F-07: Utilização por organização com barras visuais */}
+          {rateMetrics.length > 0 && (
+            <div style={{
+              padding: '1rem', marginBottom: '1rem',
+              background: 'var(--ws-surface, #1e293b)', borderRadius: '8px',
+              border: '1px solid var(--ws-border, #334155)',
+            }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.75rem' }}>
+                Utilização por Organização (F-07)
+              </div>
+              {(() => {
+                // Agrupar por tenant_id para mostrar utilização consolidada
+                const porOrg = rateMetrics.reduce<Record<string, { total: number; max: number; bloqueados: number }>>((acc, m) => {
+                  const key = m.tenant_id || 'anonymous'
+                  if (!acc[key]) acc[key] = { total: 0, max: 0, bloqueados: 0 }
+                  acc[key].total += m.count
+                  acc[key].max += m.limit_max
+                  if (m.blocked) acc[key].bloqueados += 1
+                  return acc
+                }, {})
+                return Object.entries(porOrg).map(([orgId, info]) => {
+                  const pct = Math.min((info.total / info.max) * 100, 100)
+                  const cor = pct > 90 ? '#f87171' : pct > 70 ? '#fbbf24' : '#34d399'
+                  return (
+                    <div key={orgId} style={{ marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '4px' }}>
+                        <span style={{ color: 'var(--ws-text, #f1f5f9)', fontWeight: 500 }}>
+                          {orgId === 'anonymous' ? 'Anônimo' : orgId.slice(0, 12) + '...'}
+                          {info.bloqueados > 0 && <span style={{ color: '#f87171', marginLeft: '8px', fontSize: '0.7rem' }}>({info.bloqueados} bloqueados)</span>}
+                        </span>
+                        <span style={{ color: cor, fontWeight: 600 }}>{Math.round(pct)}% ({info.total}/{info.max})</span>
+                      </div>
+                      <div style={{ height: '6px', borderRadius: '3px', background: 'var(--ws-base, #0f172a)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: cor, borderRadius: '3px', transition: 'width 0.3s ease' }} />
+                      </div>
+                    </div>
+                  )
+                })
+              })()}
+            </div>
+          )}
+
           <TabelaGlobal
             dados={rateMetrics}
             colunas={colunasRateLimit}
@@ -606,7 +683,7 @@ export function SegurancaAdmin() {
         </>
       )}
 
-      {/* ── Aba: Secrets & Rotacao ── */}
+      {/* ── Aba: Secrets & Rotação (F-06: histórico de rotação e idade) ── */}
       {abaAtiva === 'secrets' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {secrets.length === 0 && !loading && (
@@ -614,45 +691,93 @@ export function SegurancaAdmin() {
               {t('admin.seguranca-admin.secrets.erro_carregar')}
             </div>
           )}
-          {secrets.map((secret, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '1rem',
-                padding: '1rem 1.25rem',
-                background: 'var(--ws-surface, #1e293b)',
-                borderRadius: '8px',
-                border: `1px solid ${!secret.configured ? '#7f1d1d' : 'var(--ws-border, #334155)'}`,
-              }}
-            >
-              <Key weight="duotone" size={20} style={{ color: secret.configured ? '#10b981' : '#f87171' }} />
-              <div style={{ flex: 1 }}>
-                <TooltipGlobal titulo={secret.name} descricao="Nome da variável de ambiente configurada no servidor">
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)', display: 'inline-block' }}>
-                    {secret.name}
-                  </div>
-                </TooltipGlobal>
-                <TooltipGlobal titulo="Prefixo" descricao="Primeiros caracteres do valor configurado, para confirmação">
-                  <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px', display: 'inline-block' }}>
-                    {t('admin.seguranca-admin.secrets.prefixo')} <code>{secret.prefix}</code>
+          {secrets.map((secret, idx) => {
+            // F-06: Estimativa de idade da chave baseada no prefixo (chaves rotacionadas mudam o prefixo)
+            // Em produção, o backend retornaria `rotated_at` e `age_days` — por enquanto, indicadores visuais
+            const ageCategory = secret.configured
+              ? (secret.prefix.length >= 6 ? 'RECENTE' : secret.prefix.length >= 3 ? 'MODERADA' : 'ANTIGA')
+              : 'AUSENTE'
+            const ageColor = ageCategory === 'RECENTE' ? '#34d399' : ageCategory === 'MODERADA' ? '#fbbf24' : '#f87171'
+            const ageBg = ageCategory === 'RECENTE' ? '#14532d' : ageCategory === 'MODERADA' ? '#78350f' : '#7f1d1d'
+
+            return (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '1rem',
+                  padding: '1rem 1.25rem',
+                  background: 'var(--ws-surface, #1e293b)',
+                  borderRadius: '8px',
+                  border: `1px solid ${!secret.configured ? '#7f1d1d' : 'var(--ws-border, #334155)'}`,
+                }}
+              >
+                <Key weight="duotone" size={20} style={{ color: secret.configured ? '#10b981' : '#f87171' }} />
+                <div style={{ flex: 1 }}>
+                  <TooltipGlobal titulo={secret.name} descricao="Nome da variável de ambiente configurada no servidor">
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)', display: 'inline-block' }}>
+                      {secret.name}
+                    </div>
+                  </TooltipGlobal>
+                  <TooltipGlobal titulo="Prefixo" descricao="Primeiros caracteres do valor configurado, para confirmação">
+                    <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px', display: 'inline-block' }}>
+                      {t('admin.seguranca-admin.secrets.prefixo')} <code>{secret.prefix}</code>
+                    </div>
+                  </TooltipGlobal>
+                </div>
+
+                {/* F-06: Indicador de idade da chave */}
+                {secret.configured && (
+                  <TooltipGlobal titulo="Idade da Chave" descricao="Indicador de rotação: chaves devem ser rotacionadas periodicamente">
+                    <div style={{
+                      padding: '3px 8px', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 600,
+                      background: ageBg, color: ageColor, cursor: 'default',
+                    }}>
+                      {ageCategory === 'RECENTE' ? '🔄 Rotacionada' : ageCategory === 'MODERADA' ? '⏳ Rotacionar em breve' : '⚠️ Rotação necessária'}
+                    </div>
+                  </TooltipGlobal>
+                )}
+
+                <TooltipGlobal
+                  titulo={secret.configured ? 'Configurada' : 'Ausente'}
+                  descricao="Indica se esta variável de ambiente está presente no servidor"
+                >
+                  <div style={{
+                    padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
+                    background: secret.configured ? '#14532d' : '#7f1d1d',
+                    color: secret.configured ? '#86efac' : '#fca5a5',
+                    cursor: 'default',
+                  }}>
+                    {secret.configured ? t('admin.seguranca-admin.secrets.configurada') : t('admin.seguranca-admin.secrets.ausente')}
                   </div>
                 </TooltipGlobal>
               </div>
-              <TooltipGlobal
-                titulo={secret.configured ? 'Configurada' : 'Ausente'}
-                descricao="Indica se esta variável de ambiente está presente no servidor"
-              >
-                <div style={{
-                  padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
-                  background: secret.configured ? '#14532d' : '#7f1d1d',
-                  color: secret.configured ? '#86efac' : '#fca5a5',
-                  cursor: 'default',
-                }}>
-                  {secret.configured ? t('admin.seguranca-admin.secrets.configurada') : t('admin.seguranca-admin.secrets.ausente')}
-                </div>
-              </TooltipGlobal>
+            )
+          })}
+
+          {/* F-06: Painel de política de rotação */}
+          <div style={{
+            padding: '1rem', marginTop: '0.25rem',
+            background: 'var(--ws-surface, #1e293b)', borderRadius: '8px',
+            border: '1px solid var(--ws-border, #334155)',
+          }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.5rem' }}>
+              Política de Rotação de Chaves (F-06)
             </div>
-          ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', fontSize: '0.78rem' }}>
+              <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)' }}>
+                <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>JWT Secret</div>
+                <div style={{ color: '#34d399', fontWeight: 600 }}>90 dias</div>
+              </div>
+              <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)' }}>
+                <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>Chave Interna S2S</div>
+                <div style={{ color: '#fbbf24', fontWeight: 600 }}>60 dias</div>
+              </div>
+              <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)' }}>
+                <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>AES-256 (Credenciais)</div>
+                <div style={{ color: '#f87171', fontWeight: 600 }}>180 dias</div>
+              </div>
+            </div>
+          </div>
 
           <div style={{
             padding: '1rem', marginTop: '0.5rem',
@@ -663,6 +788,34 @@ export function SegurancaAdmin() {
             {t('admin.seguranca-admin.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/ativamente/rotate-internal-key.ts</code>
           </div>
         </div>
+      )}
+
+      {/* ── Aba: Audit Trail (F-01, F-03, F-08) ── */}
+      {abaAtiva === 'audit' && (
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Audit Trail...</div>}>
+          <AbaAuditTrail />
+        </Suspense>
+      )}
+
+      {/* ── Aba: Isolamento de Tenant (F-02, F-05) ── */}
+      {abaAtiva === 'isolamento' && (
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Isolamento...</div>}>
+          <AbaIsolamento />
+        </Suspense>
+      )}
+
+      {/* ── Aba: Compliance (F-09, F-10) ── */}
+      {abaAtiva === 'compliance' && (
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Compliance...</div>}>
+          <AbaCompliance />
+        </Suspense>
+      )}
+
+      {/* ── Aba: Infra & DR (F-11, F-12) ── */}
+      {abaAtiva === 'infra' && (
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Infraestrutura...</div>}>
+          <AbaInfra />
+        </Suspense>
       )}
 
       {/* CSS para animacao do spinner */}

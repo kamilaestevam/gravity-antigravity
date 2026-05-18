@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine, Package, ListChecks, Funnel } from '@phosphor-icons/react'
+import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine, Package, ListChecks, Funnel, CubeTransparent } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
@@ -1393,89 +1393,135 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
         ) : preview ? (
           <>
             {/* Stat cards glassmorphism — padrão Consolidar */}
-            <div data-em-stats style={emEstilos.statsGrid}>
-              <TooltipGlobal
-                titulo="Pedidos afetados"
-                descricao={
-                  <div style={emEstilos.tooltipRico}>
-                    <span style={emEstilos.tooltipCategoria}>Edição em Massa</span>
-                    <div style={emEstilos.tooltipLinha}><span>Selecionados</span><span style={emEstilos.tooltipValor}>{pedidos.length}</span></div>
-                    <div style={emEstilos.tooltipLinha}><span>Afetados</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
-                  </div>
+            {(() => {
+              // Calcular pedidos inteiros vs parciais (mesma lógica do Consolidar)
+              const totalItens = pedidos.reduce((acc, p) => acc + (p.itens?.length ?? 0), 0)
+              const temSelecaoItens = itensSelecionadosIds && itensSelecionadosIds.length > 0
+              const pedidoIdsCompletoSet = pedidoIdsCompleto ? new Set(pedidoIdsCompleto) : null
+
+              const inteiros: Array<{ numero: string; itens: number }> = []
+              const parciais: Array<{ numero: string; itensSel: number; itensTotal: number }> = []
+
+              if (!temSelecaoItens) {
+                // Sem seleção de itens específicos → todos os pedidos são inteiros
+                for (const p of pedidos) {
+                  inteiros.push({ numero: p.numero_pedido, itens: p.itens?.length ?? 0 })
                 }
-              >
-                <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
-                  <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
-                  <div>
-                    <span style={emEstilos.statValor}>{preview.pedidos_afetados}</span>
-                    <span style={emEstilos.statLabel}>Pedidos</span>
-                  </div>
+              } else {
+                const itensSel = new Set(itensSelecionadosIds)
+                for (const p of pedidos) {
+                  const totalPedido = p.itens?.length ?? 0
+                  if (pedidoIdsCompletoSet?.has(p.id)) {
+                    inteiros.push({ numero: p.numero_pedido, itens: totalPedido })
+                  } else {
+                    const qtdSelecionada = p.itens?.filter(i => itensSel.has(i.id)).length ?? 0
+                    if (qtdSelecionada >= totalPedido) {
+                      inteiros.push({ numero: p.numero_pedido, itens: totalPedido })
+                    } else {
+                      parciais.push({ numero: p.numero_pedido, itensSel: qtdSelecionada, itensTotal: totalPedido })
+                    }
+                  }
+                }
+              }
+
+              return (
+                <div data-em-stats style={emEstilos.statsGrid}>
+                  {/* Card 1 — Pedidos */}
+                  <TooltipGlobal
+                    titulo="Pedidos selecionados"
+                    descricao={
+                      <div style={emEstilos.tooltipRico}>
+                        <span style={emEstilos.tooltipCategoria}>Edição em Massa</span>
+                        <div style={emEstilos.tooltipLinha}><span>Selecionados</span><span style={emEstilos.tooltipValor}>{pedidos.length}</span></div>
+                        <div style={emEstilos.tooltipLinha}><span>Afetados</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
+                      </div>
+                    }
+                  >
+                    <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
+                      <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+                      <div>
+                        <span style={emEstilos.statValor}>{pedidos.length}</span>
+                        <span style={emEstilos.statLabel}>Pedidos</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
+
+                  {/* Card 2 — Itens */}
+                  <TooltipGlobal
+                    titulo="Total de itens"
+                    descricao={
+                      <div style={emEstilos.tooltipRico}>
+                        <span style={emEstilos.tooltipCategoria}>Itens</span>
+                        <div style={emEstilos.tooltipLinha}><span>Total</span><span style={emEstilos.tooltipValor}>{totalItens}</span></div>
+                        <div style={emEstilos.tooltipLinha}><span>De pedidos</span><span style={emEstilos.tooltipValor}>{pedidos.length}</span></div>
+                      </div>
+                    }
+                  >
+                    <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
+                      <ListChecks size={20} weight="duotone" style={{ color: '#94a3b8' }} />
+                      <div>
+                        <span style={emEstilos.statValor}>{totalItens}</span>
+                        <span style={emEstilos.statLabel}>Itens</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
+
+                  {/* Card 3 — Pedidos Inteiros */}
+                  <TooltipGlobal
+                    titulo="Pedidos inteiros"
+                    descricao={
+                      <div style={emEstilos.tooltipRico}>
+                        <span style={emEstilos.tooltipCategoria}>Todos os itens selecionados</span>
+                        {inteiros.map(p => (
+                          <div key={p.numero} style={emEstilos.tooltipLinha}>
+                            <span>{p.numero}</span>
+                            <span style={emEstilos.tooltipValor}>{p.itens} {p.itens === 1 ? 'item' : 'itens'}</span>
+                          </div>
+                        ))}
+                        {inteiros.length === 0 && (
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido inteiro</div>
+                        )}
+                      </div>
+                    }
+                  >
+                    <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(74,222,128,0.4)' }}>
+                      <Package size={20} weight="duotone" style={{ color: '#4ade80' }} />
+                      <div>
+                        <span style={emEstilos.statValor}>{inteiros.length}</span>
+                        <span style={emEstilos.statLabel}>Pedidos inteiros</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
+
+                  {/* Card 4 — Pedidos Parciais */}
+                  <TooltipGlobal
+                    titulo="Pedidos parciais"
+                    descricao={
+                      <div style={emEstilos.tooltipRico}>
+                        <span style={emEstilos.tooltipCategoria}>Alguns itens selecionados</span>
+                        {parciais.map(p => (
+                          <div key={p.numero} style={emEstilos.tooltipLinha}>
+                            <span>{p.numero}</span>
+                            <span style={{ ...emEstilos.tooltipValor, color: '#fbbf24' }}>{p.itensSel}/{p.itensTotal} itens</span>
+                          </div>
+                        ))}
+                        {parciais.length === 0 && (
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido parcial</div>
+                        )}
+                      </div>
+                    }
+                  >
+                    <div style={{ ...emEstilos.statCard, borderTop: `2px solid ${parciais.length > 0 ? 'rgba(251,191,36,0.4)' : 'rgba(148,163,184,0.3)'}` }}>
+                      <CubeTransparent size={20} weight="duotone" style={{ color: parciais.length > 0 ? '#fbbf24' : '#94a3b8' }} />
+                      <div>
+                        <span style={emEstilos.statValor}>{parciais.length}</span>
+                        <span style={emEstilos.statLabel}>Pedidos parciais</span>
+                      </div>
+                    </div>
+                  </TooltipGlobal>
                 </div>
-              </TooltipGlobal>
-
-              {preview.itens_afetados > 0 && (
-                <TooltipGlobal
-                  titulo="Itens afetados"
-                  descricao={
-                    <div style={emEstilos.tooltipRico}>
-                      <span style={emEstilos.tooltipCategoria}>Itens</span>
-                      <div style={emEstilos.tooltipLinha}><span>Afetados</span><span style={emEstilos.tooltipValor}>{preview.itens_afetados}</span></div>
-                      <div style={emEstilos.tooltipLinha}><span>De pedidos</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
-                    </div>
-                  }
-                >
-                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(148,163,184,0.3)' }}>
-                    <ListChecks size={20} weight="duotone" style={{ color: '#94a3b8' }} />
-                    <div>
-                      <span style={emEstilos.statValor}>{preview.itens_afetados}</span>
-                      <span style={emEstilos.statLabel}>Itens</span>
-                    </div>
-                  </div>
-                </TooltipGlobal>
-              )}
-
-              {(preview.campos_pedido_alterados ?? 0) > 0 && (
-                <TooltipGlobal
-                  titulo="Campos nível pedido"
-                  descricao={
-                    <div style={emEstilos.tooltipRico}>
-                      <span style={emEstilos.tooltipCategoria}>Campos</span>
-                      <div style={emEstilos.tooltipLinha}><span>Campos pedido</span><span style={emEstilos.tooltipValor}>{preview.campos_pedido_alterados}</span></div>
-                      <div style={emEstilos.tooltipLinha}><span>Pedidos</span><span style={emEstilos.tooltipValor}>{preview.pedidos_afetados}</span></div>
-                    </div>
-                  }
-                >
-                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(99, 102, 241, 0.4)' }}>
-                    <PencilSimpleLine size={20} weight="duotone" style={{ color: '#818cf8' }} />
-                    <div>
-                      <span style={emEstilos.statValor}>{preview.campos_pedido_alterados}</span>
-                      <span style={emEstilos.statLabel}>Campos pedido</span>
-                    </div>
-                  </div>
-                </TooltipGlobal>
-              )}
-
-              {(preview.campos_item_alterados ?? 0) > 0 && (
-                <TooltipGlobal
-                  titulo="Campos nível item"
-                  descricao={
-                    <div style={emEstilos.tooltipRico}>
-                      <span style={emEstilos.tooltipCategoria}>Campos</span>
-                      <div style={emEstilos.tooltipLinha}><span>Campos item</span><span style={emEstilos.tooltipValor}>{preview.campos_item_alterados}</span></div>
-                      <div style={emEstilos.tooltipLinha}><span>Itens</span><span style={emEstilos.tooltipValor}>{preview.itens_afetados}</span></div>
-                    </div>
-                  }
-                >
-                  <div style={{ ...emEstilos.statCard, borderTop: '2px solid rgba(74, 222, 128, 0.4)' }}>
-                    <ListChecks size={20} weight="duotone" style={{ color: '#4ade80' }} />
-                    <div>
-                      <span style={emEstilos.statValor}>{preview.campos_item_alterados}</span>
-                      <span style={emEstilos.statLabel}>Campos item</span>
-                    </div>
-                  </div>
-                </TooltipGlobal>
-              )}
-            </div>
+              )
+            })()}
 
             {preview.campos.length > 0 && (
               <div className="modal-edicao-massa__preview-campos">

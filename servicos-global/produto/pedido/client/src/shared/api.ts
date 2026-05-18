@@ -52,6 +52,7 @@ import type {
   GerarDocumentoPayload,
   ColunaUsuario,
   ValorColunaUsuario,
+  CardUsuario,
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
@@ -1932,6 +1933,36 @@ export const colunasUsuarioApi = {
       return { gemini: false } // falha de rede → fallback silencioso
     }
   },
+}
+
+// ── Cards Customizados API ───────────────────────────────────────────────────
+
+export const cardsUsuarioApi = {
+  listar: (): Promise<CardUsuario[]> =>
+    request<CardUsuario[]>('/api/v1/pedidos/cards-usuario'),
+
+  criar: (
+    data: Omit<CardUsuario, 'id' | 'tenant_id' | 'created_by' | 'created_at'>,
+  ): Promise<CardUsuario> =>
+    request<CardUsuario>('/api/v1/pedidos/cards-usuario', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  atualizar: (id: string, data: Partial<CardUsuario>): Promise<CardUsuario> =>
+    request<CardUsuario>(`/api/v1/pedidos/cards-usuario/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  excluir: (id: string): Promise<void> =>
+    request<void>(`/api/v1/pedidos/cards-usuario/${id}`, { method: 'DELETE' }),
+
+  reordenar: (ids: string[]): Promise<void> =>
+    request<void>('/api/v1/pedidos/cards-usuario/reordenar', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
 }
 
 // ── Dashboard API ─────────────────────────────────────────────────────────────

@@ -2004,6 +2004,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
     const totalPedidos = pedidos.length
     const sucessos = resultado.pedidos_atualizados
     const falhas = resultado.erros?.length ?? 0
+    const totalItensAfetados = resultado.itens_atualizados > 0
+      ? resultado.itens_atualizados
+      : pedidos.reduce((acc, p) => acc + (p.itens?.length ?? 0), 0)
     const camposEditados = campos.filter(c => c.valor.trim() !== '')
 
     return (
@@ -2028,7 +2031,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
             <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>
               {temErros
                 ? `${sucessos} de ${totalPedidos} pedido(s) atualizados — ${falhas} com erro`
-                : `${sucessos} pedido(s) atualizados${resultado.itens_atualizados > 0 ? ` · ${resultado.itens_atualizados} itens` : ''}`}
+                : `${sucessos} pedido(s) atualizados · ${totalItensAfetados} itens`}
             </p>
           </div>
         </div>

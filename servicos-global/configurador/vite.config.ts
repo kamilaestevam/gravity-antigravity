@@ -7,10 +7,17 @@ import { createNucleoAliases, createServiceAliases, createTenantAliases } from '
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.resolve(__dirname, '../..')
 
-export default defineConfig({
+export default defineConfig(({ command }) => {
+  const isBuild = command === 'build'
+
+  return {
+  // Em build: root = monorepo inteiro para que Rollup resolva .ts fora do configurador
+  // (Linux/Railway é case-sensitive e Rollup não aplica resolve.extensions fora do root)
+  // Em dev: root = configurador (index.html local, proxy, HMR funcionam normalmente)
+  root: isBuild ? monorepoRoot : __dirname,
+  publicDir: path.resolve(__dirname, 'public'),
   plugins: [react()],
   define: {
-    // Polyfill para pacotes Node.js (exceljs, jspdf) rodando no browser
     'process.env': '{}',
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'development'),
   },
@@ -52,7 +59,10 @@ export default defineConfig({
     exclude: ['@nucleo/localizador-global'],
   },
   build: {
+    outDir: path.resolve(__dirname, 'dist'),
+    emptyOutDir: true,
     rollupOptions: {
+      input: path.resolve(__dirname, 'index.html'),
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
@@ -73,9 +83,14 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
         configure(proxy) {
-          proxy.on('proxyReq', (proxyReq) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
             proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+            if (!req.headers['x-id-organizacao']) {
+              proxyReq.setHeader('x-id-organizacao', 'org_dev_default')
+              proxyReq.setHeader('x-id-usuario', 'user_dev_default')
+              proxyReq.setHeader('x-tipo-usuario', 'SUPER_ADMIN')
+            }
           })
         },
         onError(err, _req, res) {
@@ -230,4 +245,5 @@ export default defineConfig({
       },
     },
   },
+}
 })

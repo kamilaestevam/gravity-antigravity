@@ -175,8 +175,8 @@ export interface FiltroPopoverColunaProps {
   onOrdenar: (campo: string, dir: 'asc' | 'desc') => void
   /** Fecha o popover (sem aplicar nada) */
   onFechar: () => void
-  /** Ref do elemento âncora (header da coluna OU chip clicado) */
-  anchorRef: React.RefObject<HTMLElement>
+  /** Posição fixa do popover (calculada pelo caller no momento do click) */
+  anchorPos: { top: number; left: number }
   /**
    * Mapa label→raw para inverter valores que o popover exibe com tradução
    * vs. os que o backend espera. Pedido usa para `tipo_operacao`

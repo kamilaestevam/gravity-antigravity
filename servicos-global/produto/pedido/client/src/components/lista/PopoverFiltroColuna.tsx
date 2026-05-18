@@ -19,7 +19,7 @@ export interface PopoverFiltroColunaProps {
   onLimpar: (campo: string) => void
   onOrdenar: (campo: string, dir: 'asc' | 'desc') => void
   onFechar: () => void
-  anchorRef: React.RefObject<HTMLElement>
+  anchorPos: { top: number; left: number }
 }
 
 export function PopoverFiltroColuna({
@@ -32,34 +32,19 @@ export function PopoverFiltroColuna({
   onLimpar,
   onOrdenar,
   onFechar,
-  anchorRef,
+  anchorPos,
 }: PopoverFiltroColunaProps) {
   const ref = useRef<HTMLDivElement>(null)
 
-  const [pos, setPos] = React.useState({ top: 0, left: 0 })
-  useEffect(() => {
-    if (anchorRef.current) {
-      const rect = anchorRef.current.getBoundingClientRect()
-      const left = Math.max(8, rect.left - 20)
-      const top = rect.bottom + 6
-      setPos({ top, left })
-    }
-  }, [anchorRef])
-
   useEffect(() => {
     function fora(e: MouseEvent) {
-      if (
-        ref.current &&
-        !ref.current.contains(e.target as Node) &&
-        anchorRef.current &&
-        !anchorRef.current.contains(e.target as Node)
-      ) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         onFechar()
       }
     }
     document.addEventListener('mousedown', fora)
     return () => document.removeEventListener('mousedown', fora)
-  }, [onFechar, anchorRef])
+  }, [onFechar])
 
   const [textoLocal, setTextoLocal] = React.useState(
     filtroAtual?.tipo === 'texto' ? filtroAtual.valor : '',
@@ -119,8 +104,9 @@ export function PopoverFiltroColuna({
       className="gtv-export-menu"
       style={{
         position: 'fixed',
-        top: pos.top,
-        left: pos.left,
+        top: anchorPos.top,
+        left: anchorPos.left,
+        right: 'auto',
         minWidth: 230,
         maxWidth: 290,
         padding: 0,

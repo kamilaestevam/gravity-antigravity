@@ -4560,11 +4560,14 @@ export default function Pedidos() {
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     setPopoverAberto(prev => prev === key ? null : key)
     const rect = anchor.getBoundingClientRect()
-    const popoverWidth = 260
-    let left = rect.left + rect.width - popoverWidth
-    if (left < 8) left = 8
-    if (left + popoverWidth > window.innerWidth - 8) left = window.innerWidth - popoverWidth - 8
-    setPopoverPos({ top: rect.bottom + 6, left })
+    // ws-fade-up retém transform:translateY(0) após animação (fill:forwards),
+    // criando containing block para position:fixed — compensar offset do parent.
+    const page = anchor.closest('.lp-page') as HTMLElement | null
+    const offset = page ? page.getBoundingClientRect() : { top: 0, left: 0 }
+    const maxW = page ? page.clientWidth : window.innerWidth
+    const adjustedLeft = rect.left - offset.left
+    const left = Math.max(0, Math.min(adjustedLeft, maxW - 292))
+    setPopoverPos({ top: rect.bottom + 4 - offset.top, left })
   }, [])
 
   // Abre o modal customizado de exclusão (substitui o window.confirm() nativo).

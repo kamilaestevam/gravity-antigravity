@@ -25,7 +25,7 @@ export function FiltroPopoverColuna({
   onLimpar,
   onOrdenar,
   onFechar,
-  anchorRef,
+  anchorPos,
   // Aceito mas não usado diretamente — fica disponível para callers que queiram
   // conhecer o mapa label↔raw (futuras integrações). A inversão real é feita
   // pelo consumer no client-side filter step, não aqui.
@@ -38,32 +38,16 @@ export function FiltroPopoverColuna({
 
   const ref = useRef<HTMLDivElement>(null)
 
-  // Posiciona o popover ancorado ao elemento âncora.
-  const [pos, setPos] = useState({ top: 0, left: 0 })
-  useEffect(() => {
-    if (anchorRef.current) {
-      const rect = anchorRef.current.getBoundingClientRect()
-      const left = Math.max(8, rect.left - 20)
-      const top = rect.bottom + 6
-      setPos({ top, left })
-    }
-  }, [anchorRef])
-
-  // Fecha ao clicar fora (mas ignora cliques na âncora — caller controla toggle).
+  // Fecha ao clicar fora.
   useEffect(() => {
     function fora(e: MouseEvent) {
-      if (
-        ref.current &&
-        !ref.current.contains(e.target as Node) &&
-        anchorRef.current &&
-        !anchorRef.current.contains(e.target as Node)
-      ) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         onFechar()
       }
     }
     document.addEventListener('mousedown', fora)
     return () => document.removeEventListener('mousedown', fora)
-  }, [onFechar, anchorRef])
+  }, [onFechar])
 
   // Estado local — copiado do filtro atual ao abrir, aplicado em batch.
   const [textoLocal, setTextoLocal] = useState(
@@ -121,16 +105,22 @@ export function FiltroPopoverColuna({
   return (
     <div
       ref={ref}
-      className="fc-popover gtv-export-menu"
+      className="fc-popover"
       style={{
         position: 'fixed',
-        top: pos.top,
-        left: pos.left,
+        top: anchorPos.top,
+        left: anchorPos.left,
         minWidth: 230,
         maxWidth: 290,
         padding: 0,
         zIndex,
         background: '#1e2130',
+        border: '1px solid var(--gtv-border-solid, rgba(255,255,255,0.1))',
+        borderRadius: 10,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.125rem',
       }}
       role="dialog"
       aria-label={`Filtrar coluna ${label}`}

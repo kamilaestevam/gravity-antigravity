@@ -8,6 +8,7 @@
     "servicos-global/shell",
     "servicos-global/servicos-plataforma",
     "servicos-global/configurador",
+    "servicos-global/cadastros",
     "servicos-global/marketplace",
     "servicos-global/servicos-plataforma/helpdesk",
     "servicos-global/servicos-plataforma/agendamento",

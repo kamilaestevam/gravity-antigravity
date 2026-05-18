@@ -1717,45 +1717,25 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
       if (!selecionavelFilhos) return
       const filhosDoPai = filhosCache.get(id) ?? []
+      if (filhosDoPai.length === 0) return
 
-      if (filhosDoPai.length > 0) {
-        setFilhosSelecionados(prev => {
-          const novo = new Set(prev)
-          for (const filho of filhosDoPai) {
-            const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
-            if (!fId) continue
-            if (estavaMarcado) {
-              novo.delete(fId)
-              filhosCacheMap.current.delete(fId)
-            } else {
-              novo.add(fId)
-              filhosCacheMap.current.set(fId, filho)
-            }
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        for (const filho of filhosDoPai) {
+          const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
+          if (!fId) continue
+          if (estavaMarcado) {
+            novo.delete(fId)
+            filhosCacheMap.current.delete(fId)
+          } else {
+            novo.add(fId)
+            filhosCacheMap.current.set(fId, filho)
           }
-          return novo
-        })
-        return
-      }
-
-      if (!estavaMarcado && onCarregarFilhos) {
-        const item = dados.find(d => itemId(d) === id)
-        if (!item) return
-        onCarregarFilhos(item).then(filhos => {
-          if (filhos.length === 0) return
-          setFilhosSelecionados(prev => {
-            const novo = new Set(prev)
-            for (const filho of filhos) {
-              const fId = filhoId ? filhoId(filho) : (filho as { id?: string }).id
-              if (!fId) continue
-              novo.add(fId)
-              filhosCacheMap.current.set(fId, filho)
-            }
-            return novo
-          })
-        }).catch(() => {})
-      }
+        }
+        return novo
+      })
     },
-    [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId, onCarregarFilhos, dados, itemId],
+    [selecionados, toggleItem, filhosCache, selecionavelFilhos, filhoId],
   )
 
   // ── Limpeza de filhos órfãos quando dados mudam ─────────────────────────────

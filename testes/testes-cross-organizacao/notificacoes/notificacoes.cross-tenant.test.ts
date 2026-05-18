@@ -7,7 +7,7 @@
 //   C) Criação com tenant_id forçado (POST /, POST /send)
 //   D) Bypass de autenticação (sem auth → 401, não dados vazados)
 
-/// <reference types="vitest/globals" />
+import { describe, it, vi, beforeEach, expect, beforeAll, afterAll } from 'vitest'
 import express, { type Request, type Response, type NextFunction } from 'express'
 import request from 'supertest'
 

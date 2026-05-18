@@ -93,7 +93,7 @@ authRouter.post('/clerk', async (req, res, next) => {
       })
       if (!existing) {
         // Usuário criado no Clerk mas sem tenant ainda — será vinculado no onboarding
-        console.log(`[webhook] Novo usuário Clerk registrado: ${data.id} <${primaryEmail}>`)
+        console.log(`[webhook] Novo usuário Clerk registrado: ${data.id}`)
       }
     }
 

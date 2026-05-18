@@ -137,9 +137,7 @@ export async function requireAuth(
             // pela invitation aceita no Clerk
             // eslint-disable-next-line no-console
             console.warn('[requireAuth] EMAIL_FALLBACK_AMBIGUO', {
-              email: primaryEmail,
               candidates: candidates.length,
-              candidatesIds: candidates.map(c => c.id_usuario),
             })
 
             try {
@@ -172,7 +170,6 @@ export async function requireAuth(
                   }
                   // eslint-disable-next-line no-console
                   console.log('[requireAuth] EMAIL_FALLBACK_DESAMBIGUADO_VIA_CLERK', {
-                    email: primaryEmail,
                     invitation_id: inv.id,
                     id_usuario: matched.id_usuario,
                     id_organizacao: matched.id_organizacao,
@@ -184,7 +181,6 @@ export async function requireAuth(
               if (!user) {
                 // eslint-disable-next-line no-console
                 console.error('[requireAuth] FALHA_DESAMBIGUAR_VIA_CLERK', {
-                  email: primaryEmail,
                   candidates: candidates.length,
                   invitations_aceitas: acceptedByEmail.length,
                 })

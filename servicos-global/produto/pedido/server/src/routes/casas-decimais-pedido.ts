@@ -154,6 +154,35 @@ function mapPrismaParaZod(registroPrisma: Record<string, unknown> | null): Casas
   return out as CasasDecimaisConfig
 }
 
+// ── Whitelist de colunas permitidas em SQL dinâmico ──────────────────────────
+// SQL não permite parametrizar identificadores (nomes de coluna/tabela), então
+// usamos interpolação direta. Para prevenir SQL injection, validamos que cada
+// coluna pertence a este Set derivado das constantes hardcoded acima.
+const COLUNAS_PEDIDO_PERMITIDAS = new Set(ARREDONDAR_PEDIDO.map(r => r.coluna))
+const COLUNAS_ITEM_PERMITIDAS = new Set(ARREDONDAR_ITEM.map(r => r.coluna))
+
+function validarColuna(coluna: string, whitelist: Set<string>, tabela: string): void {
+  if (!whitelist.has(coluna)) {
+    throw new AppError(
+      `[CasasDecimais] Coluna "${coluna}" não é permitida para arredondamento na tabela ${tabela}`,
+      500,
+      'INVALID_COLUMN',
+    )
+  }
+}
+
+function validarCasasDecimais(casas: unknown): number {
+  const n = Number(casas)
+  if (!Number.isInteger(n) || n < 0 || n > 6) {
+    throw new AppError(
+      `[CasasDecimais] Valor de casas decimais inválido: ${String(casas)}`,
+      500,
+      'INVALID_DECIMAL_PLACES',
+    )
+  }
+  return n
+}
+
 // ── Job de migração em background ─────────────────────────────────────────────
 
 async function executarMigracaoCasasDecimais(db: BancoOrganizacao, idOrganizacao: string, config: CasasDecimaisConfig): Promise<void> {
@@ -174,11 +203,14 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, idOrganizacao
     db.pedidoItem.updateMany({ where: { id_organizacao: idOrganizacao }, data: updateItemMeta }),
   ])
 
-  // 2. Arredondar valores reais no banco (ROUND SQL) — seguro: nomes de colunas são hardcoded
+  // 2. Arredondar valores reais no banco (ROUND SQL)
+  // NOTA: nomes de coluna são interpolados porque SQL não permite parametrizar
+  // identificadores. Cada coluna é validada contra a whitelist hardcoded acima.
   const roundOps: Promise<unknown>[] = []
 
   for (const { config: cfgKey, coluna } of ARREDONDAR_PEDIDO) {
-    const casas = config[cfgKey]
+    validarColuna(coluna, COLUNAS_PEDIDO_PERMITIDAS, 'pedido')
+    const casas = validarCasasDecimais(config[cfgKey])
     roundOps.push(
       db.$executeRawUnsafe(
         `UPDATE pedido SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND deleted_at IS NULL AND "${coluna}" IS NOT NULL`,
@@ -188,7 +220,8 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, idOrganizacao
   }
 
   for (const { config: cfgKey, coluna } of ARREDONDAR_ITEM) {
-    const casas = config[cfgKey]
+    validarColuna(coluna, COLUNAS_ITEM_PERMITIDAS, 'pedido_item')
+    const casas = validarCasasDecimais(config[cfgKey])
     roundOps.push(
       db.$executeRawUnsafe(
         `UPDATE pedido_item SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND "${coluna}" IS NOT NULL`,

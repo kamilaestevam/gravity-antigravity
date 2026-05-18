@@ -6,6 +6,7 @@
 // Lazy-read porque ES modules hoist imports antes de dotenv.config().
 
 import { Request, Response, NextFunction } from 'express'
+import { timingSafeEqual } from 'node:crypto'
 import { AppError } from '../lib/errors.js'
 
 function getInternalKey(): string {
@@ -22,7 +23,10 @@ export function authMiddleware(
     (req.headers['x-internal-key']           as string | undefined) ??
     (req.headers['x-chave-interna-servico']  as string | undefined)
   const expected = getInternalKey()
-  if (!expected || !internalKey || internalKey !== expected) {
+  const expectedBuf = Buffer.from(expected)
+  const receivedBuf = Buffer.from(typeof internalKey === 'string' ? internalKey : '')
+  const isValid = !!expected && !!internalKey && expectedBuf.length === receivedBuf.length && timingSafeEqual(expectedBuf, receivedBuf)
+  if (!isValid) {
     return next(new AppError('Chave interna inválida ou ausente', 401, 'UNAUTHORIZED'))
   }
 

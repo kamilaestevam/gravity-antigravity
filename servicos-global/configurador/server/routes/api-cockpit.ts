@@ -21,11 +21,12 @@
  *   - id_organizacao SEMPRE extraido do JWT (sem fallback de header — Mandamento 08)
  */
 
-import { Router } from 'express'
+import { Router, type Response } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
+import { prisma } from '../lib/prisma.js'
 
 function getApiCockpitUrl(): string {
   const url = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
@@ -344,6 +345,26 @@ apiCockpitRouter.get('/webhooks/:id_webhook_configuracao/historico', async (req,
 
 // ─── Admin Routes (gravity_admin — todas as organizacoes) ───────────────
 
+/**
+ * VULN-002 — Valida que a organizacao-alvo existe no banco antes de operar.
+ * Evita que admin opere em id_organizacao inexistente (fantasma).
+ * Retorna true se existe, false se nao existe (e ja envia 404 no res).
+ */
+async function validarOrganizacaoAlvo(
+  idOrganizacao: string,
+  res: Response,
+): Promise<boolean> {
+  const org = await prisma.organizacao.findUnique({
+    where: { id_organizacao: idOrganizacao },
+    select: { id_organizacao: true },
+  })
+  if (!org) {
+    res.status(404).json({ error: { code: 'ORGANIZACAO_NAO_ENCONTRADA', message: `Organizacao ${idOrganizacao} nao encontrada` } })
+    return false
+  }
+  return true
+}
+
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
 apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
@@ -394,6 +415,7 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
     url.searchParams.set('id_organizacao', idOrganizacao)
     const response = await fetch(url.toString(), {
@@ -416,6 +438,7 @@ apiCockpitAdminRouter.post('/api-tokens', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const idUsuario = req.auth?.id_usuario  // admin que executou a acao
     const body = {
       ...(req.body || {}),
@@ -435,6 +458,7 @@ apiCockpitAdminRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const { status, data } = await proxyToTokens(
       'DELETE',
       `/${encodeURIComponent(req.params.id_api_token)}`,
@@ -476,6 +500,7 @@ apiCockpitAdminRouter.post('/webhooks', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const idUsuario = req.auth?.id_usuario
     const body = { ...(req.body || {}), id_organizacao: idOrganizacao, id_usuario: idUsuario }
     const { status, data } = await proxyToWebhooks('POST', '/', body)
@@ -491,6 +516,7 @@ apiCockpitAdminRouter.put('/webhooks/:id_webhook_configuracao', async (req, res)
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const body = { ...(req.body || {}), id_organizacao: idOrganizacao }
     const { status, data } = await proxyToWebhooks(
       'PUT',
@@ -509,6 +535,7 @@ apiCockpitAdminRouter.delete('/webhooks/:id_webhook_configuracao', async (req, r
     if (!idOrganizacao) {
       return res.status(400).json({ error: 'id_organizacao obrigatorio no body ou query' })
     }
+    if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const { status, data } = await proxyToWebhooks(
       'DELETE',
       `/${encodeURIComponent(req.params.id_webhook_configuracao)}`,

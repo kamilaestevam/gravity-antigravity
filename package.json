@@ -75,8 +75,10 @@
     "package.json": "npx tsx scripts/ativamente/check-deps.ts",
     "*.{ts,tsx}": [
       "npx tsx scripts/ativamente/check-deps.ts",
-      "npx tsx scripts/ativamente/check-env-toplevel.ts"
-    ]
+      "npx tsx scripts/ativamente/check-env-toplevel.ts",
+      "npx tsx scripts/ativamente/check-secrets.ts"
+    ],
+    "*.{env,json,yml,yaml,toml,cfg,conf,ini}": "npx tsx scripts/ativamente/check-secrets.ts"
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express'
+import { timingSafeEqual } from 'node:crypto'
 
 /**
  * Middleware obrigatório para rotas inter-serviço.
@@ -17,7 +18,10 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
     return
   }
 
-  if (typeof received !== 'string' || received !== expected) {
+  const expectedBuf = Buffer.from(expected)
+  const receivedBuf = Buffer.from(typeof received === 'string' ? received : '')
+  const isValid = typeof received === 'string' && expectedBuf.length === receivedBuf.length && timingSafeEqual(expectedBuf, receivedBuf)
+  if (!isValid) {
     console.warn('[cadastros][internal-key] chave inválida ou ausente', {
       rota: req.originalUrl,
       metodo: req.method,

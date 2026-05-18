@@ -22,6 +22,8 @@ async function alertarVencimentosCambio() {
   const agora = new Date()
   const diaSemana = agora.getDay() // 0=dom, 6=sab
 
+  // SAFETY: static SQL — no interpolation, no user input. $queryRawUnsafe used
+  // because Prisma typed client doesn't cover this cross-tenant scan table.
   const preferencias = await cronPrisma.$queryRawUnsafe(`
     SELECT * FROM cambio_preferencias
     WHERE alerta_email_vencimento = true
@@ -45,6 +47,7 @@ async function alertarVencimentosCambio() {
 
     const tenantDb = withTenantIsolation(cronPrisma, pref.id_organizacao)
 
+    // SAFETY: all user-derived values passed as positional params ($1, $2, $3).
     const parcelasVencendo = await tenantDb.$queryRawUnsafe(`
       SELECT * FROM cambio_parcelas
       WHERE id_organizacao = $1
@@ -75,6 +78,7 @@ async function alertarVencimentosCambio() {
 async function expirarCotacoesVencidas() {
   const agora = new Date()
 
+  // SAFETY: user-derived value (agora) passed as positional param $1.
   const cotacoesVencidas = await cronPrisma.$queryRawUnsafe(`
     SELECT id, id_organizacao, user_id FROM cambio_cotacoes
     WHERE status IN ('ENVIADA_CORRETORAS', 'EM_COTACAO')
@@ -84,6 +88,7 @@ async function expirarCotacoesVencidas() {
   for (const cotacao of cotacoesVencidas) {
     const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
+    // SAFETY: all values passed as positional params ($1, $2).
     await tenantDb.$executeRawUnsafe(`
       UPDATE cambio_cotacoes SET status = 'EXPIRADA', updated_at = NOW()
       WHERE id = $1 AND id_organizacao = $2

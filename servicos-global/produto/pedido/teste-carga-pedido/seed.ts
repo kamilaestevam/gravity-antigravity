@@ -43,8 +43,10 @@ const ID_WORKSPACE   = 'cmosr1zc70001v2hfp3bxax4s' // CDE EXPORTADOR
 // garantido pelo filtro `WHERE id_organizacao = ...` em cada query.
 const SCHEMA_PG      = 'public'
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL é obrigatório. Configure a variável de ambiente.')
+}
 const DATABASE_URL = process.env.DATABASE_URL
-  ?? 'postgresql://postgres:JDyhCkVTaLUBsyKCHzzOdFFcjAUnYdKX@roundhouse.proxy.rlwy.net:39426/railway'
 
 // ────────────────────────────────────────────────────────────────────────────
 // CLI

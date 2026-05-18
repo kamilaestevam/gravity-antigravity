@@ -10,8 +10,10 @@ const ID_ORGANIZACAO = 'cmoarq22a000l1358c1p2qfqt' // CDE
 // NOTA: Prisma usa public.* (não tenant_<id>). Ver seed.ts para detalhes.
 const SCHEMA_PG      = 'public'
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL é obrigatório. Configure a variável de ambiente.')
+}
 const DATABASE_URL = process.env.DATABASE_URL
-  ?? 'postgresql://postgres:JDyhCkVTaLUBsyKCHzzOdFFcjAUnYdKX@roundhouse.proxy.rlwy.net:39426/railway'
 
 async function main() {
   const client = new Client({ connectionString: DATABASE_URL })

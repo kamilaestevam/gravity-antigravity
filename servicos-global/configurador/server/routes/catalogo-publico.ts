@@ -5,6 +5,7 @@
 
 import { Router } from 'express'
 import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
+import { AppError } from '../lib/appError.js'
 
 export const publicCatalogRouter = Router()
 
@@ -30,8 +31,7 @@ publicCatalogRouter.get('/produtos-gravity/:id_produto_gravity', async (req, res
     const { id_produto_gravity: slug } = req.params
     const product = await produtoGravityCatalogoServico.getBySlug(slug)
     if (!product || !['ATIVO', 'EM_BREVE'].includes(product.status)) {
-      res.status(404).json({ error: 'Produto não encontrado' })
-      return
+      throw new AppError('Produto não encontrado', 404, 'PRODUTO_NAO_ENCONTRADO')
     }
     res.json({ product })
   } catch (err) {

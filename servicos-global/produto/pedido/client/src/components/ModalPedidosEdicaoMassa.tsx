@@ -1875,16 +1875,63 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
 
                   {/* De → Para */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
-                    <span style={{
-                      flex: 1, padding: '0.375rem 0.5rem',
-                      background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
-                      borderRadius: 'var(--radius-xs, 4px)',
-                      color: 'var(--text-secondary, #94a3b8)',
-                      fontStyle: multiplos ? 'italic' : 'normal',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {valorAtualExib}
-                    </span>
+                    {multiplos && !filtroPedido ? (
+                      /* Lista de valores por pedido — padrão Consolidar */
+                      (() => {
+                        // Ler o valor do campo diretamente dos pedidos originais
+                        const porValor = new Map<string, string[]>()
+                        for (const p of pedidos) {
+                          const raw = (p as unknown as Record<string, unknown>)[c.campo]
+                          const valorAtual = String(raw ?? '')
+                          const rotuloValor = def?.opcoes?.find(o => o.valor === valorAtual)?.rotulo ?? (valorAtual || '(vazio)')
+                          const chave = rotuloValor
+                          const existente = porValor.get(chave) ?? []
+                          existente.push(p.numero_pedido)
+                          porValor.set(chave, existente)
+                        }
+                        return (
+                          <div style={{
+                            flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                          }}>
+                            {[...porValor.entries()].map(([rotuloVal, numeros]) => (
+                              <span key={rotuloVal} style={{
+                                padding: '0.375rem 0.5rem',
+                                background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                                borderRadius: 'var(--radius-xs, 4px)',
+                                color: 'var(--text-secondary, #94a3b8)',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                fontSize: '0.8125rem',
+                              }}>
+                                {rotuloVal} ({numeros[0]})
+                                {numeros.length > 1 && (
+                                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-tertiary)', marginLeft: '0.25rem' }}>
+                                    +{numeros.length - 1}
+                                  </span>
+                                )}
+                              </span>
+                            ))}
+                            <span style={{
+                              fontSize: '0.6875rem', fontWeight: 600,
+                              color: 'var(--warning, #f59e0b)',
+                              display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                            }}>
+                              <Warning size={12} weight="fill" />
+                              {porValor.size} origens
+                            </span>
+                          </div>
+                        )
+                      })()
+                    ) : (
+                      <span style={{
+                        flex: 1, padding: '0.375rem 0.5rem',
+                        background: 'color-mix(in srgb, var(--destructive, #ef4444) 8%, transparent)',
+                        borderRadius: 'var(--radius-xs, 4px)',
+                        color: 'var(--text-secondary, #94a3b8)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {def?.opcoes?.find(o => o.valor === valorAtualExib)?.rotulo ?? valorAtualExib}
+                      </span>
+                    )}
                     <span style={{ color: 'var(--text-tertiary, #64748b)', flexShrink: 0, fontSize: '0.75rem' }}>→</span>
                     <span style={{
                       flex: 1, padding: '0.375rem 0.5rem',
@@ -1897,19 +1944,6 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                       {t(OP_LABEL_KEYS[c.operacao])}: {def?.opcoes?.find(o => o.valor === c.valor)?.rotulo ?? c.valor}
                     </span>
                   </div>
-
-                  {/* Valores distintos expandidos quando >1 */}
-                  {multiplos && (
-                    <div style={{
-                      fontSize: '0.75rem', color: 'var(--text-tertiary, #64748b)',
-                      padding: '0.25rem 0.5rem',
-                      background: 'color-mix(in srgb, var(--warning, #f59e0b) 6%, transparent)',
-                      borderRadius: 'var(--radius-xs, 4px)',
-                    }}>
-                      Valores atuais: {valoresAtuais.slice(0, 5).map(v => v || '(vazio)').join(', ')}
-                      {valoresAtuais.length > 5 && ` +${valoresAtuais.length - 5} mais`}
-                    </div>
-                  )}
 
                   {/* Alerta cascade */}
                   {previewCampo?.cascade_para && (

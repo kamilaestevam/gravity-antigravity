@@ -1065,8 +1065,8 @@ const monorepoRoot = resolve(process.cwd(), '..', '..')
 const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
 
-/** Timeout máximo de um run completo (15 min). Previne loops infinitos/DoS. */
-const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
+/** Timeout máximo de um run completo (30 min). Suite completo com browser leva ~20 min. */
+const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
 
 // ── Status de run persistido em arquivo (sobrevive a restart do servidor) ─────
 interface RunMarker {
@@ -1386,15 +1386,48 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
           })
         }
       } catch {
-        const stderrContent = existsSync(stderrPath) ? readFileSync(stderrPath, 'utf-8').slice(0, 500) : ''
-        entries.push({
-          type: 'E2E', module: 'playwright/parse-error',
-          test_name: 'JSON parse falhou',
-          result: 'ERRO',
-          duration: '0ms',
-          error_log: stderrContent.slice(0, 500),
-          ai_analysis: null,
-        })
+        // JSON truncado (processo matado por timeout) — tentar extrair suites parciais
+        const raw = readFileSync(stdoutPath, 'utf-8')
+        let recovered = false
+        const suitesMatch = raw.match(/"suites"\s*:\s*\[/)
+        if (suitesMatch && suitesMatch.index != null) {
+          const suitesStart = suitesMatch.index + suitesMatch[0].length - 1
+          const depth = { count: 0 }
+          let lastValidSuite = -1
+          for (let i = suitesStart; i < raw.length; i++) {
+            if (raw[i] === '{') depth.count++
+            if (raw[i] === '}') {
+              depth.count--
+              if (depth.count === 0) lastValidSuite = i
+            }
+          }
+          if (lastValidSuite > suitesStart) {
+            try {
+              const partialArray = JSON.parse(raw.slice(suitesStart, lastValidSuite + 1) + ']') as unknown[]
+              debugLog(`RECOVERY — parsed ${partialArray.length} suites from truncated JSON`)
+              for (const suite of partialArray) {
+                walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
+              }
+              recovered = true
+            } catch { /* recovery falhou */ }
+          }
+        }
+        if (!recovered || entries.length === 0) {
+          const stderrContent = existsSync(stderrPath) ? readFileSync(stderrPath, 'utf-8').slice(0, 500) : ''
+          entries.push({
+            type: 'E2E', module: 'playwright/parse-error',
+            test_name: 'JSON parse falhou (processo encerrado por timeout)',
+            result: 'ERRO',
+            duration: '0ms',
+            error_log: `Processo matado após timeout. stderr: ${stderrContent.slice(0, 400)}`,
+            ai_analysis: {
+              erroResumo: 'Processo Playwright matado por timeout',
+              motivo: `O run excedeu o timeout máximo de ${RUN_TESTS_TIMEOUT_MS / 60000} minutos e foi encerrado com SIGTERM. O JSON de saída ficou incompleto e não pôde ser parseado.`,
+              sugestaoCorrecao: 'Rodar um subconjunto menor de testes, ou aumentar o timeout em admin.ts (RUN_TESTS_TIMEOUT_MS).',
+              arquivo: 'servicos-global/configurador/server/routes/admin.ts',
+            },
+          })
+        }
       }
 
       const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)

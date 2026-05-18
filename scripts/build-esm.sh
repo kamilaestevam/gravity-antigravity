@@ -37,9 +37,8 @@ if [ "$USE_TSX" = true ]; then
 // Services with cross-service imports or custom Prisma paths cannot be
 // bundled by esbuild. This loader uses Node.js module hooks to handle
 // TypeScript imports at runtime via tsx.
-import { register } from 'node:module';
-import { pathToFileURL } from 'node:url';
-register('tsx/esm', pathToFileURL('./'));
+import { register } from 'tsx/esm/api';
+register();
 await import(new URL('${REL_ENTRY}', import.meta.url).href);
 LOADER
 

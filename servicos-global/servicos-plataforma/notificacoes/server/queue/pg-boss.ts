@@ -1,4 +1,5 @@
-import { PgBoss } from 'pg-boss'
+import * as PgBossModule from 'pg-boss'
+const PgBoss = (PgBossModule as unknown as { default: typeof PgBossModule.default }).default ?? PgBossModule
 
 let boss: PgBoss
 

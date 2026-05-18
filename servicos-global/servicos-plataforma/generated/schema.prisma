@@ -1,8 +1,8 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-03T20:33:11.793Z
-// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes
+// Gerado em: 2026-05-17T20:44:47.503Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes, api-cockpit
 // Serviços ausentes (fragment não encontrado): processos-core, ncm-sync
 // ============================================================================
 
@@ -15,7 +15,7 @@
 generator client {
   provider      = "prisma-client-js"
   output        = "../generated"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -1223,10 +1223,11 @@ model GabiLogUso {
   tipo_ator_gabi_log_uso         String @default("gabi")
   disparado_por_gabi_log_uso     String
 
-  modelo_gabi_log_uso        String?
-  tokens_input_gabi_log_uso  Int     @default(0)
-  tokens_output_gabi_log_uso Int     @default(0)
-  custo_usd_gabi_log_uso     Float   @default(0)
+  modelo_gabi_log_uso         String?
+  tokens_input_gabi_log_uso   Int     @default(0)
+  tokens_output_gabi_log_uso  Int     @default(0)
+  custo_usd_gabi_log_uso      Float   @default(0)
+  tools_chamadas_gabi_log_uso Json?
 
   data_criacao_gabi_log_uso DateTime @default(now())
 
@@ -1306,6 +1307,206 @@ model GabiPersonalizacaoOrganizacao {
   @@index([id_organizacao_gabi_personalizacao, id_produto_gabi_personalizacao], map: "gpe_org_prd_idx")
   @@index([id_organizacao_gabi_personalizacao, id_usuario_gabi_personalizacao], map: "gpe_org_usr_idx")
   @@map("gabi_personalizacao")
+}
+
+// ---------------------------------------------------------------------------
+// GabiLimiteMonetario — limite USD por organizacao (e opcionalmente por modelo)
+//
+// Vive em cada schema tenant_<cuid> via composicao do organizacao-shared.
+// Limites GLOBAIS (cross-org) ficam em configurador-db.GabiLimiteMonetarioGlobal.
+//
+// Avaliado pelo worker horario; quando excede `limite_bloqueio_usd_*` causa
+// bloqueio (HTTP 429) em chamadas novas a LLM SOMENTE para esta organizacao.
+// ---------------------------------------------------------------------------
+
+model GabiLimiteMonetario {
+  id_gabi_limite_monetario             String  @id @default(cuid())
+  id_organizacao_gabi_limite_monetario String
+  modelo_gabi_limite_monetario         String? // null = todos os modelos
+
+  limite_aviso_usd_gabi_limite_monetario    Decimal  @db.Decimal(12, 2)
+  limite_bloqueio_usd_gabi_limite_monetario Decimal  @db.Decimal(12, 2)
+  destinatarios_email_gabi_limite_monetario String[]
+  ativo_gabi_limite_monetario               Boolean  @default(true)
+
+  data_criacao_gabi_limite_monetario     DateTime @default(now())
+  data_atualizacao_gabi_limite_monetario DateTime @updatedAt
+
+  // unicidade gerenciada pela migration (UNIQUE ... COALESCE(modelo,'__ALL__'))
+  // — Prisma nao expressa NULLS-DISTINCT-FALSE de forma portatil.
+  @@index([id_organizacao_gabi_limite_monetario], map: "glm_org_idx")
+  @@index([id_organizacao_gabi_limite_monetario, modelo_gabi_limite_monetario], map: "glm_org_modelo_idx")
+  @@map("gabi_limite_monetario")
+}
+
+// ---------------------------------------------------------------------------
+// GabiKbChunk — chunk da base de conhecimento para RAG com pgvector
+// ---------------------------------------------------------------------------
+
+model GabiKbChunk {
+  id_gabi_kb_chunk String @id @default(cuid())
+
+  hash_conteudo_gabi_kb_chunk String                     @unique
+  conteudo_gabi_kb_chunk      String                     @db.Text
+  embedding_gabi_kb_chunk     Unsupported("vector(768)")
+  segmento_gabi_kb_chunk      String
+  titulo_secao_gabi_kb_chunk  String
+  nivel_gabi_kb_chunk         Int                        @default(1)
+  tokens_gabi_kb_chunk        Int
+  versao_kb_gabi_kb_chunk     String
+  ordem_gabi_kb_chunk         Int                        @default(0)
+
+  data_criacao_gabi_kb_chunk     DateTime @default(now())
+  data_atualizacao_gabi_kb_chunk DateTime @updatedAt
+
+  @@index([segmento_gabi_kb_chunk], map: "gkc_seg_idx")
+  @@index([versao_kb_gabi_kb_chunk], map: "gkc_ver_idx")
+  @@map("gabi_kb_chunk")
+}
+
+// ---------------------------------------------------------------------------
+// GabiAlertaEmitido — idempotencia de e-mail por (limite, mes, nivel)
+//
+// Worker insere ANTES de enviar e-mail; UNIQUE constraint + ON CONFLICT
+// DO NOTHING garante 1 e-mail por nivel/mes mesmo com worker em N instancias.
+// ---------------------------------------------------------------------------
+
+model GabiAlertaEmitido {
+  id_gabi_alerta_emitido             String   @id @default(cuid())
+  id_organizacao_gabi_alerta_emitido String
+  id_limite_gabi_alerta_emitido      String
+  mes_ref_gabi_alerta_emitido        String // "YYYY-MM"
+  nivel_gabi_alerta_emitido          String // "AVISO" | "BLOQUEIO"
+  gasto_usd_gabi_alerta_emitido      Decimal  @db.Decimal(12, 2)
+  data_criacao_gabi_alerta_emitido   DateTime @default(now())
+
+  @@unique([id_limite_gabi_alerta_emitido, mes_ref_gabi_alerta_emitido, nivel_gabi_alerta_emitido], map: "gae_unq_limite_mes_nivel")
+  @@index([id_organizacao_gabi_alerta_emitido], map: "gae_org_idx")
+  @@index([id_organizacao_gabi_alerta_emitido, mes_ref_gabi_alerta_emitido], map: "gae_org_mes_idx")
+  @@map("gabi_alerta_emitido")
+}
+
+// ---------------------------------------------------------------------------
+// GabiMemoriaUsuario — memoria persistente por usuario (preferencias, contexto, onboarding)
+// ---------------------------------------------------------------------------
+
+model GabiMemoriaUsuario {
+  id_gabi_memoria_usuario             String  @id @default(cuid())
+  id_organizacao_gabi_memoria_usuario String
+  id_usuario_gabi_memoria_usuario     String
+  tipo_gabi_memoria_usuario           String
+  chave_gabi_memoria_usuario          String
+  valor_gabi_memoria_usuario          String  @db.Text
+  confianca_gabi_memoria_usuario      Float   @default(1.0)
+  origem_gabi_memoria_usuario         String  @default("inferido")
+  ativo_gabi_memoria_usuario          Boolean @default(true)
+
+  data_criacao_gabi_memoria_usuario     DateTime @default(now())
+  data_atualizacao_gabi_memoria_usuario DateTime @updatedAt
+  data_ultimo_uso_gabi_memoria_usuario  DateTime @default(now())
+
+  @@unique([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario, tipo_gabi_memoria_usuario, chave_gabi_memoria_usuario], map: "gmu_unq_org_usr_tipo_chave")
+  @@index([id_organizacao_gabi_memoria_usuario], map: "gmu_org_idx")
+  @@index([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario], map: "gmu_org_usr_idx")
+  @@index([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario, tipo_gabi_memoria_usuario], map: "gmu_org_usr_tipo_idx")
+  @@map("gabi_memoria_usuario")
+}
+
+// ---------------------------------------------------------------------------
+// GabiDiagnosticoErro — erros capturados dos backends de produto
+// ---------------------------------------------------------------------------
+
+model GabiDiagnosticoErro {
+  id_gabi_diagnostico_erro             String  @id @default(cuid())
+  id_organizacao_gabi_diagnostico_erro String
+  id_usuario_gabi_diagnostico_erro     String
+  produto_gabi_diagnostico_erro        String
+  endpoint_gabi_diagnostico_erro       String
+  metodo_gabi_diagnostico_erro         String
+  status_http_gabi_diagnostico_erro    Int
+  codigo_erro_gabi_diagnostico_erro    String?
+  detalhes_gabi_diagnostico_erro       String? @db.Text
+  payload_resumo_gabi_diagnostico_erro Json?
+
+  data_criacao_gabi_diagnostico_erro DateTime @default(now())
+
+  @@index([id_organizacao_gabi_diagnostico_erro], map: "gde_org_idx")
+  @@index([id_organizacao_gabi_diagnostico_erro, id_usuario_gabi_diagnostico_erro], map: "gde_org_usr_idx")
+  @@index([id_organizacao_gabi_diagnostico_erro, id_usuario_gabi_diagnostico_erro, data_criacao_gabi_diagnostico_erro], map: "gde_org_usr_data_idx")
+  @@map("gabi_diagnostico_erro")
+}
+
+// ---------------------------------------------------------------------------
+// GabiChamado — chamados abertos pela GABI (bugs, problemas reportados)
+// ---------------------------------------------------------------------------
+
+model GabiChamado {
+  id_gabi_chamado                String  @id @default(cuid())
+  id_organizacao_gabi_chamado    String
+  id_usuario_gabi_chamado        String
+  numero_gabi_chamado            String  @unique
+  tipo_gabi_chamado              String
+  produto_gabi_chamado           String
+  descricao_usuario_gabi_chamado String  @db.Text
+  diagnostico_gabi_chamado       String? @db.Text
+  id_conversa_gabi_chamado       String?
+  status_gabi_chamado            String  @default("aberto")
+  email_enviado_gabi_chamado     Boolean @default(false)
+
+  data_criacao_gabi_chamado     DateTime @default(now())
+  data_atualizacao_gabi_chamado DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_chamado], map: "gch_org_idx")
+  @@index([id_organizacao_gabi_chamado, id_usuario_gabi_chamado], map: "gch_org_usr_idx")
+  @@index([numero_gabi_chamado], map: "gch_numero_idx")
+  @@map("gabi_chamado")
+}
+
+// ---------------------------------------------------------------------------
+// GabiToolExecucao — log de cada tool executada pela GABI
+// ---------------------------------------------------------------------------
+
+model GabiToolExecucao {
+  id_gabi_tool_execucao                  String  @id @default(cuid())
+  id_organizacao_gabi_tool_execucao      String
+  id_usuario_gabi_tool_execucao          String
+  id_conversa_gabi_tool_execucao         String
+  tool_id_gabi_tool_execucao             String
+  parametros_gabi_tool_execucao          Json
+  resultado_status_gabi_tool_execucao    Int
+  resultado_resumo_gabi_tool_execucao    String? @db.Text
+  duracao_ms_gabi_tool_execucao          Int
+  confirmacao_usuario_gabi_tool_execucao Boolean @default(false)
+
+  data_criacao_gabi_tool_execucao DateTime @default(now())
+
+  @@index([id_organizacao_gabi_tool_execucao], map: "gte_org_idx")
+  @@index([id_organizacao_gabi_tool_execucao, id_usuario_gabi_tool_execucao], map: "gte_org_usr_idx")
+  @@index([id_organizacao_gabi_tool_execucao, id_conversa_gabi_tool_execucao], map: "gte_org_cnv_idx")
+  @@map("gabi_tool_execucao")
+}
+
+// ---------------------------------------------------------------------------
+// GabiConfirmacaoAcao — nonce store do circuit breaker (confirmacao de WRITE)
+// ---------------------------------------------------------------------------
+
+model GabiConfirmacaoAcao {
+  id_gabi_confirmacao_acao              String  @id @default(cuid())
+  id_organizacao_gabi_confirmacao_acao  String
+  id_usuario_gabi_confirmacao_acao      String
+  id_conversa_gabi_confirmacao_acao     String
+  nonce_gabi_confirmacao_acao           String  @unique
+  tool_id_gabi_confirmacao_acao         String
+  parametros_hash_gabi_confirmacao_acao String
+  descricao_acao_gabi_confirmacao_acao  String  @db.Text
+  consumido_gabi_confirmacao_acao       Boolean @default(false)
+
+  data_criacao_gabi_confirmacao_acao   DateTime @default(now())
+  data_expiracao_gabi_confirmacao_acao DateTime
+
+  @@index([id_organizacao_gabi_confirmacao_acao], map: "gca_org_idx")
+  @@index([nonce_gabi_confirmacao_acao], map: "gca_nonce_idx")
+  @@map("gabi_confirmacao_acao")
 }
 
 // --- Fragment: preferencias-usuario ---
@@ -1456,4 +1657,205 @@ model ConfiguracaoCanalOrganizacao {
   @@index([id_organizacao, id_produto_gravity], map: "cct_org_prd_idx")
   @@index([id_organizacao, id_usuario], map: "cct_org_usr_idx")
   @@map("configuracao_canal_organizacao")
+}
+
+// --- Fragment: api-cockpit ---
+// servicos-global/servicos-plataforma/api-cockpit/prisma/fragment.prisma
+// SERVIÇO API-COCKPIT — DDD final (FKs canônicas sem sufixo de entidade — REGRA 3/4)
+//
+// ApiToken               — tokens de API emitidos por organização
+// WebhookConfiguracao    — webhooks cadastrados por organização
+// WebhookLog             — histórico de entregas de webhooks
+// LogRequisicaoApi       — log de requisições à API pública (1 linha por chamada)
+// ApiIntegracaoErp       — credenciais de integração com ERP (singleton por organização)
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EscopoApiToken {
+  LEITURA
+  ESCRITA
+  EXCLUSAO
+}
+
+enum ValidadeApiToken {
+  NUNCA
+  DIAS_30
+  DIAS_90
+  CUSTOMIZADO
+}
+
+enum ProtocoloApiIntegracaoErp {
+  ODATA
+  SAP_HANA
+  REST
+  JDBC
+}
+
+// ---------------------------------------------------------------------------
+// ApiToken — tokens de API emitidos a usuários da organização
+// ---------------------------------------------------------------------------
+
+model ApiToken {
+  id_api_token String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
+
+  // Identificação do token
+  nome_api_token    String
+  hash_api_token    String @unique
+  prefixo_api_token String // gv_live_sk_ ou gv_test_sk_
+
+  // Configuração
+  escopo_api_token                    EscopoApiToken   @default(LEITURA)
+  validade_api_token                  ValidadeApiToken @default(NUNCA)
+  data_expiracao_api_token            DateTime?
+  limite_requisicoes_minuto_api_token Int              @default(60)
+
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  revogado_api_token       Boolean   @default(false)
+  data_revogacao_api_token DateTime?
+
+  // Timestamps
+  data_criacao_api_token     DateTime @default(now())
+  data_atualizacao_api_token DateTime @updatedAt
+
+  @@index([id_organizacao], map: "apitk_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "apitk_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "apitk_org_usr_idx")
+  @@map("api_token")
+}
+
+// ---------------------------------------------------------------------------
+// WebhookConfiguracao — webhooks cadastrados pela organização para receber eventos
+// ---------------------------------------------------------------------------
+
+model WebhookConfiguracao {
+  id_webhook_configuracao String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String? // criador
+
+  // Configuração
+  url_webhook_configuracao     String
+  segredo_webhook_configuracao String // chave HMAC para assinatura
+  eventos_webhook_configuracao String[] // ex: ["simulacao.criada", "cotacao.aprovada"]
+
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  ativo_webhook_configuracao Boolean @default(true)
+
+  // Timestamps
+  data_criacao_webhook_configuracao     DateTime @default(now())
+  data_atualizacao_webhook_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao], map: "whkc_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "whkc_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "whkc_org_usr_idx")
+  @@map("webhook_configuracao")
+}
+
+// ---------------------------------------------------------------------------
+// WebhookLog — histórico de entregas de webhooks (sucessos e falhas)
+// ---------------------------------------------------------------------------
+
+model WebhookLog {
+  id_webhook_log String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
+
+  // Relação
+  id_webhook_configuracao String
+
+  // Conteúdo
+  evento_webhook_log                String
+  codigo_resposta_http_webhook_log  Int // 200, 404, 500, etc.
+  latencia_ms_webhook_log           Int
+  quantidade_tentativas_webhook_log Int
+  payload_webhook_log               Json?
+  erro_webhook_log                  String?
+
+  // Timestamps
+  data_criacao_webhook_log     DateTime @default(now())
+  data_atualizacao_webhook_log DateTime @updatedAt
+
+  @@index([id_organizacao], map: "whkl_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "whkl_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "whkl_org_usr_idx")
+  @@index([id_webhook_configuracao], map: "whkl_whkc_idx")
+  @@map("webhook_log")
+}
+
+// ---------------------------------------------------------------------------
+// LogRequisicaoApi — log de requisições à API pública (1 linha por chamada HTTP)
+//
+// Renomeado em 2026-05-07 (era `LogConsumo`/`log_consumo`). O nome anterior era
+// genérico demais — esta tabela registra requisições HTTP à API pública
+// Gravity, não "consumo" no sentido financeiro/produto.
+// ---------------------------------------------------------------------------
+
+model LogRequisicaoApi {
+  id_log_requisicao_api String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4)
+  id_organizacao     String
+  id_produto_gravity String?
+  id_usuario         String?
+
+  // Relação — nullable porque chamadas internas (S2S sem token) tambem geram log
+  id_api_token String?
+
+  // Rastreamento distribuido (header x-correlation-id propagado entre serviços)
+  id_correlacao String?
+
+  // Conteúdo da requisição
+  endpoint_log_requisicao_api             String
+  metodo_http_log_requisicao_api          String // GET, POST, PUT, DELETE, etc.
+  codigo_resposta_http_log_requisicao_api Int // 200, 404, 500, etc.
+  latencia_ms_log_requisicao_api          Int
+
+  // Timestamps
+  data_criacao_log_requisicao_api     DateTime @default(now())
+  data_atualizacao_log_requisicao_api DateTime @updatedAt
+
+  @@index([id_organizacao], map: "lreqapi_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "lreqapi_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "lreqapi_org_usr_idx")
+  @@index([id_api_token], map: "lreqapi_apitk_idx")
+  @@index([id_correlacao], map: "lreqapi_corr_idx")
+  @@map("log_requisicao_api")
+}
+
+// ---------------------------------------------------------------------------
+// ApiIntegracaoErp — credenciais de integração com ERP (singleton por organização)
+// ---------------------------------------------------------------------------
+
+model ApiIntegracaoErp {
+  id_api_integracao_erp String @id @default(cuid())
+
+  // Identificação organização — FKs canônicas (REGRA 3/4); única por organização
+  id_organizacao     String  @unique
+  id_produto_gravity String?
+  id_usuario         String?
+
+  // Credenciais e protocolo
+  credenciais_criptografadas_api_integracao_erp String // AES-256-GCM
+  protocolo_api_integracao_erp                  ProtocoloApiIntegracaoErp @default(ODATA)
+
+  // Timestamps
+  data_criacao_api_integracao_erp     DateTime @default(now())
+  data_atualizacao_api_integracao_erp DateTime @updatedAt
+
+  @@index([id_organizacao], map: "aierp_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "aierp_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "aierp_org_usr_idx")
+  @@map("api_integracao_erp")
 }

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-16T14:28:09.489Z
+// Gerado em: 2026-05-17T20:44:49.257Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -20,7 +20,7 @@
 generator client {
   provider      = "prisma-client-js"
   output        = "../generated"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -285,39 +285,6 @@ enum NcmSyncStatusSincronizacao {
 enum NcmSyncOrigemSincronizacao {
   JOB
   MANUAL
-}
-
-// ---------------------------------------------------------------------
-// CertificadoDigitalSiscomex — e-CNPJ para autenticação mTLS com Portal Único.
-// Catálogo global (sem id_organizacao) — certificado é do CNPJ raiz.
-// PFX armazenado criptografado (AES-256-GCM).
-// Apenas 1 certificado ativo por vez (flag ativo_).
-// ---------------------------------------------------------------------
-
-model CertificadoDigitalSiscomex {
-  id_certificado_digital_siscomex                 String   @id @default(cuid())
-
-  nome_certificado_digital_siscomex               String
-  cnpj_certificado_digital_siscomex               String
-  cn_certificado_digital_siscomex                 String
-  serial_number_certificado_digital_siscomex      String
-  emissor_certificado_digital_siscomex            String
-  validade_inicio_certificado_digital_siscomex    DateTime
-  validade_fim_certificado_digital_siscomex       DateTime
-
-  // PFX criptografado (AES-256-GCM, formato iv:tag:ciphertext hex)
-  pfx_criptografado_certificado_digital_siscomex  String
-  // Senha do PFX criptografada (AES-256-GCM)
-  senha_hash_certificado_digital_siscomex         String
-
-  ativo_certificado_digital_siscomex              Boolean  @default(false)
-
-  data_criacao_certificado_digital_siscomex       DateTime @default(now())
-  data_atualizacao_certificado_digital_siscomex   DateTime @updatedAt
-
-  @@index([ativo_certificado_digital_siscomex], map: "cds_ativo_idx")
-  @@index([cnpj_certificado_digital_siscomex],  map: "cds_cnpj_idx")
-  @@map("certificado_digital_siscomex")
 }
 
 // ---------------------------------------------------------------------

@@ -19,11 +19,13 @@ import {
   X,
 } from '@phosphor-icons/react'
 
-import { DashboardGrid } from '@nucleo/dashboard/DashboardGrid/index.js'
-import { DashboardPainelContainer } from '@nucleo/dashboard/WidgetContainer/index.js'
-import { DashboardWidgetKPI } from '@nucleo/dashboard/widgets/KpiWidget/index.js'
-import { DashboardWidgetLinha } from '@nucleo/dashboard/widgets/LineChartWidget/index.js'
-import { DashboardWidgetBarras } from '@nucleo/dashboard/widgets/BarChartWidget/index.js'
+import {
+  DashboardGrid,
+  DashboardPainelContainer,
+  DashboardWidgetKPI,
+  DashboardWidgetLinha,
+  DashboardWidgetBarras,
+} from '@nucleo/dashboard'
 
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { useDashboardData } from '../hooks/useDashboardData.js'

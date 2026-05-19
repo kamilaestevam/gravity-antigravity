@@ -298,9 +298,11 @@ export function Usuarios() {
     setVinculosMap(mapa)
     // Ordem alfabética por nome (paridade UX com Admin) — backend não garante.
     setWorkspaces(
-      [...workspacesResp.workspaces].sort((a, b) =>
-        a.nome_workspace.localeCompare(b.nome_workspace, 'pt-BR', { sensitivity: 'base' }),
-      ),
+      [...workspacesResp.workspaces]
+        .filter(w => w.status_workspace === 'ATIVO')
+        .sort((a, b) =>
+          a.nome_workspace.localeCompare(b.nome_workspace, 'pt-BR', { sensitivity: 'base' }),
+        ),
     )
   }
 

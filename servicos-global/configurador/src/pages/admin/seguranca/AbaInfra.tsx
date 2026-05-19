@@ -178,50 +178,42 @@ export function AbaInfra() {
         </h3>
       </TooltipGlobal>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <TooltipGlobal titulo="Último Backup" descricao="Data e hora do backup automático mais recente do banco de dados">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Último Backup"
-              valor={backup ? new Date(backup.ultimo_backup.data).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '...'}
-              icone={<CloudArrowUp weight="fill" size={20} />}
-              variante={backup?.ultimo_backup.status === 'SUCESSO' ? 'sucesso' : 'perigo'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Último Backup"
+            valor={backup ? new Date(backup.ultimo_backup.data).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '...'}
+            icone={<CloudArrowUp weight="fill" size={20} />}
+            variante={backup?.ultimo_backup.status === 'SUCESSO' ? 'sucesso' : 'perigo'}
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="RPO" descricao="Recovery Point Objective: máximo de dados que pode ser perdido em caso de falha">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="RPO (Meta: 24h)"
-              valor={backup ? `${backup.rpo.atual_horas}h` : '...'}
-              icone={<Timer weight="fill" size={20} />}
-              variante={backup?.rpo.status === 'DENTRO_META' ? 'sucesso' : 'perigo'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="RPO (Meta: 24h)"
+            valor={backup ? `${backup.rpo.atual_horas}h` : '...'}
+            icone={<Timer weight="fill" size={20} />}
+            variante={backup?.rpo.status === 'DENTRO_META' ? 'sucesso' : 'perigo'}
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="RTO" descricao="Recovery Time Objective: tempo máximo para restaurar o sistema após uma falha">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="RTO (Meta: 60min)"
-              valor={backup ? `${backup.rto.estimado_minutos}min` : '...'}
-              icone={<ArrowsClockwise weight="fill" size={20} />}
-              variante={backup?.rto.status === 'DENTRO_META' ? 'sucesso' : 'perigo'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="RTO (Meta: 60min)"
+            valor={backup ? `${backup.rto.estimado_minutos}min` : '...'}
+            icone={<ArrowsClockwise weight="fill" size={20} />}
+            variante={backup?.rto.status === 'DENTRO_META' ? 'sucesso' : 'perigo'}
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="Teste de Restauração" descricao="Último teste real de restauração do backup — valida que o backup funciona">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Último Teste Restauração"
-              valor={backup
-                ? (backup.ultimo_teste_restauracao.data
-                    ? new Date(backup.ultimo_teste_restauracao.data).toLocaleDateString('pt-BR')
-                    : 'Nunca testado')
-                : '...'}
-              icone={<CheckCircle weight="fill" size={20} />}
-              variante={backup?.ultimo_teste_restauracao.status === 'SUCESSO' ? 'sucesso' : 'aviso'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Último Teste Restauração"
+            valor={backup
+              ? (backup.ultimo_teste_restauracao.data
+                  ? new Date(backup.ultimo_teste_restauracao.data).toLocaleDateString('pt-BR')
+                  : 'Nunca testado')
+              : '...'}
+            icone={<CheckCircle weight="fill" size={20} />}
+            variante={backup?.ultimo_teste_restauracao.status === 'SUCESSO' ? 'sucesso' : 'aviso'}
+          />
         </TooltipGlobal>
       </div>
 

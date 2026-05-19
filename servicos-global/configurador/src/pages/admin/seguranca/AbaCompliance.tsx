@@ -124,6 +124,9 @@ export function AbaCompliance() {
       console.error('[AbaCompliance] Falha ao carregar:', err)
     } finally {
       setLoading(false)
+    }
+  }, [])
+
   useEffect(() => { void loadData() }, [loadData])
 
   const toggleExpandir = (id: string) => {

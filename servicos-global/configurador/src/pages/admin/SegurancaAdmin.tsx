@@ -10,6 +10,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
@@ -344,7 +345,7 @@ export function SegurancaAdmin() {
 
   const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
     {
-      key: 'service', label: t('admin.seguranca-admin.tabela.servico'), tipo: 'texto', largura: '25%',
+      key: 'service', label: t('admin.seguranca-admin.tabela.servico'), tipo: 'texto', largura: '18%',
       tooltipTitulo: 'Serviço', tooltipDescricao: 'Nome do serviço interno monitorado pela plataforma',
       render: (_v, item) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -353,7 +354,7 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '15%',
+      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '14%',
       tooltipTitulo: 'Status', tooltipDescricao: 'Condição atual do serviço: online, degradado ou offline',
       render: (v) => {
         const st = v as ServiceStatus
@@ -361,14 +362,14 @@ export function SegurancaAdmin() {
       },
     },
     {
-      key: 'latency_ms', label: t('admin.seguranca-admin.tabela.latencia'), tipo: 'texto', largura: '15%',
+      key: 'latency_ms', label: t('admin.seguranca-admin.tabela.latencia'), tipo: 'texto', largura: '14%',
       tooltipTitulo: 'Latência', tooltipDescricao: 'Tempo de resposta do serviço em milissegundos',
       render: (v) => {
         const ms = Number(v ?? 0)
         return <span style={{ color: ms > 2000 ? '#fbbf24' : '#34d399' }}>{ms}ms</span>
       },
     },
-    { key: 'error', label: t('admin.seguranca-admin.tabela.erro'), tipo: 'texto', largura: '45%',
+    { key: 'error', label: t('admin.seguranca-admin.tabela.erro'), tipo: 'texto',
       tooltipTitulo: 'Erro', tooltipDescricao: 'Mensagem de erro registrada na última verificação',
       render: (v) => (v as string | undefined) || '-' },
   ]
@@ -443,6 +444,15 @@ export function SegurancaAdmin() {
           />
         </>
       }
+      acoes={
+        <BotaoGlobal
+          variante="primario"
+          onClick={() => { setLoading(true); void loadData() }}
+          iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
+        >
+          {t('admin.seguranca-admin.btn_atualizar')}
+        </BotaoGlobal>
+      }
       toolbar={
         <div style={{ display: 'flex', gap: '0.25rem', borderBottom: '1px solid var(--ws-border, #334155)' }}>
           {[
@@ -475,21 +485,6 @@ export function SegurancaAdmin() {
               </button>
             </TooltipGlobal>
           ))}
-          <TooltipGlobal titulo="Atualizar Dados" descricao="Forçar atualização imediata de todas as métricas. O painel atualiza automaticamente a cada 30 segundos">
-            <button
-              onClick={() => { setLoading(true); void loadData() }}
-              aria-label={t('admin.seguranca-admin.btn_atualizar')}
-              style={{
-                marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.3rem',
-                padding: '0.4rem 0.8rem', border: 'none', cursor: 'pointer',
-                background: 'transparent', color: 'var(--ws-muted, #94a3b8)',
-                fontSize: '0.78rem',
-              }}
-            >
-              <ArrowsClockwise size={14} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
-              {t('admin.seguranca-admin.btn_atualizar')}
-            </button>
-          </TooltipGlobal>
         </div>
       }
     >

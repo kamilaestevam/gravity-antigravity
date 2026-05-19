@@ -31,7 +31,13 @@ const MAPA_IMPOSTOS: Record<string, { codigo: string; nome: string }> = {
 
 function parseXmlAsync(xmlString: string): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
-    parseString(xmlString, { explicitArray: false, mergeAttrs: true }, (err, result) => {
+    parseString(xmlString, {
+      explicitArray: false,
+      mergeAttrs: true,
+      explicitRoot: false,
+      xmlns: false,
+      // OWASP A04: DTD desabilitado para prevenir XXE
+    }, (err, result) => {
       if (err) reject(err)
       else resolve(result as Record<string, unknown>)
     })

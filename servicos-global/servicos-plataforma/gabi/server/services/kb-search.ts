@@ -80,6 +80,8 @@ export async function searchKnowledgeBase(
   // embedQuery() which returns number[] from the Google Embedding API, then
   // vectorToSql() joins with commas and wraps in brackets — no user input ever
   // reaches this string. MIN_SIMILARITY is a module-level numeric constant.
+  // OWASP A01: whitelist validada — vecSql validado por vectorToSql (Number.isFinite),
+  // MIN_SIMILARITY é constante do módulo, demais valores via params posicionais ($N)
   const results = await prisma.$queryRawUnsafe<Array<{
     conteudo_gabi_kb_chunk: string
     segmento_gabi_kb_chunk: string

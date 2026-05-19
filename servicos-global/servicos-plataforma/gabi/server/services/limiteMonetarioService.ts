@@ -131,7 +131,9 @@ interface LimiteOrgLido {
   ativo_gabi_limite_monetario: boolean
 }
 
-/** Schema-per-org: SET LOCAL search_path + raw query. */
+/** Schema-per-org: SET LOCAL search_path + raw query.
+ *  SAFETY: schemaName validated by SCHEMA_NAME_REGEX; all data via positional params.
+ *  OWASP A01: whitelist validada — schema name via regex, dados via params posicionais */
 async function lerLimitesDaOrg(idOrganizacao: string, modelo: string): Promise<LimiteOrgLido[]> {
   const schemaName = `tenant_${idOrganizacao}`
   if (!SCHEMA_NAME_REGEX.test(schemaName)) {
@@ -161,7 +163,9 @@ async function lerLimitesDaOrg(idOrganizacao: string, modelo: string): Promise<L
   })
 }
 
-/** SUM(custo_usd) MTD para a org. */
+/** SUM(custo_usd) MTD para a org.
+ *  SAFETY: schemaName validated by SCHEMA_NAME_REGEX; date range via positional params.
+ *  OWASP A01: whitelist validada — schema name via regex, dados via params posicionais */
 async function lerGastoMtdDaOrg(idOrganizacao: string): Promise<number> {
   const schemaName = `tenant_${idOrganizacao}`
   if (!SCHEMA_NAME_REGEX.test(schemaName)) {

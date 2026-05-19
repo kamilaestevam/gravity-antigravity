@@ -15,6 +15,7 @@
  */
 
 import https from 'node:https'
+import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { decryptToBuffer } from '../lib/certificado-crypto.js'
 import { extrairPemDoP12 } from './certificado-parser.js'
@@ -25,16 +26,34 @@ const AUTH_ROLE = process.env.SISCOMEX_AUTH_ROLE ?? 'IMPEXP'
 const TOKEN_TTL_MS = 50 * 60 * 1000 // 50 minutos (conservador)
 const AUTH_TIMEOUT_MS = 15_000
 
-interface TokenCache {
+// OWASP A08: validação Zod pós-parse — resposta de autenticação Siscomex
+const siscomexAuthResponseSchema = z.object({
+  token: z.string().optional(),
+  csrfToken: z.string().optional(),
+  authToken: z.string().optional(),
+})
+
+export interface SiscomexTokens {
   jwt: string
+  csrfToken: string
+  httpsAgent: https.Agent
+}
+
+interface TokenCache {
+  tokens: SiscomexTokens
   expiresAt: number
 }
 
 let tokenCache: TokenCache | null = null
 
 export async function obterTokenSiscomex(): Promise<string> {
+  const tokens = await obterTokensSiscomex()
+  return tokens.jwt
+}
+
+export async function obterTokensSiscomex(): Promise<SiscomexTokens> {
   if (tokenCache && tokenCache.expiresAt > Date.now()) {
-    return tokenCache.jwt
+    return tokenCache.tokens
   }
 
   const certificado = await prisma.certificadoDigitalSiscomex.findFirst({
@@ -59,11 +78,12 @@ export async function obterTokenSiscomex(): Promise<string> {
 
   const agent = criarAgentMtls(pfxBuffer, senhaPfx)
 
-  const jwt = await autenticarPortalUnico(agent, certificado.cnpj_certificado_digital_siscomex)
+  const authResult = await autenticarPortalUnico(agent, certificado.cnpj_certificado_digital_siscomex)
 
-  tokenCache = { jwt, expiresAt: Date.now() + TOKEN_TTL_MS }
+  const tokens: SiscomexTokens = { ...authResult, httpsAgent: agent }
+  tokenCache = { tokens, expiresAt: Date.now() + TOKEN_TTL_MS }
 
-  return jwt
+  return tokens
 }
 
 export function invalidarCacheToken(): void {
@@ -81,7 +101,7 @@ function criarAgentMtls(pfxBuffer: Buffer, passphrase: string): https.Agent {
   })
 }
 
-async function autenticarPortalUnico(agent: https.Agent, cpfCnpj: string): Promise<string> {
+async function autenticarPortalUnico(agent: https.Agent, cpfCnpj: string): Promise<Omit<SiscomexTokens, 'httpsAgent'>> {
   const url = new URL(AUTH_URL)
 
   const body = JSON.stringify({ cpfCnpj })
@@ -107,21 +127,39 @@ async function autenticarPortalUnico(agent: https.Agent, cpfCnpj: string): Promi
         res.on('end', () => {
           if (res.statusCode === 200 || res.statusCode === 201) {
             try {
-              const parsed = JSON.parse(data)
-              const token = parsed.token ?? parsed.access_token ?? parsed.set_token
-              if (token && typeof token === 'string') {
-                resolve(token)
+              const setToken = res.headers['set-token']
+              const headerCsrf = res.headers['x-csrf-token']
+
+              const jwt = typeof setToken === 'string' ? setToken : null
+              const headerCsrfStr = typeof headerCsrf === 'string' ? headerCsrf : ''
+
+              // TTCE espera o token CSRF do body (diferente do header x-csrf-token)
+              // OWASP A08: validação Zod pós-parse
+              let bodyCsrf = ''
+              try {
+                const raw: unknown = JSON.parse(data)
+                const validated = siscomexAuthResponseSchema.safeParse(raw)
+                if (validated.success) {
+                  bodyCsrf = validated.data.token ?? ''
+                }
+              } catch { /* ignore */ }
+
+              const csrfToken = bodyCsrf || headerCsrfStr
+
+              if (jwt) {
+                resolve({ jwt, csrfToken })
                 return
               }
-              const headerToken = res.headers['set-token'] ?? res.headers['x-csrf-token']
-              if (headerToken && typeof headerToken === 'string') {
-                resolve(headerToken)
+
+              if (bodyCsrf) {
+                resolve({ jwt: bodyCsrf, csrfToken: headerCsrfStr })
                 return
               }
               reject(new AppError('Resposta de autenticação Siscomex sem token', 502, 'SISCOMEX_AUTH_NO_TOKEN'))
             } catch {
               if (data.length > 20 && data.length < 4096) {
-                resolve(data.trim())
+                const csrf = typeof res.headers['x-csrf-token'] === 'string' ? res.headers['x-csrf-token'] : ''
+                resolve({ jwt: data.trim(), csrfToken: csrf })
                 return
               }
               reject(new AppError('Resposta de autenticação Siscomex inválida', 502, 'SISCOMEX_AUTH_INVALID_RESPONSE'))

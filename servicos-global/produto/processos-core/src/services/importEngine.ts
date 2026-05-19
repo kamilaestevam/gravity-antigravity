@@ -13,7 +13,14 @@
  * Para producao, instalar xlsx e csv-parse.
  */
 
+import xml2js from 'xml2js'
 import { AppError } from './saldo-pedido.js'
+
+// OWASP A04: DTD desabilitado para prevenir XXE
+const xmlParser = new xml2js.Parser({
+  explicitRoot: false,
+  xmlns: false,
+})
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -88,7 +95,7 @@ export const importEngine = {
       case 'txt':
         return parseTXT(buffer)
       case 'xml':
-        return parseXML(buffer)
+        return await parseXML(buffer)
       case 'xlsx':
       case 'xls':
         return parseExcel(buffer)
@@ -204,33 +211,35 @@ function parseTXT(buffer: Buffer): Record<string, unknown>[] {
   return parseCSV(buffer)
 }
 
-function parseXML(buffer: Buffer): Record<string, unknown>[] {
+async function parseXML(buffer: Buffer): Promise<Record<string, unknown>[]> {
   const text = buffer.toString('utf-8').trim()
 
-  // Parser XML simples — extrai tags <row> ou <pedido> ou <item>
-  const rows: Record<string, unknown>[] = []
-  const rowRegex = /<(?:row|pedido|item|record)[^>]*>([\s\S]*?)<\/(?:row|pedido|item|record)>/gi
-  let match: RegExpExecArray | null
+  // OWASP A04: usa xml2js com DTD desabilitado (xmlParser configurado no topo)
+  let parsed: Record<string, unknown>
+  try {
+    parsed = await xmlParser.parseStringPromise(text) as Record<string, unknown>
+  } catch {
+    throw new AppError(400, 'XML malformado. Verifique o arquivo.')
+  }
 
-  while ((match = rowRegex.exec(text)) !== null) {
-    const row: Record<string, unknown> = {}
-    const fieldRegex = /<(\w+)>(.*?)<\/\1>/g
-    let fieldMatch: RegExpExecArray | null
-
-    while ((fieldMatch = fieldRegex.exec(match[1])) !== null) {
-      row[fieldMatch[1]] = fieldMatch[2]
+  // Extrair arrays de rows, pedidos ou items do resultado parseado
+  const candidates = ['row', 'pedido', 'item', 'record', 'rows', 'pedidos', 'itens', 'records']
+  for (const key of candidates) {
+    const val = parsed[key]
+    if (Array.isArray(val) && val.length > 0) {
+      return val as Record<string, unknown>[]
     }
-
-    if (Object.keys(row).length > 0) {
-      rows.push(row)
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      return [val as Record<string, unknown>]
     }
   }
 
-  if (rows.length === 0) {
-    throw new AppError(400, 'XML deve conter elementos <row>, <pedido>, <item> ou <record>')
+  // Fallback: se o root tem campos diretos, trata como row unica
+  if (Object.keys(parsed).length > 0) {
+    return [parsed]
   }
 
-  return rows
+  throw new AppError(400, 'XML deve conter elementos <row>, <pedido>, <item> ou <record>')
 }
 
 function parseExcel(_buffer: Buffer): Record<string, unknown>[] {

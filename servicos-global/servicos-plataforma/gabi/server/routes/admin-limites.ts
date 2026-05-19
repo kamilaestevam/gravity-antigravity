@@ -108,6 +108,14 @@ function paraResposta(l: LimiteLido) {
 // ---------------------------------------------------------------------------
 // Rotas
 // ---------------------------------------------------------------------------
+// SAFETY NOTE (applies to all routes below):
+// - SET LOCAL search_path uses schemaName which is validated by SCHEMA_NAME_REGEX
+//   (/^tenant_c[a-z0-9]{24}$/) via schemaNameDe() — prevents SQL injection.
+// - All data values are passed as positional parameters ($1, $2, ...) — never
+//   interpolated into SQL strings.
+// - Dynamic SET clauses in PUT use counter-based $N placeholders, not string concat.
+// OWASP A01: whitelist validada — schema name via regex, dados via params posicionais
+// ---------------------------------------------------------------------------
 
 /**
  * GET /api/v1/gabi/admin/limites

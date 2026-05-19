@@ -24,6 +24,7 @@ async function alertarVencimentosCambio() {
 
   // SAFETY: static SQL — no interpolation, no user input. $queryRawUnsafe used
   // because Prisma typed client doesn't cover this cross-tenant scan table.
+  // OWASP A01: whitelist validada — SQL estático, sem interpolação de input
   const preferencias = await cronPrisma.$queryRawUnsafe(`
     SELECT * FROM cambio_preferencias
     WHERE alerta_email_vencimento = true
@@ -48,6 +49,7 @@ async function alertarVencimentosCambio() {
     const tenantDb = withTenantIsolation(cronPrisma, pref.id_organizacao)
 
     // SAFETY: all user-derived values passed as positional params ($1, $2, $3).
+    // OWASP A01: whitelist validada — params posicionais, sem interpolação
     const parcelasVencendo = await tenantDb.$queryRawUnsafe(`
       SELECT * FROM cambio_parcelas
       WHERE id_organizacao = $1
@@ -79,6 +81,7 @@ async function expirarCotacoesVencidas() {
   const agora = new Date()
 
   // SAFETY: user-derived value (agora) passed as positional param $1.
+  // OWASP A01: whitelist validada — params posicionais, sem interpolação
   const cotacoesVencidas = await cronPrisma.$queryRawUnsafe(`
     SELECT id, id_organizacao, user_id FROM cambio_cotacoes
     WHERE status IN ('ENVIADA_CORRETORAS', 'EM_COTACAO')

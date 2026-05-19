@@ -72,6 +72,8 @@ adminRouter.get('/api/v1/gabi/admin/uso-global', async (req, res, next) => {
         if (!SCHEMA_NAME_REGEX.test(schemaName)) {
           throw new Error(`Schema name invalido: ${schemaName}`)
         }
+        // SAFETY: schemaName validated by SCHEMA_NAME_REGEX above; data params via $1/$2.
+        // OWASP A01: whitelist validada — schema name via regex, dados via params posicionais
         return prisma.$transaction(async (tx) => {
           await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
           const linhas = await tx.$queryRawUnsafe<UsoOrgResultado[]>(

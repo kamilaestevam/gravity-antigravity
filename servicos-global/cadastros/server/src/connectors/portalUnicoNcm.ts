@@ -13,13 +13,11 @@
  *    Auth: certificado digital e-CNPJ → JWT via /portal/api/autenticar.
  */
 
-import axios from 'axios'
 import https from 'node:https'
-import { createSecureContext } from 'node:tls'
+import axios from 'axios'
+import { z } from 'zod'
 import { AppError } from '../lib/app-error.js'
-import { prisma } from '../lib/prisma.js'
-import { decryptToBuffer } from '../lib/certificado-crypto.js'
-import { obterTokenSiscomex } from '../services/siscomex-auth.js'
+import { obterTokensSiscomex, type SiscomexTokens } from '../services/siscomex-auth.js'
 
 // ── Constantes ───────────────────────────────────────────────────────────────
 
@@ -33,6 +31,30 @@ const TTCE_URL =
 
 const DOWNLOAD_TIMEOUT_MS = 60_000
 const VALIDATE_TIMEOUT_MS = 15_000
+
+// OWASP A08: validação Zod pós-parse — resposta do TTCE (tratamentos tributários)
+const ttceTributoSchema = z.object({
+  codigo: z.union([z.number(), z.string()]),
+}).optional()
+
+const ttceTratamentoSchema = z.object({
+  tributo: ttceTributoSchema,
+  codigoTributo: z.union([z.number(), z.string()]).optional(),
+  aliquotaAd: z.number().optional(),
+  aliquota: z.number().optional(),
+  percentual: z.number().optional(),
+  regime: z.object({ aliquotaAd: z.number().optional() }).optional(),
+  atributos: z.array(z.object({
+    codigo: z.string().optional(),
+    descricaoCodigo: z.string().optional(),
+    valor: z.union([z.number(), z.string(), z.null()]).optional(),
+  })).optional(),
+})
+
+const ttceResponseSchema = z.object({
+  tratamentosTributarios: z.array(ttceTratamentoSchema).optional(),
+  tratamentos: z.array(ttceTratamentoSchema).optional(),
+})
 
 // PIS e COFINS na importação são fixos por lei (Lei 10.865/2004)
 const PIS_IMPORTACAO = 2.1
@@ -73,7 +95,55 @@ function parseAliquota(val: unknown): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-// ── Funções públicas ────────────────────────────────────────────��─────────────
+/**
+ * POST via native https — necessário porque axios corrompe headers com chars base64
+ * (o CSRF token contém +, /, = que o axios modifica silenciosamente).
+ */
+function postHttps(url: URL, body: string, tokens: SiscomexTokens): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname + url.search,
+      method: 'POST',
+      agent: tokens.httpsAgent,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        Accept: 'application/json',
+        Authorization: tokens.jwt,
+        'X-CSRF-Token': tokens.csrfToken,
+        'Role-Type': process.env.SISCOMEX_AUTH_ROLE ?? 'IMPEXP',
+      },
+      timeout: VALIDATE_TIMEOUT_MS,
+    }, (res) => {
+      let data = ''
+      res.on('data', (chunk: Buffer) => { data += chunk.toString() })
+      res.on('end', () => {
+        if (res.statusCode === 200 || res.statusCode === 201) {
+          // OWASP A08: validação Zod pós-parse
+          try {
+            const parsed: unknown = JSON.parse(data)
+            const validated = ttceResponseSchema.safeParse(parsed)
+            resolve(validated.success ? validated.data : parsed)
+          } catch { resolve(null) }
+        } else if (res.statusCode === 404) {
+          reject(new AppError('NCM não encontrado no TTCE', 404, 'TTCE_NOT_FOUND'))
+        } else if (res.statusCode === 401) {
+          reject(new AppError(`Token TTCE expirado: ${data.substring(0, 200)}`, 502, 'TTCE_AUTH_EXPIRED'))
+        } else {
+          reject(new AppError(`TTCE HTTP ${res.statusCode}: ${data.substring(0, 200)}`, 502, 'TTCE_HTTP_ERROR'))
+        }
+      })
+    })
+    req.on('error', (err) => reject(new AppError(`TTCE conexão falhou: ${err.message}`, 503, 'TTCE_CONNECT_ERROR')))
+    req.on('timeout', () => { req.destroy(); reject(new AppError('TTCE timeout', 504, 'TTCE_TIMEOUT')) })
+    req.write(body)
+    req.end()
+  })
+}
+
+// ── Funções públicas ─────────────────────────────────────────────────────────
 
 /**
  * Baixa a tabela completa de NCMs do Portal Único (endpoint público).
@@ -136,49 +206,88 @@ export async function validarNcm(codigo: string): Promise<NcmDetalhe | null> {
       : null
   }
 
-  // Tentar via TTCE autenticado (requer certificado)
   try {
-    return await buscarAliquotasTtce(codigo)
-  } catch {
-    // Sem certificado ou auth falhou — fallback silencioso
+    const resultado = await buscarAliquotasTtce(codigo)
+    return resultado
+  } catch (err) {
+    console.error(`[TTCE] validarNcm ERRO para ${codigo}:`, err instanceof Error ? err.message : err)
     return null
   }
 }
 
 /**
  * Busca alíquotas via TTCE com autenticação por certificado.
- * Lança erro se certificado não configurado ou auth falhar.
+ * POST /tratamentos-tributarios/importacao/ com NCM + país + data.
+ * codigoPais 249 = EUA (taxa MFN geral, sem preferência tarifária).
  */
 export async function buscarAliquotasTtce(codigo: string): Promise<NcmDetalhe | null> {
-  const token = await obterTokenSiscomex()
+  const tokens = await obterTokensSiscomex()
 
-  // TTCE espera POST com body { codigoNcm, ... }
-  const url = `${TTCE_URL}/ncm/${codigo}`
+  const urlObj = new URL(`${TTCE_URL}/tratamentos-tributarios/importacao/`)
+  const hoje = new Date().toISOString().split('T')[0]
+
+  const body = JSON.stringify({
+    ncm: codigo,
+    codigoPais: 249,
+    dataFatoGerador: hoje,
+    tipoOperacao: 'I',
+  })
 
   try {
-    const response = await axios.get(url, {
-      timeout: VALIDATE_TIMEOUT_MS,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    const data = response.data
-    return {
-      codigo:    String(data.codigo    ?? data.Codigo    ?? codigo),
-      descricao: String(data.descricao ?? data.Descricao ?? ''),
-      ii:        parseAliquota(data.IiAliquotaAd  ?? data.iiAliquotaAd  ?? data.ii ?? data.aliquotaIi),
-      ipi:       parseAliquota(data.IpiAliquotaAd ?? data.ipiAliquotaAd ?? data.ipi ?? data.aliquotaIpi),
-      pis:       PIS_IMPORTACAO,
-      cofins:    COFINS_IMPORTACAO,
-    }
+    const data = await postHttps(urlObj, body, tokens)
+    return extrairAliquotasDaResposta(codigo, data)
   } catch (err: unknown) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null
-    if (axios.isAxiosError(err) && err.response?.status === 401) {
-      throw new AppError('Token TTCE expirado ou inválido', 502, 'TTCE_AUTH_EXPIRED')
-    }
+    if (err instanceof AppError && err.statusCode === 404) return null
+    if (err instanceof AppError && err.code === 'TTCE_AUTH_EXPIRED') throw err
     return null
+  }
+}
+
+function extrairAliquotasDaResposta(codigo: string, data: unknown): NcmDetalhe | null {
+  if (!data || typeof data !== 'object') return null
+
+  let ii: number | null = null
+  let ipi: number | null = null
+
+  const tratamentos = (data as Record<string, unknown>).tratamentosTributarios
+    ?? (data as Record<string, unknown>).tratamentos
+    ?? (data as Record<string, unknown>)
+
+  const lista = Array.isArray(tratamentos) ? tratamentos : [tratamentos]
+
+  for (const trat of lista) {
+    if (!trat || typeof trat !== 'object') continue
+    const t = trat as Record<string, unknown>
+
+    const tributo = t.tributo as Record<string, unknown> | undefined
+    const codigoTributo = tributo?.codigo ?? t.codigoTributo
+    const aliq = parseAliquota(t.aliquotaAd ?? t.aliquota ?? t.percentual
+      ?? (t.regime as Record<string, unknown>)?.aliquotaAd)
+
+    if (codigoTributo === 1 || codigoTributo === '1') { ii = aliq ?? ii }
+    if (codigoTributo === 2 || codigoTributo === '2') { ipi = aliq ?? ipi }
+
+    const atributos = t.atributos as Array<Record<string, unknown>> | undefined
+    if (atributos) {
+      for (const attr of atributos) {
+        if (String(attr.codigo ?? '').includes('ALIQ') || String(attr.descricaoCodigo ?? '').includes('alíquota')) {
+          const val = parseAliquota(attr.valor)
+          if (val != null) {
+            if (codigoTributo === 1 || codigoTributo === '1') ii = val
+            if (codigoTributo === 2 || codigoTributo === '2') ipi = val
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    codigo,
+    descricao: '',
+    ii,
+    ipi,
+    pis: PIS_IMPORTACAO,
+    cofins: COFINS_IMPORTACAO,
   }
 }
 
@@ -192,47 +301,49 @@ export async function buscarAliquotasEmLote(
 ): Promise<Map<string, { ii: number | null; ipi: number | null; pis: number; cofins: number }>> {
   const resultado = new Map<string, { ii: number | null; ipi: number | null; pis: number; cofins: number }>()
 
-  let token: string
+  let tokens: SiscomexTokens
   try {
-    token = await obterTokenSiscomex()
+    tokens = await obterTokensSiscomex()
   } catch {
     return resultado
   }
+
+  const hoje = new Date().toISOString().split('T')[0]
+  const urlObj = new URL(`${TTCE_URL}/tratamentos-tributarios/importacao/`)
 
   for (let i = 0; i < codigos.length; i++) {
     const codigo = codigos[i]
 
     try {
-      const url = `${TTCE_URL}/ncm/${codigo}`
-      const response = await axios.get(url, {
-        timeout: VALIDATE_TIMEOUT_MS,
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+      const body = JSON.stringify({
+        ncm: codigo,
+        codigoPais: 249,
+        dataFatoGerador: hoje,
+        tipoOperacao: 'I',
       })
 
-      const data = response.data
-      resultado.set(codigo, {
-        ii:  parseAliquota(data.IiAliquotaAd  ?? data.iiAliquotaAd  ?? data.ii ?? data.aliquotaIi),
-        ipi: parseAliquota(data.IpiAliquotaAd ?? data.ipiAliquotaAd ?? data.ipi ?? data.aliquotaIpi),
-        pis: PIS_IMPORTACAO,
-        cofins: COFINS_IMPORTACAO,
-      })
+      const data = await postHttps(urlObj, body, tokens)
+      const detalhe = extrairAliquotasDaResposta(codigo, data)
+      if (detalhe) {
+        resultado.set(codigo, {
+          ii: detalhe.ii,
+          ipi: detalhe.ipi,
+          pis: PIS_IMPORTACAO,
+          cofins: COFINS_IMPORTACAO,
+        })
+      }
     } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        // Token expirou no meio do batch — tentar renovar
+      if (err instanceof AppError && err.code === 'TTCE_AUTH_EXPIRED') {
         try {
           const { invalidarCacheToken } = await import('../services/siscomex-auth.js')
           invalidarCacheToken()
-          token = await obterTokenSiscomex()
-          i-- // retry este NCM
+          tokens = await obterTokensSiscomex()
+          i--
           continue
         } catch {
           break
         }
       }
-      // NCM não encontrado ou outro erro — skip
     }
 
     if (onProgresso) onProgresso(i + 1, codigos.length)

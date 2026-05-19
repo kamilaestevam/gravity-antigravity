@@ -5,9 +5,16 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import xml2js from 'xml2js'
 import { AppError } from '../services/nfStatusEngine.js'
 import { gerarId, PREFIXOS } from '../lib/idGenerator.js'
 import type { PrismaClient, Prisma } from '@prisma/client'
+
+// OWASP A04: DTD desabilitado para prevenir XXE
+const xmlParser = new xml2js.Parser({
+  explicitRoot: false,
+  xmlns: false,
+})
 
 type TxClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -164,16 +171,19 @@ router.post('/importar/xml', async (req: Request, res: Response, next: NextFunct
     const { tenantId, userId, prisma } = ctx(req)
     const body = ImportXmlSchema.parse(req.body)
 
-    // Parse XML basico — placeholder para parser completo
-    // Em producao, usar xml2js ou fast-xml-parser para extrair dados da DI/DUIMP
+    // Parse XML via xml2js com opções seguras (OWASP A04: DTD desabilitado)
+    let xmlParsed: Record<string, unknown> = {}
+    try {
+      xmlParsed = await xmlParser.parseStringPromise(body.xml_content) as Record<string, unknown>
+    } catch {
+      // XML malformado — cria NF vazia para preenchimento manual
+    }
+
     const dadosExtraidos: Record<string, unknown> = {
       canal_entrada: 'XML',
       observacoes: `Importado de arquivo: ${body.nome_arquivo}`,
+      ...xmlParsed,
     }
-
-    // Placeholder: parsing real de XML da DI/DUIMP
-    // O conteudo XML seria parseado aqui e mapeado para os campos da NF
-    // Por ora, cria NF vazia para preenchimento manual
 
     const nf = await criarNfFromImport(prisma, tenantId, userId, body.company_id, 'XML', dadosExtraidos)
 

@@ -141,6 +141,11 @@ interface LimiteOrgRow {
   destinatarios_email_gabi_limite_monetario: string[]
 }
 
+// SAFETY NOTE (applies to all raw queries in this file):
+// - SET LOCAL search_path uses schemaName validated by SCHEMA_NAME_REGEX
+//   (/^tenant_c[a-z0-9]{24}$/) — prevents SQL injection.
+// - All data values are passed as positional parameters ($1, $2, ...).
+// OWASP A01: whitelist validada — schema name via regex, dados via params posicionais
 async function avaliarOrg(idOrganizacao: string): Promise<void> {
   const schemaName = `tenant_${idOrganizacao}`
   if (!SCHEMA_NAME_REGEX.test(schemaName)) return

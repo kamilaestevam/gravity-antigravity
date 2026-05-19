@@ -905,6 +905,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
       // O filtro raw garante que conta APENAS itens cujo pedido pai bate id_organizacao
       // (e id_workspace se vier) E não está excluído.
+      // OWASP A01: whitelist validada — wsCondicao é branch estático (não interpola user input),
+      // wsParam são params posicionais ($1, $2). Sem nomes dinâmicos de coluna/tabela.
       const wsCondicao = idWorkspace ? 'AND p.id_workspace = $2' : ''
       const wsParam: unknown[] = idWorkspace ? [idOrganizacao, idWorkspace] : [idOrganizacao]
       // IMPORTANTE: qualificar com `public.` porque withOrganizacao faz

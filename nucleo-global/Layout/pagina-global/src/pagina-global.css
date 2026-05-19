@@ -60,11 +60,18 @@ body.light-theme .pg-contexto-row {
 }
 
 .pg-stats-area {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
+}
+
+/* cg-card e scg-card dentro da area de stats: largura uniforme e fixa */
+.pg-stats-area .cg-card,
+.pg-stats-area .scg-card {
+  flex: 0 0 200px;
+  width: 200px;
+  max-width: 200px;
 }
 
 .pg-acoes-area {
@@ -89,7 +96,7 @@ body.light-theme .pg-contexto-row {
   padding-left: 2rem;
   padding-right: 2rem;
 
-  padding-top: 16px;
+  padding-top: 0;
   padding-bottom: 16px;
 }
 

@@ -151,21 +151,21 @@ export function AbaIsolamento() {
   return (
     <div>
       {/* F-05: Dashboard de Isolamento de Tenant */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <TooltipGlobal titulo="Schemas Ativos" descricao="Cada organização possui seu próprio schema isolado no banco">
-          <div><CardEstatisticaGlobal titulo="Schemas Ativos" valor={metricas ? String(metricas.schemas_ativos) : '...'} icone={<Database weight="fill" size={20} />} variante="primario" /></div>
+          <CardEstatisticaGlobal titulo="Schemas Ativos" valor={metricas ? String(metricas.schemas_ativos) : '...'} icone={<Database weight="fill" size={20} />} variante="primario" />
         </TooltipGlobal>
         <TooltipGlobal titulo="Tentativas Cross-Org" descricao="Tentativas de acessar dados de outra organização nas últimas 24h">
-          <div><CardEstatisticaGlobal titulo="Tentativas Cross-Org 24h" valor={metricas ? String(metricas.tentativas_cross_org_24h) : '...'} icone={<Wall weight="fill" size={20} />} variante={metricas && metricas.tentativas_cross_org_24h > 0 ? 'perigo' : 'sucesso'} /></div>
+          <CardEstatisticaGlobal titulo="Tentativas Cross-Org 24h" valor={metricas ? String(metricas.tentativas_cross_org_24h) : '...'} icone={<Wall weight="fill" size={20} />} variante={metricas && metricas.tentativas_cross_org_24h > 0 ? 'perigo' : 'sucesso'} />
         </TooltipGlobal>
         <TooltipGlobal titulo="SDK Resolver" descricao="Status do @gravity/resolver-organizacao que garante o isolamento">
-          <div><CardEstatisticaGlobal titulo="SDK Resolver" valor={metricas?.sdk_status ?? '...'} icone={<ShieldCheck weight="fill" size={20} />} variante="sucesso" /></div>
+          <CardEstatisticaGlobal titulo="SDK Resolver" valor={metricas?.sdk_status ?? '...'} icone={<ShieldCheck weight="fill" size={20} />} variante="sucesso" />
         </TooltipGlobal>
         <TooltipGlobal titulo="Pool PgBouncer" descricao="Status do pool de conexões — transaction mode garante isolamento">
-          <div><CardEstatisticaGlobal titulo="Pool PgBouncer" valor={metricas?.pool_status ?? '...'} icone={<ArrowsClockwise weight="fill" size={20} />} variante="sucesso" /></div>
+          <CardEstatisticaGlobal titulo="Pool PgBouncer" valor={metricas?.pool_status ?? '...'} icone={<ArrowsClockwise weight="fill" size={20} />} variante="sucesso" />
         </TooltipGlobal>
         <TooltipGlobal titulo="Search Path Reset" descricao="Como o search_path do Postgres é resetado entre queries">
-          <div><CardEstatisticaGlobal titulo="Search Path Reset" valor={metricas?.search_path_resets ?? '...'} icone={<ShieldWarning weight="fill" size={20} />} variante="sucesso" /></div>
+          <CardEstatisticaGlobal titulo="Search Path Reset" valor={metricas?.search_path_resets ?? '...'} icone={<ShieldWarning weight="fill" size={20} />} variante="sucesso" />
         </TooltipGlobal>
       </div>
 

@@ -444,17 +444,8 @@ export function SegurancaAdmin() {
           />
         </>
       }
-      acoes={
-        <BotaoGlobal
-          variante="primario"
-          onClick={() => { setLoading(true); void loadData() }}
-          iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
-        >
-          {t('admin.seguranca-admin.btn_atualizar')}
-        </BotaoGlobal>
-      }
       toolbar={
-        <div style={{ display: 'flex', gap: '0.25rem', borderBottom: '1px solid var(--ws-border, #334155)' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', borderBottom: '1px solid var(--ws-border, #334155)' }}>
           {[
             { key: 'health' as const, label: t('admin.seguranca-admin.aba_health'), icon: <ShieldCheck size={16} />, tip: 'Status em tempo real de todos os serviços da plataforma (latência, disponibilidade, erros)' },
             { key: 'events' as const, label: t('admin.seguranca-admin.aba_eventos'), icon: <Eye size={16} />, tip: 'Registro de eventos de segurança: logins, acessos negados, rate limits e tentativas suspeitas' },
@@ -485,6 +476,15 @@ export function SegurancaAdmin() {
               </button>
             </TooltipGlobal>
           ))}
+          <div style={{ marginLeft: 'auto' }}>
+            <BotaoGlobal
+              variante="primario"
+              onClick={() => { setLoading(true); void loadData() }}
+              iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
+            >
+              {t('admin.seguranca-admin.btn_atualizar')}
+            </BotaoGlobal>
+          </div>
         </div>
       }
     >

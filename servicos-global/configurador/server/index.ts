@@ -247,7 +247,7 @@ app.use('/api/v1/historico-organizacao', historicoOrganizacaoRouter)
 app.use('/api/v1/catalogo', publicCatalogRouter)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
-const clientDistDir = resolve(__dir, '..')
+const clientDistDir = resolve(__dir, '../dist')
 app.use(express.static(clientDistDir))
 app.get('*', (_req, res, next) => {
   if (_req.path.startsWith('/api') || _req.path.startsWith('/health')) return next()

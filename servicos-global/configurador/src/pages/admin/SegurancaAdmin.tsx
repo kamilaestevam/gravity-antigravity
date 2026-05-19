@@ -345,16 +345,16 @@ export function SegurancaAdmin() {
 
   const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
     {
-      key: 'service', label: t('admin.seguranca-admin.tabela.servico'), tipo: 'texto', largura: '18%',
+      key: 'service', label: t('admin.seguranca-admin.tabela.servico'), tipo: 'texto', largura: '25%',
       tooltipTitulo: 'Serviço', tooltipDescricao: 'Nome do serviço interno monitorado pela plataforma',
       render: (_v, item) => (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
           {getCamadaIcon(item.status)} {item.service}
         </span>
       ),
     },
     {
-      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '14%',
+      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '25%',
       tooltipTitulo: 'Status', tooltipDescricao: 'Condição atual do serviço: online, degradado ou offline',
       render: (v) => {
         const st = v as ServiceStatus
@@ -362,14 +362,14 @@ export function SegurancaAdmin() {
       },
     },
     {
-      key: 'latency_ms', label: t('admin.seguranca-admin.tabela.latencia'), tipo: 'texto', largura: '14%',
+      key: 'latency_ms', label: t('admin.seguranca-admin.tabela.latencia'), tipo: 'texto', largura: '25%',
       tooltipTitulo: 'Latência', tooltipDescricao: 'Tempo de resposta do serviço em milissegundos',
       render: (v) => {
         const ms = Number(v ?? 0)
         return <span style={{ color: ms > 2000 ? '#fbbf24' : '#34d399' }}>{ms}ms</span>
       },
     },
-    { key: 'error', label: t('admin.seguranca-admin.tabela.erro'), tipo: 'texto',
+    { key: 'error', label: t('admin.seguranca-admin.tabela.erro'), tipo: 'texto', largura: '25%',
       tooltipTitulo: 'Erro', tooltipDescricao: 'Mensagem de erro registrada na última verificação',
       render: (v) => (v as string | undefined) || '-' },
   ]
@@ -418,12 +418,54 @@ export function SegurancaAdmin() {
       }
       stats={
         <>
-          <CardEstatisticaGlobal
-            titulo={t('admin.seguranca-admin.status_geral')}
-            valor={loading ? '—' : (overallOk ? t('admin.seguranca-admin.protegido') : health?.overall || t('admin.seguranca-admin.verificando'))}
-            icone={overallOk ? <ShieldCheck weight="fill" size={20} /> : <ShieldWarning weight="fill" size={20} />}
-            cor={overallOk ? '#10b981' : '#fbbf24'}
-          />
+          {(() => {
+            const s = health?.summary ?? { ok: 0, degraded: 0, down: 0, total: 0 }
+            const total = s.total || 1
+            const okPct = Math.round((s.ok / total) * 100)
+            const degPct = Math.round((s.degraded / total) * 100)
+            const downPct = 100 - okPct - degPct
+            const okEnd = okPct
+            const degEnd = okEnd + degPct
+            return (
+              <div style={{
+                flex: '0 0 200px', width: 200, padding: '1rem', borderRadius: 12,
+                background: 'var(--ws-surface, #1e293b)', display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: '0.5rem',
+              }}>
+                <div style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--ws-muted, #94a3b8)', textTransform: 'uppercase', alignSelf: 'flex-start' }}>
+                  {t('admin.seguranca-admin.status_geral')}
+                </div>
+                <div style={{ position: 'relative', width: 72, height: 72 }}>
+                  <div style={{
+                    width: 72, height: 72, borderRadius: '50%',
+                    background: loading
+                      ? 'var(--ws-border, #334155)'
+                      : `conic-gradient(#34d399 0% ${okEnd}%, #fbbf24 ${okEnd}% ${degEnd}%, #f87171 ${degEnd}% 100%)`,
+                  }} />
+                  <div style={{
+                    position: 'absolute', inset: 10, borderRadius: '50%',
+                    background: 'var(--ws-surface, #1e293b)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {loading
+                      ? <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>—</span>
+                      : (overallOk
+                          ? <ShieldCheck weight="fill" size={20} style={{ color: '#34d399' }} />
+                          : <ShieldWarning weight="fill" size={20} style={{ color: health?.overall === 'DOWN' ? '#f87171' : '#fbbf24' }} />
+                        )
+                    }
+                  </div>
+                </div>
+                {!loading && (
+                  <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.65rem', fontWeight: 600 }}>
+                    <span style={{ color: '#34d399' }}>{okPct}% OK</span>
+                    {degPct > 0 && <span style={{ color: '#fbbf24' }}>{degPct}%</span>}
+                    {downPct > 0 && <span style={{ color: '#f87171' }}>{downPct}%</span>}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
           <CardEstatisticaGlobal
             titulo={t('admin.seguranca-admin.criticos_24h')}
             valor={loading ? '—' : String(stats.criticalCount)}

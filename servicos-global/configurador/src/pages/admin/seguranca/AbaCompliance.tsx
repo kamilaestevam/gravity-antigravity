@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle, Warning, XCircle, Certificate, ShieldCheck,
-  ArrowsClockwise, CaretDown, CaretRight, Lightning, Clock,
+  CaretDown, CaretRight, Lightning, Clock,
 } from '@phosphor-icons/react'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -113,7 +113,6 @@ export function AbaCompliance() {
   const { t } = useTranslation()
   const [data, setData] = useState<ComplianceResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const [expandido, setExpandido] = useState<Record<string, boolean>>({})
 
   const loadData = useCallback(async () => {
@@ -125,23 +124,6 @@ export function AbaCompliance() {
       console.error('[AbaCompliance] Falha ao carregar:', err)
     } finally {
       setLoading(false)
-    }
-  }, [])
-
-  const forcarVerificacao = useCallback(async () => {
-    try {
-      setRefreshing(true)
-      const res = await fetchJSON<{ owasp: OwaspResponse }>('/compliance/refresh', { method: 'POST' })
-      if (data) {
-        setData({ ...data, owasp: res.owasp })
-      }
-    } catch (err) {
-      console.error('[AbaCompliance] Falha ao forçar verificação:', err)
-    } finally {
-      setRefreshing(false)
-    }
-  }, [data])
-
   useEffect(() => { void loadData() }, [loadData])
 
   const toggleExpandir = (id: string) => {
@@ -192,11 +174,8 @@ export function AbaCompliance() {
         </TooltipGlobal>
       </div>
 
-      {/* Header com indicador de fonte + botão de refresh */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: '0.75rem',
-      }}>
+      {/* Header com indicador de fonte */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.75rem' }}>
         <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <TooltipGlobal titulo="OWASP Top 10" descricao="Checklist das 10 vulnerabilidades web mais críticas segundo a OWASP">
             <span style={{ cursor: 'help' }}>OWASP Top 10 — Verificação Dinâmica</span>
@@ -221,24 +200,6 @@ export function AbaCompliance() {
             </TooltipGlobal>
           )}
         </h3>
-
-        <TooltipGlobal titulo="Re-verificar" descricao="Forçar nova verificação ignorando o cache (pode levar alguns segundos)">
-          <button
-            onClick={() => { void forcarVerificacao() }}
-            disabled={refreshing}
-            aria-label="Forçar re-verificação OWASP"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '6px 14px', borderRadius: '6px', cursor: refreshing ? 'wait' : 'pointer',
-              background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)',
-              color: '#10b981', fontSize: '0.78rem', fontWeight: 600,
-              opacity: refreshing ? 0.6 : 1,
-            }}
-          >
-            <ArrowsClockwise size={14} weight={refreshing ? 'bold' : 'regular'} style={refreshing ? { animation: 'spin 1s linear infinite' } : {}} />
-            {refreshing ? 'Verificando...' : 'Re-verificar agora'}
-          </button>
-        </TooltipGlobal>
       </div>
 
       {/* Checklist OWASP Top 10 com verificações expansíveis */}

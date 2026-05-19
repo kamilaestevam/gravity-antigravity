@@ -3,17 +3,32 @@ import { Request, Response, NextFunction } from 'express'
 import { timingSafeEqual } from 'node:crypto'
 import { AppError } from '../lib/errors.js'
 
+function validarChaveInterna(req: Request): boolean {
+  const internalKey = req.headers['x-internal-key'] ?? req.headers['x-chave-interna-servico']
+  const expectedKey = process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO
+  const expectedBuf = Buffer.from(expectedKey ?? '')
+  const receivedBuf = Buffer.from(typeof internalKey === 'string' ? internalKey : '')
+  return !!internalKey && !!expectedKey && expectedBuf.length === receivedBuf.length && timingSafeEqual(expectedBuf, receivedBuf)
+}
+
+export function s2sMiddleware(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void {
+  if (!validarChaveInterna(req)) {
+    return next(new AppError('Chave interna inválida ou ausente', 401, 'UNAUTHORIZED'))
+  }
+  req.auth = { id_organizacao: '__admin_global__', id_usuario: 'system' }
+  next()
+}
+
 export function authMiddleware(
   req: Request,
   _res: Response,
   next: NextFunction
 ): void {
-  const internalKey = req.headers['x-internal-key'] ?? req.headers['x-chave-interna-servico']
-  const expectedKey = process.env.INTERNAL_API_KEY ?? process.env.CHAVE_INTERNA_SERVICO
-  const expectedBuf = Buffer.from(expectedKey ?? '')
-  const receivedBuf = Buffer.from(typeof internalKey === 'string' ? internalKey : '')
-  const isValid = !!internalKey && !!expectedKey && expectedBuf.length === receivedBuf.length && timingSafeEqual(expectedBuf, receivedBuf)
-  if (!isValid) {
+  if (!validarChaveInterna(req)) {
     return next(new AppError('Chave interna inválida ou ausente', 401, 'UNAUTHORIZED'))
   }
 

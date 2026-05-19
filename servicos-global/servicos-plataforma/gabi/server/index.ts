@@ -15,7 +15,7 @@ dotenv.config({ path: resolve(__dir, '.env') })
 import express from 'express'
 import helmet from 'helmet'
 import { correlationMiddleware } from './middleware/correlation.js'
-import { authMiddleware } from './middleware/auth.js'
+import { authMiddleware, s2sMiddleware } from './middleware/auth.js'
 import { errorHandler } from './middleware/error-handler.js'
 
 // Import de rotas (serão criadas a seguir)
@@ -29,6 +29,7 @@ import { fieldHelpRouter } from './routes/fieldHelp.js'
 import { agenteRouter } from './routes/agente.js'
 import { diagnosticoRouter } from './routes/diagnostico.js'
 import { memoriaRouter } from './routes/memoria.js'
+import { adminRouter } from './routes/admin.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8009)
@@ -45,7 +46,11 @@ app.use(correlationMiddleware)
 // ---------------------------------------------------------------------------
 app.use(healthRouter)
 
-// Protege rotas subsequentes com o authMiddleware
+// Rotas admin (S2S cross-org — não exigem x-id-organizacao)
+adminRouter.use(s2sMiddleware)
+app.use(adminRouter)
+
+// Protege rotas subsequentes com o authMiddleware (exige x-id-organizacao)
 app.use(authMiddleware)
 app.use(conversasRouter)
 app.use(mensagensRouter)

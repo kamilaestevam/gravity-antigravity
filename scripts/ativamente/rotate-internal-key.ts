@@ -8,6 +8,8 @@
  */
 
 import { randomBytes } from 'crypto'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
 
 const newKey = `gv_isk_${randomBytes(32).toString('hex')}`
 
@@ -67,6 +69,22 @@ console.log()
 console.log('='.repeat(70))
 console.log('IMPORTANTE: Nunca commitar a chave real no repositorio!')
 console.log('='.repeat(70))
+
+// Registra a rotação automaticamente no rotacao-chaves.json
+const rotacaoPath = resolve(__dirname, '../../servicos-global/configurador/data/rotacao-chaves.json')
+if (existsSync(rotacaoPath)) {
+  const rotacaoData = JSON.parse(readFileSync(rotacaoPath, 'utf-8')) as Record<string, { politica_dias: number; ultima_rotacao: string | null; descricao: string }>
+  if (rotacaoData.CHAVE_INTERNA_SERVICO) {
+    rotacaoData.CHAVE_INTERNA_SERVICO.ultima_rotacao = new Date().toISOString()
+    writeFileSync(rotacaoPath, JSON.stringify(rotacaoData, null, 2) + '\n', 'utf-8')
+    console.log()
+    console.log('✅ Rotação registrada em rotacao-chaves.json')
+    console.log('   O painel de Segurança será atualizado automaticamente.')
+  }
+} else {
+  console.log()
+  console.log('⚠️  rotacao-chaves.json não encontrado — registre manualmente no painel.')
+}
 
 function getNextQuarter(): string {
   const now = new Date()

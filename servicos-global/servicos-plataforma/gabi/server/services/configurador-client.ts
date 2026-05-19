@@ -15,8 +15,12 @@
  * Auth S2S: header `x-chave-interna-servico` com a CHAVE_INTERNA_SERVICO.
  */
 
-const CONFIGURADOR_URL       = process.env.CONFIGURADOR_URL       ?? 'http://localhost:8005'
-const CHAVE_INTERNA_SERVICO  = process.env.CHAVE_INTERNA_SERVICO ?? ''
+function getConfiguradorUrl(): string {
+  return process.env.CONFIGURADOR_URL ?? 'http://localhost:8005'
+}
+function getChaveInterna(): string {
+  return process.env.CHAVE_INTERNA_SERVICO ?? ''
+}
 
 export interface OrganizacaoMinimal {
   id_organizacao:     string
@@ -36,16 +40,16 @@ interface ListaOrganizacoesResponse {
 export async function listarOrganizacoes(
   opcoes: { incluirInativas?: boolean } = {},
 ): Promise<OrganizacaoMinimal[]> {
-  if (!CHAVE_INTERNA_SERVICO) {
+  if (!getChaveInterna()) {
     throw new Error('[gabi/configurador-client] CHAVE_INTERNA_SERVICO ausente — chamada S2S impossivel')
   }
 
-  const url = new URL(`${CONFIGURADOR_URL}/api/v1/internal/organizacoes`)
+  const url = new URL(`${getConfiguradorUrl()}/api/v1/internal/organizacoes`)
   if (opcoes.incluirInativas) url.searchParams.set('incluirInativas', 'true')
 
   const response = await fetch(url.toString(), {
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':            'application/json',
     },
     signal: AbortSignal.timeout(5_000),
@@ -96,17 +100,17 @@ interface ListaLimitesGlobaisResponse {
 export async function listarLimitesGlobais(
   opcoes: { modelo?: string; somenteAtivos?: boolean } = {},
 ): Promise<LimiteGlobalRedePayload[]> {
-  if (!CHAVE_INTERNA_SERVICO) {
+  if (!getChaveInterna()) {
     throw new Error('[gabi/configurador-client] CHAVE_INTERNA_SERVICO ausente — chamada S2S impossivel')
   }
 
-  const url = new URL(`${CONFIGURADOR_URL}/api/v1/internal/gabi/limites-globais`)
+  const url = new URL(`${getConfiguradorUrl()}/api/v1/internal/gabi/limites-globais`)
   if (opcoes.modelo)                        url.searchParams.set('modelo', opcoes.modelo)
   if (opcoes.somenteAtivos !== false)       url.searchParams.set('ativo', 'true')
 
   const response = await fetch(url.toString(), {
     headers: {
-      'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+      'x-chave-interna-servico': getChaveInterna(),
       'Content-Type':            'application/json',
     },
     signal: AbortSignal.timeout(5_000),

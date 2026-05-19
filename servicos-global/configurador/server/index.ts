@@ -68,12 +68,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
-      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "ws://localhost:*"],
-      frameSrc: ["'self'", "https://*.clerk.accounts.dev"],
+      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "ws://localhost:*"],
+      frameSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
     },

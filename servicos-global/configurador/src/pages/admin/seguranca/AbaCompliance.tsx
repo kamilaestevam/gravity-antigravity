@@ -28,7 +28,7 @@ interface CertificadoItem {
   dominio: string
   tipo: string
   emitido_por: string
-  status: 'VALIDO' | 'EXPIRANDO' | 'EXPIRADO'
+  status: 'VALIDO' | 'EXPIRANDO' | 'EXPIRADO' | 'ERRO'
   dias_restantes: number
   data_expiracao: string
 }
@@ -86,6 +86,7 @@ function getCertStatusColor(status: CertificadoItem['status']) {
     case 'VALIDO': return '#34d399'
     case 'EXPIRANDO': return '#fbbf24'
     case 'EXPIRADO': return '#f87171'
+    case 'ERRO': return '#94a3b8'
   }
 }
 
@@ -94,6 +95,7 @@ function certStatusTooltip(status: CertificadoItem['status']): string {
     case 'VALIDO': return 'Certificado válido e dentro do prazo'
     case 'EXPIRANDO': return 'Certificado expira em menos de 30 dias — renovar'
     case 'EXPIRADO': return 'Certificado expirado — site pode ficar inacessível'
+    case 'ERRO': return 'Não foi possível verificar — domínio inacessível'
   }
 }
 
@@ -430,8 +432,8 @@ export function AbaCompliance() {
                 <TooltipGlobal titulo={cert.status} descricao={certStatusTooltip(cert.status)}>
                   <span style={{
                     padding: '3px 10px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, cursor: 'help',
-                    background: cert.status === 'VALIDO' ? '#14532d' : cert.status === 'EXPIRANDO' ? '#78350f' : '#7f1d1d',
-                    color: cert.status === 'VALIDO' ? '#86efac' : cert.status === 'EXPIRANDO' ? '#fcd34d' : '#fca5a5',
+                    background: cert.status === 'VALIDO' ? '#14532d' : cert.status === 'EXPIRANDO' ? '#78350f' : cert.status === 'ERRO' ? '#1e293b' : '#7f1d1d',
+                    color: cert.status === 'VALIDO' ? '#86efac' : cert.status === 'EXPIRANDO' ? '#fcd34d' : cert.status === 'ERRO' ? '#94a3b8' : '#fca5a5',
                   }}>
                     {cert.status}
                   </span>

@@ -24,7 +24,7 @@ interface MetaStatus {
 }
 
 interface TesteRestauracao {
-  data: string
+  data: string | null
   status: string
   duracao_minutos: number
 }
@@ -213,7 +213,11 @@ export function AbaInfra() {
           <div>
             <CardEstatisticaGlobal
               titulo="Último Teste Restauração"
-              valor={backup ? new Date(backup.ultimo_teste_restauracao.data).toLocaleDateString('pt-BR') : '...'}
+              valor={backup
+                ? (backup.ultimo_teste_restauracao.data
+                    ? new Date(backup.ultimo_teste_restauracao.data).toLocaleDateString('pt-BR')
+                    : 'Nunca testado')
+                : '...'}
               icone={<CheckCircle weight="fill" size={20} />}
               variante={backup?.ultimo_teste_restauracao.status === 'SUCESSO' ? 'sucesso' : 'aviso'}
             />

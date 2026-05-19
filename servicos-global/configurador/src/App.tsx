@@ -285,7 +285,7 @@ export default function App() {
         <Route path="/login/sso-callback" element={
           <AuthenticateWithRedirectCallback
             signInFallbackRedirectUrl="/hub"
-            signUpFallbackRedirectUrl="/hub"
+            signUpFallbackRedirectUrl="/trial"
           />
         } />
         <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
@@ -298,7 +298,7 @@ export default function App() {
         <Route path="/cadastro/sso-callback" element={
           <AuthenticateWithRedirectCallback
             continueSignUpUrl="/cadastro/continuar"
-            signUpFallbackRedirectUrl="/hub"
+            signUpFallbackRedirectUrl="/trial"
             signInFallbackRedirectUrl="/hub"
           />
         } />

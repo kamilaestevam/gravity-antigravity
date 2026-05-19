@@ -21,7 +21,7 @@ createRoot(root).render(
     <ClerkProvider
       publishableKey={PUBLISHABLE_KEY}
       localization={ptBR as any}
-      signUpFallbackRedirectUrl="/hub"
+      signUpFallbackRedirectUrl="/trial"
       signInFallbackRedirectUrl="/hub"
       signInUrl="/login"
       signUpUrl="/cadastro"

@@ -36,7 +36,8 @@ const FETCH_TIMEOUT_MS = 5_000
 // Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
 // NOTA: porta corrigida de 8030 (Pedido) para 8031 (Cadastros) — contracts.json
 function getCadastrosUrl(): string {
-  return process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+  const base = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
+  return `${base}/api/v1`
 }
 function getChaveInterna(): string {
   const chave = process.env.CHAVE_INTERNA_SERVICO

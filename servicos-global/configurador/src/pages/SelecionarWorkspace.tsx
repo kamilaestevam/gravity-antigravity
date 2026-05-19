@@ -282,7 +282,7 @@ export function SelecionarWorkspace() {
   }
   const userRole = dbRole
     ? (ROLE_LABELS[dbRole] ?? dbRole)
-    : (roleReady ? 'Standard' : '…')
+    : '…'
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,
@@ -368,8 +368,11 @@ export function SelecionarWorkspace() {
           headers: { Authorization: `Bearer ${token}` },
         })
 
-        // Se auth falhar, ainda carrega o catálogo público para mostrar produtos disponíveis
         if (!res.ok) {
+          if (res.status === 401) {
+            navigate('/trial', { replace: true })
+            return
+          }
           const catRes = await fetch('/api/v1/hub/catalogo').catch(() => null)
           if (catRes?.ok) {
             const catData = await catRes.json()

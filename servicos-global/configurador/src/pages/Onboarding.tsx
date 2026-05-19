@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -38,19 +39,44 @@ export function Onboarding() {
   const { isLoaded, isSignedIn, user } = useUser()
   const { getToken } = useAuth()
   const { signOut } = useClerk()
+  const navigate = useNavigate()
   const [passo, setPasso] = useState<1 | 2>(1)
   const [companyName, setCompanyName] = useState('')
   const [cnpj, setCnpj] = useState('')
   const [cnpjTouched, setCnpjTouched] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [verificandoOrg, setVerificandoOrg] = useState(true)
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) {
+      setVerificandoOrg(false)
+      return
+    }
+    let cancelled = false
+    getToken().then(token => {
+      if (!token || cancelled) { setVerificandoOrg(false); return }
+      fetch('/api/v1/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (cancelled) return
+          if (data?.organizacao) {
+            navigate('/hub', { replace: true })
+          } else {
+            setVerificandoOrg(false)
+          }
+        })
+        .catch(() => { if (!cancelled) setVerificandoOrg(false) })
+    })
+    return () => { cancelled = true }
+  }, [isLoaded, isSignedIn, getToken, navigate])
 
   const nomeValido = companyName.trim().length >= 2
   const cnpjValido = validarCNPJ(cnpj)
   const erroCnpjInline = cnpjTouched && cnpj.length > 0 && !cnpjValido
     ? 'CNPJ inválido. Verifique os dígitos.'
     : ''
-  if (!isLoaded) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>{t('comum.carregando')}</div>
+  if (!isLoaded || verificandoOrg) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>{t('comum.carregando')}</div>
 
   if (!isSignedIn || !user) {
     return (

@@ -514,7 +514,7 @@ export function SegurancaAdmin() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', borderBottom: '1px solid var(--ws-border, #334155)' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', borderBottom: '1px solid var(--ws-border, #334155)', marginTop: 16 }}>
           {[
             { key: 'health' as const, label: t('admin.seguranca-admin.aba_health'), icon: <ShieldCheck size={16} />, tip: 'Status em tempo real de todos os serviços da plataforma (latência, disponibilidade, erros)' },
             { key: 'events' as const, label: t('admin.seguranca-admin.aba_eventos'), icon: <Eye size={16} />, tip: 'Registro de eventos de segurança: logins, acessos negados, rate limits e tentativas suspeitas' },

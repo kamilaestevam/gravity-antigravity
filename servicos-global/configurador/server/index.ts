@@ -74,6 +74,7 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
       connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "ws://localhost:*"],
       frameSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br"],
+      workerSrc: ["'self'", "blob:"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
     },

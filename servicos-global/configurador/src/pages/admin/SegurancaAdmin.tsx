@@ -454,6 +454,7 @@ export function SegurancaAdmin() {
             const okEnd = okPct
             const degEnd = okEnd + degPct
             return (
+              <TooltipGlobal titulo="Status Geral" descricao="Saúde agregada de todos os serviços da plataforma Gravity">
               <div style={{
                 flex: '0 0 200px', width: 200, padding: '1rem', borderRadius: 12,
                 background: 'var(--ws-surface, #1e293b)', display: 'flex', flexDirection: 'column',
@@ -491,50 +492,65 @@ export function SegurancaAdmin() {
                   </div>
                 )}
               </div>
+              </TooltipGlobal>
             )
           })()}
-          <CardEstatisticaGlobal
-            titulo={t('admin.seguranca-admin.criticos_24h')}
-            valor={loading ? '—' : String(stats.criticalCount)}
-            icone={<Warning weight="fill" size={20} />}
-            cor={stats.criticalCount > 0 ? '#f87171' : '#10b981'}
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.seguranca-admin.alertas_24h')}
-            valor={loading ? '—' : String(stats.warningCount)}
-            icone={<ShieldWarning weight="fill" size={20} />}
-            cor={stats.warningCount > 0 ? '#fbbf24' : '#10b981'}
-          />
-          <CardEstatisticaGlobal
-            titulo={t('admin.seguranca-admin.bloqueados_24h')}
-            valor={loading ? '—' : String(stats.blockedCount)}
-            icone={<Lock weight="fill" size={20} />}
-            cor="#818cf8"
-          />
-          <CardEstatisticaGlobal
-            titulo="Total Auditado"
-            valor={String(auditStats.total)}
-            icone={<ClockCounterClockwise weight="fill" size={20} />}
-            variante="primario"
-          />
-          <CardEstatisticaGlobal
-            titulo="Impersonações (F-03)"
-            valor={String(auditStats.totalImpersonacoes)}
-            icone={<UserCircle weight="fill" size={20} />}
-            variante={auditStats.totalImpersonacoes > 0 ? 'aviso' : 'sucesso'}
-          />
-          <CardEstatisticaGlobal
-            titulo="Mudanças Permissão (F-08)"
-            valor={String(auditStats.totalPermissoes)}
-            icone={<ArrowsLeftRight weight="fill" size={20} />}
-            variante={auditStats.totalPermissoes > 0 ? 'aviso' : 'sucesso'}
-          />
-          <CardEstatisticaGlobal
-            titulo="Ações Admin"
-            valor={String(auditStats.totalAdmin)}
-            icone={<ShieldStar weight="fill" size={20} />}
-            variante="primario"
-          />
+          <TooltipGlobal titulo="Críticos (24h)" descricao="Eventos de severidade CRITICAL nas últimas 24 horas">
+            <CardEstatisticaGlobal
+              titulo={t('admin.seguranca-admin.criticos_24h')}
+              valor={loading ? '—' : String(stats.criticalCount)}
+              icone={<Warning weight="fill" size={20} />}
+              cor={stats.criticalCount > 0 ? '#f87171' : '#10b981'}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Alertas (24h)" descricao="Eventos de severidade WARNING nas últimas 24 horas">
+            <CardEstatisticaGlobal
+              titulo={t('admin.seguranca-admin.alertas_24h')}
+              valor={loading ? '—' : String(stats.warningCount)}
+              icone={<ShieldWarning weight="fill" size={20} />}
+              cor={stats.warningCount > 0 ? '#fbbf24' : '#10b981'}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Bloqueados (24h)" descricao="Requisições bloqueadas por rate limiting nas últimas 24h">
+            <CardEstatisticaGlobal
+              titulo={t('admin.seguranca-admin.bloqueados_24h')}
+              valor={loading ? '—' : String(stats.blockedCount)}
+              icone={<Lock weight="fill" size={20} />}
+              cor="#818cf8"
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Total Auditado" descricao="Quantidade total de registros no audit trail do sistema">
+            <CardEstatisticaGlobal
+              titulo="Total Auditado"
+              valor={String(auditStats.total)}
+              icone={<ClockCounterClockwise weight="fill" size={20} />}
+              variante="primario"
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Impersonações" descricao="Vezes que um admin acessou o sistema como outro usuário">
+            <CardEstatisticaGlobal
+              titulo="Impersonações (F-03)"
+              valor={String(auditStats.totalImpersonacoes)}
+              icone={<UserCircle weight="fill" size={20} />}
+              variante={auditStats.totalImpersonacoes > 0 ? 'aviso' : 'sucesso'}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Mudanças Permissão" descricao="Alterações em tipo_usuario ou tipo_usuario_workspace">
+            <CardEstatisticaGlobal
+              titulo="Mudanças Permissão (F-08)"
+              valor={String(auditStats.totalPermissoes)}
+              icone={<ArrowsLeftRight weight="fill" size={20} />}
+              variante={auditStats.totalPermissoes > 0 ? 'aviso' : 'sucesso'}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Ações Admin" descricao="Ações executadas por gravity_admin no painel administrativo">
+            <CardEstatisticaGlobal
+              titulo="Ações Admin"
+              valor={String(auditStats.totalAdmin)}
+              icone={<ShieldStar weight="fill" size={20} />}
+              variante="primario"
+            />
+          </TooltipGlobal>
         </>
       }
       toolbar={
@@ -570,13 +586,15 @@ export function SegurancaAdmin() {
             </TooltipGlobal>
           ))}
           <div style={{ marginLeft: 'auto', marginTop: '-20px' }}>
-            <BotaoGlobal
-              variante="primario"
-              onClick={() => { setLoading(true); void loadData() }}
-              iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
-            >
-              {t('admin.seguranca-admin.btn_atualizar')}
-            </BotaoGlobal>
+            <TooltipGlobal titulo="Atualizar" descricao="Recarregar todos os dados de segurança manualmente">
+              <BotaoGlobal
+                variante="primario"
+                onClick={() => { setLoading(true); void loadData() }}
+                iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
+              >
+                {t('admin.seguranca-admin.btn_atualizar')}
+              </BotaoGlobal>
+            </TooltipGlobal>
           </div>
         </div>
       }

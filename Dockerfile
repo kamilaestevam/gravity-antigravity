@@ -16,6 +16,10 @@ RUN npx prisma generate --schema=configurador/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 
+# Vite embeds VITE_* env vars at build time — Railway passes them as build args
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+
 # Build Vite frontend
 RUN cd servicos-global/configurador && npx vite build && cd ../..
 

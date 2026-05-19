@@ -157,46 +157,38 @@ export function AbaCompliance() {
   return (
     <div>
       {/* KPI Cards OWASP */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <TooltipGlobal titulo="Score OWASP" descricao="Percentual de itens OWASP Top 10 em conformidade">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Score OWASP"
-              valor={resumo ? `${resumo.score}%` : '...'}
-              icone={<ShieldCheck weight="fill" size={20} />}
-              variante={resumo && resumo.score >= 80 ? 'sucesso' : resumo && resumo.score >= 60 ? 'aviso' : 'perigo'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Score OWASP"
+            valor={resumo ? `${resumo.score}%` : '...'}
+            icone={<ShieldCheck weight="fill" size={20} />}
+            variante={resumo && resumo.score >= 80 ? 'sucesso' : resumo && resumo.score >= 60 ? 'aviso' : 'perigo'}
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="Conformes" descricao="Itens OWASP que passaram em todas as verificações">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Conformes"
-              valor={String(resumo?.conformes ?? 0)}
-              icone={<CheckCircle weight="fill" size={20} />}
-              variante="sucesso"
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Conformes"
+            valor={String(resumo?.conformes ?? 0)}
+            icone={<CheckCircle weight="fill" size={20} />}
+            variante="sucesso"
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="Pendentes" descricao="Itens com verificações parciais ou não implementadas">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Pendentes"
-              valor={String(resumo?.pendentes ?? 0)}
-              icone={<Warning weight="fill" size={20} />}
-              variante={resumo && resumo.pendentes > 0 ? 'aviso' : 'sucesso'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Pendentes"
+            valor={String(resumo?.pendentes ?? 0)}
+            icone={<Warning weight="fill" size={20} />}
+            variante={resumo && resumo.pendentes > 0 ? 'aviso' : 'sucesso'}
+          />
         </TooltipGlobal>
         <TooltipGlobal titulo="Falhas" descricao="Itens com verificações que falharam — requer correção">
-          <div>
-            <CardEstatisticaGlobal
-              titulo="Falhas"
-              valor={String(resumo?.falhas ?? 0)}
-              icone={<XCircle weight="fill" size={20} />}
-              variante={resumo && resumo.falhas > 0 ? 'perigo' : 'sucesso'}
-            />
-          </div>
+          <CardEstatisticaGlobal
+            titulo="Falhas"
+            valor={String(resumo?.falhas ?? 0)}
+            icone={<XCircle weight="fill" size={20} />}
+            variante={resumo && resumo.falhas > 0 ? 'perigo' : 'sucesso'}
+          />
         </TooltipGlobal>
       </div>
 

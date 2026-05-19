@@ -815,34 +815,19 @@ export function SegurancaAdmin() {
           })}
 
           {/* F-06: Painel de política de rotação */}
-          <div style={{
-            padding: '1rem', marginTop: '0.25rem',
-            background: 'var(--ws-surface, #1e293b)', borderRadius: '8px',
-            border: '1px solid var(--ws-border, #334155)',
-          }}>
-            <TooltipGlobal titulo="Política de Rotação" descricao="Intervalos máximos recomendados para troca de cada tipo de chave. Chaves expiradas comprometem a segurança">
-              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.5rem', cursor: 'help' }}>
-                Política de Rotação de Chaves (F-06)
-              </div>
-            </TooltipGlobal>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', fontSize: '0.78rem' }}>
+          <div style={{ marginTop: '0.25rem' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.75rem' }}>
+              Política de Rotação de Chaves (F-06)
+            </div>
+            <div style={{ display: 'flex', gap: '1rem' }}>
               <TooltipGlobal titulo="JWT Secret" descricao="Chave que assina os tokens JWT de autenticação. Rotação a cada 90 dias para limitar exposição em caso de vazamento">
-                <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)', cursor: 'help' }}>
-                  <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>JWT Secret</div>
-                  <div style={{ color: '#34d399', fontWeight: 600 }}>90 dias</div>
-                </div>
+                <CardEstatisticaGlobal titulo="JWT Secret" valor="90 dias" icone={<Key weight="fill" size={20} />} cor="#34d399" />
               </TooltipGlobal>
               <TooltipGlobal titulo="Chave Interna S2S" descricao="Chave compartilhada entre serviços (x-chave-interna-servico). Rotação a cada 60 dias pois trafega em muitos microsserviços">
-                <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)', cursor: 'help' }}>
-                  <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>Chave Interna S2S</div>
-                  <div style={{ color: '#fbbf24', fontWeight: 600 }}>60 dias</div>
-                </div>
+                <CardEstatisticaGlobal titulo="Chave Interna S2S" valor="60 dias" icone={<Lock weight="fill" size={20} />} cor="#fbbf24" />
               </TooltipGlobal>
               <TooltipGlobal titulo="AES-256 Credenciais" descricao="Chave de criptografia das credenciais ERP/SAP armazenadas. Rotação a cada 180 dias — requer re-encriptação dos dados">
-                <div style={{ padding: '0.5rem', borderRadius: '6px', background: 'var(--ws-base, #0f172a)', border: '1px solid var(--ws-border, #334155)', cursor: 'help' }}>
-                  <div style={{ color: 'var(--ws-muted, #94a3b8)', marginBottom: '4px' }}>AES-256 (Credenciais)</div>
-                  <div style={{ color: '#f87171', fontWeight: 600 }}>180 dias</div>
-                </div>
+                <CardEstatisticaGlobal titulo="AES-256 (Credenciais)" valor="180 dias" icone={<Certificate weight="fill" size={20} />} cor="#f87171" />
               </TooltipGlobal>
             </div>
           </div>

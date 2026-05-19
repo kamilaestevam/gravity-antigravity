@@ -12,7 +12,6 @@ import {
   ArrowsClockwise,
   Truck,
   CurrencyDollar,
-  ClipboardText,
   Package,
   Bell,
   MagnifyingGlass,
@@ -78,12 +77,6 @@ const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> =
     dim: 'rgba(56,189,248,0.12)',
     icon: <CurrencyDollar weight="duotone" size={22} />,
     description: t('hub.produto_visual_bid_cambio'),
-  },
-  'lpco': {
-    color: '#a78bfa',
-    dim: 'rgba(167,139,250,0.12)',
-    icon: <ClipboardText weight="duotone" size={22} />,
-    description: t('hub.produto_visual_lpco'),
   },
 })
 

@@ -18,7 +18,7 @@ export const productsRouter = Router()
 productsRouter.get('/', async (_req, res) => {
   try {
     const rows = await prisma.produtoGravity.findMany({
-      where: { status_produto_gravity: { in: ['ATIVO', 'EM_BREVE'] as any[] } },
+      where: { status_produto_gravity: { in: ['ATIVO', 'EM_BREVE'] as any[] }, data_remocao_produto_gravity: null },
       select: {
         id_produto_gravity: true,
         nome_produto_gravity: true,

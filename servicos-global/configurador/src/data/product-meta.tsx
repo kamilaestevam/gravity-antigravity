@@ -12,7 +12,6 @@ import {
   Truck,
   CurrencyDollar,
   FileText,
-  Receipt,
   ShoppingBag,
   FileMagnifyingGlass,
   Eye,
@@ -60,16 +59,6 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
     descKey: 'store.prod_nf_importacao_desc',
     tagKeys: ['store.tag_sefaz', 'store.tag_calc_ncm', 'store.tag_xml_pdf'],
   },
-  'lpco': {
-    iconBg: 'rgba(99, 102, 241, 0.15)',
-    iconColor: '#818cf8',
-    icon: <Receipt weight="duotone" size={28} color="#818cf8" />,
-    categoryKey: 'store.cat_fiscal_lic',
-    categoryFilter: 'importacao',
-    nameKey: 'store.prod_lpco_nome',
-    descKey: 'store.prod_lpco_desc',
-    tagKeys: ['store.tag_siscomex', 'store.tag_saldo_auto', 'store.tag_rastreio'],
-  },
   'pedido': {
     iconBg: 'rgba(245, 158, 11, 0.15)',
     iconColor: '#f59e0b',
@@ -113,4 +102,4 @@ export const RELACAO_ENTRE_PRODUTOS_GRAVITY: Record<string, string[]> = {
 }
 
 // Ordem lógica dos produtos no Stack Visualizer (fluxo de operação) — usado pela Store.
-export const STACK_ORDER = ['simula-custo', 'nf-importacao', 'lpco', 'bid-frete', 'bid-cambio', 'pedido']
+export const STACK_ORDER = ['simula-custo', 'nf-importacao', 'bid-frete', 'bid-cambio', 'pedido']

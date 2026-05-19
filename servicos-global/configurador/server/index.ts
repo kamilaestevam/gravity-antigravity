@@ -73,7 +73,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
-      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "https://challenges.cloudflare.com", "ws://localhost:*"],
+      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "https://challenges.cloudflare.com", "https://servicodados.ibge.gov.br", "ws://localhost:*"],
       frameSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
       workerSrc: ["'self'", "blob:"],
       objectSrc: ["'none'"],

@@ -252,7 +252,11 @@ router.get('/da-organizacao', async (req, res, next) => {
         'CONFIGURADOR_INDISPONIVEL',
       )
     }
-    const dadosOrg = await respostaConfigurador.json() as { suid_empresa_organizacao?: string | null }
+    const dadosOrg = await respostaConfigurador.json() as {
+      suid_empresa_organizacao?: string | null
+      nome?: string | null
+      cnpj_organizacao?: string | null
+    }
     const suid = dadosOrg.suid_empresa_organizacao
     if (!suid) {
       throw new AppError(
@@ -263,15 +267,52 @@ router.get('/da-organizacao', async (req, res, next) => {
     }
 
     // Busca a Empresa local pelo SUID + tenant isolation.
-    const empresa = await prisma.empresa.findFirst({
+    let empresa = await prisma.empresa.findFirst({
       where: { suid_empresa: suid, id_organizacao_empresa: idOrganizacao },
     })
+
+    // Self-healing: drift cross-banco — Empresa foi perdida (DB reset, migration).
+    // Recria com SUID original para manter consistência com o Configurador.
     if (!empresa) {
-      throw new AppError(
-        `Configurador aponta suid_empresa_organizacao=${suid}, mas Empresa não foi encontrada no Cadastros (drift cross-banco — contate o suporte).`,
-        404,
-        'EMPRESA_NAO_CADASTRADA',
+      const nomeEmpresa = dadosOrg.nome ?? 'Empresa da Organização'
+      const cnpj = dadosOrg.cnpj_organizacao ?? null
+      const pais = cnpj ? 'BR' : 'BR'
+      console.warn(
+        `[self-healing] Empresa ${suid} ausente no Cadastros — recriando a partir dos dados do Configurador (nome=${nomeEmpresa}, cnpj=${cnpj ?? 'N/A'})`,
       )
+      try {
+        empresa = await prisma.empresa.create({
+          data: {
+            suid_empresa: suid,
+            id_organizacao_empresa: idOrganizacao,
+            nome_empresa: nomeEmpresa,
+            cnpj_empresa: cnpj,
+            pais_empresa: pais,
+            pode_ser_importador_empresa: true,
+            pode_ser_exportador_empresa: false,
+            pode_ser_fabricante_empresa: false,
+            pode_ser_agente_empresa: false,
+            pode_ser_despachante_empresa: false,
+            pode_ser_armador_empresa: false,
+            pode_ser_cia_aerea_empresa: false,
+            pode_ser_transportadora_rodoviaria_nacional_empresa: false,
+            pode_ser_armazem_alfandegado_empresa: false,
+            ativo_empresa: true,
+          },
+        })
+      } catch (createErr) {
+        // Race condition: outro request já recriou — tenta buscar de novo.
+        empresa = await prisma.empresa.findFirst({
+          where: { suid_empresa: suid, id_organizacao_empresa: idOrganizacao },
+        })
+        if (!empresa) {
+          throw new AppError(
+            `Configurador aponta suid_empresa_organizacao=${suid}, mas Empresa não foi encontrada no Cadastros e a recriação falhou (contate o suporte).`,
+            404,
+            'EMPRESA_NAO_CADASTRADA',
+          )
+        }
+      }
     }
 
     res.status(200).json(toEmpresaDto(empresa))

@@ -415,6 +415,7 @@ accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
         nome_organizacao: true,
         status_organizacao: true,
         suid_empresa_organizacao: true, // link 1:1 para Empresa no Cadastros
+        cnpj_organizacao: true,
       },
     })
 
@@ -427,6 +428,7 @@ accessRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
       nome: organizacao.nome_organizacao,
       status: StatusSdkMap[organizacao.status_organizacao] ?? 'suspended',
       suid_empresa_organizacao: organizacao.suid_empresa_organizacao, // pode ser null se onboarding incompleto
+      cnpj_organizacao: organizacao.cnpj_organizacao ?? null,
       idWorkspace: null,
     })
   } catch (err) {

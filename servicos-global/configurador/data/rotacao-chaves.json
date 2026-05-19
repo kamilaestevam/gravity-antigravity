@@ -1,0 +1,17 @@
+{
+  "CHAVE_INTERNA_SERVICO": {
+    "politica_dias": 60,
+    "ultima_rotacao": null,
+    "descricao": "Chave compartilhada entre serviços (x-chave-interna-servico)"
+  },
+  "CLERK_SECRET_KEY": {
+    "politica_dias": 90,
+    "ultima_rotacao": null,
+    "descricao": "Chave que assina os tokens JWT de autenticação (Clerk)"
+  },
+  "ENCRYPTION_KEY": {
+    "politica_dias": 180,
+    "ultima_rotacao": null,
+    "descricao": "Chave AES-256-GCM para criptografia de credenciais ERP/SAP"
+  }
+}

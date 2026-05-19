@@ -289,37 +289,35 @@ export function ApiWebhooksAdmin() {
       label: 'Acoes',
       tipo: 'texto',
       align: 'center',
+      largura: '140px',
       render: (val) => {
         const id = val as string
         return (
-          <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
             <BotaoGlobal
               variante="secundario"
               tamanho="pequeno"
               onClick={() => handleDispararTeste(id)}
-              icone={<PaperPlaneTilt size={14} />}
+              icone={<PaperPlaneTilt size={16} />}
               aria-label="Disparar evento de teste"
-            >
-              Testar
-            </BotaoGlobal>
+              title="Testar"
+            />
             <BotaoGlobal
               variante="secundario"
               tamanho="pequeno"
               onClick={() => handleAbrirHistorico(id)}
-              icone={<ClockCounterClockwise size={14} />}
-              aria-label="Ver historico"
-            >
-              Historico
-            </BotaoGlobal>
+              icone={<ClockCounterClockwise size={16} />}
+              aria-label="Ver histórico"
+              title="Histórico"
+            />
             <BotaoGlobal
               variante="perigo"
               tamanho="pequeno"
               onClick={() => handleExcluir(id)}
-              icone={<Trash size={14} />}
+              icone={<Trash size={16} />}
               aria-label="Excluir webhook"
-            >
-              Excluir
-            </BotaoGlobal>
+              title="Excluir"
+            />
           </div>
         )
       },

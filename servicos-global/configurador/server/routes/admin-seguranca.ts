@@ -14,6 +14,8 @@
 
 import { Router, type Request } from 'express'
 import * as https from 'node:https'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
@@ -223,17 +225,77 @@ async function fetchRateLimitMetrics() {
   return { metrics, blockedCount, period: '1h' as const }
 }
 
-function fetchSecretsSnapshot() {
-  // Em produção, datas de rotação viriam de um registro no banco ou de um KMS.
-  // Por ora, usamos env vars como proxy: se existem, estão configuradas.
-  // TODO(Coordenador): criar model Secret com tracking de rotated_at/expires_at.
-  return {
-    secrets: [
-      { name: 'CHAVE_INTERNA_SERVICO', configured: !!process.env.CHAVE_INTERNA_SERVICO, prefix: (process.env.CHAVE_INTERNA_SERVICO ?? '').slice(0, 6) },
-      { name: 'CLERK_SECRET_KEY',     configured: !!process.env.CLERK_SECRET_KEY,     prefix: (process.env.CLERK_SECRET_KEY ?? '').slice(0, 6) },
-      { name: 'ENCRYPTION_KEY',       configured: !!process.env.ENCRYPTION_KEY,       prefix: (process.env.ENCRYPTION_KEY ?? '').slice(0, 6) },
-    ],
+interface RotacaoChaveEntry {
+  politica_dias: number
+  ultima_rotacao: string | null
+  descricao: string
+}
+
+const ROTACAO_CHAVES_PATH = path.resolve(
+  import.meta.dirname ?? __dirname,
+  '../../data/rotacao-chaves.json',
+)
+
+function lerRotacaoChaves(): Record<string, RotacaoChaveEntry> {
+  try {
+    const raw = fs.readFileSync(ROTACAO_CHAVES_PATH, 'utf-8')
+    return JSON.parse(raw) as Record<string, RotacaoChaveEntry>
+  } catch {
+    return {}
   }
+}
+
+function salvarRotacaoChaves(data: Record<string, RotacaoChaveEntry>): void {
+  try {
+    fs.writeFileSync(ROTACAO_CHAVES_PATH, JSON.stringify(data, null, 2) + '\n', 'utf-8')
+  } catch (err) {
+    console.error('[adminSecurity] Falha ao salvar rotacao-chaves.json:', err)
+  }
+}
+
+function calcularStatusRotacao(
+  politicaDias: number,
+  ultimaRotacao: string | null,
+): { dias_desde_rotacao: number | null; status_rotacao: 'ATUALIZADA' | 'EXPIRANDO' | 'EXPIRADA' | 'DESCONHECIDO'; proxima_rotacao: string | null } {
+  if (!ultimaRotacao) {
+    return { dias_desde_rotacao: null, status_rotacao: 'DESCONHECIDO', proxima_rotacao: null }
+  }
+  const diasDesde = Math.floor((Date.now() - new Date(ultimaRotacao).getTime()) / (1000 * 60 * 60 * 24))
+  const proximaDate = new Date(new Date(ultimaRotacao).getTime() + politicaDias * 24 * 60 * 60 * 1000)
+  const diasRestantes = politicaDias - diasDesde
+
+  let status: 'ATUALIZADA' | 'EXPIRANDO' | 'EXPIRADA'
+  if (diasRestantes <= 0) status = 'EXPIRADA'
+  else if (diasRestantes <= Math.ceil(politicaDias * 0.2)) status = 'EXPIRANDO'
+  else status = 'ATUALIZADA'
+
+  return { dias_desde_rotacao: diasDesde, status_rotacao: status, proxima_rotacao: proximaDate.toISOString() }
+}
+
+function fetchSecretsSnapshot() {
+  const rotacaoData = lerRotacaoChaves()
+  const secretNames = ['CHAVE_INTERNA_SERVICO', 'CLERK_SECRET_KEY', 'ENCRYPTION_KEY'] as const
+
+  const secrets = secretNames.map((name) => {
+    const rotacao = rotacaoData[name]
+    const { dias_desde_rotacao, status_rotacao, proxima_rotacao } = calcularStatusRotacao(
+      rotacao?.politica_dias ?? 90,
+      rotacao?.ultima_rotacao ?? null,
+    )
+    return {
+      name,
+      configured: !!process.env[name],
+      prefix: (process.env[name] ?? '').slice(0, 6),
+      politica_dias: rotacao?.politica_dias ?? 90,
+      descricao: rotacao?.descricao ?? name,
+      ultima_rotacao: rotacao?.ultima_rotacao ?? null,
+      dias_desde_rotacao,
+      status_rotacao,
+      proxima_rotacao,
+    }
+  })
+
+  return { secrets }
 }
 
 function auditPanelAccess(req: Request, action: string): void {
@@ -378,6 +440,30 @@ adminSecurityRouter.get('/health', async (_req, res, next) => {
 
 adminSecurityRouter.get('/segredos', (_req, res) => {
   res.json(fetchSecretsSnapshot())
+})
+
+// POST /segredos/registrar-rotacao — registrar que uma chave foi rotacionada
+const RegistrarRotacaoSchema = z.object({
+  nome_chave: z.enum(['CHAVE_INTERNA_SERVICO', 'CLERK_SECRET_KEY', 'ENCRYPTION_KEY']),
+  data_rotacao: z.string().datetime().optional(),
+})
+
+adminSecurityRouter.post('/segredos/registrar-rotacao', async (req, res, next) => {
+  try {
+    const { nome_chave, data_rotacao } = RegistrarRotacaoSchema.parse(req.body)
+    const rotacaoData = lerRotacaoChaves()
+
+    if (rotacaoData[nome_chave]) {
+      rotacaoData[nome_chave].ultima_rotacao = data_rotacao ?? new Date().toISOString()
+    }
+
+    salvarRotacaoChaves(rotacaoData)
+    auditPanelAccess(req, `ROTACAO_REGISTRADA_${nome_chave}`)
+
+    res.json({ ok: true, chave: nome_chave, ultima_rotacao: rotacaoData[nome_chave]?.ultima_rotacao })
+  } catch (err) {
+    next(err)
+  }
 })
 
 // ---------------------------------------------------------------------------

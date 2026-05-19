@@ -5,7 +5,7 @@
 import { AppError } from '../lib/errors.js'
 import { buscarTool } from './catalogo-ferramentas.js'
 
-const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL ?? process.env.CONFIGURADOR_SERVICE_URL ?? 'http://localhost:8025'
+const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL ?? process.env.CONFIGURADOR_SERVICE_URL ?? 'http://localhost:8005'
 const CHAVE_INTERNA_SERVICO = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 export type PermissionChecker = (userId: string, action: string, resource: string, tenantId: string) => Promise<boolean>

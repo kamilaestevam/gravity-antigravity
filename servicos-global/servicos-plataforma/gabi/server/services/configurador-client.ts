@@ -15,7 +15,7 @@
  * Auth S2S: header `x-chave-interna-servico` com a CHAVE_INTERNA_SERVICO.
  */
 
-const CONFIGURADOR_URL       = process.env.CONFIGURADOR_URL       ?? 'http://localhost:8000'
+const CONFIGURADOR_URL       = process.env.CONFIGURADOR_URL       ?? 'http://localhost:8005'
 const CHAVE_INTERNA_SERVICO  = process.env.CHAVE_INTERNA_SERVICO ?? ''
 
 export interface OrganizacaoMinimal {

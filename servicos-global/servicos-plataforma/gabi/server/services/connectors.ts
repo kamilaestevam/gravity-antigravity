@@ -2,15 +2,15 @@
 // HTTP clients para os serviços de produto da plataforma Gravity
 // Cada chamada encaminha tenant_id + user_id para garantir isolamento
 
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'gravity-internal'
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || process.env.CHAVE_INTERNA_SERVICO || 'gravity-internal'
 const TIMEOUT_MS = 10_000
 
 // Portas dos serviços — espelham contracts.json
 const SERVICE_URLS: Record<string, string> = {
   lpco:          process.env.LPCO_SERVICE_URL          || 'http://localhost:8027',
   'nf-importacao': process.env.NF_SERVICE_URL          || 'http://localhost:8028',
-  pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8026',
-  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8025',
+  pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8030',
+  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
   'simula-custo': process.env.SIMULACUSTO_SERVICE_URL  || 'http://localhost:8020',
 }
 

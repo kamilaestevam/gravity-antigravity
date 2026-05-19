@@ -94,6 +94,12 @@ interface SecretEntry {
   name: string
   configured: boolean
   prefix: string
+  politica_dias: number
+  descricao: string
+  ultima_rotacao: string | null
+  dias_desde_rotacao: number | null
+  status_rotacao: 'ATUALIZADA' | 'EXPIRANDO' | 'EXPIRADA' | 'DESCONHECIDO'
+  proxima_rotacao: string | null
 }
 
 interface SecretsResponse {
@@ -752,13 +758,21 @@ export function SegurancaAdmin() {
             </div>
           )}
           {secrets.map((secret, idx) => {
-            // F-06: Estimativa de idade da chave baseada no prefixo (chaves rotacionadas mudam o prefixo)
-            // Em produção, o backend retornaria `rotated_at` e `age_days` — por enquanto, indicadores visuais
-            const ageCategory = secret.configured
-              ? (secret.prefix.length >= 6 ? 'RECENTE' : secret.prefix.length >= 3 ? 'MODERADA' : 'ANTIGA')
-              : 'AUSENTE'
-            const ageColor = ageCategory === 'RECENTE' ? '#34d399' : ageCategory === 'MODERADA' ? '#fbbf24' : '#f87171'
-            const ageBg = ageCategory === 'RECENTE' ? '#14532d' : ageCategory === 'MODERADA' ? '#78350f' : '#7f1d1d'
+            const statusColor = secret.status_rotacao === 'ATUALIZADA' ? '#34d399'
+              : secret.status_rotacao === 'EXPIRANDO' ? '#fbbf24'
+              : secret.status_rotacao === 'EXPIRADA' ? '#f87171'
+              : '#94a3b8'
+            const statusBg = secret.status_rotacao === 'ATUALIZADA' ? '#14532d'
+              : secret.status_rotacao === 'EXPIRANDO' ? '#78350f'
+              : secret.status_rotacao === 'EXPIRADA' ? '#7f1d1d'
+              : '#1e293b'
+            const statusLabel = secret.status_rotacao === 'ATUALIZADA'
+              ? `Rotacionada há ${secret.dias_desde_rotacao}d`
+              : secret.status_rotacao === 'EXPIRANDO'
+              ? `Expira em ${secret.politica_dias - (secret.dias_desde_rotacao ?? 0)}d`
+              : secret.status_rotacao === 'EXPIRADA'
+              ? `Expirada há ${(secret.dias_desde_rotacao ?? 0) - secret.politica_dias}d`
+              : 'Nunca rotacionada'
 
             return (
               <div
@@ -785,14 +799,19 @@ export function SegurancaAdmin() {
                   </TooltipGlobal>
                 </div>
 
-                {/* F-06: Indicador de idade da chave */}
-                {secret.configured && (
-                  <TooltipGlobal titulo="Idade da Chave" descricao="Indicador de rotação: chaves devem ser rotacionadas periodicamente">
+                {/* F-06: Status real de rotação */}
+                {secret.configured && secret.politica_dias > 0 && (
+                  <TooltipGlobal
+                    titulo={`Política: ${secret.politica_dias} dias`}
+                    descricao={secret.proxima_rotacao
+                      ? `Próxima rotação: ${new Date(secret.proxima_rotacao).toLocaleDateString('pt-BR')}`
+                      : 'Nenhuma rotação registrada ainda'}
+                  >
                     <div style={{
                       padding: '3px 8px', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 600,
-                      background: ageBg, color: ageColor, cursor: 'default',
+                      background: statusBg, color: statusColor, cursor: 'default',
                     }}>
-                      {ageCategory === 'RECENTE' ? '🔄 Rotacionada' : ageCategory === 'MODERADA' ? '⏳ Rotacionar em breve' : '⚠️ Rotação necessária'}
+                      {statusLabel}
                     </div>
                   </TooltipGlobal>
                 )}
@@ -814,23 +833,33 @@ export function SegurancaAdmin() {
             )
           })}
 
-          {/* F-06: Painel de política de rotação */}
-          <div style={{ marginTop: '0.25rem' }}>
-            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.75rem' }}>
-              Política de Rotação de Chaves (F-06)
-            </div>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <TooltipGlobal titulo="JWT Secret" descricao="Chave que assina os tokens JWT de autenticação. Rotação a cada 90 dias para limitar exposição em caso de vazamento">
-                <CardEstatisticaGlobal titulo="JWT Secret" valor="90 dias" icone={<Key weight="fill" size={20} />} cor="#34d399" />
-              </TooltipGlobal>
-              <TooltipGlobal titulo="Chave Interna S2S" descricao="Chave compartilhada entre serviços (x-chave-interna-servico). Rotação a cada 60 dias pois trafega em muitos microsserviços">
-                <CardEstatisticaGlobal titulo="Chave Interna S2S" valor="60 dias" icone={<Lock weight="fill" size={20} />} cor="#fbbf24" />
-              </TooltipGlobal>
-              <TooltipGlobal titulo="AES-256 Credenciais" descricao="Chave de criptografia das credenciais ERP/SAP armazenadas. Rotação a cada 180 dias — requer re-encriptação dos dados">
-                <CardEstatisticaGlobal titulo="AES-256 (Credenciais)" valor="180 dias" icone={<Certificate weight="fill" size={20} />} cor="#f87171" />
-              </TooltipGlobal>
-            </div>
-          </div>
+          {/* F-06: Painel de política de rotação — dados reais do backend */}
+          {(() => {
+            const chavesComPolitica = secrets.filter(s => s.politica_dias > 0)
+            if (chavesComPolitica.length === 0) return null
+            const corPorStatus = (st: string) =>
+              st === 'ATUALIZADA' ? '#34d399' : st === 'EXPIRANDO' ? '#fbbf24' : st === 'EXPIRADA' ? '#f87171' : '#94a3b8'
+            const valorCard = (s: SecretEntry) => {
+              if (s.status_rotacao === 'DESCONHECIDO') return `Política: ${s.politica_dias}d`
+              if (s.status_rotacao === 'EXPIRADA') return `Expirada`
+              if (s.status_rotacao === 'EXPIRANDO') return `${s.politica_dias - (s.dias_desde_rotacao ?? 0)}d restantes`
+              return `${s.dias_desde_rotacao ?? 0}d / ${s.politica_dias}d`
+            }
+            return (
+              <div style={{ marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.75rem' }}>
+                  Política de Rotação de Chaves (F-06)
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  {chavesComPolitica.map(s => (
+                    <TooltipGlobal key={s.name} titulo={s.name} descricao={`${s.descricao}. Política: ${s.politica_dias} dias${s.proxima_rotacao ? `. Próxima: ${new Date(s.proxima_rotacao).toLocaleDateString('pt-BR')}` : ''}`}>
+                      <CardEstatisticaGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} cor={corPorStatus(s.status_rotacao)} />
+                    </TooltipGlobal>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
 
           <TooltipGlobal titulo="Como Rotacionar" descricao="Comando a ser executado no terminal do servidor para gerar nova chave e atualizar as variáveis de ambiente automaticamente">
             <div style={{

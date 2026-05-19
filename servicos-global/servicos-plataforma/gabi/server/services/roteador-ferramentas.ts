@@ -16,14 +16,14 @@ import { AppError } from '../lib/errors.js'
 
 // ── Portas dos servicos ─────────────────────────────────────────────────────
 
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY || 'gravity-internal'
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY || process.env.CHAVE_INTERNA_SERVICO || 'gravity-internal'
 const TIMEOUT_MS = 10_000
 
 const SERVICE_URLS: Record<string, string> = {
-  pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8026',
-  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8025',
-  admin:         process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8025',
-  hub:           process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8025',
+  pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8030',
+  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
+  admin:         process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
+  hub:           process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
   store:         process.env.STORE_SERVICE_URL         || 'http://localhost:5181',
   gabi:          process.env.GABI_SERVICE_URL          || 'http://localhost:8009',
 }

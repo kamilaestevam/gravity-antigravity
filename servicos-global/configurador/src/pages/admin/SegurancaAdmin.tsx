@@ -242,6 +242,7 @@ export function SegurancaAdmin() {
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [auditStats, setAuditStats] = useState<AuditTrailStats>({ total: 0, totalImpersonacoes: 0, totalPermissoes: 0, totalAdmin: 0 })
 
   // Dados do backend
@@ -589,7 +590,7 @@ export function SegurancaAdmin() {
             <TooltipGlobal titulo="Atualizar" descricao="Recarregar todos os dados de segurança manualmente">
               <BotaoGlobal
                 variante="primario"
-                onClick={() => { setLoading(true); void loadData() }}
+                onClick={() => { setLoading(true); setRefreshKey(k => k + 1); void loadData() }}
                 iconeEsquerda={<ArrowsClockwise size={16} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />}
               >
                 {t('admin.seguranca-admin.btn_atualizar')}
@@ -619,7 +620,7 @@ export function SegurancaAdmin() {
           </div>
           <button
             type="button"
-            onClick={() => { setLoading(true); void loadData() }}
+            onClick={() => { setLoading(true); setRefreshKey(k => k + 1); void loadData() }}
             aria-label="Tentar carregar painel de segurança novamente"
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
@@ -937,28 +938,28 @@ export function SegurancaAdmin() {
       {/* ── Aba: Audit Trail (F-01, F-03, F-08) ── */}
       {abaAtiva === 'audit' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Audit Trail...</div>}>
-          <AbaAuditTrail onStatsCarregados={setAuditStats} />
+          <AbaAuditTrail key={refreshKey} onStatsCarregados={setAuditStats} />
         </Suspense>
       )}
 
       {/* ── Aba: Isolamento de Tenant (F-02, F-05) ── */}
       {abaAtiva === 'isolamento' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Isolamento...</div>}>
-          <AbaIsolamento />
+          <AbaIsolamento key={refreshKey} />
         </Suspense>
       )}
 
       {/* ── Aba: Compliance (F-09, F-10) ── */}
       {abaAtiva === 'compliance' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Compliance...</div>}>
-          <AbaCompliance />
+          <AbaCompliance key={refreshKey} />
         </Suspense>
       )}
 
       {/* ── Aba: Infra & DR (F-11, F-12) ── */}
       {abaAtiva === 'infra' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Infraestrutura...</div>}>
-          <AbaInfra />
+          <AbaInfra key={refreshKey} />
         </Suspense>
       )}
 

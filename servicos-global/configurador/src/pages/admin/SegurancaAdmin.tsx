@@ -177,6 +177,24 @@ async function fetchJSON<T>(path: string): Promise<T> {
   return (await res.json()) as T
 }
 
+async function postJSON<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const token = await getClerkBearerToken()
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers,
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new SecurityApiError(`${res.status} ${res.statusText} — ${text.slice(0, 200)}`, res.status, path)
+  }
+  return (await res.json()) as T
+}
+
 // ─── Helpers visuais ──────────────────────────────────────────────────────
 
 function getSeveridadeStyle(sev: Severidade) {
@@ -829,6 +847,30 @@ export function SegurancaAdmin() {
                     {secret.configured ? t('admin.seguranca-admin.secrets.configurada') : t('admin.seguranca-admin.secrets.ausente')}
                   </div>
                 </TooltipGlobal>
+
+                {secret.configured && secret.politica_dias > 0 && (
+                  <TooltipGlobal titulo="Registrar Rotação" descricao="Registra que esta chave foi rotacionada agora. Use após executar o script de rotação no servidor">
+                    <button
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                        padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600,
+                        background: 'var(--ws-surface-alt, #0f172a)',
+                        color: '#60a5fa', border: '1px solid #334155',
+                        cursor: 'pointer', whiteSpace: 'nowrap',
+                      }}
+                      onClick={async () => {
+                        try {
+                          await postJSON('/segredos/registrar-rotacao', { nome_chave: secret.name })
+                          await loadData()
+                        } catch (err) {
+                          console.error('[SegurancaAdmin] Falha ao registrar rotação:', err)
+                        }
+                      }}
+                    >
+                      <ArrowsClockwise size={12} /> Rotacionada
+                    </button>
+                  </TooltipGlobal>
+                )}
               </div>
             )
           })}

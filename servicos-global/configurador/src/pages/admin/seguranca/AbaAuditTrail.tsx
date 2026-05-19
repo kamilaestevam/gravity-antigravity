@@ -6,6 +6,7 @@ import {
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../../utils/export-helper'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -177,53 +178,42 @@ export function AbaAuditTrail() {
     <div>
       {/* Stat Cards — F-01, F-03, F-08 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
-        <CardEstatisticaGlobal
-          titulo="Total Auditado"
-          valor={String(total)}
-          icone={<ClockCounterClockwise weight="fill" size={20} />}
-          variante="primario"
-        />
-        <CardEstatisticaGlobal
-          titulo="Impersonações (F-03)"
-          valor={String(totalImpersonacoes)}
-          icone={<UserCircle weight="fill" size={20} />}
-          variante={totalImpersonacoes > 0 ? 'aviso' : 'sucesso'}
-        />
-        <CardEstatisticaGlobal
-          titulo="Mudanças de Permissão (F-08)"
-          valor={String(totalPermissoes)}
-          icone={<ArrowsLeftRight weight="fill" size={20} />}
-          variante={totalPermissoes > 0 ? 'aviso' : 'sucesso'}
-        />
-        <CardEstatisticaGlobal
-          titulo="Ações Admin"
-          valor={String(totalAdmin)}
-          icone={<ShieldStar weight="fill" size={20} />}
-          variante="primario"
-        />
+        <TooltipGlobal titulo="Total Auditado" descricao="Quantidade total de registros de auditoria no período">
+          <div><CardEstatisticaGlobal titulo="Total Auditado" valor={String(total)} icone={<ClockCounterClockwise weight="fill" size={20} />} variante="primario" /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Impersonações" descricao="Vezes que um admin acessou o sistema como outro usuário">
+          <div><CardEstatisticaGlobal titulo="Impersonações (F-03)" valor={String(totalImpersonacoes)} icone={<UserCircle weight="fill" size={20} />} variante={totalImpersonacoes > 0 ? 'aviso' : 'sucesso'} /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Mudanças de Permissão" descricao="Alterações em tipo_usuario ou tipo_usuario_workspace">
+          <div><CardEstatisticaGlobal titulo="Mudanças de Permissão (F-08)" valor={String(totalPermissoes)} icone={<ArrowsLeftRight weight="fill" size={20} />} variante={totalPermissoes > 0 ? 'aviso' : 'sucesso'} /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Ações Admin" descricao="Ações executadas por gravity_admin ou ADMIN no painel">
+          <div><CardEstatisticaGlobal titulo="Ações Admin" valor={String(totalAdmin)} icone={<ShieldStar weight="fill" size={20} />} variante="primario" /></div>
+        </TooltipGlobal>
       </div>
 
       {/* Filtros rápidos — F-03 (Impersonação), F-08 (Permissões) */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {([
-          { key: 'TODOS', label: 'Todos' },
-          { key: 'IMPERSONACAO', label: '👤 Impersonações (F-03)' },
-          { key: 'PERMISSAO', label: '🔑 Mudanças Permissão (F-08)' },
-          { key: 'ADMIN', label: '🛡️ Ações Admin' },
+          { key: 'TODOS', label: 'Todos', desc: 'Exibir todos os registros de auditoria' },
+          { key: 'IMPERSONACAO', label: '👤 Impersonações (F-03)', desc: 'Filtrar por acessos como outro usuário (impersonação)' },
+          { key: 'PERMISSAO', label: '🔑 Mudanças Permissão (F-08)', desc: 'Filtrar por alterações de tipo_usuario' },
+          { key: 'ADMIN', label: '🛡️ Ações Admin', desc: 'Filtrar por ações de gravity_admin' },
         ] as const).map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFiltroRapido(f.key)}
-            style={{
-              padding: '0.35rem 0.75rem', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 600,
-              border: filtroRapido === f.key ? '1px solid #10b981' : '1px solid var(--ws-border, #334155)',
-              background: filtroRapido === f.key ? 'rgba(16,185,129,0.12)' : 'transparent',
-              color: filtroRapido === f.key ? '#10b981' : 'var(--ws-muted, #94a3b8)',
-              cursor: 'pointer', transition: 'all 0.15s',
-            }}
-          >
-            {f.label}
-          </button>
+          <TooltipGlobal key={f.key} titulo={f.label.replace(/👤|🔑|🛡️/g, '').trim()} descricao={f.desc}>
+            <button
+              onClick={() => setFiltroRapido(f.key)}
+              style={{
+                padding: '0.35rem 0.75rem', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 600,
+                border: filtroRapido === f.key ? '1px solid #10b981' : '1px solid var(--ws-border, #334155)',
+                background: filtroRapido === f.key ? 'rgba(16,185,129,0.12)' : 'transparent',
+                color: filtroRapido === f.key ? '#10b981' : 'var(--ws-muted, #94a3b8)',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}
+            >
+              {f.label}
+            </button>
+          </TooltipGlobal>
         ))}
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>

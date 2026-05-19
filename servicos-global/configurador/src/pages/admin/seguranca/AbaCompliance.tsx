@@ -89,6 +89,22 @@ function getCertStatusColor(status: CertificadoItem['status']) {
   }
 }
 
+function certStatusTooltip(status: CertificadoItem['status']): string {
+  switch (status) {
+    case 'VALIDO': return 'Certificado válido e dentro do prazo'
+    case 'EXPIRANDO': return 'Certificado expira em menos de 30 dias — renovar'
+    case 'EXPIRADO': return 'Certificado expirado — site pode ficar inacessível'
+  }
+}
+
+function owaspStatusTooltip(status: OwaspItem['status']): string {
+  switch (status) {
+    case 'CONFORME': return 'Todas as verificações passaram para este item'
+    case 'PENDENTE': return 'Algumas verificações ainda não foram implementadas'
+    case 'FALHA': return 'Uma ou mais verificações falharam — requer ação'
+  }
+}
+
 // ─── Componente ─────────────────────────────────────────────────────────────
 
 export function AbaCompliance() {
@@ -140,30 +156,46 @@ export function AbaCompliance() {
     <div>
       {/* KPI Cards OWASP */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
-        <CardEstatisticaGlobal
-          titulo="Score OWASP"
-          valor={resumo ? `${resumo.score}%` : '...'}
-          icone={<ShieldCheck weight="fill" size={20} />}
-          variante={resumo && resumo.score >= 80 ? 'sucesso' : resumo && resumo.score >= 60 ? 'aviso' : 'perigo'}
-        />
-        <CardEstatisticaGlobal
-          titulo="Conformes"
-          valor={String(resumo?.conformes ?? 0)}
-          icone={<CheckCircle weight="fill" size={20} />}
-          variante="sucesso"
-        />
-        <CardEstatisticaGlobal
-          titulo="Pendentes"
-          valor={String(resumo?.pendentes ?? 0)}
-          icone={<Warning weight="fill" size={20} />}
-          variante={resumo && resumo.pendentes > 0 ? 'aviso' : 'sucesso'}
-        />
-        <CardEstatisticaGlobal
-          titulo="Falhas"
-          valor={String(resumo?.falhas ?? 0)}
-          icone={<XCircle weight="fill" size={20} />}
-          variante={resumo && resumo.falhas > 0 ? 'perigo' : 'sucesso'}
-        />
+        <TooltipGlobal titulo="Score OWASP" descricao="Percentual de itens OWASP Top 10 em conformidade">
+          <div>
+            <CardEstatisticaGlobal
+              titulo="Score OWASP"
+              valor={resumo ? `${resumo.score}%` : '...'}
+              icone={<ShieldCheck weight="fill" size={20} />}
+              variante={resumo && resumo.score >= 80 ? 'sucesso' : resumo && resumo.score >= 60 ? 'aviso' : 'perigo'}
+            />
+          </div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Conformes" descricao="Itens OWASP que passaram em todas as verificações">
+          <div>
+            <CardEstatisticaGlobal
+              titulo="Conformes"
+              valor={String(resumo?.conformes ?? 0)}
+              icone={<CheckCircle weight="fill" size={20} />}
+              variante="sucesso"
+            />
+          </div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Pendentes" descricao="Itens com verificações parciais ou não implementadas">
+          <div>
+            <CardEstatisticaGlobal
+              titulo="Pendentes"
+              valor={String(resumo?.pendentes ?? 0)}
+              icone={<Warning weight="fill" size={20} />}
+              variante={resumo && resumo.pendentes > 0 ? 'aviso' : 'sucesso'}
+            />
+          </div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Falhas" descricao="Itens com verificações que falharam — requer correção">
+          <div>
+            <CardEstatisticaGlobal
+              titulo="Falhas"
+              valor={String(resumo?.falhas ?? 0)}
+              icone={<XCircle weight="fill" size={20} />}
+              variante={resumo && resumo.falhas > 0 ? 'perigo' : 'sucesso'}
+            />
+          </div>
+        </TooltipGlobal>
       </div>
 
       {/* Header com indicador de fonte + botão de refresh */}
@@ -172,7 +204,9 @@ export function AbaCompliance() {
         marginBottom: '0.75rem',
       }}>
         <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          OWASP Top 10 — Verificação Dinâmica
+          <TooltipGlobal titulo="OWASP Top 10" descricao="Checklist das 10 vulnerabilidades web mais críticas segundo a OWASP">
+            <span style={{ cursor: 'help' }}>OWASP Top 10 — Verificação Dinâmica</span>
+          </TooltipGlobal>
           {fonte && (
             <TooltipGlobal
               titulo={fonte === 'CACHE' ? 'Cache' : 'Verificação Real'}
@@ -194,21 +228,23 @@ export function AbaCompliance() {
           )}
         </h3>
 
-        <button
-          onClick={() => { void forcarVerificacao() }}
-          disabled={refreshing}
-          aria-label="Forçar re-verificação OWASP"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '6px 14px', borderRadius: '6px', cursor: refreshing ? 'wait' : 'pointer',
-            background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)',
-            color: '#10b981', fontSize: '0.78rem', fontWeight: 600,
-            opacity: refreshing ? 0.6 : 1,
-          }}
-        >
-          <ArrowsClockwise size={14} weight={refreshing ? 'bold' : 'regular'} style={refreshing ? { animation: 'spin 1s linear infinite' } : {}} />
-          {refreshing ? 'Verificando...' : 'Re-verificar agora'}
-        </button>
+        <TooltipGlobal titulo="Re-verificar" descricao="Forçar nova verificação ignorando o cache (pode levar alguns segundos)">
+          <button
+            onClick={() => { void forcarVerificacao() }}
+            disabled={refreshing}
+            aria-label="Forçar re-verificação OWASP"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '6px 14px', borderRadius: '6px', cursor: refreshing ? 'wait' : 'pointer',
+              background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)',
+              color: '#10b981', fontSize: '0.78rem', fontWeight: 600,
+              opacity: refreshing ? 0.6 : 1,
+            }}
+          >
+            <ArrowsClockwise size={14} weight={refreshing ? 'bold' : 'regular'} style={refreshing ? { animation: 'spin 1s linear infinite' } : {}} />
+            {refreshing ? 'Verificando...' : 'Re-verificar agora'}
+          </button>
+        </TooltipGlobal>
       </div>
 
       {/* Checklist OWASP Top 10 com verificações expansíveis */}
@@ -246,46 +282,54 @@ export function AbaCompliance() {
               >
                 {/* Seta de expansão */}
                 {temVerificacoes && (
-                  <div style={{ marginTop: '3px', flexShrink: 0, color: 'var(--ws-muted, #64748b)' }}>
-                    {isExpanded ? <CaretDown size={14} weight="bold" /> : <CaretRight size={14} weight="bold" />}
-                  </div>
+                  <TooltipGlobal titulo="Expandir" descricao="Clique para ver as verificações detalhadas">
+                    <div style={{ marginTop: '3px', flexShrink: 0, color: 'var(--ws-muted, #64748b)' }}>
+                      {isExpanded ? <CaretDown size={14} weight="bold" /> : <CaretRight size={14} weight="bold" />}
+                    </div>
+                  </TooltipGlobal>
                 )}
 
                 <div style={{ marginTop: '2px', flexShrink: 0 }}>{getOwaspStatusIcon(item.status)}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                    <span style={{
-                      padding: '1px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700,
-                      background: '#1e3a5f', color: '#93c5fd',
-                    }}>
-                      {item.id}
-                    </span>
+                    <TooltipGlobal titulo={`OWASP ${item.id}`} descricao={`Categoria ${item.id} do OWASP Top 10 — ${item.nome}`}>
+                      <span style={{
+                        padding: '1px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700,
+                        background: '#1e3a5f', color: '#93c5fd', cursor: 'help',
+                      }}>
+                        {item.id}
+                      </span>
+                    </TooltipGlobal>
                     <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)' }}>
                       {item.nome}
                     </span>
                     {/* Badge de checks */}
                     {temVerificacoes && (
-                      <span style={{
-                        padding: '1px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600,
-                        background: checksPassed === checksTotal ? '#14532d' : '#78350f',
-                        color: checksPassed === checksTotal ? '#86efac' : '#fcd34d',
-                      }}>
-                        {checksPassed}/{checksTotal} checks
-                      </span>
+                      <TooltipGlobal titulo="Verificações" descricao={`${checksPassed} de ${checksTotal} verificações passaram`}>
+                        <span style={{
+                          padding: '1px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 600, cursor: 'help',
+                          background: checksPassed === checksTotal ? '#14532d' : '#78350f',
+                          color: checksPassed === checksTotal ? '#86efac' : '#fcd34d',
+                        }}>
+                          {checksPassed}/{checksTotal} checks
+                        </span>
+                      </TooltipGlobal>
                     )}
                   </div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--ws-muted, #94a3b8)', lineHeight: '1.4' }}>
                     {item.detalhe}
                   </div>
                 </div>
-                <div style={{
-                  padding: '3px 10px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600,
-                  background: item.status === 'CONFORME' ? '#14532d' : item.status === 'PENDENTE' ? '#78350f' : '#7f1d1d',
-                  color: item.status === 'CONFORME' ? '#86efac' : item.status === 'PENDENTE' ? '#fcd34d' : '#fca5a5',
-                  flexShrink: 0, alignSelf: 'center',
-                }}>
-                  {item.status}
-                </div>
+                <TooltipGlobal titulo={item.status} descricao={owaspStatusTooltip(item.status)}>
+                  <div style={{
+                    padding: '3px 10px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, cursor: 'help',
+                    background: item.status === 'CONFORME' ? '#14532d' : item.status === 'PENDENTE' ? '#78350f' : '#7f1d1d',
+                    color: item.status === 'CONFORME' ? '#86efac' : item.status === 'PENDENTE' ? '#fcd34d' : '#fca5a5',
+                    flexShrink: 0, alignSelf: 'center',
+                  }}>
+                    {item.status}
+                  </div>
+                </TooltipGlobal>
               </div>
 
               {/* Painel expansível com verificações detalhadas */}
@@ -311,10 +355,14 @@ export function AbaCompliance() {
                         marginBottom: idx < verificacoes.length - 1 ? '0.35rem' : 0,
                       }}
                     >
-                      {check.passou
-                        ? <CheckCircle weight="fill" size={14} style={{ color: '#34d399', marginTop: '1px', flexShrink: 0 }} />
-                        : <XCircle weight="fill" size={14} style={{ color: '#f87171', marginTop: '1px', flexShrink: 0 }} />
-                      }
+                      <TooltipGlobal titulo={check.passou ? 'Passou' : 'Falhou'} descricao={check.passou ? 'Esta verificação passou com sucesso' : 'Esta verificação falhou — requer correção'}>
+                        <div style={{ cursor: 'help' }}>
+                          {check.passou
+                            ? <CheckCircle weight="fill" size={14} style={{ color: '#34d399', marginTop: '1px', flexShrink: 0 }} />
+                            : <XCircle weight="fill" size={14} style={{ color: '#f87171', marginTop: '1px', flexShrink: 0 }} />
+                          }
+                        </div>
+                      </TooltipGlobal>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.78rem', fontWeight: 600, color: check.passou ? '#34d399' : '#f87171' }}>
                           {check.check}
@@ -325,7 +373,6 @@ export function AbaCompliance() {
                       </div>
                     </div>
                   ))}
-                  {/* Timestamp da última verificação */}
                   <div style={{ fontSize: '0.68rem', color: 'var(--ws-muted, #64748b)', marginTop: '0.5rem', textAlign: 'right' }}>
                     Verificado em {new Date(item.ultima_verificacao).toLocaleString('pt-BR')}
                   </div>
@@ -338,10 +385,12 @@ export function AbaCompliance() {
 
       {/* Certificados Digitais */}
       <div>
-        <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Certificate weight="duotone" size={20} color="#6366f1" />
-          Certificados Digitais (SSL/TLS)
-        </h3>
+        <TooltipGlobal titulo="Certificados SSL/TLS" descricao="Monitoramento de validade dos certificados digitais dos domínios">
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'help' }}>
+            <Certificate weight="duotone" size={20} color="#6366f1" />
+            Certificados Digitais (SSL/TLS)
+          </h3>
+        </TooltipGlobal>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {certificados.length === 0 && !loading && (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
@@ -360,27 +409,33 @@ export function AbaCompliance() {
             >
               <Certificate weight="duotone" size={20} style={{ color: getCertStatusColor(cert.status), flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)' }}>
-                  {cert.dominio}
-                </div>
+                <TooltipGlobal titulo={cert.dominio} descricao={`Certificado ${cert.tipo} emitido por ${cert.emitido_por}`}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', cursor: 'help' }}>
+                    {cert.dominio}
+                  </div>
+                </TooltipGlobal>
                 <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px' }}>
                   {cert.tipo} — {cert.emitido_por} — Expira em {new Date(cert.data_expiracao).toLocaleDateString('pt-BR')}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                <span style={{
-                  fontSize: '0.85rem', fontWeight: 700,
-                  color: cert.dias_restantes > 60 ? '#34d399' : cert.dias_restantes > 30 ? '#fbbf24' : '#f87171',
-                }}>
-                  {cert.dias_restantes}d
-                </span>
-                <span style={{
-                  padding: '3px 10px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600,
-                  background: cert.status === 'VALIDO' ? '#14532d' : cert.status === 'EXPIRANDO' ? '#78350f' : '#7f1d1d',
-                  color: cert.status === 'VALIDO' ? '#86efac' : cert.status === 'EXPIRANDO' ? '#fcd34d' : '#fca5a5',
-                }}>
-                  {cert.status}
-                </span>
+                <TooltipGlobal titulo="Dias restantes" descricao={`Faltam ${cert.dias_restantes} dias para este certificado expirar`}>
+                  <span style={{
+                    fontSize: '0.85rem', fontWeight: 700, cursor: 'help',
+                    color: cert.dias_restantes > 60 ? '#34d399' : cert.dias_restantes > 30 ? '#fbbf24' : '#f87171',
+                  }}>
+                    {cert.dias_restantes}d
+                  </span>
+                </TooltipGlobal>
+                <TooltipGlobal titulo={cert.status} descricao={certStatusTooltip(cert.status)}>
+                  <span style={{
+                    padding: '3px 10px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, cursor: 'help',
+                    background: cert.status === 'VALIDO' ? '#14532d' : cert.status === 'EXPIRANDO' ? '#78350f' : '#7f1d1d',
+                    color: cert.status === 'VALIDO' ? '#86efac' : cert.status === 'EXPIRANDO' ? '#fcd34d' : '#fca5a5',
+                  }}>
+                    {cert.status}
+                  </span>
+                </TooltipGlobal>
               </div>
             </div>
           ))}

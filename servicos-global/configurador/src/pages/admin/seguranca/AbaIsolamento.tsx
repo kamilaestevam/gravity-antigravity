@@ -5,6 +5,7 @@ import {
 } from '@phosphor-icons/react'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../../utils/export-helper'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -151,36 +152,21 @@ export function AbaIsolamento() {
     <div>
       {/* F-05: Dashboard de Isolamento de Tenant */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
-        <CardEstatisticaGlobal
-          titulo="Schemas Ativos"
-          valor={metricas ? String(metricas.schemas_ativos) : '...'}
-          icone={<Database weight="fill" size={20} />}
-          variante="primario"
-        />
-        <CardEstatisticaGlobal
-          titulo="Tentativas Cross-Org 24h"
-          valor={metricas ? String(metricas.tentativas_cross_org_24h) : '...'}
-          icone={<Wall weight="fill" size={20} />}
-          variante={metricas && metricas.tentativas_cross_org_24h > 0 ? 'perigo' : 'sucesso'}
-        />
-        <CardEstatisticaGlobal
-          titulo="SDK Resolver"
-          valor={metricas?.sdk_status ?? '...'}
-          icone={<ShieldCheck weight="fill" size={20} />}
-          variante="sucesso"
-        />
-        <CardEstatisticaGlobal
-          titulo="Pool PgBouncer"
-          valor={metricas?.pool_status ?? '...'}
-          icone={<ArrowsClockwise weight="fill" size={20} />}
-          variante="sucesso"
-        />
-        <CardEstatisticaGlobal
-          titulo="Search Path Reset"
-          valor={metricas?.search_path_resets ?? '...'}
-          icone={<ShieldWarning weight="fill" size={20} />}
-          variante="sucesso"
-        />
+        <TooltipGlobal titulo="Schemas Ativos" descricao="Cada organização possui seu próprio schema isolado no banco">
+          <div><CardEstatisticaGlobal titulo="Schemas Ativos" valor={metricas ? String(metricas.schemas_ativos) : '...'} icone={<Database weight="fill" size={20} />} variante="primario" /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Tentativas Cross-Org" descricao="Tentativas de acessar dados de outra organização nas últimas 24h">
+          <div><CardEstatisticaGlobal titulo="Tentativas Cross-Org 24h" valor={metricas ? String(metricas.tentativas_cross_org_24h) : '...'} icone={<Wall weight="fill" size={20} />} variante={metricas && metricas.tentativas_cross_org_24h > 0 ? 'perigo' : 'sucesso'} /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="SDK Resolver" descricao="Status do @gravity/resolver-organizacao que garante o isolamento">
+          <div><CardEstatisticaGlobal titulo="SDK Resolver" valor={metricas?.sdk_status ?? '...'} icone={<ShieldCheck weight="fill" size={20} />} variante="sucesso" /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Pool PgBouncer" descricao="Status do pool de conexões — transaction mode garante isolamento">
+          <div><CardEstatisticaGlobal titulo="Pool PgBouncer" valor={metricas?.pool_status ?? '...'} icone={<ArrowsClockwise weight="fill" size={20} />} variante="sucesso" /></div>
+        </TooltipGlobal>
+        <TooltipGlobal titulo="Search Path Reset" descricao="Como o search_path do Postgres é resetado entre queries">
+          <div><CardEstatisticaGlobal titulo="Search Path Reset" valor={metricas?.search_path_resets ?? '...'} icone={<ShieldWarning weight="fill" size={20} />} variante="sucesso" /></div>
+        </TooltipGlobal>
       </div>
 
       {/* Indicadores visuais de saúde */}
@@ -190,7 +176,9 @@ export function AbaIsolamento() {
         border: '1px solid var(--ws-border, #334155)',
         fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
       }}>
-        <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>Arquitetura de Isolamento:</strong>{' '}
+        <TooltipGlobal titulo="Arquitetura" descricao="Modelo schema-per-org: cada organização tem seu próprio schema PostgreSQL isolado">
+          <strong style={{ color: 'var(--ws-text, #f1f5f9)', cursor: 'help' }}>Arquitetura de Isolamento:</strong>
+        </TooltipGlobal>{' '}
         Schema-per-Organização via <code style={{ color: '#10b981' }}>@gravity/resolver-organizacao</code> |{' '}
         <code>SET LOCAL search_path</code> dentro de <code>$transaction</code> |{' '}
         Pool PgBouncer transaction mode |{' '}
@@ -201,9 +189,11 @@ export function AbaIsolamento() {
 
       {/* F-02: Tabela de tentativas cross-org */}
       <div style={{ marginBottom: '0.5rem' }}>
-        <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: '0 0 0.5rem 0' }}>
-          Tentativas de Acesso Cross-Organização (últimas 24h)
-        </h3>
+        <TooltipGlobal titulo="Cross-Organização" descricao="Tentativas de uma organização acessar dados de outra — devem ser sempre bloqueadas">
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', margin: '0 0 0.5rem 0', cursor: 'help' }}>
+            Tentativas de Acesso Cross-Organização (últimas 24h)
+          </h3>
+        </TooltipGlobal>
       </div>
       <TabelaGlobal
         dados={tentativas}

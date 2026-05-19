@@ -13,6 +13,13 @@ export interface LlmUsage {
   custoUsd: number
 }
 
+export interface ToolCallRecord {
+  tool_id: string
+  sucesso: boolean
+  duracao_ms: number
+  aguardando_confirmacao?: boolean
+}
+
 export async function auditGabiAction(
   userId: string,
   tenantId: string,
@@ -21,6 +28,7 @@ export async function auditGabiAction(
   productId?: string,
   llmUsage?: LlmUsage,
   ragMeta?: KbSearchMeta,
+  toolsChamadas?: ToolCallRecord[],
 ) {
   if (!conversationSnapshot) {
     throw new AppError(
@@ -47,6 +55,7 @@ export async function auditGabiAction(
       tokens_input_gabi_log_uso: llmUsage?.tokensInput ?? 0,
       tokens_output_gabi_log_uso: llmUsage?.tokensOutput ?? 0,
       custo_usd_gabi_log_uso: llmUsage?.custoUsd ?? 0,
+      tools_chamadas_gabi_log_uso: toolsChamadas ? JSON.parse(JSON.stringify(toolsChamadas)) : undefined,
     },
   })
 

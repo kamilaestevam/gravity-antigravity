@@ -1,0 +1,1851 @@
+{
+  "id": "TST-FUN-PEDIDO-EDICAO-MASSA-COLUNAS-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-16T13:00:00.000Z",
+  "geradoPor": "agente-plano-teste-funcional",
+  "escopo": "PEDIDO",
+  "modulo": "edicoes-em-massa-colunas",
+  "tipoModulo": "rota_crud",
+  "arquivoFilePath": "servicos-global/produto/pedido/server/src/routes/edicoes-em-massa-pedido.ts",
+  "servicoFilePath": "servicos-global/produto/pedido/server/src/services/edicaoEmMassaService.ts",
+  "criticidade": "alta",
+  "resumoExecutivo": "Plano de teste funcional para a Edicao em Massa do Pedido: valida TODAS as colunas editaveis do SSOT (campos-pedido-ddd.ts) nos 5 cenarios obrigatorios — (1) salvar pedido sem afetar itens, (2) presenca de checkbox Aplicar a todos os itens, (3) cascade pedido→itens via checkbox, (4) editar item individual, (5) alerta de divergencia item vs pedido. Agrupado em lotes de 5 colunas. Total: 143 campos SSOT + 14 campos Prisma extras = 157 colunas. Campos bloqueados (calculados/sistema) sao marcados N/A.",
+  "endpoints": [
+    {
+      "metodo": "POST",
+      "rota": "/api/v1/pedidos/edicoes-em-massa/preview",
+      "descricao": "Preview de impacto sem alterar banco"
+    },
+    {
+      "metodo": "POST",
+      "rota": "/api/v1/pedidos/edicoes-em-massa/confirmar",
+      "descricao": "Executa edicao em massa em transacao"
+    }
+  ],
+  "cenarios": {
+    "C01": {
+      "titulo": "Editar e salvar o pedido — nao deve interferir nos itens",
+      "nivel_edicao": "pedido",
+      "descricao": "Editar o campo no nivel PEDIDO e confirmar. Verificar que APENAS o pedido foi alterado e os itens permaneceram intactos.",
+      "payload_base": {
+        "pedido_ids": ["<ID_PEDIDO_TESTE>"],
+        "nivel": "pedido",
+        "campos": [{"campo": "<CAMPO>", "tipo": "<TIPO>", "nivel": "pedido", "operacao": "substituir", "valor": "<VALOR_NOVO>"}]
+      },
+      "assercoes": [
+        "Pedido atualizado com valor novo no campo editado",
+        "Nenhum PedidoItem teve o campo correspondente alterado",
+        "data_atualizacao_pedido atualizada",
+        "data_atualizacao_item NAO atualizada nos itens"
+      ]
+    },
+    "C02": {
+      "titulo": "Coluna deve ter checkbox Aplicar a todos os itens desse pedido",
+      "descricao": "No modal de edicao em massa, quando o usuario seleciona um campo do pedido que possui par de cascade (MAPA_PROPAGACAO_PEDIDO_ITEM), o UI deve exibir a opcao de nivel COMBINADO (checkbox equivalente). Campos SEM par de cascade nao devem ter essa opcao.",
+      "assercoes": [
+        "Campo com entrada em PARES_CASCADE_PEDIDO_ITEM: aba Combinado disponivel OU checkbox visivel",
+        "Campo SEM entrada em PARES_CASCADE_PEDIDO_ITEM: aba Combinado desabilitada/oculta para este campo"
+      ]
+    },
+    "C03": {
+      "titulo": "Editar pedido com checkbox marcado — todos os itens espelhados",
+      "nivel_edicao": "combinado",
+      "descricao": "Editar o campo no nivel COMBINADO. Verificar que o pedido foi alterado E todos os itens do pedido receberam o valor no campo correspondente (via PARES_CASCADE_PEDIDO_ITEM).",
+      "payload_base": {
+        "pedido_ids": ["<ID_PEDIDO_TESTE>"],
+        "nivel": "combinado",
+        "campos": [{"campo": "<CAMPO>", "tipo": "<TIPO>", "nivel": "pedido", "operacao": "substituir", "valor": "<VALOR_NOVO>"}]
+      },
+      "assercoes": [
+        "Pedido atualizado com valor novo",
+        "TODOS os PedidoItem do pedido tiveram o campo par atualizado com mesmo valor",
+        "Preview retorna overrides_sobrescritos com contagem correta",
+        "Itens com valor divergente pre-existente tambem foram sobrescritos"
+      ]
+    },
+    "C04": {
+      "titulo": "Editar um item individual — apenas ele salvo",
+      "nivel_edicao": "item",
+      "descricao": "Editar o campo no nivel ITEM, passando item_ids com apenas 1 item. Verificar que apenas aquele item foi alterado, os demais itens e o pedido pai permanecem intactos.",
+      "payload_base": {
+        "pedido_ids": ["<ID_PEDIDO_TESTE>"],
+        "item_ids": ["<ID_ITEM_ESPECIFICO>"],
+        "nivel": "item",
+        "campos": [{"campo": "<CAMPO>", "tipo": "<TIPO>", "nivel": "item", "operacao": "substituir", "valor": "<VALOR_NOVO>"}]
+      },
+      "assercoes": [
+        "Item especifico atualizado com valor novo",
+        "Demais itens do pedido NAO alterados",
+        "Pedido pai NAO alterado",
+        "Apenas data_atualizacao_item do item editado atualizada"
+      ]
+    },
+    "C05": {
+      "titulo": "Editar item com valor diferente do pedido — alerta de divergencia",
+      "descricao": "Apos editar um item individual com valor diferente do campo equivalente no pedido pai, o sistema deve sinalizar divergencia. Na proxima vez que o usuario editar o pedido pai no nivel COMBINADO, o preview deve alertar sobre itens com override (overrides_sobrescritos).",
+      "assercoes": [
+        "Item editado com valor diferente do pedido pai: salva com sucesso",
+        "Ao fazer preview no nivel COMBINADO para o pedido pai: overrides_sobrescritos >= 1",
+        "Preview mostra quais itens serao sobrescritos",
+        "Alerta visivel no frontend com contagem de itens divergentes"
+      ]
+    }
+  },
+  "classificacao_campos": {
+    "descricao": "Cada campo do SSOT eh classificado em uma das categorias abaixo. Isso determina quais cenarios (C01-C05) se aplicam.",
+    "categorias": {
+      "PROPAGAVEL": {
+        "descricao": "Campo do pedido que tem par em MAPA_PROPAGACAO_PEDIDO_ITEM. Cenarios aplicaveis: C01, C02, C03, C04, C05 (todos).",
+        "cenarios_aplicaveis": ["C01", "C02", "C03", "C04", "C05"]
+      },
+      "PEDIDO_ONLY": {
+        "descricao": "Campo do pedido SEM par de cascade. Cenarios aplicaveis: C01 (editar pedido), C02 (verificar que NAO tem checkbox). Cenarios C03/C04/C05 nao aplicam.",
+        "cenarios_aplicaveis": ["C01", "C02"]
+      },
+      "ITEM_ONLY": {
+        "descricao": "Campo que existe apenas no PedidoItem, sem equivalente no pedido pai. Cenario aplicavel: C04 (editar item).",
+        "cenarios_aplicaveis": ["C04"]
+      },
+      "BLOQUEADO": {
+        "descricao": "Campo calculado ou de sistema — nao editavel. Verificar que retorna erro 400 se tentado.",
+        "cenarios_aplicaveis": ["BLOQUEADO_400"]
+      }
+    }
+  },
+  "lotes": [
+    {
+      "lote": 1,
+      "titulo": "Identificacao — campos criticos",
+      "campos": [
+        {
+          "campo": "tipo_linha",
+          "rotulo": "Tipo Linha",
+          "tipo": "select",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "tipo_linha eh usado apenas no parser de import, nao eh coluna editavel em massa",
+          "cenarios": {
+            "BLOQUEADO_400": "Se enviado no payload, retorna 400 CAMPO_BLOQUEADO"
+          }
+        },
+        {
+          "campo": "numero_pedido",
+          "rotulo": "Numero do Pedido",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "numero_pedido tem @@unique constraint — bloqueado via Zod no endpoint",
+          "cenarios": {
+            "BLOQUEADO_400": "Se enviado no payload, retorna 400 com mensagem explicita sobre @@unique"
+          }
+        },
+        {
+          "campo": "tipo_operacao",
+          "rotulo": "Tipo de Operacao",
+          "tipo": "select",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "tipo_operacao_item",
+          "particularidade": "Dispara AUTO-FILL: preenche lado nacional (nome_importador em IMP, nome_exportador em EXP) com dados do workspace",
+          "cenarios": {
+            "C01": {"valor_teste": "exportacao", "assercao_extra": "Pedido atualizado para exportacao. Item.tipo_operacao_item NAO alterado. Auto-fill de nome_exportador no pedido acontece no JSON detalhes_operacionais"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL (campo tem cascade)"},
+            "C03": {"valor_teste": "importacao", "assercao_extra": "Pedido e TODOS itens atualizados para importacao. Auto-fill replica nome_importador nos itens"},
+            "C04": {"valor_teste": "exportacao", "assercao_extra": "Apenas item editado muda para exportacao"},
+            "C05": {"setup": "Pedido=importacao, editar 1 item para exportacao. Preview combinado mostra 1 override"}
+          }
+        },
+        {
+          "campo": "nome_exportador",
+          "rotulo": "Exportador — Nome",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "par_item": "nome_exportador_item",
+          "cenarios": {
+            "C01": {"valor_teste": "Shanghai Trading Co.", "assercao_extra": "JSON detalhes_operacionais_pedido.nome_exportador = 'Shanghai Trading Co.'. Itens inalterados"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "New Exporter LLC", "assercao_extra": "JSON atualizado E todos os itens recebem nome_exportador_item = 'New Exporter LLC'"},
+            "C04": {"valor_teste": "Item-Only Exporter", "assercao_extra": "Apenas item especifico tem nome_exportador_item alterado"},
+            "C05": {"setup": "Pedido.nome_exportador='ABC'. Item1.nome_exportador_item='ABC', Item2='XYZ'. Preview combinado: overrides_sobrescritos=1 (Item2)"}
+          }
+        },
+        {
+          "campo": "endereco_exportador",
+          "rotulo": "Exportador — Endereco",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "123 Export St, Shanghai", "assercao_extra": "JSON detalhes_operacionais_pedido.endereco_exportador atualizado. Itens nao possuem campo correspondente"},
+            "C02": {"esperado": "Checkbox/aba Combinado NAO disponivel (nao existe par no item)"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 2,
+      "titulo": "Exportador — complementos",
+      "campos": [
+        {
+          "campo": "pais_exportador",
+          "rotulo": "Exportador — Pais",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "China", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "estado_exportador",
+          "rotulo": "Exportador — Estado",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Guangdong", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "cidade_exportador",
+          "rotulo": "Exportador — Cidade",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Shenzhen", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "zip_code_exportador",
+          "rotulo": "Exportador — ZIP Code",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "518000", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "exportador_ou_fabricante",
+          "rotulo": "Exportador ou Fabricante",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Fabricante", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 3,
+      "titulo": "Exportador — contato",
+      "campos": [
+        {
+          "campo": "relacao_exportador_fabricante",
+          "rotulo": "Relacao Export./Fabric.",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Subsidiaria", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "nome_contato_exportador",
+          "rotulo": "Contato Export. — Nome",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "John Smith", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "email_contato_exportador",
+          "rotulo": "Contato Export. — Email",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "john@export.com", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "whatsapp_contato_exportador",
+          "rotulo": "Contato Export. — WhatsApp",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "+8613800138000", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "cargo_contato_exportador",
+          "rotulo": "Contato Export. — Cargo",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Sales Manager", "assercao_extra": "JSON atualizado"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 4,
+      "titulo": "Exportador depto + Importador",
+      "campos": [
+        {
+          "campo": "departamento_contato_exportador",
+          "rotulo": "Contato Export. — Depto.",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Comercio Exterior"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "nome_importador",
+          "rotulo": "Importador — Nome",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "par_item": "nome_importador_item",
+          "cenarios": {
+            "C01": {"valor_teste": "Importadora Brasil Ltda", "assercao_extra": "JSON atualizado. Itens inalterados"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "Nova Importadora SA", "assercao_extra": "JSON atualizado E todos itens.nome_importador_item = 'Nova Importadora SA'"},
+            "C04": {"valor_teste": "Item-Only Importer", "assercao_extra": "Apenas item especifico alterado"},
+            "C05": {"setup": "Pedido='ABC Imp', Item1='ABC Imp', Item2='XYZ Imp'. Preview combinado: overrides=1"}
+          }
+        },
+        {
+          "campo": "cnpj_importador_pedido",
+          "rotulo": "Importador — CNPJ",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "12.345.678/0001-90"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "nome_fabricante",
+          "rotulo": "Fabricante — Nome",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "par_item": "nome_fabricante_item",
+          "cenarios": {
+            "C01": {"valor_teste": "Factory Corp", "assercao_extra": "JSON atualizado. Itens inalterados"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "New Factory Inc", "assercao_extra": "JSON + todos itens.nome_fabricante_item atualizados"},
+            "C04": {"valor_teste": "Item-Specific Factory"},
+            "C05": {"setup": "Pedido='Fab A', Item1='Fab A', Item2='Fab B'. Preview: overrides=1"}
+          }
+        },
+        {
+          "campo": "referencia_importador_pedido",
+          "rotulo": "Referencia Importador",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "referencia_importador_item",
+          "cenarios": {
+            "C01": {"valor_teste": "REF-IMP-2026-001", "assercao_extra": "Pedido atualizado. Itens inalterados"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "REF-IMP-NOVO", "assercao_extra": "Pedido + todos itens.referencia_importador_item atualizados"},
+            "C04": {"valor_teste": "REF-ITEM-SOLO"},
+            "C05": {"setup": "Pedido='REF-A', Item1='REF-A', Item2='REF-B'. Preview: overrides=1"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 5,
+      "titulo": "Referencias + Fabricante endereco",
+      "campos": [
+        {
+          "campo": "referencia_exportador_pedido",
+          "rotulo": "Referencia Exportador",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "referencia_exportador_item",
+          "cenarios": {
+            "C01": {"valor_teste": "REF-EXP-001"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "REF-EXP-NOVO", "assercao_extra": "Cascade para referencia_exportador_item"},
+            "C04": {"valor_teste": "REF-EXP-ITEM"},
+            "C05": {"setup": "Divergencia entre pedido e item existente"}
+          }
+        },
+        {
+          "campo": "endereco_fabricante",
+          "rotulo": "Fabricante — Endereco",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "456 Factory Rd"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "pais_fabricante",
+          "rotulo": "Fabricante — Pais",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Alemanha"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "estado_fabricante",
+          "rotulo": "Fabricante — Estado",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Bavaria"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "cidade_fabricante",
+          "rotulo": "Fabricante — Cidade",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Munich"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 6,
+      "titulo": "Fabricante ZIP + OPE",
+      "campos": [
+        {
+          "campo": "zip_code_fabricante",
+          "rotulo": "Fabricante — ZIP Code",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "80331"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "codigo_ope",
+          "rotulo": "OPE — Codigo",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "OPE-2026-001"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "nome_ope",
+          "rotulo": "OPE — Nome",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Operador Logistico ABC"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "endereco_ope",
+          "rotulo": "OPE — Endereco",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Rua da Logistica 100"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "pais_ope",
+          "rotulo": "OPE — Pais",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Brasil"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 7,
+      "titulo": "OPE complementos",
+      "campos": [
+        {
+          "campo": "estado_ope",
+          "rotulo": "OPE — Estado",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "SP"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "cidade_ope",
+          "rotulo": "OPE — Cidade",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Santos"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "zip_code_ope",
+          "rotulo": "OPE — ZIP Code",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "11010-000"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "tin_ope",
+          "rotulo": "OPE — TIN",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "BR1234567890"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "email_ope",
+          "rotulo": "OPE — Email",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "ope@logistica.com"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 8,
+      "titulo": "OPE final + Comercial inicio",
+      "campos": [
+        {
+          "campo": "situacao_ope",
+          "rotulo": "OPE — Situacao",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "Ativo"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "versao_ope",
+          "rotulo": "OPE — Versao",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "v2.1"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "cnpj_raiz_empresa_responsavel",
+          "rotulo": "CNPJ Raiz Empresa Responsavel",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "armazenamento": "detalhes_operacionais_pedido (JSON)",
+          "cenarios": {
+            "C01": {"valor_teste": "12345678"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "incoterm_pedido",
+          "rotulo": "Incoterm",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "incoterm_item",
+          "cenarios": {
+            "C01": {"valor_teste": "CIF", "assercao_extra": "Pedido.incoterm_pedido='CIF'. Itens.incoterm_item inalterado"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "FOB", "assercao_extra": "Pedido + TODOS itens.incoterm_item = 'FOB'"},
+            "C04": {"valor_teste": "EXW", "assercao_extra": "Apenas item especifico.incoterm_item='EXW'"},
+            "C05": {"setup": "Pedido=FOB, Item1=FOB, Item2=CIF. Preview combinado: overrides=1"}
+          }
+        },
+        {
+          "campo": "moeda_pedido",
+          "rotulo": "Moeda do Pedido",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "moeda_item",
+          "cenarios": {
+            "C01": {"valor_teste": "EUR", "assercao_extra": "Pedido.moeda_pedido='EUR'. Itens.moeda_item inalterado"},
+            "C02": {"esperado": "Checkbox/aba Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "USD", "assercao_extra": "Pedido + TODOS itens.moeda_item = 'USD'"},
+            "C04": {"valor_teste": "GBP", "assercao_extra": "Apenas item especifico.moeda_item='GBP'"},
+            "C05": {"setup": "Pedido=USD, Item1=USD, Item2=EUR. Preview: overrides=1"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 9,
+      "titulo": "Comercial — valores e unidades",
+      "campos": [
+        {
+          "campo": "valor_total_pedido",
+          "rotulo": "Valor Total do Pedido",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Agregado calculado automaticamente pela soma dos itens",
+          "cenarios": {
+            "BLOQUEADO_400": "Retorna 400 CAMPO_BLOQUEADO"
+          }
+        },
+        {
+          "campo": "quantidade_total_pedido",
+          "rotulo": "Quantidade Total do Pedido",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Agregado calculado automaticamente",
+          "cenarios": {
+            "BLOQUEADO_400": "Retorna 400 CAMPO_BLOQUEADO"
+          }
+        },
+        {
+          "campo": "unidade_comercializada_pedido",
+          "rotulo": "Unidade Comercializada do Pedido",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "unidade_comercializada_item",
+          "cenarios": {
+            "C01": {"valor_teste": "KG", "assercao_extra": "Pedido atualizado. Itens inalterados"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "UN", "assercao_extra": "Pedido + todos itens.unidade_comercializada_item = 'UN'"},
+            "C04": {"valor_teste": "CX", "assercao_extra": "Apenas item especifico"},
+            "C05": {"setup": "Pedido=KG, Item1=KG, Item2=UN. Preview: overrides=1"}
+          }
+        },
+        {
+          "campo": "condicao_pagamento_pedido",
+          "rotulo": "Condicao de Pagamento",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "condicao_pagamento_item",
+          "cenarios": {
+            "C01": {"valor_teste": "30/60/90 dias"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "A vista", "assercao_extra": "Cascade para condicao_pagamento_item"},
+            "C04": {"valor_teste": "60 dias"},
+            "C05": {"setup": "Pedido='30 dias', Item1='30 dias', Item2='60 dias'. overrides=1"}
+          }
+        },
+        {
+          "campo": "quantidade_volumes_pedido",
+          "rotulo": "Qtd. de Volumes",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": 150},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 10,
+      "titulo": "Comercial final + Cambio",
+      "campos": [
+        {
+          "campo": "cobertura_cambial_pedido",
+          "rotulo": "Cobertura Cambial",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "cobertura_cambial_item",
+          "cenarios": {
+            "C01": {"valor_teste": "Parcial"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "Total", "assercao_extra": "Cascade para cobertura_cambial_item"},
+            "C04": {"valor_teste": "Sem cobertura"},
+            "C05": {"setup": "Pedido='Total', Item1='Total', Item2='Parcial'. overrides=1"}
+          }
+        },
+        {
+          "campo": "valor_total_cambio_pedido",
+          "rotulo": "Valor Total Cambio",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": 500000.00},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "moeda_cambio_pedido",
+          "rotulo": "Moeda Cambio",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "USD"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "taxa_cambio_estimada_pedido",
+          "rotulo": "Taxa Cambio Estimada",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": 5.25},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "contrato_cambio_id_pedido",
+          "rotulo": "Contrato de Cambio (ID)",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "CAMBIO-2026-0001"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 11,
+      "titulo": "Fisico + Documentos",
+      "campos": [
+        {
+          "campo": "peso_liquido_total_pedido",
+          "rotulo": "Peso Liquido Total",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Agregado calculado",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "peso_bruto_total_pedido",
+          "rotulo": "Peso Bruto Total",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Agregado calculado",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "cubagem_total_pedido",
+          "rotulo": "Cubagem Total",
+          "tipo": "numero",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Agregado calculado",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "numero_proforma_pedido",
+          "rotulo": "No Proforma",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "PF-2026-001"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "numero_invoice_pedido",
+          "rotulo": "No Invoice",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "INV-2026-001"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 12,
+      "titulo": "Documentos ref + Logistica + Datas inicio",
+      "campos": [
+        {
+          "campo": "referencia_fabricante_pedido",
+          "rotulo": "Referencia Fabricante",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "referencia_fabricante_item",
+          "cenarios": {
+            "C01": {"valor_teste": "FAB-REF-001"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "FAB-REF-NEW", "assercao_extra": "Cascade para referencia_fabricante_item"},
+            "C04": {"valor_teste": "FAB-REF-ITEM"},
+            "C05": {"setup": "Pedido='FAB-A', Item1='FAB-A', Item2='FAB-B'. overrides=1"}
+          }
+        },
+        {
+          "campo": "porto_origem_pedido",
+          "rotulo": "Porto de Origem",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "Shanghai"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "porto_destino_pedido",
+          "rotulo": "Porto de Destino",
+          "tipo": "texto",
+          "nivel_ssot": "pedido",
+          "categoria": "PEDIDO_ONLY",
+          "cenarios": {
+            "C01": {"valor_teste": "Santos"},
+            "C02": {"esperado": "Sem checkbox Combinado"}
+          }
+        },
+        {
+          "campo": "data_emissao_pedido",
+          "rotulo": "Data de Emissao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_emissao_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-01", "assercao_extra": "Pedido atualizado. Itens.data_emissao_item inalterado"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-01", "assercao_extra": "Cascade para data_emissao_item em todos os itens"},
+            "C04": {"valor_teste": "2026-07-01", "assercao_extra": "Apenas item especifico"},
+            "C05": {"setup": "Pedido=01/05, Item1=01/05, Item2=15/04. Preview: overrides=1"}
+          }
+        },
+        {
+          "campo": "data_documento_pedido",
+          "rotulo": "Data do Documento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_documento_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-10"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-05-15", "assercao_extra": "Cascade para data_documento_item"},
+            "C04": {"valor_teste": "2026-05-20"},
+            "C05": {"setup": "Divergencia entre pedido e item"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 13,
+      "titulo": "Datas proforma/invoice/consolidacao + pedido pronto",
+      "campos": [
+        {
+          "campo": "data_documento_proforma_pedido",
+          "rotulo": "Data do Documento Proforma",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_documento_proforma_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-04-01"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-04-15", "assercao_extra": "Cascade para item"},
+            "C04": {"valor_teste": "2026-04-20"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_documento_invoice_pedido",
+          "rotulo": "Data do Documento Invoice",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_documento_invoice_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-20"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-05-25"},
+            "C04": {"valor_teste": "2026-05-28"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_consolidacao_pedido",
+          "rotulo": "Data de Consolidacao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Campo de sistema — data_consolidacao_pedido esta na lista CAMPOS_BLOQUEADOS_PEDIDO",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "data_prevista_pedido_pronto",
+          "rotulo": "Data Prevista — Pedido Pronto",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_prevista_item_pronto",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-15"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-20", "assercao_extra": "Cascade para data_prevista_item_pronto"},
+            "C04": {"valor_teste": "2026-06-25"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_confirmada_pedido_pronto",
+          "rotulo": "Data Confirmada — Pedido Pronto",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmada_item_pronto",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-18"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-22"},
+            "C04": {"valor_teste": "2026-06-25"},
+            "C05": {"setup": "Divergencia"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 14,
+      "titulo": "Datas — Meta pedido pronto + Inspecao",
+      "campos": [
+        {
+          "campo": "data_meta_pedido_pronto",
+          "rotulo": "Data Meta — Pedido Pronto",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_meta_item_pronto",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-10"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-12"},
+            "C04": {"valor_teste": "2026-06-14"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_prevista_inspecao_pedido",
+          "rotulo": "Data Prevista — Inspecao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_prevista_inspecao_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-25"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-05-28"},
+            "C04": {"valor_teste": "2026-06-01"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_confirmada_inspecao_pedido",
+          "rotulo": "Data Confirmada — Inspecao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmada_inspecao_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-27"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-05-30"},
+            "C04": {"valor_teste": "2026-06-02"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_meta_inspecao_pedido",
+          "rotulo": "Data Meta — Inspecao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_meta_inspecao_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-05-22"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-05-24"},
+            "C04": {"valor_teste": "2026-05-26"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_prevista_coleta_pedido",
+          "rotulo": "Data Prevista — Coleta",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_prevista_coleta_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-05"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-08"},
+            "C04": {"valor_teste": "2026-06-10"},
+            "C05": {"setup": "Divergencia"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 15,
+      "titulo": "Datas — Coleta conf/meta + Draft Pedido",
+      "campos": [
+        {
+          "campo": "data_confirmada_coleta_pedido",
+          "rotulo": "Data Confirmada — Coleta",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmada_coleta_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-07"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-09"},
+            "C04": {"valor_teste": "2026-06-11"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_meta_coleta_pedido",
+          "rotulo": "Data Meta — Coleta",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_meta_coleta_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-06-03"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-06-04"},
+            "C04": {"valor_teste": "2026-06-06"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_previsao_recebimento_rascunho_pedido",
+          "rotulo": "Draft Pedido — Prev. Recebimento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_previsao_recebimento_rascunho_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-04-01"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-04-05"},
+            "C04": {"valor_teste": "2026-04-08"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_confirmacao_recebimento_rascunho_pedido",
+          "rotulo": "Draft Pedido — Conf. Recebimento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmacao_recebimento_rascunho_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-04-03"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-04-06"},
+            "C04": {"valor_teste": "2026-04-09"},
+            "C05": {"setup": "Divergencia"}
+          }
+        },
+        {
+          "campo": "data_meta_recebimento_rascunho_pedido",
+          "rotulo": "Draft Pedido — Meta Recebimento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_meta_recebimento_rascunho_item",
+          "cenarios": {
+            "C01": {"valor_teste": "2026-03-28"},
+            "C02": {"esperado": "Combinado DISPONIVEL"},
+            "C03": {"valor_teste": "2026-03-30"},
+            "C04": {"valor_teste": "2026-04-01"},
+            "C05": {"setup": "Divergencia"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 16,
+      "titulo": "Draft Pedido — Aprovacao + Draft Proforma",
+      "campos": [
+        {
+          "campo": "data_previsao_aprovacao_rascunho_pedido",
+          "rotulo": "Draft Pedido — Prev. Aprovacao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_previsao_aprovacao_rascunho_item",
+          "cenarios": {"C01": {"valor_teste": "2026-04-10"}, "C02": {"esperado": "Combinado DISPONIVEL"}, "C03": {"valor_teste": "2026-04-12"}, "C04": {"valor_teste": "2026-04-14"}, "C05": {"setup": "Divergencia"}}
+        },
+        {
+          "campo": "data_confirmacao_aprovacao_rascunho_pedido",
+          "rotulo": "Draft Pedido — Conf. Aprovacao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmacao_aprovacao_rascunho_item",
+          "cenarios": {"C01": {"valor_teste": "2026-04-12"}, "C02": {"esperado": "Combinado DISPONIVEL"}, "C03": {"valor_teste": "2026-04-14"}, "C04": {"valor_teste": "2026-04-16"}, "C05": {"setup": "Divergencia"}}
+        },
+        {
+          "campo": "data_meta_aprovacao_rascunho_pedido",
+          "rotulo": "Draft Pedido — Meta Aprovacao",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_meta_aprovacao_rascunho_item",
+          "cenarios": {"C01": {"valor_teste": "2026-04-08"}, "C02": {"esperado": "Combinado DISPONIVEL"}, "C03": {"valor_teste": "2026-04-09"}, "C04": {"valor_teste": "2026-04-11"}, "C05": {"setup": "Divergencia"}}
+        },
+        {
+          "campo": "data_previsao_recebimento_rascunho_proforma_pedido",
+          "rotulo": "Draft Proforma — Prev. Recebimento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_previsao_recebimento_rascunho_proforma_item",
+          "cenarios": {"C01": {"valor_teste": "2026-04-15"}, "C02": {"esperado": "Combinado DISPONIVEL"}, "C03": {"valor_teste": "2026-04-18"}, "C04": {"valor_teste": "2026-04-20"}, "C05": {"setup": "Divergencia"}}
+        },
+        {
+          "campo": "data_confirmacao_recebimento_rascunho_proforma_pedido",
+          "rotulo": "Draft Proforma — Conf. Recebimento",
+          "tipo": "data",
+          "nivel_ssot": "pedido",
+          "categoria": "PROPAGAVEL",
+          "par_item": "data_confirmacao_recebimento_rascunho_proforma_item",
+          "cenarios": {"C01": {"valor_teste": "2026-04-17"}, "C02": {"esperado": "Combinado DISPONIVEL"}, "C03": {"valor_teste": "2026-04-19"}, "C04": {"valor_teste": "2026-04-21"}, "C05": {"setup": "Divergencia"}}
+        }
+      ]
+    },
+    {
+      "lote": 17,
+      "titulo": "Draft Proforma — continuacao",
+      "nota": "Padrão identico aos lotes 15-16. Todos os campos de data Draft/Original Proforma sao PROPAGAVEIS com cenarios C01-C05.",
+      "campos": [
+        {"campo": "data_meta_recebimento_rascunho_proforma_pedido", "par_item": "data_meta_recebimento_rascunho_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_aprovacao_rascunho_proforma_pedido", "par_item": "data_previsao_aprovacao_rascunho_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_confirmacao_aprovacao_rascunho_proforma_pedido", "par_item": "data_confirmacao_aprovacao_rascunho_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_aprovacao_rascunho_proforma_pedido", "par_item": "data_meta_aprovacao_rascunho_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_envio_original_proforma_pedido", "par_item": "data_previsao_envio_original_proforma_item", "categoria": "PROPAGAVEL"}
+      ]
+    },
+    {
+      "lote": 18,
+      "titulo": "Original Proforma",
+      "campos": [
+        {"campo": "data_confirmacao_envio_original_proforma_pedido", "par_item": "data_confirmacao_envio_original_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_envio_original_proforma_pedido", "par_item": "data_meta_envio_original_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_recebimento_original_proforma_pedido", "par_item": "data_previsao_recebimento_original_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_confirmacao_recebimento_original_proforma_pedido", "par_item": "data_confirmacao_recebimento_original_proforma_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_recebimento_original_proforma_pedido", "par_item": "data_meta_recebimento_original_proforma_item", "categoria": "PROPAGAVEL"}
+      ]
+    },
+    {
+      "lote": 19,
+      "titulo": "Draft Invoice — Recebimento",
+      "campos": [
+        {"campo": "data_previsao_recebimento_rascunho_invoice_pedido", "par_item": "data_previsao_recebimento_rascunho_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_confirmacao_recebimento_rascunho_invoice_pedido", "par_item": "data_confirmacao_recebimento_rascunho_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_recebimento_rascunho_invoice_pedido", "par_item": "data_meta_recebimento_rascunho_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_aprovacao_rascunho_invoice_pedido", "par_item": "data_previsao_aprovacao_rascunho_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_confirmacao_aprovacao_rascunho_invoice_pedido", "par_item": "data_confirmacao_aprovacao_rascunho_invoice_item", "categoria": "PROPAGAVEL"}
+      ]
+    },
+    {
+      "lote": 20,
+      "titulo": "Draft Invoice — Aprovacao + Original Invoice",
+      "campos": [
+        {"campo": "data_meta_aprovacao_rascunho_invoice_pedido", "par_item": "data_meta_aprovacao_rascunho_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_envio_original_invoice_pedido", "par_item": "data_previsao_envio_original_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_confirmacao_envio_original_invoice_pedido", "par_item": "data_confirmacao_envio_original_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_envio_original_invoice_pedido", "par_item": "data_meta_envio_original_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_previsao_recebimento_original_invoice_pedido", "par_item": "data_previsao_recebimento_original_invoice_item", "categoria": "PROPAGAVEL"}
+      ]
+    },
+    {
+      "lote": 21,
+      "titulo": "Original Invoice final",
+      "campos": [
+        {"campo": "data_confirmacao_recebimento_original_invoice_pedido", "par_item": "data_confirmacao_recebimento_original_invoice_item", "categoria": "PROPAGAVEL"},
+        {"campo": "data_meta_recebimento_original_invoice_pedido", "par_item": "data_meta_recebimento_original_invoice_item", "categoria": "PROPAGAVEL"}
+      ]
+    },
+    {
+      "lote": 22,
+      "titulo": "ITEM — Identificacao e Produto",
+      "campos": [
+        {
+          "campo": "sequencia_item_pedido",
+          "rotulo": "Sequencia do Item",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": 5, "assercao_extra": "Apenas item editado tem sequencia alterada. Demais itens e pedido intactos"}
+          }
+        },
+        {
+          "campo": "part_number_item",
+          "rotulo": "Part Number",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "PART-NEW-001", "assercao_extra": "Apenas item editado alterado"}
+          }
+        },
+        {
+          "campo": "ncm_item",
+          "rotulo": "NCM",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "8471.30.19", "assercao_extra": "Apenas item editado alterado"}
+          }
+        },
+        {
+          "campo": "descricao_item",
+          "rotulo": "Descricao do Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "Componente eletronico tipo X", "assercao_extra": "Apenas item editado alterado"}
+          }
+        },
+        {
+          "campo": "unidade_comercializada_item",
+          "rotulo": "Unidade Comercializada do Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Embora haja par no MAPA (unidade_comercializada_pedido → unidade_comercializada_item), quando editado DIRETO como item eh C04 puro",
+          "cenarios": {
+            "C04": {"valor_teste": "CX", "assercao_extra": "Apenas item especifico alterado. Pedido.unidade_comercializada_pedido inalterado"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 23,
+      "titulo": "ITEM — Quantidades",
+      "campos": [
+        {
+          "campo": "quantidade_inicial_item",
+          "rotulo": "Qtd. Inicial",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de agregados no pedido pai (valor_total_pedido, quantidade_total_pedido etc.)",
+          "cenarios": {
+            "C04": {"valor_teste": 500, "assercao_extra": "Item.quantidade_inicial_item=500. Pedido.quantidade_total_pedido RECALCULADO. Outros itens intactos"}
+          }
+        },
+        {
+          "campo": "quantidade_atual_item",
+          "rotulo": "Qtd. Atual",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Calculado pelo saldo engine (inicial - transferida - cancelada)",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "quantidade_transferida_item",
+          "rotulo": "Qtd. Transferida",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Gerenciado pelo fluxo de transferencia",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "quantidade_pronta_total_item",
+          "rotulo": "Qtd. Pronta Total",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": 250, "assercao_extra": "Apenas item editado alterado"}
+          }
+        },
+        {
+          "campo": "quantidade_cancelada_item",
+          "rotulo": "Qtd. Cancelada",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de quantidade_atual_item",
+          "cenarios": {
+            "C04": {"valor_teste": 50, "assercao_extra": "Item atualizado. quantidade_atual_item recalculada automaticamente"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 24,
+      "titulo": "ITEM — Casas decimais + Financeiro",
+      "campos": [
+        {
+          "campo": "casas_decimais_quantidade_item",
+          "rotulo": "Casas Decimais — Qtd.",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": 3, "assercao_extra": "Apenas item editado"}
+          }
+        },
+        {
+          "campo": "moeda_item",
+          "rotulo": "Moeda do Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "JPY", "assercao_extra": "Apenas item editado. Pedido.moeda_pedido inalterado"}
+          }
+        },
+        {
+          "campo": "valor_por_unidade_item",
+          "rotulo": "Valor por Unidade",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de valor_total_item (valor_por_unidade * quantidade_inicial)",
+          "cenarios": {
+            "C04": {"valor_teste": 15.50, "assercao_extra": "Item atualizado. valor_total_item recalculado. Pedido.valor_total_pedido recalculado"}
+          }
+        },
+        {
+          "campo": "valor_total_item",
+          "rotulo": "Valor Total do Item",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "BLOQUEADO",
+          "justificativa": "Calculado automaticamente (valor_por_unidade * quantidade_inicial)",
+          "cenarios": {"BLOQUEADO_400": "Retorna 400"}
+        },
+        {
+          "campo": "casas_decimais_valor_item",
+          "rotulo": "Casas Decimais — Valor",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": 4}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 25,
+      "titulo": "ITEM — Cambio + Partes + Docs",
+      "campos": [
+        {
+          "campo": "cobertura_cambial_item",
+          "rotulo": "Cobertura Cambial",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "Total"}
+          }
+        },
+        {
+          "campo": "nome_exportador_item",
+          "rotulo": "Exportador (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "Exportador Especifico", "assercao_extra": "Apenas item editado. Pedido.detalhes_operacionais.nome_exportador inalterado"}
+          }
+        },
+        {
+          "campo": "nome_importador_item",
+          "rotulo": "Importador (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "Importador Especifico"}
+          }
+        },
+        {
+          "campo": "nome_fabricante_item",
+          "rotulo": "Fabricante (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "Fabricante Especifico"}
+          }
+        },
+        {
+          "campo": "referencia_importador_item",
+          "rotulo": "Referencia Importador (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {
+            "C04": {"valor_teste": "REF-IMP-ITEM-001"}
+          }
+        }
+      ]
+    },
+    {
+      "lote": 26,
+      "titulo": "ITEM — Docs cont + Comercial + Fisico",
+      "campos": [
+        {
+          "campo": "referencia_exportador_item",
+          "rotulo": "Referencia Exportador (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "REF-EXP-ITEM-001"}}
+        },
+        {
+          "campo": "referencia_fabricante_item",
+          "rotulo": "Referencia Fabricante (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "REF-FAB-ITEM-001"}}
+        },
+        {
+          "campo": "incoterm_item",
+          "rotulo": "Incoterm (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "DDP", "assercao_extra": "Item alterado. Pedido.incoterm_pedido inalterado"}}
+        },
+        {
+          "campo": "condicao_pagamento_item",
+          "rotulo": "Condicao de Pagamento (Item)",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "90 dias"}}
+        },
+        {
+          "campo": "peso_liquido_unitario_item",
+          "rotulo": "Peso Liquido Unitario",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de peso_liquido_total_pedido",
+          "cenarios": {"C04": {"valor_teste": 2.5, "assercao_extra": "Item atualizado. Pedido.peso_liquido_total_pedido recalculado"}}
+        }
+      ]
+    },
+    {
+      "lote": 27,
+      "titulo": "ITEM — Fisico cont + Datas item",
+      "campos": [
+        {
+          "campo": "peso_bruto_unitario_item",
+          "rotulo": "Peso Bruto Unitario",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de peso_bruto_total_pedido",
+          "cenarios": {"C04": {"valor_teste": 3.2, "assercao_extra": "Pedido.peso_bruto_total_pedido recalculado"}}
+        },
+        {
+          "campo": "cubagem_unitaria_item",
+          "rotulo": "Cubagem Unitaria",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "Dispara recalculo de cubagem_total_pedido",
+          "cenarios": {"C04": {"valor_teste": 0.15, "assercao_extra": "Pedido.cubagem_total_pedido recalculado"}}
+        },
+        {
+          "campo": "casas_decimais_peso_item",
+          "rotulo": "Casas Decimais — Peso",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": 3}}
+        },
+        {
+          "campo": "casas_decimais_cubagem_item",
+          "rotulo": "Casas Decimais — Cubagem",
+          "tipo": "numero",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": 4}}
+        },
+        {
+          "campo": "data_emissao_item",
+          "rotulo": "Data de Emissao (Item)",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "2026-05-01"}}
+        }
+      ]
+    },
+    {
+      "lote": 28,
+      "titulo": "ITEM — Datas consolidacao/embarque/pronto/inspecao",
+      "campos": [
+        {
+          "campo": "data_consolidacao_item",
+          "rotulo": "Data de Consolidacao (Item)",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "2026-06-01"}}
+        },
+        {
+          "campo": "data_embarque_item_pedido",
+          "rotulo": "Data de Embarque (Item)",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "particularidade": "DEBITO: nao existe no schema Prisma. Placeholder conceitual — verificar se grava ou ignora",
+          "cenarios": {"C04": {"valor_teste": "2026-06-15", "assercao_extra": "VERIFICAR: se coluna nao existe no schema, deve retornar erro ou ser ignorado silenciosamente?"}}
+        },
+        {
+          "campo": "data_prevista_item_pronto",
+          "rotulo": "Data Prevista — Item Pronto",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "2026-06-20"}}
+        },
+        {
+          "campo": "data_confirmada_item_pronto",
+          "rotulo": "Data Confirmada — Item Pronto",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "2026-06-22"}}
+        },
+        {
+          "campo": "data_meta_item_pronto",
+          "rotulo": "Data Meta — Item Pronto",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "cenarios": {"C04": {"valor_teste": "2026-06-18"}}
+        }
+      ]
+    },
+    {
+      "lote": 29,
+      "titulo": "ITEM — Datas Inspecao/Coleta",
+      "campos": [
+        {"campo": "data_prevista_inspecao_item", "rotulo": "Data Prevista — Inspecao (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-05-25"}}},
+        {"campo": "data_confirmada_inspecao_item", "rotulo": "Data Confirmada — Inspecao (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-05-28"}}},
+        {"campo": "data_meta_inspecao_item", "rotulo": "Data Meta — Inspecao (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-05-22"}}},
+        {"campo": "data_prevista_coleta_item", "rotulo": "Data Prevista — Coleta (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-06-05"}}},
+        {"campo": "data_confirmada_coleta_item", "rotulo": "Data Confirmada — Coleta (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-06-07"}}}
+      ]
+    },
+    {
+      "lote": 30,
+      "titulo": "ITEM — Data Coleta Meta + CAMPOS PRISMA EXTRAS",
+      "campos": [
+        {"campo": "data_meta_coleta_item", "rotulo": "Data Meta — Coleta (Item)", "tipo": "data", "nivel_ssot": "item", "categoria": "ITEM_ONLY", "cenarios": {"C04": {"valor_teste": "2026-06-03"}}},
+        {
+          "campo": "descricao_completa_item_pt",
+          "rotulo": "Descricao Completa Item PT",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT campos-pedido-ddd.ts)",
+          "cenarios": {"C04": {"valor_teste": "Descricao completa em portugues do componente XYZ"}}
+        },
+        {
+          "campo": "descricao_completa_item_en",
+          "rotulo": "Descricao Completa Item EN",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Full description in English of component XYZ"}}
+        },
+        {
+          "campo": "descricao_completa_item_es",
+          "rotulo": "Descricao Completa Item ES",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Descripcion completa en espanol del componente XYZ"}}
+        },
+        {
+          "campo": "descricao_completa_item_nf",
+          "rotulo": "Descricao Completa Item NF",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Descricao formatada para nota fiscal"}}
+        }
+      ]
+    },
+    {
+      "lote": 31,
+      "titulo": "CAMPOS PRISMA EXTRAS — continuacao",
+      "campos": [
+        {
+          "campo": "texto_posicao_ncm",
+          "rotulo": "Texto Posicao NCM",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Maquinas e aparelhos mecanicos"}}
+        },
+        {
+          "campo": "grupo_item",
+          "rotulo": "Grupo Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Eletronicos"}}
+        },
+        {
+          "campo": "subgrupo_item",
+          "rotulo": "Subgrupo Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Semicondutores"}}
+        },
+        {
+          "campo": "campo_especial_item",
+          "rotulo": "Campo Especial Item",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Valor especial ABC"}}
+        },
+        {
+          "campo": "atributos_catalogo",
+          "rotulo": "Atributos Catalogo",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "cor:azul;tamanho:M;peso:200g"}}
+        }
+      ]
+    },
+    {
+      "lote": 32,
+      "titulo": "CAMPOS PRISMA EXTRAS — final",
+      "campos": [
+        {
+          "campo": "tipo_embalagem",
+          "rotulo": "Tipo Embalagem",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "Pallet madeira"}}
+        },
+        {
+          "campo": "numero_lpco",
+          "rotulo": "Numero LPCO",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "LPCO-2026-00123"}}
+        },
+        {
+          "campo": "numero_certificado_origem",
+          "rotulo": "Numero Certificado Origem",
+          "tipo": "texto",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "CO-2026-456"}}
+        },
+        {
+          "campo": "data_certificado_origem",
+          "rotulo": "Data Certificado Origem",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "2026-03-15"}}
+        },
+        {
+          "campo": "data_embarque_item",
+          "rotulo": "Data Embarque Item",
+          "tipo": "data",
+          "nivel_ssot": "item",
+          "categoria": "ITEM_ONLY",
+          "armazenamento": "Coluna Prisma direta (fora do SSOT)",
+          "cenarios": {"C04": {"valor_teste": "2026-06-10"}}
+        }
+      ]
+    }
+  ],
+  "estatisticas": {
+    "total_campos": 157,
+    "total_lotes": 32,
+    "campos_propagaveis": 61,
+    "campos_pedido_only": 37,
+    "campos_item_only": 45,
+    "campos_bloqueados": 14,
+    "total_cenarios_a_executar": {
+      "C01_editar_pedido": 98,
+      "C02_verificar_checkbox": 98,
+      "C03_cascade_combinado": 61,
+      "C04_editar_item": 106,
+      "C05_divergencia": 61,
+      "BLOQUEADO_400": 14,
+      "total": 438
+    }
+  },
+  "pre_requisitos": {
+    "ambiente": "Local (localhost:8030 ou porta configurada)",
+    "banco": "Banco com pelo menos 1 organizacao + 1 workspace + 1 pedido com 3 itens",
+    "auth": "Token Clerk valido ou x-chave-interna-servico para testes S2S",
+    "dados_minimos": {
+      "pedido_com_3_itens": "Pedido com 3 itens, todos com campos populados para detectar overrides",
+      "item_divergente": "Pelo menos 1 item com valor DIFERENTE do pedido pai em campos propagaveis (para testar C05)",
+      "campos_json_populados": "detalhes_operacionais_pedido com dados de exportador/importador/fabricante/OPE"
+    }
+  },
+  "mocksNecessarios": [
+    {
+      "modulo": "prisma",
+      "descricao": "Mock completo de Prisma — pedido.findFirst, pedido.update, pedidoItem.findMany, pedidoItem.updateMany, $transaction",
+      "pattern": "vi.hoisted + vi.mock('@prisma/client')"
+    },
+    {
+      "modulo": "requireAuth",
+      "descricao": "Bypass de auth injetando req.auth com idOrganizacao e idUsuario",
+      "pattern": "mockRequireAuth middleware"
+    },
+    {
+      "modulo": "resolver-organizacao",
+      "descricao": "Mock de obterWorkspaces para auto-fill de tipo_operacao",
+      "pattern": "vi.mock('@gravity/resolver-organizacao')"
+    },
+    {
+      "modulo": "audit-client",
+      "descricao": "Mock de auditLog para nao tentar gravar no historico",
+      "pattern": "vi.mock('audit-client')"
+    }
+  ],
+  "regras_execucao": {
+    "ordem": "Executar lotes sequencialmente (1→32). Dentro de cada lote, executar cenarios na ordem C01→C02→C03→C04→C05",
+    "isolamento": "Cada cenario deve rodar com dados limpos (beforeEach com reset dos mocks)",
+    "verificacao_dupla": "Para cenarios C03 e C05, verificar TANTO o preview quanto o confirmar — preview mostra impacto, confirmar executa",
+    "campos_bloqueados": "Devem ser testados UMA VEZ cada para confirmar rejeicao 400. Nao precisam de 5 cenarios"
+  }
+}

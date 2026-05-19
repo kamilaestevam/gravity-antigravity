@@ -2,7 +2,14 @@ import { PrismaClient, AcaoExecutadaPor, AlertaStatus } from '../../../generated
 import { AuditLogInput } from './audit.service.js'
 import { NotificationDispatcher } from './notification-dispatcher.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 export const AlertEngine = {
   /**
@@ -10,7 +17,7 @@ export const AlertEngine = {
    * Chamado de forma assíncrona pelo worker — nunca bloqueia.
    */
   async check(log: AuditLogInput, logId: string): Promise<void> {
-    const rules = await prisma.alertaRegra.findMany({
+    const rules = await getPrisma().alertaRegra.findMany({
       where: {
         habilitada_regra_alerta: true,
         OR: [
@@ -26,7 +33,7 @@ export const AlertEngine = {
   },
 
   async evaluateRule(
-    rule: Awaited<ReturnType<typeof prisma.alertaRegra.findFirst>> & object,
+    rule: Awaited<ReturnType<PrismaClient['alertaRegra']['findFirst']>> & object,
     log: AuditLogInput,
     logId: string
   ): Promise<void> {
@@ -43,7 +50,7 @@ export const AlertEngine = {
         Date.now() - rule.limiar_janela_segundos_regra_alerta * 1000
       )
 
-      const recentCount = await prisma.historicoLog.count({
+      const recentCount = await getPrisma().historicoLog.count({
         where: {
           id_organizacao: log.id_organizacao,
           id_ator_historico_log: log.id_ator_historico_log,
@@ -57,7 +64,7 @@ export const AlertEngine = {
       if (recentCount < rule.limiar_contagem_regra_alerta) return
 
       // Buscar IDs dos logs recentes para referenciar no alerta
-      const recentLogs = await prisma.historicoLog.findMany({
+      const recentLogs = await getPrisma().historicoLog.findMany({
         where: {
           id_organizacao: log.id_organizacao,
           id_ator_historico_log: log.id_ator_historico_log,
@@ -67,7 +74,7 @@ export const AlertEngine = {
         take: 50,
       })
 
-      const alertEvent = await prisma.alertaData.create({
+      const alertEvent = await getPrisma().alertaData.create({
         data: {
           id_organizacao: log.id_organizacao,
           id_regra_evento_alerta: rule.id_regra_alerta,
@@ -86,7 +93,7 @@ export const AlertEngine = {
       await NotificationDispatcher.dispatch(rule, alertEvent)
     } else {
       // Regra sem threshold — dispara sempre que o filtro bate (ex: cross-organizacao)
-      const alertEvent = await prisma.alertaData.create({
+      const alertEvent = await getPrisma().alertaData.create({
         data: {
           id_organizacao: log.id_organizacao,
           id_regra_evento_alerta: rule.id_regra_alerta,

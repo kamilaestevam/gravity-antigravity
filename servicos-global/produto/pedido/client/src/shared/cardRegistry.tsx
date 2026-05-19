@@ -23,9 +23,41 @@ import {
   ArrowsLeftRight,
   StackSimple,
   Money,
+  ChartBar, TrendUp, TrendDown, Percent, Target, Lightning, Star,
+  Heart, Fire, Trophy, Medal, Crown, Diamond,
 } from '@phosphor-icons/react'
 import type { Pedido, PedidoItem } from './types'
 import { fmtMoeda, fmtQuantidade } from './types'
+
+// ─── Mapa de ícones para cards personalizados ────────────────────────────────
+
+export const ICONE_CUSTOM_MAP: Record<string, React.ReactNode> = {
+  Package:          <Package          size={16} weight="duotone" />,
+  CurrencyDollar:   <CurrencyDollar   size={16} weight="duotone" />,
+  Scales:           <Scales           size={16} weight="duotone" />,
+  Warning:          <Warning          size={16} weight="duotone" />,
+  CheckCircle:      <CheckCircle      size={16} weight="duotone" />,
+  Coins:            <Coins            size={16} weight="duotone" />,
+  ClipboardText:    <ClipboardText    size={16} weight="duotone" />,
+  ArrowRight:       <ArrowRight       size={16} weight="duotone" />,
+  Gauge:            <Gauge            size={16} weight="duotone" />,
+  ArrowsLeftRight:  <ArrowsLeftRight  size={16} weight="duotone" />,
+  StackSimple:      <StackSimple      size={16} weight="duotone" />,
+  Money:            <Money            size={16} weight="duotone" />,
+  ChartBar:         <ChartBar         size={16} weight="duotone" />,
+  TrendUp:          <TrendUp          size={16} weight="duotone" />,
+  TrendDown:        <TrendDown        size={16} weight="duotone" />,
+  Percent:          <Percent          size={16} weight="duotone" />,
+  Target:           <Target           size={16} weight="duotone" />,
+  Lightning:        <Lightning        size={16} weight="duotone" />,
+  Star:             <Star             size={16} weight="duotone" />,
+  Heart:            <Heart            size={16} weight="duotone" />,
+  Fire:             <Fire             size={16} weight="duotone" />,
+  Trophy:           <Trophy           size={16} weight="duotone" />,
+  Medal:            <Medal            size={16} weight="duotone" />,
+  Crown:            <Crown            size={16} weight="duotone" />,
+  Diamond:          <Diamond          size={16} weight="duotone" />,
+}
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -300,7 +332,7 @@ function evalNode(node: FormulaAST, stats: CardComputedStats): number {
 
 export function buildCustomCardEntry(card: CardUsuario): CardRegistryEntry {
   return {
-    icone: <span style={{ fontSize: 16 }}>{card.icone}</span>,
+    icone: ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />,
     getValue: (stats) => avaliarFormulaCustom(card.formula_expressao, stats),
     format: (v) => fmtQuantidade(v),
     subtexto: () => card.nome,

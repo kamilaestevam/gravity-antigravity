@@ -30,7 +30,9 @@ function carregarPrefs(): CardPreferencia[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT
     const salvas = JSON.parse(raw) as CardPreferencia[]
-    return salvas.filter(p => CARDS_CATALOGO.find(c => c.id === p.id))
+    return salvas.filter(p =>
+      CARDS_CATALOGO.find(c => c.id === p.id) || p.id.startsWith('custom:'),
+    )
   } catch {
     return DEFAULT
   }

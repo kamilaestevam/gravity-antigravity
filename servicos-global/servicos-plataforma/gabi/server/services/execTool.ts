@@ -5,7 +5,8 @@
 import {
   listLpcos, getLpco, createLpco, updateLpco,
   listNfs, getNf, createNf,
-  listPedidos, getPedido,
+  listPedidos, getPedido, createPedido, updatePedido, deletePedido,
+  getOrganizacao, listUsuarios,
   simulateCost,
   getUserSummary,
   type ConnectorCtx,
@@ -26,21 +27,32 @@ export interface ActionRecord {
 
 export async function execTool(
   name: string,
-  args: any,
+  args: Record<string, unknown>,
   ctx: ToolContext,
-): Promise<{ result: any; action?: ActionRecord }> {
+): Promise<{ result: unknown; action?: ActionRecord }> {
 
   // Usuário anônimo não pode escrever
-  if (WRITE_TOOLS.has(name) && ctx.userId === 'anonymous') {
+  if ((WRITE_TOOLS.has(name) || DESTRUCTIVE_TOOLS.has(name)) && ctx.userId === 'anonymous') {
     throw new AppError('Autenticação necessária para executar esta ação.', 401, 'UNAUTHORIZED')
   }
 
-  // Tools destrutivas precisam de confirmed: true nos args
+  // Tools destrutivas precisam de confirmed: true nos args (com aviso especial)
   if (DESTRUCTIVE_TOOLS.has(name) && !args.confirmed) {
     return {
       result: {
         requiresConfirmation: true,
-        message: `Esta ação é irreversível. Confirme para continuar.`,
+        destructive: true,
+        message: `⚠️ Ação DESTRUTIVA e IRREVERSÍVEL. Descreva ao usuário exatamente o que será feito e peça confirmação explícita. Só execute novamente com confirmed=true após o usuário confirmar.`,
+      },
+    }
+  }
+
+  // Tools de escrita (WRITE) precisam de confirmed: true nos args
+  if (WRITE_TOOLS.has(name) && !args.confirmed) {
+    return {
+      result: {
+        requiresConfirmation: true,
+        message: `Ação de escrita requer confirmação do usuário. Descreva ao usuário exatamente o que será feito e peça confirmação. Só execute novamente com confirmed=true após o usuário confirmar.`,
       },
     }
   }
@@ -97,6 +109,37 @@ export async function execTool(
 
     case 'get_pedido':
       return { result: await getPedido(args, connCtx) }
+
+    case 'create_pedido': {
+      const data = await createPedido(args, connCtx)
+      return {
+        result: data,
+        action: { tool: name, success: true, id: (data as any)?.pedido?.id_pedido },
+      }
+    }
+
+    case 'update_pedido': {
+      const data = await updatePedido(args, connCtx)
+      return {
+        result: data,
+        action: { tool: name, success: true, id: args.pedido_id as string },
+      }
+    }
+
+    case 'delete_pedido': {
+      const data = await deletePedido(args, connCtx)
+      return {
+        result: data,
+        action: { tool: name, success: true, id: args.pedido_id as string },
+      }
+    }
+
+    // ── Configurador (Organização / Usuários) ────────────────────────────────
+    case 'get_organizacao':
+      return { result: await getOrganizacao(connCtx) }
+
+    case 'list_usuarios':
+      return { result: await listUsuarios(connCtx) }
 
     // ── SimulaCusto ──────────────────────────────────────────────────────────
     case 'simulate_cost':

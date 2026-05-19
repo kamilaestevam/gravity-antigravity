@@ -217,11 +217,11 @@ export function ProdutosGravityAdmin() {
       })
 
       logEvent({
-        action: 'ALTERAÇÃO',
-        module: 'produto',
-        resource_type: 'Product',
-        resource_id: produto.id_produto_gravity,
-        action_detail: `Alteração do status do produto ${produto.nome_produto_gravity}`,
+        acao_historico_log: 'ALTERAÇÃO',
+        modulo_historico_log: 'produto',
+        tipo_recurso_historico_log: 'ProdutoGravity',
+        id_recurso_historico_log: produto.id_produto_gravity,
+        detalhe_acao_historico_log: `Alteração do status do produto ${produto.nome_produto_gravity}`,
         diff: [{ campo: 'Status', antes: produto.status_produto_gravity, depois: novoStatus }],
       })
     } catch (err) {
@@ -842,11 +842,11 @@ export function ProdutosGravityAdmin() {
 
             // Auditoria explícita (create/update não eram registrados antes)
             logEvent({
-              action: isNew ? 'CRIAÇÃO' : 'ALTERAÇÃO',
-              module: 'produto',
-              resource_type: 'Product',
-              resource_id: produtoEditando?.id_produto_gravity ?? slugResolve,
-              action_detail: isNew
+              acao_historico_log: isNew ? 'CRIAÇÃO' : 'ALTERAÇÃO',
+              modulo_historico_log: 'produto',
+              tipo_recurso_historico_log: 'ProdutoGravity',
+              id_recurso_historico_log: produtoEditando?.id_produto_gravity ?? slugResolve,
+              detalhe_acao_historico_log: isNew
                 ? `Criação do produto ${formNome}`
                 : `Edição do produto ${formNome}`,
             })
@@ -1652,11 +1652,11 @@ export function ProdutosGravityAdmin() {
 
           // Auditoria de exclusão (não era registrada antes)
           logEvent({
-            action: 'EXCLUSÃO',
-            module: 'produto',
-            resource_type: 'Product',
-            resource_id: id,
-            action_detail: `Exclusão do produto ${nome}`,
+            acao_historico_log: 'EXCLUSÃO',
+            modulo_historico_log: 'produto',
+            tipo_recurso_historico_log: 'ProdutoGravity',
+            id_recurso_historico_log: id,
+            detalhe_acao_historico_log: `Exclusão do produto ${nome}`,
           })
 
           carregarDados()

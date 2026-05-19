@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck, ShieldWarning, ShieldSlash,
   Lock, Eye, Warning, Key, Timer,
-  ArrowsClockwise,
+  ArrowsClockwise, UserCircle, ShieldStar, ArrowsLeftRight,
   ClockCounterClockwise, Database, Certificate, HardDrives,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -13,6 +13,8 @@ import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+
+import type { AuditTrailStats } from './seguranca/AbaAuditTrail'
 
 // Novas abas — lazy loading (só carregam quando selecionadas)
 const AbaAuditTrail = lazy(() => import('./seguranca/AbaAuditTrail').then(m => ({ default: m.AbaAuditTrail })))
@@ -216,6 +218,7 @@ export function SegurancaAdmin() {
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
+  const [auditStats, setAuditStats] = useState<AuditTrailStats>({ total: 0, totalImpersonacoes: 0, totalPermissoes: 0, totalAdmin: 0 })
 
   // Dados do backend
   const [stats, setStats] = useState<Stats>({
@@ -483,6 +486,30 @@ export function SegurancaAdmin() {
             valor={loading ? '—' : String(stats.blockedCount)}
             icone={<Lock weight="fill" size={20} />}
             cor="#818cf8"
+          />
+          <CardEstatisticaGlobal
+            titulo="Total Auditado"
+            valor={String(auditStats.total)}
+            icone={<ClockCounterClockwise weight="fill" size={20} />}
+            variante="primario"
+          />
+          <CardEstatisticaGlobal
+            titulo="Impersonações (F-03)"
+            valor={String(auditStats.totalImpersonacoes)}
+            icone={<UserCircle weight="fill" size={20} />}
+            variante={auditStats.totalImpersonacoes > 0 ? 'aviso' : 'sucesso'}
+          />
+          <CardEstatisticaGlobal
+            titulo="Mudanças Permissão (F-08)"
+            valor={String(auditStats.totalPermissoes)}
+            icone={<ArrowsLeftRight weight="fill" size={20} />}
+            variante={auditStats.totalPermissoes > 0 ? 'aviso' : 'sucesso'}
+          />
+          <CardEstatisticaGlobal
+            titulo="Ações Admin"
+            valor={String(auditStats.totalAdmin)}
+            icone={<ShieldStar weight="fill" size={20} />}
+            variante="primario"
           />
         </>
       }
@@ -836,7 +863,7 @@ export function SegurancaAdmin() {
       {/* ── Aba: Audit Trail (F-01, F-03, F-08) ── */}
       {abaAtiva === 'audit' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Audit Trail...</div>}>
-          <AbaAuditTrail />
+          <AbaAuditTrail onStatsCarregados={setAuditStats} />
         </Suspense>
       )}
 

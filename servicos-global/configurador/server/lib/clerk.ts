@@ -1,14 +1,27 @@
 // server/lib/clerk.ts
 // Clerk backend client — autenticação de usuários
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
 
-import { createClerkClient } from '@clerk/clerk-sdk-node'
+import { createClerkClient, type ClerkClient } from '@clerk/clerk-sdk-node'
 
-if (!process.env.CLERK_SECRET_KEY) {
-  throw new Error('CLERK_SECRET_KEY não definida no ambiente')
+let _clerkClient: ClerkClient | undefined
+
+export function getClerkClient(): ClerkClient {
+  if (!_clerkClient) {
+    const secretKey = process.env.CLERK_SECRET_KEY
+    if (!secretKey) {
+      throw new Error('CLERK_SECRET_KEY não definida no ambiente')
+    }
+    _clerkClient = createClerkClient({ secretKey })
+  }
+  return _clerkClient
 }
 
-export const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
+/** @deprecated Use getClerkClient() — mantido para compatibilidade */
+export const clerkClient = new Proxy({} as ClerkClient, {
+  get(_target, prop) {
+    return (getClerkClient() as Record<string | symbol, unknown>)[prop]
+  },
 })
 
 /**

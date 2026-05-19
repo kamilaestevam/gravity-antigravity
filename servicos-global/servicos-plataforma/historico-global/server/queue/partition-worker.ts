@@ -21,7 +21,14 @@ import { getBoss } from './pg-boss.js'
 import { PrismaClient } from '../../../generated/index.js'
 import { captureException, captureMessage } from '../lib/sentry.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 export const PARTITION_QUEUE = 'audit:partition:maintain'
 
@@ -69,7 +76,7 @@ async function maintainPartitions(): Promise<void> {
  * Verifica se history_log está configurada como tabela particionada.
  */
 async function checkIfPartitioned(): Promise<boolean> {
-  const result = await prisma.$queryRaw<Array<{ relkind: string }>>`
+  const result = await getPrisma().$queryRaw<Array<{ relkind: string }>>`
     SELECT relkind
     FROM pg_class
     WHERE relname = 'HistoryLog'
@@ -108,7 +115,7 @@ async function createFuturePartitions(): Promise<void> {
       throw new Error(`[partition-worker] Datas de partição inválidas: ${startDate} / ${endDate}`)
     }
 
-    await prisma.$executeRawUnsafe(`
+    await getPrisma().$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "${partitionName}"
         PARTITION OF "HistoryLog"
         FOR VALUES FROM ('${startDate}') TO ('${endDate}')
@@ -126,7 +133,7 @@ async function dropOldPartitions(): Promise<void> {
   const cutoff = new Date()
   cutoff.setMonth(cutoff.getMonth() - 12)
 
-  const partitions = await prisma.$queryRaw<Array<{ tablename: string }>>`
+  const partitions = await getPrisma().$queryRaw<Array<{ tablename: string }>>`
     SELECT tablename
     FROM pg_tables
     WHERE schemaname = 'public'
@@ -144,7 +151,7 @@ async function dropOldPartitions(): Promise<void> {
     const partDate  = new Date(partYear, partMonth, 1)
 
     if (partDate < cutoff) {
-      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "${tablename}"`)
+      await getPrisma().$executeRawUnsafe(`DROP TABLE IF EXISTS "${tablename}"`)
       captureMessage(`[partition-worker] Partição removida (>12 meses): ${tablename}`, 'info', {
         tablename,
         partDate: partDate.toISOString(),

@@ -1,29 +1,12 @@
 -- Migration: DDD historico-global — REGRA 3 ddd-nomenclatura
--- Renomeia FKs de glossário (id_organizacao, id_usuario) que estavam com sufixo
--- de entidade indevido (`_historico_log`, `_regra_alerta`, etc.).
---
--- Aplicado em 2026-05-02. Idempotente — usa DO $$ IF EXISTS.
--- Schema dinâmico: search_path é definido pelo orquestrador migrate-all-tenants.
+-- Renomeia FKs de glossário (id_organizacao, id_usuario)
 
 -- ============================================================================
 -- 1. historico_log
 -- ============================================================================
+ALTER TABLE "historico_log" RENAME COLUMN "id_organizacao_historico_log" TO "id_organizacao";
+ALTER TABLE "historico_log" RENAME COLUMN "id_usuario_historico_log" TO "id_usuario";
 
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'historico_log' AND column_name = 'id_organizacao_historico_log') THEN
-    ALTER TABLE "historico_log" RENAME COLUMN "id_organizacao_historico_log" TO "id_organizacao";
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'historico_log' AND column_name = 'id_usuario_historico_log') THEN
-    ALTER TABLE "historico_log" RENAME COLUMN "id_usuario_historico_log" TO "id_usuario";
-  END IF;
-END $$;
-
--- Recriar índices (mesmo nome físico via map: o conteúdo das colunas mudou)
 DROP INDEX IF EXISTS "hl_org_idx";
 DROP INDEX IF EXISTS "hl_org_prd_idx";
 DROP INDEX IF EXISTS "hl_org_usr_idx";
@@ -39,20 +22,8 @@ CREATE INDEX "hl_org_mod_dt_idx" ON "historico_log" ("id_organizacao", "modulo_h
 -- ============================================================================
 -- 2. regra_alerta
 -- ============================================================================
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'regra_alerta' AND column_name = 'id_organizacao_regra_alerta') THEN
-    ALTER TABLE "regra_alerta" RENAME COLUMN "id_organizacao_regra_alerta" TO "id_organizacao";
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'regra_alerta' AND column_name = 'id_usuario_regra_alerta') THEN
-    ALTER TABLE "regra_alerta" RENAME COLUMN "id_usuario_regra_alerta" TO "id_usuario";
-  END IF;
-END $$;
+ALTER TABLE "regra_alerta" RENAME COLUMN "id_organizacao_regra_alerta" TO "id_organizacao";
+ALTER TABLE "regra_alerta" RENAME COLUMN "id_usuario_regra_alerta" TO "id_usuario";
 
 DROP INDEX IF EXISTS "ra_org_idx";
 DROP INDEX IF EXISTS "ra_org_prd_idx";
@@ -67,20 +38,8 @@ CREATE INDEX "ra_org_hab_idx" ON "regra_alerta" ("id_organizacao", "habilitada_r
 -- ============================================================================
 -- 3. evento_alerta
 -- ============================================================================
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'evento_alerta' AND column_name = 'id_organizacao_evento_alerta') THEN
-    ALTER TABLE "evento_alerta" RENAME COLUMN "id_organizacao_evento_alerta" TO "id_organizacao";
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'evento_alerta' AND column_name = 'id_usuario_evento_alerta') THEN
-    ALTER TABLE "evento_alerta" RENAME COLUMN "id_usuario_evento_alerta" TO "id_usuario";
-  END IF;
-END $$;
+ALTER TABLE "evento_alerta" RENAME COLUMN "id_organizacao_evento_alerta" TO "id_organizacao";
+ALTER TABLE "evento_alerta" RENAME COLUMN "id_usuario_evento_alerta" TO "id_usuario";
 
 DROP INDEX IF EXISTS "ea_org_idx";
 DROP INDEX IF EXISTS "ea_org_prd_idx";
@@ -97,20 +56,8 @@ CREATE INDEX "ea_org_dt_idx" ON "evento_alerta" ("id_organizacao", "data_criacao
 -- ============================================================================
 -- 4. notificacao_alerta
 -- ============================================================================
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'notificacao_alerta' AND column_name = 'id_organizacao_notificacao_alerta') THEN
-    ALTER TABLE "notificacao_alerta" RENAME COLUMN "id_organizacao_notificacao_alerta" TO "id_organizacao";
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'notificacao_alerta' AND column_name = 'id_usuario_notificacao_alerta') THEN
-    ALTER TABLE "notificacao_alerta" RENAME COLUMN "id_usuario_notificacao_alerta" TO "id_usuario";
-  END IF;
-END $$;
+ALTER TABLE "notificacao_alerta" RENAME COLUMN "id_organizacao_notificacao_alerta" TO "id_organizacao";
+ALTER TABLE "notificacao_alerta" RENAME COLUMN "id_usuario_notificacao_alerta" TO "id_usuario";
 
 DROP INDEX IF EXISTS "na_org_idx";
 DROP INDEX IF EXISTS "na_org_prd_idx";
@@ -123,20 +70,8 @@ CREATE INDEX "na_org_usr_idx" ON "notificacao_alerta" ("id_organizacao", "id_usu
 -- ============================================================================
 -- 5. exportar_resultado
 -- ============================================================================
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'exportar_resultado' AND column_name = 'id_organizacao_exportar_resultado') THEN
-    ALTER TABLE "exportar_resultado" RENAME COLUMN "id_organizacao_exportar_resultado" TO "id_organizacao";
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'exportar_resultado' AND column_name = 'id_usuario_exportar_resultado') THEN
-    ALTER TABLE "exportar_resultado" RENAME COLUMN "id_usuario_exportar_resultado" TO "id_usuario";
-  END IF;
-END $$;
+ALTER TABLE "exportar_resultado" RENAME COLUMN "id_organizacao_exportar_resultado" TO "id_organizacao";
+ALTER TABLE "exportar_resultado" RENAME COLUMN "id_usuario_exportar_resultado" TO "id_usuario";
 
 DROP INDEX IF EXISTS "er_org_idx";
 DROP INDEX IF EXISTS "er_org_prd_idx";

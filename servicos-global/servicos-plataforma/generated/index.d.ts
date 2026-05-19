@@ -219,6 +219,31 @@ export type GabiKbChunk = $Result.DefaultSelection<Prisma.$GabiKbChunkPayload>
  */
 export type GabiAlertaEmitido = $Result.DefaultSelection<Prisma.$GabiAlertaEmitidoPayload>
 /**
+ * Model GabiMemoriaUsuario
+ * 
+ */
+export type GabiMemoriaUsuario = $Result.DefaultSelection<Prisma.$GabiMemoriaUsuarioPayload>
+/**
+ * Model GabiDiagnosticoErro
+ * 
+ */
+export type GabiDiagnosticoErro = $Result.DefaultSelection<Prisma.$GabiDiagnosticoErroPayload>
+/**
+ * Model GabiChamado
+ * 
+ */
+export type GabiChamado = $Result.DefaultSelection<Prisma.$GabiChamadoPayload>
+/**
+ * Model GabiToolExecucao
+ * 
+ */
+export type GabiToolExecucao = $Result.DefaultSelection<Prisma.$GabiToolExecucaoPayload>
+/**
+ * Model GabiConfirmacaoAcao
+ * 
+ */
+export type GabiConfirmacaoAcao = $Result.DefaultSelection<Prisma.$GabiConfirmacaoAcaoPayload>
+/**
  * Model WorkspacePreferenciaUsuario
  * 
  */
@@ -1000,6 +1025,56 @@ export class PrismaClient<
   get gabiAlertaEmitido(): Prisma.GabiAlertaEmitidoDelegate<ExtArgs>;
 
   /**
+   * `prisma.gabiMemoriaUsuario`: Exposes CRUD operations for the **GabiMemoriaUsuario** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiMemoriaUsuarios
+    * const gabiMemoriaUsuarios = await prisma.gabiMemoriaUsuario.findMany()
+    * ```
+    */
+  get gabiMemoriaUsuario(): Prisma.GabiMemoriaUsuarioDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiDiagnosticoErro`: Exposes CRUD operations for the **GabiDiagnosticoErro** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiDiagnosticoErros
+    * const gabiDiagnosticoErros = await prisma.gabiDiagnosticoErro.findMany()
+    * ```
+    */
+  get gabiDiagnosticoErro(): Prisma.GabiDiagnosticoErroDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiChamado`: Exposes CRUD operations for the **GabiChamado** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiChamados
+    * const gabiChamados = await prisma.gabiChamado.findMany()
+    * ```
+    */
+  get gabiChamado(): Prisma.GabiChamadoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiToolExecucao`: Exposes CRUD operations for the **GabiToolExecucao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiToolExecucaos
+    * const gabiToolExecucaos = await prisma.gabiToolExecucao.findMany()
+    * ```
+    */
+  get gabiToolExecucao(): Prisma.GabiToolExecucaoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiConfirmacaoAcao`: Exposes CRUD operations for the **GabiConfirmacaoAcao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiConfirmacaoAcaos
+    * const gabiConfirmacaoAcaos = await prisma.gabiConfirmacaoAcao.findMany()
+    * ```
+    */
+  get gabiConfirmacaoAcao(): Prisma.GabiConfirmacaoAcaoDelegate<ExtArgs>;
+
+  /**
    * `prisma.workspacePreferenciaUsuario`: Exposes CRUD operations for the **WorkspacePreferenciaUsuario** model.
     * Example usage:
     * ```ts
@@ -1570,6 +1645,11 @@ export namespace Prisma {
     GabiLimiteMonetario: 'GabiLimiteMonetario',
     GabiKbChunk: 'GabiKbChunk',
     GabiAlertaEmitido: 'GabiAlertaEmitido',
+    GabiMemoriaUsuario: 'GabiMemoriaUsuario',
+    GabiDiagnosticoErro: 'GabiDiagnosticoErro',
+    GabiChamado: 'GabiChamado',
+    GabiToolExecucao: 'GabiToolExecucao',
+    GabiConfirmacaoAcao: 'GabiConfirmacaoAcao',
     WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
     ContatoExterno: 'ContatoExterno',
@@ -1594,7 +1674,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiKbChunk" | "gabiAlertaEmitido" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiKbChunk" | "gabiAlertaEmitido" | "gabiMemoriaUsuario" | "gabiDiagnosticoErro" | "gabiChamado" | "gabiToolExecucao" | "gabiConfirmacaoAcao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4449,6 +4529,356 @@ export namespace Prisma {
           count: {
             args: Prisma.GabiAlertaEmitidoCountArgs<ExtArgs>
             result: $Utils.Optional<GabiAlertaEmitidoCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiMemoriaUsuario: {
+        payload: Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>
+        fields: Prisma.GabiMemoriaUsuarioFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiMemoriaUsuarioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiMemoriaUsuarioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiMemoriaUsuarioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiMemoriaUsuarioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          findMany: {
+            args: Prisma.GabiMemoriaUsuarioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>[]
+          }
+          create: {
+            args: Prisma.GabiMemoriaUsuarioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          createMany: {
+            args: Prisma.GabiMemoriaUsuarioCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiMemoriaUsuarioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiMemoriaUsuarioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          update: {
+            args: Prisma.GabiMemoriaUsuarioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiMemoriaUsuarioDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiMemoriaUsuarioUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiMemoriaUsuarioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMemoriaUsuarioPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiMemoriaUsuarioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiMemoriaUsuario>
+          }
+          groupBy: {
+            args: Prisma.GabiMemoriaUsuarioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiMemoriaUsuarioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiMemoriaUsuarioCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiMemoriaUsuarioCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiDiagnosticoErro: {
+        payload: Prisma.$GabiDiagnosticoErroPayload<ExtArgs>
+        fields: Prisma.GabiDiagnosticoErroFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiDiagnosticoErroFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiDiagnosticoErroFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiDiagnosticoErroFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiDiagnosticoErroFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          findMany: {
+            args: Prisma.GabiDiagnosticoErroFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>[]
+          }
+          create: {
+            args: Prisma.GabiDiagnosticoErroCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          createMany: {
+            args: Prisma.GabiDiagnosticoErroCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiDiagnosticoErroCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiDiagnosticoErroDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          update: {
+            args: Prisma.GabiDiagnosticoErroUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiDiagnosticoErroDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiDiagnosticoErroUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiDiagnosticoErroUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiDiagnosticoErroPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiDiagnosticoErroAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiDiagnosticoErro>
+          }
+          groupBy: {
+            args: Prisma.GabiDiagnosticoErroGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiDiagnosticoErroGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiDiagnosticoErroCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiDiagnosticoErroCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiChamado: {
+        payload: Prisma.$GabiChamadoPayload<ExtArgs>
+        fields: Prisma.GabiChamadoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiChamadoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiChamadoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiChamadoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiChamadoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          findMany: {
+            args: Prisma.GabiChamadoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>[]
+          }
+          create: {
+            args: Prisma.GabiChamadoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          createMany: {
+            args: Prisma.GabiChamadoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiChamadoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiChamadoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          update: {
+            args: Prisma.GabiChamadoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiChamadoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiChamadoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiChamadoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiChamadoPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiChamadoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiChamado>
+          }
+          groupBy: {
+            args: Prisma.GabiChamadoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiChamadoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiChamadoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiChamadoCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiToolExecucao: {
+        payload: Prisma.$GabiToolExecucaoPayload<ExtArgs>
+        fields: Prisma.GabiToolExecucaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiToolExecucaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiToolExecucaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiToolExecucaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiToolExecucaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          findMany: {
+            args: Prisma.GabiToolExecucaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>[]
+          }
+          create: {
+            args: Prisma.GabiToolExecucaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          createMany: {
+            args: Prisma.GabiToolExecucaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiToolExecucaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiToolExecucaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          update: {
+            args: Prisma.GabiToolExecucaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiToolExecucaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiToolExecucaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiToolExecucaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiToolExecucaoPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiToolExecucaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiToolExecucao>
+          }
+          groupBy: {
+            args: Prisma.GabiToolExecucaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiToolExecucaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiToolExecucaoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiToolExecucaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiConfirmacaoAcao: {
+        payload: Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>
+        fields: Prisma.GabiConfirmacaoAcaoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiConfirmacaoAcaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiConfirmacaoAcaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiConfirmacaoAcaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiConfirmacaoAcaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          findMany: {
+            args: Prisma.GabiConfirmacaoAcaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>[]
+          }
+          create: {
+            args: Prisma.GabiConfirmacaoAcaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          createMany: {
+            args: Prisma.GabiConfirmacaoAcaoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiConfirmacaoAcaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiConfirmacaoAcaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          update: {
+            args: Prisma.GabiConfirmacaoAcaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiConfirmacaoAcaoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiConfirmacaoAcaoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiConfirmacaoAcaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConfirmacaoAcaoPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiConfirmacaoAcaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiConfirmacaoAcao>
+          }
+          groupBy: {
+            args: Prisma.GabiConfirmacaoAcaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiConfirmacaoAcaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiConfirmacaoAcaoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiConfirmacaoAcaoCountAggregateOutputType> | number
           }
         }
       }
@@ -40415,6 +40845,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso: number
     tokens_output_gabi_log_uso: number
     custo_usd_gabi_log_uso: number
+    tools_chamadas_gabi_log_uso: number
     data_criacao_gabi_log_uso: number
     _all: number
   }
@@ -40477,6 +40908,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: true
     tokens_output_gabi_log_uso?: true
     custo_usd_gabi_log_uso?: true
+    tools_chamadas_gabi_log_uso?: true
     data_criacao_gabi_log_uso?: true
     _all?: true
   }
@@ -40580,6 +41012,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso: number
     tokens_output_gabi_log_uso: number
     custo_usd_gabi_log_uso: number
+    tools_chamadas_gabi_log_uso: JsonValue | null
     data_criacao_gabi_log_uso: Date
     _count: GabiLogUsoCountAggregateOutputType | null
     _avg: GabiLogUsoAvgAggregateOutputType | null
@@ -40615,6 +41048,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: boolean
     tokens_output_gabi_log_uso?: boolean
     custo_usd_gabi_log_uso?: boolean
+    tools_chamadas_gabi_log_uso?: boolean
     data_criacao_gabi_log_uso?: boolean
   }, ExtArgs["result"]["gabiLogUso"]>
 
@@ -40631,6 +41065,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: boolean
     tokens_output_gabi_log_uso?: boolean
     custo_usd_gabi_log_uso?: boolean
+    tools_chamadas_gabi_log_uso?: boolean
     data_criacao_gabi_log_uso?: boolean
   }, ExtArgs["result"]["gabiLogUso"]>
 
@@ -40647,6 +41082,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: boolean
     tokens_output_gabi_log_uso?: boolean
     custo_usd_gabi_log_uso?: boolean
+    tools_chamadas_gabi_log_uso?: boolean
     data_criacao_gabi_log_uso?: boolean
   }
 
@@ -40667,6 +41103,7 @@ export namespace Prisma {
       tokens_input_gabi_log_uso: number
       tokens_output_gabi_log_uso: number
       custo_usd_gabi_log_uso: number
+      tools_chamadas_gabi_log_uso: Prisma.JsonValue | null
       data_criacao_gabi_log_uso: Date
     }, ExtArgs["result"]["gabiLogUso"]>
     composites: {}
@@ -41073,6 +41510,7 @@ export namespace Prisma {
     readonly tokens_input_gabi_log_uso: FieldRef<"GabiLogUso", 'Int'>
     readonly tokens_output_gabi_log_uso: FieldRef<"GabiLogUso", 'Int'>
     readonly custo_usd_gabi_log_uso: FieldRef<"GabiLogUso", 'Float'>
+    readonly tools_chamadas_gabi_log_uso: FieldRef<"GabiLogUso", 'Json'>
     readonly data_criacao_gabi_log_uso: FieldRef<"GabiLogUso", 'DateTime'>
   }
     
@@ -46971,6 +47409,4890 @@ export namespace Prisma {
      * Select specific fields to fetch from the GabiAlertaEmitido
      */
     select?: GabiAlertaEmitidoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiMemoriaUsuario
+   */
+
+  export type AggregateGabiMemoriaUsuario = {
+    _count: GabiMemoriaUsuarioCountAggregateOutputType | null
+    _avg: GabiMemoriaUsuarioAvgAggregateOutputType | null
+    _sum: GabiMemoriaUsuarioSumAggregateOutputType | null
+    _min: GabiMemoriaUsuarioMinAggregateOutputType | null
+    _max: GabiMemoriaUsuarioMaxAggregateOutputType | null
+  }
+
+  export type GabiMemoriaUsuarioAvgAggregateOutputType = {
+    confianca_gabi_memoria_usuario: number | null
+  }
+
+  export type GabiMemoriaUsuarioSumAggregateOutputType = {
+    confianca_gabi_memoria_usuario: number | null
+  }
+
+  export type GabiMemoriaUsuarioMinAggregateOutputType = {
+    id_gabi_memoria_usuario: string | null
+    id_organizacao_gabi_memoria_usuario: string | null
+    id_usuario_gabi_memoria_usuario: string | null
+    tipo_gabi_memoria_usuario: string | null
+    chave_gabi_memoria_usuario: string | null
+    valor_gabi_memoria_usuario: string | null
+    confianca_gabi_memoria_usuario: number | null
+    origem_gabi_memoria_usuario: string | null
+    ativo_gabi_memoria_usuario: boolean | null
+    data_criacao_gabi_memoria_usuario: Date | null
+    data_atualizacao_gabi_memoria_usuario: Date | null
+    data_ultimo_uso_gabi_memoria_usuario: Date | null
+  }
+
+  export type GabiMemoriaUsuarioMaxAggregateOutputType = {
+    id_gabi_memoria_usuario: string | null
+    id_organizacao_gabi_memoria_usuario: string | null
+    id_usuario_gabi_memoria_usuario: string | null
+    tipo_gabi_memoria_usuario: string | null
+    chave_gabi_memoria_usuario: string | null
+    valor_gabi_memoria_usuario: string | null
+    confianca_gabi_memoria_usuario: number | null
+    origem_gabi_memoria_usuario: string | null
+    ativo_gabi_memoria_usuario: boolean | null
+    data_criacao_gabi_memoria_usuario: Date | null
+    data_atualizacao_gabi_memoria_usuario: Date | null
+    data_ultimo_uso_gabi_memoria_usuario: Date | null
+  }
+
+  export type GabiMemoriaUsuarioCountAggregateOutputType = {
+    id_gabi_memoria_usuario: number
+    id_organizacao_gabi_memoria_usuario: number
+    id_usuario_gabi_memoria_usuario: number
+    tipo_gabi_memoria_usuario: number
+    chave_gabi_memoria_usuario: number
+    valor_gabi_memoria_usuario: number
+    confianca_gabi_memoria_usuario: number
+    origem_gabi_memoria_usuario: number
+    ativo_gabi_memoria_usuario: number
+    data_criacao_gabi_memoria_usuario: number
+    data_atualizacao_gabi_memoria_usuario: number
+    data_ultimo_uso_gabi_memoria_usuario: number
+    _all: number
+  }
+
+
+  export type GabiMemoriaUsuarioAvgAggregateInputType = {
+    confianca_gabi_memoria_usuario?: true
+  }
+
+  export type GabiMemoriaUsuarioSumAggregateInputType = {
+    confianca_gabi_memoria_usuario?: true
+  }
+
+  export type GabiMemoriaUsuarioMinAggregateInputType = {
+    id_gabi_memoria_usuario?: true
+    id_organizacao_gabi_memoria_usuario?: true
+    id_usuario_gabi_memoria_usuario?: true
+    tipo_gabi_memoria_usuario?: true
+    chave_gabi_memoria_usuario?: true
+    valor_gabi_memoria_usuario?: true
+    confianca_gabi_memoria_usuario?: true
+    origem_gabi_memoria_usuario?: true
+    ativo_gabi_memoria_usuario?: true
+    data_criacao_gabi_memoria_usuario?: true
+    data_atualizacao_gabi_memoria_usuario?: true
+    data_ultimo_uso_gabi_memoria_usuario?: true
+  }
+
+  export type GabiMemoriaUsuarioMaxAggregateInputType = {
+    id_gabi_memoria_usuario?: true
+    id_organizacao_gabi_memoria_usuario?: true
+    id_usuario_gabi_memoria_usuario?: true
+    tipo_gabi_memoria_usuario?: true
+    chave_gabi_memoria_usuario?: true
+    valor_gabi_memoria_usuario?: true
+    confianca_gabi_memoria_usuario?: true
+    origem_gabi_memoria_usuario?: true
+    ativo_gabi_memoria_usuario?: true
+    data_criacao_gabi_memoria_usuario?: true
+    data_atualizacao_gabi_memoria_usuario?: true
+    data_ultimo_uso_gabi_memoria_usuario?: true
+  }
+
+  export type GabiMemoriaUsuarioCountAggregateInputType = {
+    id_gabi_memoria_usuario?: true
+    id_organizacao_gabi_memoria_usuario?: true
+    id_usuario_gabi_memoria_usuario?: true
+    tipo_gabi_memoria_usuario?: true
+    chave_gabi_memoria_usuario?: true
+    valor_gabi_memoria_usuario?: true
+    confianca_gabi_memoria_usuario?: true
+    origem_gabi_memoria_usuario?: true
+    ativo_gabi_memoria_usuario?: true
+    data_criacao_gabi_memoria_usuario?: true
+    data_atualizacao_gabi_memoria_usuario?: true
+    data_ultimo_uso_gabi_memoria_usuario?: true
+    _all?: true
+  }
+
+  export type GabiMemoriaUsuarioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiMemoriaUsuario to aggregate.
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiMemoriaUsuarios to fetch.
+     */
+    orderBy?: GabiMemoriaUsuarioOrderByWithRelationInput | GabiMemoriaUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiMemoriaUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiMemoriaUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiMemoriaUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiMemoriaUsuarios
+    **/
+    _count?: true | GabiMemoriaUsuarioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiMemoriaUsuarioAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiMemoriaUsuarioSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiMemoriaUsuarioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiMemoriaUsuarioMaxAggregateInputType
+  }
+
+  export type GetGabiMemoriaUsuarioAggregateType<T extends GabiMemoriaUsuarioAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiMemoriaUsuario]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiMemoriaUsuario[P]>
+      : GetScalarType<T[P], AggregateGabiMemoriaUsuario[P]>
+  }
+
+
+
+
+  export type GabiMemoriaUsuarioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiMemoriaUsuarioWhereInput
+    orderBy?: GabiMemoriaUsuarioOrderByWithAggregationInput | GabiMemoriaUsuarioOrderByWithAggregationInput[]
+    by: GabiMemoriaUsuarioScalarFieldEnum[] | GabiMemoriaUsuarioScalarFieldEnum
+    having?: GabiMemoriaUsuarioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiMemoriaUsuarioCountAggregateInputType | true
+    _avg?: GabiMemoriaUsuarioAvgAggregateInputType
+    _sum?: GabiMemoriaUsuarioSumAggregateInputType
+    _min?: GabiMemoriaUsuarioMinAggregateInputType
+    _max?: GabiMemoriaUsuarioMaxAggregateInputType
+  }
+
+  export type GabiMemoriaUsuarioGroupByOutputType = {
+    id_gabi_memoria_usuario: string
+    id_organizacao_gabi_memoria_usuario: string
+    id_usuario_gabi_memoria_usuario: string
+    tipo_gabi_memoria_usuario: string
+    chave_gabi_memoria_usuario: string
+    valor_gabi_memoria_usuario: string
+    confianca_gabi_memoria_usuario: number
+    origem_gabi_memoria_usuario: string
+    ativo_gabi_memoria_usuario: boolean
+    data_criacao_gabi_memoria_usuario: Date
+    data_atualizacao_gabi_memoria_usuario: Date
+    data_ultimo_uso_gabi_memoria_usuario: Date
+    _count: GabiMemoriaUsuarioCountAggregateOutputType | null
+    _avg: GabiMemoriaUsuarioAvgAggregateOutputType | null
+    _sum: GabiMemoriaUsuarioSumAggregateOutputType | null
+    _min: GabiMemoriaUsuarioMinAggregateOutputType | null
+    _max: GabiMemoriaUsuarioMaxAggregateOutputType | null
+  }
+
+  type GetGabiMemoriaUsuarioGroupByPayload<T extends GabiMemoriaUsuarioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiMemoriaUsuarioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiMemoriaUsuarioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiMemoriaUsuarioGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiMemoriaUsuarioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiMemoriaUsuarioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_memoria_usuario?: boolean
+    id_organizacao_gabi_memoria_usuario?: boolean
+    id_usuario_gabi_memoria_usuario?: boolean
+    tipo_gabi_memoria_usuario?: boolean
+    chave_gabi_memoria_usuario?: boolean
+    valor_gabi_memoria_usuario?: boolean
+    confianca_gabi_memoria_usuario?: boolean
+    origem_gabi_memoria_usuario?: boolean
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: boolean
+    data_atualizacao_gabi_memoria_usuario?: boolean
+    data_ultimo_uso_gabi_memoria_usuario?: boolean
+  }, ExtArgs["result"]["gabiMemoriaUsuario"]>
+
+  export type GabiMemoriaUsuarioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_memoria_usuario?: boolean
+    id_organizacao_gabi_memoria_usuario?: boolean
+    id_usuario_gabi_memoria_usuario?: boolean
+    tipo_gabi_memoria_usuario?: boolean
+    chave_gabi_memoria_usuario?: boolean
+    valor_gabi_memoria_usuario?: boolean
+    confianca_gabi_memoria_usuario?: boolean
+    origem_gabi_memoria_usuario?: boolean
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: boolean
+    data_atualizacao_gabi_memoria_usuario?: boolean
+    data_ultimo_uso_gabi_memoria_usuario?: boolean
+  }, ExtArgs["result"]["gabiMemoriaUsuario"]>
+
+  export type GabiMemoriaUsuarioSelectScalar = {
+    id_gabi_memoria_usuario?: boolean
+    id_organizacao_gabi_memoria_usuario?: boolean
+    id_usuario_gabi_memoria_usuario?: boolean
+    tipo_gabi_memoria_usuario?: boolean
+    chave_gabi_memoria_usuario?: boolean
+    valor_gabi_memoria_usuario?: boolean
+    confianca_gabi_memoria_usuario?: boolean
+    origem_gabi_memoria_usuario?: boolean
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: boolean
+    data_atualizacao_gabi_memoria_usuario?: boolean
+    data_ultimo_uso_gabi_memoria_usuario?: boolean
+  }
+
+
+  export type $GabiMemoriaUsuarioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiMemoriaUsuario"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_memoria_usuario: string
+      id_organizacao_gabi_memoria_usuario: string
+      id_usuario_gabi_memoria_usuario: string
+      tipo_gabi_memoria_usuario: string
+      chave_gabi_memoria_usuario: string
+      valor_gabi_memoria_usuario: string
+      confianca_gabi_memoria_usuario: number
+      origem_gabi_memoria_usuario: string
+      ativo_gabi_memoria_usuario: boolean
+      data_criacao_gabi_memoria_usuario: Date
+      data_atualizacao_gabi_memoria_usuario: Date
+      data_ultimo_uso_gabi_memoria_usuario: Date
+    }, ExtArgs["result"]["gabiMemoriaUsuario"]>
+    composites: {}
+  }
+
+  type GabiMemoriaUsuarioGetPayload<S extends boolean | null | undefined | GabiMemoriaUsuarioDefaultArgs> = $Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload, S>
+
+  type GabiMemoriaUsuarioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiMemoriaUsuarioFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiMemoriaUsuarioCountAggregateInputType | true
+    }
+
+  export interface GabiMemoriaUsuarioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiMemoriaUsuario'], meta: { name: 'GabiMemoriaUsuario' } }
+    /**
+     * Find zero or one GabiMemoriaUsuario that matches the filter.
+     * @param {GabiMemoriaUsuarioFindUniqueArgs} args - Arguments to find a GabiMemoriaUsuario
+     * @example
+     * // Get one GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiMemoriaUsuarioFindUniqueArgs>(args: SelectSubset<T, GabiMemoriaUsuarioFindUniqueArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiMemoriaUsuario that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiMemoriaUsuarioFindUniqueOrThrowArgs} args - Arguments to find a GabiMemoriaUsuario
+     * @example
+     * // Get one GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiMemoriaUsuarioFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiMemoriaUsuarioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiMemoriaUsuario that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioFindFirstArgs} args - Arguments to find a GabiMemoriaUsuario
+     * @example
+     * // Get one GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiMemoriaUsuarioFindFirstArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioFindFirstArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiMemoriaUsuario that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioFindFirstOrThrowArgs} args - Arguments to find a GabiMemoriaUsuario
+     * @example
+     * // Get one GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiMemoriaUsuarioFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiMemoriaUsuarios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiMemoriaUsuarios
+     * const gabiMemoriaUsuarios = await prisma.gabiMemoriaUsuario.findMany()
+     * 
+     * // Get first 10 GabiMemoriaUsuarios
+     * const gabiMemoriaUsuarios = await prisma.gabiMemoriaUsuario.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_memoria_usuario`
+     * const gabiMemoriaUsuarioWithId_gabi_memoria_usuarioOnly = await prisma.gabiMemoriaUsuario.findMany({ select: { id_gabi_memoria_usuario: true } })
+     * 
+     */
+    findMany<T extends GabiMemoriaUsuarioFindManyArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiMemoriaUsuario.
+     * @param {GabiMemoriaUsuarioCreateArgs} args - Arguments to create a GabiMemoriaUsuario.
+     * @example
+     * // Create one GabiMemoriaUsuario
+     * const GabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.create({
+     *   data: {
+     *     // ... data to create a GabiMemoriaUsuario
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiMemoriaUsuarioCreateArgs>(args: SelectSubset<T, GabiMemoriaUsuarioCreateArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiMemoriaUsuarios.
+     * @param {GabiMemoriaUsuarioCreateManyArgs} args - Arguments to create many GabiMemoriaUsuarios.
+     * @example
+     * // Create many GabiMemoriaUsuarios
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiMemoriaUsuarioCreateManyArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiMemoriaUsuarios and returns the data saved in the database.
+     * @param {GabiMemoriaUsuarioCreateManyAndReturnArgs} args - Arguments to create many GabiMemoriaUsuarios.
+     * @example
+     * // Create many GabiMemoriaUsuarios
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiMemoriaUsuarios and only return the `id_gabi_memoria_usuario`
+     * const gabiMemoriaUsuarioWithId_gabi_memoria_usuarioOnly = await prisma.gabiMemoriaUsuario.createManyAndReturn({ 
+     *   select: { id_gabi_memoria_usuario: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiMemoriaUsuarioCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiMemoriaUsuario.
+     * @param {GabiMemoriaUsuarioDeleteArgs} args - Arguments to delete one GabiMemoriaUsuario.
+     * @example
+     * // Delete one GabiMemoriaUsuario
+     * const GabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.delete({
+     *   where: {
+     *     // ... filter to delete one GabiMemoriaUsuario
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiMemoriaUsuarioDeleteArgs>(args: SelectSubset<T, GabiMemoriaUsuarioDeleteArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiMemoriaUsuario.
+     * @param {GabiMemoriaUsuarioUpdateArgs} args - Arguments to update one GabiMemoriaUsuario.
+     * @example
+     * // Update one GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiMemoriaUsuarioUpdateArgs>(args: SelectSubset<T, GabiMemoriaUsuarioUpdateArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiMemoriaUsuarios.
+     * @param {GabiMemoriaUsuarioDeleteManyArgs} args - Arguments to filter GabiMemoriaUsuarios to delete.
+     * @example
+     * // Delete a few GabiMemoriaUsuarios
+     * const { count } = await prisma.gabiMemoriaUsuario.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiMemoriaUsuarioDeleteManyArgs>(args?: SelectSubset<T, GabiMemoriaUsuarioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiMemoriaUsuarios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiMemoriaUsuarios
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiMemoriaUsuarioUpdateManyArgs>(args: SelectSubset<T, GabiMemoriaUsuarioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiMemoriaUsuario.
+     * @param {GabiMemoriaUsuarioUpsertArgs} args - Arguments to update or create a GabiMemoriaUsuario.
+     * @example
+     * // Update or create a GabiMemoriaUsuario
+     * const gabiMemoriaUsuario = await prisma.gabiMemoriaUsuario.upsert({
+     *   create: {
+     *     // ... data to create a GabiMemoriaUsuario
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiMemoriaUsuario we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiMemoriaUsuarioUpsertArgs>(args: SelectSubset<T, GabiMemoriaUsuarioUpsertArgs<ExtArgs>>): Prisma__GabiMemoriaUsuarioClient<$Result.GetResult<Prisma.$GabiMemoriaUsuarioPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiMemoriaUsuarios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioCountArgs} args - Arguments to filter GabiMemoriaUsuarios to count.
+     * @example
+     * // Count the number of GabiMemoriaUsuarios
+     * const count = await prisma.gabiMemoriaUsuario.count({
+     *   where: {
+     *     // ... the filter for the GabiMemoriaUsuarios we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiMemoriaUsuarioCountArgs>(
+      args?: Subset<T, GabiMemoriaUsuarioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiMemoriaUsuarioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiMemoriaUsuario.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiMemoriaUsuarioAggregateArgs>(args: Subset<T, GabiMemoriaUsuarioAggregateArgs>): Prisma.PrismaPromise<GetGabiMemoriaUsuarioAggregateType<T>>
+
+    /**
+     * Group by GabiMemoriaUsuario.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiMemoriaUsuarioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiMemoriaUsuarioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiMemoriaUsuarioGroupByArgs['orderBy'] }
+        : { orderBy?: GabiMemoriaUsuarioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiMemoriaUsuarioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiMemoriaUsuarioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiMemoriaUsuario model
+   */
+  readonly fields: GabiMemoriaUsuarioFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiMemoriaUsuario.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiMemoriaUsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiMemoriaUsuario model
+   */ 
+  interface GabiMemoriaUsuarioFieldRefs {
+    readonly id_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly id_organizacao_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly id_usuario_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly tipo_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly chave_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly valor_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly confianca_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'Float'>
+    readonly origem_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'String'>
+    readonly ativo_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'Boolean'>
+    readonly data_criacao_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'DateTime'>
+    readonly data_atualizacao_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'DateTime'>
+    readonly data_ultimo_uso_gabi_memoria_usuario: FieldRef<"GabiMemoriaUsuario", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiMemoriaUsuario findUnique
+   */
+  export type GabiMemoriaUsuarioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiMemoriaUsuario to fetch.
+     */
+    where: GabiMemoriaUsuarioWhereUniqueInput
+  }
+
+  /**
+   * GabiMemoriaUsuario findUniqueOrThrow
+   */
+  export type GabiMemoriaUsuarioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiMemoriaUsuario to fetch.
+     */
+    where: GabiMemoriaUsuarioWhereUniqueInput
+  }
+
+  /**
+   * GabiMemoriaUsuario findFirst
+   */
+  export type GabiMemoriaUsuarioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiMemoriaUsuario to fetch.
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiMemoriaUsuarios to fetch.
+     */
+    orderBy?: GabiMemoriaUsuarioOrderByWithRelationInput | GabiMemoriaUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiMemoriaUsuarios.
+     */
+    cursor?: GabiMemoriaUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiMemoriaUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiMemoriaUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiMemoriaUsuarios.
+     */
+    distinct?: GabiMemoriaUsuarioScalarFieldEnum | GabiMemoriaUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * GabiMemoriaUsuario findFirstOrThrow
+   */
+  export type GabiMemoriaUsuarioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiMemoriaUsuario to fetch.
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiMemoriaUsuarios to fetch.
+     */
+    orderBy?: GabiMemoriaUsuarioOrderByWithRelationInput | GabiMemoriaUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiMemoriaUsuarios.
+     */
+    cursor?: GabiMemoriaUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiMemoriaUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiMemoriaUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiMemoriaUsuarios.
+     */
+    distinct?: GabiMemoriaUsuarioScalarFieldEnum | GabiMemoriaUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * GabiMemoriaUsuario findMany
+   */
+  export type GabiMemoriaUsuarioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiMemoriaUsuarios to fetch.
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiMemoriaUsuarios to fetch.
+     */
+    orderBy?: GabiMemoriaUsuarioOrderByWithRelationInput | GabiMemoriaUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiMemoriaUsuarios.
+     */
+    cursor?: GabiMemoriaUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiMemoriaUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiMemoriaUsuarios.
+     */
+    skip?: number
+    distinct?: GabiMemoriaUsuarioScalarFieldEnum | GabiMemoriaUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * GabiMemoriaUsuario create
+   */
+  export type GabiMemoriaUsuarioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiMemoriaUsuario.
+     */
+    data: XOR<GabiMemoriaUsuarioCreateInput, GabiMemoriaUsuarioUncheckedCreateInput>
+  }
+
+  /**
+   * GabiMemoriaUsuario createMany
+   */
+  export type GabiMemoriaUsuarioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiMemoriaUsuarios.
+     */
+    data: GabiMemoriaUsuarioCreateManyInput | GabiMemoriaUsuarioCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiMemoriaUsuario createManyAndReturn
+   */
+  export type GabiMemoriaUsuarioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiMemoriaUsuarios.
+     */
+    data: GabiMemoriaUsuarioCreateManyInput | GabiMemoriaUsuarioCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiMemoriaUsuario update
+   */
+  export type GabiMemoriaUsuarioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiMemoriaUsuario.
+     */
+    data: XOR<GabiMemoriaUsuarioUpdateInput, GabiMemoriaUsuarioUncheckedUpdateInput>
+    /**
+     * Choose, which GabiMemoriaUsuario to update.
+     */
+    where: GabiMemoriaUsuarioWhereUniqueInput
+  }
+
+  /**
+   * GabiMemoriaUsuario updateMany
+   */
+  export type GabiMemoriaUsuarioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiMemoriaUsuarios.
+     */
+    data: XOR<GabiMemoriaUsuarioUpdateManyMutationInput, GabiMemoriaUsuarioUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiMemoriaUsuarios to update
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+  }
+
+  /**
+   * GabiMemoriaUsuario upsert
+   */
+  export type GabiMemoriaUsuarioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiMemoriaUsuario to update in case it exists.
+     */
+    where: GabiMemoriaUsuarioWhereUniqueInput
+    /**
+     * In case the GabiMemoriaUsuario found by the `where` argument doesn't exist, create a new GabiMemoriaUsuario with this data.
+     */
+    create: XOR<GabiMemoriaUsuarioCreateInput, GabiMemoriaUsuarioUncheckedCreateInput>
+    /**
+     * In case the GabiMemoriaUsuario was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiMemoriaUsuarioUpdateInput, GabiMemoriaUsuarioUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiMemoriaUsuario delete
+   */
+  export type GabiMemoriaUsuarioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+    /**
+     * Filter which GabiMemoriaUsuario to delete.
+     */
+    where: GabiMemoriaUsuarioWhereUniqueInput
+  }
+
+  /**
+   * GabiMemoriaUsuario deleteMany
+   */
+  export type GabiMemoriaUsuarioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiMemoriaUsuarios to delete
+     */
+    where?: GabiMemoriaUsuarioWhereInput
+  }
+
+  /**
+   * GabiMemoriaUsuario without action
+   */
+  export type GabiMemoriaUsuarioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiMemoriaUsuario
+     */
+    select?: GabiMemoriaUsuarioSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiDiagnosticoErro
+   */
+
+  export type AggregateGabiDiagnosticoErro = {
+    _count: GabiDiagnosticoErroCountAggregateOutputType | null
+    _avg: GabiDiagnosticoErroAvgAggregateOutputType | null
+    _sum: GabiDiagnosticoErroSumAggregateOutputType | null
+    _min: GabiDiagnosticoErroMinAggregateOutputType | null
+    _max: GabiDiagnosticoErroMaxAggregateOutputType | null
+  }
+
+  export type GabiDiagnosticoErroAvgAggregateOutputType = {
+    status_http_gabi_diagnostico_erro: number | null
+  }
+
+  export type GabiDiagnosticoErroSumAggregateOutputType = {
+    status_http_gabi_diagnostico_erro: number | null
+  }
+
+  export type GabiDiagnosticoErroMinAggregateOutputType = {
+    id_gabi_diagnostico_erro: string | null
+    id_organizacao_gabi_diagnostico_erro: string | null
+    id_usuario_gabi_diagnostico_erro: string | null
+    produto_gabi_diagnostico_erro: string | null
+    endpoint_gabi_diagnostico_erro: string | null
+    metodo_gabi_diagnostico_erro: string | null
+    status_http_gabi_diagnostico_erro: number | null
+    codigo_erro_gabi_diagnostico_erro: string | null
+    detalhes_gabi_diagnostico_erro: string | null
+    data_criacao_gabi_diagnostico_erro: Date | null
+  }
+
+  export type GabiDiagnosticoErroMaxAggregateOutputType = {
+    id_gabi_diagnostico_erro: string | null
+    id_organizacao_gabi_diagnostico_erro: string | null
+    id_usuario_gabi_diagnostico_erro: string | null
+    produto_gabi_diagnostico_erro: string | null
+    endpoint_gabi_diagnostico_erro: string | null
+    metodo_gabi_diagnostico_erro: string | null
+    status_http_gabi_diagnostico_erro: number | null
+    codigo_erro_gabi_diagnostico_erro: string | null
+    detalhes_gabi_diagnostico_erro: string | null
+    data_criacao_gabi_diagnostico_erro: Date | null
+  }
+
+  export type GabiDiagnosticoErroCountAggregateOutputType = {
+    id_gabi_diagnostico_erro: number
+    id_organizacao_gabi_diagnostico_erro: number
+    id_usuario_gabi_diagnostico_erro: number
+    produto_gabi_diagnostico_erro: number
+    endpoint_gabi_diagnostico_erro: number
+    metodo_gabi_diagnostico_erro: number
+    status_http_gabi_diagnostico_erro: number
+    codigo_erro_gabi_diagnostico_erro: number
+    detalhes_gabi_diagnostico_erro: number
+    payload_resumo_gabi_diagnostico_erro: number
+    data_criacao_gabi_diagnostico_erro: number
+    _all: number
+  }
+
+
+  export type GabiDiagnosticoErroAvgAggregateInputType = {
+    status_http_gabi_diagnostico_erro?: true
+  }
+
+  export type GabiDiagnosticoErroSumAggregateInputType = {
+    status_http_gabi_diagnostico_erro?: true
+  }
+
+  export type GabiDiagnosticoErroMinAggregateInputType = {
+    id_gabi_diagnostico_erro?: true
+    id_organizacao_gabi_diagnostico_erro?: true
+    id_usuario_gabi_diagnostico_erro?: true
+    produto_gabi_diagnostico_erro?: true
+    endpoint_gabi_diagnostico_erro?: true
+    metodo_gabi_diagnostico_erro?: true
+    status_http_gabi_diagnostico_erro?: true
+    codigo_erro_gabi_diagnostico_erro?: true
+    detalhes_gabi_diagnostico_erro?: true
+    data_criacao_gabi_diagnostico_erro?: true
+  }
+
+  export type GabiDiagnosticoErroMaxAggregateInputType = {
+    id_gabi_diagnostico_erro?: true
+    id_organizacao_gabi_diagnostico_erro?: true
+    id_usuario_gabi_diagnostico_erro?: true
+    produto_gabi_diagnostico_erro?: true
+    endpoint_gabi_diagnostico_erro?: true
+    metodo_gabi_diagnostico_erro?: true
+    status_http_gabi_diagnostico_erro?: true
+    codigo_erro_gabi_diagnostico_erro?: true
+    detalhes_gabi_diagnostico_erro?: true
+    data_criacao_gabi_diagnostico_erro?: true
+  }
+
+  export type GabiDiagnosticoErroCountAggregateInputType = {
+    id_gabi_diagnostico_erro?: true
+    id_organizacao_gabi_diagnostico_erro?: true
+    id_usuario_gabi_diagnostico_erro?: true
+    produto_gabi_diagnostico_erro?: true
+    endpoint_gabi_diagnostico_erro?: true
+    metodo_gabi_diagnostico_erro?: true
+    status_http_gabi_diagnostico_erro?: true
+    codigo_erro_gabi_diagnostico_erro?: true
+    detalhes_gabi_diagnostico_erro?: true
+    payload_resumo_gabi_diagnostico_erro?: true
+    data_criacao_gabi_diagnostico_erro?: true
+    _all?: true
+  }
+
+  export type GabiDiagnosticoErroAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiDiagnosticoErro to aggregate.
+     */
+    where?: GabiDiagnosticoErroWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiDiagnosticoErros to fetch.
+     */
+    orderBy?: GabiDiagnosticoErroOrderByWithRelationInput | GabiDiagnosticoErroOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiDiagnosticoErroWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiDiagnosticoErros from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiDiagnosticoErros.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiDiagnosticoErros
+    **/
+    _count?: true | GabiDiagnosticoErroCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiDiagnosticoErroAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiDiagnosticoErroSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiDiagnosticoErroMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiDiagnosticoErroMaxAggregateInputType
+  }
+
+  export type GetGabiDiagnosticoErroAggregateType<T extends GabiDiagnosticoErroAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiDiagnosticoErro]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiDiagnosticoErro[P]>
+      : GetScalarType<T[P], AggregateGabiDiagnosticoErro[P]>
+  }
+
+
+
+
+  export type GabiDiagnosticoErroGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiDiagnosticoErroWhereInput
+    orderBy?: GabiDiagnosticoErroOrderByWithAggregationInput | GabiDiagnosticoErroOrderByWithAggregationInput[]
+    by: GabiDiagnosticoErroScalarFieldEnum[] | GabiDiagnosticoErroScalarFieldEnum
+    having?: GabiDiagnosticoErroScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiDiagnosticoErroCountAggregateInputType | true
+    _avg?: GabiDiagnosticoErroAvgAggregateInputType
+    _sum?: GabiDiagnosticoErroSumAggregateInputType
+    _min?: GabiDiagnosticoErroMinAggregateInputType
+    _max?: GabiDiagnosticoErroMaxAggregateInputType
+  }
+
+  export type GabiDiagnosticoErroGroupByOutputType = {
+    id_gabi_diagnostico_erro: string
+    id_organizacao_gabi_diagnostico_erro: string
+    id_usuario_gabi_diagnostico_erro: string
+    produto_gabi_diagnostico_erro: string
+    endpoint_gabi_diagnostico_erro: string
+    metodo_gabi_diagnostico_erro: string
+    status_http_gabi_diagnostico_erro: number
+    codigo_erro_gabi_diagnostico_erro: string | null
+    detalhes_gabi_diagnostico_erro: string | null
+    payload_resumo_gabi_diagnostico_erro: JsonValue | null
+    data_criacao_gabi_diagnostico_erro: Date
+    _count: GabiDiagnosticoErroCountAggregateOutputType | null
+    _avg: GabiDiagnosticoErroAvgAggregateOutputType | null
+    _sum: GabiDiagnosticoErroSumAggregateOutputType | null
+    _min: GabiDiagnosticoErroMinAggregateOutputType | null
+    _max: GabiDiagnosticoErroMaxAggregateOutputType | null
+  }
+
+  type GetGabiDiagnosticoErroGroupByPayload<T extends GabiDiagnosticoErroGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiDiagnosticoErroGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiDiagnosticoErroGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiDiagnosticoErroGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiDiagnosticoErroGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiDiagnosticoErroSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_diagnostico_erro?: boolean
+    id_organizacao_gabi_diagnostico_erro?: boolean
+    id_usuario_gabi_diagnostico_erro?: boolean
+    produto_gabi_diagnostico_erro?: boolean
+    endpoint_gabi_diagnostico_erro?: boolean
+    metodo_gabi_diagnostico_erro?: boolean
+    status_http_gabi_diagnostico_erro?: boolean
+    codigo_erro_gabi_diagnostico_erro?: boolean
+    detalhes_gabi_diagnostico_erro?: boolean
+    payload_resumo_gabi_diagnostico_erro?: boolean
+    data_criacao_gabi_diagnostico_erro?: boolean
+  }, ExtArgs["result"]["gabiDiagnosticoErro"]>
+
+  export type GabiDiagnosticoErroSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_diagnostico_erro?: boolean
+    id_organizacao_gabi_diagnostico_erro?: boolean
+    id_usuario_gabi_diagnostico_erro?: boolean
+    produto_gabi_diagnostico_erro?: boolean
+    endpoint_gabi_diagnostico_erro?: boolean
+    metodo_gabi_diagnostico_erro?: boolean
+    status_http_gabi_diagnostico_erro?: boolean
+    codigo_erro_gabi_diagnostico_erro?: boolean
+    detalhes_gabi_diagnostico_erro?: boolean
+    payload_resumo_gabi_diagnostico_erro?: boolean
+    data_criacao_gabi_diagnostico_erro?: boolean
+  }, ExtArgs["result"]["gabiDiagnosticoErro"]>
+
+  export type GabiDiagnosticoErroSelectScalar = {
+    id_gabi_diagnostico_erro?: boolean
+    id_organizacao_gabi_diagnostico_erro?: boolean
+    id_usuario_gabi_diagnostico_erro?: boolean
+    produto_gabi_diagnostico_erro?: boolean
+    endpoint_gabi_diagnostico_erro?: boolean
+    metodo_gabi_diagnostico_erro?: boolean
+    status_http_gabi_diagnostico_erro?: boolean
+    codigo_erro_gabi_diagnostico_erro?: boolean
+    detalhes_gabi_diagnostico_erro?: boolean
+    payload_resumo_gabi_diagnostico_erro?: boolean
+    data_criacao_gabi_diagnostico_erro?: boolean
+  }
+
+
+  export type $GabiDiagnosticoErroPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiDiagnosticoErro"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_diagnostico_erro: string
+      id_organizacao_gabi_diagnostico_erro: string
+      id_usuario_gabi_diagnostico_erro: string
+      produto_gabi_diagnostico_erro: string
+      endpoint_gabi_diagnostico_erro: string
+      metodo_gabi_diagnostico_erro: string
+      status_http_gabi_diagnostico_erro: number
+      codigo_erro_gabi_diagnostico_erro: string | null
+      detalhes_gabi_diagnostico_erro: string | null
+      payload_resumo_gabi_diagnostico_erro: Prisma.JsonValue | null
+      data_criacao_gabi_diagnostico_erro: Date
+    }, ExtArgs["result"]["gabiDiagnosticoErro"]>
+    composites: {}
+  }
+
+  type GabiDiagnosticoErroGetPayload<S extends boolean | null | undefined | GabiDiagnosticoErroDefaultArgs> = $Result.GetResult<Prisma.$GabiDiagnosticoErroPayload, S>
+
+  type GabiDiagnosticoErroCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiDiagnosticoErroFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiDiagnosticoErroCountAggregateInputType | true
+    }
+
+  export interface GabiDiagnosticoErroDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiDiagnosticoErro'], meta: { name: 'GabiDiagnosticoErro' } }
+    /**
+     * Find zero or one GabiDiagnosticoErro that matches the filter.
+     * @param {GabiDiagnosticoErroFindUniqueArgs} args - Arguments to find a GabiDiagnosticoErro
+     * @example
+     * // Get one GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiDiagnosticoErroFindUniqueArgs>(args: SelectSubset<T, GabiDiagnosticoErroFindUniqueArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiDiagnosticoErro that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiDiagnosticoErroFindUniqueOrThrowArgs} args - Arguments to find a GabiDiagnosticoErro
+     * @example
+     * // Get one GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiDiagnosticoErroFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiDiagnosticoErroFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiDiagnosticoErro that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroFindFirstArgs} args - Arguments to find a GabiDiagnosticoErro
+     * @example
+     * // Get one GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiDiagnosticoErroFindFirstArgs>(args?: SelectSubset<T, GabiDiagnosticoErroFindFirstArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiDiagnosticoErro that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroFindFirstOrThrowArgs} args - Arguments to find a GabiDiagnosticoErro
+     * @example
+     * // Get one GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiDiagnosticoErroFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiDiagnosticoErroFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiDiagnosticoErros that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiDiagnosticoErros
+     * const gabiDiagnosticoErros = await prisma.gabiDiagnosticoErro.findMany()
+     * 
+     * // Get first 10 GabiDiagnosticoErros
+     * const gabiDiagnosticoErros = await prisma.gabiDiagnosticoErro.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_diagnostico_erro`
+     * const gabiDiagnosticoErroWithId_gabi_diagnostico_erroOnly = await prisma.gabiDiagnosticoErro.findMany({ select: { id_gabi_diagnostico_erro: true } })
+     * 
+     */
+    findMany<T extends GabiDiagnosticoErroFindManyArgs>(args?: SelectSubset<T, GabiDiagnosticoErroFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiDiagnosticoErro.
+     * @param {GabiDiagnosticoErroCreateArgs} args - Arguments to create a GabiDiagnosticoErro.
+     * @example
+     * // Create one GabiDiagnosticoErro
+     * const GabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.create({
+     *   data: {
+     *     // ... data to create a GabiDiagnosticoErro
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiDiagnosticoErroCreateArgs>(args: SelectSubset<T, GabiDiagnosticoErroCreateArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiDiagnosticoErros.
+     * @param {GabiDiagnosticoErroCreateManyArgs} args - Arguments to create many GabiDiagnosticoErros.
+     * @example
+     * // Create many GabiDiagnosticoErros
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiDiagnosticoErroCreateManyArgs>(args?: SelectSubset<T, GabiDiagnosticoErroCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiDiagnosticoErros and returns the data saved in the database.
+     * @param {GabiDiagnosticoErroCreateManyAndReturnArgs} args - Arguments to create many GabiDiagnosticoErros.
+     * @example
+     * // Create many GabiDiagnosticoErros
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiDiagnosticoErros and only return the `id_gabi_diagnostico_erro`
+     * const gabiDiagnosticoErroWithId_gabi_diagnostico_erroOnly = await prisma.gabiDiagnosticoErro.createManyAndReturn({ 
+     *   select: { id_gabi_diagnostico_erro: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiDiagnosticoErroCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiDiagnosticoErroCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiDiagnosticoErro.
+     * @param {GabiDiagnosticoErroDeleteArgs} args - Arguments to delete one GabiDiagnosticoErro.
+     * @example
+     * // Delete one GabiDiagnosticoErro
+     * const GabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.delete({
+     *   where: {
+     *     // ... filter to delete one GabiDiagnosticoErro
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiDiagnosticoErroDeleteArgs>(args: SelectSubset<T, GabiDiagnosticoErroDeleteArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiDiagnosticoErro.
+     * @param {GabiDiagnosticoErroUpdateArgs} args - Arguments to update one GabiDiagnosticoErro.
+     * @example
+     * // Update one GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiDiagnosticoErroUpdateArgs>(args: SelectSubset<T, GabiDiagnosticoErroUpdateArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiDiagnosticoErros.
+     * @param {GabiDiagnosticoErroDeleteManyArgs} args - Arguments to filter GabiDiagnosticoErros to delete.
+     * @example
+     * // Delete a few GabiDiagnosticoErros
+     * const { count } = await prisma.gabiDiagnosticoErro.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiDiagnosticoErroDeleteManyArgs>(args?: SelectSubset<T, GabiDiagnosticoErroDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiDiagnosticoErros.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiDiagnosticoErros
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiDiagnosticoErroUpdateManyArgs>(args: SelectSubset<T, GabiDiagnosticoErroUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiDiagnosticoErro.
+     * @param {GabiDiagnosticoErroUpsertArgs} args - Arguments to update or create a GabiDiagnosticoErro.
+     * @example
+     * // Update or create a GabiDiagnosticoErro
+     * const gabiDiagnosticoErro = await prisma.gabiDiagnosticoErro.upsert({
+     *   create: {
+     *     // ... data to create a GabiDiagnosticoErro
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiDiagnosticoErro we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiDiagnosticoErroUpsertArgs>(args: SelectSubset<T, GabiDiagnosticoErroUpsertArgs<ExtArgs>>): Prisma__GabiDiagnosticoErroClient<$Result.GetResult<Prisma.$GabiDiagnosticoErroPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiDiagnosticoErros.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroCountArgs} args - Arguments to filter GabiDiagnosticoErros to count.
+     * @example
+     * // Count the number of GabiDiagnosticoErros
+     * const count = await prisma.gabiDiagnosticoErro.count({
+     *   where: {
+     *     // ... the filter for the GabiDiagnosticoErros we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiDiagnosticoErroCountArgs>(
+      args?: Subset<T, GabiDiagnosticoErroCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiDiagnosticoErroCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiDiagnosticoErro.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiDiagnosticoErroAggregateArgs>(args: Subset<T, GabiDiagnosticoErroAggregateArgs>): Prisma.PrismaPromise<GetGabiDiagnosticoErroAggregateType<T>>
+
+    /**
+     * Group by GabiDiagnosticoErro.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiDiagnosticoErroGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiDiagnosticoErroGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiDiagnosticoErroGroupByArgs['orderBy'] }
+        : { orderBy?: GabiDiagnosticoErroGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiDiagnosticoErroGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiDiagnosticoErroGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiDiagnosticoErro model
+   */
+  readonly fields: GabiDiagnosticoErroFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiDiagnosticoErro.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiDiagnosticoErroClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiDiagnosticoErro model
+   */ 
+  interface GabiDiagnosticoErroFieldRefs {
+    readonly id_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly id_organizacao_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly id_usuario_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly produto_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly endpoint_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly metodo_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly status_http_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'Int'>
+    readonly codigo_erro_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly detalhes_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'String'>
+    readonly payload_resumo_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'Json'>
+    readonly data_criacao_gabi_diagnostico_erro: FieldRef<"GabiDiagnosticoErro", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiDiagnosticoErro findUnique
+   */
+  export type GabiDiagnosticoErroFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiDiagnosticoErro to fetch.
+     */
+    where: GabiDiagnosticoErroWhereUniqueInput
+  }
+
+  /**
+   * GabiDiagnosticoErro findUniqueOrThrow
+   */
+  export type GabiDiagnosticoErroFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiDiagnosticoErro to fetch.
+     */
+    where: GabiDiagnosticoErroWhereUniqueInput
+  }
+
+  /**
+   * GabiDiagnosticoErro findFirst
+   */
+  export type GabiDiagnosticoErroFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiDiagnosticoErro to fetch.
+     */
+    where?: GabiDiagnosticoErroWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiDiagnosticoErros to fetch.
+     */
+    orderBy?: GabiDiagnosticoErroOrderByWithRelationInput | GabiDiagnosticoErroOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiDiagnosticoErros.
+     */
+    cursor?: GabiDiagnosticoErroWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiDiagnosticoErros from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiDiagnosticoErros.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiDiagnosticoErros.
+     */
+    distinct?: GabiDiagnosticoErroScalarFieldEnum | GabiDiagnosticoErroScalarFieldEnum[]
+  }
+
+  /**
+   * GabiDiagnosticoErro findFirstOrThrow
+   */
+  export type GabiDiagnosticoErroFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiDiagnosticoErro to fetch.
+     */
+    where?: GabiDiagnosticoErroWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiDiagnosticoErros to fetch.
+     */
+    orderBy?: GabiDiagnosticoErroOrderByWithRelationInput | GabiDiagnosticoErroOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiDiagnosticoErros.
+     */
+    cursor?: GabiDiagnosticoErroWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiDiagnosticoErros from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiDiagnosticoErros.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiDiagnosticoErros.
+     */
+    distinct?: GabiDiagnosticoErroScalarFieldEnum | GabiDiagnosticoErroScalarFieldEnum[]
+  }
+
+  /**
+   * GabiDiagnosticoErro findMany
+   */
+  export type GabiDiagnosticoErroFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiDiagnosticoErros to fetch.
+     */
+    where?: GabiDiagnosticoErroWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiDiagnosticoErros to fetch.
+     */
+    orderBy?: GabiDiagnosticoErroOrderByWithRelationInput | GabiDiagnosticoErroOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiDiagnosticoErros.
+     */
+    cursor?: GabiDiagnosticoErroWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiDiagnosticoErros from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiDiagnosticoErros.
+     */
+    skip?: number
+    distinct?: GabiDiagnosticoErroScalarFieldEnum | GabiDiagnosticoErroScalarFieldEnum[]
+  }
+
+  /**
+   * GabiDiagnosticoErro create
+   */
+  export type GabiDiagnosticoErroCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiDiagnosticoErro.
+     */
+    data: XOR<GabiDiagnosticoErroCreateInput, GabiDiagnosticoErroUncheckedCreateInput>
+  }
+
+  /**
+   * GabiDiagnosticoErro createMany
+   */
+  export type GabiDiagnosticoErroCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiDiagnosticoErros.
+     */
+    data: GabiDiagnosticoErroCreateManyInput | GabiDiagnosticoErroCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiDiagnosticoErro createManyAndReturn
+   */
+  export type GabiDiagnosticoErroCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiDiagnosticoErros.
+     */
+    data: GabiDiagnosticoErroCreateManyInput | GabiDiagnosticoErroCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiDiagnosticoErro update
+   */
+  export type GabiDiagnosticoErroUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiDiagnosticoErro.
+     */
+    data: XOR<GabiDiagnosticoErroUpdateInput, GabiDiagnosticoErroUncheckedUpdateInput>
+    /**
+     * Choose, which GabiDiagnosticoErro to update.
+     */
+    where: GabiDiagnosticoErroWhereUniqueInput
+  }
+
+  /**
+   * GabiDiagnosticoErro updateMany
+   */
+  export type GabiDiagnosticoErroUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiDiagnosticoErros.
+     */
+    data: XOR<GabiDiagnosticoErroUpdateManyMutationInput, GabiDiagnosticoErroUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiDiagnosticoErros to update
+     */
+    where?: GabiDiagnosticoErroWhereInput
+  }
+
+  /**
+   * GabiDiagnosticoErro upsert
+   */
+  export type GabiDiagnosticoErroUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiDiagnosticoErro to update in case it exists.
+     */
+    where: GabiDiagnosticoErroWhereUniqueInput
+    /**
+     * In case the GabiDiagnosticoErro found by the `where` argument doesn't exist, create a new GabiDiagnosticoErro with this data.
+     */
+    create: XOR<GabiDiagnosticoErroCreateInput, GabiDiagnosticoErroUncheckedCreateInput>
+    /**
+     * In case the GabiDiagnosticoErro was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiDiagnosticoErroUpdateInput, GabiDiagnosticoErroUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiDiagnosticoErro delete
+   */
+  export type GabiDiagnosticoErroDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+    /**
+     * Filter which GabiDiagnosticoErro to delete.
+     */
+    where: GabiDiagnosticoErroWhereUniqueInput
+  }
+
+  /**
+   * GabiDiagnosticoErro deleteMany
+   */
+  export type GabiDiagnosticoErroDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiDiagnosticoErros to delete
+     */
+    where?: GabiDiagnosticoErroWhereInput
+  }
+
+  /**
+   * GabiDiagnosticoErro without action
+   */
+  export type GabiDiagnosticoErroDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiDiagnosticoErro
+     */
+    select?: GabiDiagnosticoErroSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiChamado
+   */
+
+  export type AggregateGabiChamado = {
+    _count: GabiChamadoCountAggregateOutputType | null
+    _min: GabiChamadoMinAggregateOutputType | null
+    _max: GabiChamadoMaxAggregateOutputType | null
+  }
+
+  export type GabiChamadoMinAggregateOutputType = {
+    id_gabi_chamado: string | null
+    id_organizacao_gabi_chamado: string | null
+    id_usuario_gabi_chamado: string | null
+    numero_gabi_chamado: string | null
+    tipo_gabi_chamado: string | null
+    produto_gabi_chamado: string | null
+    descricao_usuario_gabi_chamado: string | null
+    diagnostico_gabi_chamado: string | null
+    id_conversa_gabi_chamado: string | null
+    status_gabi_chamado: string | null
+    email_enviado_gabi_chamado: boolean | null
+    data_criacao_gabi_chamado: Date | null
+    data_atualizacao_gabi_chamado: Date | null
+  }
+
+  export type GabiChamadoMaxAggregateOutputType = {
+    id_gabi_chamado: string | null
+    id_organizacao_gabi_chamado: string | null
+    id_usuario_gabi_chamado: string | null
+    numero_gabi_chamado: string | null
+    tipo_gabi_chamado: string | null
+    produto_gabi_chamado: string | null
+    descricao_usuario_gabi_chamado: string | null
+    diagnostico_gabi_chamado: string | null
+    id_conversa_gabi_chamado: string | null
+    status_gabi_chamado: string | null
+    email_enviado_gabi_chamado: boolean | null
+    data_criacao_gabi_chamado: Date | null
+    data_atualizacao_gabi_chamado: Date | null
+  }
+
+  export type GabiChamadoCountAggregateOutputType = {
+    id_gabi_chamado: number
+    id_organizacao_gabi_chamado: number
+    id_usuario_gabi_chamado: number
+    numero_gabi_chamado: number
+    tipo_gabi_chamado: number
+    produto_gabi_chamado: number
+    descricao_usuario_gabi_chamado: number
+    diagnostico_gabi_chamado: number
+    id_conversa_gabi_chamado: number
+    status_gabi_chamado: number
+    email_enviado_gabi_chamado: number
+    data_criacao_gabi_chamado: number
+    data_atualizacao_gabi_chamado: number
+    _all: number
+  }
+
+
+  export type GabiChamadoMinAggregateInputType = {
+    id_gabi_chamado?: true
+    id_organizacao_gabi_chamado?: true
+    id_usuario_gabi_chamado?: true
+    numero_gabi_chamado?: true
+    tipo_gabi_chamado?: true
+    produto_gabi_chamado?: true
+    descricao_usuario_gabi_chamado?: true
+    diagnostico_gabi_chamado?: true
+    id_conversa_gabi_chamado?: true
+    status_gabi_chamado?: true
+    email_enviado_gabi_chamado?: true
+    data_criacao_gabi_chamado?: true
+    data_atualizacao_gabi_chamado?: true
+  }
+
+  export type GabiChamadoMaxAggregateInputType = {
+    id_gabi_chamado?: true
+    id_organizacao_gabi_chamado?: true
+    id_usuario_gabi_chamado?: true
+    numero_gabi_chamado?: true
+    tipo_gabi_chamado?: true
+    produto_gabi_chamado?: true
+    descricao_usuario_gabi_chamado?: true
+    diagnostico_gabi_chamado?: true
+    id_conversa_gabi_chamado?: true
+    status_gabi_chamado?: true
+    email_enviado_gabi_chamado?: true
+    data_criacao_gabi_chamado?: true
+    data_atualizacao_gabi_chamado?: true
+  }
+
+  export type GabiChamadoCountAggregateInputType = {
+    id_gabi_chamado?: true
+    id_organizacao_gabi_chamado?: true
+    id_usuario_gabi_chamado?: true
+    numero_gabi_chamado?: true
+    tipo_gabi_chamado?: true
+    produto_gabi_chamado?: true
+    descricao_usuario_gabi_chamado?: true
+    diagnostico_gabi_chamado?: true
+    id_conversa_gabi_chamado?: true
+    status_gabi_chamado?: true
+    email_enviado_gabi_chamado?: true
+    data_criacao_gabi_chamado?: true
+    data_atualizacao_gabi_chamado?: true
+    _all?: true
+  }
+
+  export type GabiChamadoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiChamado to aggregate.
+     */
+    where?: GabiChamadoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiChamados to fetch.
+     */
+    orderBy?: GabiChamadoOrderByWithRelationInput | GabiChamadoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiChamadoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiChamados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiChamados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiChamados
+    **/
+    _count?: true | GabiChamadoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiChamadoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiChamadoMaxAggregateInputType
+  }
+
+  export type GetGabiChamadoAggregateType<T extends GabiChamadoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiChamado]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiChamado[P]>
+      : GetScalarType<T[P], AggregateGabiChamado[P]>
+  }
+
+
+
+
+  export type GabiChamadoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiChamadoWhereInput
+    orderBy?: GabiChamadoOrderByWithAggregationInput | GabiChamadoOrderByWithAggregationInput[]
+    by: GabiChamadoScalarFieldEnum[] | GabiChamadoScalarFieldEnum
+    having?: GabiChamadoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiChamadoCountAggregateInputType | true
+    _min?: GabiChamadoMinAggregateInputType
+    _max?: GabiChamadoMaxAggregateInputType
+  }
+
+  export type GabiChamadoGroupByOutputType = {
+    id_gabi_chamado: string
+    id_organizacao_gabi_chamado: string
+    id_usuario_gabi_chamado: string
+    numero_gabi_chamado: string
+    tipo_gabi_chamado: string
+    produto_gabi_chamado: string
+    descricao_usuario_gabi_chamado: string
+    diagnostico_gabi_chamado: string | null
+    id_conversa_gabi_chamado: string | null
+    status_gabi_chamado: string
+    email_enviado_gabi_chamado: boolean
+    data_criacao_gabi_chamado: Date
+    data_atualizacao_gabi_chamado: Date
+    _count: GabiChamadoCountAggregateOutputType | null
+    _min: GabiChamadoMinAggregateOutputType | null
+    _max: GabiChamadoMaxAggregateOutputType | null
+  }
+
+  type GetGabiChamadoGroupByPayload<T extends GabiChamadoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiChamadoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiChamadoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiChamadoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiChamadoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiChamadoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_chamado?: boolean
+    id_organizacao_gabi_chamado?: boolean
+    id_usuario_gabi_chamado?: boolean
+    numero_gabi_chamado?: boolean
+    tipo_gabi_chamado?: boolean
+    produto_gabi_chamado?: boolean
+    descricao_usuario_gabi_chamado?: boolean
+    diagnostico_gabi_chamado?: boolean
+    id_conversa_gabi_chamado?: boolean
+    status_gabi_chamado?: boolean
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: boolean
+    data_atualizacao_gabi_chamado?: boolean
+  }, ExtArgs["result"]["gabiChamado"]>
+
+  export type GabiChamadoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_chamado?: boolean
+    id_organizacao_gabi_chamado?: boolean
+    id_usuario_gabi_chamado?: boolean
+    numero_gabi_chamado?: boolean
+    tipo_gabi_chamado?: boolean
+    produto_gabi_chamado?: boolean
+    descricao_usuario_gabi_chamado?: boolean
+    diagnostico_gabi_chamado?: boolean
+    id_conversa_gabi_chamado?: boolean
+    status_gabi_chamado?: boolean
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: boolean
+    data_atualizacao_gabi_chamado?: boolean
+  }, ExtArgs["result"]["gabiChamado"]>
+
+  export type GabiChamadoSelectScalar = {
+    id_gabi_chamado?: boolean
+    id_organizacao_gabi_chamado?: boolean
+    id_usuario_gabi_chamado?: boolean
+    numero_gabi_chamado?: boolean
+    tipo_gabi_chamado?: boolean
+    produto_gabi_chamado?: boolean
+    descricao_usuario_gabi_chamado?: boolean
+    diagnostico_gabi_chamado?: boolean
+    id_conversa_gabi_chamado?: boolean
+    status_gabi_chamado?: boolean
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: boolean
+    data_atualizacao_gabi_chamado?: boolean
+  }
+
+
+  export type $GabiChamadoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiChamado"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_chamado: string
+      id_organizacao_gabi_chamado: string
+      id_usuario_gabi_chamado: string
+      numero_gabi_chamado: string
+      tipo_gabi_chamado: string
+      produto_gabi_chamado: string
+      descricao_usuario_gabi_chamado: string
+      diagnostico_gabi_chamado: string | null
+      id_conversa_gabi_chamado: string | null
+      status_gabi_chamado: string
+      email_enviado_gabi_chamado: boolean
+      data_criacao_gabi_chamado: Date
+      data_atualizacao_gabi_chamado: Date
+    }, ExtArgs["result"]["gabiChamado"]>
+    composites: {}
+  }
+
+  type GabiChamadoGetPayload<S extends boolean | null | undefined | GabiChamadoDefaultArgs> = $Result.GetResult<Prisma.$GabiChamadoPayload, S>
+
+  type GabiChamadoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiChamadoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiChamadoCountAggregateInputType | true
+    }
+
+  export interface GabiChamadoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiChamado'], meta: { name: 'GabiChamado' } }
+    /**
+     * Find zero or one GabiChamado that matches the filter.
+     * @param {GabiChamadoFindUniqueArgs} args - Arguments to find a GabiChamado
+     * @example
+     * // Get one GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiChamadoFindUniqueArgs>(args: SelectSubset<T, GabiChamadoFindUniqueArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiChamado that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiChamadoFindUniqueOrThrowArgs} args - Arguments to find a GabiChamado
+     * @example
+     * // Get one GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiChamadoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiChamadoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiChamado that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoFindFirstArgs} args - Arguments to find a GabiChamado
+     * @example
+     * // Get one GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiChamadoFindFirstArgs>(args?: SelectSubset<T, GabiChamadoFindFirstArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiChamado that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoFindFirstOrThrowArgs} args - Arguments to find a GabiChamado
+     * @example
+     * // Get one GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiChamadoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiChamadoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiChamados that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiChamados
+     * const gabiChamados = await prisma.gabiChamado.findMany()
+     * 
+     * // Get first 10 GabiChamados
+     * const gabiChamados = await prisma.gabiChamado.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_chamado`
+     * const gabiChamadoWithId_gabi_chamadoOnly = await prisma.gabiChamado.findMany({ select: { id_gabi_chamado: true } })
+     * 
+     */
+    findMany<T extends GabiChamadoFindManyArgs>(args?: SelectSubset<T, GabiChamadoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiChamado.
+     * @param {GabiChamadoCreateArgs} args - Arguments to create a GabiChamado.
+     * @example
+     * // Create one GabiChamado
+     * const GabiChamado = await prisma.gabiChamado.create({
+     *   data: {
+     *     // ... data to create a GabiChamado
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiChamadoCreateArgs>(args: SelectSubset<T, GabiChamadoCreateArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiChamados.
+     * @param {GabiChamadoCreateManyArgs} args - Arguments to create many GabiChamados.
+     * @example
+     * // Create many GabiChamados
+     * const gabiChamado = await prisma.gabiChamado.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiChamadoCreateManyArgs>(args?: SelectSubset<T, GabiChamadoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiChamados and returns the data saved in the database.
+     * @param {GabiChamadoCreateManyAndReturnArgs} args - Arguments to create many GabiChamados.
+     * @example
+     * // Create many GabiChamados
+     * const gabiChamado = await prisma.gabiChamado.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiChamados and only return the `id_gabi_chamado`
+     * const gabiChamadoWithId_gabi_chamadoOnly = await prisma.gabiChamado.createManyAndReturn({ 
+     *   select: { id_gabi_chamado: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiChamadoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiChamadoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiChamado.
+     * @param {GabiChamadoDeleteArgs} args - Arguments to delete one GabiChamado.
+     * @example
+     * // Delete one GabiChamado
+     * const GabiChamado = await prisma.gabiChamado.delete({
+     *   where: {
+     *     // ... filter to delete one GabiChamado
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiChamadoDeleteArgs>(args: SelectSubset<T, GabiChamadoDeleteArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiChamado.
+     * @param {GabiChamadoUpdateArgs} args - Arguments to update one GabiChamado.
+     * @example
+     * // Update one GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiChamadoUpdateArgs>(args: SelectSubset<T, GabiChamadoUpdateArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiChamados.
+     * @param {GabiChamadoDeleteManyArgs} args - Arguments to filter GabiChamados to delete.
+     * @example
+     * // Delete a few GabiChamados
+     * const { count } = await prisma.gabiChamado.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiChamadoDeleteManyArgs>(args?: SelectSubset<T, GabiChamadoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiChamados.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiChamados
+     * const gabiChamado = await prisma.gabiChamado.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiChamadoUpdateManyArgs>(args: SelectSubset<T, GabiChamadoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiChamado.
+     * @param {GabiChamadoUpsertArgs} args - Arguments to update or create a GabiChamado.
+     * @example
+     * // Update or create a GabiChamado
+     * const gabiChamado = await prisma.gabiChamado.upsert({
+     *   create: {
+     *     // ... data to create a GabiChamado
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiChamado we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiChamadoUpsertArgs>(args: SelectSubset<T, GabiChamadoUpsertArgs<ExtArgs>>): Prisma__GabiChamadoClient<$Result.GetResult<Prisma.$GabiChamadoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiChamados.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoCountArgs} args - Arguments to filter GabiChamados to count.
+     * @example
+     * // Count the number of GabiChamados
+     * const count = await prisma.gabiChamado.count({
+     *   where: {
+     *     // ... the filter for the GabiChamados we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiChamadoCountArgs>(
+      args?: Subset<T, GabiChamadoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiChamadoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiChamado.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiChamadoAggregateArgs>(args: Subset<T, GabiChamadoAggregateArgs>): Prisma.PrismaPromise<GetGabiChamadoAggregateType<T>>
+
+    /**
+     * Group by GabiChamado.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiChamadoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiChamadoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiChamadoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiChamadoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiChamadoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiChamadoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiChamado model
+   */
+  readonly fields: GabiChamadoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiChamado.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiChamadoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiChamado model
+   */ 
+  interface GabiChamadoFieldRefs {
+    readonly id_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly id_organizacao_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly id_usuario_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly numero_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly tipo_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly produto_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly descricao_usuario_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly diagnostico_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly id_conversa_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly status_gabi_chamado: FieldRef<"GabiChamado", 'String'>
+    readonly email_enviado_gabi_chamado: FieldRef<"GabiChamado", 'Boolean'>
+    readonly data_criacao_gabi_chamado: FieldRef<"GabiChamado", 'DateTime'>
+    readonly data_atualizacao_gabi_chamado: FieldRef<"GabiChamado", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiChamado findUnique
+   */
+  export type GabiChamadoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiChamado to fetch.
+     */
+    where: GabiChamadoWhereUniqueInput
+  }
+
+  /**
+   * GabiChamado findUniqueOrThrow
+   */
+  export type GabiChamadoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiChamado to fetch.
+     */
+    where: GabiChamadoWhereUniqueInput
+  }
+
+  /**
+   * GabiChamado findFirst
+   */
+  export type GabiChamadoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiChamado to fetch.
+     */
+    where?: GabiChamadoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiChamados to fetch.
+     */
+    orderBy?: GabiChamadoOrderByWithRelationInput | GabiChamadoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiChamados.
+     */
+    cursor?: GabiChamadoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiChamados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiChamados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiChamados.
+     */
+    distinct?: GabiChamadoScalarFieldEnum | GabiChamadoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiChamado findFirstOrThrow
+   */
+  export type GabiChamadoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiChamado to fetch.
+     */
+    where?: GabiChamadoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiChamados to fetch.
+     */
+    orderBy?: GabiChamadoOrderByWithRelationInput | GabiChamadoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiChamados.
+     */
+    cursor?: GabiChamadoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiChamados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiChamados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiChamados.
+     */
+    distinct?: GabiChamadoScalarFieldEnum | GabiChamadoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiChamado findMany
+   */
+  export type GabiChamadoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiChamados to fetch.
+     */
+    where?: GabiChamadoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiChamados to fetch.
+     */
+    orderBy?: GabiChamadoOrderByWithRelationInput | GabiChamadoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiChamados.
+     */
+    cursor?: GabiChamadoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiChamados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiChamados.
+     */
+    skip?: number
+    distinct?: GabiChamadoScalarFieldEnum | GabiChamadoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiChamado create
+   */
+  export type GabiChamadoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiChamado.
+     */
+    data: XOR<GabiChamadoCreateInput, GabiChamadoUncheckedCreateInput>
+  }
+
+  /**
+   * GabiChamado createMany
+   */
+  export type GabiChamadoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiChamados.
+     */
+    data: GabiChamadoCreateManyInput | GabiChamadoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiChamado createManyAndReturn
+   */
+  export type GabiChamadoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiChamados.
+     */
+    data: GabiChamadoCreateManyInput | GabiChamadoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiChamado update
+   */
+  export type GabiChamadoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiChamado.
+     */
+    data: XOR<GabiChamadoUpdateInput, GabiChamadoUncheckedUpdateInput>
+    /**
+     * Choose, which GabiChamado to update.
+     */
+    where: GabiChamadoWhereUniqueInput
+  }
+
+  /**
+   * GabiChamado updateMany
+   */
+  export type GabiChamadoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiChamados.
+     */
+    data: XOR<GabiChamadoUpdateManyMutationInput, GabiChamadoUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiChamados to update
+     */
+    where?: GabiChamadoWhereInput
+  }
+
+  /**
+   * GabiChamado upsert
+   */
+  export type GabiChamadoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiChamado to update in case it exists.
+     */
+    where: GabiChamadoWhereUniqueInput
+    /**
+     * In case the GabiChamado found by the `where` argument doesn't exist, create a new GabiChamado with this data.
+     */
+    create: XOR<GabiChamadoCreateInput, GabiChamadoUncheckedCreateInput>
+    /**
+     * In case the GabiChamado was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiChamadoUpdateInput, GabiChamadoUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiChamado delete
+   */
+  export type GabiChamadoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+    /**
+     * Filter which GabiChamado to delete.
+     */
+    where: GabiChamadoWhereUniqueInput
+  }
+
+  /**
+   * GabiChamado deleteMany
+   */
+  export type GabiChamadoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiChamados to delete
+     */
+    where?: GabiChamadoWhereInput
+  }
+
+  /**
+   * GabiChamado without action
+   */
+  export type GabiChamadoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiChamado
+     */
+    select?: GabiChamadoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiToolExecucao
+   */
+
+  export type AggregateGabiToolExecucao = {
+    _count: GabiToolExecucaoCountAggregateOutputType | null
+    _avg: GabiToolExecucaoAvgAggregateOutputType | null
+    _sum: GabiToolExecucaoSumAggregateOutputType | null
+    _min: GabiToolExecucaoMinAggregateOutputType | null
+    _max: GabiToolExecucaoMaxAggregateOutputType | null
+  }
+
+  export type GabiToolExecucaoAvgAggregateOutputType = {
+    resultado_status_gabi_tool_execucao: number | null
+    duracao_ms_gabi_tool_execucao: number | null
+  }
+
+  export type GabiToolExecucaoSumAggregateOutputType = {
+    resultado_status_gabi_tool_execucao: number | null
+    duracao_ms_gabi_tool_execucao: number | null
+  }
+
+  export type GabiToolExecucaoMinAggregateOutputType = {
+    id_gabi_tool_execucao: string | null
+    id_organizacao_gabi_tool_execucao: string | null
+    id_usuario_gabi_tool_execucao: string | null
+    id_conversa_gabi_tool_execucao: string | null
+    tool_id_gabi_tool_execucao: string | null
+    resultado_status_gabi_tool_execucao: number | null
+    resultado_resumo_gabi_tool_execucao: string | null
+    duracao_ms_gabi_tool_execucao: number | null
+    confirmacao_usuario_gabi_tool_execucao: boolean | null
+    data_criacao_gabi_tool_execucao: Date | null
+  }
+
+  export type GabiToolExecucaoMaxAggregateOutputType = {
+    id_gabi_tool_execucao: string | null
+    id_organizacao_gabi_tool_execucao: string | null
+    id_usuario_gabi_tool_execucao: string | null
+    id_conversa_gabi_tool_execucao: string | null
+    tool_id_gabi_tool_execucao: string | null
+    resultado_status_gabi_tool_execucao: number | null
+    resultado_resumo_gabi_tool_execucao: string | null
+    duracao_ms_gabi_tool_execucao: number | null
+    confirmacao_usuario_gabi_tool_execucao: boolean | null
+    data_criacao_gabi_tool_execucao: Date | null
+  }
+
+  export type GabiToolExecucaoCountAggregateOutputType = {
+    id_gabi_tool_execucao: number
+    id_organizacao_gabi_tool_execucao: number
+    id_usuario_gabi_tool_execucao: number
+    id_conversa_gabi_tool_execucao: number
+    tool_id_gabi_tool_execucao: number
+    parametros_gabi_tool_execucao: number
+    resultado_status_gabi_tool_execucao: number
+    resultado_resumo_gabi_tool_execucao: number
+    duracao_ms_gabi_tool_execucao: number
+    confirmacao_usuario_gabi_tool_execucao: number
+    data_criacao_gabi_tool_execucao: number
+    _all: number
+  }
+
+
+  export type GabiToolExecucaoAvgAggregateInputType = {
+    resultado_status_gabi_tool_execucao?: true
+    duracao_ms_gabi_tool_execucao?: true
+  }
+
+  export type GabiToolExecucaoSumAggregateInputType = {
+    resultado_status_gabi_tool_execucao?: true
+    duracao_ms_gabi_tool_execucao?: true
+  }
+
+  export type GabiToolExecucaoMinAggregateInputType = {
+    id_gabi_tool_execucao?: true
+    id_organizacao_gabi_tool_execucao?: true
+    id_usuario_gabi_tool_execucao?: true
+    id_conversa_gabi_tool_execucao?: true
+    tool_id_gabi_tool_execucao?: true
+    resultado_status_gabi_tool_execucao?: true
+    resultado_resumo_gabi_tool_execucao?: true
+    duracao_ms_gabi_tool_execucao?: true
+    confirmacao_usuario_gabi_tool_execucao?: true
+    data_criacao_gabi_tool_execucao?: true
+  }
+
+  export type GabiToolExecucaoMaxAggregateInputType = {
+    id_gabi_tool_execucao?: true
+    id_organizacao_gabi_tool_execucao?: true
+    id_usuario_gabi_tool_execucao?: true
+    id_conversa_gabi_tool_execucao?: true
+    tool_id_gabi_tool_execucao?: true
+    resultado_status_gabi_tool_execucao?: true
+    resultado_resumo_gabi_tool_execucao?: true
+    duracao_ms_gabi_tool_execucao?: true
+    confirmacao_usuario_gabi_tool_execucao?: true
+    data_criacao_gabi_tool_execucao?: true
+  }
+
+  export type GabiToolExecucaoCountAggregateInputType = {
+    id_gabi_tool_execucao?: true
+    id_organizacao_gabi_tool_execucao?: true
+    id_usuario_gabi_tool_execucao?: true
+    id_conversa_gabi_tool_execucao?: true
+    tool_id_gabi_tool_execucao?: true
+    parametros_gabi_tool_execucao?: true
+    resultado_status_gabi_tool_execucao?: true
+    resultado_resumo_gabi_tool_execucao?: true
+    duracao_ms_gabi_tool_execucao?: true
+    confirmacao_usuario_gabi_tool_execucao?: true
+    data_criacao_gabi_tool_execucao?: true
+    _all?: true
+  }
+
+  export type GabiToolExecucaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiToolExecucao to aggregate.
+     */
+    where?: GabiToolExecucaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiToolExecucaos to fetch.
+     */
+    orderBy?: GabiToolExecucaoOrderByWithRelationInput | GabiToolExecucaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiToolExecucaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiToolExecucaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiToolExecucaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiToolExecucaos
+    **/
+    _count?: true | GabiToolExecucaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiToolExecucaoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiToolExecucaoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiToolExecucaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiToolExecucaoMaxAggregateInputType
+  }
+
+  export type GetGabiToolExecucaoAggregateType<T extends GabiToolExecucaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiToolExecucao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiToolExecucao[P]>
+      : GetScalarType<T[P], AggregateGabiToolExecucao[P]>
+  }
+
+
+
+
+  export type GabiToolExecucaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiToolExecucaoWhereInput
+    orderBy?: GabiToolExecucaoOrderByWithAggregationInput | GabiToolExecucaoOrderByWithAggregationInput[]
+    by: GabiToolExecucaoScalarFieldEnum[] | GabiToolExecucaoScalarFieldEnum
+    having?: GabiToolExecucaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiToolExecucaoCountAggregateInputType | true
+    _avg?: GabiToolExecucaoAvgAggregateInputType
+    _sum?: GabiToolExecucaoSumAggregateInputType
+    _min?: GabiToolExecucaoMinAggregateInputType
+    _max?: GabiToolExecucaoMaxAggregateInputType
+  }
+
+  export type GabiToolExecucaoGroupByOutputType = {
+    id_gabi_tool_execucao: string
+    id_organizacao_gabi_tool_execucao: string
+    id_usuario_gabi_tool_execucao: string
+    id_conversa_gabi_tool_execucao: string
+    tool_id_gabi_tool_execucao: string
+    parametros_gabi_tool_execucao: JsonValue
+    resultado_status_gabi_tool_execucao: number
+    resultado_resumo_gabi_tool_execucao: string | null
+    duracao_ms_gabi_tool_execucao: number
+    confirmacao_usuario_gabi_tool_execucao: boolean
+    data_criacao_gabi_tool_execucao: Date
+    _count: GabiToolExecucaoCountAggregateOutputType | null
+    _avg: GabiToolExecucaoAvgAggregateOutputType | null
+    _sum: GabiToolExecucaoSumAggregateOutputType | null
+    _min: GabiToolExecucaoMinAggregateOutputType | null
+    _max: GabiToolExecucaoMaxAggregateOutputType | null
+  }
+
+  type GetGabiToolExecucaoGroupByPayload<T extends GabiToolExecucaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiToolExecucaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiToolExecucaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiToolExecucaoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiToolExecucaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiToolExecucaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_tool_execucao?: boolean
+    id_organizacao_gabi_tool_execucao?: boolean
+    id_usuario_gabi_tool_execucao?: boolean
+    id_conversa_gabi_tool_execucao?: boolean
+    tool_id_gabi_tool_execucao?: boolean
+    parametros_gabi_tool_execucao?: boolean
+    resultado_status_gabi_tool_execucao?: boolean
+    resultado_resumo_gabi_tool_execucao?: boolean
+    duracao_ms_gabi_tool_execucao?: boolean
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: boolean
+  }, ExtArgs["result"]["gabiToolExecucao"]>
+
+  export type GabiToolExecucaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_tool_execucao?: boolean
+    id_organizacao_gabi_tool_execucao?: boolean
+    id_usuario_gabi_tool_execucao?: boolean
+    id_conversa_gabi_tool_execucao?: boolean
+    tool_id_gabi_tool_execucao?: boolean
+    parametros_gabi_tool_execucao?: boolean
+    resultado_status_gabi_tool_execucao?: boolean
+    resultado_resumo_gabi_tool_execucao?: boolean
+    duracao_ms_gabi_tool_execucao?: boolean
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: boolean
+  }, ExtArgs["result"]["gabiToolExecucao"]>
+
+  export type GabiToolExecucaoSelectScalar = {
+    id_gabi_tool_execucao?: boolean
+    id_organizacao_gabi_tool_execucao?: boolean
+    id_usuario_gabi_tool_execucao?: boolean
+    id_conversa_gabi_tool_execucao?: boolean
+    tool_id_gabi_tool_execucao?: boolean
+    parametros_gabi_tool_execucao?: boolean
+    resultado_status_gabi_tool_execucao?: boolean
+    resultado_resumo_gabi_tool_execucao?: boolean
+    duracao_ms_gabi_tool_execucao?: boolean
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: boolean
+  }
+
+
+  export type $GabiToolExecucaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiToolExecucao"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_tool_execucao: string
+      id_organizacao_gabi_tool_execucao: string
+      id_usuario_gabi_tool_execucao: string
+      id_conversa_gabi_tool_execucao: string
+      tool_id_gabi_tool_execucao: string
+      parametros_gabi_tool_execucao: Prisma.JsonValue
+      resultado_status_gabi_tool_execucao: number
+      resultado_resumo_gabi_tool_execucao: string | null
+      duracao_ms_gabi_tool_execucao: number
+      confirmacao_usuario_gabi_tool_execucao: boolean
+      data_criacao_gabi_tool_execucao: Date
+    }, ExtArgs["result"]["gabiToolExecucao"]>
+    composites: {}
+  }
+
+  type GabiToolExecucaoGetPayload<S extends boolean | null | undefined | GabiToolExecucaoDefaultArgs> = $Result.GetResult<Prisma.$GabiToolExecucaoPayload, S>
+
+  type GabiToolExecucaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiToolExecucaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiToolExecucaoCountAggregateInputType | true
+    }
+
+  export interface GabiToolExecucaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiToolExecucao'], meta: { name: 'GabiToolExecucao' } }
+    /**
+     * Find zero or one GabiToolExecucao that matches the filter.
+     * @param {GabiToolExecucaoFindUniqueArgs} args - Arguments to find a GabiToolExecucao
+     * @example
+     * // Get one GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiToolExecucaoFindUniqueArgs>(args: SelectSubset<T, GabiToolExecucaoFindUniqueArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiToolExecucao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiToolExecucaoFindUniqueOrThrowArgs} args - Arguments to find a GabiToolExecucao
+     * @example
+     * // Get one GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiToolExecucaoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiToolExecucaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiToolExecucao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoFindFirstArgs} args - Arguments to find a GabiToolExecucao
+     * @example
+     * // Get one GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiToolExecucaoFindFirstArgs>(args?: SelectSubset<T, GabiToolExecucaoFindFirstArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiToolExecucao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoFindFirstOrThrowArgs} args - Arguments to find a GabiToolExecucao
+     * @example
+     * // Get one GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiToolExecucaoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiToolExecucaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiToolExecucaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiToolExecucaos
+     * const gabiToolExecucaos = await prisma.gabiToolExecucao.findMany()
+     * 
+     * // Get first 10 GabiToolExecucaos
+     * const gabiToolExecucaos = await prisma.gabiToolExecucao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_tool_execucao`
+     * const gabiToolExecucaoWithId_gabi_tool_execucaoOnly = await prisma.gabiToolExecucao.findMany({ select: { id_gabi_tool_execucao: true } })
+     * 
+     */
+    findMany<T extends GabiToolExecucaoFindManyArgs>(args?: SelectSubset<T, GabiToolExecucaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiToolExecucao.
+     * @param {GabiToolExecucaoCreateArgs} args - Arguments to create a GabiToolExecucao.
+     * @example
+     * // Create one GabiToolExecucao
+     * const GabiToolExecucao = await prisma.gabiToolExecucao.create({
+     *   data: {
+     *     // ... data to create a GabiToolExecucao
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiToolExecucaoCreateArgs>(args: SelectSubset<T, GabiToolExecucaoCreateArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiToolExecucaos.
+     * @param {GabiToolExecucaoCreateManyArgs} args - Arguments to create many GabiToolExecucaos.
+     * @example
+     * // Create many GabiToolExecucaos
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiToolExecucaoCreateManyArgs>(args?: SelectSubset<T, GabiToolExecucaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiToolExecucaos and returns the data saved in the database.
+     * @param {GabiToolExecucaoCreateManyAndReturnArgs} args - Arguments to create many GabiToolExecucaos.
+     * @example
+     * // Create many GabiToolExecucaos
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiToolExecucaos and only return the `id_gabi_tool_execucao`
+     * const gabiToolExecucaoWithId_gabi_tool_execucaoOnly = await prisma.gabiToolExecucao.createManyAndReturn({ 
+     *   select: { id_gabi_tool_execucao: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiToolExecucaoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiToolExecucaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiToolExecucao.
+     * @param {GabiToolExecucaoDeleteArgs} args - Arguments to delete one GabiToolExecucao.
+     * @example
+     * // Delete one GabiToolExecucao
+     * const GabiToolExecucao = await prisma.gabiToolExecucao.delete({
+     *   where: {
+     *     // ... filter to delete one GabiToolExecucao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiToolExecucaoDeleteArgs>(args: SelectSubset<T, GabiToolExecucaoDeleteArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiToolExecucao.
+     * @param {GabiToolExecucaoUpdateArgs} args - Arguments to update one GabiToolExecucao.
+     * @example
+     * // Update one GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiToolExecucaoUpdateArgs>(args: SelectSubset<T, GabiToolExecucaoUpdateArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiToolExecucaos.
+     * @param {GabiToolExecucaoDeleteManyArgs} args - Arguments to filter GabiToolExecucaos to delete.
+     * @example
+     * // Delete a few GabiToolExecucaos
+     * const { count } = await prisma.gabiToolExecucao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiToolExecucaoDeleteManyArgs>(args?: SelectSubset<T, GabiToolExecucaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiToolExecucaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiToolExecucaos
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiToolExecucaoUpdateManyArgs>(args: SelectSubset<T, GabiToolExecucaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiToolExecucao.
+     * @param {GabiToolExecucaoUpsertArgs} args - Arguments to update or create a GabiToolExecucao.
+     * @example
+     * // Update or create a GabiToolExecucao
+     * const gabiToolExecucao = await prisma.gabiToolExecucao.upsert({
+     *   create: {
+     *     // ... data to create a GabiToolExecucao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiToolExecucao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiToolExecucaoUpsertArgs>(args: SelectSubset<T, GabiToolExecucaoUpsertArgs<ExtArgs>>): Prisma__GabiToolExecucaoClient<$Result.GetResult<Prisma.$GabiToolExecucaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiToolExecucaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoCountArgs} args - Arguments to filter GabiToolExecucaos to count.
+     * @example
+     * // Count the number of GabiToolExecucaos
+     * const count = await prisma.gabiToolExecucao.count({
+     *   where: {
+     *     // ... the filter for the GabiToolExecucaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiToolExecucaoCountArgs>(
+      args?: Subset<T, GabiToolExecucaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiToolExecucaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiToolExecucao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiToolExecucaoAggregateArgs>(args: Subset<T, GabiToolExecucaoAggregateArgs>): Prisma.PrismaPromise<GetGabiToolExecucaoAggregateType<T>>
+
+    /**
+     * Group by GabiToolExecucao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiToolExecucaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiToolExecucaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiToolExecucaoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiToolExecucaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiToolExecucaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiToolExecucaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiToolExecucao model
+   */
+  readonly fields: GabiToolExecucaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiToolExecucao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiToolExecucaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiToolExecucao model
+   */ 
+  interface GabiToolExecucaoFieldRefs {
+    readonly id_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly id_organizacao_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly id_usuario_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly id_conversa_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly tool_id_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly parametros_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'Json'>
+    readonly resultado_status_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'Int'>
+    readonly resultado_resumo_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'String'>
+    readonly duracao_ms_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'Int'>
+    readonly confirmacao_usuario_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'Boolean'>
+    readonly data_criacao_gabi_tool_execucao: FieldRef<"GabiToolExecucao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiToolExecucao findUnique
+   */
+  export type GabiToolExecucaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiToolExecucao to fetch.
+     */
+    where: GabiToolExecucaoWhereUniqueInput
+  }
+
+  /**
+   * GabiToolExecucao findUniqueOrThrow
+   */
+  export type GabiToolExecucaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiToolExecucao to fetch.
+     */
+    where: GabiToolExecucaoWhereUniqueInput
+  }
+
+  /**
+   * GabiToolExecucao findFirst
+   */
+  export type GabiToolExecucaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiToolExecucao to fetch.
+     */
+    where?: GabiToolExecucaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiToolExecucaos to fetch.
+     */
+    orderBy?: GabiToolExecucaoOrderByWithRelationInput | GabiToolExecucaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiToolExecucaos.
+     */
+    cursor?: GabiToolExecucaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiToolExecucaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiToolExecucaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiToolExecucaos.
+     */
+    distinct?: GabiToolExecucaoScalarFieldEnum | GabiToolExecucaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiToolExecucao findFirstOrThrow
+   */
+  export type GabiToolExecucaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiToolExecucao to fetch.
+     */
+    where?: GabiToolExecucaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiToolExecucaos to fetch.
+     */
+    orderBy?: GabiToolExecucaoOrderByWithRelationInput | GabiToolExecucaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiToolExecucaos.
+     */
+    cursor?: GabiToolExecucaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiToolExecucaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiToolExecucaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiToolExecucaos.
+     */
+    distinct?: GabiToolExecucaoScalarFieldEnum | GabiToolExecucaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiToolExecucao findMany
+   */
+  export type GabiToolExecucaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiToolExecucaos to fetch.
+     */
+    where?: GabiToolExecucaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiToolExecucaos to fetch.
+     */
+    orderBy?: GabiToolExecucaoOrderByWithRelationInput | GabiToolExecucaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiToolExecucaos.
+     */
+    cursor?: GabiToolExecucaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiToolExecucaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiToolExecucaos.
+     */
+    skip?: number
+    distinct?: GabiToolExecucaoScalarFieldEnum | GabiToolExecucaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiToolExecucao create
+   */
+  export type GabiToolExecucaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiToolExecucao.
+     */
+    data: XOR<GabiToolExecucaoCreateInput, GabiToolExecucaoUncheckedCreateInput>
+  }
+
+  /**
+   * GabiToolExecucao createMany
+   */
+  export type GabiToolExecucaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiToolExecucaos.
+     */
+    data: GabiToolExecucaoCreateManyInput | GabiToolExecucaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiToolExecucao createManyAndReturn
+   */
+  export type GabiToolExecucaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiToolExecucaos.
+     */
+    data: GabiToolExecucaoCreateManyInput | GabiToolExecucaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiToolExecucao update
+   */
+  export type GabiToolExecucaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiToolExecucao.
+     */
+    data: XOR<GabiToolExecucaoUpdateInput, GabiToolExecucaoUncheckedUpdateInput>
+    /**
+     * Choose, which GabiToolExecucao to update.
+     */
+    where: GabiToolExecucaoWhereUniqueInput
+  }
+
+  /**
+   * GabiToolExecucao updateMany
+   */
+  export type GabiToolExecucaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiToolExecucaos.
+     */
+    data: XOR<GabiToolExecucaoUpdateManyMutationInput, GabiToolExecucaoUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiToolExecucaos to update
+     */
+    where?: GabiToolExecucaoWhereInput
+  }
+
+  /**
+   * GabiToolExecucao upsert
+   */
+  export type GabiToolExecucaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiToolExecucao to update in case it exists.
+     */
+    where: GabiToolExecucaoWhereUniqueInput
+    /**
+     * In case the GabiToolExecucao found by the `where` argument doesn't exist, create a new GabiToolExecucao with this data.
+     */
+    create: XOR<GabiToolExecucaoCreateInput, GabiToolExecucaoUncheckedCreateInput>
+    /**
+     * In case the GabiToolExecucao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiToolExecucaoUpdateInput, GabiToolExecucaoUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiToolExecucao delete
+   */
+  export type GabiToolExecucaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+    /**
+     * Filter which GabiToolExecucao to delete.
+     */
+    where: GabiToolExecucaoWhereUniqueInput
+  }
+
+  /**
+   * GabiToolExecucao deleteMany
+   */
+  export type GabiToolExecucaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiToolExecucaos to delete
+     */
+    where?: GabiToolExecucaoWhereInput
+  }
+
+  /**
+   * GabiToolExecucao without action
+   */
+  export type GabiToolExecucaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiToolExecucao
+     */
+    select?: GabiToolExecucaoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiConfirmacaoAcao
+   */
+
+  export type AggregateGabiConfirmacaoAcao = {
+    _count: GabiConfirmacaoAcaoCountAggregateOutputType | null
+    _min: GabiConfirmacaoAcaoMinAggregateOutputType | null
+    _max: GabiConfirmacaoAcaoMaxAggregateOutputType | null
+  }
+
+  export type GabiConfirmacaoAcaoMinAggregateOutputType = {
+    id_gabi_confirmacao_acao: string | null
+    id_organizacao_gabi_confirmacao_acao: string | null
+    id_usuario_gabi_confirmacao_acao: string | null
+    id_conversa_gabi_confirmacao_acao: string | null
+    nonce_gabi_confirmacao_acao: string | null
+    tool_id_gabi_confirmacao_acao: string | null
+    parametros_hash_gabi_confirmacao_acao: string | null
+    descricao_acao_gabi_confirmacao_acao: string | null
+    consumido_gabi_confirmacao_acao: boolean | null
+    data_criacao_gabi_confirmacao_acao: Date | null
+    data_expiracao_gabi_confirmacao_acao: Date | null
+  }
+
+  export type GabiConfirmacaoAcaoMaxAggregateOutputType = {
+    id_gabi_confirmacao_acao: string | null
+    id_organizacao_gabi_confirmacao_acao: string | null
+    id_usuario_gabi_confirmacao_acao: string | null
+    id_conversa_gabi_confirmacao_acao: string | null
+    nonce_gabi_confirmacao_acao: string | null
+    tool_id_gabi_confirmacao_acao: string | null
+    parametros_hash_gabi_confirmacao_acao: string | null
+    descricao_acao_gabi_confirmacao_acao: string | null
+    consumido_gabi_confirmacao_acao: boolean | null
+    data_criacao_gabi_confirmacao_acao: Date | null
+    data_expiracao_gabi_confirmacao_acao: Date | null
+  }
+
+  export type GabiConfirmacaoAcaoCountAggregateOutputType = {
+    id_gabi_confirmacao_acao: number
+    id_organizacao_gabi_confirmacao_acao: number
+    id_usuario_gabi_confirmacao_acao: number
+    id_conversa_gabi_confirmacao_acao: number
+    nonce_gabi_confirmacao_acao: number
+    tool_id_gabi_confirmacao_acao: number
+    parametros_hash_gabi_confirmacao_acao: number
+    descricao_acao_gabi_confirmacao_acao: number
+    consumido_gabi_confirmacao_acao: number
+    data_criacao_gabi_confirmacao_acao: number
+    data_expiracao_gabi_confirmacao_acao: number
+    _all: number
+  }
+
+
+  export type GabiConfirmacaoAcaoMinAggregateInputType = {
+    id_gabi_confirmacao_acao?: true
+    id_organizacao_gabi_confirmacao_acao?: true
+    id_usuario_gabi_confirmacao_acao?: true
+    id_conversa_gabi_confirmacao_acao?: true
+    nonce_gabi_confirmacao_acao?: true
+    tool_id_gabi_confirmacao_acao?: true
+    parametros_hash_gabi_confirmacao_acao?: true
+    descricao_acao_gabi_confirmacao_acao?: true
+    consumido_gabi_confirmacao_acao?: true
+    data_criacao_gabi_confirmacao_acao?: true
+    data_expiracao_gabi_confirmacao_acao?: true
+  }
+
+  export type GabiConfirmacaoAcaoMaxAggregateInputType = {
+    id_gabi_confirmacao_acao?: true
+    id_organizacao_gabi_confirmacao_acao?: true
+    id_usuario_gabi_confirmacao_acao?: true
+    id_conversa_gabi_confirmacao_acao?: true
+    nonce_gabi_confirmacao_acao?: true
+    tool_id_gabi_confirmacao_acao?: true
+    parametros_hash_gabi_confirmacao_acao?: true
+    descricao_acao_gabi_confirmacao_acao?: true
+    consumido_gabi_confirmacao_acao?: true
+    data_criacao_gabi_confirmacao_acao?: true
+    data_expiracao_gabi_confirmacao_acao?: true
+  }
+
+  export type GabiConfirmacaoAcaoCountAggregateInputType = {
+    id_gabi_confirmacao_acao?: true
+    id_organizacao_gabi_confirmacao_acao?: true
+    id_usuario_gabi_confirmacao_acao?: true
+    id_conversa_gabi_confirmacao_acao?: true
+    nonce_gabi_confirmacao_acao?: true
+    tool_id_gabi_confirmacao_acao?: true
+    parametros_hash_gabi_confirmacao_acao?: true
+    descricao_acao_gabi_confirmacao_acao?: true
+    consumido_gabi_confirmacao_acao?: true
+    data_criacao_gabi_confirmacao_acao?: true
+    data_expiracao_gabi_confirmacao_acao?: true
+    _all?: true
+  }
+
+  export type GabiConfirmacaoAcaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiConfirmacaoAcao to aggregate.
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiConfirmacaoAcaos to fetch.
+     */
+    orderBy?: GabiConfirmacaoAcaoOrderByWithRelationInput | GabiConfirmacaoAcaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiConfirmacaoAcaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiConfirmacaoAcaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiConfirmacaoAcaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiConfirmacaoAcaos
+    **/
+    _count?: true | GabiConfirmacaoAcaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiConfirmacaoAcaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiConfirmacaoAcaoMaxAggregateInputType
+  }
+
+  export type GetGabiConfirmacaoAcaoAggregateType<T extends GabiConfirmacaoAcaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiConfirmacaoAcao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiConfirmacaoAcao[P]>
+      : GetScalarType<T[P], AggregateGabiConfirmacaoAcao[P]>
+  }
+
+
+
+
+  export type GabiConfirmacaoAcaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiConfirmacaoAcaoWhereInput
+    orderBy?: GabiConfirmacaoAcaoOrderByWithAggregationInput | GabiConfirmacaoAcaoOrderByWithAggregationInput[]
+    by: GabiConfirmacaoAcaoScalarFieldEnum[] | GabiConfirmacaoAcaoScalarFieldEnum
+    having?: GabiConfirmacaoAcaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiConfirmacaoAcaoCountAggregateInputType | true
+    _min?: GabiConfirmacaoAcaoMinAggregateInputType
+    _max?: GabiConfirmacaoAcaoMaxAggregateInputType
+  }
+
+  export type GabiConfirmacaoAcaoGroupByOutputType = {
+    id_gabi_confirmacao_acao: string
+    id_organizacao_gabi_confirmacao_acao: string
+    id_usuario_gabi_confirmacao_acao: string
+    id_conversa_gabi_confirmacao_acao: string
+    nonce_gabi_confirmacao_acao: string
+    tool_id_gabi_confirmacao_acao: string
+    parametros_hash_gabi_confirmacao_acao: string
+    descricao_acao_gabi_confirmacao_acao: string
+    consumido_gabi_confirmacao_acao: boolean
+    data_criacao_gabi_confirmacao_acao: Date
+    data_expiracao_gabi_confirmacao_acao: Date
+    _count: GabiConfirmacaoAcaoCountAggregateOutputType | null
+    _min: GabiConfirmacaoAcaoMinAggregateOutputType | null
+    _max: GabiConfirmacaoAcaoMaxAggregateOutputType | null
+  }
+
+  type GetGabiConfirmacaoAcaoGroupByPayload<T extends GabiConfirmacaoAcaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiConfirmacaoAcaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiConfirmacaoAcaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiConfirmacaoAcaoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiConfirmacaoAcaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiConfirmacaoAcaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_confirmacao_acao?: boolean
+    id_organizacao_gabi_confirmacao_acao?: boolean
+    id_usuario_gabi_confirmacao_acao?: boolean
+    id_conversa_gabi_confirmacao_acao?: boolean
+    nonce_gabi_confirmacao_acao?: boolean
+    tool_id_gabi_confirmacao_acao?: boolean
+    parametros_hash_gabi_confirmacao_acao?: boolean
+    descricao_acao_gabi_confirmacao_acao?: boolean
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: boolean
+    data_expiracao_gabi_confirmacao_acao?: boolean
+  }, ExtArgs["result"]["gabiConfirmacaoAcao"]>
+
+  export type GabiConfirmacaoAcaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_confirmacao_acao?: boolean
+    id_organizacao_gabi_confirmacao_acao?: boolean
+    id_usuario_gabi_confirmacao_acao?: boolean
+    id_conversa_gabi_confirmacao_acao?: boolean
+    nonce_gabi_confirmacao_acao?: boolean
+    tool_id_gabi_confirmacao_acao?: boolean
+    parametros_hash_gabi_confirmacao_acao?: boolean
+    descricao_acao_gabi_confirmacao_acao?: boolean
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: boolean
+    data_expiracao_gabi_confirmacao_acao?: boolean
+  }, ExtArgs["result"]["gabiConfirmacaoAcao"]>
+
+  export type GabiConfirmacaoAcaoSelectScalar = {
+    id_gabi_confirmacao_acao?: boolean
+    id_organizacao_gabi_confirmacao_acao?: boolean
+    id_usuario_gabi_confirmacao_acao?: boolean
+    id_conversa_gabi_confirmacao_acao?: boolean
+    nonce_gabi_confirmacao_acao?: boolean
+    tool_id_gabi_confirmacao_acao?: boolean
+    parametros_hash_gabi_confirmacao_acao?: boolean
+    descricao_acao_gabi_confirmacao_acao?: boolean
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: boolean
+    data_expiracao_gabi_confirmacao_acao?: boolean
+  }
+
+
+  export type $GabiConfirmacaoAcaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiConfirmacaoAcao"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_gabi_confirmacao_acao: string
+      id_organizacao_gabi_confirmacao_acao: string
+      id_usuario_gabi_confirmacao_acao: string
+      id_conversa_gabi_confirmacao_acao: string
+      nonce_gabi_confirmacao_acao: string
+      tool_id_gabi_confirmacao_acao: string
+      parametros_hash_gabi_confirmacao_acao: string
+      descricao_acao_gabi_confirmacao_acao: string
+      consumido_gabi_confirmacao_acao: boolean
+      data_criacao_gabi_confirmacao_acao: Date
+      data_expiracao_gabi_confirmacao_acao: Date
+    }, ExtArgs["result"]["gabiConfirmacaoAcao"]>
+    composites: {}
+  }
+
+  type GabiConfirmacaoAcaoGetPayload<S extends boolean | null | undefined | GabiConfirmacaoAcaoDefaultArgs> = $Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload, S>
+
+  type GabiConfirmacaoAcaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiConfirmacaoAcaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiConfirmacaoAcaoCountAggregateInputType | true
+    }
+
+  export interface GabiConfirmacaoAcaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiConfirmacaoAcao'], meta: { name: 'GabiConfirmacaoAcao' } }
+    /**
+     * Find zero or one GabiConfirmacaoAcao that matches the filter.
+     * @param {GabiConfirmacaoAcaoFindUniqueArgs} args - Arguments to find a GabiConfirmacaoAcao
+     * @example
+     * // Get one GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiConfirmacaoAcaoFindUniqueArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoFindUniqueArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiConfirmacaoAcao that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiConfirmacaoAcaoFindUniqueOrThrowArgs} args - Arguments to find a GabiConfirmacaoAcao
+     * @example
+     * // Get one GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiConfirmacaoAcaoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiConfirmacaoAcao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoFindFirstArgs} args - Arguments to find a GabiConfirmacaoAcao
+     * @example
+     * // Get one GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiConfirmacaoAcaoFindFirstArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoFindFirstArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiConfirmacaoAcao that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoFindFirstOrThrowArgs} args - Arguments to find a GabiConfirmacaoAcao
+     * @example
+     * // Get one GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiConfirmacaoAcaoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiConfirmacaoAcaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiConfirmacaoAcaos
+     * const gabiConfirmacaoAcaos = await prisma.gabiConfirmacaoAcao.findMany()
+     * 
+     * // Get first 10 GabiConfirmacaoAcaos
+     * const gabiConfirmacaoAcaos = await prisma.gabiConfirmacaoAcao.findMany({ take: 10 })
+     * 
+     * // Only select the `id_gabi_confirmacao_acao`
+     * const gabiConfirmacaoAcaoWithId_gabi_confirmacao_acaoOnly = await prisma.gabiConfirmacaoAcao.findMany({ select: { id_gabi_confirmacao_acao: true } })
+     * 
+     */
+    findMany<T extends GabiConfirmacaoAcaoFindManyArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiConfirmacaoAcao.
+     * @param {GabiConfirmacaoAcaoCreateArgs} args - Arguments to create a GabiConfirmacaoAcao.
+     * @example
+     * // Create one GabiConfirmacaoAcao
+     * const GabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.create({
+     *   data: {
+     *     // ... data to create a GabiConfirmacaoAcao
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiConfirmacaoAcaoCreateArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoCreateArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiConfirmacaoAcaos.
+     * @param {GabiConfirmacaoAcaoCreateManyArgs} args - Arguments to create many GabiConfirmacaoAcaos.
+     * @example
+     * // Create many GabiConfirmacaoAcaos
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiConfirmacaoAcaoCreateManyArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiConfirmacaoAcaos and returns the data saved in the database.
+     * @param {GabiConfirmacaoAcaoCreateManyAndReturnArgs} args - Arguments to create many GabiConfirmacaoAcaos.
+     * @example
+     * // Create many GabiConfirmacaoAcaos
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiConfirmacaoAcaos and only return the `id_gabi_confirmacao_acao`
+     * const gabiConfirmacaoAcaoWithId_gabi_confirmacao_acaoOnly = await prisma.gabiConfirmacaoAcao.createManyAndReturn({ 
+     *   select: { id_gabi_confirmacao_acao: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiConfirmacaoAcaoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiConfirmacaoAcao.
+     * @param {GabiConfirmacaoAcaoDeleteArgs} args - Arguments to delete one GabiConfirmacaoAcao.
+     * @example
+     * // Delete one GabiConfirmacaoAcao
+     * const GabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.delete({
+     *   where: {
+     *     // ... filter to delete one GabiConfirmacaoAcao
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiConfirmacaoAcaoDeleteArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoDeleteArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiConfirmacaoAcao.
+     * @param {GabiConfirmacaoAcaoUpdateArgs} args - Arguments to update one GabiConfirmacaoAcao.
+     * @example
+     * // Update one GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiConfirmacaoAcaoUpdateArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoUpdateArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiConfirmacaoAcaos.
+     * @param {GabiConfirmacaoAcaoDeleteManyArgs} args - Arguments to filter GabiConfirmacaoAcaos to delete.
+     * @example
+     * // Delete a few GabiConfirmacaoAcaos
+     * const { count } = await prisma.gabiConfirmacaoAcao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiConfirmacaoAcaoDeleteManyArgs>(args?: SelectSubset<T, GabiConfirmacaoAcaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiConfirmacaoAcaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiConfirmacaoAcaos
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiConfirmacaoAcaoUpdateManyArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiConfirmacaoAcao.
+     * @param {GabiConfirmacaoAcaoUpsertArgs} args - Arguments to update or create a GabiConfirmacaoAcao.
+     * @example
+     * // Update or create a GabiConfirmacaoAcao
+     * const gabiConfirmacaoAcao = await prisma.gabiConfirmacaoAcao.upsert({
+     *   create: {
+     *     // ... data to create a GabiConfirmacaoAcao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiConfirmacaoAcao we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiConfirmacaoAcaoUpsertArgs>(args: SelectSubset<T, GabiConfirmacaoAcaoUpsertArgs<ExtArgs>>): Prisma__GabiConfirmacaoAcaoClient<$Result.GetResult<Prisma.$GabiConfirmacaoAcaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiConfirmacaoAcaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoCountArgs} args - Arguments to filter GabiConfirmacaoAcaos to count.
+     * @example
+     * // Count the number of GabiConfirmacaoAcaos
+     * const count = await prisma.gabiConfirmacaoAcao.count({
+     *   where: {
+     *     // ... the filter for the GabiConfirmacaoAcaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiConfirmacaoAcaoCountArgs>(
+      args?: Subset<T, GabiConfirmacaoAcaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiConfirmacaoAcaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiConfirmacaoAcao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiConfirmacaoAcaoAggregateArgs>(args: Subset<T, GabiConfirmacaoAcaoAggregateArgs>): Prisma.PrismaPromise<GetGabiConfirmacaoAcaoAggregateType<T>>
+
+    /**
+     * Group by GabiConfirmacaoAcao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiConfirmacaoAcaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiConfirmacaoAcaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiConfirmacaoAcaoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiConfirmacaoAcaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiConfirmacaoAcaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiConfirmacaoAcaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiConfirmacaoAcao model
+   */
+  readonly fields: GabiConfirmacaoAcaoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiConfirmacaoAcao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiConfirmacaoAcaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiConfirmacaoAcao model
+   */ 
+  interface GabiConfirmacaoAcaoFieldRefs {
+    readonly id_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly id_organizacao_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly id_usuario_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly id_conversa_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly nonce_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly tool_id_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly parametros_hash_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly descricao_acao_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'String'>
+    readonly consumido_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'Boolean'>
+    readonly data_criacao_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'DateTime'>
+    readonly data_expiracao_gabi_confirmacao_acao: FieldRef<"GabiConfirmacaoAcao", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiConfirmacaoAcao findUnique
+   */
+  export type GabiConfirmacaoAcaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiConfirmacaoAcao to fetch.
+     */
+    where: GabiConfirmacaoAcaoWhereUniqueInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao findUniqueOrThrow
+   */
+  export type GabiConfirmacaoAcaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiConfirmacaoAcao to fetch.
+     */
+    where: GabiConfirmacaoAcaoWhereUniqueInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao findFirst
+   */
+  export type GabiConfirmacaoAcaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiConfirmacaoAcao to fetch.
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiConfirmacaoAcaos to fetch.
+     */
+    orderBy?: GabiConfirmacaoAcaoOrderByWithRelationInput | GabiConfirmacaoAcaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiConfirmacaoAcaos.
+     */
+    cursor?: GabiConfirmacaoAcaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiConfirmacaoAcaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiConfirmacaoAcaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiConfirmacaoAcaos.
+     */
+    distinct?: GabiConfirmacaoAcaoScalarFieldEnum | GabiConfirmacaoAcaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiConfirmacaoAcao findFirstOrThrow
+   */
+  export type GabiConfirmacaoAcaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiConfirmacaoAcao to fetch.
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiConfirmacaoAcaos to fetch.
+     */
+    orderBy?: GabiConfirmacaoAcaoOrderByWithRelationInput | GabiConfirmacaoAcaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiConfirmacaoAcaos.
+     */
+    cursor?: GabiConfirmacaoAcaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiConfirmacaoAcaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiConfirmacaoAcaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiConfirmacaoAcaos.
+     */
+    distinct?: GabiConfirmacaoAcaoScalarFieldEnum | GabiConfirmacaoAcaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiConfirmacaoAcao findMany
+   */
+  export type GabiConfirmacaoAcaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiConfirmacaoAcaos to fetch.
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiConfirmacaoAcaos to fetch.
+     */
+    orderBy?: GabiConfirmacaoAcaoOrderByWithRelationInput | GabiConfirmacaoAcaoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiConfirmacaoAcaos.
+     */
+    cursor?: GabiConfirmacaoAcaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiConfirmacaoAcaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiConfirmacaoAcaos.
+     */
+    skip?: number
+    distinct?: GabiConfirmacaoAcaoScalarFieldEnum | GabiConfirmacaoAcaoScalarFieldEnum[]
+  }
+
+  /**
+   * GabiConfirmacaoAcao create
+   */
+  export type GabiConfirmacaoAcaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiConfirmacaoAcao.
+     */
+    data: XOR<GabiConfirmacaoAcaoCreateInput, GabiConfirmacaoAcaoUncheckedCreateInput>
+  }
+
+  /**
+   * GabiConfirmacaoAcao createMany
+   */
+  export type GabiConfirmacaoAcaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiConfirmacaoAcaos.
+     */
+    data: GabiConfirmacaoAcaoCreateManyInput | GabiConfirmacaoAcaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiConfirmacaoAcao createManyAndReturn
+   */
+  export type GabiConfirmacaoAcaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiConfirmacaoAcaos.
+     */
+    data: GabiConfirmacaoAcaoCreateManyInput | GabiConfirmacaoAcaoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiConfirmacaoAcao update
+   */
+  export type GabiConfirmacaoAcaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiConfirmacaoAcao.
+     */
+    data: XOR<GabiConfirmacaoAcaoUpdateInput, GabiConfirmacaoAcaoUncheckedUpdateInput>
+    /**
+     * Choose, which GabiConfirmacaoAcao to update.
+     */
+    where: GabiConfirmacaoAcaoWhereUniqueInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao updateMany
+   */
+  export type GabiConfirmacaoAcaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiConfirmacaoAcaos.
+     */
+    data: XOR<GabiConfirmacaoAcaoUpdateManyMutationInput, GabiConfirmacaoAcaoUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiConfirmacaoAcaos to update
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao upsert
+   */
+  export type GabiConfirmacaoAcaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiConfirmacaoAcao to update in case it exists.
+     */
+    where: GabiConfirmacaoAcaoWhereUniqueInput
+    /**
+     * In case the GabiConfirmacaoAcao found by the `where` argument doesn't exist, create a new GabiConfirmacaoAcao with this data.
+     */
+    create: XOR<GabiConfirmacaoAcaoCreateInput, GabiConfirmacaoAcaoUncheckedCreateInput>
+    /**
+     * In case the GabiConfirmacaoAcao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiConfirmacaoAcaoUpdateInput, GabiConfirmacaoAcaoUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiConfirmacaoAcao delete
+   */
+  export type GabiConfirmacaoAcaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
+    /**
+     * Filter which GabiConfirmacaoAcao to delete.
+     */
+    where: GabiConfirmacaoAcaoWhereUniqueInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao deleteMany
+   */
+  export type GabiConfirmacaoAcaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiConfirmacaoAcaos to delete
+     */
+    where?: GabiConfirmacaoAcaoWhereInput
+  }
+
+  /**
+   * GabiConfirmacaoAcao without action
+   */
+  export type GabiConfirmacaoAcaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiConfirmacaoAcao
+     */
+    select?: GabiConfirmacaoAcaoSelect<ExtArgs> | null
   }
 
 
@@ -56302,6 +61624,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso: 'tokens_input_gabi_log_uso',
     tokens_output_gabi_log_uso: 'tokens_output_gabi_log_uso',
     custo_usd_gabi_log_uso: 'custo_usd_gabi_log_uso',
+    tools_chamadas_gabi_log_uso: 'tools_chamadas_gabi_log_uso',
     data_criacao_gabi_log_uso: 'data_criacao_gabi_log_uso'
   };
 
@@ -56397,6 +61720,94 @@ export namespace Prisma {
   };
 
   export type GabiAlertaEmitidoScalarFieldEnum = (typeof GabiAlertaEmitidoScalarFieldEnum)[keyof typeof GabiAlertaEmitidoScalarFieldEnum]
+
+
+  export const GabiMemoriaUsuarioScalarFieldEnum: {
+    id_gabi_memoria_usuario: 'id_gabi_memoria_usuario',
+    id_organizacao_gabi_memoria_usuario: 'id_organizacao_gabi_memoria_usuario',
+    id_usuario_gabi_memoria_usuario: 'id_usuario_gabi_memoria_usuario',
+    tipo_gabi_memoria_usuario: 'tipo_gabi_memoria_usuario',
+    chave_gabi_memoria_usuario: 'chave_gabi_memoria_usuario',
+    valor_gabi_memoria_usuario: 'valor_gabi_memoria_usuario',
+    confianca_gabi_memoria_usuario: 'confianca_gabi_memoria_usuario',
+    origem_gabi_memoria_usuario: 'origem_gabi_memoria_usuario',
+    ativo_gabi_memoria_usuario: 'ativo_gabi_memoria_usuario',
+    data_criacao_gabi_memoria_usuario: 'data_criacao_gabi_memoria_usuario',
+    data_atualizacao_gabi_memoria_usuario: 'data_atualizacao_gabi_memoria_usuario',
+    data_ultimo_uso_gabi_memoria_usuario: 'data_ultimo_uso_gabi_memoria_usuario'
+  };
+
+  export type GabiMemoriaUsuarioScalarFieldEnum = (typeof GabiMemoriaUsuarioScalarFieldEnum)[keyof typeof GabiMemoriaUsuarioScalarFieldEnum]
+
+
+  export const GabiDiagnosticoErroScalarFieldEnum: {
+    id_gabi_diagnostico_erro: 'id_gabi_diagnostico_erro',
+    id_organizacao_gabi_diagnostico_erro: 'id_organizacao_gabi_diagnostico_erro',
+    id_usuario_gabi_diagnostico_erro: 'id_usuario_gabi_diagnostico_erro',
+    produto_gabi_diagnostico_erro: 'produto_gabi_diagnostico_erro',
+    endpoint_gabi_diagnostico_erro: 'endpoint_gabi_diagnostico_erro',
+    metodo_gabi_diagnostico_erro: 'metodo_gabi_diagnostico_erro',
+    status_http_gabi_diagnostico_erro: 'status_http_gabi_diagnostico_erro',
+    codigo_erro_gabi_diagnostico_erro: 'codigo_erro_gabi_diagnostico_erro',
+    detalhes_gabi_diagnostico_erro: 'detalhes_gabi_diagnostico_erro',
+    payload_resumo_gabi_diagnostico_erro: 'payload_resumo_gabi_diagnostico_erro',
+    data_criacao_gabi_diagnostico_erro: 'data_criacao_gabi_diagnostico_erro'
+  };
+
+  export type GabiDiagnosticoErroScalarFieldEnum = (typeof GabiDiagnosticoErroScalarFieldEnum)[keyof typeof GabiDiagnosticoErroScalarFieldEnum]
+
+
+  export const GabiChamadoScalarFieldEnum: {
+    id_gabi_chamado: 'id_gabi_chamado',
+    id_organizacao_gabi_chamado: 'id_organizacao_gabi_chamado',
+    id_usuario_gabi_chamado: 'id_usuario_gabi_chamado',
+    numero_gabi_chamado: 'numero_gabi_chamado',
+    tipo_gabi_chamado: 'tipo_gabi_chamado',
+    produto_gabi_chamado: 'produto_gabi_chamado',
+    descricao_usuario_gabi_chamado: 'descricao_usuario_gabi_chamado',
+    diagnostico_gabi_chamado: 'diagnostico_gabi_chamado',
+    id_conversa_gabi_chamado: 'id_conversa_gabi_chamado',
+    status_gabi_chamado: 'status_gabi_chamado',
+    email_enviado_gabi_chamado: 'email_enviado_gabi_chamado',
+    data_criacao_gabi_chamado: 'data_criacao_gabi_chamado',
+    data_atualizacao_gabi_chamado: 'data_atualizacao_gabi_chamado'
+  };
+
+  export type GabiChamadoScalarFieldEnum = (typeof GabiChamadoScalarFieldEnum)[keyof typeof GabiChamadoScalarFieldEnum]
+
+
+  export const GabiToolExecucaoScalarFieldEnum: {
+    id_gabi_tool_execucao: 'id_gabi_tool_execucao',
+    id_organizacao_gabi_tool_execucao: 'id_organizacao_gabi_tool_execucao',
+    id_usuario_gabi_tool_execucao: 'id_usuario_gabi_tool_execucao',
+    id_conversa_gabi_tool_execucao: 'id_conversa_gabi_tool_execucao',
+    tool_id_gabi_tool_execucao: 'tool_id_gabi_tool_execucao',
+    parametros_gabi_tool_execucao: 'parametros_gabi_tool_execucao',
+    resultado_status_gabi_tool_execucao: 'resultado_status_gabi_tool_execucao',
+    resultado_resumo_gabi_tool_execucao: 'resultado_resumo_gabi_tool_execucao',
+    duracao_ms_gabi_tool_execucao: 'duracao_ms_gabi_tool_execucao',
+    confirmacao_usuario_gabi_tool_execucao: 'confirmacao_usuario_gabi_tool_execucao',
+    data_criacao_gabi_tool_execucao: 'data_criacao_gabi_tool_execucao'
+  };
+
+  export type GabiToolExecucaoScalarFieldEnum = (typeof GabiToolExecucaoScalarFieldEnum)[keyof typeof GabiToolExecucaoScalarFieldEnum]
+
+
+  export const GabiConfirmacaoAcaoScalarFieldEnum: {
+    id_gabi_confirmacao_acao: 'id_gabi_confirmacao_acao',
+    id_organizacao_gabi_confirmacao_acao: 'id_organizacao_gabi_confirmacao_acao',
+    id_usuario_gabi_confirmacao_acao: 'id_usuario_gabi_confirmacao_acao',
+    id_conversa_gabi_confirmacao_acao: 'id_conversa_gabi_confirmacao_acao',
+    nonce_gabi_confirmacao_acao: 'nonce_gabi_confirmacao_acao',
+    tool_id_gabi_confirmacao_acao: 'tool_id_gabi_confirmacao_acao',
+    parametros_hash_gabi_confirmacao_acao: 'parametros_hash_gabi_confirmacao_acao',
+    descricao_acao_gabi_confirmacao_acao: 'descricao_acao_gabi_confirmacao_acao',
+    consumido_gabi_confirmacao_acao: 'consumido_gabi_confirmacao_acao',
+    data_criacao_gabi_confirmacao_acao: 'data_criacao_gabi_confirmacao_acao',
+    data_expiracao_gabi_confirmacao_acao: 'data_expiracao_gabi_confirmacao_acao'
+  };
+
+  export type GabiConfirmacaoAcaoScalarFieldEnum = (typeof GabiConfirmacaoAcaoScalarFieldEnum)[keyof typeof GabiConfirmacaoAcaoScalarFieldEnum]
 
 
   export const WorkspacePreferenciaUsuarioScalarFieldEnum: {
@@ -60136,6 +65547,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
     tokens_output_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
     custo_usd_gabi_log_uso?: FloatFilter<"GabiLogUso"> | number
+    tools_chamadas_gabi_log_uso?: JsonNullableFilter<"GabiLogUso">
     data_criacao_gabi_log_uso?: DateTimeFilter<"GabiLogUso"> | Date | string
   }
 
@@ -60152,6 +65564,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: SortOrder
     tokens_output_gabi_log_uso?: SortOrder
     custo_usd_gabi_log_uso?: SortOrder
+    tools_chamadas_gabi_log_uso?: SortOrderInput | SortOrder
     data_criacao_gabi_log_uso?: SortOrder
   }
 
@@ -60171,6 +65584,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
     tokens_output_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
     custo_usd_gabi_log_uso?: FloatFilter<"GabiLogUso"> | number
+    tools_chamadas_gabi_log_uso?: JsonNullableFilter<"GabiLogUso">
     data_criacao_gabi_log_uso?: DateTimeFilter<"GabiLogUso"> | Date | string
   }, "id_gabi_log_uso">
 
@@ -60187,6 +65601,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: SortOrder
     tokens_output_gabi_log_uso?: SortOrder
     custo_usd_gabi_log_uso?: SortOrder
+    tools_chamadas_gabi_log_uso?: SortOrderInput | SortOrder
     data_criacao_gabi_log_uso?: SortOrder
     _count?: GabiLogUsoCountOrderByAggregateInput
     _avg?: GabiLogUsoAvgOrderByAggregateInput
@@ -60211,6 +65626,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntWithAggregatesFilter<"GabiLogUso"> | number
     tokens_output_gabi_log_uso?: IntWithAggregatesFilter<"GabiLogUso"> | number
     custo_usd_gabi_log_uso?: FloatWithAggregatesFilter<"GabiLogUso"> | number
+    tools_chamadas_gabi_log_uso?: JsonNullableWithAggregatesFilter<"GabiLogUso">
     data_criacao_gabi_log_uso?: DateTimeWithAggregatesFilter<"GabiLogUso"> | Date | string
   }
 
@@ -60661,6 +66077,438 @@ export namespace Prisma {
     nivel_gabi_alerta_emitido?: StringWithAggregatesFilter<"GabiAlertaEmitido"> | string
     gasto_usd_gabi_alerta_emitido?: DecimalWithAggregatesFilter<"GabiAlertaEmitido"> | Decimal | DecimalJsLike | number | string
     data_criacao_gabi_alerta_emitido?: DateTimeWithAggregatesFilter<"GabiAlertaEmitido"> | Date | string
+  }
+
+  export type GabiMemoriaUsuarioWhereInput = {
+    AND?: GabiMemoriaUsuarioWhereInput | GabiMemoriaUsuarioWhereInput[]
+    OR?: GabiMemoriaUsuarioWhereInput[]
+    NOT?: GabiMemoriaUsuarioWhereInput | GabiMemoriaUsuarioWhereInput[]
+    id_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    id_organizacao_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    id_usuario_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    tipo_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    chave_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    valor_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    confianca_gabi_memoria_usuario?: FloatFilter<"GabiMemoriaUsuario"> | number
+    origem_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    ativo_gabi_memoria_usuario?: BoolFilter<"GabiMemoriaUsuario"> | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+  }
+
+  export type GabiMemoriaUsuarioOrderByWithRelationInput = {
+    id_gabi_memoria_usuario?: SortOrder
+    id_organizacao_gabi_memoria_usuario?: SortOrder
+    id_usuario_gabi_memoria_usuario?: SortOrder
+    tipo_gabi_memoria_usuario?: SortOrder
+    chave_gabi_memoria_usuario?: SortOrder
+    valor_gabi_memoria_usuario?: SortOrder
+    confianca_gabi_memoria_usuario?: SortOrder
+    origem_gabi_memoria_usuario?: SortOrder
+    ativo_gabi_memoria_usuario?: SortOrder
+    data_criacao_gabi_memoria_usuario?: SortOrder
+    data_atualizacao_gabi_memoria_usuario?: SortOrder
+    data_ultimo_uso_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_memoria_usuario?: string
+    id_organizacao_gabi_memoria_usuario_id_usuario_gabi_memoria_usuario_tipo_gabi_memoria_usuario_chave_gabi_memoria_usuario?: GabiMemoriaUsuarioId_organizacao_gabi_memoria_usuarioId_usuario_gabi_memoria_usuarioTipo_gabi_memoria_usuarioChave_gabi_memoria_usuarioCompoundUniqueInput
+    AND?: GabiMemoriaUsuarioWhereInput | GabiMemoriaUsuarioWhereInput[]
+    OR?: GabiMemoriaUsuarioWhereInput[]
+    NOT?: GabiMemoriaUsuarioWhereInput | GabiMemoriaUsuarioWhereInput[]
+    id_organizacao_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    id_usuario_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    tipo_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    chave_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    valor_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    confianca_gabi_memoria_usuario?: FloatFilter<"GabiMemoriaUsuario"> | number
+    origem_gabi_memoria_usuario?: StringFilter<"GabiMemoriaUsuario"> | string
+    ativo_gabi_memoria_usuario?: BoolFilter<"GabiMemoriaUsuario"> | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFilter<"GabiMemoriaUsuario"> | Date | string
+  }, "id_gabi_memoria_usuario" | "id_organizacao_gabi_memoria_usuario_id_usuario_gabi_memoria_usuario_tipo_gabi_memoria_usuario_chave_gabi_memoria_usuario">
+
+  export type GabiMemoriaUsuarioOrderByWithAggregationInput = {
+    id_gabi_memoria_usuario?: SortOrder
+    id_organizacao_gabi_memoria_usuario?: SortOrder
+    id_usuario_gabi_memoria_usuario?: SortOrder
+    tipo_gabi_memoria_usuario?: SortOrder
+    chave_gabi_memoria_usuario?: SortOrder
+    valor_gabi_memoria_usuario?: SortOrder
+    confianca_gabi_memoria_usuario?: SortOrder
+    origem_gabi_memoria_usuario?: SortOrder
+    ativo_gabi_memoria_usuario?: SortOrder
+    data_criacao_gabi_memoria_usuario?: SortOrder
+    data_atualizacao_gabi_memoria_usuario?: SortOrder
+    data_ultimo_uso_gabi_memoria_usuario?: SortOrder
+    _count?: GabiMemoriaUsuarioCountOrderByAggregateInput
+    _avg?: GabiMemoriaUsuarioAvgOrderByAggregateInput
+    _max?: GabiMemoriaUsuarioMaxOrderByAggregateInput
+    _min?: GabiMemoriaUsuarioMinOrderByAggregateInput
+    _sum?: GabiMemoriaUsuarioSumOrderByAggregateInput
+  }
+
+  export type GabiMemoriaUsuarioScalarWhereWithAggregatesInput = {
+    AND?: GabiMemoriaUsuarioScalarWhereWithAggregatesInput | GabiMemoriaUsuarioScalarWhereWithAggregatesInput[]
+    OR?: GabiMemoriaUsuarioScalarWhereWithAggregatesInput[]
+    NOT?: GabiMemoriaUsuarioScalarWhereWithAggregatesInput | GabiMemoriaUsuarioScalarWhereWithAggregatesInput[]
+    id_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    id_organizacao_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    id_usuario_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    tipo_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    chave_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    valor_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    confianca_gabi_memoria_usuario?: FloatWithAggregatesFilter<"GabiMemoriaUsuario"> | number
+    origem_gabi_memoria_usuario?: StringWithAggregatesFilter<"GabiMemoriaUsuario"> | string
+    ativo_gabi_memoria_usuario?: BoolWithAggregatesFilter<"GabiMemoriaUsuario"> | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeWithAggregatesFilter<"GabiMemoriaUsuario"> | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeWithAggregatesFilter<"GabiMemoriaUsuario"> | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeWithAggregatesFilter<"GabiMemoriaUsuario"> | Date | string
+  }
+
+  export type GabiDiagnosticoErroWhereInput = {
+    AND?: GabiDiagnosticoErroWhereInput | GabiDiagnosticoErroWhereInput[]
+    OR?: GabiDiagnosticoErroWhereInput[]
+    NOT?: GabiDiagnosticoErroWhereInput | GabiDiagnosticoErroWhereInput[]
+    id_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    id_organizacao_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    id_usuario_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    produto_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    endpoint_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    metodo_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    status_http_gabi_diagnostico_erro?: IntFilter<"GabiDiagnosticoErro"> | number
+    codigo_erro_gabi_diagnostico_erro?: StringNullableFilter<"GabiDiagnosticoErro"> | string | null
+    detalhes_gabi_diagnostico_erro?: StringNullableFilter<"GabiDiagnosticoErro"> | string | null
+    payload_resumo_gabi_diagnostico_erro?: JsonNullableFilter<"GabiDiagnosticoErro">
+    data_criacao_gabi_diagnostico_erro?: DateTimeFilter<"GabiDiagnosticoErro"> | Date | string
+  }
+
+  export type GabiDiagnosticoErroOrderByWithRelationInput = {
+    id_gabi_diagnostico_erro?: SortOrder
+    id_organizacao_gabi_diagnostico_erro?: SortOrder
+    id_usuario_gabi_diagnostico_erro?: SortOrder
+    produto_gabi_diagnostico_erro?: SortOrder
+    endpoint_gabi_diagnostico_erro?: SortOrder
+    metodo_gabi_diagnostico_erro?: SortOrder
+    status_http_gabi_diagnostico_erro?: SortOrder
+    codigo_erro_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    detalhes_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    payload_resumo_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    data_criacao_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_diagnostico_erro?: string
+    AND?: GabiDiagnosticoErroWhereInput | GabiDiagnosticoErroWhereInput[]
+    OR?: GabiDiagnosticoErroWhereInput[]
+    NOT?: GabiDiagnosticoErroWhereInput | GabiDiagnosticoErroWhereInput[]
+    id_organizacao_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    id_usuario_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    produto_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    endpoint_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    metodo_gabi_diagnostico_erro?: StringFilter<"GabiDiagnosticoErro"> | string
+    status_http_gabi_diagnostico_erro?: IntFilter<"GabiDiagnosticoErro"> | number
+    codigo_erro_gabi_diagnostico_erro?: StringNullableFilter<"GabiDiagnosticoErro"> | string | null
+    detalhes_gabi_diagnostico_erro?: StringNullableFilter<"GabiDiagnosticoErro"> | string | null
+    payload_resumo_gabi_diagnostico_erro?: JsonNullableFilter<"GabiDiagnosticoErro">
+    data_criacao_gabi_diagnostico_erro?: DateTimeFilter<"GabiDiagnosticoErro"> | Date | string
+  }, "id_gabi_diagnostico_erro">
+
+  export type GabiDiagnosticoErroOrderByWithAggregationInput = {
+    id_gabi_diagnostico_erro?: SortOrder
+    id_organizacao_gabi_diagnostico_erro?: SortOrder
+    id_usuario_gabi_diagnostico_erro?: SortOrder
+    produto_gabi_diagnostico_erro?: SortOrder
+    endpoint_gabi_diagnostico_erro?: SortOrder
+    metodo_gabi_diagnostico_erro?: SortOrder
+    status_http_gabi_diagnostico_erro?: SortOrder
+    codigo_erro_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    detalhes_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    payload_resumo_gabi_diagnostico_erro?: SortOrderInput | SortOrder
+    data_criacao_gabi_diagnostico_erro?: SortOrder
+    _count?: GabiDiagnosticoErroCountOrderByAggregateInput
+    _avg?: GabiDiagnosticoErroAvgOrderByAggregateInput
+    _max?: GabiDiagnosticoErroMaxOrderByAggregateInput
+    _min?: GabiDiagnosticoErroMinOrderByAggregateInput
+    _sum?: GabiDiagnosticoErroSumOrderByAggregateInput
+  }
+
+  export type GabiDiagnosticoErroScalarWhereWithAggregatesInput = {
+    AND?: GabiDiagnosticoErroScalarWhereWithAggregatesInput | GabiDiagnosticoErroScalarWhereWithAggregatesInput[]
+    OR?: GabiDiagnosticoErroScalarWhereWithAggregatesInput[]
+    NOT?: GabiDiagnosticoErroScalarWhereWithAggregatesInput | GabiDiagnosticoErroScalarWhereWithAggregatesInput[]
+    id_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    id_organizacao_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    id_usuario_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    produto_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    endpoint_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    metodo_gabi_diagnostico_erro?: StringWithAggregatesFilter<"GabiDiagnosticoErro"> | string
+    status_http_gabi_diagnostico_erro?: IntWithAggregatesFilter<"GabiDiagnosticoErro"> | number
+    codigo_erro_gabi_diagnostico_erro?: StringNullableWithAggregatesFilter<"GabiDiagnosticoErro"> | string | null
+    detalhes_gabi_diagnostico_erro?: StringNullableWithAggregatesFilter<"GabiDiagnosticoErro"> | string | null
+    payload_resumo_gabi_diagnostico_erro?: JsonNullableWithAggregatesFilter<"GabiDiagnosticoErro">
+    data_criacao_gabi_diagnostico_erro?: DateTimeWithAggregatesFilter<"GabiDiagnosticoErro"> | Date | string
+  }
+
+  export type GabiChamadoWhereInput = {
+    AND?: GabiChamadoWhereInput | GabiChamadoWhereInput[]
+    OR?: GabiChamadoWhereInput[]
+    NOT?: GabiChamadoWhereInput | GabiChamadoWhereInput[]
+    id_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    id_organizacao_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    id_usuario_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    numero_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    tipo_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    produto_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    descricao_usuario_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    diagnostico_gabi_chamado?: StringNullableFilter<"GabiChamado"> | string | null
+    id_conversa_gabi_chamado?: StringNullableFilter<"GabiChamado"> | string | null
+    status_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    email_enviado_gabi_chamado?: BoolFilter<"GabiChamado"> | boolean
+    data_criacao_gabi_chamado?: DateTimeFilter<"GabiChamado"> | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFilter<"GabiChamado"> | Date | string
+  }
+
+  export type GabiChamadoOrderByWithRelationInput = {
+    id_gabi_chamado?: SortOrder
+    id_organizacao_gabi_chamado?: SortOrder
+    id_usuario_gabi_chamado?: SortOrder
+    numero_gabi_chamado?: SortOrder
+    tipo_gabi_chamado?: SortOrder
+    produto_gabi_chamado?: SortOrder
+    descricao_usuario_gabi_chamado?: SortOrder
+    diagnostico_gabi_chamado?: SortOrderInput | SortOrder
+    id_conversa_gabi_chamado?: SortOrderInput | SortOrder
+    status_gabi_chamado?: SortOrder
+    email_enviado_gabi_chamado?: SortOrder
+    data_criacao_gabi_chamado?: SortOrder
+    data_atualizacao_gabi_chamado?: SortOrder
+  }
+
+  export type GabiChamadoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_chamado?: string
+    numero_gabi_chamado?: string
+    AND?: GabiChamadoWhereInput | GabiChamadoWhereInput[]
+    OR?: GabiChamadoWhereInput[]
+    NOT?: GabiChamadoWhereInput | GabiChamadoWhereInput[]
+    id_organizacao_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    id_usuario_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    tipo_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    produto_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    descricao_usuario_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    diagnostico_gabi_chamado?: StringNullableFilter<"GabiChamado"> | string | null
+    id_conversa_gabi_chamado?: StringNullableFilter<"GabiChamado"> | string | null
+    status_gabi_chamado?: StringFilter<"GabiChamado"> | string
+    email_enviado_gabi_chamado?: BoolFilter<"GabiChamado"> | boolean
+    data_criacao_gabi_chamado?: DateTimeFilter<"GabiChamado"> | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFilter<"GabiChamado"> | Date | string
+  }, "id_gabi_chamado" | "numero_gabi_chamado">
+
+  export type GabiChamadoOrderByWithAggregationInput = {
+    id_gabi_chamado?: SortOrder
+    id_organizacao_gabi_chamado?: SortOrder
+    id_usuario_gabi_chamado?: SortOrder
+    numero_gabi_chamado?: SortOrder
+    tipo_gabi_chamado?: SortOrder
+    produto_gabi_chamado?: SortOrder
+    descricao_usuario_gabi_chamado?: SortOrder
+    diagnostico_gabi_chamado?: SortOrderInput | SortOrder
+    id_conversa_gabi_chamado?: SortOrderInput | SortOrder
+    status_gabi_chamado?: SortOrder
+    email_enviado_gabi_chamado?: SortOrder
+    data_criacao_gabi_chamado?: SortOrder
+    data_atualizacao_gabi_chamado?: SortOrder
+    _count?: GabiChamadoCountOrderByAggregateInput
+    _max?: GabiChamadoMaxOrderByAggregateInput
+    _min?: GabiChamadoMinOrderByAggregateInput
+  }
+
+  export type GabiChamadoScalarWhereWithAggregatesInput = {
+    AND?: GabiChamadoScalarWhereWithAggregatesInput | GabiChamadoScalarWhereWithAggregatesInput[]
+    OR?: GabiChamadoScalarWhereWithAggregatesInput[]
+    NOT?: GabiChamadoScalarWhereWithAggregatesInput | GabiChamadoScalarWhereWithAggregatesInput[]
+    id_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    id_organizacao_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    id_usuario_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    numero_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    tipo_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    produto_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    descricao_usuario_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    diagnostico_gabi_chamado?: StringNullableWithAggregatesFilter<"GabiChamado"> | string | null
+    id_conversa_gabi_chamado?: StringNullableWithAggregatesFilter<"GabiChamado"> | string | null
+    status_gabi_chamado?: StringWithAggregatesFilter<"GabiChamado"> | string
+    email_enviado_gabi_chamado?: BoolWithAggregatesFilter<"GabiChamado"> | boolean
+    data_criacao_gabi_chamado?: DateTimeWithAggregatesFilter<"GabiChamado"> | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeWithAggregatesFilter<"GabiChamado"> | Date | string
+  }
+
+  export type GabiToolExecucaoWhereInput = {
+    AND?: GabiToolExecucaoWhereInput | GabiToolExecucaoWhereInput[]
+    OR?: GabiToolExecucaoWhereInput[]
+    NOT?: GabiToolExecucaoWhereInput | GabiToolExecucaoWhereInput[]
+    id_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    id_organizacao_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    id_usuario_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    id_conversa_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    tool_id_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    parametros_gabi_tool_execucao?: JsonFilter<"GabiToolExecucao">
+    resultado_status_gabi_tool_execucao?: IntFilter<"GabiToolExecucao"> | number
+    resultado_resumo_gabi_tool_execucao?: StringNullableFilter<"GabiToolExecucao"> | string | null
+    duracao_ms_gabi_tool_execucao?: IntFilter<"GabiToolExecucao"> | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFilter<"GabiToolExecucao"> | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFilter<"GabiToolExecucao"> | Date | string
+  }
+
+  export type GabiToolExecucaoOrderByWithRelationInput = {
+    id_gabi_tool_execucao?: SortOrder
+    id_organizacao_gabi_tool_execucao?: SortOrder
+    id_usuario_gabi_tool_execucao?: SortOrder
+    id_conversa_gabi_tool_execucao?: SortOrder
+    tool_id_gabi_tool_execucao?: SortOrder
+    parametros_gabi_tool_execucao?: SortOrder
+    resultado_status_gabi_tool_execucao?: SortOrder
+    resultado_resumo_gabi_tool_execucao?: SortOrderInput | SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+    confirmacao_usuario_gabi_tool_execucao?: SortOrder
+    data_criacao_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiToolExecucaoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_tool_execucao?: string
+    AND?: GabiToolExecucaoWhereInput | GabiToolExecucaoWhereInput[]
+    OR?: GabiToolExecucaoWhereInput[]
+    NOT?: GabiToolExecucaoWhereInput | GabiToolExecucaoWhereInput[]
+    id_organizacao_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    id_usuario_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    id_conversa_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    tool_id_gabi_tool_execucao?: StringFilter<"GabiToolExecucao"> | string
+    parametros_gabi_tool_execucao?: JsonFilter<"GabiToolExecucao">
+    resultado_status_gabi_tool_execucao?: IntFilter<"GabiToolExecucao"> | number
+    resultado_resumo_gabi_tool_execucao?: StringNullableFilter<"GabiToolExecucao"> | string | null
+    duracao_ms_gabi_tool_execucao?: IntFilter<"GabiToolExecucao"> | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFilter<"GabiToolExecucao"> | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFilter<"GabiToolExecucao"> | Date | string
+  }, "id_gabi_tool_execucao">
+
+  export type GabiToolExecucaoOrderByWithAggregationInput = {
+    id_gabi_tool_execucao?: SortOrder
+    id_organizacao_gabi_tool_execucao?: SortOrder
+    id_usuario_gabi_tool_execucao?: SortOrder
+    id_conversa_gabi_tool_execucao?: SortOrder
+    tool_id_gabi_tool_execucao?: SortOrder
+    parametros_gabi_tool_execucao?: SortOrder
+    resultado_status_gabi_tool_execucao?: SortOrder
+    resultado_resumo_gabi_tool_execucao?: SortOrderInput | SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+    confirmacao_usuario_gabi_tool_execucao?: SortOrder
+    data_criacao_gabi_tool_execucao?: SortOrder
+    _count?: GabiToolExecucaoCountOrderByAggregateInput
+    _avg?: GabiToolExecucaoAvgOrderByAggregateInput
+    _max?: GabiToolExecucaoMaxOrderByAggregateInput
+    _min?: GabiToolExecucaoMinOrderByAggregateInput
+    _sum?: GabiToolExecucaoSumOrderByAggregateInput
+  }
+
+  export type GabiToolExecucaoScalarWhereWithAggregatesInput = {
+    AND?: GabiToolExecucaoScalarWhereWithAggregatesInput | GabiToolExecucaoScalarWhereWithAggregatesInput[]
+    OR?: GabiToolExecucaoScalarWhereWithAggregatesInput[]
+    NOT?: GabiToolExecucaoScalarWhereWithAggregatesInput | GabiToolExecucaoScalarWhereWithAggregatesInput[]
+    id_gabi_tool_execucao?: StringWithAggregatesFilter<"GabiToolExecucao"> | string
+    id_organizacao_gabi_tool_execucao?: StringWithAggregatesFilter<"GabiToolExecucao"> | string
+    id_usuario_gabi_tool_execucao?: StringWithAggregatesFilter<"GabiToolExecucao"> | string
+    id_conversa_gabi_tool_execucao?: StringWithAggregatesFilter<"GabiToolExecucao"> | string
+    tool_id_gabi_tool_execucao?: StringWithAggregatesFilter<"GabiToolExecucao"> | string
+    parametros_gabi_tool_execucao?: JsonWithAggregatesFilter<"GabiToolExecucao">
+    resultado_status_gabi_tool_execucao?: IntWithAggregatesFilter<"GabiToolExecucao"> | number
+    resultado_resumo_gabi_tool_execucao?: StringNullableWithAggregatesFilter<"GabiToolExecucao"> | string | null
+    duracao_ms_gabi_tool_execucao?: IntWithAggregatesFilter<"GabiToolExecucao"> | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolWithAggregatesFilter<"GabiToolExecucao"> | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeWithAggregatesFilter<"GabiToolExecucao"> | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoWhereInput = {
+    AND?: GabiConfirmacaoAcaoWhereInput | GabiConfirmacaoAcaoWhereInput[]
+    OR?: GabiConfirmacaoAcaoWhereInput[]
+    NOT?: GabiConfirmacaoAcaoWhereInput | GabiConfirmacaoAcaoWhereInput[]
+    id_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    id_organizacao_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    id_usuario_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    id_conversa_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    nonce_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    tool_id_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    parametros_hash_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    descricao_acao_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    consumido_gabi_confirmacao_acao?: BoolFilter<"GabiConfirmacaoAcao"> | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFilter<"GabiConfirmacaoAcao"> | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFilter<"GabiConfirmacaoAcao"> | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoOrderByWithRelationInput = {
+    id_gabi_confirmacao_acao?: SortOrder
+    id_organizacao_gabi_confirmacao_acao?: SortOrder
+    id_usuario_gabi_confirmacao_acao?: SortOrder
+    id_conversa_gabi_confirmacao_acao?: SortOrder
+    nonce_gabi_confirmacao_acao?: SortOrder
+    tool_id_gabi_confirmacao_acao?: SortOrder
+    parametros_hash_gabi_confirmacao_acao?: SortOrder
+    descricao_acao_gabi_confirmacao_acao?: SortOrder
+    consumido_gabi_confirmacao_acao?: SortOrder
+    data_criacao_gabi_confirmacao_acao?: SortOrder
+    data_expiracao_gabi_confirmacao_acao?: SortOrder
+  }
+
+  export type GabiConfirmacaoAcaoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_confirmacao_acao?: string
+    nonce_gabi_confirmacao_acao?: string
+    AND?: GabiConfirmacaoAcaoWhereInput | GabiConfirmacaoAcaoWhereInput[]
+    OR?: GabiConfirmacaoAcaoWhereInput[]
+    NOT?: GabiConfirmacaoAcaoWhereInput | GabiConfirmacaoAcaoWhereInput[]
+    id_organizacao_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    id_usuario_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    id_conversa_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    tool_id_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    parametros_hash_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    descricao_acao_gabi_confirmacao_acao?: StringFilter<"GabiConfirmacaoAcao"> | string
+    consumido_gabi_confirmacao_acao?: BoolFilter<"GabiConfirmacaoAcao"> | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFilter<"GabiConfirmacaoAcao"> | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFilter<"GabiConfirmacaoAcao"> | Date | string
+  }, "id_gabi_confirmacao_acao" | "nonce_gabi_confirmacao_acao">
+
+  export type GabiConfirmacaoAcaoOrderByWithAggregationInput = {
+    id_gabi_confirmacao_acao?: SortOrder
+    id_organizacao_gabi_confirmacao_acao?: SortOrder
+    id_usuario_gabi_confirmacao_acao?: SortOrder
+    id_conversa_gabi_confirmacao_acao?: SortOrder
+    nonce_gabi_confirmacao_acao?: SortOrder
+    tool_id_gabi_confirmacao_acao?: SortOrder
+    parametros_hash_gabi_confirmacao_acao?: SortOrder
+    descricao_acao_gabi_confirmacao_acao?: SortOrder
+    consumido_gabi_confirmacao_acao?: SortOrder
+    data_criacao_gabi_confirmacao_acao?: SortOrder
+    data_expiracao_gabi_confirmacao_acao?: SortOrder
+    _count?: GabiConfirmacaoAcaoCountOrderByAggregateInput
+    _max?: GabiConfirmacaoAcaoMaxOrderByAggregateInput
+    _min?: GabiConfirmacaoAcaoMinOrderByAggregateInput
+  }
+
+  export type GabiConfirmacaoAcaoScalarWhereWithAggregatesInput = {
+    AND?: GabiConfirmacaoAcaoScalarWhereWithAggregatesInput | GabiConfirmacaoAcaoScalarWhereWithAggregatesInput[]
+    OR?: GabiConfirmacaoAcaoScalarWhereWithAggregatesInput[]
+    NOT?: GabiConfirmacaoAcaoScalarWhereWithAggregatesInput | GabiConfirmacaoAcaoScalarWhereWithAggregatesInput[]
+    id_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    id_organizacao_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    id_usuario_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    id_conversa_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    nonce_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    tool_id_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    parametros_hash_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    descricao_acao_gabi_confirmacao_acao?: StringWithAggregatesFilter<"GabiConfirmacaoAcao"> | string
+    consumido_gabi_confirmacao_acao?: BoolWithAggregatesFilter<"GabiConfirmacaoAcao"> | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeWithAggregatesFilter<"GabiConfirmacaoAcao"> | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeWithAggregatesFilter<"GabiConfirmacaoAcao"> | Date | string
   }
 
   export type WorkspacePreferenciaUsuarioWhereInput = {
@@ -65257,6 +71105,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: number
     tokens_output_gabi_log_uso?: number
     custo_usd_gabi_log_uso?: number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: Date | string
   }
 
@@ -65273,6 +71122,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: number
     tokens_output_gabi_log_uso?: number
     custo_usd_gabi_log_uso?: number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: Date | string
   }
 
@@ -65289,6 +71139,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -65305,6 +71156,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -65321,6 +71173,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: number
     tokens_output_gabi_log_uso?: number
     custo_usd_gabi_log_uso?: number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: Date | string
   }
 
@@ -65337,6 +71190,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -65353,6 +71207,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
     custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    tools_chamadas_gabi_log_uso?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -65823,6 +71678,517 @@ export namespace Prisma {
     nivel_gabi_alerta_emitido?: StringFieldUpdateOperationsInput | string
     gasto_usd_gabi_alerta_emitido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     data_criacao_gabi_alerta_emitido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiMemoriaUsuarioCreateInput = {
+    id_gabi_memoria_usuario?: string
+    id_organizacao_gabi_memoria_usuario: string
+    id_usuario_gabi_memoria_usuario: string
+    tipo_gabi_memoria_usuario: string
+    chave_gabi_memoria_usuario: string
+    valor_gabi_memoria_usuario: string
+    confianca_gabi_memoria_usuario?: number
+    origem_gabi_memoria_usuario?: string
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: Date | string
+    data_atualizacao_gabi_memoria_usuario?: Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: Date | string
+  }
+
+  export type GabiMemoriaUsuarioUncheckedCreateInput = {
+    id_gabi_memoria_usuario?: string
+    id_organizacao_gabi_memoria_usuario: string
+    id_usuario_gabi_memoria_usuario: string
+    tipo_gabi_memoria_usuario: string
+    chave_gabi_memoria_usuario: string
+    valor_gabi_memoria_usuario: string
+    confianca_gabi_memoria_usuario?: number
+    origem_gabi_memoria_usuario?: string
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: Date | string
+    data_atualizacao_gabi_memoria_usuario?: Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: Date | string
+  }
+
+  export type GabiMemoriaUsuarioUpdateInput = {
+    id_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    chave_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    valor_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    confianca_gabi_memoria_usuario?: FloatFieldUpdateOperationsInput | number
+    origem_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    ativo_gabi_memoria_usuario?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiMemoriaUsuarioUncheckedUpdateInput = {
+    id_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    chave_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    valor_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    confianca_gabi_memoria_usuario?: FloatFieldUpdateOperationsInput | number
+    origem_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    ativo_gabi_memoria_usuario?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiMemoriaUsuarioCreateManyInput = {
+    id_gabi_memoria_usuario?: string
+    id_organizacao_gabi_memoria_usuario: string
+    id_usuario_gabi_memoria_usuario: string
+    tipo_gabi_memoria_usuario: string
+    chave_gabi_memoria_usuario: string
+    valor_gabi_memoria_usuario: string
+    confianca_gabi_memoria_usuario?: number
+    origem_gabi_memoria_usuario?: string
+    ativo_gabi_memoria_usuario?: boolean
+    data_criacao_gabi_memoria_usuario?: Date | string
+    data_atualizacao_gabi_memoria_usuario?: Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: Date | string
+  }
+
+  export type GabiMemoriaUsuarioUpdateManyMutationInput = {
+    id_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    chave_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    valor_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    confianca_gabi_memoria_usuario?: FloatFieldUpdateOperationsInput | number
+    origem_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    ativo_gabi_memoria_usuario?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiMemoriaUsuarioUncheckedUpdateManyInput = {
+    id_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    chave_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    valor_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    confianca_gabi_memoria_usuario?: FloatFieldUpdateOperationsInput | number
+    origem_gabi_memoria_usuario?: StringFieldUpdateOperationsInput | string
+    ativo_gabi_memoria_usuario?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_ultimo_uso_gabi_memoria_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiDiagnosticoErroCreateInput = {
+    id_gabi_diagnostico_erro?: string
+    id_organizacao_gabi_diagnostico_erro: string
+    id_usuario_gabi_diagnostico_erro: string
+    produto_gabi_diagnostico_erro: string
+    endpoint_gabi_diagnostico_erro: string
+    metodo_gabi_diagnostico_erro: string
+    status_http_gabi_diagnostico_erro: number
+    codigo_erro_gabi_diagnostico_erro?: string | null
+    detalhes_gabi_diagnostico_erro?: string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: Date | string
+  }
+
+  export type GabiDiagnosticoErroUncheckedCreateInput = {
+    id_gabi_diagnostico_erro?: string
+    id_organizacao_gabi_diagnostico_erro: string
+    id_usuario_gabi_diagnostico_erro: string
+    produto_gabi_diagnostico_erro: string
+    endpoint_gabi_diagnostico_erro: string
+    metodo_gabi_diagnostico_erro: string
+    status_http_gabi_diagnostico_erro: number
+    codigo_erro_gabi_diagnostico_erro?: string | null
+    detalhes_gabi_diagnostico_erro?: string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: Date | string
+  }
+
+  export type GabiDiagnosticoErroUpdateInput = {
+    id_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    produto_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    endpoint_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    metodo_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    status_http_gabi_diagnostico_erro?: IntFieldUpdateOperationsInput | number
+    codigo_erro_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    detalhes_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiDiagnosticoErroUncheckedUpdateInput = {
+    id_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    produto_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    endpoint_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    metodo_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    status_http_gabi_diagnostico_erro?: IntFieldUpdateOperationsInput | number
+    codigo_erro_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    detalhes_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiDiagnosticoErroCreateManyInput = {
+    id_gabi_diagnostico_erro?: string
+    id_organizacao_gabi_diagnostico_erro: string
+    id_usuario_gabi_diagnostico_erro: string
+    produto_gabi_diagnostico_erro: string
+    endpoint_gabi_diagnostico_erro: string
+    metodo_gabi_diagnostico_erro: string
+    status_http_gabi_diagnostico_erro: number
+    codigo_erro_gabi_diagnostico_erro?: string | null
+    detalhes_gabi_diagnostico_erro?: string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: Date | string
+  }
+
+  export type GabiDiagnosticoErroUpdateManyMutationInput = {
+    id_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    produto_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    endpoint_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    metodo_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    status_http_gabi_diagnostico_erro?: IntFieldUpdateOperationsInput | number
+    codigo_erro_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    detalhes_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiDiagnosticoErroUncheckedUpdateManyInput = {
+    id_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    produto_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    endpoint_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    metodo_gabi_diagnostico_erro?: StringFieldUpdateOperationsInput | string
+    status_http_gabi_diagnostico_erro?: IntFieldUpdateOperationsInput | number
+    codigo_erro_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    detalhes_gabi_diagnostico_erro?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_resumo_gabi_diagnostico_erro?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_gabi_diagnostico_erro?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiChamadoCreateInput = {
+    id_gabi_chamado?: string
+    id_organizacao_gabi_chamado: string
+    id_usuario_gabi_chamado: string
+    numero_gabi_chamado: string
+    tipo_gabi_chamado: string
+    produto_gabi_chamado: string
+    descricao_usuario_gabi_chamado: string
+    diagnostico_gabi_chamado?: string | null
+    id_conversa_gabi_chamado?: string | null
+    status_gabi_chamado?: string
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: Date | string
+    data_atualizacao_gabi_chamado?: Date | string
+  }
+
+  export type GabiChamadoUncheckedCreateInput = {
+    id_gabi_chamado?: string
+    id_organizacao_gabi_chamado: string
+    id_usuario_gabi_chamado: string
+    numero_gabi_chamado: string
+    tipo_gabi_chamado: string
+    produto_gabi_chamado: string
+    descricao_usuario_gabi_chamado: string
+    diagnostico_gabi_chamado?: string | null
+    id_conversa_gabi_chamado?: string | null
+    status_gabi_chamado?: string
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: Date | string
+    data_atualizacao_gabi_chamado?: Date | string
+  }
+
+  export type GabiChamadoUpdateInput = {
+    id_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    numero_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    produto_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    descricao_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    diagnostico_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    status_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    email_enviado_gabi_chamado?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiChamadoUncheckedUpdateInput = {
+    id_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    numero_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    produto_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    descricao_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    diagnostico_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    status_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    email_enviado_gabi_chamado?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiChamadoCreateManyInput = {
+    id_gabi_chamado?: string
+    id_organizacao_gabi_chamado: string
+    id_usuario_gabi_chamado: string
+    numero_gabi_chamado: string
+    tipo_gabi_chamado: string
+    produto_gabi_chamado: string
+    descricao_usuario_gabi_chamado: string
+    diagnostico_gabi_chamado?: string | null
+    id_conversa_gabi_chamado?: string | null
+    status_gabi_chamado?: string
+    email_enviado_gabi_chamado?: boolean
+    data_criacao_gabi_chamado?: Date | string
+    data_atualizacao_gabi_chamado?: Date | string
+  }
+
+  export type GabiChamadoUpdateManyMutationInput = {
+    id_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    numero_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    produto_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    descricao_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    diagnostico_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    status_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    email_enviado_gabi_chamado?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiChamadoUncheckedUpdateManyInput = {
+    id_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    numero_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    tipo_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    produto_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    descricao_usuario_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    diagnostico_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_chamado?: NullableStringFieldUpdateOperationsInput | string | null
+    status_gabi_chamado?: StringFieldUpdateOperationsInput | string
+    email_enviado_gabi_chamado?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_chamado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiToolExecucaoCreateInput = {
+    id_gabi_tool_execucao?: string
+    id_organizacao_gabi_tool_execucao: string
+    id_usuario_gabi_tool_execucao: string
+    id_conversa_gabi_tool_execucao: string
+    tool_id_gabi_tool_execucao: string
+    parametros_gabi_tool_execucao: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao: number
+    resultado_resumo_gabi_tool_execucao?: string | null
+    duracao_ms_gabi_tool_execucao: number
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: Date | string
+  }
+
+  export type GabiToolExecucaoUncheckedCreateInput = {
+    id_gabi_tool_execucao?: string
+    id_organizacao_gabi_tool_execucao: string
+    id_usuario_gabi_tool_execucao: string
+    id_conversa_gabi_tool_execucao: string
+    tool_id_gabi_tool_execucao: string
+    parametros_gabi_tool_execucao: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao: number
+    resultado_resumo_gabi_tool_execucao?: string | null
+    duracao_ms_gabi_tool_execucao: number
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: Date | string
+  }
+
+  export type GabiToolExecucaoUpdateInput = {
+    id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    parametros_gabi_tool_execucao?: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    resultado_resumo_gabi_tool_execucao?: NullableStringFieldUpdateOperationsInput | string | null
+    duracao_ms_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiToolExecucaoUncheckedUpdateInput = {
+    id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    parametros_gabi_tool_execucao?: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    resultado_resumo_gabi_tool_execucao?: NullableStringFieldUpdateOperationsInput | string | null
+    duracao_ms_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiToolExecucaoCreateManyInput = {
+    id_gabi_tool_execucao?: string
+    id_organizacao_gabi_tool_execucao: string
+    id_usuario_gabi_tool_execucao: string
+    id_conversa_gabi_tool_execucao: string
+    tool_id_gabi_tool_execucao: string
+    parametros_gabi_tool_execucao: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao: number
+    resultado_resumo_gabi_tool_execucao?: string | null
+    duracao_ms_gabi_tool_execucao: number
+    confirmacao_usuario_gabi_tool_execucao?: boolean
+    data_criacao_gabi_tool_execucao?: Date | string
+  }
+
+  export type GabiToolExecucaoUpdateManyMutationInput = {
+    id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    parametros_gabi_tool_execucao?: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    resultado_resumo_gabi_tool_execucao?: NullableStringFieldUpdateOperationsInput | string | null
+    duracao_ms_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiToolExecucaoUncheckedUpdateManyInput = {
+    id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_tool_execucao?: StringFieldUpdateOperationsInput | string
+    parametros_gabi_tool_execucao?: JsonNullValueInput | InputJsonValue
+    resultado_status_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    resultado_resumo_gabi_tool_execucao?: NullableStringFieldUpdateOperationsInput | string | null
+    duracao_ms_gabi_tool_execucao?: IntFieldUpdateOperationsInput | number
+    confirmacao_usuario_gabi_tool_execucao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_tool_execucao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoCreateInput = {
+    id_gabi_confirmacao_acao?: string
+    id_organizacao_gabi_confirmacao_acao: string
+    id_usuario_gabi_confirmacao_acao: string
+    id_conversa_gabi_confirmacao_acao: string
+    nonce_gabi_confirmacao_acao: string
+    tool_id_gabi_confirmacao_acao: string
+    parametros_hash_gabi_confirmacao_acao: string
+    descricao_acao_gabi_confirmacao_acao: string
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: Date | string
+    data_expiracao_gabi_confirmacao_acao: Date | string
+  }
+
+  export type GabiConfirmacaoAcaoUncheckedCreateInput = {
+    id_gabi_confirmacao_acao?: string
+    id_organizacao_gabi_confirmacao_acao: string
+    id_usuario_gabi_confirmacao_acao: string
+    id_conversa_gabi_confirmacao_acao: string
+    nonce_gabi_confirmacao_acao: string
+    tool_id_gabi_confirmacao_acao: string
+    parametros_hash_gabi_confirmacao_acao: string
+    descricao_acao_gabi_confirmacao_acao: string
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: Date | string
+    data_expiracao_gabi_confirmacao_acao: Date | string
+  }
+
+  export type GabiConfirmacaoAcaoUpdateInput = {
+    id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    nonce_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    parametros_hash_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    descricao_acao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    consumido_gabi_confirmacao_acao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoUncheckedUpdateInput = {
+    id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    nonce_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    parametros_hash_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    descricao_acao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    consumido_gabi_confirmacao_acao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoCreateManyInput = {
+    id_gabi_confirmacao_acao?: string
+    id_organizacao_gabi_confirmacao_acao: string
+    id_usuario_gabi_confirmacao_acao: string
+    id_conversa_gabi_confirmacao_acao: string
+    nonce_gabi_confirmacao_acao: string
+    tool_id_gabi_confirmacao_acao: string
+    parametros_hash_gabi_confirmacao_acao: string
+    descricao_acao_gabi_confirmacao_acao: string
+    consumido_gabi_confirmacao_acao?: boolean
+    data_criacao_gabi_confirmacao_acao?: Date | string
+    data_expiracao_gabi_confirmacao_acao: Date | string
+  }
+
+  export type GabiConfirmacaoAcaoUpdateManyMutationInput = {
+    id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    nonce_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    parametros_hash_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    descricao_acao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    consumido_gabi_confirmacao_acao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiConfirmacaoAcaoUncheckedUpdateManyInput = {
+    id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    id_conversa_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    nonce_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    tool_id_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    parametros_hash_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    descricao_acao_gabi_confirmacao_acao?: StringFieldUpdateOperationsInput | string
+    consumido_gabi_confirmacao_acao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_gabi_confirmacao_acao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkspacePreferenciaUsuarioCreateInput = {
@@ -69220,6 +75586,7 @@ export namespace Prisma {
     tokens_input_gabi_log_uso?: SortOrder
     tokens_output_gabi_log_uso?: SortOrder
     custo_usd_gabi_log_uso?: SortOrder
+    tools_chamadas_gabi_log_uso?: SortOrder
     data_criacao_gabi_log_uso?: SortOrder
   }
 
@@ -69546,6 +75913,254 @@ export namespace Prisma {
 
   export type GabiAlertaEmitidoSumOrderByAggregateInput = {
     gasto_usd_gabi_alerta_emitido?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioId_organizacao_gabi_memoria_usuarioId_usuario_gabi_memoria_usuarioTipo_gabi_memoria_usuarioChave_gabi_memoria_usuarioCompoundUniqueInput = {
+    id_organizacao_gabi_memoria_usuario: string
+    id_usuario_gabi_memoria_usuario: string
+    tipo_gabi_memoria_usuario: string
+    chave_gabi_memoria_usuario: string
+  }
+
+  export type GabiMemoriaUsuarioCountOrderByAggregateInput = {
+    id_gabi_memoria_usuario?: SortOrder
+    id_organizacao_gabi_memoria_usuario?: SortOrder
+    id_usuario_gabi_memoria_usuario?: SortOrder
+    tipo_gabi_memoria_usuario?: SortOrder
+    chave_gabi_memoria_usuario?: SortOrder
+    valor_gabi_memoria_usuario?: SortOrder
+    confianca_gabi_memoria_usuario?: SortOrder
+    origem_gabi_memoria_usuario?: SortOrder
+    ativo_gabi_memoria_usuario?: SortOrder
+    data_criacao_gabi_memoria_usuario?: SortOrder
+    data_atualizacao_gabi_memoria_usuario?: SortOrder
+    data_ultimo_uso_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioAvgOrderByAggregateInput = {
+    confianca_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioMaxOrderByAggregateInput = {
+    id_gabi_memoria_usuario?: SortOrder
+    id_organizacao_gabi_memoria_usuario?: SortOrder
+    id_usuario_gabi_memoria_usuario?: SortOrder
+    tipo_gabi_memoria_usuario?: SortOrder
+    chave_gabi_memoria_usuario?: SortOrder
+    valor_gabi_memoria_usuario?: SortOrder
+    confianca_gabi_memoria_usuario?: SortOrder
+    origem_gabi_memoria_usuario?: SortOrder
+    ativo_gabi_memoria_usuario?: SortOrder
+    data_criacao_gabi_memoria_usuario?: SortOrder
+    data_atualizacao_gabi_memoria_usuario?: SortOrder
+    data_ultimo_uso_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioMinOrderByAggregateInput = {
+    id_gabi_memoria_usuario?: SortOrder
+    id_organizacao_gabi_memoria_usuario?: SortOrder
+    id_usuario_gabi_memoria_usuario?: SortOrder
+    tipo_gabi_memoria_usuario?: SortOrder
+    chave_gabi_memoria_usuario?: SortOrder
+    valor_gabi_memoria_usuario?: SortOrder
+    confianca_gabi_memoria_usuario?: SortOrder
+    origem_gabi_memoria_usuario?: SortOrder
+    ativo_gabi_memoria_usuario?: SortOrder
+    data_criacao_gabi_memoria_usuario?: SortOrder
+    data_atualizacao_gabi_memoria_usuario?: SortOrder
+    data_ultimo_uso_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiMemoriaUsuarioSumOrderByAggregateInput = {
+    confianca_gabi_memoria_usuario?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroCountOrderByAggregateInput = {
+    id_gabi_diagnostico_erro?: SortOrder
+    id_organizacao_gabi_diagnostico_erro?: SortOrder
+    id_usuario_gabi_diagnostico_erro?: SortOrder
+    produto_gabi_diagnostico_erro?: SortOrder
+    endpoint_gabi_diagnostico_erro?: SortOrder
+    metodo_gabi_diagnostico_erro?: SortOrder
+    status_http_gabi_diagnostico_erro?: SortOrder
+    codigo_erro_gabi_diagnostico_erro?: SortOrder
+    detalhes_gabi_diagnostico_erro?: SortOrder
+    payload_resumo_gabi_diagnostico_erro?: SortOrder
+    data_criacao_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroAvgOrderByAggregateInput = {
+    status_http_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroMaxOrderByAggregateInput = {
+    id_gabi_diagnostico_erro?: SortOrder
+    id_organizacao_gabi_diagnostico_erro?: SortOrder
+    id_usuario_gabi_diagnostico_erro?: SortOrder
+    produto_gabi_diagnostico_erro?: SortOrder
+    endpoint_gabi_diagnostico_erro?: SortOrder
+    metodo_gabi_diagnostico_erro?: SortOrder
+    status_http_gabi_diagnostico_erro?: SortOrder
+    codigo_erro_gabi_diagnostico_erro?: SortOrder
+    detalhes_gabi_diagnostico_erro?: SortOrder
+    data_criacao_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroMinOrderByAggregateInput = {
+    id_gabi_diagnostico_erro?: SortOrder
+    id_organizacao_gabi_diagnostico_erro?: SortOrder
+    id_usuario_gabi_diagnostico_erro?: SortOrder
+    produto_gabi_diagnostico_erro?: SortOrder
+    endpoint_gabi_diagnostico_erro?: SortOrder
+    metodo_gabi_diagnostico_erro?: SortOrder
+    status_http_gabi_diagnostico_erro?: SortOrder
+    codigo_erro_gabi_diagnostico_erro?: SortOrder
+    detalhes_gabi_diagnostico_erro?: SortOrder
+    data_criacao_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiDiagnosticoErroSumOrderByAggregateInput = {
+    status_http_gabi_diagnostico_erro?: SortOrder
+  }
+
+  export type GabiChamadoCountOrderByAggregateInput = {
+    id_gabi_chamado?: SortOrder
+    id_organizacao_gabi_chamado?: SortOrder
+    id_usuario_gabi_chamado?: SortOrder
+    numero_gabi_chamado?: SortOrder
+    tipo_gabi_chamado?: SortOrder
+    produto_gabi_chamado?: SortOrder
+    descricao_usuario_gabi_chamado?: SortOrder
+    diagnostico_gabi_chamado?: SortOrder
+    id_conversa_gabi_chamado?: SortOrder
+    status_gabi_chamado?: SortOrder
+    email_enviado_gabi_chamado?: SortOrder
+    data_criacao_gabi_chamado?: SortOrder
+    data_atualizacao_gabi_chamado?: SortOrder
+  }
+
+  export type GabiChamadoMaxOrderByAggregateInput = {
+    id_gabi_chamado?: SortOrder
+    id_organizacao_gabi_chamado?: SortOrder
+    id_usuario_gabi_chamado?: SortOrder
+    numero_gabi_chamado?: SortOrder
+    tipo_gabi_chamado?: SortOrder
+    produto_gabi_chamado?: SortOrder
+    descricao_usuario_gabi_chamado?: SortOrder
+    diagnostico_gabi_chamado?: SortOrder
+    id_conversa_gabi_chamado?: SortOrder
+    status_gabi_chamado?: SortOrder
+    email_enviado_gabi_chamado?: SortOrder
+    data_criacao_gabi_chamado?: SortOrder
+    data_atualizacao_gabi_chamado?: SortOrder
+  }
+
+  export type GabiChamadoMinOrderByAggregateInput = {
+    id_gabi_chamado?: SortOrder
+    id_organizacao_gabi_chamado?: SortOrder
+    id_usuario_gabi_chamado?: SortOrder
+    numero_gabi_chamado?: SortOrder
+    tipo_gabi_chamado?: SortOrder
+    produto_gabi_chamado?: SortOrder
+    descricao_usuario_gabi_chamado?: SortOrder
+    diagnostico_gabi_chamado?: SortOrder
+    id_conversa_gabi_chamado?: SortOrder
+    status_gabi_chamado?: SortOrder
+    email_enviado_gabi_chamado?: SortOrder
+    data_criacao_gabi_chamado?: SortOrder
+    data_atualizacao_gabi_chamado?: SortOrder
+  }
+
+  export type GabiToolExecucaoCountOrderByAggregateInput = {
+    id_gabi_tool_execucao?: SortOrder
+    id_organizacao_gabi_tool_execucao?: SortOrder
+    id_usuario_gabi_tool_execucao?: SortOrder
+    id_conversa_gabi_tool_execucao?: SortOrder
+    tool_id_gabi_tool_execucao?: SortOrder
+    parametros_gabi_tool_execucao?: SortOrder
+    resultado_status_gabi_tool_execucao?: SortOrder
+    resultado_resumo_gabi_tool_execucao?: SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+    confirmacao_usuario_gabi_tool_execucao?: SortOrder
+    data_criacao_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiToolExecucaoAvgOrderByAggregateInput = {
+    resultado_status_gabi_tool_execucao?: SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiToolExecucaoMaxOrderByAggregateInput = {
+    id_gabi_tool_execucao?: SortOrder
+    id_organizacao_gabi_tool_execucao?: SortOrder
+    id_usuario_gabi_tool_execucao?: SortOrder
+    id_conversa_gabi_tool_execucao?: SortOrder
+    tool_id_gabi_tool_execucao?: SortOrder
+    resultado_status_gabi_tool_execucao?: SortOrder
+    resultado_resumo_gabi_tool_execucao?: SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+    confirmacao_usuario_gabi_tool_execucao?: SortOrder
+    data_criacao_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiToolExecucaoMinOrderByAggregateInput = {
+    id_gabi_tool_execucao?: SortOrder
+    id_organizacao_gabi_tool_execucao?: SortOrder
+    id_usuario_gabi_tool_execucao?: SortOrder
+    id_conversa_gabi_tool_execucao?: SortOrder
+    tool_id_gabi_tool_execucao?: SortOrder
+    resultado_status_gabi_tool_execucao?: SortOrder
+    resultado_resumo_gabi_tool_execucao?: SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+    confirmacao_usuario_gabi_tool_execucao?: SortOrder
+    data_criacao_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiToolExecucaoSumOrderByAggregateInput = {
+    resultado_status_gabi_tool_execucao?: SortOrder
+    duracao_ms_gabi_tool_execucao?: SortOrder
+  }
+
+  export type GabiConfirmacaoAcaoCountOrderByAggregateInput = {
+    id_gabi_confirmacao_acao?: SortOrder
+    id_organizacao_gabi_confirmacao_acao?: SortOrder
+    id_usuario_gabi_confirmacao_acao?: SortOrder
+    id_conversa_gabi_confirmacao_acao?: SortOrder
+    nonce_gabi_confirmacao_acao?: SortOrder
+    tool_id_gabi_confirmacao_acao?: SortOrder
+    parametros_hash_gabi_confirmacao_acao?: SortOrder
+    descricao_acao_gabi_confirmacao_acao?: SortOrder
+    consumido_gabi_confirmacao_acao?: SortOrder
+    data_criacao_gabi_confirmacao_acao?: SortOrder
+    data_expiracao_gabi_confirmacao_acao?: SortOrder
+  }
+
+  export type GabiConfirmacaoAcaoMaxOrderByAggregateInput = {
+    id_gabi_confirmacao_acao?: SortOrder
+    id_organizacao_gabi_confirmacao_acao?: SortOrder
+    id_usuario_gabi_confirmacao_acao?: SortOrder
+    id_conversa_gabi_confirmacao_acao?: SortOrder
+    nonce_gabi_confirmacao_acao?: SortOrder
+    tool_id_gabi_confirmacao_acao?: SortOrder
+    parametros_hash_gabi_confirmacao_acao?: SortOrder
+    descricao_acao_gabi_confirmacao_acao?: SortOrder
+    consumido_gabi_confirmacao_acao?: SortOrder
+    data_criacao_gabi_confirmacao_acao?: SortOrder
+    data_expiracao_gabi_confirmacao_acao?: SortOrder
+  }
+
+  export type GabiConfirmacaoAcaoMinOrderByAggregateInput = {
+    id_gabi_confirmacao_acao?: SortOrder
+    id_organizacao_gabi_confirmacao_acao?: SortOrder
+    id_usuario_gabi_confirmacao_acao?: SortOrder
+    id_conversa_gabi_confirmacao_acao?: SortOrder
+    nonce_gabi_confirmacao_acao?: SortOrder
+    tool_id_gabi_confirmacao_acao?: SortOrder
+    parametros_hash_gabi_confirmacao_acao?: SortOrder
+    descricao_acao_gabi_confirmacao_acao?: SortOrder
+    consumido_gabi_confirmacao_acao?: SortOrder
+    data_criacao_gabi_confirmacao_acao?: SortOrder
+    data_expiracao_gabi_confirmacao_acao?: SortOrder
   }
 
   export type WorkspacePreferenciaUsuarioCountOrderByAggregateInput = {
@@ -74137,6 +80752,26 @@ export namespace Prisma {
      * @deprecated Use GabiAlertaEmitidoDefaultArgs instead
      */
     export type GabiAlertaEmitidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiAlertaEmitidoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiMemoriaUsuarioDefaultArgs instead
+     */
+    export type GabiMemoriaUsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiMemoriaUsuarioDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiDiagnosticoErroDefaultArgs instead
+     */
+    export type GabiDiagnosticoErroArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiDiagnosticoErroDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiChamadoDefaultArgs instead
+     */
+    export type GabiChamadoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiChamadoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiToolExecucaoDefaultArgs instead
+     */
+    export type GabiToolExecucaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiToolExecucaoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiConfirmacaoAcaoDefaultArgs instead
+     */
+    export type GabiConfirmacaoAcaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiConfirmacaoAcaoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use WorkspacePreferenciaUsuarioDefaultArgs instead
      */

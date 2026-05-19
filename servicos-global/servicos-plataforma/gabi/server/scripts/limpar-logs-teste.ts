@@ -40,6 +40,8 @@ async function main() {
     }
 
     try {
+      // SAFETY: schemaName validated by SCHEMA_NAME_REGEX; MODELOS_TESTE is a
+      // hardcoded const array passed as positional param $1.
       const deletados = await prisma.$transaction(async (tx) => {
         await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 

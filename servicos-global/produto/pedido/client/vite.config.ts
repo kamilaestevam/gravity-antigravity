@@ -60,6 +60,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path: string) => path.replace('/api/v1/ncm', '/api/v1/cadastros/ncm'),
       },
+      // /api/v1/me — proxy para configurador (SSOT de identidade)
+      '/api/v1/me': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
       // Notificacoes + users — proxy para configurador que valida JWT e repassa ao super-servidor da plataforma
       '/api/v1/notificacoes': {
         target: 'http://localhost:8005',

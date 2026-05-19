@@ -499,6 +499,10 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   color: var(--text-primary, #f1f5f9);
 }
 
+.cfg-card-detail-panel__row--full {
+  grid-column: 1 / -1;
+}
+
 /* ── Botões de ação ── */
 
 .cfg-eye-btn {

@@ -1,5 +1,25 @@
-import { Router } from 'express'
-import { PrismaClient } from '@prisma/client'
+/**
+ * webhooks.ts — Rotas CRUD para webhooks (model WebhookConfiguracao + WebhookLog)
+ *
+ * Padrao S2S — chamado SOMENTE pelo proxy do Configurador via x-chave-interna-servico.
+ * Configurador valida JWT do usuario e injeta id_organizacao no body/query.
+ *
+ * GET    /api/v1/cockpit/webhooks                                      — listar
+ * POST   /api/v1/cockpit/webhooks                                      — criar (retorna segredo UMA vez)
+ * PUT    /api/v1/cockpit/webhooks/:id_webhook_configuracao             — atualizar
+ * POST   /api/v1/cockpit/webhooks/:id_webhook_configuracao/disparar-evento-teste — testar disparo
+ * GET    /api/v1/cockpit/webhooks/:id_webhook_configuracao/historico   — logs de entrega
+ * DELETE /api/v1/cockpit/webhooks/:id_webhook_configuracao             — excluir
+ *
+ * NOMENCLATURA DDD:
+ *   - id_organizacao, id_produto_gravity, id_usuario  FKs canonicas (REGRA 3/4)
+ *   - url_webhook_configuracao, segredo_webhook_configuracao, eventos_webhook_configuracao
+ *   - ativo_webhook_configuracao (REGRA 5: sem prefixo is_)
+ *   - data_criacao_webhook_configuracao, data_atualizacao_webhook_configuracao
+ */
+
+import { Router, Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '../../../../generated/index.js'
 import { z } from 'zod'
 import { generateWebhookSecret, generateHMACSignature } from '../crypto'
 import { requireInternalKey } from '../middleware/requireInternalKey'
@@ -7,163 +27,262 @@ import { requireInternalKey } from '../middleware/requireInternalKey'
 export const webhooksRouter = Router()
 const prisma = new PrismaClient()
 
-const createWebhookSchema = z.object({
-  url: z.string().url(),
-  events: z.array(z.string()).min(1),
-  is_active: z.boolean().optional()
-})
-
-const updateWebhookSchema = z.object({
-  url: z.string().url().optional(),
-  events: z.array(z.string()).min(1).optional(),
-  is_active: z.boolean().optional()
-})
-
-// migrado para S2S
 webhooksRouter.use(requireInternalKey)
 
-webhooksRouter.get('/', async (req, res, next) => {
+// ─── Schemas Zod (Mandamento 06) ─────────────────────────────────────────
+
+const listarWebhooksQuerySchema = z.object({
+  id_organizacao: z.string().min(1, 'id_organizacao obrigatorio'),
+})
+
+const criarWebhookSchema = z.object({
+  id_organizacao:               z.string().min(1, 'id_organizacao obrigatorio'),
+  id_produto_gravity:           z.string().optional(),
+  id_usuario:                   z.string().optional(),
+  url_webhook_configuracao:     z.string().url('URL invalida'),
+  eventos_webhook_configuracao: z.array(z.string()).min(1, 'Pelo menos 1 evento obrigatorio'),
+  ativo_webhook_configuracao:   z.boolean().optional(),
+})
+
+const atualizarWebhookSchema = z.object({
+  id_organizacao:               z.string().min(1, 'id_organizacao obrigatorio'),
+  url_webhook_configuracao:     z.string().url('URL invalida').optional(),
+  eventos_webhook_configuracao: z.array(z.string()).min(1).optional(),
+  ativo_webhook_configuracao:   z.boolean().optional(),
+})
+
+const webhookParamsSchema = z.object({
+  id_webhook_configuracao: z.string().min(1),
+})
+
+const dispararTesteBodySchema = z.object({
+  id_organizacao: z.string().min(1, 'id_organizacao obrigatorio'),
+})
+
+// ─── GET / — listar webhooks da organizacao ──────────────────────────────
+
+webhooksRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId
+    const parsed = listarWebhooksQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      return res.status(400).json({ erro: 'Query invalida', issues: parsed.error.issues })
+    }
+
     const webhooks = await prisma.webhookConfiguracao.findMany({
-      where: { tenant_id: tenantId }
+      where: { id_organizacao: parsed.data.id_organizacao },
+      orderBy: { data_criacao_webhook_configuracao: 'desc' },
     })
-    res.json(webhooks)
+
+    res.json({ webhooks })
   } catch (error) {
     next(error)
   }
 })
 
-webhooksRouter.post('/', async (req, res, next) => {
+// ─── POST / — criar webhook ─────────────────────────────────────────────
+
+webhooksRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId
-    const data = createWebhookSchema.parse(req.body)
-    const secret = generateWebhookSecret()
+    const parsed = criarWebhookSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ erro: 'Body invalido', issues: parsed.error.issues })
+    }
+
+    const segredo = generateWebhookSecret()
 
     const webhook = await prisma.webhookConfiguracao.create({
       data: {
-        tenant_id: tenantId,
-        url: data.url,
-        events: data.events,
-        secret,
-        is_active: data.is_active ?? true
-      }
+        id_organizacao:               parsed.data.id_organizacao,
+        id_produto_gravity:           parsed.data.id_produto_gravity ?? null,
+        id_usuario:                   parsed.data.id_usuario ?? null,
+        url_webhook_configuracao:     parsed.data.url_webhook_configuracao,
+        segredo_webhook_configuracao: segredo,
+        eventos_webhook_configuracao: parsed.data.eventos_webhook_configuracao,
+        ativo_webhook_configuracao:   parsed.data.ativo_webhook_configuracao ?? true,
+      },
     })
 
-    res.status(201).json(webhook)
+    res.status(201).json({
+      ...webhook,
+      segredo_webhook_configuracao: segredo,
+    })
   } catch (error) {
     next(error)
   }
 })
 
-webhooksRouter.put('/:id_webhook', async (req, res, next) => {
+// ─── PUT /:id_webhook_configuracao — atualizar webhook ──────────────────
+
+webhooksRouter.put('/:id_webhook_configuracao', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId
-    const { id_webhook } = req.params
-    const data = updateWebhookSchema.parse(req.body)
-
-    const webhook = await prisma.webhookConfiguracao.findFirst({
-      where: { id: id_webhook, tenant_id: tenantId }
-    })
-
-    if (!webhook) {
-      return res.status(404).json({ error: 'Webhook not found' })
+    const params = webhookParamsSchema.safeParse(req.params)
+    if (!params.success) {
+      return res.status(400).json({ erro: 'Params invalidos', issues: params.error.issues })
     }
 
-    const updated = await prisma.webhookConfiguracao.update({
-      where: { id: id_webhook },
-      data
+    const parsed = atualizarWebhookSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ erro: 'Body invalido', issues: parsed.error.issues })
+    }
+
+    const existente = await prisma.webhookConfiguracao.findFirst({
+      where: {
+        id_webhook_configuracao: params.data.id_webhook_configuracao,
+        id_organizacao:          parsed.data.id_organizacao,
+      },
     })
 
-    res.json(updated)
+    if (!existente) {
+      return res.status(404).json({ erro: 'Webhook nao encontrado' })
+    }
+
+    const { id_organizacao: _, ...dadosAtualizacao } = parsed.data
+    const atualizado = await prisma.webhookConfiguracao.update({
+      where: { id_webhook_configuracao: params.data.id_webhook_configuracao },
+      data: dadosAtualizacao,
+    })
+
+    res.json(atualizado)
   } catch (error) {
     next(error)
   }
 })
 
-webhooksRouter.post('/:id_webhook/testar', async (req, res, next) => {
+// ─── POST /:id_webhook_configuracao/disparar-evento-teste — testar ──────
+
+webhooksRouter.post('/:id_webhook_configuracao/disparar-evento-teste', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId
-    const { id_webhook } = req.params
+    const params = webhookParamsSchema.safeParse(req.params)
+    if (!params.success) {
+      return res.status(400).json({ erro: 'Params invalidos', issues: params.error.issues })
+    }
+
+    const parsed = dispararTesteBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ erro: 'Body invalido', issues: parsed.error.issues })
+    }
 
     const webhook = await prisma.webhookConfiguracao.findFirst({
-      where: { id: id_webhook, tenant_id: tenantId }
+      where: {
+        id_webhook_configuracao: params.data.id_webhook_configuracao,
+        id_organizacao:          parsed.data.id_organizacao,
+      },
     })
 
     if (!webhook) {
-      return res.status(404).json({ error: 'Webhook not found' })
+      return res.status(404).json({ erro: 'Webhook nao encontrado' })
     }
 
     const payload = JSON.stringify({
-      event: 'test.event',
+      evento: 'teste.evento',
       timestamp: new Date().toISOString(),
-      data: { message: 'This is a test webhook from API Cockpit' }
+      data: { mensagem: 'Disparo de teste do API Cockpit Gravity' },
     })
 
-    const signature = generateHMACSignature(payload, webhook.secret)
+    const assinatura = generateHMACSignature(payload, webhook.segredo_webhook_configuracao)
 
-    // Fire the test webhook
-    const start = Date.now()
-    let status = 0
-    let errorMsg = null
+    const inicio = Date.now()
+    let codigoResposta = 0
+    let erroMsg: string | null = null
 
     try {
-      const response = await fetch(webhook.url, {
+      const response = await fetch(webhook.url_webhook_configuracao, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Gravity-Signature': signature
+          'X-Gravity-Signature': assinatura,
         },
-        body: payload
+        body: payload,
+        signal: AbortSignal.timeout(10_000),
       })
-      status = response.status
+      codigoResposta = response.status
     } catch (e: unknown) {
-      status = 500
-      errorMsg = e instanceof Error ? e.message : String(e)
+      codigoResposta = 500
+      erroMsg = e instanceof Error ? e.message : String(e)
     }
 
-    const latency_ms = Date.now() - start
+    const latenciaMs = Date.now() - inicio
 
-    // Log it
     await prisma.webhookLog.create({
       data: {
-        tenant_id: tenantId,
-        webhook_id: webhook.id,
-        event: 'test.event',
-        status,
-        latency_ms,
-        attempts: 1,
-        payload: JSON.parse(payload),
-        error: errorMsg
-      }
+        id_organizacao:                    parsed.data.id_organizacao,
+        id_webhook_configuracao:           webhook.id_webhook_configuracao,
+        evento_webhook_log:                'teste.evento',
+        codigo_resposta_http_webhook_log:  codigoResposta,
+        latencia_ms_webhook_log:           latenciaMs,
+        quantidade_tentativas_webhook_log: 1,
+        payload_webhook_log:               JSON.parse(payload),
+        erro_webhook_log:                  erroMsg,
+      },
     })
 
     res.json({
-      success: status >= 200 && status < 300,
-      status,
-      latency_ms,
-      error: errorMsg
+      sucesso:                          codigoResposta >= 200 && codigoResposta < 300,
+      codigo_resposta_http_webhook_log: codigoResposta,
+      latencia_ms_webhook_log:          latenciaMs,
+      erro_webhook_log:                 erroMsg,
     })
   } catch (error) {
     next(error)
   }
 })
 
-webhooksRouter.delete('/:id_webhook', async (req, res, next) => {
-  try {
-    const tenantId = (req as any).tenantId
-    const { id_webhook } = req.params
+// ─── GET /:id_webhook_configuracao/historico — logs de entrega ───────────
 
-    const webhook = await prisma.webhookConfiguracao.findFirst({
-      where: { id: id_webhook, tenant_id: tenantId }
+webhooksRouter.get('/:id_webhook_configuracao/historico', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const params = webhookParamsSchema.safeParse(req.params)
+    if (!params.success) {
+      return res.status(400).json({ erro: 'Params invalidos', issues: params.error.issues })
+    }
+
+    const queryParsed = listarWebhooksQuerySchema.safeParse(req.query)
+    if (!queryParsed.success) {
+      return res.status(400).json({ erro: 'Query invalida', issues: queryParsed.error.issues })
+    }
+
+    const historico = await prisma.webhookLog.findMany({
+      where: {
+        id_webhook_configuracao: params.data.id_webhook_configuracao,
+        id_organizacao:          queryParsed.data.id_organizacao,
+      },
+      orderBy: { data_criacao_webhook_log: 'desc' },
+      take: 100,
     })
 
-    if (!webhook) {
-      return res.status(404).json({ error: 'Webhook not found' })
+    res.json({ historico })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// ─── DELETE /:id_webhook_configuracao — excluir webhook ─────────────────
+
+webhooksRouter.delete('/:id_webhook_configuracao', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const params = webhookParamsSchema.safeParse(req.params)
+    if (!params.success) {
+      return res.status(400).json({ erro: 'Params invalidos', issues: params.error.issues })
+    }
+
+    const bodyParsed = dispararTesteBodySchema.safeParse(req.body)
+    if (!bodyParsed.success) {
+      return res.status(400).json({ erro: 'Body invalido — id_organizacao obrigatorio', issues: bodyParsed.error.issues })
+    }
+
+    const existente = await prisma.webhookConfiguracao.findFirst({
+      where: {
+        id_webhook_configuracao: params.data.id_webhook_configuracao,
+        id_organizacao:          bodyParsed.data.id_organizacao,
+      },
+    })
+
+    if (!existente) {
+      return res.status(404).json({ erro: 'Webhook nao encontrado' })
     }
 
     await prisma.webhookConfiguracao.delete({
-      where: { id: id_webhook }
+      where: { id_webhook_configuracao: params.data.id_webhook_configuracao },
     })
 
     res.status(204).send()

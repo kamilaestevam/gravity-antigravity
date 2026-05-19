@@ -29,16 +29,18 @@ export function buildFormulaContexto(row: Pedido): Record<string, number | null>
     return isNaN(parsed) ? null : parsed
   }
   const r = row as Record<string, unknown>
+  // Itens usam campos de nível item, mapeados para as mesmas chaves de fórmula
+  // que o pedido-pai usa, para que a mesma expressão funcione em ambos os níveis.
   return {
-    quantidade_total_pedido:              n(r.quantidade_total_pedido)              ?? n(r.quantidade_inicial_pedido),
-    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido)    ?? n(r.quantidade_cancelada_pedido),
-    quantidade_transferida_total:         n(r.quantidade_transferida_total)         ?? n(r.quantidade_transferida_pedido),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_pedido),
-    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido)                ?? n(r.quantidade_atual_pedido),
-    valor_total:                          n(r.valor_total_pedido)                   ?? n(r.valor_total_item),
-    peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
-    peso_bruto_total_pedido:              n(r.peso_bruto_total_pedido),
-    cubagem_total_pedido:                 n(r.cubagem_total_pedido),
+    quantidade_total_pedido:              n(r.quantidade_inicial_pedido),
+    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_pedido),
+    quantidade_transferida_total:         n(r.quantidade_transferida_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_total_item_pedido),
+    saldo_itens_do_pedido:                n(r.quantidade_atual_pedido),
+    valor_total:                          n(r.valor_total_item),
+    peso_liquido_total_pedido:            n(r.peso_liquido_unitario),
+    peso_bruto_total_pedido:              n(r.peso_bruto_unitario),
+    cubagem_total_pedido:                 n(r.cubagem_unitaria),
   }
 }
 

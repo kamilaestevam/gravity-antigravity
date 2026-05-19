@@ -4,7 +4,14 @@ import { tmpdir } from 'os'
 import { getBoss } from './pg-boss.js'
 import { PrismaClient, Prisma } from '../../../generated/index.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 export const EXPORT_QUEUE = 'audit:log:export'
 export const EXPORT_DIR = join(tmpdir(), 'gravity-exports')
@@ -57,7 +64,7 @@ export async function startExportWorker(): Promise<void> {
           : {}),
       }
 
-      const logs = await prisma.historicoLog.findMany({
+      const logs = await getPrisma().historicoLog.findMany({
         where,
         orderBy: { data_criacao_historico_log: 'desc' },
       })
@@ -82,7 +89,7 @@ export async function startExportWorker(): Promise<void> {
       // Fallback para filesystem se a migração ainda não rodou (ExportResult não existe)
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h
       try {
-        await (prisma as any).exportarResultado.upsert({
+        await (getPrisma() as any).exportarResultado.upsert({
           where: { id_exportar_resultado: jobId },
           create: {
             id_exportar_resultado: jobId,
@@ -127,7 +134,7 @@ const CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 function startExportCleanupJob(): void {
   const run = async () => {
     try {
-      const deleted = await (prisma as any).exportarResultado.deleteMany({
+      const deleted = await (getPrisma() as any).exportarResultado.deleteMany({
         where: { expira_em_exportar_resultado: { lt: new Date() } },
       })
       if (deleted.count > 0) {

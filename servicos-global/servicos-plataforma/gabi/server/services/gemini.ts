@@ -6,13 +6,31 @@ import { execTool, type ToolContext, type ActionRecord } from './execTool.js'
 import { GABI_TOOLS } from './tools.js'
 import type { UsageMetadataWithCache } from '../lib/gemini-types.js'
 
-const apiKey = process.env.GEMINI_API_KEY
-if (!apiKey) {
-  console.warn('⚠️ GEMINI_API_KEY nao definida no ambiente.')
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _apiKey: string | undefined
+let _genAI: GoogleGenerativeAI | undefined
+let _cacheManager: GoogleAICacheManager | undefined
+
+function getApiKey(): string {
+  if (!_apiKey) {
+    _apiKey = process.env.GEMINI_API_KEY
+    if (!_apiKey) {
+      console.warn('⚠️ GEMINI_API_KEY nao definida no ambiente.')
+      _apiKey = 'unconfigured'
+    }
+  }
+  return _apiKey
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || 'unconfigured')
-const cacheManager = new GoogleAICacheManager(apiKey || 'unconfigured')
+function getGenAI(): GoogleGenerativeAI {
+  if (!_genAI) _genAI = new GoogleGenerativeAI(getApiKey())
+  return _genAI
+}
+
+function getCacheManager(): GoogleAICacheManager {
+  if (!_cacheManager) _cacheManager = new GoogleAICacheManager(getApiKey())
+  return _cacheManager
+}
 
 const MODELS_CHAIN = [
   'gemini-2.5-flash',
@@ -60,45 +78,15 @@ const promptCacheMap = new Map<string, CacheEntry>()
 const CACHE_TTL_SECONDS = 1800 // 30 min
 
 async function getOrCreateCachedModel(modelName: string, systemPrompt: string) {
-  const promptHash = simpleHash(systemPrompt)
-  const cacheKey = `${modelName}:${promptHash}`
-  const existing = promptCacheMap.get(cacheKey)
-
-  if (existing && existing.expiresAt > Date.now()) {
-    return genAI.getGenerativeModelFromCachedContent(existing.cache, {
-      tools: GABI_TOOLS as Tool[],
-    })
-  }
-
-  try {
-    const cache = await cacheManager.create({
-      model: `models/${modelName}`,
-      systemInstruction: systemPrompt,
-      contents: [],
-      ttlSeconds: CACHE_TTL_SECONDS,
-      displayName: `gabi-kb-${modelName}-${promptHash}`,
-    })
-
-    promptCacheMap.set(cacheKey, {
-      cache,
-      promptHash,
-      expiresAt: Date.now() + (CACHE_TTL_SECONDS - 60) * 1000,
-    })
-
-    console.log(`[GEMINI] Cache criado para ${modelName} (TTL ${CACHE_TTL_SECONDS}s)`)
-
-    return genAI.getGenerativeModelFromCachedContent(cache, {
-      tools: GABI_TOOLS as Tool[],
-    })
-  } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message.slice(0, 100) : String(err)
-    console.warn(`[GEMINI] Cache falhou para ${modelName}, usando sem cache: ${errMsg}`)
-    return genAI.getGenerativeModel({
-      model: modelName,
-      tools: GABI_TOOLS as Tool[],
-      systemInstruction: systemPrompt,
-    })
-  }
+  // Cache desabilitado temporariamente — UNEXPECTED_TOOL_CALL com cache + tools
+  // TODO: investigar como incluir tools no cache content para evitar o erro
+  console.log(`[GEMINI] Usando modelo ${modelName} SEM cache (KB ${Math.round(systemPrompt.length / 1024)}KB)`)
+  return getGenAI().getGenerativeModel({
+    model: modelName,
+    tools: GABI_TOOLS as Tool[],
+    toolConfig: { functionCallingConfig: { mode: 'AUTO' as const } },
+    systemInstruction: systemPrompt,
+  })
 }
 
 function simpleHash(str: string): string {
@@ -224,7 +212,7 @@ export async function generateContentWithFallback(prompt: string, history: Array
 
   for (const modelName of MODELS_CHAIN) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName })
+      const model = getGenAI().getGenerativeModel({ model: modelName })
       const chat = model.startChat({
         history: history
           .filter(h => h.role !== 'system')

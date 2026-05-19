@@ -15,6 +15,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
+import { formatarDataHistorico, rotuloAcao } from '../../utils/historico-helpers'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
@@ -70,88 +71,6 @@ type HistoricoLog = z.infer<typeof historicoLogSchema>
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatarData(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return iso
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Mapa código → particípio passado em PT-BR (humano para o usuário final)
-// Cobertura completa do conjunto canonical de `acao_historico_log` (Mandamento 03).
-// Fallback aplica `humanizar()` para qualquer código novo/legado.
-// ---------------------------------------------------------------------------
-
-const ACAO_PARTICIPIO: Record<string, string> = {
-  // Verbos canonical do glossário (skill arquitetura/observabilidade)
-  CRIAR:       'Criou',
-  ATUALIZAR:   'Atualizou',
-  EXCLUIR:     'Excluiu',
-  ENTRAR:      'Entrou',
-  SAIR:        'Saiu',
-  CONVIDAR:    'Convidou',
-  CONSULTAR:   'Consultou',
-  EXPORTAR:    'Exportou',
-  ANULAR:      'Anulou',
-  ENVIAR:      'Enviou',
-  DUPLICAR:    'Duplicou',
-  TRANSFERIR:  'Transferiu',
-  CONSOLIDAR:  'Consolidou',
-  ANONIMIZAR:  'Anonimizou',
-  // Verbos compostos
-  EXCLUIR_ITENS:                    'Excluiu itens',
-  EXCLUIR_AUTOMATICAMENTE:          'Excluiu automaticamente',
-  EXCLUIR_DADO:                     'Excluiu dado',
-  EDITAR_EM_MASSA:                  'Editou em massa',
-  REVERTER_TRANSFERENCIA:           'Reverteu transferência',
-  ALTERAR_STATUS:                   'Alterou status',
-  ALTERAR_PATENTE:                  'Alterou patente',
-  REVOGAR_SESSAO:                   'Revogou sessão',
-  FALHAR_AUTENTICACAO:              'Falhou autenticação',
-  FALHAR_ASSINATURA_WEBHOOK:        'Falhou assinatura webhook',
-  TENTAR_ACESSO_OUTRA_ORGANIZACAO:  'Tentou acessar outra organização',
-  ATINGIR_LIMITE_TAXA:              'Atingiu limite de taxa',
-  ACESSAR_ADMIN:                    'Acessou área Admin',
-  CHAMAR_API:                       'Chamou API',
-  CONCLUIR_JOB:                     'Concluiu job',
-  FALHAR_JOB:                       'Falhou job',
-  SINCRONIZAR_NCM:                  'Sincronizou NCM',
-  AGENDAR_SINCRONIZACAO_NCM:        'Agendou sincronização NCM',
-  INICIAR_EXECUCAO_TESTES:          'Iniciou execução de testes',
-  CONCLUIR_EXECUCAO_TESTES:         'Concluiu execução de testes',
-  INGERIR_LOGS_TESTE:               'Ingeriu logs de teste',
-  GERAR_PLANO_TESTE:                'Gerou plano de teste',
-  EXPANDIR_PLANO_TESTE:             'Expandiu plano de teste',
-  REANALISAR_TESTE:                 'Reanalisou teste',
-  APLICAR_CORRECAO_TESTE:           'Aplicou correção em teste',
-  REJEITAR_ANALISE_TESTE:           'Rejeitou análise de teste',
-  EXECUTAR_PENTEST:                 'Executou pentest',
-}
-
-/**
- * Humaniza códigos legados (CREATE, UPDATE, etc) ou desconhecidos.
- * UPPER_SNAKE → "Capitalize separated by spaces".
- */
-function humanizar(codigo: string): string {
-  return codigo
-    .split('_')
-    .map((p) => p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : '')
-    .join(' ')
-}
-
-function rotuloAcao(codigo: string | null | undefined): string {
-  if (!codigo) return '—'
-  return ACAO_PARTICIPIO[codigo] ?? humanizar(codigo)
-}
-
 // ---------------------------------------------------------------------------
 // Colunas
 // ---------------------------------------------------------------------------
@@ -162,7 +81,7 @@ const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
     label: 'Data/Hora',
     tipo: 'periodo',
     largura: '160px',
-    render: (v) => formatarData(String(v)),
+    render: (v) => formatarDataHistorico(String(v)),
   },
   {
     key: 'acao_historico_log',
@@ -313,7 +232,7 @@ export function HistoricoOrganizacao() {
     () => logs.map((log) => {
       const endpoint = (log.metadata_ator_historico_log as { endpoint?: string } | null | undefined)?.endpoint
       return {
-        data_criacao_historico_log: formatarData(log.data_criacao_historico_log),
+        data_criacao_historico_log: formatarDataHistorico(log.data_criacao_historico_log),
         acao_historico_log:         rotuloAcao(log.acao_historico_log),
         local: caminhoParaLocalString(
           endpoint,
@@ -518,7 +437,7 @@ export function HistoricoOrganizacao() {
             Anterior
           </button>
           <span>
-            Pagina {page} de {Math.ceil(total / limit)}
+            Página {page} de {Math.ceil(total / limit)}
           </span>
           <button
             disabled={!hasMore && page >= Math.ceil(total / limit)}
@@ -533,7 +452,7 @@ export function HistoricoOrganizacao() {
               opacity: !hasMore && page >= Math.ceil(total / limit) ? 0.5 : 1,
             }}
           >
-            Proxima
+            Próxima
           </button>
         </div>
       )}

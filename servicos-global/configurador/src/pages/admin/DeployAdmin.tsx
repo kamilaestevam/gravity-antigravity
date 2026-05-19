@@ -222,11 +222,11 @@ export function DeployAdmin() {
       })
 
       logEvent({
-        action: 'CRIAÇÃO',
-        module: 'deploy',
-        resource_type: 'Deploy',
-        resource_id: deploy.id,
-        action_detail: `Deploy registrado: ${deploy.area} ${deploy.version} em ${deploy.environment}`,
+        acao_historico_log: 'CRIAÇÃO',
+        modulo_historico_log: 'deploy',
+        tipo_recurso_historico_log: 'Deploy',
+        id_recurso_historico_log: deploy.id,
+        detalhe_acao_historico_log: `Deploy registrado: ${deploy.area} ${deploy.version} em ${deploy.environment}`,
       })
 
       carregarDados()
@@ -252,11 +252,11 @@ export function DeployAdmin() {
         message: t('admin.deploy.msg_excluido', { version }) ?? `Deploy ${version} removido`,
       })
       logEvent({
-        action: 'EXCLUSÃO',
-        module: 'deploy',
-        resource_type: 'Deploy',
-        resource_id: id,
-        action_detail: `Deploy ${version} (${deployParaExcluir.area}) removido do histórico`,
+        acao_historico_log: 'EXCLUSÃO',
+        modulo_historico_log: 'deploy',
+        tipo_recurso_historico_log: 'Deploy',
+        id_recurso_historico_log: id,
+        detalhe_acao_historico_log: `Deploy ${version} (${deployParaExcluir.area}) removido do histórico`,
       })
       carregarDados()
     } catch (err) {

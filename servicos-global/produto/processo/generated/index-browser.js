@@ -124,7 +124,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.ProcessoGravityScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   numero: 'numero',
@@ -141,7 +141,7 @@ exports.Prisma.ProcessoGravityScalarFieldEnum = {
 
 exports.Prisma.ProcessoEtapasScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -154,7 +154,7 @@ exports.Prisma.ProcessoEtapasScalarFieldEnum = {
 
 exports.Prisma.ProcessoPedidoScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -173,7 +173,7 @@ exports.Prisma.ProcessoPedidoScalarFieldEnum = {
 
 exports.Prisma.ProcessoPedidoItensScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   pedido_id: 'pedido_id',
@@ -193,7 +193,7 @@ exports.Prisma.ProcessoPedidoItensScalarFieldEnum = {
 
 exports.Prisma.ProcessoFollowupScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -208,7 +208,7 @@ exports.Prisma.ProcessoFollowupScalarFieldEnum = {
 
 exports.Prisma.ProcessoAnexosScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -222,7 +222,7 @@ exports.Prisma.ProcessoAnexosScalarFieldEnum = {
 
 exports.Prisma.ProcessoEstimativaCustoScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -236,7 +236,7 @@ exports.Prisma.ProcessoEstimativaCustoScalarFieldEnum = {
 
 exports.Prisma.ProcessoDadosTecnicosScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   processo_id: 'processo_id',
@@ -267,7 +267,7 @@ exports.Prisma.ProcessoDadosTecnicosScalarFieldEnum = {
 
 exports.Prisma.ProcessoStatusScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   nome: 'nome',
   rotulo: 'rotulo',
@@ -282,7 +282,7 @@ exports.Prisma.ProcessoStatusScalarFieldEnum = {
 
 exports.Prisma.ProcessoColunasScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   nome: 'nome',
   rotulo: 'rotulo',
@@ -299,7 +299,7 @@ exports.Prisma.ProcessoColunasScalarFieldEnum = {
 
 exports.Prisma.ProcessosPedidoPreferenciaScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   user_id: 'user_id',
   colunas_visiveis: 'colunas_visiveis',
@@ -309,7 +309,7 @@ exports.Prisma.ProcessosPedidoPreferenciaScalarFieldEnum = {
 
 exports.Prisma.ProcessoPedidoPadraoScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
+  id_organizacao: 'id_organizacao',
   product_id: 'product_id',
   colunas_visiveis: 'colunas_visiveis',
   colunas_largura: 'colunas_largura',

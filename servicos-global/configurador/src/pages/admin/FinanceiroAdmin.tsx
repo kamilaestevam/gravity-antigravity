@@ -264,11 +264,11 @@ export function FinanceiroAdmin() {
       })
 
       logEvent({
-        action: 'CRIAÇÃO',
-        module: 'financeiro',
-        resource_type: 'Invoice',
-        resource_id: invoice.id,
-        action_detail: `Fatura criada para ${invoice.customer.name} — ${formatCents(amountCents * quantity, 'brl')}`,
+        acao_historico_log: 'CRIAÇÃO',
+        modulo_historico_log: 'financeiro',
+        tipo_recurso_historico_log: 'Fatura',
+        id_recurso_historico_log: invoice.id,
+        detalhe_acao_historico_log: `Fatura criada para ${invoice.customer.name} — ${formatCents(amountCents * quantity, 'brl')}`,
       })
 
       carregarDados()
@@ -291,11 +291,11 @@ export function FinanceiroAdmin() {
         message: t('admin.financeiro-admin.msg_fatura_anulada', { num: nome }) ?? `Fatura ${nome} anulada`,
       })
       logEvent({
-        action: 'EXCLUSÃO',
-        module: 'financeiro',
-        resource_type: 'Invoice',
-        resource_id: id,
-        action_detail: `Fatura ${nome} anulada`,
+        acao_historico_log: 'EXCLUSÃO',
+        modulo_historico_log: 'financeiro',
+        tipo_recurso_historico_log: 'Fatura',
+        id_recurso_historico_log: id,
+        detalhe_acao_historico_log: `Fatura ${nome} anulada`,
       })
       carregarDados()
     } catch (err) {
@@ -314,11 +314,11 @@ export function FinanceiroAdmin() {
         message: t('admin.financeiro-admin.msg_enviada') ?? `Fatura enviada para ${inv.customer.email ?? inv.customer.name}`,
       })
       logEvent({
-        action: 'ALTERAÇÃO',
-        module: 'financeiro',
-        resource_type: 'Invoice',
-        resource_id: inv.id,
-        action_detail: `Fatura ${inv.number ?? inv.id} reenviada ao cliente`,
+        acao_historico_log: 'ALTERAÇÃO',
+        modulo_historico_log: 'financeiro',
+        tipo_recurso_historico_log: 'Fatura',
+        id_recurso_historico_log: inv.id,
+        detalhe_acao_historico_log: `Fatura ${inv.number ?? inv.id} reenviada ao cliente`,
       })
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao enviar fatura') })

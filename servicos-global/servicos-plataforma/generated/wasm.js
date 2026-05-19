@@ -678,6 +678,7 @@ exports.Prisma.GabiLogUsoScalarFieldEnum = {
   tokens_input_gabi_log_uso: 'tokens_input_gabi_log_uso',
   tokens_output_gabi_log_uso: 'tokens_output_gabi_log_uso',
   custo_usd_gabi_log_uso: 'custo_usd_gabi_log_uso',
+  tools_chamadas_gabi_log_uso: 'tools_chamadas_gabi_log_uso',
   data_criacao_gabi_log_uso: 'data_criacao_gabi_log_uso'
 };
 
@@ -752,6 +753,79 @@ exports.Prisma.GabiAlertaEmitidoScalarFieldEnum = {
   nivel_gabi_alerta_emitido: 'nivel_gabi_alerta_emitido',
   gasto_usd_gabi_alerta_emitido: 'gasto_usd_gabi_alerta_emitido',
   data_criacao_gabi_alerta_emitido: 'data_criacao_gabi_alerta_emitido'
+};
+
+exports.Prisma.GabiMemoriaUsuarioScalarFieldEnum = {
+  id_gabi_memoria_usuario: 'id_gabi_memoria_usuario',
+  id_organizacao_gabi_memoria_usuario: 'id_organizacao_gabi_memoria_usuario',
+  id_usuario_gabi_memoria_usuario: 'id_usuario_gabi_memoria_usuario',
+  tipo_gabi_memoria_usuario: 'tipo_gabi_memoria_usuario',
+  chave_gabi_memoria_usuario: 'chave_gabi_memoria_usuario',
+  valor_gabi_memoria_usuario: 'valor_gabi_memoria_usuario',
+  confianca_gabi_memoria_usuario: 'confianca_gabi_memoria_usuario',
+  origem_gabi_memoria_usuario: 'origem_gabi_memoria_usuario',
+  ativo_gabi_memoria_usuario: 'ativo_gabi_memoria_usuario',
+  data_criacao_gabi_memoria_usuario: 'data_criacao_gabi_memoria_usuario',
+  data_atualizacao_gabi_memoria_usuario: 'data_atualizacao_gabi_memoria_usuario',
+  data_ultimo_uso_gabi_memoria_usuario: 'data_ultimo_uso_gabi_memoria_usuario'
+};
+
+exports.Prisma.GabiDiagnosticoErroScalarFieldEnum = {
+  id_gabi_diagnostico_erro: 'id_gabi_diagnostico_erro',
+  id_organizacao_gabi_diagnostico_erro: 'id_organizacao_gabi_diagnostico_erro',
+  id_usuario_gabi_diagnostico_erro: 'id_usuario_gabi_diagnostico_erro',
+  produto_gabi_diagnostico_erro: 'produto_gabi_diagnostico_erro',
+  endpoint_gabi_diagnostico_erro: 'endpoint_gabi_diagnostico_erro',
+  metodo_gabi_diagnostico_erro: 'metodo_gabi_diagnostico_erro',
+  status_http_gabi_diagnostico_erro: 'status_http_gabi_diagnostico_erro',
+  codigo_erro_gabi_diagnostico_erro: 'codigo_erro_gabi_diagnostico_erro',
+  detalhes_gabi_diagnostico_erro: 'detalhes_gabi_diagnostico_erro',
+  payload_resumo_gabi_diagnostico_erro: 'payload_resumo_gabi_diagnostico_erro',
+  data_criacao_gabi_diagnostico_erro: 'data_criacao_gabi_diagnostico_erro'
+};
+
+exports.Prisma.GabiChamadoScalarFieldEnum = {
+  id_gabi_chamado: 'id_gabi_chamado',
+  id_organizacao_gabi_chamado: 'id_organizacao_gabi_chamado',
+  id_usuario_gabi_chamado: 'id_usuario_gabi_chamado',
+  numero_gabi_chamado: 'numero_gabi_chamado',
+  tipo_gabi_chamado: 'tipo_gabi_chamado',
+  produto_gabi_chamado: 'produto_gabi_chamado',
+  descricao_usuario_gabi_chamado: 'descricao_usuario_gabi_chamado',
+  diagnostico_gabi_chamado: 'diagnostico_gabi_chamado',
+  id_conversa_gabi_chamado: 'id_conversa_gabi_chamado',
+  status_gabi_chamado: 'status_gabi_chamado',
+  email_enviado_gabi_chamado: 'email_enviado_gabi_chamado',
+  data_criacao_gabi_chamado: 'data_criacao_gabi_chamado',
+  data_atualizacao_gabi_chamado: 'data_atualizacao_gabi_chamado'
+};
+
+exports.Prisma.GabiToolExecucaoScalarFieldEnum = {
+  id_gabi_tool_execucao: 'id_gabi_tool_execucao',
+  id_organizacao_gabi_tool_execucao: 'id_organizacao_gabi_tool_execucao',
+  id_usuario_gabi_tool_execucao: 'id_usuario_gabi_tool_execucao',
+  id_conversa_gabi_tool_execucao: 'id_conversa_gabi_tool_execucao',
+  tool_id_gabi_tool_execucao: 'tool_id_gabi_tool_execucao',
+  parametros_gabi_tool_execucao: 'parametros_gabi_tool_execucao',
+  resultado_status_gabi_tool_execucao: 'resultado_status_gabi_tool_execucao',
+  resultado_resumo_gabi_tool_execucao: 'resultado_resumo_gabi_tool_execucao',
+  duracao_ms_gabi_tool_execucao: 'duracao_ms_gabi_tool_execucao',
+  confirmacao_usuario_gabi_tool_execucao: 'confirmacao_usuario_gabi_tool_execucao',
+  data_criacao_gabi_tool_execucao: 'data_criacao_gabi_tool_execucao'
+};
+
+exports.Prisma.GabiConfirmacaoAcaoScalarFieldEnum = {
+  id_gabi_confirmacao_acao: 'id_gabi_confirmacao_acao',
+  id_organizacao_gabi_confirmacao_acao: 'id_organizacao_gabi_confirmacao_acao',
+  id_usuario_gabi_confirmacao_acao: 'id_usuario_gabi_confirmacao_acao',
+  id_conversa_gabi_confirmacao_acao: 'id_conversa_gabi_confirmacao_acao',
+  nonce_gabi_confirmacao_acao: 'nonce_gabi_confirmacao_acao',
+  tool_id_gabi_confirmacao_acao: 'tool_id_gabi_confirmacao_acao',
+  parametros_hash_gabi_confirmacao_acao: 'parametros_hash_gabi_confirmacao_acao',
+  descricao_acao_gabi_confirmacao_acao: 'descricao_acao_gabi_confirmacao_acao',
+  consumido_gabi_confirmacao_acao: 'consumido_gabi_confirmacao_acao',
+  data_criacao_gabi_confirmacao_acao: 'data_criacao_gabi_confirmacao_acao',
+  data_expiracao_gabi_confirmacao_acao: 'data_expiracao_gabi_confirmacao_acao'
 };
 
 exports.Prisma.WorkspacePreferenciaUsuarioScalarFieldEnum = {
@@ -1050,6 +1124,11 @@ exports.Prisma.ModelName = {
   GabiLimiteMonetario: 'GabiLimiteMonetario',
   GabiKbChunk: 'GabiKbChunk',
   GabiAlertaEmitido: 'GabiAlertaEmitido',
+  GabiMemoriaUsuario: 'GabiMemoriaUsuario',
+  GabiDiagnosticoErro: 'GabiDiagnosticoErro',
+  GabiChamado: 'GabiChamado',
+  GabiToolExecucao: 'GabiToolExecucao',
+  GabiConfirmacaoAcao: 'GabiConfirmacaoAcao',
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',

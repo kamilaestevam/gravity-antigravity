@@ -395,12 +395,12 @@ export function ApiWebhooks() {
         aoSalvar={() => setWebhookCriado(null)}
         icone={<WebhooksLogo size={24} weight="duotone" />}
         titulo="Webhook Cadastrado"
-        subtitulo="Este e o UNICO momento em que voce vera o segredo HMAC. Copie e guarde em local seguro."
+        subtitulo="Este é o ÚNICO momento em que você verá o segredo HMAC. Copie e guarde em local seguro."
         tamanho="md"
         altura="auto"
-        dirty={false}
+        dirty
         podesSalvar
-        textoSalvar="Ja copiei, fechar"
+        textoSalvar="Já copiei, fechar"
         textoCancelar=""
       >
         {webhookCriado && (
@@ -410,7 +410,7 @@ export function ApiWebhooks() {
               background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)',
               color: '#fbbf24', fontSize: '0.875rem',
             }}>
-              ⚠️ Apos fechar este modal o segredo nao podera mais ser recuperado.
+              ⚠️ Após fechar este modal o segredo não poderá mais ser recuperado.
             </div>
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
@@ -434,9 +434,22 @@ export function ApiWebhooks() {
                 </BotaoGlobal>
               </div>
             </div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              <strong>URL:</strong> <code style={{ fontSize: '0.75rem' }}>{webhookCriado.url_webhook_configuracao}</code><br />
-              <strong>Eventos:</strong> {webhookCriado.eventos_webhook_configuracao.join(', ')}
+            <div style={{
+              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
+              fontSize: '0.8125rem',
+            }}>
+              <span style={{
+                padding: '0.25rem 0.625rem', borderRadius: '6px',
+                background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
+                color: 'var(--brand-primary, #818cf8)', fontFamily: 'monospace', fontSize: '0.75rem',
+              }}>{webhookCriado.url_webhook_configuracao}</span>
+              {webhookCriado.eventos_webhook_configuracao.map((ev) => (
+                <span key={ev} style={{
+                  padding: '0.25rem 0.625rem', borderRadius: '6px',
+                  background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)',
+                  color: '#34d399',
+                }}>{ev}</span>
+              ))}
             </div>
           </div>
         )}

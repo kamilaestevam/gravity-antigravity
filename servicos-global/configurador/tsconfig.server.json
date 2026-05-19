@@ -1,0 +1,12 @@
+{
+  "extends": ["../../tsconfig.json", "../../tsconfig.paths-servico.json"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "include": [
+    "server/**/*",
+    "shared/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "src"]
+}

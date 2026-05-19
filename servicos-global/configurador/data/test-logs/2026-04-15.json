@@ -731,7 +731,11 @@
       "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
       "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
       "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
-      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+      "arquivo": "configurador/Verificar Assinaturas no Menu Lateral",
+      "codigoDiff": null,
+      "categoria": "NAO_CLASSIFICAVEL",
+      "confianca": "baixa",
+      "commitSuspeito": null
     }
   },
   {

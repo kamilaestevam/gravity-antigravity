@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-12T14:22:11.918Z
+// Gerado em: 2026-05-17T21:05:05.063Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -238,66 +238,41 @@ model PedidoItem {
   data_confirmada_coleta_item      DateTime?
   data_meta_coleta_item            DateTime?
 
-  // ============================================================
-  // Replicação Pai → Item — datas adicionais (Coordenador, 2026-05-13)
-  // Migration 20260513120000_pedido_item_datas_replicaveis
-  // Permite replicar 35 datas do Pedido pai para cada item.
-  // Whitelist em mapaPropagacaoPedidoItem.ts.
-  // ============================================================
-
-  // Rascunho Pedido — Recebimento (3)
+  // Replicação Pai → Item — 35 datas adicionais (Coordenador, 2026-05-13)
+  // Whitelist em mapaPropagacaoPedidoItem.ts
   data_previsao_recebimento_rascunho_item    DateTime?
   data_confirmacao_recebimento_rascunho_item DateTime?
   data_meta_recebimento_rascunho_item        DateTime?
-  // Rascunho Pedido — Aprovação (3)
   data_previsao_aprovacao_rascunho_item      DateTime?
   data_confirmacao_aprovacao_rascunho_item   DateTime?
   data_meta_aprovacao_rascunho_item          DateTime?
-  // Documento Pedido (1)
   data_documento_item                        DateTime?
-
-  // Proforma — Recebimento Rascunho (3)
   data_previsao_recebimento_rascunho_proforma_item    DateTime?
   data_confirmacao_recebimento_rascunho_proforma_item DateTime?
   data_meta_recebimento_rascunho_proforma_item        DateTime?
-  // Proforma — Aprovação Rascunho (3)
   data_previsao_aprovacao_rascunho_proforma_item      DateTime?
   data_confirmacao_aprovacao_rascunho_proforma_item   DateTime?
   data_meta_aprovacao_rascunho_proforma_item          DateTime?
-  // Proforma — Envio Original (3)
   data_previsao_envio_original_proforma_item          DateTime?
   data_confirmacao_envio_original_proforma_item       DateTime?
   data_meta_envio_original_proforma_item              DateTime?
-  // Proforma — Recebimento Original (3)
   data_previsao_recebimento_original_proforma_item    DateTime?
   data_confirmacao_recebimento_original_proforma_item DateTime?
   data_meta_recebimento_original_proforma_item        DateTime?
-  // Documento Proforma (1)
   data_documento_proforma_item                        DateTime?
-
-  // Invoice — Recebimento Rascunho (3)
   data_previsao_recebimento_rascunho_invoice_item    DateTime?
   data_confirmacao_recebimento_rascunho_invoice_item DateTime?
   data_meta_recebimento_rascunho_invoice_item        DateTime?
-  // Invoice — Aprovação Rascunho (3)
   data_previsao_aprovacao_rascunho_invoice_item      DateTime?
   data_confirmacao_aprovacao_rascunho_invoice_item   DateTime?
   data_meta_aprovacao_rascunho_invoice_item          DateTime?
-  // Invoice — Envio Original (3)
   data_previsao_envio_original_invoice_item          DateTime?
   data_confirmacao_envio_original_invoice_item       DateTime?
   data_meta_envio_original_invoice_item              DateTime?
-  // Invoice — Recebimento Original (3)
   data_previsao_recebimento_original_invoice_item    DateTime?
   data_confirmacao_recebimento_original_invoice_item DateTime?
   data_meta_recebimento_original_invoice_item        DateTime?
-  // Documento Invoice (1)
   data_documento_invoice_item                        DateTime?
-
-  // Outras datas do Pedido replicáveis (2)
-  // Note: data_consolidacao_item ja existe com semantica propria (data de
-  // consolidacao do item); este campo separado guarda a data_consolidacao_pedido
-  // replicada para registro de quando o pedido foi consolidado.
   data_consolidacao_pedido_replicada_item            DateTime?
   data_transferencia_saldo_item                      DateTime?
 
@@ -798,6 +773,27 @@ model PedidoSnapshotAtualizacao {
   @@unique([id_organizacao, id_workspace])
   @@index([id_organizacao])
   @@map("pedido_snapshot_atualizacao")
+}
+
+/// Card KPI personalizado criado pelo usuário (Configurações › Cards).
+/// Cada card define nome, ícone, cor e fórmula calculada sobre as stats da lista.
+model CardUsuarioPedido {
+  id_card_usuario_pedido                   String   @id @default(cuid())
+  id_organizacao                           String
+  nome_card_usuario_pedido                 String
+  icone_card_usuario_pedido                String
+  cor_card_usuario_pedido                  String
+  formula_expressao_card_usuario_pedido    String
+  formula_dependencias_card_usuario_pedido String[] @default([])
+  ordem_card_usuario_pedido                Int      @default(0)
+  ativo_card_usuario_pedido                Boolean  @default(true)
+  criado_por_card_usuario_pedido           String
+  data_criacao_card_usuario_pedido         DateTime @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, ativo_card_usuario_pedido])
+  @@index([id_organizacao, criado_por_card_usuario_pedido])
+  @@map("card_usuario_pedido")
 }
 
 // ============================================================================

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
+import { formatarDataHistorico, rotuloAcao } from '../../utils/historico-helpers'
 import { apiFetch, setAuthTokenProvider } from '../../services/api-client'
 import {
   Desktop, User, Robot, FileCsv, FileCode, FileXls, FileText, FilePdf, Code,
@@ -141,75 +142,6 @@ function BadgeStatusHistoricoLog({ status }: { status: StatusHistoricoLog }) {
       {status}
     </span>
   )
-}
-
-function formatarData(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    })
-  } catch {
-    return iso
-  }
-}
-
-// Mapa código → particípio passado em PT-BR (humano para o usuário final).
-// Fallback aplica humanizar() para qualquer código novo/legado.
-const ACAO_PARTICIPIO: Record<string, string> = {
-  CRIAR:       'Criou',
-  ATUALIZAR:   'Atualizou',
-  EXCLUIR:     'Excluiu',
-  ENTRAR:      'Entrou',
-  SAIR:        'Saiu',
-  CONVIDAR:    'Convidou',
-  CONSULTAR:   'Consultou',
-  EXPORTAR:    'Exportou',
-  ANULAR:      'Anulou',
-  ENVIAR:      'Enviou',
-  DUPLICAR:    'Duplicou',
-  TRANSFERIR:  'Transferiu',
-  CONSOLIDAR:  'Consolidou',
-  ANONIMIZAR:  'Anonimizou',
-  EXCLUIR_ITENS:                    'Excluiu itens',
-  EXCLUIR_AUTOMATICAMENTE:          'Excluiu automaticamente',
-  EXCLUIR_DADO:                     'Excluiu dado',
-  EDITAR_EM_MASSA:                  'Editou em massa',
-  REVERTER_TRANSFERENCIA:           'Reverteu transferência',
-  ALTERAR_STATUS:                   'Alterou status',
-  ALTERAR_PATENTE:                  'Alterou patente',
-  REVOGAR_SESSAO:                   'Revogou sessão',
-  FALHAR_AUTENTICACAO:              'Falhou autenticação',
-  FALHAR_ASSINATURA_WEBHOOK:        'Falhou assinatura webhook',
-  TENTAR_ACESSO_OUTRA_ORGANIZACAO:  'Tentou acessar outra organização',
-  ATINGIR_LIMITE_TAXA:              'Atingiu limite de taxa',
-  ACESSAR_ADMIN:                    'Acessou área Admin',
-  CHAMAR_API:                       'Chamou API',
-  CONCLUIR_JOB:                     'Concluiu job',
-  FALHAR_JOB:                       'Falhou job',
-  SINCRONIZAR_NCM:                  'Sincronizou NCM',
-  AGENDAR_SINCRONIZACAO_NCM:        'Agendou sincronização NCM',
-  INICIAR_EXECUCAO_TESTES:          'Iniciou execução de testes',
-  CONCLUIR_EXECUCAO_TESTES:         'Concluiu execução de testes',
-  INGERIR_LOGS_TESTE:               'Ingeriu logs de teste',
-  GERAR_PLANO_TESTE:                'Gerou plano de teste',
-  EXPANDIR_PLANO_TESTE:             'Expandiu plano de teste',
-  REANALISAR_TESTE:                 'Reanalisou teste',
-  APLICAR_CORRECAO_TESTE:           'Aplicou correção em teste',
-  REJEITAR_ANALISE_TESTE:           'Rejeitou análise de teste',
-  EXECUTAR_PENTEST:                 'Executou pentest',
-}
-
-function humanizar(codigo: string): string {
-  return codigo
-    .split('_')
-    .map((p) => p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : '')
-    .join(' ')
-}
-
-function rotuloAcao(codigo: string | null | undefined): string {
-  if (!codigo) return '—'
-  return ACAO_PARTICIPIO[codigo] ?? humanizar(codigo)
 }
 
 // ---------------------------------------------------------------------------
@@ -450,7 +382,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
               <div>
                 <p style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '0.85rem', marginBottom: '2px' }}>{alerta.regra_evento_alerta.nome_regra_alerta}</p>
-                <p style={{ color: '#64748b', fontSize: '0.75rem' }}>{formatarData(alerta.data_criacao_evento_alerta)}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem' }}>{formatarDataHistorico(alerta.data_criacao_evento_alerta)}</p>
               </div>
               <BadgeAtorTipo tipo={alerta.tipo_ator_evento_alerta} />
             </div>
@@ -632,7 +564,7 @@ export function HistoricoGlobalAdmin() {
   // (data formatada PT-BR + ação como particípio passado).
   const dadosExport: Record<string, unknown>[] = useMemo(
     () => logs.map((l) => ({
-      data_criacao_historico_log: formatarData(l.data_criacao_historico_log),
+      data_criacao_historico_log: formatarDataHistorico(l.data_criacao_historico_log),
       tipo_ator_historico_log:    l.tipo_ator_historico_log,
       nome_ator_historico_log:    l.nome_ator_historico_log ?? '',
       email_ator_historico_log:   l.email_ator_historico_log ?? '',
@@ -681,7 +613,7 @@ export function HistoricoGlobalAdmin() {
   const COLUNAS: TabelaGlobalColuna<HistoricoLog>[] = [
     {
       key: 'data_criacao_historico_log', label: 'Quando', tipo: 'periodo', largura: '160px',
-      render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{formatarData(String(v))}</span>,
+      render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{formatarDataHistorico(String(v))}</span>,
     },
     {
       key: 'nome_ator_historico_log', label: 'Ator', tipo: 'texto', largura: '240px',
@@ -861,9 +793,9 @@ export function HistoricoGlobalAdmin() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
-                    background: alertasPendentes > 0 ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${alertasPendentes > 0 ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                    color: alertasPendentes > 0 ? '#fbbf24' : '#64748b',
+                    background: alertasPendentes > 0 ? 'rgba(251,191,36,0.1)' : 'var(--bg-surface, #1e293b)',
+                    border: `1px solid ${alertasPendentes > 0 ? 'rgba(251,191,36,0.3)' : 'var(--ws-border, #334155)'}`,
+                    color: alertasPendentes > 0 ? '#fbbf24' : 'var(--color-text-secondary, #94a3b8)',
                     fontSize: '0.8rem', fontWeight: 600,
                   }}
                 >

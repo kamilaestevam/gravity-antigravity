@@ -4,7 +4,14 @@ import { AppError } from '../lib/errors.js'
 import { AlertRuleSchema, AlertEventUpdateSchema } from '../schemas/history.schema.js'
 import { extrairUsuarioAutenticado } from '../lib/visibility.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 // GET /alerts
 export async function listAlerts(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +25,7 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
     const status_evento_alerta = req.query.status as string | undefined
     const limit = Math.min(Number(req.query.limit ?? 50), 100)
 
-    const alerts = await prisma.alertaData.findMany({
+    const alerts = await getPrisma().alertaData.findMany({
       where: {
         ...(isGravityAdmin ? {} : { id_organizacao }),
         ...(status_evento_alerta ? { status_evento_alerta: status_evento_alerta as any } : {}),
@@ -45,12 +52,12 @@ export async function updateAlert(req: Request, res: Response, next: NextFunctio
 
     const usuario = extrairUsuarioAutenticado(req)
 
-    const alert = await prisma.alertaData.findFirst({
+    const alert = await getPrisma().alertaData.findFirst({
       where: { id_evento_alerta: req.params.id, id_organizacao },
     })
     if (!alert) throw AppError.notFound('Alerta')
 
-    const updated = await prisma.alertaData.update({
+    const updated = await getPrisma().alertaData.update({
       where: { id_evento_alerta: req.params.id },
       data: {
         status_evento_alerta: parsed.data.status_evento_alerta,
@@ -75,7 +82,7 @@ export async function listRules(req: Request, res: Response, next: NextFunction)
     const usuario = extrairUsuarioAutenticado(req)
     const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
-    const rules = await prisma.alertaRegra.findMany({
+    const rules = await getPrisma().alertaRegra.findMany({
       where: isGravityAdmin
         ? {}
         : { OR: [{ id_organizacao }, { id_organizacao: null }] },
@@ -100,7 +107,7 @@ export async function createRule(req: Request, res: Response, next: NextFunction
     const usuario = extrairUsuarioAutenticado(req)
     const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
-    const rule = await prisma.alertaRegra.create({
+    const rule = await getPrisma().alertaRegra.create({
       data: {
         ...parsed.data,
         id_organizacao: isGravityAdmin ? null : id_organizacao,
@@ -125,7 +132,7 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
     const usuario = extrairUsuarioAutenticado(req)
     const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
-    const existing = await prisma.alertaRegra.findFirst({
+    const existing = await getPrisma().alertaRegra.findFirst({
       where: {
         id_regra_alerta: req.params.id,
         ...(isGravityAdmin ? {} : { id_organizacao }),
@@ -133,7 +140,7 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
     })
     if (!existing) throw AppError.notFound('Regra de alerta')
 
-    const updated = await prisma.alertaRegra.update({
+    const updated = await getPrisma().alertaRegra.update({
       where: { id_regra_alerta: req.params.id },
       data: parsed.data,
     })
@@ -153,7 +160,7 @@ export async function deleteRule(req: Request, res: Response, next: NextFunction
     const usuario = extrairUsuarioAutenticado(req)
     const isGravityAdmin = usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
 
-    const existing = await prisma.alertaRegra.findFirst({
+    const existing = await getPrisma().alertaRegra.findFirst({
       where: {
         id_regra_alerta: req.params.id,
         ...(isGravityAdmin ? {} : { id_organizacao }),
@@ -161,7 +168,7 @@ export async function deleteRule(req: Request, res: Response, next: NextFunction
     })
     if (!existing) throw AppError.notFound('Regra de alerta')
 
-    await prisma.alertaRegra.delete({ where: { id_regra_alerta: req.params.id } })
+    await getPrisma().alertaRegra.delete({ where: { id_regra_alerta: req.params.id } })
 
     res.status(204).send()
   } catch (error) {

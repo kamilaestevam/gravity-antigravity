@@ -73,6 +73,7 @@ model GabiLogUso {
   tokens_input_gabi_log_uso   Int     @default(0)
   tokens_output_gabi_log_uso  Int     @default(0)
   custo_usd_gabi_log_uso      Float   @default(0)
+  tools_chamadas_gabi_log_uso Json?
 
   data_criacao_gabi_log_uso   DateTime @default(now())
 
@@ -229,4 +230,127 @@ model GabiAlertaEmitido {
   @@index([id_organizacao_gabi_alerta_emitido], map: "gae_org_idx")
   @@index([id_organizacao_gabi_alerta_emitido, mes_ref_gabi_alerta_emitido], map: "gae_org_mes_idx")
   @@map("gabi_alerta_emitido")
+}
+
+// ---------------------------------------------------------------------------
+// GabiMemoriaUsuario — memoria persistente por usuario (preferencias, contexto, onboarding)
+// ---------------------------------------------------------------------------
+
+model GabiMemoriaUsuario {
+  id_gabi_memoria_usuario                String   @id @default(cuid())
+  id_organizacao_gabi_memoria_usuario    String
+  id_usuario_gabi_memoria_usuario        String
+  tipo_gabi_memoria_usuario              String
+  chave_gabi_memoria_usuario             String
+  valor_gabi_memoria_usuario             String   @db.Text
+  confianca_gabi_memoria_usuario         Float    @default(1.0)
+  origem_gabi_memoria_usuario            String   @default("inferido")
+  ativo_gabi_memoria_usuario             Boolean  @default(true)
+
+  data_criacao_gabi_memoria_usuario      DateTime @default(now())
+  data_atualizacao_gabi_memoria_usuario  DateTime @updatedAt
+  data_ultimo_uso_gabi_memoria_usuario   DateTime @default(now())
+
+  @@unique([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario, tipo_gabi_memoria_usuario, chave_gabi_memoria_usuario], map: "gmu_unq_org_usr_tipo_chave")
+  @@index([id_organizacao_gabi_memoria_usuario], map: "gmu_org_idx")
+  @@index([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario], map: "gmu_org_usr_idx")
+  @@index([id_organizacao_gabi_memoria_usuario, id_usuario_gabi_memoria_usuario, tipo_gabi_memoria_usuario], map: "gmu_org_usr_tipo_idx")
+  @@map("gabi_memoria_usuario")
+}
+
+// ---------------------------------------------------------------------------
+// GabiDiagnosticoErro — erros capturados dos backends de produto
+// ---------------------------------------------------------------------------
+
+model GabiDiagnosticoErro {
+  id_gabi_diagnostico_erro                String   @id @default(cuid())
+  id_organizacao_gabi_diagnostico_erro    String
+  id_usuario_gabi_diagnostico_erro        String
+  produto_gabi_diagnostico_erro           String
+  endpoint_gabi_diagnostico_erro          String
+  metodo_gabi_diagnostico_erro            String
+  status_http_gabi_diagnostico_erro       Int
+  codigo_erro_gabi_diagnostico_erro       String?
+  detalhes_gabi_diagnostico_erro          String?  @db.Text
+  payload_resumo_gabi_diagnostico_erro    Json?
+
+  data_criacao_gabi_diagnostico_erro      DateTime @default(now())
+
+  @@index([id_organizacao_gabi_diagnostico_erro], map: "gde_org_idx")
+  @@index([id_organizacao_gabi_diagnostico_erro, id_usuario_gabi_diagnostico_erro], map: "gde_org_usr_idx")
+  @@index([id_organizacao_gabi_diagnostico_erro, id_usuario_gabi_diagnostico_erro, data_criacao_gabi_diagnostico_erro], map: "gde_org_usr_data_idx")
+  @@map("gabi_diagnostico_erro")
+}
+
+// ---------------------------------------------------------------------------
+// GabiChamado — chamados abertos pela GABI (bugs, problemas reportados)
+// ---------------------------------------------------------------------------
+
+model GabiChamado {
+  id_gabi_chamado                   String   @id @default(cuid())
+  id_organizacao_gabi_chamado       String
+  id_usuario_gabi_chamado           String
+  numero_gabi_chamado               String   @unique
+  tipo_gabi_chamado                 String
+  produto_gabi_chamado              String
+  descricao_usuario_gabi_chamado    String   @db.Text
+  diagnostico_gabi_chamado          String?  @db.Text
+  id_conversa_gabi_chamado          String?
+  status_gabi_chamado               String   @default("aberto")
+  email_enviado_gabi_chamado        Boolean  @default(false)
+
+  data_criacao_gabi_chamado         DateTime @default(now())
+  data_atualizacao_gabi_chamado     DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_chamado], map: "gch_org_idx")
+  @@index([id_organizacao_gabi_chamado, id_usuario_gabi_chamado], map: "gch_org_usr_idx")
+  @@index([numero_gabi_chamado], map: "gch_numero_idx")
+  @@map("gabi_chamado")
+}
+
+// ---------------------------------------------------------------------------
+// GabiToolExecucao — log de cada tool executada pela GABI
+// ---------------------------------------------------------------------------
+
+model GabiToolExecucao {
+  id_gabi_tool_execucao                    String   @id @default(cuid())
+  id_organizacao_gabi_tool_execucao        String
+  id_usuario_gabi_tool_execucao            String
+  id_conversa_gabi_tool_execucao           String
+  tool_id_gabi_tool_execucao               String
+  parametros_gabi_tool_execucao            Json
+  resultado_status_gabi_tool_execucao      Int
+  resultado_resumo_gabi_tool_execucao      String?  @db.Text
+  duracao_ms_gabi_tool_execucao            Int
+  confirmacao_usuario_gabi_tool_execucao   Boolean  @default(false)
+
+  data_criacao_gabi_tool_execucao          DateTime @default(now())
+
+  @@index([id_organizacao_gabi_tool_execucao], map: "gte_org_idx")
+  @@index([id_organizacao_gabi_tool_execucao, id_usuario_gabi_tool_execucao], map: "gte_org_usr_idx")
+  @@index([id_organizacao_gabi_tool_execucao, id_conversa_gabi_tool_execucao], map: "gte_org_cnv_idx")
+  @@map("gabi_tool_execucao")
+}
+
+// ---------------------------------------------------------------------------
+// GabiConfirmacaoAcao — nonce store do circuit breaker (confirmacao de WRITE)
+// ---------------------------------------------------------------------------
+
+model GabiConfirmacaoAcao {
+  id_gabi_confirmacao_acao                String   @id @default(cuid())
+  id_organizacao_gabi_confirmacao_acao    String
+  id_usuario_gabi_confirmacao_acao        String
+  id_conversa_gabi_confirmacao_acao       String
+  nonce_gabi_confirmacao_acao             String   @unique
+  tool_id_gabi_confirmacao_acao           String
+  parametros_hash_gabi_confirmacao_acao   String
+  descricao_acao_gabi_confirmacao_acao    String   @db.Text
+  consumido_gabi_confirmacao_acao         Boolean  @default(false)
+
+  data_criacao_gabi_confirmacao_acao      DateTime @default(now())
+  data_expiracao_gabi_confirmacao_acao    DateTime
+
+  @@index([id_organizacao_gabi_confirmacao_acao], map: "gca_org_idx")
+  @@index([nonce_gabi_confirmacao_acao], map: "gca_nonce_idx")
+  @@map("gabi_confirmacao_acao")
 }

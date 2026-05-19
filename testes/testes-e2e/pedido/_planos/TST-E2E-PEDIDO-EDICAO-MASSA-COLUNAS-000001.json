@@ -1,0 +1,235 @@
+{
+  "id": "TST-E2E-PEDIDO-EDICAO-MASSA-COLUNAS-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-16T13:30:00.000Z",
+  "geradoPor": "agente-plano-teste-e2e",
+  "escopo": "PEDIDO",
+  "sublocal": "Edicao em Massa",
+  "tela": "ModalPedidosEdicaoMassa",
+  "rota": "/workspace/pedidos",
+  "ambientes": ["Local", "Staging"],
+  "criticidade": "alta",
+  "componenteFilePath": "servicos-global/produto/pedido/client/src/components/ModalPedidosEdicaoMassa.tsx",
+  "resumoExecutivo": "Plano de teste E2E para o Modal de Edicao em Massa do produto Pedido. Testa TODAS as 157 colunas editaveis nos 5 cenarios do dono: (1) salvar pedido sem afetar itens, (2) presenca visual do checkbox 'Aplicar a todos', (3) cascade visual para itens, (4) editar item individual, (5) alerta de divergencia visivel na tela. Execucao em lotes de 5 colunas via Playwright com prints numerados de cada estado.",
+  "preRequisitos": {
+    "ambiente": "Local — frontend porta 5000+ e backend porta 8030",
+    "login": "Usuario autenticado com tipo_usuario MASTER ou SUPER_ADMIN",
+    "workspace": "Workspace ativo com pelo menos 1 pedido com 3 itens",
+    "dados": {
+      "pedido_com_3_itens": "Pedido com 3 itens, campos comerciais populados",
+      "item_divergente": "Item2 com incoterm_item DIFERENTE de incoterm_pedido (para C05)",
+      "detalhes_operacionais": "JSON com exportador/importador/fabricante preenchidos"
+    },
+    "viewport": "1440x900"
+  },
+  "fluxoBase": {
+    "descricao": "Fluxo para chegar ao modal de edicao em massa",
+    "passos_preparatorios": [
+      {"passo": 0.1, "acao": "Navegar para /workspace/pedidos", "testid": null},
+      {"passo": 0.2, "acao": "Aguardar tabela de pedidos carregar", "testid": "tabela-pedidos"},
+      {"passo": 0.3, "acao": "Selecionar 1 pedido via checkbox da linha", "testid": "checkbox-pedido-linha"},
+      {"passo": 0.4, "acao": "Clicar botao 'Editar em Massa' no toolbar", "testid": "btn-editar-massa", "screenshot": "00-toolbar-edicao-massa"},
+      {"passo": 0.5, "acao": "Modal de edicao em massa abre no Step 1 (Selecao de campos)", "testid": "modal-edicao-massa", "screenshot": "01-modal-aberto-step1"}
+    ]
+  },
+  "cenarios_e2e": {
+    "C01_TELA": {
+      "titulo": "Editar pedido em tela — salvar e verificar que itens nao mudaram",
+      "descricao": "Fluxo completo no modal: selecionar campo de pedido, preencher valor, ir ao Step 2 (preview), verificar que preview NAO mostra impacto nos itens, confirmar no Step 3, verificar resultado.",
+      "passos": [
+        {"passo": 1, "acao": "No Step 1 — clicar aba 'Pedido'", "testid": "tab-nivel-pedido", "screenshot": "C01-01-aba-pedido-selecionada"},
+        {"passo": 2, "acao": "Selecionar campo '<CAMPO>' no dropdown de campos disponiveis", "testid": "select-campo-edicao"},
+        {"passo": 3, "acao": "Selecionar operacao 'Substituir'", "testid": "select-operacao"},
+        {"passo": 4, "acao": "Preencher valor novo no input", "testid": "input-valor-edicao"},
+        {"passo": 5, "acao": "Clicar 'Proximo' para ir ao Step 2 (Preview)", "testid": "btn-proximo-step2", "screenshot": "C01-02-preview-pedido-only"},
+        {"passo": 6, "acao": "VERIFICAR: preview mostra alteracao APENAS no pedido", "assercao": {"tipo": "visible", "testid": "preview-pedido-alterado"}},
+        {"passo": 7, "acao": "VERIFICAR: preview NAO mostra nenhuma alteracao em itens", "assercao": {"tipo": "not_visible", "testid": "preview-item-alterado"}},
+        {"passo": 8, "acao": "VERIFICAR: NAO aparece texto de cascade (nenhum '↳ Tambem altera...')", "assercao": {"tipo": "not_visible", "texto": "Tambem altera"}},
+        {"passo": 9, "acao": "Clicar 'Confirmar' no Step 2", "testid": "btn-confirmar-edicao"},
+        {"passo": 10, "acao": "Step 3 — verificar mensagem de sucesso", "testid": "resultado-sucesso", "screenshot": "C01-03-sucesso"},
+        {"passo": 11, "acao": "Fechar modal e abrir pedido editado — verificar valor alterado no pedido", "testid": "campo-pedido-atualizado"},
+        {"passo": 12, "acao": "Abrir itens do pedido — verificar que campo correspondente nos itens NAO mudou", "testid": "campo-item-inalterado", "screenshot": "C01-04-itens-intactos"}
+      ],
+      "resultadoEsperado": "Pedido atualizado com novo valor. Todos os 3 itens permanecem com valores originais inalterados."
+    },
+    "C02_TELA": {
+      "titulo": "Verificar presenca do checkbox/opcao 'Aplicar a todos os itens'",
+      "descricao": "Para cada campo PROPAGAVEL, ao seleciona-lo no modal, a aba 'Combinado' deve estar disponivel (habilitada). Para campos PEDIDO_ONLY, a aba 'Combinado' deve estar desabilitada ou oculta para aquele campo.",
+      "passos": [
+        {"passo": 1, "acao": "No Step 1 — selecionar campo PROPAGAVEL (ex: incoterm_pedido)", "testid": "select-campo-edicao"},
+        {"passo": 2, "acao": "VERIFICAR: aba 'Combinado' esta HABILITADA e clicavel", "assercao": {"tipo": "enabled", "testid": "tab-nivel-combinado"}, "screenshot": "C02-01-combinado-habilitado"},
+        {"passo": 3, "acao": "VERIFICAR: texto/tooltip indica 'Aplicar a todos os itens desse pedido'", "assercao": {"tipo": "contains_text", "testid": "tab-nivel-combinado", "texto": "itens"}},
+        {"passo": 4, "acao": "Clicar aba 'Combinado'", "testid": "tab-nivel-combinado"},
+        {"passo": 5, "acao": "VERIFICAR: interface mostra indicador de cascade (icone/texto)", "assercao": {"tipo": "visible", "testid": "indicador-cascade"}, "screenshot": "C02-02-modo-combinado-ativo"},
+        {"passo": 6, "acao": "Voltar — selecionar campo PEDIDO_ONLY (ex: porto_origem_pedido)", "testid": "select-campo-edicao"},
+        {"passo": 7, "acao": "VERIFICAR: aba 'Combinado' esta DESABILITADA ou ausente para este campo", "assercao": {"tipo": "disabled_or_hidden", "testid": "tab-nivel-combinado"}, "screenshot": "C02-03-combinado-desabilitado"},
+        {"passo": 8, "acao": "VERIFICAR: tooltip explica 'Este campo nao possui equivalente nos itens'", "assercao": {"tipo": "contains_text", "testid": "tooltip-combinado-disabled", "texto": "nao possui"}}
+      ],
+      "resultadoEsperado": "Campos com par de cascade (61 campos) mostram aba Combinado habilitada. Campos sem par (37 campos) mostram aba desabilitada com explicacao."
+    },
+    "C03_TELA": {
+      "titulo": "Editar pedido com Combinado marcado — ver itens espelhados na tela",
+      "descricao": "Fluxo completo: selecionar campo propagavel, ativar nivel Combinado, preencher valor, preview mostra impacto em itens, confirmar, verificar todos os itens atualizados.",
+      "passos": [
+        {"passo": 1, "acao": "No Step 1 — clicar aba 'Combinado'", "testid": "tab-nivel-combinado", "screenshot": "C03-01-combinado-selecionado"},
+        {"passo": 2, "acao": "Selecionar campo '<CAMPO_PROPAGAVEL>'", "testid": "select-campo-edicao"},
+        {"passo": 3, "acao": "Selecionar operacao 'Substituir'", "testid": "select-operacao"},
+        {"passo": 4, "acao": "Preencher valor novo", "testid": "input-valor-edicao"},
+        {"passo": 5, "acao": "Clicar 'Proximo' para Step 2 (Preview)", "testid": "btn-proximo-step2"},
+        {"passo": 6, "acao": "VERIFICAR: preview mostra alteracao no PEDIDO", "assercao": {"tipo": "visible", "testid": "preview-pedido-alterado"}, "screenshot": "C03-02-preview-cascade"},
+        {"passo": 7, "acao": "VERIFICAR: preview mostra texto de cascade '↳ Tambem altera [campo] nos itens'", "assercao": {"tipo": "visible", "texto": "Tambem altera"}, "testid": "texto-cascade-itens"},
+        {"passo": 8, "acao": "VERIFICAR: preview mostra contagem de itens afetados (ex: '3 itens')", "assercao": {"tipo": "contains_text", "testid": "contagem-itens-cascade", "texto": "itens"}},
+        {"passo": 9, "acao": "Se houver overrides: VERIFICAR texto 'X itens serao sobrescritos' em azul", "assercao": {"tipo": "visible_if_applicable", "testid": "alerta-overrides"}, "screenshot": "C03-03-overrides-warning"},
+        {"passo": 10, "acao": "Clicar 'Confirmar'", "testid": "btn-confirmar-edicao"},
+        {"passo": 11, "acao": "Step 3 — verificar sucesso", "testid": "resultado-sucesso", "screenshot": "C03-04-sucesso-cascade"},
+        {"passo": 12, "acao": "Fechar modal — abrir pedido — verificar campo atualizado", "testid": "campo-pedido-atualizado"},
+        {"passo": 13, "acao": "Abrir CADA item — verificar que TODOS receberam o mesmo valor", "testid": "campo-item-espelhado", "screenshot": "C03-05-itens-espelhados"},
+        {"passo": 14, "acao": "Verificar Item 1 — campo = valor novo", "assercao": {"tipo": "equals", "testid": "item-1-campo-valor", "valor": "<VALOR_NOVO>"}},
+        {"passo": 15, "acao": "Verificar Item 2 — campo = valor novo", "assercao": {"tipo": "equals", "testid": "item-2-campo-valor", "valor": "<VALOR_NOVO>"}},
+        {"passo": 16, "acao": "Verificar Item 3 — campo = valor novo", "assercao": {"tipo": "equals", "testid": "item-3-campo-valor", "valor": "<VALOR_NOVO>"}}
+      ],
+      "resultadoEsperado": "Pedido e TODOS os 3 itens atualizados com mesmo valor. Preview mostrou cascade e contagem de itens. Overrides alertados se existiam valores divergentes."
+    },
+    "C04_TELA": {
+      "titulo": "Editar item individual em tela — apenas ele salvo",
+      "descricao": "Selecionar 1 item especifico na tabela (nao o pedido inteiro), abrir edicao em massa para aquele item, preencher valor, confirmar, verificar que apenas aquele item mudou.",
+      "passos": [
+        {"passo": 1, "acao": "Na tabela de pedidos — expandir itens do pedido (clicar seta)", "testid": "btn-expandir-itens", "screenshot": "C04-01-itens-expandidos"},
+        {"passo": 2, "acao": "Selecionar APENAS Item 2 via checkbox do item", "testid": "checkbox-item-2"},
+        {"passo": 3, "acao": "Clicar 'Editar em Massa' no toolbar (agora para item)", "testid": "btn-editar-massa", "screenshot": "C04-02-modal-item"},
+        {"passo": 4, "acao": "VERIFICAR: modal indica que esta editando 1 item (nao pedido)", "assercao": {"tipo": "contains_text", "testid": "modal-titulo-contexto", "texto": "1 item"}},
+        {"passo": 5, "acao": "Selecionar campo '<CAMPO_ITEM>'", "testid": "select-campo-edicao"},
+        {"passo": 6, "acao": "Preencher valor diferente", "testid": "input-valor-edicao"},
+        {"passo": 7, "acao": "Ir ao Preview", "testid": "btn-proximo-step2", "screenshot": "C04-03-preview-item-solo"},
+        {"passo": 8, "acao": "VERIFICAR: preview mostra alteracao em APENAS 1 item", "assercao": {"tipo": "contains_text", "testid": "preview-resumo", "texto": "1 item"}},
+        {"passo": 9, "acao": "Confirmar", "testid": "btn-confirmar-edicao"},
+        {"passo": 10, "acao": "Verificar sucesso", "testid": "resultado-sucesso", "screenshot": "C04-04-sucesso-item"},
+        {"passo": 11, "acao": "Fechar modal — verificar Item 2 atualizado", "testid": "item-2-campo-valor"},
+        {"passo": 12, "acao": "Verificar Item 1 NAO alterado (valor original)", "testid": "item-1-campo-valor", "screenshot": "C04-05-demais-intactos"},
+        {"passo": 13, "acao": "Verificar Item 3 NAO alterado (valor original)", "testid": "item-3-campo-valor"},
+        {"passo": 14, "acao": "Verificar Pedido pai NAO alterado", "testid": "campo-pedido-inalterado"}
+      ],
+      "resultadoEsperado": "Apenas Item 2 atualizado. Item 1, Item 3 e Pedido pai permanecem com valores originais."
+    },
+    "C05_TELA": {
+      "titulo": "Alerta de divergencia visivel na tela",
+      "descricao": "Apos Item 2 ter sido editado individualmente (C04), ao tentar editar o Pedido pai no modo Combinado, o preview deve mostrar alerta visual de que itens serao sobrescritos (divergencia).",
+      "passos": [
+        {"passo": 1, "acao": "Selecionar o pedido pai (que tem Item 2 com valor divergente)", "testid": "checkbox-pedido-linha"},
+        {"passo": 2, "acao": "Clicar 'Editar em Massa'", "testid": "btn-editar-massa", "screenshot": "C05-01-modal-pedido-divergente"},
+        {"passo": 3, "acao": "Selecionar aba 'Combinado'", "testid": "tab-nivel-combinado"},
+        {"passo": 4, "acao": "Selecionar o MESMO campo que foi editado no Item 2 (C04)", "testid": "select-campo-edicao"},
+        {"passo": 5, "acao": "Preencher valor = valor original do pedido (para ver divergencia)", "testid": "input-valor-edicao"},
+        {"passo": 6, "acao": "Ir ao Preview", "testid": "btn-proximo-step2", "screenshot": "C05-02-preview-divergencia"},
+        {"passo": 7, "acao": "VERIFICAR: texto azul '↳ X itens serao sobrescritos' VISIVEL", "assercao": {"tipo": "visible", "testid": "alerta-overrides-sobrescritos"}, "screenshot": "C05-03-alerta-overrides"},
+        {"passo": 8, "acao": "VERIFICAR: contagem mostra pelo menos 1 item divergente", "assercao": {"tipo": "contains_text", "testid": "alerta-overrides-sobrescritos", "texto": "1"}},
+        {"passo": 9, "acao": "VERIFICAR: cor do alerta eh azul (informativo, nao erro)", "assercao": {"tipo": "has_class", "testid": "alerta-overrides-sobrescritos", "classe": "text-blue"}},
+        {"passo": 10, "acao": "VERIFICAR: preview mostra de/para do Item 2 (valor divergente → novo valor)", "assercao": {"tipo": "visible", "testid": "preview-item-override-detalhe"}},
+        {"passo": 11, "acao": "Confirmar mesmo assim", "testid": "btn-confirmar-edicao"},
+        {"passo": 12, "acao": "Verificar sucesso — todos os itens agora uniformes", "testid": "resultado-sucesso", "screenshot": "C05-04-sucesso-override"},
+        {"passo": 13, "acao": "Verificar que Item 2 foi sobrescrito (nao mais divergente)", "testid": "item-2-campo-valor"}
+      ],
+      "resultadoEsperado": "Preview mostra alerta visual azul com contagem de itens divergentes. Apos confirmar, todos os itens ficam uniformes (override aplicado)."
+    }
+  },
+  "protocolo_execucao_por_lote": {
+    "descricao": "Para cada lote de 5 colunas, executar os cenarios aplicaveis conforme a categoria do campo",
+    "regra": "Cada lote gera 1 pasta de prints em testes/testes-em-tela/produto/pedido/2026-05-XX-edicao-massa-lote-NN/",
+    "por_categoria": {
+      "PROPAGAVEL": {
+        "cenarios_executar": ["C01_TELA", "C02_TELA", "C03_TELA", "C04_TELA", "C05_TELA"],
+        "prints_por_campo": 20,
+        "total_prints_por_lote_5_campos": 100
+      },
+      "PEDIDO_ONLY": {
+        "cenarios_executar": ["C01_TELA", "C02_TELA"],
+        "prints_por_campo": 8,
+        "total_prints_por_lote_5_campos": 40
+      },
+      "ITEM_ONLY": {
+        "cenarios_executar": ["C04_TELA"],
+        "prints_por_campo": 8,
+        "total_prints_por_lote_5_campos": 40
+      },
+      "BLOQUEADO": {
+        "cenarios_executar": ["BLOQUEADO_UI"],
+        "prints_por_campo": 3,
+        "descricao_cenario": "Campo NAO deve aparecer no dropdown de campos editaveis. Se por bug aparecer, ao tentar editar deve mostrar erro."
+      }
+    }
+  },
+  "cenario_bloqueado_ui": {
+    "titulo": "Campo bloqueado — nao deve aparecer no modal",
+    "passos": [
+      {"passo": 1, "acao": "Abrir modal de edicao em massa"},
+      {"passo": 2, "acao": "Abrir dropdown de campos disponiveis", "testid": "select-campo-edicao"},
+      {"passo": 3, "acao": "VERIFICAR: campo bloqueado NAO aparece na lista de opcoes", "assercao": {"tipo": "not_in_list", "campo": "<CAMPO_BLOQUEADO>"}, "screenshot": "BLOQ-01-campo-ausente"},
+      {"passo": 4, "acao": "Buscar pelo nome do campo no filtro (se houver)", "testid": "input-busca-campo"},
+      {"passo": 5, "acao": "VERIFICAR: resultado da busca nao retorna o campo bloqueado", "assercao": {"tipo": "empty_results"}}
+    ],
+    "resultadoEsperado": "Campos bloqueados (calculados/sistema) simplesmente nao aparecem como opcao no modal. Usuario nao consegue seleciona-los."
+  },
+  "mapeamentoTestids": {
+    "nota": "Testids a serem VERIFICADOS no componente ModalPedidosEdicaoMassa.tsx. Se nao existirem, marcar como requerNovoTestid.",
+    "obrigatorios": [
+      "modal-edicao-massa",
+      "tab-nivel-pedido",
+      "tab-nivel-item",
+      "tab-nivel-combinado",
+      "select-campo-edicao",
+      "select-operacao",
+      "input-valor-edicao",
+      "btn-proximo-step2",
+      "btn-confirmar-edicao",
+      "preview-pedido-alterado",
+      "preview-item-alterado",
+      "texto-cascade-itens",
+      "contagem-itens-cascade",
+      "alerta-overrides-sobrescritos",
+      "resultado-sucesso",
+      "modal-titulo-contexto"
+    ],
+    "na_tabela_pedidos": [
+      "tabela-pedidos",
+      "checkbox-pedido-linha",
+      "btn-expandir-itens",
+      "checkbox-item-{N}",
+      "btn-editar-massa",
+      "campo-pedido-atualizado",
+      "campo-item-inalterado",
+      "item-{N}-campo-valor"
+    ]
+  },
+  "prints_estrutura": {
+    "pasta_base": "testes/testes-em-tela/produto/pedido/",
+    "formato_pasta_lote": "2026-05-XX-edicao-massa-lote-{NN}",
+    "formato_print": "{NN}-{cenario}-{descricao}.png",
+    "exemplos": [
+      "01-C01-aba-pedido-selecionada.png",
+      "02-C01-preview-pedido-only.png",
+      "03-C01-sucesso.png",
+      "04-C01-itens-intactos.png",
+      "05-C02-combinado-habilitado.png",
+      "06-C02-combinado-desabilitado.png",
+      "07-C03-preview-cascade.png",
+      "08-C03-overrides-warning.png",
+      "09-C03-itens-espelhados.png",
+      "10-C04-modal-item.png",
+      "11-C04-preview-item-solo.png",
+      "12-C04-demais-intactos.png",
+      "13-C05-preview-divergencia.png",
+      "14-C05-alerta-overrides.png",
+      "15-C05-sucesso-override.png"
+    ]
+  },
+  "estatisticas_e2e": {
+    "total_lotes": 32,
+    "prints_estimados_total": "~800-1200 (depende da distribuicao de categorias)",
+    "tempo_estimado_por_lote": "5-10 min (com 5 campos x 5 cenarios)",
+    "tempo_total_estimado": "~3-5 horas para os 32 lotes completos"
+  },
+  "relacao_com_plano_funcional": {
+    "plano_funcional_id": "TST-FUN-PEDIDO-EDICAO-MASSA-COLUNAS-000001",
+    "complementaridade": "O plano funcional testa a API (Supertest) — valida que o backend faz a coisa certa. Este plano E2E testa a tela (Playwright) — valida que o usuario VE a coisa certa. Ambos devem passar para cada coluna."
+  }
+}

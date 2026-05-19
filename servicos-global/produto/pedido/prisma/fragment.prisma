@@ -746,6 +746,27 @@ model PedidoSnapshotAtualizacao {
   @@map("pedido_snapshot_atualizacao")
 }
 
+/// Card KPI personalizado criado pelo usuário (Configurações › Cards).
+/// Cada card define nome, ícone, cor e fórmula calculada sobre as stats da lista.
+model CardUsuarioPedido {
+  id_card_usuario_pedido                   String   @id @default(cuid())
+  id_organizacao                           String
+  nome_card_usuario_pedido                 String
+  icone_card_usuario_pedido                String
+  cor_card_usuario_pedido                  String
+  formula_expressao_card_usuario_pedido    String
+  formula_dependencias_card_usuario_pedido String[] @default([])
+  ordem_card_usuario_pedido                Int      @default(0)
+  ativo_card_usuario_pedido                Boolean  @default(true)
+  criado_por_card_usuario_pedido           String
+  data_criacao_card_usuario_pedido         DateTime @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, ativo_card_usuario_pedido])
+  @@index([id_organizacao, criado_por_card_usuario_pedido])
+  @@map("card_usuario_pedido")
+}
+
 // ============================================================================
 // Enums de proteção estrutural
 // ============================================================================

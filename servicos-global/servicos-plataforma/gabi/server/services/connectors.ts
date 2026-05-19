@@ -10,6 +10,7 @@ const SERVICE_URLS: Record<string, string> = {
   lpco:          process.env.LPCO_SERVICE_URL          || 'http://localhost:8027',
   'nf-importacao': process.env.NF_SERVICE_URL          || 'http://localhost:8028',
   pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8026',
+  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8025',
   'simula-custo': process.env.SIMULACUSTO_SERVICE_URL  || 'http://localhost:8020',
 }
 
@@ -26,7 +27,7 @@ type GenericResult = Record<string, unknown> | unknown[]
 async function call(
   service: string,
   path: string,
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' = 'GET',
   body?: object,
   ctx?: ConnectorCtx,
   params?: Record<string, string | number | undefined>,
@@ -128,6 +129,28 @@ export async function listPedidos(args: ConnectorArgs, ctx: ConnectorCtx) {
 
 export async function getPedido(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('pedido', `/api/v1/pedidos/${args.pedido_id}`, 'GET', undefined, ctx)
+}
+
+export async function createPedido(args: ConnectorArgs, ctx: ConnectorCtx) {
+  return call('pedido', '/api/v1/pedidos', 'POST', args, ctx)
+}
+
+export async function updatePedido(args: ConnectorArgs, ctx: ConnectorCtx) {
+  const { pedido_id, ...body } = args
+  return call('pedido', `/api/v1/pedidos/${pedido_id}`, 'PUT', body, ctx)
+}
+
+export async function deletePedido(args: ConnectorArgs, ctx: ConnectorCtx) {
+  return call('pedido', `/api/v1/pedidos/${args.pedido_id}`, 'DELETE', undefined, ctx)
+}
+
+// ── Configurador (Organização / Usuários) ─────────────────────────────────────
+export async function getOrganizacao(ctx: ConnectorCtx) {
+  return call('configurador', '/api/v1/organizacao', 'GET', undefined, ctx)
+}
+
+export async function listUsuarios(ctx: ConnectorCtx) {
+  return call('configurador', '/api/v1/usuarios', 'GET', undefined, ctx)
 }
 
 // ── SimulaCusto ───────────────────────────────────────────────────────────────

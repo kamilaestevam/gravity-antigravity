@@ -44,7 +44,7 @@ export const GABI_TOOLS = [{
     },
     {
       name: 'create_lpco',
-      description: 'Cria um novo LPCO em status rascunho. Use quando o usuário pedir para criar, iniciar, registrar ou abrir um novo LPCO. Se faltar dados obrigatórios, pergunte antes de criar.',
+      description: 'Cria um novo LPCO em status rascunho. IMPORTANTE: Na primeira chamada sem confirmed=true, retorna pedido de confirmação. Descreva a ação ao usuário e peça confirmação. Quando o usuário confirmar, chame novamente com confirmed=true.',
       parameters: {
         type: 'OBJECT',
         properties: {
@@ -56,13 +56,14 @@ export const GABI_TOOLS = [{
           valor_usd: { type: 'NUMBER', description: 'Valor do produto em USD' },
           pais_origem: { type: 'STRING', description: 'País de origem da mercadoria (código ISO ou nome)' },
           processo_id: { type: 'STRING', description: 'ID do processo (DUIMP/DU-E) vinculado, se houver' },
+          confirmed: { type: 'BOOLEAN', description: 'true para confirmar a execução após aprovação do usuário' },
         },
         required: ['orgao_anuente'],
       },
     },
     {
       name: 'update_lpco',
-      description: 'Atualiza campos de um LPCO. Somente LPCOs em status "rascunho" aceitam edição livre. Para LPCOs já enviados, oriente o usuário sobre o processo de retificação.',
+      description: 'Atualiza campos de um LPCO. IMPORTANTE: Na primeira chamada sem confirmed=true, retorna pedido de confirmação. Descreva a ação ao usuário e peça confirmação. Quando o usuário confirmar, chame novamente com confirmed=true.',
       parameters: {
         type: 'OBJECT',
         properties: {
@@ -74,6 +75,7 @@ export const GABI_TOOLS = [{
           valor_usd: { type: 'NUMBER' },
           pais_origem: { type: 'STRING' },
           orgao_anuente: { type: 'STRING' },
+          confirmed: { type: 'BOOLEAN', description: 'true para confirmar a execução após aprovação do usuário' },
         },
         required: ['lpco_id'],
       },
@@ -104,7 +106,7 @@ export const GABI_TOOLS = [{
     },
     {
       name: 'create_nf',
-      description: 'Cria uma nova Nota Fiscal de importação. Use quando o usuário pedir para emitir, criar ou gerar uma NF de importação.',
+      description: 'Cria uma nova Nota Fiscal de importação. IMPORTANTE: Na primeira chamada sem confirmed=true, retorna pedido de confirmação. Descreva a ação ao usuário e peça confirmação. Quando o usuário confirmar, chame novamente com confirmed=true.',
       parameters: {
         type: 'OBJECT',
         properties: {
@@ -114,6 +116,7 @@ export const GABI_TOOLS = [{
           fornecedor_nome: { type: 'STRING', description: 'Nome do fornecedor/exportador' },
           fornecedor_pais: { type: 'STRING', description: 'País do fornecedor' },
           natureza_operacao: { type: 'STRING', description: 'Natureza da operação' },
+          confirmed: { type: 'BOOLEAN', description: 'true para confirmar a execução após aprovação do usuário' },
         },
       },
     },
@@ -140,6 +143,61 @@ export const GABI_TOOLS = [{
         },
         required: ['pedido_id'],
       },
+    },
+
+    {
+      name: 'create_pedido',
+      description: 'Cria um novo pedido de importação ou exportação em status rascunho. IMPORTANTE: Na primeira chamada sem confirmed=true, retorna pedido de confirmação. Descreva a ação ao usuário e peça confirmação. Quando o usuário confirmar, chame novamente com confirmed=true.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          tipo_pedido: { type: 'STRING', description: 'Tipo: importacao | exportacao (padrão: importacao)' },
+          exportador: { type: 'STRING', description: 'Nome do exportador/fornecedor' },
+          importador: { type: 'STRING', description: 'Nome do importador (padrão: organização do usuário)' },
+          incoterm: { type: 'STRING', description: 'Incoterm: FOB | CIF | EXW | CFR | etc.' },
+          moeda: { type: 'STRING', description: 'Moeda: USD | BRL | EUR (padrão: USD)' },
+          confirmed: { type: 'BOOLEAN', description: 'true para confirmar a execução após aprovação do usuário' },
+        },
+      },
+    },
+    {
+      name: 'update_pedido',
+      description: 'Atualiza dados de um pedido existente. IMPORTANTE: Na primeira chamada sem confirmed=true, retorna pedido de confirmação. Descreva a ação ao usuário e peça confirmação. Quando o usuário confirmar, chame novamente com confirmed=true.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          pedido_id: { type: 'STRING', description: 'ID do pedido (obrigatório)' },
+          status_pedido: { type: 'STRING', description: 'Novo status: rascunho | em_andamento | finalizado' },
+          exportador: { type: 'STRING', description: 'Nome do exportador' },
+          incoterm: { type: 'STRING', description: 'Incoterm' },
+          confirmed: { type: 'BOOLEAN', description: 'true para confirmar a execução após aprovação do usuário' },
+        },
+        required: ['pedido_id'],
+      },
+    },
+    {
+      name: 'delete_pedido',
+      description: 'Exclui permanentemente um pedido. Ação irreversível. Use APENAS quando o usuário pedir explicitamente para excluir/deletar um pedido.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          pedido_id: { type: 'STRING', description: 'ID do pedido a excluir (obrigatório)' },
+          confirmed: { type: 'BOOLEAN', description: 'Deve ser true para confirmar exclusão' },
+        },
+        required: ['pedido_id'],
+      },
+    },
+
+    // ── ORGANIZACAO / CONFIG ────────────────────────────────────────────────
+    {
+      name: 'get_organizacao',
+      description: 'Retorna as configurações e dados da organização do usuário: nome, subdomínio, tipo, CNPJ, plano, status. Use quando o usuário perguntar sobre "minha organização", "configurações da org", "dados da empresa", "meu plano".',
+      parameters: { type: 'OBJECT', properties: {} },
+    },
+    {
+      name: 'list_usuarios',
+      description: 'Lista os usuários da organização com nome, email, tipo e status. Use quando o usuário perguntar sobre "meus usuários", "quem tem acesso", "membros da equipe".',
+      parameters: { type: 'OBJECT', properties: {} },
     },
 
     // ── SIMULACUSTO ───────────────────────────────────────────────────────────
@@ -169,9 +227,11 @@ export const WRITE_TOOLS = new Set([
   'update_lpco',
   'create_nf',
   'create_pedido',
+  'update_pedido',
 ])
 
 // Tools que exigem confirmação explícita antes de executar
 export const DESTRUCTIVE_TOOLS = new Set([
   'cancel_nf',
+  'delete_pedido',
 ])

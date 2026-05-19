@@ -1,59 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  ClockCounterClockwise, UserCircle, ShieldStar, ArrowsLeftRight,
-} from '@phosphor-icons/react'
+import { useAuth } from '@clerk/clerk-react'
+import { z } from 'zod'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { SelectGlobal } from '@nucleo/campo-select-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../../utils/export-helper'
 
-// ─── Tipos ───────────────────────────────────────────────────────────────────
+// ─── Zod Schema (Mandamento 06) ────────────────────────────────────────────
 
-interface AuditEntry {
-  id: string
-  id_organizacao: string | null
-  tipo_ator: string
-  id_ator: string
-  nome_ator: string | null
-  ip_ator: string | null
-  modulo: string | null
-  tipo_recurso: string | null
-  id_recurso: string | null
-  acao: string
-  detalhe_acao: string | null
-  estado_anterior: unknown
-  estado_posterior: unknown
-  status: string
-  metadata_ator: unknown
-  data_criacao: string
-}
+const AuditEntrySchema = z.object({
+  id: z.string(),
+  id_organizacao: z.string().nullable(),
+  tipo_ator: z.string(),
+  id_ator: z.string(),
+  nome_ator: z.string().nullable(),
+  ip_ator: z.string().nullable(),
+  modulo: z.string().nullable(),
+  tipo_recurso: z.string().nullable(),
+  id_recurso: z.string().nullable(),
+  acao: z.string(),
+  detalhe_acao: z.string().nullable(),
+  estado_anterior: z.unknown(),
+  estado_posterior: z.unknown(),
+  status: z.string(),
+  metadata_ator: z.unknown(),
+  data_criacao: z.string(),
+})
 
-interface AuditTrailResponse {
-  data: AuditEntry[]
-  paginacao: { total: number; limite: number; offset: number }
-}
+type AuditEntry = z.infer<typeof AuditEntrySchema>
+
+const AuditTrailResponseSchema = z.object({
+  data: z.array(AuditEntrySchema),
+  paginacao: z.object({ total: z.number(), limite: z.number(), offset: z.number() }),
+})
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const API_BASE = '/api/v1/admin/eventos-seguranca'
-
-async function getClerkBearerToken(): Promise<string | null> {
-  try {
-    const w = window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }
-    return (await w.Clerk?.session?.getToken()) ?? null
-  } catch { return null }
-}
-
-async function fetchJSON<T>(path: string): Promise<T> {
-  const token = await getClerkBearerToken()
-  const headers: Record<string, string> = {}
-  if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(`${API_BASE}${path}`, { credentials: 'include', headers })
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-  return (await res.json()) as T
-}
 
 function getStatusAcaoStyle(acao: string) {
   if (acao.includes('IMPERSONACAO') || acao.includes('IMPERSONATION')) return { background: '#7f1d1d', color: '#fca5a5' }
@@ -66,49 +50,68 @@ function getStatusAcaoStyle(acao: string) {
 
 type FiltroRapido = 'TODOS' | 'IMPERSONACAO' | 'PERMISSAO' | 'ADMIN'
 
+// ─── Tipos públicos ─────────────────────────────────────────────────────────
+
+export interface AuditTrailStats {
+  total: number
+  totalImpersonacoes: number
+  totalPermissoes: number
+  totalAdmin: number
+}
+
+interface AbaAuditTrailProps {
+  onStatsCarregados?: (stats: AuditTrailStats) => void
+}
+
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export function AbaAuditTrail() {
+export function AbaAuditTrail({ onStatsCarregados }: AbaAuditTrailProps) {
   const { t } = useTranslation()
+  const { getToken } = useAuth()
   const [dados, setDados] = useState<AuditEntry[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [filtroRapido, setFiltroRapido] = useState<FiltroRapido>('TODOS')
-  const [filtroTipoAtor, setFiltroTipoAtor] = useState<string>('TODOS')
-  const [filtroEntidade, setFiltroEntidade] = useState<string>('TODOS')
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({ limit: '50' })
 
-      // Filtros rápidos (F-03, F-08)
       if (filtroRapido === 'IMPERSONACAO') params.set('acao', 'IMPERSONACAO')
       if (filtroRapido === 'PERMISSAO') params.set('acao', 'PERMISSION_CHANGED')
       if (filtroRapido === 'ADMIN') params.set('tipo_ator', 'ADMIN')
 
-      if (filtroTipoAtor !== 'TODOS') params.set('tipo_ator', filtroTipoAtor)
-      if (filtroEntidade !== 'TODOS') params.set('entidade', filtroEntidade)
+      const token = await getToken()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (token) headers.Authorization = `Bearer ${token}`
 
-      const res = await fetchJSON<AuditTrailResponse>(`/audit-trail?${params.toString()}`)
-      setDados(res.data)
-      setTotal(res.paginacao.total)
+      const res = await fetch(`${API_BASE}/audit-trail?${params.toString()}`, {
+        credentials: 'include',
+        headers,
+      })
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+
+      const raw = await res.json()
+      const parsed = AuditTrailResponseSchema.parse(raw)
+      setDados(parsed.data)
+      setTotal(parsed.paginacao.total)
     } catch (err) {
       console.error('[AbaAuditTrail] Falha ao carregar:', err)
     } finally {
       setLoading(false)
     }
-  }, [filtroRapido, filtroTipoAtor, filtroEntidade])
+  }, [filtroRapido, getToken])
 
   useEffect(() => { void loadData() }, [loadData])
 
-  // Stats computados
   const totalImpersonacoes = dados.filter(d => d.acao.includes('IMPERSONACAO') || d.acao.includes('IMPERSONATION')).length
   const totalPermissoes = dados.filter(d => d.acao.includes('PERMISSION') || d.acao.includes('ROLE')).length
   const totalAdmin = dados.filter(d => d.tipo_ator === 'ADMIN' || d.tipo_ator === 'gravity_admin').length
 
-  // Entidades únicas para filtro
-  const entidadesUnicas = ['TODOS', ...new Set(dados.map(d => d.tipo_recurso).filter(Boolean) as string[])]
+  useEffect(() => {
+    onStatsCarregados?.({ total, totalImpersonacoes, totalPermissoes, totalAdmin })
+  }, [total, totalImpersonacoes, totalPermissoes, totalAdmin, onStatsCarregados])
 
   const colunas: TabelaGlobalColuna<AuditEntry>[] = [
     {
@@ -176,23 +179,6 @@ export function AbaAuditTrail() {
 
   return (
     <div>
-      {/* Stat Cards — F-01, F-03, F-08 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
-        <TooltipGlobal titulo="Total Auditado" descricao="Quantidade total de registros de auditoria no período">
-          <div><CardEstatisticaGlobal titulo="Total Auditado" valor={String(total)} icone={<ClockCounterClockwise weight="fill" size={20} />} variante="primario" /></div>
-        </TooltipGlobal>
-        <TooltipGlobal titulo="Impersonações" descricao="Vezes que um admin acessou o sistema como outro usuário">
-          <div><CardEstatisticaGlobal titulo="Impersonações (F-03)" valor={String(totalImpersonacoes)} icone={<UserCircle weight="fill" size={20} />} variante={totalImpersonacoes > 0 ? 'aviso' : 'sucesso'} /></div>
-        </TooltipGlobal>
-        <TooltipGlobal titulo="Mudanças de Permissão" descricao="Alterações em tipo_usuario ou tipo_usuario_workspace">
-          <div><CardEstatisticaGlobal titulo="Mudanças de Permissão (F-08)" valor={String(totalPermissoes)} icone={<ArrowsLeftRight weight="fill" size={20} />} variante={totalPermissoes > 0 ? 'aviso' : 'sucesso'} /></div>
-        </TooltipGlobal>
-        <TooltipGlobal titulo="Ações Admin" descricao="Ações executadas por gravity_admin ou ADMIN no painel">
-          <div><CardEstatisticaGlobal titulo="Ações Admin" valor={String(totalAdmin)} icone={<ShieldStar weight="fill" size={20} />} variante="primario" /></div>
-        </TooltipGlobal>
-      </div>
-
-      {/* Filtros rápidos — F-03 (Impersonação), F-08 (Permissões) */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {([
           { key: 'TODOS', label: 'Todos', desc: 'Exibir todos os registros de auditoria' },
@@ -215,31 +201,8 @@ export function AbaAuditTrail() {
             </button>
           </TooltipGlobal>
         ))}
-
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-          <SelectGlobal
-            valor={filtroTipoAtor}
-            aoMudarValor={(v) => setFiltroTipoAtor(String(v ?? 'TODOS'))}
-            opcoes={[
-              { valor: 'TODOS', rotulo: 'Tipo ator: Todos' },
-              { valor: 'USUARIO', rotulo: 'Usuário' },
-              { valor: 'ADMIN', rotulo: 'Admin' },
-              { valor: 'SYSTEM', rotulo: 'Sistema' },
-              { valor: 'GABI_IA', rotulo: 'Gabi IA' },
-            ]}
-            placeholder="Tipo ator"
-          />
-          <SelectGlobal
-            valor={filtroEntidade}
-            aoMudarValor={(v) => setFiltroEntidade(String(v ?? 'TODOS'))}
-            opcoes={entidadesUnicas.map(e => ({ valor: e, rotulo: e }))}
-            placeholder="Entidade"
-            buscavel
-          />
-        </div>
       </div>
 
-      {/* Tabela */}
       <TabelaGlobal
         dados={dados}
         colunas={colunas}

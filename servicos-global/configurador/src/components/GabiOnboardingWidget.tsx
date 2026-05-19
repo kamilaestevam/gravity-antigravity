@@ -674,13 +674,10 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     let fullText = ''
     let suggestions = FOLLOW_UP_SUGGESTIONS[msg] || DEFAULT_SUGGESTIONS
     try {
-      const res = await fetch('/api/v1/gabi/chats', {
+      const res = await fetch('/api/v1/gabi/agente/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-id-organizacao': 'onboarding',
-          'x-id-usuario': userName,
-          'x-internal-key': 'gravity-internal',
         },
         body: JSON.stringify({ conversationId: 'new', message: msg, page: pathname }),
       })

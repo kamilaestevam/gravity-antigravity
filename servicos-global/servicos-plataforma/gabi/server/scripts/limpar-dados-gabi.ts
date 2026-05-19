@@ -54,6 +54,8 @@ async function main() {
         await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 
         for (const tabela of TABELAS) {
+          // SAFETY: tabela is interpolated but comes from the hardcoded TABELAS
+          // const array above (lines 25-30) — never from user input.
           const deletados: number = await tx.$executeRawUnsafe(`DELETE FROM "${tabela}"`)
           if (deletados > 0) {
             console.log(`[limpar-gabi] ${schemaName}.${tabela}: ${deletados} registro(s)`)

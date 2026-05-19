@@ -650,7 +650,7 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
 
     const response = await fetch(url.toString(), {
       headers: {
-        'x-chave-interna-servico':  CHAVE_INTERNA_SERVICO,
+        'x-chave-interna-servico':  getChaveInterna(),
         'x-id-organizacao': id_organizacao || '__admin_global__',
         'Content-Type':    'application/json',
       },

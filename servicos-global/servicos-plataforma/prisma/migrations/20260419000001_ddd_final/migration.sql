@@ -1,40 +1,43 @@
 -- CreateEnum
+DROP TYPE IF EXISTS "EmailStatus" CASCADE;
 CREATE TYPE "EmailStatus" AS ENUM ('PENDENTE', 'PROCESSANDO', 'ENVIADO', 'FALHOU', 'CANCELADO');
 
--- CreateEnum
+DROP TYPE IF EXISTS "EmailDirection" CASCADE;
 CREATE TYPE "EmailDirection" AS ENUM ('INBOUND', 'OUTBOUND');
 
--- CreateEnum
+DROP TYPE IF EXISTS "EmailThreadStatus" CASCADE;
 CREATE TYPE "EmailThreadStatus" AS ENUM ('ABERTA', 'ARQUIVADA', 'RESOLVIDA');
 
--- CreateEnum
+DROP TYPE IF EXISTS "EmailSentimentLevel" CASCADE;
 CREATE TYPE "EmailSentimentLevel" AS ENUM ('MUITO_POSITIVO', 'POSITIVO', 'NEUTRO', 'NEGATIVO', 'MUITO_NEGATIVO');
 
--- CreateEnum
+DROP TYPE IF EXISTS "FilaEmailPrioridade" CASCADE;-- CreateEnum
 CREATE TYPE "FilaEmailPrioridade" AS ENUM ('BAIXA', 'NORMAL', 'ALTA', 'URGENTE');
 
 -- CreateEnum
+DROP TYPE IF EXISTS "DashboardMode" CASCADE;
 CREATE TYPE "DashboardMode" AS ENUM ('PRODUCT', 'GENERAL');
 
 -- CreateEnum
+DROP TYPE IF EXISTS "WidgetType" CASCADE;
 CREATE TYPE "WidgetType" AS ENUM ('CATALOG', 'CUSTOM', 'GABI');
 
--- CreateEnum
+DROP TYPE IF EXISTS "ChartType" CASCADE;-- CreateEnum
 CREATE TYPE "ChartType" AS ENUM ('KPI_CARD', 'LINE', 'BAR', 'BAR_HORIZONTAL', 'DONUT', 'HISTOGRAM', 'FUNNEL', 'GAUGE', 'MAP', 'TABLE', 'AREA');
 
--- CreateEnum
+DROP TYPE IF EXISTS "ActorType" CASCADE;-- CreateEnum
 CREATE TYPE "ActorType" AS ENUM ('USER', 'API', 'AI', 'JOB', 'INTEGRATION');
 
--- CreateEnum
+DROP TYPE IF EXISTS "EventStatus" CASCADE;-- CreateEnum
 CREATE TYPE "EventStatus" AS ENUM ('SUCCESS', 'FAILURE', 'PARTIAL');
 
--- CreateEnum
+DROP TYPE IF EXISTS "AlertStatus" CASCADE;-- CreateEnum
 CREATE TYPE "AlertStatus" AS ENUM ('PENDING', 'REVIEWED', 'ESCALATED');
 
--- CreateEnum
+DROP TYPE IF EXISTS "NcmSyncStatus" CASCADE;-- CreateEnum
 CREATE TYPE "NcmSyncStatus" AS ENUM ('RUNNING', 'SUCCESS', 'ERROR');
 
--- CreateEnum
+DROP TYPE IF EXISTS "NcmSyncOrigem" CASCADE;-- CreateEnum
 CREATE TYPE "NcmSyncOrigem" AS ENUM ('JOB', 'MANUAL');
 
 -- CreateTable

@@ -1,6 +1,13 @@
 import { PrismaClient } from '../../../generated/index.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL || ''
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || ''
@@ -9,8 +16,8 @@ const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO || ''
 
 const RETRY_DELAYS_MS = [5_000, 15_000, 45_000]
 
-type AlertRule = Awaited<ReturnType<typeof prisma.alertaRegra.findFirst>>
-type AlertEvent = Awaited<ReturnType<typeof prisma.alertaData.findFirst>>
+type AlertRule = Awaited<ReturnType<PrismaClient['alertaRegra']['findFirst']>>
+type AlertEvent = Awaited<ReturnType<PrismaClient['alertaData']['findFirst']>>
 
 export const NotificationDispatcher = {
   /**
@@ -46,7 +53,7 @@ export const NotificationDispatcher = {
   async sendInapp(rule: AlertRule, alertEvent: AlertEvent): Promise<void> {
     if (!rule || !alertEvent) return
 
-    const logId = await prisma.alertaRegistro.create({
+    const logId = await getPrisma().alertaRegistro.create({
       data: {
         id_organizacao: alertEvent.id_organizacao,
         id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
@@ -85,7 +92,7 @@ export const NotificationDispatcher = {
     if (!rule || !alertEvent) return
 
     for (const recipient of rule.destinatarios_email_regra_alerta) {
-      const logId = await prisma.alertaRegistro.create({
+      const logId = await getPrisma().alertaRegistro.create({
         data: {
           id_organizacao: alertEvent.id_organizacao,
           id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
@@ -123,7 +130,7 @@ export const NotificationDispatcher = {
     if (!rule || !alertEvent) return
 
     for (const phone of rule.destinatarios_whatsapp_regra_alerta) {
-      const logId = await prisma.alertaRegistro.create({
+      const logId = await getPrisma().alertaRegistro.create({
         data: {
           id_organizacao: alertEvent.id_organizacao,
           id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
@@ -164,7 +171,7 @@ export const NotificationDispatcher = {
   ): Promise<void> {
     try {
       await fn()
-      await prisma.alertaRegistro.update({
+      await getPrisma().alertaRegistro.update({
         where: { id_notificacao_alerta: notificationLogId },
         data: { status_notificacao_alerta: 'sent', enviado_em_notificacao_alerta: new Date(), tentativas_notificacao_alerta: attempt + 1 },
       })
@@ -174,7 +181,7 @@ export const NotificationDispatcher = {
         return NotificationDispatcher.withRetry(fn, notificationLogId, recipient, attempt + 1)
       }
 
-      await prisma.alertaRegistro.update({
+      await getPrisma().alertaRegistro.update({
         where: { id_notificacao_alerta: notificationLogId },
         data: {
           status_notificacao_alerta: 'failed',

@@ -22,7 +22,14 @@ import { AppError } from '../lib/errors.js'
 import { extrairUsuarioAutenticado } from '../lib/visibility.js'
 import { AuditService } from '../services/audit.service.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 const AnonymizeSchema = z.object({
   id_ator_historico_log: z.string().min(1),
@@ -62,7 +69,7 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     const orgFilter = isGravityAdmin ? {} : { id_organizacao }
 
     // Conta quantos logs serão afetados
-    const count = await prisma.historicoLog.count({
+    const count = await getPrisma().historicoLog.count({
       where: { id_ator_historico_log, ...orgFilter },
     })
 
@@ -73,7 +80,7 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     const redactedName = `[Anonimizado - LGPD Art.18 - ${new Date().toISOString().slice(0, 10)}]`
 
     // Anonimiza em batch (apenas PII — não altera campos do hash_integridade_historico_log)
-    await prisma.historicoLog.updateMany({
+    await getPrisma().historicoLog.updateMany({
       where: { id_ator_historico_log, ...orgFilter },
       data: {
         nome_ator_historico_log: redactedName,

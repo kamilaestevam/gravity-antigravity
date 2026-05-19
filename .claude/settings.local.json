@@ -28,7 +28,8 @@
       "mcp__Claude_Preview__preview_start",
       "mcp__Claude_in_Chrome__file_upload",
       "mcp__Claude_in_Chrome__form_input",
-      "mcp__Claude_in_Chrome__read_network_requests"
+      "mcp__Claude_in_Chrome__read_network_requests",
+      "mcp__Claude_in_Chrome__resize_window"
     ],
     "defaultMode": "bypassPermissions"
   }

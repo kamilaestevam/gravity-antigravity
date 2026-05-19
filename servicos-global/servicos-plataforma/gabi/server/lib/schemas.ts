@@ -38,3 +38,50 @@ export const gabiChatStreamEventSchema = z.object({
 })
 
 export type GabiChatStreamEvent = z.infer<typeof gabiChatStreamEventSchema>
+
+// ── Schemas V2 (agente com function calling) ───────────────────────────────
+
+export const gabiToolCallLogSchema = z.object({
+  tool_id: z.string(),
+  sucesso: z.boolean(),
+  duracao_ms: z.number(),
+  aguardando_confirmacao: z.boolean().optional(),
+  nonce: z.string().optional(),
+  descricao_acao: z.string().optional(),
+})
+
+export type GabiToolCallLog = z.infer<typeof gabiToolCallLogSchema>
+
+export const gabiConfirmacaoPendenteSchema = z.object({
+  nonce: z.string(),
+  tool_id: z.string(),
+  descricao_acao: z.string(),
+  classe: z.string(),
+  expira_em: z.string(),
+})
+
+export type GabiConfirmacaoPendente = z.infer<typeof gabiConfirmacaoPendenteSchema>
+
+export const gabiAgenteChatResponseSchema = z.object({
+  response: z.string(),
+  modelo: z.string(),
+  tokens: z.object({
+    input: z.number(),
+    output: z.number(),
+    cached: z.number(),
+  }),
+  custo_usd: z.number(),
+  tools_chamadas: z.array(gabiToolCallLogSchema),
+  dados_alterados: z.boolean(),
+  confirmacoes_pendentes: z.array(gabiConfirmacaoPendenteSchema),
+  erros_recentes: z.number(),
+})
+
+export type GabiAgenteChatResponse = z.infer<typeof gabiAgenteChatResponseSchema>
+
+export const gabiConfirmarAcaoResponseSchema = z.object({
+  sucesso: z.boolean(),
+  dados: z.unknown().optional(),
+})
+
+export type GabiConfirmarAcaoResponse = z.infer<typeof gabiConfirmarAcaoResponseSchema>

@@ -15,7 +15,14 @@ import { getBoss } from './pg-boss.js'
 import { PrismaClient } from '../../../generated/index.js'
 import { captureMessage } from '../lib/sentry.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+// Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
+let _prisma: PrismaClient | undefined
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
+  }
+  return _prisma
+}
 
 export const INTEGRITY_QUEUE = 'audit:integrity:check'
 
@@ -116,7 +123,7 @@ export async function startIntegrityCheckWorker(): Promise<void> {
 }
 
 async function checkBatch(opts: { id_organizacao?: string; offset: number }): Promise<IntegrityResult> {
-  const logs = await prisma.historicoLog.findMany({
+  const logs = await getPrisma().historicoLog.findMany({
     where: opts.id_organizacao ? { id_organizacao: opts.id_organizacao } : undefined,
     orderBy: { data_criacao_historico_log: 'asc' },
     skip: opts.offset,

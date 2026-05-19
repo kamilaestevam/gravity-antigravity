@@ -235,22 +235,6 @@ exports.Prisma.NcmSyncAgendamentoScalarFieldEnum = {
   data_atualizacao_ncm_sync_agendamento: 'data_atualizacao_ncm_sync_agendamento'
 };
 
-exports.Prisma.CertificadoDigitalSiscomexScalarFieldEnum = {
-  id_certificado_digital_siscomex: 'id_certificado_digital_siscomex',
-  nome_certificado_digital_siscomex: 'nome_certificado_digital_siscomex',
-  cnpj_certificado_digital_siscomex: 'cnpj_certificado_digital_siscomex',
-  cn_certificado_digital_siscomex: 'cn_certificado_digital_siscomex',
-  serial_number_certificado_digital_siscomex: 'serial_number_certificado_digital_siscomex',
-  emissor_certificado_digital_siscomex: 'emissor_certificado_digital_siscomex',
-  validade_inicio_certificado_digital_siscomex: 'validade_inicio_certificado_digital_siscomex',
-  validade_fim_certificado_digital_siscomex: 'validade_fim_certificado_digital_siscomex',
-  pfx_criptografado_certificado_digital_siscomex: 'pfx_criptografado_certificado_digital_siscomex',
-  senha_hash_certificado_digital_siscomex: 'senha_hash_certificado_digital_siscomex',
-  ativo_certificado_digital_siscomex: 'ativo_certificado_digital_siscomex',
-  data_criacao_certificado_digital_siscomex: 'data_criacao_certificado_digital_siscomex',
-  data_atualizacao_certificado_digital_siscomex: 'data_atualizacao_certificado_digital_siscomex'
-};
-
 exports.Prisma.OpeScalarFieldEnum = {
   suid_ope: 'suid_ope',
   id_organizacao_ope: 'id_organizacao_ope',
@@ -357,7 +341,6 @@ exports.Prisma.ModelName = {
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',
   NcmSyncAgendamento: 'NcmSyncAgendamento',
-  CertificadoDigitalSiscomex: 'CertificadoDigitalSiscomex',
   Ope: 'Ope',
   OPEHistoricoStatus: 'OPEHistoricoStatus',
   ExportadorQuandoImportacao: 'ExportadorQuandoImportacao',

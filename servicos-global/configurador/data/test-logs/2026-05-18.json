@@ -1,0 +1,429 @@
+[
+  {
+    "id": "1779063633164-0",
+    "created_at": "2026-05-18T00:20:33.163Z",
+    "type": "E2E",
+    "module": "playwright/parse-error",
+    "test_name": "JSON parse falhou",
+    "result": "ERRO",
+    "duration": "0ms",
+    "error_log": "",
+    "ai_analysis": null
+  },
+  {
+    "id": "1779065807948-0",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar numero_pedido: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "18896ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-1",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar tipo_operacao: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16038ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-2",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar nome_fabricante: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16844ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-3",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar referencia_importador: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16376ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-4",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar referencia_exportador: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16130ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-5",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar ncm: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "15913ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-6",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar numero_proforma: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16268ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-7",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar numero_invoice: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "15981ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-8",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar incoterm: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16134ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-9",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar data_emissao_pedido: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "15985ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-10",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar referencia_fabricante: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16510ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-11",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar cobertura_cambial: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "15986ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-12",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "1.x — Editar condicao_pagamento: clicar → popover → salvar → persistencia",
+    "result": "REPROVADO",
+    "duration": "16251ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-13",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — valor_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "15991ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-14",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — valor_item NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16131ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-15",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — quantidade_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16000ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-16",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — quantidade_pronta_itens_pedido_total NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16206ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-17",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — quantidade_transferida_total NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16045ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-18",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — quantidade_cancelada_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16134ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-19",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — peso_liquido_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16071ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-20",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — peso_bruto_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16272ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-21",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — cubagem_total_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16023ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-22",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "3.x — saldo_itens_do_pedido NAO deve abrir popover",
+    "result": "REPROVADO",
+    "duration": "16182ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-23",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "5.1 — nome_exportador editavel em pedido importacao",
+    "result": "REPROVADO",
+    "duration": "16008ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-24",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "5.2 — nome_importador bloqueado em pedido importacao",
+    "result": "REPROVADO",
+    "duration": "16145ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  },
+  {
+    "id": "1779065807948-25",
+    "created_at": "2026-05-18T00:56:47.945Z",
+    "type": "E2E",
+    "module": "pedido",
+    "test_name": "6.2 — Campo propagavel exibe checkbox \"Aplicar a todos os itens\"",
+    "result": "REPROVADO",
+    "duration": "16029ms",
+    "error_log": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"tabela-pedidos\"]') to be visible\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Timeout aguardando condição esperada",
+      "motivo": "A página ficou em um estado de carregamento mais longo do que o esperado, ou a condição aguardada nunca se satisfez. Pode ser um request lento, um `useEffect` que não dispara, ou uma animação/transição que ainda está em curso.",
+      "sugestaoCorrecao": "Aumente o timeout localmente (`{ timeout: 10_000 }`) APENAS após investigar a causa. Idealmente, adicione um `waitFor` na condição específica (ex: `await expect(row).toBeVisible()`) em vez de depender do timeout padrão.",
+      "arquivo": "pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts"
+    }
+  }
+]

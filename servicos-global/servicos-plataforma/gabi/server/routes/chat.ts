@@ -1,6 +1,7 @@
 // server/routes/chat.ts
 import { Router } from 'express'
 import { z } from 'zod'
+import prisma from '../lib/prisma.js'
 import { getConversationContext, buildSystemPrompt, selectKnowledge } from '../services/chat.js'
 import { generateContentWithFallback, generateWithTools } from '../services/gemini.js'
 import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
@@ -70,6 +71,47 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
 
     const { cleanText, suggestions } = extractSuggestions(result.text)
 
+    // Persistir mensagens para manter contexto da conversa
+    if (conversationId !== 'new') {
+      void (async () => {
+        try {
+          // Garantir que a conversa existe (upsert)
+          await prisma.gabiConversaCompleta.upsert({
+            where: { id_gabi_conversa: conversationId },
+            update: { data_atualizacao_gabi_conversa: new Date() },
+            create: {
+              id_gabi_conversa: conversationId,
+              id_organizacao_gabi_conversa: tenantId,
+              id_usuario_gabi_conversa: userId,
+              titulo_gabi_conversa: message.slice(0, 80),
+            },
+          })
+          // Salvar mensagem do usuario
+          await prisma.gabiMensagemIndividual.create({
+            data: {
+              id_organizacao_gabi_mensagem: tenantId,
+              id_usuario_gabi_mensagem: userId,
+              id_conversa_gabi_mensagem: conversationId,
+              papel_gabi_mensagem: 'user',
+              conteudo_gabi_mensagem: message,
+            },
+          })
+          // Salvar resposta do assistente (depois para garantir ordem)
+          await prisma.gabiMensagemIndividual.create({
+            data: {
+              id_organizacao_gabi_mensagem: tenantId,
+              id_usuario_gabi_mensagem: userId,
+              id_conversa_gabi_mensagem: conversationId,
+              papel_gabi_mensagem: 'assistant',
+              conteudo_gabi_mensagem: cleanText,
+            },
+          })
+        } catch (e) {
+          console.warn('[chat] falha persistindo mensagens', (e as Error).message)
+        }
+      })()
+    }
+
     void auditGabiAction(userId, tenantId, 'chat', message, undefined, {
       modelo: result.modelUsed,
       tokensInput: result.tokensInput,
@@ -112,11 +154,16 @@ function sanitizeUserInput(input: string): string {
 }
 
 function extractSuggestions(text: string): { cleanText: string; suggestions: string[] } {
-  const match = text.match(/<!--FOLLOW_UP:\[(.+?)\]-->/)
-  if (!match) return { cleanText: text.trim(), suggestions: [] }
+  // Regex com flag 's' (dotAll) para capturar newlines dentro do tag
+  const match = text.match(/<!--FOLLOW_UP:\[([\s\S]+?)\]-->/s)
+  if (!match) {
+    // Fallback: limpar qualquer HTML comment residual
+    const cleanText = text.replace(/<!--[\s\S]*?-->/g, '').trim()
+    return { cleanText, suggestions: [] }
+  }
   try {
     const suggestions: string[] = JSON.parse(`[${match[1]}]`)
-    const cleanText = text.replace(/<!--FOLLOW_UP:\[.+?\]-->/, '').trim()
+    const cleanText = text.replace(/<!--FOLLOW_UP:\[[\s\S]+?\]-->/s, '').trim()
     return { cleanText, suggestions }
   } catch {
     return { cleanText: text.trim(), suggestions: [] }

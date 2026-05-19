@@ -1,24 +1,67 @@
-import React, { useState, useRef, useEffect, DragEvent } from 'react';
+import React, { useState, useRef, useEffect, useCallback, DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  PaperPlaneRight, 
+import {
+  PaperPlaneRight,
   Image as ImageIcon,
-  X, 
+  X,
   Eraser,
   Sparkle,
   ImageSquare,
   Spinner,
   DownloadSimple,
   ChartBar,
-  Users
+  Users,
+  ThumbsUp,
+  ThumbsDown,
+  ShieldCheck,
+  XCircle,
+  Wrench,
+  CheckCircle,
+  Warning,
 } from '@phosphor-icons/react';
 import './Gabi.css';
+
+// ── Tipos ──────────────────────────────────────────────────────────────────
+
+interface ToolCallLog {
+  tool_id: string;
+  sucesso: boolean;
+  duracao_ms: number;
+  aguardando_confirmacao?: boolean;
+  nonce?: string;
+  descricao_acao?: string;
+}
+
+interface ConfirmacaoPendente {
+  nonce: string;
+  tool_id: string;
+  descricao_acao: string;
+  classe: string;
+  expira_em: string;
+}
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  tools_chamadas?: ToolCallLog[];
+  confirmacoes_pendentes?: ConfirmacaoPendente[];
+  dados_alterados?: boolean;
+  modelo?: string;
+  feedback?: 'positivo' | 'negativo';
+}
+
+interface TransparencyEvent {
+  id: string;
+  message: string;
+  timestamp: number;
+}
+
+interface GabiChatProps {
+  onClose?: () => void;
+  apiBaseUrl?: string;
+  headers?: Record<string, string>;
 }
 
 /** Escape HTML entities to prevent XSS */
@@ -56,15 +99,18 @@ const renderMessageContent = (content: string): React.ReactNode => {
   });
 };
 
-export default function GabiChat({ onClose }: { onClose?: () => void }) {
+export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeaders }: GabiChatProps) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isHoveringDrop, setIsHoveringDrop] = useState(false);
   const [images, setImages] = useState<string[]>([]);
-  
+  const [transparencyEvents, setTransparencyEvents] = useState<TransparencyEvent[]>([]);
+  const [conversationId, setConversationId] = useState('new');
+
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const formatTime = () => {
     const d = new Date();
@@ -77,9 +123,72 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isTyping, transparencyEvents]);
 
-  const handleSend = (textOverride?: string) => {
+  const addTransparency = useCallback((msg: string) => {
+    setTransparencyEvents((prev) => [
+      ...prev.slice(-4),
+      { id: `t-${Date.now()}`, message: msg, timestamp: Date.now() },
+    ]);
+  }, []);
+
+  const clearTransparency = useCallback(() => {
+    setTransparencyEvents([]);
+  }, []);
+
+  const handleConfirm = useCallback(async (nonce: string, toolId: string) => {
+    if (apiBaseUrl === undefined) return;
+    try {
+      addTransparency(`Confirmando ${toolId}...`);
+      const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/agente/confirmar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        body: JSON.stringify({ nonce, tool_id: toolId }),
+      });
+      const data = await resp.json();
+      if (data.sucesso) {
+        addTransparency(`${toolId} executado com sucesso`);
+        setMessages((prev) =>
+          prev.map((m) => ({
+            ...m,
+            confirmacoes_pendentes: m.confirmacoes_pendentes?.filter((c) => c.nonce !== nonce),
+          })),
+        );
+      } else {
+        addTransparency(`Falha: ${data.error?.message ?? 'Erro desconhecido'}`);
+      }
+    } catch {
+      addTransparency('Erro ao confirmar acao');
+    }
+  }, [apiBaseUrl, extraHeaders, addTransparency]);
+
+  const handleReject = useCallback((nonce: string) => {
+    setMessages((prev) =>
+      prev.map((m) => ({
+        ...m,
+        confirmacoes_pendentes: m.confirmacoes_pendentes?.filter((c) => c.nonce !== nonce),
+      })),
+    );
+    addTransparency('Acao cancelada pelo usuario');
+  }, [addTransparency]);
+
+  const handleFeedback = useCallback(async (messageId: string, tipo: 'positivo' | 'negativo') => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === messageId ? { ...m, feedback: tipo } : m)),
+    );
+    if (apiBaseUrl === undefined) return;
+    try {
+      await fetch(`${apiBaseUrl}/api/v1/gabi/agente/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        body: JSON.stringify({ id_conversa: conversationId, id_mensagem: messageId, tipo }),
+      });
+    } catch {
+      // Fire-and-forget
+    }
+  }, [apiBaseUrl, extraHeaders, conversationId]);
+
+  const handleSend = useCallback(async (textOverride?: string) => {
     const textToSend = textOverride || inputVal;
     if (!textToSend.trim() && images.length === 0) return;
 
@@ -87,28 +196,89 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
       id: Date.now().toString(),
       role: 'user',
       content: textToSend,
-      timestamp: formatTime()
+      timestamp: formatTime(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputVal('');
     setImages([]);
     setIsTyping(true);
+    clearTransparency();
+    addTransparency('Processando sua mensagem...');
 
-    setTimeout(() => {
-      setIsTyping(false);
-      const assistantMessageId = (Date.now() + 1).toString();
-      setMessages(prev => [
-        ...prev, 
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
+    if (apiBaseUrl === undefined) {
+      // Fallback mock — apenas quando explicitamente sem backend
+      setTimeout(() => {
+        setIsTyping(false);
+        clearTransparency();
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: 'Entendido. Verifiquei que tudo esta dentro dos conformes.\n\n### Proximos passos:\n* Enviar notificacao\n* Atualizar o CRM\n* Validar **pedidos pendentes**.',
+            timestamp: formatTime(),
+          },
+        ]);
+      }, 2500);
+      return;
+    }
+
+    try {
+      const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/chats`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        body: JSON.stringify({
+          conversationId,
+          message: textToSend,
+          page: window.location.pathname,
+        }),
+        signal: abortRef.current.signal,
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error?.message ?? `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response,
+        timestamp: formatTime(),
+        tools_chamadas: data.tools_chamadas ?? data.actions_performed?.map((a: { tool: string; success: boolean }) => ({ tool_id: a.tool, sucesso: a.success, duracao_ms: 0 })),
+        confirmacoes_pendentes: data.confirmacoes_pendentes ?? [],
+        dados_alterados: data.dados_alterados ?? data.data_changed ?? false,
+        modelo: data.modelo ?? data.model,
+      };
+
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch (err: unknown) {
+      if ((err as Error).name === 'AbortError') return;
+      const errMsg = err instanceof Error ? err.message : 'Erro desconhecido';
+      setMessages((prev) => [
+        ...prev,
         {
-          id: assistantMessageId,
+          id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Entendido. Verifiquei que tudo está dentro dos conformes.\n\n### Próximos passos:\n* Enviar notificação\n* Atualizar o CRM\n* Validar **pedidos pendentes**.',
+          content: `Desculpe, ocorreu um erro: ${errMsg}`,
           timestamp: formatTime(),
-        }
+        },
       ]);
-    }, 2500); // Simmons a 2.5s thinking period
-  };
+    } finally {
+      setIsTyping(false);
+      clearTransparency();
+    }
+  }, [inputVal, images, apiBaseUrl, extraHeaders, conversationId, addTransparency, clearTransparency]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -118,8 +288,11 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
   };
 
   const handleClear = () => {
+    if (abortRef.current) abortRef.current.abort();
     setMessages([]);
     setIsTyping(false);
+    setConversationId('new');
+    clearTransparency();
   };
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -224,9 +397,89 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
                   {renderMessageContent(msg.content)}
                 </div>
               </div>
-              <div className="gabi-timestamp">{msg.timestamp}</div>
+
+              {/* Tool calls badge */}
+              {msg.role === 'assistant' && msg.tools_chamadas && msg.tools_chamadas.length > 0 && (
+                <div className="gabi-tools-badge">
+                  <Wrench size={12} />
+                  {msg.tools_chamadas.map((tc, i) => (
+                    <span key={i} className={`gabi-tool-chip ${tc.sucesso ? 'success' : 'error'}`}>
+                      {tc.sucesso ? <CheckCircle size={10} /> : <Warning size={10} />}
+                      {tc.tool_id}
+                      <span className="gabi-tool-ms">{tc.duracao_ms}ms</span>
+                    </span>
+                  ))}
+                  {msg.dados_alterados && (
+                    <span className="gabi-data-changed">dados alterados</span>
+                  )}
+                </div>
+              )}
+
+              {/* Confirmation cards */}
+              {msg.role === 'assistant' && msg.confirmacoes_pendentes && msg.confirmacoes_pendentes.length > 0 && (
+                <div className="gabi-confirmacoes">
+                  {msg.confirmacoes_pendentes.map((c) => (
+                    <div key={c.nonce} className={`gabi-confirmacao-card gabi-confirmacao-${c.classe.toLowerCase()}`}>
+                      <div className="gabi-confirmacao-header">
+                        <ShieldCheck size={16} />
+                        <span className="gabi-confirmacao-classe">{c.classe}</span>
+                      </div>
+                      <p className="gabi-confirmacao-desc">{c.descricao_acao}</p>
+                      <div className="gabi-confirmacao-actions">
+                        <button
+                          className="gabi-btn-confirmar"
+                          onClick={() => handleConfirm(c.nonce, c.tool_id)}
+                        >
+                          <CheckCircle size={14} /> Confirmar
+                        </button>
+                        <button
+                          className="gabi-btn-cancelar"
+                          onClick={() => handleReject(c.nonce)}
+                        >
+                          <XCircle size={14} /> Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Feedback + timestamp */}
+              <div className="gabi-message-footer">
+                <div className="gabi-timestamp">{msg.timestamp}</div>
+                {msg.role === 'assistant' && (
+                  <div className="gabi-feedback">
+                    <button
+                      className={`gabi-feedback-btn ${msg.feedback === 'positivo' ? 'active' : ''}`}
+                      onClick={() => handleFeedback(msg.id, 'positivo')}
+                      title="Resposta util"
+                    >
+                      <ThumbsUp size={12} weight={msg.feedback === 'positivo' ? 'fill' : 'regular'} />
+                    </button>
+                    <button
+                      className={`gabi-feedback-btn ${msg.feedback === 'negativo' ? 'active' : ''}`}
+                      onClick={() => handleFeedback(msg.id, 'negativo')}
+                      title="Resposta nao ajudou"
+                    >
+                      <ThumbsDown size={12} weight={msg.feedback === 'negativo' ? 'fill' : 'regular'} />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))
+        )}
+
+        {/* Transparency indicators */}
+        {transparencyEvents.length > 0 && (
+          <div className="gabi-transparency">
+            {transparencyEvents.map((ev) => (
+              <div key={ev.id} className="gabi-transparency-item">
+                <Spinner className="gabi-spin" size={10} />
+                <span>{ev.message}</span>
+              </div>
+            ))}
+          </div>
         )}
 
         {isTyping && (

@@ -1889,7 +1889,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     numero: string | null
@@ -1906,7 +1906,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     numero: string | null
@@ -1923,7 +1923,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     numero: number
@@ -1942,7 +1942,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     numero?: true
@@ -1959,7 +1959,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     numero?: true
@@ -1976,7 +1976,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     numero?: true
@@ -2066,7 +2066,7 @@ export namespace Prisma {
 
   export type ProcessoGravityGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     numero: string
@@ -2100,7 +2100,7 @@ export namespace Prisma {
 
   export type ProcessoGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     numero?: boolean
@@ -2124,7 +2124,7 @@ export namespace Prisma {
 
   export type ProcessoGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     numero?: boolean
@@ -2141,7 +2141,7 @@ export namespace Prisma {
 
   export type ProcessoGravitySelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     numero?: boolean
@@ -2179,7 +2179,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       numero: string
@@ -2592,7 +2592,7 @@ export namespace Prisma {
    */ 
   interface ProcessoGravityFieldRefs {
     readonly id: FieldRef<"ProcessoGravity", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoGravity", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoGravity", 'String'>
     readonly product_id: FieldRef<"ProcessoGravity", 'String'>
     readonly user_id: FieldRef<"ProcessoGravity", 'String'>
     readonly numero: FieldRef<"ProcessoGravity", 'String'>
@@ -3055,7 +3055,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -3068,7 +3068,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -3081,7 +3081,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -3096,7 +3096,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -3109,7 +3109,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -3122,7 +3122,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -3208,7 +3208,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -3238,7 +3238,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -3252,7 +3252,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -3266,7 +3266,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -3291,7 +3291,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -3695,7 +3695,7 @@ export namespace Prisma {
    */ 
   interface ProcessoEtapasFieldRefs {
     readonly id: FieldRef<"ProcessoEtapas", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoEtapas", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoEtapas", 'String'>
     readonly product_id: FieldRef<"ProcessoEtapas", 'String'>
     readonly user_id: FieldRef<"ProcessoEtapas", 'String'>
     readonly processo_id: FieldRef<"ProcessoEtapas", 'String'>
@@ -4060,7 +4060,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -4078,7 +4078,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -4096,7 +4096,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -4127,7 +4127,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -4145,7 +4145,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -4163,7 +4163,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -4269,7 +4269,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -4307,7 +4307,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -4329,7 +4329,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -4349,7 +4349,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -4383,7 +4383,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -4794,7 +4794,7 @@ export namespace Prisma {
    */ 
   interface ProcessoPedidoFieldRefs {
     readonly id: FieldRef<"ProcessoPedido", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoPedido", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoPedido", 'String'>
     readonly product_id: FieldRef<"ProcessoPedido", 'String'>
     readonly user_id: FieldRef<"ProcessoPedido", 'String'>
     readonly processo_id: FieldRef<"ProcessoPedido", 'String'>
@@ -5187,7 +5187,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     pedido_id: string | null
@@ -5206,7 +5206,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     pedido_id: string | null
@@ -5225,7 +5225,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     pedido_id: number
@@ -5259,7 +5259,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     pedido_id?: true
@@ -5278,7 +5278,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     pedido_id?: true
@@ -5297,7 +5297,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     pedido_id?: true
@@ -5404,7 +5404,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     pedido_id: string
@@ -5443,7 +5443,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     pedido_id?: boolean
@@ -5464,7 +5464,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     pedido_id?: boolean
@@ -5485,7 +5485,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     pedido_id?: boolean
@@ -5517,7 +5517,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       pedido_id: string
@@ -5928,7 +5928,7 @@ export namespace Prisma {
    */ 
   interface ProcessoPedidoItensFieldRefs {
     readonly id: FieldRef<"ProcessoPedidoItens", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoPedidoItens", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoPedidoItens", 'String'>
     readonly product_id: FieldRef<"ProcessoPedidoItens", 'String'>
     readonly user_id: FieldRef<"ProcessoPedidoItens", 'String'>
     readonly pedido_id: FieldRef<"ProcessoPedidoItens", 'String'>
@@ -6288,7 +6288,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -6303,7 +6303,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -6318,7 +6318,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -6335,7 +6335,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -6350,7 +6350,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -6365,7 +6365,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -6453,7 +6453,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -6485,7 +6485,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -6501,7 +6501,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -6517,7 +6517,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -6544,7 +6544,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -6950,7 +6950,7 @@ export namespace Prisma {
    */ 
   interface ProcessoFollowupFieldRefs {
     readonly id: FieldRef<"ProcessoFollowup", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoFollowup", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoFollowup", 'String'>
     readonly product_id: FieldRef<"ProcessoFollowup", 'String'>
     readonly user_id: FieldRef<"ProcessoFollowup", 'String'>
     readonly processo_id: FieldRef<"ProcessoFollowup", 'String'>
@@ -7315,7 +7315,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -7329,7 +7329,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -7343,7 +7343,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -7367,7 +7367,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -7381,7 +7381,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -7395,7 +7395,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -7496,7 +7496,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -7529,7 +7529,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -7544,7 +7544,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -7559,7 +7559,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -7585,7 +7585,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -7990,7 +7990,7 @@ export namespace Prisma {
    */ 
   interface ProcessoAnexosFieldRefs {
     readonly id: FieldRef<"ProcessoAnexos", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoAnexos", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoAnexos", 'String'>
     readonly product_id: FieldRef<"ProcessoAnexos", 'String'>
     readonly user_id: FieldRef<"ProcessoAnexos", 'String'>
     readonly processo_id: FieldRef<"ProcessoAnexos", 'String'>
@@ -8362,7 +8362,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -8376,7 +8376,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -8390,7 +8390,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -8422,7 +8422,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -8436,7 +8436,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -8450,7 +8450,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -8551,7 +8551,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -8584,7 +8584,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -8599,7 +8599,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -8614,7 +8614,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -8640,7 +8640,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -9045,7 +9045,7 @@ export namespace Prisma {
    */ 
   interface ProcessoEstimativaCustoFieldRefs {
     readonly id: FieldRef<"ProcessoEstimativaCusto", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoEstimativaCusto", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoEstimativaCusto", 'String'>
     readonly product_id: FieldRef<"ProcessoEstimativaCusto", 'String'>
     readonly user_id: FieldRef<"ProcessoEstimativaCusto", 'String'>
     readonly processo_id: FieldRef<"ProcessoEstimativaCusto", 'String'>
@@ -9409,7 +9409,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -9440,7 +9440,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     processo_id: string | null
@@ -9471,7 +9471,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     processo_id: number
@@ -9512,7 +9512,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -9543,7 +9543,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -9574,7 +9574,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     processo_id?: true
@@ -9692,7 +9692,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string | null
     processo_id: string
@@ -9742,7 +9742,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -9774,7 +9774,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -9806,7 +9806,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     processo_id?: boolean
@@ -9849,7 +9849,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string | null
       processo_id: string
@@ -10271,7 +10271,7 @@ export namespace Prisma {
    */ 
   interface ProcessoDadosTecnicosFieldRefs {
     readonly id: FieldRef<"ProcessoDadosTecnicos", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoDadosTecnicos", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoDadosTecnicos", 'String'>
     readonly product_id: FieldRef<"ProcessoDadosTecnicos", 'String'>
     readonly user_id: FieldRef<"ProcessoDadosTecnicos", 'String'>
     readonly processo_id: FieldRef<"ProcessoDadosTecnicos", 'String'>
@@ -10652,7 +10652,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     nome: string | null
     rotulo: string | null
@@ -10667,7 +10667,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     nome: string | null
     rotulo: string | null
@@ -10682,7 +10682,7 @@ export namespace Prisma {
 
   export type ProcessoStatusCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     nome: number
     rotulo: number
@@ -10707,7 +10707,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -10722,7 +10722,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -10737,7 +10737,7 @@ export namespace Prisma {
 
   export type ProcessoStatusCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -10839,7 +10839,7 @@ export namespace Prisma {
 
   export type ProcessoStatusGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     nome: string
     rotulo: string
@@ -10873,7 +10873,7 @@ export namespace Prisma {
 
   export type ProcessoStatusSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -10888,7 +10888,7 @@ export namespace Prisma {
 
   export type ProcessoStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -10903,7 +10903,7 @@ export namespace Prisma {
 
   export type ProcessoStatusSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -10922,7 +10922,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       nome: string
       rotulo: string
@@ -11327,7 +11327,7 @@ export namespace Prisma {
    */ 
   interface ProcessoStatusFieldRefs {
     readonly id: FieldRef<"ProcessoStatus", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoStatus", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoStatus", 'String'>
     readonly product_id: FieldRef<"ProcessoStatus", 'String'>
     readonly nome: FieldRef<"ProcessoStatus", 'String'>
     readonly rotulo: FieldRef<"ProcessoStatus", 'String'>
@@ -11650,7 +11650,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     nome: string | null
     rotulo: string | null
@@ -11666,7 +11666,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     nome: string | null
     rotulo: string | null
@@ -11682,7 +11682,7 @@ export namespace Prisma {
 
   export type ProcessoColunasCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     nome: number
     rotulo: number
@@ -11711,7 +11711,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -11727,7 +11727,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -11743,7 +11743,7 @@ export namespace Prisma {
 
   export type ProcessoColunasCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     nome?: true
     rotulo?: true
@@ -11847,7 +11847,7 @@ export namespace Prisma {
 
   export type ProcessoColunasGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     nome: string
     rotulo: string
@@ -11883,7 +11883,7 @@ export namespace Prisma {
 
   export type ProcessoColunasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -11900,7 +11900,7 @@ export namespace Prisma {
 
   export type ProcessoColunasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -11917,7 +11917,7 @@ export namespace Prisma {
 
   export type ProcessoColunasSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     nome?: boolean
     rotulo?: boolean
@@ -11938,7 +11938,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       nome: string
       rotulo: string
@@ -12345,7 +12345,7 @@ export namespace Prisma {
    */ 
   interface ProcessoColunasFieldRefs {
     readonly id: FieldRef<"ProcessoColunas", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoColunas", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoColunas", 'String'>
     readonly product_id: FieldRef<"ProcessoColunas", 'String'>
     readonly nome: FieldRef<"ProcessoColunas", 'String'>
     readonly rotulo: FieldRef<"ProcessoColunas", 'String'>
@@ -12658,7 +12658,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     updated_at: Date | null
@@ -12666,7 +12666,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     user_id: string | null
     updated_at: Date | null
@@ -12674,7 +12674,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     user_id: number
     colunas_visiveis: number
@@ -12686,7 +12686,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     updated_at?: true
@@ -12694,7 +12694,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     updated_at?: true
@@ -12702,7 +12702,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     user_id?: true
     colunas_visiveis?: true
@@ -12785,7 +12785,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     user_id: string
     colunas_visiveis: string[]
@@ -12812,7 +12812,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     colunas_visiveis?: boolean
@@ -12822,7 +12822,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     colunas_visiveis?: boolean
@@ -12832,7 +12832,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     user_id?: boolean
     colunas_visiveis?: boolean
@@ -12846,7 +12846,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       user_id: string
       colunas_visiveis: string[]
@@ -13246,7 +13246,7 @@ export namespace Prisma {
    */ 
   interface ProcessosPedidoPreferenciaFieldRefs {
     readonly id: FieldRef<"ProcessosPedidoPreferencia", 'String'>
-    readonly tenant_id: FieldRef<"ProcessosPedidoPreferencia", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessosPedidoPreferencia", 'String'>
     readonly product_id: FieldRef<"ProcessosPedidoPreferencia", 'String'>
     readonly user_id: FieldRef<"ProcessosPedidoPreferencia", 'String'>
     readonly colunas_visiveis: FieldRef<"ProcessosPedidoPreferencia", 'String[]'>
@@ -13552,21 +13552,21 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     updated_at: Date | null
   }
 
   export type ProcessoPedidoPadraoMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
+    id_organizacao: string | null
     product_id: string | null
     updated_at: Date | null
   }
 
   export type ProcessoPedidoPadraoCountAggregateOutputType = {
     id: number
-    tenant_id: number
+    id_organizacao: number
     product_id: number
     colunas_visiveis: number
     colunas_largura: number
@@ -13577,21 +13577,21 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoMinAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     updated_at?: true
   }
 
   export type ProcessoPedidoPadraoMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     updated_at?: true
   }
 
   export type ProcessoPedidoPadraoCountAggregateInputType = {
     id?: true
-    tenant_id?: true
+    id_organizacao?: true
     product_id?: true
     colunas_visiveis?: true
     colunas_largura?: true
@@ -13673,7 +13673,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoGroupByOutputType = {
     id: string
-    tenant_id: string
+    id_organizacao: string
     product_id: string | null
     colunas_visiveis: string[]
     colunas_largura: JsonValue | null
@@ -13699,7 +13699,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     colunas_visiveis?: boolean
     colunas_largura?: boolean
@@ -13708,7 +13708,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     colunas_visiveis?: boolean
     colunas_largura?: boolean
@@ -13717,7 +13717,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
+    id_organizacao?: boolean
     product_id?: boolean
     colunas_visiveis?: boolean
     colunas_largura?: boolean
@@ -13730,7 +13730,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
+      id_organizacao: string
       product_id: string | null
       colunas_visiveis: string[]
       colunas_largura: Prisma.JsonValue | null
@@ -14129,7 +14129,7 @@ export namespace Prisma {
    */ 
   interface ProcessoPedidoPadraoFieldRefs {
     readonly id: FieldRef<"ProcessoPedidoPadrao", 'String'>
-    readonly tenant_id: FieldRef<"ProcessoPedidoPadrao", 'String'>
+    readonly id_organizacao: FieldRef<"ProcessoPedidoPadrao", 'String'>
     readonly product_id: FieldRef<"ProcessoPedidoPadrao", 'String'>
     readonly colunas_visiveis: FieldRef<"ProcessoPedidoPadrao", 'String[]'>
     readonly colunas_largura: FieldRef<"ProcessoPedidoPadrao", 'Json'>
@@ -14438,7 +14438,7 @@ export namespace Prisma {
 
   export const ProcessoGravityScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     numero: 'numero',
@@ -14458,7 +14458,7 @@ export namespace Prisma {
 
   export const ProcessoEtapasScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14474,7 +14474,7 @@ export namespace Prisma {
 
   export const ProcessoPedidoScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14496,7 +14496,7 @@ export namespace Prisma {
 
   export const ProcessoPedidoItensScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     pedido_id: 'pedido_id',
@@ -14519,7 +14519,7 @@ export namespace Prisma {
 
   export const ProcessoFollowupScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14537,7 +14537,7 @@ export namespace Prisma {
 
   export const ProcessoAnexosScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14554,7 +14554,7 @@ export namespace Prisma {
 
   export const ProcessoEstimativaCustoScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14571,7 +14571,7 @@ export namespace Prisma {
 
   export const ProcessoDadosTecnicosScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     processo_id: 'processo_id',
@@ -14605,7 +14605,7 @@ export namespace Prisma {
 
   export const ProcessoStatusScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     nome: 'nome',
     rotulo: 'rotulo',
@@ -14623,7 +14623,7 @@ export namespace Prisma {
 
   export const ProcessoColunasScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     nome: 'nome',
     rotulo: 'rotulo',
@@ -14643,7 +14643,7 @@ export namespace Prisma {
 
   export const ProcessosPedidoPreferenciaScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     user_id: 'user_id',
     colunas_visiveis: 'colunas_visiveis',
@@ -14656,7 +14656,7 @@ export namespace Prisma {
 
   export const ProcessoPedidoPadraoScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
+    id_organizacao: 'id_organizacao',
     product_id: 'product_id',
     colunas_visiveis: 'colunas_visiveis',
     colunas_largura: 'colunas_largura',
@@ -14804,7 +14804,7 @@ export namespace Prisma {
     OR?: ProcessoGravityWhereInput[]
     NOT?: ProcessoGravityWhereInput | ProcessoGravityWhereInput[]
     id?: StringFilter<"ProcessoGravity"> | string
-    tenant_id?: StringFilter<"ProcessoGravity"> | string
+    id_organizacao?: StringFilter<"ProcessoGravity"> | string
     product_id?: StringNullableFilter<"ProcessoGravity"> | string | null
     user_id?: StringNullableFilter<"ProcessoGravity"> | string | null
     numero?: StringFilter<"ProcessoGravity"> | string
@@ -14827,7 +14827,7 @@ export namespace Prisma {
 
   export type ProcessoGravityOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     numero?: SortOrder
@@ -14853,7 +14853,7 @@ export namespace Prisma {
     AND?: ProcessoGravityWhereInput | ProcessoGravityWhereInput[]
     OR?: ProcessoGravityWhereInput[]
     NOT?: ProcessoGravityWhereInput | ProcessoGravityWhereInput[]
-    tenant_id?: StringFilter<"ProcessoGravity"> | string
+    id_organizacao?: StringFilter<"ProcessoGravity"> | string
     product_id?: StringNullableFilter<"ProcessoGravity"> | string | null
     user_id?: StringNullableFilter<"ProcessoGravity"> | string | null
     numero?: StringFilter<"ProcessoGravity"> | string
@@ -14876,7 +14876,7 @@ export namespace Prisma {
 
   export type ProcessoGravityOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     numero?: SortOrder
@@ -14899,7 +14899,7 @@ export namespace Prisma {
     OR?: ProcessoGravityScalarWhereWithAggregatesInput[]
     NOT?: ProcessoGravityScalarWhereWithAggregatesInput | ProcessoGravityScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoGravity"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoGravity"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoGravity"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoGravity"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoGravity"> | string | null
     numero?: StringWithAggregatesFilter<"ProcessoGravity"> | string
@@ -14919,7 +14919,7 @@ export namespace Prisma {
     OR?: ProcessoEtapasWhereInput[]
     NOT?: ProcessoEtapasWhereInput | ProcessoEtapasWhereInput[]
     id?: StringFilter<"ProcessoEtapas"> | string
-    tenant_id?: StringFilter<"ProcessoEtapas"> | string
+    id_organizacao?: StringFilter<"ProcessoEtapas"> | string
     product_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     user_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     processo_id?: StringFilter<"ProcessoEtapas"> | string
@@ -14933,7 +14933,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -14950,7 +14950,7 @@ export namespace Prisma {
     AND?: ProcessoEtapasWhereInput | ProcessoEtapasWhereInput[]
     OR?: ProcessoEtapasWhereInput[]
     NOT?: ProcessoEtapasWhereInput | ProcessoEtapasWhereInput[]
-    tenant_id?: StringFilter<"ProcessoEtapas"> | string
+    id_organizacao?: StringFilter<"ProcessoEtapas"> | string
     product_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     user_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     processo_id?: StringFilter<"ProcessoEtapas"> | string
@@ -14964,7 +14964,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -14983,7 +14983,7 @@ export namespace Prisma {
     OR?: ProcessoEtapasScalarWhereWithAggregatesInput[]
     NOT?: ProcessoEtapasScalarWhereWithAggregatesInput | ProcessoEtapasScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoEtapas"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoEtapas"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoEtapas"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoEtapas"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoEtapas"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoEtapas"> | string
@@ -14999,7 +14999,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoWhereInput[]
     NOT?: ProcessoPedidoWhereInput | ProcessoPedidoWhereInput[]
     id?: StringFilter<"ProcessoPedido"> | string
-    tenant_id?: StringFilter<"ProcessoPedido"> | string
+    id_organizacao?: StringFilter<"ProcessoPedido"> | string
     product_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     processo_id?: StringFilter<"ProcessoPedido"> | string
@@ -15020,7 +15020,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15044,7 +15044,7 @@ export namespace Prisma {
     AND?: ProcessoPedidoWhereInput | ProcessoPedidoWhereInput[]
     OR?: ProcessoPedidoWhereInput[]
     NOT?: ProcessoPedidoWhereInput | ProcessoPedidoWhereInput[]
-    tenant_id?: StringFilter<"ProcessoPedido"> | string
+    id_organizacao?: StringFilter<"ProcessoPedido"> | string
     product_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     processo_id?: StringFilter<"ProcessoPedido"> | string
@@ -15065,7 +15065,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15092,7 +15092,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoScalarWhereWithAggregatesInput[]
     NOT?: ProcessoPedidoScalarWhereWithAggregatesInput | ProcessoPedidoScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoPedido"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoPedido"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoPedido"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoPedido"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoPedido"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoPedido"> | string
@@ -15114,7 +15114,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoItensWhereInput[]
     NOT?: ProcessoPedidoItensWhereInput | ProcessoPedidoItensWhereInput[]
     id?: StringFilter<"ProcessoPedidoItens"> | string
-    tenant_id?: StringFilter<"ProcessoPedidoItens"> | string
+    id_organizacao?: StringFilter<"ProcessoPedidoItens"> | string
     product_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     pedido_id?: StringFilter<"ProcessoPedidoItens"> | string
@@ -15135,7 +15135,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     pedido_id?: SortOrder
@@ -15159,7 +15159,7 @@ export namespace Prisma {
     AND?: ProcessoPedidoItensWhereInput | ProcessoPedidoItensWhereInput[]
     OR?: ProcessoPedidoItensWhereInput[]
     NOT?: ProcessoPedidoItensWhereInput | ProcessoPedidoItensWhereInput[]
-    tenant_id?: StringFilter<"ProcessoPedidoItens"> | string
+    id_organizacao?: StringFilter<"ProcessoPedidoItens"> | string
     product_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     pedido_id?: StringFilter<"ProcessoPedidoItens"> | string
@@ -15180,7 +15180,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     pedido_id?: SortOrder
@@ -15208,7 +15208,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoItensScalarWhereWithAggregatesInput[]
     NOT?: ProcessoPedidoItensScalarWhereWithAggregatesInput | ProcessoPedidoItensScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoPedidoItens"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoPedidoItens"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoPedidoItens"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoPedidoItens"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoPedidoItens"> | string | null
     pedido_id?: StringWithAggregatesFilter<"ProcessoPedidoItens"> | string
@@ -15231,7 +15231,7 @@ export namespace Prisma {
     OR?: ProcessoFollowupWhereInput[]
     NOT?: ProcessoFollowupWhereInput | ProcessoFollowupWhereInput[]
     id?: StringFilter<"ProcessoFollowup"> | string
-    tenant_id?: StringFilter<"ProcessoFollowup"> | string
+    id_organizacao?: StringFilter<"ProcessoFollowup"> | string
     product_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     user_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     processo_id?: StringFilter<"ProcessoFollowup"> | string
@@ -15247,7 +15247,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15266,7 +15266,7 @@ export namespace Prisma {
     AND?: ProcessoFollowupWhereInput | ProcessoFollowupWhereInput[]
     OR?: ProcessoFollowupWhereInput[]
     NOT?: ProcessoFollowupWhereInput | ProcessoFollowupWhereInput[]
-    tenant_id?: StringFilter<"ProcessoFollowup"> | string
+    id_organizacao?: StringFilter<"ProcessoFollowup"> | string
     product_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     user_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     processo_id?: StringFilter<"ProcessoFollowup"> | string
@@ -15282,7 +15282,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15303,7 +15303,7 @@ export namespace Prisma {
     OR?: ProcessoFollowupScalarWhereWithAggregatesInput[]
     NOT?: ProcessoFollowupScalarWhereWithAggregatesInput | ProcessoFollowupScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoFollowup"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoFollowup"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoFollowup"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoFollowup"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoFollowup"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoFollowup"> | string
@@ -15321,7 +15321,7 @@ export namespace Prisma {
     OR?: ProcessoAnexosWhereInput[]
     NOT?: ProcessoAnexosWhereInput | ProcessoAnexosWhereInput[]
     id?: StringFilter<"ProcessoAnexos"> | string
-    tenant_id?: StringFilter<"ProcessoAnexos"> | string
+    id_organizacao?: StringFilter<"ProcessoAnexos"> | string
     product_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     user_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     processo_id?: StringFilter<"ProcessoAnexos"> | string
@@ -15336,7 +15336,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15354,7 +15354,7 @@ export namespace Prisma {
     AND?: ProcessoAnexosWhereInput | ProcessoAnexosWhereInput[]
     OR?: ProcessoAnexosWhereInput[]
     NOT?: ProcessoAnexosWhereInput | ProcessoAnexosWhereInput[]
-    tenant_id?: StringFilter<"ProcessoAnexos"> | string
+    id_organizacao?: StringFilter<"ProcessoAnexos"> | string
     product_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     user_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     processo_id?: StringFilter<"ProcessoAnexos"> | string
@@ -15369,7 +15369,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15391,7 +15391,7 @@ export namespace Prisma {
     OR?: ProcessoAnexosScalarWhereWithAggregatesInput[]
     NOT?: ProcessoAnexosScalarWhereWithAggregatesInput | ProcessoAnexosScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoAnexos"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoAnexos"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoAnexos"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoAnexos"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoAnexos"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoAnexos"> | string
@@ -15408,7 +15408,7 @@ export namespace Prisma {
     OR?: ProcessoEstimativaCustoWhereInput[]
     NOT?: ProcessoEstimativaCustoWhereInput | ProcessoEstimativaCustoWhereInput[]
     id?: StringFilter<"ProcessoEstimativaCusto"> | string
-    tenant_id?: StringFilter<"ProcessoEstimativaCusto"> | string
+    id_organizacao?: StringFilter<"ProcessoEstimativaCusto"> | string
     product_id?: StringNullableFilter<"ProcessoEstimativaCusto"> | string | null
     user_id?: StringNullableFilter<"ProcessoEstimativaCusto"> | string | null
     processo_id?: StringFilter<"ProcessoEstimativaCusto"> | string
@@ -15423,7 +15423,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15442,7 +15442,7 @@ export namespace Prisma {
     AND?: ProcessoEstimativaCustoWhereInput | ProcessoEstimativaCustoWhereInput[]
     OR?: ProcessoEstimativaCustoWhereInput[]
     NOT?: ProcessoEstimativaCustoWhereInput | ProcessoEstimativaCustoWhereInput[]
-    tenant_id?: StringFilter<"ProcessoEstimativaCusto"> | string
+    id_organizacao?: StringFilter<"ProcessoEstimativaCusto"> | string
     product_id?: StringNullableFilter<"ProcessoEstimativaCusto"> | string | null
     user_id?: StringNullableFilter<"ProcessoEstimativaCusto"> | string | null
     impostos?: FloatFilter<"ProcessoEstimativaCusto"> | number
@@ -15456,7 +15456,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15478,7 +15478,7 @@ export namespace Prisma {
     OR?: ProcessoEstimativaCustoScalarWhereWithAggregatesInput[]
     NOT?: ProcessoEstimativaCustoScalarWhereWithAggregatesInput | ProcessoEstimativaCustoScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoEstimativaCusto"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoEstimativaCusto"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoEstimativaCusto"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoEstimativaCusto"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoEstimativaCusto"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoEstimativaCusto"> | string
@@ -15495,7 +15495,7 @@ export namespace Prisma {
     OR?: ProcessoDadosTecnicosWhereInput[]
     NOT?: ProcessoDadosTecnicosWhereInput | ProcessoDadosTecnicosWhereInput[]
     id?: StringFilter<"ProcessoDadosTecnicos"> | string
-    tenant_id?: StringFilter<"ProcessoDadosTecnicos"> | string
+    id_organizacao?: StringFilter<"ProcessoDadosTecnicos"> | string
     product_id?: StringNullableFilter<"ProcessoDadosTecnicos"> | string | null
     user_id?: StringNullableFilter<"ProcessoDadosTecnicos"> | string | null
     processo_id?: StringFilter<"ProcessoDadosTecnicos"> | string
@@ -15527,7 +15527,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15563,7 +15563,7 @@ export namespace Prisma {
     AND?: ProcessoDadosTecnicosWhereInput | ProcessoDadosTecnicosWhereInput[]
     OR?: ProcessoDadosTecnicosWhereInput[]
     NOT?: ProcessoDadosTecnicosWhereInput | ProcessoDadosTecnicosWhereInput[]
-    tenant_id?: StringFilter<"ProcessoDadosTecnicos"> | string
+    id_organizacao?: StringFilter<"ProcessoDadosTecnicos"> | string
     product_id?: StringNullableFilter<"ProcessoDadosTecnicos"> | string | null
     user_id?: StringNullableFilter<"ProcessoDadosTecnicos"> | string | null
     importador_nome?: StringNullableFilter<"ProcessoDadosTecnicos"> | string | null
@@ -15594,7 +15594,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     processo_id?: SortOrder
@@ -15633,7 +15633,7 @@ export namespace Prisma {
     OR?: ProcessoDadosTecnicosScalarWhereWithAggregatesInput[]
     NOT?: ProcessoDadosTecnicosScalarWhereWithAggregatesInput | ProcessoDadosTecnicosScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoDadosTecnicos"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoDadosTecnicos"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoDadosTecnicos"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoDadosTecnicos"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"ProcessoDadosTecnicos"> | string | null
     processo_id?: StringWithAggregatesFilter<"ProcessoDadosTecnicos"> | string
@@ -15667,7 +15667,7 @@ export namespace Prisma {
     OR?: ProcessoStatusWhereInput[]
     NOT?: ProcessoStatusWhereInput | ProcessoStatusWhereInput[]
     id?: StringFilter<"ProcessoStatus"> | string
-    tenant_id?: StringFilter<"ProcessoStatus"> | string
+    id_organizacao?: StringFilter<"ProcessoStatus"> | string
     product_id?: StringNullableFilter<"ProcessoStatus"> | string | null
     nome?: StringFilter<"ProcessoStatus"> | string
     rotulo?: StringFilter<"ProcessoStatus"> | string
@@ -15682,7 +15682,7 @@ export namespace Prisma {
 
   export type ProcessoStatusOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -15697,11 +15697,11 @@ export namespace Prisma {
 
   export type ProcessoStatusWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenant_id_nome?: ProcessoStatusTenant_idNomeCompoundUniqueInput
+    id_organizacao_nome?: ProcessoStatusId_organizacaoNomeCompoundUniqueInput
     AND?: ProcessoStatusWhereInput | ProcessoStatusWhereInput[]
     OR?: ProcessoStatusWhereInput[]
     NOT?: ProcessoStatusWhereInput | ProcessoStatusWhereInput[]
-    tenant_id?: StringFilter<"ProcessoStatus"> | string
+    id_organizacao?: StringFilter<"ProcessoStatus"> | string
     product_id?: StringNullableFilter<"ProcessoStatus"> | string | null
     nome?: StringFilter<"ProcessoStatus"> | string
     rotulo?: StringFilter<"ProcessoStatus"> | string
@@ -15712,11 +15712,11 @@ export namespace Prisma {
     is_sistema?: BoolFilter<"ProcessoStatus"> | boolean
     created_at?: DateTimeFilter<"ProcessoStatus"> | Date | string
     updated_at?: DateTimeFilter<"ProcessoStatus"> | Date | string
-  }, "id" | "tenant_id_nome">
+  }, "id" | "id_organizacao_nome">
 
   export type ProcessoStatusOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -15739,7 +15739,7 @@ export namespace Prisma {
     OR?: ProcessoStatusScalarWhereWithAggregatesInput[]
     NOT?: ProcessoStatusScalarWhereWithAggregatesInput | ProcessoStatusScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoStatus"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoStatus"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoStatus"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoStatus"> | string | null
     nome?: StringWithAggregatesFilter<"ProcessoStatus"> | string
     rotulo?: StringWithAggregatesFilter<"ProcessoStatus"> | string
@@ -15757,7 +15757,7 @@ export namespace Prisma {
     OR?: ProcessoColunasWhereInput[]
     NOT?: ProcessoColunasWhereInput | ProcessoColunasWhereInput[]
     id?: StringFilter<"ProcessoColunas"> | string
-    tenant_id?: StringFilter<"ProcessoColunas"> | string
+    id_organizacao?: StringFilter<"ProcessoColunas"> | string
     product_id?: StringNullableFilter<"ProcessoColunas"> | string | null
     nome?: StringFilter<"ProcessoColunas"> | string
     rotulo?: StringFilter<"ProcessoColunas"> | string
@@ -15774,7 +15774,7 @@ export namespace Prisma {
 
   export type ProcessoColunasOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -15791,11 +15791,11 @@ export namespace Prisma {
 
   export type ProcessoColunasWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenant_id_nome?: ProcessoColunasTenant_idNomeCompoundUniqueInput
+    id_organizacao_nome?: ProcessoColunasId_organizacaoNomeCompoundUniqueInput
     AND?: ProcessoColunasWhereInput | ProcessoColunasWhereInput[]
     OR?: ProcessoColunasWhereInput[]
     NOT?: ProcessoColunasWhereInput | ProcessoColunasWhereInput[]
-    tenant_id?: StringFilter<"ProcessoColunas"> | string
+    id_organizacao?: StringFilter<"ProcessoColunas"> | string
     product_id?: StringNullableFilter<"ProcessoColunas"> | string | null
     nome?: StringFilter<"ProcessoColunas"> | string
     rotulo?: StringFilter<"ProcessoColunas"> | string
@@ -15808,11 +15808,11 @@ export namespace Prisma {
     index_criado?: BoolFilter<"ProcessoColunas"> | boolean
     created_at?: DateTimeFilter<"ProcessoColunas"> | Date | string
     updated_at?: DateTimeFilter<"ProcessoColunas"> | Date | string
-  }, "id" | "tenant_id_nome">
+  }, "id" | "id_organizacao_nome">
 
   export type ProcessoColunasOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -15837,7 +15837,7 @@ export namespace Prisma {
     OR?: ProcessoColunasScalarWhereWithAggregatesInput[]
     NOT?: ProcessoColunasScalarWhereWithAggregatesInput | ProcessoColunasScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoColunas"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoColunas"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoColunas"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoColunas"> | string | null
     nome?: StringWithAggregatesFilter<"ProcessoColunas"> | string
     rotulo?: StringWithAggregatesFilter<"ProcessoColunas"> | string
@@ -15857,7 +15857,7 @@ export namespace Prisma {
     OR?: ProcessosPedidoPreferenciaWhereInput[]
     NOT?: ProcessosPedidoPreferenciaWhereInput | ProcessosPedidoPreferenciaWhereInput[]
     id?: StringFilter<"ProcessosPedidoPreferencia"> | string
-    tenant_id?: StringFilter<"ProcessosPedidoPreferencia"> | string
+    id_organizacao?: StringFilter<"ProcessosPedidoPreferencia"> | string
     product_id?: StringNullableFilter<"ProcessosPedidoPreferencia"> | string | null
     user_id?: StringFilter<"ProcessosPedidoPreferencia"> | string
     colunas_visiveis?: StringNullableListFilter<"ProcessosPedidoPreferencia">
@@ -15867,7 +15867,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrder
     colunas_visiveis?: SortOrder
@@ -15877,21 +15877,21 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenant_id_user_id?: ProcessosPedidoPreferenciaTenant_idUser_idCompoundUniqueInput
+    id_organizacao_user_id?: ProcessosPedidoPreferenciaId_organizacaoUser_idCompoundUniqueInput
     AND?: ProcessosPedidoPreferenciaWhereInput | ProcessosPedidoPreferenciaWhereInput[]
     OR?: ProcessosPedidoPreferenciaWhereInput[]
     NOT?: ProcessosPedidoPreferenciaWhereInput | ProcessosPedidoPreferenciaWhereInput[]
-    tenant_id?: StringFilter<"ProcessosPedidoPreferencia"> | string
+    id_organizacao?: StringFilter<"ProcessosPedidoPreferencia"> | string
     product_id?: StringNullableFilter<"ProcessosPedidoPreferencia"> | string | null
     user_id?: StringFilter<"ProcessosPedidoPreferencia"> | string
     colunas_visiveis?: StringNullableListFilter<"ProcessosPedidoPreferencia">
     colunas_largura?: JsonNullableFilter<"ProcessosPedidoPreferencia">
     updated_at?: DateTimeFilter<"ProcessosPedidoPreferencia"> | Date | string
-  }, "id" | "tenant_id_user_id">
+  }, "id" | "id_organizacao_user_id">
 
   export type ProcessosPedidoPreferenciaOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     user_id?: SortOrder
     colunas_visiveis?: SortOrder
@@ -15907,7 +15907,7 @@ export namespace Prisma {
     OR?: ProcessosPedidoPreferenciaScalarWhereWithAggregatesInput[]
     NOT?: ProcessosPedidoPreferenciaScalarWhereWithAggregatesInput | ProcessosPedidoPreferenciaScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessosPedidoPreferencia"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessosPedidoPreferencia"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessosPedidoPreferencia"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessosPedidoPreferencia"> | string | null
     user_id?: StringWithAggregatesFilter<"ProcessosPedidoPreferencia"> | string
     colunas_visiveis?: StringNullableListFilter<"ProcessosPedidoPreferencia">
@@ -15920,7 +15920,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoPadraoWhereInput[]
     NOT?: ProcessoPedidoPadraoWhereInput | ProcessoPedidoPadraoWhereInput[]
     id?: StringFilter<"ProcessoPedidoPadrao"> | string
-    tenant_id?: StringFilter<"ProcessoPedidoPadrao"> | string
+    id_organizacao?: StringFilter<"ProcessoPedidoPadrao"> | string
     product_id?: StringNullableFilter<"ProcessoPedidoPadrao"> | string | null
     colunas_visiveis?: StringNullableListFilter<"ProcessoPedidoPadrao">
     colunas_largura?: JsonNullableFilter<"ProcessoPedidoPadrao">
@@ -15929,7 +15929,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     colunas_visiveis?: SortOrder
     colunas_largura?: SortOrderInput | SortOrder
@@ -15938,7 +15938,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenant_id?: string
+    id_organizacao?: string
     AND?: ProcessoPedidoPadraoWhereInput | ProcessoPedidoPadraoWhereInput[]
     OR?: ProcessoPedidoPadraoWhereInput[]
     NOT?: ProcessoPedidoPadraoWhereInput | ProcessoPedidoPadraoWhereInput[]
@@ -15946,11 +15946,11 @@ export namespace Prisma {
     colunas_visiveis?: StringNullableListFilter<"ProcessoPedidoPadrao">
     colunas_largura?: JsonNullableFilter<"ProcessoPedidoPadrao">
     updated_at?: DateTimeFilter<"ProcessoPedidoPadrao"> | Date | string
-  }, "id" | "tenant_id">
+  }, "id" | "id_organizacao">
 
   export type ProcessoPedidoPadraoOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrderInput | SortOrder
     colunas_visiveis?: SortOrder
     colunas_largura?: SortOrderInput | SortOrder
@@ -15965,7 +15965,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoPadraoScalarWhereWithAggregatesInput[]
     NOT?: ProcessoPedidoPadraoScalarWhereWithAggregatesInput | ProcessoPedidoPadraoScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProcessoPedidoPadrao"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProcessoPedidoPadrao"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProcessoPedidoPadrao"> | string
     product_id?: StringNullableWithAggregatesFilter<"ProcessoPedidoPadrao"> | string | null
     colunas_visiveis?: StringNullableListFilter<"ProcessoPedidoPadrao">
     colunas_largura?: JsonNullableWithAggregatesFilter<"ProcessoPedidoPadrao">
@@ -15974,7 +15974,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -15997,7 +15997,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -16020,7 +16020,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16043,7 +16043,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16066,7 +16066,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -16083,7 +16083,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16100,7 +16100,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16117,7 +16117,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -16130,7 +16130,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16143,7 +16143,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -16156,7 +16156,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16169,7 +16169,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16182,7 +16182,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -16194,7 +16194,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16207,7 +16207,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -16227,7 +16227,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16247,7 +16247,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16267,7 +16267,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16287,7 +16287,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16306,7 +16306,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -16324,7 +16324,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16343,7 +16343,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero_item: string
@@ -16363,7 +16363,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     pedido_id: string
@@ -16383,7 +16383,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero_item?: StringFieldUpdateOperationsInput | string
@@ -16403,7 +16403,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     pedido_id?: StringFieldUpdateOperationsInput | string
@@ -16423,7 +16423,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     pedido_id: string
@@ -16443,7 +16443,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero_item?: StringFieldUpdateOperationsInput | string
@@ -16462,7 +16462,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     pedido_id?: StringFieldUpdateOperationsInput | string
@@ -16482,7 +16482,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     titulo: string
@@ -16497,7 +16497,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16512,7 +16512,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
@@ -16527,7 +16527,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16542,7 +16542,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16557,7 +16557,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
@@ -16571,7 +16571,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16586,7 +16586,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -16600,7 +16600,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16614,7 +16614,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -16628,7 +16628,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16642,7 +16642,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16656,7 +16656,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -16669,7 +16669,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16683,7 +16683,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     impostos?: number
@@ -16697,7 +16697,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16711,7 +16711,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     impostos?: FloatFieldUpdateOperationsInput | number
@@ -16725,7 +16725,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16739,7 +16739,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16753,7 +16753,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     impostos?: FloatFieldUpdateOperationsInput | number
@@ -16766,7 +16766,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16780,7 +16780,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     importador_nome?: string | null
@@ -16811,7 +16811,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16842,7 +16842,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     importador_nome?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16873,7 +16873,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16904,7 +16904,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -16935,7 +16935,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     importador_nome?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16965,7 +16965,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -16996,7 +16996,7 @@ export namespace Prisma {
 
   export type ProcessoStatusCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17011,7 +17011,7 @@ export namespace Prisma {
 
   export type ProcessoStatusUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17026,7 +17026,7 @@ export namespace Prisma {
 
   export type ProcessoStatusUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17041,7 +17041,7 @@ export namespace Prisma {
 
   export type ProcessoStatusUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17056,7 +17056,7 @@ export namespace Prisma {
 
   export type ProcessoStatusCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17071,7 +17071,7 @@ export namespace Prisma {
 
   export type ProcessoStatusUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17086,7 +17086,7 @@ export namespace Prisma {
 
   export type ProcessoStatusUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17101,7 +17101,7 @@ export namespace Prisma {
 
   export type ProcessoColunasCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17118,7 +17118,7 @@ export namespace Prisma {
 
   export type ProcessoColunasUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17135,7 +17135,7 @@ export namespace Prisma {
 
   export type ProcessoColunasUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17152,7 +17152,7 @@ export namespace Prisma {
 
   export type ProcessoColunasUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17169,7 +17169,7 @@ export namespace Prisma {
 
   export type ProcessoColunasCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     nome: string
     rotulo: string
@@ -17186,7 +17186,7 @@ export namespace Prisma {
 
   export type ProcessoColunasUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17203,7 +17203,7 @@ export namespace Prisma {
 
   export type ProcessoColunasUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
     rotulo?: StringFieldUpdateOperationsInput | string
@@ -17220,7 +17220,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id: string
     colunas_visiveis?: ProcessosPedidoPreferenciaCreatecolunas_visiveisInput | string[]
@@ -17230,7 +17230,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id: string
     colunas_visiveis?: ProcessosPedidoPreferenciaCreatecolunas_visiveisInput | string[]
@@ -17240,7 +17240,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     colunas_visiveis?: ProcessosPedidoPreferenciaUpdatecolunas_visiveisInput | string[]
@@ -17250,7 +17250,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     colunas_visiveis?: ProcessosPedidoPreferenciaUpdatecolunas_visiveisInput | string[]
@@ -17260,7 +17260,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id: string
     colunas_visiveis?: ProcessosPedidoPreferenciaCreatecolunas_visiveisInput | string[]
@@ -17270,7 +17270,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     colunas_visiveis?: ProcessosPedidoPreferenciaUpdatecolunas_visiveisInput | string[]
@@ -17280,7 +17280,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     colunas_visiveis?: ProcessosPedidoPreferenciaUpdatecolunas_visiveisInput | string[]
@@ -17290,7 +17290,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     colunas_visiveis?: ProcessoPedidoPadraoCreatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17299,7 +17299,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoUncheckedCreateInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     colunas_visiveis?: ProcessoPedidoPadraoCreatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17308,7 +17308,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     colunas_visiveis?: ProcessoPedidoPadraoUpdatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17317,7 +17317,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     colunas_visiveis?: ProcessoPedidoPadraoUpdatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17326,7 +17326,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoCreateManyInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     colunas_visiveis?: ProcessoPedidoPadraoCreatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17335,7 +17335,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     colunas_visiveis?: ProcessoPedidoPadraoUpdatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17344,7 +17344,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     colunas_visiveis?: ProcessoPedidoPadraoUpdatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
@@ -17449,7 +17449,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     numero?: SortOrder
@@ -17466,7 +17466,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     numero?: SortOrder
@@ -17483,7 +17483,7 @@ export namespace Prisma {
 
   export type ProcessoGravityMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     numero?: SortOrder
@@ -17566,7 +17566,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17579,7 +17579,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17592,7 +17592,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17662,7 +17662,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17686,7 +17686,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17704,7 +17704,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17773,7 +17773,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     pedido_id?: SortOrder
@@ -17799,7 +17799,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     pedido_id?: SortOrder
@@ -17818,7 +17818,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     pedido_id?: SortOrder
@@ -17843,7 +17843,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17858,7 +17858,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17873,7 +17873,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17899,7 +17899,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17917,7 +17917,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17931,7 +17931,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17976,7 +17976,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -17998,7 +17998,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -18012,7 +18012,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -18061,7 +18061,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -18096,7 +18096,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -18127,7 +18127,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     processo_id?: SortOrder
@@ -18181,14 +18181,14 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type ProcessoStatusTenant_idNomeCompoundUniqueInput = {
-    tenant_id: string
+  export type ProcessoStatusId_organizacaoNomeCompoundUniqueInput = {
+    id_organizacao: string
     nome: string
   }
 
   export type ProcessoStatusCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18207,7 +18207,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18222,7 +18222,7 @@ export namespace Prisma {
 
   export type ProcessoStatusMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18247,14 +18247,14 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type ProcessoColunasTenant_idNomeCompoundUniqueInput = {
-    tenant_id: string
+  export type ProcessoColunasId_organizacaoNomeCompoundUniqueInput = {
+    id_organizacao: string
     nome: string
   }
 
   export type ProcessoColunasCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18276,7 +18276,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18292,7 +18292,7 @@ export namespace Prisma {
 
   export type ProcessoColunasMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     nome?: SortOrder
     rotulo?: SortOrder
@@ -18319,14 +18319,14 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type ProcessosPedidoPreferenciaTenant_idUser_idCompoundUniqueInput = {
-    tenant_id: string
+  export type ProcessosPedidoPreferenciaId_organizacaoUser_idCompoundUniqueInput = {
+    id_organizacao: string
     user_id: string
   }
 
   export type ProcessosPedidoPreferenciaCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     colunas_visiveis?: SortOrder
@@ -18336,7 +18336,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     updated_at?: SortOrder
@@ -18344,7 +18344,7 @@ export namespace Prisma {
 
   export type ProcessosPedidoPreferenciaMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     user_id?: SortOrder
     updated_at?: SortOrder
@@ -18352,7 +18352,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     colunas_visiveis?: SortOrder
     colunas_largura?: SortOrder
@@ -18361,14 +18361,14 @@ export namespace Prisma {
 
   export type ProcessoPedidoPadraoMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     updated_at?: SortOrder
   }
 
   export type ProcessoPedidoPadraoMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
+    id_organizacao?: SortOrder
     product_id?: SortOrder
     updated_at?: SortOrder
   }
@@ -19083,7 +19083,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -19095,7 +19095,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -19117,7 +19117,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19136,7 +19136,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19165,7 +19165,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     titulo: string
@@ -19179,7 +19179,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     titulo: string
@@ -19203,7 +19203,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -19216,7 +19216,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -19239,7 +19239,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     impostos?: number
@@ -19252,7 +19252,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     impostos?: number
@@ -19270,7 +19270,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     importador_nome?: string | null
@@ -19300,7 +19300,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUncheckedCreateWithoutProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     importador_nome?: string | null
@@ -19354,7 +19354,7 @@ export namespace Prisma {
     OR?: ProcessoEtapasScalarWhereInput[]
     NOT?: ProcessoEtapasScalarWhereInput | ProcessoEtapasScalarWhereInput[]
     id?: StringFilter<"ProcessoEtapas"> | string
-    tenant_id?: StringFilter<"ProcessoEtapas"> | string
+    id_organizacao?: StringFilter<"ProcessoEtapas"> | string
     product_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     user_id?: StringNullableFilter<"ProcessoEtapas"> | string | null
     processo_id?: StringFilter<"ProcessoEtapas"> | string
@@ -19386,7 +19386,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoScalarWhereInput[]
     NOT?: ProcessoPedidoScalarWhereInput | ProcessoPedidoScalarWhereInput[]
     id?: StringFilter<"ProcessoPedido"> | string
-    tenant_id?: StringFilter<"ProcessoPedido"> | string
+    id_organizacao?: StringFilter<"ProcessoPedido"> | string
     product_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedido"> | string | null
     processo_id?: StringFilter<"ProcessoPedido"> | string
@@ -19424,7 +19424,7 @@ export namespace Prisma {
     OR?: ProcessoFollowupScalarWhereInput[]
     NOT?: ProcessoFollowupScalarWhereInput | ProcessoFollowupScalarWhereInput[]
     id?: StringFilter<"ProcessoFollowup"> | string
-    tenant_id?: StringFilter<"ProcessoFollowup"> | string
+    id_organizacao?: StringFilter<"ProcessoFollowup"> | string
     product_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     user_id?: StringNullableFilter<"ProcessoFollowup"> | string | null
     processo_id?: StringFilter<"ProcessoFollowup"> | string
@@ -19458,7 +19458,7 @@ export namespace Prisma {
     OR?: ProcessoAnexosScalarWhereInput[]
     NOT?: ProcessoAnexosScalarWhereInput | ProcessoAnexosScalarWhereInput[]
     id?: StringFilter<"ProcessoAnexos"> | string
-    tenant_id?: StringFilter<"ProcessoAnexos"> | string
+    id_organizacao?: StringFilter<"ProcessoAnexos"> | string
     product_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     user_id?: StringNullableFilter<"ProcessoAnexos"> | string | null
     processo_id?: StringFilter<"ProcessoAnexos"> | string
@@ -19483,7 +19483,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     impostos?: FloatFieldUpdateOperationsInput | number
@@ -19496,7 +19496,7 @@ export namespace Prisma {
 
   export type ProcessoEstimativaCustoUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     impostos?: FloatFieldUpdateOperationsInput | number
@@ -19520,7 +19520,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     importador_nome?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19550,7 +19550,7 @@ export namespace Prisma {
 
   export type ProcessoDadosTecnicosUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     importador_nome?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19580,7 +19580,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutEtapasInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19602,7 +19602,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutEtapasInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19640,7 +19640,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutEtapasInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -19662,7 +19662,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutEtapasInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -19684,7 +19684,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutPedidosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19706,7 +19706,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutPedidosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19733,7 +19733,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCreateWithoutPedidoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero_item: string
@@ -19752,7 +19752,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedCreateWithoutPedidoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero_item: string
@@ -19792,7 +19792,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutPedidosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -19814,7 +19814,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutPedidosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -19855,7 +19855,7 @@ export namespace Prisma {
     OR?: ProcessoPedidoItensScalarWhereInput[]
     NOT?: ProcessoPedidoItensScalarWhereInput | ProcessoPedidoItensScalarWhereInput[]
     id?: StringFilter<"ProcessoPedidoItens"> | string
-    tenant_id?: StringFilter<"ProcessoPedidoItens"> | string
+    id_organizacao?: StringFilter<"ProcessoPedidoItens"> | string
     product_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     user_id?: StringNullableFilter<"ProcessoPedidoItens"> | string | null
     pedido_id?: StringFilter<"ProcessoPedidoItens"> | string
@@ -19875,7 +19875,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCreateWithoutItensInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19894,7 +19894,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedCreateWithoutItensInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     processo_id: string
@@ -19929,7 +19929,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUpdateWithoutItensInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -19948,7 +19948,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedUpdateWithoutItensInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     processo_id?: StringFieldUpdateOperationsInput | string
@@ -19967,7 +19967,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutFollowUpsInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -19989,7 +19989,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutFollowUpsInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20027,7 +20027,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutFollowUpsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20049,7 +20049,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutFollowUpsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20071,7 +20071,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutDocumentosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20093,7 +20093,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutDocumentosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20131,7 +20131,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutDocumentosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20153,7 +20153,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutDocumentosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20175,7 +20175,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutEstimativaCustoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20197,7 +20197,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutEstimativaCustoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20235,7 +20235,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutEstimativaCustoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20257,7 +20257,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutEstimativaCustoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20279,7 +20279,7 @@ export namespace Prisma {
 
   export type ProcessoGravityCreateWithoutDadosTecnicosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20301,7 +20301,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedCreateWithoutDadosTecnicosInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20339,7 +20339,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUpdateWithoutDadosTecnicosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20361,7 +20361,7 @@ export namespace Prisma {
 
   export type ProcessoGravityUncheckedUpdateWithoutDadosTecnicosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20383,7 +20383,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasCreateManyProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -20395,7 +20395,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoCreateManyProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero: string
@@ -20413,7 +20413,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupCreateManyProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     titulo: string
@@ -20427,7 +20427,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosCreateManyProcessoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     nome: string
@@ -20440,7 +20440,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20452,7 +20452,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20464,7 +20464,7 @@ export namespace Prisma {
 
   export type ProcessoEtapasUncheckedUpdateManyWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20476,7 +20476,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20495,7 +20495,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20514,7 +20514,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoUncheckedUpdateManyWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero?: StringFieldUpdateOperationsInput | string
@@ -20532,7 +20532,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
@@ -20546,7 +20546,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
@@ -20560,7 +20560,7 @@ export namespace Prisma {
 
   export type ProcessoFollowupUncheckedUpdateManyWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
@@ -20574,7 +20574,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20587,7 +20587,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20600,7 +20600,7 @@ export namespace Prisma {
 
   export type ProcessoAnexosUncheckedUpdateManyWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     nome?: StringFieldUpdateOperationsInput | string
@@ -20613,7 +20613,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensCreateManyPedidoInput = {
     id?: string
-    tenant_id: string
+    id_organizacao: string
     product_id?: string | null
     user_id?: string | null
     numero_item: string
@@ -20632,7 +20632,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUpdateWithoutPedidoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero_item?: StringFieldUpdateOperationsInput | string
@@ -20651,7 +20651,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedUpdateWithoutPedidoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero_item?: StringFieldUpdateOperationsInput | string
@@ -20670,7 +20670,7 @@ export namespace Prisma {
 
   export type ProcessoPedidoItensUncheckedUpdateManyWithoutPedidoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     numero_item?: StringFieldUpdateOperationsInput | string

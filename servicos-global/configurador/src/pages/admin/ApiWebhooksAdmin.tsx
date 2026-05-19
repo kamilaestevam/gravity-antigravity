@@ -90,6 +90,9 @@ export function ApiWebhooksAdmin() {
   const [novosEventos, setNovosEventos] = useState<string[]>([])
   const [criando, setCriando] = useState(false)
 
+  // Modal — erro local (visivel dentro do modal)
+  const [erroCriar, setErroCriar] = useState<string | null>(null)
+
   // Modal — exibicao do segredo (uma vez so)
   const [webhookCriado, setWebhookCriado] = useState<CriarWebhookResponse | null>(null)
 
@@ -138,6 +141,7 @@ export function ApiWebhooksAdmin() {
   const resetForm = () => {
     setNovaUrl('')
     setNovosEventos([])
+    setErroCriar(null)
   }
 
   const toggleEvento = (evento: string) => {
@@ -149,7 +153,7 @@ export function ApiWebhooksAdmin() {
   const handleCriar = async () => {
     if (!novaUrl.trim() || novosEventos.length === 0 || !idOrganizacao) return
     setCriando(true)
-    setErro(null)
+    setErroCriar(null)
     try {
       const res = await requisicaoAutenticada('/api/v1/api-cockpit/admin/webhooks', {
         method:  'POST',
@@ -170,9 +174,10 @@ export function ApiWebhooksAdmin() {
       setWebhookCriado(parsed.data)
       setModalCriarAberto(false)
       resetForm()
+      setErroCriar(null)
       await carregar()
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Falha ao criar webhook')
+      setErroCriar(err instanceof Error ? err.message : 'Falha ao criar webhook')
     } finally {
       setCriando(false)
     }
@@ -403,7 +408,7 @@ export function ApiWebhooksAdmin() {
       {/* Modal — Criar webhook */}
       <ModalFormularioGlobal
         aberto={modalCriarAberto}
-        aoFechar={() => !criando && setModalCriarAberto(false)}
+        aoFechar={() => { if (!criando) { setModalCriarAberto(false); resetForm() } }}
         aoSalvar={handleCriar}
         icone={<WebhooksLogo size={24} weight="duotone" />}
         titulo="Cadastrar Novo Webhook"
@@ -411,10 +416,20 @@ export function ApiWebhooksAdmin() {
         tamanho="md"
         altura="auto"
         dirty={!!novaUrl.trim() || novosEventos.length > 0}
-        podesSalvar={!!novaUrl.trim() && novosEventos.length > 0 && !criando}
-        textoSalvar={criando ? 'Cadastrando...' : 'Cadastrar Webhook'}
+        podesSalvar={!!novaUrl.trim() && novosEventos.length > 0}
+        carregando={criando}
+        textoSalvar="Cadastrar Webhook"
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem 1.5rem' }}>
+          {erroCriar && (
+            <div role="alert" style={{
+              padding: '0.75rem 1rem', borderRadius: '8px',
+              background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)',
+              color: '#f87171', fontSize: '0.875rem',
+            }}>
+              {erroCriar}
+            </div>
+          )}
           <CampoGeralGlobal label="URL do Webhook" htmlFor="url-webhook-admin" obrigatorio>
             <input
               id="url-webhook-admin"
@@ -458,12 +473,12 @@ export function ApiWebhooksAdmin() {
         aoSalvar={() => setWebhookCriado(null)}
         icone={<WebhooksLogo size={24} weight="duotone" />}
         titulo="Webhook Cadastrado"
-        subtitulo="Este e o UNICO momento em que voce vera o segredo HMAC. Copie e guarde em local seguro."
+        subtitulo="Este é o ÚNICO momento em que você verá o segredo HMAC. Copie e guarde em local seguro."
         tamanho="md"
         altura="auto"
-        dirty={false}
+        dirty
         podesSalvar
-        textoSalvar="Ja copiei, fechar"
+        textoSalvar="Já copiei, fechar"
         textoCancelar=""
       >
         {webhookCriado && (
@@ -473,7 +488,7 @@ export function ApiWebhooksAdmin() {
               background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)',
               color: '#fbbf24', fontSize: '0.875rem',
             }}>
-              ⚠️ Apos fechar este modal o segredo nao podera mais ser recuperado.
+              ⚠️ Após fechar este modal o segredo não poderá mais ser recuperado.
             </div>
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
@@ -497,9 +512,22 @@ export function ApiWebhooksAdmin() {
                 </BotaoGlobal>
               </div>
             </div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              <strong>URL:</strong> <code style={{ fontSize: '0.75rem' }}>{webhookCriado.url_webhook_configuracao}</code><br />
-              <strong>Eventos:</strong> {webhookCriado.eventos_webhook_configuracao.join(', ')}
+            <div style={{
+              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
+              fontSize: '0.8125rem',
+            }}>
+              <span style={{
+                padding: '0.25rem 0.625rem', borderRadius: '6px',
+                background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
+                color: 'var(--brand-primary, #818cf8)', fontFamily: 'monospace', fontSize: '0.75rem',
+              }}>{webhookCriado.url_webhook_configuracao}</span>
+              {webhookCriado.eventos_webhook_configuracao.map((ev) => (
+                <span key={ev} style={{
+                  padding: '0.25rem 0.625rem', borderRadius: '6px',
+                  background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)',
+                  color: '#34d399',
+                }}>{ev}</span>
+              ))}
             </div>
           </div>
         )}

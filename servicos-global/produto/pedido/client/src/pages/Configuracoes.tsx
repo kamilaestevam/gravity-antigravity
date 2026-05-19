@@ -41,7 +41,8 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
+import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
+import { ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
 import { useCardsUsuario } from '../shared/useCardsUsuario'
 import { ModalNovoCardUsuario } from '../components/ConfiguracaoCards/ModalNovoCardUsuario'
 import type { CardUsuario } from '../shared/types'
@@ -212,7 +213,90 @@ function CardSortavel({
             <span className="cfg-card-detail-panel__label">Período</span>
             <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
           </div>
+          <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
+            <span className="cfg-card-detail-panel__label">Descrição</span>
+            <span className="cfg-card-detail-panel__value">{def.descricao}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Card disponível (catálogo, com painel de detalhe) ───────────────────────
+
+function CardDisponivel({
+  def, onAdicionar, periodoAtivo,
+}: {
+  def: CardDefinicao
+  onAdicionar: () => void
+  periodoAtivo: string
+}) {
+  const { t } = useTranslation()
+  const visual = CARD_VISUAL[def.id]
+  const [detalheAberto, setDetalheAberto] = useState(false)
+  const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
+
+  return (
+    <div>
+      <div className={`cfg-card-row cfg-card-row--disponivel${detalheAberto ? ' cfg-card-row--detalhe' : ''}`}>
+        <span className="cfg-drag-handle cfg-drag-handle--ghost">
+          <DotsSixVertical size={16} weight="bold" />
+        </span>
+        <div className="cfg-card-row__info">
+          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+            {visual.icone}
+          </span>
+          <div>
+            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+            <p className="cfg-card-row__desc">{t(def.descKey)}</p>
+          </div>
+        </div>
+        <span className={`cfg-origem-badge ${def.origem === 'Pedido' ? 'cfg-origem-badge--pedido' : 'cfg-origem-badge--item'}`}>
+          {t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}
+        </span>
+        <span className="cfg-agg-badge">{t(`pedido.config.cards.agg_${def.tipoAgg.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')}`)}</span>
+        <TooltipGlobal descricao={t('pedido.config.cards.tooltip_detalhes')}>
+          <button
+            type="button"
+            className={`cfg-eye-btn${detalheAberto ? ' cfg-eye-btn--on' : ''}`}
+            onClick={() => setDetalheAberto(v => !v)}
+            aria-label="Ver detalhes do card"
+          >
+            <Info size={15} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal descricao="Adicionar aos meus cards">
+          <button
+            type="button"
+            className="cfg-add-btn"
+            onClick={onAdicionar}
+            aria-label="Adicionar card"
+          >
+            <Plus size={13} weight="bold" />
+          </button>
+        </TooltipGlobal>
+      </div>
+
+      {detalheAberto && (
+        <div className="cfg-card-detail-panel">
           <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Campo base</span>
+            <span className="cfg-card-detail-panel__value">{def.campoBase}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Agregação</span>
+            <span className="cfg-card-detail-panel__value">{def.tipoAgg}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Origem</span>
+            <span className="cfg-card-detail-panel__value">{def.origem}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row">
+            <span className="cfg-card-detail-panel__label">Período</span>
+            <span className="cfg-card-detail-panel__value">{periodoLabel}</span>
+          </div>
+          <div className="cfg-card-detail-panel__row cfg-card-detail-panel__row--full">
             <span className="cfg-card-detail-panel__label">Descrição</span>
             <span className="cfg-card-detail-panel__value">{def.descricao}</span>
           </div>
@@ -2390,8 +2474,8 @@ export default function Configuracoes() {
                         style={{ borderTopColor: card.cor }}
                       >
                         <span className="cfg-kpi-preview-card__pos">{prefs.length + i + 1}</span>
-                        <span className="cfg-kpi-preview-card__icon" style={{ color: card.cor, fontSize: '16px' }}>
-                          {card.icone}
+                        <span className="cfg-kpi-preview-card__icon" style={{ color: card.cor }}>
+                          {ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />}
                         </span>
                         <div className="cfg-kpi-preview-card__line" style={{ background: card.cor }} />
                         <p className="cfg-kpi-preview-card__label">{card.nome}</p>
@@ -2435,39 +2519,14 @@ export default function Configuracoes() {
               </div>
 
               <div className="cfg-cards-lista">
-                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).map(def => {
-                  const visual = CARD_VISUAL[def.id]
-                  return (
-                    <div key={def.id} className="cfg-card-row cfg-card-row--disponivel">
-                      <span className="cfg-drag-handle cfg-drag-handle--ghost">
-                        <DotsSixVertical size={16} weight="bold" />
-                      </span>
-                      <div className="cfg-card-row__info">
-                        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-                          {visual.icone}
-                        </span>
-                        <div>
-                          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-                          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
-                        </div>
-                      </div>
-                      <span className={`cfg-origem-badge ${def.origem === 'Pedido' ? 'cfg-origem-badge--pedido' : 'cfg-origem-badge--item'}`}>
-                        {t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}
-                      </span>
-                      <span className="cfg-agg-badge">{t(`pedido.config.cards.agg_${def.tipoAgg.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`)}</span>
-                      <TooltipGlobal descricao="Adicionar aos meus cards">
-                        <button
-                          type="button"
-                          className="cfg-add-btn"
-                          onClick={() => adicionar(def.id)}
-                          aria-label="Adicionar card"
-                        >
-                          <Plus size={13} weight="bold" />
-                        </button>
-                      </TooltipGlobal>
-                    </div>
-                  )
-                })}
+                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).map(def => (
+                  <CardDisponivel
+                    key={def.id}
+                    def={def}
+                    onAdicionar={() => adicionar(def.id)}
+                    periodoAtivo={periodoAtivo}
+                  />
+                ))}
                 {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).length === 0 && (
                   <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
                     Todos os cards disponíveis já foram adicionados
@@ -2497,7 +2556,7 @@ export default function Configuracoes() {
                           </span>
                           <div className="cfg-card-row__info">
                             <span className="cfg-card-row__icone" style={{ color: card.cor }}>
-                              <span style={{ fontSize: '16px' }}>{card.icone}</span>
+                              {ICONE_CUSTOM_MAP[card.icone] ?? <Package size={16} weight="duotone" />}
                             </span>
                             <div>
                               <p className="cfg-card-row__nome">{card.nome}</p>

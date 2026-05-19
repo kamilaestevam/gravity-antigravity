@@ -306,11 +306,80 @@ Retorna campos com nomes DDD em Português:
 
 ```bash
 DATABASE_URL=postgresql://...
-CLERK_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # Diferente entre Development e Production
+VITE_CLERK_PUBLISHABLE_KEY=pk_...   # Build arg — embutida no Vite em build time
 # Provedor de pagamento: definido pelo dono — Stripe NÃO é mais dependência
 CHAVE_INTERNA_SERVICO=...
-PORT=3000
+PORT=8080                           # Railway define automaticamente; local usa 8005
 ```
+
+---
+
+## Clerk — Instâncias Development vs Production
+
+O Clerk possui **duas instâncias completamente separadas**:
+
+| Instância | Domínio | Uso |
+|:---|:---|:---|
+| **Development** | `*.clerk.accounts.dev` | Apenas localhost (`http://localhost:*`) |
+| **Production** | `clerk.usegravity.com.br` / `accounts.usegravity.com.br` | Domínio público `usegravity.com.br` |
+
+**Chaves são diferentes entre instâncias.** `CLERK_SECRET_KEY` e `VITE_CLERK_PUBLISHABLE_KEY` de Development NÃO funcionam em Production e vice-versa.
+
+### Google OAuth (Production)
+
+- Configurado no Google Cloud Console (projeto: journey-google-meeting)
+- Redirect URI: `https://clerk.usegravity.com.br/v1/oauth_callback`
+- Client ID e Client Secret configurados no Clerk Dashboard → SSO connections
+
+### DNS do Clerk (Production)
+
+5 registros CNAME obrigatórios no DNS (atualmente no Cloudflare):
+- `accounts.usegravity.com.br` → `accounts.clerk.services`
+- `clerk.usegravity.com.br` → `frontend-api.clerk.services`
+- `clkmail.usegravity.com.br` → `mail.qop3hdfnkx4f.clerk.services`
+- `clk._domainkey.usegravity.com.br` → `dkim1.qop3hdfnkx4f.clerk.services`
+- `clk2._domainkey.usegravity.com.br` → `dkim2.qop3hdfnkx4f.clerk.services`
+
+---
+
+## CSP (Content Security Policy) — Helmet
+
+O Configurador serve o frontend SPA e precisa de CSP configurada para permitir Clerk, Cloudflare CAPTCHA e Google Fonts.
+
+```typescript
+// servicos-global/configurador/server/index.ts
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
+      connectSrc: ["'self'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://*.clerk.com", "https://challenges.cloudflare.com", "ws://localhost:*"],
+      frameSrc: ["'self'",
+        "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br",
+        "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
+```
+
+> **`scriptSrcElem` obrigatório:** sem ele, o browser usa `script-src` como fallback e pode bloquear scripts do Clerk injetados via `<script>`.
+> **`challenges.cloudflare.com` obrigatório:** o Clerk usa Cloudflare Turnstile CAPTCHA em produção.
+> **`workerSrc: blob:` obrigatório:** Clerk cria web workers via blob URLs.
 
 ---
 

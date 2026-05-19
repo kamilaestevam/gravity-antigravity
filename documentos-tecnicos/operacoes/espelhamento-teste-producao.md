@@ -118,7 +118,7 @@ shred -u /tmp/prod-snapshot.sql
 
 ## Setup recorrente recomendado para Gravity hoje
 
-Como vocês ainda não têm produção e o teste foi configurado nesta sessão, aqui o caminho mais sensato:
+O ambiente de produção foi configurado em 2026-05-18 com os bancos e serviços listados abaixo:
 
 ### Passo 1 — Criar bancos production no Railway
 

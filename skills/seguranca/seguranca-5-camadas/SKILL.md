@@ -24,7 +24,9 @@ Request → [1. Rede] → [2. Autenticação] → [3. Autorização] → [4. Iso
 | Comunicação interna via rede Railway | `*.railway.internal:PORT` |
 | Sem exposição pública de serviços | Apenas marketplace e gateway são públicos |
 | `x-chave-interna` em toda chamada S2S | Header obrigatório — **PRIORIDADE P1** |
-| HTTPS obrigatório | Railway provê TLS automático |
+| HTTPS obrigatório | Railway provê TLS automático; Cloudflare DNS com SSL Full mode |
+| CSP (Content Security Policy) | Helmet com whitelist por serviço — Clerk, Cloudflare Turnstile, Google Fonts |
+| DNS via Cloudflare | Nameservers delegados do Registro.br → Cloudflare (CNAME flattening para domínio raiz) |
 
 ### x-chave-interna — Prioridade P1
 

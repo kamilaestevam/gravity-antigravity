@@ -13,17 +13,76 @@ Nenhuma operação de deploy é feita sem seguir este documento. Nenhuma migrati
 
 ## Topologia de Serviços no Railway
 
-**Railway Project: Gravity**
+**Railway Project: Gravity Platform**
 
-| Serviço | Porta | Banco |
+### Ambientes no Railway
+
+| Ambiente | Serviços | Bancos |
 |:---|:---|:---|
-| `configurador` | 3000 | configurador-db |
-| `organizacao-services` | 3001 | organizacao-db (banco compartilhado dos serviços por organizacao) |
-| `simulador-comex` | 3002 | simulador-comex-db |
-| `nf-importacao` | 3003 | nf-importacao-db |
-| `marketplace` | 3004 | — (estático ou SSR) |
+| **production** | site-usegravity, gravity-cadastros-prod, gravity-configurador-prod, gravity-servicos-prod, gravity-pedido-producao | 5 PostgreSQL volumes |
+| **teste** | gravity-cadastros-teste, gravity-configurador-teste, gravity-servicos-teste, gravity-pedido-teste | 4 PostgreSQL volumes |
 
-> **Regra:** cada produto tem seu próprio serviço e banco no Railway. Nenhum produto compartilha banco com outro produto.
+### Serviço Principal (Frontend + Backend unificado)
+
+| Serviço | Porta | Domínio | Build |
+|:---|:---|:---|:---|
+| `site-usegravity` | 8080 | `www.usegravity.com.br` | Dockerfile (Vite build + tsx loader) |
+
+> O `site-usegravity` serve o frontend Vite (SPA) e o backend Express do Configurador em um único container. O build usa `scripts/build-site.sh` (Custom Build Command) ou o `Dockerfile` na raiz.
+
+### Bancos de Dados
+
+| Banco | Serviço Railway | Schema Prisma |
+|:---|:---|:---|
+| Configurador | `gravity-configurador-prod` | `configurador/prisma/schema.prisma` |
+| Serviços Plataforma | `gravity-servicos-prod` | `servicos-global/servicos-plataforma/prisma/schema.prisma` |
+| Cadastros | `gravity-cadastros-prod` | `servicos-global/cadastros/prisma/schema.prisma` |
+| Pedido | `gravity-pedido-producao` | produto-específico |
+
+> **Regra:** cada produto/serviço tem seu próprio banco no Railway. Nenhum produto compartilha banco com outro.
+
+---
+
+## Domínio e DNS
+
+### Domínio Público
+
+**Domínio principal:** `www.usegravity.com.br`
+**Domínio raiz:** `usegravity.com.br` (redireciona para www)
+
+### Provedor DNS: Cloudflare (Free)
+
+O DNS do domínio `usegravity.com.br` é gerenciado pelo **Cloudflare** (não mais pelo Registro.br diretamente). O Registro.br aponta os nameservers para o Cloudflare.
+
+**Nameservers no Registro.br:**
+- `andy.ns.cloudflare.com`
+- `jen.ns.cloudflare.com`
+
+**Registros DNS no Cloudflare:**
+
+| Tipo | Nome | Valor | Proxy |
+|:---|:---|:---|:---|
+| CNAME | `@` | `1n4xz192.up.railway.app` | DNS only |
+| CNAME | `www` | `45cutyak.up.railway.app` | DNS only |
+| TXT | `_railway-verify` | `railway-verify=fd2f856a...` | — |
+| TXT | `_railway-verify.www` | `railway-verify=a0559586...` | — |
+| CNAME | `accounts` | `accounts.clerk.services` | DNS only |
+| CNAME | `clerk` | `frontend-api.clerk.services` | DNS only |
+| CNAME | `clkmail` | `mail.qop3hdfnkx4f.clerk.services` | DNS only |
+| CNAME | `clk._domainkey` | `dkim1.qop3hdfnkx4f.clerk.services` | DNS only |
+| CNAME | `clk2._domainkey` | `dkim2.qop3hdfnkx4f.clerk.services` | DNS only |
+
+**Configuração SSL/TLS no Cloudflare:** `Full` (não Full Strict, não Flexible). Railway já possui SSL próprio.
+
+> **Por que Cloudflare:** O Registro.br não suporta CNAME no domínio raiz (`@`). O Cloudflare suporta via CNAME flattening, permitindo que tanto `usegravity.com.br` quanto `www.usegravity.com.br` apontem para o Railway com SSL.
+
+### Subdomínios do Clerk (Produção)
+
+O Clerk Production usa subdomínios próprios sob `usegravity.com.br`:
+- `accounts.usegravity.com.br` — tela de login/signup
+- `clerk.usegravity.com.br` — Frontend API do Clerk
+
+> **Importante:** o Clerk tem duas instâncias separadas — **Development** (funciona apenas em localhost) e **Production** (funciona com o domínio `usegravity.com.br`). As chaves (`CLERK_SECRET_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`) são diferentes entre ambientes.
 
 ---
 
@@ -144,6 +203,24 @@ O `bootstrap-seed.ts` cria:
 - Um `clerk_user_id` placeholder — o `requireAuth` auto-vincula ao ID real do Clerk no primeiro login, via fallback de email (1 candidato único = link seguro)
 
 O script é **idempotente**: pode ser executado múltiplas vezes sem duplicar dados.
+
+> **ATENÇÃO — formato do `id_usuario`:** O Prisma gera IDs em formato **CUID** (ex: `codlrdaha85z7ymwknqi1zq6`). O hook `useCarregarTipoUsuario` no frontend valida com `z.string().cuid()`. Se o `id_usuario` for UUID (ex: `f7e2b963-3ae6-...`), o Zod rejeita e o `tipo_usuario` fica `null` — resultando em badge "STANDARD" em vez do tipo real. **Nunca use `gen_random_uuid()` para inserir registros manualmente** — use CUIDs gerados pelo Prisma ou via o script `bootstrap-seed.ts`.
+
+### Bootstrap via SQL (alternativa para Railway Console)
+
+Se o `bootstrap-seed.ts` não puder ser executado (ex: Railway não tem CLI configurada), o bootstrap pode ser feito via SQL direto no Railway Database Console. **Atenção:** usar CUIDs, não UUIDs.
+
+```sql
+-- 1. Criar organização Gravity
+INSERT INTO organizacao (id_organizacao, nome_organizacao, subdominio_organizacao, status_organizacao, hospeda_colaboradores_gravity, created_at, updated_at)
+VALUES ('cuid_gerado_aqui', 'Gravity', 'gravity.usegravity.com.br', 'ATIVA', true, NOW(), NOW());
+
+-- 2. Criar usuário SUPER_ADMIN (id_clerk_usuario placeholder — será auto-vinculado no primeiro login)
+INSERT INTO usuario (id_usuario, nome_usuario, email_usuario, tipo_usuario, gravity_admin, status_usuario, id_organizacao, id_clerk_usuario, created_at, updated_at)
+VALUES ('cuid_gerado_aqui', 'Daniel', 'dmmltda@gmail.com', 'SUPER_ADMIN', true, 'ATIVO', '<id_organizacao_acima>', 'bootstrap_placeholder', NOW(), NOW());
+```
+
+> **Fluxo pós-bootstrap:** No primeiro login, o `requireAuth` middleware não encontra o `bootstrap_placeholder` como `id_clerk_usuario`, então faz fallback por email. Encontra 1 candidato → auto-vincula com o `user_*` real do Clerk.
 
 ### Comportamento esperado antes do bootstrap
 

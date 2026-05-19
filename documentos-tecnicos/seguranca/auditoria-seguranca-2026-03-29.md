@@ -432,10 +432,14 @@ Validacao de startup adicionada em 3 servicos:
 
 ## 8. Correcoes aplicadas na Fase 3 (Pendentes finais + Admin)
 
-### 8.1. CSP via Helmet (CONCLUIDO)
+### 8.1. CSP via Helmet (CONCLUIDO — atualizado 2026-05-18)
 
 Content Security Policy configurada nos 4 servicos que servem frontend:
-- **Configurador**: CSP com whitelist para Clerk, Stripe, Google Fonts
+- **Configurador**: CSP com whitelist para Clerk (Development + Production), Cloudflare Turnstile CAPTCHA, Google Fonts
+  - Diretiva `scriptSrcElem` adicionada (obrigatoria — sem ela, browser faz fallback para `script-src` e bloqueia scripts do Clerk)
+  - `challenges.cloudflare.com` adicionado em script/connect/frame (Clerk usa Turnstile CAPTCHA em producao)
+  - `workerSrc: blob:` adicionado (Clerk cria web workers via blob URLs)
+  - Dominio `clerk.usegravity.com.br` e `accounts.usegravity.com.br` adicionados para Clerk Production
 - **BidFrete, Processo, SimulaCusto**: CSP padrao para SPAs Vite
 - Servicos S2S mantidos com helmet() default (nao servem HTML)
 

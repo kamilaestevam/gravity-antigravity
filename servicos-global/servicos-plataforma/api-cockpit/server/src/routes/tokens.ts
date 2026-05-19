@@ -146,6 +146,9 @@ tokensRouter.post('/', async (req: Request, res: Response, next: NextFunction) =
     // Retorna o valor em claro UMA UNICA vez (Mandamento Cripto: nao persistimos em claro).
     res.status(201).json({
       id_api_token:                        criado.id_api_token,
+      id_organizacao:                      criado.id_organizacao,
+      id_produto_gravity:                  criado.id_produto_gravity,
+      id_usuario:                          criado.id_usuario,
       nome_api_token:                      criado.nome_api_token,
       prefixo_api_token:                   criado.prefixo_api_token,
       valor_api_token,                                     // <- SOMENTE NESTE PAYLOAD

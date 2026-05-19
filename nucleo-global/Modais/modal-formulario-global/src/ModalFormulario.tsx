@@ -20,6 +20,7 @@ export interface ModalFormularioProps {
   children: React.ReactNode
   textoSalvar?: string
   textoCancelar?: string
+  carregando?: boolean
   /** Conteúdo customizado no lado esquerdo do footer (ex: "Voltar para Pedidos") */
   rodapeEsquerdo?: React.ReactNode
 }
@@ -39,6 +40,7 @@ export function ModalFormulario({
   children,
   textoSalvar,
   textoCancelar,
+  carregando = false,
   rodapeEsquerdo
 }: ModalFormularioProps) {
   const { t } = useTranslation()
@@ -72,6 +74,9 @@ export function ModalFormulario({
               min-height: 0 !important;
               background: transparent !important;
               position: static !important;
+            }
+            .ws-modal-cabecalho .cg-header__title-block {
+              gap: 0.375rem !important;
             }
           `}} />
           <CabecalhoGlobal
@@ -109,6 +114,7 @@ export function ModalFormulario({
             />
             <BotaoSalvar
               dirty={podesSalvar && dirty}
+              carregando={carregando}
               rotulo={resolvedTextoSalvar}
               onClick={aoSalvar}
             />

@@ -406,7 +406,7 @@ export function ApiTokensAdmin() {
         subtitulo="Este é o ÚNICO momento em que você verá o valor em claro. Copie e guarde em local seguro."
         tamanho="md"
         altura="auto"
-        dirty={false}
+        dirty
         podesSalvar
         textoSalvar="Já copiei, fechar"
         textoCancelar=""
@@ -437,13 +437,30 @@ export function ApiTokensAdmin() {
                 Copiar
               </BotaoGlobal>
             </div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              <strong>Nome:</strong> {tokenCriado.nome_api_token}<br />
-              <strong>Escopo:</strong> {tokenCriado.escopo_api_token}<br />
-              <strong>Validade:</strong> {tokenCriado.validade_api_token}
-              {tokenCriado.data_expiracao_api_token && (
-                <> (até {new Date(tokenCriado.data_expiracao_api_token).toLocaleDateString('pt-BR')})</>
-              )}
+            <div style={{
+              display: 'flex', gap: '0.5rem',
+              fontSize: '0.8125rem',
+            }}>
+              <span style={{
+                padding: '0.25rem 0.625rem', borderRadius: '6px',
+                background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
+                color: 'var(--brand-primary, #818cf8)',
+              }}>{tokenCriado.nome_api_token}</span>
+              <span style={{
+                padding: '0.25rem 0.625rem', borderRadius: '6px',
+                background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)',
+                color: '#34d399',
+              }}>{tokenCriado.escopo_api_token}</span>
+              <span style={{
+                padding: '0.25rem 0.625rem', borderRadius: '6px',
+                background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.2)',
+                color: 'var(--text-secondary)',
+              }}>
+                {tokenCriado.validade_api_token === 'NUNCA' ? 'Sem expiração' : tokenCriado.validade_api_token.replace('DIAS_', '') + ' dias'}
+                {tokenCriado.data_expiracao_api_token && (
+                  <> (até {new Date(tokenCriado.data_expiracao_api_token).toLocaleDateString('pt-BR')})</>
+                )}
+              </span>
             </div>
           </div>
         )}

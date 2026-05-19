@@ -545,7 +545,7 @@ export function SegurancaAdmin() {
               </button>
             </TooltipGlobal>
           ))}
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', marginTop: '-26px' }}>
             <BotaoGlobal
               variante="primario"
               onClick={() => { setLoading(true); void loadData() }}

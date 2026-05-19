@@ -20,7 +20,13 @@ cd servicos-global/configurador
 npx vite build
 cd ../..
 
-# 4. Create tsx loader for the server
+# 4. Fix Vite nested index.html
+# When root=monorepoRoot, Vite preserves the input path structure in outDir.
+# Move index.html from nested path to dist root where Express expects it.
+mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html
+rm -rf servicos-global/configurador/dist/servicos-global
+
+# 5. Create tsx loader for the server
 bash scripts/build-esm.sh servicos-global/configurador/server/index.ts servicos-global/configurador/dist/server.mjs
 
 echo "[build-site] Build pipeline complete!"

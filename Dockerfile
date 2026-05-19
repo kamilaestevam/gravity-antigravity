@@ -19,6 +19,10 @@ RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 # Build Vite frontend
 RUN cd servicos-global/configurador && npx vite build && cd ../..
 
+# Fix Vite nested index.html (root=monorepoRoot preserves input path structure)
+RUN mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html \
+    && rm -rf servicos-global/configurador/dist/servicos-global
+
 # Create tsx loader
 RUN bash scripts/build-esm.sh servicos-global/configurador/server/index.ts servicos-global/configurador/dist/server.mjs
 

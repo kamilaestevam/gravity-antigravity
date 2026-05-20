@@ -1776,7 +1776,7 @@ body.light-theme .sw-topbar {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg-base, #0f1729);
+  background: #0f172a;
   z-index: 50;
   color: var(--sw-text-3);
   gap: 12px;

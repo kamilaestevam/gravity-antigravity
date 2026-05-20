@@ -707,7 +707,7 @@ body.light-theme .hb-topbar {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background: var(--bg-base, #0f1729);
+  background: #0f172a;
   z-index: 50;
   color: var(--hb-muted);
   font-size: 0.875rem;

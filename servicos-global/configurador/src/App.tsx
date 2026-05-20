@@ -127,7 +127,7 @@ function GuardaRotaPedido() {
 }
 
 const ProductLoading = () => (
-  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-base, #0f1729)', zIndex: 50 }}>
+  <div style={{ position: 'fixed', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0f172a', zIndex: 50 }}>
     <GravityLoader texto="Carregando" tamanho="lg" />
   </div>
 )
@@ -173,7 +173,7 @@ function RootRedirect() {
   // Se Clerk não carregou após timeout (ex: cookies bloqueados em anônima), mostra login direto
   if (!isLoaded && !clerkTimeout) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
         <GravityLoader texto="Carregando" tamanho="lg" />
       </div>
     )
@@ -192,7 +192,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
         <GravityLoader texto="Carregando" tamanho="lg" />
       </div>
     )
@@ -211,7 +211,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   // Enquanto Clerk não carregou, mostra loader (evita flash branco)
   if (!isLoaded) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
       <GravityLoader tamanho="lg" />
     </div>
   )
@@ -229,13 +229,13 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const { pronto: isReady, gravityAdmin: isGravityAdmin } = useCarregarTipoUsuario()
 
   if (!isLoaded) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
       <GravityLoader tamanho="lg" />
     </div>
   )
   if (!isSignedIn) return <Navigate to="/login" replace />
   if (!isReady) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0f172a' }}>
       <GravityLoader texto="Carregando" tamanho="lg" />
     </div>
   )

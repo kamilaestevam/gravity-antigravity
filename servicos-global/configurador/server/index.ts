@@ -62,6 +62,21 @@ const PORT = Number(process.env.PORT ?? 8005)
 // Audit log forense (admin-empresas, etc.) depende disso.
 app.set('trust proxy', true)
 
+// ─── Canonical domain redirect ─────────────────────────────────────────────
+// Força HTTPS e redireciona www → domínio canônico (usegravity.com.br)
+if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+  app.use((req, res, next) => {
+    const host = req.hostname
+    const proto = req.headers['x-forwarded-proto'] ?? req.protocol
+    if (proto === 'http' || host.startsWith('www.')) {
+      const canonical = `https://usegravity.com.br${req.originalUrl}`
+      res.redirect(301, canonical)
+      return
+    }
+    next()
+  })
+}
+
 // ─── Middlewares globais ────────────────────────────────────────────────────
 
 app.use(helmet({

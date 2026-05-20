@@ -457,7 +457,7 @@ export function SegurancaAdmin() {
             return (
               <TooltipGlobal titulo="Status Geral" descricao="Saúde agregada de todos os serviços da plataforma Gravity">
               <div style={{
-                flex: '0 0 200px', width: 200, padding: '1rem', borderRadius: 12,
+                minWidth: 200, padding: '1rem', borderRadius: 12,
                 background: 'var(--ws-surface, #1e293b)', display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: '0.5rem',
               }}>
@@ -501,7 +501,7 @@ export function SegurancaAdmin() {
               titulo={t('admin.seguranca-admin.criticos_24h')}
               valor={loading ? '—' : String(stats.criticalCount)}
               icone={<Warning weight="fill" size={20} />}
-              cor={stats.criticalCount > 0 ? '#f87171' : '#10b981'}
+              variante={stats.criticalCount > 0 ? 'perigo' : 'sucesso'}
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Alertas (24h)" descricao="Eventos de severidade WARNING nas últimas 24 horas">
@@ -509,7 +509,7 @@ export function SegurancaAdmin() {
               titulo={t('admin.seguranca-admin.alertas_24h')}
               valor={loading ? '—' : String(stats.warningCount)}
               icone={<ShieldWarning weight="fill" size={20} />}
-              cor={stats.warningCount > 0 ? '#fbbf24' : '#10b981'}
+              variante={stats.warningCount > 0 ? 'aviso' : 'sucesso'}
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Bloqueados (24h)" descricao="Requisições bloqueadas por rate limiting nas últimas 24h">
@@ -517,7 +517,7 @@ export function SegurancaAdmin() {
               titulo={t('admin.seguranca-admin.bloqueados_24h')}
               valor={loading ? '—' : String(stats.blockedCount)}
               icone={<Lock weight="fill" size={20} />}
-              cor="#818cf8"
+              variante="primario"
             />
           </TooltipGlobal>
           <TooltipGlobal titulo="Total Auditado" descricao="Quantidade total de registros no audit trail do sistema">
@@ -898,8 +898,6 @@ export function SegurancaAdmin() {
           {(() => {
             const chavesComPolitica = secrets.filter(s => s.politica_dias > 0)
             if (chavesComPolitica.length === 0) return null
-            const corPorStatus = (st: string) =>
-              st === 'ATUALIZADA' ? '#34d399' : st === 'EXPIRANDO' ? '#fbbf24' : st === 'EXPIRADA' ? '#f87171' : '#94a3b8'
             const valorCard = (s: SecretEntry) => {
               if (s.status_rotacao === 'DESCONHECIDO') return `Política: ${s.politica_dias}d`
               if (s.status_rotacao === 'EXPIRADA') return `Expirada`
@@ -914,7 +912,7 @@ export function SegurancaAdmin() {
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   {chavesComPolitica.map(s => (
                     <TooltipGlobal key={s.name} titulo={s.name} descricao={`${s.descricao}. Política: ${s.politica_dias} dias${s.proxima_rotacao ? `. Próxima: ${new Date(s.proxima_rotacao).toLocaleDateString('pt-BR')}` : ''}`}>
-                      <CardEstatisticaGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} cor={corPorStatus(s.status_rotacao)} />
+                      <CardEstatisticaGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} variante={s.status_rotacao === 'EXPIRADA' ? 'perigo' : s.status_rotacao === 'EXPIRANDO' ? 'aviso' : 'sucesso'} />
                     </TooltipGlobal>
                   ))}
                 </div>

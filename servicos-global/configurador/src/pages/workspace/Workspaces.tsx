@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { Buildings, TreeStructure, CheckCircle, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
@@ -448,20 +448,17 @@ export function Workspaces() {
           />
         </>
       }
-      acoes={
-        podeMutar ? (
-          <TooltipGlobal descricao={showForm && !workspaceEditando ? "Cancelar criação" : "Cadastrar um novo workspace na organização"}>
-            <BotaoGlobal
-              variante={showForm && !workspaceEditando ? 'fantasma' : 'primario'}
-              icone={showForm && !workspaceEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
-              onClick={() => { setWorkspaceEditando(null); setShowForm(true); }}
-            >
-              {showForm && !workspaceEditando ? t('workspace.workspaces.cancelar') : t('workspace.workspaces.novo_workspace')}
-            </BotaoGlobal>
-          </TooltipGlobal>
-        ) : null
-      }
     >
+      {podeMutar && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <BotaoNovoAdminGlobal
+            rotulo={t('workspace.workspaces.novo_workspace')}
+            onClick={() => { setWorkspaceEditando(null); setShowForm(true); }}
+            ativo={showForm && !workspaceEditando}
+          />
+        </div>
+      )}
+
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<Workspace>
           id="workspace-list"

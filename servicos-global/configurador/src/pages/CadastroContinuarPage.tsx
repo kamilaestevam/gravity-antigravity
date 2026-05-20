@@ -25,20 +25,22 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { BannerRequisitosGlobal, type RequisitoSalvar } from '@nucleo/banner-requisitos-global'
+import '@nucleo/login-global/src/login-global.css'
 import './auth.css'
 
 // ─── Helpers de validação ────────────────────────────────────────────────────
+interface RequisitoSenha { chave: string; ok: boolean; mensagem: string }
+
 function avaliarSenha(senha: string): {
   forca: 0 | 1 | 2 | 3 | 4
-  requisitos: RequisitoSalvar[]
+  requisitos: RequisitoSenha[]
 } {
   const tem8 = senha.length >= 8
   const temMaiuscula = /[A-Z]/.test(senha)
   const temMinuscula = /[a-z]/.test(senha)
   const temNumero = /\d/.test(senha)
   const temEspecial = /[^A-Za-z0-9]/.test(senha)
-  const requisitos: RequisitoSalvar[] = [
+  const requisitos: RequisitoSenha[] = [
     { chave: 'min8',        ok: tem8,           mensagem: 'No mínimo 8 caracteres' },
     { chave: 'maiuscula',   ok: temMaiuscula,   mensagem: 'Pelo menos 1 letra maiúscula' },
     { chave: 'minuscula',   ok: temMinuscula,   mensagem: 'Pelo menos 1 letra minúscula' },
@@ -101,9 +103,20 @@ export function CadastroContinuarPage() {
         if (completo) setNome(completo)
       })
       .catch((err) => {
-        const msg = (err as { errors?: Array<{ longMessage?: string; message?: string }> })?.errors?.[0]?.longMessage
-          ?? (err as { errors?: Array<{ message?: string }> })?.errors?.[0]?.message
-          ?? (err instanceof Error ? err.message : 'Convite inválido ou expirado.')
+        const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
+        const codigo = erroClerk?.errors?.[0]?.code
+        const msgOriginal = erroClerk?.errors?.[0]?.longMessage
+          ?? erroClerk?.errors?.[0]?.message
+          ?? (err instanceof Error ? err.message : '')
+
+        let msg: string
+        if (codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')) {
+          msg = 'O convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.'
+        } else if (codigo === 'form_identifier_not_found') {
+          msg = 'Conta não encontrada. Verifique se o link do convite está correto.'
+        } else {
+          msg = msgOriginal || 'Convite inválido ou expirado.'
+        }
         setErro(msg)
       })
   }, [isLoaded, signUp, ticket])
@@ -123,7 +136,7 @@ export function CadastroContinuarPage() {
   const { forca, requisitos: requisitosSenha } = useMemo(() => avaliarSenha(senha), [senha])
   const senhasConferem = senha.length > 0 && senha === confirmacao
 
-  const requisitos: RequisitoSalvar[] = [
+  const requisitos: RequisitoSenha[] = [
     { chave: 'nome', ok: nome.trim().length >= 2, mensagem: 'Nome completo (mínimo 2 caracteres)' },
     ...requisitosSenha,
     { chave: 'confirma', ok: senhasConferem, mensagem: 'A confirmação de senha confere' },
@@ -484,8 +497,17 @@ export function CadastroContinuarPage() {
             </span>
           </label>
 
-          {/* Banner de requisitos */}
-          <BannerRequisitosGlobal requisitos={requisitos} />
+          {/* Checklist de requisitos */}
+          {senha.length > 0 && (
+            <div className="signup-requisitos">
+              {requisitos.map((r) => (
+                <div key={r.chave} className={`signup-requisito ${r.ok ? 'signup-requisito--ok' : 'signup-requisito--pendente'}`}>
+                  {r.ok ? <CheckCircle size={14} weight="fill" /> : <span className="signup-requisito-bullet">○</span>}
+                  <span>{r.mensagem}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Erro */}
           {erro && (

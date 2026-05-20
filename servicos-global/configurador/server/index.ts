@@ -281,11 +281,15 @@ app.use(errorHandler)
 
 if (process.env.NODE_ENV !== 'test') {
   // Sidecar: iniciar Cadastros no mesmo processo (porta 8031 interna).
-  // CADASTROS_SERVICE_URL já aponta para localhost:8031 por padrão.
-  // O import dinâmico executa o bootstrap() do Cadastros automaticamente.
+  // Força PORT=8031 antes do import para evitar conflito com a porta do Configurador
+  // (Railway define PORT para o app principal — Cadastros deve usar porta fixa).
+  const portaOriginal = process.env.PORT
+  process.env.PORT = '8031'
+  process.env.CADASTROS_SIDECAR = '1'
   import('../../cadastros/server/src/index.js')
-    .then(() => console.log('[configurador] Sidecar Cadastros iniciado'))
+    .then(() => console.log('[configurador] Sidecar Cadastros iniciado na porta 8031'))
     .catch((err) => console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err))
+    .finally(() => { process.env.PORT = portaOriginal })
 
   const server = app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)

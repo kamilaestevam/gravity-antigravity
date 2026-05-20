@@ -91,8 +91,8 @@ async function bootstrap(): Promise<void> {
   })
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`[cadastros] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
-      process.exit(1)
+      console.warn(`[cadastros] Porta ${PORT} já em uso — ignorando quando sidecar (não-fatal)`)
+      return
     }
     throw err
   })
@@ -112,7 +112,11 @@ async function bootstrap(): Promise<void> {
 
 bootstrap().catch((err) => {
   console.error('[cadastros] Falha ao iniciar:', err)
-  process.exit(1)
+  if (process.env.CADASTROS_SIDECAR === '1') {
+    console.warn('[cadastros] Rodando como sidecar — falha não-fatal, Configurador continua')
+  } else {
+    process.exit(1)
+  }
 })
 
 export { app }

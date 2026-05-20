@@ -840,7 +840,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/me',
+    endpoint: '/api/v1/internal/gabi/me',
     descricao: 'Perfil completo do usuario: dados, org, workspaces, produtos',
     schema_params: configMeParams,
     gemini_declaration: {
@@ -854,7 +854,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/me/workspaces',
+    endpoint: '/api/v1/internal/gabi/workspaces',
     descricao: 'Workspaces do usuario',
     schema_params: configListarWorkspacesParams,
     gemini_declaration: {
@@ -868,7 +868,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/me/workspaces/:id_workspace',
+    endpoint: '/api/v1/internal/gabi/workspaces/:id_workspace',
     descricao: 'Detalhes de 1 workspace',
     schema_params: configDetalharWorkspaceParams,
     gemini_declaration: {
@@ -888,7 +888,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/usuarios',
+    endpoint: '/api/v1/internal/gabi/usuarios',
     descricao: 'Usuarios da organizacao',
     schema_params: configListarUsuariosParams,
     gemini_declaration: {
@@ -902,7 +902,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/usuarios/:id_usuario',
+    endpoint: '/api/v1/internal/gabi/usuarios/:id_usuario',
     descricao: 'Perfil + vinculos de 1 usuario',
     schema_params: configDetalharUsuarioParams,
     gemini_declaration: {
@@ -922,7 +922,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/organizacoes/me',
+    endpoint: '/api/v1/internal/gabi/organizacao',
     descricao: 'Dados da organizacao atual',
     schema_params: configOrganizacaoParams,
     gemini_declaration: {
@@ -936,7 +936,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/produtos-gravity',
+    endpoint: '/api/v1/internal/gabi/produtos-ativos',
     descricao: 'Catalogo de produtos Gravity',
     schema_params: configProdutosAtivosParams,
     gemini_declaration: {
@@ -950,7 +950,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/organizacoes/me/assinaturas-produto-gravity',
+    endpoint: '/api/v1/internal/gabi/assinaturas',
     descricao: 'Assinaturas ativas da organizacao',
     schema_params: configAssinaturasParams,
     gemini_declaration: {
@@ -964,7 +964,7 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'configurador',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/admin/historico-global/logs',
+    endpoint: '/api/v1/historico-global/logs',
     descricao: 'Historico de auditoria da organizacao',
     schema_params: configHistoricoParams,
     gemini_declaration: {

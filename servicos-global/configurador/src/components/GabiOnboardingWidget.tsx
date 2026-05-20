@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import {
   Sparkle,
   X,
@@ -442,6 +443,7 @@ const DEFAULT_H = 560
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const { t } = useTranslation()
+  const { tipoUsuario, idUsuarioPrisma, idOrganizacao } = useCarregarTipoUsuario()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
@@ -678,6 +680,9 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(idOrganizacao ? { 'x-id-organizacao': idOrganizacao } : {}),
+          ...(idUsuarioPrisma ? { 'x-id-usuario': idUsuarioPrisma } : {}),
+          ...(tipoUsuario ? { 'x-tipo-usuario': tipoUsuario } : {}),
         },
         body: JSON.stringify({ conversationId: 'new', message: msg, page: pathname }),
       })

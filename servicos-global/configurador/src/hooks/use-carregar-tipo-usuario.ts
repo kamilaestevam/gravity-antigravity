@@ -26,6 +26,7 @@ const tipoUsuarioEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FOR
 const meContextoMinimoSchema = z.object({
   usuario: z.object({
     id_usuario: z.string().cuid(),
+    id_organizacao: z.string().cuid(),
     tipo_usuario: tipoUsuarioEnum,
   }),
   organizacao: z.object({
@@ -46,11 +47,17 @@ const cacheHospedaColaboradoresGravity = new Map<string, boolean>()
  * usava `userId` (Clerk) na URL, causando 404 silencioso. Fix 2026-05-13.
  */
 const cacheIdUsuarioPrisma = new Map<string, string>()
+/**
+ * Cache do id_organizacao (CUID Prisma) — chave Clerk userId, valor CUID.
+ * Necessário para o widget GABI enviar x-id-organizacao no header S2S.
+ */
+const cacheIdOrganizacao = new Map<string, string>()
 
 /** Limpa o cache de tipo_usuario — deve ser chamado no logout para evitar vazamento entre sessoes */
 export function limparCacheTipoUsuario(): void {
   cacheTipoUsuario.clear()
   cacheHospedaColaboradoresGravity.clear()
+  cacheIdOrganizacao.clear()
 }
 
 export function useCarregarTipoUsuario() {
@@ -66,6 +73,9 @@ export function useCarregarTipoUsuario() {
   const [idUsuarioPrisma, setIdUsuarioPrisma] = useState<string | null>(() =>
     userId ? (cacheIdUsuarioPrisma.get(userId) ?? null) : null
   )
+  const [idOrganizacao, setIdOrganizacao] = useState<string | null>(() =>
+    userId ? (cacheIdOrganizacao.get(userId) ?? null) : null
+  )
   const [pronto, setPronto] = useState(() =>
     !!(userId && cacheTipoUsuario.has(userId))
   )
@@ -80,6 +90,7 @@ export function useCarregarTipoUsuario() {
       setTipoUsuario(armazenado)
       setHospedaColaboradoresGravity(cacheHospedaColaboradoresGravity.get(userId) ?? false)
       setIdUsuarioPrisma(cacheIdUsuarioPrisma.get(userId) ?? null)
+      setIdOrganizacao(cacheIdOrganizacao.get(userId) ?? null)
       setPronto(true)
       return
     }
@@ -139,12 +150,15 @@ export function useCarregarTipoUsuario() {
             const tipoUsuarioBanco: TipoUsuario = parsed.data.usuario.tipo_usuario
             const flagOrg = parsed.data.organizacao?.hospeda_colaboradores_gravity ?? false
             const idUserPrisma = parsed.data.usuario.id_usuario
+            const idOrgPrisma = parsed.data.usuario.id_organizacao
             cacheTipoUsuario.set(userId, tipoUsuarioBanco)
             cacheHospedaColaboradoresGravity.set(userId, flagOrg)
             cacheIdUsuarioPrisma.set(userId, idUserPrisma)
+            cacheIdOrganizacao.set(userId, idOrgPrisma)
             setTipoUsuario(tipoUsuarioBanco)
             setHospedaColaboradoresGravity(flagOrg)
             setIdUsuarioPrisma(idUserPrisma)
+            setIdOrganizacao(idOrgPrisma)
             setPronto(true)
           })
       })
@@ -170,5 +184,10 @@ export function useCarregarTipoUsuario() {
      * GET /api/v1/usuarios/:id_usuario/permissoes (self-read). Fix 2026-05-13.
      */
     idUsuarioPrisma,
+    /**
+     * id_organizacao (CUID Prisma) da organização do usuário logado.
+     * Necessário para o widget GABI enviar x-id-organizacao no header S2S.
+     */
+    idOrganizacao,
   }
 }

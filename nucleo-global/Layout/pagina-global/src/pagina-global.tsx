@@ -73,9 +73,11 @@ export function PaginaGlobal({
           <div className="pg-stats-area">
             {stats}
           </div>
-          <div className="pg-acoes-area">
-            {acoes}
-          </div>
+          {acoes && (
+            <div className="pg-acoes-area">
+              {acoes}
+            </div>
+          )}
         </div>
       )}
 

@@ -43,6 +43,7 @@ import { negociacaoEspecialRouter } from './routes/negociacao-especial.js'
 import { adminOrganizacaoProdutoGravityRouter } from './routes/admin-organizacao-produto-gravity.js'
 import { companyProductsRouter } from './routes/produto-gravity-workspace.js'
 import { serviceTokenRouter } from './routes/token-servico.js'
+import { gabiInternalRouter } from './routes/gabi-internal.js'
 import { adminProductsRouter } from './routes/admin-produto-gravity.js'
 import { publicCatalogRouter } from './routes/catalogo-publico.js'
 import { hubRouter } from './routes/hub-init.js'
@@ -188,6 +189,7 @@ app.use('/api/v1/internal', accessRouter)
 app.use('/api/v1/internal', serviceTokenRouter)
 app.use('/api/v1/internal/usuarios', workspacesHabilitadosInternalRouter)
 app.use('/api/v1/internal/permissoes', permissoesVerificarInternalRouter)
+app.use('/api/v1/internal/gabi', gabiInternalRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
@@ -278,6 +280,13 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
+  // Sidecar: iniciar Cadastros no mesmo processo (porta 8031 interna).
+  // CADASTROS_SERVICE_URL já aponta para localhost:8031 por padrão.
+  // O import dinâmico executa o bootstrap() do Cadastros automaticamente.
+  import('../../cadastros/server/src/index.js')
+    .then(() => console.log('[configurador] Sidecar Cadastros iniciado'))
+    .catch((err) => console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err))
+
   const server = app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)
 

@@ -124,7 +124,19 @@ export function Onboarding() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        throw new Error(body?.error?.message ?? 'Erro ao criar a organização. Tente novamente ou entre em contato com o suporte.')
+        const codigo = body?.error?.code as string | undefined
+        const mensagemBackend = body?.error?.message as string | undefined
+
+        const mensagensAmigaveis: Record<string, string> = {
+          CADASTROS_INDISPONIVEL: 'Estamos com uma instabilidade temporária. Tente novamente em alguns minutos.',
+          CADASTROS_VALIDACAO: 'Dados da empresa foram rejeitados. Verifique o CNPJ e tente novamente.',
+          CONFLICT: 'Sua conta já possui uma organização. Faça login para acessá-la.',
+          VALIDATION_ERROR: mensagemBackend ?? 'Dados inválidos. Verifique os campos e tente novamente.',
+        }
+
+        const mensagem = (codigo && mensagensAmigaveis[codigo])
+          ?? 'Erro ao criar a organização. Tente novamente ou entre em contato com o suporte.'
+        throw new Error(mensagem)
       }
 
       // Sucesso — redireciona para selecionar workspace (que agora tem 1 company)

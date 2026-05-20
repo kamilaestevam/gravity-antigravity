@@ -884,18 +884,18 @@ export const adminDeploysApi = {
     if (params?.from_date) query.set('from_date', params.from_date)
     if (params?.to_date) query.set('to_date', params.to_date)
     const qs = query.toString()
-    return request<ListDeploysResponseApi>(`/v1/admin/deploy${qs ? `?${qs}` : ''}`)
+    return request<ListDeploysResponseApi>(`/v1/admin/registros-deploy${qs ? `?${qs}` : ''}`)
   },
 
   async create(data: CreateDeployRequest) {
-    return request<{ deploy: DeployApi }>('/v1/admin/deploy', {
+    return request<{ deploy: DeployApi }>('/v1/admin/registros-deploy', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async delete(id: string) {
-    return request<{ deleted: boolean; id: string }>(`/v1/admin/deploy/${id}`, {
+    return request<{ deleted: boolean; id: string }>(`/v1/admin/registros-deploy/${id}`, {
       method: 'DELETE',
     })
   },

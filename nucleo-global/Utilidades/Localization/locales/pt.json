@@ -1311,7 +1311,24 @@
         "removido": "Removido",
         "falhado": "Falhado"
       },
-      "nao_existia": "— não existia"
+      "nao_existia": "— não existia",
+      "btn_registrar": "Registrar Deploy",
+      "stats": {
+        "total": "Total de Deploys",
+        "ultimo": "Último Deploy",
+        "areas": "Áreas Impactadas",
+        "taxa_sucesso": "Taxa de Sucesso"
+      },
+      "secao_historico": "Histórico de Deploys",
+      "carregando": "Carregando...",
+      "msg_erro_carregar": "Falha ao carregar histórico de deploys.",
+      "msg_registrado": "Deploy {{version}} registrado",
+      "msg_excluido": "Deploy {{version}} removido",
+      "msg_erro_excluir": "Falha ao excluir deploy",
+      "modal_titulo": "Registrar Deploy",
+      "modal_subtitulo": "Adicione uma entrada ao histórico de deploys do Gravity",
+      "modal_validacao": "Preencha área, versão e descrição",
+      "modal_falha_salvar": "Falha ao registrar deploy"
     },
     "tenant_detail": {
       "audit": {

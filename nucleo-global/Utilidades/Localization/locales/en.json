@@ -1292,7 +1292,24 @@
         "removido": "Removed",
         "falhado": "Failed"
       },
-      "nao_existia": "— did not exist"
+      "nao_existia": "— did not exist",
+      "btn_registrar": "Register Deploy",
+      "stats": {
+        "total": "Total Deploys",
+        "ultimo": "Last Deploy",
+        "areas": "Areas Impacted",
+        "taxa_sucesso": "Success Rate"
+      },
+      "secao_historico": "Deploy History",
+      "carregando": "Loading...",
+      "msg_erro_carregar": "Failed to load deploy history.",
+      "msg_registrado": "Deploy {{version}} registered",
+      "msg_excluido": "Deploy {{version}} removed",
+      "msg_erro_excluir": "Failed to delete deploy",
+      "modal_titulo": "Register Deploy",
+      "modal_subtitulo": "Add an entry to the Gravity deploy history",
+      "modal_validacao": "Fill in area, version and description",
+      "modal_falha_salvar": "Failed to register deploy"
     },
     "tenant_detail": {
       "audit": {

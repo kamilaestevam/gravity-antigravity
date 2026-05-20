@@ -2,9 +2,11 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CloudArrowUp, User, GitCommit, CheckCircle, XCircle,
-  ArrowUUpLeft, Clock, Plus, Trash, Buildings,
+  ArrowUUpLeft, Clock, Trash, Buildings, Rocket,
+  CalendarBlank, Stack, ChartPieSlice,
 } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
+import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -271,23 +273,6 @@ export function DeployAdmin() {
 
   const COLUNAS = useMemo<TabelaGlobalColuna<DeployApi>[]>(() => [
     {
-      key: 'deploy_number',
-      label: '#',
-      tipo: 'texto',
-      align: 'center',
-      tooltipTitulo: 'Número Sequencial',
-      tooltipDescricao: 'Identificador legível atribuído automaticamente a cada deploy.',
-      render: (v) => (
-        <code style={{
-          fontSize: '0.75rem', color: '#818cf8',
-          background: 'rgba(129,140,248,0.08)',
-          padding: '0.125rem 0.4rem', borderRadius: '4px',
-        }}>
-          #{String(v).padStart(4, '0')}
-        </code>
-      ),
-    },
-    {
       key: 'deployed_at',
       label: t('admin.deploy.tabela.quando') ?? 'Quando',
       tipo: 'periodo',
@@ -437,114 +422,169 @@ export function DeployAdmin() {
     [],
   )
 
+  // ─── Stats cards ──────────────────────────────────────────────────────────
+
+  const stats = useMemo(() => {
+    if (carregando) return null
+
+    const total = totalDeploys
+    const sucesso = deploys.filter(d => d.status === 'SUCESSO').length
+    const falhou = deploys.filter(d => d.status === 'FALHOU').length
+    const revertido = deploys.filter(d => d.status === 'REVERTIDO').length
+    const emAndamento = deploys.filter(d => d.status === 'EM_ANDAMENTO').length
+    const areasUnicas = new Set(deploys.map(d => d.area)).size
+
+    // Último deploy
+    const sorted = [...deploys].sort((a, b) =>
+      new Date(b.deployed_at).getTime() - new Date(a.deployed_at).getTime(),
+    )
+    const ultimoDeploy = sorted[0]
+
+    // Tempo desde último deploy
+    let tempoUltimo = '—'
+    if (ultimoDeploy) {
+      const diff = Date.now() - new Date(ultimoDeploy.deployed_at).getTime()
+      const mins = Math.floor(diff / 60000)
+      const hrs = Math.floor(mins / 60)
+      const dias = Math.floor(hrs / 24)
+      if (dias > 0) tempoUltimo = `há ${dias}d`
+      else if (hrs > 0) tempoUltimo = `há ${hrs}h`
+      else tempoUltimo = `há ${mins}min`
+    }
+
+    // Deploys em produção
+    const producao = deploys.filter(d => d.environment === 'PRODUCAO' || d.environment === 'TODOS').length
+
+    return {
+      total,
+      sucesso,
+      falhou,
+      revertido,
+      emAndamento,
+      areasUnicas,
+      tempoUltimo,
+      producao,
+      totalVisivel: deploys.length,
+    }
+  }, [deploys, totalDeploys])
+
   return (
-    <>
-      <PaginaGlobal
-        className="ws-fade-up"
-        layout="lista"
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<CloudArrowUp weight="duotone" size={22} color="#818cf8" />}
-            titulo={t('admin.deploy.titulo') ?? 'Deploy Railway'}
-            subtitulo={t('admin.deploy.subtitulo') ?? 'Histórico de versões, status de implantação e controle de CI/CD em todos os ambientes'}
-            acoes={
-              <BotaoGlobal
-                icone={<Plus weight="bold" />}
-                variante="primario"
-                onClick={abrirModal}
-              >
-                {t('admin.deploy.btn_registrar') ?? 'Registrar Deploy'}
-              </BotaoGlobal>
-            }
-          />
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<CloudArrowUp weight="duotone" size={22} color="#818cf8" />}
+          titulo={t('admin.deploy.titulo') ?? 'Deploy Railway'}
+          subtitulo={t('admin.deploy.subtitulo') ?? 'Histórico de versões, status de implantação e controle de CI/CD em todos os ambientes'}
+        />
+      }
+      stats={
+        stats ? (
+          <>
+            <CardBasicoGlobal
+              titulo={t('admin.deploy.stats.total') ?? 'Total de Deploys'}
+              icone={<Rocket weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+              valor={stats.total}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Deploys Registrados</p>
+                  <div className="cg-tooltip__row"><span>Total</span> <strong>{stats.total}</strong></div>
+                  <div className="cg-tooltip__row"><span>Produção</span> <strong style={{ color: '#34d399' }}>{stats.producao}</strong></div>
+                  <div className="cg-tooltip__row"><span>Áreas distintas</span> <strong>{stats.areasUnicas}</strong></div>
+                </>
+              }
+            />
+            <CardBasicoGlobal
+              titulo={t('admin.deploy.stats.ultimo') ?? 'Último Deploy'}
+              icone={<CalendarBlank weight="duotone" size={16} style={{ color: '#34d399' }} />}
+              valor={stats.tempoUltimo}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Frequência</p>
+                  <div className="cg-tooltip__row"><span>Último deploy</span> <strong>{stats.tempoUltimo}</strong></div>
+                </>
+              }
+            />
+            <CardBasicoGlobal
+              titulo={t('admin.deploy.stats.areas') ?? 'Áreas Impactadas'}
+              icone={<Stack weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
+              valor={stats.areasUnicas}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Áreas com Deploy</p>
+                  <div className="cg-tooltip__row"><span>Áreas distintas</span> <strong>{stats.areasUnicas}</strong></div>
+                </>
+              }
+            />
+            <CardGraficoGlobal
+              titulo={t('admin.deploy.stats.taxa_sucesso') ?? 'Taxa de Sucesso'}
+              icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+              total={stats.totalVisivel}
+              valorPrincipal={stats.sucesso}
+              corGauge="#34d399"
+              legenda={[
+                { label: 'Sucesso',    valor: stats.sucesso,      cor: 'green'  },
+                { label: 'Falhou',     valor: stats.falhou,       cor: 'red'    },
+                { label: 'Revertido',  valor: stats.revertido,    cor: 'gray'   },
+                { label: 'Em andamento', valor: stats.emAndamento, cor: 'yellow' },
+              ]}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Status dos Deploys</p>
+                  <div className="cg-tooltip__row"><span>Sucesso</span> <strong style={{ color: '#34d399' }}>{stats.sucesso}</strong></div>
+                  <div className="cg-tooltip__row"><span>Falhou</span> <strong style={{ color: '#f87171' }}>{stats.falhou}</strong></div>
+                  <div className="cg-tooltip__row"><span>Revertido</span> <strong style={{ color: '#94a3b8' }}>{stats.revertido}</strong></div>
+                  <div className="cg-tooltip__row"><span>Em andamento</span> <strong style={{ color: '#fbbf24' }}>{stats.emAndamento}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row"><span>Taxa de sucesso</span> <strong style={{ color: '#34d399' }}>{stats.totalVisivel ? Math.round(stats.sucesso / stats.totalVisivel * 100) : 0}%</strong></div>
+                </>
+              }
+            />
+          </>
+        ) : undefined
+      }
+    >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <BotaoNovoAdminGlobal
+          rotulo={t('admin.deploy.btn_registrar') ?? 'Registrar Deploy'}
+          onClick={abrirModal}
+          ativo={modalAberto}
+        />
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 10 }}>
+        <TabelaGlobal<DeployApi>
+          id="admin-deploys-log"
+          idKey="id"
+          dados={deploys}
+          colunas={COLUNAS}
+          acoes={ACOES}
+          mensagemVazio={t('admin.deploy.vazio_filtros') ?? 'Nenhum histórico de deploy registrado ainda.'}
+          mensagemSemFiltro={t('admin.deploy.vazio_sem_filtro') ?? 'Nenhum registro.'}
+          tooltipBusca={t('admin.deploy.tooltip_busca') ?? 'Buscar por versão, descrição ou autor'}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'deploy_history', 'Histórico de Deploys Gravity')}
+        />
+      </div>
+
+      {/* Modal Registrar Deploy ─────────────────────────────────────── */}
+      <ModalFormularioAbasGlobal
+        aberto={modalAberto}
+        aoFechar={fecharModal}
+        aoSalvar={handleSalvar}
+        icone={<CloudArrowUp weight="duotone" size={24} />}
+        titulo={t('admin.deploy.modal_titulo') ?? 'Registrar Deploy'}
+        subtitulo={t('admin.deploy.modal_subtitulo') ?? 'Adicione uma entrada ao histórico de deploys do Gravity'}
+        tamanho="lg"
+        dirty={formDirty}
+        podesSalvar={
+          formDirty
+          && !!formArea
+          && !!formVersion.trim()
+          && !!formDescription.trim()
+          && !salvando
         }
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p className="ws-section-title" style={{ margin: 0 }}>
-            <CloudArrowUp weight="duotone" size={14} color="#818cf8" />
-            {t('admin.deploy.secao_historico') ?? 'Histórico de Deploys'}
-            {carregando && (
-              <span style={{ marginLeft: 12, fontSize: '0.75rem', color: 'var(--ws-muted)', fontWeight: 400 }}>
-                {t('admin.deploy.carregando') ?? 'Carregando...'}
-              </span>
-            )}
-          </p>
-        </div>
-
-        <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
-          <TabelaGlobal<DeployApi>
-            id="admin-deploys-log"
-            idKey="id"
-            dados={deploys}
-            colunas={COLUNAS}
-            acoes={ACOES}
-            mensagemVazio={t('admin.deploy.vazio_filtros') ?? 'Nenhum histórico de deploy registrado ainda.'}
-            mensagemSemFiltro={t('admin.deploy.vazio_sem_filtro') ?? 'Nenhum registro.'}
-            tooltipBusca={t('admin.deploy.tooltip_busca') ?? 'Buscar por versão, descrição ou autor'}
-            acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'deploy_history', 'Histórico de Deploys Gravity')}
-          />
-
-          {totalPaginas > 1 && (
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              marginTop: 16, padding: '0 8px', fontSize: '0.8125rem', color: 'var(--ws-muted)',
-            }}>
-              <span>{totalDeploys} deploy(s) no total</span>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => setPagina(p => Math.max(1, p - 1))}
-                  disabled={pagina <= 1 || carregando}
-                  style={{
-                    padding: '0.375rem 0.75rem', borderRadius: 6,
-                    border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
-                    color: 'var(--ws-text)',
-                    cursor: pagina <= 1 ? 'not-allowed' : 'pointer',
-                    opacity: pagina <= 1 ? 0.4 : 1,
-                  }}
-                >
-                  ← Anterior
-                </button>
-                <span style={{ minWidth: 80, textAlign: 'center' }}>
-                  Página {pagina} de {totalPaginas}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
-                  disabled={pagina >= totalPaginas || carregando}
-                  style={{
-                    padding: '0.375rem 0.75rem', borderRadius: 6,
-                    border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
-                    color: 'var(--ws-text)',
-                    cursor: pagina >= totalPaginas ? 'not-allowed' : 'pointer',
-                    opacity: pagina >= totalPaginas ? 0.4 : 1,
-                  }}
-                >
-                  Próxima →
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Modal Registrar Deploy ─────────────────────────────────────── */}
-        <ModalFormularioAbasGlobal
-          aberto={modalAberto}
-          aoFechar={fecharModal}
-          aoSalvar={handleSalvar}
-          icone={<CloudArrowUp weight="duotone" size={24} />}
-          titulo={t('admin.deploy.modal_titulo') ?? 'Registrar Deploy'}
-          subtitulo={t('admin.deploy.modal_subtitulo') ?? 'Adicione uma entrada ao histórico de deploys do Gravity'}
-          tamanho="lg"
-          dirty={formDirty}
-          podesSalvar={
-            formDirty
-            && !!formArea
-            && !!formVersion.trim()
-            && !!formDescription.trim()
-            && !salvando
-          }
-          abas={[
+        abas={[
             {
               id: 'dados',
               rotulo: 'Dados do Deploy',
@@ -642,14 +682,14 @@ export function DeployAdmin() {
                 </div>
               ),
             },
-          ]}
-        />
+        ]}
+      />
 
-        {/* Modal Exclusão ─────────────────────────────────────────────── */}
-        <ModalExclusao
-          aberto={!!deployParaExcluir}
-          titulo="Remover do histórico"
-          descricao={
+      {/* Modal Exclusão ─────────────────────────────────────────────── */}
+      <ModalExclusao
+        aberto={!!deployParaExcluir}
+        titulo="Remover do histórico"
+        descricao={
             <>
               Você está prestes a remover o deploy{' '}
               <strong>#{String(deployParaExcluir?.deploy_number ?? '').padStart(4, '0')}</strong>
@@ -659,11 +699,10 @@ export function DeployAdmin() {
               O evento de remoção fica no Histórico Global para auditoria.
             </>
           }
-          nomeItem={`#${String(deployParaExcluir?.deploy_number ?? '').padStart(4, '0')} — ${deployParaExcluir?.version ?? ''}`}
-          aoConfirmar={handleExcluir}
-          aoCancelar={() => setDeployParaExcluir(null)}
-        />
-      </PaginaGlobal>
-    </>
+        nomeItem={`#${String(deployParaExcluir?.deploy_number ?? '').padStart(4, '0')} — ${deployParaExcluir?.version ?? ''}`}
+        aoConfirmar={handleExcluir}
+        aoCancelar={() => setDeployParaExcluir(null)}
+      />
+    </PaginaGlobal>
   )
 }

@@ -414,7 +414,7 @@ export function TaxasMoeda() {
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaUSD?.venda != null ? `R$ ${fmtTaxa(taxaUSD.venda)}` : '—'}</span>}
                 subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
                     <span>{taxaUSD?.compra != null ? `Compra: R$ ${fmtTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}</span>
                   </span>
@@ -451,7 +451,7 @@ export function TaxasMoeda() {
                 icone={<CurrencyCircleDollar weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.5rem' }}>{taxaEUR?.venda != null ? `R$ ${fmtTaxa(taxaEUR.venda)}` : '—'}</span>}
                 subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
                     <span>{taxaEUR?.compra != null ? `Compra: R$ ${fmtTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}</span>
                   </span>
@@ -488,7 +488,7 @@ export function TaxasMoeda() {
                 icone={<ChartLine weight="duotone" size={16} />}
                 valor={<span style={{ fontSize: '1.75rem' }}>{moedasComDados}</span>}
                 subtexto={
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Atual</PillPeriodo>
                     <span>{`de ${MOEDAS_ORDEM.length} moedas suportadas`}</span>
                   </span>

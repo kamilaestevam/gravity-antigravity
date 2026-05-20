@@ -94,11 +94,12 @@ export function CardsServidores({ servicos, serieDiaria }: CardsServidoresProps)
   const degradadoCount = servicos.filter((s) => s.status_servico_plataforma === 'DEGRADADO').length
   const offlineCount   = servicos.filter((s) => s.status_servico_plataforma === 'OFFLINE').length
 
+  const pctOnline = total > 0 ? (onlineCount / total) * 100 : 0
   const status: 'pleno' | 'degradado' | 'falhando' | 'sem_dados' =
-    total === 0          ? 'sem_dados'
-    : onlineCount === total ? 'pleno'
-    : onlineCount === 0     ? 'falhando'
-    :                         'degradado'
+    total === 0        ? 'sem_dados'
+    : pctOnline >= 80  ? 'pleno'
+    : pctOnline >= 50  ? 'degradado'
+    :                    'falhando'
 
   const corGauge =
     status === 'pleno'     ? '#34d399'

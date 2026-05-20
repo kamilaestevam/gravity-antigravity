@@ -360,6 +360,7 @@ export function RecuperarSenhaRedefinirPage() {
               style={{
                 background: 'transparent', border: 'none', color: '#818cf8', fontWeight: 600,
                 fontSize: '0.8125rem', cursor: emailExibicao ? 'pointer' : 'not-allowed', padding: 0,
+                width: '100%', textAlign: 'center',
               }}
             >
               Não recebi — reenviar código

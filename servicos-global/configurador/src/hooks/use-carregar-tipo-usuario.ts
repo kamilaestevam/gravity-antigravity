@@ -25,8 +25,8 @@ const tipoUsuarioEnum = z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FOR
 
 const meContextoMinimoSchema = z.object({
   usuario: z.object({
-    id_usuario: z.string().cuid(),
-    id_organizacao: z.string().cuid(),
+    id_usuario: z.string(),
+    id_organizacao: z.string(),
     tipo_usuario: tipoUsuarioEnum,
   }),
   organizacao: z.object({

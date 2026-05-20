@@ -619,10 +619,6 @@ export function FinanceiroWorkspace() {
       {/* ═══════ ABA 1: HISTÓRICO DE FATURAS ═══════ */}
       {tabAtiva === 'faturas' && (
         <div className="ws-fade-up">
-          <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ margin: 0, marginBottom: '16px' }}>
-            <Receipt weight="duotone" size={14} color="#818cf8" />
-            {t('workspace.financial.aba_faturas')}
-          </p>
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
             <TabelaGlobal<FaturaProdutoGravity>
               id="workspace-financeiro-faturas"

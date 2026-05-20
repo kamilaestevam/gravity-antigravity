@@ -19,7 +19,7 @@ import {
 } from '@phosphor-icons/react'
 import '../hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { CardEstatisticaGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   TabelaGlobal,
   type TabelaGlobalColuna,
@@ -700,15 +700,10 @@ export function Assinaturas() {
       }
       stats={
         <>
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('workspace.subscriptions.produtos_ativos')}
-            icone={<Package weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{totalAssinaturasAtivas}</span>}
-            subtexto={
-              assinaturas.length > 0
-                ? `${assinaturas.filter((a) => a.status_assinatura_produto_gravity !== 'CANCELADA').length} no total`
-                : 'Sem produtos'
-            }
+            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+            valor={totalAssinaturasAtivas}
             tooltip={
               <>
                 <p className="cg-tooltip__title">STATUS DAS ASSINATURAS</p>
@@ -727,11 +722,10 @@ export function Assinaturas() {
               </>
             }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo="Em Teste"
-            icone={<Package weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{totalAssinaturasEmTeste}</span>}
-            subtexto={totalAssinaturasEmTeste === 0 ? 'Nenhuma em trial' : 'No período de teste'}
+            icone={<Package weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+            valor={totalAssinaturasEmTeste}
             tooltip={
               <>
                 <p className="cg-tooltip__title">PERÍODO DE TESTE</p>
@@ -742,11 +736,10 @@ export function Assinaturas() {
               </>
             }
           />
-          <CardEstatisticaGlobal
+          <CardBasicoGlobal
             titulo={t('workspace.subscriptions.acessos_suspensos')}
-            icone={<WarningCircle weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.75rem' }}>{totalAssinaturasSuspensas}</span>}
-            subtexto={totalAssinaturasSuspensas === 0 ? 'Tudo operacional' : 'Requer atenção'}
+            icone={<WarningCircle weight="duotone" size={16} style={{ color: '#f87171' }} />}
+            valor={totalAssinaturasSuspensas}
             variante={totalAssinaturasSuspensas > 0 ? 'perigo' : 'padrao'}
             tooltip={
               <>
@@ -762,9 +755,6 @@ export function Assinaturas() {
       }
     >
       {/* Produtos contratados */}
-      <p className="ws-section-title" style={{ marginBottom: '0.875rem', marginTop: '0.25rem' }}>
-        {t('workspace.subscriptions.secao_contratados')}
-      </p>
       <div style={{ marginBottom: '2rem' }}>
         {carregando ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>

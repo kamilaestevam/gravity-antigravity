@@ -457,10 +457,7 @@ export function EmpresasEParceiros() {
   const tipoPrincipal = stats.tiposCount[0]
   const tiposComEmpresas = stats.tiposCount.filter((t) => t.count > 0)
 
-  // Estilo do valor principal — alinhado ao padrao da tela TaxasMoeda
-  // (font-size maior, branco). Default do componente e' 1.875rem; aqui
-  // bumpamos para 2rem para destaque visual quando o valor e' curto (1-2 digitos).
-  const estiloValor = { fontSize: '2rem', color: 'var(--ws-text, #f1f5f9)', fontWeight: 700 } as const
+  const inativas = stats.total - stats.ativas
 
   return (
     <PaginaGlobal
@@ -477,16 +474,49 @@ export function EmpresasEParceiros() {
         <>
           <CardBasicoGlobal
             titulo="Total de empresas"
-            valor={<span style={estiloValor}>{stats.total}</span>}
-            icone={<Buildings weight="duotone" size={18} />}
+            valor={stats.total}
+            icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             subtexto="Ativas e inativas"
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>Ativas</span>
+                  <strong style={{ color: '#34d399' }}>{stats.ativas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Inativas</span>
+                  <strong style={{ color: '#64748b' }}>{inativas}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Total</span>
+                  <strong>{stats.total}</strong>
+                </div>
+              </>
+            }
           />
           <CardBasicoGlobal
             titulo="Empresas ativas"
-            valor={<span style={estiloValor}>{stats.ativas}</span>}
-            icone={<CheckCircle weight="duotone" size={18} />}
+            valor={stats.ativas}
+            icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
             variante="sucesso"
             subtexto="Disponíveis em dropdowns operacionais"
+            tooltip={
+              <>
+                <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', lineHeight: 1.45 }}>
+                  Empresas com status ativo, disponíveis como opção em campos de seleção nos produtos operacionais.
+                </p>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Ativas</span>
+                  <strong style={{ color: '#34d399' }}>{stats.ativas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Inativas</span>
+                  <strong style={{ color: '#64748b' }}>{inativas}</strong>
+                </div>
+              </>
+            }
           />
           <CardGraficoGlobal
             titulo="Distribuição por tipo"

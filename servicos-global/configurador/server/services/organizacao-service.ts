@@ -190,7 +190,7 @@ export const organizacaoService = {
             id_organizacao: novoIdOrganizacao,
             nome_organizacao,
             subdominio_organizacao,
-            status_organizacao: 'CONFIGURACAO_PENDENTE',
+            status_organizacao: 'ATIVO',
             suid_empresa_organizacao: suid,
             cnpj_organizacao: pais === 'BR' ? cnpj_organizacao ?? null : null,
           },

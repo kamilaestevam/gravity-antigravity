@@ -465,7 +465,6 @@ function SignUpFlow() {
             <GoogleLogoColorido size={20} />
           )}
           <span>{t('login.continuar_com_google')}</span>
-          <span className="signup-badge-recomendado">{t('cadastro.recomendado', 'Recomendado')}</span>
         </button>
 
         <div className="signin-divider" role="separator">

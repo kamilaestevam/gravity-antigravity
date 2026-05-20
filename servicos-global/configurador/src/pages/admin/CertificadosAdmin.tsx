@@ -13,6 +13,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { useShellStore } from '@gravity/shell'
@@ -211,16 +212,15 @@ export default function CertificadosAdmin() {
           />
         </>
       }
-      acoes={
-        <BotaoGlobal
-          variante="primario"
-          onClick={() => setModalUploadAberto(true)}
-          iconeEsquerda={<Upload size={16} />}
-        >
-          {t('admin.certificados.btn_enviar', 'Enviar Certificado')}
-        </BotaoGlobal>
-      }
     >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <BotaoNovoAdminGlobal
+          rotulo={t('admin.certificados.btn_enviar', 'Enviar Certificado')}
+          onClick={() => setModalUploadAberto(true)}
+          ativo={modalUploadAberto}
+        />
+      </div>
+
       {/* Tabela de certificados */}
       <TabelaGlobal<CertificadoMetadataApi>
         id="admin-certificados"

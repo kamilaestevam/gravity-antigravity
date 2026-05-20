@@ -93,10 +93,10 @@ export function CadastroContinuarPage() {
 
     void signUp
       .create({ strategy: 'ticket', ticket })
-      .then(() => {
-        if (signUp.emailAddress) setEmailConvite(signUp.emailAddress)
-        const fn = (signUp.firstName ?? '').trim()
-        const ln = (signUp.lastName ?? '').trim()
+      .then((resultado) => {
+        if (resultado.emailAddress) setEmailConvite(resultado.emailAddress)
+        const fn = (resultado.firstName ?? '').trim()
+        const ln = (resultado.lastName ?? '').trim()
         const completo = [fn, ln].filter(Boolean).join(' ')
         if (completo) setNome(completo)
       })

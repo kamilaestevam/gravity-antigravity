@@ -16,7 +16,7 @@ export function AutenticacaoPage() {
         <div className="auth-brand-content">
           {/* Logo — mesmo do Marketplace */}
           <div className="auth-logo">
-            <LogoGlobal iconSize={30} iconColor="#818cf8" />
+            <LogoGlobal iconSize={50} iconColor="#818cf8" />
           </div>
 
           {/* Headline */}

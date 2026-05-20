@@ -387,12 +387,40 @@ function SignUpFlow() {
 
   // ── Etapa 2: Verificação de e-mail ──
   if (etapa === 'verificacao') {
+    const digitos = codigo.padEnd(6, '').split('').slice(0, 6)
+
+    const aoDigitar = (valor: string, indice: number) => {
+      const digito = valor.replace(/\D/g, '').slice(-1)
+      const novosCodigo = codigo.split('')
+      novosCodigo[indice] = digito
+      const novoCodigo = novosCodigo.join('').replace(/\s/g, '')
+      setCodigo(novoCodigo)
+      if (digito && indice < 5) {
+        const proximo = document.getElementById(`signup-otp-${indice + 1}`)
+        proximo?.focus()
+      }
+    }
+
+    const aoTeclar = (e: React.KeyboardEvent<HTMLInputElement>, indice: number) => {
+      if (e.key === 'Backspace' && !digitos[indice] && indice > 0) {
+        const anterior = document.getElementById(`signup-otp-${indice - 1}`)
+        anterior?.focus()
+      }
+    }
+
+    const aoColar = (e: React.ClipboardEvent) => {
+      const texto = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+      if (texto) {
+        e.preventDefault()
+        setCodigo(texto)
+        const ultimo = document.getElementById(`signup-otp-${Math.min(texto.length, 5)}`)
+        ultimo?.focus()
+      }
+    }
+
     return (
       <div className="signin-container">
-        <div className="signup-verificacao">
-          <div className="signup-verificacao-icone">
-            <Envelope size={32} weight="duotone" />
-          </div>
+        <div className="signup-card">
           <p className="signup-verificacao-titulo">
             {t('cadastro.verificar_titulo', 'Verifique seu e-mail')}
           </p>
@@ -403,20 +431,24 @@ function SignUpFlow() {
 
           <form onSubmit={verificarCodigo} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="signup-field">
-              <label htmlFor="signup-codigo">{t('cadastro.label_codigo', 'Código de verificação')}</label>
-              <div className="signup-input-wrapper">
-                <input
-                  id="signup-codigo"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="000000"
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
-                  disabled={carregando}
-                  autoFocus
-                  style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '1.25rem' }}
-                />
+              <label>{t('cadastro.label_codigo', 'Código de verificação')}</label>
+              <div className="signup-otp-boxes">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <input
+                    key={i}
+                    id={`signup-otp-${i}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digitos[i] || ''}
+                    onChange={(e) => aoDigitar(e.target.value, i)}
+                    onKeyDown={(e) => aoTeclar(e, i)}
+                    onPaste={i === 0 ? aoColar : undefined}
+                    disabled={carregando}
+                    autoFocus={i === 0}
+                    className="signup-otp-input"
+                  />
+                ))}
               </div>
             </div>
 
@@ -433,9 +465,9 @@ function SignUpFlow() {
               disabled={carregando || codigo.length < 6}
             >
               {status === 'loading' ? (
-                <><CircleNotch size={20} className="spin" /> {t('cadastro.verificando', 'Verificando...')}</>
+                <><CircleNotch size={20} className="spin" /> Verificando...</>
               ) : (
-                t('cadastro.verificar_btn', 'Verificar')
+                'Verificar'
               )}
             </button>
           </form>

@@ -940,26 +940,30 @@ body.light-theme .signin-forgot-link a:hover {
   font-size: 0.625rem;
 }
 
-.signup-verificacao {
-  width: 100%;
-  max-width: 400px;
+.signup-otp-boxes {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  animation: fadeIn 0.4s ease-out;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
-.signup-verificacao-icone {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(99, 102, 241, 0.1);
-  color: #818cf8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.5rem;
+.signup-otp-input {
+  width: 2.75rem;
+  height: 2.75rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f1f5f9;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup-otp-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
 }
 
 .signup-verificacao-titulo {
@@ -1208,9 +1212,15 @@ body.light-theme .signup-requisito--pendente {
   color: #94a3b8;
 }
 
-body.light-theme .signup-verificacao-icone {
-  background: rgba(79, 70, 229, 0.1);
-  color: #4f46e5;
+body.light-theme .signup-otp-input {
+  background: #ffffff;
+  border-color: var(--border-default, #cbd5e1);
+  color: #1e293b;
+}
+
+body.light-theme .signup-otp-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
 }
 
 body.light-theme .signup-verificacao-titulo {

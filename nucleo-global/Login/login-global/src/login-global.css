@@ -939,6 +939,46 @@ body.light-theme .signin-forgot-link a:hover {
   font-size: 0.625rem;
 }
 
+.signup-termos {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8125rem;
+  color: #f1f5f9;
+  line-height: 1.5;
+}
+
+.signup-termos input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: #818cf8;
+  cursor: pointer;
+}
+
+.signup-termos a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+.signup-termos a:hover {
+  color: #a5b4fc;
+}
+
+body.light-theme .signup-termos {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-default, #cbd5e1);
+  color: #1e293b;
+}
+
+body.light-theme .signup-termos a {
+  color: #4f46e5;
+}
+
 .signup-otp-boxes {
   display: flex;
   gap: 0.5rem;

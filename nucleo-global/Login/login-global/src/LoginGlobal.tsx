@@ -265,6 +265,7 @@ function SignUpFlow() {
   const [confirmacao, setConfirmacao] = useState('')
   const [verSenha, setVerSenha] = useState(false)
   const [verConfirmacao, setVerConfirmacao] = useState(false)
+  const [aceiteTermos, setAceiteTermos] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'oauth_loading'>('idle')
   const [etapa, setEtapa] = useState<'form' | 'verificacao'>('form')
@@ -615,6 +616,21 @@ function SignUpFlow() {
             )}
           </div>
 
+          <label className="signup-termos">
+            <input
+              type="checkbox"
+              checked={aceiteTermos}
+              onChange={(e) => setAceiteTermos(e.target.checked)}
+              disabled={carregando}
+            />
+            <span>
+              Li e aceito os{' '}
+              <a href="#" target="_blank" rel="noreferrer">Termos de Uso</a>
+              {' '}e a{' '}
+              <a href="#" target="_blank" rel="noreferrer">Política de Privacidade</a>.
+            </span>
+          </label>
+
           {senha.length > 0 && (
             <div className="signup-requisitos">
               {requisitos.map((r) => (
@@ -638,7 +654,7 @@ function SignUpFlow() {
           <button
             type="submit"
             className={`signin-button ${status === 'loading' ? 'loading' : ''}`}
-            disabled={carregando || !nome || !email || !senha || !confirmacao || senhasDiferentes || requisitos.some(r => !r.ok)}
+            disabled={carregando || !nome || !email || !senha || !confirmacao || senhasDiferentes || requisitos.some(r => !r.ok) || !aceiteTermos}
           >
             {status === 'loading' ? (
               <><CircleNotch size={20} className="spin" /> Criando conta...</>

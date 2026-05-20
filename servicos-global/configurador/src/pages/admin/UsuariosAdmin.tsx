@@ -12,6 +12,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
@@ -754,18 +755,14 @@ export function UsuariosAdmin() {
           />
         </>
       }
-      acoes={
-        <TooltipGlobal titulo={t('admin.usuarios-globais.btn_convidar')} descricao={t('admin.usuarios-globais.btn_convidar_desc')}>
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => setShowForm(true)}
-            icone={<User size={18} />}
-          >
-            {t('admin.usuarios-globais.btn_convidar')}
-          </BotaoGlobal>
-        </TooltipGlobal>
-      }
     >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <BotaoNovoAdminGlobal
+          rotulo={t('admin.usuarios-globais.btn_convidar')}
+          onClick={() => setShowForm(true)}
+          ativo={showForm}
+        />
+      </div>
 
       {/* ── Tabela global ────────────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 10 }}>

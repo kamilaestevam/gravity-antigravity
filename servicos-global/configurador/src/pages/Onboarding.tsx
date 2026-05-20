@@ -124,7 +124,7 @@ export function Onboarding() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        throw new Error(body?.message ?? 'Falha ao criar a organizacao. Tente um nome diferente.')
+        throw new Error(body?.error?.message ?? 'Erro ao criar a organização. Tente novamente ou entre em contato com o suporte.')
       }
 
       // Sucesso — redireciona para selecionar workspace (que agora tem 1 company)

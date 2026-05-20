@@ -539,16 +539,15 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
           </>
         ) : undefined
       }
-      acoes={
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <BotaoNovoAdminGlobal
-            rotulo={t('admin.testes-gerais.org.botao_nova_organizacao')}
-            onClick={() => setShowNovaOrg(true)}
-            ativo={showNovaOrg}
-          />
-        </div>
-      }
     >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <BotaoNovoAdminGlobal
+          rotulo={t('admin.testes-gerais.org.botao_nova_organizacao')}
+          onClick={() => setShowNovaOrg(true)}
+          ativo={showNovaOrg}
+        />
+      </div>
+
       {error && (
         <div style={{ background: '#ef444422', border: '1px solid #ef444444', borderRadius: '8px', padding: '12px 16px', color: '#ef4444', marginBottom: 20 }}>
           {error}

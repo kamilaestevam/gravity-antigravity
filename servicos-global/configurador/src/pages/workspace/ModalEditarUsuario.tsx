@@ -1170,6 +1170,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         : `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${totalToggles})`,
       icone: 'shield-check',
       ocultarBotoesSalvar: somenteLeitura,
+      salvarSempreAtivo: !master && !somenteLeitura,
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaPermissoes

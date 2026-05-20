@@ -15,6 +15,8 @@ export interface AbaFormulario {
   /** Quando true, oculta os botões Salvar/Cancelar do footer enquanto esta aba estiver ativa.
    *  Útil para abas que executam ações próprias (ex.: "Executar Manual") e não têm alterações a persistir. */
   ocultarBotoesSalvar?: boolean
+  /** Quando true, o botão Salvar fica ativo mesmo sem dirty (ex.: aba Permissões de Standard). */
+  salvarSempreAtivo?: boolean
 }
 
 export interface ModalFormularioAbasProps {
@@ -103,7 +105,7 @@ export function ModalFormularioAbas({
             onClick={aoFechar}
           />
           <BotaoSalvar
-            dirty={podesSalvar && dirty}
+            dirty={abaAtual?.salvarSempreAtivo ? podesSalvar : (podesSalvar && dirty)}
             rotulo={resolvedTextoSalvar}
             onClick={aoSalvar}
           />

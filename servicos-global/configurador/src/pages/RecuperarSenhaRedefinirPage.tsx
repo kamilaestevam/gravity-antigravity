@@ -351,7 +351,7 @@ export function RecuperarSenhaRedefinirPage() {
           </BotaoGlobal>
         </form>
 
-        <div className="login-global-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div className="login-global-footer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
           <TooltipGlobal descricao="Reenviar código para o mesmo e-mail.">
             <button
               type="button"

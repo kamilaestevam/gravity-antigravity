@@ -265,6 +265,37 @@ app.use('/api/v1/historico-organizacao', historicoOrganizacaoRouter)
 
 app.use('/api/v1/catalogo', publicCatalogRouter)
 
+// ─── Proxy reverso: Pedido sidecar (porta 8030) ─────────────────────────────
+// Em produção o Pedido roda como sidecar no mesmo processo (porta 8030).
+// O frontend faz chamadas relativas `/api/v1/pedidos/*` que chegam neste
+// Express. Este proxy encaminha para o sidecar via localhost.
+import { request as httpRequest } from 'node:http'
+
+app.use('/api/v1/pedidos', (req, res) => {
+  const targetUrl = `http://127.0.0.1:8030${req.originalUrl}`
+  const headers = { ...req.headers, host: '127.0.0.1:8030' }
+
+  // express.json() já consumiu o stream — serializar body de volta se presente
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', () => {
+    if (!res.headersSent) res.status(502).json({ error: 'Pedido service unavailable' })
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    proxyReq.end()
+  }
+})
+
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
 app.use(express.static(clientDistDir))
@@ -280,16 +311,44 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
-  // Sidecar: iniciar Cadastros no mesmo processo (porta 8031 interna).
-  // Força PORT=8031 antes do import para evitar conflito com a porta do Configurador
-  // (Railway define PORT para o app principal — Cadastros deve usar porta fixa).
+  // Sidecars — cada um roda em porta fixa interna.
+  // Sequenciados para evitar race condition em process.env.PORT.
   const portaOriginal = process.env.PORT
+  const dbOriginal = process.env.DATABASE_URL
+
+  // Sidecar 1: Cadastros (porta 8031)
   process.env.PORT = '8031'
   process.env.CADASTROS_SIDECAR = '1'
-  import('../../cadastros/server/src/index.js')
-    .then(() => console.log('[configurador] Sidecar Cadastros iniciado na porta 8031'))
-    .catch((err) => console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err))
-    .finally(() => { process.env.PORT = portaOriginal })
+  try {
+    await import('../../cadastros/server/src/index.js')
+    console.log('[configurador] Sidecar Cadastros iniciado na porta 8031')
+  } catch (err) {
+    console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err)
+  }
+
+  // Sidecar 2: Pedido (porta 8030)
+  if (process.env.PEDIDO_DATABASE_URL) {
+    process.env.PORT = '8030'
+    process.env.DATABASE_URL = process.env.PEDIDO_DATABASE_URL
+    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${PORT}`
+    if (!process.env.ALLOWED_ORIGINS) {
+      process.env.ALLOWED_ORIGINS = process.env.CANONICAL_DOMAIN
+        ? `https://${process.env.CANONICAL_DOMAIN}`
+        : 'https://usegravity.com.br'
+    }
+    try {
+      await import('../../produto/pedido/server/src/index.js')
+      console.log('[configurador] Sidecar Pedido iniciado na porta 8030')
+    } catch (err) {
+      console.error('[configurador] Falha ao iniciar sidecar Pedido:', err)
+    }
+  } else {
+    console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
+  }
+
+  // Restaurar env vars originais
+  process.env.PORT = portaOriginal
+  process.env.DATABASE_URL = dbOriginal
 
   const server = app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)

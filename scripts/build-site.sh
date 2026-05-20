@@ -10,10 +10,11 @@ echo "[build-site] Starting full build pipeline..."
 # 1. Install all dependencies (including devDependencies for build tools)
 npm ci --include=dev
 
-# 2. Generate Prisma clients for all 3 databases
+# 2. Generate Prisma clients for all databases
 npx prisma generate --schema=configurador/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
+npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 
 # 3. Build Vite frontend
 cd servicos-global/configurador

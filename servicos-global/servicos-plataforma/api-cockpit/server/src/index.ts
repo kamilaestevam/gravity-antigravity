@@ -1,11 +1,22 @@
 import 'dotenv/config'
 
-// Fail-fast: validar env vars criticas
+// Detectar se estamos rodando como sidecar do Configurador
+const API_COCKPIT_SIDECAR = process.env.API_COCKPIT_SIDECAR === '1'
+
+// Fail-fast: validar env vars criticas (como sidecar, apenas warn — o Configurador decide)
 if (!process.env.CHAVE_INTERNA_SERVICO) {
-  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: CHAVE_INTERNA_SERVICO')
+  if (API_COCKPIT_SIDECAR) {
+    console.warn('[API-Cockpit] CHAVE_INTERNA_SERVICO ausente — sidecar pode falhar em rotas S2S')
+  } else {
+    throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: CHAVE_INTERNA_SERVICO')
+  }
 }
 if (!process.env.ENCRYPTION_KEY) {
-  throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: ENCRYPTION_KEY')
+  if (API_COCKPIT_SIDECAR) {
+    console.warn('[API-Cockpit] ENCRYPTION_KEY ausente — sidecar pode falhar em rotas de criptografia')
+  } else {
+    throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: ENCRYPTION_KEY')
+  }
 }
 
 import express from 'express'
@@ -72,6 +83,11 @@ const server = app.listen(PORT, () => {
 })
 server.on('error', (err: NodeJS.ErrnoException) => {
   if (err.code === 'EADDRINUSE') {
+    if (API_COCKPIT_SIDECAR) {
+      // Como sidecar, porta em uso é não-fatal — o Configurador continua
+      console.warn(`[api-cockpit] Porta ${PORT} já em uso — ignorando quando sidecar (não-fatal)`)
+      return
+    }
     console.error(`[api-cockpit] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
     process.exit(1)
   }
@@ -80,20 +96,24 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 
 // Graceful shutdown — Railway envia SIGTERM em deploy/restart.
 // Sem isso, setTimeout do worker pode disparar com prisma desconectado.
-const shutdown = (sinal: string) => {
-  console.log(`[api-cockpit] recebido ${sinal}, encerrando...`)
-  pararWorkerRetencao()
-  void prisma.$disconnect()
-  server.close(() => {
-    console.log('[api-cockpit] servidor encerrado')
-    process.exit(0)
-  })
-  // Forca saida apos 10s se close demorar
-  setTimeout(() => {
-    console.warn('[api-cockpit] forcando saida (close timeout 10s)')
-    process.exit(1)
-  }, 10_000).unref()
-}
+// Como sidecar, NÃO registra shutdown handlers — o processo do Configurador
+// é quem gerencia o lifecycle. process.exit() mataria o Configurador inteiro.
+if (!API_COCKPIT_SIDECAR) {
+  const shutdown = (sinal: string) => {
+    console.log(`[api-cockpit] recebido ${sinal}, encerrando...`)
+    pararWorkerRetencao()
+    void prisma.$disconnect()
+    server.close(() => {
+      console.log('[api-cockpit] servidor encerrado')
+      process.exit(0)
+    })
+    // Forca saida apos 10s se close demorar
+    setTimeout(() => {
+      console.warn('[api-cockpit] forcando saida (close timeout 10s)')
+      process.exit(1)
+    }, 10_000).unref()
+  }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT',  () => shutdown('SIGINT'))
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT',  () => shutdown('SIGINT'))
+}

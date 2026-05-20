@@ -346,6 +346,19 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 
+  // Sidecar 3: API Cockpit (porta 8016)
+  // Health checks, tokens, webhooks, logs de requisição, monitoramento.
+  // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
+  process.env.PORT = '8016'
+  process.env.DATABASE_URL = dbOriginal
+  process.env.API_COCKPIT_SIDECAR = '1'
+  try {
+    await import('../../servicos-plataforma/api-cockpit/server/src/index.js')
+    console.log('[configurador] Sidecar API Cockpit iniciado na porta 8016')
+  } catch (err) {
+    console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', err)
+  }
+
   // Restaurar env vars originais
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal

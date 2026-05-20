@@ -60,18 +60,11 @@ body.light-theme .pg-contexto-row {
 }
 
 .pg-stats-area {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  flex-shrink: 0;
-}
-
-/* cg-card e scg-card dentro da area de stats: largura uniforme e fixa */
-.pg-stats-area .cg-card,
-.pg-stats-area .scg-card {
-  flex: 0 0 200px;
-  width: 200px;
-  max-width: 200px;
+  flex: 1;
+  min-width: 0;
 }
 
 .pg-acoes-area {
@@ -112,7 +105,6 @@ body.light-theme .pg-toolbar-wrapper {
   flex: 1;
   min-height: 0; /* Impede o flex de crescer com o conteúdo, ativando o scroll */
   overflow-y: auto;
-  scrollbar-gutter: stable;
 }
 
 .pg-layout-lista {

@@ -1,33 +1,23 @@
 /**
- * historico-global-admin.ts — Proxy admin enriquecedor de Histórico Global
+ * historico-global-admin.ts — Rota admin de Histórico Global com enrichment
  *
- * Proxy fino sobre /api/v1/historico-global/logs (mount não-admin do upstream
- * historico-global). Diferença em relação ao `historico-organizacao.ts`:
+ * Query direta ao banco ORGANIZACAO_DATABASE_URL + enrichment de email via
+ * banco do Configurador. Substituiu o antigo self-HTTP-proxy que fazia
+ * fetch(localhost:PORT) e duplicava a validação Clerk (causando 401 em
+ * produção por race/rate-limit no segundo verifyToken).
  *
- *   - Esta rota é ADMIN ONLY (mount aplica `requireGravityAdmin`). O upstream
- *     promove SUPER_ADMIN/ADMIN a visão global automaticamente via
- *     `montarFiltroVisibilidadeHistoricoLog` (Mandamento 04).
- *   - Mantém paginação cursor-based do upstream (admin tem volume grande,
- *     não vale degradar para page-based).
- *   - Repassa filtros DDD canonical para o upstream sem renomear:
- *     `tipo_ator_historico_log`, `status_historico_log`, `modulo_historico_log`,
- *     `acao_historico_log`, `id_ator_historico_log`, `tipo_recurso_historico_log`,
- *     `id_recurso_historico_log`, `id_produto_historico_log`, `search`, `cursor`,
- *     `limit`, `startDate`, `endDate` (universais HTTP).
+ * Diferença em relação ao `historico-organizacao.ts`:
+ *   - ADMIN ONLY (mount aplica `requireGravityAdmin`)
+ *   - SUPER_ADMIN/ADMIN veem tudo (sem filtro de organização) via
+ *     `montarFiltroVisibilidadeHistoricoLog` (Mandamento 04)
+ *   - Paginação cursor-based (admin tem volume grande)
  *
- * Responsabilidade do proxy:
- *
+ * Responsabilidade:
  *   - Enriquecer cada log com `email_ator_historico_log` — lookup batch em
- *     `prisma.usuario` pelo `id_ator_historico_log` (apenas atores tipo
- *     USUARIO). A tabela `usuario` vive no banco do Configurador
- *     (CONFIGURADOR_DATABASE_URL), separado do `historico_log`
- *     (ORGANIZACAO_DATABASE_URL), por isso o JOIN é em código (1 query
- *     batch por página, sem N+1).
- *
- * O mount em `server/index.ts` posiciona este proxy ANTES do
- * `historicoRouter` para que `GET /logs` seja interceptado aqui. Outras
- * rotas (`/logs/:id`, `/logs/export`, `/alerts`, `/alert-rules`, `/lgpd`)
- * continuam servidas direto pelo `historicoRouter`.
+ *     `prisma.usuario` pelo `id_ator_historico_log`. Tabela `usuario` vive
+ *     no banco do Configurador (CONFIGURADOR_DATABASE_URL), separado do
+ *     `historico_log` (ORGANIZACAO_DATABASE_URL), por isso JOIN em código
+ *     (1 query batch por página, sem N+1).
  *
  * GET /api/v1/admin/historico-global/logs — lista logs enriquecidos
  */
@@ -42,12 +32,34 @@ export const historicoGlobalAdminRouter = Router()
 
 const log = logger.child({ module: 'historico-global-admin' })
 
+// Lazy-loaded para não bloquear startup do servidor
+let _orgModule: Awaited<ReturnType<typeof loadOrgModule>> | null = null
+async function loadOrgModule() {
+  const { PrismaClient, Prisma } = await import('../../../servicos-plataforma/generated/index.js')
+  const { montarFiltroVisibilidadeHistoricoLog } = await import(
+    '../../../servicos-plataforma/historico-global/server/lib/visibility.js'
+  )
+  const client = new PrismaClient({
+    datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } },
+  })
+  return { client, Prisma, montarFiltroVisibilidadeHistoricoLog } as {
+    client: InstanceType<typeof PrismaClient>
+    Prisma: typeof Prisma
+    montarFiltroVisibilidadeHistoricoLog: typeof montarFiltroVisibilidadeHistoricoLog
+  }
+}
+async function getOrgModule() {
+  if (!_orgModule) _orgModule = await loadOrgModule()
+  return _orgModule
+}
+
+const MAX_PAGE_SIZE = 200
+
 // ---------------------------------------------------------------------------
-// Validação de query params — espelha ListHistoryQuerySchema do upstream
+// Validação de query params
 // ---------------------------------------------------------------------------
 
 const listQuerySchema = z.object({
-  // Filtros DDD canonical
   tipo_ator_historico_log:    z.enum(['USUARIO','API','IA','JOB','INTEGRACAO']).optional(),
   id_ator_historico_log:      z.string().optional(),
   modulo_historico_log:       z.string().optional(),
@@ -57,12 +69,10 @@ const listQuerySchema = z.object({
   status_historico_log:       z.enum(['SUCESSO','FALHA','PARCIAL']).optional(),
   id_produto_historico_log:   z.string().optional(),
 
-  // Universais HTTP (exceção da skill ddd-nomenclatura)
   startDate: z.string().optional(),
   endDate:   z.string().optional(),
   search:    z.string().optional(),
 
-  // Paginação cursor-based
   cursor: z.string().optional(),
   limit:  z.coerce.number().int().min(1).max(200).default(50),
 })
@@ -80,56 +90,61 @@ historicoGlobalAdminRouter.get(
         return next(new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR'))
       }
 
-      const params = new URLSearchParams()
       const q = parsed.data
-      if (q.tipo_ator_historico_log)     params.set('tipo_ator_historico_log', q.tipo_ator_historico_log)
-      if (q.id_ator_historico_log)       params.set('id_ator_historico_log', q.id_ator_historico_log)
-      if (q.modulo_historico_log)        params.set('modulo_historico_log', q.modulo_historico_log)
-      if (q.tipo_recurso_historico_log)  params.set('tipo_recurso_historico_log', q.tipo_recurso_historico_log)
-      if (q.id_recurso_historico_log)    params.set('id_recurso_historico_log', q.id_recurso_historico_log)
-      if (q.acao_historico_log)          params.set('acao_historico_log', q.acao_historico_log)
-      if (q.status_historico_log)        params.set('status_historico_log', q.status_historico_log)
-      if (q.id_produto_historico_log)    params.set('id_produto_historico_log', q.id_produto_historico_log)
-      if (q.startDate)                   params.set('startDate', q.startDate)
-      if (q.endDate)                     params.set('endDate', q.endDate)
-      if (q.search)                      params.set('search', q.search)
-      if (q.cursor)                      params.set('cursor', q.cursor)
-      params.set('limit', String(q.limit))
+      const safeLimit = Math.min(q.limit, MAX_PAGE_SIZE)
 
-      const authorization = req.headers.authorization
-      if (!authorization) {
-        return next(new AppError('Authorization ausente', 401, 'UNAUTHORIZED'))
+      // req.auth já populado pelo requireAuth + requireGravityAdmin do mount
+      const { client: orgPrisma, Prisma: PrismaNamespace, montarFiltroVisibilidadeHistoricoLog } = await getOrgModule()
+
+      const usuario = {
+        id_usuario:     req.auth.id_usuario,
+        nome_usuario:   req.auth.nome_usuario,
+        tipo_usuario:   req.auth.tipo_usuario as 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+        id_organizacao: req.auth.id_organizacao,
       }
 
-      const internalBaseUrl = `http://localhost:${process.env.PORT ?? 8005}`
-      const fetchUrl = `${internalBaseUrl}/api/v1/historico-global/logs?${params.toString()}`
+      const visibilityFilter = montarFiltroVisibilidadeHistoricoLog(usuario)
 
-      const response = await fetch(fetchUrl, {
-        headers: {
-          Authorization: authorization,
-          'Content-Type': 'application/json',
-        },
+      const createdAtFilter: Record<string, Date> = {}
+      if (q.cursor)    createdAtFilter.lt  = new Date(q.cursor)
+      if (q.startDate) createdAtFilter.gte = new Date(q.startDate)
+      if (q.endDate)   createdAtFilter.lte = new Date(q.endDate)
+
+      const where = {
+        ...visibilityFilter,
+        ...(q.tipo_ator_historico_log    ? { tipo_ator_historico_log: q.tipo_ator_historico_log } : {}),
+        ...(q.id_ator_historico_log      ? { id_ator_historico_log: q.id_ator_historico_log } : {}),
+        ...(q.modulo_historico_log       ? { modulo_historico_log: q.modulo_historico_log } : {}),
+        ...(q.tipo_recurso_historico_log ? { tipo_recurso_historico_log: q.tipo_recurso_historico_log } : {}),
+        ...(q.id_recurso_historico_log   ? { id_recurso_historico_log: q.id_recurso_historico_log } : {}),
+        ...(q.acao_historico_log         ? { acao_historico_log: q.acao_historico_log } : {}),
+        ...(q.status_historico_log       ? { status_historico_log: q.status_historico_log } : {}),
+        ...(q.id_produto_historico_log   ? { id_produto_historico_log: q.id_produto_historico_log } : {}),
+        ...(Object.keys(createdAtFilter).length > 0 ? { data_criacao_historico_log: createdAtFilter } : {}),
+        ...(q.search
+          ? {
+              OR: [
+                { detalhe_acao_historico_log: { contains: q.search, mode: 'insensitive' as const } },
+                { nome_ator_historico_log:    { contains: q.search, mode: 'insensitive' as const } },
+                { tipo_recurso_historico_log: { contains: q.search, mode: 'insensitive' as const } },
+              ],
+            }
+          : {}),
+      }
+
+      const rawLogs = await orgPrisma.historicoLog.findMany({
+        where,
+        orderBy: { data_criacao_historico_log: 'desc' },
+        take: safeLimit + 1,
       })
 
-      if (!response.ok) {
-        const errorBody = await response.text().catch(() => 'Erro ao buscar histórico')
-        log.error('Falha upstream historico-global', { status: response.status, body: errorBody, fetchUrl })
-        return next(new AppError(
-          'Erro ao buscar histórico global (admin)',
-          response.status >= 500 ? 502 : response.status,
-          'UPSTREAM_ERROR',
-        ))
-      }
+      const hasMore = rawLogs.length > safeLimit
+      const logs = hasMore ? rawLogs.slice(0, safeLimit) : rawLogs
+      const nextCursor = hasMore
+        ? logs[logs.length - 1].data_criacao_historico_log.toISOString()
+        : null
 
-      const data = await response.json()
-      const logs: Array<Record<string, unknown>> = data.data ?? []
-      const meta = data.meta ?? { hasMore: false, nextCursor: null, limit: q.limit }
-
-      // Enriquecer cada log com `email_ator_historico_log` — lookup em
-      // `usuario` pelo `id_ator_historico_log`. Tabela `usuario` vive no
-      // banco do Configurador, separado do `historico_log` (banco da
-      // organização-shared), por isso fazemos JOIN em código (1 query
-      // batch por página, não N+1).
+      // Enriquecer com email — tabela `usuario` (Configurador DB), lookup batch
       const idsAtorUsuario = Array.from(new Set(
         logs
           .filter((l) => l.tipo_ator_historico_log === 'USUARIO')
@@ -146,8 +161,6 @@ historicoGlobalAdminRouter.get(
           })
           mapaEmailPorIdUsuario = new Map(usuarios.map((u) => [u.id_usuario, u.email_usuario]))
         } catch (lookupErr) {
-          // Falha de lookup não bloqueia a tela do Histórico Global —
-          // só vai sem o email. Log estruturado para diagnóstico.
           log.warn('Falha ao enriquecer logs com email_ator_historico_log', { lookupErr })
         }
       }
@@ -158,7 +171,7 @@ historicoGlobalAdminRouter.get(
         return { ...l, email_ator_historico_log }
       })
 
-      res.json({ data: logsEnriquecidos, meta })
+      res.json({ data: logsEnriquecidos, meta: { hasMore, nextCursor, limit: safeLimit } })
     } catch (err) {
       next(err)
     }

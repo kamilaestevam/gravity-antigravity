@@ -697,6 +697,62 @@ function SignInFlow() {
   const [verSenha, setVerSenha] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'oauth_loading'>('idle')
+  const [etapa, setEtapa] = useState<'credenciais' | 'codigo_email'>('credenciais')
+  const [codigoEmail, setCodigoEmail] = useState('')
+
+  const completarLogin = async () => {
+    if (!signIn) return
+    await setActive({ session: signIn.createdSessionId })
+    navigate('/hub')
+  }
+
+  const enviarCodigoSegundoFator = async () => {
+    if (!signIn) return
+    const segundosFatores = signIn.supportedSecondFactors ?? []
+    const temEmail = segundosFatores.some((f: { strategy: string }) => f.strategy === 'email_code')
+    const temTOTP = segundosFatores.some((f: { strategy: string }) => f.strategy === 'totp')
+
+    if (temEmail) {
+      await signIn.prepareSecondFactor({ strategy: 'email_code' })
+      setEtapa('codigo_email')
+      setStatus('idle')
+    } else if (temTOTP) {
+      setEtapa('codigo_email')
+      setStatus('idle')
+    } else {
+      console.error('[LoginGlobal] Nenhuma estrategia de segundo fator suportada', { segundosFatores })
+      setErro(t('login.erro_2fa_nao_suportado'))
+      setStatus('idle')
+    }
+  }
+
+  const aoSubmeterCodigo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!codigoEmail || !isLoaded || !signIn) return
+    setStatus('loading')
+    setErro(null)
+
+    try {
+      const segundosFatores = signIn.supportedSecondFactors ?? []
+      const temEmail = segundosFatores.some((f: { strategy: string }) => f.strategy === 'email_code')
+      const estrategia = temEmail ? 'email_code' as const : 'totp' as const
+
+      const resultado = await signIn.attemptSecondFactor({ strategy: estrategia, code: codigoEmail })
+      if (resultado.status === 'complete') {
+        await setActive({ session: resultado.createdSessionId })
+        navigate('/hub')
+      } else {
+        console.error('[LoginGlobal] Status inesperado apos segundo fator', { status: resultado.status })
+        setErro(t('login.erro_status_incompleto'))
+        setStatus('idle')
+      }
+    } catch (err) {
+      const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
+      const msg = erroClerk?.errors?.[0]?.longMessage ?? erroClerk?.errors?.[0]?.message ?? t('login.erro_generico')
+      setErro(msg)
+      setStatus('idle')
+    }
+  }
 
   const aoSubmeter = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -708,21 +764,16 @@ function SignInFlow() {
     try {
       const resultado = await signIn.create({ identifier: email, password: senha })
 
-      // Mand. 08 — discriminated union explicita com console.error em todo ramo nao-sucesso
       switch (resultado.status) {
         case 'complete':
-          await setActive({ session: resultado.createdSessionId })
-          navigate('/hub')
+          await completarLogin()
           return
 
         case 'needs_second_factor':
-          console.error('[LoginGlobal] 2FA solicitado mas tela atual nao suporta', { resultado })
-          setErro(t('login.erro_2fa_nao_suportado'))
-          setStatus('idle')
+          await enviarCodigoSegundoFator()
           return
 
         default:
-          // needs_identifier, needs_first_factor inesperado, needs_new_password, etc.
           console.error('[LoginGlobal] Status inesperado de signIn.create', {
             status: resultado.status,
             resultado,
@@ -798,6 +849,78 @@ function SignInFlow() {
   }
 
   const carregando = status === 'loading' || status === 'oauth_loading'
+
+  if (etapa === 'codigo_email') {
+    return (
+      <div className="signin-container">
+        <div className="signin-card">
+          <form onSubmit={aoSubmeterCodigo} className="signin-form" noValidate>
+            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <Envelope size={32} style={{ color: 'var(--ws-accent, #818cf8)', marginBottom: '0.5rem' }} />
+              <p style={{ fontSize: '0.9rem', color: 'var(--ws-text-secondary, #94a3b8)', margin: 0 }}>
+                {t('login.verificacao_email_desc')}
+              </p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--ws-text-tertiary, #64748b)', marginTop: '0.25rem' }}>
+                {email}
+              </p>
+            </div>
+
+            <div className="signin-field">
+              <label htmlFor="signin-codigo">{t('login.codigo_verificacao')}</label>
+              <div className="signin-input-wrapper">
+                <input
+                  id="signin-codigo"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  value={codigoEmail}
+                  onChange={(e) => setCodigoEmail(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  required
+                  disabled={carregando}
+                  autoFocus
+                  style={{ textAlign: 'center', letterSpacing: '0.3em', fontSize: '1.2rem' }}
+                />
+                <Lock size={20} className="signin-input-icon" />
+              </div>
+            </div>
+
+            {erro && (
+              <div id="signin-erro" className="signin-error-msg" role="alert">
+                <WarningCircle size={18} />
+                <span>{erro}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className={`signin-button ${status === 'loading' ? 'loading' : ''}`}
+              disabled={carregando || codigoEmail.length < 6}
+            >
+              {status === 'loading' ? (
+                <>
+                  <CircleNotch size={20} className="spin" />
+                  {t('login.verificando')}
+                </>
+              ) : (
+                t('login.verificar')
+              )}
+            </button>
+
+            <button
+              type="button"
+              className="signin-forgot-link"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', marginTop: '0.5rem', width: '100%' }}
+              onClick={() => { setEtapa('credenciais'); setCodigoEmail(''); setErro(null) }}
+            >
+              <ArrowLeft size={14} style={{ marginRight: '0.25rem' }} />
+              {t('login.voltar_login')}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="signin-container">

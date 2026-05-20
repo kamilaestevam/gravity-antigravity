@@ -12,7 +12,7 @@
 //   emailAddress, redirectUrl: `${APP_BASE_URL}/cadastro/continuar`
 // }) — ver server/routes/usuario.ts e admin.ts.
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSignUp } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -25,7 +25,6 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import '@nucleo/login-global/src/login-global.css'
 import './auth.css'
 
 // ─── Helpers de validação ────────────────────────────────────────────────────
@@ -90,8 +89,12 @@ export function CadastroContinuarPage() {
   // ─── Pré-popula do ticket ────────────────────────────────────────────────
   // O Clerk preenche signUp.emailAddress / firstName / lastName quando o
   // ticket é processado via signUp.create({ strategy: 'ticket', ticket })
+  // IMPORTANTE: signUp muda de referência entre renders — usar ref para
+  // garantir que o ticket é processado UMA ÚNICA VEZ (ticket é single-use).
+  const ticketProcessado = useRef(false)
   useEffect(() => {
-    if (!isLoaded || !signUp || !ticket) return
+    if (!isLoaded || !signUp || !ticket || ticketProcessado.current) return
+    ticketProcessado.current = true
 
     void signUp
       .create({ strategy: 'ticket', ticket })
@@ -103,6 +106,7 @@ export function CadastroContinuarPage() {
         if (completo) setNome(completo)
       })
       .catch((err) => {
+        console.error('[CadastroContinuar] Erro ao processar ticket', { ticket, err, errors: (err as any)?.errors })
         const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
         const codigo = erroClerk?.errors?.[0]?.code
         const msgOriginal = erroClerk?.errors?.[0]?.longMessage

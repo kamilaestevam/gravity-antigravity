@@ -393,7 +393,11 @@
     "tooltip_entrar": "Sign in with email and password",
     "continuar_com_google": "Continue with Google",
     "enviar_instrucoes": "Send instructions",
-    "erro_sessao_existente": "You're already signed in."
+    "erro_sessao_existente": "You're already signed in.",
+    "verificacao_email_desc": "We sent a verification code to your email.",
+    "codigo_verificacao": "Verification code",
+    "verificar": "Verify",
+    "verificando": "Verifying..."
   },
   "admin": {
     "layout": {

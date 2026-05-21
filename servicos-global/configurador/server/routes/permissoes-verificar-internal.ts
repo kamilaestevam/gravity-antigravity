@@ -59,6 +59,10 @@ permissoesVerificarInternalRouter.post('/verificar', async (req, res, next) => {
   try {
     const parsed = BodySchema.safeParse(req.body)
     if (!parsed.success) {
+      console.error('[permissoes/verificar] Zod validation failed', {
+        errors: parsed.error.errors,
+        body: req.body,
+      })
       throw new AppError(parsed.error.errors[0]?.message ?? 'Body inválido', 400, 'VALIDATION_ERROR')
     }
     const { id_organizacao, id_usuario, id_workspace, slug_produto, secao, acao } = parsed.data

@@ -414,6 +414,7 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="total_cotacoes"
               titulo="Total de Cotações"
+              className="lp-kpi-card--blue"
               icone={<Package weight="duotone" size={16} style={{ color: 'var(--accent)' }} />}
               valor={stats.total}
               subtexto="Todas as cotações carregadas"
@@ -441,6 +442,7 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="cotacoes_andamento"
               titulo="Cotações em Andamento"
+              className="lp-kpi-card--orange"
               icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
               valor={stats.emAndamento}
               variante="aviso"
@@ -469,6 +471,7 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="aguardando_aprovacao"
               titulo="Aguardando Aprovação"
+              className="lp-kpi-card--yellow"
               icone={<Warning weight="duotone" size={16} style={{ color: '#facc15' }} />}
               valor={stats.aguardandoAprovacao}
               variante="aviso"
@@ -497,6 +500,7 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="expiradas"
               titulo="Expiradas"
+              className="lp-kpi-card--red"
               icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
               valor={stats.expiradas}
               variante="perigo"
@@ -525,6 +529,7 @@ export default function Cotacoes() {
             <CardBasicoGlobal
               key="saving_estimado"
               titulo="Saving Estimado"
+              className="lp-kpi-card--green"
               icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
               valor={`USD ${fmtQuantidade(stats.savingTotal, 2)}`}
               variante="sucesso"

@@ -53,7 +53,8 @@ export const PRODUCT_CONFIG = {
 
     // ── Pedidos ──────────────────────────────────────────────────────────────
     { id: 'section-pedidos',                    label: 'Pedidos',    labelKey: 'pedido.nav.pedidos',       sectionDivider: true },
-    { id: '/produto/pedido/pedidos/dashboard',  label: 'Dashboard',  labelKey: 'pedido.nav.dashboard',     icon: 'chart-pie-slice',         source: 'product' },
+    { id: '/produto/pedido/pedidos/visao-geral', label: 'Visão Geral', icon: 'chart-pie-slice',           source: 'product' },
+    { id: '/produto/pedido/pedidos/dashboard',  label: 'Dashboard',  labelKey: 'pedido.nav.dashboard',     icon: 'chart-bar',               source: 'product' },
     { id: '/produto/pedido/pedidos/lista',      label: 'Lista',      labelKey: 'pedido.nav.lista',         icon: 'list-bullets',            source: 'product' },
     { id: '/produto/pedido/pedidos/kanban',     label: 'Kanban',     labelKey: 'pedido.nav.kanban',        icon: 'kanban',                  source: 'product' },
 

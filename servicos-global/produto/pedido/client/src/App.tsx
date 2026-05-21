@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
-import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
+import { ChartPieSlice, ChartBar, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { setApiContext, injectTenantGetter, injectTokenGetter, injectWorkspaceGetter } from './shared/api'
@@ -20,6 +20,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
  * Itens cujo id NÃO está aqui não são gateados (Meu Espaço, section divider).
  */
 const ID_NAV_PARA_SECAO: Record<string, SecaoPedido> = {
+  '/produto/pedido/pedidos/visao-geral': 'dashboard',
   '/produto/pedido/pedidos/dashboard': 'dashboard',
   '/produto/pedido/pedidos/lista':     'lista',
   '/produto/pedido/pedidos/kanban':    'kanban',
@@ -48,6 +49,7 @@ const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
 const PedidosDashboard = lazy(() => import('./pages/PedidosDashboard'))
+const PedidosVisaoGeral = lazy(() => import('./pages/PedidosVisaoGeral'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -57,6 +59,7 @@ const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
   'chart-pie-slice':         <ChartPieSlice         weight="duotone" size={20} />,
+  'chart-bar':               <ChartBar              weight="duotone" size={20} />,
   'list-bullets':            <ListBullets           weight="duotone" size={20} />,
   'kanban':                  <Kanban                weight="duotone" size={20} />,
   'clock-counter-clockwise': <ClockCounterClockwise weight="duotone" size={20} />,
@@ -207,9 +210,10 @@ function AppInner() {
     currentUser.role === 'SUPER_ADMIN'  || currentUser.role === 'ADMIN'
 
   const ROUTE_LABELS: Record<string, string> = {
-    'pedidos':           'Lista',
-    'pedidos/lista':     'Lista',
-    'pedidos/dashboard': 'Dashboard',
+    'pedidos':            'Lista',
+    'pedidos/lista':      'Lista',
+    'pedidos/visao-geral': 'Visão Geral',
+    'pedidos/dashboard':  'Dashboard',
     'pedidos/kanban':    'Kanban',
     'pedidos/novo':      'Novo Pedido',
     'configuracoes':     'Configurações',
@@ -291,6 +295,11 @@ function AppInner() {
           <Route path="pedidos/lista"            element={
             <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
               <Pedidos />
+            </BloqueioPermissaoOpaco>
+          } />
+          <Route path="pedidos/visao-geral"      element={
+            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
+              <PedidosVisaoGeral />
             </BloqueioPermissaoOpaco>
           } />
           <Route path="pedidos/dashboard"        element={

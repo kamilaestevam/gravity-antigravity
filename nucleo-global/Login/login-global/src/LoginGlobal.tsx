@@ -625,9 +625,9 @@ function SignUpFlow() {
             />
             <span>
               Li e aceito os{' '}
-              <a href="#" target="_blank" rel="noreferrer">Termos de Uso</a>
+              <a href="/termos-de-uso" target="_blank" rel="noreferrer">Termos de Uso</a>
               {' '}e a{' '}
-              <a href="#" target="_blank" rel="noreferrer">Política de Privacidade</a>.
+              <a href="/politica-de-privacidade" target="_blank" rel="noreferrer">Política de Privacidade</a>.
             </span>
           </label>
 

@@ -27,6 +27,8 @@ export type Page =
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
 import { ListaEspera } from './pages/ListaEspera'
+import { TermosDeUsoPage } from './pages/TermosDeUsoPage'
+import { PoliticaDePrivacidadePage } from './pages/PoliticaDePrivacidadePage'
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
@@ -312,6 +314,8 @@ export default function App() {
         <Route path="/trial" element={<Onboarding />} />
         <Route path="/contato" element={<Contato />} />
         <Route path="/waitlist" element={<ListaEspera />} />
+        <Route path="/termos-de-uso" element={<TermosDeUsoPage />} />
+        <Route path="/politica-de-privacidade" element={<PoliticaDePrivacidadePage />} />
 
         {/* Redirect legado — Clerk antigo redirecionava para /selecionar-workspace */}
         <Route path="/selecionar-workspace" element={<Navigate to="/hub" replace />} />

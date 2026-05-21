@@ -1,4 +1,4 @@
-﻿/**
+/**
  * VisaoGeral.tsx — Visão Geral do BID Câmbio
  *
  * Layout glassmorphism com KPIs + sparklines, gráficos SVG,
@@ -31,6 +31,10 @@ import {
   CurrencyDollar,
   CurrencyEur,
   CurrencyGbp,
+  Clock,
+  CheckCircle,
+  ChatText,
+  Bell,
 } from '@phosphor-icons/react'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -3227,7 +3231,7 @@ export default function VisaoGeral() {
         .bcc-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
 
         /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bcc-bottom-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 1.25rem; }
+        .bcc-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
 
         /* ── Taxa ────────────────────────────────────────────────── */
         .bcc-taxa { display: flex; align-items: center; gap: 1.25rem; }
@@ -3321,15 +3325,103 @@ export default function VisaoGeral() {
         />
       </div>
 
-      {/* Row 2: Globe Map + Funil de Cotações */}
+      {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Operações on bottom) */}
       <div className="bcc-globe-row">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa />
 
-        {/* Funil */}
-        <div className="bcc-card">
-          <span className="bcc-card__title">Funil de Operações</span>
-          <FunilStatus />
+        {/* Right Column Stacking Alertas + Funil */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+          {/* Alertas */}
+          <div className="bcc-card bcc-alertas" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+              <span className="bcc-card__title" style={{ marginBottom: 0, fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.02em' }}>Alertas</span>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
+                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }}>
+              {alertas.map((a, i) => {
+                let icon = <Clock size={16} weight="duotone" />
+                let glowColor = 'rgba(248, 113, 113, 0.15)'
+                let textColor = '#f87171'
+                let borderLeftColor = '#f87171'
+                let itemBg = 'rgba(248, 113, 113, 0.04)'
+
+                if (a.cor === 'orange' || a.cor === 'yellow') {
+                  icon = <ChatText size={16} weight="duotone" />
+                  glowColor = 'rgba(251, 191, 36, 0.15)'
+                  textColor = '#fbbf24'
+                  borderLeftColor = '#fbbf24'
+                  itemBg = 'rgba(251, 191, 36, 0.04)'
+                } else if (a.cor === 'green') {
+                  icon = <Bell size={16} weight="duotone" />
+                  glowColor = 'rgba(52, 211, 153, 0.15)'
+                  textColor = '#34d399'
+                  borderLeftColor = '#34d399'
+                  itemBg = 'rgba(52, 211, 153, 0.04)'
+                } else {
+                  icon = <CheckCircle size={16} weight="duotone" />
+                  glowColor = 'rgba(6, 182, 212, 0.15)'
+                  textColor = '#06b6d4'
+                  borderLeftColor = '#06b6d4'
+                  itemBg = 'rgba(6, 182, 212, 0.04)'
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="bcc-alertas__glow-card"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      background: itemBg,
+                      border: '1px solid rgba(255, 255, 255, 0.03)',
+                      borderLeft: `3px solid ${borderLeftColor}`,
+                      borderRadius: '6px',
+                      padding: '0.65rem 0.8rem',
+                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      minHeight: '75px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.background = itemBg.replace('0.04', '0.07')
+                      e.currentTarget.style.borderColor = borderLeftColor + '2b'
+                      e.currentTarget.style.boxShadow = `0 4px 12px ${glowColor}`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none'
+                      e.currentTarget.style.background = itemBg
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.03)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <span style={{ color: borderLeftColor, display: 'flex', alignItems: 'center' }}>
+                        {icon}
+                      </span>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                        {a.count}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
+                      {a.label}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Funil */}
+          <div className="bcc-card" style={{ flex: 1, padding: '1.25rem 1.5rem' }}>
+            <span className="bcc-card__title" style={{ marginBottom: '1.05rem', fontSize: '1rem' }}>Funil de Operações</span>
+            <FunilStatus />
+          </div>
         </div>
       </div>
 
@@ -3455,30 +3547,6 @@ export default function VisaoGeral() {
         <div className="bcc-card">
           <span className="bcc-card__title">Taxa de Resposta</span>
           <TaxaResposta />
-        </div>
-
-        {/* Alertas */}
-        <div className="bcc-card bcc-alertas">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="bcc-card__title" style={{ marginBottom: 0 }}>Alertas</span>
-            <div className="bcc-alertas__nav">
-              <button><CaretLeft size={14} /></button>
-              <span>Hoje</span>
-              <button><CaretRight size={14} /></button>
-              <span style={{ marginLeft: 8 }}>Amanha</span>
-            </div>
-          </div>
-          <div className="bcc-alertas__pills">
-            {alertas.map((a, i) => {
-              const pillColors: Record<string, string> = { red: '#f87171', orange: '#fbbf24', yellow: '#eab308', green: '#34d399' }
-              return (
-                <div key={i} className="bcc-alertas__pill">
-                  <span className="bcc-alertas__pill-count" style={{ color: pillColors[a.cor] || '#06b6d4' }}>{a.count}</span>
-                  <span>{a.label}</span>
-                </div>
-              )
-            })}
-          </div>
         </div>
       </div>
 

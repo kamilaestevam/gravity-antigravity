@@ -238,7 +238,7 @@ export default function App() {
           <Route path="/"              element={<Navigate to="visao-geral" replace />} />
           <Route path="visao-geral"    element={<Dashboard />} />
           <Route path="cotacoes"       element={<Cotacoes />} />
-          <Route path="cotacoes/nova"  element={<NovaCotacao />} />
+          <Route path="cotacoes/nova"  element={<Cotacoes />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
           <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />

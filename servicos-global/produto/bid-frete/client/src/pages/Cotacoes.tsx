@@ -8,7 +8,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+
+const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -105,6 +107,8 @@ const dataBR = (iso: string) =>
 export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isNovaCotacao = location.pathname.endsWith('/nova')
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [visao, setVisao] = useState<'lista' | 'kanban'>('lista')
@@ -594,6 +598,11 @@ export default function Cotacoes() {
           color: var(--text-primary, #f1f5f9);
         }
       `}</style>
+      {isNovaCotacao && (
+        <React.Suspense fallback={null}>
+          <NovaCotacao />
+        </React.Suspense>
+      )}
     </PaginaGlobal>
   )
 }

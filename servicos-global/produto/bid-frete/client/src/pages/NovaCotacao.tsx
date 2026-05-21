@@ -25,6 +25,7 @@ import {
   CheckCircle,
   Warning,
   Info,
+  X,
 } from '@phosphor-icons/react'
 
 import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -684,80 +685,169 @@ export default function NovaCotacao() {
 
   // ─── Sucesso ──────────────────────────────────────────────────────────
   if (sucesso) {
+    const handleOverlayClick = (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        navigate('/cotacoes')
+      }
+    }
     return (
-      <PaginaGlobal className="nc-page">
-        <div className="nc-sucesso nc-fade-in">
-          <div className="nc-sucesso-badge">
-            <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
-          </div>
-          <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
-          <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
-          <div className="nc-sucesso-actions">
-            <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
-            {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+      <div className="nc-modal-overlay" onClick={handleOverlayClick}>
+        <div className="nc-modal-container nc-fade-in" style={{ maxWidth: '520px', padding: '3rem 2rem' }} onClick={e => e.stopPropagation()}>
+          <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+            <X weight="bold" size={20} />
+          </button>
+          <div className="nc-sucesso nc-fade-in">
+            <div className="nc-sucesso-badge">
+              <CheckCircle weight="duotone" size={72} style={{ color: 'var(--success, #10b981)' }} />
+            </div>
+            <h2 className="nc-sucesso-title">{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
+            <p className="nc-sucesso-desc">{t('bidfrete.nova_cotacao.criado_desc')}</p>
+            <div className="nc-sucesso-actions">
+              <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+              {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
+            </div>
           </div>
         </div>
-      </PaginaGlobal>
+      </div>
     )
+  }
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      navigate('/cotacoes')
+    }
   }
 
   // ─── Render principal ──────────────────────────────────────────────────
   return (
-    <PaginaGlobal className="nc-page">
-      <div className="nc-subheader">
-        <div className="nc-subheader-left">
-          <span className="nc-subheader-step">Etapa {step} de 7</span>
-          <span className="nc-subheader-separator">•</span>
-          <span className="nc-subheader-name">{STEPS[step - 1].label}</span>
-        </div>
-        <div className="nc-subheader-right">
-          <button className="nc-btn nc-btn--secondary nc-btn-cancelar" onClick={() => navigate('/cotacoes')}>
-            <ArrowLeft weight="bold" size={14} /> {t('comum.cancelar')}
-          </button>
-        </div>
-      </div>
-
-      <div className="nc-stepper-container">
-        <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
-      </div>
-
-      <div className="nc-form-card">
-        {/* Usar a chave no passo atual força a montagem do container disparando a animação .nc-fade-in */}
-        <div className="nc-step-wrapper nc-fade-in" key={step}>
-          {renderStep()}
-        </div>
-      </div>
-
-      {/* Footer de navegação */}
-      <div className="nc-footer">
-        <button
-          className="nc-btn nc-btn--secondary nc-btn--navigation"
-          disabled={step === 1}
-          onClick={() => setStep(s => s - 1)}
-        >
-          <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
+    <div className="nc-modal-overlay" onClick={handleOverlayClick}>
+      <div className="nc-modal-container nc-fade-in" onClick={e => e.stopPropagation()}>
+        <button className="nc-modal-close" onClick={() => navigate('/cotacoes')} aria-label="Fechar">
+          <X weight="bold" size={20} />
         </button>
-        <div className="nc-footer-spacer" />
-        {step < 7 ? (
+
+        <div className="nc-subheader">
+          <div className="nc-subheader-left">
+            <span className="nc-subheader-step">Etapa {step} de 7</span>
+            <span className="nc-subheader-separator">•</span>
+            <span className="nc-subheader-name">{STEPS[step - 1].label}</span>
+          </div>
+        </div>
+
+        <div className="nc-stepper-container">
+          <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
+        </div>
+
+        <div className="nc-modal-body">
+          {/* Usar a chave no passo atual força a montagem do container disparando a animação .nc-fade-in */}
+          <div className="nc-step-wrapper nc-fade-in" key={step}>
+            {renderStep()}
+          </div>
+        </div>
+
+        {/* Footer de navegação */}
+        <div className="nc-footer">
           <button
-            className="nc-btn nc-btn--primary nc-btn--navigation"
-            disabled={!canNext()}
-            onClick={() => setStep(s => s + 1)}
+            className="nc-btn nc-btn--secondary nc-btn--navigation"
+            disabled={step === 1}
+            onClick={() => setStep(s => s - 1)}
           >
-            {t('comum.proximo')} <ArrowRight weight="bold" size={14} />
+            <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
           </button>
-        ) : (
-          <button
-            className="nc-btn nc-btn--primary nc-btn--navigation nc-btn--cta"
-            disabled={salvando}
-            onClick={handleSubmit}
-          >
-            {salvando ? t('bidfrete.nova_cotacao.criando') : t('bidfrete.nova_cotacao.criar')} <Check weight="bold" size={14} />
-          </button>
-        )}
+          <div className="nc-footer-spacer" />
+          {step < 7 ? (
+            <button
+              className="nc-btn nc-btn--primary nc-btn--navigation"
+              disabled={!canNext()}
+              onClick={() => setStep(s => s + 1)}
+            >
+              {t('comum.proximo')} <ArrowRight weight="bold" size={14} />
+            </button>
+          ) : (
+            <button
+              className="nc-btn nc-btn--primary nc-btn--navigation nc-btn--cta"
+              disabled={salvando}
+              onClick={handleSubmit}
+            >
+              {salvando ? t('bidfrete.nova_cotacao.criando') : t('bidfrete.nova_cotacao.criar')} <Check weight="bold" size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       <style>{`
+        /* ── Modal Layout ── */
+        .nc-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(8, 10, 20, 0.7);
+          backdrop-filter: blur(12px) saturate(180%);
+          -webkit-backdrop-filter: blur(12px) saturate(180%);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow-y: auto;
+          padding: 2rem 1.5rem;
+        }
+
+        .nc-modal-container {
+          background: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          width: 100%;
+          max-width: 920px;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+          position: relative;
+          padding: 2.5rem 3rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          animation: nc-modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          max-height: 90vh;
+        }
+
+        @keyframes nc-modal-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .nc-modal-close {
+          position: absolute;
+          top: 1.25rem;
+          right: 1.25rem;
+          background: transparent;
+          border: none;
+          color: var(--text-secondary, #94a3b8);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+        }
+        .nc-modal-close:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-primary, #f8fafc);
+        }
+
+        .nc-modal-body {
+          flex: 1;
+          overflow-y: auto;
+          padding-right: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+
         .nc-page {
           padding: 0.5rem 2rem 1.5rem;
           background: transparent;
@@ -814,23 +904,6 @@ export default function NovaCotacao() {
         .nc-stepper-container {
           margin-bottom: 1.5rem;
           padding: 0;
-        }
-
-        /* ── Form Card Glassmorphism ── */
-        .nc-form-card {
-          background: rgba(15, 23, 42, 0.45);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 16px;
-          padding: 2.5rem 3rem;
-          min-height: 420px;
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .nc-form-card:hover {
-          border-color: rgba(99, 102, 241, 0.35);
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 0 1px rgba(99, 102, 241, 0.2);
         }
 
         /* Animação Suave entre Passos */
@@ -1609,6 +1682,6 @@ export default function NovaCotacao() {
           margin-top: 1.75rem;
         }
       `}</style>
-    </PaginaGlobal>
+    </div>
   )
 }

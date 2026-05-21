@@ -735,7 +735,8 @@ function VisaoGeralMapa() {
         canvas.height = h
       }
       
-      const cx = w / 2
+      const isWide = w > 1024
+      const cx = isWide ? w * 0.63 : w / 2
       const cy = h / 2
       const R = Math.min(w, h) * 0.42
       const pulseTime = Date.now() / 2400
@@ -1173,6 +1174,60 @@ function VisaoGeralMapa() {
         onTouchEnd={handleMouseUpOrLeave}
         style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
       >
+        {/* Left Sidebar Panel inside Map Container (Only visible on wide screens) */}
+        <div className="bfd-map-left-panel">
+          <div className="bfd-map-panel__header">
+            <span className="bfd-map-panel__title">Monitor de Bids Global</span>
+            <span className="bfd-map-panel__subtitle">Consolidado em tempo real</span>
+          </div>
+
+          <div className="bfd-map-panel__stats-row">
+            <div className="bfd-map-panel__stat-card">
+              <span className="bfd-map-panel__stat-num">59</span>
+              <span className="bfd-map-panel__stat-lbl">Bids Ativos</span>
+            </div>
+            <div className="bfd-map-panel__stat-card">
+              <span className="bfd-map-panel__stat-num" style={{ color: '#52d69b' }}>18.2%</span>
+              <span className="bfd-map-panel__stat-lbl">Avg Saving</span>
+            </div>
+          </div>
+
+          <div className="bfd-map-panel__divider" />
+
+          <span className="bfd-map-panel__section-title">Terminais Estratégicos</span>
+          <div className="bfd-map-panel__terminals">
+            {MAP_PINS.slice(0, 4).map(pin => (
+              <div 
+                key={pin.id} 
+                className={`bfd-map-panel__terminal-item ${hoveredPin === pin.id ? 'is-hovered' : ''}`}
+                onMouseEnter={() => {
+                  setHoveredPin(pin.id)
+                  isRotationPausedRef.current = true
+                }}
+                onMouseLeave={() => {
+                  setHoveredPin(null)
+                  isRotationPausedRef.current = false
+                }}
+              >
+                <div className="bfd-map-panel__terminal-header">
+                  <span className="bfd-map-panel__terminal-name">
+                    <span className="bfd-map-panel__terminal-flag">{pin.flag}</span>
+                    <strong>{pin.label}</strong> <span style={{ opacity: 0.6 }}>({pin.portCode})</span>
+                  </span>
+                  <span className="bfd-map-panel__terminal-saving">+{pin.savingPct}%</span>
+                </div>
+                <div className="bfd-map-panel__progress-bar">
+                  <div className="bfd-map-panel__progress-fill" style={{ width: `${(pin.activeBids / 15) * 100}%`, backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#52d69b' }} />
+                </div>
+                <div className="bfd-map-panel__terminal-meta">
+                  <span>{pin.activeBids} bids ativos</span>
+                  <span>Melhor: USD {fmtMoeda(pin.bestPrice)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* The high-performance 3D Canvas */}
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
         
@@ -1193,7 +1248,10 @@ function VisaoGeralMapa() {
                 opacity: pin.opacity,
                 pointerEvents: pin.opacity < 0.65 ? 'none' : 'auto'
               }}
-              onMouseEnter={() => setHoveredPin(pin.id)}
+              onMouseEnter={() => {
+                setHoveredPin(pin.id)
+                isRotationPausedRef.current = true
+              }}
               onMouseLeave={() => {
                 setHoveredPin(null)
                 isRotationPausedRef.current = false
@@ -1377,7 +1435,146 @@ export default function Dashboard() {
 
         .bfd-map-container {
           position: relative; height: 380px; border-radius: 12px; overflow: visible;
-          border: 1px solid rgba(255,255,255,0.06); background: #0b0e14;
+          border: 1px solid rgba(255, 255, 255, 0.06); background: #0b0e14;
+        }
+        .bfd-map-left-panel {
+          position: absolute;
+          left: 1.25rem;
+          top: 1.25rem;
+          bottom: 1.25rem;
+          width: 320px;
+          background: rgba(11, 14, 20, 0.85);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 1.2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.8rem;
+          z-index: 20;
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .bfd-map-panel__header {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+        .bfd-map-panel__title {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.02em;
+        }
+        .bfd-map-panel__subtitle {
+          font-size: 0.75rem;
+          color: #cbd5e1;
+          letter-spacing: 0.015em;
+        }
+        .bfd-map-panel__stats-row {
+          display: flex;
+          gap: 0.75rem;
+        }
+        .bfd-map-panel__stat-card {
+          flex: 1;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          padding: 0.6rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.15rem;
+        }
+        .bfd-map-panel__stat-num {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: #ffffff;
+          line-height: 1.2;
+        }
+        .bfd-map-panel__stat-lbl {
+          font-size: 0.72rem;
+          color: #cbd5e1;
+          font-weight: 500;
+          letter-spacing: 0.02em;
+        }
+        .bfd-map-panel__divider {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.08);
+          margin: 0.2rem 0;
+        }
+        .bfd-map-panel__section-title {
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #52d69b;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .bfd-map-panel__terminals {
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+          overflow-y: auto;
+          flex: 1;
+        }
+        .bfd-map-panel__terminal-item {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          border-radius: 8px;
+          padding: 0.55rem 0.65rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .bfd-map-panel__terminal-item:hover, .bfd-map-panel__terminal-item.is-hovered {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: translateX(4px);
+        }
+        .bfd-map-panel__terminal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .bfd-map-panel__terminal-name {
+          font-size: 0.8rem;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+        .bfd-map-panel__terminal-flag {
+          font-size: 0.95rem;
+        }
+        .bfd-map-panel__terminal-saving {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #52d69b;
+        }
+        .bfd-map-panel__progress-bar {
+          height: 4px;
+          background: rgba(255, 255, 255, 0.06);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        .bfd-map-panel__progress-fill {
+          height: 100%;
+          border-radius: 2px;
+          transition: width 0.4s ease;
+        }
+        .bfd-map-panel__terminal-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.7rem;
+          color: #cbd5e1;
+          font-weight: 500;
+        }
+        @media (max-width: 1023px) {
+          .bfd-map-left-panel {
+            display: none !important;
+          }
         }
         .bfd-map-bg {
           position: absolute; inset: 0;

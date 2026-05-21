@@ -1,35 +1,28 @@
 /**
- * Dashboard.tsx — Visão Geral do BID Frete (T1)
+ * Dashboard.tsx — Visao Geral do BID Frete
  * Skill: antigravity-design-system, antigravity-componentes
  *
- * Baseado nos prints: modelo.png, modelo 5, 6, 7, 10
- * Layout: KPIs + Donut Fornecedores + Calendário Alertas + Moedas + Tabela Cotações
+ * Layout: KPIs em grid responsivo + Barra aprovacao + Tabela cotacoes
+ * Padrao alinhado com Bid Cambio e Pedido dashboards
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
-import { CardGraficoGlobal } from '@nucleo/card-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import {
-  ChartPieSlice,
   Truck,
-  CurrencyDollar,
   TrendUp,
   CheckCircle,
   ClockCountdown,
   Eye,
-  ArrowRight,
+  Buildings,
   CalendarBlank,
   CaretLeft,
   CaretRight,
-  Buildings,
-  Warning,
-  Timer,
-  Prohibit,
+  Package,
 } from '@phosphor-icons/react'
 
 import { getDashboardKpis, getDashboardCalendario, getCotacoes } from '../shared/api'
@@ -41,12 +34,9 @@ import type {
 } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, MODALIDADE_LABELS } from '../shared/types'
 
-// ─── Formatação ──────────────────────────────────────────────────────────────
+// ─── Formatacao ──────────────────────────────────────────────────────────────
 
-const usd = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)
-
-const brl = (val: number) =>
+const formatarMoeda = (val: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)
 
 const dataBR = (iso: string) =>
@@ -81,14 +71,33 @@ function BadgeStatus({ status }: { status: StatusCotacao }) {
   )
 }
 
-// ─── Alerta do calendário ────────────────────────────────────────────────────
+// ─── KPI Card ────────────────────────────────────────────────────────────────
 
-const ALERTA_ICONS: Record<string, React.ReactNode> = {
-  green:  <CheckCircle weight="duotone" size={16} />,
-  yellow: <ClockCountdown weight="duotone" size={16} />,
-  orange: <Timer weight="duotone" size={16} />,
-  red:    <Prohibit weight="duotone" size={16} />,
+interface KpiCardProps {
+  icone: React.ReactNode
+  label: string
+  valor: string | number
+  sublabel?: string
+  acento?: string
 }
+
+function KpiCard({ icone, label, valor, sublabel, acento = '#60a5fa' }: KpiCardProps) {
+  return (
+    <div className="bf-kpi-card">
+      <div className="bf-kpi-card__borda" style={{ background: acento }} />
+      <div className="bf-kpi-card__conteudo">
+        <div className="bf-kpi-card__header">
+          <span className="bf-kpi-card__icone" style={{ color: acento }}>{icone}</span>
+          <span className="bf-kpi-card__label">{label}</span>
+        </div>
+        <span className="bf-kpi-card__valor">{valor}</span>
+        {sublabel && <span className="bf-kpi-card__sublabel">{sublabel}</span>}
+      </div>
+    </div>
+  )
+}
+
+// ─── Alerta do calendario ────────────────────────────────────────────────────
 
 const ALERTA_COLORS: Record<string, { bg: string; color: string; border: string }> = {
   green:  { bg: 'rgba(34,197,94,0.1)',   color: 'var(--success, #22c55e)', border: 'rgba(34,197,94,0.3)' },
@@ -97,22 +106,20 @@ const ALERTA_COLORS: Record<string, { bg: string; color: string; border: string 
   red:    { bg: 'rgba(239,68,68,0.1)',   color: 'var(--danger, #ef4444)',  border: 'rgba(239,68,68,0.3)' },
 }
 
-// ─── Tabs de filtro rápido ───────────────────────────────────────────────────
+// ─── Tabs de filtro rapido ───────────────────────────────────────────────────
 
-interface TabFiltroProps {
+const TABS_COTACAO: { key: string; label: string }[] = [
+  { key: 'TODAS', label: 'Todas as cotacoes' },
+  { key: 'DATA_LIMITE', label: 'Data limite para resposta' },
+  { key: 'PROXIMO_VENCIMENTO', label: 'Proximos ao vencimento' },
+  { key: 'FALTA_INFORMACAO', label: 'Falta de informacao para cotacao' },
+]
+
+function TabsFiltro({ ativo, aoMudar, contadores }: {
   ativo: string
   aoMudar: (v: string) => void
   contadores: Record<string, number>
-}
-
-const TABS_COTACAO: { key: string; label: string }[] = [
-  { key: 'TODAS', label: 'Todas as cotações' },
-  { key: 'DATA_LIMITE', label: 'Data limite para resposta' },
-  { key: 'PROXIMO_VENCIMENTO', label: 'Próximos ao vencimento' },
-  { key: 'FALTA_INFORMACAO', label: 'Falta de informação para cotação' },
-]
-
-function TabsFiltro({ ativo, aoMudar, contadores }: TabFiltroProps) {
+}) {
   return (
     <div className="bf-tabs">
       {TABS_COTACAO.map(tab => (
@@ -151,12 +158,13 @@ export default function Dashboard() {
         getCotacoes({ limit: 10 }),
       ])
       setKpis(kpisRes)
-      // Server retorna { alertas: [...] } — extrair o array
-      const alertas = Array.isArray(calRes) ? calRes : (calRes as Record<string, unknown>).alertas as CalendarioAlerta[] ?? []
+      const alertas = Array.isArray(calRes)
+        ? calRes
+        : (calRes as Record<string, unknown>).alertas as CalendarioAlerta[] ?? []
       setCalendario(alertas)
       setCotacoes(cotRes.cotacoes)
     } catch {
-      // erro silencioso — loading state
+      // loading state permanece
     } finally {
       setCarregando(false)
     }
@@ -180,7 +188,7 @@ export default function Dashboard() {
     },
     {
       key: 'referencia_interna',
-      label: 'Referência',
+      label: 'Referencia',
       tipo: 'texto',
       largura: 120,
       render: (val: string | null) => val ?? '—',
@@ -194,7 +202,7 @@ export default function Dashboard() {
     },
     {
       key: 'created_at',
-      label: 'Data da cotação',
+      label: 'Data da cotacao',
       tipo: 'periodo',
       largura: 120,
       render: (val: string) => dataBR(val),
@@ -251,179 +259,122 @@ export default function Dashboard() {
     },
   ]
 
+  // ─── Dados derivados ─────────────────────────────────────────────────────
+
+  const savingPct = kpis?.savings.media_saving_percentual ?? 0
+  const aprovacaoPct = kpis?.aprovacao.percentual_em_tempo ?? 0
+  const totalFornecedores = kpis?.fornecedores_cadastrados ?? 0
+  const fornecedoresPorTipo = kpis?.fornecedores_por_tipo ?? []
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <PaginaGlobal
-      className="bf-dashboard"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<ChartPieSlice weight="duotone" size={22} />}
-          titulo={t('bidfrete.dashboard.titulo')}
-          acoes={
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <button className="btn btn-secondary" onClick={() => navigate('/cotacoes')}>
-                Cotações
-              </button>
-              <button className="btn btn-secondary" onClick={() => navigate('/fornecedores')}>
-                {t('bidfrete.dashboard.fornecedores_cadastrados')}
-              </button>
-              <button className="btn btn-primary" onClick={() => navigate('/cotacoes/nova')}>
-                <Truck weight="bold" size={16} />
-                {t('bidfrete.dashboard.buscar_frete')}
-              </button>
-            </div>
-          }
+    <PaginaGlobal className="bf-dashboard">
+      {/* ════════ LINHA 1: KPI Cards + Botao CTA ════════ */}
+      <div className="bf-kpis-row">
+        <div className="bf-kpis-grid">
+        <KpiCard
+          icone={<ClockCountdown weight="duotone" size={20} />}
+          label="Cotacoes em andamento"
+          valor={kpis?.cotacoes_andamento ?? 0}
+          sublabel={`USD ${formatarMoeda(kpis?.valor_andamento_usd ?? 0)} | BRL ${formatarMoeda(kpis?.valor_andamento_brl ?? 0)}`}
+          acento="#60a5fa"
         />
-      }
-    >
-      {/* ════════ LINHA 1: KPIs + Donut + Calendário ════════ */}
-      <div className="bf-dash-row">
-        {/* ── KPIs Esquerda ── */}
-        <div className="bf-dash-kpis">
-          {/* Linha KPIs em andamento */}
-          <div className="bf-kpi-section">
-            <div className="bf-kpi-pair">
-              <CardBasicoGlobal
-                titulo={t('bidfrete.dashboard.cotacoes_andamento')}
-                icone={<ClockCountdown weight="duotone" size={16} />}
-                valor={kpis?.cotacoes_andamento ?? 0}
-                className="bf-kpi-card"
-              />
-              <div className="bf-kpi-valores">
-                <div className="bf-kpi-moeda">
-                  <span className="bf-kpi-moeda-flag">USD</span>
-                  <span className="bf-kpi-moeda-valor">{usd(kpis?.valor_andamento_usd ?? 0)}</span>
-                </div>
-                <div className="bf-kpi-moeda">
-                  <span className="bf-kpi-moeda-flag">BRL</span>
-                  <span className="bf-kpi-moeda-valor">{brl(kpis?.valor_andamento_brl ?? 0)}</span>
-                </div>
-              </div>
-            </div>
-            <div className="bf-kpi-saving">
-              <span className="bf-kpi-saving-label">{t('bidfrete.dashboard.saving_estimado')}</span>
-              <span className="bf-kpi-saving-valor" style={{ color: 'var(--success)' }}>
-                {(kpis?.savings.media_saving_percentual ?? 0).toFixed(1)}%
-              </span>
+        <KpiCard
+          icone={<CheckCircle weight="duotone" size={20} />}
+          label="Total de cotacoes passadas"
+          valor={kpis?.cotacoes_passadas ?? 0}
+          sublabel={`USD ${formatarMoeda(kpis?.valor_aprovado_usd ?? 0)} | BRL ${formatarMoeda(kpis?.valor_aprovado_brl ?? 0)}`}
+          acento="#22c55e"
+        />
+        <KpiCard
+          icone={<TrendUp weight="duotone" size={20} />}
+          label="Saving estimado"
+          valor={`${savingPct.toFixed(1)}%`}
+          sublabel={`USD ${formatarMoeda(kpis?.savings.total_saving_usd ?? 0)} total`}
+          acento="#22c55e"
+        />
+        <KpiCard
+          icone={<Buildings weight="duotone" size={20} />}
+          label="Fornecedores cadastrados"
+          valor={totalFornecedores}
+          sublabel={fornecedoresPorTipo.map(f => `${f.count} ${f.tipo.replace(/_/g, ' ').toLowerCase()}`).join(' | ') || 'Nenhum cadastrado'}
+          acento="#6366f1"
+        />
+        </div>
+        <div className="bf-kpis-cta">
+          <BotaoGlobal
+            variante="primario"
+            icone={<Truck weight="bold" size={18} />}
+            onClick={() => navigate('/cotacoes/nova')}
+          >
+            Buscar frete
+          </BotaoGlobal>
+        </div>
+      </div>
+
+      {/* ════════ LINHA 2: Aprovacao + Calendario ════════ */}
+      <div className="bf-meio-row">
+        {/* Barra de aprovacao */}
+        <div className="bf-aprovacao-card">
+          <p className="bf-section-label">Cotacoes aprovadas</p>
+          <div className="bf-aprovacao-bar">
+            <div
+              className="bf-aprovacao-bar__fill"
+              style={{ width: `${Math.max(aprovacaoPct, 2)}%` }}
+            >
+              {aprovacaoPct > 10 && (
+                <span className="bf-aprovacao-bar__pct">{aprovacaoPct}%</span>
+              )}
             </div>
           </div>
-
-          {/* Barra aprovação */}
-          <div className="bf-aprovacao-section">
-            <p className="bf-section-label">{t('bidfrete.dashboard.cotacoes_aprovadas')}</p>
-            <div className="bf-aprovacao-bar">
-              <div className="bf-aprovacao-bar-fill" style={{ width: `${kpis?.aprovacao.percentual_em_tempo ?? 0}%` }}>
-                <span>{kpis?.aprovacao.percentual_em_tempo ?? 0}%</span>
-              </div>
-            </div>
-            <div className="bf-aprovacao-legenda">
-              <span><span className="bf-dot bf-dot--green" /> {t('bidfrete.dashboard.autorizadas_tempo')}</span>
-              <span><span className="bf-dot bf-dot--yellow" /> {t('bidfrete.dashboard.recusadas_tempo')}</span>
-              <span><span className="bf-dot bf-dot--red" /> {t('bidfrete.dashboard.nao_respondidas')}</span>
-            </div>
+          <div className="bf-aprovacao-legenda">
+            <span><span className="bf-dot bf-dot--green" /> Autorizadas em tempo</span>
+            <span><span className="bf-dot bf-dot--yellow" /> Recusadas em tempo</span>
+            <span><span className="bf-dot bf-dot--red" /> Nao respondidas</span>
           </div>
-
-          {/* Linha KPIs passadas */}
-          <div className="bf-kpi-section">
-            <div className="bf-kpi-pair">
-              <CardBasicoGlobal
-                titulo={t('bidfrete.dashboard.total_passadas')}
-                icone={<CheckCircle weight="duotone" size={16} />}
-                valor={kpis?.cotacoes_passadas ?? 0}
-                className="bf-kpi-card"
-              />
-              <div className="bf-kpi-valores">
-                <div className="bf-kpi-moeda">
-                  <span className="bf-kpi-moeda-flag">USD</span>
-                  <span className="bf-kpi-moeda-valor">{usd(kpis?.valor_aprovado_usd ?? 0)}</span>
-                </div>
-                <div className="bf-kpi-moeda">
-                  <span className="bf-kpi-moeda-flag">BRL</span>
-                  <span className="bf-kpi-moeda-valor">{brl(kpis?.valor_aprovado_brl ?? 0)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Principais moedas */}
-          {kpis?.moedas && kpis.moedas.length > 0 && (
-            <div className="bf-moedas-section">
-              <p className="bf-section-label">{t('bidfrete.dashboard.principais_moedas')}</p>
-              <div className="bf-moedas-grid">
-                {kpis.moedas.map(m => (
-                  <div key={m.codigo} className="bf-moeda-item">
-                    <span className="bf-moeda-nome">
-                      {m.referencia && <CurrencyDollar weight="duotone" size={14} />}
-                      {m.codigo} - {m.nome}
-                    </span>
-                    <span className="bf-moeda-brl">R$ {m.valor_brl.toFixed(m.codigo === 'CNY' ? 3 : 2)}</span>
-                    <span className={`bf-moeda-var ${m.variacao >= 0 ? 'bf-moeda-var--up' : 'bf-moeda-var--down'}`}>
-                      {m.variacao >= 0 ? '+' : ''}{m.variacao.toFixed(3)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* ── Donut Fornecedores + Calendário ── */}
-        <div className="bf-dash-right">
-          <CardGraficoGlobal
-            titulo={t('bidfrete.dashboard.fornecedores_cadastrados')}
-            icone={<Buildings weight="duotone" size={16} />}
-            total={kpis?.fornecedores_cadastrados ?? 0}
-            valorPrincipal={kpis?.fornecedores_cadastrados ?? 0}
-            corGauge="#6366f1"
-            legenda={(kpis?.fornecedores_por_tipo ?? []).map(f => ({
-              label: f.tipo.replace('_', ' '),
-              valor: f.count,
-              cor: f.tipo === 'AGENTE_CARGA' ? 'green' : f.tipo === 'ARMADOR' ? '#6366f1' : f.tipo === 'CIA_AEREA' ? 'yellow' : 'red',
-            }))}
-          />
-
-          {/* Calendário de alertas */}
-          <div className="bf-calendario">
-            <div className="bf-calendario-header">
-              <div className="bf-calendario-nav">
-                <span>{t('bidfrete.calendario.ontem')}</span>
-                <button className="bf-cal-btn"><CaretLeft size={14} weight="bold" /></button>
-                <span className="bf-cal-hoje">
-                  <CalendarBlank weight="duotone" size={16} />
-                  {t('bidfrete.calendario.hoje')}
-                </span>
-                <button className="bf-cal-btn"><CaretRight size={14} weight="bold" /></button>
-                <span>{t('bidfrete.calendario.amanha')}</span>
-              </div>
-            </div>
-            <p className="bf-section-label" style={{ padding: '0 1rem' }}>Calendário</p>
-            <div className="bf-alertas">
-              {calendario.map(a => {
-                const cores = ALERTA_COLORS[a.cor]
-                return (
-                  <div
-                    key={a.tipo}
-                    className="bf-alerta-item"
-                    style={{ background: cores.bg, borderLeft: `3px solid ${cores.border}` }}
-                  >
-                    <span className="bf-alerta-count" style={{ color: cores.color }}>{a.count}</span>
-                    <span className="bf-alerta-label">{a.label}</span>
-                  </div>
-                )
-              })}
-            </div>
+        {/* Calendario de alertas */}
+        <div className="bf-calendario-card">
+          <div className="bf-calendario-nav">
+            <span className="bf-calendario-nav__label">Ontem</span>
+            <button className="bf-cal-btn"><CaretLeft size={14} weight="bold" /></button>
+            <span className="bf-calendario-nav__hoje">
+              <CalendarBlank weight="duotone" size={16} />
+              Hoje
+            </span>
+            <button className="bf-cal-btn"><CaretRight size={14} weight="bold" /></button>
+            <span className="bf-calendario-nav__label">Amanha</span>
+          </div>
+          <p className="bf-section-label" style={{ marginTop: '0.75rem' }}>Calendario</p>
+          <div className="bf-alertas">
+            {calendario.length > 0 ? calendario.map(a => {
+              const cores = ALERTA_COLORS[a.cor]
+              return (
+                <div
+                  key={a.tipo}
+                  className="bf-alerta-item"
+                  style={{ background: cores.bg, borderLeft: `3px solid ${cores.border}` }}
+                >
+                  <span className="bf-alerta-count" style={{ color: cores.color }}>{a.count}</span>
+                  <span className="bf-alerta-label">{a.label}</span>
+                </div>
+              )
+            }) : (
+              <span className="bf-alertas-vazio">Nenhum alerta para hoje</span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ════════ LINHA 2: Tabela de Cotações em Andamento ════════ */}
+      {/* ════════ LINHA 3: Tabela de Cotacoes em Andamento ════════ */}
       <div className="bf-table-section">
         <div className="bf-table-header">
-          <h2 className="bf-table-title">{t('bidfrete.cotacoes.titulo')}</h2>
+          <h2 className="bf-table-title">Cotacoes em andamento</h2>
           <div className="bf-table-tools">
-            <button className="bf-icon-btn" title="Modo de visualização">
-              <Eye weight="duotone" size={18} />
+            <button className="bf-icon-btn" title="Exportar">
+              <Package weight="duotone" size={18} />
             </button>
           </div>
         </div>
@@ -445,8 +396,8 @@ export default function Dashboard() {
           acoes={acoes}
           idKey="id"
           carregando={carregando}
-          mensagemVazio={t('bidfrete.dashboard.vazio')}
-          tooltipBusca={t('bidfrete.dashboard.buscar')}
+          mensagemVazio="Nenhum registro cadastrado."
+          tooltipBusca="Buscar..."
           aoClicarLinha={(item: Cotacao) => navigate(`/cotacoes/${item.id}`)}
         />
       </div>
@@ -454,114 +405,107 @@ export default function Dashboard() {
       <style>{`
         /* ═══════════════════════════════════════════════════════ */
         /* BID FRETE — Dashboard Styles                          */
-        /* Design System: Solid Slate (CSS Vars)                 */
+        /* Design System: Solid Slate                             */
+        /* Cor do produto: #60a5fa (Blue 400)                    */
         /* ═══════════════════════════════════════════════════════ */
 
-        .bf-dashboard { padding: 0; }
-
-        /* ── Layout principal ── */
-        .bf-dash-row {
-          display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 1.25rem;
-          margin-bottom: 1.5rem;
-        }
-        @media (max-width: 1200px) {
-          .bf-dash-row { grid-template-columns: 1fr; }
+        .bf-dashboard {
+          padding: 0;
+          padding-top: 3.5rem; /* Compensa header transparente do shell (74px total com padding do shell-main 24px) */
         }
 
-        /* ── KPIs Esquerda ── */
-        .bf-dash-kpis {
+        /* ── KPI Row (grid + botao CTA ao lado) ── */
+        .bf-kpis-row {
           display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .bf-kpi-section {
-          display: flex;
-          gap: 1rem;
           align-items: stretch;
-        }
-
-        .bf-kpi-pair {
-          display: flex;
           gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+        .bf-kpis-grid {
           flex: 1;
-          align-items: stretch;
+          min-width: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          gap: 1rem;
+        }
+        .bf-kpis-cta {
+          display: flex;
+          align-items: flex-end;
+          flex-shrink: 0;
         }
 
         .bf-kpi-card {
-          flex: 0 0 auto;
-          min-width: 200px;
+          display: flex;
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          overflow: hidden;
+          min-height: 100px;
         }
 
-        .bf-kpi-valores {
+        .bf-kpi-card__borda {
+          width: 4px;
+          flex-shrink: 0;
+          border-radius: 12px 0 0 12px;
+        }
+
+        .bf-kpi-card__conteudo {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.375rem;
+          padding: 1.25rem;
           flex: 1;
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          padding: 1rem 1.25rem;
-          justify-content: center;
         }
 
-        .bf-kpi-moeda {
+        .bf-kpi-card__header {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.5rem;
         }
 
-        .bf-kpi-moeda-flag {
-          font-size: 0.6875rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          color: var(--text-muted, #64748b);
-          background: var(--bg-elevated, #475569);
-          padding: 0.15rem 0.4rem;
-          border-radius: var(--radius-sm, 4px);
-          min-width: 2rem;
-          text-align: center;
-        }
-
-        .bf-kpi-moeda-valor {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: var(--text-primary, #f1f5f9);
-          font-family: 'DM Mono', monospace;
-        }
-
-        .bf-kpi-saving {
+        .bf-kpi-card__icone {
           display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          padding: 1rem 1.25rem;
-          min-width: 140px;
           align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(34,197,94,0.2);
+          flex-shrink: 0;
         }
 
-        .bf-kpi-saving-label {
-          font-size: 0.6875rem;
+        .bf-kpi-card__label {
+          font-size: 0.75rem;
           font-weight: 600;
           text-transform: uppercase;
+          letter-spacing: 0.06em;
           color: var(--text-muted, #64748b);
-          letter-spacing: 0.05em;
         }
 
-        .bf-kpi-saving-valor {
-          font-size: 1.5rem;
+        .bf-kpi-card__valor {
+          font-size: 1.75rem;
           font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+          line-height: 1.2;
         }
 
-        /* ── Barra Aprovação ── */
-        .bf-aprovacao-section {
+        .bf-kpi-card__sublabel {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #94a3b8);
+          font-family: 'DM Mono', monospace;
+          margin-top: 0.125rem;
+        }
+
+        /* ── Linha 2: Aprovacao + Calendario ── */
+        .bf-meio-row {
+          display: grid;
+          grid-template-columns: 1fr 340px;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+        @media (max-width: 1200px) {
+          .bf-meio-row { grid-template-columns: 1fr; }
+        }
+
+        /* ── Aprovacao ── */
+        .bf-aprovacao-card {
           background: var(--bg-surface, #334155);
           border-radius: var(--radius-lg, 12px);
-          padding: 1rem 1.25rem;
+          padding: 1.25rem;
         }
 
         .bf-section-label {
@@ -570,7 +514,7 @@ export default function Dashboard() {
           text-transform: uppercase;
           letter-spacing: 0.06em;
           color: var(--text-muted, #64748b);
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.625rem;
         }
 
         .bf-aprovacao-bar {
@@ -578,10 +522,9 @@ export default function Dashboard() {
           background: var(--bg-elevated, #475569);
           border-radius: var(--radius-pill, 9999px);
           overflow: hidden;
-          position: relative;
         }
 
-        .bf-aprovacao-bar-fill {
+        .bf-aprovacao-bar__fill {
           height: 100%;
           background: linear-gradient(90deg, #22c55e, #16a34a);
           border-radius: var(--radius-pill, 9999px);
@@ -590,9 +533,10 @@ export default function Dashboard() {
           justify-content: flex-end;
           padding-right: 0.75rem;
           transition: width 0.5s ease;
+          min-width: 8px;
         }
 
-        .bf-aprovacao-bar-fill span {
+        .bf-aprovacao-bar__pct {
           font-size: 0.75rem;
           font-weight: 700;
           color: #fff;
@@ -601,7 +545,7 @@ export default function Dashboard() {
         .bf-aprovacao-legenda {
           display: flex;
           gap: 1.5rem;
-          margin-top: 0.5rem;
+          margin-top: 0.625rem;
           font-size: 0.75rem;
           color: var(--text-secondary, #94a3b8);
         }
@@ -617,71 +561,11 @@ export default function Dashboard() {
         .bf-dot--yellow { background: #f59e0b; }
         .bf-dot--red    { background: #ef4444; }
 
-        /* ── Moedas ── */
-        .bf-moedas-section {
+        /* ── Calendario ── */
+        .bf-calendario-card {
           background: var(--bg-surface, #334155);
           border-radius: var(--radius-lg, 12px);
-          padding: 1rem 1.25rem;
-        }
-
-        .bf-moedas-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .bf-moeda-item {
-          display: grid;
-          grid-template-columns: 1fr auto auto;
-          gap: 1rem;
-          align-items: center;
-          padding: 0.35rem 0;
-          border-bottom: 1px solid var(--bg-elevated, #475569);
-        }
-        .bf-moeda-item:last-child { border-bottom: none; }
-
-        .bf-moeda-nome {
-          font-size: 0.8125rem;
-          color: var(--text-secondary, #94a3b8);
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
-        }
-
-        .bf-moeda-brl {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--text-primary, #f1f5f9);
-          font-family: 'DM Mono', monospace;
-        }
-
-        .bf-moeda-var {
-          font-size: 0.75rem;
-          font-weight: 600;
-          font-family: 'DM Mono', monospace;
-        }
-        .bf-moeda-var--up   { color: var(--success, #22c55e); }
-        .bf-moeda-var--down { color: var(--danger, #ef4444); }
-
-        /* ── Painel Direito ── */
-        .bf-dash-right {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        /* ── Calendário ── */
-        .bf-calendario {
-          background: var(--bg-surface, #334155);
-          border-radius: var(--radius-lg, 12px);
-          padding: 1rem 0;
-          flex: 1;
-        }
-
-        .bf-calendario-header {
-          padding: 0 1rem 0.75rem;
-          border-bottom: 1px solid var(--bg-elevated, #475569);
-          margin-bottom: 0.75rem;
+          padding: 1.25rem;
         }
 
         .bf-calendario-nav {
@@ -689,30 +573,35 @@ export default function Dashboard() {
           align-items: center;
           gap: 0.5rem;
           justify-content: center;
+        }
+
+        .bf-calendario-nav__label {
           font-size: 0.8125rem;
           color: var(--text-secondary, #94a3b8);
+        }
+
+        .bf-calendario-nav__hoje {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-weight: 600;
+          font-size: 0.875rem;
+          color: var(--text-primary, #f1f5f9);
         }
 
         .bf-cal-btn {
           background: var(--bg-elevated, #475569);
           border: none;
           border-radius: var(--radius-sm, 4px);
-          padding: 0.25rem;
+          padding: 0.3rem;
           cursor: pointer;
           color: var(--text-secondary, #94a3b8);
           display: flex;
           align-items: center;
+          transition: all 0.15s;
         }
         .bf-cal-btn:hover {
           background: var(--bg-base, #1e293b);
-          color: var(--text-primary, #f1f5f9);
-        }
-
-        .bf-cal-hoje {
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
-          font-weight: 600;
           color: var(--text-primary, #f1f5f9);
         }
 
@@ -720,7 +609,6 @@ export default function Dashboard() {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          padding: 0.5rem 1rem;
         }
 
         .bf-alerta-item {
@@ -743,7 +631,14 @@ export default function Dashboard() {
           color: var(--text-primary, #f1f5f9);
         }
 
-        /* ── Tabela Section ── */
+        .bf-alertas-vazio {
+          font-size: 0.8125rem;
+          color: var(--text-muted, #64748b);
+          text-align: center;
+          padding: 1rem 0;
+        }
+
+        /* ── Tabela Section (Linha 3) ── */
         .bf-table-section {
           background: var(--bg-surface, #334155);
           border-radius: var(--radius-lg, 12px);
@@ -754,7 +649,7 @@ export default function Dashboard() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1rem 1.25rem 0;
+          padding: 1.25rem 1.25rem 0;
         }
 
         .bf-table-title {
@@ -777,6 +672,7 @@ export default function Dashboard() {
           color: var(--text-secondary, #94a3b8);
           display: flex;
           align-items: center;
+          transition: all 0.15s;
         }
         .bf-icon-btn:hover {
           background: var(--bg-base, #1e293b);
@@ -828,34 +724,7 @@ export default function Dashboard() {
           color: var(--accent, #6366f1);
         }
 
-        /* ── Botões ── */
-        .btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 1.25rem;
-          border-radius: var(--radius-pill, 9999px);
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          border: none;
-          font-family: inherit;
-        }
-        .btn-primary {
-          background: var(--accent, #6366f1);
-          color: #fff;
-        }
-        .btn-primary:hover { background: var(--accent-hover, #4f46e5); }
-        .btn-secondary {
-          background: var(--bg-surface, #334155);
-          color: var(--text-secondary, #94a3b8);
-          border: 1px solid var(--bg-elevated, #475569);
-        }
-        .btn-secondary:hover {
-          background: var(--bg-elevated, #475569);
-          color: var(--text-primary, #f1f5f9);
-        }
+        /* Botões: usar BotaoGlobal do nucleo-global */
       `}</style>
     </PaginaGlobal>
   )

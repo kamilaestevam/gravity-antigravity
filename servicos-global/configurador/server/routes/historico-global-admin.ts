@@ -173,6 +173,12 @@ historicoGlobalAdminRouter.get(
 
       res.json({ data: logsEnriquecidos, meta: { hasMore, nextCursor, limit: safeLimit } })
     } catch (err) {
+      log.error('Erro ao listar logs do historico-global-admin', {
+        err,
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        hasOrgUrl: !!process.env.ORGANIZACAO_DATABASE_URL,
+      })
       next(err)
     }
   },

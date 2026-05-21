@@ -317,10 +317,10 @@ export default function Cotacoes() {
       return colunasExport.map(c => {
         const val = row[c.key as keyof Cotacao]
         if (val == null) return escape('')
-        if (c.key === 'created_at' || c.key === 'prazo_resposta') {
+        if (c.key === 'created_at' || c.key === 'prazo_resposta' || c.key === 'updated_at') {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_alvo') {
+        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_alvo' || c.key === 'valor_aprovado_ganho_bid_frete_internacional') {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))

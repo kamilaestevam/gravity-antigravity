@@ -317,10 +317,10 @@ export default function Cotacoes() {
       return colunasExport.map(c => {
         const val = row[c.key as keyof Cotacao]
         if (val == null) return escape('')
-        if (c.key === 'created_at' || c.key === 'prazo_resposta') {
+        if (c.key === 'created_at' || c.key === 'prazo_resposta' || c.key === 'updated_at') {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'saving_valor' || c.key === 'valor_alvo') {
+        if (c.key === 'saving_valor' || c.key === 'valor_alvo' || c.key === 'valor_aprovado') {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))

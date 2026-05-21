@@ -11,10 +11,8 @@ COPY . .
 # Install all dependencies including devDependencies (needed for build tools + tsx)
 RUN npm ci --include=dev
 
-# Build workspace packages required by sidecars
-RUN cd packages/resolver-organizacao && npx tsup && cd ../.. \
-    && mkdir -p node_modules/@gravity/resolver-organizacao/dist \
-    && cp -r packages/resolver-organizacao/dist/* node_modules/@gravity/resolver-organizacao/dist/
+# Build workspace packages required by sidecars (symlink resolves to packages/)
+RUN cd packages/resolver-organizacao && npx tsup
 
 # Generate Prisma clients
 RUN npx prisma generate --schema=configurador/prisma/schema.prisma

@@ -79,7 +79,11 @@ dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next:
       const idUsuario     = ctx.idUsuario
 
       let paineis = await db.dashboardPainelUsuarioGlobal.findMany({
-        where:   { id_organizacao: idOrganizacao, id_usuario: idUsuario },
+        where:   {
+          id_organizacao: idOrganizacao,
+          id_usuario: idUsuario,
+          id_dashboard_painel_usuario_global: { not: { startsWith: 'bid_frete_' } },
+        },
         orderBy: { ordem_dashboard_painel_usuario_global: 'asc' },
       })
 
@@ -119,10 +123,15 @@ dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next
       const idUsuario     = ctx.idUsuario
 
       const ultimo = await db.dashboardPainelUsuarioGlobal.findFirst({
-        where:   { id_organizacao: idOrganizacao, id_usuario: idUsuario },
+        where:   {
+          id_organizacao: idOrganizacao,
+          id_usuario: idUsuario,
+          id_dashboard_painel_usuario_global: { not: { startsWith: 'bid_frete_' } },
+        },
         orderBy: { ordem_dashboard_painel_usuario_global: 'desc' },
         select:  { ordem_dashboard_painel_usuario_global: true },
       })
+
 
       const painel = await db.dashboardPainelUsuarioGlobal.create({
         data: {

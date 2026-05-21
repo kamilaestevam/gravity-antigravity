@@ -1178,8 +1178,7 @@ function VisaoGeralMapa() {
         canvas.height = h
       }
       
-      const isWide = w > 850
-      const cx = isWide ? (w / 2 - 120) : (w / 2)
+      const cx = w / 2
       const cy = h / 2
       const R = Math.min(w, h) * 0.42 * zoomRef.current
       const pulseTime = Date.now() / 2400
@@ -1660,373 +1659,310 @@ function VisaoGeralMapa() {
   }
   
   return (
-      <div className="bfd-card bfd-map-card">
+    <div className="bfd-card bfd-map-card">
       <div className="bfd-map-card__header">
         <div>
           <span className="bfd-card__title" style={{ marginBottom: '0.4rem', display: 'block', fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>Visão Geral Global de Cotações</span>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>Localizações estratégicas, bids ativos e saving acumulado por terminal (Arrastar para Girar)</span>
         </div>
-        <div className="bfd-map-legend">
-          <span className="bfd-map-legend__item">
-            <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
-          </span>
-          <span className="bfd-map-legend__item">
-            <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
-          </span>
-        </div>
       </div>
       
-      <div 
-        className="bfd-map-container"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUpOrLeave}
-        onMouseLeave={handleMouseUpOrLeave}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleMouseUpOrLeave}
-        style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
-      >
-        {/* The high-performance 3D Canvas */}
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-        
-        {/* HUD de Cotações Globais */}
-        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-          <div className="bfd-map-panel__header">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span className="bfd-map-panel__live-dot" />
-                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
-              </div>
-            </div>
-            <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
+      <div className="bfd-map-container">
+        {/* Left Side: Canvas and Zoom Controls */}
+        <div 
+          className="bfd-map-canvas-wrapper"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUpOrLeave}
+          style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
+        >
+          {/* The high-performance 3D Canvas */}
+          <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+          
+          {/* Floating Legend */}
+          <div className="bfd-map-legend-floating">
+            <span className="bfd-map-legend__item">
+              <Anchor size={15} weight="bold" style={{ color: '#34d399' }} /> Marítimo
+            </span>
+            <span className="bfd-map-legend__item">
+              <AirplaneTilt size={15} weight="bold" style={{ color: '#a78bfa' }} /> Aéreo
+            </span>
           </div>
           
-          {/* Tabs */}
-          <div className="bfd-map-panel__tabs">
+          {/* Floating Zoom & Control Panel */}
+          <div className="bfd-map-controls">
             <button 
-              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+              onClick={handleZoomIn} 
+              title="Aumentar Zoom" 
+              className="bfd-map-control-btn"
             >
-              <Globe size={13} weight="bold" /> Origens
+              <Plus size={16} weight="bold" />
             </button>
-            <button 
-              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-            >
-              <MapPin size={13} weight="bold" /> Destinos
-            </button>
-            <button 
-              className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
-            >
-              <List size={13} weight="bold" /> Modais
-            </button>
-          </div>
-          
-          {/* List Content */}
-          <div className="bfd-map-panel__list">
-            {activeTab === 'origens' && TOP_ORIGENS.map(item => {
-              const hasLink = item.pinId !== null
-              const isHighlighted = hoveredPin === item.pinId && hasLink
-              
-              return (
-                <div 
-                  key={item.rank}
-                  className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    if (item.pinId) {
-                      e.stopPropagation()
-                      setSelectedPinForModal(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                >
-                  <span className={`bfd-map-panel__rank bfd-map-panel__rank--${item.rank}`}>
-                    {item.rank}
-                  </span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__info-wrap">
-                    <div className="bfd-map-panel__row-header">
-                      <span className="bfd-map-panel__row-name">{item.name} <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{item.code}</span></span>
-                      <span className="bfd-map-panel__row-stats" style={{ color: '#60a5fa' }}>{item.count} bids</span>
-                    </div>
-                    <div className="bfd-map-panel__row-bar-wrap">
-                      <div 
-                        className="bfd-map-panel__row-bar-fill" 
-                        style={{ 
-                          width: `${item.pct}%`, 
-                          background: item.rank === 1 
-                            ? 'linear-gradient(90deg, #60a5fa, #2563eb)' 
-                            : 'linear-gradient(90deg, rgba(96, 165, 250, 0.8), rgba(59, 130, 246, 0.4))',
-                          boxShadow: item.rank === 1 ? '0 0 6px rgba(96, 165, 250, 0.4)' : 'none'
-                        }} 
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
             
-            {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
-              const hasLink = item.pinId !== null
-              const isHighlighted = hoveredPin === item.pinId && hasLink
-              
-              return (
-                <div 
-                  key={item.rank}
-                  className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted-dest' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    if (item.pinId) {
-                      e.stopPropagation()
-                      setSelectedPinForModal(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                >
-                  <span className={`bfd-map-panel__rank bfd-map-panel__rank--${item.rank}`}>
-                    {item.rank}
-                  </span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__info-wrap">
-                    <div className="bfd-map-panel__row-header">
-                      <span className="bfd-map-panel__row-name">{item.name} <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>{item.code}</span></span>
-                      <span className="bfd-map-panel__row-stats" style={{ color: '#a78bfa' }}>{item.count} bids</span>
-                    </div>
-                    <div className="bfd-map-panel__row-bar-wrap">
-                      <div 
-                        className="bfd-map-panel__row-bar-fill" 
-                        style={{ 
-                          width: `${item.pct}%`, 
-                          background: item.rank === 1 
-                            ? 'linear-gradient(90deg, #a78bfa, #7c3aed)' 
-                            : 'linear-gradient(90deg, rgba(167, 139, 250, 0.8), rgba(124, 58, 237, 0.4))',
-                          boxShadow: item.rank === 1 ? '0 0 6px rgba(167, 139, 250, 0.4)' : 'none'
-                        }} 
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-            
-            {activeTab === 'modal_cotacao_bid_frete_internacional' && (
-              <div className="bfd-map-panel__modal-wrap">
-                {MODAIS_INFO.map(item => {
-                  const Icon = MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />
-                  return (
-                    <div key={item.modal_cotacao_bid_frete_internacional} className="bfd-map-panel__modal-item" style={{ borderLeft: `3px solid ${item.cor}` }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                        {/* Modern Radial Meter */}
-                        <svg width="40" height="40" viewBox="0 0 40 40" style={{ overflow: 'visible', flexShrink: 0 }}>
-                          <circle cx={20} cy={20} r={16} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
-                          <circle 
-                            cx={20} cy={20} r={16} 
-                            fill="none" 
-                            stroke={item.cor} 
-                            strokeWidth="3.5" 
-                            strokeDasharray={100.5} 
-                            strokeDashoffset={100.5 - (item.pct / 100) * 100.5}
-                            strokeLinecap="round"
-                            style={{ 
-                              filter: `drop-shadow(0 0 4px ${item.cor}60)`,
-                              transform: 'rotate(-90deg)', 
-                              transformOrigin: '20px 20px',
-                              transition: 'stroke-dashoffset 0.8s ease-out'
-                            }}
-                          />
-                          <g style={{ transform: 'translate(12px, 12px)', color: item.cor }}>
-                            {item.modal_cotacao_bid_frete_internacional === 'MARITIMO' && <Anchor weight="bold" size={16} />}
-                            {item.modal_cotacao_bid_frete_internacional === 'AEREO' && <AirplaneTilt weight="bold" size={16} />}
-                            {item.modal_cotacao_bid_frete_internacional === 'RODOVIARIO' && <Truck weight="bold" size={16} />}
-                          </g>
-                        </svg>
-
-                        {/* Modal Info */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>{item.label}</span>
-                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: item.cor }}>{item.count} bids</span>
-                          </div>
-                          <span style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>Representa {item.pct}% das cotações</span>
-                        </div>
-                      </div>
-
-                      {/* Stats Breakdown */}
-                      <div className="bfd-map-panel__modal-stats-grid">
-                        <div className="bfd-map-panel__modal-stat-box">
-                          <span className="bfd-map-panel__modal-stat-lbl">Melhor Preço</span>
-                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#ffffff' }}>
-                            USD {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '8.400' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '7.200' : '5.100'}
-                          </span>
-                        </div>
-                        <div className="bfd-map-panel__modal-stat-box">
-                          <span className="bfd-map-panel__modal-stat-lbl">Saving Médio</span>
-                          <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
-                            {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Floating Zoom & Control Panel */}
-        <div className="bfd-map-controls">
-          <button 
-            onClick={handleZoomIn} 
-            title="Aumentar Zoom" 
-            className="bfd-map-control-btn"
-          >
-            <Plus size={16} weight="bold" />
-          </button>
-          
-          <button 
-            onClick={handleZoomOut} 
-            title="Diminuir Zoom" 
-            className="bfd-map-control-btn"
-          >
-            <Minus size={16} weight="bold" />
-          </button>
-
-          <button 
-            onClick={handleReset} 
-            title="Restaurar Globo" 
-            className="bfd-map-control-btn"
-          >
-            <ArrowCounterClockwise size={16} weight="bold" />
-          </button>
-
-          <button 
-            onClick={toggleRotation} 
-            title={isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação"} 
-            className="bfd-map-control-btn"
-          >
-            {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
-          </button>
-        </div>
-        
-        {/* Dynamic HTML Overlay Pins */}
-        {projectedPins.map(pin => {
-          if (pin.opacity <= 0.05) return null
-          
-          const isHovered = hoveredPin === pin.id
-          const Icon = MODAL_ICONS[pin.mode] || <Anchor size={12} />
-          
-          return (
-            <div
-              key={pin.id}
-              className={`bfd-map-pin-wrapper ${isHovered ? 'is-active' : ''}`}
-              style={{ 
-                top: `${pin.py}px`, 
-                left: `${pin.px}px`,
-                opacity: pin.opacity,
-                pointerEvents: pin.opacity < 0.65 ? 'none' : 'auto'
-              }}
-              onMouseEnter={() => {
-                setHoveredPin(pin.id)
-                isRotationPausedRef.current = true
-              }}
-              onMouseLeave={() => {
-                setHoveredPin(null)
-                isRotationPausedRef.current = false
-              }}
-              onClick={(e) => {
-                e.stopPropagation() // Avoid triggering map drag
-                isRotationPausedRef.current = true
-                setSelectedPinForModal(pin.id)
-              }}
+            <button 
+              onClick={handleZoomOut} 
+              title="Diminuir Zoom" 
+              className="bfd-map-control-btn"
             >
-              {/* Outer pulsing ring */}
-              <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }} />
-              
-              {/* Glowing pin dot */}
-              <div 
-                className="bfd-map-pin__dot" 
+              <Minus size={16} weight="bold" />
+            </button>
+
+            <button 
+              onClick={handleReset} 
+              title="Restaurar Globo" 
+              className="bfd-map-control-btn"
+            >
+              <ArrowCounterClockwise size={16} weight="bold" />
+            </button>
+
+            <button 
+              onClick={toggleRotation} 
+              title={isAutoRotating ? "Pausar Rotação" : "Iniciar Rotação"} 
+              className="bfd-map-control-btn"
+            >
+              {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+            </button>
+          </div>
+
+          {/* Dynamic HTML Overlay Pins */}
+          {projectedPins.map(pin => {
+            if (pin.opacity <= 0.05) return null
+            
+            const isHovered = hoveredPin === pin.id
+            const Icon = MODAL_ICONS[pin.mode] || <Anchor size={12} />
+            
+            return (
+              <div
+                key={pin.id}
+                className={`bfd-map-pin-wrapper ${isHovered ? 'is-active' : ''}`}
                 style={{ 
-                  backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
-                  boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
+                  top: `${pin.py}px`, 
+                  left: `${pin.px}px`,
+                  opacity: pin.opacity,
+                  pointerEvents: pin.opacity < 0.65 ? 'none' : 'auto'
+                }}
+                onMouseEnter={() => {
+                  setHoveredPin(pin.id)
+                  isRotationPausedRef.current = true
+                }}
+                onMouseLeave={() => {
+                  setHoveredPin(null)
+                  isRotationPausedRef.current = false
+                }}
+                onClick={(e) => {
+                  e.stopPropagation() // Avoid triggering map drag
+                  isRotationPausedRef.current = true
+                  setSelectedPinForModal(pin.id)
                 }}
               >
-                <span className="bfd-map-pin__icon-inner">{Icon}</span>
-              </div>
-              
-              {/* Tooltip */}
-              {isHovered && pin.opacity > 0.7 && (
-                <div className="bfd-map-tooltip">
-                  <div className="bfd-map-tooltip__header">
-                    <span className="bfd-map-tooltip__flag">{pin.flag}</span>
-                    <div className="bfd-map-tooltip__title-wrap">
-                      <span className="bfd-map-tooltip__title">{pin.label}</span>
-                      <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
-                    </div>
-                    <span className="bfd-map-tooltip__mode-icon" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }}>
-                      {Icon}
-                    </span>
-                  </div>
-                  
-                  <div className="bfd-map-tooltip__body">
-                    <div className="bfd-map-tooltip__stat">
-                      <span className="bfd-map-tooltip__stat-label">Bids Ativos</span>
-                      <span className="bfd-map-tooltip__stat-val">{pin.activeBids} cotações</span>
-                    </div>
-                    <div className="bfd-map-tooltip__stat">
-                      <span className="bfd-map-tooltip__stat-label">Melhor Preço</span>
-                      <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
-                        USD {fmtMoeda(pin.bestPrice)}
-                      </span>
-                    </div>
-                    <div className="bfd-map-tooltip__stat">
-                      <span className="bfd-map-tooltip__stat-label">Saving Médio</span>
-                      <span className="bfd-map-tooltip__stat-val" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }}>
-                        +{pin.savingPct}%
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                      <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
-                        Forn: <strong>{pin.supplier}</strong>
-                      </span>
-                    </div>
-                    <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
-                  </div>
-                  <div className="bfd-map-tooltip__after" />
+                {/* Outer pulsing ring */}
+                <div className="bfd-map-pin__glow" style={{ borderColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399' }} />
+                
+                {/* Glowing pin dot */}
+                <div 
+                  className="bfd-map-pin__dot" 
+                  style={{ 
+                    backgroundColor: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399',
+                    boxShadow: pin.mode === 'AEREO' ? '0 0 10px rgba(167, 139, 250, 0.6)' : '0 0 10px rgba(52, 211, 153, 0.6)'
+                  }}
+                >
+                  <span className="bfd-map-pin__icon-inner">{Icon}</span>
                 </div>
-              )}
+                
+                {/* Tooltip */}
+                {isHovered && pin.opacity > 0.7 && (
+                  <div className="bfd-map-tooltip">
+                    <div className="bfd-map-tooltip__header">
+                      <span className="bfd-map-tooltip__flag">{pin.flag}</span>
+                      <div className="bfd-map-tooltip__title-wrap">
+                        <span className="bfd-map-tooltip__title">{pin.label}</span>
+                        <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bfd-map-tooltip__body">
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">Bids Ativos</span>
+                        <span className="bfd-map-tooltip__stat-val">{pin.activeBids} cotações</span>
+                      </div>
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">Melhor Preço</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
+                          USD {fmtMoeda(pin.bestPrice)}
+                        </span>
+                      </div>
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">Saving Médio</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: pin.mode === 'AEREO' ? '#a78bfa' : '#34d399', fontWeight: 700 }}>
+                          +{pin.savingPct}%
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
+                          Forn: <strong>{pin.supplier}</strong>
+                        </span>
+                      </div>
+                      <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
+                    </div>
+                    <div className="bfd-map-tooltip__after" />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Right Side: HUD de Cotações Globais */}
+        <div className="bfd-hud-container">
+          {/* HUD de Cotações Globais */}
+          <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
+            <div className="bfd-map-panel__header">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span className="bfd-map-panel__title">HUD de Cotações Globais</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span className="bfd-map-panel__live-dot" />
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                </div>
+              </div>
+              <span className="bfd-map-panel__subtitle">Rankings em tempo real • 200 bids</span>
             </div>
-          )
-        })}
+            
+            {/* Tabs */}
+            <div className="bfd-map-panel__tabs">
+              <button 
+                className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+              >
+                <Globe size={13} weight="bold" /> Origens
+              </button>
+              <button 
+                className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+              >
+                <MapPin size={13} weight="bold" /> Destinos
+              </button>
+              <button 
+                className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
+              >
+                <List size={13} weight="bold" /> Modais
+              </button>
+            </div>
+            
+            {/* List Content */}
+            <div className="bfd-map-panel__list">
+              {activeTab === 'origens' && TOP_ORIGENS.map(item => {
+                const hasLink = item.pinId !== null
+                const isHighlighted = hoveredPin === item.pinId && hasLink
+                
+                return (
+                  <div 
+                    key={item.rank}
+                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    onMouseEnter={() => {
+                      if (item.pinId) {
+                        setHoveredPin(item.pinId)
+                        isRotationPausedRef.current = true
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (item.pinId) {
+                        setHoveredPin(null)
+                        isRotationPausedRef.current = false
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (item.pinId) {
+                        e.stopPropagation()
+                        setSelectedPinForModal(item.pinId)
+                      }
+                    }}
+                  >
+                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                    <div className="bfd-map-panel__row-info">
+                      <span className="bfd-map-panel__row-city">{item.name}</span>
+                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                    </div>
+                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                  </div>
+                )
+              })}
+              
+              {activeTab === 'destinos' && TOP_DESTINOS.map(item => {
+                const hasLink = item.pinId !== null
+                const isHighlighted = hoveredPin === item.pinId && hasLink
+                
+                return (
+                  <div 
+                    key={item.rank}
+                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    onMouseEnter={() => {
+                      if (item.pinId) {
+                        setHoveredPin(item.pinId)
+                        isRotationPausedRef.current = true
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (item.pinId) {
+                        setHoveredPin(null)
+                        isRotationPausedRef.current = false
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (item.pinId) {
+                        e.stopPropagation()
+                        setSelectedPinForModal(item.pinId)
+                      }
+                    }}
+                  >
+                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                    <div className="bfd-map-panel__row-info">
+                      <span className="bfd-map-panel__row-city">{item.name}</span>
+                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                    </div>
+                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                  </div>
+                )
+              })}
+              
+              {activeTab === 'modal_cotacao_bid_frete_internacional' && MODAIS_INFO.map((item, idx) => {
+                return (
+                  <div key={idx} className="bfd-map-panel__row">
+                    <span className="bfd-map-panel__row-rank">{idx + 1}</span>
+                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
+                      {MODAL_ICONS[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
+                    </span>
+                    <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
+                      <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
+                        {item.label}
+                      </span>
+                      <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
+                        {item.count} bids
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                      <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
+                        {item.pct}%
+                      </span>
+                      <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
+                        {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
 
         {/* Premium Detail Modal Overlay */}
         {selectedPinForModal !== null && (() => {
@@ -2320,32 +2256,67 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
           font-weight: 600;
         }
+        .bfd-map-legend-floating {
+          position: absolute;
+          left: 1.25rem;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+          z-index: 30;
+          background: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          padding: 0.5rem 0.85rem;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
         .bfd-map-container {
           position: relative;
           height: 440px;
           border-radius: 12px;
           overflow: visible;
           background: transparent;
+          display: flex;
+          gap: 1.5rem;
+        }
+        .bfd-map-canvas-wrapper {
+          flex: 1;
+          position: relative;
+          height: 100%;
+        }
+        .bfd-hud-container {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          width: 320px;
+          height: 100%;
+          min-width: 320px;
+        }
+        .bfd-hud-container .bfd-map-legend {
+          justify-content: flex-end;
+          padding-right: 0.25rem;
         }
 
         /* ── HUD Right Panel ─────────────────────────────────────── */
         .bfd-map-right-panel {
-          position: absolute;
-          right: 1.25rem;
-          top: 1.25rem;
-          bottom: 1.25rem;
-          width: 310px;
-          background: rgba(11, 14, 20, 0.82);
+          position: relative;
+          width: 100%;
+          flex: 1;
+          min-height: 0;
+          background: rgba(15, 23, 42, 0.35);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
           padding: 1.25rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
           z-index: 20;
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
         .bfd-map-right-panel--origens {
@@ -2714,14 +2685,17 @@ export default function VisaoGeral() {
           font-weight: 500;
         }
         @media (max-width: 1023px) {
+          .bfd-hud-container {
+            display: none !important;
+          }
           .bfd-map-right-panel {
             display: none !important;
           }
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: 1.25rem;
-          left: calc(50% - 120px);
+          bottom: 0.5rem;
+          left: 50%;
           transform: translateX(-50%);
           display: flex;
           gap: 0.5rem;

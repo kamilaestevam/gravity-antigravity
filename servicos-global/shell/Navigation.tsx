@@ -66,7 +66,7 @@ const HistoricoModule    = lazy(() => Promise.resolve({ default: () => <ModulePl
 const GabiModule         = lazy(() => import('@plataforma/gabi/src/Gabi'))
 const HelpdeskModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Helpdesk" />     }))
 const ConectorErpModule  = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Conector ERP" />  }))
-const BidFreteModule     = lazy(() => import('../produto/bid-frete/client/src/App'))
+const BidFreteModule     = lazy(() => import('../produto/bid-frete-internacional/client/src/App'))
 
 // Onda 3 — Produtos
 const SimulaCustoModule  = lazy(() => import('../produto/simula-custo/client/src/App'))

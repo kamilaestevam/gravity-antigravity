@@ -25,6 +25,21 @@ interface ContextoOrganizacao {
     tiposUsuario: string[];
     /** ULID gerado por request — propagado em logs/spans. */
     idCorrelacao: string;
+    /**
+     * URL do banco do produto, capturada no boot pelo middleware
+     * `resolverOrganizacao` (quando `process.env.DATABASE_URL` ainda aponta
+     * para o banco correto do produto).
+     *
+     * Necessária no deploy monolito-sidecar (`configurador/server/index.ts`):
+     * vários produtos compartilham o mesmo processo Node e `DATABASE_URL` é
+     * mutado entre os boots dos sidecars. Em tempo de request `DATABASE_URL`
+     * já foi restaurado para o banco de outro produto — por isso a URL precisa
+     * viajar no contexto, não ser relida do ambiente.
+     *
+     * Quando ausente (ex.: workers via `withOrganizacaoContext`), o SDK usa
+     * `process.env.DATABASE_URL` como fallback — comportamento legado.
+     */
+    urlBanco?: string;
 }
 /**
  * Configuração do middleware. Cada produto cria 1 instância no boot.

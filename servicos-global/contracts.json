@@ -1,7 +1,7 @@
 {
   "products": [
     "simula-custo",
-    "bid-frete",
+    "bid-frete-internacional",
     "bid-cambio",
     "pedido",
     "nf-importacao",
@@ -220,9 +220,9 @@
       "baseUrl": "http://localhost:8024",
       "pathPrefix": "/api/v1/helpdesk"
     },
-    "bid-frete": {
+    "bid-frete-internacional": {
       "baseUrl": "http://localhost:8023",
-      "pathPrefix": "/api/v1/bid-frete"
+      "pathPrefix": "/api/v1/bid-frete-internacional"
     },
     "bid-cambio": {
       "baseUrl": "http://localhost:8025",

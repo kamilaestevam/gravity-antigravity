@@ -511,6 +511,7 @@ ${parsed.error.toString()}`
       "[@gravity/resolver-organizacao] clerkSecretKey ausente \u2014 defina CLERK_SECRET_KEY ou passe em config."
     );
   }
+  const urlBancoBoot = process.env.DATABASE_URL;
   const cache = new CacheOrganizacao({ ttlMs: config.cacheTtlMs });
   const configuradorClient = createConfiguradorClient({
     baseUrl: config.configuradorBaseUrl,
@@ -547,7 +548,7 @@ ${parsed.error.toString()}`
         ctx = await configuradorClient.resolveOrganizacaoByIdUsuario(idUsuario, idCorrelacao);
         cache.set(idUsuario, ctx);
       }
-      ctx = { ...ctx, idCorrelacao };
+      ctx = { ...ctx, idCorrelacao, urlBanco: urlBancoBoot };
       if (!isValidSchemaName(ctx.nomeSchema)) {
         log.error(
           { idUsuario, idOrganizacao: ctx.idOrganizacao, nomeSchema: ctx.nomeSchema, idCorrelacao },
@@ -748,25 +749,28 @@ function criarRequirePermissao(config) {
     };
   };
 }
-var _instance = null;
-function resolveDatabaseUrl() {
-  const url = process.env.DATABASE_URL;
+var _instances = /* @__PURE__ */ new Map();
+function resolveDatabaseUrl(explicitUrl) {
+  const url = explicitUrl ?? process.env.DATABASE_URL;
   if (!url || url.length === 0) {
     throw new Error(
-      "[@gravity/resolver-organizacao] DATABASE_URL n\xE3o definido \u2014 PrismaClient n\xE3o pode ser instanciado. Veja ADR-001."
+      "[@gravity/resolver-organizacao] URL do banco n\xE3o definida \u2014 PrismaClient n\xE3o pode ser instanciado. Esperado `urlBanco` no contexto ou `DATABASE_URL` no ambiente. Veja ADR-001."
     );
   }
   return url;
 }
-function getInternalPrisma() {
-  if (_instance === null) {
-    _instance = new PrismaClient({
+function getInternalPrisma(databaseUrl) {
+  const url = resolveDatabaseUrl(databaseUrl);
+  let instance = _instances.get(url);
+  if (instance === void 0) {
+    instance = new PrismaClient({
       datasources: {
-        db: { url: resolveDatabaseUrl() }
+        db: { url }
       }
     });
+    _instances.set(url, instance);
   }
-  return _instance;
+  return instance;
 }
 
 // src/with-tenant.ts
@@ -808,7 +812,7 @@ async function runInOrganizacaoTransaction(ctx, fn, timeoutMs) {
     );
   }
   const log = getLogger();
-  const prisma = getInternalPrisma();
+  const prisma = getInternalPrisma(ctx.urlBanco);
   const startedAt = Date.now();
   try {
     return await prisma.$transaction(

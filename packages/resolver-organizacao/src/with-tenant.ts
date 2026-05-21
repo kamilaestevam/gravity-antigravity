@@ -110,7 +110,9 @@ async function runInOrganizacaoTransaction<T>(
   }
 
   const log = getLogger();
-  const prisma = getInternalPrisma();
+  // `ctx.urlBanco` é capturada no boot pelo middleware `resolverOrganizacao`.
+  // Ausente em workers (`withOrganizacaoContext`) → fallback `DATABASE_URL`.
+  const prisma = getInternalPrisma(ctx.urlBanco);
   const startedAt = Date.now();
 
   try {

@@ -11,8 +11,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 
-const NovaCotacao = React.lazy(() => import('./NovaCotacao'))
-import CotacoesKanban from './CotacoesKanban'
+const NovaCotacao = React.lazy(() => import('./cotacao-nova'))
+import CotacoesKanban from './cotacoes-kanban'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -46,7 +46,7 @@ import {
   getCasas,
   RenderBadgeStatus,
   RenderModalIcon,
-} from '../components/lista/ColunasCotacoes'
+} from './colunas-cotacoes'
 
 // ─── Tabs de filtro ───
 
@@ -60,35 +60,35 @@ const abas = [
 // ─── Campos Editáveis Inline ───
 
 const CAMPOS_EDITAVEIS = [
-  'referencia_interna',
+  'referencia_interna_cotacao_bid_frete_internacional',
   'prazo_resposta',
-  'origem_nome',
-  'destino_nome',
-  'modal',
-  'modalidade',
-  'peso_kg',
-  'cubagem_m3',
-  'quantidade',
-  'incoterm',
+  'origem_nome_cotacao_bid_frete_internacional',
+  'destino_nome_cotacao_bid_frete_internacional',
+  'modal_cotacao_bid_frete_internacional',
+  'modalidade_cotacao_bid_frete_internacional',
+  'peso_kg_cotacao_bid_frete_internacional',
+  'cubagem_m3_cotacao_bid_frete_internacional',
+  'quantidade_cotacao_bid_frete_internacional',
+  'incoterm_cotacao_bid_frete_internacional',
   'valor_alvo',
 ]
 
 // ─── Sequência de colunas padrão ───
 
 const COLUNAS_PADRAO_VISIVEIS = [
-  'numero',
-  'referencia_interna',
+  'numero_cotacao_bid_frete_internacional',
+  'referencia_interna_cotacao_bid_frete_internacional',
   'status',
   'created_at',
-  'modal',
-  'origem_nome',
-  'destino_nome',
-  'peso_kg',
-  'cubagem_m3',
-  'incoterm',
+  'modal_cotacao_bid_frete_internacional',
+  'origem_nome_cotacao_bid_frete_internacional',
+  'destino_nome_cotacao_bid_frete_internacional',
+  'peso_kg_cotacao_bid_frete_internacional',
+  'cubagem_m3_cotacao_bid_frete_internacional',
+  'incoterm_cotacao_bid_frete_internacional',
   'valor_alvo',
-  'saving_valor',
-  'saving_percentual',
+  'ganho_valor_cotacao_bid_frete_internacional',
+  'ganho_percentual_ganho_bid_frete_internacional',
 ]
 
 
@@ -207,10 +207,10 @@ export default function Cotacoes() {
     if (busca.trim()) {
       const term = busca.toLowerCase()
       result = result.filter(c =>
-        c.numero.toLowerCase().includes(term) ||
-        (c.referencia_interna ?? '').toLowerCase().includes(term) ||
-        c.origem_nome.toLowerCase().includes(term) ||
-        c.destino_nome.toLowerCase().includes(term)
+        c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
+        (c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term) ||
+        c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
+        c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
       )
     }
 
@@ -305,8 +305,8 @@ export default function Cotacoes() {
     
     const colunasExport = colunasTabela.filter(c => {
       if (!c.key) return false
-      if (preferencias?.visivel) {
-        return preferencias.visivel.includes(c.key as string)
+      if (preferencias?.colunas_visiveis) {
+        return preferencias.colunas_visiveis.includes(c.key as string)
       }
       return COLUNAS_PADRAO_VISIVEIS.includes(c.key as string)
     })
@@ -320,7 +320,7 @@ export default function Cotacoes() {
         if (c.key === 'created_at' || c.key === 'prazo_resposta') {
           return escape(fmtData(val as string))
         }
-        if (c.key === 'saving_valor' || c.key === 'valor_alvo') {
+        if (c.key === 'ganho_valor_cotacao_bid_frete_internacional' || c.key === 'valor_alvo') {
           return escape(val != null ? String(val) : '')
         }
         return escape(String(val))
@@ -357,7 +357,7 @@ export default function Cotacoes() {
     const emAndamento = cotacoes.filter(c => c.status === 'EM_COTACAO' || c.status === 'ENVIADA_FORNECEDORES').length
     const aguardandoAprovacao = cotacoes.filter(c => c.status === 'AGUARDANDO_APROVACAO').length
     const expiradas = cotacoes.filter(c => c.status === 'EXPIRADA').length
-    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.saving_valor ?? 0), 0)
+    const savingTotal = cotacoesFiltradas.reduce((acc, c) => acc + (c.ganho_valor_cotacao_bid_frete_internacional ?? 0), 0)
     
     return {
       total,
@@ -412,7 +412,7 @@ export default function Cotacoes() {
               titulo="Expiradas"
               icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
               valor={stats.expiradas}
-              variante="erro"
+              variante="perigo"
               subtexto="Prazo de resposta vencido"
             />
             <CardBasicoGlobal
@@ -667,7 +667,7 @@ export default function Cotacoes() {
           margin-bottom: 0.5rem;
         }
 
-        .bf-kanban-card-numero {
+        .bf-kanban-card-numero_cotacao_bid_frete_internacional {
           font-family: 'DM Mono', monospace;
           font-size: 0.75rem;
           color: var(--text-muted, #64748b);

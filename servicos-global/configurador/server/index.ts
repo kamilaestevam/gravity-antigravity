@@ -311,6 +311,43 @@ app.use('/api/v1/pedidos', (req, res) => {
   }
 })
 
+// ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
+// O sidecar Cadastros expõe `/api/v1/empresas` e `/api/v1/cadastros/*`
+// (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
+// Sem este proxy, as chamadas relativas do frontend caem no catch-all → 404.
+const _proxyCadastros = (req: Request, res: Response) => {
+  const targetUrl = `http://127.0.0.1:8031${req.originalUrl}`
+  const headers = { ...req.headers, host: '127.0.0.1:8031' }
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-cadastros] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) res.status(502).json({ error: 'Cadastros service unavailable', sidecar: _sidecarStatus['cadastros'] })
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    proxyReq.end()
+  }
+}
+app.use('/api/v1/empresas', _proxyCadastros)
+app.use('/api/v1/cadastros', _proxyCadastros)
+
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
 app.use(express.static(clientDistDir))
@@ -336,8 +373,11 @@ if (process.env.NODE_ENV !== 'test') {
   process.env.CADASTROS_SIDECAR = '1'
   try {
     await import('../../cadastros/server/src/index.js')
+    _sidecarStatus['cadastros'] = { ok: true }
     console.log('[configurador] Sidecar Cadastros iniciado na porta 8031')
   } catch (err) {
+    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+    _sidecarStatus['cadastros'] = { ok: false, error: msg }
     console.error('[configurador] Falha ao iniciar sidecar Cadastros:', err)
   }
 

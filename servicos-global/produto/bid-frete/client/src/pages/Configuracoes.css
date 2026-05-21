@@ -2841,3 +2841,8 @@ body.light-theme .cfg-select {
   font-variant-numeric: tabular-nums;
 }
 
+/* Hides the duplicate top-bar title on the configurations page */
+body.bf-configuracoes-page .mtg-left__page-title {
+  display: none !important;
+}
+

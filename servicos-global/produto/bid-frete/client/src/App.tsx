@@ -166,7 +166,7 @@ export default function App() {
   const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
   const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
   const routeKey    = relSegments.join('/')
-  const pageLabel   = ROUTE_LABELS[routeKey] ?? 'Visão Geral'
+  const pageLabel   = routeKey === 'configuracoes' ? '' : (ROUTE_LABELS[routeKey] ?? 'Visão Geral')
 
   // Dados do usuário
   const initials = currentUser.name
